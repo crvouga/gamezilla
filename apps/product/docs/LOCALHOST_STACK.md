@@ -13,6 +13,7 @@ browser ──► web (vite preview, /api proxied)
                    │  so a room always lands on one instance
                    ▼
      Postgres · S3rver · Aedes MQTT · simulated Google + Apple (own origins, own state)
+```
 
 Everything is real: the production Worker handler runs unchanged on Bun (only
 the listener and the `ROOM` binding are local), instances share one Postgres /

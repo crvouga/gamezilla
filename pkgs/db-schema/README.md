@@ -176,11 +176,4 @@ outside `@pkgs/db-schema` emit.
 
 ## Tests
 
-See [`docs/TESTING.md`](docs/TESTING.md). Summary:
-
-- `pkgs/db-schema/tests/` — pure planner / evolution / snapshot suites
-- `pkgs/db-schema-postgres/tests/` and `pkgs/db-schema-sqlite/tests/` — the
-  shared dialect contract matrix (`src/test/contract-suite.ts`) plus
-  per-dialect behavior pins
-- `specs/sync-engine/notes-across-app-updates.feature` — weeks-behind client scenarios (colours and tags across versions)
-  on the real merge path
+Layers, invariants and backends: [`docs/TESTING.md`](docs/TESTING.md).

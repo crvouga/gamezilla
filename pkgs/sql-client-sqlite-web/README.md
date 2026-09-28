@@ -31,8 +31,9 @@ sequenceDiagram
   SW-->>TabB: result + db-changed
 ```
 
-- Broker script: `/sql-workers/db-host-shared-worker.js` (esbuild prebuild; no bundler worker config).
-- Build: `bun run --filter @pkgs/sql-client-sqlite-web build:web-workers`
+- Broker script: `/sql-workers/db-host-shared-worker.js`, built with the
+  other worker assets by `@pkgs/sql-client-sqlite-web/vite`
+  (`scripts/sqlite-web-assets.ts`).
 - Heartbeat: tabs ping every 5s; silent ports reaped after 15s; owner promoted.
 
 ### Leader-election fallback (no SharedWorker)
@@ -78,8 +79,7 @@ Product web therefore:
 2. On pool / corrupt / migrate / schema-epoch failure: peers drop owners via
    BroadcastChannel → force-release SharedWorker → terminate owner worker →
    wipe OPFS `sqlite-web/` **in-process** → reopen empty cache
-3. Never navigates to a wipe HTML document; soft `sessionStorage` + reload loops
-   are gone
+3. Never navigates to a wipe HTML document
 
 User-initiated reset (`runWebOpfsRecoveryAndReload` / `?reset-db=1`) uses the
 same in-process path, then `location.reload()` so Solid remounts.
@@ -119,13 +119,8 @@ sequenceDiagram
 - `resetStore` spawns a throwaway worker that wipes the pool directory (`wipeFiles`) and terminates — this is the in-process recovery primitive.
 - Only `sqlite-worker-entry.ts` (worker realm) and `spawn-sqlite-worker.ts` (`new Worker(new URL(...))`) touch browser globals; both are `@io-wall-ok`.
 
-## Migration (`open-main-sql-client.ts`)
+## Opening
 
-Web calls `createWebSqlClient(dbName, { timers, logger, migrate?, schemaEpoch? })`.
-Sync upload/push is gated by `sync-owner:<dbName>`.
-
-### Legacy session lock
-
-`web-session-lock*` remains for older clients and boot-error matching, but
-**web open no longer acquires** that exclusive Web Lock. Multi-tab coordination
-is SharedWorker (or leader-election fallback) only.
+The app (`libs/client-app/src/shell/storage/open-main-sql-client.ts`) calls
+`createWebSqlClient(dbName, { timers, logger, migrate?, schemaEpoch? })`.
+Sync upload/push is gated by the `sync-owner:<dbName>` lock.

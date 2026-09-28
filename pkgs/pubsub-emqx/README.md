@@ -7,7 +7,9 @@ EMQX adapter for `@pkgs/pubsub`. Two factories, **one** returned type (`PubSub`)
 
 ## Broker config expectations (EMQX 5.x)
 
-Preferred local broker for tests/CI: `@pkgs/emqx-server` (ports 8083 / 18083). Production: Railway (provisioned by `@libs/pubsub#provision`).
+Local broker for tests/CI: `@pkgs/emqx-server` (ports 8083 / 18083, the EMQX
+release pinned in `mise.toml`). Production: Railway, declared in OpenTofu
+(`libs/infra/tofu/modules/pubsub`).
 
 Operators / broker should configure:
 
@@ -20,18 +22,8 @@ Operators / broker should configure:
   - `mqtt.max_mqueue_len` (cap offline queue length)
 - Adapter publishes/subscribes at **QoS 1**, `retain: false`, MQTT **5**, `cleanStart: false`, stable `clientId` (= `clientIdPrefix`)
 
-### Product topic helpers (Gamezilla)
-
-Same grammar as `@pkgs/pubsub`. Helpers live in `@libs/runtime/public/sync-topics`:
-
-- `user:{actorId}`
-- `room:{spaceId}`
-
-JWT ACL grants subscribe **and** publish on the actor's topic set (`user:{self}`,
-membership `room:*`, `system:client_config`). Clients publish mutation fanout on
-those topics; server pushes still use the HTTP publish API.
-
-Local broker: `@pkgs/emqx-server` runs the EMQX release pinned in the repo's `mise.toml` (`mise install`).
+Topics use `@pkgs/pubsub`'s grammar. The JWT ACL grants subscribe and
+publish on the actor's topic set; server pushes use the HTTP publish API.
 
 ## Offline session behavior
 
@@ -93,19 +85,11 @@ bus.close();
 
 ## Broker contract tests
 
-Default `bun test` loud-skips when the broker is unreachable (CI stays green).
-
-```bash
-export EMQX_TEST_URL=ws://127.0.0.1:8083/mqtt
-export EMQX_TEST_API_URL=http://127.0.0.1:18083
-export EMQX_TEST_API_KEY=...
-export EMQX_TEST_API_SECRET=...
-export EMQX_TEST_MQTT_USER=...
-export EMQX_TEST_MQTT_PASS=...
-bun run --filter @pkgs/pubsub-emqx test:contract
-```
-
-`disruptTransport` uses `DELETE /api/v5/clients/{clientid}` to exercise reconnect + session resume / re-SUBSCRIBE.
+`bun run --filter @pkgs/pubsub-emqx test:contract` boots `@pkgs/emqx-server`
+and runs the `@pkgs/pubsub` contract suite against it (`EMQX_TEST_*` env
+points it at another broker). `disruptTransport` uses
+`DELETE /api/v5/clients/{clientid}` to exercise reconnect + session resume /
+re-SUBSCRIBE.
 
 ## Production JWT authn
 

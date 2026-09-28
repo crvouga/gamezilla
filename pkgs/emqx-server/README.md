@@ -1,8 +1,8 @@
 # `@pkgs/emqx-server`
 
-Local EMQX broker process runner for dev, harness, and CI. Tests call {@link startEmqxServer}.
-
-Production Railway deployment and provisioning live in `@libs/pubsub`.
+Local EMQX broker process runner for dev, harness, and CI. Tests call
+`startEmqxServer`. The production broker on Railway is OpenTofu
+(`libs/infra/tofu/modules/pubsub`).
 
 | Port | Role |
 | --- | --- |

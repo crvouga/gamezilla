@@ -1,6 +1,4 @@
-# Sound Style Guide — Gamezilla
-
-Aligned with the visual palette in `@pkgs/ui-rn` (Radix zinc neutrals + saturated blue brand).
+# Sound style guide
 
 ## Emotional tone
 
@@ -38,7 +36,7 @@ Modern, clean, satisfying, lightweight, unobtrusive — confident but never shou
 | Notifications | 600 ms       |
 | Stingers      | 1500 ms      |
 
-No looping sounds in v1.
+No looping sounds.
 
 ## Attack / release
 

@@ -4,7 +4,7 @@ Model-based testing with [Quint](https://quint-lang.org/): draw traces from a
 model, replay each one against the real thing, and require the real thing to
 be in the model's state after every step. Product models live in
 `specs/<domain>/*.qnt` and run in their package's `test:spec`
-([`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md));
+([`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md));
 this package knows nothing about the product.
 
 | Module | What it does |
