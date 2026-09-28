@@ -1140,10 +1140,13 @@ How a model runs in the package's `test:spec`:
    standing properties hold after every step too.
 3. One more test fails when no trace takes some bound action.
 
-4. On the first slice only, Quint type checks the model, and Apalache (pinned
-   in `mise.toml`, never downloaded) model-checks every invariant over every
-   interleaving up to `verifySteps` steps (default 4). A model with no
-   invariant proves nothing and fails.
+4. On the first slice only, Quint type checks the model.
+
+Separately, the models gate (`//#ci:models`) has Apalache (pinned in
+`mise.toml`, never downloaded) model-check every invariant over every
+interleaving up to the binding's `verifySteps` steps (default 4). The verdict
+depends on the model's text alone, so it runs once per model text rather than
+in every suite. A model with no invariant proves nothing and fails.
 
 A failure prints the step, the differing variables, the harness calls and the
 whole trace; drawn traces are in

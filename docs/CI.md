@@ -24,7 +24,8 @@ set, so the verdict is the same.
 and the parts of its `test:spec` (`test:spec:<k>`, below); the root leaves (`//#lint:root`, syncpack, audit, i18n,
 agent-commands, workspace-lifecycle, goals, specs, conformance — the manifest's
 world is closed and every entry of it has an automated check, see
-[`specs/README.md`](../specs/README.md#the-conformance-manifest) — and
+[`specs/README.md`](../specs/README.md#the-conformance-manifest) — models,
+Apalache model-checking every Quint model once per model text — and
 spec-ownership); `@apps/product#check:offline-shell` (every file the
 wall client can load is precached, under budget, from the real `dist/`); each
 Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload
