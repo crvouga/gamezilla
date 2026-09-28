@@ -201,6 +201,8 @@
         "public/**",
         "!public/sql-workers/**",
         "!public/generated/**",
+        "!dist/**",
+        "!.cache/**",
         "tsconfig.json",
         "tsconfig.tc.json",
         "babel.config.js"
