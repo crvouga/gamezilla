@@ -33,13 +33,19 @@ import { formatTestIdPath } from '@pkgs/ui-testing/selector/format';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 
 /**
+ * Page-side predicate: `el` is an `<input>` / `<textarea>`. Not `'value' in
+ * el` — every `<button>` has a `value` too (`""` unless set).
+ */
+const IS_TEXT_FIELD = `(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)`;
+
+/**
  * Page-side expression for the text field under selector `sel`: the matched
- * node when it holds a value, else its first `<input>` / `<textarea>` — a
+ * node when it is one, else its first `<input>` / `<textarea>` — a
  * design-system `TextInput` puts its test id on the wrapper, like the Solid
  * DOM driver's `findTextField`.
  */
 function textFieldExpr(sel: string): string {
-  return `(function(){ const host = document.querySelector(${sel}); if (!host) return null; return 'value' in host ? host : host.querySelector('input, textarea'); })()`;
+  return `(function(){ const el = document.querySelector(${sel}); if (!el) return null; return ${IS_TEXT_FIELD} ? el : el.querySelector('input, textarea'); })()`;
 }
 
 /** Page-side counters of trusted `pointerdown`s / `pointerup`s (installed once per document). */
@@ -312,7 +318,7 @@ export class BunWebviewDriverNode implements DriverNode {
 
   async text(): Promise<string | null> {
     const result = await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if ('value' in el && typeof el.value === 'string') return el.value; const fields = el.querySelectorAll('input, textarea'); if (fields.length === 1) return fields[0].value; return el.innerText ?? el.textContent; })()`
+      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if (${IS_TEXT_FIELD}) return el.value; const fields = el.querySelectorAll('input, textarea'); if (fields.length === 1) return fields[0].value; const shown = (el.innerText ?? el.textContent ?? '').replace(/\\s+/g, ' ').trim(); if (shown.length > 0) return shown; return el.getAttribute('aria-label') || ''; })()`
     );
     if (result === null) {
       throw new ElementNotFoundError(formatTestIdPath(this.path));
