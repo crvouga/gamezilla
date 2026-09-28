@@ -273,7 +273,7 @@ terms:
       A person's device goes offline for a while, until the connection comes
       back. Offline, they can still sign out; signing in, connecting or
       removing a sign-in method, and a username change need a connection.
-      Once back online, the device catches up with everyone else.
+      Once back online, the device shows what everyone else sees again.
     forms: [loses the connection, lost the connection, loses their connection]
     model: [offline, loseConnection, reconnect, connectionReturns]
 

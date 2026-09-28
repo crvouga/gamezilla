@@ -1,5 +1,5 @@
 @domain:spaces @goal:spaces:5
-Feature: Disconnect and reconnect
+Feature: Losing the connection in a space
   When people leave a space, drop out of it, close the app or come back,
   everyone wants its presence to stay true, so nobody shows twice and nobody
   lingers after they have gone.
@@ -34,7 +34,7 @@ Feature: Disconnect and reconnect
 
   Rule: Someone away when the space ends finds out when they are back
 
-    Scenario: Someone offline when the space ends learns it ended on reconnect
+    Scenario: Someone offline when the space ends learns it ended once back online
       Given Bob has lost the connection long enough to drop out of the space
       And Alice has ended the space
       When the connection comes back

@@ -1,7 +1,7 @@
 // Signing in to an account, on two devices.
 //
-// Alice uses two devices (actors "alice" and "bob"; the second is her other
-// device, where her account is signed in too). She has three outside
+// Alice uses two devices (called "alice" and "bob" here; the second is her
+// other device, where her account is signed in too). She has three outside
 // accounts: her Google account, an Apple account at the same verified Gmail
 // address (she shares it with the app), and an iCloud Apple account whose
 // address she hides.

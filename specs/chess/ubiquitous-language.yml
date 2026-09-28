@@ -126,20 +126,21 @@ terms:
       Every puzzle that can be served. The puzzle feed chooses from it.
     forms: [pool]
 
-  - term: puzzle import
+  - term: add puzzles
     definition: >-
-      How the team adds puzzles to the puzzle pool from a puzzle file. Only
-      valid puzzles get in; the others are rejected puzzles.
-    forms: [import, imported, imports, puzzle file]
-    avoid: [ingest]
+      The team putting new puzzles into the puzzle pool. Only good puzzles
+      get in; broken ones are turned away.
+    forms: [adds puzzles, added puzzles, has added, the team added]
+    avoid: [import, ingest, puzzle file]
 
-  - term: rejected puzzle
+  - term: broken puzzle
     definition: >-
-      A puzzle turned away at import because its line holds an illegal move,
-      castles without the right to, ends on the opponent's move, starts from a
-      malformed position, or repeats a puzzle already in the pool. It never
-      reaches anyone.
-    forms: [rejected]
+      A puzzle the team adds that cannot go in the pool: its line holds an
+      illegal move, castles without the right to, or ends on the opponent's
+      move; it starts from a position that could never happen in chess; or it
+      copies a puzzle already in the pool. It never reaches anyone.
+    forms: [broken puzzles, broken]
+    avoid: [rejected puzzle, invalid puzzle, malformed]
 
   - term: low-quality puzzle
     definition: >-

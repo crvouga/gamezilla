@@ -19,8 +19,9 @@ terms:
 
   - term: the team
     definition: >-
-      The people who run the product. They observe it from outside, as
-      people do, plus the records and declarations they keep for it.
+      The people who run the product. They see it from outside, as people
+      do, and can also check that each environment is as they planned it and
+      find out what happened when someone runs into trouble.
     avoid: [admin, operator, ops]
 
   - term: device

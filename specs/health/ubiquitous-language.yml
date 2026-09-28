@@ -5,8 +5,8 @@
 context: Operations
 purpose: >-
   The promises every live environment keeps right now — people reach the app
-  securely, it answers them, live updates reach them, payments are real only
-  in production — seen by the team from outside.
+  securely, it answers them, they see each other play within moments, and
+  payments are real only in production — seen by the team from outside.
 
 terms:
   - term: environment
@@ -23,26 +23,25 @@ terms:
     forms: [production environments, production]
     avoid: [prod, live environment]
 
-  - term: declared environment
+  - term: the team's plan
     definition: >-
-      What the team has written down that an environment should be:
-      everything in it and how it is set up. An environment that differs has
-      been changed by hand, lost something by accident, or is part-way
-      through a release.
-    forms: [as the team declared it, declared for it]
-    avoid: [infrastructure, config drift, IaC]
+      What the team has written down that an environment should have and how
+      it is set up. An environment that differs from it has been changed by
+      hand, lost something by accident, or is part-way through a release.
+    forms: [as the team planned it, as the team planned them, planned it]
+    avoid: [declared environment, infrastructure, config drift, IaC]
 
   - term: changed by hand
     definition: >-
-      Changed by someone directly, outside what the team declared for the
+      Changed by someone directly, outside the team's plan for the
       environment.
     forms: [change made by hand]
     avoid: [manual edit, click-ops]
 
   - term: release
     definition: >-
-      A new version of the app reaching an environment. An unfinished release
-      is one that has reached it only in part.
+      The team putting out a new edition of the app in an environment. An
+      unfinished release is one that got only part of the way.
     forms: [releases, unfinished release]
     avoid: [deploy, deployment, rollout]
 
@@ -71,7 +70,7 @@ terms:
   - term: what people saved
     definition: >-
       Everything people have kept in the app, such as their accounts and
-      progress. It must be ready for the version of the app that is running.
+      progress. It must be ready for the app as it is now.
     avoid: [database, schema, tables, migration, data store]
 
   - term: setting the app needs
@@ -84,38 +83,40 @@ terms:
 
   - term: outside service
     definition: >-
-      Something outside the product the app relies on to do its job, such as
-      Google for signing in or the payment provider. The app must have access
-      to each one, and each must still accept the app.
-    forms: [outside services, service, services]
+      A service another company runs that the app relies on to do its job,
+      such as Google for signing in or the company that takes payments. The
+      team gives the app what it needs to use each one, and each must still
+      let the app use it.
+    forms: [outside services]
     avoid: [vendor, third party, integration]
 
-  - term: accepts the app
+  - term: lets the app use it
     definition: >-
-      An outside service still lets the app use it: its access has not been
-      withdrawn or run out.
-    forms: [accepting the app, still accepts it]
-    avoid: [credentials valid, token valid]
+      An outside service still working for the app: the company has not
+      withdrawn the app's use of it, and it has not run out.
+    forms: [still lets the app use it]
+    avoid: [accepts the app, credentials valid, token valid]
 
-  - term: live updates
+  - term: what happens in a space
     definition: >-
-      What happens in a space reaching everyone in it as it happens. Only this
-      environment's app sends them, and people's apps receive this
-      environment's own.
-    forms: [live update]
-    avoid: [broker, pub/sub, websocket, push channel]
+      What people do in a space, such as joining, leaving and moving pieces,
+      as everyone else in it sees it within moments. This environment's app
+      passes it on, and people's apps follow what happens in this
+      environment's spaces, never another's.
+    forms: [what happens in this environment's spaces, pass on what happens in a space]
+    avoid: [live updates, broker, pub/sub, websocket, push channel]
+
+  - term: listen in on spaces
+    definition: >-
+      Someone outside the team secretly seeing, or disturbing, what happens in
+      people's spaces. Nobody can, not even with a well-known password.
+    forms: [listen in, listen in on spaces or disturb them]
 
   - term: well-known password
     definition: >-
-      A password anyone could try: the one live updates came with, or one
-      published anywhere. Nobody can take over live updates with one.
+      A password anyone could try: the one something came with from its
+      maker (the default password), or one published anywhere.
     forms: [well-known passwords, default password, publicly known password]
-
-  - term: live spaces
-    definition: >-
-      Spaces as people host and join them in this environment: they can run
-      here, and the app can reach them.
-    forms: [live space]
 
   - term: real payments
     definition: >-
@@ -124,21 +125,27 @@ terms:
     forms: [real money, payments in this environment are real, payments are real]
     avoid: [live mode, test mode]
 
-  - term: stored file
+  - term: upload
     definition: >-
-      A file the app keeps, such as a picture a person uploads. The app can
-      keep one, read it back and remove it, and each environment's stored
-      files stay apart from every other environment's.
-    forms: [stored files, file, files]
-    avoid: [bucket, blob, object storage]
+      Something a person puts in the app for it to keep, such as a picture.
+      The app can keep one, show it again and remove it, and each
+      environment's uploads stay apart from every other environment's.
+    forms: [uploads, uploaded]
+    avoid: [stored file, file, bucket, blob, object storage]
 
-  - term: request record
+  - term: trail
     definition: >-
-      The team's record of what one thing a person asked of the app did. The
-      app keeps one for each request, and the team can look it up when
-      something goes wrong.
-    forms: [request records, what each request did, what a request did, look up what a request did]
-    avoid: [trace, traces, span, telemetry, logs]
+      What the app writes down, each time someone uses it, about what it did
+      for them. People never see it; when someone runs into trouble, the team
+      follows the trail to find out what happened.
+    forms: [trails, leaves a trail, follow the trail]
+    avoid: [request record, trace, traces, span, telemetry, logs]
+
+  - term: run into trouble
+    definition: >-
+      Something going wrong for a person in the app, such as an error or
+      something not working as it should.
+    forms: [runs into trouble, ran into trouble]
 
   - term: way back to the app
     definition: >-
@@ -152,8 +159,6 @@ terms:
 
   # Borrowed from App.
   - term: address
-    from: runtime
-  - term: version of the app
     from: runtime
 
   # Borrowed from Identity.

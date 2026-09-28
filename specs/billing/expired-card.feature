@@ -1,9 +1,8 @@
 @domain:billing @goal:guest-free-and-paid:9
 Feature: An expired card
   When a Plus member's card expires, they want it treated like any other
-  failed payment, so they keep paid access while the payment provider
-  retries: the membership is delinquent until a working card pays, then
-  active again.
+  failed payment, so they keep paid access while it is put right: the
+  membership is delinquent until a working card pays, then active again.
 
   Background:
     Given Alice has subscribed to Plus

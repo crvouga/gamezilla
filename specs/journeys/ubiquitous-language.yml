@@ -16,12 +16,12 @@ terms:
     forms: [critical journeys]
     avoid: [smoke test, synthetic monitor, happy path, e2e test]
 
-  - term: boot screen
+  - term: opening screen
     definition: >-
       What the app shows while it is opening, before the person reaches the
       tabs. A critical journey never stops there.
-    forms: [booting, finishes booting]
-    avoid: [splash screen, loading screen, spinner]
+    forms: [gets past its opening screen]
+    avoid: [boot screen, booting, splash screen, loading screen, spinner]
 
   # Borrowed from App.
   - term: tabs

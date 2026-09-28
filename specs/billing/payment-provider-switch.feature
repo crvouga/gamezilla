@@ -53,14 +53,3 @@ Feature: Switch payment provider
       When Alice subscribes to Plus
       Then Alice's membership is trialing
       And Alice's billing portal is the first payment provider's
-
-  Rule: Late news from one payment provider never hides a membership at the other
-
-    Scenario: Repeated news of an ended membership at the first payment provider keeps the new membership showing
-      Given Alice has subscribed to Plus
-      And Alice's membership has been canceled immediately
-      And Alice has subscribed to Plus at the second payment provider
-      When the first payment provider repeats its news that Alice's membership ended
-      Then Alice's membership is trialing
-      And Alice has paid access
-      And Alice's billing portal is the second payment provider's

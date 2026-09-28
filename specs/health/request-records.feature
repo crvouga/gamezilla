@@ -1,10 +1,10 @@
 @domain:health @observability
-Feature: Request records
-  When a person runs into trouble, the team wants request records of
-  what each request did, so they can find out what happened.
+Feature: Finding out what happened
+  When someone runs into trouble, the team wants to find out what happened,
+  so they can put it right.
 
-  Scenario: The app records what each request did
-    Then the app can record what each request did
+  Scenario: The app leaves a trail of what it does for people
+    Then the app leaves a trail of what it does for people
 
-  Scenario: The team can look up what a request did
-    Then the team can look up what a request did
+  Scenario: The team can follow the trail of what the app did for someone
+    Then the team can follow the trail of what the app did for someone

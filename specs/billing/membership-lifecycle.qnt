@@ -6,26 +6,24 @@
 // on the payment provider moves her membership along: a billing period ends (a
 // free trial becomes active, an active membership renews), her card starts
 // being declined (the next renewal leaves the membership delinquent) and later
-// a working card pays, or the provider gives up after the last retry (it
+// a working card pays, or the payment provider gives up on the payment (it
 // ends); she cancels in the billing portal and renews it there again, cancels
-// immediately, or switches between the monthly and the yearly plan. The
-// payment provider may repeat its last news. Once a membership has ended she
-// can subscribe again, which starts a new monthly free trial beside the old
-// one.
+// immediately, or switches between the monthly and the yearly plan. Once a
+// membership has ended she can subscribe again, which starts a new monthly
+// free trial beside the old one.
 //
 // Switching Plus plans after the free trial starts a paid billing period on
 // the new plan at once, less credit for the unused part of the old one; credit
 // beyond the new plan's price stays hers and pays later renewals first, so a
 // declined card only matters once the credit no longer covers a renewal.
 //
-// Each device she is signed in on knows her memberships and shows paid or free
-// access from what it knows. Her phone can lose its connection: it then keeps
-// what it knew, and once back online it knows what her computer knows again.
+// Each device she is signed in on shows her memberships and paid or free
+// access. Her phone can lose its connection: it then still shows what it
+// showed, and once back online it shows what her computer shows again.
 //
 // Paid access lasts through a delinquent or ended membership's grace (7 days
-// past its period end). Billing time runs on the payment provider's clock, not
-// the devices', so every membership that ever started is still within grace
-// here: a device that knows of any membership shows paid access.
+// past its period end). Grace never runs out here, so a device that shows any
+// membership shows paid access.
 module membership_lifecycle {
   type Device = str
 
@@ -172,7 +170,7 @@ module membership_lifecycle {
     ),
   }
 
-  /// The payment provider gives up after the last retry.
+  /// The payment provider gives up on the failed payment.
   action paymentRetriesExhausted = all {
     _count(memberships) > 0,
     _newest.status == "delinquent",
@@ -231,8 +229,9 @@ module membership_lifecycle {
     }
   }
 
-  /// The payment provider repeats its last news: nothing changes.
-  action providerRepeatsNews = all {
+  /// Checking machinery: the payment provider tells the product its last
+  /// change to the membership again. Nothing changes for Alice.
+  action _providerRepeatsNews = all {
     _count(memberships) > 0,
     _moveTo(memberships, _phoneOnline, credit, cardDeclines),
   }
@@ -265,7 +264,7 @@ module membership_lifecycle {
   /// What happens around the membership rather than to it, drawn as one
   /// choice so a trace spends most of its steps moving the membership.
   action _aroundTheMembership = any {
-    providerRepeatsNews,
+    _providerRepeatsNews,
     _phoneGoesOffline,
     _phoneBackOnline,
   }

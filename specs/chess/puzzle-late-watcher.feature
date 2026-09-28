@@ -15,7 +15,7 @@ Feature: Arriving while a puzzle is under way
     Then Bob is watching Alice's puzzle within 15 seconds
     And Alice's and Bob's boards agree within 15 seconds
 
-  Scenario: A watcher who loses the connection catches up when it comes back
+  Scenario: A watcher who loses the connection sees the host's position once back online
     Given Bob has joined the space from the link and is watching Alice's puzzle
     And Bob is offline
     And Alice has played the next move of the solution

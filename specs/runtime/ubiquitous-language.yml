@@ -5,7 +5,7 @@ context: App
 purpose: >-
   The app itself, as a person holds it: it opens, even offline, onto the
   tabs and Settings, keeps each person's place and choices, and carries on
-  through lost connections, updates and changing capacity.
+  through lost connections and updates.
 
 terms:
   - term: Settings
@@ -51,31 +51,16 @@ terms:
     forms: [closes and reopens the app, closed and reopened the app]
     avoid: [restart, relaunch, reload]
 
-  - term: the view switches
-    definition: >-
-      A scenario turning its attention to another person's device. Every
-      person's app keeps its own place meanwhile.
-    forms: [the view switches to]
-
   - term: cut off
     definition: >-
-      A device losing its connection, at the person's end or somewhere on the
-      way to everyone else. Nobody is thrown out of their place in the app;
-      what needs a connection (signing in, searching, hosting or ending a
-      space) waits until they are back online. Once the connection comes
-      back, anything that needs one, such as signing in, is ready again.
-    forms: [cuts off, is cut off, cut off on the way]
+      A device losing its connection. Nobody is thrown out of their place in
+      the app; what needs a connection (signing in, searching, hosting or
+      ending a space) waits until they are back online. Once the connection
+      comes back, anything that needs one, such as signing in, is ready
+      again.
+    forms: [cuts off, is cut off]
     avoid: [load balancer, dropped socket]
-    model: [offline, cutOff, cutOffOnTheWay, reconnect]
-
-  - term: serving capacity
-    definition: >-
-      How much of the app is up to serve people at once. It grows and shrinks
-      with demand but never to nothing, and people keep being served as it
-      changes without noticing.
-    forms: [capacity]
-    avoid: [server, servers, fleet, node, instance, API server]
-    model: [capacity, gainCapacity, loseCapacity]
+    model: [offline, cutOff, reconnect]
 
   - term: address
     definition: >-

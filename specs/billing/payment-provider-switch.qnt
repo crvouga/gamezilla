@@ -12,13 +12,9 @@
 // period ends there (a free trial becomes active, an active membership
 // renews), it may be canceled immediately there, and its billing portal is
 // there. Once it has ended the person may subscribe again, wherever new
-// memberships start by then.
-//
-// Each payment provider tells the product its news about each person's
-// memberships there, and may repeat any piece of that news later, however
-// late and however often. Hearing it again changes nothing: what a person
-// sees is always their newest membership (the one that counts) and the
-// payment provider whose billing portal manages it.
+// memberships start by then. What a person sees is always their newest
+// membership (the one that counts) and the payment provider whose billing
+// portal manages it.
 module payment_provider_switch {
   type Person = str
   /// "first" | "second"
@@ -34,7 +30,8 @@ module payment_provider_switch {
   pure val SECOND: PaymentProvider = "second"
   pure val PAYMENT_PROVIDERS: Set[PaymentProvider] = Set(FIRST, SECOND)
 
-  /// How far back a repeated piece of news may reach: 0 is the latest.
+  /// Checking machinery: how far back a change told again may reach; 0 is the
+  /// latest.
   pure val HOW_FAR_BACK: Set[int] = 0.to(3)
 
   /// Where new memberships start: the team's choice.
@@ -110,9 +107,11 @@ module payment_provider_switch {
     _news' = _news,
   }
 
-  /// A payment provider repeats a piece of its earlier news about a person,
-  /// `back` pieces before its latest: nothing changes.
-  action providerRepeatsNews(provider: PaymentProvider, person: Person, back: int): bool = all {
+  /// Checking machinery: a payment provider tells the product again of an
+  /// earlier change to a person's membership there, `back` changes before its
+  /// latest, however late. Nothing changes for anyone, and it never changes a
+  /// membership at the other payment provider.
+  action _providerRepeatsNews(provider: PaymentProvider, person: Person, back: int): bool = all {
     back < _count(_news.get(provider).get(person)),
     newMembershipsAt' = newMembershipsAt,
     membershipStatus' = membershipStatus,
@@ -130,7 +129,7 @@ module payment_provider_switch {
       periodEnd(person),
       cancelImmediately(person),
       switchPaymentProvider,
-      providerRepeatsNews(provider, person, back),
+      _providerRepeatsNews(provider, person, back),
     }
   }
 
@@ -141,7 +140,7 @@ module payment_provider_switch {
 
   /// The membership that counts is the one at the payment provider whose
   /// billing portal manages it; a live membership is always the one that
-  /// counts, so news from the other payment provider never changes it.
+  /// counts, so nothing at the other payment provider ever hides it.
   val invMembershipThatCountsIsAtItsBillingPortal = PEOPLE.forall(p =>
     if (billingPortalAt.get(p) == "none")
       membershipStatus.get(p) == "none"
@@ -152,8 +151,8 @@ module payment_provider_switch {
       )
   )
 
-  /// Each payment provider's latest news about a person is how their
-  /// membership there stands.
+  /// Checking machinery: the last change each payment provider told the
+  /// product about a person is how their membership there stands.
   val invLatestNewsIsTheMembership = PAYMENT_PROVIDERS.forall(pp => PEOPLE.forall(p => {
     val log = _news.get(pp).get(p)
     if (_count(log) == 0)

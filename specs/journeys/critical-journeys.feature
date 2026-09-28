@@ -5,9 +5,9 @@ Feature: Critical journeys
   what Plus offers), they want it to work every time, so no critical journey
   ever breaks anywhere people use the app.
 
-  Scenario: The app opens past the boot screen into the tabs
+  Scenario: The app opens past its opening screen onto the tabs
     When a person opens the app on a fresh device
-    Then the app finishes booting into the tabs
+    Then the app gets past its opening screen onto the tabs
 
   @browser
   Scenario: Signing in with Google hands the person to Google with the way back

@@ -64,8 +64,8 @@ terms:
   - term: membership status
     definition: >-
       Where a membership stands: in its free trial (trialing), paid and
-      current (active), its last payment failed while the payment provider
-      still retries (delinquent), or over (ended).
+      current (active), its last payment failed and is still being put right
+      (delinquent), or over (ended).
     forms: [membership statuses, trialing, delinquent]
     model: [MembershipStatus, membershipStatus]
 
@@ -153,22 +153,25 @@ terms:
   - term: failed payment
     definition: >-
       A renewal the card could not pay. The membership becomes delinquent and
-      keeps paid access within grace while the payment provider retries.
+      keeps paid access within grace while the payment is put right: the
+      payment provider tries the card again for a while, and the Plus member
+      may pay with a new card.
     forms: [failed payments, payment fails, payment failed, payment has failed]
     model: [paymentFailed]
 
   - term: recovered payment
     definition: >-
-      A failed payment later paid, by a retry or a new card: the membership is
-      active again.
+      A failed payment later paid, when the payment provider tries the card
+      again or with a new card: the membership is active again.
     forms: [payment recovers, payment recovered]
     model: [paymentRecovered]
 
-  - term: last retry
+  - term: give up on a payment
     definition: >-
-      The payment provider's final attempt at a failed payment. When it fails
-      too, the provider gives up retrying and the membership ends.
-    forms: [gives up retrying, exhausted retries]
+      The payment provider stopping trying to take a failed payment, after
+      its last try at the card also fails. The membership ends.
+    forms: [gives up on, gave up on, gives up on the payment]
+    avoid: [last retry, gives up retrying, exhausted retries, dunning]
     model: [paymentRetriesExhausted]
 
   - term: grace
@@ -220,7 +223,8 @@ terms:
   - term: end of a membership
     definition: >-
       A membership being over: at the period end after a cancel, at once when
-      canceled immediately or refunded, or after the last retry. An ended
+      canceled immediately or refunded, or when the payment provider gives up
+      on a failed payment. An ended
       membership never becomes live again; subscribing again starts a new
       one. Paid access lasts through its grace, unless it was refunded.
     forms:
@@ -233,7 +237,6 @@ terms:
       - ends the membership
       - ends it at once
       - ends right away
-      - ends after the last retry
 
   - term: leave checkout
     definition: >-
@@ -249,14 +252,13 @@ terms:
 
   - term: payment provider
     definition: >-
-      Who takes Plus payments for the product: it runs checkout and the
-      billing portal, charges renewals, and retries failed payments. It tells
-      the product about each change to a membership, sometimes the same news
-      twice; hearing it again changes nothing. There may be more than one:
-      the team decides which one new memberships start at, and each keeps
-      serving the memberships that started there.
-    forms: [payment providers, both payment providers, the provider, provider, provider's, repeats its last news, repeats its last news about]
-    model: [PaymentProvider, providerRepeatsNews]
+      The company that takes Plus payments for the product: it runs checkout
+      and the billing portal, charges renewals, and tries the card again
+      after a failed payment. There may be more than one: the team decides
+      which one new memberships start at, and each keeps looking after the
+      memberships that started there.
+    forms: [payment providers, both payment providers, the provider, provider, provider's]
+    model: [PaymentProvider]
 
   - term: first payment provider
     definition: >-
@@ -287,16 +289,6 @@ terms:
       - new memberships start at
     avoid: [migrate, migration, cut over]
     model: [switchPaymentProvider, newMembershipsAt]
-
-  - term: news
-    definition: >-
-      What a payment provider tells the product about a change to a
-      membership there: that it started, renewed, or ended. A payment provider
-      may repeat any of its earlier news, however late and however often;
-      hearing it again changes nothing, and news from one payment provider
-      never changes a membership at the other.
-    forms: [repeats its news, repeats any of its earlier news, late news]
-    avoid: [event, webhook, notification]
 
   # --- Borrowed -----------------------------------------------------------
 

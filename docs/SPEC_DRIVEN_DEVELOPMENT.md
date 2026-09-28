@@ -298,8 +298,10 @@ Two domains describe the *deployed* product rather than code under test:
   `@apps/product` runs the same scenarios in a real browser against every
   production environment (`liveDomains`) as synthetic monitoring.
 - `specs/health/`: the promises a live environment keeps, stated as what
-  people or the team observe (people reach the app securely, live updates
-  reach people, payments are real only in production). Which resource
+  people or the team observe (people reach the app securely, people in a
+  space see each other play within moments, payments are real only in
+  production, when someone runs into trouble the team can find out what
+  happened). Which resource
   keeps each promise is the step definitions' business. Only `@apps/product`
   runs them (`liveDomains`).
 

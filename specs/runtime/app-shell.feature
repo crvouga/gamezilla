@@ -17,7 +17,6 @@ Feature: The tabs and Settings
 
   Scenario: Each person's app keeps its own place
     Given Alice and Bob are guests
-    And Bob has opened Settings
-    When the view switches to Alice's device
-    Then Alice is on Spaces
-    And Bob is still on Settings
+    When Bob opens Settings
+    Then Bob is on Settings
+    And Alice is still on Spaces
