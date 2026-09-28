@@ -27,10 +27,10 @@ Feature: Leave a shared space and rejoin it
     When Bob joins the shared space "Trip"
     Then Bob sees the note "Tickets" saying "gate 4"
 
-  Scenario: Leaving stops new notes reaching someone whose app cannot send, without their app reconnecting
-    Given Bob's app cannot send
-    When Bob leaves the shared space "Trip"
-    And Alice writes the note "Tickets" saying "gate 4"
+  Scenario: After leaving, new notes stop reaching someone whose app cannot send, without their app reconnecting
+    Given Bob has left the shared space "Trip"
+    And Bob's app cannot send
+    When Alice writes the note "Tickets" saying "gate 4"
     Then Bob does not see the note "Tickets"
     And Bob's app is still connected
 
