@@ -23,8 +23,8 @@ import {
   ChessPuzzlePlayAttr,
   ClearChessPuzzlePlay,
 } from '../chess-puzzle-play';
-import type { ChessPuzzleTestLoadingStatusProps } from './chess-puzzle-test-loading-status';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
+import type { ChessPuzzleTestLoadingStatusProps } from './chess-puzzle-test-loading-status';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
 import { useNextPuzzleId } from './use-next-puzzle-id';

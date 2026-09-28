@@ -12,8 +12,6 @@ import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleClock } from './chess-puzzle-clock';
-import { ChessPuzzleTestHints } from './chess-puzzle-test-hints';
-import { ChessPuzzleTestLoadingStatus } from './chess-puzzle-test-loading-status';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
 import {
   type PuzzlePlayBoardChrome,
@@ -21,6 +19,8 @@ import {
 } from './chess-puzzle-play-layout';
 import { ChessPuzzleRecommendationLegend } from './chess-puzzle-recommendation-legend';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
+import { ChessPuzzleTestHints } from './chess-puzzle-test-hints';
+import { ChessPuzzleTestLoadingStatus } from './chess-puzzle-test-loading-status';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';

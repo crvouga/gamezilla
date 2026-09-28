@@ -13,10 +13,10 @@
  */
 
 import { join } from 'node:path';
-import { runSpecSuites } from './spec-suites';
 import { bootLocalhostStack } from './localhost-stack/boot-stack';
 import { removeManifest } from './localhost-stack/manifest';
 import { parseStackOptions } from './localhost-stack/stack-options';
+import { runSpecSuites } from './spec-suites';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const argv = process.argv.slice(2);

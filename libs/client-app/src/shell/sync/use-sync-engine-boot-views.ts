@@ -14,9 +14,9 @@ import {
 import { useAppData } from '../app-features-context';
 import { useLocalPaintLatch } from '../boot/local-paint-latch';
 import { useClientEnv, useSyncEnginePool } from '../client-env-context';
-import { exposeLocalSqlForTests } from '../test-local-sql';
 import { useLocalIdentity } from '../identity/identity-context';
 import { originAvailabilityFor } from '../origin-availability-for-env';
+import { exposeLocalSqlForTests } from '../test-local-sql';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
 import {
   createSyncEngineBootState,
