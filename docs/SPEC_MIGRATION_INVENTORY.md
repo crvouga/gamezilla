@@ -396,7 +396,6 @@ modeled):
 - A garbled live update briefly showed a note with no text
   (`garbled-live-update-blank-note`): a pushed image that would create a row
   with fields missing is refused and the row is refetched whole.
-
 Decided with the model, for review: a person signed out elsewhere loses what
 the device kept for them, unsent edits and notices included (glossary
 "signed out elsewhere"; the notice definition says so).
