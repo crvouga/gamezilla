@@ -112,3 +112,7 @@ libs/infra/tofu/stacks/*/*_override.tf
 
 # Per-package Biome scan scope (libs/tools/scripts/biome-scope.ts)
 /.biome-scope.*.json
+# Per-package tsgolint project (libs/tools/scripts/lint-package.ts)
+/apps/*/jsconfig.json
+/libs/*/jsconfig.json
+/pkgs/*/jsconfig.json

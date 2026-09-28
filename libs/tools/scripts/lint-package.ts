@@ -233,11 +233,40 @@ function externalTools(pkg: string): Promise<boolean>[] {
     ),
   ];
   const solid = solidTargets(pkg);
-  if (solid.length > 0) {
-    // Type-aware rules run through oxlint-tsgolint (`options.typeAware`).
-    tools.push(run('oxlint', ['--deny-warnings', ...solid]));
-  }
+  if (solid.length > 0) tools.push(oxlintOk(pkg, solid));
   return tools;
+}
+
+/**
+ * oxlint over the package's Solid scope. Type-aware rules run through
+ * oxlint-tsgolint (`options.typeAware`), which types each file with the
+ * nearest `tsconfig.json` / `jsconfig.json` — for a package that is the root
+ * mega-project, ~3 s of CPU to load the whole repo for a handful of files.
+ * A `jsconfig.json` extending the package's own `tc` project (the program
+ * that type-checks these files) is written beside it for the run (gitignored)
+ * and removed afterwards; Bun reads the same compiler options from it.
+ */
+async function oxlintOk(
+  pkg: string,
+  targets: readonly string[]
+): Promise<boolean> {
+  const dir = join(REPO_ROOT, pkg);
+  const manifest = readJson<{ scripts?: Record<string, string> }>(
+    `${pkg}/package.json`
+  );
+  const project = tcProject(manifest.scripts?.['tc']);
+  const local =
+    project === null || existsSync(join(dir, 'tsconfig.json'))
+      ? null
+      : join(dir, 'jsconfig.json');
+  if (local !== null) {
+    writeFileSync(local, JSON.stringify({ extends: `./${project}` }));
+  }
+  try {
+    return await run('oxlint', ['--deny-warnings', ...targets]);
+  } finally {
+    if (local !== null) rmSync(local, { force: true });
+  }
 }
 
 async function lintPackage(pkg: string): Promise<boolean> {
