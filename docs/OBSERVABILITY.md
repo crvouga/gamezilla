@@ -136,7 +136,7 @@ targets are intentionally not stored in this repository. Production deployment f
 closed when the Collector URL or write token is absent. Set
 `OBSERVABILITY_ENABLED=0` only as the explicit emergency kill switch.
 
-The Bun harness harness writes each package's e2e spans to
+The Bun harness writes each package's e2e spans to
 `.cache/harness-report/traces/spans.ndjson` and force-flushes after every test with
 a two-second ceiling, including failed tests. The Check workflow uploads those files as the
 `observability-traces-<run-id>` artifact and prints download/query commands in

@@ -4,7 +4,7 @@ Every spec that lived in `apps/product/tests` and where it went. The point of
 the table is that coverage of user-visible behaviour must not shrink: a row
 may move, merge or split, but it may not quietly disappear.
 
-> **Where this stands.** Done, and `apps/` holds no e2e at all. The harness harness
+> **Where this stands.** Done, and `apps/` holds no e2e at all. The harness
 > is `@libs/harness`, generic over a composition; each feature exports its
 > slice from its `./harness` surface; each suite boots only the slices it needs
 > ([`libs/harness/README.md`](../libs/harness/README.md)). Every spec

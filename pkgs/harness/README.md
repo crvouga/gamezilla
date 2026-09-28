@@ -185,7 +185,7 @@ element. The HTML file embeds every frame — no server, no console tab.
 - **Do** wait with `s.until` / `s.never`; advance with `s.advanceTime`.
 - **Do** put package tests in `tests/` (sibling of `src/`), black-box against
   package `exports`. Colocate `module.test.ts` only next to public entrypoint
-  modules. Harness harness code lives in `src/harness/` and is exported as `./harness`.
+  modules. Harness code lives in `src/harness/` and is exported as `./harness`.
 - **Don't** add package-local World openers or kit DSLs around `defineSystem` /
   `run` / `explore`.
 - **Don't** put `Session` / `Runtime` in product `ClientEnv` / `ServerEnv` —

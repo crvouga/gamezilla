@@ -30,7 +30,7 @@ export const GATE_TEST_SCRIPTS = [
   'test:integration',
 ] as const;
 
-/** The one harness harness runner every package's `test:e2e` uses. */
+/** The one harness runner every package's `test:e2e` uses. */
 const E2E_RUNNER = 'libs/harness/scripts/test-e2e.ts';
 const E2E_DIR = 'tests/e2e/';
 

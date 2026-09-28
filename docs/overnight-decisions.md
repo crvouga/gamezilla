@@ -135,7 +135,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   serverNow }`; `MutationError` rejects; framework bookkeeping mutations skip
   it) with tests (`pkgs/sync-engine/tests/server-authorize-mutation.test.ts`).
   `serverNow` is on the hook context rather than `env`: setting
-  `env.serverNow` on the HTTP route (the harness harness already does) switches
+  `env.serverNow` on the HTTP route (the harness already does) switches
   `ensureProfile` into an untested replay branch that renames users, so the
   route's `env` is unchanged. `MUTATION_ACTIONS` (in `@libs/permissions`)
   declares every product mutation: puzzle writes → `puzzles:play`,

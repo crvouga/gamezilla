@@ -127,7 +127,7 @@ rather than implicit. Prefer a port.
 | A shell may not depend on a feature or the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | A feature may not depend on the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | Tier pyramid, `shared/` purity, client/server split | Biome `import-*.grit` rules, in each package's `lint` |
-| The harness harness may not depend on a feature | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
+| The harness may not depend on a feature | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | A package declares no workspace dependency it does not use | that package's `lint` (`libs/tools/scripts/unused-dependencies.ts`) |
 | A package imports only what its `package.json` declares | Biome `noUndeclaredDependencies`, in each package's `lint` |
 
