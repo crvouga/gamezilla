@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  CHECK_WEIGHT,
   MODEL_SLICES,
   MODEL_WEIGHT,
   partOf,
@@ -60,6 +61,14 @@ describe('specUnits', () => {
 
   test('a model spreads its traces over MODEL_SLICES files', () => {
     expect(specUnits('m.qnt', '')).toHaveLength(MODEL_SLICES);
+  });
+
+  test('a decision table, structure or objective is one unit', () => {
+    for (const path of ['a.dmn', 's.als', 'o.openslo.yaml']) {
+      expect(specUnits(path, 'Scenario: x\n'.repeat(20))).toEqual([
+        { path, weight: CHECK_WEIGHT },
+      ]);
+    }
   });
 });
 

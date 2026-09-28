@@ -8,7 +8,9 @@
  * `bun test --parallel` spreads files over workers but runs one file's tests
  * in order: a long feature is sliced into files of ~{@link SLICE_SCENARIOS}
  * scenarios, a Quint model into {@link MODEL_SLICES} files of traces. Then
- * `--part k/n` takes its share of the units.
+ * `--part k/n` takes its share of the units. Every other spec kind — a DMN
+ * decision table, an Alloy structure, an OpenSLO objective — checks in one
+ * file and is one unit of {@link CHECK_WEIGHT}.
  */
 
 export type Part = { readonly index: number; readonly count: number };
@@ -32,9 +34,16 @@ export const MODEL_SLICES = 4;
  * several whole-world traces in one file, measured at ~25 scenarios.
  */
 export const MODEL_WEIGHT = 25;
+/** A decision table, structure or objective: one static check, one unit. */
+export const CHECK_WEIGHT = 1;
+
+function isFeature(path: string): boolean {
+  return path.endsWith('.feature');
+}
 
 export function specWeight(path: string, source: string): number {
   if (path.endsWith('.qnt')) return MODEL_WEIGHT;
+  if (!isFeature(path)) return CHECK_WEIGHT;
   let weight = 0;
   let inExamples = false;
   let headerSeen = false;
@@ -61,6 +70,7 @@ export function specWeight(path: string, source: string): number {
 /** The test files one spec runs as, each weighed. */
 export function specUnits(path: string, source: string): readonly SpecUnit[] {
   const weight = specWeight(path, source);
+  if (!isFeature(path) && !path.endsWith('.qnt')) return [{ path, weight }];
   const count = path.endsWith('.qnt')
     ? MODEL_SLICES
     : Math.ceil(weight / SLICE_SCENARIOS);

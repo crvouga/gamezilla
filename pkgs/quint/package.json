@@ -14,7 +14,8 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@informalsystems/quint": "catalog:"
+    "@informalsystems/quint": "catalog:",
+    "@pkgs/conformance": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/property": "workspace:*",

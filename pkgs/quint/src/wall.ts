@@ -1,9 +1,12 @@
 /**
- * The seed a model's traces are drawn from — the seed policy of
- * `@pkgs/property`, as the hex string Quint takes: `FC_SEED` (default
- * `424242`) on every machine, so a verdict is a function of the code; any
- * seed under `PBT_RANDOM=1` (`bun run test:pbt:random`), which the test
- * names print, so a find replays with `FC_SEED=<that seed>`.
+ * The wall this package reads: the seed a model's traces are drawn from, and
+ * the clock and timer that bound a model check.
+ *
+ * The seed is the seed policy of `@pkgs/property`, as the hex string Quint
+ * takes: `FC_SEED` (default `424242`) on every machine, so a verdict is a
+ * function of the code; any seed under `PBT_RANDOM=1`
+ * (`bun run test:pbt:random`), which the test names print, so a find replays
+ * with `FC_SEED=<that seed>`.
  */
 
 const DEFAULT_SEED = 424_242;
@@ -19,4 +22,16 @@ export function quintSeed(): string {
     throw new Error(`quint: FC_SEED=${String(raw)} is not a whole number`);
   }
   return `0x${seed.toString(16)}`;
+}
+
+/** Milliseconds since the call, read on each call. Reported, never decided on. */
+export function wallStopwatch(): () => number {
+  const start = performance.now();
+  return () => Math.round(performance.now() - start);
+}
+
+/** Call `onExpire` once `ms` have passed; the returned function cancels it. */
+export function wallDeadline(ms: number, onExpire: () => void): () => void {
+  const timer = setTimeout(onExpire, ms);
+  return () => clearTimeout(timer);
 }

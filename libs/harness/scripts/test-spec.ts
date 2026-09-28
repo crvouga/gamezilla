@@ -9,9 +9,11 @@
  * It wipes the package's report bucket (`.cache/harness-report`), turns every
  * spec of the domains the package's `specDomains` lists into a `bun test`
  * stub under `.cache/spec/` — each Gherkin feature (`specs/<domain>/*.feature`,
- * run through `tests/steps/index.ts`) and each Quint model
- * (`specs/<domain>/*.qnt`, its traces replayed through `tests/quint/index.ts`)
- * — runs `bun test --parallel` over those stubs plus `tests/harness` (or the
+ * run through `tests/steps/index.ts`), each Quint model
+ * (`specs/<domain>/*.qnt`, its traces replayed through `tests/quint/index.ts`),
+ * and each decision table, structure and objective (`*.dmn`, `*.als`,
+ * `*.openslo.yaml`, checked through `tests/{dmn,alloy,openslo}/index.ts`;
+ * see `spec-check-kinds.ts`) — runs `bun test --parallel` over those stubs plus `tests/harness` (or the
  * paths given) with a JUnit report written into the bucket, and exits with
  * the runner's status. Every harness writes its step timeline into the bucket and
  * every model its traces, and turbo caches the bucket with the verdict, so
@@ -21,6 +23,7 @@
  *   test:spec                                        everything
  *   test:spec specs/friends/friend-remove.feature    one feature (repo-relative)
  *   test:spec specs/spaces/space-hosting.qnt         one model
+ *   test:spec specs/billing/access.dmn               one decision table
  *   test:spec -t 'ends the friendship'               scenarios by name
  *   test:spec --tags '@goal:social:5'                scenarios by tag expression
  *   test:spec tests/harness/critical-journeys.test.tsx   one code test
@@ -50,6 +53,7 @@ import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
 import { parseJunit } from '@pkgs/harness';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
+import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
 import { type Part, partOf, type SpecUnit, specUnits } from './spec-parts';
 
 const PACKAGE_DIR = process.cwd();
@@ -72,7 +76,7 @@ type Cli = {
   readonly bunArgs: string[];
   /** `--part k/n`: run the k-th (0-based) of n parts of the default scope. */
   readonly part: Part | undefined;
-  /** `.feature` and `.qnt` paths, as given. */
+  /** Spec paths (`.feature`, `.qnt`, `.dmn`, `.als`, `.openslo.yaml`), as given. */
   readonly specPaths: string[];
   readonly testPaths: string[];
   readonly tags: string | undefined;
@@ -98,7 +102,7 @@ function parseCli(argv: readonly string[]): Cli {
       tags = argv[++i];
     } else if (arg.startsWith('--tags=')) {
       tags = arg.slice('--tags='.length);
-    } else if (arg.endsWith('.feature') || arg.endsWith('.qnt')) {
+    } else if (isSpecPath(arg)) {
       specPaths.push(arg);
     } else if (arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)) {
       testPaths.push(arg);
@@ -134,13 +138,15 @@ function specDomains(): readonly string[] {
   return manifest.specDomains ?? [];
 }
 
-/** Absolute paths of every spec (`.feature`, `.qnt`) in this package's domains (flat). */
+/** Absolute paths of every spec in this package's domains (flat). */
 function listSpecs(): readonly string[] {
   return specDomains().flatMap((domain) => {
     const dir = join(SPECS_DIR, domain);
     if (!existsSync(dir)) return [];
     // `events.qnt` is a context's published language (types only), not a model.
-    return [...new Bun.Glob('*.{feature,qnt}').scanSync({ cwd: dir })]
+    return SPEC_GLOBS.flatMap((glob) => [
+      ...new Bun.Glob(glob).scanSync({ cwd: dir }),
+    ])
       .filter((file) => file !== 'events.qnt')
       .sort()
       .map((file) => join(dir, file));
@@ -203,7 +209,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
       'Quint models needs a quint entry that imports its model bindings and calls useQuintHarness()'
     );
   }
-  const out: string[] = [];
+  const out: string[] = [...writeCheckStubs(units)];
   const gherkinBridge = Bun.resolveSync(
     '@pkgs/gherkin/bun-test',
     import.meta.dir
@@ -220,6 +226,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
         stepsEntry: STEPS_ENTRY,
         bridge: gherkinBridge,
         slice,
+        reportDir: REPORT_DIR,
       })
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);
@@ -243,6 +250,33 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
     out.push(`./${relative(PACKAGE_DIR, file)}`);
   }
   return out;
+}
+
+/** Stubs for the decision tables, structures and objectives among `units`. */
+function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
+  return CHECK_KINDS.flatMap((kind) => {
+    const specs = units.filter((unit) => unit.path.endsWith(kind.suffix));
+    if (specs.length === 0) return [];
+    const entry = join(PACKAGE_DIR, 'tests', kind.dir, 'index.ts');
+    requireEntry(entry, kind.what);
+    const bridge = Bun.resolveSync(kind.bridge, import.meta.dir);
+    return specs.map(({ path: specPath }) => {
+      const specUri = relative(REPO_ROOT, specPath);
+      const file = join(SPEC_STUB_DIR, kind.fileName(specUri));
+      writeFileSync(
+        file,
+        kind.source({
+          packageName: TEST_PACKAGE_NAME,
+          specPath,
+          specUri,
+          entry,
+          bridge,
+          reportDir: REPORT_DIR,
+        })
+      );
+      return `./${relative(PACKAGE_DIR, file)}`;
+    });
+  });
 }
 
 /**

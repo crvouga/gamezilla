@@ -85,6 +85,7 @@
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/object-store-opfs": "workspace:*",
     "@pkgs/object-store-s3": "workspace:*",
+    "@pkgs/openslo": "workspace:*",
     "@pkgs/polyfill": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
