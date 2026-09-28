@@ -19,6 +19,7 @@ import {
 } from '../../theme';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { DismissibleBannerPortalProvider } from '../dismissible-top-banner';
+import { ScreenFocusProvider } from '../screen-base/screen-focus';
 import { useAppFrameHeader } from './app-frame-chrome';
 
 export type AppFrameProps = {
@@ -84,8 +85,10 @@ function AppFrameCompact(props: AppFrameProps): JSX.Element {
 export function AppFrame(props: AppFrameProps): JSX.Element {
   const mode = useLayoutMode();
   return (
-    <Show when={mode() === 'wide'} fallback={<AppFrameCompact {...props} />}>
-      <AppFrameWide {...props} />
-    </Show>
+    <ScreenFocusProvider>
+      <Show when={mode() === 'wide'} fallback={<AppFrameCompact {...props} />}>
+        <AppFrameWide {...props} />
+      </Show>
+    </ScreenFocusProvider>
   );
 }

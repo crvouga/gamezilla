@@ -28,6 +28,7 @@ import {
   WithScreenBasePrimaryAction,
 } from './screen-base-primary-action';
 import type { ScreenBaseProps } from './screen-base-types';
+import { useScreenFocus } from './screen-focus';
 
 type ShellProps = ScreenBaseProps & {
   primary: ScreenBasePrimaryActionRender | undefined;
@@ -36,8 +37,14 @@ type ShellProps = ScreenBaseProps & {
 
 function CompactShell(props: ShellProps): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
+  let root: HTMLDivElement | undefined;
+  useScreenFocus(
+    () => root,
+    () => props.screenId
+  );
   return (
     <div
+      ref={root}
       class="box flex-1 min-h-0"
       {...dataAttrs({
         component: 'ScreenBase',

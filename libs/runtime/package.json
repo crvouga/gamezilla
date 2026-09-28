@@ -83,6 +83,7 @@
   },
   "devDependencies": {
     "@libs/test-ids": "workspace:*",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/kv": "workspace:*",

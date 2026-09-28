@@ -1,0 +1,21 @@
+{
+  "name": "@pkgs/a11y",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@pkgs/property": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}

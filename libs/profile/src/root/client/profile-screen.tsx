@@ -39,7 +39,9 @@ function ProfileScreenContent(props: {
   return (
     <div class="box gap-6 pt-2">
       <div class="box items-center gap-3">
-        <MyProfileAvatar size={96} />
+        <span class="box" role="img" aria-label={t`Your avatar`}>
+          <MyProfileAvatar size={96} />
+        </span>
         <div class="box items-center gap-1 self-stretch min-w-0">
           <MyUsername variant="heading" numberOfLines={1} class="text-center" />
         </div>

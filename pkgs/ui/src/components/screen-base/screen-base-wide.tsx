@@ -29,6 +29,7 @@ import {
 } from './screen-base-primary-action';
 import type { ScreenBaseProps } from './screen-base-types';
 import { ScreenBreadcrumbTrail } from './screen-breadcrumb-trail';
+import { useScreenFocus } from './screen-focus';
 
 type BodyProps = Pick<ScreenBaseProps, 'content' | 'footer' | 'bottomBar'> & {
   scroll: boolean;
@@ -187,8 +188,14 @@ function WideShell(
       />
     </Show>
   );
+  let root: HTMLDivElement | undefined;
+  useScreenFocus(
+    () => root,
+    () => props.screenId
+  );
   return (
     <div
+      ref={root}
       class="box flex-1 min-h-0"
       {...dataAttrs({
         component: 'ScreenBase',

@@ -30,6 +30,7 @@
     "@dicebear/core": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
