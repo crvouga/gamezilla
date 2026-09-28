@@ -24,6 +24,15 @@
  *   test:spec -t 'ends the friendship'               scenarios by name
  *   test:spec --tags '@goal:social:5'                scenarios by tag expression
  *   test:spec tests/harness/critical-journeys.test.tsx   one code test
+ *   test:spec --part 2/5                             one of five parts
+ *
+ * `bun check` runs a suite in parts (`test:spec:<k>` = `--part k/n`, n the
+ * package's `specParts`), so one package's suite spreads over several CI
+ * shards instead of setting the whole run's wall time. {@link partOf} splits
+ * by weight read from the specs alone, so every part — on any machine —
+ * computes the same split. Each part owns its report bucket and stub dir
+ * (`.cache/harness-report/part-<k>`, `.cache/spec/part-<k>`); an unsplit run
+ * uses `all`.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -41,11 +50,9 @@ import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
 import { parseJunit } from '@pkgs/harness';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
+import { type Part, partOf, specWeight } from './spec-parts';
 
 const PACKAGE_DIR = process.cwd();
-const REPORT_DIR = join(PACKAGE_DIR, '.cache/harness-report');
-const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec');
-const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
 const QUINT_ENTRY = join(PACKAGE_DIR, 'tests/quint/index.ts');
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
@@ -63,6 +70,8 @@ const TIMEOUT_MS = 240_000;
 
 type Cli = {
   readonly bunArgs: string[];
+  /** `--part k/n`: run the k-th (0-based) of n parts of the default scope. */
+  readonly part: Part | undefined;
   /** `.feature` and `.qnt` paths, as given. */
   readonly specPaths: string[];
   readonly testPaths: string[];
@@ -80,9 +89,12 @@ function parseCli(argv: readonly string[]): Cli {
   const specPaths: string[] = [];
   const testPaths: string[] = [];
   let tags: string | undefined;
+  let part: Part | undefined;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i] ?? '';
-    if (arg === '--tags') {
+    if (arg === '--part') {
+      part = parsePart(argv[++i]);
+    } else if (arg === '--tags') {
       tags = argv[++i];
     } else if (arg.startsWith('--tags=')) {
       tags = arg.slice('--tags='.length);
@@ -94,7 +106,22 @@ function parseCli(argv: readonly string[]): Cli {
       bunArgs.push(arg);
     }
   }
-  return { bunArgs, specPaths, testPaths, tags };
+  if (part !== undefined && (specPaths.length > 0 || testPaths.length > 0)) {
+    console.error('test-spec: --part splits the whole suite; drop the paths');
+    process.exit(1);
+  }
+  return { bunArgs, part, specPaths, testPaths, tags };
+}
+
+function parsePart(value: string | undefined): Part {
+  const match = /^(\d+)\/(\d+)$/.exec(value ?? '');
+  const index = Number(match?.[1]);
+  const count = Number(match?.[2]);
+  if (match === null || count < 1 || index >= count) {
+    console.error(`test-spec: --part wants k/n with 0 <= k < n, got ${value}`);
+    process.exit(1);
+  }
+  return { index, count };
 }
 
 /** The `specs/<domain>/` directories this package runs (`specDomains`). */
@@ -120,9 +147,18 @@ function listSpecs(): readonly string[] {
   });
 }
 
-/** Absolute spec paths to run: the ones named, else all. */
+/** Absolute spec paths to run: the ones named, else all (or one part). */
 function selectSpecs(cli: Cli): readonly string[] {
   const all = listSpecs();
+  if (cli.part !== undefined) {
+    return partOf(
+      all.map((path) => ({
+        path,
+        weight: specWeight(path, readFileSync(path, 'utf8')),
+      })),
+      cli.part
+    );
+  }
   if (cli.specPaths.length === 0) {
     return cli.testPaths.length === 0 ? all : [];
   }
@@ -218,15 +254,30 @@ const SOLID_PRELOAD = Bun.resolveSync(
 const BASE_PRELOAD = Bun.resolveSync('@libs/harness/preload', import.meta.dir);
 
 const cli = parseCli(process.argv.slice(2));
+const BUCKET = cli.part === undefined ? 'all' : `part-${cli.part.index}`;
+const REPORT_DIR = join(PACKAGE_DIR, '.cache/harness-report', BUCKET);
+const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec', BUCKET);
+const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
 
 const stubs = writeStubs(selectSpecs(cli));
-const scope =
-  cli.specPaths.length === 0 && cli.testPaths.length === 0
-    ? [...stubs, 'tests/harness']
-    : [...stubs, ...cli.testPaths];
+const withCodeTests =
+  cli.specPaths.length === 0 &&
+  cli.testPaths.length === 0 &&
+  (cli.part?.index ?? 0) === 0 &&
+  existsSync(join(PACKAGE_DIR, 'tests/harness'));
+const scope = [
+  ...stubs,
+  ...(withCodeTests ? ['tests/harness'] : []),
+  ...cli.testPaths,
+];
 if (scope.length === 0) {
+  if (cli.part !== undefined) {
+    // More parts than specs: this part has nothing, which is a pass.
+    console.log(`test-spec: part ${BUCKET} of ${TEST_PACKAGE_NAME} is empty`);
+    process.exit(0);
+  }
   console.error('test-spec: nothing to run');
   process.exit(1);
 }
@@ -258,6 +309,7 @@ const result = spawnSync(
     env: {
       ...process.env,
       ...(cli.tags === undefined ? {} : { SPEC_TAGS: cli.tags }),
+      HARNESS_REPORT_DIR: REPORT_DIR,
       OBS_TRACE_ARTIFACT_DIR: join(REPORT_DIR, 'traces'),
       OBS_TEST_SERVICE: TEST_SERVICE_NAME,
     },

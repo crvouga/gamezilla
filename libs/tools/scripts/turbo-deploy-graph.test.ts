@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { MAX_SPEC_PARTS } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -10,6 +11,7 @@ type TaskConfig = {
   readonly dependsOn?: readonly string[];
   readonly cache?: boolean;
   readonly inputs?: readonly string[];
+  readonly outputs?: readonly string[];
 };
 type Tasks = Readonly<Record<string, TaskConfig>>;
 
@@ -37,10 +39,16 @@ function turboCiRunTaskArgs(script: string): string[] {
     .split(/\s+/);
 }
 
+/** A suite's parts (`test-spec.ts --part k/n`); see `specPartProblems`. */
+const SPEC_PART_TASKS = Array.from(
+  { length: MAX_SPEC_PARTS },
+  (_, index) => `test:spec:${String(index)}`
+);
+
 /**
  * `//#check` is the whole check surface. Everything a package can check about
  * itself rides in its own `tc` / `lint` / `test` / `test:contract` /
- * `test:spec`, so it caches per package; root leaves are only the checks whose
+ * `test:spec:<k>`, so it caches per package; root leaves are only the checks whose
  * subject belongs to no package.
  */
 const CHECK_LEAVES = [
@@ -56,7 +64,7 @@ const CHECK_LEAVES = [
   'lint',
   'test',
   'test:contract',
-  'test:spec',
+  ...SPEC_PART_TASKS,
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/room-server#check:worker-bundle',
@@ -140,6 +148,17 @@ describe('turbo check/deploy graph invariants', () => {
     expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
   });
 
+  test('each spec part caches only its own report bucket', () => {
+    // Two parts of one suite restore on the same machine; overlapping outputs
+    // would let one part's cache entry clobber the other's report.
+    const tasks = loadTasks();
+    for (const [index, task] of SPEC_PART_TASKS.entries()) {
+      expect(tasks[task]?.outputs, task).toEqual([
+        `.cache/harness-report/part-${String(index)}/**`,
+      ]);
+    }
+  });
+
   test('every task `bun check` can run is cached', () => {
     const tasks = loadTasks();
     const uncached = [...reachableFromCheck(tasks)].filter(
@@ -157,7 +176,7 @@ describe('turbo check/deploy graph invariants', () => {
       'lint',
       'test',
       'test:contract',
-      'test:spec',
+      ...SPEC_PART_TASKS,
       'check:worker-bundle',
     ]) {
       expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');

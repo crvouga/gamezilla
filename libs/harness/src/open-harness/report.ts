@@ -2,7 +2,7 @@
 /**
  * Report bucket for harness tests. Every harness writes its `report.json` (each step,
  * its outcome and error) under the running package's
- * `.cache/harness-report/runs/latest/…` — `test:spec` caches that bucket, so the
+ * `.cache/harness-report/<part>/runs/latest/…` — `test:spec` caches that bucket, so the
  * report of the last run of this exact code is always there to render.
  * `HARNESS_FRAMES=1` also captures UI frames (slower; a separate cache entry).
  * `bun run test:report` (root) folds every package's bucket into one
@@ -20,8 +20,13 @@ const PACKAGE_DIR = process.cwd();
 /** This file lives at `libs/harness/src/open-harness/`. */
 const REPO_ROOT = resolve(import.meta.dirname, '../../../..');
 
-/** Raw report bucket (tree layout: keys map 1:1 to files). */
-const HARNESS_REPORT_DATA_DIR = join(PACKAGE_DIR, '.cache/harness-report');
+/**
+ * Raw report bucket (tree layout: keys map 1:1 to files). `test-spec.ts` names
+ * the bucket of its part (`HARNESS_REPORT_DIR`); a bare `bun test` uses `all`.
+ */
+const HARNESS_REPORT_DATA_DIR =
+  process.env['HARNESS_REPORT_DIR'] ??
+  join(PACKAGE_DIR, '.cache/harness-report/all');
 
 /** One run per `bun test` invocation; the report script wipes it first. */
 export const HARNESS_REPORT_RUN_ID = 'latest';

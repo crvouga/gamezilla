@@ -24,7 +24,7 @@ are specs ([`SPEC_STANDARDS.md`](SPEC_STANDARDS.md)); the gate's mechanics
 ## 2. `bun check` is the release decision
 
 It runs every package's `tc`, `lint`, `test`, `test:contract` and
-`test:spec`, plus the root leaves; the Check and Deploy workflows run the
+`test:spec` (in parts, `test:spec:<k>`), plus the root leaves; the Check and Deploy workflows run the
 same set. Its verdict must be:
 
 - **Complete** — no skips, `.only`, `.todo`, `.if`, `.failing`, no test file
