@@ -1,0 +1,157 @@
+{
+  "commands": {
+    "HostIsAlwaysMember": {
+      "bitwidth": 4,
+      "expects": -1,
+      "maxprefix": -1,
+      "maxseq": -1,
+      "minprefix": -1,
+      "name": "HostIsAlwaysMember",
+      "overall": 4,
+      "source": "check HostIsAlwaysMember for 4",
+      "type": "check"
+    },
+    "EveryoneBelongsSomewhere": {
+      "bitwidth": 4,
+      "expects": -1,
+      "maxprefix": -1,
+      "maxseq": -1,
+      "minprefix": -1,
+      "name": "EveryoneBelongsSomewhere",
+      "overall": 3,
+      "solution": [
+        {
+          "duration": 12,
+          "incremental": true,
+          "instances": [
+            {
+              "skolems": {
+                "$EveryoneBelongsSomewhere_p": {
+                  "arity": 1,
+                  "data": [["Person$0"]]
+                }
+              },
+              "values": {
+                "0": {},
+                "1": {},
+                "2": {},
+                "Person$2": {}
+              }
+            }
+          ],
+          "localtime": "2026-09-28T09:06:47.996944",
+          "timezone": "America/Phoenix",
+          "utctime": 1790611607996
+        }
+      ],
+      "source": "check EveryoneBelongsSomewhere for 3",
+      "type": "check"
+    },
+    "SomeSpace": {
+      "bitwidth": 4,
+      "expects": 1,
+      "maxprefix": -1,
+      "maxseq": -1,
+      "minprefix": -1,
+      "name": "SomeSpace",
+      "overall": 3,
+      "solution": [
+        {
+          "duration": 16,
+          "incremental": true,
+          "instances": [
+            {
+              "values": {
+                "0": {},
+                "1": {},
+                "2": {},
+                "Person$1": {},
+                "Space$0": {
+                  "members": [["Person$0"]],
+                  "host": [["Person$0"]]
+                }
+              }
+            }
+          ],
+          "localtime": "2026-09-28T09:06:48.029526",
+          "timezone": "America/Phoenix",
+          "utctime": 1790611608029
+        }
+      ],
+      "source": "run SomeSpace { some Space } for 3",
+      "type": "run"
+    },
+    "LonelySpace": {
+      "bitwidth": 4,
+      "expects": -1,
+      "maxprefix": -1,
+      "maxseq": -1,
+      "minprefix": -1,
+      "name": "LonelySpace",
+      "overall": 3,
+      "source": "run LonelySpace { some s: Space | no s.members } for 3",
+      "type": "run"
+    }
+  },
+  "coreMinimization": 2,
+  "inferPartialInstance": true,
+  "repeat": 1,
+  "sigs": {
+    "univ": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "univ",
+      "type": "{univ}"
+    },
+    "Int": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "Int",
+      "type": "{Int}"
+    },
+    "seq/Int": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "seq/Int",
+      "type": "{seq/Int}"
+    },
+    "String": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "String",
+      "type": "{String}"
+    },
+    "none": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "none",
+      "type": "{none}"
+    },
+    "Person": {
+      "cardinality": "set",
+      "name": "Person",
+      "type": "{Person}"
+    },
+    "Space": {
+      "cardinality": "set",
+      "fields": {
+        "host": {
+          "arity": 2,
+          "name": "host",
+          "type": "{Space->Person}"
+        },
+        "members": {
+          "arity": 2,
+          "name": "members",
+          "type": "{Space->Person}"
+        }
+      },
+      "name": "Space",
+      "type": "{Space}"
+    }
+  },
+  "solver": "sat4j",
+  "symmetry": 20,
+  "timestamp": 1790611607805,
+  "unrolls": -1
+}

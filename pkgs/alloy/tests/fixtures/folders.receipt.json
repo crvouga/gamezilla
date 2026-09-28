@@ -1,0 +1,132 @@
+{
+  "commands": {
+    "Acyclic": {
+      "bitwidth": 4,
+      "expects": -1,
+      "maxprefix": -1,
+      "maxseq": -1,
+      "minprefix": -1,
+      "name": "Acyclic",
+      "overall": 4,
+      "source": "check Acyclic for 4",
+      "type": "check"
+    }
+  },
+  "coreMinimization": 2,
+  "inferPartialInstance": true,
+  "repeat": 1,
+  "sigs": {
+    "univ": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "univ",
+      "type": "{univ}"
+    },
+    "Int": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "Int",
+      "type": "{Int}"
+    },
+    "seq/Int": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "seq/Int",
+      "type": "{seq/Int}"
+    },
+    "String": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "String",
+      "type": "{String}"
+    },
+    "none": {
+      "builtin": true,
+      "cardinality": "set",
+      "name": "none",
+      "type": "{none}"
+    },
+    "User": {
+      "cardinality": "none",
+      "fields": {
+        "name": {
+          "arity": 2,
+          "name": "name",
+          "type": "{User->Name}"
+        }
+      },
+      "name": "User",
+      "type": "{User}"
+    },
+    "Admin": {
+      "cardinality": "set",
+      "name": "Admin",
+      "type": "{Admin}"
+    },
+    "Guest": {
+      "cardinality": "set",
+      "name": "Guest",
+      "type": "{Guest}"
+    },
+    "Name": {
+      "cardinality": "set",
+      "name": "Name",
+      "type": "{Name}"
+    },
+    "Root": {
+      "cardinality": "one",
+      "fields": {
+        "top": {
+          "arity": 2,
+          "name": "top",
+          "type": "{Root->Folder}"
+        }
+      },
+      "name": "Root",
+      "type": "{Root}"
+    },
+    "Folder": {
+      "cardinality": "set",
+      "fields": {
+        "parent": {
+          "arity": 2,
+          "name": "parent",
+          "type": "{Folder->Folder}"
+        },
+        "owner": {
+          "arity": 2,
+          "name": "owner",
+          "type": "{Folder->User}"
+        },
+        "perms": {
+          "arity": 3,
+          "name": "perms",
+          "type": "{Folder->User->Name}"
+        }
+      },
+      "name": "Folder",
+      "type": "{Folder}"
+    },
+    "Shared": {
+      "cardinality": "set",
+      "name": "Shared",
+      "type": "{Folder}"
+    },
+    "Tag": {
+      "cardinality": "set",
+      "fields": {
+        "name": {
+          "arity": 2,
+          "name": "name",
+          "type": "{Tag->Name}"
+        }
+      },
+      "name": "Tag",
+      "type": "{Tag}"
+    }
+  },
+  "solver": "sat4j",
+  "symmetry": 20,
+  "timestamp": 1790611608965,
+  "unrolls": -1
+}

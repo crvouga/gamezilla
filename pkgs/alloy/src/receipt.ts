@@ -17,14 +17,12 @@ export type CommandResult = {
   readonly expects: Expectation;
   /** Whether the solver found an instance (a counterexample, for a check). */
   readonly sat: boolean;
-  /** The first instance's atoms and field values, when {@link sat}. */
-  readonly instance: InstanceValues | null;
+  /**
+   * The instance Alloy found (a counterexample, for a check) as Alloy prints
+   * it, one relation per line; `null` when none was found or read.
+   */
+  readonly instance: string | null;
 };
-
-/** Atom → field → tuples (without the atom itself), as the receipt has them. */
-export type InstanceValues = Readonly<
-  Record<string, Readonly<Record<string, readonly (readonly string[])[]>>>
->;
 
 export type FieldInfo = {
   readonly name: string;
@@ -87,16 +85,16 @@ function parseExpects(value: unknown): Expectation {
   return value === 0 || value === 1 ? value : -1;
 }
 
-function parseInstance(solution: unknown): InstanceValues | null {
-  if (!Array.isArray(solution)) return null;
-  for (const entry of solution) {
-    if (!isObject(entry)) continue;
-    const instances = entry['instances'];
-    if (!Array.isArray(instances)) continue;
-    const [first] = instances;
-    if (isObject(first)) return objectAt(first, 'values') as InstanceValues;
-  }
-  return null;
+function hasInstance(solution: unknown): boolean {
+  return (
+    Array.isArray(solution) &&
+    solution.some(
+      (entry) =>
+        isObject(entry) &&
+        Array.isArray(entry['instances']) &&
+        entry['instances'].length > 0
+    )
+  );
 }
 
 function parseCommand(name: string, raw: unknown): CommandResult {
@@ -107,14 +105,13 @@ function parseCommand(name: string, raw: unknown): CommandResult {
   if (type !== 'check' && type !== 'run') {
     throw new Error(`alloy receipt: command ${name} has type "${type}"`);
   }
-  const instance = parseInstance(raw['solution']);
   return {
     name,
     type,
     source: stringAt(raw, 'source'),
     expects: parseExpects(raw['expects']),
-    sat: instance !== null,
-    instance,
+    sat: hasInstance(raw['solution']),
+    instance: null,
   };
 }
 
@@ -190,20 +187,18 @@ function verdictDetail(command: CommandResult, pass: boolean): string {
 
 const INSTANCE_LINES = 40;
 
-/** A counterexample or instance as one line per atom, integers left out. */
-export function renderInstance(values: InstanceValues): string {
-  const lines: string[] = [];
-  for (const [atom, fields] of Object.entries(values)) {
-    if (/^-?\d+$/.test(atom)) continue;
-    const parts = Object.entries(fields).map(
-      ([field, tuples]) =>
-        `${field} = ${tuples.length === 0 ? 'none' : tuples.map((t) => t.join('->')).join(' + ')}`
-    );
-    lines.push(parts.length === 0 ? atom : `${atom}: ${parts.join(', ')}`);
-  }
+/**
+ * The model's part of a solution Alloy printed (`-t text`): its sigs, fields
+ * and skolems, `this/` dropped; the builtins (`univ`, `Int`, …) left out.
+ */
+export function solutionSummary(text: string): string {
+  const lines = text
+    .split('\n')
+    .filter((line) => /^(this\/|skolem )/.test(line))
+    .map((line) => line.replace(/^this\//, '').replace(/^skolem /, ''));
   const shown = lines.slice(0, INSTANCE_LINES);
   if (lines.length > INSTANCE_LINES) {
-    shown.push(`… ${String(lines.length - INSTANCE_LINES)} more atoms`);
+    shown.push(`… ${String(lines.length - INSTANCE_LINES)} more lines`);
   }
   return shown.join('\n');
 }
