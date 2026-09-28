@@ -15,7 +15,7 @@
  * paths given) with a JUnit report written into the bucket, and exits with
  * the runner's status. Every harness writes its step timeline into the bucket and
  * every model its traces, and turbo caches the bucket with the verdict, so
- * `bun run test:report` (root) renders the last run of this exact code;
+ * `bun run check:report` (root) renders the last run of this exact code;
  * `HARNESS_FRAMES=1` adds UI frames.
  *
  *   test:spec                                        everything

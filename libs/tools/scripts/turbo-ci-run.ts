@@ -43,7 +43,7 @@
  *   finishes. Both live in `check-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
- * - `--restore-outputs` (`bun run test:report`): leave every task's cached
+ * - `--restore-outputs` (the Report workflow behind `bun check:report`): leave every task's cached
  *   outputs on disk. A plain run skips turbo when everything hit, which is
  *   right for a verdict but restores nothing; this mode prefetches every
  *   remote hit, runs turbo over the whole set (hits restore their outputs,
