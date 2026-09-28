@@ -30,6 +30,7 @@ terms:
       In the room right now, as the room shows it: everyone whose phone is
       online in it. Someone who goes offline is no longer shown present until
       they are back online.
+    forms: [presence]
 
   - term: device
     from: kernel
@@ -92,7 +93,7 @@ terms:
     definition: >-
       Ask to become the owner of a room nobody owns yet. Someone who claims a
       room that already has an owner is told so, and nothing changes.
-    forms: [claims the room, claimed the room, claiming the room]
+    forms: [claims the room, claimed the room, claiming the room, claimer]
     model: [claim]
 
   - term: turn someone away
@@ -122,6 +123,7 @@ terms:
   - term: White and Black
     definition: >-
       The two players of a match. White moves first.
+    forms: [player, players]
     model: [Player]
 
   - term: start a match
@@ -195,6 +197,7 @@ terms:
       - claims someone has run out of time
       - has claimed someone has run out of time
       - claiming the opponent has run out of time
+      - early claim
     model: [claimOutOfTime]
 
   - term: win on time
