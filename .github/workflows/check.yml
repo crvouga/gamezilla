@@ -144,9 +144,24 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: observability-traces-${{ github.run_id }}-shard-${{ matrix.shard }}
-          # Spec suites live only in libs/*; keep upload-artifact out of the
-          # repository-wide ** walk (node_modules makes that path pathological).
-          path: 'libs/*/.cache/harness-report/traces/*.ndjson'
+          # One bucket per spec part (libs/* and pkgs/* suites); keep
+          # upload-artifact out of the repository-wide ** walk (node_modules
+          # makes that path pathological).
+          path: |
+            libs/*/.cache/harness-report/*/traces/*.ndjson
+            pkgs/*/.cache/harness-report/*/traces/*.ndjson
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+      # Per-task CI seconds for check-task-costs.json
+      # (`check-shards.ts --harvest <run id>`).
+      - name: Upload turbo run summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: turbo-summary-${{ github.run_id }}-shard-${{ matrix.shard }}
+          path: .turbo/runs/*.json
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7

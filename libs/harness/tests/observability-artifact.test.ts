@@ -19,7 +19,7 @@ afterAll(() => {
 
 test('an ordinary failing spec is queryable by its exact test name', () => {
   const fixture = join(ROOT, 'failure.test.ts');
-  const artifactDir = join(ROOT, '.cache/harness-report/traces');
+  const artifactDir = join(ROOT, '.cache/harness-report/all/traces');
   const runner = join(import.meta.dir, '../scripts/test-spec.ts');
   const obsCli = join(
     import.meta.dir,

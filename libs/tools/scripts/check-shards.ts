@@ -18,14 +18,28 @@
  * is checked.
  *
  * Balance is longest-processing-time first over expected task cost
- * ({@link TASK_COSTS_PATH}, refreshed from a cold run summary with
- * `bun run libs/tools/scripts/check-shards.ts --write-costs <summary.json>`).
+ * ({@link TASK_COSTS_PATH}). The costs are measured where they are spent — on
+ * the 2-core CI shards, which upload their turbo run summaries — and refreshed
+ * from a cold Check run with
+ * `bun run libs/tools/scripts/check-shards.ts --harvest <run id>`
+ * (or `--write-costs <summary.json>…` for summaries already on disk). A
+ * laptop-measured table was off by up to 13× for the spec suites, which put a
+ * ten-minute task beside thirty others on one runner.
  * A task that depends on another miss (other than a `tc`) goes to the same
  * shard, so a build and the budget check reading its output never both build.
  * `tc` is left to duplicate: it is the cheapest task in the graph and a shard
  * restores whatever another shard already uploaded.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import {
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { PlannedTask, RunPlan } from './turbo-preflight';
 
@@ -176,18 +190,79 @@ export function costsFromSummary(summaryJson: string): Record<string, number> {
   );
 }
 
+/**
+ * `previous` updated with every task measured in `summaries`. A task no
+ * summary ran keeps its old cost; a task measured twice (a `tc` two shards
+ * both built) keeps the larger.
+ */
+export function mergeCosts(
+  previous: TaskCosts,
+  summaries: readonly string[]
+): Record<string, number> {
+  const measured: Record<string, number> = {};
+  for (const summary of summaries) {
+    for (const [id, seconds] of Object.entries(costsFromSummary(summary))) {
+      measured[id] = Math.max(measured[id] ?? 0, seconds);
+    }
+  }
+  return Object.fromEntries(
+    Object.entries({ ...previous, ...measured }).sort(([a], [b]) =>
+      a.localeCompare(b)
+    )
+  );
+}
+
+/** Every `*.json` file under `dir`, recursively. */
+function jsonFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) return jsonFiles(path);
+    return name.endsWith('.json') ? [path] : [];
+  });
+}
+
+/** The shard summaries a Check run uploaded (`turbo-summary-<run>-shard-<n>`). */
+function downloadRunSummaries(runId: string): string[] {
+  const dir = mkdtempSync(join(tmpdir(), 'check-costs-'));
+  try {
+    const download = spawnSync(
+      'gh',
+      ['run', 'download', runId, '-p', `turbo-summary-${runId}-*`, '-D', dir],
+      { stdio: 'inherit' }
+    );
+    if (download.status !== 0) {
+      throw new Error(`gh run download ${runId} failed`);
+    }
+    return jsonFiles(dir).map((path) => readFileSync(path, 'utf8'));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 if (import.meta.main) {
-  const [flag, summaryPath] = process.argv.slice(2);
-  if (flag !== '--write-costs' || summaryPath === undefined) {
+  const [flag, ...rest] = process.argv.slice(2);
+  let summaries: string[];
+  if (flag === '--harvest' && rest.length === 1) {
+    summaries = downloadRunSummaries(rest[0] as string);
+  } else if (flag === '--write-costs' && rest.length > 0) {
+    summaries = rest.map((path) => readFileSync(path, 'utf8'));
+  } else {
     console.error(
-      'usage: bun run libs/tools/scripts/check-shards.ts --write-costs <turbo run summary.json>'
+      [
+        'usage: bun run libs/tools/scripts/check-shards.ts --harvest <Check run id>',
+        '       bun run libs/tools/scripts/check-shards.ts --write-costs <turbo run summary.json>…',
+      ].join('\n')
     );
     process.exit(1);
   }
-  const costs = costsFromSummary(readFileSync(summaryPath, 'utf8'));
+  if (summaries.length === 0) {
+    console.error('check-shards: no turbo run summaries to read');
+    process.exit(1);
+  }
+  const costs = mergeCosts(readTaskCosts(), summaries);
   writeFileSync(TASK_COSTS_PATH, `${JSON.stringify(costs, null, 2)}\n`);
   console.log(
-    `check-shards: wrote ${String(Object.keys(costs).length)} task costs to ${TASK_COSTS_PATH}`
+    `check-shards: ${String(summaries.length)} summaries → ${String(Object.keys(costs).length)} task costs in ${TASK_COSTS_PATH}`
   );
 }
 

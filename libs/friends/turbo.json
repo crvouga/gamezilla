@@ -2,7 +2,28 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:spec": {
+    "test:spec:0": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:1": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:2": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:3": {
       "inputs": [
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/specs/friends/**",

@@ -6,6 +6,7 @@
  * credentials.
  */
 import { z } from 'zod';
+import { GLOBAL } from './global';
 
 const slug = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
 const hostname = z
@@ -28,7 +29,6 @@ export const envFileSchema = z
         broker: hostname,
       })
       .strict(),
-    railway: z.object({ workspace_id: id, project_name: id }).strict(),
     /**
      * Where new checkouts go when several providers' keys are present
      * (rendered into the API Worker as `BILLING_PROVIDER`).
@@ -96,7 +96,6 @@ export function statefulIdentities(
   const identities: Record<string, string> = {
     env: env.env,
     suffix: env.suffix,
-    'railway.project_name': `${env.railway.workspace_id}/${env.railway.project_name}`,
   };
   for (const host of envHostnames(env)) identities[`host:${host}`] = host;
   return identities;
@@ -140,44 +139,36 @@ export function envOrigins(env: EnvFile): EnvOrigins {
   };
 }
 
-/**
- * The environment that hosts the one OAuth callback registered with
- * providers (Google's console cannot be reconciled from code): the
- * production environment, the only replica that is never torn down. Every
- * other environment's sign-ins return through it — see
- * `@pkgs/auth-inhouse` `oauth-callback-relay.ts`.
- */
-export function oauthRelayEnv(envs: readonly EnvFile[]): EnvFile {
-  const production = envs.filter(isProductionEnv);
-  const [relay] = production;
-  if (relay === undefined || production.length > 1) {
-    throw new Error(
-      `exactly one environment must have protection "production" (found ${String(production.length)})`
-    );
-  }
-  return relay;
+/** Origin of the one OAuth callback relay (`global.tfvars.json` `auth_relay`). */
+export function authRelayOrigin(): string {
+  return `https://${GLOBAL.auth_relay.hostname}`;
 }
 
 /**
- * Plain-text vars the API Worker boots with, derived from the env files so a
+ * Where the relay forwards each environment's callbacks: state tag (the env
+ * name) → that environment's API origin. Every env file is a target, so a
+ * new environment is reachable as soon as the relay redeploys (the Deploy
+ * workflow's fleet job, before any environment deploys).
+ */
+export function authRelayTargets(
+  envs: readonly EnvFile[]
+): Readonly<Record<string, string>> {
+  const targets: Record<string, string> = {};
+  for (const env of envs) targets[env.env] = envOrigins(env).api;
+  return targets;
+}
+
+/**
+ * Plain-text vars the API Worker boots with, derived from the env file so a
  * new replica needs no hand-set configuration. Names match the bindings
  * `@libs/server-app` and `@pkgs/auth-inhouse` read
  * (`apps/server/tests/wrangler-config.test.ts` pins them).
  */
-export function apiWorkerVars(
-  env: EnvFile,
-  envs: readonly EnvFile[]
-): Readonly<Record<string, string>> {
-  const relay = oauthRelayEnv(envs);
-  const forwardTo: Record<string, string> = {};
-  for (const other of envs) {
-    if (other.env !== env.env) forwardTo[other.env] = envOrigins(other).api;
-  }
+export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
   return {
     WEB_CLIENT_ORIGIN: envOrigins(env).web,
-    OAUTH_CALLBACK_ORIGIN: envOrigins(relay).api,
+    OAUTH_CALLBACK_ORIGIN: authRelayOrigin(),
     OAUTH_STATE_TAG: env.env,
-    OAUTH_RELAY_TARGETS: JSON.stringify(forwardTo),
     BILLING_PROVIDER: env.billing.provider,
   };
 }

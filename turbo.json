@@ -13,6 +13,7 @@
     "LOCAL_PREVIEW_API_ORIGIN",
     "LOCALHOST_STACK",
     "DATABASE_URL",
+    "HYPERDRIVE_ID",
     "AUTH_*",
     "LOCAL_SECRETS",
     "PADDLE_*",
@@ -235,7 +236,7 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "test:spec": {
+    "test:spec:0": {
       "dependsOn": ["tc"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "env": [
@@ -248,7 +249,82 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [".cache/harness-report/**"]
+      "outputs": [".cache/harness-report/part-0/**"]
+    },
+    "test:spec:1": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FRAMES",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-1/**"]
+    },
+    "test:spec:2": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FRAMES",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-2/**"]
+    },
+    "test:spec:3": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FRAMES",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-3/**"]
+    },
+    "test:spec:4": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FRAMES",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-4/**"]
+    },
+    "test:spec:5": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FRAMES",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-5/**"]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -464,8 +540,14 @@
         "lint",
         "test",
         "test:contract",
-        "test:spec",
+        "test:spec:0",
+        "test:spec:1",
+        "test:spec:2",
+        "test:spec:3",
+        "test:spec:4",
+        "test:spec:5",
         "@apps/product#check:offline-shell",
+        "@apps/auth-relay#check:worker-bundle",
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",

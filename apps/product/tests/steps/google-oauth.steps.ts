@@ -7,8 +7,7 @@
  */
 
 import { expect } from 'bun:test';
-import { envOrigins, oauthRelayEnv } from '@libs/infra/public/env-file';
-import { ENV_FILES } from '@libs/infra/public/envs';
+import { authRelayOrigin } from '@libs/infra/public/env-file';
 import type { HttpClient } from '@pkgs/http-client';
 import { Then } from './define';
 import { requireSecret } from './live-world';
@@ -56,8 +55,7 @@ async function authorize(
 Then(
   'Google agrees to send people back to the app after they sign in',
   async (w) => {
-    const relay = oauthRelayEnv(Object.values(ENV_FILES));
-    const callback = `${envOrigins(relay).api}/api/auth/callback/google`;
+    const callback = `${authRelayOrigin()}/api/auth/callback/google`;
     const verdict = await authorize(
       w.http,
       requireSecret('WEB_CLIENT_GOOGLE_CLIENT_ID'),

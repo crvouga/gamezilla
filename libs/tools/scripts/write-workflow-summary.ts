@@ -83,7 +83,7 @@ function buildStatusMarkdown(
     else {
       lines.push('### Query traces', '', '```sh');
       lines.push(
-        `gh run download ${runId} -n observability-traces-${runId} -D artifacts`
+        `gh run download ${runId} -p 'observability-traces-${runId}-*' -D artifacts`
       );
       lines.push('bun obs last --source artifacts --errors --window 24h');
       lines.push('```', '');
@@ -98,15 +98,15 @@ function readFailedTestTraces(): FailedTestTrace[] {
     if (!existsSync(tier)) continue;
     for (const entry of readdirSync(tier, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
-      const path = join(
-        tier,
-        entry.name,
-        '.cache/harness-report/traces/spans.ndjson'
-      );
-      if (existsSync(path)) {
-        failures.push(
-          ...failedTestTracesFromNdjson(readFileSync(path, 'utf8'))
-        );
+      const bucketRoot = join(tier, entry.name, '.cache/harness-report');
+      if (!existsSync(bucketRoot)) continue;
+      for (const bucket of readdirSync(bucketRoot)) {
+        const path = join(bucketRoot, bucket, 'traces/spans.ndjson');
+        if (existsSync(path)) {
+          failures.push(
+            ...failedTestTracesFromNdjson(readFileSync(path, 'utf8'))
+          );
+        }
       }
     }
   }

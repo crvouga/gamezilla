@@ -33,10 +33,18 @@ export type RunFeatureOptions = {
    * decides this beside its bindings — a spec never names where it runs.
    */
   readonly skip?: readonly string[] | undefined;
+  /**
+   * Register only every `count`-th scenario from `index` (feature order), so
+   * one long feature can run as several test files in parallel. Every slice
+   * of a feature together registers each scenario exactly once.
+   */
+  readonly slice?: Slice | undefined;
   /** Per-scenario timeout; default is `bun test --timeout`. */
   readonly timeoutMs?: number | undefined;
   readonly reportHint?: string | undefined;
 };
+
+export type Slice = { readonly index: number; readonly count: number };
 
 export function slug(text: string): string {
   return text
@@ -151,8 +159,10 @@ export function runFeature(source: string, options: RunFeatureOptions): void {
   const feature = parseFeature(source, options.featureUri);
   const selected = tagFilter(options.tags ?? process.env['SPEC_TAGS']);
   const skipped = new Set(options.skip ?? []);
+  const slice = options.slice ?? { index: 0, count: 1 };
   describe(feature.name, () => {
-    for (const scenario of feature.scenarios) {
+    for (const [ordinal, scenario] of feature.scenarios.entries()) {
+      if (ordinal % slice.count !== slice.index) continue;
       if (!selected(scenario.tags) || skipped.has(scenario.name)) continue;
       const body = () =>
         runScenario({ options, featureName: feature.name, scenario });

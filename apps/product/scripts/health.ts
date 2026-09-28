@@ -26,8 +26,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { isProductionEnv, oauthRelayEnv } from '@libs/infra/public/env-file';
-import { ENV_FILES, envFile } from '@libs/infra/public/envs';
+import { isProductionEnv } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
@@ -92,7 +92,6 @@ function selectFeatures(cli: Cli): readonly string[] {
 /** What an environment offers that some scenarios need. */
 export type Environment = {
   readonly production: boolean;
-  readonly relay: boolean;
   readonly observability: boolean;
 };
 
@@ -119,12 +118,6 @@ export const HOST_LIMITS: readonly HostLimit[] = [
     scenario: 'People can pay for Plus in production',
     needs: 'production',
     why: 'only production takes real payments',
-  },
-  {
-    feature: 'specs/health/sign-in.feature',
-    scenario: 'Google sign-ins started in another environment return to it',
-    needs: 'relay',
-    why: 'the relay is probed from its own deploy: a replica deploys before the relay learns about it',
   },
   {
     feature: 'specs/health/request-records.feature',
@@ -181,7 +174,6 @@ if (import.meta.main) {
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
   const offers: Environment = {
     production: isProductionEnv(env),
-    relay: oauthRelayEnv(Object.values(ENV_FILES)).env === env.env,
     observability: (process.env['OBSERVABILITY_ENABLED'] ?? '').trim() !== '0',
   };
   const tags = cli.tags ?? '';

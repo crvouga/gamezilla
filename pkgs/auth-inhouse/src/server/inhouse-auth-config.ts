@@ -48,14 +48,13 @@ export const INHOUSE_AUTH_SECRET = {
    */
   syntheticMonitorToken: 'SYNTHETIC_MONITOR_TOKEN',
   /**
-   * Shared provider callback (see `oauth-callback-relay.ts`): the origin
-   * whose callback is registered with providers, this deployment's state tag,
-   * and a JSON `{ tag: apiOrigin }` of the deployments it forwards to. Origin
-   * and tag go together; unset means providers call this deployment back.
+   * Shared provider callback (see `oauth-callback-relay.ts`): the relay's
+   * origin, whose callback is registered with providers, and this
+   * deployment's state tag. Both or neither; unset means providers call this
+   * deployment back directly.
    */
   oauthCallbackOrigin: 'OAUTH_CALLBACK_ORIGIN',
   oauthStateTag: 'OAUTH_STATE_TAG',
-  oauthRelayTargets: 'OAUTH_RELAY_TARGETS',
 } as const;
 
 /** Shorter tokens are refused: the route is reachable from the internet. */
@@ -199,37 +198,14 @@ function httpOrigin(raw: string, name: string): string {
   return url.origin;
 }
 
-function parseRelayTargets(raw: string | null): Record<string, string> {
-  const name = INHOUSE_AUTH_SECRET.oauthRelayTargets;
-  if (raw === null) return {};
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw configError(`${name} is not JSON`);
-  }
-  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw configError(`${name} must be a JSON object of tag → origin`);
-  }
-  const targets: Record<string, string> = {};
-  for (const [tag, origin] of Object.entries(parsed)) {
-    if (!STATE_TAG_PATTERN.test(tag) || typeof origin !== 'string') {
-      throw configError(`${name}: bad entry "${tag}"`);
-    }
-    targets[tag] = httpOrigin(origin, `${name}.${tag}`);
-  }
-  return targets;
-}
-
 async function readCallbackRelay(
   env: AuthProviderEnv
 ): Promise<OauthCallbackRelay | undefined> {
-  const [origin, tag, targets] = await Promise.all([
+  const [origin, tag] = await Promise.all([
     env.readSecret(INHOUSE_AUTH_SECRET.oauthCallbackOrigin),
     env.readSecret(INHOUSE_AUTH_SECRET.oauthStateTag),
-    env.readSecret(INHOUSE_AUTH_SECRET.oauthRelayTargets),
   ]);
-  if (origin === null && tag === null && targets === null) return undefined;
+  if (origin === null && tag === null) return undefined;
   if (origin === null || tag === null) {
     throw configError(
       `${INHOUSE_AUTH_SECRET.oauthCallbackOrigin} and ${INHOUSE_AUTH_SECRET.oauthStateTag} go together`
@@ -243,7 +219,6 @@ async function readCallbackRelay(
   return {
     callbackOrigin: httpOrigin(origin, INHOUSE_AUTH_SECRET.oauthCallbackOrigin),
     stateTag: tag,
-    forwardTo: parseRelayTargets(targets),
   };
 }
 

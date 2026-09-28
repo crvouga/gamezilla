@@ -34,12 +34,27 @@ export type RunModelOptions = {
   readonly specUri: string;
   /** The package's report bucket; traces land in `quint/<model>/`. */
   readonly reportDir: string;
+  /**
+   * Replay only every `count`-th trace from `index`, so one model's traces
+   * run as several test files in parallel. Every slice draws the same traces
+   * (the draw is a function of the model and the seed) into its own
+   * `quint/<model>@<k>of<n>/`; slice 0 also runs the model-wide tests.
+   */
+  readonly slice?: { readonly index: number; readonly count: number };
 };
 
 /** Register the model's traces with `bun test`. Call at module top level. */
 export function runQuintModel(options: RunModelOptions): void {
   const model = basename(options.specPath, '.qnt');
-  const outDir = join(options.reportDir, 'quint', model);
+  const slice = options.slice ?? { index: 0, count: 1 };
+  const outDir = join(
+    options.reportDir,
+    'quint',
+    slice.count === 1
+      ? model
+      : `${model}@${String(slice.index)}of${String(slice.count)}`
+  );
+  const mine = (i: number): boolean => i % slice.count === slice.index;
   describe(options.specUri, () => {
     let prepared: {
       readonly binding: ReturnType<typeof quintBinding>;
@@ -72,6 +87,10 @@ export function runQuintModel(options: RunModelOptions): void {
       };
     };
     writeSummary(outDir, options, drawn);
+    if (slice.index !== 0) {
+      registerTraces({ options, model, drawn, binding, mine });
+      return;
+    }
 
     test(`takes every bound action (${String(drawn.traces.length)} traces, seed ${drawn.seed})`, () => {
       const missing = untakenActions(binding, drawn.traces);
@@ -96,16 +115,29 @@ export function runQuintModel(options: RunModelOptions): void {
       else test(name, replayTwice, binding.timeoutMs * 2);
     }
 
-    for (const [i, trace] of drawn.traces.entries()) {
-      const n = i + 1;
-      const ctx = traceContext(options, model, drawn.seed, n);
-      const body = () =>
-        replayTrace({ ctx, trace, world: quintWorld(), binding });
-      const name = `trace ${String(n)} (${String(trace.states.length - 1)} steps)`;
-      if (binding.timeoutMs === undefined) test(name, body);
-      else test(name, body, binding.timeoutMs);
-    }
+    registerTraces({ options, model, drawn, binding, mine });
   });
+}
+
+function registerTraces(input: {
+  readonly options: RunModelOptions;
+  readonly model: string;
+  readonly drawn: ReturnType<typeof simulate>;
+  readonly binding: ReturnType<typeof quintBinding>;
+  /** Whether trace `i` (0-based) belongs to this slice. */
+  readonly mine: (i: number) => boolean;
+}): void {
+  const { options, model, drawn, binding, mine } = input;
+  for (const [i, trace] of drawn.traces.entries()) {
+    if (!mine(i)) continue;
+    const n = i + 1;
+    const ctx = traceContext(options, model, drawn.seed, n);
+    const body = () =>
+      replayTrace({ ctx, trace, world: quintWorld(), binding });
+    const name = `trace ${String(n)} (${String(trace.states.length - 1)} steps)`;
+    if (binding.timeoutMs === undefined) test(name, body);
+    else test(name, body, binding.timeoutMs);
+  }
 }
 
 function traceContext(

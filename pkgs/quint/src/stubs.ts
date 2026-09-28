@@ -18,13 +18,24 @@ export type ModelStubInput = {
   readonly bridge: string;
   /** Absolute path of the package's report bucket. */
   readonly reportDir: string;
+  /** One slice of the model's traces (`RunModelOptions.slice`). */
+  readonly slice?: ModelStubSlice | undefined;
 };
 
-export function modelStubFileName(specUri: string): string {
+export type ModelStubSlice = { readonly index: number; readonly count: number };
+
+export function modelStubFileName(
+  specUri: string,
+  slice?: ModelStubSlice
+): string {
+  const suffix =
+    slice === undefined
+      ? ''
+      : `-s${String(slice.index)}of${String(slice.count)}`;
   return `${specUri
     .replace(/^specs\//, '')
     .replace(/\.qnt$/, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')}.qnt.test.ts`;
+    .replace(/[^a-zA-Z0-9]+/g, '-')}${suffix}.qnt.test.ts`;
 }
 
 export function modelStubSource(input: ModelStubInput): string {
@@ -34,7 +45,7 @@ export function modelStubSource(input: ModelStubInput): string {
     `import ${q(input.quintEntry)};`,
     `import { runQuintModel } from ${q(input.bridge)};`,
     '',
-    `runQuintModel({ packageName: ${q(input.packageName)}, specPath: ${q(input.specPath)}, specUri: ${q(input.specUri)}, reportDir: ${q(input.reportDir)} });`,
+    `runQuintModel({ packageName: ${q(input.packageName)}, specPath: ${q(input.specPath)}, specUri: ${q(input.specUri)}, reportDir: ${q(input.reportDir)}${input.slice === undefined ? '' : `, slice: ${q(input.slice)}`} });`,
     '',
   ].join('\n');
 }

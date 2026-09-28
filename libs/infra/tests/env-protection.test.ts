@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import {
   apiWorkerVars,
+  authRelayTargets,
   type EnvFile,
   isProductionEnv,
-  oauthRelayEnv,
   parseEnvFile,
   productionEnvNames,
   sharedIdentities,
@@ -35,7 +35,6 @@ function syntheticEnv(
         api: `api-${name}.example.test`,
         broker: `emqx-${name}.example.test`,
       },
-      railway: { workspace_id: 'ws', project_name: `gamezilla-${name}` },
       billing: { provider: 'stripe' },
     },
     `synthetic ${name}.tfvars.json`
@@ -64,10 +63,12 @@ describe('environment protection', () => {
     );
   });
 
-  test('a new standard env file keeps the one production OAuth relay and shares no identity', () => {
-    expect(isProductionEnv(oauthRelayEnv(envs))).toBe(true);
+  test('a new env file is reachable through the OAuth relay and shares no identity', () => {
+    expect(authRelayTargets(envs)['staging']).toBe(
+      'https://api-staging.example.test'
+    );
     expect(sharedIdentities(envs)).toEqual([]);
-    expect(apiWorkerVars(staging, envs)['OAUTH_STATE_TAG']).toBe('staging');
+    expect(apiWorkerVars(staging)['OAUTH_STATE_TAG']).toBe('staging');
   });
 
   test('every rendered Worker carries its env file protection', () => {

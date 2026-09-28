@@ -46,6 +46,7 @@ import {
   pressChessMenuBackToGameMenu,
   pressPuzzleBackToChessMenu,
   pressPuzzleHint,
+  pressPuzzleNextIfVisible,
   pressPuzzleRetry,
   pressPuzzleSolution,
   readActivePuzzleId,
@@ -160,11 +161,7 @@ export const pressPuzzleNextTwice = scenarioAction({
       ? tapPuzzleSummaryNext
       : tapPuzzleNext;
     await first(s, actorId);
-    try {
-      await tapPuzzleNext(s, actorId);
-    } catch {
-      // The action bar already moved on; one advance is the point.
-    }
+    await pressPuzzleNextIfVisible(s, actorId);
     await settleAfterPuzzleNext(s, actorId);
   },
 });

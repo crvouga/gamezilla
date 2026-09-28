@@ -8,6 +8,8 @@
  *   bun run scripts/tofu.ts drift --stack edge         # fails on any change
  *   bun run scripts/tofu.ts apply --stack bootstrap    # global; run by a person
  *   bun run scripts/tofu.ts apply --stack fleet        # global; Deploy runs it
+ *   bun run scripts/tofu.ts destroy --stack edge       # teardown (infra:destroy)
+ *   bun run scripts/tofu.ts destroy --stack fleet --env <env>
  *
  * `foundation` / `edge` run for the environment in `SECRETS_ENV` (whose
  * secrets `secrets-run` injected). Every apply:
@@ -18,7 +20,10 @@
  *   3. copies the current encrypted state object aside,
  *   4. applies exactly that saved plan.
  *
- * There is deliberately no `destroy` command and no apply without a plan.
+ * `destroy` is the same path with a destroy plan, run only by
+ * `scripts/destroy-env.ts` (`bun run infra:destroy`): the policy is told the
+ * environment's protection, so a standard environment tears down completely
+ * and a production one is refused. Nothing ever applies without a plan.
  */
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -29,6 +34,8 @@ import {
 } from '@libs/infra/public/plan-policy';
 import {
   applyArgs,
+  destroyPlanArgs,
+  fleetEnvResources,
   GLOBAL_STACKS,
   initArgs,
   planArgs,
@@ -50,7 +57,11 @@ import { resolveInfisicalToken } from './infisical-token';
 import { backupState } from './state-backup';
 import { conftest, fail, spawnTool, tofu } from './tofu-process';
 
-type Command = 'plan' | 'apply' | 'drift';
+type Command = 'plan' | 'apply' | 'drift' | 'destroy';
+
+const COMMANDS: readonly Command[] = ['plan', 'apply', 'drift', 'destroy'];
+
+type Teardown = PlanJson['teardown'];
 
 const PKG_DIR = join(import.meta.dirname, '..');
 const PATHS: TofuPaths = {
@@ -59,15 +70,29 @@ const PATHS: TofuPaths = {
 };
 const POLICY_DIR = join(PKG_DIR, 'policy');
 
-function parseCli(argv: readonly string[]): { command: Command; stack: Stack } {
-  const command = argv[0];
-  if (command !== 'plan' && command !== 'apply' && command !== 'drift') {
-    fail(`usage: tofu.ts <plan|apply|drift> --stack <${STACKS.join('|')}>`);
+type Cli = {
+  readonly command: Command;
+  readonly stack: Stack;
+  /** `destroy --stack fleet` only: the environment whose entries go. */
+  readonly env: string | null;
+};
+
+function flag(argv: readonly string[], name: string): string | null {
+  const at = argv.indexOf(name);
+  return at < 0 ? null : (argv[at + 1] ?? null);
+}
+
+function parseCli(argv: readonly string[]): Cli {
+  const command = argv[0] as Command;
+  if (!COMMANDS.includes(command)) {
+    fail(
+      `usage: tofu.ts <${COMMANDS.join('|')}> --stack <${STACKS.join('|')}> [--env <env>]`
+    );
   }
-  const stack = argv[argv.indexOf('--stack') + 1];
-  if (!STACKS.includes(stack as Stack))
+  const stack = flag(argv, '--stack') as Stack;
+  if (!STACKS.includes(stack))
     fail(`--stack must be one of ${STACKS.join(', ')}`);
-  return { command, stack: stack as Stack };
+  return { command, stack, env: flag(argv, '--env') };
 }
 
 function targetFor(stack: Stack): Target {
@@ -95,24 +120,44 @@ async function toolEnvironment(
   return { ...env, TF_VAR_infisical_token: await resolveInfisicalToken() };
 }
 
+/** What a destroy plan covers: the whole stack, or one env's fleet entries. */
+function teardownScope(target: Target, cli: Cli): readonly string[] {
+  if (target.stack !== 'fleet') return [];
+  if (cli.env === null) fail('destroy --stack fleet needs --env <env>');
+  return fleetEnvResources(cli.env);
+}
+
 /** Plans to a file and returns the tofu exit code (0 no-op, 2 changes). */
-function planTarget(target: Target, env: Record<string, string>): number {
+function planTarget(
+  target: Target,
+  env: Record<string, string>,
+  cli: Cli
+): number {
   if (tofu(initArgs(PATHS, target), env) !== 0)
     fail(`${target.stack}: tofu init failed`);
-  const status = tofu(planArgs(PATHS, target), env);
+  const args =
+    cli.command === 'destroy'
+      ? destroyPlanArgs(PATHS, target, teardownScope(target, cli))
+      : planArgs(PATHS, target);
+  const status = tofu(args, env);
   if (status !== 0 && status !== 2) fail(`${target.stack}: tofu plan failed`);
   return status;
 }
 
-function checkPolicy(target: Target, env: Record<string, string>): void {
+function checkPolicy(
+  target: Target,
+  env: Record<string, string>,
+  teardown: Teardown
+): void {
   const shown = spawnTool('tofu', showArgs(PATHS, target), {
     env,
     capture: true,
   });
   if (shown.status !== 0)
     fail(`${target.stack}: tofu show failed: ${shown.stderr}`);
+  const plan = JSON.parse(shown.stdout) as PlanJson;
   const verdict = evaluatePlanPolicy(
-    JSON.parse(shown.stdout) as PlanJson,
+    teardown === undefined ? plan : { ...plan, teardown },
     POLICY_DIR,
     conftest
   );
@@ -125,15 +170,23 @@ function checkPolicy(target: Target, env: Record<string, string>): void {
   console.log(`[infra] ${target.stack}: plan passed policy/stateful.rego`);
 }
 
-async function run(
-  command: Command,
-  target: Target,
-  firstRun: boolean
-): Promise<void> {
+/** The torn-down environment's protection, told to the policy. */
+function teardownOf(target: Target, cli: Cli): Teardown {
+  if (cli.command !== 'destroy') return undefined;
+  if (target.stack === 'bootstrap')
+    fail('the bootstrap stack is never destroyed');
+  const name = target.env ?? cli.env;
+  if (name === null) fail('destroy needs an environment');
+  return { protection: envFile(name).protection };
+}
+
+async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
+  const { command } = cli;
   const env = await toolEnvironment(target);
-  const label = `${target.stack}/${target.env ?? 'global'}`;
-  const status = planTarget(target, env);
-  checkPolicy(target, env);
+  const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
+  const teardown = teardownOf(target, cli);
+  const status = planTarget(target, env, cli);
+  checkPolicy(target, env, teardown);
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);
     return;
@@ -152,14 +205,15 @@ async function run(
 }
 
 async function main(): Promise<void> {
-  const { command, stack } = parseCli(process.argv.slice(2));
+  const cli = parseCli(process.argv.slice(2));
+  const { command, stack } = cli;
   const target = targetFor(stack);
   // TF_PLUGIN_CACHE_DIR must exist; a fresh CI checkout has no .cache.
   mkdirSync(join(PATHS.cacheDir, 'plugins'), { recursive: true });
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));
-  if (!firstRun) return run(command, target, false);
+  if (!firstRun) return run(cli, target, false);
 
   console.log(
     '[infra] bootstrap: first run (or resuming one) — using the local backend'
@@ -168,7 +222,7 @@ async function main(): Promise<void> {
   // `fail` exits the process, which skips `finally`: a stray override would
   // point a later run at local state, so it is removed on every exit.
   process.on('exit', () => dropLocalBackend(PATHS));
-  await run(command, target, command === 'apply');
+  await run(cli, target, command === 'apply');
 }
 
 await main();

@@ -62,3 +62,28 @@ test_standard_mass_delete_allowed if {
 	]
 	count(deny) == 0 with input as plan(changes, "standard")
 }
+
+teardown_of(changes, protection) := object.union(
+	plan(changes, protection),
+	{"teardown": {"protection": protection}},
+)
+
+test_standard_teardown_deletes_stateful if {
+	changes := [
+		change("cloudflare_r2_bucket", ["delete"]),
+		change("neon_branch", ["delete"]),
+		change("railway_service", ["delete"]),
+	]
+	count(deny) == 0 with input as teardown_of(changes, "standard")
+}
+
+test_production_teardown_denied if {
+	deny["refusing to tear down a production environment"] with input as teardown_of(
+		[change("cloudflare_dns_record", ["delete"])],
+		"production",
+	)
+}
+
+test_production_teardown_never_deletes_stateful if {
+	count(deny) == 2 with input as teardown_of([change("cloudflare_r2_bucket", ["delete"])], "production")
+}

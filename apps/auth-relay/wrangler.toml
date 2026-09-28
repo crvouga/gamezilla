@@ -1,0 +1,14 @@
+# The one OAuth callback relay every environment signs in through
+# (auth.<zone>). Global, not per environment: libs/infra renders its name and
+# forwarding targets from tofu/global.tfvars.json and the env files, and the
+# OpenTofu fleet stack binds its hostname.
+name = "gamezilla-auth-relay"
+main = "src/worker.ts"
+compatibility_date = "2026-09-21"
+workers_dev = false
+preview_urls = false
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true

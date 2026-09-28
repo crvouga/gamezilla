@@ -2,14 +2,15 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  authRelayOrigin,
   envOrigins,
   isProductionEnv,
-  oauthRelayEnv,
   parseEnvFile,
 } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import {
   deletedDurableObjectClasses,
+  HYPERDRIVE_BINDING,
   renderWranglerConfig,
   type WranglerConfig,
   workerName,
@@ -76,10 +77,8 @@ describe('wrangler.toml', () => {
     ).toThrow(/production" or "standard/);
   });
 
-  test('boots every environment with its web origin and the shared OAuth callback', () => {
-    const envs = Object.values(ENV_FILES);
-    const relay = oauthRelayEnv(envs);
-    for (const env of envs) {
+  test('boots every environment with its web origin and the shared OAuth relay', () => {
+    for (const env of Object.values(ENV_FILES)) {
       const vars = renderWranglerConfig(base, env, 'api')['vars'] as Record<
         string,
         string
@@ -87,17 +86,20 @@ describe('wrangler.toml', () => {
       expect(vars[WEB_CLIENT_ORIGIN_BINDING]).toBe(envOrigins(env).web);
       expect(vars[BILLING_PROVIDER_BINDING]).toBe(env.billing.provider);
       expect(vars[INHOUSE_AUTH_SECRET.oauthCallbackOrigin]).toBe(
-        envOrigins(relay).api
+        authRelayOrigin()
       );
       expect(vars[INHOUSE_AUTH_SECRET.oauthStateTag]).toBe(env.env);
-      const targets = JSON.parse(
-        vars[INHOUSE_AUTH_SECRET.oauthRelayTargets] ?? '{}'
-      ) as Record<string, string>;
-      expect(Object.keys(targets).sort()).toEqual(
-        envs
-          .filter((other) => other.env !== env.env)
-          .map((other) => other.env)
-          .sort()
+    }
+  });
+
+  test("binds the environment's Hyperdrive config as HYPERDRIVE", () => {
+    for (const env of Object.values(ENV_FILES)) {
+      const hyperdriveId = '0123456789abcdef0123456789abcdef';
+      expect(
+        renderWranglerConfig(base, env, 'api', { hyperdriveId })['hyperdrive']
+      ).toEqual([{ binding: HYPERDRIVE_BINDING, id: hyperdriveId }]);
+      expect(renderWranglerConfig(base, env, 'api')['hyperdrive']).toBe(
+        undefined
       );
     }
   });

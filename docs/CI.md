@@ -8,7 +8,7 @@ never mutates); `bun health` checks the **live deployments** (`dev`;
 ## `bun check`
 
 `//#check` depends on every package's `tc`, `lint`, `test`, `test:contract`
-and `test:spec`; the root leaves (`//#lint:root`, syncpack, audit, i18n,
+and the parts of its `test:spec` (`test:spec:<k>`, below); the root leaves (`//#lint:root`, syncpack, audit, i18n,
 agent-commands, goals); `@apps/product#check:offline-shell` (every file the
 wall client can load is precached, under budget, from the real `dist/`); each
 Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload
@@ -55,7 +55,7 @@ opt-in report.
     `CHECK_SECRETS_RANGE` (`<merge-base>..<head>`) for `check:secrets`. Env
     that changes a verdict is in the task's turbo `env` (`HARNESS_FIDELITY`,
     fast-check knobs; `HARNESS_MODE` / `HARNESS_WITH_DOM` / `HARNESS_FRAMES`
-    on `test:spec`).
+    on `test:spec:<k>`).
 - **Keep the graph narrow.** A package's dependencies are its blast radius:
   prefer small packages, depend on `public/` ports, and never let a shell or
   `pkgs/` package name a feature. A spec suite lives with its feature
@@ -63,10 +63,20 @@ opt-in report.
   `libs/harness/scripts/test-spec.ts`) and composes only the slices it needs
   ([`FEATURE_SUBSYSTEMS.md`](FEATURE_SUBSYSTEMS.md)). The widest suite,
   `@libs/runtime#test:spec`, stays small on purpose.
-- **The report is cached with the verdict.** `test:spec` writes
-  `<package>/.cache/harness-report` as its turbo `outputs`; `bun run
-  test:report` restores or reruns every bucket and folds them into one
-  `harness-report/index.html`.
+- **A spec suite runs in parts.** One suite is one process, and on a 2-core
+  runner the biggest took ten minutes while every other shard idled. So
+  `bun check` never runs `test:spec` (that stays the whole suite, for local
+  runs); it runs `test:spec:0` … `test:spec:<specParts - 1>`, each
+  `test-spec.ts --part k/n`, which the sharder spreads like any other task.
+  The split is weighed from the spec files alone (scenarios, outline rows, a
+  fixed weight per Quint model — `libs/harness/scripts/spec-parts.ts`), so
+  every part computes the same one. `spec:check` holds a package's scripts
+  and turbo inputs to its `specParts`; raise `specParts` when a part grows
+  past ~2 min on CI.
+- **The report is cached with the verdict.** Each part writes
+  `<package>/.cache/harness-report/part-<k>` as its turbo `outputs` (an
+  unsplit run writes `all`); `bun run test:report` restores or reruns every
+  part and folds them into one `harness-report/index.html`.
 
 ## `turbo-ci-run`
 
@@ -128,8 +138,10 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
    [`check-shards.ts`](../libs/tools/scripts/check-shards.ts), balanced by
    `check-task-costs.json`, and up to `MAX_SHARDS` `check:shard` runners run
    their misses. The `check` job — the one required check — is green only when
-   the plan and every shard are. Refresh costs from a cold run with
-   `bun run libs/tools/scripts/check-shards.ts --write-costs <summary.json>`.
+   the plan and every shard are. Each shard uploads its turbo run summary;
+   refresh the costs from a cold run (one that touched `turbo.json`) with
+   `bun run libs/tools/scripts/check-shards.ts --harvest <run id>` — costs
+   are CI seconds, never a laptop's.
    A new check goes into `//#check` in `turbo.json`, preferably as a test or
    lint rule in its package; never a new job.
 2. **Deploy** (`deploy:matrix` reads `libs/infra/tofu/envs/*.tfvars.json`

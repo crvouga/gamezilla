@@ -26,6 +26,13 @@ export const SPECS_DIR = 'specs';
 /** The specifier prefix a steps entry registers the shared steps with. */
 const SHARED_STEPS_IMPORT = '@libs/harness/spec/steps/';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
+/** The spec runner every `test:spec` and `test:spec:<k>` script calls. */
+const SPEC_RUNNER = 'bun run ../../libs/harness/scripts/test-spec.ts';
+/**
+ * Most parts one suite may split into: root `turbo.json` defines
+ * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and `//#check` runs them.
+ */
+export const MAX_SPEC_PARTS = 6;
 
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */
@@ -48,7 +55,57 @@ type Manifest = {
   readonly specDomains?: readonly string[];
   /** The `specs/<domain>/` directories this package runs against a deployment. */
   readonly liveDomains?: readonly string[];
+  /** How many `test:spec:<k>` parts `bun check` splits the suite into. */
+  readonly specParts?: number;
+  readonly scripts?: Readonly<Record<string, string>>;
 };
+
+/**
+ * What is wrong with how a package splits its spec suite for `bun check`:
+ * `test:spec:<k>` for every k below `specParts`, each exactly the runner with
+ * `--part k/n`, and no other part — `//#check` runs the parts, never
+ * `test:spec`, so a suite without them would not gate at all.
+ */
+export function specPartProblems(
+  dir: string,
+  manifest: Pick<Manifest, 'specParts' | 'scripts'>
+): readonly string[] {
+  const scripts = manifest.scripts ?? {};
+  if (scripts['test:spec'] === undefined) return [];
+  const count = manifest.specParts;
+  if (
+    count === undefined ||
+    !Number.isInteger(count) ||
+    count < 1 ||
+    count > MAX_SPEC_PARTS
+  ) {
+    return [
+      `${dir}/package.json: specParts must be an integer from 1 to ${String(MAX_SPEC_PARTS)} — bun check runs the suite as test:spec:0 … test:spec:<specParts - 1>`,
+    ];
+  }
+  const out: string[] = [];
+  for (const [name, script] of Object.entries(scripts)) {
+    const match = /^test:spec:(\d+)$/.exec(name);
+    if (match === null) continue;
+    const index = Number(match[1]);
+    const want = `${SPEC_RUNNER} --part ${String(index)}/${String(count)}`;
+    if (index >= count) {
+      out.push(
+        `${dir}/package.json: "${name}" is past specParts (${String(count)}) — delete it`
+      );
+    } else if (script !== want) {
+      out.push(`${dir}/package.json: "${name}" must be "${want}"`);
+    }
+  }
+  for (let index = 0; index < count; index++) {
+    if (scripts[`test:spec:${String(index)}`] === undefined) {
+      out.push(
+        `${dir}/package.json: "test:spec:${String(index)}" is missing — "${SPEC_RUNNER} --part ${String(index)}/${String(count)}"`
+      );
+    }
+  }
+  return out;
+}
 
 function listFiles(dir: string, suffix: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
@@ -370,29 +427,43 @@ export function specsLayoutProblems(
       );
     }
   }
-  for (const pkg of packages) {
-    const turbo = join(REPO_ROOT, pkg.dir, 'turbo.json');
-    const inputs = existsSync(turbo)
-      ? ((
-          JSON.parse(readFileSync(turbo, 'utf8')) as {
-            readonly tasks?: Record<string, { readonly inputs?: string[] }>;
-          }
-        ).tasks?.['test:spec']?.inputs ?? [])
-      : [];
-    for (const domain of pkg.specDomains) {
-      const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/**`;
-      if (!inputs.includes(input)) {
-        out.push(
-          `${pkg.dir}/turbo.json: test:spec inputs must include "${input}" so a spec change re-runs ${pkg.name}`
-        );
-      }
-    }
+  for (const dir of packageDirs()) {
+    out.push(...specPartProblems(dir, readManifest(dir)));
   }
+  for (const pkg of packages) out.push(...specPartInputProblems(pkg));
   for (const dir of packageDirs()) {
     if (existsSync(join(REPO_ROOT, dir, 'features'))) {
       out.push(
         `${dir}/features: features live in ${SPECS_DIR}/<domain>/ — move them and list the domain in specDomains`
       );
+    }
+  }
+  return out;
+}
+
+/** Each `test:spec:<k>` must hash the specs of every domain the package runs. */
+function specPartInputProblems(pkg: SpecPackage): readonly string[] {
+  const turbo = join(REPO_ROOT, pkg.dir, 'turbo.json');
+  const tasks = existsSync(turbo)
+    ? ((
+        JSON.parse(readFileSync(turbo, 'utf8')) as {
+          readonly tasks?: Record<string, { readonly inputs?: string[] }>;
+        }
+      ).tasks ?? {})
+    : {};
+  const parts = Object.keys(readManifest(pkg.dir).scripts ?? {}).filter(
+    (name) => /^test:spec:\d+$/.test(name)
+  );
+  const out: string[] = [];
+  for (const part of parts) {
+    const inputs = tasks[part]?.inputs ?? [];
+    for (const domain of pkg.specDomains) {
+      const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/**`;
+      if (!inputs.includes(input)) {
+        out.push(
+          `${pkg.dir}/turbo.json: ${part} inputs must include "${input}" so a spec change re-runs ${pkg.name}`
+        );
+      }
     }
   }
   return out;

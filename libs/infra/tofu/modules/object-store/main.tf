@@ -1,8 +1,8 @@
 # Object storage: one R2 bucket and an S3 credential scoped to it.
 #
-# STATEFUL: the bucket holds user data. It is never destroyed or replaced —
-# `prevent_destroy` here, and `policy/stateful.rego` refuses any plan that
-# deletes a `cloudflare_r2_bucket` even if this block is removed.
+# STATEFUL: the bucket holds user data. `policy/stateful.rego` refuses any
+# plan that deletes or replaces it, except the teardown of a whole standard
+# environment (`bun run infra:destroy`, which empties it first).
 
 terraform {
   required_providers {
@@ -25,10 +25,6 @@ variable "token_name" {
 resource "cloudflare_r2_bucket" "objects" {
   account_id = var.account_id
   name       = var.bucket_name
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 data "cloudflare_account_api_token_permission_groups_list" "bucket_item_write" {

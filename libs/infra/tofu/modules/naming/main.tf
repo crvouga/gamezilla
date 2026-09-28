@@ -50,3 +50,7 @@ output "traces_write_policy" {
 output "traces_read_policy" {
   value = local.names.traces_read_policy
 }
+
+output "hyperdrive" {
+  value = local.names.hyperdrive
+}

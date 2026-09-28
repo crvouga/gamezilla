@@ -2,7 +2,7 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:spec": {
+    "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/matchmaking/**"]
     }
   }

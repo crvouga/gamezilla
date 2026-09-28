@@ -3,16 +3,17 @@
 /**
  * `bun run test:report [--frames] [--no-run] [--open]` (repo root)
  *
- * The report of the code as it is now. Every `test:spec` run — `bun check`,
- * CI, this script — writes its package's report bucket
- * (`<pkg>/.cache/harness-report`: each Gherkin scenario's and Quint trace's step
- * timeline, the traces themselves, JUnit), and turbo caches the bucket with
- * the verdict. So this runs every `test:spec` through `turbo-ci-run
- * --restore-outputs` with the same flags and env as `bun check`: a suite
- * whose code has not changed since any machine sharing the remote cache ran
- * it restores that run's bucket instead of running again, and only changed
- * suites run. It then folds every bucket (JUnit outcomes overlaid) into one
- * `harness-report/index.html` at the repo root.
+ * The report of the code as it is now. `bun check` runs each suite in parts
+ * (`test:spec:<k>`), and every part writes its own report bucket
+ * (`<pkg>/.cache/harness-report/part-<k>`: each Gherkin scenario's and Quint
+ * trace's step timeline, the traces themselves, JUnit) that turbo caches with
+ * the verdict. So this runs every part through `turbo-ci-run
+ * --restore-outputs` with the same flags and env as `bun check`: a part whose
+ * code has not changed since any machine sharing the remote cache ran it
+ * restores that run's bucket instead of running again, and only changed parts
+ * run. It then folds every bucket (JUnit outcomes overlaid) into one
+ * `harness-report/index.html` at the repo root. With `--no-run`, a package
+ * whose unsplit `test:spec` (bucket `all`) ran after its parts shows that run.
  *
  * `--frames` adds UI frames to every step (`HARNESS_FRAMES=1`: slower, and a
  * separate cache entry from `bun check`'s). `--no-run` builds from the
@@ -26,6 +27,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -43,7 +45,9 @@ import { run } from '@pkgs/os';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 const OUT_DIR = join(REPO_ROOT, 'harness-report');
-const BUCKET = '.cache/harness-report';
+const BUCKET_ROOT = '.cache/harness-report';
+/** Every part task `bun check` can run (`MAX_SPEC_PARTS` in spec-packages.ts). */
+const SPEC_PART_TASKS = Array.from({ length: 6 }, (_, k) => `test:spec:${k}`);
 const RUN_ID = 'latest';
 
 const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
@@ -119,8 +123,25 @@ function compileFrameCss(): string {
   }
 }
 
-async function readPackageBundle(dir: string): Promise<HtmlReportBundle> {
-  const bucket = join(REPO_ROOT, dir, BUCKET);
+function junitMtime(bucket: string): number {
+  const junit = join(bucket, 'junit.xml');
+  return existsSync(junit) ? statSync(junit).mtimeMs : -1;
+}
+
+/** The package's latest run: its parts, or the unsplit `all` if newer. */
+function latestBuckets(dir: string): string[] {
+  const root = join(REPO_ROOT, dir, BUCKET_ROOT);
+  if (!existsSync(root)) return [];
+  const parts = readdirSync(root)
+    .filter((name) => /^part-\d+$/.test(name))
+    .map((name) => join(root, name))
+    .sort();
+  const all = join(root, 'all');
+  const partsTime = Math.max(-1, ...parts.map(junitMtime));
+  return junitMtime(all) > partsTime ? [all] : parts;
+}
+
+async function readBucket(bucket: string): Promise<HtmlReportBundle> {
   const store = createNodeFsObjectStore({
     rootDir: bucket,
     fs: wallNodeFs(),
@@ -142,7 +163,7 @@ if (!args.has('--no-run')) {
       'run',
       join(REPO_ROOT, 'libs/tools/scripts/turbo-ci-run.ts'),
       '--restore-outputs',
-      'test:spec',
+      ...SPEC_PART_TASKS,
     ],
     {
       cwd: REPO_ROOT,
@@ -158,7 +179,9 @@ if (!args.has('--no-run')) {
 
 const runs: { label: string; bundle: HtmlReportBundle }[] = [];
 for (const dir of specPackageDirs()) {
-  runs.push({ label: dir, bundle: await readPackageBundle(dir) });
+  for (const bucket of latestBuckets(dir)) {
+    runs.push({ label: dir, bundle: await readBucket(bucket) });
+  }
 }
 const bundle = mergeRunBundles(RUN_ID, runs);
 const html = renderHtmlReport(bundle, {

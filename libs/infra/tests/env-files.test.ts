@@ -2,8 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  authRelayTargets,
   envHostnames,
-  oauthRelayEnv,
+  envOrigins,
   sharedIdentities,
 } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
@@ -24,10 +25,33 @@ describe('environment files', () => {
     }
   });
 
-  test('exactly one production environment hosts the shared OAuth callback', () => {
-    expect(oauthRelayEnv(Object.values(ENV_FILES)).protection).toBe(
-      'production'
+  test('the OAuth relay forwards to every environment and to nothing else', () => {
+    const envs = Object.values(ENV_FILES);
+    expect(authRelayTargets(envs)).toEqual(
+      Object.fromEntries(envs.map((env) => [env.env, envOrigins(env).api]))
     );
+  });
+
+  test('the OAuth relay has its own hostname under the zone, no environment claims it', () => {
+    const relay = GLOBAL.auth_relay;
+    expect(relay.hostname.endsWith(`.${relay.zone_name}`)).toBe(true);
+    expect(
+      relay.hostname.slice(0, -(relay.zone_name.length + 1))
+    ).not.toContain('.');
+    for (const env of Object.values(ENV_FILES)) {
+      expect(envHostnames(env)).not.toContain(relay.hostname);
+      expect(Object.values(envResourceNames(env))).not.toContain(relay.worker);
+    }
+  });
+
+  test('a standard environment adopts nothing, so it can be torn down and rebuilt', () => {
+    for (const env of Object.values(ENV_FILES)) {
+      if (env.protection !== 'standard') continue;
+      expect({ env: env.env, imports: env.imports }).toEqual({
+        env: env.env,
+        imports: undefined,
+      });
+    }
   });
 
   test('no two environments share a stateful identity or hostname', () => {

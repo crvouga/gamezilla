@@ -8,15 +8,10 @@ import {
   id       = each.value
 }
 
+# `project_id:name` — production's is the project's default environment.
 import {
-  for_each = var.imports.foundation.railway_project == null ? toset([]) : toset([var.imports.foundation.railway_project])
-  to       = module.pubsub.railway_project.this
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.railway_service == null ? toset([]) : toset([var.imports.foundation.railway_service])
-  to       = module.pubsub.railway_service.emqx
+  for_each = var.imports.foundation.railway_environment == null ? toset([]) : toset([var.imports.foundation.railway_environment])
+  to       = module.pubsub.railway_environment.this
   id       = each.value
 }
 
@@ -56,10 +51,21 @@ import {
   id       = "write-only:${var.infisical.project_id}:${var.env}:/:${each.value}"
 }
 
-# Broker variables already set on the adopted service (Railway upserts them,
-# but importing keeps the first plan a pure no-op for existing values).
-import {
-  for_each = var.imports.foundation.railway_service == null ? toset([]) : toset(["PORT", "EMQX_API_KEY", "EMQX_API_SECRET", "EMQX_JWT_SECRET", "EMQX_DASHBOARD_PASSWORD"])
-  to       = module.pubsub.railway_variable.broker[each.value]
-  id       = "${var.imports.foundation.railway_service}:production:${each.value}"
+# The Railway project and the `emqx` service are shared by every environment
+# and now belong to the fleet stack (modules/pubsub-project), which adopts
+# them by id: forget, never delete. (Each environment used to own a project
+# of its own; dev's old one is deleted by hand once dev runs in the shared
+# project — docs/INFRA.md.)
+removed {
+  from = module.pubsub.railway_project.this
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.pubsub.railway_service.emqx
+  lifecycle {
+    destroy = false
+  }
 }

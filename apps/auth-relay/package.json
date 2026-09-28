@@ -1,0 +1,27 @@
+{
+  "name": "@apps/auth-relay",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/worker.ts"
+  },
+  "scripts": {
+    "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
+    "deploy": "bun run scripts/deploy.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@libs/infra": "workspace:*",
+    "@libs/secrets": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

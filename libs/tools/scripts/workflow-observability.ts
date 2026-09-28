@@ -92,7 +92,7 @@ export function failedTestTraceMarkdown(
     lines.push('');
     lines.push('```sh');
     lines.push(
-      `gh run download ${runId} -n observability-traces-${runId} -D artifacts`
+      `gh run download ${runId} -p 'observability-traces-${runId}-*' -D artifacts`
     );
     lines.push(
       `bun obs test ${shellQuote(failure.testId)} --source artifacts --last-failure`

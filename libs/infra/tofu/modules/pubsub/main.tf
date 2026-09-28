@@ -1,7 +1,10 @@
-# MQTT broker: EMQX on Railway behind a Cloudflare DNS name.
+# MQTT broker: this environment's instance of the shared EMQX service
+# (modules/pubsub-project) — a Railway environment of the one project, its
+# credentials and its hostname — behind a Cloudflare DNS name.
 #
-# STATEFUL: the Railway project and the service (which owns the
-# `/opt/emqx/data` volume) are never destroyed or replaced.
+# STATEFUL: the Railway environment (the broker instance and its
+# `/opt/emqx/data` volume) is never destroyed or replaced outside a standard
+# environment's teardown (policy/stateful.rego).
 
 terraform {
   required_providers {
@@ -11,21 +14,19 @@ terraform {
   }
 }
 
-variable "project_name" {
-  type = string
-}
-
-variable "workspace_id" {
-  type = string
-}
-
-variable "github_repo" {
+variable "project_id" {
   type        = string
-  description = "owner/repo the broker image builds from."
+  description = "The shared Railway project (modules/pubsub-project, fleet stack)."
 }
 
-variable "root_directory" {
-  type = string
+variable "service_id" {
+  type        = string
+  description = "The shared `emqx` service in that project."
+}
+
+variable "environment_name" {
+  type        = string
+  description = "This environment's Railway environment; production is the project's default one."
 }
 
 variable "hostname" {
@@ -38,12 +39,6 @@ variable "zone_id" {
 
 variable "zone_name" {
   type = string
-}
-
-variable "region" {
-  type        = string
-  default     = "us-west2"
-  description = "Railway region; pinned so the broker never moves (its volume lives there)."
 }
 
 variable "target_port" {
@@ -62,38 +57,16 @@ variable "credentials" {
   description = "Broker credentials (resolved by the secrets module: kept once minted)."
 }
 
-resource "railway_project" "this" {
-  name         = var.project_name
-  workspace_id = var.workspace_id
-
-  lifecycle {
-    prevent_destroy = true
-  }
+# Not a fork: Railway gives it an instance of every service in the project
+# (with its own volume) and keeps that instance's build and region in step
+# with the shared service.
+resource "railway_environment" "this" {
+  name       = var.environment_name
+  project_id = var.project_id
 }
 
 locals {
-  environment_id = railway_project.this.default_environment.id
-}
-
-resource "railway_service" "emqx" {
-  name               = "emqx"
-  project_id         = railway_project.this.id
-  source_repo        = var.github_repo
-  source_repo_branch = "main"
-  root_directory     = var.root_directory
-  regions            = [{ region = var.region, num_replicas = 1 }]
-
-  volume = {
-    name       = "emqx-volume"
-    mount_path = "/opt/emqx/data"
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-locals {
+  environment_id = railway_environment.this.id
   variables = {
     PORT                    = tostring(var.target_port)
     EMQX_API_KEY            = var.credentials.api_key
@@ -110,14 +83,14 @@ resource "railway_variable" "broker" {
   for_each = nonsensitive(toset(keys(local.variables)))
 
   environment_id = local.environment_id
-  service_id     = railway_service.emqx.id
+  service_id     = var.service_id
   name           = each.key
   value          = local.variables[each.key]
 }
 
 resource "railway_custom_domain" "broker" {
   environment_id = local.environment_id
-  service_id     = railway_service.emqx.id
+  service_id     = var.service_id
   domain         = var.hostname
   target_port    = var.target_port
 }

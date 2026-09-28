@@ -9,13 +9,26 @@
  * The rendered file is written to `<app>/.cache/`, one directory below the
  * TOML, so relative paths are re-rooted by one level.
  */
-import { apiWorkerVars, type EnvFile } from './env-file';
+import { apiWorkerVars, authRelayTargets, type EnvFile } from './env-file';
 import { ENV_FILES } from './envs';
+import { GLOBAL } from './global';
 import { envResourceNames } from './naming';
 
 export type WorkerRole = 'api' | 'room' | 'web';
 
 export type WranglerConfig = Record<string, unknown>;
+
+/**
+ * Ids of resources OpenTofu created for the environment that a Worker binds
+ * (read from the secrets store at deploy time: foundation writes them).
+ */
+export type WorkerResources = {
+  /** The API Worker's Postgres connection (`modules/database` Hyperdrive). */
+  readonly hyperdriveId?: string;
+};
+
+/** The API Worker's binding name for Hyperdrive (`ApiWorkerEnv.HYPERDRIVE`). */
+export const HYPERDRIVE_BINDING = 'HYPERDRIVE';
 
 type DurableObjectBinding = {
   readonly name: string;
@@ -78,11 +91,7 @@ export function deletedDurableObjectClasses(
   return migrations.flatMap((m) => m.deleted_classes ?? []);
 }
 
-export function renderWranglerConfig(
-  base: WranglerConfig,
-  env: EnvFile,
-  role: WorkerRole
-): WranglerConfig {
+function assertEnvAgnostic(base: WranglerConfig): void {
   const deleted = deletedDurableObjectClasses(base);
   if (deleted.length > 0) {
     throw new Error(
@@ -91,9 +100,18 @@ export function renderWranglerConfig(
   }
   if ('env' in base || 'routes' in base || 'route' in base) {
     throw new Error(
-      'wrangler.toml must stay env-agnostic: no [env.*], routes or route (hostnames belong to libs/infra/tofu edge).'
+      'wrangler.toml must stay env-agnostic: no [env.*], routes or route (hostnames belong to libs/infra/tofu).'
     );
   }
+}
+
+export function renderWranglerConfig(
+  base: WranglerConfig,
+  env: EnvFile,
+  role: WorkerRole,
+  resources: WorkerResources = {}
+): WranglerConfig {
+  assertEnvAgnostic(base);
   const rendered: WranglerConfig = {
     ...base,
     name: workerName(env, role),
@@ -106,13 +124,40 @@ export function renderWranglerConfig(
       ...((base['vars'] as Record<string, string> | undefined) ?? {}),
       DEPLOYMENT_ENVIRONMENT: env.env,
       DEPLOYMENT_PROTECTION: env.protection,
-      ...(role === 'api' ? apiWorkerVars(env, Object.values(ENV_FILES)) : {}),
+      ...(role === 'api' ? apiWorkerVars(env) : {}),
     },
   };
+  if (role === 'api' && resources.hyperdriveId !== undefined) {
+    rendered['hyperdrive'] = [
+      { binding: HYPERDRIVE_BINDING, id: resources.hyperdriveId },
+    ];
+  }
   if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);
   if ('assets' in base) rendered['assets'] = rerootedAssets(base['assets']);
   if ('durable_objects' in base) {
     rendered['durable_objects'] = boundDurableObjects(base, env, role);
   }
+  return rendered;
+}
+
+/**
+ * The global OAuth callback relay (`apps/auth-relay`): one Worker for every
+ * environment, named in `global.tfvars.json`, forwarding to every env file.
+ */
+export function renderAuthRelayWranglerConfig(
+  base: WranglerConfig
+): WranglerConfig {
+  assertEnvAgnostic(base);
+  const rendered: WranglerConfig = {
+    ...base,
+    name: GLOBAL.auth_relay.worker,
+    vars: {
+      ...((base['vars'] as Record<string, string> | undefined) ?? {}),
+      OAUTH_RELAY_TARGETS: JSON.stringify(
+        authRelayTargets(Object.values(ENV_FILES))
+      ),
+    },
+  };
+  if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);
   return rendered;
 }

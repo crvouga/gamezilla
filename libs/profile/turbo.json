@@ -2,7 +2,10 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:spec": {
+    "test:spec:0": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:1": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
     }
   }
