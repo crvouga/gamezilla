@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-28.1';
+export const PERMISSION_POLICY_VERSION = '2026-09-28.2';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -45,12 +45,13 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
 ];
 
 /**
- * Off while the deployment has no membership provider. `billing:manage` stays:
- * it is what lets an account see its own membership, provider or not.
+ * Off while the deployment has no membership provider: no plans, no checkout
+ * and no portal (there is no provider to open one at).
  */
 const BILLING_OFFER: readonly AppPermission[] = [
   PERMISSION.billingView,
   PERMISSION.billingSubscribe,
+  PERMISSION.billingManage,
 ];
 
 const SIGN_UP_UNLOCK = {
@@ -79,14 +80,15 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
  * because quotas merge to the maximum, `puzzle.rated.solve` lives on the
  * fact-matched roles (anonymous: 20/day, accounts: unlimited), never on the
  * baseline. Plan roles are listed explicitly — no inheritance — and their
- * `when` predicates are exclusive. Both may `billing:subscribe`: a paid
+ * `when` predicates are exclusive. Both list `billing:subscribe`: a paid
  * account whose membership ended keeps paid access through grace and may
- * start again at once; the billing screen and the checkout route never offer
- * a second checkout while a membership is live.
+ * start again at once. While a membership is live (it still renews) a second
+ * checkout is not offered — a restriction, so the grace case keeps the grant.
  *
  * Restrictions carry what used to be feature code: account-only actions deny
- * anonymous subjects with `requires_account`, and the membership offer is off
- * everywhere while the deployment has no provider (`billing: 'off'`).
+ * anonymous subjects with `requires_account`, the membership offer and portal
+ * are off everywhere while the deployment has no provider (`billing: 'off'`),
+ * and a live membership is not offered another (`subscription: 'live'`).
  */
 export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
   AppPolicyKey,
@@ -143,6 +145,11 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     billingOff: {
       when: { billing: 'off' },
       deny: BILLING_OFFER,
+      reason: 'not_granted',
+    },
+    alreadySubscribed: {
+      when: { subscription: 'live' },
+      deny: [PERMISSION.billingSubscribe],
       reason: 'not_granted',
     },
   },

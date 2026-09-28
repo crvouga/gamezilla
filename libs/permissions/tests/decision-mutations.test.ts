@@ -17,7 +17,15 @@ import {
   hostingLimitApplicationLayer,
   spaceRolesApplicationLayer,
 } from '@libs/permissions/root/conformance/application';
-import { routeGuardOperation } from '@libs/permissions/root/conformance/server';
+import { clientGatingLayer } from '@libs/permissions/root/conformance/client';
+import {
+  accessClientLayer,
+  dailyPuzzleLimitClientLayer,
+} from '@libs/permissions/root/conformance/client-layers';
+import {
+  queryGuardOperation,
+  routeGuardOperation,
+} from '@libs/permissions/root/conformance/server';
 import {
   accessServerLayer,
   dailyPuzzleLimitServerLayer,
@@ -75,10 +83,18 @@ function changeRole(role: string, change: (spec: Spec) => Spec): AppPolicy {
   } as AppPolicy;
 }
 
+/** Billing's own routes: the billing binding runs them, not this package. */
+const UNGOVERNED = {
+  subscribe: 'the checkout route lives in billing',
+  'use the billing portal': 'the portal route lives in billing',
+  'see the billing plans': 'no server boundary: the plans are app data',
+};
+
 /** The routes whose request guard this package owns the decision for. */
 const ROUTES = {
   'get notifications': routeGuardOperation(PERMISSION.notificationsReceive),
   'wait for a match': routeGuardOperation(PERMISSION.matchmakingUse),
+  'use people search': queryGuardOperation(PERMISSION.peopleSearch),
 };
 
 describe('the shipped permission system agrees with every table', () => {
@@ -101,7 +117,11 @@ describe('the shipped permission system agrees with every table', () => {
   test('server enforcement', async () => {
     const access = await mismatches(
       ACCESS,
-      accessServerLayer({ tables: TABLES, routes: ROUTES })
+      accessServerLayer({
+        tables: TABLES,
+        routes: ROUTES,
+        ungoverned: UNGOVERNED,
+      })
     );
     const daily = await mismatches(
       DAILY,
@@ -110,6 +130,19 @@ describe('the shipped permission system agrees with every table', () => {
     expect([access.mismatched, daily.mismatched]).toEqual([0, 0]);
     expect(access.checked).toBeGreaterThan(0);
     expect(daily.checked).toBeGreaterThan(0);
+  });
+
+  test('client gating', async () => {
+    const access = await mismatches(
+      ACCESS,
+      accessClientLayer({ tables: TABLES })
+    );
+    const daily = await mismatches(
+      DAILY,
+      dailyPuzzleLimitClientLayer({ tables: TABLES })
+    );
+    expect([access.mismatched, daily.mismatched]).toEqual([0, 0]);
+    expect([access.checked, daily.checked]).toEqual([66, 54]);
   });
 });
 
@@ -127,10 +160,20 @@ describe('seeded faults are caught', () => {
     );
     const server = await mismatches(
       ACCESS,
-      accessServerLayer({ tables: TABLES, routes: ROUTES, policy })
+      accessServerLayer({
+        tables: TABLES,
+        routes: ROUTES,
+        ungoverned: UNGOVERNED,
+        policy,
+      })
+    );
+    const client = await mismatches(
+      ACCESS,
+      accessClientLayer({ tables: TABLES, policy })
     );
     expect(application.mismatched).toBeGreaterThan(0);
     expect(server.mismatched).toBeGreaterThan(0);
+    expect(client.mismatched).toBeGreaterThan(0);
   });
 
   test("a moved limit: a guest's daily puzzle limit is 21, not 20", async () => {
@@ -152,8 +195,13 @@ describe('seeded faults are caught', () => {
       DAILY,
       dailyPuzzleLimitServerLayer({ tables: TABLES, policy })
     );
+    const client = await mismatches(
+      DAILY,
+      dailyPuzzleLimitClientLayer({ tables: TABLES, policy })
+    );
     expect(application.mismatched).toBeGreaterThan(0);
     expect(server.mismatched).toBeGreaterThan(0);
+    expect(client.mismatched).toBeGreaterThan(0);
   });
 
   test('an off-by-one hosting limit: two open spaces, not one', async () => {
@@ -174,6 +222,8 @@ describe('seeded faults are caught', () => {
       ACCESS,
       accessServerLayer({
         tables: TABLES,
+        routes: ROUTES,
+        ungoverned: UNGOVERNED,
         guard: () => Promise.resolve(),
       })
     );
@@ -185,6 +235,8 @@ describe('seeded faults are caught', () => {
       ACCESS,
       accessServerLayer({
         tables: TABLES,
+        routes: ROUTES,
+        ungoverned: UNGOVERNED,
         guard: async ({ tx, env, ...rest }) => {
           await tx.run(sql`
             INSERT INTO permissions_quota_ledger (
@@ -207,11 +259,13 @@ describe('seeded faults are caught', () => {
     );
   });
 
-  test('client gating broken: every feature shows', async () => {
-    const alwaysShown: DecisionLayer = {
-      observes: ['answer'],
-      decide: () => ({ answer: 'yes' }),
-    };
+  test('client gating broken: the device shows every feature', async () => {
+    // Mounted in the same device world as the real gate, but reading no
+    // decision: the feature is always there.
+    const alwaysShown = clientGatingLayer({
+      tables: TABLES,
+      probe: () => () => ({ answer: 'yes' }),
+    });
     for (const table of [ACCESS, SPACE_ROLES, HOSTING, DAILY]) {
       const result = await mismatches(table, alwaysShown);
       expect({ table: table[1], caught: result.mismatched > 0 }).toEqual({

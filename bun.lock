@@ -761,9 +761,11 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
+        "@pkgs/secure-storage": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

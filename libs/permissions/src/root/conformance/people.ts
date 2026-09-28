@@ -44,11 +44,14 @@ export const CASE_NOW_MS = Date.parse('2026-09-19T12:00:00.000Z');
 
 const DAY_MS = 86_400_000;
 
-/** The one account every signed-in case is about. */
-const ACCOUNT_ID = 'conformance-account';
+/** The one account every signed-in case is about (ids are UUIDs, as stored). */
+const ACCOUNT_ID = '00000000-0000-4000-8000-00000000acc0';
 
-/** The install a guest case runs on (a guest is their install). */
-const GUEST_ACTOR_ID = 'conformance-guest';
+/** The guest's own user id (a guest is their install's anonymous user). */
+const GUEST_ACTOR_ID = '00000000-0000-4000-8000-000000000e57';
+
+/** The device every case runs on. */
+export const DEVICE_ID = '00000000-0000-4000-8000-0000000de71c';
 
 function stringInput(input: CaseInput, name: string): string {
   const value = input[name];

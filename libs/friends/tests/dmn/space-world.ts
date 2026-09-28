@@ -1,8 +1,8 @@
 /**
  * The spaces a decision case's person is in, seeded into the case's server
- * database, and the real spaces operations the space tables are enforced
- * at: the spaces mutations (replayed as the server replays them) and the
- * space room's command handler.
+ * database or their device's, and the real spaces operations the space
+ * tables are enforced at: the spaces mutations (replayed as the server
+ * replays them) and the space room's command handler.
  */
 
 import { BILLING_TABLES } from '@libs/billing/public/schema';
@@ -18,7 +18,10 @@ import {
 } from '@libs/permissions/root/conformance/server';
 import { SelectGame } from '@libs/spaces/public/games';
 import { composeSpaceRoomModule } from '@libs/spaces/public/load-game-plugins';
-import { spaceUserEntityId } from '@libs/spaces/public/participation/participation-ids';
+import {
+  spaceOpenSessionEntityId,
+  spaceUserEntityId,
+} from '@libs/spaces/public/participation/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces/public/schema';
 import { sql } from '@pkgs/sql';
 
@@ -91,6 +94,25 @@ export async function seedPlaceInSpace(c: ServerCase): Promise<void> {
   if (presence === 'guest') {
     await insertSpaceUser(c, { spaceId: SPACE_ID, userId: memberIdOf(c) });
   }
+}
+
+/**
+ * On the person's device: the space as above, open on this device (they are
+ * looking at it — what makes the app treat them as present when they are in
+ * it).
+ */
+export async function seedPlaceInSpaceOnDevice(c: ServerCase): Promise<void> {
+  await seedPlaceInSpace(c);
+  await c.db.run(sql`
+    INSERT INTO spaces_open_sessions (
+      id, space_id, device_id, opened_at, join_announced,
+      created_at, updated_at, deleted_at
+    ) VALUES (
+      ${spaceOpenSessionEntityId(c.env.deviceId, SPACE_ID)}, ${SPACE_ID},
+      ${c.env.deviceId}, ${SEEDED_AT}, ${true}, ${SEEDED_AT}, ${SEEDED_AT},
+      ${null}
+    )
+  `);
 }
 
 /**

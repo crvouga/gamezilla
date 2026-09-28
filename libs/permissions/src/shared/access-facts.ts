@@ -1,6 +1,7 @@
 import {
   type AccessMoment,
   governingMembership,
+  isMembershipLive,
   type MembershipStanding,
   type MembershipStatus,
   membershipAccessLapsesAtMs,
@@ -107,17 +108,20 @@ function momentOf(inputs: AccessInputs): AccessMoment {
  * `anonymous` | `verified`; `membership` is `active` while the governing
  * membership grants access (`membershipGrantsAccess`: grace keeps a member a
  * member through a lapse and while offline, up to `graceMs` without
- * confirming it); `billing` is `on` | `off`.
+ * confirming it); `subscription` is `live` while the governing membership
+ * still renews (`isMembershipLive`: a second one would bill twice), `none`
+ * once it ended, even inside grace; `billing` is `on` | `off`.
  */
 export function resolveAccessFacts(inputs: AccessInputs): Facts {
-  const subscription = inputs.subscription;
+  const subscription = inputs.signedIn ? inputs.subscription : null;
   const member =
-    inputs.signedIn &&
     subscription !== null &&
     membershipGrantsAccess(standingOf(subscription), momentOf(inputs));
+  const live = subscription !== null && isMembershipLive(subscription.status);
   return {
     auth: inputs.signedIn ? 'verified' : 'anonymous',
     membership: member ? 'active' : 'none',
+    subscription: live ? 'live' : 'none',
     billing: inputs.billingEnabled ? 'on' : 'off',
   };
 }

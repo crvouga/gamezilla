@@ -36,6 +36,12 @@ export type AccessServerOptions = {
    * route's operation (manifest id → operation).
    */
   readonly routes?: Readonly<Record<string, ServerOperation>>;
+  /**
+   * Capabilities this layer does not govern, each with why (no server
+   * boundary exists, or another binding runs it). Any other capability
+   * without a route or a mutation is an error: it would go unchecked.
+   */
+  readonly ungoverned?: Readonly<Record<string, string>>;
   /** Feature rows the routes need. */
   readonly seed?: (c: ServerCase) => Promise<void>;
   readonly policy?: AppPolicy;
@@ -45,7 +51,8 @@ export type AccessServerOptions = {
 /**
  * `access`, at the server: a capability a route performs runs that route; one
  * mutations perform runs the replay's authorize hook for every mutation
- * declaring its key (they must all agree); one with neither is not governed.
+ * declaring its key (they must all agree); one declared ungoverned (with
+ * why) is not; anything else throws.
  */
 export function accessServerLayer(options: AccessServerOptions): DecisionLayer {
   return serverEnforcementLayer({
@@ -55,12 +62,16 @@ export function accessServerLayer(options: AccessServerOptions): DecisionLayer {
     ...(options.seed === undefined ? {} : { seed: options.seed }),
     operationFor: (input) => {
       const capability = capabilityOf(input);
+      if (options.ungoverned?.[capability] !== undefined) return null;
       const route = options.routes?.[capability];
       if (route !== undefined) return route;
       const names = mutationsDeclaring(grantKeyOf(capability));
-      return names.length === 0
-        ? null
-        : allOperations(names.map(authorizeOperation));
+      if (names.length === 0) {
+        throw new Error(
+          `conformance: "${capability}" has no route, no mutation and no reason it needs none`
+        );
+      }
+      return allOperations(names.map(authorizeOperation));
     },
   });
 }

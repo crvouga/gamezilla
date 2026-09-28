@@ -20,6 +20,7 @@ import type { TableDef } from '@pkgs/db-schema';
 import type { DecisionOutput } from '@pkgs/dmn/evaluate';
 import type { DecisionLayer } from '@pkgs/dmn/registry';
 import type { DenialReason } from '@pkgs/permissions';
+import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   type Mutation,
@@ -28,6 +29,7 @@ import {
   MutationError,
   wrapMutationDb,
 } from '@pkgs/sync-engine/shared';
+import { queryRequires } from '../../public/query-permission';
 import { MUTATION_ACTIONS } from '../../shared/mutation-actions';
 import type {
   AppGrantKey,
@@ -258,6 +260,23 @@ export function routeGuardOperation(
       permission,
       nowMs: c.nowMs,
     });
+  };
+}
+
+/**
+ * The `authorize` hook a sync query runs before answering (`queryRequires`),
+ * over the same database the query reads: refused, the query hydrates nothing.
+ */
+export function queryGuardOperation(key: AppGrantKey): ServerOperation {
+  const authorize = queryRequires(key);
+  return async (c) => {
+    const allowed = await authorize({
+      db: {
+        query: (query) => c.db.query(query as Sql<Record<string, unknown>>),
+      },
+      env: c.env,
+    });
+    if (!allowed) throw new OperationRefused('the query denied the caller');
   };
 }
 

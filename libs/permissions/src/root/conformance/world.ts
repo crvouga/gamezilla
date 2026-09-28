@@ -22,6 +22,7 @@ import type { AppLimit, AppPolicyKey } from '../../shared/permission-catalog';
 import { PERMISSIONS_TABLES } from '../../shared/schema/tables';
 import {
   type CaseInput,
+  DEVICE_ID,
   identityFor,
   membershipRowsFor,
   type Person,
@@ -34,7 +35,8 @@ export type AppPolicy = PermissionPolicy<AppPolicyKey, AppLimit>;
 /** A fixed stamp for rows seeded before the case happens. */
 const SEEDED_AT = '2026-01-01T00:00:00.000Z';
 
-function uniqueTables(tables: readonly TableDef[]): readonly TableDef[] {
+/** The permission and config tables plus `tables`, each once. */
+export function uniqueTables(tables: readonly TableDef[]): readonly TableDef[] {
   const byName = new Map<string, TableDef>();
   for (const table of [
     ...PERMISSIONS_TABLES,
@@ -127,7 +129,7 @@ export function mutationEnvFor(person: Person, nowMs: number): MutationEnv {
   const identity = identityFor(person);
   return {
     ...identity,
-    deviceId: 'conformance-device',
+    deviceId: DEVICE_ID,
     now: () => new Date(nowMs),
     serverNow: () => new Date(nowMs),
     createId: () => `conformance-id-${String(++mintedIds)}`,

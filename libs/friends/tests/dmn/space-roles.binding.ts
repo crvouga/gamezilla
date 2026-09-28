@@ -8,10 +8,14 @@
  * - server enforcement — the real operation, against a server database
  *   holding the space (hosted by the person, joined by them, or neither):
  *   the leave, rename, end and member-management mutations replayed as the
- *   server replays them, and the space room's handler for the game choice.
+ *   server replays them, and the space room's handler for the game choice;
+ * - client gating — `useSpaceCan` on the person's device, their presence
+ *   read from the synced space rows (the space open on the device).
  */
 
 import { spaceRolesApplicationLayer } from '@libs/permissions/root/conformance/application';
+import { grantKeyOf } from '@libs/permissions/root/conformance/capabilities';
+import { clientGatingLayer } from '@libs/permissions/root/conformance/client';
 import { capabilityOf } from '@libs/permissions/root/conformance/people';
 import {
   allOperations,
@@ -19,6 +23,7 @@ import {
   type ServerOperation,
   serverEnforcementLayer,
 } from '@libs/permissions/root/conformance/server';
+import { useSpaceCan } from '@libs/spaces/public/use-space-can';
 import {
   addSpaceUserMutation,
   endSpaceMutation,
@@ -33,6 +38,7 @@ import {
   SPACE_ID,
   SPACE_TABLES,
   seedPlaceInSpace,
+  seedPlaceInSpaceOnDevice,
 } from './space-world';
 
 const OPERATIONS: Readonly<Record<string, ServerOperation>> = {
@@ -67,6 +73,14 @@ bindDecisions({
       tables: SPACE_TABLES,
       seed: seedPlaceInSpace,
       operationFor: (input) => OPERATIONS[capabilityOf(input)] ?? null,
+    }),
+    'client gating': clientGatingLayer({
+      tables: SPACE_TABLES,
+      seed: seedPlaceInSpaceOnDevice,
+      probe: (input) => {
+        const can = useSpaceCan(SPACE_ID, grantKeyOf(capabilityOf(input)));
+        return () => ({ answer: can() ? 'yes' : 'no' });
+      },
     }),
   },
 });
