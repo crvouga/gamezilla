@@ -41,6 +41,17 @@ variable "auth_relay" {
   })
 }
 
+variable "reports" {
+  type = object({
+    account_id     = string
+    zone_name      = string
+    hostname       = string
+    bucket         = string
+    retention_days = number
+  })
+  description = "The public bucket the per-commit spec reports are served from."
+}
+
 variable "railway" {
   type = object({
     workspace_id = string
