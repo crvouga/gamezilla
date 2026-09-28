@@ -43,8 +43,19 @@ const APP_DIR = join(import.meta.dirname, '..');
 /** Tail of broker output kept for the report when it dies unexpectedly. */
 const OUTPUT_TAIL_BYTES = 64 * 1024;
 const DEFAULT_DATA_DIR = join(APP_DIR, 'data');
-/** A cold broker boots in ~3 s; this only bounds a broken one. */
-const READY_TIMEOUT_MS = 60_000;
+/**
+ * A cold broker boots in ~3 s idle; under a full `bun check` on a loaded
+ * host it measured 26–60 s. Three times that, so load cannot fail a boot;
+ * a broker that exits fails at once.
+ */
+const READY_TIMEOUT_MS = 180_000;
+/**
+ * A local broker serves a handful of clients: two schedulers without
+ * busy-waiting boot it on ~2 s of CPU instead of ~3.3 s (one scheduler per
+ * core, each spinning), and keep it from starving the other tasks of a
+ * loaded check.
+ */
+const ERL_FLAGS = '+S 2:2 +SDcpu 2:2 +sbwt none +sbwtdcpu none +sbwtdio none';
 const READY_POLL_MS = 100;
 
 /** Seed the config + bootstrap files a fresh data directory needs. */
@@ -184,6 +195,7 @@ export async function startEmqxServer(
     stdio: ['inherit', 'pipe', 'pipe'],
     env: {
       ...cleanEnv,
+      ERL_FLAGS: [cleanEnv['ERL_FLAGS'], ERL_FLAGS].filter(Boolean).join(' '),
       EMQX_NODE__DATA_DIR: dataDir,
       EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
       EMQX_NODE__NAME: nodeName,
