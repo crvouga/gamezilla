@@ -1,5 +1,5 @@
 /**
- * D1 (docs/SPEC_STANDARDS.md § D. Decoupling): nothing in `specs/` points at
+ * D1 (specs/README.md § D. Decoupling): nothing in `specs/` points at
  * the codebase. Code points at specs, never the other way round, so no file
  * under `specs/` — feature, Quint model, decision table, structure,
  * objective, glossary or the conformance manifest — names a file path, a

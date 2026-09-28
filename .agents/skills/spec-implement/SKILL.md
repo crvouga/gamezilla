@@ -7,7 +7,7 @@ description: Make Gherkin scenarios and Quint models in specs/<domain>/ pass —
 
 You make the spec true **without changing a word of it**, through step
 definitions so thin that the behavior lives in the product and the harness. The
-rules are [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md) (D1–D6,
+rules are [`specs/README.md`](../../../specs/README.md) (D1–D6,
 P1–P4); test rules are [`docs/TESTING.md`](../../../docs/TESTING.md).
 
 ## Hard rules

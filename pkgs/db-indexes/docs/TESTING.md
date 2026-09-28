@@ -10,7 +10,7 @@
 | Mutants | `tests/mutants` | `bun run mutants` |
 
 Index tuning is technical, so it has no specs in `specs/`
-([`SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md) A0): its guards are
+([`specs/README.md`](../../../specs/README.md) A0): its guards are
 code tests here. The tuning harness — one reconciler over `HarnessDb` on a
 virtual clock, with the standing `tuningInvariantsHold` property — is
 `indexTuningSystem`, exported from `@pkgs/db-indexes/harness`.

@@ -1,7 +1,7 @@
 # @pkgs/dmn
 
 Decision tables as the oracle for entitlements, permissions, feature gates
-and usage limits ([`docs/SPEC_STRATEGY.md`](../../docs/SPEC_STRATEGY.md) § 5,
+and usage limits ([`specs/README.md`](../../specs/README.md) § 5,
 § 4.1). A table in `specs/<context>/*.dmn` is checked on its own — well
 formed, complete, consistent over its declared inputs — and then against the
 implementation: every generated case is answered by the table and by each

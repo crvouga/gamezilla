@@ -48,7 +48,7 @@ import {
 
 const strictDuplicates = process.argv.includes('--strict-duplicates');
 
-/** The thresholds `docs/SPEC_STANDARDS.md` (§ The gate) states for a brief scenario. */
+/** The thresholds `specs/README.md` (§ The gate) states for a brief scenario. */
 const SMELLS = {
   maxSteps: 8,
   maxActions: 3,

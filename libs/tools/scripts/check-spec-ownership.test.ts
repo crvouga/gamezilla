@@ -42,7 +42,7 @@ describe('spec ownership', () => {
           files: [
             'specs/friends/friend-remove.feature',
             'libs/friends/STEPS_CATALOG.md',
-            'docs/SPEC_STANDARDS.md',
+            'specs/README.md',
           ],
           sha: '1234567890abcdef',
           subject: 'spec(friends): remove friends',
@@ -71,7 +71,7 @@ describe('spec ownership', () => {
       stagedViolations([
         'specs/README.md',
         'specs/billing/access.dmn',
-        'docs/SPEC_STANDARDS.md',
+        'specs/README.md',
         'libs/billing/STEPS_CATALOG.md',
       ])
     ).toEqual([]);

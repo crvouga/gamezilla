@@ -30,7 +30,7 @@ registered with `useQuintHarness(openHarness)` from `@libs/harness/quint/world` 
 the binding's harness actions, and the product's state, read back by the
 binding's `observe`, must equal the model's after every step — with every
 standing property checked, since each action is an `s.apply`. See
-[`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md).
+[`specs/README.md`](../../specs/README.md).
 
 The package graph decides a suite's home: turbo rejects dependency cycles, so a
 suite lives in a package that may depend on every feature it composes. Two
@@ -169,7 +169,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 steps, the harness calls and UI ops under them, outcomes, drawn traces) into
 `<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; `bun run
 test:report` folds every bucket into one `harness-report/index.html`
-([`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md#reports)). Failed JUnit
+([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
 testcases also become `test.failure` spans under
 `.cache/harness-report/traces/` for `bun obs test`
 ([`docs/OBSERVABILITY.md`](../../docs/OBSERVABILITY.md)). Capture is owned by

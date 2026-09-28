@@ -31,7 +31,7 @@ function readGlossary(
   const path = join(REPO_ROOT, uri);
   if (!existsSync(path)) {
     problems.push(
-      `${uri}: missing — every bounded context declares its ubiquitous language (docs/SPEC_STANDARDS.md)`
+      `${uri}: missing — every bounded context declares its ubiquitous language (specs/README.md)`
     );
     return { uri, domain, context: '', purpose: '', terms: [] };
   }

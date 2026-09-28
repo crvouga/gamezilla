@@ -12,7 +12,7 @@
  *
  * The environment picks the scenarios: `HOST_LIMITS` names the features and
  * scenarios an environment cannot run. Specs never say where they run
- * (docs/SPEC_STANDARDS.md D1), so that knowledge lives here, beside the
+ * (specs/README.md D1), so that knowledge lives here, beside the
  * bindings.
  *
  *   health                                     everything

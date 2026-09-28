@@ -6,7 +6,7 @@ bound, then draw traces from it, replay each one against the real thing, and
 require the real thing to be in the model's state after every step. Every
 obligation a run decides is recorded as evidence (`@pkgs/conformance`). Product models live in
 `specs/<domain>/*.qnt` and run in their package's `test:spec`
-([`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md));
+([`specs/README.md`](../../specs/README.md));
 this package knows nothing about the product.
 
 | Module | What it does |

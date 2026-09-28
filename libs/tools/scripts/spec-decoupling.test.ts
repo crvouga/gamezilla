@@ -61,7 +61,7 @@ describe('decouplingProblems (D1)', () => {
       'specs/room/ubiquitous-language.yml',
       [
         '# bound in @pkgs/room-harness',
-        '# see docs/SPEC_STANDARDS.md',
+        '# see specs/README.md',
         '# the kernel is ubiquitous-language.yml',
         '# written in room.steps.ts',
       ].join('\n')
@@ -70,7 +70,7 @@ describe('decouplingProblems (D1)', () => {
       ':1: D1 names a workspace package "@pkgs/room-harness"'
     );
     expect(errors).toContain(
-      ':2: D1 names a repo directory "docs/SPEC_STANDARDS.md"'
+      ':2: D1 names a repo directory "specs/README.md"'
     );
     expect(errors).toContain(
       ':3: D1 names a source file "ubiquitous-language.yml"'

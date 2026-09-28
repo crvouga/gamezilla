@@ -1,13 +1,13 @@
 ---
 name: spec-upsert
-description: Write or change Gherkin features and Quint models in specs/<domain>/ — product behavior only, in the bounded context's ubiquitous language, checked against docs/SPEC_STANDARDS.md and a per-aggregate coverage map. Use for any new or changed .feature or .qnt file, scenario, health check, or critical journey. To audit existing specs use spec-audit; to bind steps use spec-implement.
+description: Write or change Gherkin features and Quint models in specs/<domain>/ — product behavior only, in the bounded context's ubiquitous language, checked against specs/README.md and a per-aggregate coverage map. Use for any new or changed .feature or .qnt file, scenario, health check, or critical journey. To audit existing specs use spec-audit; to bind steps use spec-implement.
 ---
 
 # Spec upsert
 
 You write the product's contract: what people can do and what they observe,
 as concrete examples in the context's own words. Every rule you are held to
-is in [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md), cited
+is in [`specs/README.md`](../../../specs/README.md), cited
 below by ID (A1, B5, C2 …), together with the policy. Read it once before
 you start.
 
@@ -42,7 +42,7 @@ If any is missing and the existing specs don't answer it, ask before step 3.
 
 ### 1. Load the context
 
-1. Pick the bounded context from the [context map](../../../docs/SPEC_STANDARDS.md#context-map)
+1. Pick the bounded context from the [context map](../../../specs/README.md#context-map)
    ("Owns" column). A behavior that reacts to another context's event
    belongs to the **downstream** context (A4). Unsure → ask.
 2. Read `specs/<domain>/ubiquitous-language.yml`, every glossary it borrows

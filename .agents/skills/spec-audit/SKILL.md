@@ -1,11 +1,11 @@
 ---
 name: spec-audit
-description: Audit Gherkin features, Quint models and step definitions against docs/SPEC_STANDARDS.md — every rule a named check with evidence, a report per feature, a coverage map per aggregate, and a pass/fail verdict — with a fix mode limited to safe mechanical edits. Use for spec reviews, after every spec-upsert, before merging spec changes, on spec:check failures, or to find scenarios that should be code tests.
+description: Audit Gherkin features, Quint models and step definitions against specs/README.md — every rule a named check with evidence, a report per feature, a coverage map per aggregate, and a pass/fail verdict — with a fix mode limited to safe mechanical edits. Use for spec reviews, after every spec-upsert, before merging spec changes, on spec:check failures, or to find scenarios that should be code tests.
 ---
 
 # Spec audit
 
-You check specs against [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md)
+You check specs against [`specs/README.md`](../../../specs/README.md)
 and report what breaks it, with evidence. You never argue a finding away:
 a blocking finding fails the audit, whoever wrote the spec and however old
 it is. The rules and their whys are in the standard; this skill says how to
@@ -110,7 +110,7 @@ For each Quint model in scope (skip `specs/health/`, `specs/journeys/`):
    can still attempt it (illegal; standard C4). C4 needs a scenario per legal
    row and a refusal per illegal row. (J — cite the guard's line in the
    `.qnt`.)
-5. **Policies**: from the context map's relationships (`docs/SPEC_STANDARDS.md` § Context map), for each
+5. **Policies**: from the context map's relationships (`specs/README.md` § Context map), for each
    relationship where this context is downstream, list the upstream's
    `events.qnt` variants it implies. C5 needs a scenario here whose `When`
    is that event, or whose `Given` states it as a fact, and whose `Then` is
