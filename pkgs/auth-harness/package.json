@@ -12,6 +12,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests",
     "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@types/bun": "catalog:",
