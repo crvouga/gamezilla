@@ -7,6 +7,8 @@
  * - `host`: the space's host member (`host_member_id`, else
  *   `host_account_id`), the product's own rule for who hosts it.
  * - `friend`: live friendships, both ways.
+ * - `joined`: live `spaces_users` rows — who came into a space and has not
+ *   left it (stepping out keeps the row).
  * - `presence` — NOT STORED, pinned empty: who is in a space right now is
  *   the room's live roster, held in the room server's memory and never
  *   persisted. The nearest stored rows, each device's open sessions
@@ -49,6 +51,15 @@ async function spaceRows(db: SqlTx): Promise<readonly SpaceRow[]> {
     WHERE deleted_at IS NULL`);
 }
 
+async function joinedRows(db: SqlTx): Promise<readonly Pair[]> {
+  const rows = await db.query(sql<{
+    readonly space_id: string;
+    readonly user_id: string;
+  }>`
+    SELECT space_id, user_id FROM spaces_users WHERE deleted_at IS NULL`);
+  return rows.map((row): Pair => [row.space_id, row.user_id]);
+}
+
 function hostOf(space: SpaceRow): readonly Pair[] {
   const host = space.host_member_id ?? space.host_account_id;
   return host === null ? [] : [[space.id, host]];
@@ -70,10 +81,15 @@ export async function projectSpaces(db: SqlTx, names: Names): Promise<World> {
   const spaces = await spaceRows(db);
   const friendships = (await friendsRows(db)).friendships;
   const hosts = spaces.flatMap(hostOf);
+  const spaceIds = new Set(spaces.map((space) => space.id));
+  const joined = (await joinedRows(db)).filter(([space]) =>
+    spaceIds.has(space)
+  );
   const people = sortedSet([
     ...(await storedPeople(db)),
     ...friendships.flat(),
     ...hosts.map(([, host]) => host),
+    ...joined.map(([, person]) => person),
   ]);
   const isOpen = (space: SpaceRow) =>
     space.ended_at === null || space.ended_at === undefined;
@@ -90,6 +106,7 @@ export async function projectSpaces(db: SqlTx, names: Names): Promise<World> {
       lobby: named(await lobbies(db, people), names),
       host: named(hosts, names),
       presence: [],
+      joined: named(joined, names),
     },
   };
 }
