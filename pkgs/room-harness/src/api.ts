@@ -1,7 +1,6 @@
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Session, VirtualScheduler } from '@pkgs/harness';
 import type {
-  RoomCommand,
   RoomCommandPayload,
   RoomEvent,
   RoomModule,
@@ -27,12 +26,6 @@ import type {
 } from './wait-until';
 
 export type { RoomHarnessClient, RoomHarnessNode } from './handles';
-
-export type RoomHarnessAuthorize = (
-  identity: string,
-  topic: string,
-  command: RoomCommand
-) => Promise<{ ok: true } | { ok: false; reason: string }>;
 
 /** Kernel ports the kit needs, derived from a DST `Session`. */
 export type RoomHarnessRuntimeDeps = {
@@ -112,8 +105,6 @@ export type OpenRoomHarnessArgs<
   readonly topic?: string;
   /** When true, boot with {@link MILD_ROOM_FAULTS}. */
   readonly mildFaults?: boolean;
-  /** Optional per-command authorize hook (RoomServer). */
-  readonly authorize?: RoomHarnessAuthorize;
   /** Share storage across systems for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
 };

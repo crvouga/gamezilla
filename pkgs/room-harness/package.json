@@ -16,9 +16,7 @@
     "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
   "dependencies": {
-    "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/message": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-memory": "workspace:*",

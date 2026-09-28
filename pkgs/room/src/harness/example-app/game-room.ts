@@ -45,6 +45,16 @@ export type MatchStatus = (typeof MATCH_STATUS)[keyof typeof MATCH_STATUS];
 
 const MATCH_STATUSES: readonly string[] = Object.values(MATCH_STATUS);
 
+/** Why the game room refuses a command: what the person is told. */
+export const REFUSAL = {
+  alreadyOwned: 'the room already has an owner',
+  onlyTheOwner: 'only the owner can turn someone away',
+  ownerStays: 'the owner cannot turn themselves away',
+  turnedAway: 'turned away',
+  tooLate: 'the move came too late',
+  timeLeft: 'the player still has time left',
+} as const;
+
 const RAN_OUT_OF_TIME_SCHEDULE_ID = 'game-room:ran-out-of-time';
 
 function isInt(v: unknown): v is number {
@@ -198,17 +208,17 @@ function handleOwnership(
 ): HandleResult | null {
   if (ClaimRoom.is(msg)) {
     if (ownerAttr.from(state) !== null) {
-      return conflict('the room already has an owner');
+      return conflict(REFUSAL.alreadyOwned);
     }
     return { ok: true, events: [RoomClaimed({ owner: identity })] };
   }
   if (TurnAway.is(msg)) {
     const owner = ownerAttr.from(state);
     if (owner !== identity) {
-      return unauthorized('only the owner');
+      return unauthorized(REFUSAL.onlyTheOwner);
     }
     if (msg.payload.person === owner) {
-      return conflict('the owner cannot leave');
+      return conflict(REFUSAL.ownerStays);
     }
     return { ok: true, events: [TurnedAway({ person: msg.payload.person })] };
   }
@@ -244,7 +254,7 @@ function handleMatch(
       return conflict(`${toMove} is to move`);
     }
     if (elapsed >= bank) {
-      return conflict('too late');
+      return conflict(REFUSAL.tooLate);
     }
     const left = bank - elapsed;
     const next = opponent(toMove);
@@ -267,7 +277,7 @@ function handleMatch(
     };
   }
   if (msg.payload.player !== toMove || elapsed < bank) {
-    return conflict('time has not run out');
+    return conflict(REFUSAL.timeLeft);
   }
   return {
     ok: true,
@@ -302,7 +312,7 @@ export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
       return invalid('not a message');
     }
     if (turnedAwayAttr.from(state).includes(identity)) {
-      return unauthorized('turned away');
+      return unauthorized(REFUSAL.turnedAway);
     }
     if (AddOne.is(msg)) return { ok: true, events: [TallyChanged({ by: 1 })] };
     if (TakeOne.is(msg)) {

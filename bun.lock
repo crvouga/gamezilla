@@ -2495,10 +2495,8 @@
       "name": "@pkgs/room-harness",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/attribute": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/harness": "workspace:*",
-        "@pkgs/message": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/room-adapter-memory": "workspace:*",

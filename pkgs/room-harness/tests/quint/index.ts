@@ -3,7 +3,8 @@
  * trace world and every model's binding.
  */
 
-import './shared-counter.binding';
+import './tally.binding';
+import './ownership.binding';
 import './match-clock.binding';
 
 import { useRoomTraceWorld } from './world';

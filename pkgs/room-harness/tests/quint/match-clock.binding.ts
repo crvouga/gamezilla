@@ -1,47 +1,49 @@
 /**
- * `specs/room/match-clock.qnt` against the match-clock room: White and Black each on
- * their own device, the clock pinned to a small epoch, the model's state read
- * from the room and the status each device shows.
+ * `specs/room/match-clock.qnt` against the example game room: White and
+ * Black each on their own phone, the model's seconds as the harness's
+ * virtual time, and the model's state read from the room, the match clock
+ * and the status each phone shows.
  */
 
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
-import type { RoomState } from '@pkgs/room';
+import {
+  ClaimOutOfTime,
+  Move,
+  type Player,
+  readMatchStatus,
+  readPlayerToMove,
+  readTimeLeftSeconds,
+  readWinner,
+  StartMatch,
+} from '@pkgs/room/harness';
 import {
   addClient,
+  clock,
   dispatch,
+  exampleSystem,
   expectInSync,
-  FlagFall,
-  Move,
-  matchClockBlackMs,
-  matchClockStatus,
-  matchClockSystem,
-  matchClockTurn,
-  matchClockWhiteMs,
-  matchClockWinner,
   type RoomHarness,
   readServer,
-  roomEpoch,
-  StartMatch,
 } from '@pkgs/room-harness';
 import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
 
-const SIDES = ['white', 'black'] as const;
-type Side = (typeof SIDES)[number];
+const PLAYERS = ['white', 'black'] as const satisfies readonly Player[];
+const SECOND_MS = 1_000;
 
-function side(picks: Picks, name = 'seat'): Side {
-  return String(picks[name]) as Side;
+function player(picks: Picks, name = 'player'): Player {
+  return String(picks[name]) as Player;
 }
 
-function whole(picks: Picks, name: string): number {
+function seconds(picks: Picks, name: string): number {
   return Number(picks[name]);
 }
 
 function matchShown(s: RoomHarness): Map<string, string> {
   return new Map(
-    SIDES.map((id) => [
-      id,
-      matchClockStatus(s.kit.clients.get(id)?.snapshot() as RoomState),
-    ])
+    PLAYERS.map((id) => {
+      const phone = s.kit.clients.get(id);
+      return [id, phone === undefined ? '' : readMatchStatus(phone.snapshot())];
+    })
   );
 }
 
@@ -52,49 +54,48 @@ bindQuintModel<RoomTraceWorld>({
   actions: {
     init: async (w) => {
       w.patient = false;
-      w.harness = await matchClockSystem.run({
-        seed: w.ctx.testId,
-        runtime: roomEpoch(10_000),
-      });
-      for (const id of SIDES) {
+      w.harness = await exampleSystem.run({ seed: w.ctx.testId });
+      for (const id of PLAYERS) {
         await w.harness.apply(addClient, { id, identity: id });
       }
       await expectInSync(w.harness);
     },
     startMatch: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
-        clientId: side(picks),
+        clientId: player(picks),
         payload: StartMatch({
-          whiteMs: whole(picks, 'white'),
-          blackMs: whole(picks, 'black'),
+          whiteMs: seconds(picks, 'white') * SECOND_MS,
+          blackMs: seconds(picks, 'black') * SECOND_MS,
         }),
       });
     },
     move: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
-        clientId: side(picks),
+        clientId: player(picks),
         payload: Move({}),
       });
     },
-    claimFlag: async (w, picks) => {
+    claimOutOfTime: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
-        clientId: side(picks),
-        payload: FlagFall({ seat: side(picks, 'flagged') }),
+        clientId: player(picks),
+        payload: ClaimOutOfTime({ player: player(picks, 'other') }),
       });
     },
-    clockRuns: async (w, picks) => {
-      await traceRoom(w).advanceTime(whole(picks, 'ms'));
+    timePasses: async (w, picks) => {
+      await traceRoom(w).advanceTime(seconds(picks, 'seconds') * SECOND_MS);
     },
   },
   observe: async (w) => {
     const s = traceRoom(w);
-    const server = await readServer(s);
+    const room = await readServer(s);
+    const now = await s.read(clock);
     return {
-      matchStatus: matchClockStatus(server),
-      sideToMove: matchClockTurn(server),
-      whiteBank: matchClockWhiteMs(server),
-      blackBank: matchClockBlackMs(server),
-      winner: matchClockWinner(server) ?? '',
+      matchStatus: readMatchStatus(room),
+      playerToMove: readPlayerToMove(room),
+      timeLeft: new Map(
+        PLAYERS.map((id) => [id, readTimeLeftSeconds(room, id, now)])
+      ),
+      winner: readWinner(room) ?? '',
       matchShown: await s.read(matchShown),
     };
   },

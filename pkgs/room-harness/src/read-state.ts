@@ -41,10 +41,10 @@ export async function expectHashMatch(
 export async function readRejection(
   s: Run<RoomHarness>,
   id: string
-): Promise<{ readonly type?: string } | null> {
+): Promise<{ readonly type?: string; readonly reason?: string } | null> {
   const all = (await s.read(lastRejection)) as Record<
     string,
-    { readonly type?: string } | null
+    { readonly type?: string; readonly reason?: string } | null
   >;
   return all[id] ?? null;
 }

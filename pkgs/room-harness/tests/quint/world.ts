@@ -1,6 +1,6 @@
 /**
  * The world a room model's traces run in: the room harness the binding's `init`
- * opens (each model picks its room app), disposed after the last step.
+ * opens on the example game room, disposed after the last step.
  *
  * A model whose state does not depend on time (`patient`) is given up to
  * 15 s of virtual time to reach the model's state after each step, so

@@ -4,7 +4,8 @@
  */
 
 import './room.steps';
-import './counter.steps';
+import './tally.steps';
+import './ownership.steps';
 import './match-clock.steps';
 
 import { useRoomWorld } from './world';

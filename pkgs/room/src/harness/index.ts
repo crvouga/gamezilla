@@ -17,6 +17,7 @@ export {
   Moved,
   type Player,
   RanOutOfTime,
+  REFUSAL,
   RoomClaimed,
   readMatchStatus,
   readOwner,

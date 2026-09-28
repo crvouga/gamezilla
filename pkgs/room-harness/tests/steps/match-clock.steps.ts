@@ -1,126 +1,143 @@
 /**
- * Steps for the match-clock room (`matchClockSystem`): White and Black, each
- * on their own device under their own identity, on a virtual clock pinned to
- * a small epoch so banks read as plain milliseconds.
+ * Steps for the game room's timed match: White and Black, each on their own
+ * phone under their own identity, and the match clock on virtual time.
  */
 
 import { expect } from 'bun:test';
-import type { Run } from '@pkgs/harness';
 import {
-  dispatch,
-  FlagFall,
+  ClaimOutOfTime,
+  MATCH_STATUS,
   Move,
-  matchClockBlackMs,
-  matchClockStatus,
-  matchClockSystem,
-  matchClockTurn,
-  matchClockWhiteMs,
-  matchClockWinner,
-  type RoomHarness,
-  readClient,
-  readServer,
-  roomEpoch,
+  type Player,
+  REFUSAL,
+  readMatchStatus,
+  readPlayerToMove,
+  readTimeLeftSeconds,
+  readWinner,
   StartMatch,
-} from '@pkgs/room-harness';
-import { everyone, join, settleEveryone } from './room.steps';
-import { Given, room, Then, When } from './world';
+} from '@pkgs/room/harness';
+import { clock, dispatch, readClient, readServer } from '@pkgs/room-harness';
+import {
+  everyone,
+  expectToldThat,
+  openRoom,
+  SECOND_MS,
+  settleEveryone,
+} from './room.steps';
+import { Given, type RoomWorld, room, Then, When } from './world';
 
-const MATCH_EPOCH_MS = 10_000;
-
-type Seat = 'white' | 'black';
-
-async function move(s: Run<RoomHarness>, seat: string): Promise<void> {
-  await s.apply(dispatch, { clientId: seat, payload: Move({}) });
+async function startMatch(
+  w: RoomWorld,
+  id: string,
+  whiteSeconds: number,
+  blackSeconds: number
+): Promise<void> {
+  await room(w).apply(dispatch, {
+    clientId: id,
+    payload: StartMatch({
+      whiteMs: whiteSeconds * SECOND_MS,
+      blackMs: blackSeconds * SECOND_MS,
+    }),
+  });
 }
 
-async function claimFlag(
-  s: Run<RoomHarness>,
-  seat: string,
-  flagged: string
+async function move(w: RoomWorld, id: string): Promise<void> {
+  await room(w).apply(dispatch, { clientId: id, payload: Move({}) });
+}
+
+async function claimOutOfTime(
+  w: RoomWorld,
+  id: string,
+  player: string
 ): Promise<void> {
-  await s.apply(dispatch, {
-    clientId: seat,
-    payload: FlagFall({ seat: flagged as Seat }),
+  await room(w).apply(dispatch, {
+    clientId: id,
+    payload: ClaimOutOfTime({ player: player as Player }),
   });
 }
 
 Given(
-  'White and Black have started a match with {int} ms for White and {int} ms for Black',
-  async (w, whiteMs: number, blackMs: number) => {
-    w.harness = await matchClockSystem.run({
-      seed: w.ctx.testId,
-      runtime: roomEpoch(MATCH_EPOCH_MS),
-    });
-    await join(w, ['white', 'black']);
-    await w.harness.apply(dispatch, {
-      clientId: 'white',
-      payload: StartMatch({ whiteMs, blackMs }),
-    });
-    expect(matchClockStatus(await readServer(w.harness))).toBe('playing');
-  }
-);
-
-When('{actor} moves', async (w, seat: string) => {
-  await move(room(w), seat);
-});
-
-Given(
-  '{actor} has moved after {int} ms',
-  async (w, seat: string, ms: number) => {
-    await room(w).advanceTime(ms);
-    await move(room(w), seat);
+  'White and Black have started a match with {int} seconds for White and {int} seconds for Black',
+  async (w, whiteSeconds: number, blackSeconds: number) => {
+    await openRoom(w, ['white', 'black']);
+    await startMatch(w, 'white', whiteSeconds, blackSeconds);
+    expect(readMatchStatus(await readServer(room(w)))).toBe(
+      MATCH_STATUS.playing
+    );
   }
 );
 
 When(
-  "{actor} claims {actor}'s flag has fallen",
-  async (w, seat: string, flagged: string) => {
-    await claimFlag(room(w), seat, flagged);
+  '{actor} starts a match with {int} seconds for White and {int} seconds for Black',
+  startMatch
+);
+
+When('{actor} moves', move);
+
+Given(
+  '{actor} has moved after {int} seconds',
+  async (w, id: string, seconds: number) => {
+    await room(w).advanceTime(seconds * SECOND_MS);
+    await move(w, id);
   }
 );
 
-Given(
-  "{actor} has claimed {actor}'s flag has fallen",
-  async (w, seat: string, flagged: string) => {
-    await claimFlag(room(w), seat, flagged);
-  }
-);
+When('{actor} claims {actor} has run out of time', claimOutOfTime);
+
+Given('{actor} has claimed {actor} has run out of time', claimOutOfTime);
 
 Then(
   'the match is still playing with {actor} to move',
-  async (w, seat: string) => {
+  async (w, id: string) => {
     const state = await readServer(room(w));
-    expect(matchClockStatus(state)).toBe('playing');
-    expect(matchClockTurn(state)).toBe(seat);
+    expect(readMatchStatus(state)).toBe(MATCH_STATUS.playing);
+    expect(readPlayerToMove(state)).toBe(id as Player);
   }
 );
 
-Then(
-  'White has {int} ms left and Black has {int} ms left',
-  async (w, whiteMs: number, blackMs: number) => {
-    const state = await readServer(room(w));
-    expect(matchClockWhiteMs(state)).toBe(whiteMs);
-    expect(matchClockBlackMs(state)).toBe(blackMs);
+Then('{actor} is to move', async (w, id: string) => {
+  const s = room(w);
+  await settleEveryone(s);
+  for (const person of await everyone(s)) {
+    const shown = await readClient(s, person);
+    expect(readMatchStatus(shown)).toBe(MATCH_STATUS.playing);
+    expect(readPlayerToMove(shown)).toBe(id as Player);
   }
-);
+});
 
-Then('{actor} still has {int} ms left', async (w, seat: string, ms: number) => {
-  const state = await readServer(room(w));
-  const left =
-    seat === 'white' ? matchClockWhiteMs(state) : matchClockBlackMs(state);
-  expect(left).toBe(ms);
+Then('the match has still not started', async (w) => {
+  expect(readMatchStatus(await readServer(room(w)))).toBe(
+    MATCH_STATUS.notStarted
+  );
 });
 
 Then(
-  'White and Black both see {actor} win on time',
+  'White has {int} second(s) left and Black has {int} second(s) left',
+  async (w, whiteSeconds: number, blackSeconds: number) => {
+    const s = room(w);
+    const state = await readServer(s);
+    const now = await s.read(clock);
+    expect(readTimeLeftSeconds(state, 'white', now)).toBe(whiteSeconds);
+    expect(readTimeLeftSeconds(state, 'black', now)).toBe(blackSeconds);
+  }
+);
+
+Then(
+  'White and Black both/still see {actor} win on time',
   async (w, winner: string) => {
     const s = room(w);
     await settleEveryone(s);
     const state = await readServer(s);
-    expect(matchClockStatus(state)).toBe('flagged');
-    expect(matchClockWinner(state)).toBe(winner);
+    expect(readMatchStatus(state)).toBe(MATCH_STATUS.over);
+    expect(readWinner(state)).toBe(winner as Player);
     for (const id of await everyone(s)) {
-      expect(matchClockStatus(await readClient(s, id))).toBe('flagged');
+      const shown = await readClient(s, id);
+      expect(readMatchStatus(shown)).toBe(MATCH_STATUS.over);
+      expect(readWinner(shown)).toBe(winner as Player);
     }
   }
 );
+
+Then('{actor} is told the move came too late', async (w, id: string) => {
+  await expectToldThat(room(w), id, REFUSAL.tooLate);
+});

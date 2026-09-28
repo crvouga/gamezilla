@@ -1,7 +1,6 @@
 /**
- * The world a room scenario runs in: the room harness a `Given` opens (each
- * scenario picks its room app), disposed after the last step, plus values a
- * step hands to a later one (a baseline hash, a command frame).
+ * The world a room scenario runs in: the example game room a `Given` opens,
+ * disposed after the last step.
  */
 
 import {
@@ -16,7 +15,6 @@ import type { RoomHarness } from '@pkgs/room-harness';
 export type RoomWorld = {
   readonly ctx: ScenarioContext;
   harness: Run<RoomHarness> | null;
-  readonly memo: Map<string, unknown>;
 };
 
 export const { Given, When, Then } = stepsFor<RoomWorld>();
@@ -31,20 +29,8 @@ export function room(w: RoomWorld): Run<RoomHarness> {
   return w.harness;
 }
 
-export function remember<T>(w: RoomWorld, key: string, value: T): T {
-  w.memo.set(key, value);
-  return value;
-}
-
-export function recall<T>(w: RoomWorld, key: string): T {
-  if (!w.memo.has(key)) {
-    throw new Error(`no earlier step remembered "${key}"`);
-  }
-  return w.memo.get(key) as T;
-}
-
 /**
- * The parameter types the rooms features use, matching the spec gate's
+ * The parameter types the room features use, matching the spec gate's
  * registry (`SPEC_PARAMETER_TYPES` in `@libs/harness`, which a `pkgs/`
  * package cannot import): `{actor}` is a person (White and Black are the
  * two sides of a match).
@@ -57,7 +43,7 @@ defineParameterType({
 
 export function useRoomWorld(): void {
   setWorld<RoomWorld>({
-    create: async (ctx) => ({ ctx, harness: null, memo: new Map() }),
+    create: async (ctx) => ({ ctx, harness: null }),
     dispose: async (w) => {
       await w.harness?.[Symbol.asyncDispose]();
     },

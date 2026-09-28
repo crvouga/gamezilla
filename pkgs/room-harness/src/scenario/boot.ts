@@ -65,7 +65,6 @@ export async function bootRoomHarness(
     mildFaults: args.mildFaults,
     ...(opts?.topic !== undefined ? { topic: opts.topic } : {}),
     ...(opts?.storage !== undefined ? { storage: opts.storage } : {}),
-    ...(app.authorize !== undefined ? { authorize: app.authorize } : {}),
   });
   for (let i = 0; i < args.clientCount; i += 1) {
     await kit.addClient({ id: `c${String(i)}` });

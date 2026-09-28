@@ -1,52 +1,46 @@
 /**
- * Steps every room kind shares: devices going offline and coming back,
- * stalled networks, time passing, crashes, and what the room confirms.
- * Each `{actor}` names a person and their device.
+ * Steps every part of the game room shares: who is in the room, going
+ * offline and coming back online, an app closing unexpectedly, time
+ * passing, and who the room shows present. Each `{actor}` names a person
+ * and their phone.
  */
 
 import { expect } from 'bun:test';
 import type { Run } from '@pkgs/harness';
-import { ROOM_ERROR_TYPE } from '@pkgs/room';
 import {
   addClient,
-  armCrashAt,
   clientState,
   connect,
   connected,
   crash,
   disconnect,
+  exampleSystem,
   expectHashMatch,
   expectInSync,
   inSync,
-  logSeq,
-  pauseNetwork,
   type RoomHarness,
-  readClientHash,
   readRejection,
   restart,
-  resumeNetwork,
-  serverCrash,
-  serverCrashed,
-  serverRestart,
 } from '@pkgs/room-harness';
-import { Given, type RoomWorld, recall, room, Then, When } from './world';
+import { Given, type RoomWorld, room, Then, When } from './world';
 
-/** Add `people` to an open room, let it settle, and note what each sees. */
-export async function join(
+export const SECOND_MS = 1_000;
+
+/** Open the example game room with `people` in it, each on their phone. */
+export async function openRoom(
   w: RoomWorld,
   people: readonly string[]
-): Promise<void> {
-  const s = room(w);
+): Promise<Run<RoomHarness>> {
+  const s = await exampleSystem.run({ seed: w.ctx.testId });
+  w.harness = s;
   for (const id of people) {
     await s.apply(addClient, { id, identity: id });
   }
   await expectInSync(s);
-  for (const id of people) {
-    w.memo.set(`view:${id}`, await readClientHash(s, id));
-  }
+  return s;
 }
 
-/** The ids of every device in the room. */
+/** The ids of every phone in the room. */
 export async function everyone(
   s: Run<RoomHarness>
 ): Promise<readonly string[]> {
@@ -54,7 +48,7 @@ export async function everyone(
 }
 
 /**
- * Wait (on virtual time, acting on nothing) until every device is back in
+ * Wait (on virtual time, acting on nothing) until every phone is back in
  * the room and agrees with it.
  */
 export async function settleEveryone(s: Run<RoomHarness>): Promise<void> {
@@ -69,81 +63,66 @@ async function allConnectedAndInSync(harness: RoomHarness): Promise<boolean> {
   return ids.length === harness.kit.clients.size && (await inSync(harness));
 }
 
-function pendingIds(id: string) {
-  return (harness: RoomHarness): readonly string[] =>
-    harness.kit.clients.get(id)?.room()?.getPendingQueueIds() ?? [];
+/** Assert `id` was told `reason` for their last refused command. */
+export async function expectToldThat(
+  s: Run<RoomHarness>,
+  id: string,
+  reason: string
+): Promise<void> {
+  expect((await readRejection(s, id))?.reason).toBe(reason);
 }
 
 function roster(harness: RoomHarness): readonly string[] {
   return harness.kit.server.getRoster().map((entry) => entry.id);
 }
 
-async function offline(w: RoomWorld, id: string): Promise<void> {
-  await room(w).apply(disconnect, id);
-}
-
-Given("{actor}'s device is offline", offline);
-When("{actor}'s device goes offline", offline);
-
-async function reconnect(w: RoomWorld, id: string): Promise<void> {
-  await room(w).apply(connect, id);
-}
-
-When('{actor} reconnects', reconnect);
-
-async function stall(w: RoomWorld, id: string): Promise<void> {
-  await room(w).apply(pauseNetwork, id);
-}
-
-Given("{actor}'s network has stalled", stall);
-
-async function recover(w: RoomWorld, id: string): Promise<void> {
-  await room(w).apply(resumeNetwork, id);
-}
-
-When("{actor}'s network recovers", recover);
-
-When('{int} ms pass', async (w, ms: number) => {
-  await room(w).advanceTime(ms);
-});
-
-Given("{actor}'s app has crashed", async (w, id: string) => {
-  await room(w).apply(crash, id);
-});
-
-When("{actor}'s app restarts", async (w, id: string) => {
-  await room(w).apply(restart, id);
-});
-
 Given(
-  "{actor}'s app will crash right after the room confirms her next change",
-  async (w, id: string) => {
-    await room(w).apply(armCrashAt, {
-      clientId: id,
-      event: 'afterNextCommitted' as const,
-    });
+  '{actor} and {actor} are in the room',
+  async (w, a: string, b: string) => {
+    await openRoom(w, [a, b]);
   }
 );
 
-When('the room crashes', async (w) => {
-  await room(w).apply(serverCrash);
+Given(
+  '{actor}, {actor} and {actor} are in the room',
+  async (w, a: string, b: string, c: string) => {
+    await openRoom(w, [a, b, c]);
+  }
+);
+
+async function goOffline(w: RoomWorld, id: string): Promise<void> {
+  await room(w).apply(disconnect, id);
+}
+
+Given("{actor}'s phone is offline", goOffline);
+When("{actor}'s phone goes offline", goOffline);
+
+When("{actor}'s phone comes back online", async (w, id: string) => {
+  await room(w).apply(connect, id);
 });
 
-Given('the room has crashed', async (w) => {
-  await room(w).apply(serverCrash);
+Given(
+  "{actor}'s phone has been offline for {int} seconds",
+  async (w, id: string, seconds: number) => {
+    await room(w).apply(disconnect, id);
+    await room(w).advanceTime(seconds * SECOND_MS);
+  }
+);
+
+Given("{actor}'s app has closed unexpectedly", async (w, id: string) => {
+  await room(w).apply(crash, id);
 });
 
-When('the room restarts', async (w) => {
-  await room(w).apply(serverRestart);
+When('{actor} reopens the app', async (w, id: string) => {
+  await room(w).apply(restart, id);
 });
 
-Then('the room is down', async (w) => {
-  expect(await room(w).read(serverCrashed)).toBe(true);
-});
+async function secondsPass(w: RoomWorld, seconds: number): Promise<void> {
+  await room(w).advanceTime(seconds * SECOND_MS);
+}
 
-Then('the room is up', async (w) => {
-  expect(await room(w).read(serverCrashed)).toBe(false);
-});
+Given('{int} seconds have passed', secondsPass);
+When('{int} seconds pass', secondsPass);
 
 Then(
   'the room shows {actor} and {actor} present',
@@ -154,30 +133,4 @@ Then(
 
 Then('the room shows only {actor} present', async (w, id: string) => {
   expect(await room(w).read(roster)).toEqual([id]);
-});
-
-Then('the room has accepted {int} change(s)', async (w, count: number) => {
-  expect(await room(w).read(logSeq)).toBe(count);
-});
-
-Then("{actor}'s change is refused as invalid", async (w, id: string) => {
-  expect((await readRejection(room(w), id))?.type).toBe(
-    ROOM_ERROR_TYPE.invalidCommand
-  );
-});
-
-Then("{actor}'s change is refused as not allowed", async (w, id: string) => {
-  expect((await readRejection(room(w), id))?.type).toBe(
-    ROOM_ERROR_TYPE.unauthorized
-  );
-});
-
-Then('{actor} has no changes waiting to be sent', async (w, id: string) => {
-  expect(await room(w).read(pendingIds(id))).toEqual([]);
-});
-
-Then("nothing on {actor}'s device has changed", async (w, id: string) => {
-  expect(await readClientHash(room(w), id)).toBe(
-    recall<string>(w, `view:${id}`)
-  );
 });

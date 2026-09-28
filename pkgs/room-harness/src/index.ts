@@ -9,53 +9,10 @@ export {
   type LoopbackRoomTransportArgs,
 } from '@pkgs/room-adapter-memory';
 export type { RoomHarnessClient } from './api';
-export {
-  AuthzFixtureModule,
-  authzCount,
-  authzOwner,
-  Bump,
-  Claim,
-} from './authz-module';
-export { bootCounter } from './boot-counter';
 export type { LoopbackRoomSystem } from './boot-loopback';
 export { openLoopbackRoom } from './boot-loopback';
-export {
-  counterValue,
-  Decrement,
-  Increment,
-  TestCounterModule,
-} from './counter-module';
-export {
-  ActBeforeDeadline,
-  DeadlineFixtureModule,
-  deadlineAt,
-  deadlineOutcome,
-  deadlineStatus,
-  ExpireDeadline,
-  StartDeadline,
-} from './deadline-module';
 export { exampleApp, exampleSystem } from './example-app';
-export { authzApp } from './example-authz/app';
-export { authzSystem } from './example-authz/system';
-export { counterApp } from './example-counter/app';
-export { counterSystem } from './example-counter/system';
-export { deadlineApp } from './example-deadline/app';
-export { deadlineSystem } from './example-deadline/system';
-export { matchClockApp } from './example-match-clock/app';
-export { matchClockSystem } from './example-match-clock/system';
 export { expectInSync } from './expect-in-sync';
-export {
-  FlagFall,
-  MatchClockFixtureModule,
-  Move,
-  Move as MatchClockMove,
-  matchClockBlackMs,
-  matchClockStatus,
-  matchClockTurn,
-  matchClockWhiteMs,
-  matchClockWinner,
-  StartMatch,
-} from './match-clock-module';
 export {
   assertHashCanonical,
   assertTotality,

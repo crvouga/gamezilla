@@ -12,7 +12,6 @@ import {
 } from '@pkgs/room-adapter-memory';
 import type {
   OpenRoomHarnessArgs,
-  RoomHarnessAuthorize,
   RoomHarnessClient,
   RoomHarnessRuntime,
   RoomHarnessRuntimeDeps,
@@ -90,7 +89,6 @@ function createKitServer<
   readonly storage: RoomKernel<S, C, E>['storage'];
   readonly clock: RoomKernel<S, C, E>['clock'];
   readonly handler: BoundSchedule['handler'];
-  readonly authorize?: RoomHarnessAuthorize;
 }): RoomServer<S, C, E, string> {
   return new RoomServer<S, C, E, string>({
     topic: args.topic,
@@ -98,7 +96,6 @@ function createKitServer<
     storage: args.storage,
     clock: args.clock,
     effectHandlers: [args.handler],
-    ...(args.authorize !== undefined ? { authorize: args.authorize } : {}),
   });
 }
 
@@ -175,7 +172,6 @@ async function createRoomKernel<
     storage,
     clock: deps.clock,
     handler: schedule.handler,
-    ...(args.authorize !== undefined ? { authorize: args.authorize } : {}),
   });
   const bindScheduleInject = bindScheduleInjectFor<S, C, E>(schedule);
   bindScheduleInject(server);
@@ -307,7 +303,6 @@ async function recreateKitServer<
     storage: k.storage,
     clock: k.clock,
     handler: schedule.handler,
-    ...(boot.authorize !== undefined ? { authorize: boot.authorize } : {}),
   });
   k.bindScheduleInject = bindScheduleInjectFor(schedule);
   k.bindScheduleInject(server);

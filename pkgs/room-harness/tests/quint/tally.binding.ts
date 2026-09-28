@@ -1,26 +1,25 @@
 /**
- * `specs/room/shared-counter.qnt` against the counter room: each model action through the
- * room harness actions on Alice's or Bob's device, and the model's state read
- * back from the room, each running device, and each device's state.
+ * `specs/room/tally.qnt` against the example game room: each model action
+ * through the room harness on Alice's or Bob's phone, and the model's state
+ * read back from the room, each open app, and each phone. The model's
+ * `_`-prefixed faults are the harness's fault injections.
  */
 
 import { asKeyword } from '@pkgs/keyword';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
-import type { RoomState } from '@pkgs/room';
+import { AddOne, readTally, TakeOne } from '@pkgs/room/harness';
 import {
   addClient,
+  armCrashAt,
   clock,
   commandWire,
   connect,
-  counterSystem,
-  counterValue,
   crash,
-  Decrement,
   disconnect,
   dispatch,
+  exampleSystem,
   expectInSync,
-  Increment,
   injectToServer,
   pauseNetwork,
   type RoomHarness,
@@ -39,27 +38,26 @@ function person(picks: Picks): string {
   return String(picks['person']);
 }
 
-function deviceStateOf(s: RoomHarness, id: string): QuintValue {
-  const device = s.kit.clients.get(id);
-  if (device === undefined || device.isCrashed()) return variant('Crashed');
-  if (s.kit.net(id).state() === 'hold') return variant('Stalled');
-  return variant(device.isConnected() ? 'Online' : 'Offline');
+function phoneStateOf(s: RoomHarness, id: string): QuintValue {
+  const phone = s.kit.clients.get(id);
+  if (phone === undefined || phone.isCrashed()) return variant('AppClosed');
+  return variant(phone.isConnected() ? 'Online' : 'Offline');
 }
 
 function observed(s: RoomHarness): {
-  readonly shownCount: Map<string, number>;
-  readonly deviceState: Map<string, QuintValue>;
+  readonly shownTally: Map<string, number>;
+  readonly phoneState: Map<string, QuintValue>;
 } {
-  const shownCount = new Map<string, number>();
-  const deviceState = new Map<string, QuintValue>();
+  const shownTally = new Map<string, number>();
+  const phoneState = new Map<string, QuintValue>();
   for (const id of PEOPLE) {
-    deviceState.set(id, deviceStateOf(s, id));
-    const device = s.kit.clients.get(id);
-    if (device !== undefined && !device.isCrashed()) {
-      shownCount.set(id, counterValue(device.snapshot() as RoomState));
+    phoneState.set(id, phoneStateOf(s, id));
+    const phone = s.kit.clients.get(id);
+    if (phone !== undefined && !phone.isCrashed()) {
+      shownTally.set(id, readTally(phone.snapshot()));
     }
   }
-  return { shownCount, deviceState };
+  return { shownTally, phoneState };
 }
 
 async function send(
@@ -71,70 +69,70 @@ async function send(
 }
 
 bindQuintModel<RoomTraceWorld>({
-  model: 'shared-counter',
+  model: 'tally',
   traces: 24,
   maxSteps: 14,
   actions: {
     init: async (w) => {
       w.patient = true;
-      w.harness = await counterSystem.run({ seed: w.ctx.testId });
+      w.harness = await exampleSystem.run({ seed: w.ctx.testId });
       for (const id of PEOPLE) {
         await w.harness.apply(addClient, { id, identity: id });
       }
       await expectInSync(w.harness);
     },
-    increment: async (w, picks) => {
+    addOne: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
         clientId: person(picks),
-        payload: Increment({}),
+        payload: AddOne({}),
       });
     },
-    decrement: async (w, picks) => {
+    takeOne: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
         clientId: person(picks),
-        payload: Decrement({}),
+        payload: TakeOne({}),
       });
     },
     goOffline: async (w, picks) => {
       await traceRoom(w).apply(disconnect, person(picks));
     },
-    reconnect: async (w, picks) => {
+    comeBackOnline: async (w, picks) => {
       await traceRoom(w).apply(connect, person(picks));
     },
-    networkStalls: async (w, picks) => {
-      await traceRoom(w).apply(pauseNetwork, person(picks));
-    },
-    networkRecovers: async (w, picks) => {
-      await traceRoom(w).apply(resumeNetwork, person(picks));
-    },
-    appCrashes: async (w, picks) => {
+    closeUnexpectedly: async (w, picks) => {
       await traceRoom(w).apply(crash, person(picks));
     },
-    appRestarts: async (w, picks) => {
+    reopenApp: async (w, picks) => {
       await traceRoom(w).apply(restart, person(picks));
     },
-    roomRestarts: async (w) => {
+    _networkStalls: async (w, picks) => {
+      await traceRoom(w).apply(pauseNetwork, person(picks));
+    },
+    _networkRecovers: async (w, picks) => {
+      await traceRoom(w).apply(resumeNetwork, person(picks));
+    },
+    _roomRestarts: async (w) => {
       await traceRoom(w).apply(serverCrash);
       await traceRoom(w).apply(serverRestart);
     },
-    resend: async (w, picks) => {
+    _resend: async (w, picks) => {
       const ts = await traceRoom(w).read(clock);
       await send(
         w,
         person(picks),
-        commandWire({ id: String(picks['change']), ts, payload: Increment({}) })
+        commandWire({ id: String(picks['change']), ts, payload: AddOne({}) })
       );
     },
-    takeOver: async (w, picks) => {
+    _takeOver: async (w, picks) => {
       await traceRoom(w).apply(takeOver, person(picks));
     },
-    makeInvalidChange: async (w, picks) => {
+    _makeInvalidChange: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
         clientId: person(picks),
-        payload: { type: asKeyword('space-counter-cmd/nope'), payload: {} },
+        payload: { type: asKeyword('game-room-cmd/nope'), payload: {} },
       });
     },
-    sendGarbledChange: async (w, picks) => {
+    _sendGarbledChange: async (w, picks) => {
       const ts = await traceRoom(w).read(clock);
       await send(w, person(picks), {
         v: 1,
@@ -144,11 +142,19 @@ bindQuintModel<RoomTraceWorld>({
         payload: { not: 'a-message' },
       });
     },
+    _appClosesAsChangeLands: async (w, picks) => {
+      const id = person(picks);
+      await traceRoom(w).apply(armCrashAt, {
+        clientId: id,
+        event: 'afterNextCommitted' as const,
+      });
+      await traceRoom(w).apply(dispatch, { clientId: id, payload: AddOne({}) });
+    },
   },
   observe: async (w) => {
     const s = traceRoom(w);
-    const roomCount = counterValue(await readServer(s));
-    return { roomCount, ...(await s.read(observed)) };
+    const tally = readTally(await readServer(s));
+    return { tally, ...(await s.read(observed)) };
   },
   fingerprint: roomFingerprint,
 });
