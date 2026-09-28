@@ -131,8 +131,9 @@ pass.**
 
 ## Fan-out for a whole wave
 
-Use one worktree per package, in this order: `sync-engine` → `room-harness` →
-`matchmaking-harness` → `auth-harness` → `db-indexes`. In each worktree the porter
+Work on the current branch and worktree — never a new one (AGENTS.md). Take
+the packages in this order: `sync-engine` → `room-harness` →
+`matchmaking-harness` → `auth-harness` → `db-indexes`. For each package the porter
 writes the ledger, then a `spec-upsert` agent, then a `spec-implement`
 agent, then a `spec-audit` agent. Port one package end to end, deleting its
 legacy tests, before starting the next.
