@@ -71,6 +71,7 @@ describe('screen focus', () => {
     expect(keyboardOn()).toBe('nothing');
   });
 
+  // regression: a11y-focus-lost-on-navigation
   test("a screen replacing the keyboard's screen takes it on its title", async () => {
     const go = mount();
     focus('A2');

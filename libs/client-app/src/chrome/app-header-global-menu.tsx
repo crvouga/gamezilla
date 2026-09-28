@@ -63,6 +63,26 @@ function useThemeCaption(): () => string {
   };
 }
 
+/**
+ * The Connectivity row: its label, then the status in words beside a status
+ * dot. It is named by what it shows ("Connectivity Online"), so a listener
+ * hears the visible label (WCAG 2.5.3).
+ */
+export function connectivityMenuAction(row: {
+  readonly label: string;
+  readonly status: StatusDotStatus;
+  readonly statusLabel: string;
+  readonly onClick: () => void;
+}): OverflowMenuAction {
+  return {
+    id: 'connectivity',
+    label: row.label,
+    subtitle: row.statusLabel,
+    leading: <StatusDot status={row.status} size={CONNECTIVITY_DOT_SIZE} />,
+    onClick: row.onClick,
+  };
+}
+
 function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   const { t } = useLingui();
   const router = useRouter();
@@ -80,19 +100,12 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
       endsGroup: true,
       dataSet: { testid: Handles.globalMenuSettings },
     },
-    {
-      id: 'connectivity',
+    connectivityMenuAction({
       label: t`Connectivity`,
-      subtitle: connectivityStatusLabel(connectivity.status()),
-      'aria-label': connectivityStatusLabel(connectivity.status()),
-      leading: (
-        <StatusDot
-          status={connectivity.status()}
-          size={CONNECTIVITY_DOT_SIZE}
-        />
-      ),
+      status: connectivity.status(),
+      statusLabel: connectivityStatusLabel(connectivity.status()),
       onClick: go('/more/sync'),
-    },
+    }),
     {
       id: 'server',
       label: t`Server`,

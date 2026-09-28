@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
+import { auditTree, formatFailure, labelInName } from '@pkgs/a11y';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import { ActionBar } from '@pkgs/ui/components/action-bar';
 import {
@@ -138,10 +139,38 @@ describe('FloatingMenu', () => {
     expect(screen.getByRole('menuitem', { name: 'Online' }).textContent).toBe(
       'Online'
     );
-    const theme = screen.getByRole('menuitem', { name: 'Theme' });
+    const theme = screen.getByRole('menuitem', { name: 'Theme Dark' });
     expect(theme.textContent).toContain('Theme');
     expect(theme.textContent).toContain('Dark');
     expect(theme.querySelectorAll('p')).toHaveLength(2);
+  });
+
+  // regression: a11y-menu-label-not-in-name
+  test('a row is named by what it shows, so a listener hears its visible label', () => {
+    renderUi(() => (
+      <SurfaceStackProvider>
+        <FloatingMenu
+          open
+          onClose={() => undefined}
+          anchor={ANCHOR}
+          label="Account"
+          content={{
+            rows: [
+              {
+                type: 'item',
+                id: 'theme',
+                label: 'Theme',
+                subtitle: 'System',
+                icon: SettingsIcon,
+              },
+            ],
+          }}
+        />
+      </SurfaceStackProvider>
+    ));
+    const panel = mustQuery('[data-component="FloatingMenuPanel"]');
+    expect(auditTree(panel, [labelInName]).map(formatFailure)).toEqual([]);
+    expect(screen.getByRole('menuitem', { name: 'Theme System' })).toBeTruthy();
   });
 
   test('focuses the first item, arrows skip disabled rows, select closes', async () => {

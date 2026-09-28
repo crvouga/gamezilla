@@ -2808,7 +2808,7 @@ msgstr "You've used this for now"
 msgid "you@example.com"
 msgstr "you@example.com"
 
-#: libs/profile/src/root/client/profile-screen.tsx
+#: libs/profile/src/root/client/profile-avatar-figure.tsx
 msgid "Your avatar"
 msgstr "Your avatar"
 

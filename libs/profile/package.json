@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --path-ignore-patterns='tests/harness/**'",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/harness/**'",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/2",
     "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/2"
@@ -53,11 +53,14 @@
   },
   "devDependencies": {
     "@libs/billing": "workspace:*",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/alloy": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
