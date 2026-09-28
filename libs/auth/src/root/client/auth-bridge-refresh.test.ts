@@ -65,6 +65,7 @@ function makeDeps(
     lastSyncedTokenRef: { current: null },
     inFlightRef: { current: false },
     pendingTokenRef: { current: null },
+    signingInTokenRef: { current: null },
   };
 }
 
@@ -129,6 +130,12 @@ describe('AuthBridgeRefresh unauthorized recovery', () => {
       throw new Error(`unexpected fetch: ${url}`);
     });
 
+    await new SessionCapabilityStore(store).write({
+      token: 'maybe-live',
+      expiresAt: null,
+      externalUserId: null,
+    });
+
     await new AuthBridgeRefresh(deps).runRefresh({
       token: 'maybe-live',
       expiresAt: null,
@@ -139,6 +146,160 @@ describe('AuthBridgeRefresh unauthorized recovery', () => {
     expect(calls.every((u) => u.includes('/identity/refresh'))).toBe(true);
     expect(new SessionCapabilityStore(store).readToken()).toBe('maybe-live');
     expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBeNull();
+  });
+});
+
+describe('AuthBridgeRefresh new sign-in', () => {
+  let AuthBridgeRefresh: typeof import('./auth-bridge-refresh').AuthBridgeRefresh;
+  let SessionCapabilityStore: typeof import('../../public/session-capability').SessionCapabilityStore;
+
+  beforeAll(async () => {
+    ({ AuthBridgeRefresh } = await import('./auth-bridge-refresh'));
+    ({ SessionCapabilityStore } = await import(
+      '../../public/session-capability'
+    ));
+  });
+
+  // regression: sign-in-refresh-race
+  test('a new sign-in is not the session until its account is bound', async () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    await store.write(LAST_LOCAL_ACCOUNT_ID_KEY, LOCAL_ID);
+    let answer: (res: Response) => void = () => undefined;
+    const deps = makeDeps(store, async (input) => {
+      const url = String(input);
+      if (!url.includes('/identity/refresh')) {
+        throw new Error(`unexpected fetch: ${url}`);
+      }
+      return await new Promise<Response>((resolve) => {
+        answer = resolve;
+      });
+    });
+
+    const done = new AuthBridgeRefresh(deps).runRefresh({
+      token: 'new-sign-in',
+      expiresAt: null,
+      externalUserId: null,
+      force: false,
+    });
+    await Promise.resolve();
+
+    // Still the guest: no session, same account, while the server answers.
+    expect(new SessionCapabilityStore(store).readToken()).toBeNull();
+    expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBe(LOCAL_ID);
+
+    answer(jsonResponse(200, { accountId: SERVER_ID }));
+    await done;
+
+    expect(new SessionCapabilityStore(store).readToken()).toBe('new-sign-in');
+    expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBe(SERVER_ID);
+  });
+
+  test('a sign-out while the account gets ready drops the sign-in', async () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    await store.write(LAST_LOCAL_ACCOUNT_ID_KEY, LOCAL_ID);
+    let answer: (res: Response) => void = () => undefined;
+    const deps = makeDeps(store, async (input) => {
+      const url = String(input);
+      if (url.includes('/identity/refresh')) {
+        return await new Promise<Response>((resolve) => {
+          answer = resolve;
+        });
+      }
+      if (url.includes('/identity/anon/ensure')) {
+        return jsonResponse(200, { userId: LOCAL_ID, isAnon: true });
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    });
+
+    const done = new AuthBridgeRefresh(deps).runRefresh({
+      token: 'new-sign-in',
+      expiresAt: null,
+      externalUserId: null,
+      force: false,
+    });
+    await Promise.resolve();
+    await new AuthBridgeRefresh(deps).handleSignedOut();
+    answer(jsonResponse(200, { accountId: SERVER_ID }));
+    await done;
+
+    expect(new SessionCapabilityStore(store).readToken()).toBeNull();
+    expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBe(LOCAL_ID);
+  });
+
+  test('a newer sign-in during the refresh wins', async () => {
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    const answers: ((res: Response) => void)[] = [];
+    const deps = makeDeps(store, async (input) => {
+      const url = String(input);
+      if (!url.includes('/identity/refresh')) {
+        throw new Error(`unexpected fetch: ${url}`);
+      }
+      return await new Promise<Response>((resolve) => {
+        answers.push(resolve);
+      });
+    });
+    const refresh = (token: string) =>
+      new AuthBridgeRefresh(deps).runRefresh({
+        token,
+        expiresAt: null,
+        externalUserId: null,
+        force: false,
+      });
+
+    const first = refresh('older');
+    await Promise.resolve();
+    await refresh('newer');
+    answers[0]?.(jsonResponse(200, { accountId: LOCAL_ID }));
+    for (let i = 0; i < 20 && answers.length < 2; i += 1) {
+      await Promise.resolve();
+    }
+    expect(new SessionCapabilityStore(store).readToken()).toBeNull();
+    answers[1]?.(jsonResponse(200, { accountId: SERVER_ID }));
+    await first;
+
+    expect(new SessionCapabilityStore(store).readToken()).toBe('newer');
+    expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBe(SERVER_ID);
+  });
+
+  test('a lost connection holds the sign-in until it is back', async () => {
+    const { HttpNetworkError } = await import('@pkgs/http-client');
+    const store = createSecureStorageStore(new InMemorySecureStorage());
+    let online = false;
+    let attempts = 0;
+    let reconnect: (() => void) | null = null;
+    const deps = makeDeps(store, async (input) => {
+      const url = String(input);
+      if (!url.includes('/identity/refresh')) {
+        throw new Error(`unexpected fetch: ${url}`);
+      }
+      attempts += 1;
+      if (!online) throw new HttpNetworkError('offline');
+      return jsonResponse(200, { accountId: SERVER_ID });
+    });
+    deps.waitUntilAvailable = () =>
+      new Promise<void>((resolve) => {
+        reconnect = resolve;
+      });
+
+    const done = new AuthBridgeRefresh(deps).runRefresh({
+      token: 'new-sign-in',
+      expiresAt: null,
+      externalUserId: null,
+      force: false,
+    });
+    for (let i = 0; i < 50 && reconnect === null; i += 1) {
+      await Promise.resolve();
+    }
+    expect(attempts).toBe(1);
+    expect(new SessionCapabilityStore(store).readToken()).toBeNull();
+
+    online = true;
+    (reconnect as (() => void) | null)?.();
+    await done;
+
+    expect(attempts).toBe(2);
+    expect(new SessionCapabilityStore(store).readToken()).toBe('new-sign-in');
+    expect(store.getValue(LAST_LOCAL_ACCOUNT_ID_KEY)).toBe(SERVER_ID);
   });
 });
 

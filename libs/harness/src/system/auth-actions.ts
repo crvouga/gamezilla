@@ -66,6 +66,19 @@ async function providerSignIn(
   }
 }
 
+/**
+ * From now on, a sign-in on `actorId`'s device takes `delayMs` to finish
+ * after the provider says yes: the server gets the account ready as slowly
+ * as production's does (seconds), instead of at once.
+ */
+export const slowAccountReady = scenarioAction({
+  name: 'slowAccountReady',
+  act: (s, actorId: string, delayMs: number) => {
+    s.harness.setAccountReadyDelay(actorId, delayMs);
+    return Promise.resolve();
+  },
+});
+
 export const signInWithGoogle = scenarioAction({
   name: 'signInWithGoogle',
   act: (s, actorId: string) =>

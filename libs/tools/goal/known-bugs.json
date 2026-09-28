@@ -110,6 +110,11 @@
     "regressionTest": "pkgs/ui-testing-bun-webview/tests/text-field.test.ts"
   },
   {
+    "id": "webview-button-text-empty",
+    "summary": "The Bun.WebView driver's `text()` returned any node's `value`, and every `<button>` has one (`\"\"`), so `expect.text` on a button never matched in a real browser: the avatar \"Saved\" critical journey failed in production while the Solid DOM driver passed. Fixed by reading `value` only from `<input>` / `<textarea>`, else visible text, else `aria-label`, like the Solid DOM driver.",
+    "regressionTest": "pkgs/ui-testing-bun-webview/tests/button-text.test.ts"
+  },
+  {
     "id": "product-deploy-wrangler-not-on-path",
     "summary": "After the global CLI installer was replaced by mise, @apps/product's deploy spawned `wrangler` without declaring it, so `bun run` never put the bin on PATH and Deploy failed with `Executable not found in $PATH: \"wrangler\"`. Fixed by declaring wrangler in every package that spawns it; lint-package now fails a package that spawns an undeclared npm CLI.",
     "regressionTest": "libs/tools/scripts/spawned-clis.test.ts"
@@ -238,5 +243,10 @@
     "id": "garbled-live-update-blank-note",
     "summary": "A garbled live update (fields renamed on the way) created a note on other devices with no title or text until the next refresh. Found by the note-replication model's garbled-live-updates action. Fixed by refusing a pushed image that would create a row without every column the device keeps; the row is refetched whole.",
     "regressionTest": "specs/sync-engine/note-writing.feature"
+  },
+  {
+    "id": "sign-in-refresh-race",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   }
 ]

@@ -99,6 +99,7 @@ export {
   signInWithGoogleAsAccount,
   signInWithProviderAs,
   signOut,
+  slowAccountReady,
 } from './system/auth-actions';
 export {
   defineProductSystem,
