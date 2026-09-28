@@ -77,4 +77,26 @@ describe('decouplingProblems (D1)', () => {
     );
     expect(errors).toContain(':4: D1 names a source file "room.steps.ts"');
   });
+
+  test('every spec kind and the manifest are held to D1; the rulebook is not', () => {
+    for (const path of [
+      'specs/billing/access.dmn',
+      'specs/spaces/spaces.als',
+      'specs/health/api.openslo.yaml',
+      'specs/conformance.yaml',
+    ]) {
+      expect(problems(path, '# bound in libs/billing/tests/dmn')).toHaveLength(
+        1
+      );
+    }
+    expect(
+      problems('specs/billing/refunds.qnt', '// see access.dmn and spaces.als')
+    ).toHaveLength(2);
+    expect(
+      problems(
+        'specs/README.md',
+        'specs/<context>/<table>.dmn is bound in tests/dmn/ of @libs/billing'
+      )
+    ).toEqual([]);
+  });
 });

@@ -140,7 +140,7 @@ export function bindingProblems(input: BindingInput): readonly string[] {
     const files = bindings.get(stem) ?? [];
     if (files.length === 0) {
       out.push(
-        `${path}: no binding — add a tests/${kind.dir}/${stem}.binding.ts with spec: '${stem}' under ${bindingDir}/`
+        `${path}: no binding — add ${bindingDir}/${stem}.binding.ts with spec: '${stem}', imported from tests/${kind.dir}/index.ts`
       );
     } else if (files.length > 1) {
       out.push(`${path}: bound more than once (${files.join(', ')})`);

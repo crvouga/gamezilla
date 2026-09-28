@@ -1,12 +1,18 @@
 /**
  * Discovery for the spec gates. Every spec lives in the flat top-level tree
- * `specs/<domain>/` — Gherkin features (`<feature>.feature`) and Quint models
- * (`<model>.qnt`); a workspace package runs the domains its `package.json`
+ * `specs/<domain>/` — Gherkin features (`<feature>.feature`), Quint models
+ * (`<model>.qnt`), DMN decision tables (`.dmn`), Alloy structures (`.als`)
+ * and OpenSLO objectives (`.openslo.yaml`, see `spec-kinds.ts`); a workspace
+ * package runs the domains its `package.json`
  * lists in `specDomains` (against the harness, in its `test:spec`) and in
  * `liveDomains` (against a deployed environment, in its `health`). For each
  * such package: its parsed features, the step definitions its `tests/steps/**`
  * declare (read statically), the step files of other packages its steps entry
- * imports, and its models with the bindings its `tests/quint/**` declare.
+ * imports, its models with the bindings its `tests/quint/**` declare, and its
+ * decision tables, structures and objectives with their `tests/<kind>/**`
+ * bindings. The harness runner (`test-spec.ts`) runs every kind in
+ * `specDomains`; a live run (`health`) runs features and objectives in
+ * `liveDomains`, so a live package binds the objectives of its live domains.
  * Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
  */
 
@@ -19,6 +25,13 @@ import {
   extractSteps,
 } from '@pkgs/gherkin/extract';
 import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
+import {
+  BINDING_KINDS,
+  type BindingKind,
+  bindingProblems,
+  contextEntryProblem,
+  specsRootEntryProblem,
+} from './spec-kinds';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const SHARED_STEPS_DIR = 'libs/harness/src/spec/steps';
@@ -45,6 +58,12 @@ export type SpecPackage = PackageSpecs & {
   readonly stepsEntry: string | null;
   /** Repo-relative paths of the Quint models in this package's domains. */
   readonly models: readonly string[];
+  /** Repo-relative `.dmn` decision tables this package runs (`specDomains`). */
+  readonly decisions: readonly string[];
+  /** Repo-relative `.als` structures this package runs (`specDomains`). */
+  readonly structures: readonly string[];
+  /** Repo-relative `.openslo.yaml` objectives this package runs (both domain lists). */
+  readonly objectives: readonly string[];
   readonly problems: readonly string[];
 };
 
@@ -233,6 +252,40 @@ function modelProblems(
   return problems;
 }
 
+/**
+ * The specs of `kind` a package runs: the harness runner checks every kind in
+ * `specDomains`, a live run only objectives in `liveDomains`.
+ */
+function kindSpecs(
+  kind: BindingKind,
+  specDomains: readonly string[],
+  liveDomains: readonly string[]
+): readonly string[] {
+  const domains =
+    kind.field === 'objectives'
+      ? [...new Set([...specDomains, ...liveDomains])]
+      : specDomains;
+  return domains.flatMap((domain) => domainSpecPaths(domain, kind.suffix));
+}
+
+function kindProblems(
+  dir: string,
+  kind: BindingKind,
+  specs: readonly string[]
+): readonly string[] {
+  const bindingDir = join(REPO_ROOT, dir, 'tests', kind.dir);
+  return bindingProblems({
+    dir,
+    kind,
+    specs,
+    files: listFiles(bindingDir, '.ts').map((file) => ({
+      path: relative(REPO_ROOT, file),
+      text: readFileSync(file, 'utf8'),
+    })),
+    hasEntry: existsSync(join(bindingDir, 'index.ts')),
+  });
+}
+
 function readFeatures(domains: readonly string[]): readonly SpecFeature[] {
   return domains.flatMap((domain) =>
     domainFeaturePaths(domain).map((uri) =>
@@ -301,7 +354,19 @@ export function specPackages(): readonly SpecPackage[] {
       : null;
     const own = readSteps(stepFiles(`${dir}/tests/steps`));
     const models = domains.flatMap(domainModelPaths);
-    const problems = [...own.problems, ...modelProblems(dir, models)];
+    const kinds = Object.fromEntries(
+      BINDING_KINDS.map((kind) => [
+        kind.field,
+        kindSpecs(kind, specDomains, liveDomains),
+      ])
+    ) as Record<BindingKind['field'], readonly string[]>;
+    const problems = [
+      ...own.problems,
+      ...modelProblems(dir, models),
+      ...BINDING_KINDS.flatMap((kind) =>
+        kindProblems(dir, kind, kinds[kind.field])
+      ),
+    ];
     const imports: string[] = [];
     let sharedSteps = false;
     if (stepsEntry !== null) {
@@ -336,6 +401,9 @@ export function specPackages(): readonly SpecPackage[] {
       sharedSteps,
       stepsEntry,
       models,
+      decisions: kinds.decisions,
+      structures: kinds.structures,
+      objectives: kinds.objectives,
       problems,
     });
   }
@@ -356,9 +424,9 @@ function runnersBy(
 }
 
 /**
- * The `specs/` tree is flat and fully owned: the shared kernel's
- * `specs/ubiquitous-language.yml`, and in each bounded context only its
- * `ubiquitous-language.yml`, `*.feature` and `*.qnt`; every domain directory run by some package — by
+ * The `specs/` tree is flat and fully owned: at its root only context
+ * directories and the files `spec-kinds.ts` allows, in each bounded context
+ * only the spec kinds that have a runner; every domain directory run by some package — by
  * at most one against the harness (`specDomains`) and at most one live
  * (`liveDomains`) — every claimed domain present, and no package keeping a
  * `features/` directory of its own.
@@ -376,30 +444,20 @@ export function specsLayoutProblems(
     : [];
   for (const entry of present) {
     const path = `${SPECS_DIR}/${entry.name}`;
-    if (!entry.isDirectory()) {
-      if (entry.name !== 'ubiquitous-language.yml') {
-        out.push(
-          `${path}: only specs/<domain>/ directories and the shared kernel's specs/ubiquitous-language.yml belong in specs/`
-        );
-      }
-      continue;
-    }
+    const rootProblem = specsRootEntryProblem(entry.name, entry.isDirectory());
+    if (rootProblem !== null) out.push(rootProblem);
+    if (!entry.isDirectory()) continue;
     for (const inner of readdirSync(join(root, entry.name), {
       withFileTypes: true,
     })) {
-      if (
-        !inner.isFile() ||
-        !(
-          inner.name.endsWith('.feature') ||
-          inner.name.endsWith('.qnt') ||
-          inner.name === 'ubiquitous-language.yml'
-        )
-      ) {
-        out.push(
-          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/ubiquitous-language.yml, <feature>.feature and <model>.qnt`
-        );
-      }
+      const problem = contextEntryProblem(
+        entry.name,
+        inner.name,
+        inner.isDirectory()
+      );
+      if (problem !== null) out.push(problem);
     }
+    out.push(...unrunKindProblems(entry.name, harnessRunners));
     if ((runners.get(entry.name) ?? []).length === 0) {
       out.push(
         `${path}/: no package lists "${entry.name}" in its package.json specDomains or liveDomains`
@@ -439,6 +497,24 @@ export function specsLayoutProblems(
     }
   }
   return out;
+}
+
+/**
+ * A live run checks only features and objectives, so a decision table or
+ * structure in a domain no package runs against the harness would never run.
+ */
+function unrunKindProblems(
+  domain: string,
+  harnessRunners: ReadonlyMap<string, readonly string[]>
+): readonly string[] {
+  if ((harnessRunners.get(domain) ?? []).length > 0) return [];
+  return BINDING_KINDS.filter((kind) => kind.field !== 'objectives').flatMap(
+    (kind) =>
+      domainSpecPaths(domain, kind.suffix).map(
+        (path) =>
+          `${path}: no package lists "${domain}" in specDomains, and live runs check no ${kind.noun}s — it would never run`
+      )
+  );
 }
 
 /** Each `test:spec:<k>` must hash the specs of every domain the package runs. */
