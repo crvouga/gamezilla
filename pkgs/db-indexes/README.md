@@ -36,9 +36,12 @@ const report = await reconcileIndexes({
 
 ## Testing
 
-See [`TESTING.md`](./docs/TESTING.md) for the property layers, the acceptance
-specs in `specs/index-tuning/` (feature + Quint model, run by `test:e2e`), and
-the invariant → assert / harness / property map.
+See [`TESTING.md`](./docs/TESTING.md) for the property layers, the
+model-based index-tuning test (`tests/index-tuning.property.test.ts`: the
+tuning harness against a reference model of declaring, tuning, retiring and
+the team's own indexes, plus same-sequence replay), and the invariant →
+assert / harness / property map. Index tuning is technical, so it has no
+specs in `specs/`; every guard is a code test in this package.
 
 ## Ownership
 

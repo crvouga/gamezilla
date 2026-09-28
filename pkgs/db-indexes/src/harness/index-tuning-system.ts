@@ -1,10 +1,11 @@
 /**
- * Index tuning as the team sees it (`specs/index-tuning/`): one reconciler
- * over an in-memory {@link HarnessDb} on a virtual clock. The team declares
- * lookups (a workload manifest), tuning runs (`reconcileIndexes`), days pass,
- * lookups use tuned indexes, and the team keeps an index of its own. The
- * standing {@link tuningInvariantsHold} property checks the reconciler's
- * safety invariants after every action.
+ * Index tuning as the team sees it: one reconciler over an in-memory
+ * {@link HarnessDb} on a virtual clock. The team declares lookups (a workload
+ * manifest), tuning runs (`reconcileIndexes`), days pass, lookups use tuned
+ * indexes, and the team keeps an index of its own. The standing
+ * {@link tuningInvariantsHold} property checks the reconciler's safety
+ * invariants after every action. `tests/index-tuning.property.test.ts` runs
+ * it beside a reference model of the tuning rules.
  */
 
 import {

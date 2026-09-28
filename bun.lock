@@ -1545,9 +1545,7 @@
         "node-sql-parser": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
-        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
