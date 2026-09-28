@@ -30,11 +30,10 @@ top of three role skills. Load each one when its phase starts:
 | Bind steps and model bindings over the harness | `spec-implement` |
 | Audit the result, and demote non-behavior | `spec-audit` |
 
-Status and remaining scope: [`docs/SPEC_MIGRATION_INVENTORY.md`](../../../docs/SPEC_MIGRATION_INVENTORY.md).
-Product packages (Section A) and the framework-level harnesses
+The product packages and the framework-level harnesses
 (`pkgs/sync-engine`, `pkgs/room-harness`, `pkgs/matchmaking-harness`,
 `pkgs/auth-harness`, `pkgs/db-indexes`) are ported. Use this skill for any new
-legacy test that turns up, and update that doc as you port.
+legacy test that turns up.
 
 ## 1. Inventory
 
@@ -123,8 +122,8 @@ pass.**
    still passes proves nothing, so fix the step or the binding.
 3. Delete the ported legacy files **in the same change**. No `.skip`, no
    dual-running, no "kept for migration" copies (AGENTS.md). Update the
-   package `test*` scripts, the turbo inputs, the READMEs that named the old
-   files, and `docs/SPEC_MIGRATION_INVENTORY.md`.
+   package `test*` scripts, the turbo inputs and the READMEs that named the
+   old files.
 4. Load `spec-audit` and audit the new features and steps. Then run
    `bun run spec:catalog`, `bun run spec:check`, the package's `tc` / `test`,
    and `bun check`. Show the output, and never claim green without it.
