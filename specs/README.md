@@ -1192,8 +1192,11 @@ indicator's `metricSource` is `{ type: product, spec: { measures: <what, in
 product words> } }`, never a vendor query. Windows are rolling
 (`28d`), budgeting is by occurrences. The binding
 (`tests/openslo/<stem>.binding.ts`) measures each indicator: in `bun check`
-on the harness, and for live domains in `health`. No samples in the window is
-a failure, never a pass.
+on the harness, and for live domains in `health:objectives`, which the
+hourly Health workflow runs after its checks. A rolling window remembers
+past failures, so live objectives never gate a deploy (a fix must be able to
+ship); they gate the production-readiness verdict. No samples in the window
+is a failure, never a pass.
 
 ### The conformance manifest
 

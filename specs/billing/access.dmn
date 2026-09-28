@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="access-decisions" name="What each kind of person may do" namespace="https://gamezilla.dev/decisions">
   <decision id="access" name="May this person do this?">
-    <description>Guests play puzzles and host and join spaces; everything social, the puzzle feed, matches and paying need an account. Free accounts and Plus members may do all of it. While payments are not offered, nobody sees the billing plans or subscribes.</description>
+    <description>Guests play puzzles and host and join spaces; everything social, the puzzle feed, matches and paying need an account. Free accounts and Plus members may do all of it, except that a Plus member is not offered to subscribe again. While payments are not offered, nobody sees the billing plans, subscribes or uses the billing portal.</description>
     <decisionTable id="access-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
@@ -56,26 +56,50 @@
       <rule id="accounts-do-everything">
         <description>Free accounts and Plus members may do everything else.</description>
         <inputEntry id="accounts-do-everything-in-1"><text>"free account","Plus member"</text></inputEntry>
-        <inputEntry id="accounts-do-everything-in-2"><text>"keep a friends list","use people search","get notifications","use the billing portal","wait for a match","customize the puzzle feed","play puzzles","create a space","join a space"</text></inputEntry>
+        <inputEntry id="accounts-do-everything-in-2"><text>"keep a friends list","use people search","get notifications","wait for a match","customize the puzzle feed","play puzzles","create a space","join a space"</text></inputEntry>
         <inputEntry id="accounts-do-everything-in-3"><text>-</text></inputEntry>
         <outputEntry id="accounts-do-everything-out-1"><text>"yes"</text></outputEntry>
         <outputEntry id="accounts-do-everything-out-2"><text>"none"</text></outputEntry>
       </rule>
-      <rule id="accounts-pay-while-offered">
-        <description>Accounts see the billing plans and subscribe while payments are offered.</description>
-        <inputEntry id="accounts-pay-while-offered-in-1"><text>"free account","Plus member"</text></inputEntry>
-        <inputEntry id="accounts-pay-while-offered-in-2"><text>"see the billing plans","subscribe"</text></inputEntry>
-        <inputEntry id="accounts-pay-while-offered-in-3"><text>"yes"</text></inputEntry>
-        <outputEntry id="accounts-pay-while-offered-out-1"><text>"yes"</text></outputEntry>
-        <outputEntry id="accounts-pay-while-offered-out-2"><text>"none"</text></outputEntry>
+      <rule id="free-pays-while-offered">
+        <description>A free account sees the billing plans, subscribes and uses the billing portal while payments are offered.</description>
+        <inputEntry id="free-pays-while-offered-in-1"><text>"free account"</text></inputEntry>
+        <inputEntry id="free-pays-while-offered-in-2"><text>"see the billing plans","subscribe","use the billing portal"</text></inputEntry>
+        <inputEntry id="free-pays-while-offered-in-3"><text>"yes"</text></inputEntry>
+        <outputEntry id="free-pays-while-offered-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="free-pays-while-offered-out-2"><text>"none"</text></outputEntry>
       </rule>
-      <rule id="accounts-no-payments">
-        <description>Nobody sees the billing plans or subscribes while payments are not offered.</description>
-        <inputEntry id="accounts-no-payments-in-1"><text>"free account","Plus member"</text></inputEntry>
-        <inputEntry id="accounts-no-payments-in-2"><text>"see the billing plans","subscribe"</text></inputEntry>
-        <inputEntry id="accounts-no-payments-in-3"><text>"no"</text></inputEntry>
-        <outputEntry id="accounts-no-payments-out-1"><text>"no"</text></outputEntry>
-        <outputEntry id="accounts-no-payments-out-2"><text>"not offered"</text></outputEntry>
+      <rule id="free-no-payments">
+        <description>Nobody sees the billing plans, subscribes or uses the billing portal while payments are not offered.</description>
+        <inputEntry id="free-no-payments-in-1"><text>"free account"</text></inputEntry>
+        <inputEntry id="free-no-payments-in-2"><text>"see the billing plans","subscribe","use the billing portal"</text></inputEntry>
+        <inputEntry id="free-no-payments-in-3"><text>"no"</text></inputEntry>
+        <outputEntry id="free-no-payments-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="free-no-payments-out-2"><text>"not offered"</text></outputEntry>
+      </rule>
+      <rule id="plus-manages-while-offered">
+        <description>A Plus member sees the billing plans and uses the billing portal while payments are offered.</description>
+        <inputEntry id="plus-manages-while-offered-in-1"><text>"Plus member"</text></inputEntry>
+        <inputEntry id="plus-manages-while-offered-in-2"><text>"see the billing plans","use the billing portal"</text></inputEntry>
+        <inputEntry id="plus-manages-while-offered-in-3"><text>"yes"</text></inputEntry>
+        <outputEntry id="plus-manages-while-offered-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="plus-manages-while-offered-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="plus-no-payments">
+        <description>Nobody sees the billing plans or uses the billing portal while payments are not offered.</description>
+        <inputEntry id="plus-no-payments-in-1"><text>"Plus member"</text></inputEntry>
+        <inputEntry id="plus-no-payments-in-2"><text>"see the billing plans","use the billing portal"</text></inputEntry>
+        <inputEntry id="plus-no-payments-in-3"><text>"no"</text></inputEntry>
+        <outputEntry id="plus-no-payments-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="plus-no-payments-out-2"><text>"not offered"</text></outputEntry>
+      </rule>
+      <rule id="plus-already-subscribed">
+        <description>A Plus member is not offered to subscribe again.</description>
+        <inputEntry id="plus-already-subscribed-in-1"><text>"Plus member"</text></inputEntry>
+        <inputEntry id="plus-already-subscribed-in-2"><text>"subscribe"</text></inputEntry>
+        <inputEntry id="plus-already-subscribed-in-3"><text>-</text></inputEntry>
+        <outputEntry id="plus-already-subscribed-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="plus-already-subscribed-out-2"><text>"not offered"</text></outputEntry>
       </rule>
     </decisionTable>
   </decision>
