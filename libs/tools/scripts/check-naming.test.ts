@@ -79,42 +79,51 @@ describe('naming rules', () => {
     ]);
   });
 
-  test('classifier cost stays linear in the number of paths', () => {
-    // A wall-clock ceiling here measured the machine, not the classifier, and
-    // went red whenever `bun check` had the CPU saturated. What this guards is
-    // that nothing turns the per-path work quadratic (a per-path scan of every
-    // other path), so compare the per-path cost at two sizes: linear holds it
-    // flat, quadratic multiplies it by the size ratio.
-    //
-    // The comparison has to survive a loaded machine — `bun check` runs this
-    // beside a dozen other tasks. Wall-clock time counts every moment the OS
-    // gave the CPU to someone else, and even the fastest of seven interleaved
-    // rounds read 11x under load. So measure this process's own CPU time, which
-    // other processes cannot inflate; still interleave the sizes and keep the
-    // fastest round of each. The bound is unchanged: quadratic reads ~10x.
-    const makePaths = (count: number): string[] =>
-      Array.from(
-        { length: count },
-        (_, i) => `pkgs/p${i % 90}/src/d${i % 300}/file-${i}.test.ts`
-      );
-    const perPathMs = (count: number): number => {
-      const paths = makePaths(count);
-      const started = process.cpuUsage();
-      findNamingViolations(paths);
-      const spent = process.cpuUsage(started);
-      return (spent.user + spent.system) / 1000 / count;
-    };
+  // ~0.1 s alone, but its wall time is the machine's: under a saturated
+  // `bun check` it measured 5.2 s and tripped bun's default 5 s timeout. The
+  // verdict is the CPU-time ratio below; the timeout only bounds a hang.
+  const LOADED_MACHINE_TIMEOUT_MS = 60_000;
 
-    perPathMs(2_000); // warm the JIT so the first sample is not the slow one
-    let small = Number.POSITIVE_INFINITY;
-    let large = Number.POSITIVE_INFINITY;
-    for (let round = 0; round < 7; round++) {
-      small = Math.min(small, perPathMs(2_000));
-      large = Math.min(large, perPathMs(20_000));
-    }
-    // Quadratic would be ~10x at a 10x size ratio; 4x leaves room for noise.
-    expect(large / small).toBeLessThan(4);
-  });
+  test(
+    'classifier cost stays linear in the number of paths',
+    () => {
+      // A wall-clock ceiling here measured the machine, not the classifier, and
+      // went red whenever `bun check` had the CPU saturated. What this guards is
+      // that nothing turns the per-path work quadratic (a per-path scan of every
+      // other path), so compare the per-path cost at two sizes: linear holds it
+      // flat, quadratic multiplies it by the size ratio.
+      //
+      // The comparison has to survive a loaded machine — `bun check` runs this
+      // beside a dozen other tasks. Wall-clock time counts every moment the OS
+      // gave the CPU to someone else, and even the fastest of seven interleaved
+      // rounds read 11x under load. So measure this process's own CPU time, which
+      // other processes cannot inflate; still interleave the sizes and keep the
+      // fastest round of each. The bound is unchanged: quadratic reads ~10x.
+      const makePaths = (count: number): string[] =>
+        Array.from(
+          { length: count },
+          (_, i) => `pkgs/p${i % 90}/src/d${i % 300}/file-${i}.test.ts`
+        );
+      const perPathMs = (count: number): number => {
+        const paths = makePaths(count);
+        const started = process.cpuUsage();
+        findNamingViolations(paths);
+        const spent = process.cpuUsage(started);
+        return (spent.user + spent.system) / 1000 / count;
+      };
+
+      perPathMs(2_000); // warm the JIT so the first sample is not the slow one
+      let small = Number.POSITIVE_INFINITY;
+      let large = Number.POSITIVE_INFINITY;
+      for (let round = 0; round < 7; round++) {
+        small = Math.min(small, perPathMs(2_000));
+        large = Math.min(large, perPathMs(20_000));
+      }
+      // Quadratic would be ~10x at a 10x size ratio; 4x leaves room for noise.
+      expect(large / small).toBeLessThan(4);
+    },
+    LOADED_MACHINE_TIMEOUT_MS
+  );
 });
 
 describe('rename plan', () => {

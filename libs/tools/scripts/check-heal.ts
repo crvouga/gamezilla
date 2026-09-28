@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Agentic loop: run `bun check` gates, invoke Cursor CLI agent to fix failures,
+ * Agentic loop: run `bun check:local` gates, invoke Cursor CLI agent to fix failures,
  * repeat until green or `--max-iterations` is hit.
  *
  * Requires CURSOR_API_KEY from the secret store (`bun run check:heal` uses secrets-run).
@@ -186,8 +186,8 @@ async function main(): Promise<void> {
     );
 
     if (failures.length === 0) {
-      healLog('all `bun check` gates passed');
-      process.stdout.write('All `bun check` gates passed.\n');
+      healLog('all `bun check:local` gates passed');
+      process.stdout.write('All `bun check:local` gates passed.\n');
       process.exit(0);
     }
 

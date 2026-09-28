@@ -57,6 +57,7 @@ const CHECK_LEAVES = [
   '//#ci:audit',
   '//#ci:i18n',
   '//#ci:agent-commands',
+  '//#ci:workspace-lifecycle',
   '//#ci:goals',
   '//#ci:specs',
   '//#ci:spec-ownership',
@@ -193,11 +194,18 @@ describe('turbo check/deploy graph invariants', () => {
     ]);
   });
 
-  test('bun check and bun deploy go through turbo-ci-run', () => {
+  test('bun check:local and bun deploy go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
-    expect(turboCiRunTaskArgs(scripts['check'] ?? '')).toEqual(['check']);
+    expect(turboCiRunTaskArgs(scripts['check:local'] ?? '')).toEqual(['check']);
     expect(turboCiRunTaskArgs(scripts['deploy'] ?? '')).toEqual(['//#deploy']);
     expect(turboCiRunTaskArgs(scripts['health'] ?? '')).toEqual(['health']);
+  });
+
+  test('bun check runs the Check workflow; only check:local runs the gate here', () => {
+    const scripts = loadRootScripts();
+    expect(scripts['check']).toContain('check-remote.ts');
+    expect(scripts['check']).not.toContain('turbo-ci-run');
+    expect(scripts).not.toHaveProperty('check:remote');
   });
 
   test('check flattens to its leaves', () => {

@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Prepare a fresh Superset workspace: install workspace deps and seed the
-# gitignored local-only files (offline secrets cache + generated .env.local)
-# from the root checkout so the workspace works without re-auth'ing Infisical.
+# Prepare a fresh workspace: install workspace deps and seed the gitignored
+# local-only files (offline secrets cache + generated .env.local) from the root
+# checkout so the workspace works without re-auth'ing Infisical.
 set -euo pipefail
-cd "${SUPERSET_WORKSPACE_PATH:-$(git rev-parse --show-toplevel)}"
+# shellcheck source=libs/tools/workspace/lib.sh
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 # System tools (Bun, Node, gh, gitleaks, actionlint, infisical, duckdb, EMQX)
 # are pinned in mise.toml. Each worktree is a new path, so trust it first.
@@ -36,14 +37,14 @@ if [ "$(git config --get core.hooksPath || true)" != 'libs/tools/githooks' ]; th
     echo "!!! could not set core.hooksPath; run 'bun run hooks:install' manually"
 fi
 
-root="${SUPERSET_ROOT_PATH:-}"
-if [ -z "$root" ] || [ ! -d "$root" ]; then
-  echo "==> SUPERSET_ROOT_PATH unset; skipping local-file copy"
+root="$WORKSPACE_ROOT_PATH"
+if [ "$root" = "$WORKSPACE_PATH" ]; then
+  echo "==> running in the root checkout; skipping local-file copy"
   exit 0
 fi
 
 # Offline secrets cache written by `bun run secrets:pull` (read by
-# libs/secrets/src/scripts/secrets-run.ts, i.e. `bun check`, `bun run dev`, deploys).
+# libs/secrets/src/scripts/secrets-run.ts, i.e. `bun check:local`, `bun run dev`, deploys).
 # Bootstrap it from the root checkout when possible so a fresh workspace does
 # not need a second Infisical login; setup stays fast because the cache lives
 # next to the checkout rather than per-worktree.

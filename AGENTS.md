@@ -110,8 +110,10 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-`bun check` is the whole gate; `bun health` probes the live deployments. Every
-check is a cached, per-package task that reads only its own package; a new
+`bun check` is the whole gate and runs on GitHub, not on this machine (it
+`git-sync`s the branch, dispatches the Check workflow and blocks on its
+verdict); `bun check:local` runs the same gate locally when you choose to.
+`bun health` probes the live deployments. Every check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
@@ -119,20 +121,27 @@ Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
 deploy, infra, secrets, Workers or `health` with `bun run deploy:dev` before
 merging. Details: [`docs/CI.md`](docs/CI.md).
 
-## Superset workspaces
+## Workspaces
 
-Each workspace is a git worktree set up by `.superset/setup.sh` (`bun
-install`, `.cache/secrets`, `apps/*/.env.local`), torn down by
-`.superset/teardown.sh` and run by `.superset/run.sh`; per-machine extras go
-in the gitignored `.superset/config.local.json`.
+Each workspace is a git worktree created by an agent orchestrator (Superset,
+super.engineering, …). All of them run the same lifecycle hooks from
+`libs/tools/workspace/`: `setup.sh` (`bun install`, `.cache/secrets`,
+`apps/*/.env.local`), `teardown.sh` and `run.sh`. The hooks derive paths from
+git, never from a tool's env vars. `bun run workspace:sync` projects them into
+every orchestrator's config (`.superset/config.json`,
+`.super.engineering/config.json`); never edit those, and
+`//#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
+`ORCHESTRATORS` in `libs/tools/scripts/sync-workspace-lifecycle.ts`.
+Per-machine extras go in the gitignored `.superset/config.local.json` or
+super.engineering's app project settings.
 
-- **Ports.** `source .superset/port.sh` before booting a sidecar
+- **Ports.** `source libs/tools/workspace/port.sh` before booting a sidecar
   (`@pkgs/postgres-embedded`); the Run pane does it. EMQX
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
 - **Iterating.** `bun fmt`, `bun run --filter <pkg> tc`, `bun run --filter
-  <pkg> test`, then `bun check`. `bun check:remote` runs the real Check
-  workflow for the branch (through `git-sync`) and blocks on its verdict.
+  <pkg> test`, then `bun check` (the Check workflow on GitHub, through
+  `git-sync`; `bun check:local` for a local run).
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-green` drives Check, Deploy and Health green.
@@ -157,7 +166,7 @@ in the gitignored `.superset/config.local.json`.
   running the production Worker handler behind a load balancer
   ([`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md)).
 - **`bun run test:report`** — one `harness-report/index.html` over every
-  package's spec suite.
+  package's spec suite, snapshots included ([`docs/CI.md`](docs/CI.md#the-spec-report)).
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** migrates `DATABASE_URL`; **`bun run db:wipe:dev`** wipes
   a non-production database.

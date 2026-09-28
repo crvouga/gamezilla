@@ -1,23 +1,31 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI: every package's spec run → one standalone HTML report.
 /**
- * `bun run test:report [--frames] [--no-run] [--open]` (repo root)
+ * `bun run test:report [--no-frames] [--no-run] [--open]` (repo root)
  *
- * The report of the code as it is now. `bun check` runs each suite in parts
- * (`test:spec:<k>`), and every part writes its own report bucket
- * (`<pkg>/.cache/harness-report/part-<k>`: each Gherkin scenario's and Quint
- * trace's step timeline, the traces themselves, JUnit) that turbo caches with
- * the verdict. So this runs every part through `turbo-ci-run
- * --restore-outputs` with the same flags and env as `bun check`: a part whose
- * code has not changed since any machine sharing the remote cache ran it
- * restores that run's bucket instead of running again, and only changed parts
- * run. It then folds every bucket (JUnit outcomes overlaid) into one
- * `harness-report/index.html` at the repo root. With `--no-run`, a package
- * whose unsplit `test:spec` (bucket `all`) ran after its parts shows that run.
+ * The one report of every spec suite: each Gherkin scenario's and Quint
+ * trace's step timeline with its snapshots, from every package that has a
+ * spec suite, explorable together in `harness-report/index.html`.
  *
- * `--frames` adds UI frames to every step (`HARNESS_FRAMES=1`: slower, and a
- * separate cache entry from `bun check`'s). `--no-run` builds from the
- * buckets already on disk. Exits with the suites' status.
+ * It aggregates the reports the checks already produce and nothing else.
+ * `bun check` runs each suite in parts (`test:spec:<k>`), and every part
+ * writes its own report bucket (`<pkg>/.cache/harness-report/part-<k>`: step
+ * timelines, the traces themselves, JUnit) that turbo caches with the
+ * verdict. A package whose suite records no harness timeline yields no report
+ * and is left out, and `bun check` itself writes none. So this runs every
+ * part through `turbo-ci-run --restore-outputs`: a part whose code has not
+ * changed since any machine sharing the remote cache ran it restores that
+ * run's bucket instead of running again, and only changed parts run. It then
+ * folds every bucket (JUnit outcomes overlaid) into the one report. With
+ * `--no-run`, a package whose unsplit `test:spec` (bucket `all`) ran after its
+ * parts shows that run.
+ *
+ * Snapshots (UI frames on every step) exist only when the suites ran with
+ * `HARNESS_FRAMES=1`, a cache entry of its own that `bun check` never fills,
+ * so a run with snapshots is the default here and takes the first time (about
+ * five minutes cold); `--no-frames` skips them and reuses `bun check`'s cache
+ * entries. `--no-run` builds from the buckets already on disk. Exits with the
+ * suites' status.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -170,7 +178,9 @@ if (!args.has('--no-run')) {
       stdio: 'inherit',
       env: {
         ...process.env,
-        ...(args.has('--frames') ? { HARNESS_FRAMES: '1' } : {}),
+        ...(args.has('--no-frames') ? {} : { HARNESS_FRAMES: '1' }),
+        // A cold run with frames outlasts the laptop's ten-minute gate deadline.
+        CHECK_DEADLINE_SECONDS: process.env['CHECK_DEADLINE_SECONDS'] ?? '3600',
       },
     }
   );
@@ -185,8 +195,10 @@ for (const dir of specPackageDirs()) {
 }
 const bundle = mergeRunBundles(RUN_ID, runs);
 const html = renderHtmlReport(bundle, {
-  title: 'spec report — every subsystem',
+  title: 'spec report — every suite, with snapshots',
   frameCss: compileFrameCss(),
+  // Every snapshot of every test: pooled and gzipped, not one huge JSON.
+  pooled: true,
 });
 const out = createNodeFsObjectStore({
   rootDir: OUT_DIR,
@@ -199,6 +211,14 @@ const indexPath = join(OUT_DIR, HTML_REPORT_KEY);
 for (const r of runs) {
   process.stdout.write(
     `[harness-report] ${r.label}: ${String(r.bundle.tests.length)} harness(s), ${r.bundle.status}\n`
+  );
+}
+const noReport = specPackageDirs().filter(
+  (dir) => !runs.some((r) => r.label === dir && r.bundle.tests.length > 0)
+);
+if (noReport.length > 0) {
+  process.stdout.write(
+    `[harness-report] no report to aggregate: ${noReport.join(', ')}\n`
   );
 }
 process.stdout.write(

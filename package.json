@@ -10,10 +10,10 @@
   "scripts": {
     "agents:sync": "bun run libs/tools/scripts/sync-agent-commands.ts",
     "billing:sync": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/billing billing:sync",
-    "check": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts check",
+    "check": "bun run libs/tools/scripts/check-remote.ts",
     "check:coverage": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-coverage.ts",
     "check:heal": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-heal.ts",
-    "check:remote": "bun run libs/tools/scripts/check-remote.ts",
+    "check:local": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts check",
     "chess:puzzles:export-load": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess export:puzzles-load -- --confirm-prod",
     "chess:puzzles:seed": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:agent-commands": "bun run libs/tools/scripts/sync-agent-commands.ts --check",
@@ -23,6 +23,7 @@
     "ci:spec-ownership": "bun run libs/tools/scripts/check-spec-ownership.ts",
     "ci:specs": "bun run libs/tools/scripts/check-specs.ts",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev",
+    "ci:workspace-lifecycle": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts --check",
     "db:migrate": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/runtime migrate",
     "db:wipe:dev": "SECRETS_ENV=dev bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/runtime db:wipe:dev",
     "deploy": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts //#deploy",
@@ -64,7 +65,8 @@
     "stack": "bun run apps/product/scripts/localhost-stack/cli.ts",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
     "test:report": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report.ts --open",
-    "wipe": "git clean -xfd"
+    "wipe": "git clean -xfd",
+    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",

@@ -718,7 +718,7 @@ Every `test:spec` run writes its package's report bucket
 (`<package>/.cache/harness-report`: step timelines with the harness calls
 under each step, drawn traces, JUnit), cached by turbo with the verdict.
 `bun run test:report` restores or reruns every bucket and folds them into one
-`harness-report/index.html`; `--frames` adds UI frames. A feature failure
+`harness-report/index.html`, snapshots included (`--no-frames` skips them). A feature failure
 names the feature line, the matching definition, the completed steps and the
 failing step's harness calls. The runner's Bun stubs in `.cache/spec/` are
 never committed.

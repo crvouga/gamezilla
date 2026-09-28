@@ -7,9 +7,22 @@ never mutates); `bun health` checks the **live deployments** (`dev`;
 
 ## `bun check`
 
+**`bun check` runs in the cloud.** It is
+[`check-remote.ts`](../libs/tools/scripts/check-remote.ts): it
+[`/git-sync`](../.agents/commands/git-sync.md)s the branch (commits a dirty
+tree with `--message`, merges `origin/main`, pushes), dispatches the Check
+workflow ([below](#workflows)) on that commit, streams it, and exits with the
+run's verdict — so the gate spends GitHub's runners, not the laptop's. Ctrl-C
+cancels the run. It needs `gh` (in `mise.toml`) signed in, and refuses on
+`main`. **`bun check:local`** runs the same gate on this machine (the
+`turbo-ci-run` below, warm-cached, with the secrets cache from
+`bun run secrets:pull`): reach for it when offline or to debug one failure — `bun run
+--filter <pkg> <task>` is cheaper still. Both run the same `//#check` leaf
+set, so the verdict is the same.
+
 `//#check` depends on every package's `tc`, `lint`, `test`, `test:contract`
 and the parts of its `test:spec` (`test:spec:<k>`, below); the root leaves (`//#lint:root`, syncpack, audit, i18n,
-agent-commands, goals); `@apps/product#check:offline-shell` (every file the
+agent-commands, workspace-lifecycle, goals); `@apps/product#check:offline-shell` (every file the
 wall client can load is precached, under budget, from the real `dist/`); each
 Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload
 limit); `@libs/runtime#check:schema-evolution`; `@libs/tools#check:actionlint`;
@@ -65,7 +78,7 @@ opt-in report.
   `@libs/runtime#test:spec`, stays small on purpose.
 - **A spec suite runs in parts.** One suite is one process, and on a 2-core
   runner the biggest took ten minutes while every other shard idled. So
-  `bun check` never runs `test:spec` (that stays the whole suite, for local
+  the gate never runs `test:spec` (that stays the whole suite, for local
   runs); it runs `test:spec:0` … `test:spec:<specParts - 1>`, each
   `test-spec.ts --part k/n`, which the sharder spreads like any other task.
   The split is weighed from the spec files alone (scenarios, outline rows, a
@@ -75,8 +88,31 @@ opt-in report.
   past ~2 min on CI.
 - **The report is cached with the verdict.** Each part writes
   `<package>/.cache/harness-report/part-<k>` as its turbo `outputs` (an
-  unsplit run writes `all`); `bun run test:report` restores or reruns every
-  part and folds them into one `harness-report/index.html`.
+  unsplit run writes `all`), which `bun run test:report` folds into one
+  report ([below](#the-spec-report)).
+
+## The spec report
+
+`bun run test:report` opens **one report of every spec**: each
+scenario's and Quint trace's step timeline with its snapshots, from every
+package that has a spec suite, explorable together in
+`harness-report/index.html` (the `@pkgs/harness-report` viewer).
+
+- **It aggregates the reports the checks produce, and nothing else.** A
+  package whose suite records no harness timeline yields no report and is
+  named as left out; `bun check` writes no report of its own.
+- **It restores, then reruns only what changed.** It runs every
+  `test:spec:<k>` part through `turbo-ci-run --restore-outputs`, so a part
+  whose code has not changed since any machine sharing the remote cache ran
+  it restores that run's bucket.
+- **Snapshots are a cache entry of their own.** They exist only with
+  `HARNESS_FRAMES=1`, which `bun check` never sets, so the first run with
+  snapshots reruns every suite (about five minutes cold); after that it is
+  cached. `--no-frames` skips them and reuses `bun check`'s entries;
+  `--no-run` builds from the buckets on disk.
+- **One file stays openable.** Every snapshot is kept once and gzipped
+  (`pooled` in `renderHtmlReport`), inflated in the page before the viewer
+  mounts: the plain encoding of the same report was 453 MB.
 
 ## `turbo-ci-run`
 
@@ -120,7 +156,7 @@ tasks so the root scripts never re-enter turbo.
 gitignored `.cache/secrets/`; `secrets-run` prefers it for `SECRETS_ENV=dev`
 (warns after 24 h) and bootstraps it once when missing. CI injects secrets via
 secrets-auth; `prd` and deploy stay Infisical-first. Run `secrets:pull` then
-`bun check` locally and CI reuses the same remote cache entries.
+`bun check:local` and CI reuses the same remote cache entries.
 
 ## Workflows
 
@@ -128,11 +164,14 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
 
 | Workflow | File | Question |
 | --- | --- | --- |
-| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check`, every PR) |
+| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check`, every PR; `bun check` dispatches it by hand) |
 | **Deploy** | `.github/workflows/deploy.yml` | Ship `main` (`bun run deploy`) |
 | **Health** | `.github/workflows/health.yml` | Is the deployment good? (`bun health`, hourly) |
 
-1. **Check** runs the `//#check` leaf set with `SECRETS_ENV=dev`, sharded:
+1. **Check** runs on every PR to `main` and on `workflow_dispatch` (what
+   `bun check` fires); it never runs on a push to `main`, which only moves
+   through a merged PR that already passed it. It runs the `//#check` leaf
+   set with `SECRETS_ENV=dev`, sharded:
    `check:plan` dry-runs the gate, `check:matrix` (no secrets — the runner
    drops outputs holding a masked value) publishes the split from
    [`check-shards.ts`](../libs/tools/scripts/check-shards.ts), balanced by

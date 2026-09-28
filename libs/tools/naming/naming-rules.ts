@@ -22,6 +22,7 @@ export const NAMING_EXEMPT = {
     'components.json',
     '__snapshots__',
     '__mocks__',
+    '.super.engineering',
   ]),
   /** Path prefixes skipped entirely (tool-managed content). */
   prefixes: ['.superset/attachments/'],
