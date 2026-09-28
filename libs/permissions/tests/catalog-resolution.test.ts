@@ -50,17 +50,7 @@ describe('catalog resolution under the shipped policy', () => {
     }
   });
 
-  test('the baseline alone (no matching fact role) still defines every grant', () => {
-    for (const action of Object.values(ACTION)) {
-      if (isQuotaAction(action) && action === ACTION.puzzleRatedSolve) {
-        // Reading D-S2-2: rated lives on fact roles because quotas merge to max.
-        continue;
-      }
-      expect(defined(action, {})).toBe(true);
-    }
-  });
-
-  test('permissive baseline: every grant allowed, only anonymous rated is limited', () => {
+  test('every catalogued action is allowed at zero use, only anonymous rated is limited', () => {
     for (const facts of FIXTURES.slice(0, 3)) {
       const subject = resolveSubject(DEFAULT_PERMISSION_POLICY, facts);
       for (const action of Object.values(ACTION)) {

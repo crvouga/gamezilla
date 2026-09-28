@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-27.1';
+export const PERMISSION_POLICY_VERSION = '2026-09-28.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -38,7 +38,6 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.friendsUse,
   PERMISSION.peopleSearch,
   PERMISSION.notificationsReceive,
-  PERMISSION.devicesManage,
   PERMISSION.billingSubscribe,
   PERMISSION.billingManage,
   PERMISSION.matchmakingUse,
@@ -62,20 +61,18 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.friendsUse,
   PERMISSION.peopleSearch,
   PERMISSION.notificationsReceive,
-  PERMISSION.devicesManage,
   PERMISSION.billingManage,
   PERMISSION.matchmakingUse,
   PERMISSION.puzzlesPlay,
   PERMISSION.puzzlesCustomizeFeed,
   PERMISSION.spacesCreate,
   PERMISSION.spacesJoin,
-  PERMISSION.spacesWatch,
 ];
 
 /**
  * Shipped policy (the fallback when no `permission_policy` row is synced).
- * Permissive baseline: every catalogued Phase-1 grant is on for everyone and
- * practice is unlimited. Guests and free accounts host one live space at a
+ * The baseline offers everyone the billing plans (restricted while payments
+ * are off). Guests and free accounts host one live space at a
  * time, Plus members any number (`spaces:hosted`, decided with `decideLimit`
  * against the live spaces the actor hosts; reaching it invites to Plus). The
  * only quota is the anonymous rated-puzzle quota;
@@ -100,16 +97,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
   roles: {
     [ROLE.baseline]: {
       when: 'always',
-      permissions: [
-        ACTION.accountSyncEnable,
-        ACTION.accountDataExport,
-        ACTION.coachEnabled,
-        ACTION.coachExplanationsView,
-        ACTION.coachRefutationView,
-        ACTION.statsOverviewView,
-        PERMISSION.billingView,
-      ],
-      quotas: { [ACTION.puzzlePracticeSolve]: UNLIMITED },
+      permissions: [PERMISSION.billingView],
     },
     [ROLE.planGuest]: {
       when: { auth: 'anonymous' },
@@ -117,7 +105,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.puzzlesPlay,
         PERMISSION.spacesCreate,
         PERMISSION.spacesJoin,
-        PERMISSION.spacesWatch,
       ],
       limits: { [LIMIT.hostedSpaces]: 1 },
       quotas: { [ACTION.puzzleRatedSolve]: ANONYMOUS_RATED },
@@ -135,7 +122,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },
     [ROLE.spaceMember]: {
-      permissions: [PERMISSION.spacesWatch, PERMISSION.spacesLeave],
+      permissions: [PERMISSION.spacesLeave],
     },
     [ROLE.spaceHost]: {
       grants: [ROLE.spaceMember],
@@ -187,7 +174,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         ctaTarget: 'signup',
       },
     },
-    [PERMISSION.devicesManage]: SIGN_UP_UNLOCK,
     [PERMISSION.billingManage]: SIGN_UP_UNLOCK,
     [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,

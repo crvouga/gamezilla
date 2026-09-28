@@ -52,7 +52,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.friendsUse, 'deny', 'allow', 'allow'],
   [PERMISSION.peopleSearch, 'deny', 'allow', 'allow'],
   [PERMISSION.notificationsReceive, 'deny', 'allow', 'allow'],
-  [PERMISSION.devicesManage, 'deny', 'allow', 'allow'],
   [PERMISSION.billingView, 'allow', 'allow', 'allow'],
   [PERMISSION.billingSubscribe, 'deny', 'allow', 'allow'],
   [PERMISSION.billingManage, 'deny', 'allow', 'allow'],
@@ -61,7 +60,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.puzzlesCustomizeFeed, 'deny', 'allow', 'allow'],
   [PERMISSION.spacesCreate, 'allow', 'allow', 'allow'],
   [PERMISSION.spacesJoin, 'allow', 'allow', 'allow'],
-  [PERMISSION.spacesWatch, 'allow', 'allow', 'allow'],
   // Space roles grant these by presence, never a plan.
   [PERMISSION.spacesLeave, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesRename, 'deny', 'deny', 'deny'],
@@ -69,18 +67,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.spacesManageMembers, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesSelectGame, 'deny', 'deny', 'deny'],
   [ACTION.puzzleRatedSolve, '20/day', 'unlimited/day', 'unlimited/day'],
-  [
-    ACTION.puzzlePracticeSolve,
-    'unlimited/day',
-    'unlimited/day',
-    'unlimited/day',
-  ],
-  [ACTION.accountSyncEnable, 'allow', 'allow', 'allow'],
-  [ACTION.accountDataExport, 'allow', 'allow', 'allow'],
-  [ACTION.coachEnabled, 'allow', 'allow', 'allow'],
-  [ACTION.coachExplanationsView, 'allow', 'allow', 'allow'],
-  [ACTION.coachRefutationView, 'allow', 'allow', 'allow'],
-  [ACTION.statsOverviewView, 'allow', 'allow', 'allow'],
 ];
 
 describe('shipped policy matrix', () => {
@@ -156,7 +142,6 @@ describe('shipped policy matrix', () => {
       row(PERMISSION.friendsUse),
       row(PERMISSION.peopleSearch),
       row(PERMISSION.notificationsReceive),
-      row(PERMISSION.devicesManage),
       row(PERMISSION.matchmakingUse),
       row(PERMISSION.puzzlesCustomizeFeed),
       row(PERMISSION.billingView),
@@ -173,7 +158,6 @@ describe('shipped policy matrix', () => {
         'allow',
         'allow',
       ],
-      [PERMISSION.devicesManage, 'requires_account', 'allow', 'allow', 'allow'],
       [
         PERMISSION.matchmakingUse,
         'requires_account',

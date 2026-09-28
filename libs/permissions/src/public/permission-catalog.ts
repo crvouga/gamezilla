@@ -6,7 +6,6 @@
 export {
   ACTION,
   type AppAction,
-  type AppGrant,
   type AppGrantKey,
   type AppLimit,
   type AppPermission,
