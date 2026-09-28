@@ -7,9 +7,9 @@
 
 import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { evidenceKey } from '@pkgs/conformance/evidence';
+import { readEvidence } from '@pkgs/conformance/evidence-store';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
@@ -59,12 +59,9 @@ function runStub(entryDir: string): {
     encoding: 'utf8',
     env: { ...process.env, NO_COLOR: '1' },
   });
-  const evidence = JSON.parse(
-    readFileSync(
-      join(reportDir, 'evidence', `${evidenceKey(SPEC_URI)}.json`),
-      'utf8'
-    )
-  ) as { obligations: { id: string; status: string }[] };
+  const [evidence] = readEvidence(reportDir).records;
+  if (evidence === undefined)
+    throw new Error(`no evidence recorded\n${run.stdout}${run.stderr}`);
   return {
     status: run.status,
     output: `${run.stdout}${run.stderr}`,

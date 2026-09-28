@@ -6,9 +6,9 @@
  */
 
 import { expect, test } from 'bun:test';
-import { readFileSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
-import { evidenceKey } from '@pkgs/conformance/evidence';
+import { readEvidence } from '@pkgs/conformance/evidence-store';
 import { runObjectiveSpec } from '@pkgs/openslo/bun-test';
 import './openslo/index';
 
@@ -25,16 +25,8 @@ runObjectiveSpec({
 });
 
 test('records one passing obligation per objective, plus validity and binding', () => {
-  const file = join(REPORT_DIR, 'evidence', `${evidenceKey(SPEC_URI)}.json`);
-  const record = JSON.parse(readFileSync(file, 'utf8')) as {
-    kind: string;
-    obligations: {
-      id: string;
-      layer: string;
-      status: string;
-      detail: string;
-    }[];
-  };
+  const [record] = readEvidence(REPORT_DIR).records;
+  if (record === undefined) throw new Error('no evidence recorded');
   expect(record.kind).toBe('objectives');
   expect(record.obligations.map((o) => [o.id, o.layer, o.status])).toEqual([
     ['bound', 'implementation', 'pass'],
