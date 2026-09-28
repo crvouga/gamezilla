@@ -16,8 +16,7 @@ run's verdict — so the gate spends GitHub's runners, not the laptop's. Ctrl-C
 cancels the run. It needs `gh` (in `mise.toml`) signed in, and refuses on
 `main`. **`bun check:local`** runs the same gate on this machine (the
 `turbo-ci-run` below, warm-cached, with the secrets cache from
-`bun run secrets:pull`): reach for it when offline, when you want the local
-[check report](#the-check-report), or to debug one failure — `bun run
+`bun run secrets:pull`): reach for it when offline or to debug one failure — `bun run
 --filter <pkg> <task>` is cheaper still. Both run the same `//#check` leaf
 set, so the verdict is the same.
 
@@ -89,37 +88,31 @@ opt-in report.
   past ~2 min on CI.
 - **The report is cached with the verdict.** Each part writes
   `<package>/.cache/harness-report/part-<k>` as its turbo `outputs` (an
-  unsplit run writes `all`), which the check report reads.
+  unsplit run writes `all`), which `bun run test:report` folds into one
+  report ([below](#the-spec-report)).
 
-## The check report
+## The spec report
 
-Every `bun check:local` writes one standalone HTML file over the whole gate
-([`check-report/`](../libs/tools/scripts/check-report/)): the verdict, every
-failed task with its log tail, every failed scenario with its failure, what
-`specs/` holds per context (features, scenarios, Quint models, which
-packages run it), each spec suite's parts, the spec gate's output
-(`//#ci:specs` near-duplicate warnings included), the scenario timelines of
-the spec parts that ran, and every task with its status, time and turbo
-hash. `bun check:report` opens the last local one; `bun check:report <id|sha>`
-an earlier one; `--list` lists them.
+`bun run test:report` opens **one report of every spec**: each
+scenario's and Quint trace's step timeline with its snapshots, from every
+package that has a spec suite, explorable together in
+`harness-report/index.html` (the `@pkgs/harness-report` viewer).
 
-- **Its id is the gate fingerprint:** a hash over every task's turbo hash,
-  so the same inputs name the same report on any machine, and a rerun
-  rewrites it instead of piling up copies. Reports live in
-  `.cache/check-report/<id>/`; `latest` names the last.
-- **It shows only what the run touched.** A task the plan found cached is a
-  cached pass; its log and scenario bucket on disk (if any) are an earlier
-  run's, so the report shows neither. `bun check:report --restore` reruns
-  the gate with `turbo-ci-run --restore-outputs` — every hit restores its
-  outputs, so every log and scenario is fresh — and opens the full report;
-  add `--frames` for UI frames (`HARNESS_FRAMES=1`, a separate cache entry).
-- **It is never the verdict.** A report that cannot be written warns; the
-  run's exit status is turbo's.
-- **On CI** `check:plan` and every `check:shard` pass
-  `--report-fragment=<path>` and upload what they saw; the `check:report`
-  job merges the fragments (`check-report.ts --merge`), uploads one unzipped
-  `check-report-<id>.html` artifact, and links it from the run summary and a
-  notice on the PR's Checks tab. It is not a required check.
+- **It aggregates the reports the checks produce, and nothing else.** A
+  package whose suite records no harness timeline yields no report and is
+  named as left out; `bun check` writes no report of its own.
+- **It restores, then reruns only what changed.** It runs every
+  `test:spec:<k>` part through `turbo-ci-run --restore-outputs`, so a part
+  whose code has not changed since any machine sharing the remote cache ran
+  it restores that run's bucket.
+- **Snapshots are a cache entry of their own.** They exist only with
+  `HARNESS_FRAMES=1`, which `bun check` never sets, so the first run with
+  snapshots reruns every suite (about five minutes cold); after that it is
+  cached. `--no-frames` skips them and reuses `bun check`'s entries;
+  `--no-run` builds from the buckets on disk.
+- **One file stays openable.** Every snapshot is kept once and gzipped
+  (`pooled` in `renderHtmlReport`), inflated in the page before the viewer
+  mounts: the plain encoding of the same report was 453 MB.
 
 ## `turbo-ci-run`
 
@@ -189,9 +182,7 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
    `bun run libs/tools/scripts/check-shards.ts --harvest <run id>` — costs
    are CI seconds, never a laptop's.
    A new check goes into `//#check` in `turbo.json`, preferably as a test or
-   lint rule in its package; never a new job. `check:report` (not required)
-   merges the plan's and shards' report fragments into the one HTML report
-   ([above](#the-check-report)).
+   lint rule in its package; never a new job.
 2. **Deploy** (`deploy:matrix` reads `libs/infra/tofu/envs/*.tfvars.json`
    through [`workflow-env-matrix.ts`](../libs/infra/scripts/workflow-env-matrix.ts)
    and guards that the commit came from a merged PR) runs one `deploy:<env>`

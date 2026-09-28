@@ -165,10 +165,8 @@ super.engineering's app project settings.
   S3rver, Aedes MQTT, simulated Google and Apple IdPs, N Bun API instances
   running the production Worker handler behind a load balancer
   ([`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md)).
-- **`bun check:report`** — the one HTML report of the last `bun check:local`:
-  failures with logs, specs, scenarios, every task
-  ([`docs/CI.md`](docs/CI.md#the-check-report)); `--restore` fills in what
-  was cached.
+- **`bun run test:report`** — one `harness-report/index.html` over every
+  package's spec suite, snapshots included ([`docs/CI.md`](docs/CI.md#the-spec-report)).
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** migrates `DATABASE_URL`; **`bun run db:wipe:dev`** wipes
   a non-production database.

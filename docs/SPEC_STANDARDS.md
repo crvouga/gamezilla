@@ -711,17 +711,14 @@ bun run spec --package @libs/friends -t 'ends the friendship'
 bun run spec:catalog
 bun run spec:check [--strict-duplicates]
 bun run spec:ownership
-bun check:report [--restore [--frames]]
+bun run test:report
 ```
 
 Every `test:spec` run writes its package's report bucket
 (`<package>/.cache/harness-report`: step timelines with the harness calls
 under each step, drawn traces, JUnit), cached by turbo with the verdict.
-`bun check` folds the buckets its spec parts ran into the check report
-([`CI.md`](CI.md#the-check-report)) — every context's features and models,
-each suite's parts, every failed scenario, and the scenario timelines;
-`bun check:report --restore` restores every cached part too, and `--frames`
-adds UI frames. A feature failure
+`bun run test:report` restores or reruns every bucket and folds them into one
+`harness-report/index.html`, snapshots included (`--no-frames` skips them). A feature failure
 names the feature line, the matching definition, the completed steps and the
 failing step's harness calls. The runner's Bun stubs in `.cache/spec/` are
 never committed.
