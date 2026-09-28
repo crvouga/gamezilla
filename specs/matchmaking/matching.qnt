@@ -79,10 +79,12 @@ module matching {
   }
 
   /// Matchmaking pairs up every two people waiting who accept each other.
+  /// Each person is close to exactly one other, so they have at most one
+  /// partner.
   action pairUp: bool = all {
     standing' = PEOPLE.mapBy(p => {
       val partners = PEOPLE.filter(q => _acceptEachOther(standing, _range, p, q))
-      if (partners.size() == 1) Matched(partners.getOnlyElement()) else standing.get(p)
+      if (partners.size() == 1) Matched(partners.fold(p, (_, q) => q)) else standing.get(p)
     }),
     _range' = _range,
   }

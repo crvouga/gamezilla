@@ -32,6 +32,14 @@ module account_sign_in {
 
   pure val SIGN_IN_METHODS: Set[SignInMethod] = Set("google", "apple")
 
+  /// The most accounts Alice can have: every account keeps one of her three
+  /// outside accounts, and each outside account signs into one account.
+  pure val MAX_ACCOUNTS: int = 3
+
+  /// The accounts that exist, when `accountCount` of them have been started.
+  pure def _accounts(accountCount: int): Set[int] =
+    1.to(MAX_ACCOUNTS).filter(a => a <= accountCount)
+
   pure def signInMethodOf(i: OutsideAccount): SignInMethod =
     if (i == "google") "google" else "apple"
 
@@ -60,7 +68,7 @@ module account_sign_in {
   var showsSignedIn: Set[Device]
 
   pure def _signInMethodsOf(signsInto: OutsideAccount -> int, accountCount: int): int -> Set[SignInMethod] =
-    1.to(accountCount).mapBy(a => OUTSIDE_ACCOUNTS.filter(i => signsInto.get(i) == a).map(signInMethodOf))
+    _accounts(accountCount).mapBy(a => OUTSIDE_ACCOUNTS.filter(i => signsInto.get(i) == a).map(signInMethodOf))
 
   /// Online devices show what everyone else knows; offline ones what they last saw.
   pure def _mirror(
@@ -250,14 +258,17 @@ module account_sign_in {
   }
 
   /// No account ever loses its last sign-in method.
-  val invLastMethodStays = 1.to(accountCount).forall(a => signInMethods.get(a).size() > 0)
+  val invLastMethodStays = _accounts(accountCount).forall(a => signInMethods.get(a).size() > 0)
 
   /// An account has at most one outside account per sign-in method.
-  val invOnePerSignInMethod = 1.to(accountCount).forall(a =>
+  val invOnePerSignInMethod = _accounts(accountCount).forall(a =>
     SIGN_IN_METHODS.forall(p =>
       OUTSIDE_ACCOUNTS.filter(i => signsInto.get(i) == a and signInMethodOf(i) == p).size() <= 1
     )
   )
+
+  /// Alice never has more accounts than outside accounts.
+  val invAtMostOneAccountPerOutsideAccount = accountCount <= MAX_ACCOUNTS
 
   /// Devices are signed in only to accounts that exist.
   val invRealAccounts = account.keys().forall(d =>
