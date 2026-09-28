@@ -1,5 +1,5 @@
 /**
- * Steps for `specs/sign-in/`: people signing in, proving address matches,
+ * Steps for `specs/auth/`: people signing in, proving address matches,
  * managing sign-in methods, copying sign-ins, time passing, and what
  * happens at Google and Apple — each a harness action on the auth system, each
  * outcome a read of what the device was told or is signed into.

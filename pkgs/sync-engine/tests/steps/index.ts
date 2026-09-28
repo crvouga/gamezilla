@@ -1,5 +1,5 @@
 /**
- * Steps entry for `specs/sync/` (this package's `specDomains`): the
+ * Steps entry for `specs/sync-engine/` (this package's `specDomains`): the
  * parameter types, the world, and every step its features use.
  */
 

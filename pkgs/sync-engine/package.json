@@ -55,6 +55,6 @@
     "zod": "catalog:"
   },
   "specDomains": [
-    "sync"
+    "sync-engine"
   ]
 }

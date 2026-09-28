@@ -1,5 +1,5 @@
 /**
- * Quint entry for this package's models (`specs/rooms/*.qnt`): registers the room
+ * Quint entry for this package's models (`specs/room/*.qnt`): registers the room
  * trace world and every model's binding.
  */
 

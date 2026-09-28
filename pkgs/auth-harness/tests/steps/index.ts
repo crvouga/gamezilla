@@ -1,5 +1,5 @@
 /**
- * Steps entry for `specs/sign-in/` (this package's `specDomains`): the
+ * Steps entry for `specs/auth/` (this package's `specDomains`): the
  * parameter types, the world, and every step its features use.
  */
 

@@ -1,5 +1,5 @@
 /**
- * Binds `specs/sync/note-replication.qnt` to `exampleSystem`: each model
+ * Binds `specs/sync-engine/note-replication.qnt` to `exampleSystem`: each model
  * action is one or a few `s.apply` calls with the values Quint drew, and
  * `observe` reads the model's observable variables (`notes`, `owners`,
  * `folders`, `members`, `rejections`, `unsent`) back out of the harness.

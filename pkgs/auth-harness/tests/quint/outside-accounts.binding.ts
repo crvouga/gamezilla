@@ -1,5 +1,5 @@
 /**
- * `specs/sign-in/outside-accounts.qnt` against the auth harness: three devices
+ * `specs/auth/outside-accounts.qnt` against the auth harness: three devices
  * (phone, laptop, tablet) and five directory entries (Chris's Google and
  * Apple accounts at one verified address, Uma's at one unverified address,
  * Dan's Apple account), each model action through the harness's actions, and

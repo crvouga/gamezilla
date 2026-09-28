@@ -8,7 +8,7 @@
 | Dialect contract matrix | `pkgs/db-schema-postgres/tests/contract.test.ts`, `pkgs/db-schema-sqlite/tests/contract.test.ts` (shared suite in `pkgs/db-schema/src/test/contract-suite.ts`) | `bun test pkgs/db-schema-postgres/tests pkgs/db-schema-sqlite/tests` |
 | Postgres behavior pins | `pkgs/db-schema-postgres/tests/*.test.ts` | `bun test pkgs/db-schema-postgres/tests` |
 | SQLite behavior pins | `pkgs/db-schema-sqlite/tests/*.test.ts` | `bun test pkgs/db-schema-sqlite/tests` |
-| Weeks-behind client worlds | `specs/sync/notes-across-app-updates.feature` | `bun run spec specs/sync/notes-across-app-updates.feature` |
+| Weeks-behind client worlds | `specs/sync-engine/notes-across-app-updates.feature` | `bun run spec specs/sync-engine/notes-across-app-updates.feature` |
 | Evolution gate (CI) | `libs/runtime/scripts/check-schema-evolution.ts` | `bun run --filter @libs/runtime check:schema-evolution` |
 | Append-only names (CI) | `apps/server/tests/contract-manifest.test.ts` | `bun run --filter @apps/server test` |
 

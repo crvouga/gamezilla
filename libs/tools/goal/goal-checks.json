@@ -22,7 +22,7 @@
     "proofs": [
       {
         "kind": "spec",
-        "path": "specs/sync/notes-arrive-quickly.feature"
+        "path": "specs/sync-engine/notes-arrive-quickly.feature"
       }
     ]
   },
@@ -212,11 +212,11 @@
       },
       {
         "kind": "spec",
-        "path": "specs/sync/notes-saved-once.feature"
+        "path": "specs/sync-engine/notes-saved-once.feature"
       },
       {
         "kind": "test",
-        "path": "specs/sync/note-replication.qnt"
+        "path": "specs/sync-engine/note-replication.qnt"
       },
       {
         "kind": "spec",
@@ -233,7 +233,7 @@
       },
       {
         "kind": "spec",
-        "path": "specs/sync/notes-across-devices.feature"
+        "path": "specs/sync-engine/notes-across-devices.feature"
       },
       {
         "kind": "spec",
@@ -250,7 +250,7 @@
     "proofs": [
       {
         "kind": "spec",
-        "path": "specs/sync/online-only-actions.feature"
+        "path": "specs/sync-engine/online-only-actions.feature"
       },
       {
         "kind": "spec",
@@ -267,7 +267,7 @@
     "proofs": [
       {
         "kind": "spec",
-        "path": "specs/sync/notes-arrive-quickly.feature"
+        "path": "specs/sync-engine/notes-arrive-quickly.feature"
       }
     ]
   },
@@ -748,11 +748,11 @@
       },
       {
         "kind": "spec",
-        "path": "specs/sync/notes-offline.feature"
+        "path": "specs/sync-engine/notes-offline.feature"
       },
       {
         "kind": "spec",
-        "path": "specs/sync/notes-after-a-crash.feature"
+        "path": "specs/sync-engine/notes-after-a-crash.feature"
       },
       {
         "kind": "spec",
@@ -769,11 +769,11 @@
       },
       {
         "kind": "spec",
-        "path": "specs/sync/notes-across-devices.feature"
+        "path": "specs/sync-engine/notes-across-devices.feature"
       },
       {
         "kind": "test",
-        "path": "specs/sync/note-replication.qnt"
+        "path": "specs/sync-engine/note-replication.qnt"
       }
     ]
   },
@@ -786,11 +786,11 @@
       },
       {
         "kind": "spec",
-        "path": "specs/sync/notes-saved-once.feature"
+        "path": "specs/sync-engine/notes-saved-once.feature"
       },
       {
         "kind": "test",
-        "path": "specs/sync/note-replication.qnt"
+        "path": "specs/sync-engine/note-replication.qnt"
       }
     ]
   },

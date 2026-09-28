@@ -4,7 +4,7 @@
  * log, snapshot and log identity, device storage batches, and re-sync on an
  * untrustworthy log. The room behavior people see (changes show at once,
  * wait offline, survive an app restart, refusals) is stated in
- * `specs/rooms/`; this file pins the frames, rows and identities under it.
+ * `specs/room/`; this file pins the frames, rows and identities under it.
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';

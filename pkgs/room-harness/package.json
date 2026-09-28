@@ -35,6 +35,6 @@
     "typescript": "catalog:"
   },
   "specDomains": [
-    "rooms"
+    "room"
   ]
 }

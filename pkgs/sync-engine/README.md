@@ -777,8 +777,8 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Behavior (Gherkin) | `specs/sync/*.feature` | What people observe on the example domain (writes reach everyone quickly, survive offline / crashes / lost replies / app updates, writes that wait for an answer, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/harness` |
-| Model (Quint) | `specs/sync/note-replication.qnt` | Replication rules for the example domain under any interleaving of edits, offline, stalled networks, cut-off saves or live updates, lost replies + retries, save and refresh hiccups, a full device, crashes (also mid-save), failed opens, app updates (also forced), damaged or cleared app data, damaged unsent edits, signing out elsewhere, wrong clocks, lossy / garbled / lost / paused live updates, outages, a second window, and the team's silent edits, inserts and tidying, for three people; binding in `tests/quint/`, traces drawn from `FC_SEED` |
+| Behavior (Gherkin) | `specs/sync-engine/*.feature` | What people observe on the example domain (writes reach everyone quickly, survive offline / crashes / lost replies / app updates, writes that wait for an answer, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/harness` |
+| Model (Quint) | `specs/sync-engine/note-replication.qnt` | Replication rules for the example domain under any interleaving of edits, offline, stalled networks, cut-off saves or live updates, lost replies + retries, save and refresh hiccups, a full device, crashes (also mid-save), failed opens, app updates (also forced), damaged or cleared app data, damaged unsent edits, signing out elsewhere, wrong clocks, lossy / garbled / lost / paused live updates, outages, a second window, and the team's silent edits, inserts and tidying, for three people; binding in `tests/quint/`, traces drawn from `FC_SEED` |
 | Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (hard delete, mutation authorization, not-modified queries, managed columns, topic maps), and one framework regression: the harness's standing check reads only committed upload verdicts (`invariant-check-waits-for-in-flight-verdict`, timing-exact, not reproducible from a scenario) |
 | Public unit helper | `@pkgs/sync-engine/harness` | `createInMemorySyncEngine` (no full kit surface) |
 
@@ -789,9 +789,9 @@ which is wrong — never loosen `observe`.
 
 ```bash
 bun run --filter @pkgs/sync-engine test       # contracts
-bun run --filter @pkgs/sync-engine test:e2e   # specs/sync features and the Quint model
-bun run spec specs/sync/note-writing.feature
-bun run spec specs/sync/note-replication.qnt
+bun run --filter @pkgs/sync-engine test:e2e   # specs/sync-engine features and the Quint model
+bun run spec specs/sync-engine/note-writing.feature
+bun run spec specs/sync-engine/note-replication.qnt
 ```
 
 | Pool action layer | Actions (`pool.*` in `harness/scenario/sync-actions.ts`) |
@@ -1284,9 +1284,9 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Behavior lives in [`specs/sync/`](../../specs/sync/) (one feature per
+Behavior lives in [`specs/sync-engine/`](../../specs/sync-engine/) (one feature per
 capability, steps listed in [`STEPS_CATALOG.md`](./STEPS_CATALOG.md)); the
-replication rules in [`specs/sync/note-replication.qnt`](../../specs/sync/note-replication.qnt)
+replication rules in [`specs/sync-engine/note-replication.qnt`](../../specs/sync-engine/note-replication.qnt)
 (invariants `invNoDoubleApply`, `invInOrderPerPerson`, `invNoLostWrites`,
 `invTombstonesKept`, `invOnlyForbiddenRefused`, `invOnlineAgree`,
 `invRetryIsDuplicate`, `invHealConverges`); contracts under `tests/`.

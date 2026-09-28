@@ -1,5 +1,5 @@
 /**
- * `specs/rooms/match-clock.qnt` against the match-clock room: White and Black each on
+ * `specs/room/match-clock.qnt` against the match-clock room: White and Black each on
  * their own device, the clock pinned to a small epoch, the model's state read
  * from the room and the status each device shows.
  */

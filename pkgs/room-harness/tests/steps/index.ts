@@ -1,5 +1,5 @@
 /**
- * Steps entry for this package's features (`specs/rooms/*.feature`): registers the
+ * Steps entry for this package's features (`specs/room/*.feature`): registers the
  * room world and every step definition the features use.
  */
 

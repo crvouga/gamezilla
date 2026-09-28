@@ -1,5 +1,5 @@
 /**
- * `specs/rooms/shared-counter.qnt` against the counter room: each model action through the
+ * `specs/room/shared-counter.qnt` against the counter room: each model action through the
  * room harness actions on Alice's or Bob's device, and the model's state read
  * back from the room, each running device, and each device's state.
  */

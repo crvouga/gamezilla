@@ -1,5 +1,5 @@
 /**
- * The world a `specs/sign-in/` scenario runs in: one auth harness with four
+ * The world a `specs/auth/` scenario runs in: one auth harness with four
  * devices, handed out to people the first time a step names them, plus the
  * account each person was last seen signed into.
  *

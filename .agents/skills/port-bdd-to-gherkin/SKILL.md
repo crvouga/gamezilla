@@ -74,7 +74,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
 - **Behavior a person could observe** gets a Gherkin feature in
   `specs/<domain>/`, and the package claims that domain in its
   `package.json` `specDomains`. The domain is named for the capability
-  (`sync`, `rooms`, `matchmaking`, `sign-in`), never for gamezilla. The
+  (`sync-engine`, `room`, `matchmaking`, `auth`), never for gamezilla. The
   wording uses people and devices: "Alice edits a note on her phone",
   "Bob's laptop shows it within 5 seconds". Steps live in the package's own
   `tests/steps/` on `@pkgs/gherkin`. A `pkgs/` package never imports
@@ -83,7 +83,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
   like every other `.feature` and `.qnt`: no Gherkin or Quint lives outside
   `specs/`. Its names come from the context's glossary, its binding is
   `tests/quint/<model>.binding.ts` in the package, and the package's
-  `test:e2e` runs it as it runs `specs/rooms/*.qnt` for `@pkgs/room-harness`.
+  `test:e2e` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-harness`.
   This is the "model-based property test" the policy asks for. Its variables
   are the package's public observables (a person's notes on a device, a
   room's count, who is matched), not queues or epochs.

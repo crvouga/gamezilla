@@ -182,5 +182,5 @@ See [`docs/TESTING.md`](docs/TESTING.md). Summary:
 - `pkgs/db-schema-postgres/tests/` and `pkgs/db-schema-sqlite/tests/` — the
   shared dialect contract matrix (`src/test/contract-suite.ts`) plus
   per-dialect behavior pins
-- `specs/sync/notes-across-app-updates.feature` — weeks-behind client scenarios (colours and tags across versions)
+- `specs/sync-engine/notes-across-app-updates.feature` — weeks-behind client scenarios (colours and tags across versions)
   on the real merge path

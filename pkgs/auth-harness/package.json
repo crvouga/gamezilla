@@ -36,6 +36,6 @@
     "typescript": "catalog:"
   },
   "specDomains": [
-    "sign-in"
+    "auth"
   ]
 }

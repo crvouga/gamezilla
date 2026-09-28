@@ -1,5 +1,5 @@
 /**
- * The world a `specs/sign-in/` model's traces run in: the auth harness the
+ * The world a `specs/auth/` model's traces run in: the auth harness the
  * binding's `init` opens, disposed after the last step, plus the number the
  * model gives each account (in the order the accounts appear).
  *

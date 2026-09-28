@@ -1,5 +1,5 @@
 /**
- * The world a `specs/sync/` scenario runs in: one `exampleSystem` run, with
+ * The world a `specs/sync-engine/` scenario runs in: one `exampleSystem` run, with
  * each person's devices added the first time a step names them. A device in
  * a shared-space scenario hydrates the person's space memberships; any other
  * hydrates every note.

@@ -1,5 +1,5 @@
 /**
- * The world a `specs/sync/note-replication.qnt` trace runs in: one `exampleSystem` run
+ * The world a `specs/sync-engine/note-replication.qnt` trace runs in: one `exampleSystem` run
  * per trace, observed on its virtual clock so asynchronous convergence gets
  * the time a person would give it.
  */

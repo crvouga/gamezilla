@@ -200,7 +200,7 @@ sign-in became a fact, leaving one `When`.
 
 ### Internals and two events (A5, B5, B8)
 
-Before — `specs/sync/shared-space-membership.feature`:
+Before — `specs/sync-engine/shared-space-membership.feature`:
 
 ```gherkin
 Scenario: Leaving stops new notes reaching someone whose app cannot send, without their app reconnecting
@@ -250,7 +250,7 @@ Scenario: A puzzle opens after the opponent's setup move, facing the solver
 
 ### A technical table (B12)
 
-`specs/sign-in/failing-provider.feature` runs eight rows of provider
+`specs/auth/failing-provider.feature` runs eight rows of provider
 failure modes ("Apple's word for Alice is dated ten minutes ahead") through
 two outlines. The failure mode is not a business dimension: the rule is
 "while a provider is failing, signing in fails plainly and changes nothing".

@@ -263,8 +263,8 @@ broadcast, then apply nested effects. Actor metadata uses
 
 Reference fixtures: `DeadlineFixtureModule` (Schedule → `Expire`),
 `MatchClockFixtureModule` (dual banks + `FlagFall`). Scenarios: kit M6/M7,
-`specs/rooms/match-clock.feature` and the
-`specs/rooms/match-clock.qnt` model.
+`specs/room/match-clock.feature` and the
+`specs/room/match-clock.qnt` model.
 
 ```mermaid
 flowchart LR
@@ -517,7 +517,7 @@ When proposing a change, check:
 Complete inventory of what this package currently proves. Prefer adding rows
 here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 
-### Room specs (`specs/rooms/`, run by `@pkgs/room-harness`)
+### Room specs (`specs/room/`, run by `@pkgs/room-harness`)
 
 `@pkgs/room-harness` claims the `rooms` spec domain: its `test:e2e` runs the
 features through `tests/steps/` and replays the models' traces through

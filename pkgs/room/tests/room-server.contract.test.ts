@@ -2,7 +2,7 @@
  * Contract: `RoomServer` wire frames, log rows and dedup memory, driven over
  * recording connections on the cursor module. The room behavior people see
  * (changes reach everyone, count once, survive a restart; presence) is
- * stated in `specs/rooms/`; this file pins the frames and rows under it.
+ * stated in `specs/room/`; this file pins the frames and rows under it.
  */
 
 import { describe, expect, test } from 'bun:test';
