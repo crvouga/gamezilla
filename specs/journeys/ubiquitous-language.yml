@@ -14,7 +14,7 @@ terms:
       the person gets out of it. It must never break anywhere people use the
       app.
     forms: [critical journeys]
-    avoid: [smoke test, synthetic monitor, happy path, e2e test]
+    avoid: [smoke test, synthetic monitor, happy path]
 
   - term: opening screen
     definition: >-
