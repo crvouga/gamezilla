@@ -22,7 +22,10 @@ bun run git-sync --message "type(scope): description"
 ```
 
 Read the diff, write one Conventional Commit message that describes it, and pass it with
-`--message`. If the tree is already clean, run `bun run git-sync` with no arguments.
+`--message`. Without `--message`, git-sync generates a header from the changed paths
+(`chore(pkg): update 3 files`; a tree that mixes specs with other files becomes a `spec:` commit
+plus a second commit for the rest). `bun check` and `bun check:report` rely on that. If the tree
+is already clean, run `bun run git-sync` with no arguments.
 
 | Mode | Command |
 |---|---|

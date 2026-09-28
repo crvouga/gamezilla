@@ -11,7 +11,7 @@
  *   bun check [--message "type(scope): description"]
  *
  * First it runs `/git-sync` (`git-sync.ts`): commits a dirty tree with
- * `--message`, merges `origin/<branch>` and the latest `origin/main`
+ * `--message` (or a generated one), merges `origin/<branch>` and the latest `origin/main`
  * (aborting on conflict), pushes, and fast-forwards local `main` — so the run
  * checks out the local HEAD, current with trunk. Refuses on `main`.
  */

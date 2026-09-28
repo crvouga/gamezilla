@@ -7,7 +7,7 @@
  * — so the branch, `origin/<branch>` and local `main` all end up current.
  *
  *   bun run git-sync --message "type(scope): description"
- *   bun run git-sync                 (clean tree: sync only)
+ *   bun run git-sync                 (dirty tree: commit message is generated)
  *   bun run git-sync --trunk-only    (only fast-forward local main)
  *   bun run git-sync --leave-conflicts   (keep a conflicted merge for resolving)
  *
@@ -18,9 +18,11 @@
  */
 import { existsSync } from 'node:fs';
 
+import { isSpecFile } from './check-spec-ownership';
+
 /** Conventional Commit header: `<type>(<scope>): <summary>`, same as a PR title. */
 const TITLE_PATTERN =
-  /^(feat|fix|refactor|test|chore|docs|perf|ci)(\([a-z0-9./-]+\))?!?: \S.*$/;
+  /^(feat|fix|refactor|test|chore|docs|perf|ci|spec)(\([a-z0-9./-]+\))?!?: \S.*$/;
 const TITLE_MAX_LENGTH = 72;
 const BASE = 'main';
 /** Trunks git-sync refuses outright; `main` itself only gets fast-forwarded. */
@@ -46,7 +48,7 @@ const SECRET_PATHS: readonly RegExp[] = [
 export class SyncError extends Error {}
 
 export type GitSyncOptions = {
-  /** Commit message for a dirty tree; `null` requires a clean tree. */
+  /** Commit message for a dirty tree; `null` generates one from the changed paths. */
   readonly message: string | null;
   /** Only fast-forward local `main`; never commit, push or merge. */
   readonly trunkOnly: boolean;
@@ -94,7 +96,7 @@ export function validateCommitMessage(message: string): readonly string[] {
   if (header.trim().length === 0) return ['Commit message is empty.'];
   if (!TITLE_PATTERN.test(header)) {
     violations.push(
-      'Header must be `<type>(<scope>): <summary>` with type feat|fix|refactor|test|chore|docs|perf|ci.'
+      'Header must be `<type>(<scope>): <summary>` with type feat|fix|refactor|test|chore|docs|perf|ci|spec.'
     );
   }
   if (header.length > TITLE_MAX_LENGTH) {
@@ -198,33 +200,139 @@ function preflight(): string {
   return branch.out;
 }
 
+const ROOT_DIRS: ReadonlySet<string> = new Set([
+  'apps',
+  'libs',
+  'pkgs',
+  'packages',
+]);
+
+/** The package or area a path belongs to: `libs/<x>/…` → `x`, `specs/<x>/…` → `x`. */
+function scopeOf(path: string): string | null {
+  const [head, next] = path.split('/');
+  if (next === undefined) return null;
+  const segment =
+    head !== undefined && (ROOT_DIRS.has(head) || head === 'specs')
+      ? next
+      : head;
+  const scope = (segment ?? '').toLowerCase().replaceAll(/[^a-z0-9./-]/gu, '-');
+  return scope.length > 0 ? scope : null;
+}
+
+function isDocPath(path: string): boolean {
+  return /\.mdx?$/u.test(path);
+}
+
+function isTestPath(path: string): boolean {
+  return /(^|\/)(tests?|__tests__)\/|\.(test|spec)\.[cm]?[jt]sx?$/u.test(path);
+}
+
+function isCiPath(path: string): boolean {
+  return path.startsWith('.github/');
+}
+
+/** A Conventional Commit header describing `paths`, derived from where they live. */
+export function generateCommitMessage(paths: readonly string[]): string {
+  const unique = [...new Set(paths)].sort();
+  const allSpecs = unique.every((path) => isSpecFile(path));
+  const type = allSpecs
+    ? 'spec'
+    : unique.every(isDocPath)
+      ? 'docs'
+      : unique.every(isCiPath)
+        ? 'ci'
+        : unique.every((path) => isTestPath(path) || isDocPath(path))
+          ? 'test'
+          : 'chore';
+  const scopes = new Set(unique.map(scopeOf));
+  const [only] = scopes;
+  const scope =
+    scopes.size === 1 && only !== null && only !== undefined ? `(${only})` : '';
+  const [first] = unique;
+  const subject =
+    unique.length === 1 && first !== undefined
+      ? `update ${first.split('/').at(-1) ?? first}`
+      : `update ${String(unique.length)} files`;
+  const header = `${type}${scope}: ${subject}`;
+  if (header.length <= TITLE_MAX_LENGTH) return header;
+  const bare = `${type}: ${subject}`;
+  return bare.length <= TITLE_MAX_LENGTH
+    ? bare
+    : `${type}: update ${String(unique.length)} files`;
+}
+
+/** `:(literal)` pathspecs so a path is never read as a glob or an option. */
+function literal(paths: readonly string[]): string[] {
+  return paths.map((path) => `:(literal)${path}`);
+}
+
+/**
+ * Commits the dirty tree. Without a message one is generated per commit; a
+ * tree that mixes specs with anything else becomes a `spec:` commit followed by
+ * the rest, because a spec commit may change nothing but specs.
+ */
+function commitPlan(
+  paths: readonly string[],
+  message: string | null
+): { readonly paths: readonly string[] | null; readonly message: string }[] {
+  if (message !== null) return [{ paths: null, message }];
+  const specs = paths.filter((path) => isSpecFile(path));
+  const rest = paths.filter((path) => !isSpecFile(path));
+  if (specs.length === 0 || rest.length === 0) {
+    return [{ paths: null, message: generateCommitMessage(paths) }];
+  }
+  return [
+    { paths: specs, message: generateCommitMessage(specs) },
+    { paths: null, message: generateCommitMessage(rest) },
+  ];
+}
+
+/** `git status -z` untrimmed: trimming would eat the first entry's leading space. */
+function dirtyStatus(): string {
+  const result = Bun.spawnSync(
+    ['git', 'status', '--porcelain=v1', '-z', '-uall'],
+    { stdout: 'pipe', stderr: 'pipe' }
+  );
+  if (result.exitCode !== 0) {
+    throw new SyncError(
+      `git status failed:\n${result.stderr.toString().trim()}`
+    );
+  }
+  return result.stdout.toString();
+}
+
 function commitWorkingTree(message: string | null): void {
-  const status = gitOk(['status', '--porcelain=v1', '-z', '-uall']);
+  const status = dirtyStatus();
   if (status.length === 0) {
     step('working tree clean — nothing to commit.');
     return;
   }
-  if (message === null) {
-    throw new SyncError(
-      'Working tree has changes — pass --message "type(scope): description".'
-    );
+  const paths = parsePorcelainPaths(status);
+  const plan = commitPlan(paths, message);
+  for (const { message: header } of plan) {
+    const violations = validateCommitMessage(header);
+    if (violations.length > 0) {
+      throw new SyncError(
+        `Invalid commit message:\n- ${violations.join('\n- ')}`
+      );
+    }
   }
-  const violations = validateCommitMessage(message);
-  if (violations.length > 0) {
-    throw new SyncError(
-      `Invalid commit message:\n- ${violations.join('\n- ')}`
-    );
-  }
-  const secrets = secretLookingPaths(parsePorcelainPaths(status));
+  const secrets = secretLookingPaths(paths);
   if (secrets.length > 0) {
     throw new SyncError(
       `Refusing to commit secret-looking paths:\n- ${secrets.join('\n- ')}`
     );
   }
-  gitOk(['add', '--all']);
-  scanStagedForSecrets();
-  gitOk(['commit', '--quiet', '-m', message]);
-  step(`committed ${gitOk(['log', '-1', '--format=%h %s'])}`);
+  for (const commit of plan) {
+    gitOk(
+      commit.paths === null
+        ? ['add', '--all']
+        : ['add', '--all', '--', ...literal(commit.paths)]
+    );
+    scanStagedForSecrets();
+    gitOk(['commit', '--quiet', '-m', commit.message]);
+    step(`committed ${gitOk(['log', '-1', '--format=%h %s'])}`);
+  }
 }
 
 /** Runs gitleaks over the staged diff when it is installed; unstages on a hit. */

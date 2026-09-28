@@ -12,6 +12,7 @@ import './app-lifecycle.steps';
 import './app-shell.steps';
 import './journeys.steps';
 import './settings.steps';
+import './zz-explore.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-app-harness';
