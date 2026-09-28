@@ -147,7 +147,10 @@ function attempt<T>(text: string, read: (s: Scanner) => T): FeelResult<T> {
     return { ok: true, value };
   } catch (cause) {
     if (!(cause instanceof FeelSyntaxError)) throw cause;
-    return { ok: false, error: `FEEL ${JSON.stringify(text)}: ${cause.message}` };
+    return {
+      ok: false,
+      error: `FEEL ${JSON.stringify(text)}: ${cause.message}`,
+    };
   }
 }
 
@@ -225,7 +228,9 @@ function readInterval(s: Scanner): UnaryTest {
   }
   s.pos += 1;
   if (low > high) {
-    throw new FeelSyntaxError(`interval ${String(low)}..${String(high)} is empty`);
+    throw new FeelSyntaxError(
+      `interval ${String(low)}..${String(high)} is empty`
+    );
   }
   return { kind: 'interval', low, high, lowClosed, highClosed: end === ']' };
 }

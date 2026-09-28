@@ -14,8 +14,8 @@ import {
   locate,
   parseXml,
   textOf,
-  XmlError,
   type XmlElement,
+  XmlError,
 } from './xml';
 
 export type HitPolicy = 'UNIQUE' | 'FIRST' | 'ANY' | 'PRIORITY';
@@ -72,7 +72,8 @@ export function parseDmn(xml: string): ParsedDmn {
   try {
     root = parseXml(xml);
   } catch (cause) {
-    if (cause instanceof XmlError) return { ok: false, issues: [cause.message] };
+    if (cause instanceof XmlError)
+      return { ok: false, issues: [cause.message] };
     throw cause;
   }
   const issues = createIssues(xml);

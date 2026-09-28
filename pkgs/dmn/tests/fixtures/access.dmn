@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="access-definitions" name="Access" namespace="https://gamezilla.dev/specs/billing">
+  <decision id="access" name="Access">
+    <description>What a player may do, by tier, capability and how many games they played today.</description>
+    <decisionTable id="access-table" hitPolicy="UNIQUE">
+      <input id="tier" label="Tier">
+        <inputExpression id="tier-expression" typeRef="string"><text>tier</text></inputExpression>
+        <inputValues id="tier-values"><text>"guest","free","plus"</text></inputValues>
+      </input>
+      <input id="capability" label="Capability">
+        <inputExpression id="capability-expression" typeRef="string"><text>capability</text></inputExpression>
+        <inputValues id="capability-values"><text>"game.play","game.save","game.customize"</text></inputValues>
+      </input>
+      <input id="plays-today" label="Plays today">
+        <inputExpression id="plays-today-expression" typeRef="number"><text>plays today</text></inputExpression>
+        <inputValues id="plays-today-values"><text>[0..1000]</text></inputValues>
+      </input>
+      <output id="decision" name="decision" typeRef="string">
+        <outputValues id="decision-values"><text>"allow","deny"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","limit reached","requires account","upgrade"</text></outputValues>
+      </output>
+      <rule id="play-below-limit">
+        <description>Guests and free players play up to 20 games a day.</description>
+        <inputEntry id="r1-tier"><text>"guest","free"</text></inputEntry>
+        <inputEntry id="r1-capability"><text>"game.play"</text></inputEntry>
+        <inputEntry id="r1-plays"><text>&lt; 20</text></inputEntry>
+        <outputEntry id="r1-decision"><text>"allow"</text></outputEntry>
+        <outputEntry id="r1-reason"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="play-at-limit">
+        <inputEntry id="r2-tier"><text>"guest","free"</text></inputEntry>
+        <inputEntry id="r2-capability"><text>"game.play"</text></inputEntry>
+        <inputEntry id="r2-plays"><text>&gt;= 20</text></inputEntry>
+        <outputEntry id="r2-decision"><text>"deny"</text></outputEntry>
+        <outputEntry id="r2-reason"><text>"limit reached"</text></outputEntry>
+      </rule>
+      <rule id="guest-keeps-nothing">
+        <inputEntry id="r3-tier"><text>"guest"</text></inputEntry>
+        <inputEntry id="r3-capability"><text>"game.save","game.customize"</text></inputEntry>
+        <inputEntry id="r3-plays"><text>-</text></inputEntry>
+        <outputEntry id="r3-decision"><text>"deny"</text></outputEntry>
+        <outputEntry id="r3-reason"><text>"requires account"</text></outputEntry>
+      </rule>
+      <rule id="free-saves">
+        <inputEntry id="r4-tier"><text>"free"</text></inputEntry>
+        <inputEntry id="r4-capability"><text>"game.save"</text></inputEntry>
+        <inputEntry id="r4-plays"><text>-</text></inputEntry>
+        <outputEntry id="r4-decision"><text>"allow"</text></outputEntry>
+        <outputEntry id="r4-reason"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="free-customize-upsell">
+        <inputEntry id="r5-tier"><text>"free"</text></inputEntry>
+        <inputEntry id="r5-capability"><text>"game.customize"</text></inputEntry>
+        <inputEntry id="r5-plays"><text>-</text></inputEntry>
+        <outputEntry id="r5-decision"><text>"deny"</text></outputEntry>
+        <outputEntry id="r5-reason"><text>"upgrade"</text></outputEntry>
+      </rule>
+      <rule id="plus-does-everything">
+        <inputEntry id="r6-tier"><text>"plus"</text></inputEntry>
+        <inputEntry id="r6-capability"><text>-</text></inputEntry>
+        <inputEntry id="r6-plays"><text>-</text></inputEntry>
+        <outputEntry id="r6-decision"><text>"allow"</text></outputEntry>
+        <outputEntry id="r6-reason"><text>"none"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

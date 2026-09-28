@@ -51,10 +51,8 @@ const NAMED_ENTITIES: Readonly<Record<string, string>> = {
   apos: "'",
 };
 
-const NAME = /[A-Za-z_:À-￿][-A-Za-z0-9_:.·À-￿]*/y;
+const NAME = /[A-Za-z_:\u00C0-\uFFFF][-A-Za-z0-9_:.\u00B7\u00C0-\uFFFF]*/y;
 const WHITESPACE = /[ \t\n]/;
-// biome-ignore lint/suspicious/noControlCharactersInRegex: XML forbids exactly these.
-const FORBIDDEN_CHAR = /[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/;
 
 /** Line and column (both 1-based) of `offset` in `source`. */
 export function locate(source: string, offset: number): XmlLocation {
@@ -69,7 +67,7 @@ export function locate(source: string, offset: number): XmlLocation {
 /** The document's root element. Throws {@link XmlError}. */
 export function parseXml(source: string): XmlElement {
   const src = source.replace(/\r\n?/g, '\n');
-  const r: Reader = { src, pos: src.startsWith('﻿') ? 1 : 0 };
+  const r: Reader = { src, pos: src.startsWith('\uFEFF') ? 1 : 0 };
   const forbidden = firstForbiddenChar(src);
   if (forbidden >= 0) fail(r, 'a character XML does not allow', forbidden);
   readDeclaration(r);

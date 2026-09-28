@@ -23,12 +23,7 @@ import {
   type UnaryTest,
   usesOrder,
 } from './feel';
-import type {
-  DmnInput,
-  DmnOutput,
-  DmnRule,
-  HitPolicy,
-} from './model';
+import type { DmnInput, DmnOutput, DmnRule, HitPolicy } from './model';
 import { childElements, textOf, type XmlElement } from './xml';
 
 export type Issues = {
@@ -59,7 +54,11 @@ export function readTable(table: XmlElement, ctx: TableContext): Table | null {
   const policyText = table.attributes.get('hitPolicy') ?? 'UNIQUE';
   const hitPolicy = POLICIES[policyText];
   if (hitPolicy === undefined) {
-    add(ctx, table, `hit policy ${policyText} is not supported (UNIQUE, FIRST, ANY, PRIORITY)`);
+    add(
+      ctx,
+      table,
+      `hit policy ${policyText} is not supported (UNIQUE, FIRST, ANY, PRIORITY)`
+    );
   }
   if (table.attributes.has('aggregation')) {
     add(ctx, table, 'aggregation is not supported');
@@ -112,7 +111,11 @@ function readTypeRef(
   const typeRef = element.attributes.get('typeRef');
   const known = TYPE_REFS.find((t) => t === typeRef);
   if (known === undefined) {
-    add(ctx, element, `${what}: typeRef must be string, number or boolean (got ${String(typeRef)})`);
+    add(
+      ctx,
+      element,
+      `${what}: typeRef must be string, number or boolean (got ${String(typeRef)})`
+    );
     return null;
   }
   return known;
@@ -129,7 +132,11 @@ function readInput(element: XmlElement, ctx: TableContext): DmnInput | null {
   const typeRef = readTypeRef(expression, ctx, `input ${id}`);
   const [values] = childElements(element, 'inputValues');
   if (values === undefined) {
-    add(ctx, element, `input ${name ?? id} must declare its domain in <inputValues>`);
+    add(
+      ctx,
+      element,
+      `input ${name ?? id} must declare its domain in <inputValues>`
+    );
     return null;
   }
   const domainText = cellText(values, ctx, `input ${id} values`);
@@ -171,7 +178,8 @@ function checkNames(
   const seen = new Set<string>();
   for (const column of columns) {
     if (column === null) continue;
-    if (seen.has(column.name)) add(ctx, table, `"${column.name}" names two columns`);
+    if (seen.has(column.name))
+      add(ctx, table, `"${column.name}" names two columns`);
     seen.add(column.name);
   }
 }
@@ -183,7 +191,11 @@ function checkPriorities(
 ): void {
   for (const output of outputs) {
     if (output.values === null) {
-      add(ctx, table, `PRIORITY needs outputValues on output ${output.name} (they rank the answers)`);
+      add(
+        ctx,
+        table,
+        `PRIORITY needs outputValues on output ${output.name} (they rank the answers)`
+      );
     }
   }
 }
@@ -204,11 +216,19 @@ function readRule(element: XmlElement, columns: RuleColumns): DmnRule | null {
   const inputCells = childElements(element, 'inputEntry');
   const outputCells = childElements(element, 'outputEntry');
   if (inputCells.length !== inputs.length) {
-    add(ctx, element, `rule ${id} has ${String(inputCells.length)} input entries for ${String(inputs.length)} inputs`);
+    add(
+      ctx,
+      element,
+      `rule ${id} has ${String(inputCells.length)} input entries for ${String(inputs.length)} inputs`
+    );
     return null;
   }
   if (outputCells.length !== outputs.length) {
-    add(ctx, element, `rule ${id} has ${String(outputCells.length)} output entries for ${String(outputs.length)} outputs`);
+    add(
+      ctx,
+      element,
+      `rule ${id} has ${String(outputCells.length)} output entries for ${String(outputs.length)} outputs`
+    );
     return null;
   }
   const inputEntries = inputCells.map((cell, i) =>
@@ -226,9 +246,7 @@ function readRule(element: XmlElement, columns: RuleColumns): DmnRule | null {
     description:
       description === undefined ? null : textOf(description).trim() || null,
     inputEntries: inputEntries.filter((t): t is UnaryTest => t !== undefined),
-    outputEntries: outputEntries.filter(
-      (v): v is FeelValue => v !== undefined
-    ),
+    outputEntries: outputEntries.filter((v): v is FeelValue => v !== undefined),
   };
 }
 
@@ -285,11 +303,19 @@ function readOutputEntry(
   }
   const value = parsed.value;
   if (!fitsType(value, output.typeRef)) {
-    add(ctx, cell, `rule ${rule}, ${output.name}: ${renderFeelValue(value)} is not a ${output.typeRef}`);
+    add(
+      ctx,
+      cell,
+      `rule ${rule}, ${output.name}: ${renderFeelValue(value)} is not a ${output.typeRef}`
+    );
     return undefined;
   }
   if (output.values !== null && !output.values.includes(value)) {
-    add(ctx, cell, `rule ${rule}, ${output.name}: ${outsideDomain(value, { kind: 'values', values: output.values })}`);
+    add(
+      ctx,
+      cell,
+      `rule ${rule}, ${output.name}: ${outsideDomain(value, { kind: 'values', values: output.values })}`
+    );
     return undefined;
   }
   return value;
