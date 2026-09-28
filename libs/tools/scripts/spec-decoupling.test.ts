@@ -69,9 +69,7 @@ describe('decouplingProblems (D1)', () => {
     expect(errors).toContain(
       ':1: D1 names a workspace package "@pkgs/room-harness"'
     );
-    expect(errors).toContain(
-      ':2: D1 names a repo directory "specs/README.md"'
-    );
+    expect(errors).toContain(':2: D1 names a repo directory "specs/README.md"');
     expect(errors).toContain(
       ':3: D1 names a source file "ubiquitous-language.yml"'
     );
