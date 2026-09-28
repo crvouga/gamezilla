@@ -20,13 +20,6 @@ import {
 
 export type HitPolicy = 'UNIQUE' | 'FIRST' | 'ANY' | 'PRIORITY';
 
-export const HIT_POLICIES: readonly HitPolicy[] = [
-  'UNIQUE',
-  'FIRST',
-  'ANY',
-  'PRIORITY',
-];
-
 export type DmnInput = {
   readonly id: string;
   readonly label: string;

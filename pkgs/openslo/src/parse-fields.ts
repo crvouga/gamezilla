@@ -105,7 +105,7 @@ export function readOneOf<T extends string>(
   const value = input.from[input.field];
   if (
     typeof value === 'string' &&
-    (input.allowed as string[]).includes(value)
+    (input.allowed as readonly string[]).includes(value)
   ) {
     return value as T;
   }

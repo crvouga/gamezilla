@@ -8,8 +8,8 @@
 import {
   BUDGETING_METHODS,
   type BudgetingMethod,
-  OPERATORS,
   type Objective,
+  OPERATORS,
   type Operator,
   type Sli,
   type Slo,
