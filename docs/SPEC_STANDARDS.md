@@ -215,15 +215,10 @@ the journeys against the simulated app in `bun check`; `@apps/product` runs
 both live (`liveDomains`) in its `health` task
 ([`CI.md`](CI.md#health-and-critical-journeys)). Which resource keeps a health
 promise is the step definitions' business. A domain is run by at most one
-package through `specDomains` and at most one through `liveDomains`. Tags
-choose where a live scenario runs (B15):
-
-| Tag | Live run |
-| --- | --- |
-| `@production` | only against production environments |
-| `@oauth-relay` | only against the relay environment |
-| `@observability` | skipped when `OBSERVABILITY_ENABLED=0` |
-| `@browser` | needs a real browser; the simulation stops at that step as a host limit |
+package through `specDomains` and at most one through `liveDomains`. Which
+environment can run a live scenario (production only, the relay, observability
+on) is binding-side knowledge: `HOST_LIMITS` in `apps/product/scripts/health.ts`,
+keyed by feature and scenario name. Specs carry no host tags (B15, D1).
 
 ## Terms this standard uses
 
@@ -473,7 +468,6 @@ Allowed, and nothing else:
 | `@domain:<dir>` | feature line, required | the bounded context; equals the directory |
 | `@goal:<section>:<n>` | feature or scenario | proves a [`GOAL.md`](GOAL.md) statement |
 | `@regression:<bug-id>` | scenario | pins an observable bug in `known-bugs.json` |
-| `@production`, `@oauth-relay`, `@observability`, `@browser` | scenario, live domains only | where a live run takes it |
 
 Aggregate and kind (command, invariant, event, policy) are never tags: the
 coverage map (C) derives them from the Quint model and the `Rule:`.
@@ -663,6 +657,11 @@ checks the rest. It fails on:
 - UI mechanics or implementation words in step text (`IMPLEMENTATION_WORDS`
   in `@pkgs/gherkin`), or a narrator ("I", "my", "the user")
 - a scenario with no `Then`, or a `Given` after it has acted
+- code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`): a
+  `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
+  other than `@domain:`, `@goal:`, `@regression:`
+- a random walk outside a Quint model: `.explore(` or `randomActions(` in a
+  spec-running package's test outside `tests/quint/`
 - a BDD smell (`@pkgs/gherkin/smells`): more than 8 steps or 3 `When`s,
   acting after a `Then` outside `specs/journeys/`, a step naming architecture,
   a feature with no description

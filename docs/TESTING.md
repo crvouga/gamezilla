@@ -85,7 +85,8 @@ When a property subsumes an example that is neither, delete the example.
 - **Behavior tests are specs.** No `*.test.ts` lives under `tests/harness/`;
   that directory holds only the feature's harness composition, which composes
   only the slices it needs ([`FEATURE_SUBSYSTEMS.md`](FEATURE_SUBSYSTEMS.md)).
-  No spec lives in `apps/`.
+  No spec lives in `apps/`. A random walk (`.explore(`, `randomActions(`)
+  runs only as a Quint model binding in `tests/quint/` (`spec:check`).
 - Every tracked test file is reached by a gate script (`test`,
   `test:contract`, `test:spec`, or deploy's `test:integration`); no script
   runs zero files or uses `--pass-with-no-tests`, `--rerun-each` or
