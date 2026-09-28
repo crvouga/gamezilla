@@ -73,9 +73,12 @@ tests.
 
 (2026-09-27) `pkgs/auth-harness` runs the new `auth` domain (`specDomains`;
 a bounded context that borrows Identity's published terms, see
-`docs/CONTEXT_MAP.md`): `specs/auth/address-match.feature`,
-`sign-in-methods.feature`, `copied-sign-in.feature`, `sign-in-ends.feature`,
-`at-google-and-apple.feature`, `failing-provider.feature`, and the Quint model
+`docs/CONTEXT_MAP.md`): `specs/auth/matching-accounts.feature` (was
+`address-match.feature`), `sign-in-methods.feature`, `stolen-sign-ins.feature`
+(was `copied-sign-in.feature`), `sign-in-ends.feature`,
+`at-google-and-apple.feature`, `provider-trouble.feature` (was
+`failing-provider.feature`), the Quint model
+`specs/auth/private-apple-email.qnt`, and the Quint model
 `specs/auth/outside-accounts.qnt`, which replaces the random walk (16 seeds
 x 150 steps, the Postgres fabric, `explore`): 40 traces of up to 30 steps,
 even traces on Postgres, with the harness's reference model still checked as a
@@ -91,6 +94,20 @@ fail plainly and recover (two Examples tables), the two tolerated quirks and
 signing-key rotation still sign in; the harness's reference model stays a
 standing property on every step, so no invariant violation passes unnoticed.
 The contract file is deleted.
+
+(2026-09-27, later) The auth context was held to A0 (a business reader
+understands every line): the eight provider failure modes ("Apple's word for
+Alice is two hours old", "Google does not recognise the app", …), the two
+tolerated quirks and signing-key rotation are technical cases, so they moved
+back to a code test, `pkgs/auth-harness/tests/provider-failures.test.ts`
+(landed before the spec change, seen failing, P4), and
+`provider-trouble.feature` states the rule people see — while Google or
+Apple is having trouble, signing in with it fails plainly and changes
+nothing, and works again once it recovers — one scenario per provider. The
+language also moved to plain product words: "address match" / "prove the
+match" became "matching account" / "confirm the matching account", "copied
+sign-in" became "stolen sign-in", "failing provider" became "having
+trouble", and "word" (a provider's id_token) left the language.
 
 (2026-09-27) The last hand-written chess harness tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,

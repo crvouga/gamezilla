@@ -7,10 +7,10 @@
 context: Auth
 purpose: >-
   People get into their accounts with the outside accounts they already have
-  at Google and Apple: each outside account gets into exactly one account, an
-  address match is proven before it counts, a sign-in lasts until it is
-  signed out or lapses, and nothing Google or Apple does lets anyone into the
-  wrong account.
+  at Google and Apple: each outside account gets into exactly one account, a
+  matching account is confirmed before a new outside account is added to it, a
+  sign-in lasts until it is signed out or lapses, and nothing Google or
+  Apple does lets anyone into the wrong account.
 
 terms:
   # --- Borrowed -----------------------------------------------------------------
@@ -55,21 +55,10 @@ terms:
   - term: provider
     definition: >-
       Google or Apple, as the company that runs an outside account and
-      vouches to the app for who is signing in.
+      tells the app who is signing in.
     forms: [providers]
     avoid: [identity provider, IdP]
     model: [Provider, providerOf]
-
-  - term: word
-    definition: >-
-      What a provider tells the app when it vouches for who is signing in
-      ("Apple's word for Alice"). The app signs a person in only on word it
-      can check is the provider's own and that is fresh: word too old, dated
-      ahead by more than a few minutes, or not checkable as the provider's
-      own counts as the provider failing. Word that is sound but unusually
-      written, or from a clock a little ahead, still signs in, and so does
-      word checked in a way the provider has since changed to.
-    forms: ["Apple's word", "Google's word", its word]
 
   - term: email address
     definition: >-
@@ -88,44 +77,55 @@ terms:
     forms: [verified email addresses, verified, unverified email address, unverified]
     model: [verifiedEmailAddress]
 
-  # --- Address matches -------------------------------------------------------------
+  # --- Matching accounts ------------------------------------------------------------
 
-  - term: address match
+  - term: matching account
     definition: >-
-      A new outside account at the same email address as an outside account
-      of an existing account that has no sign-in method from the same
-      provider yet. When both email addresses are verified it gets into that
-      account at once; otherwise the person is asked to prove the match
-      first, or keeps the accounts separate. A private Apple email address
-      never makes one.
-    forms: [address matches, the match]
-    model: [addressMatch]
+      An account that already has an outside account at the same email
+      address as a new outside account someone signs in with, from the other
+      provider. When both email addresses are verified, the new outside
+      account becomes one of its sign-in methods at once; otherwise the person is asked to confirm the
+      matching account first, or keeps the accounts separate. A private
+      Apple email address never makes a matching account.
+    forms: [matching accounts]
+    avoid: [address match, merge]
+    model: [matchingAccount]
 
-  - term: prove the match
+  - term: confirm the matching account
     definition: >-
-      Answer an address match by signing in with an outside account of the
-      matched account. The new outside account then becomes one of its
-      sign-in methods and the person is signed into it. Proving it with an
+      Show a matching account is one's own by signing in with one of its
+      outside accounts. The new outside account then becomes one of its
+      sign-in methods and the person is signed into it. Confirming with an
       outside account of any other account fails, and leaves the person
       signed out.
-    forms: [proves the match, proved the match, proving the match, could not be proven, asked to prove an address match, being asked to prove an address match, was asked to prove an address match]
-    model: [proveMatch, askedToProve]
+    forms:
+      - confirms the matching account
+      - confirmed the matching account
+      - asked to confirm the matching account
+      - being asked to confirm the matching account
+      - was asked to confirm the matching account
+      - could not be confirmed
+      - to confirm the matching account first
+      - chance to confirm
+    avoid: [prove the match, proves the match]
+    model: [confirmMatchingAccount, askedToConfirm]
 
   - term: keep the accounts separate
     definition: >-
-      Answer an address match by starting a new account with the new outside
-      account instead.
+      Answer a matching account by starting a new account with the new
+      outside account instead.
     forms: [keeps the accounts separate, kept the accounts separate]
     model: [keepSeparate]
 
   - term: lapse
     definition: >-
-      Run out of time. An address match not proven within 10 minutes lapses,
-      and the person is told so; a sign-in lapses 30 days after it starts,
-      and the device is signed out.
+      Run out of time. The chance to confirm a matching account lapses 10
+      minutes after the person is asked, and they are told so when they
+      next answer; a sign-in lapses 30 days after it starts, and the device
+      is signed out.
     forms: [lapses, lapsed, has lapsed]
     avoid: [expire, expires, expired]
-    model: [proofsLapse, signInsLapse]
+    model: [chanceToConfirmLapses, signInsLapse]
 
   # --- Managing sign-in methods ----------------------------------------------------
 
@@ -136,7 +136,7 @@ terms:
       cannot be connected, nor a second one from a provider the account
       already has, and connecting needs a connection. Connecting starts a new
       sign-in on that device in place of the old one.
-    forms: [connects Apple, connected Apple, connect Apple, tries to connect, connecting]
+    forms: [connects Apple, connected Apple, connect Apple, connects, tries to connect, connecting]
     avoid: [link, links, linked, linking]
     model: [connectSignInMethod]
 
@@ -146,7 +146,7 @@ terms:
       cannot be removed, and removing needs a connection. The removed outside
       account no longer gets into the account: signing in with it later
       starts a new account.
-    forms: [removes Apple, removed Apple, remove Apple]
+    forms: [removes Apple, removed Apple, remove Apple, removes, tries to remove, cannot be removed]
     avoid: [unlink, unlinks, unlinked]
     model: [removeSignInMethod]
 
@@ -159,17 +159,18 @@ terms:
     forms: [signs out everywhere, signed out everywhere]
     model: [signOutEverywhere]
 
-  - term: copied sign-in
+  - term: stolen sign-in
     definition: >-
-      Another device holding the very sign-in a person's device holds, as if
-      copied from it ("Eve copies Alice's sign-in"). It gets into the same
-      account until that sign-in is over: the person signing out with a
-      connection, signing out everywhere, connecting a sign-in method, or the
-      sign-in lapsing. Signing out offline only forgets the sign-in on the
-      person's own device, so a copy keeps working.
-    forms: [copied sign-ins, copies, copied, copy]
-    avoid: [stolen token, bearer, session token]
-    model: [copySignIn]
+      Someone else getting into a person's account on their own device by
+      taking the person's sign-in, without ever signing in themselves ("Eve
+      steals Alice's sign-in"). It gets them into the same account until
+      that sign-in is over: the person signing out with a connection,
+      signing out everywhere, connecting a sign-in method, or the sign-in
+      lapsing. Signing out offline only forgets the sign-in on the person's
+      own device, so a stolen sign-in keeps working.
+    forms: [stolen sign-ins, steals, stole, stolen]
+    avoid: [copied sign-in, stolen token, bearer, session token]
+    model: [stealSignIn]
 
   - term: shared device
     definition: >-
@@ -178,17 +179,18 @@ terms:
 
   # --- What happens at Google and Apple --------------------------------------------
 
-  - term: failing provider
+  - term: having trouble
     definition: >-
-      Google or Apple failing to vouch for who is signing in. Signing in,
-      connecting or proving a match with it fails, the person is told so, and
-      nothing changes, until it recovers.
-    forms: [is failing, was failing, recovers, has recovered]
-    model: [providerFails, providerRecovers]
+      Google or Apple not answering for who is signing in, for a while.
+      Signing in, connecting or confirming a matching account with it fails,
+      the person is told so, and nothing changes, until it recovers.
+    forms: [is having trouble, was having trouble, recovers, has recovered]
+    avoid: [failing, outage, down, error]
+    model: [troubleStarts, troubleEnds]
 
   - term: decline the app
     definition: >-
-      Refuse, on the provider's own screens, to let the app use one's outside
+      Refuse, at Google or Apple, to let the app use one's outside
       account. Signing in is cancelled and nothing changes.
     forms: [declines the app, declined the app]
 
@@ -213,6 +215,7 @@ terms:
       At their first sign-in with Apple, choose to keep one's email address
       from the app; the app gets a private Apple email address instead.
     forms: [hides their email address, hid their email address, hidden email address]
+    model: [signInWithApple]
 
   - term: private Apple email address
     definition: >-
@@ -221,6 +224,7 @@ terms:
       address match.
     forms: [private Apple email addresses]
     avoid: [relay address, relay email]
+    model: [privateAppleEmailAddress]
 
   - term: mail forwarding
     definition: >-
@@ -228,3 +232,4 @@ terms:
       person. They can stop and restart it at Apple, and their Apple sign-in
       method shows whether mail is forwarded.
     forms: [forwards mail, forwarding mail, stops forwarding mail, stopped forwarding mail, mail is forwarded, mail is not forwarded]
+    model: [mailNotForwarded, stopForwardingMail, forwardMailAgain]

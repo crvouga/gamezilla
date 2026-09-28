@@ -4,34 +4,35 @@
 // Three shared devices (a phone, a laptop and a tablet), and five outside
 // accounts: Chris's Google account and Chris's Apple account share one
 // verified email address; Uma's Google account and Uma's Apple account share
-// one email address that Google has not verified; Dan's Apple account matches
-// nothing.
+// one email address that Google has not verified; Dan's Apple account shares
+// its address with nobody.
 //
 // On a device that is not signed in, anyone can sign in with any outside
 // account. An outside account that already gets into an account signs in to
-// it. A new one that is an address match for an account joins it at once
-// when both email addresses are verified; otherwise the device is asked to
-// prove the match, and then either proves it (with an outside account of
-// the matched account; any other fails) or keeps the accounts separate (a
-// new account). Any other new outside account starts a new account.
+// it. A new one whose email address a matching account already has becomes
+// one of its sign-in methods at once when both email addresses are verified; otherwise the person is
+// asked to confirm the matching account, and then either confirms it (by
+// signing in with one of its outside accounts; any other fails) or keeps the
+// accounts separate (a new account). Any other new outside account starts a
+// new account.
 //
 // Signed in, a person can connect a sign-in method (not an outside account
 // of another account, and not a second one from the same provider;
 // connecting starts a new sign-in there in place of the old one), remove
 // one (never the last), sign out (online, that sign-in is over everywhere it
 // is held; offline, only this device forgets it) or sign out everywhere.
-// Someone can copy a device's sign-in onto another device; the copy gets
-// into the same account for as long as that sign-in lasts.
+// Someone can steal a device's sign-in onto another device; the stolen
+// sign-in gets into the same account for as long as that sign-in lasts.
 //
-// A device can lose its connection: signing in, proving, connecting,
-// removing and signing out everywhere then change nothing. Google or Apple
-// can be failing: nothing that needs it changes anything until it recovers.
-// At Apple, a person can stop using Sign in with Apple (every device of the
+// A device can go offline: signing in, confirming, connecting, removing and
+// signing out everywhere then change nothing. Google or Apple can be having
+// trouble: nothing that needs it changes anything until it recovers. At
+// Apple, a person can stop using Sign in with Apple (every device of the
 // account it gets into is signed out) or delete their Apple account (it is
 // no longer a sign-in method and never signs in again; an account left with
-// no sign-in method is signed out everywhere). After 10 minutes every
-// address match waiting for proof lapses; after 30 days every sign-in
-// lapses.
+// no sign-in method is signed out everywhere). The chance to confirm a
+// matching account lapses after 10 minutes; every sign-in lapses after 30
+// days.
 module outside_accounts {
   type Device = str
   type OutsideAccount = str
@@ -59,8 +60,8 @@ module outside_accounts {
   var signInMethods: int -> Set[OutsideAccount]
   /// How many accounts there are.
   var accountCount: int
-  /// The devices being asked to prove an address match.
-  var askedToProve: Set[Device]
+  /// The devices whose person is being asked to confirm a matching account.
+  var askedToConfirm: Set[Device]
   /// The devices that have lost their connection.
   var offline: Set[Device]
 
@@ -69,12 +70,14 @@ module outside_accounts {
   /// Every live sign-in, and the account it gets into.
   var _live: int -> int
   var _signInCount: int
-  /// An address match waiting for proof on each device: the new outside
-  /// account, the account it matched, and whether the wait has lapsed.
+  /// A matching account waiting to be confirmed on each device: the new
+  /// outside account, the matching account, and whether the chance to
+  /// confirm has lapsed.
   var _proofs: Device -> { parked: OutsideAccount, target: int, lapsed: bool }
-  /// What is going on at Google and Apple: which provider is failing, which
-  /// Apple accounts are deleted, and which stopped using Sign in with Apple.
-  var _outside: { failing: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }
+  /// What is going on at Google and Apple: which provider is having trouble,
+  /// which Apple accounts are deleted, and which stopped using Sign in with
+  /// Apple.
+  var _outside: { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }
 
   pure def _without(m: a -> b, k: a): a -> b =
     m.keys().exclude(Set(k)).mapBy(x => m.get(x))
@@ -83,8 +86,8 @@ module outside_accounts {
   pure def ownerOf(methods: int -> Set[OutsideAccount], o: OutsideAccount): int =
     methods.keys().fold(0, (found, a) => if (methods.get(a).contains(o)) a else found)
 
-  /// The account a new outside account is an address match for (0: none).
-  pure def addressMatch(methods: int -> Set[OutsideAccount], o: OutsideAccount): int =
+  /// The matching account for a new outside account (0: none).
+  pure def matchingAccount(methods: int -> Set[OutsideAccount], o: OutsideAccount): int =
     OUTSIDE_ACCOUNTS
       .filter(p =>
         sameEmailAddress(o, p)
@@ -99,8 +102,8 @@ module outside_accounts {
   pure def _signedIn(held: Device -> int, live: int -> int, d: Device): bool =
     held.keys().contains(d) and live.keys().contains(held.get(d))
 
-  pure def _usable(outside: { failing: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }, o: OutsideAccount): bool =
-    not(outside.failing.contains(providerOf(o))) and not(outside.deleted.contains(o))
+  pure def _usable(outside: { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }, o: OutsideAccount): bool =
+    not(outside.trouble.contains(providerOf(o))) and not(outside.deleted.contains(o))
 
   /// Every live sign-in into an account is over.
   pure def _endAll(live: int -> int, a: int): int -> int =
@@ -113,7 +116,7 @@ module outside_accounts {
     methods: int -> Set[OutsideAccount],
     accounts: int,
     proofs: Device -> { parked: OutsideAccount, target: int, lapsed: bool },
-    outside: { failing: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] },
+    outside: { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] },
     off: Set[Device],
   ): bool = all {
     _held' = held,
@@ -122,7 +125,7 @@ module outside_accounts {
     signInMethods' = methods,
     accountCount' = accounts,
     _proofs' = proofs,
-    askedToProve' = proofs.keys(),
+    askedToConfirm' = proofs.keys(),
     _outside' = outside,
     offline' = off,
     signedInto' = held.keys().filter(d => live.keys().contains(held.get(d))).mapBy(d => live.get(held.get(d))),
@@ -138,14 +141,14 @@ module outside_accounts {
     methods: int -> Set[OutsideAccount],
     accounts: int,
     proofs: Device -> { parked: OutsideAccount, target: int, lapsed: bool },
-    outside: { failing: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] },
+    outside: { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] },
   ): bool = {
     val n = _signInCount + 1
     _update(_held.put(device, n), _live.put(n, a), n, methods, accounts, proofs, outside, offline)
   }
 
   /// A successful round trip with Apple lets the app use that Apple account again.
-  pure def _allowed(outside: { failing: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }, o: OutsideAccount): { failing: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] } =
+  pure def _allowed(outside: { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }, o: OutsideAccount): { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] } =
     outside.with("stopped", outside.stopped.exclude(Set(o)))
 
   action init = all {
@@ -155,8 +158,8 @@ module outside_accounts {
     signInMethods' = Map(),
     accountCount' = 0,
     _proofs' = Map(),
-    askedToProve' = Set(),
-    _outside' = { failing: Set(), deleted: Set(), stopped: Set() },
+    askedToConfirm' = Set(),
+    _outside' = { trouble: Set(), deleted: Set(), stopped: Set() },
     offline' = Set(),
     signedInto' = Map(),
   }
@@ -164,16 +167,16 @@ module outside_accounts {
   /// Sign in with an outside account on a device that is not signed in.
   action signIn(device: Device, outsideAccount: OutsideAccount): bool = {
     val owner = ownerOf(signInMethods, outsideAccount)
-    val matched = addressMatch(signInMethods, outsideAccount)
-    val joins = verifiedEmailAddress(outsideAccount) and verifiedEmailAddress(_partnerOf(outsideAccount))
+    val matched = matchingAccount(signInMethods, outsideAccount)
+    val atOnce = verifiedEmailAddress(outsideAccount) and verifiedEmailAddress(_partnerOf(outsideAccount))
     val allowed = _allowed(_outside, outsideAccount)
     all {
       not(offline.contains(device)),
       not(_signedIn(_held, _live, device)),
-      not(askedToProve.contains(device)),
+      not(askedToConfirm.contains(device)),
       if (not(_usable(_outside, outsideAccount))) _unchanged
       else if (owner != 0) _startSignIn(device, owner, signInMethods, accountCount, _proofs, allowed)
-      else if (matched != 0 and joins)
+      else if (matched != 0 and atOnce)
         _startSignIn(
           device,
           matched,
@@ -200,19 +203,20 @@ module outside_accounts {
     }
   }
 
-  /// Prove the address match the device is asked about, with an outside account.
-  action proveMatch(device: Device, outsideAccount: OutsideAccount): bool = {
+  /// Confirm the matching account the device is asked about, with an outside
+  /// account.
+  action confirmMatchingAccount(device: Device, outsideAccount: OutsideAccount): bool = {
     val proof = _proofs.get(device)
-    val prover = ownerOf(signInMethods, outsideAccount)
+    val confirmer = ownerOf(signInMethods, outsideAccount)
     val parkedOwner = ownerOf(signInMethods, proof.parked)
     val rest = _without(_proofs, device)
     all {
-      askedToProve.contains(device),
+      askedToConfirm.contains(device),
       not(offline.contains(device)),
       if (proof.lapsed)
         _update(_held, _live, _signInCount, signInMethods, accountCount, rest, _outside, offline)
       else if (not(_usable(_outside, outsideAccount))) _unchanged
-      else if (prover != proof.target)
+      else if (confirmer != proof.target)
         _update(_held, _live, _signInCount, signInMethods, accountCount, rest, _outside, offline)
       else if (parkedOwner == proof.target)
         _startSignIn(device, proof.target, signInMethods, accountCount, rest, _allowed(_outside, outsideAccount))
@@ -230,13 +234,13 @@ module outside_accounts {
     }
   }
 
-  /// Answer the address match by starting a new account instead.
+  /// Answer the matching account by starting a new account instead.
   action keepSeparate(device: Device): bool = {
     val proof = _proofs.get(device)
     val parkedOwner = ownerOf(signInMethods, proof.parked)
     val rest = _without(_proofs, device)
     all {
-      askedToProve.contains(device),
+      askedToConfirm.contains(device),
       not(offline.contains(device)),
       if (proof.lapsed)
         _update(_held, _live, _signInCount, signInMethods, accountCount, rest, _outside, offline)
@@ -319,41 +323,47 @@ module outside_accounts {
       ),
   }
 
-  /// Someone copies one device's sign-in onto another device.
-  action copySignIn(device: Device, other: Device): bool = all {
+  /// Someone steals one device's sign-in onto another device.
+  action stealSignIn(device: Device, other: Device): bool = all {
     device != other,
     _held.keys().contains(device),
-    not(askedToProve.contains(other)),
+    not(askedToConfirm.contains(other)),
     _update(
       _held.put(other, _held.get(device)),
       _live, _signInCount, signInMethods, accountCount, _proofs, _outside, offline,
     ),
   }
 
+  /// The device goes offline. Nobody sees this on its own: it shows only in
+  /// what the device can then do.
   action loseConnection(device: Device): bool = all {
     not(offline.contains(device)),
     _update(_held, _live, _signInCount, signInMethods, accountCount, _proofs, _outside, offline.union(Set(device))),
   }
 
+  /// The device is back online. Nobody sees this on its own either.
   action connectionReturns(device: Device): bool = all {
     offline.contains(device),
     _update(_held, _live, _signInCount, signInMethods, accountCount, _proofs, _outside, offline.exclude(Set(device))),
   }
 
-  action providerFails(provider: Provider): bool = all {
-    not(_outside.failing.contains(provider)),
+  /// Google or Apple starts having trouble. Nobody sees this on its own: it
+  /// shows when someone next signs in, connects or confirms with it.
+  action troubleStarts(provider: Provider): bool = all {
+    not(_outside.trouble.contains(provider)),
     _update(
       _held, _live, _signInCount, signInMethods, accountCount, _proofs,
-      _outside.with("failing", _outside.failing.union(Set(provider))),
+      _outside.with("trouble", _outside.trouble.union(Set(provider))),
       offline,
     ),
   }
 
-  action providerRecovers(provider: Provider): bool = all {
-    _outside.failing.contains(provider),
+  /// Google or Apple recovers; it shows when someone next signs in with it.
+  action troubleEnds(provider: Provider): bool = all {
+    _outside.trouble.contains(provider),
     _update(
       _held, _live, _signInCount, signInMethods, accountCount, _proofs,
-      _outside.with("failing", _outside.failing.exclude(Set(provider))),
+      _outside.with("trouble", _outside.trouble.exclude(Set(provider))),
       offline,
     ),
   }
@@ -396,9 +406,10 @@ module outside_accounts {
     }
   }
 
-  /// 11 minutes pass: every address match waiting for proof lapses.
-  action proofsLapse: bool = all {
-    askedToProve.size() > 0,
+  /// 11 minutes pass: every chance to confirm a matching account lapses.
+  /// Nobody sees this on its own: they are told when they next answer.
+  action chanceToConfirmLapses: bool = all {
+    askedToConfirm.size() > 0,
     _update(
       _held, _live, _signInCount, signInMethods, accountCount,
       _proofs.keys().mapBy(d => _proofs.get(d).with("lapsed", true)),
@@ -406,7 +417,8 @@ module outside_accounts {
     ),
   }
 
-  /// 30 days pass: every sign-in lapses, and so does every address match.
+  /// 30 days pass: every sign-in lapses, and so does every chance to
+  /// confirm a matching account.
   action signInsLapse: bool = all {
     _live.keys().size() > 0,
     _update(
@@ -424,16 +436,16 @@ module outside_accounts {
     any {
       signIn(device, outsideAccount),
       signIn(device, outsideAccount),
-      proveMatch(device, outsideAccount),
+      confirmMatchingAccount(device, outsideAccount),
       keepSeparate(device),
       connectSignInMethod(device, outsideAccount),
       removeSignInMethod(device, provider),
       any { signOut(device), signOutEverywhere(device) },
-      copySignIn(device, other),
+      stealSignIn(device, other),
       any { loseConnection(device), connectionReturns(device) },
-      any { providerFails(provider), providerRecovers(provider) },
+      any { troubleStarts(provider), troubleEnds(provider) },
       any { stopUsingSignInWithApple(outsideAccount), deleteAppleAccount(outsideAccount) },
-      any { proofsLapse, signInsLapse },
+      any { chanceToConfirmLapses, signInsLapse },
     }
   }
 
