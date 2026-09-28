@@ -28,7 +28,7 @@ const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
 /**
  * Target `PRAGMA user_version` after migrate.
- * Product-simulator snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
+ * Product-harness snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
  */
 export function getLocalSchemaTargetVersion(
   schemaEpoch: number = SCHEMA_EPOCH
@@ -164,9 +164,9 @@ export type LocalMigratePhase =
   | 'done';
 
 export type MigrateLocalSchemaOptions = {
-  /** Override {@link SCHEMA_EPOCH} (sim / migrate testing). */
+  /** Override {@link SCHEMA_EPOCH} (harness / migrate testing). */
   readonly schemaEpoch?: number;
-  /** Boundary hook between migrate phases (sim crash injection). */
+  /** Boundary hook between migrate phases (harness crash injection). */
   readonly onLocalMigratePhase?: (
     phase: LocalMigratePhase
   ) => void | Promise<void>;

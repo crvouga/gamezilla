@@ -8,7 +8,7 @@ export type SoundEngineOptions = {
   readonly muted?: boolean;
   readonly masterVolume?: number;
   readonly respectReducedMotion?: boolean;
-  /** Injected audio port (web / native adapter, or the in-memory sim port). */
+  /** Injected audio port (web / native adapter, or the in-memory harness port). */
   readonly audio: AudioPlaybackPort;
 };
 

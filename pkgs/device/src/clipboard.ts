@@ -1,7 +1,7 @@
 /**
  * Clipboard write port. UI code receives a {@link ClipboardPort} by injection
  * (never a bare `navigator.clipboard`); the browser adapter lives in
- * {@link ./wall-web-device.ts}, sims / tests use {@link createRecordingClipboard}.
+ * {@link ./wall-web-device.ts}, harnesses / tests use {@link createRecordingClipboard}.
  */
 
 export type ClipboardPort = {
@@ -16,7 +16,7 @@ export type RecordingClipboard = ClipboardPort & {
   readonly last: () => string | null;
 };
 
-/** In-memory clipboard for sims and tests. */
+/** In-memory clipboard for harnesses and tests. */
 export function createRecordingClipboard(): RecordingClipboard {
   const writes: string[] = [];
   return {

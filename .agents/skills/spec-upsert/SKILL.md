@@ -15,7 +15,7 @@ below by ID (A1, B5, C2 …). Read it once before you start. Policy:
 
 - **Never touch implementation or step definitions.** Edit only
   `specs/**/*.feature`, `specs/**/*.qnt`, `specs/**/ubiquitous-language.yml`
-  and docs (P1). Never read `src/`, `tests/`, `sim/` or infra: describe the
+  and docs (P1). Never read `src/`, `tests/`, `harness/` or infra: describe the
   behavior the product should have, not what the code does.
 - **Never guess.** Stop and ask the person when you don't know: the
   behavior itself, which context owns it, a boundary value, what a person

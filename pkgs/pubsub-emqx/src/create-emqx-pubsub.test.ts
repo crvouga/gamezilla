@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
-import { createSimClock, type SimClockBundle } from '@pkgs/clock';
+import { createHarnessClock, type HarnessClockBundle } from '@pkgs/clock';
 import { createNoopLogger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
@@ -79,15 +79,15 @@ async function flushMicrotasks(): Promise<void> {
  * client lives in-process, so no wall time is ever needed.
  */
 async function waitUntil(
-  sim: SimClockBundle,
+  harness: HarnessClockBundle,
   pred: () => boolean
 ): Promise<void> {
   for (let step = 0; step < SETTLE_STEPS; step += 1) {
     await flushMicrotasks();
     if (pred()) return;
-    sim.clock.advance(1);
+    harness.clock.advance(1);
   }
-  throw new Error(`waitUntil timed out at t=${sim.clock.now()}ms`);
+  throw new Error(`waitUntil timed out at t=${harness.clock.now()}ms`);
 }
 
 type BootResult = {
@@ -100,12 +100,12 @@ async function boot(
   extra?: Partial<Parameters<typeof createEmqxPubSub>[0]>
 ): Promise<BootResult> {
   let lastOpts: IClientOptions | null = null;
-  const sim = createSimClock();
+  const harness = createHarnessClock();
   const ps = createEmqxPubSub({
     url: 'wss://x/mqtt',
     auth: async () => ({ username: 'u', password: 'p' }),
     clientIdPrefix: 'device-1',
-    timers: sim.timers,
+    timers: harness.timers,
     random,
     logger: createNoopLogger(),
     connectFn: (_url: string, opts: IClientOptions) => {
@@ -114,9 +114,9 @@ async function boot(
     },
     ...extra,
   });
-  await waitUntil(sim, () => fake.listenerCount('connect') > 0);
+  await waitUntil(harness, () => fake.listenerCount('connect') > 0);
   fake.simulateConnect();
-  await waitUntil(sim, () => ps.status() === 'connected');
+  await waitUntil(harness, () => ps.status() === 'connected');
   return { ps, lastOpts };
 }
 
@@ -223,12 +223,12 @@ describe('createEmqxPubSub', () => {
   test('reconnect reuses the same clientId', async () => {
     const fakes: FakeMqttClient[] = [];
     const optsList: IClientOptions[] = [];
-    const sim = createSimClock();
+    const harness = createHarnessClock();
     const ps = createEmqxPubSub({
       url: 'wss://x/mqtt',
       auth: async () => ({ username: 'u', password: 'p' }),
       clientIdPrefix: 'stable-id',
-      timers: sim.timers,
+      timers: harness.timers,
       random,
       logger: createNoopLogger(),
       reconnect: { baseMs: 1, maxMs: 1 },
@@ -243,11 +243,11 @@ describe('createEmqxPubSub', () => {
         return fake as unknown as MqttClient;
       },
     });
-    await waitUntil(sim, () => ps.status() === 'connected');
+    await waitUntil(harness, () => ps.status() === 'connected');
     expect(optsList[0]?.clientId).toBe('stable-id');
 
     fakes[0]!.emit('close');
-    await waitUntil(sim, () => optsList.length >= 2);
+    await waitUntil(harness, () => optsList.length >= 2);
     expect(optsList[1]?.clientId).toBe('stable-id');
     expect(optsList[1]?.clean).toBe(false);
     ps.close();

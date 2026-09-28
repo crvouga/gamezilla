@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { migrateLocalSchema } from '@pkgs/sync-engine/client';
+import { exampleLocalSchema } from '@pkgs/sync-engine/harness';
 import {
   defineMutation,
   LIVE_ROW_SQL,
@@ -9,7 +10,6 @@ import {
   softDeleteById,
   wrapMutationDb,
 } from '@pkgs/sync-engine/shared';
-import { exampleLocalSchema } from '@pkgs/sync-engine/sim';
 import { z } from 'zod';
 
 function testEnv() {

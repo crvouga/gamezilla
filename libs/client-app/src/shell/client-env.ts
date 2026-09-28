@@ -61,12 +61,12 @@ export type ClientEnv = {
   /**
    * Mint a fresh PubSub for sync push. Remake closes the previous instance —
    * must not return a closed singleton (see attachPush remake contract).
-   * Sim injects its shared in-memory bus. Wall omits it: push then uses the
+   * Harness injects its shared in-memory bus. Wall omits it: push then uses the
    * EMQX broker from synced `client_config`.
    */
   readonly createPubSub?: () => PubSub;
   readonly openSqlClient: OpenSqlClient;
-  /** Sim may shorten the sync safety-net interval. Wall uses the engine default. */
+  /** Harness may shorten the sync safety-net interval. Wall uses the engine default. */
   readonly reconcileIntervalMs?: number;
   readonly kv: Kv;
   readonly secureStorage: SecureStorageStore;
@@ -94,15 +94,15 @@ export type ClientEnv = {
   readonly createAuthClient: () => AuthClientPort;
   /**
    * Leaves the app for a provider-hosted page (the payment provider's
-   * checkout or portal). Browser: `location.assign`; sim: the provider's real screens,
+   * checkout or portal). Browser: `location.assign`; harness: the provider's real screens,
    * walked headlessly.
    */
   readonly openExternalUrl: OpenExternalUrl;
-  /** Sync-engine pool key / local DB name (sim: per-actor; prod: per-user). */
+  /** Sync-engine pool key / local DB name (harness: per-actor; prod: per-user). */
   readonly resolveDatabaseName: (args: { readonly userId: string }) => string;
   /**
    * Default success-face hold (ms) for mutation buttons when the call site
-   * omits `successHoldMs`. Wall and sim: 900 (ClientEnvProvider projects this).
+   * omits `successHoldMs`. Wall and harness: 900 (ClientEnvProvider projects this).
    */
   readonly mutationSuccessHoldMs: number;
 };

@@ -4,7 +4,7 @@
  * `@pkgs/ui-testing-solid-dom`, on a virtual clock the driver pumps.
  */
 
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import {
   createSolidDomDriver,
   type SolidDomDriver,
@@ -21,13 +21,13 @@ async function flushMicrotasks(): Promise<void> {
 
 export function createDomHost(): ChessBoardHost {
   let driver: SolidDomDriver | undefined;
-  let sim: ReturnType<typeof createSimClock> | undefined;
+  let harness: ReturnType<typeof createHarnessClock> | undefined;
   return {
     name: 'happy-dom',
     async open(config: HarnessConfig) {
       await driver?.close();
-      const clock = createSimClock();
-      sim = clock;
+      const clock = createHarnessClock();
+      harness = clock;
       driver = createSolidDomDriver({
         clock: clock.clock,
         pump: async () => {
@@ -49,13 +49,13 @@ export function createDomHost(): ChessBoardHost {
     },
     async settle(ms: number) {
       await flushMicrotasks();
-      sim?.clock.advance(ms);
+      harness?.clock.advance(ms);
       await flushMicrotasks();
     },
     async close() {
       await driver?.close();
       driver = undefined;
-      sim = undefined;
+      harness = undefined;
     },
   };
 }

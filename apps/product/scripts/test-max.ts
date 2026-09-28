@@ -1,15 +1,15 @@
 // @io-wall-ok — real-mode bun-webview: serve the web bundle, then every e2e suite
 import { runE2ePackages } from './e2e-packages';
 
-process.env['SIM_MODE'] = 'real';
+process.env['HARNESS_MODE'] = 'real';
 process.env['VITE_API_URL'] =
   process.env['VITE_API_URL'] ?? 'http://127.0.0.1:8787';
 process.env['PREVIEW_PORT'] = process.env['PREVIEW_PORT'] ?? '5173';
-process.env['SIM_WEB_ORIGIN'] =
-  process.env['SIM_WEB_ORIGIN'] ?? 'http://127.0.0.1:5173';
-process.env['SIM_WITH_DOM'] = '0';
+process.env['HARNESS_WEB_ORIGIN'] =
+  process.env['HARNESS_WEB_ORIGIN'] ?? 'http://127.0.0.1:5173';
+process.env['HARNESS_WITH_DOM'] = '0';
 
-const origin = process.env['SIM_WEB_ORIGIN'];
+const origin = process.env['HARNESS_WEB_ORIGIN'];
 const pkgRoot = `${import.meta.dir}/..`;
 
 async function waitForHttp(url: string, timeoutMs = 60_000): Promise<void> {
@@ -39,7 +39,7 @@ try {
   code = runE2ePackages(
     {
       ...process.env,
-      SIM_PRELOAD: `${pkgRoot}/src/sim/setup/real-stack-preload.ts`,
+      HARNESS_PRELOAD: `${pkgRoot}/src/harness/setup/real-stack-preload.ts`,
     },
     process.argv.slice(2)
   );

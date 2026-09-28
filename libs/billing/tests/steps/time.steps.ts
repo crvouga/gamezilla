@@ -3,15 +3,12 @@
  * network for days, and paid access showing up within a bound.
  */
 
-import { openBilling } from '@libs/billing/sim/billing-actions';
-import { billingTier } from '@libs/billing/sim/billing-reads';
-import { focusActor } from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
-import {
-  cutConnection,
-  otherDevice,
-} from '@libs/sim-harness/spec/steps/platform';
-import { letTimePass } from '@libs/sim-harness/system/actions';
+import { openBilling } from '@libs/billing/harness/billing-actions';
+import { billingTier } from '@libs/billing/harness/billing-reads';
+import { focusActor } from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
+import { cutConnection, otherDevice } from '@libs/harness/spec/steps/platform';
+import { letTimePass } from '@libs/harness/system/actions';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SECOND_MS = 1_000;
@@ -32,7 +29,7 @@ Then(
   '{actor} has paid access within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until((sim) => billingTier(sim, actor), {
+    await w.s.until((harness) => billingTier(harness, actor), {
       pred: (shown) => shown === 'paid',
       maxMs: seconds * SECOND_MS,
     });
@@ -43,7 +40,7 @@ Then(
   "{actor}'s other device has paid access within {int} seconds",
   async (w, actor: Actor, seconds: number) => {
     await w.s.apply(openBilling, otherDevice(actor));
-    await w.s.until((sim) => billingTier(sim, otherDevice(actor)), {
+    await w.s.until((harness) => billingTier(harness, otherDevice(actor)), {
       pred: (shown) => shown === 'paid',
       maxMs: seconds * SECOND_MS,
     });

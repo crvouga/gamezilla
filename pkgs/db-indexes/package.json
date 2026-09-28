@@ -14,13 +14,13 @@
     "mutants": "bun tests/mutants/scripted-mutants.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
-    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "node-sql-parser": "catalog:"
   },
   "devDependencies": {

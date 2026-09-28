@@ -1,5 +1,5 @@
 /**
- * Mirrors product-simulator `dumpProductSimulatorClientDurable` / restore: namespaced web
+ * Mirrors product-harness `dumpProductHarnessClientDurable` / restore: namespaced web
  * secure storage + namespaced Kv must round-trip through a localStorage dump
  * (session-scoped keys via sessionStorage).
  */
@@ -80,7 +80,7 @@ function restoreClientDurable(
   }
 }
 
-describe('namespaced web durable dump (product-simulator clientKv)', () => {
+describe('namespaced web durable dump (product-harness clientKv)', () => {
   const previousLocal = globalThis.localStorage;
   const previousSession = globalThis.sessionStorage;
   let local: Storage;
@@ -111,8 +111,8 @@ describe('namespaced web durable dump (product-simulator clientKv)', () => {
   });
 
   it('round-trips session capability and kv across namespaces', async () => {
-    const fromNs = 'sim_client_alice_e0';
-    const toNs = 'sim_client_alice_e1';
+    const fromNs = 'harness_client_alice_e0';
+    const toNs = 'harness_client_alice_e1';
     const secure = createNamespacedWebSecureStorage(fromNs);
     const kv = new KvImplWebNamespaced(fromNs);
 

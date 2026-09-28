@@ -2,7 +2,7 @@
 // @io-wall-ok — CLI entry (`bun run spec`).
 /**
  * Run specs — Gherkin features and Quint models — across every package that
- * runs `specs/<domain>/` domains against the sim. A spec path
+ * runs `specs/<domain>/` domains against the harness. A spec path
  * (`specs/chess/puzzle-play.feature`, `specs/spaces/space-hosting.qnt`) goes
  * only to the package whose `specDomains` lists its domain. Live domains
  * (`liveDomains`) run through `bun run health`, never here.

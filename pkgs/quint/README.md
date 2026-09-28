@@ -29,4 +29,4 @@ bindQuintModel<Door>({
 });
 ```
 
-The product world is `useQuintSim(openSim)` in `@libs/sim-harness/quint/world`.
+The product world is `useQuintHarness(openHarness)` in `@libs/harness/quint/world`.

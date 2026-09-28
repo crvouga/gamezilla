@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fingerprintSql } from '@pkgs/db-indexes/core/fingerprint';
 import { reconcileIndexes } from '@pkgs/db-indexes/core/reconcile';
-import { createSimClock, SimDb } from '@pkgs/db-indexes/sim';
+import { createHarnessClock, HarnessDb } from '@pkgs/db-indexes/harness';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres/connect';
@@ -46,9 +46,9 @@ describe('postgres port contract', () => {
     expect(typeof mod.createPostgresPort).toBe('function');
   });
 
-  test('SimDb repairs invalid owned index on next run', async () => {
-    const clock = createSimClock(0);
-    const db = new SimDb({
+  test('HarnessDb repairs invalid owned index on next run', async () => {
+    const clock = createHarnessClock(0);
+    const db = new HarnessDb({
       clock,
       tables: [{ name: 'notes', estimatedRows: 50_000 }],
       defaultImprovement: 10,
@@ -97,8 +97,8 @@ describe('postgres port contract', () => {
   });
 
   test('lock_timeout defers without violating ownership', async () => {
-    const clock = createSimClock(0);
-    const db = new SimDb({
+    const clock = createHarnessClock(0);
+    const db = new HarnessDb({
       clock,
       tables: [{ name: 'notes', estimatedRows: 50_000 }],
       defaultImprovement: 10,
@@ -136,7 +136,7 @@ describe('postgres live differential', () => {
     'createPostgresPort round-trip with real DATABASE_URL',
     async () => {
       const { createPostgresPort } = await import('@pkgs/db-indexes-postgres');
-      const clock = createSimClock(0);
+      const clock = createHarnessClock(0);
       const dbScope = createPostgresDbScope(TEST_SCHEMA);
       const opened = await openPgClient({
         connectionString: DATABASE_URL,

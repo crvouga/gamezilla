@@ -930,7 +930,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "libs/sim-harness/tests/hosts-compile.test.ts"
+        "path": "libs/harness/tests/hosts-compile.test.ts"
       }
     ]
   },

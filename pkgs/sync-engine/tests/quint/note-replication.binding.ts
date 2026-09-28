@@ -2,11 +2,11 @@
  * Binds `specs/sync/note-replication.qnt` to `exampleSystem`: each model
  * action is one or a few `s.apply` calls with the values Quint drew, and
  * `observe` reads the model's observable variables (`notes`, `owners`,
- * `folders`, `members`, `rejections`, `unsent`) back out of the sim.
+ * `folders`, `members`, `rejections`, `unsent`) back out of the harness.
  */
 
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
-import type { SimHttpFault } from '@pkgs/sync-engine/sim';
+import type { HarnessHttpFault } from '@pkgs/sync-engine/harness';
 import {
   addClient,
   addPeerEngine,
@@ -50,7 +50,7 @@ import {
   skewClock,
   spaceMembers,
   tamperLocalStorage,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import type { NoteWorld } from './note-world';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;
@@ -88,7 +88,7 @@ const VERSIONS: Readonly<Record<string, string>> = {
 };
 
 /** The model's hiccups → one-shot faults on the next save. */
-const HICCUPS: Readonly<Record<string, SimHttpFault>> = {
+const HICCUPS: Readonly<Record<string, HarnessHttpFault>> = {
   error: { kind: 'serverErrorOnNext', route: 'mutations' },
   slowDown: { kind: 'rateLimited', route: 'mutations', retryAfterMs: 2_000 },
   cutOff: { kind: 'abortResponseBody', route: 'mutations' },
@@ -97,7 +97,7 @@ const HICCUPS: Readonly<Record<string, SimHttpFault>> = {
 };
 
 /** The model's hiccups → one-shot faults on the next refresh. */
-const REFRESH_HICCUPS: Readonly<Record<string, SimHttpFault>> = {
+const REFRESH_HICCUPS: Readonly<Record<string, HarnessHttpFault>> = {
   error: { kind: 'serverErrorOnNext', route: 'query' },
   slowDown: { kind: 'rateLimited', route: 'query', retryAfterMs: 1_000 },
   cutOff: { kind: 'abortResponseBody', route: 'query' },

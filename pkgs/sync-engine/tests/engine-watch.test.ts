@@ -3,7 +3,7 @@ import { sql } from '@pkgs/sql';
 import {
   createInMemorySyncEngine,
   exampleLocalSchema,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 
 function waitForHydrated(sub: {
   getHydrated: () => boolean;

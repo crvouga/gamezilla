@@ -6,7 +6,7 @@
  *
  * 1. A wall-clock **deadline** on the whole turbo run. Before it, one wedged
  *    task took the run with it — `@apps/product#test` once ran 2104s as a
- *    single `bun test` over 46 sim suites before the OS killed it (exit 137),
+ *    single `bun test` over 46 harness suites before the OS killed it (exit 137),
  *    and a local `bun check` had no way to notice. The deadline kills the
  *    turbo process group and fails loudly instead.
  * 2. A per-task **budget**, read back from turbo's `--summarize` run summary

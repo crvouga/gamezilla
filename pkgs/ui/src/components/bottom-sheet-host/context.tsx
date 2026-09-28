@@ -2,7 +2,7 @@
 /**
  * Bottom-sheet host injection. The web sheet ({@link createWebBottomSheetHost})
  * is the default -- consumers never need a provider. The provider indirection
- * exists only so tests (and sim trees) can swap in
+ * exists only so tests (and harness trees) can swap in
  * {@link createPassthroughBottomSheetHost} or a recording host.
  */
 

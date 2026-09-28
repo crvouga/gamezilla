@@ -57,7 +57,7 @@ export type CreateMutationClientOptions = {
     readonly args: unknown;
     readonly capture: WriteCaptureSnapshot;
   }) => void;
-  /** Id mint for queued mutation rows (wall or sim). */
+  /** Id mint for queued mutation rows (wall or harness). */
   readonly createId: CreateId;
   /**
    * Resolves once the server has applied or rejected `mutationId`. With it,
@@ -107,7 +107,7 @@ async function nextUniqueMutationId(
   createId: CreateId,
   nowMs: number
 ): Promise<string> {
-  // Seeded sim streams can reset while `sync_engine_mutations` still holds
+  // Seeded harness streams can reset while `sync_engine_mutations` still holds
   // earlier mints (env remount). Skip forward past collisions; fail fast if
   // `createId` itself is stuck returning the same value.
   const seen = new Set<string>();

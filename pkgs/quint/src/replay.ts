@@ -119,7 +119,7 @@ export function formatTraceFailure(f: TraceFailure): string {
     `  cause: ${causeText(f.cause)}`,
     '  trace:',
     steps,
-    `  replay: bun run spec ${f.ctx.specUri}  (traces: <package>/.cache/sim-report/quint/${f.ctx.model}/)`,
+    `  replay: bun run spec ${f.ctx.specUri}  (traces: <package>/.cache/harness-report/quint/${f.ctx.model}/)`,
   ].join('\n');
 }
 

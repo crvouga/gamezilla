@@ -3,7 +3,7 @@
 import { describe, expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid/render';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
@@ -34,7 +34,7 @@ function countingAudio() {
 
 describe('board sounds', () => {
   test('every board on a screen shares one bank of players', () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     const audio = countingAudio();
     const [first, setFirst] = createSignal(true);
     const [second, setSecond] = createSignal(true);

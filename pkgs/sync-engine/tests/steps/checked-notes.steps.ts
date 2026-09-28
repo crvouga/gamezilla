@@ -14,7 +14,7 @@ import {
   outcome,
   pendingNote,
   startMutate,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { SETTLE_MS } from './note-writes';
 import { app, ensureDevice, Given, type SyncWorld, Then, When } from './world';
 

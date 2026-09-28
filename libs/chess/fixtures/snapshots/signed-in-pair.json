@@ -93,7 +93,7 @@
             "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
             "idp",
             "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
-            "{\"email\": \"alice@sim.local\"}"
+            "{\"email\": \"alice@harness.local\"}"
           ],
           [
             "idp:llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
@@ -103,7 +103,7 @@
             "ff94b65d-a5f7-40a5-b5f3-9c45b88c2f0c",
             "idp",
             "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
-            "{\"email\": \"bob@sim.local\"}"
+            "{\"email\": \"bob@harness.local\"}"
           ]
         ]
       },
@@ -484,7 +484,7 @@
             "2024-06-01 00:00:01.2+00",
             "2024-06-01 00:00:01.2+00",
             null,
-            "alice@sim.local",
+            "alice@harness.local",
             "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
             null
           ],
@@ -493,7 +493,7 @@
             "2024-06-01 00:00:02.3+00",
             "2024-06-01 00:00:02.3+00",
             null,
-            "bob@sim.local",
+            "bob@harness.local",
             "llEqSbMSEJ7RBQyZ6rLDga1YJvM6ChLV",
             null
           ]
@@ -649,7 +649,7 @@
                 null,
                 "bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
                 "idp:bsshg2TBqusM5VGQogcsbHRPenCJqmCy",
-                "{\"email\": \"alice@sim.local\"}",
+                "{\"email\": \"alice@harness.local\"}",
                 "idp",
                 "2024-06-01T00:00:02.200Z",
                 "61dd9ce0-8367-4c0f-93d7-854e9c907f95"

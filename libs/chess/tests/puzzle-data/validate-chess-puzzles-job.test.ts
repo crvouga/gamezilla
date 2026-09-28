@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
 
 import { ChessPuzzleValidationJob } from '@libs/chess/root/server/validate-chess-puzzles/chess-puzzle-validation-job';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
@@ -14,10 +14,10 @@ const PACKAGE_ROOT = join(import.meta.dir, '../..');
 const FIXTURE_CSVS = [
   join(PACKAGE_ROOT, 'scripts/fixtures/chess-puzzles.load.csv'),
   join(PACKAGE_ROOT, 'scripts/fixtures/lichess-puzzles-sample.csv'),
-  join(PACKAGE_ROOT, 'fixtures/chess-puzzles.sim.csv'),
-  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-motifs.sim.csv'),
-  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-rating.sim.csv'),
-  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-selection.sim.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles.harness.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-motifs.harness.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-rating.harness.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-selection.harness.csv'),
 ];
 
 const HEADER =
@@ -40,7 +40,7 @@ function job(sources: readonly string[], store: ObjectStoreImplInMemory) {
   return new ChessPuzzleValidationJob(
     { sources, database: false, cacheDir: '/cache' },
     {
-      clock: createSimClock().clock,
+      clock: createHarnessClock().clock,
       http: noHttp,
       log: createLogger({ name: 'test', level: 'silent', now: () => 0 }),
     },

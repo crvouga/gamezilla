@@ -11,7 +11,7 @@
   },
   {
     "id": "sql-int8-rows-bigint",
-    "summary": "mockingbird-postgres returned bigint for domain integer (physical bigint) columns, so the product simulator's hydrate died with `Cannot convert BigInt to number`. Fixed by normalizing int8 values through decimal text.",
+    "summary": "mockingbird-postgres returned bigint for domain integer (physical bigint) columns, so the product harness's hydrate died with `Cannot convert BigInt to number`. Fixed by normalizing int8 values through decimal text.",
     "regressionTest": "pkgs/sql-client-contract/tests/bug-bigint-int8.test.ts"
   },
   {
@@ -56,7 +56,7 @@
   },
   {
     "id": "invariant-dirty-read",
-    "summary": "The sync-engine sim's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
+    "summary": "The sync-engine harness's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
     "regressionTest": "pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts"
   },
   {
@@ -122,7 +122,7 @@
   {
     "id": "signed-in-health-before-tab-shell",
     "summary": "Production signed-in health journeys left the initial app route immediately after document navigation, so Chrome could retain its aborted lazy import as a pending promise and return from auth to a tab shell with an empty body. Fixed by waiting for the initial tab shell before starting hosted sign-in.",
-    "regressionTest": "apps/product/src/sim/prepare-critical-journey-access.test.ts"
+    "regressionTest": "apps/product/src/harness/prepare-critical-journey-access.test.ts"
   },
   {
     "id": "eager-perf-sampler-bundle",
@@ -131,7 +131,7 @@
   },
   {
     "id": "auth-responses-missing-cors",
-    "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The sim is same-origin, so bun check could not see it. Fixed by writing the CORS headers onto the final response after next().",
+    "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The harness is same-origin, so bun check could not see it. Fixed by writing the CORS headers onto the final response after next().",
     "regressionTest": "libs/server-app/src/app/cors.test.ts"
   },
   {

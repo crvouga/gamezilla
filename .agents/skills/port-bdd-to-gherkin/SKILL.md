@@ -1,11 +1,11 @@
 ---
 name: port-bdd-to-gherkin
-description: Port legacy behavior tests written directly against the bespoke `@pkgs/sim` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite sim / e2e / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-sim`, `@pkgs/matchmaking-sim`, `@pkgs/auth-sim`, `@pkgs/db-indexes`, a product lib), or the whole repo.
+description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / e2e / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
 ---
 
-# Port legacy sim tests to Gherkin + Quint
+# Port legacy harness tests to Gherkin + Quint
 
-Legacy behavior tests drive the sim straight from `bun:test`:
+Legacy behavior tests drive the harness straight from `bun:test`:
 
 ```ts
 await using s = await exampleSystem.run({ seed: 3, args: { clientCount: 0 } });
@@ -17,7 +17,7 @@ expect(await s.read(liveNote, 'bob', 'n1')).toMatchObject({ body: 'shared' });
 
 This skill moves each such test to its proper home: a Gherkin scenario, a
 Quint model, or (when it isn't behavior) a code test. Then it deletes the
-legacy file. The sim stays the engine, and only the test's surface changes.
+legacy file. The harness stays the engine, and only the test's surface changes.
 
 The policy lives in [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
 Its "What belongs in a spec" table decides every destination, and
@@ -27,13 +27,13 @@ top of three role skills. Load each one when its phase starts:
 | Phase | Skill |
 | --- | --- |
 | Word features and models | `spec-upsert` |
-| Bind steps and model bindings over the sim | `spec-implement` |
+| Bind steps and model bindings over the harness | `spec-implement` |
 | Audit the result, and demote non-behavior | `spec-audit` |
 
 Status and remaining scope: [`docs/SPEC_MIGRATION_INVENTORY.md`](../../../docs/SPEC_MIGRATION_INVENTORY.md).
-Product packages (Section A) and the framework-level sims
-(`pkgs/sync-engine`, `pkgs/room-sim`, `pkgs/matchmaking-sim`,
-`pkgs/auth-sim`, `pkgs/db-indexes`) are ported. Use this skill for any new
+Product packages (Section A) and the framework-level harnesses
+(`pkgs/sync-engine`, `pkgs/room-harness`, `pkgs/matchmaking-harness`,
+`pkgs/auth-harness`, `pkgs/db-indexes`) are ported. Use this skill for any new
 legacy test that turns up, and update that doc as you port.
 
 ## 1. Inventory
@@ -52,8 +52,8 @@ Sort every legacy `test(...)` into exactly one destination:
 | `test.each` over seeds, seed loops, `randomActions`, `explore`, walks or "monkeys" | **Quint model.** Seeds never go in Gherkin. Quint draws the walks from `FC_SEED` |
 | Stateful internals: convergence, exactly-once, idempotent replay, rebase order, fault recovery, fanout caps | **Quint model** in `specs/<domain>/`, over the package's public observables (see step 2) |
 | Standing `defineProperty` checks on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
-| Same-seed-twice determinism of a product sim | **The model's `fingerprint`** in its Quint binding: the runner replays the longest trace twice and compares |
-| Hash canonicality, `@pkgs/sim` / `sim-report` / `sql-client-sim` self-tests | **Stay code tests**, as framework contracts |
+| Same-seed-twice determinism of a product harness | **The model's `fingerprint`** in its Quint binding: the runner replays the longest trace twice and compares |
+| Hash canonicality, `@pkgs/harness` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
 | Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads (`docs/TESTING.md`) |
 | A past bug | A scenario tagged `@regression:<id>` if the bug was observable behavior. Otherwise an example regression test |
 
@@ -69,7 +69,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
 ## 2. Where framework-package specs go
 
 `pkgs/*` must stay app-agnostic, and `spec:check` bans architecture words
-("server", "client", "sim") and implementation words in step text. So:
+("server", "client", "harness") and implementation words in step text. So:
 
 - **Behavior a person could observe** gets a Gherkin feature in
   `specs/<domain>/`, and the package claims that domain in its
@@ -78,12 +78,12 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
   wording uses people and devices: "Alice edits a note on her phone",
   "Bob's laptop shows it within 5 seconds". Steps live in the package's own
   `tests/steps/` on `@pkgs/gherkin`. A `pkgs/` package never imports
-  `libs/sim-harness` steps.
+  `libs/harness` steps.
 - **Internal invariants** get a Quint model in `specs/<domain>/<model>.qnt`,
   like every other `.feature` and `.qnt`: no Gherkin or Quint lives outside
   `specs/`. Its names come from the context's glossary, its binding is
   `tests/quint/<model>.binding.ts` in the package, and the package's
-  `test:e2e` runs it as it runs `specs/rooms/*.qnt` for `@pkgs/room-sim`.
+  `test:e2e` runs it as it runs `specs/rooms/*.qnt` for `@pkgs/room-harness`.
   This is the "model-based property test" the policy asks for. Its variables
   are the package's public observables (a person's notes on a device, a
   room's count, who is matched), not queues or epochs.
@@ -105,10 +105,10 @@ and docs alone, with a `spec:` subject.
 
 ## 4. Implement
 
-Load `spec-implement`. Steps and bindings are thin calls to exported sim
+Load `spec-implement`. Steps and bindings are thin calls to exported harness
 actions and reads (`w.s.apply` / `w.s.read` / `w.s.until`). A missing
-stimulus becomes a `defineAction` or read in the package's `src/sim/`,
-exported via `./sim`. Package-local World openers and DSLs that wrap
+stimulus becomes a `defineAction` or read in the package's `src/harness/`,
+exported via `./harness`. Package-local World openers and DSLs that wrap
 `defineSystem` are not allowed (AGENTS.md). If the product and the spec
 disagree, decide which one is wrong. **Never weaken a spec or a model to
 pass.**
@@ -131,8 +131,8 @@ pass.**
 
 ## Fan-out for a whole wave
 
-Use one worktree per package, in this order: `sync-engine` → `room-sim` →
-`matchmaking-sim` → `auth-sim` → `db-indexes`. In each worktree the porter
+Use one worktree per package, in this order: `sync-engine` → `room-harness` →
+`matchmaking-harness` → `auth-harness` → `db-indexes`. In each worktree the porter
 writes the ledger, then a `spec-upsert` agent, then a `spec-implement`
 agent, then a `spec-audit` agent. Port one package end to end, deleting its
 legacy tests, before starting the next.

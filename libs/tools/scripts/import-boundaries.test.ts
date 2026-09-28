@@ -247,29 +247,29 @@ const PROBES: readonly Probe[] = [
     message: 'Shared game/domain logic must not import networking',
   },
   {
-    path: 'libs/zz/src/root/sim-user.ts',
-    source: "import { defineSystem } from '@pkgs/sim';",
-    message: '@pkgs/sim is harness-only',
+    path: 'libs/zz/src/root/harness-user.ts',
+    source: "import { defineSystem } from '@pkgs/harness';",
+    message: '@pkgs/harness is harness-only',
   },
   {
     path: 'libs/zz/src/root/report-user.ts',
-    source: "import { r } from '@pkgs/sim-report';",
+    source: "import { r } from '@pkgs/harness-report';",
     message: null,
   },
   {
     path: 'libs/zz/src/root/deep.ts',
-    source: "import { a } from '../sim/actions';",
-    message: 'src/sim/** is harness-only',
+    source: "import { a } from '../harness/actions';",
+    message: 'src/harness/** is harness-only',
   },
   {
     path: 'libs/zz/src/root/seam.ts',
-    source: "import { a } from '../sim/index';",
+    source: "import { a } from '../harness/index';",
     message: null,
   },
   {
     path: 'pkgs/zz/src/internals-user.ts',
-    source: "import { a } from '@pkgs/sim/internals';",
-    message: 'Only pkgs/sim/** may import @pkgs/sim/internals',
+    source: "import { a } from '@pkgs/harness/internals';",
+    message: 'Only pkgs/harness/** may import @pkgs/harness/internals',
   },
   {
     path: 'libs/zz/src/root/transport.ts',
@@ -282,9 +282,9 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'pkgs/sim/src/core.ts',
+    path: 'pkgs/harness/src/core.ts',
     source: "import fc from 'fast-check';",
-    message: '@pkgs/sim core (except src/fast-check/ and tests)',
+    message: '@pkgs/harness core (except src/fast-check/ and tests)',
   },
   {
     path: 'libs/zz/src/use-cases/pay/server/route.ts',
@@ -307,7 +307,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/zz/src/sim/provider-driver.ts',
+    path: 'libs/zz/src/harness/provider-driver.ts',
     source: "import { MOCK_BILLING_PATHS } from '@pkgs/billing-mock';",
     message: null,
   },
@@ -403,7 +403,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/zz/src/sim/idp-driver.ts',
+    path: 'libs/zz/src/harness/idp-driver.ts',
     source: "import { IdpRepository } from '@pkgs/auth-inhouse/server';",
     message: null,
   },
@@ -484,7 +484,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'pkgs/zz/tests/virtual.test.ts',
-    source: 'sim.timers.setTimeout(done, 30);',
+    source: 'harness.timers.setTimeout(done, 30);',
     message: null,
   },
   {

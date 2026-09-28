@@ -12,8 +12,8 @@ export const LIMITS = Object.freeze({
   maxPredicateLength: 1024,
   maxSqlFingerprintLength: 16_384,
   maxOwnedMetaPayload: 4096,
-  maxSimTables: 256,
-  maxSimIndexes: 1024,
+  maxHarnessTables: 256,
+  maxHarnessIndexes: 1024,
   maxFaultSchedule: 512,
   hash8HexLength: 8,
 } as const);

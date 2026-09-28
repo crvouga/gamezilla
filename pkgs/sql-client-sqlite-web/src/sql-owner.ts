@@ -10,7 +10,7 @@ export type SqlOwner = {
   /** Open (or reopen) the named DB and return a connected {@link SqlClient}. */
   open: () => Promise<SqlClient>;
   /**
-   * Release the live connection and any held handles (worker teardown, sim
+   * Release the live connection and any held handles (worker teardown, harness
    * access-handle release). Does not delete durable bytes by itself.
    */
   close: () => Promise<void>;

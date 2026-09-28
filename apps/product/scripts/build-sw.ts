@@ -77,7 +77,7 @@ const { count, size, warnings } = await generateSW({
   globDirectory: distDir,
   /**
    * Offline shell (`sw-policy.ts`): precache every file the wall client can
-   * load — lazy chunks included — and drop what only the simulator reaches.
+   * load — lazy chunks included — and drop what only the harness reaches.
    * No per-file cap below the total budget, so Workbox never silently skips
    * a large chunk; `check:offline-shell` enforces the budget on the result.
    */

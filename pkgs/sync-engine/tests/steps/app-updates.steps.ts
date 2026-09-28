@@ -19,7 +19,7 @@ import {
   restartWithSchema,
   subscribe,
   tagNote,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { SETTLE_MS, writeNote } from './note-writes';
 import {
   app,

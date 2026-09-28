@@ -37,7 +37,7 @@ export type CreateSyncAppDeps = {
   readonly topicMap?: TopicMap;
   /**
    * When true, query hard-limit clips throw instead of silently truncating.
-   * Product API sets this outside production; sim sets true.
+   * Product API sets this outside production; harness sets true.
    */
   readonly strictQueryLimits?: boolean;
   /**
@@ -64,7 +64,7 @@ function productOnly(authorize: MutationAuthorize): MutationAuthorize {
  * Always merges framework mutations into the product registry.
  */
 export function createSyncApp(deps: CreateSyncAppDeps) {
-  // Per-app allocator — never module-scope (multi-sim / multi-app isolation).
+  // Per-app allocator — never module-scope (multi-harness / multi-app isolation).
   const nextCheckpoint =
     deps.nextCheckpoint ?? createMonotonicCheckpoint(deps.now).next;
   const mutations = withFrameworkMutations(deps.mutations);

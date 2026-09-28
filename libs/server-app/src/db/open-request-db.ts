@@ -21,7 +21,7 @@ export type RequestDbSqlite = {
 
 export type RequestDb = RequestDbPostgres | RequestDbSqlite;
 
-/** Opens a per-request DB handle. Composition roots inject Postgres / sim openers. */
+/** Opens a per-request DB handle. Composition roots inject Postgres / harness openers. */
 export type OpenRequestDb = (
   connectionString: string,
   dbScope: PostgresDbScope

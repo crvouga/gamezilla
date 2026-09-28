@@ -7,8 +7,8 @@ import {
   type AppLifecycleEvent,
   alwaysOnLifecycle,
 } from './app-lifecycle';
+import type { Timers } from './harness-ports';
 import { detachScope, type MergeApplierDeps } from './merge';
-import type { Timers } from './sim-ports';
 import {
   QUERY_COALESCE_MS,
   QUERY_RECONCILE_INTERVAL_MS,

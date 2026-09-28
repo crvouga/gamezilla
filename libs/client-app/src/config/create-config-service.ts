@@ -3,7 +3,7 @@ import type { ConfigService } from '@libs/auth/public/config-service-types';
 import { getServerBaseUrl } from './api-servers';
 
 export type CreateConfigServiceArgs = {
-  /** Override the API base URL (sims wire an in-process origin, e.g. `'http://sim.local'`). */
+  /** Override the API base URL (harnesses wire an in-process origin, e.g. `'http://harness.local'`). */
   readonly apiUrl?: string;
 };
 

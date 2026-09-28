@@ -8,7 +8,7 @@ import {
   signPaddlePayload,
   verifyPaddleSignature,
 } from '@pkgs/billing-paddle';
-import { FakePaddle } from '@pkgs/billing-paddle/sim';
+import { FakePaddle } from '@pkgs/billing-paddle/harness';
 import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 

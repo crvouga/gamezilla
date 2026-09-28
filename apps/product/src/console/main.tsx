@@ -1,12 +1,12 @@
-// @io-wall-ok — browser composition root (super-app: App at `/`, Simulator at `/simulator`)
+// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
 /**
- * Path-gated boot: `/simulator` mounts the Simulator screen; every other path
+ * Path-gated boot: `/harness` mounts the Harness screen; every other path
  * mounts the real wall client (`wallClientEnv` + production/synced config).
  * The two are flat siblings — each reaches the other through its command
- * palette (`Open Simulator` / `Exit simulator`). Popstate remounts when
- * crossing the boundary (no nested routers). `?simulator` on any other path
- * hands off to `/simulator` before boot, so a launcher that can only open the
- * site root still lands in the simulator.
+ * palette (`Open Harness` / `Exit harness`). Popstate remounts when
+ * crossing the boundary (no nested routers). `?harness` on any other path
+ * hands off to `/harness` before boot, so a launcher that can only open the
+ * site root still lands in the harness.
  */
 
 import { createClient } from '@libs/client-app/shell/create-client';
@@ -19,7 +19,7 @@ import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
 import { createSignal, type JSX, onCleanup, Show } from 'solid-js';
 import { render } from 'solid-js/web';
-import { SIMULATOR_PATH } from './console-nav/console-nav-real';
+import { HARNESS_PATH } from './console-nav/console-nav-real';
 import './polyfill-entry';
 import { RootApp } from './root-app';
 import './styles.css';
@@ -28,24 +28,22 @@ import { wallConsoleEnv } from './wall-console-env';
 const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
 
-const SIMULATOR_FLAG = 'simulator';
+const HARNESS_FLAG = 'harness';
 
-function isSimulatorPath(pathname: string): boolean {
-  return (
-    pathname === SIMULATOR_PATH || pathname.startsWith(`${SIMULATOR_PATH}/`)
-  );
+function isHarnessPath(pathname: string): boolean {
+  return pathname === HARNESS_PATH || pathname.startsWith(`${HARNESS_PATH}/`);
 }
 
-/** Navigates to `/simulator` for `?simulator`; `true` means boot is handed off. */
-function redirectedToSimulator(): boolean {
+/** Navigates to `/harness` for `?harness`; `true` means boot is handed off. */
+function redirectedToHarness(): boolean {
   const { pathname, search } = window.location;
-  if (isSimulatorPath(pathname)) return false;
-  if (!new URLSearchParams(search).has(SIMULATOR_FLAG)) return false;
-  window.location.replace(SIMULATOR_PATH);
+  if (isHarnessPath(pathname)) return false;
+  if (!new URLSearchParams(search).has(HARNESS_FLAG)) return false;
+  window.location.replace(HARNESS_PATH);
   return true;
 }
 
-function SimulatorBoot(): JSX.Element {
+function HarnessBoot(): JSX.Element {
   const env = wallConsoleEnv();
   return <RootApp env={env} />;
 }
@@ -68,21 +66,21 @@ function AppBoot(): JSX.Element {
 }
 
 function Boot(): JSX.Element {
-  const [simulatorMode, setSimulatorMode] = createSignal(
-    isSimulatorPath(window.location.pathname)
+  const [harnessMode, setHarnessMode] = createSignal(
+    isHarnessPath(window.location.pathname)
   );
   const onPopState = (): void => {
-    setSimulatorMode(isSimulatorPath(window.location.pathname));
+    setHarnessMode(isHarnessPath(window.location.pathname));
   };
   window.addEventListener('popstate', onPopState);
   onCleanup(() => window.removeEventListener('popstate', onPopState));
   return (
-    <Show when={simulatorMode()} fallback={<AppBoot />}>
-      <SimulatorBoot />
+    <Show when={harnessMode()} fallback={<AppBoot />}>
+      <HarnessBoot />
     </Show>
   );
 }
 
-if (!redirectedToSimulator()) {
+if (!redirectedToHarness()) {
   render(() => <Boot />, root);
 }

@@ -1,0 +1,21 @@
+import { describe, expect, test } from 'bun:test';
+import {
+  Decrement,
+  Increment,
+  runModuleConformance,
+  TestCounterModule,
+} from '@pkgs/room-harness';
+
+describe('kit: purity and seed (M-F01)', () => {
+  test('TestCounterModule passes the conformance suite', async () => {
+    await runModuleConformance({
+      seed: process.env['HARNESS_SEED'] ?? '42',
+      module: TestCounterModule,
+      mildFaults: false,
+      isValidState: () => true,
+      generateCommand: ({ rng }) =>
+        rng.bool(0.5) ? Increment({}) : Decrement({}),
+    });
+    expect(true).toBe(true);
+  });
+});

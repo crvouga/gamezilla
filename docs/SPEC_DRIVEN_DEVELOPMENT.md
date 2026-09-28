@@ -18,9 +18,9 @@ never restate them.
 | Skill | Role | Use for |
 | --- | --- | --- |
 | [`spec-upsert`](../.agents/skills/spec-upsert/SKILL.md) | spec writer | discovering and writing new or changed behavior, with a coverage map of the aggregate it touches |
-| [`spec-implement`](../.agents/skills/spec-implement/SKILL.md) | implementer | red first, then thin step definitions and model bindings over the sim, then the product change; demotions to code tests |
+| [`spec-implement`](../.agents/skills/spec-implement/SKILL.md) | implementer | red first, then thin step definitions and model bindings over the harness, then the product change; demotions to code tests |
 | [`spec-audit`](../.agents/skills/spec-audit/SKILL.md) | spec auditor | checking specs and steps against the standard: findings with evidence, coverage maps, a pass/fail verdict, safe mechanical fixes |
-| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/sim` tests into features and Quint models with a parity ledger, then deleting them |
+| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/harness` tests into features and Quint models with a parity ledger, then deleting them |
 
 ## Layout
 
@@ -224,7 +224,7 @@ allows one). It fails on:
 - a BDD smell (`@pkgs/gherkin/smells`):
   - a scenario with more than 8 steps, or more than 3 `When`s
   - a scenario that acts again after a `Then`, outside `specs/journeys/`
-  - a step naming architecture ("server", "client", "backend", "sim")
+  - a step naming architecture ("server", "client", "backend", "harness")
   - a feature with no description
 
 It warns on near-duplicate step wording (`--strict-duplicates` fails on it).
@@ -238,15 +238,15 @@ Everything else in the standard is checked by `spec-audit`.
 
 - **Spec writer** (`spec-upsert`). Edits only specs (`.feature` and `.qnt`
   files, and the contexts' `ubiquitous-language.yml`), and docs. Never reads implementation, step
-  definitions, bindings, or sim code. Describes behavior, not what the code
+  definitions, bindings, or harness code. Describes behavior, not what the code
   happens to do. Asks when the behavior is unclear. A spec commit starts with
   `spec:` and contains no implementation files.
 - **Implementer** (`spec-implement`). Treats specs as read-only. Adds or
-  reuses thin, typed step definitions over exported sim actions and reads
+  reuses thin, typed step definitions over exported harness actions and reads
   until the scenarios pass. For a model they write its binding,
   `tests/quint/<model>.binding.ts`: one entry per model action (`init`
-  included) doing that action through exported sim actions, and `observe`,
-  which reads the model's state variables back out of the sim without acting.
+  included) doing that action through exported harness actions, and `observe`,
+  which reads the model's state variables back out of the harness without acting.
   When the product disagrees with a model, they find out from the specs and
   goals which of the two is wrong; a wrong product is a bug (fix it with a
   pinned regression, `docs/TESTING.md`), a wrong or ambiguous model goes back
@@ -267,9 +267,9 @@ The package's `test:e2e` turns each model into one bun test file:
    seed, `FC_SEED` (default `424242`), so the traces, and so the verdict, are
    a function of the code; `PBT_RANDOM=1` explores other seeds. A model that
    breaks one of its own invariants fails here.
-2. Each trace is one test: a fresh sim, then every state's action through the
+2. Each trace is one test: a fresh harness, then every state's action through the
    binding with the values Quint drew, then the product's state must equal
-   the model's (re-read on the sim's virtual clock for up to 15 s, so
+   the model's (re-read on the harness's virtual clock for up to 15 s, so
    asynchronous convergence gets the time a person would give it). Every
    action is an `s.apply`, so the system's standing properties hold after
    every step too.
@@ -277,8 +277,8 @@ The package's `test:e2e` turns each model into one bun test file:
    never exercised something proved nothing about it.
 
 A failing trace prints the step, the variables that differ (model vs
-product), the sim calls the step made, and the whole trace; the drawn traces
-are in `<package>/.cache/sim-report/quint/<model>/`.
+product), the harness calls the step made, and the whole trace; the drawn traces
+are in `<package>/.cache/harness-report/quint/<model>/`.
 
 ## Live domains: journeys and health
 
@@ -323,13 +323,13 @@ through `liveDomains`.
 ## Reports
 
 Every `test:e2e` run writes its package's report bucket
-(`<package>/.cache/sim-report`): each scenario's and each trace's step
-timeline — Gherkin steps and Quint trace steps, with the sim calls under them
+(`<package>/.cache/harness-report`): each scenario's and each trace's step
+timeline — Gherkin steps and Quint trace steps, with the harness calls under them
 — the drawn traces, and JUnit. Turbo caches the bucket with the verdict, so
 the report of the last run of any version of the code is wherever that run's
 cache is. `bun run test:report` renders the current code's: suites whose code
 ran before (on any machine sharing the remote cache) restore their bucket,
-changed suites run, and every bucket folds into one `sim-report/index.html`.
+changed suites run, and every bucket folds into one `harness-report/index.html`.
 `--frames` adds UI frames to every step (a slower run with its own cache
 entry).
 
@@ -369,6 +369,6 @@ bun run test:report
 
 The package e2e runner generates temporary Bun test stubs in `.cache/spec/`.
 Those files are never committed. A feature failure identifies the feature
-line, matching definition, completed-step ledger, and sim calls made by the
+line, matching definition, completed-step ledger, and harness calls made by the
 failing step; a model failure, the trace step, the diverging variables, and
-the sim calls.
+the harness calls.

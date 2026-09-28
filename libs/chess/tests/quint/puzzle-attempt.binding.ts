@@ -1,6 +1,6 @@
 /**
  * `specs/chess/puzzle-attempt.qnt` against the chess composition: a guest
- * hosting a space plays puzzles through the chess sim actions while another
+ * hosting a space plays puzzles through the chess harness actions while another
  * guest in the space watches, and the model's state is read back off both
  * views. Puzzle ids are opaque, so each is numbered in the order it first
  * reached the host's board.
@@ -19,22 +19,22 @@ import {
   returnToOwnSpace,
   showPuzzleSolutionLine,
   skipPuzzle,
-} from '@libs/chess/sim/chess-actions';
-import { readLocalPuzzleStartLedger } from '@libs/chess/sim/chess-puzzle-ledger-data';
+} from '@libs/chess/harness/chess-actions';
+import { readLocalPuzzleStartLedger } from '@libs/chess/harness/chess-puzzle-ledger-data';
 import {
   readActivePuzzleId,
   readPuzzleStatus,
-} from '@libs/chess/sim/chess-puzzle-ui';
-import { focusActor, restartApp } from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
-import { bringToFront, visible } from '@libs/sim-harness/system/observations';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+} from '@libs/chess/harness/chess-puzzle-ui';
+import { focusActor, restartApp } from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { bringToFront, visible } from '@libs/harness/system/observations';
 import {
   createSpace,
   joinFromPrompt,
   openSpaceLink,
-} from '@libs/spaces/sim/space-actions';
-import { readSpaceLink } from '@libs/spaces/sim/spaces-ui-reads';
+} from '@libs/spaces/harness/space-actions';
+import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
 import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel } from '@pkgs/quint/registry';
@@ -45,13 +45,13 @@ const PEOPLE = [HOST, WATCHER] as const;
 /** Memo key: puzzle ids in the order they first reached the host's board. */
 const SEEN = 'seenPuzzles';
 
-function seen(w: QuintSimWorld): readonly string[] {
+function seen(w: QuintHarnessWorld): readonly string[] {
   const ids = w.memo.get(SEEN);
   return Array.isArray(ids) ? (ids as string[]) : [];
 }
 
 /** Number the puzzle now on the host's board, if it is new. */
-async function notePuzzle(w: QuintSimWorld): Promise<void> {
+async function notePuzzle(w: QuintHarnessWorld): Promise<void> {
   const id = await w.s.read(readActivePuzzleId, HOST);
   if (id === null) throw new Error(`${HOST} has no puzzle on the board`);
   const ids = seen(w);
@@ -59,7 +59,7 @@ async function notePuzzle(w: QuintSimWorld): Promise<void> {
 }
 
 /** A puzzle never noted numbers as -2: the model never shows one. */
-function numberOf(w: QuintSimWorld, id: string | null): number {
+function numberOf(w: QuintHarnessWorld, id: string | null): number {
   if (id === null) return -1;
   const n = seen(w).indexOf(id);
   return n === -1 ? -2 : n;
@@ -67,7 +67,7 @@ function numberOf(w: QuintSimWorld, id: string | null): number {
 
 type View = 'Board' | 'ChessChoices' | 'GameChoice' | 'Elsewhere';
 
-async function viewOf(s: ProductSim, actorId: string): Promise<View> {
+async function viewOf(s: ProductHarness, actorId: string): Promise<View> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.chessPuzzlePlayScreen])) {
     return 'Board';
@@ -80,9 +80,9 @@ async function viewOf(s: ProductSim, actorId: string): Promise<View> {
 
 /** The host drives: bring her view to the front, then act on it. */
 function hostDoes(
-  act: (w: QuintSimWorld) => Promise<void>,
+  act: (w: QuintHarnessWorld) => Promise<void>,
   landsOnBoard = false
-): (w: QuintSimWorld) => Promise<void> {
+): (w: QuintHarnessWorld) => Promise<void> {
   return async (w) => {
     await w.s.apply(focusActor, HOST);
     await act(w);
@@ -90,7 +90,7 @@ function hostDoes(
   };
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'puzzle-attempt',
   traces: 6,
   maxSteps: 12,

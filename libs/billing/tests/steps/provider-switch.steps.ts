@@ -15,26 +15,26 @@ import {
   SECOND_PAYMENT_PROVIDER,
   subscribeToPlus,
   switchPaymentProvider,
-} from '@libs/billing/sim/billing-actions';
+} from '@libs/billing/harness/billing-actions';
 import {
   checkoutProvider,
   membershipShown,
   providerPageShown,
-} from '@libs/billing/sim/billing-reads';
-import { signInWithGoogle } from '@libs/sim-harness';
+} from '@libs/billing/harness/billing-reads';
+import { signInWithGoogle } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
+} from '@libs/harness/spec/define';
+import { accountIdOf } from '@libs/harness/system/identity';
 
 const SHOWN_WAIT = { maxMs: 60_000, stepMs: 1_000 } as const;
 
 /** The team moves new memberships to the provider they are not at now. */
-async function switchProvider(w: SimWorld): Promise<void> {
+async function switchProvider(w: HarnessWorld): Promise<void> {
   const now = await w.s.read(checkoutProvider);
   await w.s.apply(
     switchPaymentProvider,
@@ -44,7 +44,7 @@ async function switchProvider(w: SimWorld): Promise<void> {
   );
 }
 
-async function subscribe(w: SimWorld, actor: Actor): Promise<void> {
+async function subscribe(w: HarnessWorld, actor: Actor): Promise<void> {
   if ((await w.s.read(accountIdOf, actor)) === null) {
     await w.s.apply(signInWithGoogle, actor);
   }
@@ -53,16 +53,16 @@ async function subscribe(w: SimWorld, actor: Actor): Promise<void> {
 }
 
 /** End the actor's membership at once, and see it ended. */
-async function endMembership(w: SimWorld, actor: Actor): Promise<void> {
+async function endMembership(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(observeMembership, actor, 'cancel_now');
-  await w.s.until((sim) => membershipShown(sim, actor), {
+  await w.s.until((harness) => membershipShown(harness, actor), {
     ...SHOWN_WAIT,
     pred: (shown) => shown?.state === 'ended',
   });
 }
 
 async function expectPortalAt(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   provider: string
 ): Promise<void> {

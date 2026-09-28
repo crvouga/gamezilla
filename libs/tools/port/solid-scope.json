@@ -20,8 +20,8 @@
     "pkgs/ui-devtools/src",
     "pkgs/ui-devtools/tests",
     "pkgs/bun-test-solid/src",
-    "apps/product/src/sim",
-    "libs/sim-harness/src"
+    "apps/product/src/harness",
+    "libs/harness/src"
   ],
   "files": [
     "apps/client/src/main.tsx",

@@ -38,7 +38,7 @@ const report = await reconcileIndexes({
 
 See [`TESTING.md`](./docs/TESTING.md) for the property layers, the acceptance
 specs in `specs/index-tuning/` (feature + Quint model, run by `test:e2e`), and
-the invariant → assert / sim / property map.
+the invariant → assert / harness / property map.
 
 ## Ownership
 

@@ -11,9 +11,9 @@
       "./src/root/*.ts",
       "./src/root/*.tsx"
     ],
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx"
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
     ],
     "./steps/*": "./tests/steps/*.ts"
   },
@@ -21,7 +21,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",
@@ -29,7 +29,7 @@
     "@libs/auth": "workspace:*",
     "@libs/client-app": "workspace:*",
     "@libs/feature": "workspace:*",
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

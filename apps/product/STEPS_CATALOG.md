@@ -33,7 +33,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | the app is given every setting it needs | — | health, journeys |
 | Then | the app on the web hears whether the sign-in worked | — | health, journeys |
 | Then | the team can look up what a request did | — | health, journeys |
-| Then | the team can open the Simulator at its address | — | health, journeys |
+| Then | the team can open the testing tool at its address | — | health, journeys |
 | Then | this environment is exactly as the team declared it | — | health, journeys |
 | Then | this environment keeps its files apart from every other environment's | — | health, journeys |
 | Then | what people saved is ready for this version of the app | — | health, journeys |

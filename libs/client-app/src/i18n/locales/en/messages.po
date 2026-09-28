@@ -437,8 +437,8 @@ msgid "Client events"
 msgstr "Client events"
 
 #: libs/client-app/src/routes/stubs/client-events.tsx
-msgid "Client events are available in the embedded product-simulator."
-msgstr "Client events are available in the embedded product-simulator."
+msgid "Client events are available in the embedded product-harness."
+msgstr "Client events are available in the embedded product-harness."
 
 #: libs/client-app/src/routes/stubs/client-sql.tsx
 msgid "Client SQL"
@@ -1070,6 +1070,10 @@ msgstr "Google"
 msgid "Guests"
 msgstr "Guests"
 
+#: libs/client-app/src/shell/commands/app-commands.tsx
+msgid "harness"
+msgstr "harness"
+
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Has ever synced"
 msgstr "Has ever synced"
@@ -1581,8 +1585,8 @@ msgid "Open current space {0}"
 msgstr "Open current space {0}"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
-msgid "Open Simulator"
-msgstr "Open Simulator"
+msgid "Open Harness"
+msgstr "Open Harness"
 
 #. placeholder {0}: resolvedTitle()
 #: libs/spaces/src/root/client/card/space-card-open-link.tsx
@@ -2212,14 +2216,6 @@ msgstr "Signing in…"
 #: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
-
-#: libs/client-app/src/shell/commands/app-commands.tsx
-msgid "sim"
-msgstr "sim"
-
-#: libs/client-app/src/shell/commands/app-commands.tsx
-msgid "simulator"
-msgstr "simulator"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 msgid "Skip"

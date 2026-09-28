@@ -17,7 +17,7 @@ import {
   subscribe,
   subscribedTopics,
   unsubscribe,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { SETTLE_MS } from './note-writes';
 import { app, ensureDevice, Given, type SyncWorld, When } from './world';
 

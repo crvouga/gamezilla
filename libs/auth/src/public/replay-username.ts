@@ -12,13 +12,13 @@ type LinkedSubjectRow = {
  * linked sign-in subject), so profile asks here instead of reading them.
  *
  * Resolve the preferred username for this apply. The client handoff is
- * process-global, so in multi-actor hosts (sims, multi-app product-simulator) one
+ * process-global, so in multi-actor hosts (harnesses, multi-app product-harness) one
  * actor's ensure can observe another actor's pending value. The server replay
  * is authoritative and deterministic instead:
  * - anonymous bootstraps, and accounts with no auth record yet, never consume
  *   it (their rows keep the auto name);
  * - when this account has a linked sign-in identity (its provider subject
- *   doubles as the sim actor username), that subject wins over any passed
+ *   doubles as the harness actor username), that subject wins over any passed
  *   value (a foreign pending value is ignored);
  * - otherwise (email/create-account flow, no linked subject) the passed value
  *   stands, preserving legacy behavior.

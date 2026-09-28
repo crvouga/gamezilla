@@ -1,6 +1,6 @@
 /**
  * Static extraction of step definitions from a steps source file, so the spec
- * check needs no runtime (no sim, no DOM): `Given('text', …)` with a plain
+ * check needs no runtime (no harness, no DOM): `Given('text', …)` with a plain
  * string literal. Anything else as the first argument is a violation, so the
  * runtime registry and this view cannot drift.
  */

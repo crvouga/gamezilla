@@ -15,22 +15,22 @@ import {
   pressPuzzleNext,
   pressPuzzleNextNoWait,
   sleepUntilNextUtcDay,
-} from '@libs/chess/sim/chess-actions';
+} from '@libs/chess/harness/chess-actions';
 import {
   readLocalPuzzleStartLedger,
   useUpPuzzleStartsToday,
-} from '@libs/chess/sim/chess-puzzle-ledger-data';
+} from '@libs/chess/harness/chess-puzzle-ledger-data';
 import {
   isPuzzleLimitSignInOffered,
   isPuzzleLimitVisible,
-} from '@libs/chess/sim/chess-puzzle-ui';
+} from '@libs/chess/harness/chess-puzzle-ui';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
+} from '@libs/harness/spec/define';
 import {
   enterPuzzles,
   SECOND_MS,
@@ -42,13 +42,13 @@ import {
 const GUEST_DAILY_PUZZLE_STARTS = 20;
 
 /** On a puzzle after `starts` puzzle starts today, this one included. */
-async function afterStartsToday(w: SimWorld, actor: Actor, starts: number) {
+async function afterStartsToday(w: HarnessWorld, actor: Actor, starts: number) {
   await enterPuzzles(w, actor);
   await w.s.apply(useUpPuzzleStartsToday, actor, starts);
 }
 
 /** `starts` puzzles played today, the last one solved. */
-async function playedToday(w: SimWorld, actor: Actor, starts: number) {
+async function playedToday(w: HarnessWorld, actor: Actor, starts: number) {
   await afterStartsToday(w, actor, starts);
   await w.s.apply(playUntilSolved, actor);
 }

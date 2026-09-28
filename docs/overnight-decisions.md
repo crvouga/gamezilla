@@ -60,10 +60,10 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   (seed 20260919) asserting FEN round-trip, SAN↔UCI round-trip,
   perft(1) = move count and "mover never left in check" at every ply. The §34
   chess-logic rows are about solving, so they are covered by slice 4's product
-  sims.
+  harnesses.
 - **D9 — Hot path.** `playUci` tries `chess.move` first and only builds the
   castling alias on failure; building the verbose legal-move list per move made
-  the spectator sims time out.
+  the spectator harnesses time out.
 - **D10 — Tailwind compile test timeout.** `@pkgs/tailwind`'s theme test
   compiles CSS by scanning the whole repo: ~3 s alone, but it exceeded bun's
   5 s default whenever the turbo gate ran it in parallel with other suites.
@@ -122,7 +122,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   whose code is the reason and whose meta carries the decision, so the server
   records a write rejection and the optimistic row rolls back through the
   existing rebase. Count-then-insert relies on one owner's replays being
-  serialized (as the sim and the Worker process a batch in one transaction);
+  serialized (as the harness and the Worker process a batch in one transaction);
   a per-owner advisory lock is left for when concurrent replays of one owner
   become possible.
 - **D17 — No stored timezone.** Nothing in the app stores a user timezone,
@@ -135,7 +135,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   serverNow }`; `MutationError` rejects; framework bookkeeping mutations skip
   it) with tests (`pkgs/sync-engine/tests/server-authorize-mutation.test.ts`).
   `serverNow` is on the hook context rather than `env`: setting
-  `env.serverNow` on the HTTP route (the sim harness already does) switches
+  `env.serverNow` on the HTTP route (the harness harness already does) switches
   `ensureProfile` into an untested replay branch that renames users, so the
   route's `env` is unchanged. `MUTATION_ACTIONS` (in `@libs/permissions`)
   declares every product mutation: puzzle writes → `puzzles:play`,
@@ -180,17 +180,17 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   "guest" is the space-presence role). Allowlist: `libs/permissions`,
   `pkgs/permissions` (the generic resolver's own tests use plan-shaped
   fixture names), `libs/billing`, `pkgs/billing*`, and apps/product billing
-  sim/test files (apps/server has no billing route files). One feature hit was
+  harness/test files (apps/server has no billing route files). One feature hit was
   renamed (`plan` → `stage` in `opponent-stager.ts`). The grep test is
   `libs/tools/scripts/tier-vocabulary.test.ts`. The spec's generic words
   (`plan`, `tier`, `free`, …) are not banned repo-wide (query plans, rename
   plans, UI tiers).
-- **D23 — Where each §34 quota row is proven.** The product sim
+- **D23 — Where each §34 quota row is proven.** The product harness
   (`libs/chess/tests/e2e/puzzle-quota.test.tsx`) drives the real UI for:
   one unit charged per start, the limit reached mid-puzzle with the board
   completing, the next start denied (denial surface shown, never charged on
   the server), and sign-in lifting the limit. Advancing ~24 h of virtual time
-  through the full UI sim exceeds the 90 s per-test budget (every UI
+  through the full UI harness exceeds the 90 s per-test budget (every UI
   interval fires), so window rollover, device clock skew, two-device racing
   and offline replay under an older policy version are proven one level down
   against the real mutation + real SQL (`libs/permissions/tests/
@@ -199,7 +199,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   day) is asserted after every product step.
 - **D24 — Lingui macros only in `.tsx`.** The bun test preload compiles
   Lingui macros for `.tsx` files only; a `.ts` module importing
-  `@lingui/core/macro` crashed the app shell in the product sim. The two copy
+  `@lingui/core/macro` crashed the app shell in the product harness. The two copy
   modules in `@libs/permissions` are `.tsx` for that reason.
 - **D25 — Synced timestamp formats.** Ledger rows synced from Postgres arrive
   as Postgres text (`2024-06-01 00:00:01.2+00`), which neither sorts against
@@ -266,7 +266,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   (dedupe): the streaming Lichess seed (counts in the batch / done /
   dry-run reporter lines), the committed load-file seeder (now accepts the
   raw Lichess header too, and gained `ingest()` returning the summary), the
-  web sim seed, and the load-file export (only validated rows are written).
+  web harness seed, and the load-file export (only validated rows are written).
   The seeder's DATABASE_URL policy block moved to `resolveToolingDatabaseUrl`
   so the new validation job shares it.
 - **D32 — §35 job.** `bun run --filter @libs/chess validate:puzzles`
@@ -283,15 +283,15 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   (referenced nowhere) held two one-move lines from the start position — both
   invalid (`tooShort`). Its rows were replaced with two real Lichess puzzles
   (one White-to-solve, one Black-to-solve) under the same ids. The 2000-row
-  load file, the Node sim CSV and the 50-row web fixture were all valid and
+  load file, the Node harness CSV and the 50-row web fixture were all valid and
   are unchanged.
-- **D34 — Ingest scenario shape.** The product sim
+- **D34 — Ingest scenario shape.** The product harness
   (`libs/chess/tests/e2e/puzzle-ingest.test.tsx`) ingests through the
-  real load-file seeder against the sim's server database (the streaming
-  seed needs a Postgres TCP session and secrets, which the sim does not
+  real load-file seeder against the harness's server database (the streaming
+  seed needs a Postgres TCP session and secrets, which the harness does not
   have; both share the validator and deduping insert — D31). The orientation
   probe (`Handles.chessPuzzleBoardOrientation`) reads the same accessor the
-  board renders with. The Node sim fixture only has Black-to-solve puzzles and
+  board renders with. The Node harness fixture only has Black-to-solve puzzles and
   other chess scenarios exhaust exactly those three, so the White-to-solve
   puzzle comes from the scenario's own ingest rather than a fixture change.
 - **D35 — Load flake in the gate, not a code failure.** The first two gate
@@ -364,7 +364,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   success state. `HapticsPort` already existed in `@pkgs/device` but was
   wired nowhere; it is now on `ClientEnv` exactly like the clipboard
   (`wallWebHaptics` in the browser root, `createRecordingHaptics` in every
-  sim env) with a `HapticsProvider` / `useHaptics` Solid binding. The puzzle
+  harness env) with a `HapticsProvider` / `useHaptics` Solid binding. The puzzle
   feedback hook fires `success` on a solve and `error` on a wrong move, and
   scenarios read the recorded calls.
 - **D44 — Board input primitives.** `@pkgs/chess-rules/moves` gained
@@ -379,17 +379,17 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   failed with "no such column: themes" on every client read. The local
   condition is now `instr(themes, '"<theme>"') > 0` per selected theme,
   which is exact because the ids are quoted in the synced JSON array.
-- **D46 — Motif fixtures are their own file.** The three-puzzle Node sim
+- **D46 — Motif fixtures are their own file.** The three-puzzle Node harness
   fixture is exhausted exactly by other scenarios (D34), so the nine
   hand-built motif puzzles (underpromotion, capture-promotion mate, en
   passant, castling, two mates on the last ply, a faster mate mid-line,
   transposition, a Black-solver promotion and a check at the start) live in
-  `apps/product/fixtures/chess-puzzles-motifs.sim.csv`, are ingested by the
+  `apps/product/fixtures/chess-puzzles-motifs.harness.csv`, are ingested by the
   scenario through the real load-file seeder, and are validated by the §35
   job test. Each row carries one otherwise-unused Lichess theme, so the
   feed's theme filter serves exactly the puzzle a scenario is about — a real
   user path, not a test-only selector.
-- **D47 — Where the millisecond assertions live.** The sim's UI wait pump
+- **D47 — Where the millisecond assertions live.** The harness's UI wait pump
   fast-forwards virtual time to the next due timer, so a product-level
   assertion "the board is still locked 200 ms in" races the pump. The exact
   frames and lock windows are asserted in the stager's seeded unit test
@@ -446,7 +446,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
 - **D54 — The seed rating moves 1200 → 1500.** §8 states new users start at
   1500, so `PUZZLE_RATING_DEFAULT` is the Glicko-2 default and the feed's
   `PUZZLE_FEED_RATING_DEFAULT` / `resolveProfilePuzzleRating` follow it. The
-  node sim fixture sits at ~1200, i.e. below the window — which is exactly the
+  node harness fixture sits at ~1200, i.e. below the window — which is exactly the
   §34 "rating at extremes where few puzzles exist" case, handled by the
   widening step of §9 rather than by re-rating the fixture. Existing
   expectations that hard-coded 1200 (`chess-puzzle-stats`,
@@ -488,13 +488,13 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   still covered by the same file, through a theme filter that matches nothing
   (and by the offline scenario).
 - **D61 — One account, two devices.** §34 needs the same account signed in on
-  two devices. The sim's Google address is derived from the actor id, so a new
+  two devices. The harness's Google address is derived from the actor id, so a new
   `signInWithGoogleAsAccount(actorId, accountActorId)` action signs one actor
   in with another's address — the real second-device path, no test-only hook.
 - **D62 — Rating / selection fixtures are re-rated real puzzles.**
-  `apps/product/fixtures/chess-puzzles-rating.sim.csv` (14 rows clustered on
+  `apps/product/fixtures/chess-puzzles-rating.harness.csv` (14 rows clustered on
   1500, so RD converges at a realistic rate) and
-  `chess-puzzles-selection.sim.csv` (4 in-window, 5 below the quality bars, 3
+  `chess-puzzles-selection.harness.csv` (4 in-window, 5 below the quality bars, 3
   outside the window) are rows from the checked-in Lichess web fixture with
   the rating / popularity / play-count columns rewritten. The positions and
   solutions are untouched, both files pass `validate:puzzles`, and both are

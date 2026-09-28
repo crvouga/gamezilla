@@ -10,7 +10,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { runInThisContext } from 'node:vm';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import {
   type BunWebView,
   BunWebviewDriver,
@@ -46,7 +46,7 @@ describe('BunWebviewDriver text fields', () => {
     field.addEventListener('input', () => typed.push(field.value));
     const driver = new BunWebviewDriver({
       view: domView(),
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
     });
 
     await driver.get('seed').clear();

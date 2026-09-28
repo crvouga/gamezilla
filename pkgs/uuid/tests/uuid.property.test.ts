@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property';
 import {
   assertUuid,
+  createHarnessIds,
   createSeededCreateId,
-  createSimIds,
   createUuidV7,
   isUuid,
 } from '@pkgs/uuid';
@@ -125,13 +125,13 @@ describe('createSeededCreateId', () => {
   });
 });
 
-describe('createSimIds', () => {
+describe('createHarnessIds', () => {
   test('same seed ⇒ same ids and random stream; ids never repeat', () => {
     assertProperty(
       'same seed ⇒ same ids and random stream; ids never repeat',
       fc.property(fc.string({ maxLength: 12 }), (seed) => {
-        const a = createSimIds(seed);
-        const b = createSimIds(seed);
+        const a = createHarnessIds(seed);
+        const b = createHarnessIds(seed);
         expect(a.seed).toBe(b.seed);
         const ids = Array.from({ length: 20 }, () => a.createId());
         expect(Array.from({ length: 20 }, () => b.createId())).toEqual(ids);
@@ -148,8 +148,8 @@ describe('createSimIds', () => {
         fc.string({ maxLength: 12 }),
         fc.nat({ max: 5 }),
         (seed, n) => {
-          const a = createSimIds(seed);
-          const b = createSimIds(seed);
+          const a = createHarnessIds(seed);
+          const b = createHarnessIds(seed);
           for (let i = 0; i < n; i += 1) a.random();
           expect(a.createId()).toBe(b.createId());
         }

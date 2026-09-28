@@ -1,6 +1,6 @@
 /**
  * Injectable HTTP transport. Production uses {@link createGlobalHttpClient};
- * sims supply an in-process dispatcher that never opens sockets.
+ * harnesses supply an in-process dispatcher that never opens sockets.
  */
 export type HttpClient = {
   fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;

@@ -2,7 +2,7 @@ import type { Clock } from '@pkgs/clock/types';
 import { TimeoutError } from '@pkgs/ui-testing/core/errors';
 
 /**
- * Advance product work between wait checks (the sim's `runFor(0)`).
+ * Advance product work between wait checks (the harness's `runFor(0)`).
  * Structurally identical to `@pkgs/ui-testing`'s `WaitPump`; declared here so
  * this Solid package does not pull the UI `@pkgs/clock` root into its
  * type program.
@@ -23,7 +23,7 @@ export type WaitForDomOptions = {
   readonly target: Node;
   /** Deadline clock — wall, or a virtual clock the pump advances. */
   readonly clock: Clock;
-  /** Drives product work between checks (sim `runFor(0)`); default microtask. */
+  /** Drives product work between checks (harness `runFor(0)`); default microtask. */
   readonly pump: WaitPump;
   readonly timeoutMs: number;
   readonly description: string;

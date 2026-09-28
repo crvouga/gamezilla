@@ -5,7 +5,7 @@
  * with the gesture target encoded for the HTML viewer.
  */
 
-import type { ReportStepHit } from '@pkgs/sim';
+import type { ReportStepHit } from '@pkgs/harness';
 import type { DriverKey } from '../core/keys';
 import type {
   AssertionOptions,
@@ -26,7 +26,7 @@ import type { StepRecorder } from './step-recorder';
 
 export type RecordingDriverOptions = {
   readonly recorder: StepRecorder;
-  /** Actor label attached to every step (multi-actor sims). */
+  /** Actor label attached to every step (multi-actor harnesses). */
   readonly actorId?: string;
 };
 

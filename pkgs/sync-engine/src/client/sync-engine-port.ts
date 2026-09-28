@@ -123,7 +123,7 @@ export type SyncEngine = {
    */
   readonly ensurePush: () => void;
   /**
-   * @internal MutationClientProvider / sim harness — register in-flight local
+   * @internal MutationClientProvider / harness harness — register in-flight local
    * mutation work so `disconnect` can drain it before the SQL client closes.
    * Returns a disposer that removes the drain.
    */

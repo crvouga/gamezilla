@@ -29,7 +29,7 @@ export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
 
 /**
  * Drain due outbox deliveries and push notification topics.
- * Publishes synchronously (like mutation fanout) so DST sim timers need not
+ * Publishes synchronously (like mutation fanout) so DST harness timers need not
  * advance for recipients to see rows.
  */
 export async function drainAndNotifyOutbox(args: {

@@ -42,7 +42,7 @@ export type MockBillingFetch = (
 ) => Promise<Response>;
 
 export type MockMembershipBillingOptions = {
-  /** The provider's origin (`http://billing.sim`, a loopback port, …). */
+  /** The provider's origin (`http://billing.harness`, a loopback port, …). */
   readonly origin: string;
   readonly secretKey: string;
   /** Without it callbacks fail closed while checkout/portal keep working. */

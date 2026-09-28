@@ -10,7 +10,7 @@
 import { describe, expect, test } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { appSchema } from '@libs/runtime/root/app-schema';
-import { migrateSimPostgres } from '@libs/runtime/root/sim/migrate-sim-postgres';
+import { migrateHarnessPostgres } from '@libs/runtime/root/harness/migrate-harness-postgres';
 import { unsafe } from '@pkgs/sql';
 import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 
@@ -61,7 +61,7 @@ describe('migrate: legacy int4 integer columns', () => {
       dbScope: appPostgresDbScope(),
     });
     const now = () => 0;
-    await migrateSimPostgres({ sqlClient, pool, now });
+    await migrateHarnessPostgres({ sqlClient, pool, now });
 
     const columns = declaredIntegerColumns();
     expect(columns.length).toBeGreaterThan(0);
@@ -75,7 +75,7 @@ describe('migrate: legacy int4 integer columns', () => {
       expect(narrowed.get(`${table}.${column}`)).toBe('int4');
     }
 
-    await migrateSimPostgres({ sqlClient, pool, now });
+    await migrateHarnessPostgres({ sqlClient, pool, now });
 
     const widened = await udtNames(sqlClient);
     for (const { table, column } of columns) {

@@ -8,7 +8,7 @@
 import './membership-lifecycle.binding';
 import './payment-provider-switch.binding';
 
-import { useQuintSim } from '@libs/sim-harness/quint/world';
-import { openLifecycleSim } from '../e2e/support/open-billing-lifecycle-sim';
+import { useQuintHarness } from '@libs/harness/quint/world';
+import { openLifecycleHarness } from '../e2e/support/open-billing-lifecycle-harness';
 
-useQuintSim(openLifecycleSim);
+useQuintHarness(openLifecycleHarness);

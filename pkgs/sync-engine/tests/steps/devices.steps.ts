@@ -14,7 +14,7 @@ import {
   net,
   online,
   restart,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { settledWrite, writeNote } from './note-writes';
 import { type Device, ensureDevice, Given, Then, When } from './world';
 

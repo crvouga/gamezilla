@@ -11,7 +11,7 @@ export type HonoFetchable = {
 
 export type CreateHonoHttpClientArgs = {
   readonly app: HonoFetchable;
-  /** Origin used to absolutize relative URLs, e.g. `'http://sim.local'`. */
+  /** Origin used to absolutize relative URLs, e.g. `'http://harness.local'`. */
   readonly origin: string;
 };
 
@@ -43,7 +43,7 @@ function toRequest(
 /**
  * In-process {@link HttpClient} that dispatches requests through a Hono app.
  * Relative URLs resolve against `origin`; never opens real sockets. Use for
- * product simulations wiring the API worker into `createSimAdapters({ http })`.
+ * product simulations wiring the API worker into `createHarnessAdapters({ http })`.
  */
 export function createHonoHttpClient(
   args: CreateHonoHttpClientArgs

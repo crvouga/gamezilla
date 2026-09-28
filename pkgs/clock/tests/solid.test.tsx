@@ -1,14 +1,14 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider, useClock, useTimers } from '@pkgs/clock/solid';
 import { render, screen } from '@solidjs/testing-library';
 import { createSignal, onCleanup } from 'solid-js';
 
 describe('ClockProvider (solid)', () => {
   test('exposes injected clock and timers', () => {
-    const sim = createSimClock({ startMs: 5_000 });
+    const harness = createHarnessClock({ startMs: 5_000 });
     function Ticker() {
       const clock = useClock();
       const timers = useTimers();
@@ -18,12 +18,12 @@ describe('ClockProvider (solid)', () => {
       return <output>{now()}</output>;
     }
     render(() => (
-      <ClockProvider clock={sim.clock} timers={sim.timers}>
+      <ClockProvider clock={harness.clock} timers={harness.timers}>
         <Ticker />
       </ClockProvider>
     ));
     expect(screen.getByRole('status')).toHaveTextContent('5000');
-    sim.clock.advance(2_000);
+    harness.clock.advance(2_000);
     expect(screen.getByRole('status')).toHaveTextContent('7000');
   });
 

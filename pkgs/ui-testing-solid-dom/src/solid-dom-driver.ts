@@ -33,7 +33,7 @@ export type SolidDomDriverOptions<TContext = void> = {
   /** Deadline clock for waits — wall, or a virtual clock the pump advances. */
   readonly clock: Clock;
   /**
-   * Drives product work between wait checks (the sim's `runFor(0)`).
+   * Drives product work between wait checks (the harness's `runFor(0)`).
    * Defaults to a microtask flush — enough for synchronous Solid updates.
    */
   readonly pump?: WaitPump | undefined;

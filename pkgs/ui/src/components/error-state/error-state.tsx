@@ -16,7 +16,7 @@
  *
  * @example
  * ```tsx
- * <ErrorState title={t`Simulator failed to start`} body={boot.bootErr} />
+ * <ErrorState title={t`Harness failed to start`} body={boot.bootErr} />
  * <ErrorState variant="compact" title={t`Failed to load metrics`} body={msg} />
  * ```
  */

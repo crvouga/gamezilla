@@ -5,7 +5,7 @@ import {
   READINESS_CHECK_TIMEOUT_MS,
   type ReadinessBody,
 } from '@libs/server-app/health/route';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import { assertProperty, fc } from '@pkgs/property';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
@@ -38,7 +38,7 @@ async function probe(db: DbCase): Promise<{
   readonly res: Response;
   readonly body: ReadinessBody;
 }> {
-  const { clock, timers } = createSimClock({ startMs: 1_767_225_600_000 });
+  const { clock, timers } = createHarnessClock({ startMs: 1_767_225_600_000 });
   const sqlClient = {
     query: () => {
       if (db.kind === 'hang') return new Promise<never>(() => undefined);
@@ -103,7 +103,7 @@ describe('GET /health/ready', () => {
 
   // Decided wire shape: liveness never touches a dependency.
   test('liveness answers without a database', async () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     const app = new Hono<ApiHonoEnv>().route(
       '/',
       createHealthApp({ clock, timers })

@@ -1,8 +1,8 @@
 // @io-wall-ok — browser / production ClientEnv composition root.
 /**
  * Production / localhost `ClientEnv` built from browser APIs only. Call only
- * from `main.tsx` (or another wall composition root); sims and tests build
- * their own env (`tests/support/sim-client-env.ts`).
+ * from `main.tsx` (or another wall composition root); harnesses and tests build
+ * their own env (`tests/support/harness-client-env.ts`).
  */
 
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse/client';

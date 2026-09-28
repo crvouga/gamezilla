@@ -5,7 +5,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid/render';
 import { BoardMotionProvider } from '@pkgs/chess-board/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
 import { ThemeProvider } from '@pkgs/ui/theme/theme-context';
@@ -25,7 +25,7 @@ afterEach(() => {
  * the outcome that way).
  */
 function mountParent() {
-  const { clock, timers } = createSimClock();
+  const { clock, timers } = createHarnessClock();
   const [last, setLast] = createSignal<string | null>(null);
   let seenByEffect: string | null = null;
   const inOnMove: (string | null)[] = [];

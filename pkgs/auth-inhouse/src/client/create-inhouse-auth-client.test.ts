@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 
 import {
   AUTH_SSO_CANCELLED_ERROR,
@@ -33,7 +33,7 @@ describe('createInhouseAuthClient / oauth', () => {
     let fetchCalled = false;
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...createSimClock(),
+      ...createHarnessClock(),
       fetch: async () => {
         fetchCalled = true;
         return new Response(JSON.stringify({ token: 'session-token' }), {
@@ -72,7 +72,7 @@ describe('createInhouseAuthClient / oauth', () => {
   test('cancel maps to AUTH_SSO_CANCELLED_ERROR', async () => {
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...createSimClock(),
+      ...createHarnessClock(),
       fetch: async () =>
         new Response(JSON.stringify({ token: 't' }), {
           status: 200,
@@ -91,7 +91,7 @@ describe('createInhouseAuthClient / oauth', () => {
   test('blocked popup maps to AUTH_SSO_POPUP_BLOCKED_ERROR', async () => {
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...createSimClock(),
+      ...createHarnessClock(),
       fetch: async () => new Response('{}', { status: 404 }),
       storage: createInMemoryAuthClientStorage(),
       callbackUrl: CALLBACK,
@@ -108,7 +108,7 @@ describe('createInhouseAuthClient / oauth', () => {
   test('missing code in callback maps to cancelled', async () => {
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...createSimClock(),
+      ...createHarnessClock(),
       fetch: async () =>
         new Response(JSON.stringify({ token: 't' }), {
           status: 200,

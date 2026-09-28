@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { fetchWithRetry } from '@pkgs/async/fetch-with-retry';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
 import { assertProperty, fc } from '@pkgs/property';
 
@@ -47,7 +47,7 @@ describe('fetchWithRetry model', () => {
         fc.integer({ min: 0, max: 50 }),
         fc.array(arbAttempt, { minLength: 5, maxLength: 5 }),
         async (attempts, delayMs, script) => {
-          const { clock, timers } = createSimClock();
+          const { clock, timers } = createHarnessClock();
           let calls = 0;
           const fetch: HttpFetch = async () => {
             const a = script[calls]!;
@@ -100,7 +100,7 @@ describe('fetchWithRetry model', () => {
   });
 
   test('spec: defaults are 3 attempts with 2000 ms linear backoff', async () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     let calls = 0;
     const fetch: HttpFetch = async () => {
       calls += 1;

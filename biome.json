@@ -17,7 +17,7 @@
       "!!**/.cache",
       "!**/*.lock",
       "!libs/client-app/src/i18n/locales/*/messages.ts",
-      "!pkgs/idp-sim/src/server/assets.generated.ts",
+      "!pkgs/idp-mock/src/server/assets.generated.ts",
       "!pkgs/billing-mock-provider/src/server/assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
@@ -189,8 +189,8 @@
         "**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -211,8 +211,8 @@
         "**/pkgs/llm/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -233,8 +233,8 @@
         "**/pkgs/llm/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -256,8 +256,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -276,8 +276,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -293,7 +293,7 @@
         "**/pkgs/*/src/use-cases/*/shared/*.{ts,tsx}",
         "**/pkgs/sync-engine/src/mutations/**/*.{ts,tsx}",
         "**/pkgs/sync-engine/src/client/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/sim/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine/src/harness/**/*.{ts,tsx}",
         "**/pkgs/db-schema/src/**/*.{ts,tsx}",
         "**/pkgs/room/src/client/core/**/*.{ts,tsx}",
         "**/pkgs/room/src/server/core/**/*.{ts,tsx}",
@@ -316,7 +316,7 @@
         "**/pkgs/*/src/use-cases/*/shared/*.{ts,tsx}",
         "**/pkgs/sync-engine/src/mutations/**/*.{ts,tsx}",
         "**/pkgs/sync-engine/src/client/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/sim/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine/src/harness/**/*.{ts,tsx}",
         "**/pkgs/db-schema/src/**/*.{ts,tsx}",
         "**/pkgs/room/src/client/core/**/*.{ts,tsx}",
         "**/pkgs/room/src/server/core/**/*.{ts,tsx}",
@@ -333,8 +333,8 @@
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -342,8 +342,8 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -365,8 +365,8 @@
         "!**/libs/secrets/src/shared/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -383,7 +383,7 @@
         "!**/pkgs/permissions/**",
         "!**/libs/billing/**",
         "!**/pkgs/billing*/**",
-        "!**/libs/billing/src/sim/**"
+        "!**/libs/billing/src/harness/**"
       ]
     },
     {
@@ -400,7 +400,7 @@
         "!**/pkgs/permissions/**",
         "!**/libs/billing/**",
         "!**/pkgs/billing*/**",
-        "!**/libs/billing/src/sim/**"
+        "!**/libs/billing/src/harness/**"
       ]
     },
     {
@@ -455,8 +455,8 @@
         "**/libs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -480,8 +480,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -497,7 +497,7 @@
         "!**/wall-os-fs.ts",
         "!**/repo-tree-store.ts",
         "!**/wall-io.ts",
-        "!**/sim-io.ts",
+        "!**/harness-io.ts",
         "!**/wall.ts",
         "!**/wall-client-env.ts",
         "!**/wall-room-server-env.ts",
@@ -509,15 +509,15 @@
         "!**/migrate.ts",
         "!**/migrate-cli.ts",
         "!**/dev.ts",
-        "!**/boot-product-simulator.ts",
+        "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
         "!**/pkgs/clock/src/index.ts",
         "!**/pkgs/polyfill/src/crypto.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -533,7 +533,7 @@
         "!**/apps/server/src/server.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
-        "!**/sim-io.ts",
+        "!**/harness-io.ts",
         "!**/wall.ts",
         "!**/wall-client-env.ts",
         "!**/wall-console-env.ts",
@@ -562,7 +562,7 @@
         "!**/serve-harness.ts",
         "!**/example-root.tsx",
         "!**/app.tsx",
-        "!**/boot-product-simulator.ts",
+        "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
         "!**/pkgs/clock/src/index.ts",
@@ -578,8 +578,8 @@
         "!**/cf-dns.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -604,7 +604,7 @@
         "!**/apps/server/src/server.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
-        "!**/sim-io.ts",
+        "!**/harness-io.ts",
         "!**/wall.ts",
         "!**/wall-client-env.ts",
         "!**/wall-console-env.ts",
@@ -631,8 +631,8 @@
         "!**/serve-harness.ts",
         "!**/example-root.tsx",
         "!**/app.tsx",
-        "!**/boot-product-simulator.ts",
-        "!**/open-sim.ts",
+        "!**/boot-product-harness.ts",
+        "!**/open-harness.ts",
         "!**/launch-actor.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
@@ -648,8 +648,8 @@
         "!**/sql-host-entry.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -670,8 +670,8 @@
         "!**/serialize-host-tree-html*",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -681,7 +681,7 @@
     {
       "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/libs/sim-harness/src/open-sim/**/*.{ts,tsx}",
+        "**/libs/harness/src/open-harness/**/*.{ts,tsx}",
         "**/libs/*/tests/e2e/support/**/*.{ts,tsx}"
       ]
     },
@@ -691,7 +691,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "!**/pkgs/sim/src/script/**"
+        "!**/pkgs/harness/src/script/**"
       ]
     },
     {
@@ -700,7 +700,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/apps/**/*.{ts,tsx}",
-        "!**/pkgs/sim/src/script/**"
+        "!**/pkgs/harness/src/script/**"
       ]
     },
     {
@@ -727,8 +727,8 @@
         "!**/build/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**"
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**"
       ]
     },
     {
@@ -760,7 +760,7 @@
         "**/pkgs/assert/src/**/*.{ts,tsx}",
         "**/pkgs/async-local/src/**/*.{ts,tsx}",
         "**/pkgs/attribute/src/**/*.{ts,tsx}",
-        "**/pkgs/auth-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/auth-harness/src/**/*.{ts,tsx}",
         "**/pkgs/billing-paddle/src/**/*.{ts,tsx}",
         "**/pkgs/billing-providers/src/**/*.{ts,tsx}",
         "**/pkgs/billing-stripe/src/**/*.{ts,tsx}",
@@ -790,7 +790,7 @@
         "**/pkgs/kv-postgres/src/**/*.{ts,tsx}",
         "**/pkgs/kv-web/src/**/*.{ts,tsx}",
         "**/pkgs/llm-openai/src/**/*.{ts,tsx}",
-        "**/pkgs/matchmaking-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-harness/src/**/*.{ts,tsx}",
         "**/pkgs/matchmaking-sql/src/**/*.{ts,tsx}",
         "**/pkgs/matchmaking/src/**/*.{ts,tsx}",
         "**/pkgs/message/src/**/*.{ts,tsx}",
@@ -809,16 +809,16 @@
         "**/pkgs/room-adapter-durable-object/src/**/*.{ts,tsx}",
         "**/pkgs/room-adapter-memory/src/**/*.{ts,tsx}",
         "**/pkgs/room-adapter-web/src/**/*.{ts,tsx}",
-        "**/pkgs/room-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/room-harness/src/**/*.{ts,tsx}",
         "**/pkgs/secret-provider/src/**/*.{ts,tsx}",
         "**/pkgs/secret-store/src/**/*.{ts,tsx}",
         "**/pkgs/secret-string/src/**/*.{ts,tsx}",
         "**/pkgs/secrets-config/src/**/*.{ts,tsx}",
         "**/pkgs/secure-storage-web/src/**/*.{ts,tsx}",
-        "**/pkgs/sim/src/**/*.{ts,tsx}",
+        "**/pkgs/harness/src/**/*.{ts,tsx}",
         "**/pkgs/sql-cli/src/**/*.{ts,tsx}",
         "**/pkgs/sql-client-postgres/src/**/*.{ts,tsx}",
-        "**/pkgs/sql-client-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-harness/src/**/*.{ts,tsx}",
         "**/pkgs/sql-map/src/**/*.{ts,tsx}",
         "**/pkgs/sql/src/**/*.{ts,tsx}",
         "**/pkgs/static-file-server/src/**/*.{ts,tsx}",
@@ -828,7 +828,7 @@
         "**/pkgs/ui-testing-bun-webview/src/**/*.{ts,tsx}",
         "**/pkgs/vite-workspace-resolver/src/**/*.{ts,tsx}",
         "**/pkgs/async/src/async-runner.ts",
-        "**/pkgs/clock/src/sim-clock.ts",
+        "**/pkgs/clock/src/harness-clock.ts",
         "**/pkgs/clock/src/types.ts",
         "**/pkgs/clock/src/wall.ts",
         "**/pkgs/http-client/src/origin-availability.ts",
@@ -920,9 +920,9 @@
         "**/pkgs/billing/src/**/*.{ts,tsx}",
         "!**/apps/server/src/server.ts",
         "!**/apps/product/**",
-        "!**/libs/sim-harness/src/**",
+        "!**/libs/harness/src/**",
         "!**/libs/secrets/**",
-        "!**/src/sim/**",
+        "!**/src/harness/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**",
@@ -957,7 +957,7 @@
         "!**/libs/auth/**",
         "!**/libs/billing/**",
         "!**/libs/permissions/**",
-        "!**/libs/sim-harness/**",
+        "!**/libs/harness/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -971,8 +971,8 @@
         "!**/libs/client-app/src/shell/wall-client-env.ts",
         "!**/libs/client-app/src/shell/auth-client-storage.ts",
         "!**/apps/product/**",
-        "!**/libs/sim-harness/src/**",
-        "!**/src/sim/**",
+        "!**/libs/harness/src/**",
+        "!**/src/harness/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**",
@@ -980,13 +980,13 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/import-product-no-sim.grit",
+      "path": "./libs/tools/biome-plugins/import-product-no-harness.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**",
-        "!**/libs/sim-harness/scripts/**",
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**",
+        "!**/libs/harness/scripts/**",
         "!**/apps/product/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
@@ -995,11 +995,11 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/import-sim-seam.grit",
+      "path": "./libs/tools/biome-plugins/import-harness-seam.grit",
       "includes": [
         "**/*.{ts,tsx}",
-        "!**/src/sim/**",
-        "!**/libs/sim-harness/src/**",
+        "!**/src/harness/**",
+        "!**/libs/harness/src/**",
         "!**/apps/product/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
@@ -1008,14 +1008,14 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/import-sim-internals.grit",
-      "includes": ["**/*.{ts,tsx}", "!**/pkgs/sim/**"]
+      "path": "./libs/tools/biome-plugins/import-harness-internals.grit",
+      "includes": ["**/*.{ts,tsx}", "!**/pkgs/harness/**"]
     },
     {
-      "path": "./libs/tools/biome-plugins/import-sim-core-no-fast-check.grit",
+      "path": "./libs/tools/biome-plugins/import-harness-core-no-fast-check.grit",
       "includes": [
-        "**/pkgs/sim/src/**/*.{ts,tsx}",
-        "!**/pkgs/sim/src/fast-check/**",
+        "**/pkgs/harness/src/**/*.{ts,tsx}",
+        "!**/pkgs/harness/src/fast-check/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
@@ -1083,8 +1083,8 @@
         "!**/libs/server-app/src/app/request-db-middleware.ts",
         "!**/libs/server-app/src/observability/wrap-sql-client.ts",
         "!**/libs/server-app/src/room/route.ts",
-        "!**/libs/sim-harness/src/observability/test-failure-spans.ts",
-        "!**/libs/sim-harness/src/preload.ts",
+        "!**/libs/harness/src/observability/test-failure-spans.ts",
+        "!**/libs/harness/src/preload.ts",
         "!**/pkgs/logger/src/logger.ts",
         "!**/pkgs/room-adapter-durable-object/src/adapter-base.ts",
         "!**/pkgs/room-adapter-durable-object/src/observability.ts",
@@ -1118,7 +1118,7 @@
         "!**/pkgs/observability/**",
         "!**/pkgs/observability-cli/**",
         "!**/pkgs/observability-mcp/**",
-        "!**/libs/sim-harness/src/preload.ts",
+        "!**/libs/harness/src/preload.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1161,7 +1161,7 @@
       "includes": [
         "**/tests/**",
         "**/*.test.{ts,tsx}",
-        "**/src/sim/**",
+        "**/src/harness/**",
         "**/*.spec.{ts,tsx}"
       ],
       "linter": {
@@ -1277,7 +1277,7 @@
     },
     {
       "includes": [
-        "pkgs/room-widgets/src/pages/use-room-sim.ts",
+        "pkgs/room-widgets/src/pages/use-room-harness.ts",
         "pkgs/chess-board/src/chess-board.tsx"
       ],
       "linter": {
@@ -1324,13 +1324,13 @@
                 "paths": {
                   "@pkgs/ui-testing": {
                     "importNames": ["Driver"],
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see libs/sim-harness/README.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness/README.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see libs/sim-harness/README.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness/README.md)."
                   },
                   "@pkgs/ui-testing-bun-webview": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see libs/sim-harness/README.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness/README.md)."
                   }
                 }
               }
@@ -1343,7 +1343,7 @@
       "includes": [
         "pkgs/sql-client-contract/tests/helpers/contract/portable-contract.ts",
         "pkgs/sync-engine/src/mutations/server/replay-mutation.ts",
-        "pkgs/sync-engine/src/sim/http-bridge-dispatch.ts"
+        "pkgs/sync-engine/src/harness/http-bridge-dispatch.ts"
       ],
       "linter": {
         "rules": {

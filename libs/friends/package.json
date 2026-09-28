@@ -11,9 +11,9 @@
       "./src/root/*.ts",
       "./src/root/*.tsx"
     ],
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx"
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
     ],
     "./steps/*": "./tests/steps/*.ts"
   },
@@ -21,7 +21,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -31,7 +31,7 @@
     "@libs/profile": "workspace:*",
     "@libs/search": "workspace:*",
     "@libs/server-app": "workspace:*",
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
@@ -58,7 +58,7 @@
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

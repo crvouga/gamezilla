@@ -36,7 +36,7 @@ bun run stack --idp-state memory                                   # default: Id
 bun run stack --idp-state instance --keep-data --instance alpha    # IdP survives restarts of `alpha`
 bun run stack --no-web --idp-state path --idp-state-path /tmp/idp.sqlite
 
-bun run --filter @apps/product test:stack  # boot a stack, run the sim suite, tear down
+bun run --filter @apps/product test:stack  # boot a stack, run the harness suite, tear down
 ```
 
 ### Local Google sign-in
@@ -79,7 +79,7 @@ A persisted store keeps the same `kid`/JWKS across restarts, so tokens issued
 before a restart still verify.
 
 The web tier runs the `@apps/product` Vite app, which owns both the wall at
-`/` and the simulator at `/simulator`. It receives the stack API origin through
+`/` and the harness at `/harness`. It receives the stack API origin through
 `VITE_API_URL`; no client bundle build is required. `--no-web` skips the Vite
 process entirely.
 

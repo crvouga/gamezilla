@@ -1,0 +1,86 @@
+/**
+ * Build MatchmakingImplSql replicas sharing one store + harness clock.
+ */
+
+import type {
+  Matchmaking,
+  MatchmakingSchema,
+  MatchmakingTuning,
+  RadiusOptions,
+} from '@pkgs/matchmaking/interface';
+import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SeededRng } from '@pkgs/uuid';
+import { createSeededCreateId } from './create-id';
+import type { HarnessStore } from './store';
+
+/** Minimal clock — works with `@pkgs/harness` and `@pkgs/clock` HarnessClock. */
+export type ReplicaClock = {
+  readonly now: () => number;
+};
+
+export type ReplicaBootConfig = {
+  readonly schema: MatchmakingSchema;
+  readonly radius: RadiusOptions | undefined;
+  readonly tuning: Partial<MatchmakingTuning>;
+};
+
+function tuningFromPartial(
+  partial: Partial<MatchmakingTuning>,
+  now: () => number,
+  createId: () => string
+): MatchmakingTuning {
+  return {
+    ...(partial.maxPairsPerPass !== undefined
+      ? { maxPairsPerPass: partial.maxPairsPerPass }
+      : {}),
+    ...(partial.maxWaitSeconds !== undefined
+      ? { maxWaitSeconds: partial.maxWaitSeconds }
+      : {}),
+    ...(partial.matchedRetentionSeconds !== undefined
+      ? { matchedRetentionSeconds: partial.matchedRetentionSeconds }
+      : {}),
+    now,
+    createId,
+  };
+}
+
+export function buildReplicaMatchmaking(args: {
+  readonly sqlClient: SqlClient;
+  readonly clock: ReplicaClock;
+  readonly rng: SeededRng;
+  readonly replicaId: string;
+  readonly config: ReplicaBootConfig;
+}): Matchmaking {
+  const createId = createSeededCreateId(
+    args.rng.fork(`replica:${args.replicaId}`).random
+  );
+  return new MatchmakingImplSql({
+    sqlClient: args.sqlClient,
+    schema: args.config.schema,
+    ...(args.config.radius !== undefined ? { radius: args.config.radius } : {}),
+    tuning: tuningFromPartial(
+      args.config.tuning,
+      () => args.clock.now(),
+      createId
+    ),
+  });
+}
+
+export async function bootReplicaOnStore(args: {
+  readonly store: HarnessStore;
+  readonly clock: ReplicaClock;
+  readonly rng: SeededRng;
+  readonly replicaId: string;
+  readonly config: ReplicaBootConfig;
+}): Promise<Matchmaking> {
+  const mm = buildReplicaMatchmaking({
+    sqlClient: args.store.openClient(),
+    clock: args.clock,
+    rng: args.rng,
+    replicaId: args.replicaId,
+    config: args.config,
+  });
+  await mm.ready();
+  return mm;
+}

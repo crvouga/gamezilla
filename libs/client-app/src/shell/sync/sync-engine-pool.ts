@@ -22,7 +22,7 @@ export type AppSyncEnginePool = {
   readonly mutationRegistry: () => Promise<MutationRegistry>;
   /**
    * Ready engine for `databaseName`, or `null` (never requested / still
-   * booting). Sync read for sim snapshot drains; never creates an engine.
+   * booting). Sync read for harness snapshot drains; never creates an engine.
    */
   readonly peekReady: (databaseName: string) => SyncEngine | null;
   /** Soft-stop all engines and close each SqlClient (releases web OPFS). */
@@ -44,7 +44,7 @@ function once<T>(load: () => Promise<T>): () => Promise<T> {
 
 /**
  * Builds an app sync-engine pool. Production passes a stable `globalKey` so the
- * pool survives HMR / re-imports; sims omit it for an isolated per-session pool
+ * pool survives HMR / re-imports; harnesses omit it for an isolated per-session pool
  * (owned by the simulation, never a process singleton).
  */
 export function createAppSyncEnginePool(options: {

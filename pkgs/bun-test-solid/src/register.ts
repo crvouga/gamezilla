@@ -15,7 +15,7 @@
  * - `*.module.css` → proxy of class names; plain `.css` → empty module;
  *   media assets (`.mp3`, images, fonts) → their file path.
  * - happy-dom supplies `document`/`window`; Bun's own fetch / streams / timers
- *   / crypto are restored afterwards so in-process Hono, SQLite and sim HTTP
+ *   / crypto are restored afterwards so in-process Hono, SQLite and harness HTTP
  *   stay Bun's.
  *
  * `onLoad` is synchronous so CJS `require()` of transformed modules works.
@@ -142,7 +142,7 @@ plugin({
 
 /**
  * Bun natives that must survive happy-dom's global registration: in-process
- * Hono servers, SQLite clients, sim HTTP serialization and the sim schedulers
+ * Hono servers, SQLite clients, harness HTTP serialization and the harness schedulers
  * rely on Bun's fetch / streams / timers / crypto, not happy-dom's emulations.
  */
 const KEEP_BUN_GLOBALS = [

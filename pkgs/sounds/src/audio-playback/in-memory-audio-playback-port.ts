@@ -18,7 +18,7 @@ export type InMemoryAudioPlaybackPort = AudioPlaybackPort & {
   ) => void;
 };
 
-/** Sim / test {@link AudioPlaybackPort} with call recording + failNext. */
+/** Harness / test {@link AudioPlaybackPort} with call recording + failNext. */
 export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
   const created: MemPlayer[] = [];
   let shouldFail = false;

@@ -101,7 +101,7 @@ function readFailedTestTraces(): FailedTestTrace[] {
       const path = join(
         tier,
         entry.name,
-        '.cache/sim-report/traces/spans.ndjson'
+        '.cache/harness-report/traces/spans.ndjson'
       );
       if (existsSync(path)) {
         failures.push(

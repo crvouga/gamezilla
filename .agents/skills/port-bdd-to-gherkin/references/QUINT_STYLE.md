@@ -83,7 +83,7 @@ bindQuintModel<World>({
 
 - Every action goes through `s.apply`, so system properties hold after each
   step and the report records it.
-- `observe` only reads. It is compared with the model's state on the sim's
+- `observe` only reads. It is compared with the model's state on the harness's
   virtual clock (settling for up to about 15 s), so asynchronous convergence
   gets real-world patience.
 - Replay needs steps whose timing the driver can pin. If the product has
@@ -93,5 +93,5 @@ bindQuintModel<World>({
 - A bound action that no trace takes fails the suite. Raise the `traces` or
   `maxSteps` count, or fix the guard.
 - On divergence the runner prints the step, the differing variables (model vs
-  product), and the sim calls. Decide whether the product or the model is
+  product), and the harness calls. Decide whether the product or the model is
   wrong. Never loosen `observe` to hide a difference.

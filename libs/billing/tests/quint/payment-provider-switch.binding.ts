@@ -16,14 +16,14 @@ import {
   SECOND_PAYMENT_PROVIDER,
   subscribeToPlus,
   switchPaymentProvider,
-} from '@libs/billing/sim/billing-actions';
+} from '@libs/billing/harness/billing-actions';
 import {
   checkoutProvider,
   governingMembership,
-} from '@libs/billing/sim/billing-reads';
-import { focusActor, signInWithGoogle } from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
+} from '@libs/billing/harness/billing-reads';
+import { focusActor, signInWithGoogle } from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import { accountIdOf } from '@libs/harness/system/identity';
 import type { QuintValue } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 
@@ -44,7 +44,7 @@ function person(picks: Picks): string {
   return String(picks['person']);
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'payment-provider-switch',
   traces: 8,
   maxSteps: 12,

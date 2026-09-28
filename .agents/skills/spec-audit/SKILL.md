@@ -77,10 +77,10 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 | B17 | block | J. A scenario whose outcome only code could observe: exact formula output, validation table, stored state, wire shape, internal counts, transport state. Cite the step and the home the policy table gives it. | — |
 | C1–C6 | block | § Coverage map. | — |
 | D1 | block | M. File paths, package names, code identifiers in `.feature`/`.qnt` prose. | — |
-| D2 | block | M. In `tests/steps/**` and `tests/quint/**` of a sim package: imports other than the D2 allow-list (`node:*` included); `data-testid`, CSS selectors, `querySelector`, `page.`, `fetch(`, SQL or storage clients. J: a public-entry import used for more than types and decided constants. | — |
-| D3 | block | M. Step and binding bodies with `if`/`switch`/`for`/`while`/`.map(` over product values, `expect` in a `Given`/`When`, a step invoking another step's text. J: an `expect` in a `Given` is fine only if it reads the state that `Given` just built; a branch is fine only if it picks a sim path, not an expected value. Live-world loops over environments are not product logic. | — |
+| D2 | block | M. In `tests/steps/**` and `tests/quint/**` of a harness package: imports other than the D2 allow-list (`node:*` included); `data-testid`, CSS selectors, `querySelector`, `page.`, `fetch(`, SQL or storage clients. J: a public-entry import used for more than types and decided constants. | — |
+| D3 | block | M. Step and binding bodies with `if`/`switch`/`for`/`while`/`.map(` over product values, `expect` in a `Given`/`When`, a step invoking another step's text. J: an `expect` in a `Given` is fine only if it reads the state that `Given` just built; a branch is fine only if it picks a harness path, not an expected value. Live-world loops over environments are not product logic. | — |
 | D4 | block | M. More than one world/registration entry per package; anything under `specs/` naming a `tests/` file. | — |
-| D5 | block | M. `setTimeout`, `sleep`, `Date.now`, `new Date(` in sim steps; skipped, pending or retried steps. | pending |
+| D5 | block | M. `setTimeout`, `sleep`, `Date.now`, `new Date(` in harness steps; skipped, pending or retried steps. | pending |
 | D6 | block | M. Binding keys that are not the model's action/variable names. | unbound |
 | P1–P2 | block | M. `bun run spec:ownership`. | yes |
 

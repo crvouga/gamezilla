@@ -1,7 +1,7 @@
 /**
  * Friends steps: requests, the friends list, another person's profile,
- * blocking, and the live-space badge. Each step is one sim call or a fixed
- * short sequence; the wording says the intent, the sim layer does the UI.
+ * blocking, and the live-space badge. Each step is one harness call or a fixed
+ * short sequence; the wording says the intent, the harness layer does the UI.
  */
 
 import { expect } from 'bun:test';
@@ -17,7 +17,7 @@ import {
   removeFriend,
   searchUntilAddOffered,
   unblockFriend,
-} from '@libs/friends/sim/friends-actions';
+} from '@libs/friends/harness/friends-actions';
 import {
   addFriendLabel,
   askOffered,
@@ -32,7 +32,7 @@ import {
   readFriendsCount,
   unblockOffered,
   withdrawOffered,
-} from '@libs/friends/sim/friends-ui-reads';
+} from '@libs/friends/harness/friends-ui-reads';
 import {
   askAgainFromSearch,
   blockPerson,
@@ -45,29 +45,29 @@ import {
   openPersonFromSearch,
   sendRequestFromProfile,
   viewProfileFromRequest,
-} from '@libs/friends/sim/person-actions';
-import { setupFriendsPair } from '@libs/friends/sim/setup-friends-pair';
-import { openInbox } from '@libs/notifications/sim/notifications-actions';
-import {
-  openProfileEdit,
-  setUsername,
-} from '@libs/profile/sim/profile-actions';
-import { searchUsername } from '@libs/search/sim/search-actions';
-import {
-  peopleSearchOpen,
-  searchNeedsAccount,
-} from '@libs/search/sim/search-ui-reads';
-import { backToTabs, focusActor, returnToTabs } from '@libs/sim-harness';
+} from '@libs/friends/harness/person-actions';
+import { setupFriendsPair } from '@libs/friends/harness/setup-friends-pair';
+import { backToTabs, focusActor, returnToTabs } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
-import { joinFromPrompt } from '@libs/spaces/sim/space-actions';
+} from '@libs/harness/spec/define';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { accountIdOf } from '@libs/harness/system/identity';
+import { openInbox } from '@libs/notifications/harness/notifications-actions';
+import {
+  openProfileEdit,
+  setUsername,
+} from '@libs/profile/harness/profile-actions';
+import { searchUsername } from '@libs/search/harness/search-actions';
+import {
+  peopleSearchOpen,
+  searchNeedsAccount,
+} from '@libs/search/harness/search-ui-reads';
+import { joinFromPrompt } from '@libs/spaces/harness/space-actions';
 
 const SECOND_MS = 1_000;
 /** How long a decline takes to reach the person who asked. */
@@ -79,7 +79,7 @@ function sameActor(expected: Actor, given: Actor, step: string): void {
   }
 }
 
-async function accountId(w: SimWorld, actor: Actor): Promise<string> {
+async function accountId(w: HarnessWorld, actor: Actor): Promise<string> {
   const id = await w.s.read(accountIdOf, actor);
   if (id === null) throw new Error(`${actor} has no account`);
   return id;
@@ -413,7 +413,11 @@ When(
 
 // ------------------------------------------------------------------- block
 
-async function block(w: SimWorld, actor: Actor, other: Actor): Promise<void> {
+async function block(
+  w: HarnessWorld,
+  actor: Actor,
+  other: Actor
+): Promise<void> {
   await w.s.apply(blockFriend, actor, other);
   await w.s.apply(returnToTabs, actor);
 }
@@ -490,7 +494,7 @@ Then('{actor} can search for people', async (w, actor: Actor) => {
 
 /** Bring `actor`'s friends list up and wait until it shows `host` as live. */
 async function untilShownLive(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   host: Actor,
   maxMs?: number
@@ -499,7 +503,7 @@ async function untilShownLive(
   await w.s.apply(focusActor, actor);
   await w.s.apply(openFriendsList, actor);
   await w.s.until(
-    (surf: ProductSim) => friendLiveBadgeVisible(surf, actor, hostId),
+    (surf: ProductHarness) => friendLiveBadgeVisible(surf, actor, hostId),
     maxMs === undefined ? undefined : { maxMs }
   );
 }
@@ -517,7 +521,7 @@ Then(
     const hostId = await accountId(w, host);
     await w.s.apply(focusActor, actor);
     await w.s.until(
-      (surf: ProductSim) => friendLiveBadgeVisible(surf, actor, hostId),
+      (surf: ProductHarness) => friendLiveBadgeVisible(surf, actor, hostId),
       { maxMs: seconds * SECOND_MS }
     );
   }
@@ -530,7 +534,7 @@ Then(
     await w.s.apply(focusActor, actor);
     await w.s.apply(openFriendsList, actor);
     await w.s.until(
-      (surf: ProductSim) => friendLiveBadgeVisible(surf, actor, hostId),
+      (surf: ProductHarness) => friendLiveBadgeVisible(surf, actor, hostId),
       {
         pred: (visible) => !visible,
         maxMs: seconds * SECOND_MS,

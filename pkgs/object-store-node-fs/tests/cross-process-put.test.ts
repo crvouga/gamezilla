@@ -1,5 +1,5 @@
 /**
- * Regression: `bun test --parallel` workers wrote the same migrated sim seed
+ * Regression: `bun test --parallel` workers wrote the same migrated harness seed
  * at once, and each process named its tmp file `<key>.1.tmp` — one worker's
  * `rename` moved the other's tmp away, which then failed `ENOENT` and took a
  * whole e2e suite down on a cold cache. Several processes putting one key

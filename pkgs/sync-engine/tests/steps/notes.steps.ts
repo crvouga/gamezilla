@@ -16,7 +16,7 @@ import {
   netSet,
   noteBodies,
   pubsubFault,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import {
   removeNote,
   SETTLE_MS,

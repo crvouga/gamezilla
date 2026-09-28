@@ -18,7 +18,7 @@ import { membershipStatusOf } from './membership-status';
 export const STRIPE_PROVIDER = 'stripe';
 
 /**
- * Where the Stripe client points. Production omits it (real Stripe); sims and
+ * Where the Stripe client points. Production omits it (real Stripe); harnesses and
  * the localhost stack can point it at a loopback origin.
  */
 export type StripeMembershipTransport = {
@@ -218,7 +218,7 @@ export class StripeMembershipBilling implements MembershipBilling {
     let event: Stripe.Event;
     try {
       // The 6th argument is the timestamp the tolerance window is measured
-      // against; passing the injected clock keeps virtual-time sims verifiable.
+      // against; passing the injected clock keeps virtual-time harnesses verifiable.
       event = await this.stripe.webhooks.constructEventAsync(
         input.rawBody,
         signature,

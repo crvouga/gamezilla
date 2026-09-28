@@ -18,7 +18,7 @@ const TICK_MS = 250;
 /**
  * Synced stopwatch for the live attempt. The anchors come from the room's
  * server-stamped times; only the tick reads the injected client clock, so
- * every viewer shows (nearly) the same number and the sim shows the same one
+ * every viewer shows (nearly) the same number and the harness shows the same one
  * exactly.
  */
 export function usePuzzleClock(args: {

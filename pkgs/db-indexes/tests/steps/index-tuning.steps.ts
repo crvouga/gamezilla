@@ -1,6 +1,6 @@
 /**
  * Steps for index tuning (`specs/index-tuning/index-tuning.feature`), over
- * the tuning sim's actions and reads.
+ * the tuning harness's actions and reads.
  */
 
 import { expect } from 'bun:test';
@@ -15,34 +15,34 @@ import {
   tune,
   tunedLookups,
   use,
-} from '@pkgs/db-indexes/sim';
+} from '@pkgs/db-indexes/harness';
 import { Given, Then, type TuningWorld, When } from './world';
 
 const RETIREMENT_WINDOW_DAYS = TUNING_CONFIG.deprecationWindowDays ?? 0;
 
 async function authorLookupTuned(w: TuningWorld): Promise<void> {
-  await w.sim.apply(declare, ['notesByAuthor']);
-  await w.sim.apply(tune);
-  if (!(await w.sim.read(tunedLookups)).includes('notesByAuthor')) {
+  await w.harness.apply(declare, ['notesByAuthor']);
+  await w.harness.apply(tune);
+  if (!(await w.harness.read(tunedLookups)).includes('notesByAuthor')) {
     throw new Error('setup: notes-by-author got no tuned index');
   }
 }
 
 async function authorIndexRetiring(w: TuningWorld): Promise<void> {
   await authorLookupTuned(w);
-  await w.sim.apply(declare, []);
-  await w.sim.apply(tune);
-  if (!(await w.sim.read(retiringLookups)).includes('notesByAuthor')) {
+  await w.harness.apply(declare, []);
+  await w.harness.apply(tune);
+  if (!(await w.harness.read(retiringLookups)).includes('notesByAuthor')) {
     throw new Error('setup: the notes-by-author index is not retiring');
   }
 }
 
 Given('the team declares the notes-by-author lookup', async (w) => {
-  await w.sim.apply(declare, ['notesByAuthor']);
+  await w.harness.apply(declare, ['notesByAuthor']);
 });
 
 Given('the team no longer declares any lookup', async (w) => {
-  await w.sim.apply(declare, []);
+  await w.harness.apply(declare, []);
 });
 
 Given(
@@ -55,54 +55,54 @@ Given('the notes-by-author index has started retiring', authorIndexRetiring);
 Given(
   'the notes-by-author index has been used since it began retiring',
   async (w) => {
-    await w.sim.apply(use, 'notesByAuthor');
+    await w.harness.apply(use, 'notesByAuthor');
   }
 );
 
 Given('the team keeps its own index', async (w) => {
-  await w.sim.apply(keepOwnIndex);
+  await w.harness.apply(keepOwnIndex);
 });
 
 Given('tuning has run', async (w) => {
-  await w.sim.apply(tune);
+  await w.harness.apply(tune);
 });
 
 Given('the retirement window has passed', async (w) => {
-  await w.sim.apply(daysPass, RETIREMENT_WINDOW_DAYS);
+  await w.harness.apply(daysPass, RETIREMENT_WINDOW_DAYS);
 });
 
 Given('{int} days have passed', async (w, days: number) => {
-  await w.sim.apply(daysPass, days);
+  await w.harness.apply(daysPass, days);
 });
 
 When('tuning runs', async (w) => {
-  await w.sim.apply(tune);
+  await w.harness.apply(tune);
 });
 
 Then('the notes-by-author lookup has a tuned index', async (w) => {
-  expect(await w.sim.read(tunedLookups)).toContain('notesByAuthor');
+  expect(await w.harness.read(tunedLookups)).toContain('notesByAuthor');
 });
 
 Then('tuning changes nothing', async (w) => {
-  expect(await w.sim.read(lastTuningChanges)).toBe(0);
+  expect(await w.harness.read(lastTuningChanges)).toBe(0);
 });
 
 Then('the notes-by-author index is retiring', async (w) => {
-  expect(await w.sim.read(retiringLookups)).toContain('notesByAuthor');
+  expect(await w.harness.read(retiringLookups)).toContain('notesByAuthor');
 });
 
 Then('the notes-by-author index is not retiring', async (w) => {
-  expect(await w.sim.read(retiringLookups)).not.toContain('notesByAuthor');
+  expect(await w.harness.read(retiringLookups)).not.toContain('notesByAuthor');
 });
 
 Then('the notes-by-author index is still there', async (w) => {
-  expect(await w.sim.read(tunedLookups)).toContain('notesByAuthor');
+  expect(await w.harness.read(tunedLookups)).toContain('notesByAuthor');
 });
 
 Then('the notes-by-author index is gone', async (w) => {
-  expect(await w.sim.read(tunedLookups)).not.toContain('notesByAuthor');
+  expect(await w.harness.read(tunedLookups)).not.toContain('notesByAuthor');
 });
 
 Then("the team's own index is still there", async (w) => {
-  expect(await w.sim.read(teamIndexKept)).toBe(true);
+  expect(await w.harness.read(teamIndexKept)).toBe(true);
 });

@@ -17,7 +17,7 @@ assert.ok(
   'Tiger: query batch concurrency upper bound'
 );
 
-/** Invariants checked by {@link checkClientFrameworkInvariants} in sim/DST. */
+/** Invariants checked by {@link checkClientFrameworkInvariants} in harness/DST. */
 export const TIGER_INVARIANTS = [
   'seq-monotonicity',
   'permanent-vs-transient-verdicts',

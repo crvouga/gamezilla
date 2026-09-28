@@ -1,6 +1,6 @@
 /**
  * `{actor}`, `{device}` and `{deviceKind}` for this package's steps — the
- * same patterns as `SPEC_PARAMETER_TYPES` in `libs/sim-harness`, which the
+ * same patterns as `SPEC_PARAMETER_TYPES` in `libs/harness`, which the
  * spec check matches features with (pkgs never import libs; keep in step).
  */
 

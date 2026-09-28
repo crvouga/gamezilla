@@ -7,7 +7,7 @@
  * layout extras.
  *
  * Examples never provide their own clock: the hosting app supplies
- * `ClockProvider` (wall at the process root, sim in tests).
+ * `ClockProvider` (wall at the process root, harness in tests).
  */
 
 import type { JSX } from 'solid-js';

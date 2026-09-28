@@ -47,7 +47,7 @@ export type ProcessMutationsBatchDeps = {
   readonly authorize?: MutationAuthorize;
   /**
    * Called after each mutation attempt (applied/rejected/duplicate).
-   * Sim uses this for in-txn fault injection at the replay loop boundary.
+   * Harness uses this for in-txn fault injection at the replay loop boundary.
    */
   readonly onAfterMutation?: (index: number) => void;
 };

@@ -53,20 +53,20 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking-sim` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
+| `@pkgs/matchmaking-harness` | Framework harness (`matchmaking` system + actions / reads, fixtures) |
 
 Anything outside these entrypoints is internal.
 
 ## Testing
 
 All tests live under `tests/`. Deterministic scenarios use a seeded
-`@pkgs/sim` system that boots **N Matchmaking replicas sharing one DB** —
+`@pkgs/harness` system that boots **N Matchmaking replicas sharing one DB** —
 the horizontal-scale composition root. Tests only ever `run` a system and
 drive it with `apply` / `read`; there is no direct access to `S` internals.
 
 ```text
-pkgs/matchmaking-sim/
-  src/                            # exported as `@pkgs/matchmaking-sim`
+pkgs/matchmaking-harness/
+  src/                            # exported as `@pkgs/matchmaking-harness`
     scenario/                     # matchmaking system + node kinds
 pkgs/matchmaking/
   tests/                          # black-box against package exports
@@ -79,7 +79,7 @@ import {
   RatingAttr,
   statusOf,
   tickAllWith,
-} from '@pkgs/matchmaking-sim';
+} from '@pkgs/matchmaking-harness';
 
 await using s = await matchmaking.run({
   seed: 3,
@@ -111,15 +111,15 @@ columns. CI: `bun run --filter @pkgs/matchmaking test`.
 The acceptance behavior (waiting, stopping, being matched, the same answer
 at every replica) is the Matchmaking context in `specs/matchmaking/`
 (Gherkin features plus the `matching.qnt` model), run by
-`@pkgs/matchmaking-sim`'s `test:e2e` through `tests/steps/` and
+`@pkgs/matchmaking-harness`'s `test:e2e` through `tests/steps/` and
 `tests/quint/`; the runner also replays the model's longest trace twice and
 requires the same match fingerprint (same seed, same outcome). The package
 `test` keeps the schema-drift contract.
 
 ```bash
 bun run --filter @pkgs/matchmaking test
-bun run --filter @pkgs/matchmaking-sim test
-bun run spec --package @pkgs/matchmaking-sim
+bun run --filter @pkgs/matchmaking-harness test
+bun run spec --package @pkgs/matchmaking-harness
 ```
 
 Hosts drive pairing via `Matchmaking.tick()` / `POST /tick`. Concurrent

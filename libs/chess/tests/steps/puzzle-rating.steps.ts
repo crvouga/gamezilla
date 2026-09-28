@@ -5,18 +5,11 @@
  */
 
 import { expect } from 'bun:test';
-
-import {
-  PUZZLE_PROVISIONAL_RD,
-  PUZZLE_RATING_DEFAULT,
-  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
-  PUZZLE_RATING_RD_MIN,
-} from '@libs/chess/public/chess-puzzle-rating';
 import {
   finishPuzzleBy,
   playPuzzleResults,
   playUntilSolved,
-} from '@libs/chess/sim/chess-actions';
+} from '@libs/chess/harness/chess-actions';
 import {
   isGameLogEmpty,
   readGameLogRowTitle,
@@ -26,23 +19,26 @@ import {
   readStatsRatingHistory,
   readStatsRatingLabel,
   readStatsSolved,
-} from '@libs/chess/sim/chess-puzzle-ui';
-import { seedPuzzleRating } from '@libs/chess/sim/chess-rating-data';
-import { focusActor } from '@libs/sim-harness';
+} from '@libs/chess/harness/chess-puzzle-ui';
+import { seedPuzzleRating } from '@libs/chess/harness/chess-rating-data';
+import {
+  PUZZLE_PROVISIONAL_RD,
+  PUZZLE_RATING_DEFAULT,
+  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  PUZZLE_RATING_RD_MIN,
+} from '@libs/chess/public/chess-puzzle-rating';
+import { focusActor } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import type { PuzzleFinishName } from '@libs/sim-harness/spec/parameter-types';
-import {
-  cutConnection,
-  otherDevice,
-} from '@libs/sim-harness/spec/steps/platform';
-import { remember } from '@libs/sim-harness/spec/world';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+} from '@libs/harness/spec/define';
+import type { PuzzleFinishName } from '@libs/harness/spec/parameter-types';
+import { cutConnection, otherDevice } from '@libs/harness/spec/steps/platform';
+import { remember } from '@libs/harness/spec/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
 import {
   currentPuzzle,
   ensureStatsOpen,
@@ -66,7 +62,10 @@ type Figures = {
   readonly accuracy: number | null;
 };
 
-async function readFigures(s: ProductSim, device: string): Promise<Figures> {
+async function readFigures(
+  s: ProductHarness,
+  device: string
+): Promise<Figures> {
   return {
     played: await readStatsPlayed(s, device),
     solved: await readStatsSolved(s, device),
@@ -76,7 +75,7 @@ async function readFigures(s: ProductSim, device: string): Promise<Figures> {
 
 /** The stats on `device` show exactly these figures (they may still sync). */
 async function untilFigures(
-  w: SimWorld,
+  w: HarnessWorld,
   device: string,
   expected: Figures,
   maxMs: number
@@ -91,7 +90,7 @@ async function untilFigures(
 
 /** `other`'s stats come to show the rating label `device`'s stats show. */
 async function untilSameRating(
-  w: SimWorld,
+  w: HarnessWorld,
   device: string,
   other: string,
   maxMs: number

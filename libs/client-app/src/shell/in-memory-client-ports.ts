@@ -1,7 +1,7 @@
 /**
  * In-memory device / platform ports shared by every simulated `ClientEnv`
- * (`@apps/product/sim` fabric and the shell test env). One builder so a new port
- * on `ClientEnv` is wired in exactly one place for sims.
+ * (`@apps/product/harness` fabric and the shell test env). One builder so a new port
+ * on `ClientEnv` is wired in exactly one place for harnesses.
  */
 
 import type { DevMenuItem, DevMenuPort } from '@libs/client-app/device/ports';
@@ -18,7 +18,7 @@ export type InMemoryClientPorts = Pick<
   'network' | 'clipboard' | 'haptics' | 'audio' | 'devMenu' | 'objectStore'
 >;
 
-/** Recording {@link DevMenuPort}: keeps every registered item for the sim. */
+/** Recording {@link DevMenuPort}: keeps every registered item for the harness. */
 function createInMemoryDevMenuPort(): DevMenuPort {
   const items: DevMenuItem[] = [];
   return {

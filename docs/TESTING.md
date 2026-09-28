@@ -18,7 +18,7 @@ Nobody verifies anything by hand: not before a merge, not before a release, not
   checks only.
 - If you catch yourself wanting to look at the app to know whether a change
   works, a check is missing. Write it; that is the work.
-- `bun run dev`, `bun run stack` and the Simulator exist to *build* features
+- `bun run dev`, `bun run stack` and the Harness exist to *build* features
   and to debug a failing check. They are never evidence that something works.
 - A bug found any way at all (a user, a property, an agent reading code) is
   fixed only together with an automated regression test that fails without
@@ -61,8 +61,8 @@ behavior.
 | Shape | Use for | Tool |
 | --- | --- | --- |
 | **Property** | Pure functions and algebra: round-trips, idempotence, invariants, metamorphic relations, agreement with a simple oracle. | `assertProperty` from `@pkgs/property` |
-| **Model-based** | Anything with state: a reference model runs beside the real thing under generated command sequences, and they must agree after every step. | `fc.commands` + `fc.modelRun` inside `assertProperty`; `defineSystem` / `system.explore` in `@pkgs/sim` |
-| **Product model (Quint)** | A product feature end to end: a [Quint](https://quint-lang.org/) model in `specs/<domain>/*.qnt` states what each user action and fault does to what people see; Quint draws the walks and the product sim must agree with the model after every step, every standing property holding too. | `@pkgs/quint`, a binding per model in the package's `tests/quint/` ([`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md)) |
+| **Model-based** | Anything with state: a reference model runs beside the real thing under generated command sequences, and they must agree after every step. | `fc.commands` + `fc.modelRun` inside `assertProperty`; `defineSystem` / `system.explore` in `@pkgs/harness` |
+| **Product model (Quint)** | A product feature end to end: a [Quint](https://quint-lang.org/) model in `specs/<domain>/*.qnt` states what each user action and fault does to what people see; Quint draws the walks and the product harness must agree with the model after every step, every standing property holding too. | `@pkgs/quint`, a binding per model in the package's `tests/quint/` ([`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md)) |
 
 Rules:
 

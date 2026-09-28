@@ -29,7 +29,7 @@ export type HapticsProviderProps = ParentProps<{
 export const HapticsProvider: (props: HapticsProviderProps) => JSX.Element =
   HapticsContext.Provider;
 
-/** Injected haptic feedback (vibration on devices, recording in sims). */
+/** Injected haptic feedback (vibration on devices, recording in harnesses). */
 export function useHaptics(): HapticsPort {
   return HapticsContext.use();
 }

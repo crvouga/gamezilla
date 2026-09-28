@@ -22,9 +22,9 @@ import {
   type MembershipBilling,
 } from '@pkgs/billing';
 import { PaddleMembershipBilling } from '@pkgs/billing-paddle';
-import { FakePaddle } from '@pkgs/billing-paddle/sim';
+import { FakePaddle } from '@pkgs/billing-paddle/harness';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe';
-import { FakeStripe } from '@pkgs/billing-stripe/sim';
+import { FakeStripe } from '@pkgs/billing-stripe/harness';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';

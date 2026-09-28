@@ -16,7 +16,7 @@
     "@pkgs/os": "workspace:*"
   },
   "devDependencies": {
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/gherkin": "workspace:*",

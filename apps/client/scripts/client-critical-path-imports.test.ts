@@ -25,10 +25,10 @@ describe('client-critical-path-imports', () => {
     expect(specs.sort()).toEqual(['./bar', './side', '../baz'].sort());
   });
 
-  test('isDeniedSpecifier matches chess / games / sim-console / wasm', () => {
+  test('isDeniedSpecifier matches chess / games / harness-console / wasm', () => {
     expect(isDeniedSpecifier('@libs/chess/root/client/x')).toBe(true);
     expect(isDeniedSpecifier('@libs/games/game-plugins.client')).toBe(true);
-    expect(isDeniedSpecifier('@pkgs/sim-console/client')).toBe(true);
+    expect(isDeniedSpecifier('@pkgs/harness-console/client')).toBe(true);
     expect(isDeniedSpecifier('@sqlite.org/sqlite-wasm')).toBe(true);
     expect(isDeniedSpecifier('@libs/spaces/root/client/x')).toBe(false);
   });

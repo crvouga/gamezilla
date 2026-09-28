@@ -12,7 +12,7 @@ import {
   retouchNotes,
   setFolder,
   setNote,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { SETTLE_MS } from './note-writes';
 import { app, ensureDevice, Given, Then, When } from './world';
 

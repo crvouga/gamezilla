@@ -1,16 +1,16 @@
 /**
  * `specs/spaces/space-hosting.qnt` against the friends composition (the
  * lowest one that composes spaces soundly — see
- * `tests/e2e/support/open-friends-sim.ts`): each Quint action through the
- * spaces sim actions, and the model's state read back off each person's
+ * `tests/e2e/support/open-friends-harness.ts`): each Quint action through the
+ * spaces harness actions, and the model's state read back off each person's
  * screen.
  */
 
-import { setupFriendsPair } from '@libs/friends/sim/setup-friends-pair';
-import { focusActor } from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
-import { bringToFront, visible } from '@libs/sim-harness/system/observations';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+import { setupFriendsPair } from '@libs/friends/harness/setup-friends-pair';
+import { focusActor } from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { bringToFront, visible } from '@libs/harness/system/observations';
 import {
   closeSpaceMembers,
   createSpace,
@@ -21,12 +21,12 @@ import {
   openSpacesTab,
   reenterActiveSpace,
   returnToLobby,
-} from '@libs/spaces/sim/space-actions';
+} from '@libs/spaces/harness/space-actions';
 import {
   lobbyCardVisible,
   readSpaceLink,
   readSpacePresenceCount,
-} from '@libs/spaces/sim/spaces-ui-reads';
+} from '@libs/spaces/harness/spaces-ui-reads';
 import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
@@ -44,7 +44,7 @@ function hostKey(link: string): string {
 
 type Screen = 'ended' | 'viewingPresence' | 'space' | 'lobby' | 'elsewhere';
 
-async function screenOf(s: ProductSim, actorId: string): Promise<Screen> {
+async function screenOf(s: ProductHarness, actorId: string): Promise<Screen> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.spaceEnded])) return 'ended';
   if (await visible(s, actorId, [Handles.spaceMembersClose]))
@@ -54,13 +54,16 @@ async function screenOf(s: ProductSim, actorId: string): Promise<Screen> {
   return 'elsewhere';
 }
 
-async function hostHere(w: QuintSimWorld, actorId: string): Promise<string> {
+async function hostHere(
+  w: QuintHarnessWorld,
+  actorId: string
+): Promise<string> {
   const link = await w.quiet.read(readSpaceLink, actorId);
   const host = link === null ? undefined : w.memo.get(hostKey(link));
   return typeof host === 'string' ? host : `unknown space ${String(link)}`;
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'space-hosting',
   traces: 8,
   maxSteps: 10,

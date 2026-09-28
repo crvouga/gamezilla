@@ -1,7 +1,7 @@
 /**
  * In-memory {@link SqlClient} backed by `@crvouga/mockingbird-service-sqlite`.
  *
- * Browser product-simulator sims use this instead of the web OPFS SQLite. Snapshots are
+ * Browser product-harness harnesses use this instead of the web OPFS SQLite. Snapshots are
  * mockingbird-sqlite SQLM blobs wrapped with `PRAGMA user_version` (not encoded in SQLM).
  */
 

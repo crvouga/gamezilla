@@ -6,10 +6,6 @@
 
 import { expect } from 'bun:test';
 import {
-  type ChessPuzzleTheme,
-  isChessPuzzleTheme,
-} from '@libs/chess/public/chess-puzzle-themes';
-import {
   bumpPuzzleFeedCustomRating,
   bumpPuzzleFeedOffset,
   closePuzzleFeedSettings,
@@ -27,13 +23,13 @@ import {
   skipPuzzle,
   solvePuzzlesDaily,
   solvePuzzlesInARow,
-} from '@libs/chess/sim/chess-actions';
+} from '@libs/chess/harness/chess-actions';
 import {
   ingestChessPuzzleCsv,
   readLocalPuzzles,
   readServerPuzzles,
   retireChessPuzzle,
-} from '@libs/chess/sim/chess-puzzle-data';
+} from '@libs/chess/harness/chess-puzzle-data';
 import {
   type FeedHistoryFilter,
   isFeedSignInInviteVisible,
@@ -42,26 +38,33 @@ import {
   readFeedModalTargetRating,
   readFeedOffsetValue,
   readFeedTargetLabel,
-} from '@libs/chess/sim/chess-puzzle-feed-ui';
+} from '@libs/chess/harness/chess-puzzle-feed-ui';
 import {
   isEmptyPoolVisible,
   isPuzzleUnratedNoticeVisible,
   readActivePuzzleId,
   readPuzzleDebug,
   readStatsElo,
-} from '@libs/chess/sim/chess-puzzle-ui';
-import { focusActor } from '@libs/sim-harness';
+} from '@libs/chess/harness/chess-puzzle-ui';
+import {
+  type ChessPuzzleTheme,
+  isChessPuzzleTheme,
+} from '@libs/chess/public/chess-puzzle-themes';
+import { focusActor } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { otherDevice } from '@libs/sim-harness/spec/steps/platform';
-import { remember } from '@libs/sim-harness/spec/world';
-import { joinFromPrompt, openSpaceLink } from '@libs/spaces/sim/space-actions';
-import { readSpaceLink } from '@libs/spaces/sim/spaces-ui-reads';
+} from '@libs/harness/spec/define';
+import { otherDevice } from '@libs/harness/spec/steps/platform';
+import { remember } from '@libs/harness/spec/world';
+import {
+  joinFromPrompt,
+  openSpaceLink,
+} from '@libs/spaces/harness/space-actions';
+import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
 import {
   FEED_POOL_IDS,
   FULL_INGEST_ROWS,
@@ -110,7 +113,7 @@ function theme(name: string): ChessPuzzleTheme {
 }
 
 async function untilFeedTarget(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   mode: 'auto' | 'custom',
   rating: number
@@ -122,7 +125,7 @@ async function untilFeedTarget(
 }
 
 /** Solve `count` puzzles in a row, noting the first as "the first played". */
-async function solveInARow(w: SimWorld, actor: Actor, count: number) {
+async function solveInARow(w: HarnessWorld, actor: Actor, count: number) {
   remember(w, firstPlayedKey(actor), currentPuzzle(w, actor));
   await w.s.apply(solvePuzzlesInARow, actor, count);
   await trackPuzzle(w, actor);
@@ -130,7 +133,7 @@ async function solveInARow(w: SimWorld, actor: Actor, count: number) {
 
 /** Wait until the feed serves the first puzzle the actor played. */
 async function untilFirstPlayedComesRound(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   maxMs: number
 ): Promise<void> {
@@ -145,7 +148,7 @@ async function untilFirstPlayedComesRound(
 // ----------------------------------------------------------- the pool
 
 /** The world's feed-sized pool leaves; the three documented puzzles stay. */
-async function retireFeedPool(w: SimWorld): Promise<void> {
+async function retireFeedPool(w: HarnessWorld): Promise<void> {
   for (const id of FEED_POOL_IDS) await w.s.apply(retireChessPuzzle, id);
 }
 
@@ -352,7 +355,7 @@ Then(
 );
 
 /** Open the settings, pick the history filter labelled `label`, and save. */
-async function saveHistoryFilter(w: SimWorld, actor: Actor, label: string) {
+async function saveHistoryFilter(w: HarnessWorld, actor: Actor, label: string) {
   await w.s.apply(openPuzzleFeedSettings, actor);
   await w.s.apply(setPuzzleFeedHistory, actor, historyFilter(label));
   await w.s.apply(closePuzzleFeedSettings, actor);
@@ -449,7 +452,7 @@ Then(
 );
 
 /** Open the settings, switch to a custom target `steps` up, and save. */
-async function saveCustomTarget(w: SimWorld, actor: Actor, steps: number) {
+async function saveCustomTarget(w: HarnessWorld, actor: Actor, steps: number) {
   await w.s.apply(openPuzzleFeedSettings, actor);
   await w.s.apply(setPuzzleFeedMode, actor, 'custom');
   await w.s.apply(bumpPuzzleFeedCustomRating, actor, steps);

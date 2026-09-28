@@ -6,7 +6,7 @@ import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
-function collectSimTests(): string[] {
+function collectHarnessTests(): string[] {
   const roots = [join(REPO_ROOT, 'pkgs'), join(REPO_ROOT, 'libs')];
   const files: string[] = [];
   function walk(dir: string): void {
@@ -52,9 +52,9 @@ const seedCount = Number(
     ?.slice('--seed-count='.length) ?? '32'
 );
 
-const files = collectSimTests();
+const files = collectHarnessTests();
 if (files.length === 0) {
-  console.error('No sim test files found under tests/');
+  console.error('No harness test files found under tests/');
   process.exit(1);
 }
 
@@ -65,7 +65,7 @@ for (let i = 1; i <= seedCount; i++) {
     const result = spawnSync('bun', ['test', file], {
       cwd: REPO_ROOT,
       stdio: 'inherit',
-      env: { ...process.env, SIM_SEED: String(seed) },
+      env: { ...process.env, HARNESS_SEED: String(seed) },
     });
     if (result.status !== 0) {
       console.error(

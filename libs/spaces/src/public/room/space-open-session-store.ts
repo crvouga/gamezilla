@@ -7,7 +7,7 @@
  * `(actor, clientId)`, so tabs/opens need distinct ids.
  *
  * Keys are `${installId}:${spaceId}` so two in-process product actors
- * (product-simulator Alice/Bob) with different device ids do not share a latch.
+ * (product-harness Alice/Bob) with different device ids do not share a latch.
  */
 
 import type { CreateId } from '@pkgs/uuid';

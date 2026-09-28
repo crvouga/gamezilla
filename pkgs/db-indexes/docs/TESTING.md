@@ -9,9 +9,9 @@
 | Acceptance (Gherkin + Quint) | `specs/index-tuning/` (steps `tests/steps/`, binding `tests/quint/`) | `bun run test:e2e` |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
-The tuning sim — one reconciler over `SimDb` on a virtual clock, with the
+The tuning harness — one reconciler over `HarnessDb` on a virtual clock, with the
 standing `tuningInvariantsHold` property — is `indexTuningSystem`, exported
-from `@pkgs/db-indexes/sim`. `specs/index-tuning/index-tuning.feature` pins
+from `@pkgs/db-indexes/harness`. `specs/index-tuning/index-tuning.feature` pins
 the rules the team sees (declared lookups get tuned indexes, retiring keeps
 used indexes, the team's own index is never touched);
 `specs/index-tuning/index-tuning.qnt` walks any sequence of declaring,
@@ -24,9 +24,9 @@ bun run spec specs/index-tuning/index-tuning.qnt
 FC_SEED=42 bun run spec specs/index-tuning/index-tuning.qnt
 ```
 
-## Invariant → assert / sim / property map
+## Invariant → assert / harness / property map
 
-| Invariant | Prod assert | Sim check | Property / model |
+| Invariant | Prod assert | Harness check | Property / model |
 | --- | --- | --- | --- |
 | I1 owned-only DDL | `diffOwnedIndexes` + `reconcile` execute | `tuningInvariantsHold` | `ownership`, `index-tuning.qnt` (`teamIndex`) |
 | I2 crash-converge | n/a (executor returns crashed) | n/a | not modeled |
@@ -39,7 +39,7 @@ FC_SEED=42 bun run spec specs/index-tuning/index-tuning.qnt
 2. Pin an example test under `tests/` marked `// regression: <bug-id>`, or,
    when the team could observe the bug, ask for a `@regression:<id>` scenario
    in `specs/index-tuning/`.
-3. Prefer sim / black-box pins over deep executor mocks.
+3. Prefer harness / black-box pins over deep executor mocks.
 
 ```bash
 bun pkgs/db-indexes/tests/mutants/scripted-mutants.ts

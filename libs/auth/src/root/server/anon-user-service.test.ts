@@ -7,13 +7,13 @@ import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 import { AnonUserService } from '../../public/anon-user-service';
 import { EnsureInternalAccountUseCase } from '../../public/ensure-internal-account-use-case';
 import { AUTH_TABLES } from '../../public/schema';
 import { EnsureAnonUserUseCase } from './ensure-anon-user-use-case';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 const DEVICE_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_B = '22222222-2222-4222-8222-222222222222';

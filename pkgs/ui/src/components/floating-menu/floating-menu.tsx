@@ -57,7 +57,7 @@ import {
 
 export const FLOATING_MENU_DEFAULT_WIDTH = 260;
 
-/** Dispatched by sim layout synthesis when an element's box is installed. */
+/** Dispatched by harness layout synthesis when an element's box is installed. */
 const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
 
 const NO_INSETS: FloatingMenuInsets = { top: 0, bottom: 0 };
@@ -196,7 +196,7 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
   const isTop = useIsTopSurface(surfaceId);
   const hostFrame = useSurfaceStackHostFrame();
   const layout = useThemeLayout();
-  // Remeasure when sim layout synthesis updates the trigger box.
+  // Remeasure when harness layout synthesis updates the trigger box.
   const [layoutEpoch, setLayoutEpoch] = createSignal(0);
   createEffect(() => {
     if (!props.open) return;

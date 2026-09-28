@@ -5,19 +5,19 @@
 
 import { expect } from 'bun:test';
 
-import { searchUntilAddOffered } from '@libs/friends/sim/friends-actions';
-import { addFriendOffered } from '@libs/friends/sim/friends-ui-reads';
+import { searchUntilAddOffered } from '@libs/friends/harness/friends-actions';
+import { addFriendOffered } from '@libs/friends/harness/friends-ui-reads';
+import { backToTabs } from '@libs/harness';
+import { type Actor, Then, When } from '@libs/harness/spec/define';
 import {
   searchUntilNobody,
   searchUsername,
-} from '@libs/search/sim/search-actions';
+} from '@libs/search/harness/search-actions';
 import {
   searchNeedsConnection,
   searchResultVisible,
   searchShowsNobody,
-} from '@libs/search/sim/search-ui-reads';
-import { backToTabs } from '@libs/sim-harness';
-import { type Actor, Then, When } from '@libs/sim-harness/spec/define';
+} from '@libs/search/harness/search-ui-reads';
 
 const SECOND_MS = 1_000;
 
@@ -45,7 +45,7 @@ Then("{actor}'s search shows nobody", async (w, actor: Actor) => {
 });
 
 // A search result is a snapshot: the observer searches again until the
-// change reaches them (the sim action fails after the promised time).
+// change reaches them (the harness action fails after the promised time).
 Then(
   "{actor}'s search for {string} shows nobody within {int} seconds",
   async (w, actor: Actor, text: string, seconds: number) => {

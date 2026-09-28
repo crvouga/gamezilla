@@ -54,7 +54,7 @@ export type QueryDef<P = unknown> = {
   readonly limit?: number;
   /**
    * True when `limit` was filled from {@link DEFAULT_QUERY_LIMIT}.
-   * Strict sim/dev clipping only throws for default budgets (explicit
+   * Strict harness/dev clipping only throws for default budgets (explicit
    * truncate tests keep silent clip).
    */
   readonly limitIsDefault?: boolean;

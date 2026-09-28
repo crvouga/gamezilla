@@ -53,7 +53,7 @@ export type PostgresMigrationRunnerDeps = {
   dbScope: PostgresDbScope;
   /**
    * When true, skip `pg_advisory_xact_lock` + outer transaction (mockingbird-postgres /
-   * single-process sims cannot nest SET LOCAL with DO-block DDL on one adapter pool).
+   * single-process harnesses cannot nest SET LOCAL with DO-block DDL on one adapter pool).
    */
   skipAdvisoryLock?: boolean;
   /**
@@ -63,7 +63,7 @@ export type PostgresMigrationRunnerDeps = {
   skipSqliteCompat?: boolean;
   /**
    * When true, skip workload {@link PostgresIndexesDatabaseMigration}.
-   * Defaults to true when `skipAdvisoryLock` (sim / mockingbird-postgres).
+   * Defaults to true when `skipAdvisoryLock` (harness / mockingbird-postgres).
    */
   skipIndexReconcile?: boolean;
   /** Injected clock for index reconcile deadlines (required unless skipped). */

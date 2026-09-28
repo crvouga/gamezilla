@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 
 import {
   parseSignInPending,
@@ -8,7 +8,7 @@ import {
   signInReturnHrefFromPending,
 } from '../../public/sign-in-pending-parse';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 function isoNow(): string {
   return new Date(adapters.clock.now()).toISOString();

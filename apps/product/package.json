@@ -13,14 +13,14 @@
       "./src/console/*.tsx",
       "./src/console/*/index.ts"
     ],
-    "./product-simulator/*": [
-      "./src/console/product-simulator/*.ts",
-      "./src/console/product-simulator/*.tsx",
-      "./src/console/product-simulator/*/index.ts"
+    "./product-harness/*": [
+      "./src/console/product-harness/*.ts",
+      "./src/console/product-harness/*.tsx",
+      "./src/console/product-harness/*/index.ts"
     ],
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx"
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
     ]
   },
   "scripts": {
@@ -38,7 +38,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts src/console/console-nav src/console/product-simulator/product-simulator-snapshot-prune.test.ts src/sim/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts",
+    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts src/console/console-nav src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:stack": "bun run scripts/test-stack.ts"
@@ -57,7 +57,7 @@
     "@libs/pubsub": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
@@ -77,7 +77,7 @@
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/idp-sim": "workspace:*",
+    "@pkgs/idp-mock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
@@ -88,8 +88,8 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/s3-server": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/sim": "workspace:*",
-    "@pkgs/sim-console": "workspace:*",
+    "@pkgs/harness": "workspace:*",
+    "@pkgs/harness-console": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

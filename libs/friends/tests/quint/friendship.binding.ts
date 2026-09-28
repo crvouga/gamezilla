@@ -1,6 +1,6 @@
 /**
  * `specs/friends/friendship.qnt` against the friends composition: each Quint
- * action through the friends sim actions (search, the inbox, another
+ * action through the friends harness actions (search, the inbox, another
  * person's profile), and each person's friendship status with each other person read off
  * their device's synced copy — the rows the profile pills, the inbox, the
  * friends list and search render from.
@@ -13,23 +13,23 @@ import {
   declineFriendRequest,
   removeFriend,
   unblockFriend,
-} from '@libs/friends/sim/friends-actions';
+} from '@libs/friends/harness/friends-actions';
 import {
   blockPerson,
   confirmFromProfile,
   declineFromProfile,
   openPersonFromSearch,
-} from '@libs/friends/sim/person-actions';
-import { searchUsername } from '@libs/search/sim/search-actions';
+} from '@libs/friends/harness/person-actions';
 import {
   backToTabs,
   focusActor,
   returnToTabs,
   signInWithGoogle,
-} from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
-import { accountIdOf, actorLocalSql } from '@libs/sim-harness/system/identity';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+} from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { accountIdOf, actorLocalSql } from '@libs/harness/system/identity';
+import { searchUsername } from '@libs/search/harness/search-actions';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 import { sql } from '@pkgs/sql';
@@ -46,7 +46,7 @@ function accountKey(actor: string): string {
   return `account:${actor}`;
 }
 
-function accountOf(w: QuintSimWorld, actor: string): string {
+function accountOf(w: QuintHarnessWorld, actor: string): string {
   const id = w.memo.get(accountKey(actor));
   if (typeof id !== 'string') throw new Error(`${actor} has no account`);
   return id;
@@ -62,7 +62,7 @@ type Rows = {
 };
 
 /** The friends rows on `actorId`'s device. */
-async function localRows(s: ProductSim, actorId: string): Promise<Rows> {
+async function localRows(s: ProductHarness, actorId: string): Promise<Rows> {
   const local = actorLocalSql(s, actorId);
   if (local === null) {
     return {
@@ -118,12 +118,12 @@ function friendshipStatusOf(rows: Rows, me: string, them: string): QuintValue {
  * Bring the person's phone to the front (a parked phone's screen reads as
  * empty) and back out to the tab bar, wherever their last step left them.
  */
-async function toTabs(w: QuintSimWorld, actor: string): Promise<void> {
+async function toTabs(w: QuintHarnessWorld, actor: string): Promise<void> {
   await w.s.apply(focusActor, actor);
   await w.s.apply(backToTabs, actor);
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'friendship',
   traces: 10,
   maxSteps: 12,

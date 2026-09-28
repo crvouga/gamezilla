@@ -1,6 +1,6 @@
 /**
  * The §4 puzzle model and the §23 ingest validation pass, shared by every
- * ingest path (streaming Lichess seed, committed load file, web sim seed) and
+ * ingest path (streaming Lichess seed, committed load file, web harness seed) and
  * the §35 full-database validation job. Pure: the rules kernel is the only
  * dependency, and the position key is a deterministic hash (no crypto / Io).
  *

@@ -2,7 +2,7 @@
 // @io-wall-ok — deploy CLI entry.
 /**
  * Super-app deploy for the environment in `SECRETS_ENV`: Vite build of
- * `@apps/product` (App at `/`, Simulator at `/simulator`) against that
+ * `@apps/product` (App at `/`, Harness at `/harness`) against that
  * environment's API, then the assets-only Worker. Its hostnames are bound by
  * the OpenTofu edge stack afterwards; `health` checks they serve.
  */

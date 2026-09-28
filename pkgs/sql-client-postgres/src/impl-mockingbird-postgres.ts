@@ -1,8 +1,8 @@
 /**
  * {@link SqlClient} backed by `@crvouga/mockingbird-service-postgres` — pure TypeScript
- * in-memory PostgreSQL for hermetic sim / product-simulator server DBs.
+ * in-memory PostgreSQL for hermetic harness / product-harness server DBs.
  *
- * Prefer this over mockingbird-sqlite for the **server** half of product sims so
+ * Prefer this over mockingbird-sqlite for the **server** half of product harnesses so
  * dialect matches production Postgres. Clients stay on mockingbird-sqlite.
  *
  * Snapshots are PGMM blobs wrapped in a JSON envelope (not `pg_dump`).

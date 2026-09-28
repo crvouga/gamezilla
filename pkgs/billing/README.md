@@ -116,10 +116,10 @@ cancel that is the cancel time, not the period the person gave up.
 ## Implementations
 
 - **Stripe** (`@pkgs/billing-stripe`) — the only place Stripe status names,
-  event names and price lookup keys exist. `./sim` is a fake Stripe origin.
+  event names and price lookup keys exist. `./harness` is a fake Stripe origin.
 - **Paddle** (`@pkgs/billing-paddle`) — the only place Paddle status names,
-  event names and custom-data keys exist. `./sim` is a fake Paddle origin.
+  event names and custom-data keys exist. `./harness` is a fake Paddle origin.
 - **Mock** (`@pkgs/billing-mock` adapter + `@pkgs/billing-mock-provider`) — a
   simulated payment provider with its own origin and state, Stripe's object
-  model and lifecycle, signed webhooks and test clocks. Sims and the localhost
+  model and lifecycle, signed webhooks and test clocks. Harnesses and the localhost
   stack bill through it; the app treats it exactly as any other provider.

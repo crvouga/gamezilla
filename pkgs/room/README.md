@@ -22,7 +22,7 @@ package. Prefer scenarios + fixtures over speculation about “how room works.�
 | Multi-device / multi-tab | Roster keyed by `(identity, clientId)`; session take-over on reconnect |
 | Time-sensitive rules (flag / deadline) | Modules emit `Schedule` effects; server wake injects commands; clients may arm optimistic timers |
 | Cloudflare hosting | DO adapter multiplexes modules, hibernates sockets, persists per-key log + pending schedules |
-| Deterministic regression | Sim harness (`@pkgs/room-sim`) — one seed → identical timeline |
+| Deterministic regression | Harness harness (`@pkgs/room-harness`) — one seed → identical timeline |
 
 **Out of scope:** cross-topic SQL sync, auth sessions, REST CRUD,
 bandwidth/clock-drift compensation beyond server `command.ts`, broadcasting
@@ -77,7 +77,7 @@ bun run --filter @pkgs/room bench
 │ ClientRoomStorage (write-behind)│        │ RoomStorage (committed log)         │
 │ display = committed ⊕ queued   │         │ broadcast one frame / committed     │
 │ optional effectHandlers        │         │ effectHandlers after successful ok  │
-│  (io.timers Schedule)          │         │  (DO alarm / sim timers Schedule)   │
+│  (io.timers Schedule)          │         │  (DO alarm / harness timers Schedule)   │
 └────────────────────────────────┘         └─────────────────────────────────────┘
 ```
 
@@ -90,7 +90,7 @@ bun run --filter @pkgs/room bench
 client-only checks (`never`, lagging peer) stay client-scoped.
 
 **Required on every `RoomModule`:** `hash(state)` — deterministic domain hash
-(see [`docs/DETERMINISM.md`](../../docs/DETERMINISM.md)). Used by sim settle and
+(see [`docs/DETERMINISM.md`](../../docs/DETERMINISM.md)). Used by harness settle and
 by game modules in product.
 
 ---
@@ -102,13 +102,13 @@ by game modules in product.
 2. **Offline-first open** — `RoomClient.open` hydrates local storage and attaches
    transport even when connect fails; UI can dispatch while disconnected.
 3. **Simulators / widgets** — `@pkgs/room-widgets` and tests use
-   `@pkgs/room-sim` (`openLoopbackRoom`, `TestCounterModule`) for in-process
+   `@pkgs/room-harness` (`openLoopbackRoom`, `TestCounterModule`) for in-process
    multi-client demos without a Worker.
 4. **Authoring a game** — implement `RoomModule` (`initialState` / `handle` /
    `reduce` / `hash`), optionally emit `Schedule` / `CancelSchedule` effects for
    clocks; register in spaces’ module list + DO `modules: […]`.
 5. **Module conformance** — games call `runModuleConformance` from
-   `@pkgs/room-sim` (hash / totality / fold / fuzz / optional deadline hooks).
+   `@pkgs/room-harness` (hash / totality / fold / fuzz / optional deadline hooks).
 
 ---
 
@@ -124,13 +124,13 @@ Core vs adapters stay split so callers opt into a runtime explicitly.
 | `@pkgs/room-adapter-web` | `WebSocketRoomTransport` (+ heartbeat / `probeLiveness`), `WebClientStorage` (`localStorage`) |
 | `@pkgs/room-adapter-memory` | `InMemoryRoomStorage`, `InMemoryClientStorage`, `LoopbackRoomTransport` |
 | `@pkgs/room-adapter-durable-object` | `createDurableObjectAdapter`, DO storage + alarm schedule |
-| `@pkgs/room-sim` | `openLoopbackRoom`, **`bootRoomSim` / `roomSystemCatalog` / `roomVirtual`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
+| `@pkgs/room-harness` | `openLoopbackRoom`, **`bootRoomHarness` / `roomSystemCatalog` / `roomVirtual`**, kit (`runModuleConformance`, …), fixtures (counter / deadline / authz / match-clock) |
 
 Each adapter is its own package so callers pull in only the runtime they
-host on. Games should declare their own `defineSystem` from `@pkgs/sim` over
-`bootRoomSim` / `roomVirtual` / `roomSystemCatalog` (`@pkgs/room-sim`)
+host on. Games should declare their own `defineSystem` from `@pkgs/harness` over
+`bootRoomHarness` / `roomVirtual` / `roomSystemCatalog` (`@pkgs/room-harness`)
 and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
-`sim/` paths.
+`harness/` paths.
 
 ---
 
@@ -155,7 +155,7 @@ pkgs/room/
 pkgs/room-adapter-web/            websocket transport + localStorage storage
 pkgs/room-adapter-memory/         in-memory room/client storage + loopback transport
 pkgs/room-adapter-durable-object/ DO adapter (alarms, KV schedules)
-pkgs/room-sim/                    sim harness (`@pkgs/room-sim`)
+pkgs/room-harness/                    harness harness (`@pkgs/room-harness`)
 └── src/scenario/                 boot + actions / properties / S
 ```
 
@@ -221,7 +221,7 @@ type RoomEffectHandler = {
 - No claim → Tiger throw (`Tiger: no RoomEffectHandler for effect type=…`).
 - Config: `RoomServerConfig.effectHandlers?`, `RoomClientConfig.effectHandlers?`.
 - DO adapter always installs the persisting Schedule handler; accepts extras.
-- Sim / loopback install timer-backed Schedule stacks via `createTimerScheduleStack`.
+- Harness / loopback install timer-backed Schedule stacks via `createTimerScheduleStack`.
 
 ### Schedule runtime
 
@@ -232,11 +232,11 @@ Shared `ScheduleRuntime` (`effects/schedule-runtime.ts`):
 3. On fire: remove due entries, `injectCommand` with minted `commandId`,
    `ts = clock.now()`, identity `room:scheduler`.
 4. Re-arm next earliest.
-5. Persistence: DO KV under `room.do.v3.<module>.s.<id>`; memory for sim/client.
+5. Persistence: DO KV under `room.do.v3.<module>.s.<id>`; memory for harness/client.
 
 Helper stacks:
 
-- `createTimerScheduleStack` — `io.timers` wake (client + sim + loopback).
+- `createTimerScheduleStack` — `io.timers` wake (client + harness + loopback).
 - `openDoModuleSchedule` / `DoAlarmHub` — DO `setAlarm` + KV sync.
 
 ### Where wakes land
@@ -244,7 +244,7 @@ Helper stacks:
 | Runtime | Wake | Inject path |
 |------|------|-------------|
 | Cloudflare DO | `storage.setAlarm` → `alarm()` | `RoomServer.injectCommand` |
-| Sim / loopback server | `io.timers` (+ sim `serverQueue`) | `RoomServer.injectCommand` |
+| Harness / loopback server | `io.timers` (+ harness `serverQueue`) | `RoomServer.injectCommand` |
 | Client optimistic | `io.timers` | `RoomClient.dispatch(payload)` (local UX) |
 
 Server inject is socket-less: dedup by `commandId`, authorize, `handle`, commit,
@@ -303,7 +303,7 @@ replays are idempotent.
 | `RoomStorage` | append/load log, lastSeq, command dedup |
 | `RoomAuth` | upgrade auth; optional per-command `authorize` |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
-| `Io` (`clock` / `timers` / `createId`) | all nondeterministic I/O — no bare wall clocks in apps/product/src/sim |
+| `Io` (`clock` / `timers` / `createId`) | all nondeterministic I/O — no bare wall clocks in apps/product/src/harness |
 
 ---
 
@@ -323,8 +323,8 @@ replays are idempotent.
 
 | Tool | When to use |
 |------|-------------|
-| **`openLoopbackRoom`** (`@pkgs/room-sim`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
-| **`system.run`** (`@pkgs/sim`) | Room virtual runtime → `Run<RoomSim>` driven by `apply` / `read` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
+| **`openLoopbackRoom`** (`@pkgs/room-harness`) | Fast in-process unit/integration with injected `Io`; real `RoomClient` + `RoomServer`, no net faults; Schedule via timers |
+| **`system.run`** (`@pkgs/harness`) | Room virtual runtime → `Run<RoomHarness>` driven by `apply` / `read` / `until`: partitions, delays, soft disconnect, crash/restart, hash converge, Schedule wakes |
 | **`system.explore` / `s.randomActions`** | Weighted walk over the registered pool (or an `actions:` slice) + shrink; seeded `s.randomActions` for determinism / long workloads |
 | **DO / adapter tests** | Hibernation, session take-over, per-key storage, alarms, WS heartbeat |
 | **`runModuleConformance`** | Game-module kit (purity, hash, totality, fold, fuzz) |
@@ -333,24 +333,24 @@ Scripts:
 
 ```bash
 bun run --filter @pkgs/room test       # all package tests
-bun run --filter @pkgs/room-sim test  # system scenarios + kit only
+bun run --filter @pkgs/room-harness test  # system scenarios + kit only
 bun run test:pbt:random                # hunt beyond the pinned seed (not the gate)
 ```
 
-### Shrinking system kernel (`@pkgs/room-sim` `src/scenario/`)
+### Shrinking system kernel (`@pkgs/room-harness` `src/scenario/`)
 
-Runs and action replay are owned by `@pkgs/sim`. A room app declares its own
-`defineSystem`, boots `S` with `bootRoomSim`, and spreads `roomSystemCatalog`
+Runs and action replay are owned by `@pkgs/harness`. A room app declares its own
+`defineSystem`, boots `S` with `bootRoomHarness`, and spreads `roomSystemCatalog`
 for the virtual runtime, shared library + domain action pool, and standing
 properties:
 
 ```ts
 // tests/apps/counter/system.ts
-export const counterSystem = defineSystem<RoomSim, RoomArgs>({
+export const counterSystem = defineSystem<RoomHarness, RoomArgs>({
   name: 'room.counter',
   args: ROOM_ARGS,
   sample: ROOM_DRAW,
-  create: (session, args) => bootRoomSim(session, counterApp, args),
+  create: (session, args) => bootRoomHarness(session, counterApp, args),
   ...roomSystemCatalog(counterApp),
 });
 
@@ -409,7 +409,7 @@ Connectivity triad — do not conflate:
 
 **Not simulated:** real WebSocket, full CF DO hibernation runtime (covered by DO unit tests).
 
-### Fixtures (`@pkgs/room-sim`)
+### Fixtures (`@pkgs/room-harness`)
 
 | Fixture | Purpose |
 |---------|---------|
@@ -422,13 +422,13 @@ Connectivity triad — do not conflate:
 
 ```ts
 import { describe, expect, test } from 'bun:test';
-import { expectInSync } from '@pkgs/room-sim';
-import { addClient, dispatch, pauseNetwork, resumeNetwork } from '@pkgs/room-sim';
+import { expectInSync } from '@pkgs/room-harness';
+import { addClient, dispatch, pauseNetwork, resumeNetwork } from '@pkgs/room-harness';
 import { counterSystem } from '../apps/counter/system';
 import { Increment, counterValue } from '../fixtures/counter-module';
-import { readClient, readServer } from '@pkgs/room-sim';
+import { readClient, readServer } from '@pkgs/room-harness';
 
-describe('room sim', () => {
+describe('room harness', () => {
   test('partition then restoreNetwork', async () => {
     await using s = await counterSystem.run({ seed: 3 });
     await s.apply(addClient, { id: 'alice' });
@@ -447,14 +447,14 @@ Games outside this package:
 
 ```ts
 import {
-  bootRoomSim,
+  bootRoomHarness,
   ROOM_ARGS,
   ROOM_DRAW,
   roomSystemCatalog,
   roomVirtual,
   runModuleConformance,
-} from '@pkgs/room-sim';
-import { defineSystem } from '@pkgs/sim';
+} from '@pkgs/room-harness';
+import { defineSystem } from '@pkgs/harness';
 ```
 
 ---
@@ -462,14 +462,14 @@ import { defineSystem } from '@pkgs/sim';
 ## Design constraints (for contributors / agents)
 
 - No `@pkgs/sync-engine` dependency (room stays a leaf).
-- No bare wall I/O in sim or product paths — inject `createSimAdapters` / clock.
+- No bare wall I/O in harness or product paths — inject `createHarnessAdapters` / clock.
   Wall helpers only in tests / `@io-wall-ok` entry roots (repo-wide rule).
 - Tiger size caps (`biome.json`) — split helpers; no size-rule ignores.
 - Domain hard-delete rules belong to sync-engine SQL; room uses event fold only.
 - Prefer extending `tests/*.test.ts` for multi-client / partition /
   offline / clock regressions before adding wall sleeps to loopback tests.
 - When changing `handle` / wire / schedule semantics, update this catalog and
-  keep **server-first** asserts in sim.
+  keep **server-first** asserts in harness.
 
 ### Feedback / design checklist
 
@@ -479,7 +479,7 @@ When proposing a change, check:
 2. If time is involved, is the wake a `Schedule` effect (not a client-only timer)?
 3. Are effects optional on success and absent on reject?
 4. Will unknown custom effects fail loudly (handler claim protocol)?
-5. Is there a sim scenario (or kit row) that would catch the regression?
+5. Is there a harness scenario (or kit row) that would catch the regression?
 6. Does `hash(state)` stay deterministic (see `docs/DETERMINISM.md`)?
 
 ---
@@ -517,11 +517,11 @@ When proposing a change, check:
 Complete inventory of what this package currently proves. Prefer adding rows
 here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 
-### Room specs (`specs/rooms/`, run by `@pkgs/room-sim`)
+### Room specs (`specs/rooms/`, run by `@pkgs/room-harness`)
 
-`@pkgs/room-sim` claims the `rooms` spec domain: its `test:e2e` runs the
+`@pkgs/room-harness` claims the `rooms` spec domain: its `test:e2e` runs the
 features through `tests/steps/` and replays the models' traces through
-`tests/quint/` (seeded by `FC_SEED`; the sim must reach the model's state
+`tests/quint/` (seeded by `FC_SEED`; the harness must reach the model's state
 after every step).
 
 | Spec | Covers |
@@ -538,36 +538,36 @@ device hashes), and the Quint runner replays its longest trace twice and
 requires the same end state. The wire side of malformed messages
 (non-Message payload refused, unknown kind ignored) is
 `pkgs/room/tests/room-server.contract.test.ts`. Code tests in
-`pkgs/room-sim/tests/`: `standalone-room.test.ts` (`openLoopbackRoom`).
+`pkgs/room-harness/tests/`: `standalone-room.test.ts` (`openLoopbackRoom`).
 
-### Module kit sim (`/room/sim` kit)
-
-| File | ID | Asserts / use case |
-|------|----|--------------------|
-| `purity-and-seed.sim.test.ts` | M1/M8 | `runModuleConformance` on counter |
-| `hash-canonicality.sim.test.ts` | M2 | Hash independent of key insertion order |
-| `totality-sweep.sim.test.ts` | M3 | Handle never throws across corpus; ok ⇒ non-empty events |
-| `fold-closure.sim.test.ts` | M4 | Reduce over ordered log stays valid |
-| `authz-survives-reconnect.sim.test.ts` | M5 | Non-owner unauthorized after soft reconnect |
-| `terminal-monotonicity.sim.test.ts` | M6 | Schedule Expire wins; late act/expire no-ops |
-| `deadline-vs-action.sim.test.ts` | M7 | Lagging partitioned client cannot beat engine Schedule expire |
-| `engine-fuzz-sequences.sim.test.ts` | E1/M* | Deadline fixture fuzz via real engine |
-
-### Fixture-only sim
+### Module kit harness (`/room/harness` kit)
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
-| `tests/fixtures/counter-module.sim.test.ts` | M8 | Pure `TestCounterModule` under `createSimAdapters` seed-stable |
+| `purity-and-seed.harness.test.ts` | M1/M8 | `runModuleConformance` on counter |
+| `hash-canonicality.harness.test.ts` | M2 | Hash independent of key insertion order |
+| `totality-sweep.harness.test.ts` | M3 | Handle never throws across corpus; ok ⇒ non-empty events |
+| `fold-closure.harness.test.ts` | M4 | Reduce over ordered log stays valid |
+| `authz-survives-reconnect.harness.test.ts` | M5 | Non-owner unauthorized after soft reconnect |
+| `terminal-monotonicity.harness.test.ts` | M6 | Schedule Expire wins; late act/expire no-ops |
+| `deadline-vs-action.harness.test.ts` | M7 | Lagging partitioned client cannot beat engine Schedule expire |
+| `engine-fuzz-sequences.harness.test.ts` | E1/M* | Deadline fixture fuzz via real engine |
 
-### Game-layer sim (outside this package)
+### Fixture-only harness
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
-| `libs/chess/.../chess-puzzle.conformance.sim.test.ts` | Gp-01 | `ChessModule` via `runModuleConformance` |
-| `libs/chess/.../scenarios/host-auth-partition.sim.test.ts` | Gp-02 | Non-host reject under hold; converge |
-| `libs/chess/.../scenarios/solved-monotonic.sim.test.ts` | Gp-03 | Post-solved cmds leave terminal hash |
-| `libs/chess/.../scenarios/wrong-vs-solved-race.sim.test.ts` | Gp-04 | Two host tabs race → one status |
-| `libs/chess/.../scenarios/competition-races.template.sim.test.ts` | Gc template | Skipped stakes races until competition module exists |
+| `tests/fixtures/counter-module.harness.test.ts` | M8 | Pure `TestCounterModule` under `createHarnessAdapters` seed-stable |
+
+### Game-layer harness (outside this package)
+
+| File | ID | Asserts / use case |
+|------|----|--------------------|
+| `libs/chess/.../chess-puzzle.conformance.harness.test.ts` | Gp-01 | `ChessModule` via `runModuleConformance` |
+| `libs/chess/.../scenarios/host-auth-partition.harness.test.ts` | Gp-02 | Non-host reject under hold; converge |
+| `libs/chess/.../scenarios/solved-monotonic.harness.test.ts` | Gp-03 | Post-solved cmds leave terminal hash |
+| `libs/chess/.../scenarios/wrong-vs-solved-race.harness.test.ts` | Gp-04 | Two host tabs race → one status |
+| `libs/chess/.../scenarios/competition-races.template.harness.test.ts` | Gc template | Skipped stakes races until competition module exists |
 
 ### Loopback / client core
 
@@ -620,5 +620,5 @@ requires the same end state. The wire side of malformed messages
 | `tests/client-storage.pbt.test.ts` | PBT | Memory/web/KV queue append/remove round-trip + serial remove |
 | `tests/bench/hot-paths.bench.test.ts` | Hang-only | Dispatch burst, welcome-256, hash nested state |
 
-Curated exports for games: `@pkgs/room-sim` (`bootRoomSim`,
+Curated exports for games: `@pkgs/room-harness` (`bootRoomHarness`,
 `roomSystemCatalog`, `roomVirtual`, kit helpers, fixtures). Prefer adding a row above whenever you add coverage.

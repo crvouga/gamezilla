@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 
 import {
   defineOutboxConsumer,
@@ -26,7 +26,7 @@ describe('outbox', () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrateOutbox(db);
-    const adapters = createSimAdapters({ seed: 1 });
+    const adapters = createHarnessAdapters({ seed: 1 });
     const seen: number[] = [];
     const registry = new OutboxConsumerRegistry();
     registry.register(
@@ -81,7 +81,7 @@ describe('outbox', () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
     await migrateOutbox(db);
-    const adapters = createSimAdapters({ seed: 2 });
+    const adapters = createHarnessAdapters({ seed: 2 });
     const a: number[] = [];
     const b: number[] = [];
     const registry = new OutboxConsumerRegistry();

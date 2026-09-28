@@ -3,7 +3,7 @@ export { genEvalResponses, genMinImprovementFactor } from './evals';
 export {
   type FaultScheduleItem,
   genFaultSchedule,
-  toSimFaults,
+  toHarnessFaults,
 } from './faults';
 export {
   genManifest,

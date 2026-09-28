@@ -1,5 +1,5 @@
 /**
- * Isomorphic Postgres pool / client shapes used across Worker, sims, and
+ * Isomorphic Postgres pool / client shapes used across Worker, harnesses, and
  * web (mockingbird-postgres). Hand-written so the bundler never resolves `node-postgres`
  * (`pg`) via type re-exports — that package is Node-only and crashes in the
  * browser (`util.deprecate`).

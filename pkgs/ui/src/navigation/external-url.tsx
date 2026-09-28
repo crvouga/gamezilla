@@ -4,7 +4,7 @@
  * (a payment provider's checkout or billing portal, …).
  *
  * The app never owns that page, so the port is a plain function: production
- * assigns the browser location, sims walk the provider's real screens
+ * assigns the browser location, harnesses walk the provider's real screens
  * headlessly. Feature libs call `useOpenExternalUrl()` and stay host-agnostic.
  */
 

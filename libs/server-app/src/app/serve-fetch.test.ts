@@ -9,7 +9,7 @@ describe('serveFetch', () => {
         { status: 200 }
       )
     );
-    const res = await fetch('http://sim.local/api/identity/anon/ensure', {
+    const res = await fetch('http://harness.local/api/identity/anon/ensure', {
       method: 'POST',
     });
     expect(res.status).toBe(200);
@@ -26,7 +26,7 @@ describe('serveFetch', () => {
     const fetch = serveFetch(async () => {
       throw new Error('boom');
     });
-    const res = await fetch('http://sim.local/x');
+    const res = await fetch('http://harness.local/x');
     expect(res.status).toBe(500);
     expect(await res.text()).toBe('boom');
   });
@@ -41,7 +41,7 @@ describe('serveFetch', () => {
       wiped._bodyInit = payload;
       return wiped;
     });
-    const res = await fetch('http://sim.local/api/identity/refresh', {
+    const res = await fetch('http://harness.local/api/identity/refresh', {
       method: 'POST',
     });
     expect(res.status).toBe(200);

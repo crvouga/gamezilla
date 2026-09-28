@@ -28,13 +28,15 @@ describe('createMultiAppSolidDomSession', () => {
       onActorFocus: (id) => events.push(`focus:${id}`),
       onActorBlur: (id) => events.push(`blur:${id}`),
     });
-    const sim = createDemoClock();
-    const alice = session.mountActor('alice', () => <DemoApp sim={sim} />);
+    const harness = createDemoClock();
+    const alice = session.mountActor('alice', () => (
+      <DemoApp harness={harness} />
+    ));
     expect(session.activeActorId()).toBe('alice');
     expect(actorContainer('alice')).not.toBeNull();
     expect(alice.query('email')).not.toBeNull();
 
-    const bob = session.mountActor('bob', () => <DemoApp sim={sim} />);
+    const bob = session.mountActor('bob', () => <DemoApp harness={harness} />);
     expect(session.activeActorId()).toBe('bob');
     expect(actorContainer('alice')).toBeNull();
     expect(actorContainer('bob')).not.toBeNull();
@@ -46,14 +48,16 @@ describe('createMultiAppSolidDomSession', () => {
   test('drivers over actor facades refocus their actor before acting', async () => {
     session = createMultiAppSolidDomSession();
     const live = session;
-    const sim = createDemoClock();
+    const harness = createDemoClock();
     const driverFor = (id: string) =>
       createSolidDomDriver({
-        clock: sim.clock,
-        pump: sim.pump,
+        clock: harness.clock,
+        pump: harness.pump,
         harness: {
           mount: () =>
-            Promise.resolve(live.mountActor(id, () => <DemoApp sim={sim} />)),
+            Promise.resolve(
+              live.mountActor(id, () => <DemoApp harness={harness} />)
+            ),
         },
       });
     const alice = driverFor('alice');
@@ -81,16 +85,16 @@ describe('createMultiAppSolidDomSession', () => {
 
   test('snapshotAllActors captures the active actor and reuses parked HTML', async () => {
     session = createMultiAppSolidDomSession();
-    const sim = createDemoClock();
+    const harness = createDemoClock();
     session.mountActor('alice', () => (
-      <DemoProviders sim={sim}>
+      <DemoProviders harness={harness}>
         <div class="box" data-testid="a">
           <p class="text">{'Alice was here with plenty of copy'}</p>
         </div>
       </DemoProviders>
     ));
     session.mountActor('bob', () => (
-      <DemoProviders sim={sim}>
+      <DemoProviders harness={harness}>
         <div class="box" data-testid="b">
           <p class="text">{'Bob was here with plenty of copy'}</p>
         </div>
@@ -116,10 +120,10 @@ describe('createMultiAppSolidDomSession', () => {
 
   test('mounts uncached parked actors for snapshot when nothing is focused', async () => {
     session = createMultiAppSolidDomSession();
-    const sim = createDemoClock();
+    const harness = createDemoClock();
     const [copy, setCopy] = createSignal('');
     session.mountActor('alice', () => (
-      <DemoProviders sim={sim}>
+      <DemoProviders harness={harness}>
         <p class="text">{copy()}</p>
       </DemoProviders>
     ));

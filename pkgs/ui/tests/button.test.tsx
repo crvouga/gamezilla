@@ -131,7 +131,7 @@ function MutationHarness(props: {
 }
 
 describe('useMutationButton', () => {
-  test('idle → loading → success → idle with the sim clock', async () => {
+  test('idle → loading → success → idle with the harness clock', async () => {
     let resolve: () => void = () => {};
     const operation = mock(
       () =>

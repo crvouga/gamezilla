@@ -49,7 +49,7 @@ function trimOrNull(raw: string | undefined | null): string | null {
  * Pre-wired Hono sub-app: loads OpenAI credentials from the secret store.
  * When either secret is missing, mounts a degraded surface that returns 503.
  * Pass {@link CreateLlmAppFromBindingsOptions.provider} to skip secrets
- * (sims / tests).
+ * (harnesses / tests).
  */
 export async function createLlmAppFromBindings(
   options: CreateLlmAppFromBindingsOptions

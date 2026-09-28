@@ -11,9 +11,9 @@
       "./src/root/*.ts",
       "./src/root/*.tsx"
     ],
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx"
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
     ],
     "./steps/*": "./tests/steps/*.ts"
   },
@@ -22,7 +22,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
@@ -32,7 +32,7 @@
     "@libs/infra": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/server-app": "workspace:*",
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
@@ -49,7 +49,7 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",

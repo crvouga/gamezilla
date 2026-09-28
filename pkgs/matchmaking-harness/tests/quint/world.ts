@@ -1,0 +1,46 @@
+/**
+ * The world a matchmaking model's traces run in: matchmaking behind three
+ * entrances sharing one store, opened by the binding's `init` and disposed
+ * after the last step. Every action lands at the entrance the trace drew, so
+ * nothing but the product decides the outcome; state is compared right after
+ * each step (nothing here waits on time).
+ */
+
+import type { Run } from '@pkgs/harness';
+import {
+  type MatchmakingHarness,
+  registerTestCrashHandler,
+} from '@pkgs/matchmaking-harness';
+import { setQuintWorld, type TraceContext } from '@pkgs/quint/registry';
+
+export type MatchmakingTraceWorld = {
+  readonly ctx: TraceContext;
+  harness: Run<MatchmakingHarness> | null;
+  /** Every wait ever started, by its id, to the person who started it. */
+  readonly waitedBy: Map<string, string>;
+  readonly disposeCrash: () => void;
+};
+
+export function traceMatchmaking(
+  w: MatchmakingTraceWorld
+): Run<MatchmakingHarness> {
+  if (w.harness === null) {
+    throw new Error('no matchmaking — the binding init opens one');
+  }
+  return w.harness;
+}
+
+export function useMatchmakingTraceWorld(): void {
+  setQuintWorld<MatchmakingTraceWorld>({
+    create: async (ctx) => ({
+      ctx,
+      harness: null,
+      waitedBy: new Map(),
+      disposeCrash: registerTestCrashHandler(),
+    }),
+    dispose: async (w) => {
+      await w.harness?.[Symbol.asyncDispose]();
+      w.disposeCrash();
+    },
+  });
+}

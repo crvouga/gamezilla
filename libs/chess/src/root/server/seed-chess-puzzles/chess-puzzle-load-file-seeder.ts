@@ -1,5 +1,5 @@
 /**
- * Seeds `chess_puzzles` from a committed CSV (local sidecar boot, sims).
+ * Seeds `chess_puzzles` from a committed CSV (local sidecar boot, harnesses).
  * Accepts the load-file shape (`id,fen,moves,…`, JSON themes) and the raw
  * Lichess shape (`PuzzleId,FEN,Moves,…`); every record goes through the §23
  * validation pass and the same deduping bulk insert as the streaming seed.

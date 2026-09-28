@@ -10,10 +10,13 @@ describe('apiCors', () => {
       .post('/api/identity/anon/ensure', (c) =>
         c.json({ userId: 'u1', accountId: 'u1', isAnon: true }, 200)
       );
-    const res = await app.request('http://sim.local/api/identity/anon/ensure', {
-      method: 'POST',
-      headers: { origin: 'http://localhost:5173' },
-    });
+    const res = await app.request(
+      'http://harness.local/api/identity/anon/ensure',
+      {
+        method: 'POST',
+        headers: { origin: 'http://localhost:5173' },
+      }
+    );
     expect(res.status).toBe(200);
     const text = await res.text();
     expect(text.length).toBeGreaterThan(0);
@@ -41,7 +44,7 @@ describe('apiCors', () => {
           },
         })
     );
-    const res = await app.request('http://sim.local/api/auth/session', {
+    const res = await app.request('http://harness.local/api/auth/session', {
       method: 'POST',
       headers: { origin: 'https://www.example.app' },
     });
@@ -60,7 +63,7 @@ describe('apiCors', () => {
     const app = new Hono()
       .use('*', apiCors)
       .post('/x', (c) => c.json({ ok: true }));
-    const res = await app.request('http://sim.local/x', {
+    const res = await app.request('http://harness.local/x', {
       method: 'OPTIONS',
       headers: {
         origin: 'http://localhost:5173',

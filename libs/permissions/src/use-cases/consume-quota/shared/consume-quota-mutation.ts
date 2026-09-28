@@ -93,7 +93,7 @@ export async function applyConsume(
 /**
  * Local apply: device clock (a hint). On server replay the host's guard has
  * already consumed this key with server time (`authorizeAppMutation`), so the
- * body is a no-op there; the sim harness's replay passes `serverNow`.
+ * body is a no-op there; the harness harness's replay passes `serverNow`.
  */
 export const consumeQuotaMutation = defineMutation({
   name: 'consumeQuota',

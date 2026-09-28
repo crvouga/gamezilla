@@ -46,7 +46,7 @@ export async function mintPubSubToken(args: {
   readonly actorId: string;
   /** Topics the composed features granted this actor. */
   readonly featureTopics: readonly Topic[];
-  /** Epoch ms — callers pass env.clock.now or a sim clock. */
+  /** Epoch ms — callers pass env.clock.now or a harness clock. */
   readonly now: () => number;
 }): Promise<{ readonly token: string; readonly expiresAt: number }> {
   const nowMs = args.now();

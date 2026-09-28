@@ -16,7 +16,7 @@ export type HttpClientProviderProps = ParentProps<{
   readonly value: HttpClient;
 }>;
 
-/** Injects the app {@link HttpClient} (wall or sim) for the Solid tree. */
+/** Injects the app {@link HttpClient} (wall or harness) for the Solid tree. */
 export const HttpClientProvider: (
   props: HttpClientProviderProps
 ) => JSX.Element = HttpClientContext.Provider;

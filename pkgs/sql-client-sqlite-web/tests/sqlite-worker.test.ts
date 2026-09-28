@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import {
   attachSqliteWorkerHost,
@@ -230,7 +230,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
     });
     expect(owner.getOpenInfo()).toBeNull();
 
@@ -256,7 +256,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
     });
     const client = await owner.open();
     await client.disconnect();
@@ -270,7 +270,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
     });
     await owner.open();
     await owner.open();
@@ -292,7 +292,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
     });
     await owner.open();
     await owner.resetStore();
@@ -315,7 +315,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
     });
     const failed = await rejectionOf(owner.open());
     expect(failed.message).toBe('cannot create file');
@@ -331,7 +331,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     };
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
-      timers: createSimClock().timers,
+      timers: createHarnessClock().timers,
       spawnWorker: () => {
         const handle = createFakeWorker(backend);
         captured = handle;

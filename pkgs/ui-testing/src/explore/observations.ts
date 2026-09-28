@@ -3,7 +3,7 @@ import {
   defineAction,
   type PropertyDef,
   type Rng,
-} from '@pkgs/sim';
+} from '@pkgs/harness';
 import type { Driver } from '../driver/driver';
 import {
   EMPTY_INVENTORY,

@@ -2,7 +2,7 @@
 /**
  * The offline-shell analysis over built output: what the wall client can load
  * (static, lazy and preload edges from `index.html`, never entering the
- * simulator boot) must all be in the Workbox precache. `check:offline-shell`
+ * harness boot) must all be in the Workbox precache. `check:offline-shell`
  * runs the same analysis against the real `dist/`.
  */
 import { describe, expect, test } from 'bun:test';
@@ -120,22 +120,22 @@ function input(
     chunkSources: new Map(Object.entries(chunks)),
     indexHtml: INDEX_HTML,
     swSource: sw(precached),
-    excludedRoots: ['assets/sim-boot.js'],
+    excludedRoots: ['assets/harness-boot.js'],
     extraRoots: [],
   };
 }
 
 describe('offline-shell verdict', () => {
   const chunks = {
-    'assets/index-A1.js': `${viteChunk(['web-B2'], ['sim-boot', 'lazy'])}`,
+    'assets/index-A1.js': `${viteChunk(['web-B2'], ['harness-boot', 'lazy'])}`,
     'assets/web-B2.js': viteChunk(['shared'], []),
     'assets/shared.js': '',
     'assets/lazy.js': viteChunk(['heavy'], []),
     'assets/lazy.css': '',
     'assets/heavy.js': '',
-    'assets/sim-boot.js': viteChunk(['shared', 'sim-only'], []),
-    'assets/sim-boot.css': '',
-    'assets/sim-only.js': '',
+    'assets/harness-boot.js': viteChunk(['shared', 'harness-only'], []),
+    'assets/harness-boot.css': '',
+    'assets/harness-only.js': '',
   };
   const wallShell = [
     'index.html',
@@ -161,7 +161,7 @@ describe('offline-shell verdict', () => {
     ]);
   });
 
-  test('what only the simulator reaches is not required', () => {
+  test('what only the harness reaches is not required', () => {
     const report = analyzeOfflineShell(input(chunks, wallShell));
     expect(report.reachable).toEqual([...wallShell].sort());
     expect(report.notPrecached).toEqual([]);
@@ -200,7 +200,7 @@ describe('offline-shell verdict', () => {
 type Graph = {
   readonly statics: readonly (readonly number[])[];
   readonly lazies: readonly (readonly number[])[];
-  readonly simulator: number;
+  readonly harness: number;
 };
 
 /** Random chunk graphs: chunk 0 is the entry, edges point anywhere. */
@@ -212,7 +212,7 @@ const graphArb = fc.integer({ min: 2, max: 12 }).chain((size) => {
   return fc.record({
     statics: edges,
     lazies: edges,
-    simulator: fc.integer({ min: 1, max: size - 1 }),
+    harness: fc.integer({ min: 1, max: size - 1 }),
   });
 });
 
@@ -228,7 +228,7 @@ function oracle(graph: Graph): string[] {
   const stack = [0];
   while (stack.length > 0) {
     const node = stack.pop() as number;
-    if (seen.has(node) || node === graph.simulator) continue;
+    if (seen.has(node) || node === graph.harness) continue;
     seen.add(node);
     stack.push(...(graph.statics[node] ?? []), ...(graph.lazies[node] ?? []));
   }
@@ -257,7 +257,7 @@ function graphInput(graph: Graph): Omit<OfflineShellInput, 'swSource'> {
     files,
     chunkSources,
     indexHtml: `<script type="module" src="/assets/${chunkName(0)}.js"></script>`,
-    excludedRoots: [`assets/${chunkName(graph.simulator)}.js`],
+    excludedRoots: [`assets/${chunkName(graph.harness)}.js`],
     extraRoots: [],
   };
 }

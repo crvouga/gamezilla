@@ -215,7 +215,7 @@ export function CommandRegistryProvider(
   void historyStore.hydrate();
   const value = createContextValue({ store, historyStore });
 
-  // Reactive: hosts (simulator) gate shortcuts on focus without remounting.
+  // Reactive: hosts (harness) gate shortcuts on focus without remounting.
   const shortcutsEnabled = (): boolean => props.enableDefaultShortcuts ?? true;
   useRegistryDocumentShortcuts({
     enabled: shortcutsEnabled,

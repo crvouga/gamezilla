@@ -93,7 +93,7 @@ transport (API, endpoint, route, request/response, HTTP, status code, JSON,
 payload, header, cookie, token, WebSocket, URL, redirect, callback, OAuth),
 identifiers (ID, UUID, key, hash), code (class, method, function, module,
 file path, framework or vendor names), architecture (server, client,
-backend, service, worker, queue, sim), or UI mechanics (screen, page, view,
+backend, service, worker, queue, harness), or UI mechanics (screen, page, view,
 widget, button, link text, field, form, modal, dialog, click, tap, press,
 swipe, scroll, type into, navigate). The only exception: a glossary term or form
 that names something people see in the product ("Settings", "tabs",
@@ -345,25 +345,25 @@ another language, framework, database or host. No file paths, package names,
 or code identifiers appear in specs.
 *Why: the spec is the contract the rewrite is checked against.*
 
-**D2 · Steps bind through the sim, this repo's port.** *Blocking.*
-A step definition or Quint binding for a sim domain (`specDomains`,
+**D2 · Steps bind through the harness, this repo's port.** *Blocking.*
+A step definition or Quint binding for a harness domain (`specDomains`,
 `tests/steps/**` and `tests/quint/**`) calls only exported
-actions and reads of a package's `sim/` (`@libs/<pkg>/sim/…`,
-`@pkgs/<pkg>/sim…`, `@pkgs/<name>-sim`), the harness (`@libs/sim-harness…`,
-`@pkgs/sim`, `@pkgs/gherkin…`), the package's own step helpers, another
+actions and reads of a package's `harness/` (`@libs/<pkg>/harness/…`,
+`@pkgs/<pkg>/harness…`, `@pkgs/<name>-harness`), the harness (`@libs/harness…`,
+`@pkgs/harness`, `@pkgs/gherkin…`), the package's own step helpers, another
 package's exported `steps/`, and types and decided constants from a package's
 public entry point (`@libs/<pkg>/public/…`, a `@pkgs/<pkg>` root,
 `/shared` or `/interface` export). No selectors, test IDs,
 DOM, HTTP, SQL or storage clients (a binding's `observe` reads what a
-person sees through sim reads, not stored rows), and no `src/`, `server/`,
+person sees through harness reads, not stored rows), and no `src/`, `server/`,
 `client/` or `use-cases/` imports. Live domains bind through `apps/product/tests/steps/`
 (the live world), marked `// @io-wall-ok`.
-*Why: the sim is the one place that knows the UI and wiring; steps above it
+*Why: the harness is the one place that knows the UI and wiring; steps above it
 stay true when either changes, and the same wording runs against a live
 deployment.*
 
 **D3 · Steps hold no product logic.** *Blocking.*
-One sim call or a short fixed sequence. `Given` builds state; it may assert
+One harness call or a short fixed sequence. `Given` builds state; it may assert
 only that the state it just built took effect (a precondition guard), `When` performs the one event with no assertion, `Then`
 observes and asserts. No branching on product rules, no loops computing
 expected values, no step calling another step's text. Expected values come
@@ -378,7 +378,7 @@ or the harness world) — and nothing in `specs/` refers to it.
 spec.*
 
 **D5 · Deterministic.** *Blocking.*
-Sim steps run on virtual time (`w.s.until`), never sleep, `setTimeout` or the
+Harness steps run on virtual time (`w.s.until`), never sleep, `setTimeout` or the
 wall clock; no skipped, pending or retried steps. A step the host cannot
 perform throws `hostLimit(reason)`.
 *Why: a spec that passes by luck proves nothing.*

@@ -1,6 +1,6 @@
 /**
  * DOM test ids for the provider's hosted pages. Shared by the pages and any
- * browser that drives them (the sim's actions), so the two cannot drift.
+ * browser that drives them (the harness's actions), so the two cannot drift.
  *
  * Destructive portal actions confirm first: `*Start` opens the confirmation,
  * and the un-suffixed id is the button that commits the change.

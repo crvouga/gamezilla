@@ -8,7 +8,7 @@ import {
   requestSyntheticMonitorRedirect,
   SYNTHETIC_MONITOR_CODE_PATH,
 } from '@pkgs/auth-inhouse/shared';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import { createNoopLogger } from '@pkgs/logger';
 import { assertProperty, fc } from '@pkgs/property';
@@ -42,7 +42,7 @@ async function boot(token: string | null): Promise<Booted> {
     logger: createNoopLogger(),
   });
   let nextId = 0;
-  const { clock } = createSimClock({ startMs: START_MS });
+  const { clock } = createHarnessClock({ startMs: START_MS });
   const authApp = createAuthApp({
     getSql: () => sql,
     clock,

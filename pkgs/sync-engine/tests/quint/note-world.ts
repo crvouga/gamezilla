@@ -4,12 +4,12 @@
  * the time a person would give it.
  */
 
+import type { Run } from '@pkgs/harness';
 import { setQuintWorld } from '@pkgs/quint/registry';
-import type { Run } from '@pkgs/sim';
-import { exampleSystem, type SyncSim } from '@pkgs/sync-engine/sim';
+import { exampleSystem, type SyncHarness } from '@pkgs/sync-engine/harness';
 
 export type NoteWorld = {
-  readonly s: Run<SyncSim>;
+  readonly s: Run<SyncHarness>;
   /** Mutation ids whose confirmation was dropped, by person. */
   readonly owed: Map<string, string>;
   /** People with a second window of the app open on their device. */

@@ -4,10 +4,10 @@ Every spec that lived in `apps/product/tests` and where it went. The point of
 the table is that coverage of user-visible behaviour must not shrink: a row
 may move, merge or split, but it may not quietly disappear.
 
-> **Where this stands.** Done, and `apps/` holds no e2e at all. The sim harness
-> is `@libs/sim-harness`, generic over a composition; each feature exports its
-> slice from its `./sim` surface; each suite boots only the slices it needs
-> ([`libs/sim-harness/README.md`](../libs/sim-harness/README.md)). Every spec
+> **Where this stands.** Done, and `apps/` holds no e2e at all. The harness harness
+> is `@libs/harness`, generic over a composition; each feature exports its
+> slice from its `./harness` surface; each suite boots only the slices it needs
+> ([`libs/harness/README.md`](../libs/harness/README.md)). Every spec
 > runs in a feature's own `test:e2e`, the full-composition few in the
 > composition root's (`libs/runtime/tests/e2e`); the suites' random walks are
 > now Quint models in `specs/<domain>/*.qnt`. `bun run test:report` renders
@@ -113,5 +113,5 @@ feature that hosts a signed-in screen.
 | `product-walk` | random walk over every feature's walks | `libs/runtime/tests/e2e/monkey` (and one monkey per subsystem suite) |
 | `product-explore` | `system.explore` search over the action pool | `libs/runtime/tests/e2e/explore` (basic) |
 | `topology-partition` | partition an actor from the server, then restore, and still sign up | `libs/runtime/tests/e2e/topology-partition` (platform) |
-| `non-web-host-compile` | the bun-webview host builds and is exported | `libs/sim-harness/tests/hosts-compile` (ordinary test) |
+| `non-web-host-compile` | the bun-webview host builds and is exported | `libs/harness/tests/hosts-compile` (ordinary test) |
 | `sw-policy` | every wall-client file is precached (graph over the built `dist/`, plus `check:offline-shell`) | `apps/product/scripts/sw-policy.test.ts` (ordinary test) |

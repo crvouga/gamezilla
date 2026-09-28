@@ -4,6 +4,15 @@
  * product.
  */
 
+import { spawnActor } from '@libs/harness';
+import {
+  type Actor,
+  Given,
+  type HarnessWorld,
+  Then,
+  When,
+} from '@libs/harness/spec/define';
+import { cutConnection } from '@libs/harness/spec/steps/platform';
 import {
   followNotFoundWayBack,
   leaveAppOutdated,
@@ -12,16 +21,7 @@ import {
   openAddress,
   updateApp,
   updateRequested,
-} from '@libs/runtime/sim/app-lifecycle';
-import { spawnActor } from '@libs/sim-harness';
-import {
-  type Actor,
-  Given,
-  type SimWorld,
-  Then,
-  When,
-} from '@libs/sim-harness/spec/define';
-import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
+} from '@libs/runtime/harness/app-lifecycle';
 
 const SECOND_MS = 1_000;
 /** An address no screen of the app answers. */
@@ -43,19 +43,19 @@ Given(
   async (w, actor: Actor) => {
     await w.s.apply(openAddress, actor, UNKNOWN_ADDRESS);
     // Precondition: the dead end is on screen before the scenario acts.
-    await w.s.until((sim) => notFoundShown(sim, actor));
+    await w.s.until((harness) => notFoundShown(harness, actor));
   }
 );
 
 Then(
   '{actor} is told there is nothing at that address',
   async (w, actor: Actor) => {
-    await w.s.until((sim) => notFoundShown(sim, actor));
+    await w.s.until((harness) => notFoundShown(harness, actor));
   }
 );
 
 Then('{actor} is offered the way back to Spaces', async (w, actor: Actor) => {
-  await w.s.until((sim) => notFoundWayBackOffered(sim, actor));
+  await w.s.until((harness) => notFoundWayBackOffered(harness, actor));
 });
 
 When('{actor} takes the way back to Spaces', async (w, actor: Actor) => {
@@ -63,7 +63,7 @@ When('{actor} takes the way back to Spaces', async (w, actor: Actor) => {
 });
 
 /** Away from the product while it moved on: the app has not heard yet. */
-async function outdateWhileAway(w: SimWorld, actor: Actor): Promise<void> {
+async function outdateWhileAway(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(spawnActor, actor);
   await cutConnection(w, actor);
   await w.s.apply(leaveAppOutdated, actor);
@@ -90,7 +90,7 @@ When('{actor} updates the app', async (w, actor: Actor) => {
 Then(
   '{actor} is asked to update the app within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
-    await w.s.until((sim) => updateRequested(sim, actor), {
+    await w.s.until((harness) => updateRequested(harness, actor), {
       maxMs: seconds * SECOND_MS,
     });
   }

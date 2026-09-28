@@ -22,7 +22,7 @@ describe('naming rules', () => {
     ['src/foo-bar.ts', true],
     ['src/foo-bar.test.ts', true],
     ['src/assets.d.ts', true],
-    ['src/foo.sim.test.ts', true],
+    ['src/foo.harness.test.ts', true],
     ['img/icon@2x.png', true],
     ['.github/workflows/check.yml', true],
     ['.gitignore', true],

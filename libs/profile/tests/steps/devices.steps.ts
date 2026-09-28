@@ -1,27 +1,26 @@
 /** The devices signed into an account. */
 
 import { expect } from 'bun:test';
-
+import { openAccount, signOut } from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
+import { otherDevice } from '@libs/harness/spec/steps/platform';
+import type { HarnessWorld } from '@libs/harness/spec/world';
 import {
   currentDeviceMarked,
   devicesShown,
   openDevices,
-} from '@libs/profile/sim/account-devices';
-import { openAccount, signOut } from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
-import { otherDevice } from '@libs/sim-harness/spec/steps/platform';
-import type { SimWorld } from '@libs/sim-harness/spec/world';
+} from '@libs/profile/harness/account-devices';
 
 const SECOND_MS = 1_000;
 const LIST_WAIT_MS = 15_000;
 
 async function devicesWithin(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   count: number,
   maxMs: number
 ): Promise<void> {
-  await w.s.until((sim) => devicesShown(sim, actor), {
+  await w.s.until((harness) => devicesShown(harness, actor), {
     pred: (shown) => shown === count,
     maxMs,
   });

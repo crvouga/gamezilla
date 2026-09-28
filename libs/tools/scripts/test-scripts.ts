@@ -13,7 +13,7 @@
  *   is a bug to fix, not to retry.
  * - A test file no gate script reaches never runs. It reads like coverage and
  *   proves nothing.
- * - The sim e2e runner also runs the specs (features and Quint models) of
+ * - The harness e2e runner also runs the specs (features and Quint models) of
  *   the domains the package lists in `specDomains`, so a `test:e2e` with no
  *   `tests/e2e/` file is fine when it runs specs; `spec:check` proves those
  *   domains exist.
@@ -30,8 +30,8 @@ export const GATE_TEST_SCRIPTS = [
   'test:integration',
 ] as const;
 
-/** The one sim harness runner every package's `test:e2e` uses. */
-const E2E_RUNNER = 'libs/sim-harness/scripts/test-e2e.ts';
+/** The one harness harness runner every package's `test:e2e` uses. */
+const E2E_RUNNER = 'libs/harness/scripts/test-e2e.ts';
 const E2E_DIR = 'tests/e2e/';
 
 const BANNED_FLAGS: readonly { readonly flag: string; readonly why: string }[] =
@@ -121,7 +121,7 @@ function filesRunBy(
 export function testScriptViolations(input: {
   readonly scripts: Readonly<Record<string, string>>;
   readonly files: readonly string[];
-  /** The manifest's `specDomains`: specs the sim e2e runner also runs. */
+  /** The manifest's `specDomains`: specs the harness e2e runner also runs. */
   readonly specDomains?: readonly string[];
 }): readonly string[] {
   const out: string[] = [];
@@ -141,7 +141,7 @@ export function testScriptViolations(input: {
     const files = filesRunBy(script, testFiles);
     if (files === null) {
       out.push(
-        `"${name}" is not \`bun test …\` or the sim e2e runner, so which tests it runs cannot be checked`
+        `"${name}" is not \`bun test …\` or the harness e2e runner, so which tests it runs cannot be checked`
       );
       continue;
     }

@@ -1,6 +1,6 @@
 /**
- * `specs/index-tuning/index-tuning.qnt` against the tuning sim: each model
- * action through the sim's actions, and the model's state read back from
+ * `specs/index-tuning/index-tuning.qnt` against the tuning harness: each model
+ * action through the harness's actions, and the model's state read back from
  * the tuned indexes, their retirement, their uses and the team's own index.
  * The standing tuning invariants run after every step.
  */
@@ -18,7 +18,7 @@ import {
   tunedLookups,
   use,
   usesByLookup,
-} from '@pkgs/db-indexes/sim';
+} from '@pkgs/db-indexes/harness';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 import { type TuningTraceWorld, traceTuning } from './world';
@@ -51,7 +51,7 @@ bindQuintModel<TuningTraceWorld>({
   maxSteps: 20,
   actions: {
     init: async (w) => {
-      w.sim = await indexTuningSystem.run({ seed: w.ctx.testId });
+      w.harness = await indexTuningSystem.run({ seed: w.ctx.testId });
     },
     declare: async (w, picks) => {
       await traceTuning(w).apply(declare, lookupsPicked(picks));

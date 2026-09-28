@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import { fingerprintSql } from '@pkgs/db-indexes/core/fingerprint';
 import { reconcileIndexes } from '@pkgs/db-indexes/core/reconcile';
 import type { WorkloadManifest } from '@pkgs/db-indexes/core/types';
-import { createSimClock } from '@pkgs/db-indexes/sim';
+import { createHarnessClock } from '@pkgs/db-indexes/harness';
 import { createSqlitePort } from '@pkgs/db-indexes-sqlite';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { emitSqliteCreateStatements } from '@pkgs/db-schema-sqlite';
@@ -41,7 +41,7 @@ describe('sqlite port integration', () => {
         `t${String(i)}`,
       ]);
     }
-    const clock = createSimClock(0);
+    const clock = createHarnessClock(0);
     const db = createSqlitePort(
       { db: raw, idleWindow: true },
       { config: { sqliteMaxOnlineBuildRows: 10 } }

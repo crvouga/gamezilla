@@ -52,7 +52,7 @@ export const DEFAULT_GLOBS: readonly string[] = [
   'libs',
   'pkgs/ui/src',
   'pkgs/ui/tests',
-  'pkgs/sim-console',
+  'pkgs/harness-console',
   'pkgs/collab-ui',
   'pkgs/chess-board',
   'pkgs/ui-testing-solid-dom',

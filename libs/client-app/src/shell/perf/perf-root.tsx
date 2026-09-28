@@ -3,7 +3,7 @@
  * Wires preference + sampler under the app shell. The HUD banner portals into
  * `AppFrame`'s `DismissibleBannerPortalProvider` (full-bleed hosts) so it
  * stays in-flow. The sampler defaults to the browser wall adapter on the
- * injected timers; tests and sims pass their own.
+ * injected timers; tests and harnesses pass their own.
  */
 
 import { useTimers } from '@pkgs/clock/solid';
@@ -31,7 +31,7 @@ function PerfHudGate(props: {
 
 export function PerfRoot(props: {
   readonly children: JSX.Element;
-  /** Override for tests / sims; defaults to the wall sampler. */
+  /** Override for tests / harnesses; defaults to the wall sampler. */
   readonly sampler?: PerfSampler | undefined;
 }): JSX.Element {
   const timers = useTimers();

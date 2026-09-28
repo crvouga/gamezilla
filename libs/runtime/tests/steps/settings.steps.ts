@@ -1,7 +1,8 @@
 /** Settings that stick: the appearance, sounds, and which version this is. */
 
 import { expect } from 'bun:test';
-
+import { openSettings } from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
 import {
   APP_VERSION_INSTALLED,
   appearanceShown,
@@ -10,16 +11,14 @@ import {
   soundShownInSettings,
   turnSoundsOff,
   versionShownInAbout,
-} from '@libs/runtime/sim/app-settings';
-import { openSettings } from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
+} from '@libs/runtime/harness/app-settings';
 
 Given('{actor} has chosen the dark theme', async (w, actor: Actor) => {
   await w.s.apply(chooseTheme, actor, 'dark');
 });
 
 Then("{actor}'s app is dark", async (w, actor: Actor) => {
-  await w.s.until((sim) => appearanceShown(sim, actor), {
+  await w.s.until((harness) => appearanceShown(harness, actor), {
     pred: (scheme) => scheme === 'dark',
   });
 });
@@ -31,7 +30,7 @@ Given('{actor} has turned sounds off', async (w, actor: Actor) => {
 Then("{actor}'s sounds are off", async (w, actor: Actor) => {
   // Settings is where a person sees whether sounds are on.
   await w.s.apply(openSettings, actor);
-  await w.s.until((sim) => soundShownInSettings(sim, actor), {
+  await w.s.until((harness) => soundShownInSettings(harness, actor), {
     pred: (shown) => shown !== null && shown.includes('Muted'),
   });
 });

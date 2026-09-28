@@ -1,6 +1,6 @@
 /**
  * `specs/billing/membership-lifecycle.qnt` against billing's lifecycle
- * composition (`tests/e2e/support/open-billing-lifecycle-sim.ts`): every
+ * composition (`tests/e2e/support/open-billing-lifecycle-harness.ts`): every
  * model action is one `billingStimulus`, so the lifecycle's standing
  * properties are checked after each (among them, that every connected device
  * knows every detail of every membership); the model's state is read back
@@ -9,34 +9,31 @@
  * access each device shows.
  */
 
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
-import { openBilling } from '@libs/billing/sim/billing-actions';
+import { openBilling } from '@libs/billing/harness/billing-actions';
 import {
   BILLING_PAYER,
   BILLING_SECOND_DEVICE,
   type BillingStimulus,
   billingStimulus,
   settleBilling,
-} from '@libs/billing/sim/billing-lifecycle-stimuli';
+} from '@libs/billing/harness/billing-lifecycle-stimuli';
 import {
   billingTier,
   deviceMemberships,
   type MembershipRecord,
   serverMemberships,
-} from '@libs/billing/sim/billing-reads';
+} from '@libs/billing/harness/billing-reads';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import {
   focusActor,
   signInWithGoogle,
   signInWithGoogleAsAccount,
   spawnActor,
-} from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
-import {
-  bringToFront,
-  partitioned,
-} from '@libs/sim-harness/system/observations';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+} from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { accountIdOf } from '@libs/harness/system/identity';
+import { bringToFront, partitioned } from '@libs/harness/system/observations';
 import type { QuintValue } from '@pkgs/quint/itf';
 import { bindQuintModel } from '@pkgs/quint/registry';
 
@@ -81,24 +78,27 @@ function inServerOrder(
   return [...device].sort((a, b) => rank(a) - rank(b));
 }
 
-async function accessShownOn(s: ProductSim, actorId: string): Promise<string> {
+async function accessShownOn(
+  s: ProductHarness,
+  actorId: string
+): Promise<string> {
   await bringToFront(s, actorId);
   return (await billingTier(s, actorId)) ?? 'nothing shown';
 }
 
-function phoneOnline(s: ProductSim): boolean {
+function phoneOnline(s: ProductHarness): boolean {
   return !partitioned(s).some((pair) =>
     pair.split('|').includes(BILLING_SECOND_DEVICE)
   );
 }
 
 function stimulus(name: BillingStimulus) {
-  return async (w: QuintSimWorld) => {
+  return async (w: QuintHarnessWorld) => {
     await w.s.apply(billingStimulus, name);
   };
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'membership-lifecycle',
   traces: 8,
   maxSteps: 15,

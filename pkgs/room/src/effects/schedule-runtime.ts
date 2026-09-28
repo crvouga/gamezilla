@@ -23,7 +23,7 @@ export type ScheduleWakePort = {
 
 /**
  * In-memory pending schedules + earliest-wake arming. DO persistence wraps
- * this and syncs KV on mutate; sim/client use {@link createTimerWakePort}.
+ * this and syncs KV on mutate; harness/client use {@link createTimerWakePort}.
  */
 export class ScheduleRuntime {
   private readonly pending = new Map<string, PendingSchedule>();
@@ -100,7 +100,7 @@ export class ScheduleRuntime {
   }
 }
 
-/** Timer-based wake for client + sim (uses injected Timers + Clock). */
+/** Timer-based wake for client + harness (uses injected Timers + Clock). */
 export function createTimerWakePort(args: {
   readonly clock: Clock;
   readonly timers: Timers;

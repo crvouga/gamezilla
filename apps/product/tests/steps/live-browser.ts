@@ -9,7 +9,7 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { JourneyBrowser } from '@libs/runtime/sim/critical-journeys';
+import type { JourneyBrowser } from '@libs/runtime/harness/critical-journeys';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import { writeUtf8 } from '@pkgs/object-store/helpers';

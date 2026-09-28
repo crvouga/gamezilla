@@ -11,9 +11,9 @@
       "./src/root/*.ts",
       "./src/root/*.tsx"
     ],
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx"
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
     ]
   },
   "scripts": {
@@ -22,7 +22,7 @@
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts",
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts",
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
   "dependencies": {
@@ -32,7 +32,7 @@
     "@libs/infra": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
@@ -57,10 +57,10 @@
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/room": "workspace:*",
-    "@pkgs/room-sim": "workspace:*",
+    "@pkgs/room-harness": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",

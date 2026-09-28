@@ -17,7 +17,7 @@ import {
 import { Handles } from '@libs/test-ids';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { ThemeProvider } from '@pkgs/ui';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
@@ -39,11 +39,11 @@ const NO_ACTIONS: BillingActions = {
 };
 
 function renderView(view: BillingView, actions: BillingActions = NO_ACTIONS) {
-  const sim = createSimClock();
+  const harness = createHarnessClock();
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   return render(() => (
     <I18nProvider i18n={i18n}>
-      <ClockProvider clock={sim.clock} timers={sim.timers}>
+      <ClockProvider clock={harness.clock} timers={harness.timers}>
         <ThemeProvider
           colorScheme="light"
           fixedLayout={{ width: 1024, height: 768 }}

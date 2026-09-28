@@ -2,14 +2,14 @@
 
 /**
  * The stack's two simulated identity providers — Google and Apple — each a
- * `@pkgs/idp-sim` process on its own port with its own state, and the API
+ * `@pkgs/idp-mock` process on its own port with its own state, and the API
  * bindings that point the Worker at them.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
 
-import { createAppleClientKeys } from '@pkgs/idp-sim/server/idp-keys';
-import type { IdpProviderKind } from '@pkgs/idp-sim/shared';
+import { createAppleClientKeys } from '@pkgs/idp-mock/server/idp-keys';
+import type { IdpProviderKind } from '@pkgs/idp-mock/shared';
 
 import { waitForHttp } from './free-port';
 import type { IdpStateMode } from './stack-options';
@@ -55,7 +55,7 @@ async function startIdp(args: {
       '--conditions=development',
       '--preload',
       './pkgs/bun-test-solid/src/register.ts',
-      'pkgs/idp-sim/scripts/serve.ts',
+      'pkgs/idp-mock/scripts/serve.ts',
     ],
     {
       cwd: args.repoRoot,

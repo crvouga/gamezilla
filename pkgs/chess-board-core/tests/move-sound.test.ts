@@ -8,7 +8,7 @@ import {
   planMoveSounds,
 } from '@pkgs/chess-board-core/move-sound';
 import type { Move } from '@pkgs/chess-board-core/types';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 
 const QUIET: Move = { from: 'e2', to: 'e4' };
 const CAPTURE: Move = { from: 'e4', to: 'd5', captured: 'p' };
@@ -104,7 +104,7 @@ function recordingPlayer(): { player: ChessMoveSoundPlayer; log: string[] } {
 
 describe('createMoveSoundScheduler', () => {
   test('plays the plan on the injected timers', () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     const { player, log } = recordingPlayer();
     const scheduler = createMoveSoundScheduler(player, timers);
 
@@ -121,7 +121,7 @@ describe('createMoveSoundScheduler', () => {
   });
 
   test('a new ply cancels pending follow-ups from the previous one', () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     const { player, log } = recordingPlayer();
     const scheduler = createMoveSoundScheduler(player, timers);
 
@@ -137,7 +137,7 @@ describe('createMoveSoundScheduler', () => {
   });
 
   test('dispose drops everything still pending', () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     const { player, log } = recordingPlayer();
     const scheduler = createMoveSoundScheduler(player, timers);
 

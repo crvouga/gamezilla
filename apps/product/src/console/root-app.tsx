@@ -1,8 +1,11 @@
 import type { I18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock/solid';
+import {
+  HarnessConsoleApp,
+  type HarnessConsolePorts,
+} from '@pkgs/harness-console/client';
 import { HttpClientProvider } from '@pkgs/http-client/solid';
-import { SimConsoleApp, type SimConsolePorts } from '@pkgs/sim-console/client';
 import {
   DismissibleBannerPortalProvider,
   OverlayPortalProvider,
@@ -21,33 +24,37 @@ import {
 import { useConsoleNav } from './console-nav/use-console-nav';
 
 export type ConsoleEnv = {
-  readonly ports: SimConsolePorts;
+  readonly ports: HarnessConsolePorts;
   readonly createId: CreateId;
   readonly random: Random;
   readonly i18n: I18n;
 };
 
-function ConsoleBody(props: { readonly ports: SimConsolePorts }): JSX.Element {
+function ConsoleBody(props: {
+  readonly ports: HarnessConsolePorts;
+}): JSX.Element {
   const nav = useConsoleChrome();
   return (
-    <SimConsoleApp
+    <HarnessConsoleApp
       ports={props.ports}
-      kind={nav.state.simulator.kind}
-      instance={nav.state.simulator.instance}
-      panes={nav.state.simulator.panes}
+      kind={nav.state.harness.kind}
+      instance={nav.state.harness.instance}
+      panes={nav.state.harness.panes}
       onExit={() => {
         window.location.assign('/');
       }}
-      onKindChange={(kind) => nav.patch({ simulator: { kind } })}
-      onInstanceChange={(instance) => nav.patch({ simulator: { instance } })}
+      onKindChange={(kind) => nav.patch({ harness: { kind } })}
+      onInstanceChange={(instance) => nav.patch({ harness: { instance } })}
       onPanePatch={(id, patch, mode = 'push') =>
-        nav.patch({ simulator: { pane: { id, patch } } }, mode)
+        nav.patch({ harness: { pane: { id, patch } } }, mode)
       }
     />
   );
 }
 
-function ConsoleShell(props: { readonly ports: SimConsolePorts }): JSX.Element {
+function ConsoleShell(props: {
+  readonly ports: HarnessConsolePorts;
+}): JSX.Element {
   const theme = useThemePreference();
   const nav = useConsoleNav();
   return (

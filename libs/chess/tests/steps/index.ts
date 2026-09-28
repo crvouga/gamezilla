@@ -1,13 +1,13 @@
 /**
  * Steps entry for the `specs/<domain>/` features this package runs
- * (`specDomains`): registers the world (this package's sim
+ * (`specDomains`): registers the world (this package's harness
  * composition) and every step definition its features may use — the shared
  * platform steps, this package's own, and the profile, billing and friends
  * steps it reuses (a second device, a Plus membership, friendship, and
  * joining a space).
  */
 
-import '@libs/sim-harness/spec/steps/platform';
+import '@libs/harness/spec/steps/platform';
 import '@libs/profile/steps/profile.steps';
 import '@libs/billing/steps/access.steps';
 import '@libs/friends/steps/friends.steps';
@@ -20,7 +20,7 @@ import './puzzle-allowance.steps';
 import './puzzle-spectator.steps';
 import './space-game.steps';
 
-import { useSimWorld } from '@libs/sim-harness/spec/world';
-import { openSpecSim } from '../e2e/support/open-chess-sim';
+import { useHarnessWorld } from '@libs/harness/spec/world';
+import { openSpecHarness } from '../e2e/support/open-chess-harness';
 
-useSimWorld(openSpecSim);
+useHarnessWorld(openSpecHarness);

@@ -4,7 +4,7 @@
  * The memory vertical of `@pkgs/room`: an authoritative-side
  * `RoomStorage`, a client-side `ClientRoomStorage`, and a socketless
  * `ClientTransport` that dispatches straight into a `RoomServer`. Used by
- * tests, the loopback testkit, and the in-process sim host.
+ * tests, the loopback testkit, and the in-process harness host.
  */
 
 export { InMemoryClientStorage } from './client-storage';

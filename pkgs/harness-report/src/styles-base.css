@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sr-bg: #111214;
+  --color-sr-panel: #18191d;
+  --color-sr-panel-2: #1f2026;
+  --color-sr-panel-3: #262830;
+  --color-sr-border: #2e3038;
+  --color-sr-border-strong: #3d4050;
+  --color-sr-text: #f0f0f4;
+  --color-sr-muted: #9b9eab;
+  --color-sr-faint: #6b6e7b;
+  --color-sr-accent: #4f8cff;
+  --color-sr-accent-soft: rgba(79, 140, 255, 0.14);
+  --color-sr-pass: #2fbf71;
+  --color-sr-fail: #f05965;
+  --color-sr-skip: #d4a017;
+  --color-sr-press: #ff5a8a;
+  --font-sr-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sr-sans:
+    Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  --shadow-sr: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+@layer base {
+  :host,
+  .harness-report-root {
+    color-scheme: dark;
+    display: block;
+    height: 100%;
+    margin: 0;
+    background: var(--color-sr-bg);
+    color: var(--color-sr-text);
+    font: 13px / 1.45 var(--font-sr-sans);
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+  }
+
+  .harness-report-root *,
+  .harness-report-root *::before,
+  .harness-report-root *::after {
+    box-sizing: border-box;
+  }
+
+  .harness-report-root a {
+    color: var(--color-sr-accent);
+    text-decoration: none;
+  }
+
+  .harness-report-root button,
+  .harness-report-root input {
+    font: inherit;
+    color: inherit;
+  }
+
+  .harness-report-root button {
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .harness-report-root button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .harness-report-root code,
+  .harness-report-root pre,
+  .harness-report-root .mono {
+    font-family: var(--font-sr-mono);
+    font-size: 12px;
+  }
+
+  .harness-report-root
+    :where(
+      button,
+      a,
+      input,
+      [role="button"],
+      [role="link"],
+      [role="slider"]
+    ):focus-visible {
+    outline: 2px solid var(--color-sr-accent);
+    outline-offset: 2px;
+  }
+
+  .harness-report-root button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

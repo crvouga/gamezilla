@@ -14,7 +14,7 @@ function CardGroup(props: { children: JSX.Element }): JSX.Element {
 }
 
 /** Simulates ScreenBase body padding so MenuList's negative bleed is visible. */
-function ScreenBodySim(props: { children: JSX.Element }): JSX.Element {
+function ScreenBodyHarness(props: { children: JSX.Element }): JSX.Element {
   return <div class="box p-4 bg-surface">{props.children}</div>;
 }
 
@@ -33,7 +33,7 @@ function FullBleedListSection(): JSX.Element {
       <label class="text textLabel">
         {'MenuList — full-bleed ScreenBase menu screen'}
       </label>
-      <ScreenBodySim>
+      <ScreenBodyHarness>
         <MenuList>
           <MenuRow
             title="Appearance"
@@ -51,7 +51,7 @@ function FullBleedListSection(): JSX.Element {
             onClick={() => setTapped('About')}
           />
         </MenuList>
-      </ScreenBodySim>
+      </ScreenBodyHarness>
       <LastTapped tapped={tapped()} />
     </>
   );

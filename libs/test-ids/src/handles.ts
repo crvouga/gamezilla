@@ -1,6 +1,6 @@
 /**
  * Semantic DST / E2E handles shared by product UI (`testID={Handles.*}`) and
- * `@apps/product/sim` scenario actions (`Driver` testIds). Add a handle here when a
+ * `@apps/product/harness` scenario actions (`Driver` testIds). Add a handle here when a
  * control must be uniquely addressable without copy or index hacks.
  */
 export const Handles = {
@@ -32,8 +32,8 @@ export const Handles = {
   tabSearch: 'tab-search',
   tabNotifications: 'tab-notifications',
   tabSpaces: 'tab-spaces',
-  /** The sim's bare home tab, in compositions where no feature owns `/`. */
-  tabSimHome: 'tab-sim-home',
+  /** The harness's bare home tab, in compositions where no feature owns `/`. */
+  tabHarnessHome: 'tab-harness-home',
 
   // spaces
   spaceCreate: 'space-create',

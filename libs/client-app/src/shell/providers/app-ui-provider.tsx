@@ -17,7 +17,7 @@
  * / `LeaveSpaceModalProvider` / space rooms / notifications — mounted from
  * `sync-engine-ready-tree.tsx` so mutation hubs stay off the shell entry.
  *
- * Embedded hosts (simulator panels) omit an inner `KeyboardShortcutScope` so
+ * Embedded hosts (harness panels) omit an inner `KeyboardShortcutScope` so
  * the host column scope gates document shortcuts; standalone apps keep an
  * always-active scope.
  */

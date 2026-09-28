@@ -7,7 +7,7 @@ property's verdict is a function of the code and the gate can cache it.
 `PBT_RANDOM=1` (`bun run test:pbt:random`) hunts beyond the pinned seed.
 
 A leaf over fast-check alone: pure packages property-test without depending on
-the sim kernel, and packages the sim is built on (`@pkgs/uuid`) can use it
+the harness kernel, and packages the harness is built on (`@pkgs/uuid`) can use it
 without a cycle. Raw `fc.assert` / `fc.check` / `fc.sample` / `fc.statistics`
 are banned elsewhere (`no-unpinned-property.grit`). Policy:
 [`docs/TESTING.md`](../../docs/TESTING.md).

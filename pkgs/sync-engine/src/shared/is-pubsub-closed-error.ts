@@ -8,7 +8,7 @@ export function isPubSubClosedError(error: unknown): boolean {
   );
 }
 
-/** Sim/client restart can close SQLite while push teardown is in flight. */
+/** Harness/client restart can close SQLite while push teardown is in flight. */
 export function isSqliteClosedError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   if (

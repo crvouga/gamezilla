@@ -119,7 +119,7 @@ so it never passes for Stripe.
 // In-process, on a virtual clock, as one node of a simulation.
 const provider = await createMockBillingProvider({
   sqlClient, clock, timers, createId, fetch,
-  origin: 'http://billing.sim',
+  origin: 'http://billing.harness',
   catalog: mockBillingCatalogFromOffer(offer),
   secretKey: 'sk_test_mock_…',
   webhook: { url: 'http://api/api/billing/callback', secret: 'whsec_…' },

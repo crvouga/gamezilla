@@ -1,7 +1,14 @@
 /** Profile steps other packages reuse (`@libs/profile/steps/profile.steps`). */
 
 import { expect } from 'bun:test';
-
+import {
+  focusActor,
+  returnToTabs,
+  signInWithGoogleAsAccount,
+} from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
+import { otherDevice } from '@libs/harness/spec/steps/platform';
+import type { HarnessWorld } from '@libs/harness/spec/world';
 import {
   cancelAvatarEdits,
   leaveAvatarEditor,
@@ -14,26 +21,18 @@ import {
   setUsername,
   submitUsername,
   typeUsernameDraft,
-} from '@libs/profile/sim/profile-actions';
+} from '@libs/profile/harness/profile-actions';
 import {
   readProfileTabUsername,
   readProfileUsernameShown,
   readSavedAvatar,
   readUsernameSaveFace,
-} from '@libs/profile/sim/profile-ui-reads';
-import {
-  focusActor,
-  returnToTabs,
-  signInWithGoogleAsAccount,
-} from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
-import { otherDevice } from '@libs/sim-harness/spec/steps/platform';
-import type { SimWorld } from '@libs/sim-harness/spec/world';
+} from '@libs/profile/harness/profile-ui-reads';
 
 const SECOND_MS = 1_000;
 
 async function saveAvatarAs(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   seed: string,
   style: string
@@ -48,7 +47,7 @@ async function saveAvatarAs(
 
 // Setup, from any screen with the tabs: open Edit profile, then submit.
 async function tryUsername(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: string,
   username: string
 ): Promise<void> {
@@ -60,7 +59,7 @@ Given(
   '{actor} and {actor} are on fresh devices',
   async (w, first: Actor, second: Actor) => {
     const opened = await w.s.read(
-      (sim) => sim.actors.has(first) || sim.actors.has(second)
+      (harness) => harness.actors.has(first) || harness.actors.has(second)
     );
     if (opened) throw new Error(`${first} or ${second} already opened the app`);
   }
@@ -149,7 +148,7 @@ When(
 Then(
   "{actor}'s profile shows {username}",
   async (w, actor: Actor, username: string) => {
-    await w.s.until((sim) => readProfileUsernameShown(sim, actor), {
+    await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
       pred: (shown) => shown === username,
     });
   }
@@ -159,7 +158,7 @@ Then(
   "{actor}'s profile shows {username} within {int} seconds",
   async (w, actor: Actor, username: string, seconds: number) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until((sim) => readProfileUsernameShown(sim, actor), {
+    await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
       pred: (shown) => shown === username,
       maxMs: seconds * SECOND_MS,
     });
@@ -169,9 +168,12 @@ Then(
 Then(
   "{actor}'s other device shows {username}",
   async (w, actor: Actor, username: string) => {
-    await w.s.until((sim) => readProfileTabUsername(sim, otherDevice(actor)), {
-      pred: (shown) => shown === username,
-    });
+    await w.s.until(
+      (harness) => readProfileTabUsername(harness, otherDevice(actor)),
+      {
+        pred: (shown) => shown === username,
+      }
+    );
   }
 );
 
@@ -185,7 +187,7 @@ Then(
 Then(
   "{actor}'s saved avatar has seed {string}",
   async (w, actor: Actor, seed: string) => {
-    await w.s.until((sim) => readSavedAvatar(sim, actor), {
+    await w.s.until((harness) => readSavedAvatar(harness, actor), {
       pred: (avatar) => avatar?.seed === seed,
     });
   }
@@ -204,11 +206,11 @@ Then(
   '{actor} and {actor} have different usernames',
   async (w, first: Actor, second: Actor) => {
     const firstName = await w.s.until(
-      (sim) => readProfileUsernameShown(sim, first),
+      (harness) => readProfileUsernameShown(harness, first),
       { pred: (shown) => shown !== null && shown !== '' }
     );
     const secondName = await w.s.until(
-      (sim) => readProfileUsernameShown(sim, second),
+      (harness) => readProfileUsernameShown(harness, second),
       { pred: (shown) => shown !== null && shown !== '' }
     );
     expect(firstName).not.toBe(secondName);
@@ -217,7 +219,7 @@ Then(
 
 Then('{actor} already has an avatar', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.until((sim) => readSavedAvatar(sim, actor), {
+  await w.s.until((harness) => readSavedAvatar(harness, actor), {
     pred: (avatar) => avatar !== null && (avatar.seed ?? '') !== '',
   });
 });

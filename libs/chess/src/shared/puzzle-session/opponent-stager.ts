@@ -1,7 +1,7 @@
 /**
  * Stateful, framework-free driver over {@link planOpponentStage}: holds the
  * pre-ply FEN briefly, then slides to the post-ply FEN, then unlocks input.
- * Uses injected {@link Timers} only (no rAF) so sim pumps unlock the board
+ * Uses injected {@link Timers} only (no rAF) so harness pumps unlock the board
  * deterministically. UI layers bind via `getSnapshot` / `subscribe`.
  */
 

@@ -216,7 +216,7 @@ Feature: Journeys
 describe('step definitions', () => {
   test('extracts literal definitions, pending bodies, and package imports', () => {
     const source = `
-import '@libs/sim-harness/spec/steps/platform';
+import '@libs/harness/spec/steps/platform';
 import { helper } from '@libs/profile/steps/profile.steps';
 Given('a literal', () => helper());
 Then("a pending result", pending('later'));
@@ -233,7 +233,7 @@ When(expression, () => undefined);
     expect(extracted.problems).toHaveLength(1);
     expect(extractStepImports(source)).toEqual([
       '@libs/profile/steps/profile.steps',
-      '@libs/sim-harness/spec/steps/platform',
+      '@libs/harness/spec/steps/platform',
     ]);
   });
 

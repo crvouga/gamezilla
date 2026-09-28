@@ -17,8 +17,8 @@ import type {
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
 import { mutationOriginLink } from '../shared/mutation-observability';
+import type { Timers } from './harness-ports';
 import { recordPushApplied } from './push-applied';
-import type { Timers } from './sim-ports';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
 
 const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
@@ -233,7 +233,7 @@ async function applyUploadResult(
 
 /**
  * Resolve `work` unless `signal` aborts first. Orphan the in-flight promise so
- * disconnect / cache-clear is not blocked on partitioned HTTP (sim RPC waits
+ * disconnect / cache-clear is not blocked on partitioned HTTP (harness RPC waits
  * on scheduler time that is not advancing).
  */
 function raceUntilAborted<T>(

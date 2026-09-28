@@ -7,7 +7,10 @@
 
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
-import { createSimClock, type SimClockBundle } from '@pkgs/clock/sim-clock';
+import {
+  createHarnessClock,
+  type HarnessClockBundle,
+} from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import {
   Button,
@@ -27,15 +30,15 @@ import { createSignal, type JSX, Show } from 'solid-js';
 
 const COMPACT = { width: 390, height: 844 };
 
-/** Lingui + sim clock + theme, like `pkgs/ui/tests/support/render.tsx`. */
+/** Lingui + harness clock + theme, like `pkgs/ui/tests/support/render.tsx`. */
 export function DemoProviders(props: {
-  sim: SimClockBundle;
+  harness: HarnessClockBundle;
   children: JSX.Element;
 }): JSX.Element {
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   return (
     <I18nProvider i18n={i18n}>
-      <ClockProvider clock={props.sim.clock} timers={props.sim.timers}>
+      <ClockProvider clock={props.harness.clock} timers={props.harness.timers}>
         <ThemeProvider colorScheme="light" fixedLayout={COMPACT}>
           <SurfaceStackProvider>{props.children}</SurfaceStackProvider>
         </ThemeProvider>
@@ -150,10 +153,10 @@ function HomeScreen(props: {
   );
 }
 
-export function DemoApp(props: { sim: SimClockBundle }): JSX.Element {
+export function DemoApp(props: { harness: HarnessClockBundle }): JSX.Element {
   const [user, setUser] = createSignal<string | null>(null);
   return (
-    <DemoProviders sim={props.sim}>
+    <DemoProviders harness={props.harness}>
       <Show
         when={user()}
         fallback={<LoginScreen onLogin={(email) => setUser(email)} />}
@@ -166,15 +169,15 @@ export function DemoApp(props: { sim: SimClockBundle }): JSX.Element {
   );
 }
 
-/** Fresh virtual clock per test plus a pump that flushes due sim timers. */
-export function createDemoClock(): SimClockBundle & {
+/** Fresh virtual clock per test plus a pump that flushes due harness timers. */
+export function createDemoClock(): HarnessClockBundle & {
   pump: () => Promise<void>;
 } {
-  const sim = createSimClock();
+  const harness = createHarnessClock();
   return {
-    ...sim,
+    ...harness,
     pump: async () => {
-      sim.clock.advance(1);
+      harness.clock.advance(1);
       await Promise.resolve();
     },
   };

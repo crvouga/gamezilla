@@ -27,7 +27,7 @@ import {
   startChessPuzzle,
   startGoogleSignIn,
   viewBillingPlans,
-} from '@libs/runtime/sim/critical-journeys';
+} from '@libs/runtime/harness/critical-journeys';
 import { hostLimit, stepsFor } from '@pkgs/gherkin/registry';
 
 const { Given, When, Then, Step } = stepsFor<JourneyWorld>();

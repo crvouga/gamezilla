@@ -11,11 +11,11 @@ import { createSignal, type JSX, onMount } from 'solid-js';
 import { createDemoClock, DemoApp, DemoProviders } from './support/demo-app';
 
 function demoDriver(): SolidDomDriver {
-  const sim = createDemoClock();
+  const harness = createDemoClock();
   return createSolidDomDriver({
-    clock: sim.clock,
-    pump: sim.pump,
-    harness: { createRoot: () => () => <DemoApp sim={sim} /> },
+    clock: harness.clock,
+    pump: harness.pump,
+    harness: { createRoot: () => () => <DemoApp harness={harness} /> },
   });
 }
 
@@ -30,12 +30,14 @@ async function rejection(promise: Promise<unknown>): Promise<unknown> {
 }
 
 function customDriver(root: () => JSX.Element): SolidDomDriver {
-  const sim = createDemoClock();
+  const harness = createDemoClock();
   return createSolidDomDriver({
-    clock: sim.clock,
-    pump: sim.pump,
+    clock: harness.clock,
+    pump: harness.pump,
     harness: {
-      createRoot: () => () => <DemoProviders sim={sim}>{root()}</DemoProviders>,
+      createRoot: () => () => (
+        <DemoProviders harness={harness}>{root()}</DemoProviders>
+      ),
     },
   });
 }
@@ -247,13 +249,13 @@ describe('SolidDomDriver', () => {
 
   test('wait(text) observes async updates driven by the pump', async () => {
     const [label, setLabel] = createSignal('before');
-    const sim = createDemoClock();
+    const harness = createDemoClock();
     driver = createSolidDomDriver({
-      clock: sim.clock,
-      pump: sim.pump,
+      clock: harness.clock,
+      pump: harness.pump,
       harness: {
         createRoot: () => () => (
-          <DemoProviders sim={sim}>
+          <DemoProviders harness={harness}>
             <p class="text" data-testid="label">
               {label()}
             </p>
@@ -262,7 +264,7 @@ describe('SolidDomDriver', () => {
       },
     });
     await driver.launch();
-    sim.timers.setTimeout(() => setLabel('after'), 5);
+    harness.timers.setTimeout(() => setLabel('after'), 5);
     await driver.get('label').wait({ text: 'after' }, { timeoutMs: 500 });
     expect(await driver.get('label').text()).toBe('after');
   });

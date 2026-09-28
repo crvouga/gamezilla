@@ -1,9 +1,9 @@
 import fc from 'fast-check';
-import type { SimFault } from '../../src/sim/sim-db';
+import type { HarnessFault } from '../../src/harness/harness-db';
 
 export type FaultScheduleItem = {
   readonly kind:
-    | SimFault['kind']
+    | HarnessFault['kind']
     | 'external_add_non_owned'
     | 'external_add_owned_named'
     | 'bump_usage';
@@ -40,10 +40,10 @@ export const genFaultSchedule: fc.Arbitrary<readonly FaultScheduleItem[]> = fc
     }))
   );
 
-export function toSimFaults(
+export function toHarnessFaults(
   schedule: readonly FaultScheduleItem[]
-): SimFault[] {
-  const out: SimFault[] = [];
+): HarnessFault[] {
+  const out: HarnessFault[] = [];
   for (let i = 0; i < schedule.length; i++) {
     const s = schedule[i]!;
     if (

@@ -10,7 +10,7 @@ export function isStorageFullError(error: unknown): boolean {
   if (error instanceof SqliteStorageFullError) return true;
   const msg = error instanceof Error ? error.message : String(error);
   if (
-    /SQLITE_FULL|database or disk is full|quota exceeded|sim: torn transaction|sim: storage quota/i.test(
+    /SQLITE_FULL|database or disk is full|quota exceeded|harness: torn transaction|harness: storage quota/i.test(
       msg
     )
   ) {

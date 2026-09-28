@@ -4,7 +4,7 @@
  * function of the code and turbo can cache it (docs/TESTING.md § 3).
  *
  * A leaf over fast-check alone, so pure packages can property-test without
- * depending on the sim kernel — and without a cycle for the packages the sim
+ * depending on the harness kernel — and without a cycle for the packages the harness
  * itself is built on.
  */
 import fc from 'fast-check';
