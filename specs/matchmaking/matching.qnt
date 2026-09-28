@@ -43,11 +43,11 @@ module matching {
     _range' = PEOPLE.mapBy(_ => Narrow),
   }
 
-  /// `person` waits for a match with `range`; while already waiting, they
+  /// `person` waits for a match with `ratingRange`; while already waiting, they
   /// are told so and nothing changes.
-  action waitForMatch(person: Person, range: RatingRange): bool = all {
+  action waitForMatch(person: Person, ratingRange: RatingRange): bool = all {
     standing' = if (standing.get(person) == Waiting) standing else standing.set(person, Waiting),
-    _range' = if (standing.get(person) == Waiting) _range else _range.set(person, range),
+    _range' = if (standing.get(person) == Waiting) _range else _range.set(person, ratingRange),
   }
 
   /// `person` stops waiting: only a wait ends; a matched person stays
@@ -58,15 +58,15 @@ module matching {
   }
 
   /// `person` changes their range: it counts only while they are waiting.
-  action changeRange(person: Person, range: RatingRange): bool = all {
+  action changeRange(person: Person, ratingRange: RatingRange): bool = all {
     standing' = standing,
-    _range' = if (standing.get(person) == Waiting) _range.set(person, range) else _range,
+    _range' = if (standing.get(person) == Waiting) _range.set(person, ratingRange) else _range,
   }
 
   /// Two people waiting who accept each other.
   pure def _acceptEachOther(
     standing: Person -> Standing,
-    range: Person -> RatingRange,
+    ranges: Person -> RatingRange,
     p: Person,
     q: Person,
   ): bool = and {
@@ -74,8 +74,8 @@ module matching {
     CLOSE_PAIRS.contains(Set(p, q)),
     standing.get(p) == Waiting,
     standing.get(q) == Waiting,
-    range.get(p) == Wide,
-    range.get(q) == Wide,
+    ranges.get(p) == Wide,
+    ranges.get(q) == Wide,
   }
 
   /// Matchmaking pairs up every two people waiting who accept each other.
@@ -89,11 +89,11 @@ module matching {
 
   action step = {
     nondet person = PEOPLE.oneOf()
-    nondet range = RANGES.oneOf()
+    nondet ratingRange = RANGES.oneOf()
     any {
-      waitForMatch(person, range),
+      waitForMatch(person, ratingRange),
       stopWaiting(person),
-      changeRange(person, range),
+      changeRange(person, ratingRange),
       pairUp,
     }
   }
