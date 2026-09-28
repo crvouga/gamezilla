@@ -223,6 +223,10 @@ async function writeConfirmed(w: NoteWorld, p: Picks): Promise<void> {
 
 bindQuintModel<NoteWorld>({
   model: 'note-replication',
+  // Apalache checks every invariant after one step in about 40 s; two steps
+  // take over an hour (every invariant re-sends every queue). The traces
+  // cover longer runs.
+  verifySteps: 1,
   traces: 128,
   maxSteps: 24,
   actions: {
