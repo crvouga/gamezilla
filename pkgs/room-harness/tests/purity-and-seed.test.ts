@@ -1,20 +1,31 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  Decrement,
-  Increment,
-  runModuleConformance,
-  TestCounterModule,
-} from '@pkgs/room-harness';
+  AddOne,
+  ClaimRoom,
+  gameRoomModule,
+  Move,
+  StartMatch,
+  TakeOne,
+  TurnAway,
+} from '@pkgs/room/harness';
+import { runModuleConformance } from '@pkgs/room-harness';
 
 describe('kit: purity and seed (M-F01)', () => {
-  test('TestCounterModule passes the conformance suite', async () => {
+  test('the example game room passes the conformance suite', async () => {
     await runModuleConformance({
       seed: process.env['HARNESS_SEED'] ?? '42',
-      module: TestCounterModule,
+      module: gameRoomModule,
       mildFaults: false,
       isValidState: () => true,
       generateCommand: ({ rng }) =>
-        rng.bool(0.5) ? Increment({}) : Decrement({}),
+        rng.pick([
+          AddOne({}),
+          TakeOne({}),
+          ClaimRoom({}),
+          TurnAway({ person: 'eve' }),
+          StartMatch({ whiteMs: 5_000, blackMs: 5_000 }),
+          Move({}),
+        ]),
     });
     expect(true).toBe(true);
   });

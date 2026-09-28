@@ -34,6 +34,7 @@ export {
   ExpireDeadline,
   StartDeadline,
 } from './deadline-module';
+export { exampleApp, exampleSystem } from './example-app';
 export { authzApp } from './example-authz/app';
 export { authzSystem } from './example-authz/system';
 export { counterApp } from './example-counter/app';

@@ -1,14 +1,14 @@
 /**
- * A `RoomServer` on the cursor module over counting storage, with one
+ * A `RoomServer` on the example game room over counting storage, with one
  * recording connection per person (connection id and client id = their
  * name).
  */
 
 import type { Message } from '@pkgs/message';
 import { ROOM_WIRE_KIND, type RoomState, WIRE_VERSION } from '@pkgs/room';
-import { RoomServer } from '@pkgs/room/server';
+import { AddOne, gameRoomModule } from '@pkgs/room/harness';
+import { RoomServer, type RoomServerConfig } from '@pkgs/room/server';
 import { CountingRoomStorage } from './counting-room-storage';
-import { CursorModule, Move } from './cursor-module';
 import { testPorts } from './ports';
 
 export type Connection = {
@@ -24,14 +24,26 @@ export type ServerRig = {
   readonly tipReadsAtStart: number;
 };
 
+export type StartServerOpts = {
+  readonly storage?: CountingRoomStorage;
+  readonly authorize?: RoomServerConfig<
+    RoomState,
+    Message,
+    Message,
+    string
+  >['authorize'];
+};
+
 export async function startServer(
-  storage = new CountingRoomStorage()
+  opts: StartServerOpts = {}
 ): Promise<ServerRig> {
+  const storage = opts.storage ?? new CountingRoomStorage();
   const server = new RoomServer<RoomState, Message, Message, string>({
     topic: 'room:1',
-    module: CursorModule,
+    module: gameRoomModule,
     storage,
     clock: testPorts().clock,
+    ...(opts.authorize !== undefined ? { authorize: opts.authorize } : {}),
   });
   await server.hydrateFromStorage();
   return {
@@ -59,14 +71,14 @@ export function connection(rig: ServerRig, person: string): Connection {
   return found;
 }
 
-/** A move command frame; the same id always carries the same move. */
-export function moveCommand(id: string): Record<string, unknown> {
+/** An add-one command frame with the given command id. */
+export function addOneCommand(id: string): Record<string, unknown> {
   return {
     v: WIRE_VERSION,
     kind: ROOM_WIRE_KIND.command,
     id,
     ts: 1,
-    payload: Move({ x: id.length, y: 0 }),
+    payload: AddOne({}),
   };
 }
 

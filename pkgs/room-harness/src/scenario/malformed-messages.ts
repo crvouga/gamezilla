@@ -56,8 +56,8 @@ export function buildMalformedMessageRaw(
             {
               seq: 99,
               event: {
-                type: 'space-counter-evt/counter-incremented',
-                payload: {},
+                type: 'game-room-evt/tally-changed',
+                payload: { by: 1 },
               },
               actor: { id: 'eve', clientId: 'eve' },
               ts: now,

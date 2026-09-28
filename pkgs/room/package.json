@@ -6,7 +6,8 @@
     ".": "./src/index.ts",
     "./server": "./src/server.ts",
     "./solid": "./src/solid.ts",
-    "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts"
+    "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts",
+    "./harness": "./src/harness/index.ts"
   },
   "scripts": {
     "bench": "bun tests/bench/hot-paths.bench.ts",

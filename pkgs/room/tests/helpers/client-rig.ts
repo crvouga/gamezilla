@@ -1,7 +1,7 @@
 /**
- * A `RoomClient` on the cursor module over a fake transport the steps play
- * the server through, counting storage, and ports whose timers fire only
- * when told. Alice is the person on the device.
+ * A `RoomClient` on the example game room over a fake transport the test
+ * plays the server through, counting storage, and ports whose timers fire
+ * only when told. Alice is the person on the device.
  */
 
 import type { Message } from '@pkgs/message';
@@ -12,14 +12,20 @@ import {
   type RoomState,
   WIRE_VERSION,
 } from '@pkgs/room';
-import { CursorModule, Moved } from './cursor-module';
+import {
+  AddOne,
+  gameRoomModule,
+  TakeOne,
+  TallyChanged,
+} from '@pkgs/room/harness';
 import { FakeTransport } from './fake-transport';
 import { CountingClientStorage } from './memory-storage';
 import { testPorts } from './ports';
 
 export const ACTOR = { id: 'alice', clientId: 'tab' } as const;
 
-export type Vec = { readonly x: number; readonly y: number };
+/** One change to the tally: add one or take one off. */
+export type Change = 1 | -1;
 
 export type ClientRig = {
   readonly room: RoomClient<RoomState, Message, Message, string>;
@@ -29,8 +35,8 @@ export type ClientRig = {
   readonly fireTimers: () => void;
   /** Times the module handled a command (optimistic applies and replays). */
   readonly handles: () => number;
-  /** Where each of alice's moves went, in dispatch order. */
-  readonly moves: Vec[];
+  /** Each of alice's changes to the tally, in dispatch order. */
+  readonly changes: Change[];
 };
 
 export async function openClient(
@@ -41,10 +47,10 @@ export async function openClient(
   const errors: unknown[] = [];
   let handles = 0;
   const module = {
-    ...CursorModule,
-    handle: (...args: Parameters<typeof CursorModule.handle>) => {
+    ...gameRoomModule,
+    handle: (...args: Parameters<typeof gameRoomModule.handle>) => {
       handles += 1;
-      return CursorModule.handle(...args);
+      return gameRoomModule.handle(...args);
     },
   };
   const room = await RoomClient.open<RoomState, Message, Message, string>({
@@ -67,12 +73,24 @@ export async function openClient(
     errors,
     fireTimers: ports.fire,
     handles: () => handles,
-    moves: [],
+    changes: [],
   };
 }
 
-export function movedEntry(seq: number, id: string, at: Vec): LogEntry {
-  return { seq, event: Moved({ id, x: at.x, y: at.y }), actor: ACTOR, ts: 1 };
+/** Alice changes the tally on her device. */
+export function change(rig: ClientRig, by: Change): void {
+  rig.changes.push(by);
+  rig.room.dispatch(by === 1 ? AddOne({}) : TakeOne({}));
+}
+
+/** A committed log entry: `person` changed the tally `by`. */
+export function tallyEntry(seq: number, person: string, by: number): LogEntry {
+  return {
+    seq,
+    event: TallyChanged({ by }),
+    actor: { id: person, clientId: person },
+    ts: 1,
+  };
 }
 
 export function welcome(
