@@ -1,72 +1,23 @@
 /**
- * Framework-level explore / randomActions: a tiny counter system proves
- * smart monkey testing is only `defineAction` + properties (no UI).
+ * Framework-level explore / randomActions: the example app proves smart
+ * monkey testing is only `defineAction` + properties (no UI).
  */
 
 import { describe, expect, test } from 'bun:test';
-import {
-  defineAction,
-  defineProperty,
-  defineRuntime,
-  defineSystem,
-  virtualTimeRuntime,
-} from '../src/index';
+import { dec, exampleApp, inc } from './example-app/example-app';
 
-type Counter = { value: number };
-
-const inc = defineAction({
-  name: 'inc',
-  weight: 3,
-  sample: () => (rng) => 1 + Math.floor(rng.next() * 3),
-  act: (s: Counter, n: number) => {
-    s.value += n;
-  },
-});
-
-const dec = defineAction({
-  name: 'dec',
-  enabled: (s: Counter) => s.value > 0,
-  weight: 2,
-  sample: (s: Counter) => (rng) => {
-    const max = Math.min(3, s.value);
-    return 1 + Math.floor(rng.next() * max);
-  },
-  act: (s: Counter, n: number) => {
-    s.value -= n;
-  },
-});
-
-const nonNegative = defineProperty({
-  name: 'nonNegative',
-  check: (s: Counter) => {
-    if (s.value < 0) throw new Error(`value ${String(s.value)} < 0`);
-  },
-});
-
-const counter = defineSystem<Counter>({
-  name: 'harness.counter',
-  create: () => ({ value: 0 }),
-  actions: [inc, dec],
-  properties: [nonNegative],
-  runtimes: [
-    defineRuntime({
-      default: true,
-      name: 'virtual',
-      create: () => virtualTimeRuntime(),
-    }),
-  ],
-});
+const app = exampleApp();
 
 describe('explore / randomActions (defineAction only)', () => {
   test('example: scripted apply then read', async () => {
-    await using s = await counter.run({ seed: 1 });
+    await using s = await app.run({ seed: 1 });
     await s.apply(inc, 2);
     await s.apply(dec, 1);
-    expect(await s.read((c) => c.value)).toBe(1);
+    expect(await s.read((c) => c.n)).toBe(1);
   });
 
   test('monkey: randomActions walk holds properties', async () => {
-    await using s = await counter.run({ seed: 7 });
+    await using s = await app.run({ seed: 7 });
     const w = await s.randomActions({ steps: 40 });
     expect(w.violations).toEqual([]);
     expect(w.count).toBe(40);
@@ -74,7 +25,7 @@ describe('explore / randomActions (defineAction only)', () => {
   });
 
   test('explore: multi-episode search holds properties', async () => {
-    const report = await counter.explore({
+    const report = await app.explore({
       seed: 99,
       episodes: 8,
       steps: 30,
@@ -86,7 +37,7 @@ describe('explore / randomActions (defineAction only)', () => {
 
   test('same seed → identical walk choices', async () => {
     async function choices(seed: number): Promise<string> {
-      await using s = await counter.run({ seed });
+      await using s = await app.run({ seed });
       const w = await s.randomActions({ steps: 20 });
       return JSON.stringify(w.steps);
     }

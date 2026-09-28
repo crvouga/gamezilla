@@ -1,60 +1,19 @@
 import { describe, expect, test } from 'bun:test';
 import {
   applyJunitOutcomes,
-  defineAction,
-  defineRuntime,
-  defineSnapshot,
-  defineSystem,
   matchJunitCase,
   mergeRunBundles,
   parseJunit,
   readRunBundle,
   runManifestKey,
-  virtualTimeRuntime,
 } from '@pkgs/harness';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 
 import { buildHtmlReport, writeHtmlReport } from '../src/index';
+import { bump, exampleApp, put } from './example-app/example-app';
 
-type Kv = { values: Record<string, string> };
-
-const put = defineAction({
-  name: 'put',
-  act: (s: Kv, key: string, value: string) => {
-    s.values[key] = value;
-  },
-});
-
-const sys = defineSystem({
-  name: 'html-kv',
-  create: (): Kv => ({ values: {} }),
-  runtimes: [
-    defineRuntime({
-      default: true,
-      name: 'virtual',
-      create: () => virtualTimeRuntime(),
-    }),
-  ],
-  actions: [put],
-  snapshots: [
-    defineSnapshot({ name: 'store', capture: (s: Kv) => ({ ...s.values }) }),
-    defineSnapshot({
-      name: 'html',
-      media: 'html',
-      capture: (s: Kv) => ({
-        // Solid renders literal `<!---->` markers, and product markup can
-        // carry a `</script>`; both must survive the inline data script.
-        alice: `<html><head></head><body>alice sees <!---->${s.values['x'] ?? ''}<!----><script>x</script></body></html>`,
-      }),
-    }),
-    defineSnapshot({
-      name: 'shot',
-      media: 'png',
-      capture: () => new Uint8Array([137, 80, 78, 71]),
-    }),
-  ],
-});
+const sys = exampleApp();
 
 async function seedRun(store: ObjectStoreImplInMemory): Promise<void> {
   await using s = await sys.run({
@@ -199,45 +158,7 @@ describe('html report', () => {
   });
 
   test('json-only (headless) reports use the document stage', async () => {
-    type State = { n: number };
-    const bump = defineAction({
-      name: 'bump',
-      act: (s: State) => {
-        s.n += 1;
-      },
-    });
-    const headless = defineSystem({
-      name: 'headless-kv',
-      create: (): State => ({ n: 0 }),
-      runtimes: [
-        defineRuntime({
-          default: true,
-          name: 'virtual',
-          create: () => virtualTimeRuntime(),
-        }),
-      ],
-      actions: [bump],
-      snapshots: [
-        defineSnapshot({
-          name: 'state',
-          media: 'json',
-          capture: (s: State) => ({ n: s.n }),
-        }),
-        defineSnapshot({
-          name: 'log',
-          media: 'text',
-          capture: (s: State) => `n=${s.n}`,
-        }),
-        defineSnapshot({
-          name: 'clients',
-          media: 'json',
-          capture: (s: State) => ({
-            alice: { n: s.n },
-            bob: { n: s.n * 2 },
-          }),
-        }),
-      ],
-    });
+    const headless = exampleApp({ screens: false });
     const store = new ObjectStoreImplInMemory();
     {
       await using s = await headless.run({

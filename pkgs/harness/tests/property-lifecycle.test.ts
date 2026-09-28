@@ -1,13 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { virtualTimeRuntime } from '../runtime';
-import {
-  defineAction,
-  defineProperty,
-  defineRuntime,
-  defineSystem,
-} from '../system';
-
-type S = { n: number };
+import { defineProperty } from '@pkgs/harness';
+import { type ExampleApp, exampleApp, inc } from './example-app/example-app';
 
 type Model = { seen: number };
 
@@ -16,37 +9,17 @@ let checks = 0;
 let lastSeen = -1;
 let lastActionName: string | null = null;
 
-const bump = defineAction({
-  name: 'bump',
-  act: (s: S) => {
-    s.n += 1;
-  },
-});
-
-const sys = defineSystem({
-  name: 'property-lifecycle',
-  create(): S {
-    return { n: 0 };
-  },
-  runtimes: [
-    defineRuntime({
-      default: true,
-      name: 'virtual',
-      create: () => virtualTimeRuntime(),
-    }),
-  ],
-  actions: [bump],
+const sys = exampleApp({
   properties: [
     defineProperty({
-      name: 'nNonNeg',
-      setup: (s): Model => {
+      name: 'lifecycle',
+      setup: (s: ExampleApp): Model => {
         setups += 1;
         return { seen: s.n };
       },
-      check: (s, model, action) => {
+      check: (_s: ExampleApp, model: Model, action) => {
         checks += 1;
         lastActionName = action?.name ?? null;
-        if (s.n < 0) throw new Error('neg');
         lastSeen = model.seen + 1;
         return { seen: lastSeen };
       },
@@ -70,13 +43,13 @@ describe('property setup / check / dispose', () => {
       expect(lastActionName).toBe(null);
 
       for (let i = 0; i < steps; i++) {
-        await s.apply(bump);
+        await s.apply(inc, 1);
       }
       expect(setups).toBe(1);
       expect(checks).toBe(1 + steps);
-      expect(lastActionName === 'bump').toBe(true);
-      expect(bump.is({ name: 'bump', args: [] })).toBe(true);
-      expect(bump.is(null)).toBe(false);
+      expect(lastActionName === 'inc').toBe(true);
+      expect(inc.is({ name: 'inc', args: [1] })).toBe(true);
+      expect(inc.is(null)).toBe(false);
     }
 
     // Dispose runs one final check(null); model return is ignored.

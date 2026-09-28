@@ -211,7 +211,7 @@ Source: `inventory.jsonl` (581 test files). Repo root: `corner-prose`.
 
 **Headline for this report:** 109 files to port (Section A) · 22 candidate files (Section B) · 450 files stay in code (Section C).
 
-Note: 4 files carry kind `harness` but are framework/mechanics tests, not product scenarios, and are treated as Section C despite the kind tag: `pkgs/harness/src/run/restart-monitor.test.ts`, `pkgs/harness/tests/explore.test.ts`, `pkgs/harness/tests/report.test.ts`, `pkgs/harness-report/tests/html-report.test.ts` (the harness/report framework's own tests), plus `pkgs/chess-board-core/{destinations,game-status,move-sound}.test.ts` (chess engine mechanics/scheduling, not user scenarios) and `pkgs/sql-client-harness/src/sql-client-web.test.ts` (a port property/fault-injection suite). These are listed and reasoned in Section C.
+Note: 4 files carry kind `harness` but are framework/mechanics tests, not product scenarios, and are treated as Section C despite the kind tag: `pkgs/harness/tests/property-lifecycle.test.ts`, `pkgs/harness/tests/explore.test.ts`, `pkgs/harness/tests/report.test.ts`, `pkgs/harness-report/tests/html-report.test.ts` (the harness/report framework's own tests), plus `pkgs/chess-board-core/{destinations,game-status,move-sound}.test.ts` (chess engine mechanics/scheduling, not user scenarios) and `pkgs/sql-client-harness/src/sql-client-web.test.ts` (a port property/fault-injection suite). These are listed and reasoned in Section C.
 
 ---
 
@@ -492,7 +492,7 @@ the device kept for them, unsent edits and notices included (glossary
 | pkgs/room, room-adapter-durable-object, room-adapter-memory | 6 | Room-port adapter unit tests. |
 | pkgs/room-harness | 3 | `hash-canonicality.test.ts`, `purity-and-seed.test.ts`, `room.test.ts` — room-harness framework's own determinism/purity unit tests (the harness scenarios are in Section A, framework-level). |
 | pkgs/secret-* (see above) | — | (counted above) |
-| pkgs/harness | 7 | The harness framework's own tests (explore/randomActions engine, report/recording engine, restart-monitor) — explicitly framework-internal, not a product scenario. |
+| pkgs/harness | 7 | The harness framework's own tests (explore/randomActions engine, report/recording engine, property lifecycle) — explicitly framework-internal, not a product scenario. |
 | pkgs/harness-console | 8 | Dev console UI units (SQL notebook, node selection) — dev tooling, not product behavior. |
 | pkgs/harness-report | 3 | The HTML report writer's own tests — framework-internal. |
 | pkgs/sql, sql-cli, sql-client, sql-client-contract, sql-client-postgres, sql-client-harness, sql-client-sqlite, sql-client-sqlite-web | 27 | SQL-client port/contract/property tests against engines, plus a multi-tab fault-injection property suite (`sql-client-harness`) — port-level, not product scenarios. |

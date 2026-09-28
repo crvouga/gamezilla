@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import * as fcAdapter from './fast-check';
-import * as harness from './index';
-import * as kernel from './internals';
-import { virtualTimeRuntime } from './runtime';
-import { defineAction, defineRuntime, defineSystem } from './system';
+import * as harness from '@pkgs/harness';
+import * as fcAdapter from '@pkgs/harness/fast-check';
+import * as kernel from '@pkgs/harness/internals';
+import { exampleApp } from './example-app/example-app';
 
 const FORBIDDEN = [
   'defineScenario',
@@ -69,23 +68,7 @@ describe('public-api', () => {
   });
 
   test('Run has no _internal escape hatch', async () => {
-    const sys = defineSystem<{ n: number }>({
-      name: 'api-contract',
-      create: () => ({ n: 0 }),
-      runtimes: [
-        defineRuntime({
-          default: true,
-          name: 'virtual',
-          create: () => virtualTimeRuntime(),
-        }),
-      ],
-      actions: [
-        defineAction({
-          name: 'noop',
-          act: (_s: { n: number }) => {},
-        }),
-      ],
-    });
+    const sys = exampleApp();
     await using s = await sys.run({ seed: 1 });
     expect(s).not.toHaveProperty('_internal');
     expect(Object.keys(s).sort()).toEqual(

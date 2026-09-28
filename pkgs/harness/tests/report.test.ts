@@ -1,69 +1,19 @@
 import { describe, expect, test } from 'bun:test';
+import { RUNS_INDEX_KEY, runManifestKey, testReportKey } from '@pkgs/harness';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import { boom, exampleApp, inc, put } from './example-app/example-app';
 
-import {
-  defineAction,
-  defineRuntime,
-  defineSnapshot,
-  defineSystem,
-  RUNS_INDEX_KEY,
-  runManifestKey,
-  testReportKey,
-  virtualTimeRuntime,
-} from '../src/index';
-
-type Kv = { values: Record<string, string>; clients: string[] };
-
-function makeKv() {
-  const put = defineAction({
-    name: 'put',
-    act: (s: Kv, key: string, value: string) => {
-      s.values[key] = value;
-    },
-  });
-  const sys = defineSystem({
-    name: 'report-kv',
-    create: (): Kv => ({ values: {}, clients: ['alice', 'bob'] }),
-    runtimes: [
-      defineRuntime({
-        default: true,
-        name: 'virtual',
-        create: () => virtualTimeRuntime(),
-      }),
-    ],
-    actions: [put],
-    snapshots: [
-      defineSnapshot({
-        name: 'store',
-        capture: (s: Kv) => ({ ...s.values }),
-      }),
-      defineSnapshot({
-        name: 'html',
-        media: 'html',
-        capture: (s: Kv) => {
-          const map: Record<string, string> = {};
-          for (const id of s.clients) {
-            map[id] = `<html><body>${id}:${s.values['x'] ?? ''}</body></html>`;
-          }
-          return map;
-        },
-      }),
-    ],
-  });
-  return { sys, put };
-}
+const sys = exampleApp();
 
 describe('run reporting', () => {
   test('report: false leaves report() null', async () => {
-    const { sys, put } = makeKv();
     await using s = await sys.run({ seed: 1 });
     await s.apply(put, 'x', '1');
     expect(s.report()).toBeNull();
   });
 
   test('apply captures frames when report: true', async () => {
-    const { sys, put } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
     await s.apply(put, 'x', '1');
     const report = s.report();
@@ -80,7 +30,6 @@ describe('run reporting', () => {
   });
 
   test('frames: false keeps every step and its outcome, without frames', async () => {
-    const { sys, put } = makeKv();
     const store = new ObjectStoreImplInMemory();
     await using s = await sys.run({
       seed: 1,
@@ -103,7 +52,6 @@ describe('run reporting', () => {
   });
 
   test('a nested failure its caller handles is red, but the run passes', async () => {
-    const { sys } = makeKv();
     await using s = await sys.run({ seed: 1, report: { frames: false } });
     await s.record(
       { kind: 'step', title: 'probe until it gives up' },
@@ -122,7 +70,6 @@ describe('run reporting', () => {
   });
 
   test('record coalesces nested advanceTime into one step', async () => {
-    const { sys } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
     await s.record(
       { kind: 'waitFor', title: 'expect.visible', actorId: 'alice' },
@@ -138,7 +85,6 @@ describe('run reporting', () => {
   });
 
   test('nested record / apply become child steps', async () => {
-    const { sys, put } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
     await s.record({ kind: 'scenario', title: 'outer' }, async () => {
       await s.record({ kind: 'ui', title: 'tap', selector: 'x' }, () =>
@@ -155,7 +101,6 @@ describe('run reporting', () => {
   });
 
   test('press hit lands only on the pre-action frame, even when unchanged', async () => {
-    const { sys, put } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
     await s.apply(put, 'x', '1');
     const hit = { path: ['home', 'ok'], point: { xRatio: 0.5, yRatio: 0.5 } };
@@ -178,28 +123,7 @@ describe('run reporting', () => {
   });
 
   test('describe names the apply step; failures mark the run', async () => {
-    const boom = defineAction({
-      name: 'boom',
-      describe: (who: string) => `explode ${who}`,
-      act: (_s: Kv, _who: string) => {
-        throw new Error('kaboom');
-      },
-    });
-    const { sys, put } = makeKv();
-    const withBoom = defineSystem({
-      name: 'report-kv-boom',
-      create: (): Kv => ({ values: {}, clients: [] }),
-      runtimes: [
-        defineRuntime({
-          default: true,
-          name: 'virtual',
-          create: () => virtualTimeRuntime(),
-        }),
-      ],
-      actions: [put, boom],
-    });
-    void sys;
-    await using s = await withBoom.run({ seed: 1, report: true });
+    await using s = await sys.run({ seed: 1, report: true });
     await expect(s.apply(boom, 'alice')).rejects.toThrow('kaboom');
     const report = s.report()!;
     expect(report.steps[0]!.title).toBe('explode alice');
@@ -210,7 +134,6 @@ describe('run reporting', () => {
   });
 
   test('fail() records a harness failure outside any step', async () => {
-    const { sys, put } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
     await s.apply(put, 'x', '1');
     s.fail(new Error('assertion in test body'));
@@ -220,7 +143,6 @@ describe('run reporting', () => {
 
   test('persists report.json to ObjectStore on dispose', async () => {
     const store = new ObjectStoreImplInMemory();
-    const { sys, put } = makeKv();
     {
       await using s = await sys.run({
         seed: 7,
@@ -257,40 +179,16 @@ describe('run reporting', () => {
   });
 
   test('png snapshot encodes Uint8Array', async () => {
-    const bump = defineAction({
-      name: 'bump',
-      act: (s: { n: number }) => {
-        s.n += 1;
-      },
-    });
-    const pngBytes = new Uint8Array([137, 80, 78, 71]);
-    const sys = defineSystem({
-      name: 'png-sys',
-      create: () => ({ n: 0 }),
-      runtimes: [
-        defineRuntime({
-          default: true,
-          name: 'virtual',
-          create: () => virtualTimeRuntime(),
-        }),
-      ],
-      actions: [bump],
-      snapshots: [
-        defineSnapshot({
-          name: 'screen',
-          media: 'png',
-          capture: () => pngBytes,
-        }),
-      ],
-    });
     const store = new ObjectStoreImplInMemory();
     await using s = await sys.run({
       seed: 1,
       report: { store, testId: 'png', runId: 'r1', now: () => 0 },
     });
-    await s.apply(bump);
+    await s.apply(inc, 1);
     const report = s.report()!;
-    const blob = report.steps[0]!.frames[0]!.snapshots[0]!;
+    const blob = report.steps[0]!.frames[0]!.snapshots.find(
+      (b) => b.name === 'screen'
+    )!;
     expect(blob.media).toBe('png');
     expect(blob.file.endsWith('.png')).toBe(true);
   });
