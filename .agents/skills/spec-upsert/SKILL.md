@@ -55,8 +55,9 @@ Write this in your reply before any Gherkin:
 ```text
 Context:    <domain>                 Aggregate: <model>.qnt
 Story:      When <situation>, <who> wants <motivation>, so <outcome>.   (B2)
-Commands:   <model action> = "<glossary term>"  …
-Invariants: <inv name> — <in product words>  …
+Commands:   <model action> = "<glossary term>"  …   (a person does it)
+World:      <model action> = "<glossary term>"  …   (happens to people; model-only unless someone sees it)
+Invariants: <inv name> — <in product words>  …   (model-only if bookkeeping)
 Events:     <events.qnt variant>  …
 Rules:
   R1 <rule>          + <example that lets it happen>
@@ -176,10 +177,10 @@ Feature: The daily rated puzzle allowance
       When Alice moves on to the next puzzle
       Then Alice has a puzzle on the board
 
-    Scenario: A guest's next puzzle past the limit does not start
+    Scenario: A guest's next puzzle past the limit is refused
       Given Alice is a guest who has finished today's last allowed puzzle
-      When Alice asks for another puzzle
-      Then Alice is shown the puzzle limit within 15 seconds
+      When Alice moves on to the next puzzle
+      Then Alice is told the daily puzzle limit is reached within 15 seconds
       And Alice has no puzzle on the board
 
   Rule: Signing in lifts the daily puzzle limit
@@ -193,7 +194,9 @@ Feature: The daily rated puzzle allowance
 ```
 
 The boundary is on both sides (19 → starts, the 20th finished → refused),
-and the sign-in became a fact, leaving one `When`.
+the refusal names its reason (B8), one command keeps one phrasing ("moves on
+to the next puzzle", not also "asks for another puzzle", B14), and the
+sign-in became a fact, leaving one `When`.
 
 ### Internals and two events (A5, B5, B8)
 

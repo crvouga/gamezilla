@@ -55,8 +55,8 @@ For each undefined step, in order:
    (`tests/steps/*.steps.ts`, registered in `tests/steps/index.ts`, the one
    composition point, D4):
    - `Given` builds state with the fastest honest sim setup action
-     (`setupFriendsPair`), never by replaying the UI. A precondition guard
-     may throw.
+     (`setupFriendsPair`), never by replaying the UI. It may assert only
+     that the state it just built took effect (a precondition guard).
    - `When` performs the one event through the path a person uses
      (`w.s.apply(action, …)`). No assertions.
    - `Then` reads what the person sees (`w.s.read`, `w.s.until(read, {
@@ -67,8 +67,9 @@ For each undefined step, in order:
    call it. The UI selectors and gestures live there.
 4. **Quint model**: write `tests/quint/<model>.binding.ts` — one `actions`
    entry per model action (`init` included) through exported sim actions,
-   and `observe` reading the model's variables back without acting; keys are
-   the model's names (D6).
+   and `observe` reading the model's variables back through sim reads of
+   what people see, never stored rows (D2), without acting; keys are the
+   model's names (D6).
 
 Good:
 

@@ -109,7 +109,8 @@ terms:
   contexts may borrow it, and must borrow it to use it. A context's other
   terms are its own business — "move" in Chess binds no other context's
   prose — and cannot be borrowed.
-- A term enters the glossary in the same `spec:` commit that first uses it.
+- A term enters the glossary in the same `spec:` commit that first uses it,
+  once a person has confirmed it (A3 in [`SPEC_STANDARDS.md`](SPEC_STANDARDS.md)).
   The language leads the specs without having to be finished up front.
 - The shared kernel stays small: a term belongs there only when every
   context means exactly the same thing by it.

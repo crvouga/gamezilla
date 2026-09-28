@@ -31,7 +31,10 @@ new repo tooling).
 1. **Gate.** Run `bun run spec:check --strict-duplicates` and map every line
    to a check ID below (the "Gate" column). Undefined steps in a
    freshly written `spec:` commit are the implementer's handoff, not a
-   finding; everything else is.
+   finding; everything else is. First `grep -rl '^<<<<<<< ' specs`: a file
+   with conflict markers makes every result unreliable — stop and report
+   it. If the gate fails only on files outside your scope, the verdict is
+   INCOMPLETE, never PASS.
 2. **Load the language.** For each context in scope: its
    `ubiquitous-language.yml`, the glossaries it borrows from, and the kernel.
    Build the word list: every `term` and every `forms` entry, each with its
@@ -49,33 +52,33 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 
 | ID | Sev | How | Gate |
 | --- | --- | --- | --- |
-| A1 | block | J+M. List every noun, verb, state and event in the title, description, `Rule:` lines, scenario titles and steps (skip cast names, numbers, durations, quoted values, plain English naming no product concept). Each must match a term or `forms` entry exactly, a regular plural of one, or a cast name. Cite the word, the line, and the glossaries searched. | — |
-| A2 | block | M. Any `avoid` entry of the context's language, whole-word, in the same prose. J: any other stand-in for an existing term — cite both words. | yes |
+| A1 | block | M: build the set of every term and form in **all** glossaries; any prose word in that set must resolve in this context's language (own, borrowed with the lender's forms, kernel), allowing slots and split terms (standard A1). J: other nouns naming something the product keeps or shows. Cite the word, the line, and the glossaries searched. Report a glossary gap (a short name missing from `forms`) once per term, not per use. | — |
+| A2 | block | M. Any `avoid` entry of **this** context's language, whole-word, in the same prose. J: any other stand-in for an existing term — cite both words. | yes |
 | A3 | block | M. Diff the glossary against the base branch: every added term must be named in the `spec:` commit body as confirmed by the person. | — |
 | A4 | block | M. A term defined in another context used without a `from:` borrow, or borrowed but not `published: true` there; a `.qnt` import other than `./events` / `../<d>/events`. | yes |
-| A5 | block | M. Case-insensitive whole-word search of all prose for the A5 list, after removing glossary terms that contain the word ("friend request" is not HTTP). J: drop plain-English idioms ("in a row"). | partly |
+| A5 | block | M. Case-insensitive whole-word search of all prose for the A5 list and its inflections (requests, reconnecting), after removing glossary terms and forms that contain the word ("friend request" is not HTTP; "reconnects" is a rooms form). J: drop plain-English idioms ("in a row"). | partly |
 | A6 | block | M. Each step's subject is a cast name, `I`/`me`/`my`, `the user`, `the system`, or a glossary term. Flag the middle three, and any subject that is none of these. | partly |
 | B1 | warn | J. Title is a capability phrase, not "Tests …", a file or component name. | — |
 | B2 | block | M. The description's first sentence matches `When …, … want(s) …, so …`. No description at all is also B2. | partly |
 | B3 | block | M. Every `Scenario`/`Scenario Outline` is inside a `Rule:`. | — |
-| B4 | block | M. Each `Rule:` has a scenario whose `Then` is a refusal (standard, "Terms") and one whose `Then` is not — or its description's first line starts `No counter-example:`. J: that the stated why is true. | — |
-| B5 | block | M. Count `When` plus `And`/`But` between the `When` and the first `Then`: must be exactly 1. Flag any `When` after a `Then`. Skip `specs/journeys/`. | partly |
-| B6 | block | M. Flag a `Given`/`And` in context whose verb after the actor is a present-simple action (opens, goes, plays, taps, writes, signs in). J: confirm it is an action, not a state ("is", "has", "are friends"). | — |
-| B7 | block | J. The `When` is a command or an event in the present tense. | — |
+| B4 | block | M. Each `Rule:` has a scenario whose `Then` has a refusal marker (the closed list in the standard's "Terms") and one whose `Then` has none — or its description's first line starts `No counter-example:`. J: that the stated why is true. Skip live domains. | — |
+| B5 | block | M. Count `When` plus `And`/`But` between the `When` and the first `Then`: must be exactly 1. Flag any `When` after a `Then`. Skip live domains. | partly |
+| B6 | block | M. Flag a `Given`/`And` in context whose verb after the subject (a cast name, "the team", a role) is a present-simple action (opens, goes, plays, declares, writes, signs in), or that uses "will". J: confirm it is an action, not a state ("is", "has", "are friends", "already signs into"). | — |
+| B7 | block | M. A `When` containing " and " between two verbs, or a count of repetitions ("10 … a day for 3 days"). J: the `When` is one command or event in the present, not a look after the behavior happened in `Given`s. | — |
 | B8 | block | M. `Then` steps with storage, count-of-internals or copy wording (A5 list, "accepted N changes", "waiting to be sent", quoted app text). M: under a Rule that illustrates an invariant, each refusal names a reason. | partly |
 | B9 | block | M. Quoted text in a step that is not something a person supplies or names (note title, username, search text) — i.e. app copy. J: a step that needs implementation knowledge; cite what it assumes. | — |
 | B10 | block | M. Title starts with "Test", "Case", "Check", contains "should", or has no verb. Unique per context. | uniqueness |
-| B11 | block | M. Background has a non-`Given` step or more than 4 steps. J: a scenario that never relies on a Background step — cite it. Warn when every scenario of a rule repeats the same `Given`. | — |
+| B11 | block | M. Background has a non-`Given` step or more than 4 steps. J: a scenario that never relies on a Background step — cite it. Warn when every scenario of a rule (two or more) or of the feature opens with the same `Given`. | — |
 | B12 | block | M. Outline with more than 6 rows. J: the varied column is not a business dimension (gesture, error kind, technical failure); an ordered dimension without both sides of its boundary. | — |
 | B13 | block | M. Values matching `foo|bar|baz|lorem|test|user\d|seed`, a run of one repeated letter, or `123`/`1234` or a person not in the cast. | — |
-| B14 | block | M. Every near-duplicate `spec:check --strict-duplicates` reports. J: two step phrasings in the context with one meaning — cite both definitions. | warns |
+| B14 | block | M. Every near-duplicate `spec:check --strict-duplicates` reports; every pair of step definitions whose bodies are identical (across all packages). J: two phrasings with one meaning — cite both definitions. | warns |
 | B15 | block | M. Any tag not in the B15 table; a live-run tag outside `specs/health/` and `specs/journeys/`; a `@domain` that isn't the directory. | domain, goal |
 | B16 | warn/block | M. Steps per scenario (Background included): > 5 warn, > 8 block. | > 8 |
 | B17 | block | J. A scenario whose outcome only code could observe: exact formula output, validation table, stored state, wire shape, internal counts, transport state. Cite the step and the home the policy table gives it. | — |
 | C1–C6 | block | § Coverage map. | — |
 | D1 | block | M. File paths, package names, code identifiers in `.feature`/`.qnt` prose. | — |
-| D2 | block | M. In `tests/steps/**` of a sim package: imports other than the D2 allow-list (`node:*` included); `data-testid`, CSS selectors, `querySelector`, `page.`, `fetch(`, SQL. J: a public-entry import used for more than types and decided constants. | — |
-| D3 | block | M. Step bodies with `if`/`switch`/`for`/`while`/`.map(` over product values, `expect` in a `Given`/`When`, a step invoking another step's text. J: confirm it is product logic, not a precondition guard. | — |
+| D2 | block | M. In `tests/steps/**` and `tests/quint/**` of a sim package: imports other than the D2 allow-list (`node:*` included); `data-testid`, CSS selectors, `querySelector`, `page.`, `fetch(`, SQL or storage clients. J: a public-entry import used for more than types and decided constants. | — |
+| D3 | block | M. Step and binding bodies with `if`/`switch`/`for`/`while`/`.map(` over product values, `expect` in a `Given`/`When`, a step invoking another step's text. J: an `expect` in a `Given` is fine only if it reads the state that `Given` just built; a branch is fine only if it picks a sim path, not an expected value. Live-world loops over environments are not product logic. | — |
 | D4 | block | M. More than one world/registration entry per package; anything under `specs/` naming a `tests/` file. | — |
 | D5 | block | M. `setTimeout`, `sleep`, `Date.now`, `new Date(` in sim steps; skipped, pending or retried steps. | pending |
 | D6 | block | M. Binding keys that are not the model's action/variable names. | unbound |
@@ -89,30 +92,37 @@ B15).
 
 For each Quint model in scope (skip `specs/health/`, `specs/journeys/`):
 
-1. **Commands**: every `action` except `init`, `step` and `_…`. Find the
-   glossary term whose `model` lists it. C1 is met by a scenario whose
-   `When` uses that term (or its forms) and whose `Then` is not a refusal.
-2. **Invariants**: every `val inv<Name>`. Read its `///` comment and body;
-   find the `Rule:` that states it. C2 is met by that Rule's refusal
-   scenario naming a reason, or its `No counter-example:` scenario. Cite the
-   Rule's line. (J)
+1. **Commands and world events**: every `action` except `init`, `step` and
+   `_…`. Classify each (standard, "Terms"; J, cite its `///` comment). Find
+   the glossary term whose `model` lists it. C1 is met by a scenario whose
+   `When` uses that term (or its forms) and whose `Then` has a non-refusal
+   step. A world event no person observes on its own is `model-only`.
+2. **Invariants**: every `val inv<Name>`. Read its `///` comment and body.
+   Observable → C2 is met by a scenario (under any `Rule:` or none) that
+   attempts to break it and ends in a refusal (B8), or shows it holding
+   where it is most at risk. Bookkeeping → `model-only`. (J)
 3. **Events**: every variant in the context's `events.qnt`; find the term
    whose `model` lists it (or its type). C3 is met by a `Then` using it.
-4. **Transitions**: for each sum type the model's observed variables hold
-   (`FriendshipStatus`, `MembershipStatus` …), read each action's guard and
-   assignments: list `from → to` per action (legal) and each status its guard
-   excludes where a person could still attempt it (illegal). C4 needs a
-   scenario per legal row and a refusal per illegal row. (J — cite the
-   guard's line in the `.qnt`.)
+4. **Transitions**: for each status (standard, "Terms" — sum type, listed
+   `str` values, or `bool`), read each command's guard and assignments: list
+   `from → to` per command (legal) and each excluded status where a person
+   can still attempt it (illegal; standard C4). C4 needs a scenario per legal
+   row and a refusal per illegal row. (J — cite the guard's line in the
+   `.qnt`.)
 5. **Policies**: from `docs/CONTEXT_MAP.md` "Relationships", for each
-   upstream event whose term this context borrows, C5 needs a scenario here
-   whose `Given`/`When` is that event and whose `Then` is the reaction.
-6. **Unmapped**: any `When` in the context whose term no model names is C6
-   (the model lacks a command the features illustrate). A context with
-   features but no `.qnt` is reported `unmodelled` (warning).
+   relationship where this context is downstream, list the upstream's
+   `events.qnt` variants it implies. C5 needs a scenario here whose `When`
+   is that event, or whose `Given` states it as a fact, and whose `Then` is
+   the reaction. A relationship without the borrowed terms to say it is also
+   A4.
+6. **Unmapped**, once per context: every `When` whose term no model of the
+   context names (borrowed terms count when the lender's model names them),
+   and every scenario that contradicts a model's guard, is C6. A context
+   with features but no `.qnt` is reported `unmodelled` (warning).
 
-Write the map as the standard's table, one per aggregate, every row either
-`covered` with its `file:line` or `MISSING`.
+Write the map as the standard's table, one per aggregate, every row
+`covered` with its `file:line`, `model-only` with its `///` line, or
+`MISSING`.
 
 ## Evidence
 
@@ -129,7 +139,7 @@ connected' is transport state no person observes").
 
 ```text
 # Spec audit — <scope> — <date>
-Verdict: FAIL (<n> blocking, <m> warnings) | PASS (<m> warnings)
+Verdict: FAIL (<n> blocking, <m> warnings) | INCOMPLETE (<why>) | PASS (<m> warnings)
 
 ## Per feature
 ### specs/<domain>/<file>.feature — <n> blocking, <m> warnings
@@ -149,7 +159,9 @@ Verdict: FAIL (<n> blocking, <m> warnings) | PASS (<m> warnings)
 ```
 
 **Pass** means zero blocking findings in scope, including zero `MISSING`
-coverage rows and a green `spec:check --strict-duplicates`. Nothing else is
+coverage rows and a green `spec:check --strict-duplicates`. **Incomplete**
+means a check could not run (conflict markers, a gate failure outside scope);
+it is not a pass. Nothing else is
 a pass: not "pre-existing", not "out of scope for this change" when the
 file is in scope, not "the gate didn't catch it".
 
