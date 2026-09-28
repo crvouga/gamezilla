@@ -75,7 +75,7 @@ Feature: Timed match
 
     Scenario: A move after the mover has run out of time is too late
       Given White and Black have started a match with 4 seconds for White and 4 seconds for Black
-      And White has been offline for 5 seconds
+      And White's phone has been offline for 5 seconds
       When White moves
       Then White is told the move came too late
 
@@ -84,8 +84,8 @@ Feature: Timed match
 
     Scenario: White sees the result once back online after running out of time
       Given White and Black have started a match with 4 seconds for White and 4 seconds for Black
-      And White has been offline for 5 seconds
-      When White comes back online
+      And White's phone has been offline for 5 seconds
+      When White's phone comes back online
       Then White and Black both see Black win on time
 
   Rule: Claiming the opponent has run out of time changes nothing until they have

@@ -28,14 +28,14 @@ Feature: The shared tally
   Rule: A change made offline shows at once for its maker and reaches everyone once they are back online
 
     Scenario: A change made offline shows at once only for its maker
-      Given Alice is offline
+      Given Alice's phone is offline
       When Alice adds one to the tally
       Then Alice sees a tally of 1
       And Bob still sees a tally of 0
 
     Scenario: A change made offline reaches everyone once its maker is back online
       Given Alice has added one to the tally while offline
-      When Alice comes back online
+      When Alice's phone comes back online
       Then everyone sees a tally of 1
 
   Rule: A change waiting on a phone is kept when the app closes unexpectedly
