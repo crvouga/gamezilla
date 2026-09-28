@@ -41,6 +41,19 @@ outside `specs/room/` any more; `malformed-messages.test.ts` stays a
 wire-frame contract (its one observable claim, that something garbled
 changes nothing, is `sendGarbledChange` in `specs/room/shared-counter.qnt`).
 
+(2026-09-27, later) `specs/room/` describes the room framework's one
+example app, a game room, in business words (A0): `tally.feature` +
+`tally.qnt`, `ownership.feature` + `ownership.qnt`, `match-clock.feature` +
+`match-clock.qnt`, `presence.feature`. `shared-counter.*` and
+`refusals.feature` are gone. Their technical cases are `_`-prefixed faults
+in `specs/room/tally.qnt` (`_networkStalls` / `_networkRecovers`,
+`_roomRestarts`, `_resend`, `_takeOver`, `_makeInvalidChange`,
+`_sendGarbledChange`, `_appClosesAsChangeLands`) and code tests: the
+authorize hook in `pkgs/room/tests/room-server.contract.test.ts`, the
+room-restart fault in `pkgs/room-harness/tests/room-restart.test.ts`, an
+unknown command refused before it waits in
+`pkgs/room-harness/tests/standalone-room.test.ts`.
+
 (2026-09-27) `libs/billing/tests/multi-provider.test.ts` (two providers
 at once) is ported: what a person sees when the team switches payment
 provider, and back, is `specs/billing/payment-provider-switch.feature`, and

@@ -17,7 +17,7 @@ crosses each boundary. Policy:
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
 | Chess | `chess` | chess puzzles played in a space: the puzzle feed, attempts, the puzzle rating, the game log, review, watching | core |
 | Auth | `auth` | how outside accounts at Google and Apple get people into accounts, for any app on this sign-in: address matches and proving them, connecting and removing sign-in methods, copied sign-ins, how long a sign-in lasts, failing providers, what people do at Google and Apple | generic (Google and Apple vouch for people) |
-| Room | `room` | rooms: one authority keeping live shared state (the shared counter, the match clock), refused changes | supporting |
+| Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | matchmaking: waiting for a match, reach, matching rounds, being matched, stopping a wait, the same answer at every entrance | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting | generic |

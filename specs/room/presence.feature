@@ -1,20 +1,20 @@
 @domain:room
-Feature: Presence
-  When several people share a room, each wants the room to show who is in it
-  right now, so nobody mistakes someone who has dropped out for someone still
-  there with them.
+Feature: Who is in the room
+  When people share a room, each wants to see who is in it right now, so
+  nobody mistakes someone who has gone offline for someone still there with
+  them.
 
-  Rule: Someone whose device goes offline is no longer present
+  Background:
+    Given Alice and Bob are in the room
 
-    Scenario: Someone whose device goes offline is no longer shown present
-      Given Alice and Bob are in a shared counter room
-      When Bob's device goes offline
+  Rule: The room shows present only the people who are online in it
+    No counter-example: presence follows each person's connection; nobody can hide it or fake it.
+
+    Scenario: Someone who goes offline is no longer shown present
+      When Bob goes offline
       Then the room shows only Alice present
 
-  Rule: Someone who reconnects is present again
-
-    Scenario: Someone who reconnects is shown present again
-      Given Alice and Bob are in a shared counter room
-      And Bob's device is offline
-      When Bob reconnects
+    Scenario: Someone who comes back online is shown present again
+      Given Bob is offline
+      When Bob comes back online
       Then the room shows Alice and Bob present
