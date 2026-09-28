@@ -1,6 +1,7 @@
 import type { HtmlReportBundle } from '@pkgs/harness';
 
 import { ARTIFACT_CSS, ARTIFACT_JS } from './artifact';
+import { POOLED_BOOTSTRAP, poolReport } from './pooled';
 import type { ReportData } from './types';
 
 export type RenderHtmlReportOptions = {
@@ -11,6 +12,12 @@ export type RenderHtmlReportOptions = {
    * stylesheet), so UI snapshots render like the product did.
    */
   readonly frameCss?: string;
+  /**
+   * Keep every distinct snapshot once and gzip them (`pooled.ts`), inflated
+   * in the page before the viewer mounts. For reports over many tests, whose
+   * plain JSON would be hundreds of megabytes. Default: plain JSON.
+   */
+  readonly pooled?: boolean;
 };
 
 /** Safe to inline in `<script>` / `<style>` bodies. */
@@ -43,8 +50,9 @@ export function renderHtmlReport(
 ): string {
   const title = options.title ?? 'Harness report';
   const data: ReportData = { ...bundle, title };
-  const json = JSON.stringify(data);
   const frameCss = options.frameCss ?? '';
+  if (options.pooled === true) return renderPooled(data, frameCss);
+  const json = JSON.stringify(data);
   return [
     '<!DOCTYPE html>',
     '<html lang="en">',
@@ -59,6 +67,32 @@ export function renderHtmlReport(
     `<script id="report-data" type="application/json">${escapeInlineJson(json)}</script>`,
     `<script id="frame-css" type="text/css">${escapeInline(frameCss)}</script>`,
     `<script>${escapeInline(ARTIFACT_JS)}</script>`,
+    '</body>',
+    '</html>',
+  ].join('\n');
+}
+
+function renderPooled(data: ReportData, frameCss: string): string {
+  const pooled = poolReport(data);
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="en">',
+    '<head>',
+    '<meta charset="utf-8"/>',
+    '<meta name="viewport" content="width=device-width, initial-scale=1"/>',
+    `<title>${escapeHtml(data.title)}</title>`,
+    `<style>${escapeInline(ARTIFACT_CSS)}</style>`,
+    '</head>',
+    '<body style="margin:0;height:100vh">',
+    '<p id="report-loading">Opening the report…</p>',
+    `<script id="report-data" type="application/json">${escapeInlineJson(JSON.stringify(pooled.meta))}</script>`,
+    ...pooled.chunks.map(
+      (chunk) =>
+        `<script class="report-chunk" type="text/plain">${chunk}</script>`
+    ),
+    `<script id="frame-css" type="text/css">${escapeInline(frameCss)}</script>`,
+    `<script>${escapeInline(ARTIFACT_JS)}</script>`,
+    `<script>${POOLED_BOOTSTRAP}</script>`,
     '</body>',
     '</html>',
   ].join('\n');

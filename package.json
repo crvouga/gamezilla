@@ -10,10 +10,10 @@
   "scripts": {
     "agents:sync": "bun run libs/tools/scripts/sync-agent-commands.ts",
     "billing:sync": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/billing billing:sync",
-    "check": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts check",
+    "check": "bun run libs/tools/scripts/check-remote.ts",
     "check:coverage": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-coverage.ts",
     "check:heal": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-heal.ts",
-    "check:remote": "bun run libs/tools/scripts/check-remote.ts",
+    "check:local": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts check",
     "chess:puzzles:export-load": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess export:puzzles-load -- --confirm-prod",
     "chess:puzzles:seed": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:agent-commands": "bun run libs/tools/scripts/sync-agent-commands.ts --check",

@@ -31,7 +31,7 @@ const HARNESS_REPORT_DATA_DIR =
 /** One run per `bun test` invocation; the report script wipes it first. */
 export const HARNESS_REPORT_RUN_ID = 'latest';
 
-/** UI frames on every step — `HARNESS_FRAMES=1` (`bun run test:report --frames`). */
+/** UI frames on every step — `HARNESS_FRAMES=1` (`bun run test:report` sets it). */
 export function harnessFramesEnabled(): boolean {
   return process.env['HARNESS_FRAMES'] === '1';
 }

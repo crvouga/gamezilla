@@ -1,13 +1,14 @@
 #!/usr/bin/env bun
 // @io-wall-ok — gh CLI entry
 /**
- * `bun check:remote`: run the Check workflow (`.github/workflows/check.yml`)
- * on GitHub for the current branch and block until it finishes. The exit code
- * is the run's verdict. Ctrl-C / SIGTERM / SIGHUP cancel the run on GitHub
+ * `bun check`: run the Check workflow (`.github/workflows/check.yml`) on
+ * GitHub for the current branch and block until it finishes, so the gate
+ * spends GitHub's runners, not this machine. The exit code is the run's
+ * verdict. `bun check:local` runs the same gate on this machine instead. Ctrl-C / SIGTERM / SIGHUP cancel the run on GitHub
  * before exiting (SIGKILL cannot be caught — cancel that run with
  * `gh run cancel <id>`).
  *
- *   bun check:remote [--message "type(scope): description"]
+ *   bun check [--message "type(scope): description"]
  *
  * First it runs `/git-sync` (`git-sync.ts`): commits a dirty tree with
  * `--message`, merges `origin/<branch>` and the latest `origin/main`
@@ -121,12 +122,12 @@ async function waitForRun(
 }
 
 function cancelRun(runId: number): void {
-  console.error(`\ncheck:remote: cancelling run ${String(runId)} on GitHub…`);
+  console.error(`\ncheck: cancelling run ${String(runId)} on GitHub…`);
   const result = run(['gh', 'run', 'cancel', String(runId)]);
   console.error(
     result.code === 0
-      ? 'check:remote: cancelled.'
-      : `check:remote: cancel failed: ${result.err || result.out}`
+      ? 'check: cancelled.'
+      : `check: cancel failed: ${result.err || result.out}`
   );
 }
 
@@ -159,7 +160,7 @@ function printFailedLog(runId: number): void {
   const result = run(['gh', 'run', 'view', String(runId), '--log-failed']);
   const lines = result.out.split('\n');
   console.error(
-    `\ncheck:remote: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
+    `\ncheck: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
   );
   console.error(lines.slice(-FAILED_LOG_LINES).join('\n'));
 }
@@ -177,7 +178,7 @@ async function main(): Promise<number> {
 
   must(['gh', 'workflow', 'run', WORKFLOW, '--ref', branch]);
   console.log(
-    `check:remote: dispatched ${WORKFLOW} on ${branch} @ ${sha.slice(0, 9)}`
+    `check: dispatched ${WORKFLOW} on ${branch} @ ${sha.slice(0, 9)}`
   );
   state.runId = await waitForRun(branch, sha, knownIds);
   const url = must([
@@ -190,7 +191,7 @@ async function main(): Promise<number> {
     '--jq',
     '.url',
   ]);
-  console.log(`check:remote: ${url}`);
+  console.log(`check: ${url}`);
 
   // Own process group: the terminal's Ctrl-C reaches only this script, which
   // cancels the run before the watcher goes away.
@@ -204,7 +205,7 @@ async function main(): Promise<number> {
     watcher.on('close', (exitCode) => resolve(exitCode ?? 1));
   });
   if (code !== 0) printFailedLog(state.runId);
-  console.log(`check:remote: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+  console.log(`check: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
   return code;
 }
 
@@ -215,7 +216,7 @@ if (import.meta.main) {
     if (!(error instanceof CheckRemoteError || error instanceof SyncError)) {
       throw error;
     }
-    console.error(`check:remote: ${error.message}`);
+    console.error(`check: ${error.message}`);
     process.exit(1);
   }
 }
