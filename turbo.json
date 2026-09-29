@@ -325,6 +325,21 @@
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-5/**"]
     },
+    "check:models": {
+      "inputs": [
+        "package.json",
+        "tests/quint/**",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/pkgs/quint/package.json",
+        "$TURBO_ROOT$/pkgs/quint/src/**",
+        "$TURBO_ROOT$/pkgs/conformance/src/**",
+        "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts"
+      ],
+      "outputs": [".cache/harness-report/models/**"],
+      "outputLogs": "errors-only"
+    },
     "build": {
       "dependsOn": ["^build"],
       "env": [
@@ -527,30 +542,6 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "//#ci:models": {
-      "dependsOn": ["@libs/tools#tc", "@pkgs/quint#tc"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!apps/**",
-        "!libs/**",
-        "!pkgs/**",
-        "specs/**/*.qnt",
-        "mise.toml",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "apps/*/tests/quint/**",
-        "libs/*/tests/quint/**",
-        "pkgs/*/tests/quint/**",
-        "pkgs/quint/src/**",
-        "pkgs/conformance/src/**",
-        "libs/tools/scripts/check-models.ts",
-        "libs/tools/scripts/spec-packages.ts",
-        "libs/tools/scripts/spec-kinds.ts"
-      ],
-      "outputs": [".cache/harness-report/models/evidence/**"],
-      "outputLogs": "errors-only"
-    },
     "//#ci:spec-ownership": {
       "env": ["PR_BASE", "PR_HEAD"],
       "inputs": ["libs/tools/scripts/check-spec-ownership.ts"],
@@ -622,7 +613,6 @@
         "//#ci:goals",
         "//#ci:specs",
         "//#ci:conformance",
-        "//#ci:models",
         "//#ci:spec-ownership",
         "tc",
         "lint",
@@ -634,6 +624,7 @@
         "test:spec:3",
         "test:spec:4",
         "test:spec:5",
+        "check:models",
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
         "@apps/room-server#check:worker-bundle",

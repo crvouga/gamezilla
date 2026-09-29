@@ -9,6 +9,10 @@
  * object and never replaces this one; a re-run of the same commit and variant
  * replaces its own report. Needs `CLOUDFLARE_API_TOKEN` and
  * `CLOUDFLARE_ACCOUNT_ID` (the shared secrets `secrets-run` loads).
+ *
+ * The workflow runs this file from the repo root, where no `wrangler` bin is
+ * linked (the isolated linker links it only into packages that declare it), so
+ * wrangler runs from {@link WRANGLER_CWD}, this package, which declares it.
  */
 
 import { existsSync } from 'node:fs';
@@ -20,6 +24,8 @@ const REPORT_FILE = resolve(
   '../../../harness-report/index.html'
 );
 const CACHE_CONTROL = 'public, max-age=300';
+/** `@libs/tools`: its `node_modules/.bin` holds the wrangler it declares. */
+export const WRANGLER_CWD = resolve(import.meta.dir, '..');
 
 function headSha(): string {
   const fromEnv = process.env['GITHUB_SHA']?.trim();
@@ -53,7 +59,7 @@ if (import.meta.main) {
       CACHE_CONTROL,
       '--remote',
     ],
-    { stdout: 'inherit', stderr: 'inherit' }
+    { cwd: WRANGLER_CWD, stdout: 'inherit', stderr: 'inherit' }
   );
   if (upload.exitCode !== 0) process.exit(upload.exitCode ?? 1);
   console.log(`report-publish: ${reportUrl(hosting.hostname, sha, frames)}`);

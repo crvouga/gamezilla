@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",

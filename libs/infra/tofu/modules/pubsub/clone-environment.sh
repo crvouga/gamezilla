@@ -11,12 +11,15 @@
 #
 #   clone-environment.sh create   duplicate $SOURCE as $NAME; a no-op when
 #                                 $NAME already exists AND holds a service
-#                                 instance; fails on an empty one
+#                                 instance; an EMPTY $NAME (what the provider
+#                                 left behind) is deleted and cloned afresh —
+#                                 it holds nothing to lose
 #   clone-environment.sh delete   delete $NAME (never $SOURCE); a no-op when
 #                                 it is gone
 #
 # Inputs (environment): RAILWAY_TOKEN (injected by `secrets-run`), PROJECT_ID,
-# NAME, SOURCE; RAILWAY_GRAPHQL_URL overrides the endpoint (the test's fake).
+# NAME, SOURCE; RAILWAY_GRAPHQL_URL overrides the endpoint (the test's fake);
+# DELETE_POLL_SECONDS / DELETE_POLL_ATTEMPTS bound the wait for a delete.
 set -euo pipefail
 
 action="${1:?usage: clone-environment.sh create|delete}"
@@ -25,6 +28,8 @@ action="${1:?usage: clone-environment.sh create|delete}"
 : "${NAME:?NAME is not set}"
 : "${SOURCE:?SOURCE is not set}"
 endpoint="${RAILWAY_GRAPHQL_URL:-https://backboard.railway.com/graphql/v2}"
+poll_seconds="${DELETE_POLL_SECONDS:-2}"
+poll_attempts="${DELETE_POLL_ATTEMPTS:-60}"
 
 # One GraphQL call: $1 = query, $2 = variables (JSON). Railway answers HTTP 200
 # with an `errors` array on failure, so both are checked.
@@ -60,8 +65,33 @@ instance_count() {
   jq -r '.data.environment.serviceInstances.edges | length' <<<"$response"
 }
 
+refuse_protected() {
+  if [ "$NAME" = "$SOURCE" ] || [ "$NAME" = "production" ]; then
+    echo "refusing to $1 the Railway environment ${NAME}" >&2
+    exit 1
+  fi
+}
+
+delete_environment() {
+  gql 'mutation($id: String!) { environmentDelete(id: $id) }' \
+    "$(jq -cn --arg id "$1" '{id: $id}')" >/dev/null
+}
+
+# Railway deletes in the background: the name stays taken ("An environment
+# with that name already exists") until the environment leaves the listing.
+wait_until_gone() {
+  local attempt
+  for ((attempt = 0; attempt < poll_attempts; attempt++)); do
+    [ -z "$(environment_id "$NAME")" ] && return 0
+    sleep "$poll_seconds"
+  done
+  echo "Railway environment ${NAME} still listed after deleting it" >&2
+  exit 1
+}
+
 case "$action" in
   create)
+    refuse_protected replace
     existing="$(environment_id "$NAME")"
     if [ -n "$existing" ]; then
       count="$(instance_count "$existing")"
@@ -69,10 +99,9 @@ case "$action" in
         echo "railway environment ${NAME} already exists with ${count} service instance(s)"
         exit 0
       fi
-      echo "Railway environment ${NAME} (${existing}) exists but holds no service instance —" \
-        "an empty environment cannot host the broker. Delete it in the Railway" \
-        "dashboard (project ${PROJECT_ID}); this script recreates it as a clone of ${SOURCE}." >&2
-      exit 1
+      delete_environment "$existing"
+      wait_until_gone
+      echo "railway environment ${NAME} (${existing}) held no service instance; deleted it to clone afresh"
     fi
     source_id="$(environment_id "$SOURCE")"
     if [ -z "$source_id" ]; then
@@ -86,17 +115,14 @@ case "$action" in
     echo "railway environment ${NAME} cloned from ${SOURCE}"
     ;;
   delete)
-    if [ "$NAME" = "$SOURCE" ] || [ "$NAME" = "production" ]; then
-      echo "refusing to delete the Railway environment ${NAME}" >&2
-      exit 1
-    fi
+    refuse_protected delete
     existing="$(environment_id "$NAME")"
     if [ -z "$existing" ]; then
       echo "railway environment ${NAME} is already gone"
       exit 0
     fi
-    gql 'mutation($id: String!) { environmentDelete(id: $id) }' \
-      "$(jq -cn --arg id "$existing" '{id: $id}')" >/dev/null
+    delete_environment "$existing"
+    wait_until_gone
     echo "railway environment ${NAME} deleted"
     ;;
   *)

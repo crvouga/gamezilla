@@ -681,6 +681,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
+        "@pkgs/clock": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/os": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
@@ -2543,6 +2544,7 @@
       "name": "@pkgs/secret-provider",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/os": "workspace:*",

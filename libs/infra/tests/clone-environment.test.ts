@@ -16,7 +16,13 @@ const SCRIPT = join(
   '../tofu/modules/pubsub/clone-environment.sh'
 );
 
-type FakeEnvironment = { id: string; name: string; instances: number };
+type FakeEnvironment = {
+  id: string;
+  name: string;
+  instances: number;
+  /** Listings that still show it after a delete (Railway deletes lazily). */
+  lingers?: number;
+};
 
 type Fake = {
   readonly url: string;
@@ -25,66 +31,76 @@ type Fake = {
   readonly stop: () => void;
 };
 
+type Variables = Record<string, unknown>;
+
+/** One fake GraphQL operation, keyed by a substring of its query. */
+type Handler = (variables: Variables) => unknown;
+
+function fakeHandlers(
+  environments: FakeEnvironment[],
+  mutations: Fake['mutations']
+): [string, Handler][] {
+  // Railway deletes in the background: a deleted environment stays listed
+  // (and its name taken) for a few more listings.
+  const listEnvironments: Handler = () => {
+    for (const env of [...environments]) {
+      if (env.lingers !== undefined && env.lingers-- <= 0) {
+        environments.splice(environments.indexOf(env), 1);
+      }
+    }
+    const edges = environments.map(({ id, name }) => ({ node: { id, name } }));
+    return { data: { project: { environments: { edges } } } };
+  };
+  const serviceInstances: Handler = (variables) => {
+    const env = environments.find((e) => e.id === variables['id']);
+    const edges = Array.from({ length: env?.instances ?? 0 }, () => ({
+      node: { serviceId: 'svc' },
+    }));
+    return { data: { environment: { serviceInstances: { edges } } } };
+  };
+  const create: Handler = (variables) => {
+    mutations.push({ name: 'environmentCreate', variables });
+    const { name } = variables['input'] as { name: string };
+    if (environments.some((e) => e.name === name)) {
+      return {
+        errors: [{ message: 'An environment with that name already exists' }],
+      };
+    }
+    environments.push({ id: `env-${name}`, name, instances: 1 });
+    return { data: { environmentCreate: { id: 'x' } } };
+  };
+  const remove: Handler = (variables) => {
+    mutations.push({ name: 'environmentDelete', variables });
+    const env = environments.find((e) => e.id === variables['id']);
+    if (env !== undefined) env.lingers = 2;
+    return { data: { environmentDelete: true } };
+  };
+  return [
+    ['project(id', listEnvironments],
+    ['serviceInstances', serviceInstances],
+    ['environmentCreate', create],
+    ['environmentDelete', remove],
+  ];
+}
+
 function startFakeRailway(initial: FakeEnvironment[]): Fake {
   const environments = [...initial];
   const mutations: Fake['mutations'] = [];
+  const handlers = fakeHandlers(environments, mutations);
   const server = Bun.serve({
     port: 0,
     async fetch(req) {
       const { query, variables } = (await req.json()) as {
         query: string;
-        variables: Record<string, unknown>;
+        variables: Variables;
       };
       if (req.headers.get('authorization') !== 'Bearer test-token') {
         return Response.json({ errors: [{ message: 'Not Authorized' }] });
       }
-      if (query.includes('project(id')) {
-        return Response.json({
-          data: {
-            project: {
-              environments: {
-                edges: environments.map((node) => ({
-                  node: { id: node.id, name: node.name },
-                })),
-              },
-            },
-          },
-        });
-      }
-      if (query.includes('serviceInstances')) {
-        const env = environments.find((e) => e.id === variables['id']);
-        return Response.json({
-          data: {
-            environment: {
-              serviceInstances: {
-                edges: Array.from({ length: env?.instances ?? 0 }, () => ({
-                  node: { serviceId: 'svc' },
-                })),
-              },
-            },
-          },
-        });
-      }
-      if (query.includes('environmentCreate')) {
-        const input = variables['input'] as {
-          name: string;
-          sourceEnvironmentId: string;
-        };
-        mutations.push({ name: 'environmentCreate', variables });
-        environments.push({
-          id: `env-${input.name}`,
-          name: input.name,
-          instances: 1,
-        });
-        return Response.json({ data: { environmentCreate: { id: 'x' } } });
-      }
-      if (query.includes('environmentDelete')) {
-        mutations.push({ name: 'environmentDelete', variables });
-        const at = environments.findIndex((e) => e.id === variables['id']);
-        if (at >= 0) environments.splice(at, 1);
-        return Response.json({ data: { environmentDelete: true } });
-      }
-      return Response.json({ errors: [{ message: 'unknown query' }] });
+      const handler = handlers.find(([key]) => query.includes(key))?.[1];
+      return Response.json(
+        handler?.(variables) ?? { errors: [{ message: 'unknown query' }] }
+      );
     },
   });
   return {
@@ -108,6 +124,7 @@ async function run(
       PROJECT_ID: 'project-1',
       NAME: 'development',
       SOURCE: 'production',
+      DELETE_POLL_SECONDS: '0',
       ...overrides,
     },
     stdout: 'pipe',
@@ -177,15 +194,55 @@ describe('clone-environment.sh', () => {
     });
   });
 
-  test('create refuses an existing environment with no service instance', async () => {
+  // regression: railway-empty-environment-stuck — the empty environment the
+  // provider had already made stayed behind, and create refused it, so every
+  // Deploy stopped at dev's foundation until someone deleted it by hand.
+  test('create replaces an existing environment with no service instance', async () => {
     fake = startFakeRailway([
       PRODUCTION,
       { id: 'env-empty', name: 'development', instances: 0 },
     ]);
     const { code, out } = await run(fake, 'create');
-    expect(code).toBe(1);
-    expect(out).toContain('holds no service instance');
+    expect(out).toContain('cloned from production');
+    expect(code).toBe(0);
+    expect(fake.mutations.map((m) => m.name)).toEqual([
+      'environmentDelete',
+      'environmentCreate',
+    ]);
+    expect(fake.mutations[0]?.variables).toEqual({ id: 'env-empty' });
+    expect(fake.environments).toEqual([
+      PRODUCTION,
+      { id: 'env-development', name: 'development', instances: 1 },
+    ]);
+  });
+
+  test('create never replaces production or the source', async () => {
+    fake = startFakeRailway([
+      { ...PRODUCTION, instances: 0 },
+      { id: 'env-empty', name: 'development', instances: 0 },
+    ]);
+    for (const overrides of [
+      { NAME: 'production', SOURCE: 'development' },
+      { SOURCE: 'development' },
+    ]) {
+      const { code, out } = await run(fake, 'create', overrides);
+      expect(code).toBe(1);
+      expect(out).toContain('refusing to replace');
+    }
     expect(fake.mutations).toEqual([]);
+  });
+
+  test('create fails when a deleted environment never leaves the listing', async () => {
+    fake = startFakeRailway([
+      PRODUCTION,
+      { id: 'env-empty', name: 'development', instances: 0 },
+    ]);
+    const { code, out } = await run(fake, 'create', {
+      DELETE_POLL_ATTEMPTS: '1',
+    });
+    expect(code).toBe(1);
+    expect(out).toContain('still listed');
+    expect(fake.mutations.map((m) => m.name)).toEqual(['environmentDelete']);
   });
 
   describe('delete', () => {

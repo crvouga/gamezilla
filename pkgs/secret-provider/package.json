@@ -16,6 +16,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/os": "workspace:*",

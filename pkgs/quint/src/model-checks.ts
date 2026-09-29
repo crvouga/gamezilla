@@ -2,8 +2,8 @@
 /**
  * The model-wide check of a model run, before any trace reaches the product:
  * the model type checks. Apalache's exhaustive check (`./verify`) depends on
- * the model's text alone, so it runs once per model text in the models gate
- * (`//#ci:models`), not in every package's spec suite.
+ * the model's text alone, so it runs in the package's models check
+ * (`check:models`), cached on the model's text, not in the spec suite.
  */
 
 import { test } from 'bun:test';

@@ -1,21 +1,23 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CI gate entry (`bun run ci:models`, `//#ci:models`): runs Apalache and writes evidence.
+// @io-wall-ok — CI gate entry (`check:models` in each package with models): runs Apalache and writes evidence.
 /**
- * The models gate: Apalache model-checks every Quint model in `specs/`
- * (`quint verify`, `@pkgs/quint/verify`), requiring every `val inv<Name>` in
- * every state reachable within the model's bound — every action, every value
- * it can draw, every interleaving.
+ * A package's models check: Apalache model-checks every Quint model in the
+ * package's `specDomains` (`quint verify`, `@pkgs/quint/verify`), requiring
+ * every `val inv<Name>` in every state reachable within the model's bound —
+ * every action, every value it can draw, every interleaving.
  *
- * The verdict depends on the model's text alone, never on the product, so it
- * runs here once per model text (cached by turbo on `specs/**`) instead of in
- * every package's spec suite, where each check's JVM would compete with the
- * product traces. The bound is the model binding's `verifySteps` (read from
- * the binding's text; `@pkgs/quint` documents it), default
+ * Run from the package (`check:models`, `MODELS_RUNNER` in `spec-packages.ts`). The verdict
+ * depends on the model's text alone, never on the product, so the task hashes
+ * only the package's `specs/<domain>/*.qnt` and `tests/quint/**` (its
+ * `turbo.json`) and runs apart from the spec suite, where each check's JVM
+ * would compete with the product traces: a change re-checks only the models
+ * of the packages it touches. The bound is the model binding's `verifySteps`
+ * (read from the binding's text; `@pkgs/quint` documents it), default
  * {@link DEFAULT_VERIFY_STEPS}. At most {@link CONCURRENCY} checks run at
  * once.
  *
- * Each verdict is recorded as the model's `verify` obligation in
- * `.cache/harness-report/models/evidence/` for `bun run conformance`.
+ * Each verdict is recorded as the model's `verify` obligation in the
+ * package's `.cache/harness-report/models/evidence/` for `bun run conformance`.
  */
 
 import { existsSync, readFileSync, rmSync } from 'node:fs';
@@ -26,14 +28,14 @@ import { DEFAULT_VERIFY_STEPS } from '@pkgs/quint/registry';
 import { modelInvariants } from '@pkgs/quint/simulate';
 import { verify } from '@pkgs/quint/verify';
 
-import { REPO_ROOT, specPackages } from './spec-packages';
+import { REPO_ROOT, type SpecPackage, specPackages } from './spec-packages';
 
 /** Checks at once: each is a JVM with an SMT solver, several cores busy. */
 const CONCURRENCY = 3;
 /** A check is killed after this long (the binding lowers the bound instead). */
 const TIMEOUT_MS = 240_000;
-const REPORT_DIR = join(REPO_ROOT, '.cache/harness-report/models');
-const PACKAGE_NAME = '//#ci:models';
+/** Package-relative; the `check:models` task's output. */
+const REPORT_DIR = '.cache/harness-report/models';
 const VERIFY_STEPS = /\bverifySteps:\s*(\d+)/;
 const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/;
 
@@ -61,22 +63,17 @@ function bindingTexts(dir: string): ReadonlyMap<string, string> {
   return out;
 }
 
-/** Every bound model with its bound, each once. */
-export function modelChecks(): readonly ModelCheck[] {
-  const checks = new Map<string, ModelCheck>();
-  for (const pkg of specPackages()) {
-    const texts = bindingTexts(pkg.dir);
-    for (const specUri of pkg.models) {
+/** The package's models, each with its bound. */
+export function modelChecks(
+  pkg: Pick<SpecPackage, 'dir' | 'models'>
+): readonly ModelCheck[] {
+  const texts = bindingTexts(pkg.dir);
+  return pkg.models
+    .map((specUri) => {
       const stem = specUri.replace(/^.*\//, '').replace(/\.qnt$/, '');
-      checks.set(specUri, {
-        specUri,
-        steps: verifyStepsOf(texts.get(stem) ?? null),
-      });
-    }
-  }
-  return [...checks.values()].sort((a, b) =>
-    a.specUri.localeCompare(b.specUri)
-  );
+      return { specUri, steps: verifyStepsOf(texts.get(stem) ?? null) };
+    })
+    .sort((a, b) => a.specUri.localeCompare(b.specUri));
 }
 
 type Verdict = {
@@ -85,7 +82,10 @@ type Verdict = {
   readonly detail: string;
 };
 
-async function runCheck(check: ModelCheck): Promise<Verdict> {
+/** Where one package's run writes, and the name its evidence carries. */
+type Run = { readonly reportDir: string; readonly packageName: string };
+
+async function runCheck(run: Run, check: ModelCheck): Promise<Verdict> {
   const specPath = join(REPO_ROOT, check.specUri);
   const text = readFileSync(specPath, 'utf8');
   const invariants = modelInvariants(text);
@@ -93,17 +93,17 @@ async function runCheck(check: ModelCheck): Promise<Verdict> {
     specPath,
     invariants,
     maxSteps: check.steps,
-    outDir: join(REPORT_DIR, 'apalache', check.specUri.replace(/\W+/g, '-')),
+    outDir: join(run.reportDir, 'apalache', check.specUri.replace(/\W+/g, '-')),
     timeoutMs: TIMEOUT_MS,
   });
   const detail = result.ok
     ? `${invariants.join(', ')} hold in every state within ${String(check.steps)} steps`
     : result.output;
-  recordEvidence(REPORT_DIR, {
+  recordEvidence(run.reportDir, {
     specUri: check.specUri,
     kind: 'dynamics',
     specSha256: sha256(text),
-    packageName: PACKAGE_NAME,
+    packageName: run.packageName,
     obligations: [
       {
         id: 'verify',
@@ -121,6 +121,7 @@ async function runCheck(check: ModelCheck): Promise<Verdict> {
 }
 
 async function runAll(
+  run: Run,
   checks: readonly ModelCheck[]
 ): Promise<readonly Verdict[]> {
   const verdicts: Verdict[] = [];
@@ -128,7 +129,7 @@ async function runAll(
   const worker = async (): Promise<void> => {
     for (let index = next++; index < checks.length; index = next++) {
       const check = checks[index];
-      if (check !== undefined) verdicts.push(await runCheck(check));
+      if (check !== undefined) verdicts.push(await runCheck(run, check));
     }
   };
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
@@ -136,13 +137,25 @@ async function runAll(
 }
 
 if (import.meta.main) {
-  rmSync(REPORT_DIR, { recursive: true, force: true });
-  const checks = modelChecks();
-  const verdicts = await runAll(checks);
+  const dir = relative(REPO_ROOT, process.cwd());
+  const pkg = specPackages().find((candidate) => candidate.dir === dir);
+  if (pkg === undefined || pkg.models.length === 0) {
+    console.error(
+      `check-models: ${dir} runs no Quint models — run it from a package's check:models`
+    );
+    process.exit(1);
+  }
+  const run: Run = {
+    reportDir: join(REPO_ROOT, dir, REPORT_DIR),
+    packageName: `${pkg.name}#check:models`,
+  };
+  rmSync(run.reportDir, { recursive: true, force: true });
+  const checks = modelChecks(pkg);
+  const verdicts = await runAll(run, checks);
   const failed = verdicts.filter((verdict) => !verdict.ok);
   if (failed.length > 0) {
     console.error(
-      `models gate failed:\n${failed
+      `${pkg.name} models check failed:\n${failed
         .map(
           (verdict) =>
             `  ${verdict.check.specUri}:\n    ${verdict.detail.replace(/\n/g, '\n    ')}`
@@ -152,6 +165,6 @@ if (import.meta.main) {
     process.exit(1);
   }
   console.log(
-    `ok: ${String(checks.length)} Quint models model-checked (${relative(REPO_ROOT, REPORT_DIR)})`
+    `ok: ${String(checks.length)} Quint models model-checked (${join(dir, REPORT_DIR)})`
   );
 }

@@ -1,3 +1,4 @@
+import type { Clock } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import {
   createCombinedSecretStore,
@@ -21,6 +22,8 @@ export type CreateConfiguredSecretStoreOptions = {
   readonly writable?: boolean;
   /** Injected HTTP transport (composition root supplies wall/script fetch). */
   readonly fetchFn: InfisicalFetch;
+  /** Tells when a minted CI token is due for replacement. */
+  readonly clock: Clock;
 };
 
 /**
@@ -45,6 +48,7 @@ export async function createConfiguredSecretStore(
         repoRoot: options.repoRoot,
         configStore: options.configStore,
         secretsEnv: scope.env,
+        clock: options.clock,
       }));
     if (token === null || token.length === 0) {
       return readStore;
@@ -110,6 +114,7 @@ export type CreateWritableScriptSecretStoreOptions = {
   readonly configStore: ObjectStore;
   readonly secretsEnv?: string;
   readonly fetchFn: InfisicalFetch;
+  readonly clock: Clock;
 };
 
 /**
@@ -127,5 +132,6 @@ export async function createWritableScriptSecretStore(
       : {}),
     writable: true,
     fetchFn: options.fetchFn,
+    clock: options.clock,
   });
 }
