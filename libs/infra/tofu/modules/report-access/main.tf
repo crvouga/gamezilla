@@ -1,6 +1,6 @@
 # One environment's S3 credentials for the shared spec reports bucket (owned
 # by the fleet stack): a read-only one the API Worker serves `/api/reports`
-# with, and a write one the Report workflow publishes with. Scoped to that one
+# with, and a write one the Check workflow publishes with. Scoped to that one
 # bucket. Stateless: replacing a token only means a new value in the secrets
 # store and a Worker redeploy.
 
