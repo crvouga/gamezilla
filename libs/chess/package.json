@@ -28,6 +28,7 @@
     "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/5",
     "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/5",
     "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/5",
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
   "dependencies": {

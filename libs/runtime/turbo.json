@@ -15,6 +15,9 @@
         "$TURBO_ROOT$/specs/runtime/**",
         "$TURBO_ROOT$/specs/journeys/**"
       ]
+    },
+    "check:models": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/runtime/*.qnt"]
     }
   }
 }

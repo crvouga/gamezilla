@@ -25,7 +25,8 @@
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/4",
     "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/4",
     "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/4",
-    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4"
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4",
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
