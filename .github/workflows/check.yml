@@ -35,8 +35,20 @@ jobs:
   #                the runner masks every Infisical value in a job that loads
   #                them and drops any output containing one (`[0,1,…]` does)
   #   check:shard  one runner per shard runs its task ids through turbo
-  #   check        the one required check: green only if the plan and every
-  #                shard are green
+  #   check        the one required check: green only if the plan, every
+  #                shard and the report are green
+  #
+  # Every run also publishes the spec report (a Gherkin / Quint step timeline
+  # with UI snapshots, per package) to the shared reports store, where
+  # `/reports/<sha>` on any deployment streams it
+  # (libs/harness/scripts/report-publish.ts; docs/CI.md#the-spec-report):
+  #
+  #   check:report-open   the commit's record and snapshot stylesheet, first
+  #   check:report        one runner per spec part, after the shards: turbo
+  #                       restores that part's cached buckets (a suite that
+  #                       failed is not cached, so it runs again) and the part
+  #                       is published
+  #   check:report-close  mark the commit complete
   check-plan:
     name: check:plan
     runs-on: ubuntu-latest
@@ -69,6 +81,11 @@ jobs:
           SHARD_PLAN_PATH: ${{ runner.temp }}/shard-plan.txt
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards check
 
+      # The report's parts ride in the same file, so the matrix job can
+      # publish them without loading a secret.
+      - name: report parts
+        run: bun run libs/tools/scripts/report-matrix.ts >> "${RUNNER_TEMP}/shard-plan.txt"
+
       - name: Upload shard plan
         uses: actions/upload-artifact@v6
         with:
@@ -85,6 +102,7 @@ jobs:
     outputs:
       shards: ${{ steps.publish.outputs.shards }}
       assignment: ${{ steps.publish.outputs.assignment }}
+      parts: ${{ steps.publish.outputs.parts }}
     steps:
       - uses: actions/download-artifact@v7
         with:
@@ -173,9 +191,107 @@ jobs:
           WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
 
+  check-report-open:
+    name: check:report-open
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: open
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts open
+
+  check-report:
+    name: check:report
+    needs: [check-matrix, check-report-open, check-shard]
+    if: always() && needs.check-matrix.result == 'success' && needs.check-report-open.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # One red part should not hide another's report.
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.check-matrix.outputs.parts) }}
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+      PART: ${{ matrix.part }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      # Leaves this part's report buckets on disk: cache hits restore theirs,
+      # a suite that failed (never cached) runs again, and the run continues
+      # past it so every suite reports.
+      - name: restore
+        timeout-minutes: 25
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs "test:spec:${PART}"
+
+      # Published even when a suite is red: the report shows what failed.
+      - name: publish
+        if: always()
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts source "part-${PART}"
+
+  check-report-close:
+    name: check:report-close
+    needs: [check-report-open, check-report]
+    if: always() && needs.check-report-open.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: close
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts close
+
   check:
     name: check
-    needs: [check-plan, check-matrix, check-shard]
+    needs:
+      [
+        check-plan,
+        check-matrix,
+        check-shard,
+        check-report-open,
+        check-report,
+        check-report-close,
+      ]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -186,9 +302,15 @@ jobs:
           MATRIX: ${{ needs.check-matrix.result }}
           SHARDS: ${{ needs.check-shard.result }}
           SHARD_COUNT: ${{ needs.check-matrix.outputs.shards }}
+          REPORT_OPEN: ${{ needs.check-report-open.result }}
+          REPORT: ${{ needs.check-report.result }}
+          REPORT_CLOSE: ${{ needs.check-report-close.result }}
         # Skipped shards are green only when the plan found nothing to run.
         run: |
-          echo "check:plan=$PLAN check:matrix=$MATRIX check:shard=$SHARDS shards=$SHARD_COUNT"
+          echo "check:plan=$PLAN check:matrix=$MATRIX check:shard=$SHARDS shards=$SHARD_COUNT report=$REPORT_OPEN/$REPORT/$REPORT_CLOSE"
           test "$PLAN" = success
           test "$MATRIX" = success
+          test "$REPORT_OPEN" = success
+          test "$REPORT" = success
+          test "$REPORT_CLOSE" = success
           test "$SHARDS" = success || { test "$SHARDS" = skipped && test "$SHARD_COUNT" = '[]'; }

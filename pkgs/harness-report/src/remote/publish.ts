@@ -48,7 +48,6 @@ export type OpenCommitArgs = {
   readonly sha: string;
   readonly branch: string;
   readonly runUrl: string | null;
-  readonly frames: boolean;
   readonly startedAtMs: number;
   /** Stylesheet the commit's HTML snapshots render with. */
   readonly frameCss: string;

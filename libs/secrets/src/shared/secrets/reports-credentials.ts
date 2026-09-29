@@ -2,7 +2,7 @@
  * Credentials for the one spec reports bucket every environment shares
  * (`libs/infra/tofu/modules/report-access`). The read pair goes to the API
  * Worker, which serves `/api/reports`; the write pair stays in the secrets
- * store for the Report workflow's `report-publish.ts`.
+ * store for the Check workflow's `report-publish.ts`.
  */
 
 import { requireHttpsUrl, requireNonEmpty, Secret } from './secret';

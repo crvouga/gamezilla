@@ -56,7 +56,6 @@ async function open(store: ObjectStoreImplInMemory, startedAtMs = 1_000) {
     sha: SHA,
     branch: 'main',
     runUrl: null,
-    frames: true,
     startedAtMs,
     frameCss: 'body { color: red }',
   });
@@ -321,7 +320,6 @@ describe('listCommits', () => {
               sha: p.sha,
               branch: 'main',
               runUrl: null,
-              frames: false,
               startedAtMs: p.at,
               frameCss: '',
             });

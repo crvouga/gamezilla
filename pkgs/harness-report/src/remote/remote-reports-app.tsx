@@ -87,9 +87,6 @@ function CommitRow(props: {
         <div class="sub">
           <span>{fmtDate(c().startedAtMs)}</span>
           <span>{` · ${commitStatus(c())}`}</span>
-          <Show when={c().frames}>
-            <span> · snapshots</span>
-          </Show>
         </div>
       </div>
       <span class="sr-badge">

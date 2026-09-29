@@ -8,6 +8,10 @@
  * before exiting (SIGKILL cannot be caught — cancel that run with
  * `gh run cancel <id>`).
  *
+ * Every run also publishes the spec report of the commit (part of the
+ * workflow, never optional); its address is printed once the branch is synced:
+ * `https://<dev apex>/reports/<sha>`, on any deployment, filling in live.
+ *
  *   bun check [--message "type(scope): description"]
  *
  * First it runs `/git-sync` (`git-sync.ts`): commits a dirty tree with
@@ -17,15 +21,21 @@
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { gitSync, parseGitSyncArgs, SyncError } from './git-sync';
 
 const WORKFLOW = 'check.yml';
+const DEV_ENV_FILE = join(
+  import.meta.dirname,
+  '../../infra/tofu/envs/dev.tfvars.json'
+);
 const FIND_RUN_ATTEMPTS = 30;
 const FIND_RUN_INTERVAL_MS = 2000;
 const FAILED_LOG_LINES = 200;
 
-export class CheckRemoteError extends Error {}
+class CheckRemoteError extends Error {}
 
 type Run = {
   readonly code: number;
@@ -42,7 +52,7 @@ function run(cmd: readonly string[]): Run {
   };
 }
 
-export function must(cmd: readonly string[]): string {
+function must(cmd: readonly string[]): string {
   const result = run(cmd);
   if (result.code !== 0) {
     throw new CheckRemoteError(
@@ -89,7 +99,7 @@ function listDispatchRuns(workflow: string, branch: string): ListedRun[] {
 }
 
 /** `/git-sync` the branch so the run checks out exactly the local HEAD. */
-export function syncBranch(argv: readonly string[]): {
+function syncBranch(argv: readonly string[]): {
   readonly branch: string;
   readonly sha: string;
 } {
@@ -167,21 +177,19 @@ function printFailedLog(label: string, runId: number): void {
   console.error(lines.slice(-FAILED_LOG_LINES).join('\n'));
 }
 
-export type RunWorkflowOptions = {
+type RunWorkflowOptions = {
   readonly workflow: string;
   /** Log prefix, e.g. `check`. */
   readonly label: string;
   readonly branch: string;
   readonly sha: string;
-  /** `workflow_dispatch` inputs (`gh workflow run -f key=value`). */
-  readonly inputs?: Readonly<Record<string, string>>;
 };
 
 /**
  * Dispatch `workflow` on `branch`, block until its run finishes and return the
  * run's exit code and URL. Ctrl-C / SIGTERM / SIGHUP cancel the run first.
  */
-export async function runWorkflow(
+async function runWorkflow(
   options: RunWorkflowOptions
 ): Promise<{ readonly code: number; readonly url: string }> {
   const { workflow, label, branch, sha } = options;
@@ -198,11 +206,7 @@ export async function runWorkflow(
   };
   cancelOnSignals(state);
 
-  const inputs = Object.entries(options.inputs ?? {}).flatMap(([k, v]) => [
-    '-f',
-    `${k}=${v}`,
-  ]);
-  must(['gh', 'workflow', 'run', workflow, '--ref', branch, ...inputs]);
+  must(['gh', 'workflow', 'run', workflow, '--ref', branch]);
   console.log(
     `${label}: dispatched ${workflow} on ${branch} @ ${sha.slice(0, 9)}`
   );
@@ -235,8 +239,17 @@ export async function runWorkflow(
   return { code, url };
 }
 
+/** Where the commit's spec report is read: the dev deployment's reports screen. */
+function reportUrl(sha: string): string {
+  const env = JSON.parse(readFileSync(DEV_ENV_FILE, 'utf8')) as {
+    readonly hosts: { readonly apex: string };
+  };
+  return `https://${env.hosts.apex}/reports/${sha}`;
+}
+
 async function main(): Promise<number> {
   const { branch, sha } = syncBranch(process.argv.slice(2));
+  console.log(`check: spec report ${reportUrl(sha)}`);
   const { code } = await runWorkflow({
     workflow: WORKFLOW,
     label: 'check',

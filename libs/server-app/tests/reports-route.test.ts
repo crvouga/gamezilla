@@ -20,7 +20,6 @@ const COMMIT: CommitRecord = {
   sha: SHA,
   branch: 'main',
   runUrl: null,
-  frames: false,
   state: 'complete',
   startedAtMs: 1_000,
   endedAtMs: 2_000,

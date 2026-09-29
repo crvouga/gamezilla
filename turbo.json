@@ -243,7 +243,6 @@
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
-        "HARNESS_FRAMES",
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
@@ -258,7 +257,6 @@
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
-        "HARNESS_FRAMES",
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
@@ -273,7 +271,6 @@
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
-        "HARNESS_FRAMES",
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
@@ -288,7 +285,6 @@
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
-        "HARNESS_FRAMES",
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
@@ -303,7 +299,6 @@
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
-        "HARNESS_FRAMES",
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
@@ -318,7 +313,6 @@
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
-        "HARNESS_FRAMES",
         "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",

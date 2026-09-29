@@ -19,8 +19,6 @@ export type CommitRecord = {
   readonly sha: string;
   readonly branch: string;
   readonly runUrl: string | null;
-  /** Whether each step carries its UI snapshot (`HARNESS_FRAMES=1`). */
-  readonly frames: boolean;
   readonly state: CommitState;
   readonly startedAtMs: number;
   readonly endedAtMs: number | null;

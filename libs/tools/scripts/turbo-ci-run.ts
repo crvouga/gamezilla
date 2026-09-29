@@ -43,12 +43,12 @@
  *   finishes. Both live in `check-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
- * - `--restore-outputs` (the Report workflow behind `bun check:report`): leave every task's cached
- *   outputs on disk. A plain run skips turbo when everything hit, which is
- *   right for a verdict but restores nothing; this mode prefetches every
- *   remote hit, runs turbo over the whole set (hits restore their outputs,
- *   misses run) and `--continue`s past a failing task so every suite
- *   reports.
+ * - `--restore-outputs` (the Check workflow's `check:report` jobs): leave every
+ *   task's cached outputs on disk. A plain run skips turbo when everything
+ *   hit, which is right for a verdict but restores nothing; this mode
+ *   prefetches every remote hit, runs turbo over the whole set (hits restore
+ *   their outputs, misses run) and `--continue`s past a failing task so every
+ *   suite reports.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';

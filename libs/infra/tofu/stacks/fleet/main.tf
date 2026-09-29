@@ -53,7 +53,7 @@ module "auth_relay_edge" {
   }
 }
 
-# The spec reports of every commit (`bun run check:report`; layout in
+# The spec reports of every commit (`bun check` publishes; layout in
 # `@pkgs/harness-report`): CI writes `spec-reports/commits/<sha>/…`, and every
 # environment's API reads it with its own credential (the foundation stack's
 # `report_access`) and streams it to `/reports/<sha>`. Private: no public

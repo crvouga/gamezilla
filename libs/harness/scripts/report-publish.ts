@@ -3,19 +3,21 @@
 /**
  * Publish this commit's spec reports to the shared reports store (one R2
  * bucket every environment's API reads, keyed by commit sha; layout in
- * `@pkgs/harness-report`). The Report workflow runs it in three steps:
+ * `@pkgs/harness-report`). The Check workflow runs it in three steps:
  *
- *   report-publish.ts open [--no-frames]   the run starts: the commit's
- *                                          record, its index entry and the
- *                                          stylesheet its snapshots use
- *   report-publish.ts source <bucket>      after a shard: every package's
- *                                          `.cache/harness-report/<bucket>`
- *                                          (`part-<k>`), tests then record
- *   report-publish.ts close                every shard is done
+ *   report-publish.ts open              the run starts: the commit's record,
+ *                                       its index entry and the stylesheet
+ *                                       its snapshots use
+ *   report-publish.ts source <bucket>   after the gate: every package's
+ *                                       `.cache/harness-report/<bucket>`
+ *                                       (`part-<k>`), tests then record
+ *   report-publish.ts close             every part is published
  *
- * Each source lands the moment its shard finishes, so the reports screen
+ * Each source lands the moment its part is published, so the reports screen
  * (`/reports/<sha>` on any deployment) shows the run filling in. A package
  * whose suite records no harness timeline publishes nothing and is named.
+ * The commit is the pull request's head, not the merge commit Actions checks
+ * out, so `/reports/<sha>` is the sha `bun check` printed.
  *
  * Needs `REPORTS_BUCKET`, `REPORTS_ENDPOINT`, `REPORTS_WRITE_ACCESS_KEY_ID`
  * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (written by OpenTofu; `secrets-run`
@@ -149,7 +151,11 @@ function git(args: readonly string[]): string {
 }
 
 function headSha(): string {
-  return process.env['GITHUB_SHA']?.trim() || git(['rev-parse', 'HEAD']);
+  return (
+    process.env['PR_HEAD']?.trim() ||
+    process.env['GITHUB_SHA']?.trim() ||
+    git(['rev-parse', 'HEAD'])
+  );
 }
 
 function branchName(): string {
@@ -210,7 +216,6 @@ async function main(argv: readonly string[]): Promise<void> {
       sha,
       branch: branchName(),
       runUrl: runUrl(),
-      frames: !argv.includes('--no-frames'),
       startedAtMs: wallClock.now(),
       frameCss: compileFrameCss(),
     });
@@ -229,9 +234,7 @@ async function main(argv: readonly string[]): Promise<void> {
     console.log(`[report-publish] ${sha.slice(0, 9)} ${String(commit.status)}`);
     return;
   }
-  console.error(
-    'usage: report-publish.ts open [--no-frames] | source <bucket> | close'
-  );
+  console.error('usage: report-publish.ts open | source <bucket> | close');
   process.exit(1);
 }
 

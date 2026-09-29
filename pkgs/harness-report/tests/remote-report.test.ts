@@ -114,7 +114,6 @@ async function openRun(store: ObjectStoreImplInMemory): Promise<void> {
     sha: SHA,
     branch: 'feature-x',
     runUrl: null,
-    frames: true,
     startedAtMs: 1_000,
     frameCss: 'body{}',
   });
