@@ -18,7 +18,8 @@
 #                                 it is gone
 #
 # Inputs (environment): RAILWAY_TOKEN (injected by `secrets-run`), PROJECT_ID,
-# NAME, SOURCE; RAILWAY_GRAPHQL_URL overrides the endpoint (the test's fake).
+# NAME, SOURCE; RAILWAY_GRAPHQL_URL overrides the endpoint (the test's fake);
+# DELETE_POLL_SECONDS / DELETE_POLL_ATTEMPTS bound the wait for a delete.
 set -euo pipefail
 
 action="${1:?usage: clone-environment.sh create|delete}"
@@ -27,6 +28,8 @@ action="${1:?usage: clone-environment.sh create|delete}"
 : "${NAME:?NAME is not set}"
 : "${SOURCE:?SOURCE is not set}"
 endpoint="${RAILWAY_GRAPHQL_URL:-https://backboard.railway.com/graphql/v2}"
+poll_seconds="${DELETE_POLL_SECONDS:-2}"
+poll_attempts="${DELETE_POLL_ATTEMPTS:-60}"
 
 # One GraphQL call: $1 = query, $2 = variables (JSON). Railway answers HTTP 200
 # with an `errors` array on failure, so both are checked.
@@ -74,6 +77,18 @@ delete_environment() {
     "$(jq -cn --arg id "$1" '{id: $id}')" >/dev/null
 }
 
+# Railway deletes in the background: the name stays taken ("An environment
+# with that name already exists") until the environment leaves the listing.
+wait_until_gone() {
+  local attempt
+  for ((attempt = 0; attempt < poll_attempts; attempt++)); do
+    [ -z "$(environment_id "$NAME")" ] && return 0
+    sleep "$poll_seconds"
+  done
+  echo "Railway environment ${NAME} still listed after deleting it" >&2
+  exit 1
+}
+
 case "$action" in
   create)
     refuse_protected replace
@@ -85,6 +100,7 @@ case "$action" in
         exit 0
       fi
       delete_environment "$existing"
+      wait_until_gone
       echo "railway environment ${NAME} (${existing}) held no service instance; deleted it to clone afresh"
     fi
     source_id="$(environment_id "$SOURCE")"
@@ -106,6 +122,7 @@ case "$action" in
       exit 0
     fi
     delete_environment "$existing"
+    wait_until_gone
     echo "railway environment ${NAME} deleted"
     ;;
   *)

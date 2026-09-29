@@ -256,7 +256,7 @@
   },
   {
     "id": "railway-empty-environment-stuck",
-    "summary": "Deploy still stopped at dev's foundation after the clone fix: the empty `development` environment the provider had already made stayed in the shared Railway project, and `clone-environment.sh create` refused it and asked for a hand delete in the dashboard. Fixed by having create delete an empty non-production environment and clone afresh (it holds no service instance, so nothing is lost); production and the clone source are never replaced.",
+    "summary": "Deploy still stopped at dev's foundation after the clone fix: the empty `development` environment the provider had already made stayed in the shared Railway project, and `clone-environment.sh create` refused it and asked for a hand delete in the dashboard. Fixed by having create delete an empty non-production environment, wait until Railway's background delete frees the name, and clone afresh (it holds no service instance, so nothing is lost); production and the clone source are never replaced.",
     "regressionTest": "libs/infra/tests/clone-environment.test.ts"
   },
   {
