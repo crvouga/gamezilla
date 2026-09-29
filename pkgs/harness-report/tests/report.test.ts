@@ -3,8 +3,6 @@ import type { HtmlReportTest } from '@pkgs/harness';
 import { fileLabel, fmtMs } from '../src/lib/format';
 import { orderedUiBlobs, testFrames } from '../src/lib/frames';
 import { buildHash, parseHash } from '../src/lib/hash';
-import { renderHtmlReport } from '../src/render';
-import type { ReportData } from '../src/types';
 
 describe('hash', () => {
   test('round-trips list and test routes', () => {
@@ -23,7 +21,7 @@ describe('hash', () => {
   });
 
   test('an aggregated report id with slashes survives the round trip', () => {
-    // `bun run check:report` prefixes ids with the package (`libs/chess/…`).
+    // The reports screen prefixes ids with their source (`libs-chess--part-0/…`).
     const hash = buildHash({
       view: 'test',
       testId: 'libs/chess/monkey.monkey',
@@ -92,22 +90,5 @@ describe('multi-client timeline ordering', () => {
     expect(
       orderedUiBlobs(frames[1] ?? null, test).map((entry) => entry.blob?.file)
     ).toEqual(['d', 'c']);
-  });
-});
-
-describe('renderHtmlReport', () => {
-  test('embeds title, custom element, and script tags', () => {
-    const data: ReportData = {
-      title: 'Hello Report',
-      runId: 'run-1',
-      status: 'passed',
-      updatedAtMs: 0,
-      tests: [],
-    };
-    const html = renderHtmlReport(data, { title: 'Hello Report' });
-    expect(html).toContain('<harness-report></harness-report>');
-    expect(html).toContain('id="report-data"');
-    expect(html).toContain('Hello Report');
-    expect(html).toContain('id="frame-css"');
   });
 });

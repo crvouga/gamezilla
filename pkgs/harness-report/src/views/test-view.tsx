@@ -1,6 +1,6 @@
 import type { HtmlReportTest, ReportSnapshotBlob } from '@pkgs/harness';
-import { createMemo, For, Show } from 'solid-js';
-import { useReport } from '../app/report-context';
+import { createEffect, createMemo, For, Match, Show, Switch } from 'solid-js';
+import { type TestLoad, useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
 import { DocStage } from '../components/doc-stage';
 import { FailBanner } from '../components/fail-banner';
@@ -38,12 +38,50 @@ function SnapshotsAside(props: {
   );
 }
 
+function loadingText(load: TestLoad): string {
+  if (load.kind !== 'loading') return '';
+  if (load.framesTotal === null) return 'Loading test…';
+  return `Loading test · ${String(load.frames)} of ${String(load.framesTotal)} frames`;
+}
+
+/** Streams the test in on first view, then shows it. */
 export function TestView(props: { nav: ReportNav }) {
   const report = useReport();
   const testId = createMemo(() => {
     const r = props.nav.route();
     return r.view === 'test' ? r.testId : '';
   });
+  createEffect(() => {
+    const id = testId();
+    if (id !== '') report.loader?.load(id);
+  });
+  const load = createMemo(
+    (): TestLoad => report.loader?.state(testId()) ?? { kind: 'ready' }
+  );
+  const failure = createMemo(() => {
+    const l = load();
+    return l.kind === 'error' ? l.message : null;
+  });
+  return (
+    <Switch fallback={<LoadedTestView nav={props.nav} testId={testId()} />}>
+      <Match when={load().kind === 'loading'}>
+        <div class="sr-empty">{loadingText(load())}</div>
+      </Match>
+      <Match when={load().kind === 'missing'}>
+        <div class="sr-empty">{`Unknown test: ${testId()}`}</div>
+      </Match>
+      <Match when={failure()}>
+        {(message) => (
+          <div class="sr-empty">{`Could not load ${testId()}: ${message()}`}</div>
+        )}
+      </Match>
+    </Switch>
+  );
+}
+
+function LoadedTestView(props: { nav: ReportNav; testId: string }) {
+  const report = useReport();
+  const testId = () => props.testId;
   const test = createMemo(
     () =>
       report.data.tests.find((t) => t.report.meta.testId === testId()) ?? null

@@ -4,6 +4,8 @@
   "web_worker": "{project}-client-{suffix}",
   "bucket": "{project}-{suffix}",
   "s3_token": "{project}-s3-{suffix}",
+  "reports_read_token": "{project}-reports-read-{suffix}",
+  "reports_write_token": "{project}-reports-write-{suffix}",
   "traces_write_policy": "{project}-{suffix}-traces-write",
   "traces_read_policy": "{project}-{suffix}-traces-read",
   "hyperdrive": "{project}-db-{suffix}"

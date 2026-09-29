@@ -25,7 +25,10 @@ import {
   resolveCheckoutProvider,
   workerEnvToSecretRecord,
 } from '@libs/server-app/config/env';
-import { createApiObjectStore } from '@libs/server-app/config/object-store';
+import {
+  createApiObjectStore,
+  createReportsObjectStore,
+} from '@libs/server-app/config/object-store';
 import { ApiSecretName } from '@libs/server-app/config/secret-names';
 import { createApiSecretStore } from '@libs/server-app/config/secret-store';
 import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
@@ -258,6 +261,9 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     now: wallClock.now,
     http: { fetch: (input, init) => globalThis.fetch(input, init) },
   });
+  const reports = await createReportsObjectStore(secretStore, {
+    http: { fetch: (input, init) => globalThis.fetch(input, init) },
+  });
   const dbScope = appPostgresDbScope();
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
@@ -290,6 +296,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     events: null,
     kv: null,
     blob: objectStore,
+    reports,
     billing,
     tts: localStack ? new InMemoryTtsProvider() : null,
     llm: localStack ? new InMemoryLlmProvider() : null,

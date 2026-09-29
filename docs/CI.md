@@ -71,8 +71,8 @@ opt-in report.
     (`{platform, arch, bun}`, rewritten every run) for `test:contract`, and
     `CHECK_SECRETS_RANGE` (`<merge-base>..<head>`) for `check:secrets`. Env
     that changes a verdict is in the task's turbo `env` (`HARNESS_FIDELITY`,
-    fast-check knobs; `HARNESS_MODE` / `HARNESS_WITH_DOM` / `HARNESS_FRAMES`
-    on `test:spec:<k>`).
+    fast-check knobs; `HARNESS_MODE` / `HARNESS_WITH_DOM` on
+    `test:spec:<k>`).
 - **Keep the graph narrow.** A package's dependencies are its blast radius:
   prefer small packages, depend on `public/` ports, and never let a shell or
   `pkgs/` package name a feature. A spec suite lives with its feature
@@ -92,49 +92,54 @@ opt-in report.
   past ~2 min on CI.
 - **The report is cached with the verdict.** Each part writes
   `<package>/.cache/harness-report/part-<k>` as its turbo `outputs` (an
-  unsplit run writes `all`), which `bun run check:report` folds into one
-  report ([below](#the-spec-report)).
+  unsplit run writes `all`), which every `bun check` publishes to the
+  reports screen ([below](#the-spec-report)).
 
 ## The spec report
 
-`bun run check:report` gives **one report of every spec**: each
-scenario's and Quint trace's step timeline with its snapshots, from every
-package that has a spec suite, explorable together in one `index.html` (the
-`@pkgs/harness-report` viewer). **It is built on GitHub, not on this
-machine**: running every suite with snapshots saturated every core for
-minutes, so locally the script only dispatches
-[`report.yml`](../.github/workflows/report.yml), waits, and opens a URL.
+**Every `bun check` publishes one report of every spec**: each scenario's and
+Quint trace's step timeline with its snapshots, from every package that has a
+spec suite, explorable together on the reports screen (`/reports/<sha>` of any
+deployment; the `@pkgs/harness-report` viewer). `bun check` prints the address
+once the branch is synced. There is no second command and no switch: the
+report is part of the Check workflow, and Check is red if it did not publish.
+`bun check:local` runs the gate on this machine and publishes nothing.
 
-- **One shard per spec part.** `report:matrix` lists the parts
-  (`report-matrix.ts`); shard `k` runs `test:spec:<k>` of every package through
-  `turbo-ci-run --restore-outputs` (a part whose code has not changed restores
-  its cached bucket, the rest run) and uploads the buckets. `report:publish`
-  folds them (`libs/harness/scripts/report.ts`) and uploads the result. A red
-  suite still publishes its report; the run is red.
-- **Keyed by commit.** The report of a commit is at
-  `https://<reports hostname>/<full sha>/<frames|no-frames>/index.html`
-  (`report-key.ts`), so code that differs never shares an object. The same
-  commit and variant replace their own report; nothing else can. Reports
-  expire after `retention_days`.
-- **Hosted where the infra already is.** A public R2 bucket on a custom
-  domain, no Worker in front, declared by `reports` in
-  `libs/infra/tofu/global.tfvars.json` and applied by the fleet stack. The
-  reports are build output, not user data. CI uploads with the shared
-  Cloudflare credentials `secrets-run` loads.
-- **It aggregates the reports the checks produce, and nothing else.** A
-  package whose suite records no harness timeline yields no report and is
-  named as left out; `bun check` writes no report of its own.
-- **Snapshots are a cache entry of their own.** They exist only with
-  `HARNESS_FRAMES=1`, which `bun check` never sets, so the first run of a
-  commit with snapshots is cold; after that it is cached.
-- **Flags.** `--no-frames` is step timelines only (Check's cache entries, its
-  own key); `--no-run` never dispatches and opens the commit's report if it
-  exists; `--rerun` runs again although it exists; `--open` (on in the root
-  script) opens the URL. Like `bun check` it `/git-sync`s first and Ctrl-C
-  cancels the run.
-- **One file stays openable.** Every snapshot is kept once and gzipped
-  (`pooled` in `renderHtmlReport`), inflated in the page before the viewer
-  mounts: the plain encoding of the same report was 453 MB.
+- **Object store → API → client.** CI writes each commit's reports to one
+  private R2 bucket every environment shares; each environment's API reads it
+  with its own read-only credential and streams it to the screen as
+  Server-Sent Events (`/api/reports`, `libs/server-app/src/reports/route.ts`).
+  Nothing is served from the bucket directly and there is no report hostname.
+- **One publish job per spec part, after the shards.** `check:plan` lists the
+  parts (`report-matrix.ts`) beside the shard split; `check:publish-open`
+  (beside the plan) writes the commit's record and snapshot stylesheet; once
+  the shards are done, `check:publish` runs one job per part `k`: turbo
+  restores `test:spec:<k>` of every package (`turbo-ci-run --restore-outputs`:
+  a part whose code has not changed restores its cached bucket, and a suite
+  that failed — never cached — runs again) and the job publishes each
+  package's bucket (`libs/harness/scripts/report-publish.ts`);
+  `check:publish-close` marks the commit complete. A page open on a running
+  commit shows each part the moment it is published. A red suite still
+  publishes its report; the run is red.
+- **Keyed by the pull request's head.** Everything lives under
+  `commits/<full sha>/` (`@pkgs/harness-report` keys), so code that differs
+  never shares an object; a rerun of the same commit replaces its own.
+  Reports expire after `retention_days`.
+- **Declared with the rest of the infra.** The bucket is `reports` in
+  `libs/infra/tofu/global.tfvars.json` (fleet stack); each environment's
+  foundation stack mints its read credential (pushed to the API Worker) and
+  its write credential, which `secrets-run` loads into the jobs above from
+  the `dev` secrets environment like any other tofu-managed secret. Both
+  stacks apply in Deploy, so a checkout whose Deploy has not yet applied
+  them cannot publish and its Check is red.
+- **It aggregates the reports the checks produce.** A package whose suite
+  records no harness timeline yields no report and is named as left out.
+- **Snapshots are always on.** Every step of every harness records its UI
+  frame, so a package's cached `test:spec:<k>` bucket already holds the
+  frames the report shows; there is no separate cache entry.
+- **Streamed, never bundled.** The screen lists tests as each part's record
+  arrives and loads a test's steps and snapshots only when it is opened, so a
+  commit's reports never have to fit in one download.
 
 ## `turbo-ci-run`
 
@@ -198,9 +203,11 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
    drops outputs holding a masked value) publishes the split from
    [`check-shards.ts`](../libs/tools/scripts/check-shards.ts), balanced by
    `check-task-costs.json`, and up to `MAX_SHARDS` `check:shard` runners run
-   their misses. The `check` job — the one required check — is green only when
-   the plan and every shard are. Each shard uploads its turbo run summary;
-   refresh the costs from a cold run (one that touched `turbo.json`) with
+   their misses. Then `check:publish-open`, `check:publish` (one job per spec
+   part) and `check:publish-close` publish the spec report
+   ([below](#the-spec-report)). The `check` job — the one required check — is
+   green only when the plan, every shard and the report are. Each shard
+   uploads its turbo run summary; refresh the costs from a cold run (one that touched `turbo.json`) with
    `bun run libs/tools/scripts/check-shards.ts --harvest <run id>` — costs
    are CI seconds, never a laptop's.
    A new check goes into `//#check` in `turbo.json`, preferably as a test or

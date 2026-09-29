@@ -39,7 +39,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts src/console/console-nav src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts tests/openslo",
+    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts src/console/console-nav src/console/reports src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts tests/openslo",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:stack": "bun run scripts/test-stack.ts"
@@ -80,6 +80,7 @@
     "@pkgs/git": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/harness-console": "workspace:*",
+    "@pkgs/harness-report": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",

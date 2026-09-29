@@ -1,4 +1,5 @@
 import { appObjectStoreRootPrefix } from '@libs/db/public/scope';
+import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report';
 import type { HttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -6,6 +7,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
 import { S3SecretName } from '@pkgs/object-store-s3/s3-config';
 import type { SecretStore } from '@pkgs/secret-store';
+import { ApiSecretName } from './secret-names';
 
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,
@@ -68,6 +70,48 @@ export async function createApiObjectStore(
     endpoint: secrets[S3SecretName.endpoint]!.readSecretValue(),
     region: secrets[S3SecretName.region]!.readSecretValue(),
     rootPrefix: appObjectStoreRootPrefix(),
+    http: options.http,
+  });
+}
+
+const REPORTS_SECRET_NAMES = [
+  ApiSecretName.reportsBucket,
+  ApiSecretName.reportsEndpoint,
+  ApiSecretName.reportsAccessKeyId,
+  ApiSecretName.reportsSecretAccessKey,
+] as const;
+
+/**
+ * The shared spec reports store (one R2 bucket every environment reads, keyed
+ * by commit; `/api/reports`), through this environment's read-only
+ * credential. Null without one: the reports routes then answer 503.
+ */
+export async function createReportsObjectStore(
+  secretStore: SecretStore,
+  options: { readonly http: HttpClient }
+): Promise<ObjectStore | null> {
+  const secrets = await secretStore.getOptionalMany(REPORTS_SECRET_NAMES);
+  const value = (name: (typeof REPORTS_SECRET_NAMES)[number]): string | null =>
+    secrets[name]?.readSecretValue().trim() || null;
+  const bucket = value(ApiSecretName.reportsBucket);
+  const endpoint = value(ApiSecretName.reportsEndpoint);
+  const accessKeyId = value(ApiSecretName.reportsAccessKeyId);
+  const secretAccessKey = value(ApiSecretName.reportsSecretAccessKey);
+  if (
+    bucket === null ||
+    endpoint === null ||
+    accessKeyId === null ||
+    secretAccessKey === null
+  ) {
+    return null;
+  }
+  return createS3ObjectStore({
+    accessKeyId,
+    secretAccessKey,
+    bucket,
+    endpoint,
+    region: 'auto',
+    rootPrefix: REPORTS_ROOT_PREFIX,
     http: options.http,
   });
 }

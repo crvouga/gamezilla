@@ -25,19 +25,23 @@
  * - the entry: `index.html` `<script src>`, `modulepreload` and stylesheet
  *   links.
  *
- * The harness (`/harness`) is a dev surface booted by one lazy chunk,
- * identified by its *source* path through Vite's manifest (not by a chunk-name
- * glob). That chunk is never entered, so what only the harness reaches
- * (in-browser Postgres, harness seeds, the harness console) stays out of first-install
- * precache, while anything the wall client also reaches is still required.
+ * The dev surfaces — the harness (`/harness`) and the spec reports
+ * (`/reports`) — are each booted by one lazy chunk, identified by its *source*
+ * path through Vite's manifest (not by a chunk-name glob). Those chunks are
+ * never entered, so what only a dev surface reaches (in-browser Postgres,
+ * harness seeds, the harness console, the report viewer) stays out of
+ * first-install precache, while anything the wall client also reaches is
+ * still required.
  */
 
 /** Vite's build manifest (source module → emitted chunk), `build.manifest`. */
 export const VITE_MANIFEST = '.vite/manifest.json';
 
-/** The `/harness` boot; its exclusive subgraph is not part of the wall client. */
-export const HARNESS_BOOT_SOURCE =
-  'src/console/product-harness/boot-product-harness.ts';
+/** Dev-surface boots; their exclusive subgraphs are not part of the wall client. */
+export const DEV_SURFACE_BOOT_SOURCES: readonly string[] = [
+  'src/console/product-harness/boot-product-harness.ts',
+  'src/console/reports/reports-screen.tsx',
+];
 
 /** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */
 export const URL_LOADED_DIRS: readonly string[] = ['sql-workers/'];
@@ -94,7 +98,7 @@ export type OfflineShellInput = {
   readonly chunkSources: ReadonlyMap<string, string>;
   readonly indexHtml: string;
   readonly swSource: string;
-  /** Chunks whose subgraph is not part of the wall client (the harness). */
+  /** Chunks whose subgraph is not part of the wall client (dev surfaces). */
   readonly excludedRoots: readonly string[];
   /** Files the wall client loads by URL rather than by import (workers). */
   readonly extraRoots: readonly string[];

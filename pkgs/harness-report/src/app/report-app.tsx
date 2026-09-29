@@ -5,13 +5,17 @@ import { HelpModal } from '../components/help-modal';
 import type { ReportData } from '../types';
 import { ListView } from '../views/list-view';
 import { TestView } from '../views/test-view';
-import { ReportProvider } from './report-context';
+import { ReportProvider, type ReportTestLoader } from './report-context';
 import { useReportNav } from './use-report-nav';
 import '../styles.css';
 
 export type HarnessReportAppProps = {
   data: ReportData;
-  frameCss?: string;
+  frameCss?: string | undefined;
+  /** Loads each test's steps and frames on first view (a streamed report). */
+  loader?: ReportTestLoader | undefined;
+  /** A way out of this report (a list of reports), shown in the header. */
+  home?: { readonly label: string; readonly onOpen: () => void } | undefined;
 };
 
 export function HarnessReportApp(props: HarnessReportAppProps) {
@@ -21,10 +25,11 @@ export function HarnessReportApp(props: HarnessReportAppProps) {
   return (
     <ReportProvider
       data={props.data}
-      {...(props.frameCss !== undefined ? { frameCss: props.frameCss } : {})}
+      frameCss={props.frameCss}
+      loader={props.loader}
     >
       <div class="harness-report-root sr-app">
-        <Header nav={nav} />
+        <Header nav={nav} home={props.home} />
         <div class="sr-content" classList={{ 'sr-content-scroll': !isTest() }}>
           <Show when={isTest()} fallback={<ListView nav={nav} />}>
             <TestView nav={nav} />

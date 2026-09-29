@@ -606,6 +606,7 @@
         "!**/wall.ts",
         "!**/wall-client-env.ts",
         "!**/wall-console-env.ts",
+        "!**/wall-reports-env.ts",
         "!**/wall-room-server-env.ts",
         "!**/wall-node-fs.ts",
         "!**/wall-os-fs.ts",

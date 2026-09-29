@@ -1,3 +1,12 @@
-/** Browser / Solid entry: app root + web component. */
+/** Browser / Solid entry: the viewer and the streamed reports screen. */
 export { HarnessReportApp } from './app/report-app';
-export { defineHarnessReportElement, HARNESS_REPORT_TAG } from './element';
+export {
+  createRemoteReport,
+  type RemoteReport,
+  type RemoteReportArgs,
+  type RemoteReportPhase,
+} from './remote/remote-report';
+export {
+  RemoteReportsApp,
+  type RemoteReportsAppProps,
+} from './remote/remote-reports-app';
