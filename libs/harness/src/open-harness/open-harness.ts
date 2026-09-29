@@ -107,7 +107,7 @@ function reportTestId(testId: string, callSite: TestCallSite | null): string {
 /**
  * Open a reported product harness. Every run writes its report into the
  * package's `.cache/harness-report` (frames only with `HARNESS_FRAMES=1`);
- * `bun run check:report` folds every package's bucket into one HTML report.
+ * `bun run check:report` publishes every package's bucket to `/reports/<sha>`.
  */
 export async function openHarness(
   system: ProductSystem,

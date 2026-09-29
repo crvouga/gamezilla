@@ -422,6 +422,10 @@ msgstr "Choose a sign-in method"
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
 
+#: libs/client-app/src/shell/commands/app-commands.tsx
+msgid "ci"
+msgstr "ci"
+
 #: libs/search/src/root/client/search-recent-queries.tsx
 #: pkgs/ui/src/components/combobox/combobox-trigger.tsx
 msgid "Clear"
@@ -1588,6 +1592,10 @@ msgstr "Open current space {0}"
 msgid "Open Harness"
 msgstr "Open Harness"
 
+#: libs/client-app/src/shell/commands/app-commands.tsx
+msgid "Open Reports"
+msgstr "Open Reports"
+
 #. placeholder {0}: resolvedTitle()
 #: libs/spaces/src/root/client/card/space-card-open-link.tsx
 msgid "Open space {0}"
@@ -1870,6 +1878,10 @@ msgstr "Rename"
 #: libs/spaces/src/root/client/rename-space/rename-space-modal.tsx
 msgid "Rename space"
 msgstr "Rename space"
+
+#: libs/client-app/src/shell/commands/app-commands.tsx
+msgid "reports"
+msgstr "reports"
 
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Requested"
@@ -2322,6 +2334,10 @@ msgstr "Spaces"
 #: libs/spaces/src/root/client/spaces-notices.tsx
 msgid "Spaces need a connection. Connect to the internet and try again."
 msgstr "Spaces need a connection. Connect to the internet and try again."
+
+#: libs/client-app/src/shell/commands/app-commands.tsx
+msgid "specs"
+msgstr "specs"
 
 #: pkgs/ui/src/components/spectator-indicator/spectator-indicator.tsx
 msgid "Spectating"

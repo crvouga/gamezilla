@@ -21,6 +21,7 @@
     "CLOUDFLARE_*",
     "RAILWAY_*",
     "S3_*",
+    "REPORTS_*",
     "ELEVEN_LABS_*",
     "PS_*",
     "SECRETS_*",

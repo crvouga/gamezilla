@@ -14,8 +14,8 @@ import { appShellSx } from './tokens';
  * the "Exit harness" palette command and toolbar button).
  *
  * Harness nav is controlled by the host so it can sync to browser history.
- * Test reports are standalone HTML artifacts (`@pkgs/harness-report` `writeHtmlReport`),
- * not a screen here.
+ * Test reports are the host's reports screen (`@pkgs/harness-report`), not a
+ * screen here.
  */
 export function HarnessConsoleApp(props: {
   readonly ports: HarnessConsolePorts;

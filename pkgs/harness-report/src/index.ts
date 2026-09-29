@@ -1,12 +1,15 @@
-/** Node-safe public API: artifact writers (no DOM / Solid mount). */
+/**
+ * The shared reports store: its key layout, the wire protocol a reports API
+ * speaks, and the read side it serves. Worker-safe (no DOM, no runtime I/O).
+ * CI's write side is `@pkgs/harness-report/remote/publish`; the browser
+ * screen is `@pkgs/harness-report/client`.
+ */
+export * from './remote/keys';
+export * from './remote/protocol';
 export {
-  type RenderHtmlReportOptions,
-  renderHtmlReport,
-} from './render';
-export {
-  type BuildHtmlReportOptions,
-  buildHtmlReport,
-  HTML_REPORT_KEY,
-  type WriteHtmlReportOptions,
-  writeHtmlReport,
-} from './write';
+  type CommitEventsOptions,
+  commitEvents,
+  listCommits,
+  readCommit,
+  testEvents,
+} from './remote/read';

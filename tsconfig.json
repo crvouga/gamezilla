@@ -228,7 +228,7 @@
     "pkgs/harness-report/src/**/*.ts",
     "pkgs/harness-report/src/**/*.tsx",
     "pkgs/harness-report/tests/**/*.ts",
-    "pkgs/harness-report/scripts/**/*.ts",
+    "pkgs/harness-report/tests/**/*.tsx",
     "pkgs/database-url-policy/src/**/*.ts",
     "libs/runtime/src/**/*.ts",
     "libs/db/src/**/*.ts",

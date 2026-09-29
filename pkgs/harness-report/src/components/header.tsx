@@ -5,7 +5,10 @@ import { fmtDate, fmtMs } from '../lib/format';
 
 const FILTERS = ['all', 'passed', 'failed', 'skipped'] as const;
 
-export function Header(props: { nav: ReportNav }) {
+export function Header(props: {
+  nav: ReportNav;
+  home: { readonly label: string; readonly onOpen: () => void } | undefined;
+}) {
   const report = useReport();
   const isList = createMemo(() => props.nav.route().view === 'list');
   const status = createMemo(() => props.nav.route().params['status'] || 'all');
@@ -28,6 +31,17 @@ export function Header(props: { nav: ReportNav }) {
 
   return (
     <header class="sr-header">
+      <Show when={isList() ? props.home : undefined}>
+        {(home) => (
+          <button
+            type="button"
+            class="sr-navbtn"
+            onClick={() => home().onOpen()}
+          >
+            {`← ${home().label}`}
+          </button>
+        )}
+      </Show>
       <Show when={!isList()}>
         <button
           type="button"

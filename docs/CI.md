@@ -92,35 +92,41 @@ opt-in report.
   past ~2 min on CI.
 - **The report is cached with the verdict.** Each part writes
   `<package>/.cache/harness-report/part-<k>` as its turbo `outputs` (an
-  unsplit run writes `all`), which `bun run check:report` folds into one
-  report ([below](#the-spec-report)).
+  unsplit run writes `all`), which `bun run check:report` publishes to the
+  reports screen ([below](#the-spec-report)).
 
 ## The spec report
 
 `bun run check:report` gives **one report of every spec**: each
 scenario's and Quint trace's step timeline with its snapshots, from every
-package that has a spec suite, explorable together in one `index.html` (the
-`@pkgs/harness-report` viewer). **It is built on GitHub, not on this
-machine**: running every suite with snapshots saturated every core for
-minutes, so locally the script only dispatches
-[`report.yml`](../.github/workflows/report.yml), waits, and opens a URL.
+package that has a spec suite, explorable together on the reports screen
+(`/reports/<sha>` of any deployment; the `@pkgs/harness-report` viewer).
+**It is built on GitHub, not on this machine**: running every suite with
+snapshots saturated every core for minutes, so locally the script only
+dispatches [`report.yml`](../.github/workflows/report.yml), opens the page
+and waits.
 
-- **One shard per spec part.** `report:matrix` lists the parts
-  (`report-matrix.ts`); shard `k` runs `test:spec:<k>` of every package through
+- **Object store → API → client.** CI writes each commit's reports to one
+  private R2 bucket every environment shares; each environment's API reads it
+  with its own read-only credential and streams it to the screen as
+  Server-Sent Events (`/api/reports`, `libs/server-app/src/reports/route.ts`).
+  Nothing is served from the bucket directly and there is no report hostname.
+- **One shard per spec part, published as it lands.** `report:matrix` lists
+  the parts (`report-matrix.ts`); `report:open` writes the commit's record and
+  snapshot stylesheet; shard `k` runs `test:spec:<k>` of every package through
   `turbo-ci-run --restore-outputs` (a part whose code has not changed restores
-  its cached bucket, the rest run) and uploads the buckets. `report:publish`
-  folds them (`libs/harness/scripts/report.ts`) and uploads the result. A red
-  suite still publishes its report; the run is red.
-- **Keyed by commit.** The report of a commit is at
-  `https://<reports hostname>/<full sha>/<frames|no-frames>/index.html`
-  (`report-key.ts`), so code that differs never shares an object. The same
-  commit and variant replace their own report; nothing else can. Reports
-  expire after `retention_days`.
-- **Hosted where the infra already is.** A public R2 bucket on a custom
-  domain, no Worker in front, declared by `reports` in
-  `libs/infra/tofu/global.tfvars.json` and applied by the fleet stack. The
-  reports are build output, not user data. CI uploads with the shared
-  Cloudflare credentials `secrets-run` loads.
+  its cached bucket, the rest run) and publishes each package's bucket
+  (`libs/harness/scripts/report-publish.ts`); `report:close` marks the commit
+  complete. A page open on a running commit shows each part the moment it is
+  published. A red suite still publishes its report; the run is red.
+- **Keyed by commit.** Everything lives under `commits/<full sha>/`
+  (`@pkgs/harness-report` keys), so code that differs never shares an
+  object; a rerun of the same commit replaces its own. Reports expire after
+  `retention_days`.
+- **Declared with the rest of the infra.** The bucket is `reports` in
+  `libs/infra/tofu/global.tfvars.json` (fleet stack); each environment's
+  foundation stack mints its read credential (pushed to the API Worker) and
+  its write credential (for CI, `secrets-run` loads it).
 - **It aggregates the reports the checks produce, and nothing else.** A
   package whose suite records no harness timeline yields no report and is
   named as left out; `bun check` writes no report of its own.
@@ -130,11 +136,11 @@ minutes, so locally the script only dispatches
 - **Flags.** `--no-frames` is step timelines only (Check's cache entries, its
   own key); `--no-run` never dispatches and opens the commit's report if it
   exists; `--rerun` runs again although it exists; `--open` (on in the root
-  script) opens the URL. Like `bun check` it `/git-sync`s first and Ctrl-C
+  script) opens the page. Like `bun check` it `/git-sync`s first and Ctrl-C
   cancels the run.
-- **One file stays openable.** Every snapshot is kept once and gzipped
-  (`pooled` in `renderHtmlReport`), inflated in the page before the viewer
-  mounts: the plain encoding of the same report was 453 MB.
+- **Streamed, never bundled.** The screen lists tests as each part's record
+  arrives and loads a test's steps and snapshots only when it is opened, so a
+  commit's reports never have to fit in one download.
 
 ## `turbo-ci-run`
 

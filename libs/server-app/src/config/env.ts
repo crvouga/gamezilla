@@ -38,6 +38,10 @@ export type ApiWorkerEnv = {
   S3_BUCKET?: string;
   S3_ENDPOINT?: string;
   S3_REGION?: string;
+  REPORTS_BUCKET?: string;
+  REPORTS_ENDPOINT?: string;
+  REPORTS_ACCESS_KEY_ID?: string;
+  REPORTS_SECRET_ACCESS_KEY?: string;
   OBSERVABILITY_COLLECTOR_URL?: string;
   OBSERVABILITY_COLLECTOR_TOKEN?: string;
   OBSERVABILITY_COLLECTOR_USER?: string;

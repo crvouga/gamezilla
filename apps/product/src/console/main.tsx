@@ -1,10 +1,11 @@
-// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`)
+// @io-wall-ok — browser composition root (super-app: App at `/`, Harness at `/harness`, spec reports at `/reports`)
 /**
- * Path-gated boot: `/harness` mounts the Harness screen; every other path
- * mounts the real wall client (`wallClientEnv` + production/synced config).
- * The two are flat siblings — each reaches the other through its command
- * palette (`Open Harness` / `Exit harness`). Popstate remounts when
- * crossing the boundary (no nested routers). `?harness` on any other path
+ * Path-gated boot: `/harness` mounts the Harness screen, `/reports` the spec
+ * reports screen (its own lazy chunk); every other path mounts the real wall
+ * client (`wallClientEnv` + production/synced config). They are flat
+ * siblings — the app and the harness reach each other through their command
+ * palettes (`Open Harness` / `Exit harness`). Popstate remounts when
+ * crossing a boundary (no nested routers). `?harness` on any other path
  * hands off to `/harness` before boot, so a launcher that can only open the
  * site root still lands in the harness.
  */
@@ -17,10 +18,19 @@ import { assert } from '@pkgs/assert';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
-import { createSignal, type JSX, onCleanup, Show } from 'solid-js';
+import {
+  createSignal,
+  type JSX,
+  lazy,
+  Match,
+  onCleanup,
+  Suspense,
+  Switch,
+} from 'solid-js';
 import { render } from 'solid-js/web';
 import { HARNESS_PATH } from './console-nav/console-nav-real';
 import './polyfill-entry';
+import { isReportsPath } from './reports/reports-path';
 import { RootApp } from './root-app';
 import './styles.css';
 import { wallConsoleEnv } from './wall-console-env';
@@ -65,19 +75,38 @@ function AppBoot(): JSX.Element {
   return <client.App />;
 }
 
+const ReportsScreen = lazy(async () => ({
+  default: (await import('./reports/reports-screen')).ReportsScreen,
+}));
+
+type Surface = 'app' | 'harness' | 'reports';
+
+function surfaceAt(pathname: string): Surface {
+  if (isHarnessPath(pathname)) return 'harness';
+  if (isReportsPath(pathname)) return 'reports';
+  return 'app';
+}
+
 function Boot(): JSX.Element {
-  const [harnessMode, setHarnessMode] = createSignal(
-    isHarnessPath(window.location.pathname)
+  const [surface, setSurface] = createSignal(
+    surfaceAt(window.location.pathname)
   );
   const onPopState = (): void => {
-    setHarnessMode(isHarnessPath(window.location.pathname));
+    setSurface(surfaceAt(window.location.pathname));
   };
   window.addEventListener('popstate', onPopState);
   onCleanup(() => window.removeEventListener('popstate', onPopState));
   return (
-    <Show when={harnessMode()} fallback={<AppBoot />}>
-      <HarnessBoot />
-    </Show>
+    <Switch fallback={<AppBoot />}>
+      <Match when={surface() === 'harness'}>
+        <HarnessBoot />
+      </Match>
+      <Match when={surface() === 'reports'}>
+        <Suspense>
+          <ReportsScreen />
+        </Suspense>
+      </Match>
+    </Switch>
   );
 }
 

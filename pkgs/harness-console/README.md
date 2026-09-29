@@ -10,6 +10,5 @@ the SQL notebook.
   injected by `@apps/product`; this package never imports apps/libs/test.
 
 Test reports are **not** browsed here. `@pkgs/harness` captures run timelines
-(`defineSnapshot` / `run({ report })`); `@pkgs/harness-report` renders them to a
-standalone HTML file (`writeHtmlReport`); see
-`libs/harness/README.md`.
+(`defineSnapshot` / `run({ report })`); `@pkgs/harness-report` streams them
+into the host's reports screen (`/reports`); see `libs/harness/README.md`.

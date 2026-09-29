@@ -35,6 +35,7 @@ import { ApiSecretName } from '../config/secret-names';
 import { resolveWebClientOrigin } from '../config/web-client-origin';
 import { createHealthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
+import { createReportsApp } from '../reports/route';
 import {
   apiRequestAsyncLocalStorage,
   requireRequestStore,
@@ -394,6 +395,15 @@ function createServerRouter(args: {
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
     .use('*', createRequestTelemetryMiddleware())
+    // Ahead of the database middleware: report streams never touch Postgres.
+    .route(
+      '/reports',
+      createReportsApp({
+        store: env.reports,
+        clock: env.clock,
+        timers: env.timers,
+      })
+    )
     .use(
       '*',
       createRequestDbMiddleware(secrets, {

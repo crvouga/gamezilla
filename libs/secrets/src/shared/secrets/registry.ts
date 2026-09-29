@@ -41,6 +41,7 @@ import {
   EMQX_WSS_URL,
 } from './pubsub-emqx-secrets';
 import { RAILWAY_TOKEN } from './railway-token';
+import { REPORTS_SECRETS } from './reports-credentials';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
@@ -73,6 +74,7 @@ export const SECRETS: readonly Secret[] = [
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,
+  ...REPORTS_SECRETS,
   ELEVEN_LABS_API_KEY,
   GRAFANA_CLOUD_API_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,

@@ -1,32 +1,38 @@
 # `@pkgs/harness-report`
 
-SolidJS + TailwindCSS report viewer for `@pkgs/harness` runs. Built with Vite as a
-`<harness-report>` web component and inlined into standalone `index.html` artifacts
-(or mounted directly in apps).
+Reports of `@pkgs/harness` runs, object store → API → client: a shared store
+keyed by commit, the read side an API serves from it as Server-Sent Events,
+and the SolidJS + TailwindCSS viewer that renders the stream as it lands.
 
-## Usage
-
-### Standalone HTML artifact
+## Flow
 
 ```ts
-import { writeHtmlReport } from '@pkgs/harness-report';
+// CI, after a suite ran (`@pkgs/harness-report/remote/publish`):
+await openCommit(store, { sha, branch, runUrl, frames, startedAtMs, frameCss });
+await publishSource(store, { sha, packageDir: 'libs/chess', bucket: 'part-0', local });
+await closeCommit(store, { sha, endedAtMs });
 
-await writeHtmlReport({
-  store, // ObjectStore with runs/<runId>/…
-  runId: 'latest',
-  out: artifactStore,
-  title: 'My run',
-  frameCss, // optional CSS injected into html iframe previews
-  junitXml, // optional JUnit overlay
-});
-// → artifactStore `index.html`
+// An API (`@pkgs/harness-report`): encode each event with `encodeSseEvent`.
+listCommits(store, { limit, cursor });
+commitEvents(store, sha, { clock, timers, pollMs, tailMs }); // commit, then sources
+testEvents(store, { sha, source, testId }); // a test, then its frame files
+
+// The browser (`@pkgs/harness-report/client`):
+<RemoteReportsApp http={http} timers={timers} apiBase={apiBase} sha={sha} onOpen={open} />
 ```
 
-Rebuild the viewer bundle after UI changes:
+`store` is any `ObjectStore` scoped to `REPORTS_ROOT_PREFIX`; `local` is the
+bucket a `bun test` run wrote (`runs/latest/tests/<testId>/…`). A source's
+tests are written before its record, so a reader that sees the record can read
+every test it names. A running commit's stream re-lists its sources and sends
+each new one as it lands; a reconnect passes the sources it holds and never
+gets them again. The key layout is in `src/remote/keys.ts`.
 
-```sh
-bun run --filter @pkgs/harness-report build
-```
+The list fills in source by source; a test's steps and frame files stream in
+the first time it is opened (`ReportTestLoader`), so a commit's reports never
+have to fit in one download.
+
+## Viewer
 
 The viewer is keyboard-first: `Ctrl/Cmd-K` opens a searchable command palette,
 `←` / `→` step frames, `↑` / `↓` jump between steps, `N` / `Shift+N` cycle
@@ -46,47 +52,24 @@ snapshot with the driver's chained first-match semantics and draws a single
 overlay from real layout; if the target is absent it says so instead of
 guessing.
 
-### Embed in an app
-
-```ts
-import { defineHarnessReportElement } from '@pkgs/harness-report/element';
-import type { HtmlReportBundle } from '@pkgs/harness';
-
-defineHarnessReportElement(); // no-op if already defined
-
-const el = document.createElement('harness-report') as HTMLElement & {
-  data: HtmlReportBundle & { title: string };
-  frameCss?: string;
-};
-el.data = { ...bundle, title: 'Embedded' };
-host.appendChild(el);
-```
-
-Or mount the Solid root:
-
-```tsx
-import { HarnessReportApp } from '@pkgs/harness-report/client';
-
-<HarnessReportApp data={{ ...bundle, title: 'Embedded' }} frameCss={frameCss} />
-```
+UI suites (`html` / `png`) get phone panels + press overlays; headless suites
+(`json` / `text` / `bytes`) get a document stage.
 
 ## Entries
 
 | Import | Surface |
 | ------ | ------- |
-| `@pkgs/harness-report` | `writeHtmlReport` / `renderHtmlReport` (Node-safe) |
-| `@pkgs/harness-report/client` | `HarnessReportApp` + `defineHarnessReportElement` |
-| `@pkgs/harness-report/element` | `<harness-report>` custom element only |
+| `@pkgs/harness-report` | key layout, wire protocol + SSE codec, read side (Worker-safe) |
+| `@pkgs/harness-report/remote/publish` | `openCommit` / `publishSource` / `closeCommit` (CI) |
+| `@pkgs/harness-report/client` | `RemoteReportsApp`, `createRemoteReport`, `HarnessReportApp` |
 
 ## Layout
 
 ```
 src/
+  remote/        store keys, protocol, read + publish sides, streamed client
   app/           Solid root + hash routing + keyboard
   components/    header, steps, toolbar, scrubber, phone/doc stages
+  views/         test list, one test
   lib/           pure helpers (frames, format, hash, phone)
-  element.tsx    <harness-report> custom element
-  write.ts       writeHtmlReport / buildHtmlReport
-  render.ts      standalone HTML shell (inlines generated artifact)
-  generated/     ARTIFACT_JS / ARTIFACT_CSS from `bun run build`
 ```

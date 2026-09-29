@@ -25,7 +25,7 @@ Runtime supplies those. Root policy: [`docs/DETERMINISM.md`](../../docs/DETERMIN
 | **record** | `s.record({ kind, title, selector?, actorId? }, fn)` — one labeled report step. Steps nest: `record` / `apply` inside an open step become its children. `advanceTime` never opens a step. |
 | **describe** | Optional `defineAction({ describe: (...args) => string })` — report title for `s.apply`; default `name(arg, …)`. `report: false` hides a harness-only action from the timeline. |
 | **fail** | `s.fail(err)` — mark the run failed for an error raised outside any step (test-body assertion). |
-| **HTML report** | `@pkgs/harness-report` `writeHtmlReport({ store, runId, out, frameCss?, junitXml? })` — Solid+Tailwind viewer built with Vite, shipped as a `<harness-report>` web component and inlined into one standalone `index.html`. UI suites (`html` / `png`) get phone panels + press overlays; headless suites (`json` / `text` / `bytes`) get a document stage. Embed the same element in apps via `@pkgs/harness-report/element`. `readRunBundle` / `applyJunitOutcomes` stay in `@pkgs/harness`. |
+| **Report viewer** | `@pkgs/harness-report` — CI publishes each run's buckets to a shared object store keyed by commit (`@pkgs/harness-report/remote/publish`), a reports API streams them out, and the Solid viewer (`@pkgs/harness-report/client`) renders them as they arrive. UI suites (`html` / `png`) get phone panels + press overlays; headless suites (`json` / `text` / `bytes`) get a document stage. `parseJunit` / `applyJunitOutcomes` stay in `@pkgs/harness`. |
 | **randomActions** | Weighted random walk over the action pool (`s.randomActions`). Returns a `RandomActionsReport`. |
 | **explore** | `system.explore` — search (episodes × randomActions + shrink). Throws `ExploreFailedError`. |
 | **replay** | `system.replay(recording)` — re-apply a Recording / report path. |
@@ -41,7 +41,7 @@ Runtime supplies those. Root policy: [`docs/DETERMINISM.md`](../../docs/DETERMIN
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/harness` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `readRunBundle`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/harness` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
 | `@pkgs/harness/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/harness/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` (`assertProperty` and JSON arbs live in the leaf `@pkgs/property`) |
 
@@ -142,7 +142,7 @@ src/index.ts       public algebra
 src/runtime/       virtualTimeRuntime / realTimeRuntime / createRuntime (internal) / Session
 src/system/        defineSystem / defineAction / defineProperty / defineRuntime / recording
 src/report/        Snapshot / RunReport / RunReporter / ObjectStore persist
-src/report/html/   standalone HTML report (bundle → index.html, JUnit overlay)
+src/report/html/   in-memory report tests (frames inline) + JUnit overlay
 src/run/           run / randomActions / explore / checkpoint (internal)
 src/internals/     clocks, schedulers, rng, fingerprint, json, timers
 src/models/        in-process network
@@ -160,12 +160,10 @@ await using s = await kv.run({
 });
 await s.apply(put, 'client:0', 'a', '1'); // step "put(\"client:0\", \"a\", \"1\")" + frame
 await s.record({ kind: 'ui', title: 'tap', selector: 'testId("ok")' }, tapOk);
-
-// later, from a script (`// @io-wall-ok`):
-import { writeHtmlReport } from '@pkgs/harness-report';
-await writeHtmlReport({ store, runId: 'latest', out: artifactStore });
-// → artifactStore `index.html` (inlined <harness-report> web component)
 ```
+
+CI publishes the bucket to the shared reports store keyed by commit
+(`@pkgs/harness-report/remote/publish`); the reports screen streams it back.
 
 Frames come only from `defineSystem({ snapshots })`. Media is suite-agnostic:
 `json` / `text` / `bytes` for headless state (sync-engine, matchmaking, …),
@@ -173,8 +171,8 @@ Frames come only from `defineSystem({ snapshots })`. Media is suite-agnostic:
 for `html` / `png` / `text` / `json` (json values must be objects/arrays). UI
 harnesses wrap drivers with `@pkgs/ui-testing` `recordingDriver` so every op is
 a titled step with an optional `hit` (path + rect + tap point); UI steps
-snapshot *before* the gesture so the HTML viewer can overlay the pressed
-element. The HTML file embeds every frame — no server, no console tab.
+snapshot *before* the gesture so the viewer can overlay the pressed
+element.
 
 ## Do / don't
 

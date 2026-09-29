@@ -39,9 +39,9 @@ libs/infra/
                       environment, CI identity, repository
       fleet/          global, applied by Deploy: every env file's secrets
                       environment + its import of the shared one, the
-                      OAuth relay's hostname (auth.<zone>), the public
-                      spec-report bucket (reports.<zone>, `bun check:report`),
-                      and the Railway
+                      OAuth relay's hostname (auth.<zone>), the private
+                      spec-report bucket every env's API reads
+                      (`bun check:report`), and the Railway
                       broker project + service every env shares
       foundation/     everything before Worker code ships (+ secrets.json)
       edge/           custom domains, after the Workers exist
