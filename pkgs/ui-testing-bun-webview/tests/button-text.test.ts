@@ -53,6 +53,15 @@ describe('BunWebviewDriver text of non-field nodes', () => {
     expect(await driver().get('save').text()).toBe('Saved');
   });
 
+  // regression: webview-button-width-lock-text
+  test('a button showing feedback reads as that feedback, not also its hidden idle label', async () => {
+    // Button feedback keeps the idle label's width with an invisible copy.
+    document.body.innerHTML =
+      '<button data-testid="save"><div><div class="opacity-0" aria-hidden="true"><span>Save</span></div><div><span>Saved</span></div></div></button>';
+
+    expect(await driver().get('save').text()).toBe('Saved');
+  });
+
   test('an unlabelled icon button reads as its aria-label', async () => {
     document.body.innerHTML =
       '<button data-testid="close" aria-label="Close"><svg></svg></button>';
