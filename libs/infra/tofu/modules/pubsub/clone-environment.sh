@@ -11,7 +11,9 @@
 #
 #   clone-environment.sh create   duplicate $SOURCE as $NAME; a no-op when
 #                                 $NAME already exists AND holds a service
-#                                 instance; fails on an empty one
+#                                 instance; an EMPTY $NAME (what the provider
+#                                 left behind) is deleted and cloned afresh —
+#                                 it holds nothing to lose
 #   clone-environment.sh delete   delete $NAME (never $SOURCE); a no-op when
 #                                 it is gone
 #
@@ -60,8 +62,21 @@ instance_count() {
   jq -r '.data.environment.serviceInstances.edges | length' <<<"$response"
 }
 
+refuse_protected() {
+  if [ "$NAME" = "$SOURCE" ] || [ "$NAME" = "production" ]; then
+    echo "refusing to $1 the Railway environment ${NAME}" >&2
+    exit 1
+  fi
+}
+
+delete_environment() {
+  gql 'mutation($id: String!) { environmentDelete(id: $id) }' \
+    "$(jq -cn --arg id "$1" '{id: $id}')" >/dev/null
+}
+
 case "$action" in
   create)
+    refuse_protected replace
     existing="$(environment_id "$NAME")"
     if [ -n "$existing" ]; then
       count="$(instance_count "$existing")"
@@ -69,10 +84,8 @@ case "$action" in
         echo "railway environment ${NAME} already exists with ${count} service instance(s)"
         exit 0
       fi
-      echo "Railway environment ${NAME} (${existing}) exists but holds no service instance —" \
-        "an empty environment cannot host the broker. Delete it in the Railway" \
-        "dashboard (project ${PROJECT_ID}); this script recreates it as a clone of ${SOURCE}." >&2
-      exit 1
+      delete_environment "$existing"
+      echo "railway environment ${NAME} (${existing}) held no service instance; deleted it to clone afresh"
     fi
     source_id="$(environment_id "$SOURCE")"
     if [ -z "$source_id" ]; then
@@ -86,17 +99,13 @@ case "$action" in
     echo "railway environment ${NAME} cloned from ${SOURCE}"
     ;;
   delete)
-    if [ "$NAME" = "$SOURCE" ] || [ "$NAME" = "production" ]; then
-      echo "refusing to delete the Railway environment ${NAME}" >&2
-      exit 1
-    fi
+    refuse_protected delete
     existing="$(environment_id "$NAME")"
     if [ -z "$existing" ]; then
       echo "railway environment ${NAME} is already gone"
       exit 0
     fi
-    gql 'mutation($id: String!) { environmentDelete(id: $id) }' \
-      "$(jq -cn --arg id "$existing" '{id: $id}')" >/dev/null
+    delete_environment "$existing"
     echo "railway environment ${NAME} deleted"
     ;;
   *)

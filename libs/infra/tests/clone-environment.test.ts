@@ -177,14 +177,41 @@ describe('clone-environment.sh', () => {
     });
   });
 
-  test('create refuses an existing environment with no service instance', async () => {
+  // regression: railway-empty-environment-stuck — the empty environment the
+  // provider had already made stayed behind, and create refused it, so every
+  // Deploy stopped at dev's foundation until someone deleted it by hand.
+  test('create replaces an existing environment with no service instance', async () => {
     fake = startFakeRailway([
       PRODUCTION,
       { id: 'env-empty', name: 'development', instances: 0 },
     ]);
     const { code, out } = await run(fake, 'create');
-    expect(code).toBe(1);
-    expect(out).toContain('holds no service instance');
+    expect(out).toContain('cloned from production');
+    expect(code).toBe(0);
+    expect(fake.mutations.map((m) => m.name)).toEqual([
+      'environmentDelete',
+      'environmentCreate',
+    ]);
+    expect(fake.mutations[0]?.variables).toEqual({ id: 'env-empty' });
+    expect(fake.environments).toEqual([
+      PRODUCTION,
+      { id: 'env-development', name: 'development', instances: 1 },
+    ]);
+  });
+
+  test('create never replaces production or the source', async () => {
+    fake = startFakeRailway([
+      { ...PRODUCTION, instances: 0 },
+      { id: 'env-empty', name: 'development', instances: 0 },
+    ]);
+    for (const overrides of [
+      { NAME: 'production', SOURCE: 'development' },
+      { SOURCE: 'development' },
+    ]) {
+      const { code, out } = await run(fake, 'create', overrides);
+      expect(code).toBe(1);
+      expect(out).toContain('refusing to replace');
+    }
     expect(fake.mutations).toEqual([]);
   });
 
