@@ -3,6 +3,8 @@
   "//#ci:audit": 1,
   "//#ci:goals": 1,
   "//#ci:i18n": 6,
+  "//#ci:models": 221,
+  "//#ci:spec-ownership": 1,
   "//#ci:syncpack": 1,
   "//#lint:root": 2,
   "@apps/client#build": 32,
