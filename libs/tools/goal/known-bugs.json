@@ -270,6 +270,11 @@
     "regressionTest": "libs/tools/scripts/report-publish.test.ts"
   },
   {
+    "id": "health-timeout-hides-hung-probe",
+    "summary": "A Health run's prd job hung and GitHub cancelled it at its 20-minute job timeout with no output, so nobody learned which probe hung: turbo-ci-run's own CI deadline (1200 s) could never fire first, because setup ate into the same 20 minutes. check.yml and deploy.yml already kept their timeouts above the deadline; health.yml now does too (a 25-minute step timeout inside a 30-minute job).",
+    "regressionTest": "libs/tools/scripts/check-budget.test.ts"
+  },
+  {
     "id": "people-search-unenforced",
     "summary": "The people search query (searchProfiles) had no authorize hook, and the sync server only refuses callers with no actor id, so a guest's install got search results from the server although the app hides search from guests. Fixed by authorizing the query through the permission layer (people:search). Found by the access decision table's server layer.",
     "regressionTest": "libs/friends/tests/people-search-authorization.test.ts"
