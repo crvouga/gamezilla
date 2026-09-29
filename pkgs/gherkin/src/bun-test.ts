@@ -153,7 +153,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
             definition: definitionText(match, step),
             calls: (lifecycle.calls?.(world) ?? []).slice(callsBefore),
             cause,
-            reportHint: options.reportHint ?? 'report: bun run test:report',
+            reportHint: options.reportHint ?? 'report: bun run check:report',
           }),
           { cause }
         );

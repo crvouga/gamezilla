@@ -1,7 +1,8 @@
 /**
  * `tofu/global.tfvars.json`: what is the same for every environment — the
  * project slug, where state lives, the secrets project, the repository and
- * the one OAuth callback relay every environment signs in through, and the
+ * the one OAuth callback relay every environment signs in through, the
+ * bucket that serves every commit's spec report, and the
  * one Railway project every environment's broker runs in.
  * Every stack reads it as its first `-var-file`.
  */
@@ -48,6 +49,21 @@ export const globalFileSchema = z
         zone_name: hostname,
         hostname,
         worker: slug,
+      })
+      .strict(),
+    /**
+     * The public bucket the per-commit spec reports are served from
+     * (`bun run check:report`, fleet stack): CI writes
+     * `<sha>/<variant>/index.html`, everyone reads it at `hostname`, and each
+     * report expires after `retention_days`.
+     */
+    reports: z
+      .object({
+        account_id: id,
+        zone_name: hostname,
+        hostname,
+        bucket: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/),
+        retention_days: z.number().int().positive(),
       })
       .strict(),
     /**

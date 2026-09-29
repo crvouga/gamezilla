@@ -53,6 +53,51 @@ module "auth_relay_edge" {
   }
 }
 
+# The spec report of every commit (`bun run check:report`): CI writes
+# `<sha>/<variant>/index.html` (libs/tools/scripts/report-key.ts), anyone reads
+# it at the bucket's public hostname. Cloudflare serves and caches it straight
+# from R2, so no Worker sits in front. Reports are build output, not user
+# data: they are public, immutable per key, and expire.
+resource "cloudflare_r2_bucket" "reports" {
+  account_id = var.reports.account_id
+  name       = var.reports.bucket
+}
+
+data "cloudflare_zone" "reports" {
+  filter = {
+    name    = var.reports.zone_name
+    account = { id = var.reports.account_id }
+  }
+}
+
+resource "cloudflare_r2_custom_domain" "reports" {
+  account_id  = var.reports.account_id
+  bucket_name = cloudflare_r2_bucket.reports.name
+  domain      = var.reports.hostname
+  zone_id     = data.cloudflare_zone.reports.zone_id
+  enabled     = true
+  min_tls     = "1.2"
+}
+
+resource "cloudflare_r2_bucket_lifecycle" "reports" {
+  account_id  = var.reports.account_id
+  bucket_name = cloudflare_r2_bucket.reports.name
+
+  rules = [{
+    id      = "expire-reports"
+    enabled = true
+    conditions = {
+      prefix = ""
+    }
+    delete_objects_transition = {
+      condition = {
+        type    = "Age"
+        max_age = var.reports.retention_days * 86400
+      }
+    }
+  }]
+}
+
 # The one Railway project every environment's MQTT broker runs in, and the
 # `emqx` service they share (each environment's foundation stack adds its own
 # Railway environment of it). Global because it is shared; the ids in
