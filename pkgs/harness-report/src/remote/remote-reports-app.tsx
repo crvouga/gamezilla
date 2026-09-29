@@ -118,9 +118,9 @@ function CommitRow(props: {
 function CommitList(props: RemoteReportsAppProps) {
   const [commits, setCommits] = createSignal<readonly CommitRecord[]>([]);
   const [cursor, setCursor] = createSignal<string | null>(null);
-  const [state, setState] = createSignal<'loading' | 'ready' | 'error'>(
-    'loading'
-  );
+  const [state, setState] = createSignal<
+    'loading' | 'ready' | 'error' | 'unconfigured'
+  >('loading');
   const controller = new AbortController();
   onCleanup(() => controller.abort());
 
@@ -132,6 +132,10 @@ function CommitList(props: RemoteReportsAppProps) {
       const response = await props.http.fetch(`${props.apiBase}${query}`, {
         signal: controller.signal,
       });
+      if (response.status === 503) {
+        setState('unconfigured');
+        return;
+      }
       if (!response.ok) throw new Error(String(response.status));
       const page = (await response.json()) as CommitPage;
       setCommits((prev) =>
@@ -163,6 +167,12 @@ function CommitList(props: RemoteReportsAppProps) {
         <div class="sr-list">
           <Show when={state() === 'error'}>
             <div class="sr-empty">Could not reach the reports API.</div>
+          </Show>
+          <Show when={state() === 'unconfigured'}>
+            <div class="sr-empty">
+              This deployment has no reports credential, so it cannot read the
+              reports store.
+            </div>
           </Show>
           <Show when={state() === 'ready' && commits().length === 0}>
             <div class="sr-empty">No commit has a report yet.</div>
