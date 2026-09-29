@@ -39,6 +39,28 @@ import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 const IS_TEXT_FIELD = `(el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement)`;
 
 /**
+ * Page-side function: the text a person sees in `node`. Skips the branches
+ * the Solid DOM driver's `collectVisibleText` skips (`hidden`, `inert`,
+ * `aria-hidden="true"`, `display:none`, `visibility:hidden`), so a button's
+ * width-lock spacer does not read as part of its label ("Save Saved").
+ * Blocks and `<br>` separate words, as `innerText` does.
+ */
+const VISIBLE_TEXT = `function visibleText(node) {
+  let out = '';
+  for (const child of node.childNodes) {
+    if (child.nodeType === 3) { out += child.nodeValue; continue; }
+    if (child.nodeType !== 1) continue;
+    if (child.hasAttribute('hidden') || child.hasAttribute('inert') || child.getAttribute('aria-hidden') === 'true') continue;
+    if (child.tagName === 'BR') { out += ' '; continue; }
+    const style = getComputedStyle(child);
+    if (style.display === 'none' || style.visibility === 'hidden') continue;
+    const inline = style.display.startsWith('inline') || style.display === 'contents';
+    out += inline ? visibleText(child) : ' ' + visibleText(child) + ' ';
+  }
+  return out;
+}`;
+
+/**
  * Page-side expression for the text field under selector `sel`: the matched
  * node when it is one, else its first `<input>` / `<textarea>` — a
  * design-system `TextInput` puts its test id on the wrapper, like the Solid
@@ -318,7 +340,7 @@ export class BunWebviewDriverNode implements DriverNode {
 
   async text(): Promise<string | null> {
     const result = await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if (${IS_TEXT_FIELD}) return el.value; const fields = el.querySelectorAll('input, textarea'); if (fields.length === 1) return fields[0].value; const shown = (el.innerText ?? el.textContent ?? '').replace(/\\s+/g, ' ').trim(); if (shown.length > 0) return shown; return el.getAttribute('aria-label') || ''; })()`
+      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if (${IS_TEXT_FIELD}) return el.value; const fields = el.querySelectorAll('input, textarea'); if (fields.length === 1) return fields[0].value; const shown = (${VISIBLE_TEXT})(el).replace(/\\s+/g, ' ').trim(); if (shown.length > 0) return shown; return el.getAttribute('aria-label') || ''; })()`
     );
     if (result === null) {
       throw new ElementNotFoundError(formatTestIdPath(this.path));

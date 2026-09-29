@@ -5,6 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { MutationEnv } from '../mutations/core/types';
 import type { QueryRow } from '../queries/core/types';
+import { sqliteWireValue } from '../shared/sqlite-wire-value';
 
 /**
  * Lowest common SQLITE_MAX_VARIABLE_NUMBER on mobile / wasm SQLite.
@@ -24,20 +25,6 @@ export function isValidTableName(table: string): boolean {
 
 export function isValidRowId(id: unknown): id is string {
   return typeof id === 'string' && id.length > 0;
-}
-
-/**
- * Postgres jsonb / JSON wire values arrive as objects or arrays. The web
- * SQLite only accepts string | number | null | Uint8Array binds.
- */
-export function sqliteWireValue(value: unknown): Value {
-  if (value === null || value === undefined) return null;
-  if (typeof value === 'string' || typeof value === 'number') return value;
-  if (typeof value === 'boolean') return value ? 1 : 0;
-  if (value instanceof Date) return value.toISOString();
-  if (typeof value === 'bigint') return value.toString();
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
 }
 
 const pragmaCache = new WeakMap<object, Map<string, readonly string[]>>();

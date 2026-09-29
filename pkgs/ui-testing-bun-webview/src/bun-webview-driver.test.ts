@@ -32,12 +32,13 @@ function createFakeView(): BunWebView & {
       if (script.includes('__uiTestingPointerCounts')) {
         return [pointer.down, pointer.up];
       }
+      // Before `getComputedStyle`: the text read uses it to skip hidden branches.
+      if (script.includes('visibleText') || script.includes('.value')) {
+        return 'typed';
+      }
       if (script.includes('getComputedStyle')) return true;
       if (script.includes('getBoundingClientRect')) {
         return { x: 0, y: 0, width: 100, height: 100 };
-      }
-      if (script.includes('innerText') || script.includes('.value')) {
-        return 'typed';
       }
       if (script.includes('outerHTML')) return '<html><body>ok</body></html>';
       return undefined;

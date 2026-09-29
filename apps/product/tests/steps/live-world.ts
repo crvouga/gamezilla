@@ -9,6 +9,7 @@
 
 import { prepareCriticalJourneyAccess } from '@apps/product/harness/prepare-critical-journey-access';
 import {
+  authRelayOrigin,
   type EnvFile,
   type EnvOrigins,
   envOrigins,
@@ -155,6 +156,7 @@ export function useLiveWorld(): void {
       const scenario = browsing({
         webOrigin: origins.web,
         apiOrigin: origins.api,
+        oauthCallbackOrigin: authRelayOrigin(),
         http,
       });
       return Promise.resolve({
