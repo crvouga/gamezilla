@@ -3,16 +3,28 @@
  * import from this package. They build, reconcile and register it exactly as
  * they do every other provider.
  */
-import type { MembershipProviderModule } from '@pkgs/billing';
+import type {
+  MembershipProviderEnv,
+  MembershipProviderModule,
+} from '@pkgs/billing';
 
 import { reconcileStripeOffer } from './offer-reconcile';
 import { billingStripeSecretDefs } from './secret-defs';
-import { StripeSecretKeys } from './secret-keys';
+import { StripeBindingKeys, StripeSecretKeys } from './secret-keys';
 import {
   createStripeClient,
   createStripeMembershipBilling,
   STRIPE_PROVIDER,
+  type StripeMembershipTransport,
 } from './stripe-membership';
+
+/** Stripe itself, or the simulated Stripe `STRIPE_API_ORIGIN` names. */
+async function transportOf(
+  env: Pick<MembershipProviderEnv, 'readSecret' | 'fetch'>
+): Promise<StripeMembershipTransport> {
+  const origin = await env.readSecret(StripeBindingKeys.apiOrigin);
+  return origin === null ? { fetch: env.fetch } : { origin, fetch: env.fetch };
+}
 
 export const STRIPE_MEMBERSHIP_PROVIDER: MembershipProviderModule = {
   provider: STRIPE_PROVIDER,
@@ -31,7 +43,7 @@ export const STRIPE_MEMBERSHIP_PROVIDER: MembershipProviderModule = {
       webhookSecret: await env.readSecret(StripeSecretKeys.webhookSecret),
       offer: env.offer,
       now: env.now,
-      transport: { fetch: env.fetch },
+      transport: await transportOf(env),
     });
   },
 
@@ -39,7 +51,7 @@ export const STRIPE_MEMBERSHIP_PROVIDER: MembershipProviderModule = {
     const secretKey = await env.readSecret(StripeSecretKeys.secretKey);
     if (secretKey === null) return null;
     const result = await reconcileStripeOffer(
-      createStripeClient(secretKey, { fetch: env.fetch }),
+      createStripeClient(secretKey, await transportOf(env)),
       env.offer,
       { callbackUrl: env.callbackUrl },
       env.log

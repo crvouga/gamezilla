@@ -4,3 +4,12 @@ export const StripeSecretKeys = {
   publishableKey: 'STRIPE_PUBLISHABLE_KEY',
   webhookSecret: 'STRIPE_WEBHOOK_SECRET',
 } as const;
+
+/**
+ * Bindings a simulated Stripe is reached through, set by whoever boots one
+ * (the localhost stack) and never managed as deployment secrets. Unset is
+ * Stripe itself.
+ */
+export const StripeBindingKeys = {
+  apiOrigin: 'STRIPE_API_ORIGIN',
+} as const;

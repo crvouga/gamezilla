@@ -278,6 +278,17 @@ async function reconcileOnePrice(args: {
 type PortalFeaturesParam =
   Stripe.BillingPortal.ConfigurationCreateParams['features'];
 
+/**
+ * A trial goes on when its plan changes in the portal; Stripe's default
+ * (`end_trial`) ends it and bills at once. stripe-node types the setting from
+ * 19.x (`2025-09-30.clover`); the API takes it at every version.
+ */
+const TRIAL_UPDATE_BEHAVIOR = 'continue_trial';
+
+type WithTrialUpdateBehavior = {
+  readonly trial_update_behavior?: string;
+};
+
 function portalFeaturesParam(
   offer: PlusMembershipOffer,
   productId: string,
@@ -305,10 +316,12 @@ function portalFeaturesParam(
       enabled: true,
       default_allowed_updates: ['price'],
       proration_behavior: 'create_prorations',
+      trial_update_behavior: TRIAL_UPDATE_BEHAVIOR,
       ...(allowedPrices.length === 0
         ? {}
         : { products: [{ product: productId, prices: allowedPrices }] }),
-    },
+    } as NonNullable<PortalFeaturesParam['subscription_update']> &
+      WithTrialUpdateBehavior,
   };
 }
 
@@ -355,6 +368,8 @@ function featuresMatchLive(
     live.subscription_update.enabled === wanted.subscription_update?.enabled &&
     live.subscription_update.proration_behavior ===
       wanted.subscription_update?.proration_behavior &&
+    (live.subscription_update as WithTrialUpdateBehavior)
+      .trial_update_behavior === TRIAL_UPDATE_BEHAVIOR &&
     sameStringSet(
       stringList(live.subscription_update.default_allowed_updates),
       stringList(wanted.subscription_update?.default_allowed_updates)

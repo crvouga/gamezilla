@@ -13,6 +13,10 @@ import Stripe from 'stripe';
 
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from './callback-events';
 import { membershipStatusOf } from './membership-status';
+import {
+  STRIPE_PORTAL_CONFIGURATION_ID,
+  STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
+} from './offer-reconcile';
 
 /** The adapter's id: it keys stored data, so it never changes. */
 export const STRIPE_PROVIDER = 'stripe';
@@ -53,12 +57,11 @@ function readNumber(record: UnknownRecord | null, key: string): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
-/** `customer` is an id, or the expanded object when a caller expanded it. */
-function readCustomerId(subscription: UnknownRecord): string | null {
-  const customer = subscription['customer'];
-  if (typeof customer === 'string')
-    return customer.length > 0 ? customer : null;
-  const expanded = asRecord(customer);
+/** A field holding an id, or the expanded object when a caller expanded it. */
+function readId(record: UnknownRecord, key: string): string | null {
+  const value = record[key];
+  if (typeof value === 'string') return value.length > 0 ? value : null;
+  const expanded = asRecord(value);
   return expanded === null ? null : readString(expanded, 'id');
 }
 
@@ -126,14 +129,30 @@ function toMembership(
  * status name, event name or price lookup key.
  */
 export class StripeMembershipBilling implements MembershipBilling {
-  readonly provider = STRIPE_PROVIDER;
+  private readonly stripe: Stripe;
+  private readonly offer: PlusMembershipOffer;
+  private readonly webhookSecret: string | null;
+  private readonly now: () => number;
+  /**
+   * The id the app knows this Stripe account by. A deployment moving to a
+   * second Stripe account runs it beside the first under an id of its own.
+   */
+  readonly provider: string;
 
-  constructor(
-    private readonly stripe: Stripe,
-    private readonly offer: PlusMembershipOffer,
-    private readonly webhookSecret: string | null,
-    private readonly now: () => number
-  ) {}
+  constructor(options: {
+    readonly stripe: Stripe;
+    readonly offer: PlusMembershipOffer;
+    readonly webhookSecret: string | null;
+    readonly now: () => number;
+    /** Defaults to {@link STRIPE_PROVIDER}. */
+    readonly provider?: string;
+  }) {
+    this.stripe = options.stripe;
+    this.offer = options.offer;
+    this.webhookSecret = options.webhookSecret;
+    this.now = options.now;
+    this.provider = options.provider ?? STRIPE_PROVIDER;
+  }
 
   async startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
     const customer =
@@ -184,11 +203,35 @@ export class StripeMembershipBilling implements MembershipBilling {
   }
 
   async openPortal(input: OpenPortalInput): Promise<{ readonly url: string }> {
+    const configuration = await this.portalConfiguration();
     const portal = await this.stripe.billingPortal.sessions.create({
       customer: input.customerId,
       return_url: input.returnUrl,
+      ...(configuration === null ? {} : { configuration }),
     });
     return { url: portal.url ?? '' };
+  }
+
+  private portalConfigurationId: string | null = null;
+
+  /**
+   * The portal configuration the offer reconcile manages. A session without
+   * one opens the account's dashboard default, which the reconcile cannot
+   * set; `null` (not reconciled yet) falls back to that default.
+   */
+  private async portalConfiguration(): Promise<string | null> {
+    if (this.portalConfigurationId !== null) return this.portalConfigurationId;
+    const listed = await this.stripe.billingPortal.configurations.list({
+      active: true,
+      limit: 100,
+    });
+    const ours = listed.data.find(
+      (configuration) =>
+        configuration.metadata?.[STRIPE_PORTAL_CONFIGURATION_METADATA_KEY] ===
+        STRIPE_PORTAL_CONFIGURATION_ID
+    );
+    this.portalConfigurationId = ours?.id ?? null;
+    return this.portalConfigurationId;
   }
 
   /**
@@ -208,6 +251,72 @@ export class StripeMembershipBilling implements MembershipBilling {
       }
       throw error;
     }
+  }
+
+  /** Whether every payment of an invoice that was paid has gone back. */
+  private async invoiceRefunded(invoiceId: string): Promise<boolean> {
+    const payments = await this.stripe.invoicePayments.list({
+      invoice: invoiceId,
+      limit: 10,
+    });
+    const paid = payments.data.filter(
+      (payment) =>
+        payment.status === 'paid' &&
+        payment.amount_paid !== null &&
+        payment.amount_paid > 0 &&
+        payment.payment.type === 'payment_intent'
+    );
+    if (paid.length === 0) return false;
+    for (const payment of paid) {
+      const intent = payment.payment.payment_intent;
+      const intentId = typeof intent === 'string' ? intent : intent?.id;
+      if (intentId === undefined) return false;
+      const charge = asRecord(
+        (
+          await this.stripe.paymentIntents.retrieve(intentId, {
+            expand: ['latest_charge'],
+          })
+        ).latest_charge
+      );
+      const amount = readNumber(charge, 'amount');
+      const refundedAmount = readNumber(charge, 'amount_refunded');
+      if (amount === null || refundedAmount === null) return false;
+      if (refundedAmount < amount) return false;
+    }
+    return true;
+  }
+
+  /**
+   * The subscription a charge paid for: the invoice its PaymentIntent paid
+   * (`invoice_payments`, since `basil` the only link from a payment to its
+   * invoice), and that invoice's subscription.
+   */
+  private async subscriptionPaidBy(
+    charge: UnknownRecord
+  ): Promise<string | null> {
+    const intentId = readId(charge, 'payment_intent');
+    if (intentId === null) return null;
+    const payments = await this.stripe.invoicePayments.list({
+      payment: { type: 'payment_intent', payment_intent: intentId },
+      limit: 1,
+    });
+    const invoiceId = payments.data[0]?.invoice;
+    const id = typeof invoiceId === 'string' ? invoiceId : invoiceId?.id;
+    if (id === undefined) return null;
+    const invoice = await this.stripe.invoices.retrieve(id);
+    const subscription = invoice.parent?.subscription_details?.subscription;
+    if (subscription === undefined || subscription === null) return null;
+    return typeof subscription === 'string' ? subscription : subscription.id;
+  }
+
+  /** The subscription an event is about, or `null` when it is about none. */
+  private async subscriptionIdOf(event: Stripe.Event): Promise<string | null> {
+    const object = asRecord(event.data.object);
+    if (object === null) return null;
+    if (event.type === 'charge.refunded') {
+      return await this.subscriptionPaidBy(object);
+    }
+    return readString(object, 'id');
   }
 
   async readCallback(input: ReadCallbackInput): Promise<CallbackResult> {
@@ -234,15 +343,14 @@ export class StripeMembershipBilling implements MembershipBilling {
     if (STRIPE_MEMBERSHIP_CALLBACK_EVENTS[event.type] !== true) {
       return { kind: 'ignored' };
     }
-    const snapshot = asRecord(event.data.object);
-    const id = snapshot === null ? null : readString(snapshot, 'id');
+    const id = await this.subscriptionIdOf(event);
     if (id === null) return { kind: 'ignored' };
     // Stripe delivers duplicates and out of order; the payload is a snapshot
     // from whenever the event fired. Re-read so every delivery reports now;
     // a deletion is final, whatever a lagging read still says.
     const subscription = await this.current(id);
     if (subscription === null) return { kind: 'ignored' };
-    const customerId = readCustomerId(subscription);
+    const customerId = readId(subscription, 'customer');
     if (customerId === null) return { kind: 'ignored' };
 
     const change: MembershipChange = {
@@ -250,12 +358,29 @@ export class StripeMembershipBilling implements MembershipBilling {
       customerId,
       subscriptionId: id,
       offerPriceKey: readOfferPriceKey(subscription, this.offer),
-      membership: toMembership(
+      membership: await this.membershipOf(
         subscription,
         event.type === 'customer.subscription.deleted'
       ),
     };
     return { kind: 'membership', ...change };
+  }
+
+  /**
+   * The membership a subscription grants. One that ended after its last
+   * payment was refunded in full has no paid time left — not even grace:
+   * they have their money back.
+   */
+  private async membershipOf(
+    subscription: UnknownRecord,
+    deleted: boolean
+  ): Promise<Membership> {
+    const membership = toMembership(subscription, deleted);
+    if (membership.status !== 'ended') return membership;
+    const latestInvoice = readId(subscription, 'latest_invoice');
+    if (latestInvoice === null) return membership;
+    if (!(await this.invoiceRefunded(latestInvoice))) return membership;
+    return { status: 'ended', periodEndMs: null, endsAtPeriodEnd: false };
   }
 }
 
@@ -291,11 +416,14 @@ export function createStripeMembershipBilling(args: {
   readonly offer: PlusMembershipOffer;
   readonly now: () => number;
   readonly transport?: StripeMembershipTransport;
+  /** Defaults to {@link STRIPE_PROVIDER}. */
+  readonly provider?: string;
 }): StripeMembershipBilling {
-  return new StripeMembershipBilling(
-    createStripeClient(args.secretKey, args.transport),
-    args.offer,
-    args.webhookSecret,
-    args.now
-  );
+  return new StripeMembershipBilling({
+    stripe: createStripeClient(args.secretKey, args.transport),
+    offer: args.offer,
+    webhookSecret: args.webhookSecret,
+    now: args.now,
+    ...(args.provider === undefined ? {} : { provider: args.provider }),
+  });
 }

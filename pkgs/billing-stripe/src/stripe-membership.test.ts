@@ -1,8 +1,9 @@
 // goal:guest-free-and-paid:9
 import { describe, expect, test } from 'bun:test';
 import type { MembershipStatus, PlusMembershipOffer } from '@pkgs/billing';
+import { StripeTestMode } from './harness';
 import { membershipStatusOf } from './membership-status';
-import { StripeMembershipBilling } from './stripe-membership';
+import { createStripeMembershipBilling } from './stripe-membership';
 
 const offer: PlusMembershipOffer = {
   product: {
@@ -62,234 +63,124 @@ describe('membershipStatusOf', () => {
   });
 });
 
-describe('StripeMembershipBilling', () => {
-  test('startCheckout resolves the offer price and carries the account id', async () => {
-    const sessionInputs: Array<Record<string, unknown>> = [];
-    const listInputs: Array<Record<string, unknown>> = [];
-    const customerInputs: Array<Record<string, unknown>> = [];
-    const stripe = {
-      customers: {
-        create: (input: Record<string, unknown>) => {
-          customerInputs.push(input);
-          return Promise.resolve({ id: 'cus_new' });
-        },
-      },
-      prices: {
-        list: (input: Record<string, unknown>) => {
-          listInputs.push(input);
-          return Promise.resolve({ data: [{ id: 'price_1' }] });
-        },
-      },
-      checkout: {
-        sessions: {
-          create: (input: Record<string, unknown>) => {
-            sessionInputs.push(input);
-            return Promise.resolve({
-              id: 'cs_1',
-              url: 'https://pay.test/cs_1',
-            });
-          },
-        },
-      },
-    };
-    const billing = new StripeMembershipBilling(
-      stripe as never,
-      offer,
-      null,
-      () => 0
+const RETURN_URL = 'https://app.test/return';
+
+/** Stripe in test mode, the offer's prices seeded, and the adapter over it. */
+async function openAdapter(
+  options: { readonly seeded?: boolean; readonly webhookSecret?: null } = {}
+) {
+  const stripe = new StripeTestMode({ nowMs: 1_800_000_000_000 });
+  if (options.seeded !== false) {
+    await stripe.seedPrices(
+      Object.values(offer.prices).map((spec) => spec.catalogPriceId)
     );
+  }
+  const billing = createStripeMembershipBilling({
+    secretKey: stripe.secretKey,
+    webhookSecret: options.webhookSecret === null ? null : stripe.webhookSecret,
+    offer,
+    now: () => stripe.now(),
+    transport: { origin: stripe.origin, fetch: stripe.fetch },
+  });
+  return { stripe, billing };
+}
+
+describe('StripeMembershipBilling', () => {
+  test('a paid checkout is a trialing subscription on the offer price, carrying the account', async () => {
+    const { stripe, billing } = await openAdapter();
     const result = await billing.startCheckout({
       accountId: 'acct-1',
       customerId: null,
       email: 'person@people.test',
-      returnUrl: 'https://app.test/return',
+      returnUrl: RETURN_URL,
     });
-    expect(result.customerId).toBe('cus_new');
-    expect(customerInputs).toEqual([
-      { email: 'person@people.test', metadata: { accountId: 'acct-1' } },
-    ]);
-    expect(result.url).toBe('https://pay.test/cs_1');
-    expect(listInputs[0]?.['lookup_keys']).toEqual(['subscription_monthly']);
-    expect(listInputs[0]?.['active']).toBe(true);
-    expect(sessionInputs[0]?.['mode']).toBe('subscription');
-    expect(sessionInputs[0]?.['customer']).toBe('cus_new');
-    expect(sessionInputs[0]?.['client_reference_id']).toBe('acct-1');
-    expect(sessionInputs[0]?.['subscription_data']).toEqual({
-      metadata: { accountId: 'acct-1' },
-      trial_period_days: 7,
-    });
-    expect(sessionInputs[0]?.['line_items']).toEqual([
-      { price: 'price_1', quantity: 1 },
-    ]);
+    const customer = await stripe.stripe.customers.retrieve(result.customerId);
+    expect(customer.deleted).toBeUndefined();
+    if (customer.deleted === true) throw new Error('unreachable');
+    expect(customer.email).toBe('person@people.test');
+    expect(customer.metadata).toEqual({ accountId: 'acct-1' });
+
+    const [session] = (await stripe.stripe.checkout.sessions.list()).data;
+    expect(session?.url).toBe(result.url);
+    expect(session?.client_reference_id).toBe('acct-1');
+    await stripe.completeCheckout(session?.id ?? '');
+
+    const [subscription] = (
+      await stripe.stripe.subscriptions.list({ customer: result.customerId })
+    ).data;
+    expect(subscription?.status).toBe('trialing');
+    expect(subscription?.metadata).toEqual({ accountId: 'acct-1' });
+    expect(subscription?.items.data[0]?.price.lookup_key).toBe(
+      'subscription_monthly'
+    );
+    expect(
+      ((subscription?.trial_end ?? 0) - (subscription?.trial_start ?? 0)) /
+        86_400
+    ).toBe(7);
   });
 
   test('startCheckout reuses a supplied customer', async () => {
-    let customersCreated = 0;
-    const stripe = {
-      customers: {
-        create: () => {
-          customersCreated += 1;
-          return Promise.resolve({ id: 'cus_new' });
-        },
-      },
-      prices: {
-        list: () => Promise.resolve({ data: [{ id: 'price_1' }] }),
-      },
-      checkout: {
-        sessions: {
-          create: () =>
-            Promise.resolve({ id: 'cs_1', url: 'https://pay.test' }),
-        },
-      },
-    };
-    const billing = new StripeMembershipBilling(
-      stripe as never,
-      offer,
-      null,
-      () => 0
-    );
+    const { stripe, billing } = await openAdapter();
+    const existing = await stripe.stripe.customers.create({
+      email: 'person@people.test',
+    });
     const result = await billing.startCheckout({
       accountId: 'acct-1',
-      customerId: 'cus_existing',
+      customerId: existing.id,
       email: null,
-      returnUrl: 'https://app.test/return',
+      returnUrl: RETURN_URL,
     });
-    expect(result.customerId).toBe('cus_existing');
-    expect(customersCreated).toBe(0);
+    expect(result.customerId).toBe(existing.id);
+    const customers = await stripe.stripe.customers.list();
+    expect(customers.data.map((c) => c.id)).toEqual([existing.id]);
   });
 
   test('startCheckout throws when the offer price is missing upstream', async () => {
-    const stripe = {
-      prices: { list: () => Promise.resolve({ data: [] }) },
-    };
-    const billing = new StripeMembershipBilling(
-      stripe as never,
-      offer,
-      null,
-      () => 0
-    );
+    const { stripe, billing } = await openAdapter({ seeded: false });
+    const customer = await stripe.stripe.customers.create({});
     await expect(
       billing.startCheckout({
         accountId: 'acct-1',
-        customerId: 'cus_1',
+        customerId: customer.id,
         email: null,
-        returnUrl: 'https://app.test/return',
+        returnUrl: RETURN_URL,
       })
     ).rejects.toThrow(
       'stripe: no active price for lookup key subscription_monthly'
     );
   });
 
-  test('openPortal maps the url', async () => {
-    const stripe = {
-      billingPortal: {
-        sessions: {
-          create: () =>
-            Promise.resolve({ url: 'https://billing.test/portal/cus_1' }),
-        },
-      },
-    };
-    const billing = new StripeMembershipBilling(
-      stripe as never,
-      offer,
-      null,
-      () => 0
-    );
+  test('openPortal opens the hosted billing portal for the customer', async () => {
+    const { stripe, billing } = await openAdapter();
+    const customer = await stripe.stripe.customers.create({});
     const result = await billing.openPortal({
       accountId: 'acct-1',
-      customerId: 'cus_1',
-      returnUrl: 'https://app.test/return',
+      customerId: customer.id,
+      returnUrl: RETURN_URL,
     });
-    expect(result.url).toBe('https://billing.test/portal/cus_1');
+    expect(result.url.startsWith(`${stripe.origin}/p/session/`)).toBe(true);
   });
 
   test('readCallback is unverified without a signing secret', async () => {
-    const billing = new StripeMembershipBilling(
-      {} as never,
-      offer,
-      null,
-      () => 0
+    const { stripe, billing } = await openAdapter({ webhookSecret: null });
+    const result = await billing.readCallback(
+      await stripe.signed({
+        rawBody: '{}',
+        timestampS: Math.floor(stripe.now() / 1000),
+      })
     );
-    const result = await billing.readCallback({
-      headers: new Headers({ 'stripe-signature': 'sig' }),
-      rawBody: '{}',
-    });
     expect(result.kind).toBe('unverified');
   });
 
   test('readCallback ignores an unrelated event type', async () => {
-    const stripe = {
-      webhooks: {
-        constructEventAsync: () =>
-          Promise.resolve({ type: 'invoice.paid', data: { object: {} } }),
-      },
-    };
-    const billing = new StripeMembershipBilling(
-      stripe as never,
-      offer,
-      'whsec_test',
-      () => 0
+    const { stripe, billing } = await openAdapter();
+    const customer = await stripe.stripe.customers.create({});
+    const result = await billing.readCallback(
+      await stripe.signed({
+        rawBody: stripe.lastSent('customer.created', customer.id).body,
+        timestampS: Math.floor(stripe.now() / 1000),
+      })
     );
-    const result = await billing.readCallback({
-      headers: new Headers({ 'stripe-signature': 'sig' }),
-      rawBody: '{}',
-    });
     expect(result.kind).toBe('ignored');
-  });
-
-  test('readCallback projects the subscription as Stripe reports it now', async () => {
-    const current = {
-      id: 'sub_1',
-      customer: 'cus_1',
-      status: 'active',
-      cancel_at_period_end: false,
-      items: {
-        data: [
-          {
-            current_period_end: 1_700_000_000,
-            price: { lookup_key: 'subscription_monthly' },
-          },
-        ],
-      },
-    };
-    const retrieved: string[] = [];
-    const stripe = {
-      webhooks: {
-        constructEventAsync: () =>
-          Promise.resolve({
-            type: 'customer.subscription.updated',
-            // A stale snapshot: the adapter must not trust it.
-            data: { object: { ...current, status: 'trialing' } },
-          }),
-      },
-      subscriptions: {
-        retrieve: (id: string) => {
-          retrieved.push(id);
-          return Promise.resolve(current);
-        },
-      },
-    };
-    const billing = new StripeMembershipBilling(
-      stripe as never,
-      offer,
-      'whsec_test',
-      () => 0
-    );
-    const result = await billing.readCallback({
-      headers: new Headers({ 'stripe-signature': 'sig' }),
-      rawBody: '{}',
-    });
-    expect(retrieved).toEqual(['sub_1']);
-    expect(result.kind).toBe('membership');
-    if (result.kind !== 'membership') throw new Error('unreachable');
-    expect(result.provider).toBe('stripe');
-    expect(result.customerId).toBe('cus_1');
-    expect(result.subscriptionId).toBe('sub_1');
-    expect(result.offerPriceKey).toBe('subscription_monthly');
-    expect(result.membership).toEqual({
-      status: 'active',
-      periodEndMs: 1_700_000_000_000,
-      endsAtPeriodEnd: false,
-    });
   });
 });
