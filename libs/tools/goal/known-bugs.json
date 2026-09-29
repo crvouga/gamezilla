@@ -255,6 +255,26 @@
     "regressionTest": "libs/infra/tests/clone-environment.test.ts"
   },
   {
+    "id": "infisical-ci-token-expired",
+    "summary": "Health (and any Deploy step reading secrets live) failed after its tenth minute with \"Your token has expired\": the CI identity's OIDC-minted Infisical token lives 600s, and the admin CLI store published it as INFISICAL_TOKEN, which the resolver then read back as the caller's own token and never minted again. Fixed by marking a minted token with its expiry (INFISICAL_TOKEN_EXPIRES_AT) and re-resolving before every CLI call, minting a new token a minute before the old one expires; a caller's own token is never replaced.",
+    "regressionTest": "pkgs/secret-provider/tests/oidc-access-token.test.ts"
+  },
+  {
+    "id": "railway-empty-environment-stuck",
+    "summary": "Deploy still stopped at dev's foundation after the clone fix: the empty `development` environment the provider had already made stayed in the shared Railway project, and `clone-environment.sh create` refused it and asked for a hand delete in the dashboard. Fixed by having create delete an empty non-production environment, wait until Railway's background delete frees the name, and clone afresh (it holds no service instance, so nothing is lost); production and the clone source are never replaced.",
+    "regressionTest": "libs/infra/tests/clone-environment.test.ts"
+  },
+  {
+    "id": "report-publish-wrangler-not-found",
+    "summary": "The Report workflow never succeeded: every suite passed, then report:publish died with \"Could not find an existing 'wrangler' binary to run\". The job runs `report-publish.ts` from the repo root, where the isolated linker links no wrangler bin (only packages that declare it get one), and a laptop's global wrangler hid it. Fixed by running wrangler from @libs/tools, which declares it.",
+    "regressionTest": "libs/tools/scripts/report-publish.test.ts"
+  },
+  {
+    "id": "health-timeout-hides-hung-probe",
+    "summary": "A Health run's prd job hung and GitHub cancelled it at its 20-minute job timeout with no output, so nobody learned which probe hung: turbo-ci-run's own CI deadline (1200 s) could never fire first, because setup ate into the same 20 minutes. check.yml and deploy.yml already kept their timeouts above the deadline; health.yml now does too (a 25-minute step timeout inside a 30-minute job).",
+    "regressionTest": "libs/tools/scripts/check-budget.test.ts"
+  },
+  {
     "id": "people-search-unenforced",
     "summary": "The people search query (searchProfiles) had no authorize hook, and the sync server only refuses callers with no actor id, so a guest's install got search results from the server although the app hides search from guests. Fixed by authorizing the query through the permission layer (people:search). Found by the access decision table's server layer.",
     "regressionTest": "libs/friends/tests/people-search-authorization.test.ts"

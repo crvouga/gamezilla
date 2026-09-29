@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import {
   MAX_SPEC_PARTS,
+  MODELS_RUNNER,
+  modelTaskProblems,
   specPackages,
   specPartProblems,
 } from './spec-packages';
@@ -49,6 +51,47 @@ describe('specPartProblems', () => {
       `libs/a/package.json: "test:spec:0" must be "${RUNNER} --part 0/2"`,
       'libs/a/package.json: "test:spec:2" is past specParts (2) — delete it',
       `libs/a/package.json: "test:spec:1" is missing — "${RUNNER} --part 1/2"`,
+    ]);
+  });
+});
+
+describe('modelTaskProblems', () => {
+  const pkg = {
+    dir: 'libs/a',
+    name: '@libs/a',
+    models: ['specs/a/door.qnt', 'specs/b/lock.qnt'],
+  };
+  const scripts = { 'check:models': MODELS_RUNNER };
+  const inputs = [
+    '$TURBO_EXTENDS$',
+    '$TURBO_ROOT$/specs/a/*.qnt',
+    '$TURBO_ROOT$/specs/b/*.qnt',
+  ];
+
+  test("a package checking its models, hashing only their domains' models, is clean", () => {
+    expect(modelTaskProblems(pkg, scripts, inputs)).toEqual([]);
+  });
+
+  test('a package with models must check them', () => {
+    expect(modelTaskProblems(pkg, {}, inputs)).toEqual([
+      `libs/a/package.json: "check:models" must be "${MODELS_RUNNER}" — it has Quint models to check`,
+    ]);
+  });
+
+  test('a package without models has no models check', () => {
+    expect(
+      modelTaskProblems({ ...pkg, models: [] }, scripts, undefined)
+    ).toEqual([
+      'libs/a/package.json: "check:models" checks no Quint models — delete it',
+    ]);
+    expect(modelTaskProblems({ ...pkg, models: [] }, {}, undefined)).toEqual(
+      []
+    );
+  });
+
+  test("the task must hash every domain's models, or an edit is served stale", () => {
+    expect(modelTaskProblems(pkg, scripts, inputs.slice(0, 2))).toEqual([
+      'libs/a/turbo.json: check:models inputs must include "$TURBO_ROOT$/specs/b/*.qnt" so a model change re-checks @libs/a',
     ]);
   });
 });

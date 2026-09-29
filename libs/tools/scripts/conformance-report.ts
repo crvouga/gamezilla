@@ -82,14 +82,13 @@ function withEvidence(dir: string, depth: number): readonly string[] {
 /** Every report bucket in the repository that may hold evidence. */
 function reportBuckets(): readonly string[] {
   return [
-    // Root gates that record evidence (`//#ci:models`).
-    ...subdirs(join(REPO_ROOT, '.cache/harness-report')),
     ...['apps', 'libs', 'pkgs'].flatMap((tier) =>
       subdirs(join(REPO_ROOT, tier)).flatMap((pkg) => [
-        // Only the gate's buckets (`test:spec:<k>`); an ad-hoc `bun run spec`
-        // writes `all/`, from whatever implementation was on disk then.
+        // Only the gate's buckets (`test:spec:<k>`, `check:models`); an
+        // ad-hoc `bun run spec` writes `all/`, from whatever implementation
+        // was on disk then.
         ...subdirs(join(pkg, '.cache/harness-report')).filter((bucket) =>
-          /\/part-\d+$/.test(bucket)
+          /\/(part-\d+|models)$/.test(bucket)
         ),
         ...withEvidence(join(pkg, '.cache/health-report'), 2),
       ])

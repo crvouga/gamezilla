@@ -61,13 +61,13 @@ const CHECK_LEAVES = [
   '//#ci:goals',
   '//#ci:specs',
   '//#ci:conformance',
-  '//#ci:models',
   '//#ci:spec-ownership',
   'tc',
   'lint',
   'test',
   'test:contract',
   ...SPEC_PART_TASKS,
+  'check:models',
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/room-server#check:worker-bundle',
@@ -184,6 +184,15 @@ describe('turbo check/deploy graph invariants', () => {
     ]) {
       expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');
     }
+  });
+
+  test('check:models hashes only the models and their checker', () => {
+    // Apalache's verdict depends on the model's text alone. A dependsOn folds
+    // that task's hash in (a `@libs/tools#tc` made every tooling edit re-run
+    // every model), and $TURBO_DEFAULT$ would re-run them on product edits.
+    const task = loadTasks()['check:models'];
+    expect(task?.dependsOn).toBeUndefined();
+    expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
   });
 
   // goal:the-bar:1 — every check that gates a release also gates a PR merge.

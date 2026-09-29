@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import type { Clock } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SecretAdminStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
@@ -17,6 +18,8 @@ type SecretsCoords = {
 export type CreateInfisicalCliAdminStoreOptions = {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
+  /** Tells when a minted CI token is due for replacement. */
+  readonly clock: Clock;
 };
 
 async function resolveSecretsCoords(
@@ -80,11 +83,24 @@ function runInfisical(args: string[]): string {
 }
 
 class InfisicalCliAdminStore implements SecretAdminStore {
-  constructor(private readonly configStore: ObjectStore) {}
+  constructor(private readonly options: CreateInfisicalCliAdminStoreOptions) {}
+
+  private get configStore(): ObjectStore {
+    return this.options.configStore;
+  }
+
+  /**
+   * `infisical` reads `INFISICAL_TOKEN`; a minted one expires mid-run, so it
+   * is re-resolved (and re-minted when due) before every call.
+   */
+  private async run(args: string[]): Promise<string> {
+    await resolveInfisicalAccessTokenForWrites(this.options);
+    return runInfisical(args);
+  }
 
   async fetchSecret(name: string, envOverride?: string): Promise<string> {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
-    return runInfisical([
+    return this.run([
       'secrets',
       'get',
       name,
@@ -108,7 +124,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     envOverride?: string
   ): Promise<void> {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
-    runInfisical([
+    await this.run([
       'secrets',
       'set',
       `${name}=${value}`,
@@ -118,7 +134,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
 
   async deleteSecret(name: string, envOverride?: string): Promise<void> {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
-    runInfisical([
+    await this.run([
       'secrets',
       'delete',
       name,
@@ -132,7 +148,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     envOverride?: string
   ): Promise<ReadonlyMap<string, string>> {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
-    const raw = runInfisical([
+    const raw = await this.run([
       'export',
       ...infisicalBaseArgs(coords),
       '--format=json',
@@ -144,7 +160,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     envOverride?: string
   ): Promise<ReadonlyMap<string, string>> {
     const coords = await resolveSecretsCoords(this.configStore, envOverride);
-    const raw = runInfisical([
+    const raw = await this.run([
       'export',
       ...infisicalBaseArgs(coords),
       '--format=json',
@@ -161,16 +177,8 @@ class InfisicalCliAdminStore implements SecretAdminStore {
 export async function createInfisicalCliAdminStore(
   options: CreateInfisicalCliAdminStoreOptions
 ): Promise<SecretAdminStore> {
-  const token = await resolveInfisicalAccessTokenForWrites({
-    repoRoot: options.repoRoot,
-    configStore: options.configStore,
-  });
-  if (token !== null) {
-    process.env['INFISICAL_TOKEN'] = token;
-    if (!(process.env['SECRETS_TOKEN'] ?? '').trim()) {
-      process.env['SECRETS_TOKEN'] = token;
-    }
-  } else if (process.env['GITHUB_ACTIONS'] === 'true') {
+  const token = await resolveInfisicalAccessTokenForWrites(options);
+  if (token === null && process.env['GITHUB_ACTIONS'] === 'true') {
     throw new Error(
       'Infisical admin CLI needs a token in GitHub Actions, but none was ' +
         'resolved. Export SECRETS_IDENTITY_ID (machine identity) so OIDC ' +
@@ -178,5 +186,5 @@ export async function createInfisicalCliAdminStore(
         'The secrets-auth action should write SECRETS_IDENTITY_ID to GITHUB_ENV.'
     );
   }
-  return new InfisicalCliAdminStore(options.configStore);
+  return new InfisicalCliAdminStore(options);
 }

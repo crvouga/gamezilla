@@ -68,7 +68,7 @@ jobs:
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     # No GitHub environment ('') for a standard env.
     environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
     strategy:
@@ -93,6 +93,10 @@ jobs:
           environment: ${{ matrix.env }}
 
       - name: health:${{ matrix.env }}
+        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/check-budget.ts)
+        # on purpose: turbo-ci-run hits its own deadline first and names the
+        # probe that hung, instead of GitHub cancelling the job silently.
+        timeout-minutes: 25
         run: bun run health
 
       # Critical journeys (specs/journeys/, apps/product/tests/steps/live-world.ts)

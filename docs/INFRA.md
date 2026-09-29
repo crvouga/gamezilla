@@ -205,7 +205,9 @@ makes an empty one, whose custom domain fails with "ServiceInstance not
 found". So every non-production environment is created by duplicating
 `production` (`modules/pubsub/clone-environment.sh`, run by a `terraform_data`
 provisioner; it reads the clone's id back with a read-only `http` data source
-and deletes the clone on teardown). Drop the script once the provider can
+and deletes the clone on teardown). An existing environment of that name with
+no service instance — one the provider made — is deleted and cloned afresh;
+production and the clone source never are. Drop the script once the provider can
 clone (terraform-provider-railway PR #83).
 
 Environments share the service's configuration, never its data: variables,

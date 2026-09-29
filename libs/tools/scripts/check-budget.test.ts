@@ -80,16 +80,21 @@ describe('resolveRunDeadlineSeconds', () => {
     ).toBe(DEPLOY_RUN_DEADLINE_SECONDS);
   });
 
-  test('the CI deadline fires before the workflow step timeout', () => {
+  // regression: health-timeout-hides-hung-probe
+  test.each([
+    ['check.yml', 'check'],
+    ['health.yml', 'health:${{ matrix.env }}'],
+  ])('the CI deadline fires before the %s step timeout', (file, name) => {
     // Otherwise GitHub kills the job first and nobody learns which task hung.
     const workflow = readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/check.yml'),
+      join(import.meta.dirname, '../../../.github/workflows', file),
       'utf8'
     );
-    const step = /- name: check\n(?:.*\n)*?\s+timeout-minutes:\s*(\d+)/.exec(
-      workflow
-    );
-    expect(step, 'check.yml check step has a timeout-minutes').not.toBeNull();
+    // Only the step's own keys: stop at the next step (`- …`).
+    const step = new RegExp(
+      `- name: ${RegExp.escape(name)}\\n(?:(?!\\s*- ).*\\n)*?\\s+timeout-minutes:\\s*(\\d+)`
+    ).exec(workflow);
+    expect(step, `${file} ${name} step has a timeout-minutes`).not.toBeNull();
     expect(Number(step?.[1]) * 60).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS);
   });
 

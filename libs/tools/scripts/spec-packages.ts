@@ -41,6 +41,8 @@ const SHARED_STEPS_IMPORT = '@libs/harness/spec/steps/';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 /** The spec runner every `test:spec` and `test:spec:<k>` script calls. */
 const SPEC_RUNNER = 'bun run ../../libs/harness/scripts/test-spec.ts';
+/** The Quint models check (`check:models`) of every package with models. */
+export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
 /**
  * Most parts one suite may split into: root `turbo.json` defines
  * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and `//#check` runs them.
@@ -489,6 +491,15 @@ export function specsLayoutProblems(
     out.push(...specPartProblems(dir, readManifest(dir)));
   }
   for (const pkg of packages) out.push(...specPartInputProblems(pkg));
+  for (const pkg of packages) {
+    out.push(
+      ...modelTaskProblems(
+        pkg,
+        readManifest(pkg.dir).scripts ?? {},
+        turboTasks(pkg.dir)['check:models']?.inputs
+      )
+    );
+  }
   for (const dir of packageDirs()) {
     if (existsSync(join(REPO_ROOT, dir, 'features'))) {
       out.push(
@@ -517,16 +528,22 @@ function unrunKindProblems(
   );
 }
 
+type TurboTasks = Readonly<
+  Record<string, { readonly inputs?: readonly string[] }>
+>;
+
+function turboTasks(dir: string): TurboTasks {
+  const turbo = join(REPO_ROOT, dir, 'turbo.json');
+  if (!existsSync(turbo)) return {};
+  return (
+    (JSON.parse(readFileSync(turbo, 'utf8')) as { readonly tasks?: TurboTasks })
+      .tasks ?? {}
+  );
+}
+
 /** Each `test:spec:<k>` must hash the specs of every domain the package runs. */
 function specPartInputProblems(pkg: SpecPackage): readonly string[] {
-  const turbo = join(REPO_ROOT, pkg.dir, 'turbo.json');
-  const tasks = existsSync(turbo)
-    ? ((
-        JSON.parse(readFileSync(turbo, 'utf8')) as {
-          readonly tasks?: Record<string, { readonly inputs?: string[] }>;
-        }
-      ).tasks ?? {})
-    : {};
+  const tasks = turboTasks(pkg.dir);
   const parts = Object.keys(readManifest(pkg.dir).scripts ?? {}).filter(
     (name) => /^test:spec:\d+$/.test(name)
   );
@@ -543,6 +560,43 @@ function specPartInputProblems(pkg: SpecPackage): readonly string[] {
     }
   }
   return out;
+}
+
+/**
+ * What is wrong with how a package checks its Quint models: `check:models` is
+ * exactly {@link MODELS_RUNNER} when the package has models and absent when it
+ * has none, and the task hashes the `.qnt` files of every domain holding one,
+ * so editing a model re-checks that package's models and nothing else does.
+ */
+export function modelTaskProblems(
+  pkg: Pick<SpecPackage, 'dir' | 'name' | 'models'>,
+  scripts: Readonly<Record<string, string>>,
+  inputs: readonly string[] | undefined
+): readonly string[] {
+  const script = scripts['check:models'];
+  if (pkg.models.length === 0) {
+    return script === undefined
+      ? []
+      : [
+          `${pkg.dir}/package.json: "check:models" checks no Quint models — delete it`,
+        ];
+  }
+  if (script !== MODELS_RUNNER) {
+    return [
+      `${pkg.dir}/package.json: "check:models" must be "${MODELS_RUNNER}" — it has Quint models to check`,
+    ];
+  }
+  const domains = [
+    ...new Set(pkg.models.map((uri) => uri.split('/')[1] ?? '')),
+  ].sort();
+  return domains.flatMap((domain) => {
+    const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/*.qnt`;
+    return (inputs ?? []).includes(input)
+      ? []
+      : [
+          `${pkg.dir}/turbo.json: check:models inputs must include "${input}" so a model change re-checks ${pkg.name}`,
+        ];
+  });
 }
 
 /** Definitions of the files a package imports, grouped by owner package name. */

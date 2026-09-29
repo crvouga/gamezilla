@@ -16,6 +16,9 @@
     },
     "test:spec:4": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/**"]
+    },
+    "check:models": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/chess/*.qnt"]
     }
   }
 }

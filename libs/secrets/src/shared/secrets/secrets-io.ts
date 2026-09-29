@@ -8,6 +8,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { readSecretsCacheMap } from '@pkgs/secret-provider/local-secrets-cache';
 import type { SecretAdminStore } from '@pkgs/secret-store';
+import { cliClock } from '../cli-io';
 import { REPO_ROOT } from '../paths';
 import { activeEnvFile } from './secret';
 
@@ -18,6 +19,7 @@ function getAdminStore(): Promise<SecretAdminStore> {
     adminStorePromise = createSecretAdminStore({
       repoRoot: REPO_ROOT,
       configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
+      clock: cliClock,
     });
   }
   return adminStorePromise;

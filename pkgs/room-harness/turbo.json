@@ -4,6 +4,9 @@
   "tasks": {
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/room/**"]
+    },
+    "check:models": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/room/*.qnt"]
     }
   }
 }
