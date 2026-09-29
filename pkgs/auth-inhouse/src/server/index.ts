@@ -22,7 +22,11 @@ export { identityJson } from './identity-handlers';
 export { IdentityLinker, type LinkOutcome, maskEmail } from './identity-linker';
 export { IdentityRepository, type IdentityRow } from './identity-repository';
 export { IdpRepository } from './idp-repository';
-export { INHOUSE_AUTH_SECRET } from './inhouse-auth-config';
+export {
+  appleEndpointsFor,
+  googleEndpointsFor,
+  INHOUSE_AUTH_SECRET,
+} from './inhouse-auth-config';
 export { INHOUSE_AUTH_PROVIDER } from './inhouse-auth-provider';
 export {
   createOauthCallbackRelayApp,

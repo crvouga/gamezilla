@@ -68,7 +68,7 @@ export async function startStore(
     const idp = idpForUrl(idps, url);
     return idp === null
       ? await toApp(url, init)
-      : await idp.app.fetch(new Request(url, init));
+      : await idp.fetch(new Request(url, init));
   };
   // The auth app's own egress reaches the providers, and only them.
   app = await buildExampleApp(sql, ports, {
@@ -76,7 +76,7 @@ export async function startStore(
       const url = String(input);
       const idp = idpForUrl(idps, url);
       if (idp === null) return new Response('not found', { status: 404 });
-      return await idp.app.fetch(new Request(url, init));
+      return await idp.fetch(new Request(url, init));
     },
   });
   return {

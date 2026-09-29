@@ -24,7 +24,7 @@ export {
   validateStripePublishableKeyValue,
   validateStripeSecretKeyValue,
 } from './secret-defs';
-export { StripeSecretKeys } from './secret-keys';
+export { StripeBindingKeys, StripeSecretKeys } from './secret-keys';
 export {
   createStripeClient,
   createStripeMembershipBilling,

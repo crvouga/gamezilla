@@ -2,11 +2,11 @@
  * A stack's simulated Google and Apple keep their own account directories.
  * The person behind each actor needs accounts there before they can sign in —
  * the in-process fabric adds them to its IdP nodes; a stack gets them through
- * each provider's test-only control plane. Same people as in-process: one
- * Google account, and two Apple Accounts (the Gmail address and an iCloud
- * one).
+ * each provider's test-only control plane (`/__admin/accounts`). Same people
+ * as in-process: one Google account, and two Apple Accounts (the Gmail address
+ * and an iCloud one).
  */
-import { IDP_ADMIN_PREFIX } from '@pkgs/idp-mock/shared';
+import { harnessIdpAccountId } from '../fabric/idp';
 
 export type StackIdpOrigins = {
   readonly google: string;
@@ -18,10 +18,17 @@ async function addAccount(
   handle: string,
   email: string
 ): Promise<void> {
-  const response = await fetch(`${origin}${IDP_ADMIN_PREFIX}/accounts`, {
+  const givenName = handle.charAt(0).toUpperCase() + handle.slice(1);
+  const response = await fetch(`${origin}/__admin/accounts`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ handle, email }),
+    body: JSON.stringify({
+      id: harnessIdpAccountId(email),
+      email,
+      name: `${givenName} Tester`,
+      givenName,
+      familyName: 'Tester',
+    }),
   });
   if (!response.ok) {
     throw new Error(

@@ -8,6 +8,7 @@ import {
   AUTH_OAUTH_STATE_TTL_MS,
   AUTH_SESSION_TTL_MS,
 } from '../shared/auth-constants';
+import { pkceCodeVerifier } from '../shared/pkce';
 import { hashAuthSecret } from '../shared/token-hash';
 import { tagState } from './oauth-callback-relay';
 
@@ -179,7 +180,7 @@ export class IdpRepository {
     readonly nonce: string;
   }> {
     const state = tagState(args.stateTag, this.createId());
-    const codeVerifier = this.createId();
+    const codeVerifier = pkceCodeVerifier(this.createId());
     const nonce = this.createId();
     const now = this.nowIso();
     const expiresAt = isoFromMs(this.clock.now() + AUTH_OAUTH_STATE_TTL_MS);

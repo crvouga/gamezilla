@@ -16,7 +16,6 @@ import {
   createInProcessOpenAuthSession,
 } from '@pkgs/auth-inhouse/client';
 import type { Session } from '@pkgs/harness';
-import { IDP_PASSWORD } from '@pkgs/idp-mock/shared';
 
 import { AUTH_SYSTEM_BASE_URL, AUTH_SYSTEM_CALLBACK_URL } from './example-app';
 import type { ActorOutcome, ActorState, AuthStore } from './types';
@@ -56,7 +55,7 @@ export function startActor(args: {
       createInProcessOpenAuthSession({
         fetch,
         jar,
-        account: { email: state.answers.email, password: IDP_PASSWORD },
+        account: { email: state.answers.email },
         consent: state.answers.consent,
         answers: { email_choice: state.answers.emailChoice },
       })(url, callbackUrl),

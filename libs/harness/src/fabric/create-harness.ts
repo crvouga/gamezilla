@@ -1,4 +1,4 @@
-import type { ClientEnv, ServerHttp } from '@libs/client-app/shell/client-env';
+import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import {
   type Client,
   createClient,
@@ -11,7 +11,6 @@ import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';
 import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Session } from '@pkgs/harness';
-import type { AppleClientKeys } from '@pkgs/idp-mock/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
@@ -46,6 +45,7 @@ import type { HarnessBrowser } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { bumpHarnessClientEpoch } from './client-namespace';
 import {
+  type AppleClientKeys,
   addHarnessIdpAccounts,
   createHarnessIdps,
   HARNESS_APPLE_IDP_ID,
@@ -68,7 +68,6 @@ import {
 } from './server-nodes';
 import {
   type HarnessSql,
-  openFreshHarnessClientSql,
   openFreshHarnessServerSql,
   openHarnessServerSqlFromSeedBytes,
   sharedSqlClient,
@@ -260,7 +259,6 @@ type HarnessKernel = {
   readonly session: Session;
   readonly composition: HarnessComposition;
   readonly idps: HarnessIdps;
-  readonly idpSqls: readonly HarnessSql[];
   readonly billing: HarnessBillingProviders | null;
   readonly seed: bigint;
   readonly timers: Timers;
@@ -275,28 +273,6 @@ type HarnessKernel = {
   readonly accountReadyDelays: HarnessAccountReadyDelays;
   readonly disposed: { value: boolean };
 };
-
-/** One SQLite per provider node; the Apple node talks back via `toApi`. */
-async function openHarnessIdps(
-  session: Session,
-  appleKeys: AppleClientKeys,
-  toApi: () => ServerHttp
-): Promise<{
-  readonly idps: HarnessIdps;
-  readonly sqls: readonly HarnessSql[];
-}> {
-  const clock = session.ports.clock;
-  const google = await openFreshHarnessClientSql('harness_idp', clock);
-  const apple = await openFreshHarnessClientSql('harness_idp_apple', clock);
-  const idps = await createHarnessIdps({
-    clock,
-    createId: session.ports.createId,
-    sqlClients: { google: google.sqlClient, apple: apple.sqlClient },
-    appleKeys,
-    toApi,
-  });
-  return { idps, sqls: [google, apple] };
-}
 
 async function openServerSql(
   session: Session,
@@ -339,17 +315,17 @@ async function bootHarnessKernel(
   });
   const pubSubBus = createInMemoryBus();
   const appleKeys = await harnessAppleClientKeys();
-  const idpNodes = await openHarnessIdps(session, appleKeys, () =>
-    loadBalancer.fetchFrom(HARNESS_APPLE_IDP_ID)
-  );
-  const idps = idpNodes.idps;
+  const idps = createHarnessIdps({
+    clock: session.ports.clock,
+    appleKeys,
+    toApi: () => loadBalancer.fetchFrom(HARNESS_APPLE_IDP_ID),
+  });
   const serverSql = await openServerSql(session, opts);
   const shared = buildSharedServerServices(serverSql, appleKeys);
   const billing = await openHarnessBillingProviders({
     offer: composition.billingOffer,
     clock: session.ports.clock,
     timers,
-    createId: session.ports.createId,
     // Webhooks go through the balancer, like any caller's.
     toApi: (node) => loadBalancer.fetchFrom(node),
   });
@@ -390,7 +366,6 @@ async function bootHarnessKernel(
     session,
     composition,
     idps,
-    idpSqls: idpNodes.sqls,
     billing,
     seed,
     timers,
@@ -424,7 +399,6 @@ async function disposeHarness(args: {
   kernel.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
-  for (const handle of kernel.idpSqls) await handle.disconnect();
   await kernel.billing?.dispose();
   await kernel.serverSql.disconnect();
 }
@@ -439,23 +413,15 @@ function createClientEnvs(
   browsers: Map<string, HarnessBrowser>
 ): (id: string) => Promise<ClientEnv> {
   const clientEnvs = new Map<string, ClientEnv>();
-  const pendingEnvs = new Map<string, Promise<ClientEnv>>();
-  return async (id) => {
+  return (id) => {
     const cached = clientEnvs.get(id);
-    if (cached !== undefined) return cached;
-    const inFlight = pendingEnvs.get(id);
-    if (inFlight !== undefined) return await inFlight;
-    const pending = (async (): Promise<ClientEnv> => {
-      // The person behind this actor holds accounts at both providers.
-      await addHarnessIdpAccounts(kernel.idps, id);
-      const built = makeHarnessClientEnv(kernel, { id, clientSql });
-      browsers.set(id, built.browser);
-      clientEnvs.set(id, built.env);
-      pendingEnvs.delete(id);
-      return built.env;
-    })();
-    pendingEnvs.set(id, pending);
-    return await pending;
+    if (cached !== undefined) return Promise.resolve(cached);
+    // The person behind this actor holds accounts at both providers.
+    addHarnessIdpAccounts(kernel.idps, id);
+    const built = makeHarnessClientEnv(kernel, { id, clientSql });
+    browsers.set(id, built.browser);
+    clientEnvs.set(id, built.env);
+    return Promise.resolve(built.env);
   };
 }
 

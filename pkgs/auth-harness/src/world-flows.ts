@@ -5,49 +5,66 @@
  */
 
 import type { OauthProviderId } from '@pkgs/auth/shared';
-import { IDP_DEFAULT_FAULTS, type IdpFaults } from '@pkgs/idp-mock/shared';
 import { sql } from '@pkgs/sql';
 
 import { violate } from './checks';
-import { APPLE_CLIENT_ID } from './example-app';
+import {
+  APPLE_CLIENT_ID,
+  accountAt,
+  NO_PROVIDER_FAULTS,
+  type ProviderFaults,
+} from './example-app';
 import { endUserSessions, identitiesOf, identityKey } from './model';
 import type { AuthSurface } from './types';
+import { grantOf } from './world';
 
+/** Apple's test-only control plane (`/__admin`). */
 async function appleAdmin(
   s: AuthSurface,
   path: string,
-  init: { method: string; body?: unknown }
-): Promise<Response> {
-  return await s.store.idps.apple.app.fetch(
-    new Request(`http://apple.idp.test/__idp${path}`, {
-      method: init.method,
+  body: unknown
+): Promise<void> {
+  const apple = s.store.idps.apple;
+  const response = await apple.fetch(
+    new Request(`${apple.origin}/__admin${path}`, {
+      method: 'POST',
       headers: { 'content-type': 'application/json' },
-      ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
+      body: JSON.stringify(body),
     })
   );
+  if (!response.ok) {
+    throw new Error(
+      `apple ${path} → ${String(response.status)}: ${await response.text()}`
+    );
+  }
 }
 
-async function appleSubOf(
-  s: AuthSurface,
-  email: string
-): Promise<string | null> {
-  const account = await s.store.idps.apple.ctx.store.accountByEmail(email);
-  return account?.sub ?? null;
+/** The Apple account at `email`, the subject the app knows it by, and its grant. */
+async function appleAccount(s: AuthSurface, email: string) {
+  const account = accountAt(s.store.idps.apple, email);
+  if (account === null) return null;
+  const grant = await grantOf(s.store.idps.apple, 'apple', account.id);
+  return { id: account.id, sub: grant.subject, granted: grant.granted };
 }
 
-/** "Stop using Apple Account" with this app: every session of its owner ends. */
+/**
+ * "Stop using Apple Account" with this app: Apple tells an app it had
+ * authorized, and every session of the identity's owner ends.
+ */
 export async function appleConsentRevokedFlow(
   s: AuthSurface,
   email: string
 ): Promise<void> {
-  const sub = await appleSubOf(s, email);
-  if (sub === null) return;
-  await appleAdmin(s, '/grants/revoke', {
-    method: 'POST',
-    body: { sub, clientId: APPLE_CLIENT_ID },
+  const account = await appleAccount(s, email);
+  if (account === null) return;
+  await appleAdmin(s, '/consents/revoke', {
+    clientId: APPLE_CLIENT_ID,
+    accountId: account.id,
   });
-  const owner = s.model.identities.get(identityKey('apple', sub));
-  if (owner !== undefined) endUserSessions(s.model, owner.userId);
+  const owner = s.model.identities.get(identityKey('apple', account.sub));
+  if (account.granted && owner !== undefined) {
+    endUserSessions(s.model, owner.userId);
+  }
 }
 
 /**
@@ -59,40 +76,36 @@ export async function appleAccountDeletedFlow(
   s: AuthSurface,
   email: string
 ): Promise<void> {
-  const sub = await appleSubOf(s, email);
-  if (sub === null) return;
-  const store = s.store.idps.apple.ctx.store;
-  const notified = (await store.grant(sub, APPLE_CLIENT_ID)) !== null;
-  await appleAdmin(s, `/accounts/${sub}`, { method: 'DELETE' });
+  const account = await appleAccount(s, email);
+  if (account === null) return;
+  await appleAdmin(s, '/accounts/delete', { accountId: account.id });
   s.directory.apple = s.directory.apple.filter((entry) => entry !== email);
-  const key = identityKey('apple', sub);
+  const key = identityKey('apple', account.sub);
   const owner = s.model.identities.get(key);
-  if (!notified || owner === undefined) return;
+  if (!account.granted || owner === undefined) return;
   s.model.identities.delete(key);
   if (identitiesOf(s.model, owner.userId).length === 0) {
     endUserSessions(s.model, owner.userId);
   }
 }
 
+/** Hide My Email forwarding turned off or on: only a relay address is told. */
 export async function appleRelayForwardingFlow(
   s: AuthSurface,
   email: string,
   forwarding: boolean
 ): Promise<void> {
-  const sub = await appleSubOf(s, email);
-  if (sub === null) return;
-  await appleAdmin(s, '/events', {
-    method: 'POST',
-    body: {
-      type: forwarding ? 'email-enabled' : 'email-disabled',
-      sub,
-      clientId: APPLE_CLIENT_ID,
-    },
+  const account = await appleAccount(s, email);
+  if (account === null) return;
+  await appleAdmin(s, '/relay-forwarding', {
+    accountId: account.id,
+    forwarding,
   });
-  if (!s.model.identities.has(identityKey('apple', sub))) return;
+  const identity = s.model.identities.get(identityKey('apple', account.sub));
+  if (identity === undefined || !identity.isPrivate) return;
   const rows = await s.store.sql.query(sql<{ email_forwarding: unknown }>`
     SELECT email_forwarding FROM idp_accounts
-    WHERE provider = 'apple' AND provider_user_id = ${sub}
+    WHERE provider = 'apple' AND provider_user_id = ${account.sub}
   `);
   const stored = rows[0]?.email_forwarding;
   const on =
@@ -109,43 +122,31 @@ export function movedGoogleEmail(email: string): string {
 }
 
 /** The holder changes their Google address; the subject stays. */
-export async function googleEmailChangedFlow(
-  s: AuthSurface,
-  email: string
-): Promise<void> {
-  const store = s.store.idps.google.ctx.store;
-  const account = await store.accountByEmail(email);
+export function googleEmailChangedFlow(s: AuthSurface, email: string): void {
+  const google = s.store.idps.google;
+  const account = accountAt(google, email);
   if (account === null) return;
-  const at = email.indexOf('@');
   const moved = movedGoogleEmail(email);
-  await store.upsertAccount({
-    sub: account.sub,
-    handle: email.slice(0, at),
-    email: moved,
-    emailVerified: account.emailVerified,
-    hd: account.hd,
-  });
+  google.runtime.instance().seedAccount({ ...account, email: moved });
   s.directory.google = s.directory.google.map((entry) =>
     entry === email ? moved : entry
   );
 }
 
-export async function setFaultsFlow(
+export function setFaultsFlow(
   s: AuthSurface,
   provider: OauthProviderId,
-  patch: Partial<IdpFaults> | null
-): Promise<void> {
-  const store = s.store.idps[provider].ctx.store;
-  await store.setFaults(
-    patch === null
-      ? IDP_DEFAULT_FAULTS
-      : { ...(await store.faults()), ...patch }
+  patch: Partial<ProviderFaults> | null
+): void {
+  const idp = s.store.idps[provider];
+  idp.setFaults(
+    patch === null ? NO_PROVIDER_FAULTS : { ...idp.faults(), ...patch }
   );
 }
 
-export async function rotateKeysFlow(
+export function rotateKeysFlow(
   s: AuthSurface,
   provider: OauthProviderId
-): Promise<void> {
-  await s.store.idps[provider].ctx.store.rotateSigningKeys();
+): void {
+  s.store.idps[provider].runtime.instance().rotateSigningKey(true);
 }

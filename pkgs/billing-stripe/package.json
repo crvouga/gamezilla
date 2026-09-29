@@ -15,6 +15,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@crvouga/mockingbird-service-stripe": "catalog:",
     "@pkgs/billing": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "stripe": "catalog:"

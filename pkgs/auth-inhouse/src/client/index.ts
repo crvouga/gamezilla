@@ -27,6 +27,7 @@ export {
   type HeadlessButton,
   type HeadlessForm,
   parseFirstForm,
+  parseForms,
 } from './headless-form';
 export {
   type AuthCookieJar,

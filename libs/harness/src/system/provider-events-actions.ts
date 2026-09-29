@@ -5,16 +5,13 @@
  * the notification, exactly as it would in production.
  */
 
-import {
-  HARNESS_APPLE_CLIENT_ID,
-  HARNESS_APPLE_IDP_URL,
-} from '@libs/feature/public/harness-constants';
-import {
-  appleSubOf,
-  type IdpAccountDraft,
-  type IdpProviderKind,
-} from '@pkgs/idp-mock/shared';
+import { HARNESS_APPLE_CLIENT_ID } from '@libs/feature/public/harness-constants';
 
+import {
+  type HarnessIdpAccount,
+  type HarnessIdpProvider,
+  harnessIdpAccountId,
+} from '../fabric/idp';
 import { scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { type AppleAccountKind, actorAppleEmail } from './identity';
@@ -22,27 +19,28 @@ import { type AppleAccountKind, actorAppleEmail } from './identity';
 async function appleAdmin(
   s: ProductHarness,
   path: string,
-  init: { readonly method: string; readonly body?: unknown }
+  body: unknown
 ): Promise<void> {
-  await s.harness.idps.apple.app.fetch(
-    new Request(`${HARNESS_APPLE_IDP_URL}/__idp${path}`, {
-      method: init.method,
-      headers: { 'content-type': 'application/json' },
-      ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
-    })
-  );
+  const apple = s.harness.idps.apple;
+  const response = await apple.fetch(`${apple.origin}/__admin${path}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `apple ${path} → ${String(response.status)}: ${await response.text()}`
+    );
+  }
 }
 
 /** "Stop using Apple Account" with the app: the API signs the account out. */
 export const appleRevokesApp = scenarioAction({
   name: 'appleRevokesApp',
   act: async (s, actorId: string, account: AppleAccountKind = 'gmail') => {
-    await appleAdmin(s, '/grants/revoke', {
-      method: 'POST',
-      body: {
-        sub: appleSubOf(actorAppleEmail(s, actorId, account)),
-        clientId: HARNESS_APPLE_CLIENT_ID,
-      },
+    await appleAdmin(s, '/consents/revoke', {
+      clientId: HARNESS_APPLE_CLIENT_ID,
+      accountId: harnessIdpAccountId(actorAppleEmail(s, actorId, account)),
     });
   },
 });
@@ -51,18 +49,19 @@ export const appleRevokesApp = scenarioAction({
 export const appleDeletesAccount = scenarioAction({
   name: 'appleDeletesAccount',
   act: async (s, actorId: string, account: AppleAccountKind = 'gmail') => {
-    const sub = appleSubOf(actorAppleEmail(s, actorId, account));
-    await appleAdmin(s, `/accounts/${sub}`, { method: 'DELETE' });
+    await appleAdmin(s, '/accounts/delete', {
+      accountId: harnessIdpAccountId(actorAppleEmail(s, actorId, account)),
+    });
   },
 });
 
 /**
  * Put an account in a provider's directory — the unusual shapes a scenario
- * needs (an address the provider never verified, a Workspace `hd`, …).
+ * needs (an address the provider never verified, …).
  */
 export const seedProviderAccount = scenarioAction({
   name: 'seedProviderAccount',
-  act: async (s, provider: IdpProviderKind, draft: IdpAccountDraft) => {
-    await s.harness.idps[provider].addAccount(draft);
+  act: (s, provider: HarnessIdpProvider, account: HarnessIdpAccount) => {
+    s.harness.idps[provider].addAccount(account);
   },
 });
