@@ -1731,15 +1731,15 @@ bun run spec --package @libs/friends -t 'ends the friendship'
 bun run spec:catalog
 bun run spec:check [--strict-duplicates]
 bun run spec:ownership
-bun run check:report
 ```
 
 Every `test:spec` run writes its package's report bucket
 (`<package>/.cache/harness-report`: step timelines with the harness calls
 under each step, drawn traces, JUnit), cached by turbo with the verdict.
-`bun run check:report` has GitHub restore or rerun every bucket and fold them
-into one `index.html`, snapshots included (`--no-frames` skips them), then
-opens it from `reports.<zone>/<commit sha>/…`; nothing heavy runs locally. A feature failure
+`bun check` has GitHub restore or rerun every bucket, snapshots included,
+and publish each to the shared reports store on every run; `/reports/<commit
+sha>` (its address is printed when the run starts) streams them in as they
+land; nothing heavy runs locally. A feature failure
 names the feature line, the matching definition, the completed steps and the
 failing step's harness calls. The runner's Bun stubs in `.cache/spec/` are
 never committed.

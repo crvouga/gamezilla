@@ -6,27 +6,28 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./element": "./src/element.tsx"
+    "./remote/publish": "./src/remote/publish.ts"
   },
   "scripts": {
-    "build": "vite build && bun run scripts/build-artifact.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
+    "@pkgs/clock": "workspace:*",
     "@pkgs/harness": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "catalog:",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "happy-dom": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "typescript": "catalog:"
   }
 }

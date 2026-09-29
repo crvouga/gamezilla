@@ -40,7 +40,6 @@ import {
 import {
   getReportStore,
   HARNESS_REPORT_RUN_ID,
-  harnessFramesEnabled,
   type TestCallSite,
   testCallSite,
 } from './report';
@@ -106,8 +105,8 @@ function reportTestId(testId: string, callSite: TestCallSite | null): string {
 
 /**
  * Open a reported product harness. Every run writes its report into the
- * package's `.cache/harness-report` (frames only with `HARNESS_FRAMES=1`);
- * `bun run check:report` folds every package's bucket into one HTML report.
+ * package's `.cache/harness-report`, UI frames included; `bun check` publishes
+ * every package's bucket to `/reports/<sha>`.
  */
 export async function openHarness(
   system: ProductSystem,
@@ -134,7 +133,6 @@ export async function openHarness(
       store: getReportStore(),
       runId: HARNESS_REPORT_RUN_ID,
       testId: named !== undefined ? testId : reportTestId(testId, callSite),
-      frames: harnessFramesEnabled(),
       now: () => wallClock.now(),
       ...(named !== undefined ? { title: named.title } : {}),
       ...(callSite ?? {}),

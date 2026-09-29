@@ -53,30 +53,15 @@ module "auth_relay_edge" {
   }
 }
 
-# The spec report of every commit (`bun run check:report`): CI writes
-# `<sha>/<variant>/index.html` (libs/tools/scripts/report-key.ts), anyone reads
-# it at the bucket's public hostname. Cloudflare serves and caches it straight
-# from R2, so no Worker sits in front. Reports are build output, not user
-# data: they are public, immutable per key, and expire.
+# The spec reports of every commit (`bun check` publishes; layout in
+# `@pkgs/harness-report`): CI writes `spec-reports/commits/<sha>/…`, and every
+# environment's API reads it with its own credential (the foundation stack's
+# `report_access`) and streams it to `/reports/<sha>`. Private: no public
+# hostname, nothing reads it but those credentials. Reports are build output,
+# not user data: immutable per commit, and they expire.
 resource "cloudflare_r2_bucket" "reports" {
   account_id = var.reports.account_id
   name       = var.reports.bucket
-}
-
-data "cloudflare_zone" "reports" {
-  filter = {
-    name    = var.reports.zone_name
-    account = { id = var.reports.account_id }
-  }
-}
-
-resource "cloudflare_r2_custom_domain" "reports" {
-  account_id  = var.reports.account_id
-  bucket_name = cloudflare_r2_bucket.reports.name
-  domain      = var.reports.hostname
-  zone_id     = data.cloudflare_zone.reports.zone_id
-  enabled     = true
-  min_tls     = "1.2"
 }
 
 resource "cloudflare_r2_bucket_lifecycle" "reports" {

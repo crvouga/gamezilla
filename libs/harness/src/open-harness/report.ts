@@ -4,9 +4,8 @@
  * its outcome and error) under the running package's
  * `.cache/harness-report/<part>/runs/latest/…` — `test:spec` caches that bucket, so the
  * report of the last run of this exact code is always there to render.
- * `HARNESS_FRAMES=1` also captures UI frames (slower; a separate cache entry).
- * `bun run check:report` (root) folds every package's bucket into one
- * standalone `harness-report/index.html`.
+ * Every step also captures its UI frames. `bun check` publishes every
+ * package's bucket to the reports screen (`/reports/<sha>`).
  */
 
 import { join, relative, resolve } from 'node:path';
@@ -30,11 +29,6 @@ const HARNESS_REPORT_DATA_DIR =
 
 /** One run per `bun test` invocation; the report script wipes it first. */
 export const HARNESS_REPORT_RUN_ID = 'latest';
-
-/** UI frames on every step — `HARNESS_FRAMES=1` (`bun run check:report` sets it). */
-export function harnessFramesEnabled(): boolean {
-  return process.env['HARNESS_FRAMES'] === '1';
-}
 
 let reportStore: ObjectStore | null = null;
 

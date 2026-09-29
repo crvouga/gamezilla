@@ -6,8 +6,8 @@ import { readUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
 import {
+  DEV_SURFACE_BOOT_SOURCES,
   ENTRY_HTML,
-  HARNESS_BOOT_SOURCE,
   type OfflineShellInput,
   URL_LOADED_DIRS,
   VITE_MANIFEST,
@@ -67,7 +67,9 @@ export async function readDistGraph(
     files,
     chunkSources,
     indexHtml: await requireUtf8(store, ENTRY_HTML),
-    excludedRoots: [manifestChunkFor(manifest, HARNESS_BOOT_SOURCE)],
+    excludedRoots: DEV_SURFACE_BOOT_SOURCES.map((source) =>
+      manifestChunkFor(manifest, source)
+    ),
     extraRoots: keys.filter(
       (key) =>
         URL_LOADED_DIRS.some((dir) => key.startsWith(dir)) && !isDotfile(key)

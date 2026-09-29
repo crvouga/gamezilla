@@ -237,7 +237,6 @@
   "@pkgs/harness-console#lint": 2,
   "@pkgs/harness-console#tc": 1,
   "@pkgs/harness-console#test": 1,
-  "@pkgs/harness-report#build": 4,
   "@pkgs/harness-report#lint": 4,
   "@pkgs/harness-report#tc": 1,
   "@pkgs/harness-report#test": 1,

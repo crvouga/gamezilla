@@ -167,8 +167,9 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 
 **Reports** — every harness writes its `report.json` (Gherkin and Quint
 steps, the harness calls and UI ops under them, outcomes, drawn traces) into
-`<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; `bun run
-check:report` has CI fold every bucket into one `index.html`, published per commit
+`<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; every
+`bun check` publishes every bucket to the shared reports store, per
+commit, where `/reports/<sha>` streams it
 ([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
 testcases also become `test.failure` spans under
 `.cache/harness-report/traces/` for `bun obs test`

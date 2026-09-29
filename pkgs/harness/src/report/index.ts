@@ -14,9 +14,7 @@ export {
   type HtmlReportTest,
   type JunitCase,
   matchJunitCase,
-  mergeRunBundles,
   parseJunit,
-  readRunBundle,
 } from './html';
 export {
   contentTypeForMedia,

@@ -44,12 +44,10 @@ variable "auth_relay" {
 variable "reports" {
   type = object({
     account_id     = string
-    zone_name      = string
-    hostname       = string
     bucket         = string
     retention_days = number
   })
-  description = "The public bucket the per-commit spec reports are served from."
+  description = "The private bucket every environment's API reads the per-commit spec reports from."
 }
 
 variable "railway" {

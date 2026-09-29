@@ -52,16 +52,14 @@ export const globalFileSchema = z
       })
       .strict(),
     /**
-     * The public bucket the per-commit spec reports are served from
-     * (`bun run check:report`, fleet stack): CI writes
-     * `<sha>/<variant>/index.html`, everyone reads it at `hostname`, and each
-     * report expires after `retention_days`.
+     * The one private bucket holding every commit's spec reports (fleet
+     * stack; `bun check`): CI writes with, and each environment's
+     * API reads with, that environment's own credential (foundation stack).
+     * Each report expires after `retention_days`.
      */
     reports: z
       .object({
         account_id: id,
-        zone_name: hostname,
-        hostname,
         bucket: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/),
         retention_days: z.number().int().positive(),
       })

@@ -1,16 +1,17 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI entry: reads package manifests, prints GITHUB_OUTPUT lines
 /**
- * The Report workflow's shard list, as a `GITHUB_OUTPUT` line from a job that
- * loads no secrets:
+ * The Check workflow's report parts, as a `GITHUB_OUTPUT` line. `check:plan`
+ * appends it to the shard plan, and `check:matrix` (a job that loads no
+ * secrets) publishes both:
  *
- *   bun run libs/tools/scripts/report-matrix.ts >> "$GITHUB_OUTPUT"
+ *   bun run libs/tools/scripts/report-matrix.ts >> "$RUNNER_TEMP/shard-plan.txt"
  *
  *   parts=[0,1,2,3,4]
  *
- * One runner per spec part: shard `k` runs `test:spec:<k>` of every package
- * that has one. `bun check` splits every suite the same way and weighs the
- * parts to be about equal, so the shards finish together.
+ * One `check:publish` runner per spec part: part `k` publishes `test:spec:<k>`
+ * of every package that has one. `bun check` splits every suite the same way
+ * and weighs the parts to be about equal, so the parts finish together.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';

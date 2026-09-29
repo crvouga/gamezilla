@@ -43,6 +43,14 @@ output "s3_token" {
   value = local.names.s3_token
 }
 
+output "reports_read_token" {
+  value = local.names.reports_read_token
+}
+
+output "reports_write_token" {
+  value = local.names.reports_write_token
+}
+
 output "traces_write_policy" {
   value = local.names.traces_write_policy
 }

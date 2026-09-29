@@ -15,6 +15,7 @@ import {
   GaugeIcon,
   MonitorPlayIcon,
   PaintbrushIcon,
+  ScrollTextIcon,
   useRegisterCommands,
   useRouter,
   useThemePreference,
@@ -47,6 +48,9 @@ const NAV_TARGETS: readonly {
 /** Super-app Harness screen (`apps/product`), a sibling of the app. */
 const HARNESS_PATH = '/harness';
 
+/** Super-app spec reports screen (`apps/product`), a sibling of the app. */
+const REPORTS_PATH = '/reports';
+
 function NavigationCommands(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
@@ -72,6 +76,18 @@ function NavigationCommands(): JSX.Element {
       visible: !embedded,
       run: () => {
         window.location.assign(HARNESS_PATH);
+      },
+    },
+    {
+      id: `nav:${REPORTS_PATH}`,
+      title: t`Open Reports`,
+      category: t`Navigation`,
+      icon: ScrollTextIcon,
+      keywords: [t`reports`, t`specs`, t`ci`, t`dev`],
+      // Embedded actors already live inside the harness.
+      visible: !embedded,
+      run: () => {
+        window.location.assign(REPORTS_PATH);
       },
     },
   ]);
