@@ -265,6 +265,11 @@
     "regressionTest": "libs/infra/tests/clone-environment.test.ts"
   },
   {
+    "id": "report-publish-wrangler-not-found",
+    "summary": "The Report workflow never succeeded: every suite passed, then report:publish died with \"Could not find an existing 'wrangler' binary to run\". The job runs `report-publish.ts` from the repo root, where the isolated linker links no wrangler bin (only packages that declare it get one), and a laptop's global wrangler hid it. Fixed by running wrangler from @libs/tools, which declares it.",
+    "regressionTest": "libs/tools/scripts/report-publish.test.ts"
+  },
+  {
     "id": "people-search-unenforced",
     "summary": "The people search query (searchProfiles) had no authorize hook, and the sync server only refuses callers with no actor id, so a guest's install got search results from the server although the app hides search from guests. Fixed by authorizing the query through the permission layer (people:search). Found by the access decision table's server layer.",
     "regressionTest": "libs/friends/tests/people-search-authorization.test.ts"
