@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { sql, unsafe } from '@pkgs/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { createSyncApp } from '@pkgs/sync-engine/server';
 import {
@@ -68,6 +69,47 @@ const timestampQuery = defineQuery({
   },
 });
 
+const PROFILE_ID = 'p1';
+const AVATAR = { seed: 's', style: 'funEmoji', options: {} };
+
+const GRACE_MS = 604_800_000;
+
+/**
+ * Rows as the server's Postgres returns them (a boolean, jsonb objects and
+ * scalars) and as the client's SQLite returns them after merge (`1`, JSON
+ * text, and a jsonb scalar in a TEXT column read back as text). The client
+ * re-runs the query on its SQLite to check its rows against the hash.
+ */
+const storedTypesQuery = defineQuery({
+  name: 'publicApiStoredTypes',
+  limit: 100,
+  params: z.object({ from: z.enum(['postgres', 'sqlite']) }),
+  async run(ctx, params) {
+    if (params.from === 'sqlite') {
+      return {
+        profiles: await ctx.db.query(
+          sql`SELECT id, is_anon, avatar_config, deleted_at FROM profiles`
+        ),
+        settings: await ctx.db.query(sql`SELECT id, value FROM settings`),
+      };
+    }
+    return {
+      profiles: [
+        {
+          id: PROFILE_ID,
+          is_anon: true,
+          avatar_config: AVATAR,
+          deleted_at: null,
+        },
+      ],
+      settings: [
+        { id: 'enabled', value: true },
+        { id: 'grace_ms', value: GRACE_MS },
+      ],
+    };
+  },
+});
+
 async function postQuery(
   app: ReturnType<typeof createSyncApp>,
   body: unknown
@@ -96,7 +138,7 @@ describe('public API: createSyncApp query not_modified', () => {
         isAnon: false,
       }),
       getSql: () => db,
-      queries: queryRegistry([snapshotQuery, timestampQuery]),
+      queries: queryRegistry([snapshotQuery, timestampQuery, storedTypesQuery]),
       mutations: mutationRegistry([]),
       now: () => 1_700_000_000_000,
       createId: () => 'id-1',
@@ -147,7 +189,7 @@ describe('public API: createSyncApp query not_modified', () => {
         isAnon: false,
       }),
       getSql: () => db,
-      queries: queryRegistry([snapshotQuery, timestampQuery]),
+      queries: queryRegistry([snapshotQuery, timestampQuery, storedTypesQuery]),
       mutations: mutationRegistry([]),
       now: () => 1_700_000_000_000,
       createId: () => 'id-1',
@@ -170,5 +212,57 @@ describe('public API: createSyncApp query not_modified', () => {
       ],
     });
     expect(asDate.json.responses[0]?.status).toBe('not_modified');
+  });
+
+  // regression: sync-hash-sqlite-stored-types
+  test('booleans and JSON hash as the client stores them, so the client stays in sync', async () => {
+    const db = SqlClientImplMockingbirdSqlite.open();
+    await db.connect();
+    await db.run(
+      unsafe(
+        'CREATE TABLE profiles (id TEXT PRIMARY KEY, is_anon INTEGER, avatar_config TEXT, deleted_at TEXT)'
+      )
+    );
+    await db.run(
+      sql`INSERT INTO profiles (id, is_anon, avatar_config, deleted_at) VALUES (${PROFILE_ID}, ${1}, ${JSON.stringify(AVATAR)}, ${null})`
+    );
+    await db.run(
+      unsafe('CREATE TABLE settings (id TEXT PRIMARY KEY, value TEXT)')
+    );
+    await db.run(
+      sql`INSERT INTO settings (id, value) VALUES (${'enabled'}, ${1}), (${'grace_ms'}, ${GRACE_MS})`
+    );
+    let cp = 0;
+    const app = createSyncApp({
+      resolveAuth: async () => ({
+        actorId: 'actor',
+        deviceId: 'device',
+        accountId: 'acct',
+        isAnon: false,
+      }),
+      getSql: () => db,
+      queries: queryRegistry([snapshotQuery, timestampQuery, storedTypesQuery]),
+      mutations: mutationRegistry([]),
+      now: () => 1_700_000_000_000,
+      createId: () => 'id-1',
+      nextCheckpoint: () => String(++cp),
+    });
+
+    const fromPostgres = await postQuery(app, {
+      queries: [{ name: 'publicApiStoredTypes', params: { from: 'postgres' } }],
+    });
+    const served = fromPostgres.json.responses[0];
+    if (served?.status !== 'ok') throw new Error('expected ok');
+
+    const fromSqlite = await postQuery(app, {
+      queries: [
+        {
+          name: 'publicApiStoredTypes',
+          params: { from: 'sqlite' },
+          lastHash: served.hash,
+        },
+      ],
+    });
+    expect(fromSqlite.json.responses[0]?.status).toBe('not_modified');
   });
 });
