@@ -31,78 +31,76 @@ type Fake = {
   readonly stop: () => void;
 };
 
+type Variables = Record<string, unknown>;
+
+/** One fake GraphQL operation, keyed by a substring of its query. */
+type Handler = (variables: Variables) => unknown;
+
+function fakeHandlers(
+  environments: FakeEnvironment[],
+  mutations: Fake['mutations']
+): [string, Handler][] {
+  // Railway deletes in the background: a deleted environment stays listed
+  // (and its name taken) for a few more listings.
+  const listEnvironments: Handler = () => {
+    for (const env of [...environments]) {
+      if (env.lingers !== undefined && env.lingers-- <= 0) {
+        environments.splice(environments.indexOf(env), 1);
+      }
+    }
+    const edges = environments.map(({ id, name }) => ({ node: { id, name } }));
+    return { data: { project: { environments: { edges } } } };
+  };
+  const serviceInstances: Handler = (variables) => {
+    const env = environments.find((e) => e.id === variables['id']);
+    const edges = Array.from({ length: env?.instances ?? 0 }, () => ({
+      node: { serviceId: 'svc' },
+    }));
+    return { data: { environment: { serviceInstances: { edges } } } };
+  };
+  const create: Handler = (variables) => {
+    mutations.push({ name: 'environmentCreate', variables });
+    const { name } = variables['input'] as { name: string };
+    if (environments.some((e) => e.name === name)) {
+      return {
+        errors: [{ message: 'An environment with that name already exists' }],
+      };
+    }
+    environments.push({ id: `env-${name}`, name, instances: 1 });
+    return { data: { environmentCreate: { id: 'x' } } };
+  };
+  const remove: Handler = (variables) => {
+    mutations.push({ name: 'environmentDelete', variables });
+    const env = environments.find((e) => e.id === variables['id']);
+    if (env !== undefined) env.lingers = 2;
+    return { data: { environmentDelete: true } };
+  };
+  return [
+    ['project(id', listEnvironments],
+    ['serviceInstances', serviceInstances],
+    ['environmentCreate', create],
+    ['environmentDelete', remove],
+  ];
+}
+
 function startFakeRailway(initial: FakeEnvironment[]): Fake {
   const environments = [...initial];
   const mutations: Fake['mutations'] = [];
+  const handlers = fakeHandlers(environments, mutations);
   const server = Bun.serve({
     port: 0,
     async fetch(req) {
       const { query, variables } = (await req.json()) as {
         query: string;
-        variables: Record<string, unknown>;
+        variables: Variables;
       };
       if (req.headers.get('authorization') !== 'Bearer test-token') {
         return Response.json({ errors: [{ message: 'Not Authorized' }] });
       }
-      if (query.includes('project(id')) {
-        for (const env of [...environments]) {
-          if (env.lingers === undefined) continue;
-          if (env.lingers-- <= 0)
-            environments.splice(environments.indexOf(env), 1);
-        }
-        return Response.json({
-          data: {
-            project: {
-              environments: {
-                edges: environments.map((node) => ({
-                  node: { id: node.id, name: node.name },
-                })),
-              },
-            },
-          },
-        });
-      }
-      if (query.includes('serviceInstances')) {
-        const env = environments.find((e) => e.id === variables['id']);
-        return Response.json({
-          data: {
-            environment: {
-              serviceInstances: {
-                edges: Array.from({ length: env?.instances ?? 0 }, () => ({
-                  node: { serviceId: 'svc' },
-                })),
-              },
-            },
-          },
-        });
-      }
-      if (query.includes('environmentCreate')) {
-        const input = variables['input'] as {
-          name: string;
-          sourceEnvironmentId: string;
-        };
-        mutations.push({ name: 'environmentCreate', variables });
-        if (environments.some((e) => e.name === input.name)) {
-          return Response.json({
-            errors: [
-              { message: 'An environment with that name already exists' },
-            ],
-          });
-        }
-        environments.push({
-          id: `env-${input.name}`,
-          name: input.name,
-          instances: 1,
-        });
-        return Response.json({ data: { environmentCreate: { id: 'x' } } });
-      }
-      if (query.includes('environmentDelete')) {
-        mutations.push({ name: 'environmentDelete', variables });
-        const env = environments.find((e) => e.id === variables['id']);
-        if (env !== undefined) env.lingers = 2;
-        return Response.json({ data: { environmentDelete: true } });
-      }
-      return Response.json({ errors: [{ message: 'unknown query' }] });
+      const handler = handlers.find(([key]) => query.includes(key))?.[1];
+      return Response.json(
+        handler?.(variables) ?? { errors: [{ message: 'unknown query' }] }
+      );
     },
   });
   return {

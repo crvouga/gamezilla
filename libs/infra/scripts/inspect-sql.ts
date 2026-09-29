@@ -1,4 +1,5 @@
 // @io-wall-ok — inspect SQL + every-env secret loading helpers.
+import { wallClock } from '@pkgs/clock/wall';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 
@@ -170,6 +171,7 @@ async function loadOneEnv(
   const store = await createSecretAdminStore({
     repoRoot,
     configStore: createRepoTreeObjectStore({ rootDir: repoRoot }),
+    clock: wallClock,
   });
   const secrets = await store.exportSecrets(envName);
   const databaseUrl = (secrets.get('DATABASE_URL') ?? '').trim();

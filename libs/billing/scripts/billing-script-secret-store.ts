@@ -23,6 +23,7 @@ export async function createBillingScriptSecretStore(
     repoRoot: REPO_ROOT,
     configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
     fetchFn: options.fetchFn,
+    clock: { now: options.now },
   });
   return createCachingSecretStore(store, {
     ttlMs: 60_000,

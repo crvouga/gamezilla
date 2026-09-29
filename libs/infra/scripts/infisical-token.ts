@@ -5,6 +5,7 @@
  * token, else the developer's `infisical login` session.
  */
 import { join } from 'node:path';
+import { wallClock } from '@pkgs/clock/wall';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { capture } from '@pkgs/os';
 import { resolveWriteAccessToken } from '@pkgs/secret-provider/resolve-write-access-token';
@@ -15,6 +16,7 @@ export async function resolveInfisicalToken(): Promise<string> {
   const token = await resolveWriteAccessToken({
     repoRoot: REPO_ROOT,
     configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
+    clock: wallClock,
   });
   if (token !== null) return token;
 

@@ -255,6 +255,11 @@
     "regressionTest": "libs/infra/tests/clone-environment.test.ts"
   },
   {
+    "id": "infisical-ci-token-expired",
+    "summary": "Health (and any Deploy step reading secrets live) failed after its tenth minute with \"Your token has expired\": the CI identity's OIDC-minted Infisical token lives 600s, and the admin CLI store published it as INFISICAL_TOKEN, which the resolver then read back as the caller's own token and never minted again. Fixed by marking a minted token with its expiry (INFISICAL_TOKEN_EXPIRES_AT) and re-resolving before every CLI call, minting a new token a minute before the old one expires; a caller's own token is never replaced.",
+    "regressionTest": "pkgs/secret-provider/tests/oidc-access-token.test.ts"
+  },
+  {
     "id": "railway-empty-environment-stuck",
     "summary": "Deploy still stopped at dev's foundation after the clone fix: the empty `development` environment the provider had already made stayed in the shared Railway project, and `clone-environment.sh create` refused it and asked for a hand delete in the dashboard. Fixed by having create delete an empty non-production environment, wait until Railway's background delete frees the name, and clone afresh (it holds no service instance, so nothing is lost); production and the clone source are never replaced.",
     "regressionTest": "libs/infra/tests/clone-environment.test.ts"
