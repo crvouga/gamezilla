@@ -46,6 +46,7 @@
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
+    "@pkgs/openslo": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@solidjs/testing-library": "catalog:",

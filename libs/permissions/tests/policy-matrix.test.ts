@@ -23,7 +23,14 @@ import {
 const PLANS: Readonly<Record<'guest' | 'free' | 'paid', Facts>> = {
   guest: { auth: 'anonymous', membership: 'none' },
   free: { auth: 'verified', membership: 'none' },
-  paid: { auth: 'verified', membership: 'active' },
+  paid: { auth: 'verified', membership: 'active', subscription: 'live' },
+};
+
+/** Paid access through grace after the membership ended (it no longer renews). */
+const PAID_IN_GRACE: Facts = {
+  auth: 'verified',
+  membership: 'active',
+  subscription: 'none',
 };
 
 function cell(plan: keyof typeof PLANS, key: string): string {
@@ -52,7 +59,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.friendsUse, 'deny', 'allow', 'allow'],
   [PERMISSION.peopleSearch, 'deny', 'allow', 'allow'],
   [PERMISSION.notificationsReceive, 'deny', 'allow', 'allow'],
-  [PERMISSION.devicesManage, 'deny', 'allow', 'allow'],
   [PERMISSION.billingView, 'allow', 'allow', 'allow'],
   [PERMISSION.billingSubscribe, 'deny', 'allow', 'allow'],
   [PERMISSION.billingManage, 'deny', 'allow', 'allow'],
@@ -61,7 +67,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.puzzlesCustomizeFeed, 'deny', 'allow', 'allow'],
   [PERMISSION.spacesCreate, 'allow', 'allow', 'allow'],
   [PERMISSION.spacesJoin, 'allow', 'allow', 'allow'],
-  [PERMISSION.spacesWatch, 'allow', 'allow', 'allow'],
   // Space roles grant these by presence, never a plan.
   [PERMISSION.spacesLeave, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesRename, 'deny', 'deny', 'deny'],
@@ -69,18 +74,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.spacesManageMembers, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesSelectGame, 'deny', 'deny', 'deny'],
   [ACTION.puzzleRatedSolve, '20/day', 'unlimited/day', 'unlimited/day'],
-  [
-    ACTION.puzzlePracticeSolve,
-    'unlimited/day',
-    'unlimited/day',
-    'unlimited/day',
-  ],
-  [ACTION.accountSyncEnable, 'allow', 'allow', 'allow'],
-  [ACTION.accountDataExport, 'allow', 'allow', 'allow'],
-  [ACTION.coachEnabled, 'allow', 'allow', 'allow'],
-  [ACTION.coachExplanationsView, 'allow', 'allow', 'allow'],
-  [ACTION.coachRefutationView, 'allow', 'allow', 'allow'],
-  [ACTION.statsOverviewView, 'allow', 'allow', 'allow'],
 ];
 
 describe('shipped policy matrix', () => {
@@ -149,14 +142,17 @@ describe('shipped policy matrix', () => {
       reason({ ...PLANS.guest, billing: 'on' }, key),
       reason({ ...PLANS.free, billing: 'on' }, key),
       reason({ ...PLANS.paid, billing: 'on' }, key),
+      reason({ ...PAID_IN_GRACE, billing: 'on' }, key),
       reason({ ...PLANS.free, billing: 'off' }, key),
     ];
-    // [key, guest, free, paid, free with billing off]
+    const A = 'allow';
+    const ACCOUNT = 'requires_account';
+    const OFF = 'not_granted';
+    // [key, guest, free, paid, paid in grace, free with billing off]
     expect([
       row(PERMISSION.friendsUse),
       row(PERMISSION.peopleSearch),
       row(PERMISSION.notificationsReceive),
-      row(PERMISSION.devicesManage),
       row(PERMISSION.matchmakingUse),
       row(PERMISSION.puzzlesCustomizeFeed),
       row(PERMISSION.billingView),
@@ -164,40 +160,17 @@ describe('shipped policy matrix', () => {
       row(PERMISSION.billingManage),
       row(PERMISSION.puzzlesPlay),
     ]).toEqual([
-      [PERMISSION.friendsUse, 'requires_account', 'allow', 'allow', 'allow'],
-      [PERMISSION.peopleSearch, 'requires_account', 'allow', 'allow', 'allow'],
-      [
-        PERMISSION.notificationsReceive,
-        'requires_account',
-        'allow',
-        'allow',
-        'allow',
-      ],
-      [PERMISSION.devicesManage, 'requires_account', 'allow', 'allow', 'allow'],
-      [
-        PERMISSION.matchmakingUse,
-        'requires_account',
-        'allow',
-        'allow',
-        'allow',
-      ],
-      [
-        PERMISSION.puzzlesCustomizeFeed,
-        'requires_account',
-        'allow',
-        'allow',
-        'allow',
-      ],
-      [PERMISSION.billingView, 'allow', 'allow', 'allow', 'not_granted'],
-      [
-        PERMISSION.billingSubscribe,
-        'requires_account',
-        'allow',
-        'allow',
-        'not_granted',
-      ],
-      [PERMISSION.billingManage, 'requires_account', 'allow', 'allow', 'allow'],
-      [PERMISSION.puzzlesPlay, 'allow', 'allow', 'allow', 'allow'],
+      [PERMISSION.friendsUse, ACCOUNT, A, A, A, A],
+      [PERMISSION.peopleSearch, ACCOUNT, A, A, A, A],
+      [PERMISSION.notificationsReceive, ACCOUNT, A, A, A, A],
+      [PERMISSION.matchmakingUse, ACCOUNT, A, A, A, A],
+      [PERMISSION.puzzlesCustomizeFeed, ACCOUNT, A, A, A, A],
+      [PERMISSION.billingView, A, A, A, A, OFF],
+      // A live membership is not offered a second one; an ended one in
+      // grace may start again at once.
+      [PERMISSION.billingSubscribe, ACCOUNT, A, OFF, A, OFF],
+      [PERMISSION.billingManage, ACCOUNT, A, A, A, OFF],
+      [PERMISSION.puzzlesPlay, A, A, A, A, A],
     ]);
   });
 

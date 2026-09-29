@@ -5,16 +5,27 @@
  * `specs/journeys/`) against the environment `SECRETS_ENV` names — its
  * Workers, database, bucket, broker, secrets and infrastructure, and the
  * critical journeys in a real browser. The last step of every deploy and the
- * Health workflow's schedule.
+ * Health workflow's schedule. Every decided scenario is recorded as `release`
+ * evidence in `.cache/health-report/evidence/`.
+ *
+ * `--objectives` (`health:objectives`) instead checks every service level
+ * objective of those domains (`*.openslo.yaml`, through
+ * `tests/openslo/index.ts`) for that environment, recording `release`
+ * evidence in `.cache/health-objectives-report/evidence/`. Objectives are
+ * measured over weeks, so a run of them never gates a deploy: the Health
+ * workflow runs them after the environments' checks, and a plain `health`
+ * (what `//#deploy` depends on) never runs them.
  *
  * The environment picks the scenarios: `HOST_LIMITS` names the features and
  * scenarios an environment cannot run. Specs never say where they run
- * (docs/SPEC_STANDARDS.md D1), so that knowledge lives here, beside the
+ * (specs/README.md D1), so that knowledge lives here, beside the
  * bindings.
  *
- *   health                                     everything
- *   health specs/health/sign-in.feature        one feature (repo-relative)
- *   health --tags '@domain:journeys'           narrowed further by tags
+ *   health                                              every feature
+ *   health specs/health/sign-in.feature                 one feature (repo-relative)
+ *   health --tags '@domain:journeys'                    features narrowed by tags
+ *   health --objectives                                 every objective file
+ *   health --objectives specs/health/availability.openslo.yaml   one objective file
  */
 
 import { spawnSync } from 'node:child_process';
@@ -29,32 +40,53 @@ import { join, relative, resolve } from 'node:path';
 import { isProductionEnv } from '@libs/infra/public/env-file';
 import { envFile } from '@libs/infra/public/envs';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
+import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PACKAGE_DIR, '../..');
-const STUB_DIR = join(PACKAGE_DIR, '.cache/spec-live');
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
+const SLO_ENTRY = join(PACKAGE_DIR, 'tests/openslo/index.ts');
+const FEATURE_SUFFIX = '.feature';
+const SLO_SUFFIX = '.openslo.yaml';
 /** Per scenario: a broker built from scratch gets ten minutes to come up. */
 const SCENARIO_TIMEOUT_MS = 15 * 60 * 1000;
 
+/** Where a run of each kind writes its stubs and its report bucket. */
+type RunDirs = { readonly stubDir: string; readonly reportDir: string };
+
+const FEATURE_DIRS: RunDirs = {
+  stubDir: join(PACKAGE_DIR, '.cache/spec-live'),
+  reportDir: join(PACKAGE_DIR, '.cache/health-report'),
+};
+const OBJECTIVE_DIRS: RunDirs = {
+  stubDir: join(PACKAGE_DIR, '.cache/spec-live-objectives'),
+  reportDir: join(PACKAGE_DIR, '.cache/health-objectives-report'),
+};
+
 type Cli = {
-  readonly featurePaths: readonly string[];
+  /** `.feature` and `.openslo.yaml` paths, as given. */
+  readonly specPaths: readonly string[];
   readonly tags: string | undefined;
+  /** `--objectives`: run the objective files instead of the features. */
+  readonly objectives: boolean;
   readonly bunArgs: readonly string[];
 };
 
-function parseCli(argv: readonly string[]): Cli {
-  const featurePaths: string[] = [];
+export function parseCli(argv: readonly string[]): Cli {
+  const specPaths: string[] = [];
   const bunArgs: string[] = [];
   let tags: string | undefined;
+  let objectives = false;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i] ?? '';
-    if (arg === '--tags') tags = argv[++i];
+    if (arg === '--objectives') objectives = true;
+    else if (arg === '--tags') tags = argv[++i];
     else if (arg.startsWith('--tags=')) tags = arg.slice('--tags='.length);
-    else if (arg.endsWith('.feature')) featurePaths.push(arg);
+    else if (arg.endsWith(FEATURE_SUFFIX) || arg.endsWith(SLO_SUFFIX))
+      specPaths.push(arg);
     else bunArgs.push(arg);
   }
-  return { featurePaths, tags, bunArgs };
+  return { specPaths, tags, objectives, bunArgs };
 }
 
 function liveDomains(): readonly string[] {
@@ -64,29 +96,58 @@ function liveDomains(): readonly string[] {
   return manifest.liveDomains ?? [];
 }
 
-function allFeatures(): readonly string[] {
+/** Every feature and objective file of the live domains (absolute). */
+function allSpecs(): readonly string[] {
   return liveDomains().flatMap((domain) => {
     const dir = join(REPO_ROOT, 'specs', domain);
     if (!existsSync(dir)) return [];
-    return [...new Bun.Glob('*.feature').scanSync({ cwd: dir })]
+    return [`*${FEATURE_SUFFIX}`, `*${SLO_SUFFIX}`]
+      .flatMap((glob) => [...new Bun.Glob(glob).scanSync({ cwd: dir })])
       .sort()
       .map((file) => join(dir, file));
   });
 }
 
-function selectFeatures(cli: Cli): readonly string[] {
-  const all = allFeatures();
-  if (cli.featurePaths.length === 0) return all;
-  return cli.featurePaths.map((given) => {
+export type Selection =
+  | { readonly ok: true; readonly specs: readonly string[] }
+  | { readonly ok: false; readonly error: string };
+
+/**
+ * What a run checks. A plain run checks features, `--objectives` objective
+ * files, never both: the specs named (each of the run's kind and in a live
+ * domain), else every one of the kind. Objectives carry no tags.
+ */
+export function selectSpecs(input: {
+  /** Every spec of the live domains, absolute. */
+  readonly all: readonly string[];
+  readonly cli: Cli;
+}): Selection {
+  const { all, cli } = input;
+  const suffix = cli.objectives ? SLO_SUFFIX : FEATURE_SUFFIX;
+  if (cli.objectives && cli.tags !== undefined) {
+    return {
+      ok: false,
+      error: '--objectives takes no --tags (objectives carry no tags)',
+    };
+  }
+  if (cli.specPaths.length === 0) {
+    return { ok: true, specs: all.filter((path) => path.endsWith(suffix)) };
+  }
+  const specs: string[] = [];
+  for (const given of cli.specPaths) {
     const abs = resolve(REPO_ROOT, given);
     if (!all.includes(abs)) {
-      console.error(
-        `health: ${given} is not in liveDomains (${liveDomains().join(', ')})`
-      );
-      process.exit(1);
+      return { ok: false, error: `${given} is not a spec of liveDomains` };
     }
-    return abs;
-  });
+    if (!abs.endsWith(suffix)) {
+      const error = cli.objectives
+        ? `${given} is not an objective file`
+        : `${given} is an objective file: run it with --objectives`;
+      return { ok: false, error };
+    }
+    specs.push(abs);
+  }
+  return { ok: true, specs };
 }
 
 /** What an environment offers that some scenarios need. */
@@ -142,18 +203,25 @@ export function hostSkips(
   };
 }
 
-function writeStubs(
+/** Fresh stub and report directories for a run of one kind. */
+function freshDirs(dirs: RunDirs): void {
+  for (const dir of [dirs.stubDir, dirs.reportDir]) {
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+  }
+}
+
+function writeFeatureStubs(
   env: Environment,
   features: readonly string[]
 ): readonly string[] {
-  rmSync(STUB_DIR, { recursive: true, force: true });
-  mkdirSync(STUB_DIR, { recursive: true });
+  const { stubDir, reportDir } = FEATURE_DIRS;
   const bridge = Bun.resolveSync('@pkgs/gherkin/bun-test', import.meta.dir);
   return features.flatMap((featurePath) => {
     const featureUri = relative(REPO_ROOT, featurePath);
     const skips = hostSkips(env, featureUri);
     if (skips.wholeFeature) return [];
-    const file = join(STUB_DIR, stubFileName(featureUri));
+    const file = join(stubDir, stubFileName(featureUri));
     writeFileSync(
       file,
       stubSource({
@@ -163,27 +231,80 @@ function writeStubs(
         stepsEntry: STEPS_ENTRY,
         bridge,
         skip: skips.scenarios,
+        reportDir,
+        layer: 'release',
       })
     );
     return [`./${relative(PACKAGE_DIR, file)}`];
   });
 }
 
+function writeSloStubs(objectives: readonly string[]): readonly string[] {
+  if (objectives.length === 0) return [];
+  if (!existsSync(SLO_ENTRY)) {
+    console.error(
+      `health: ${relative(PACKAGE_DIR, SLO_ENTRY)} is missing — liveDomains hold OpenSLO objectives, so an entry must import one tests/openslo/<stem>.binding.ts per objective file (each with spec: '<stem>')`
+    );
+    process.exit(1);
+  }
+  const { stubDir, reportDir } = OBJECTIVE_DIRS;
+  const bridge = Bun.resolveSync('@pkgs/openslo/bun-test', import.meta.dir);
+  return objectives.map((specPath) => {
+    const specUri = relative(REPO_ROOT, specPath);
+    const file = join(stubDir, sloStubFileName(specUri));
+    writeFileSync(
+      file,
+      sloStubSource({
+        packageName: '@apps/product',
+        specPath,
+        specUri,
+        entry: SLO_ENTRY,
+        bridge,
+        reportDir,
+      })
+    );
+    return `./${relative(PACKAGE_DIR, file)}`;
+  });
+}
+
+function environmentOffers(): {
+  readonly name: string;
+  readonly offers: Environment;
+} {
+  const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+  return {
+    name: env.env,
+    offers: {
+      production: isProductionEnv(env),
+      observability:
+        (process.env['OBSERVABILITY_ENABLED'] ?? '').trim() !== '0',
+    },
+  };
+}
+
+function writeStubs(cli: Cli, offers: Environment): readonly string[] {
+  const selection = selectSpecs({ all: allSpecs(), cli });
+  if (!selection.ok) {
+    console.error(`health: ${selection.error} (${liveDomains().join(', ')})`);
+    process.exit(1);
+  }
+  freshDirs(cli.objectives ? OBJECTIVE_DIRS : FEATURE_DIRS);
+  return cli.objectives
+    ? writeSloStubs(selection.specs)
+    : writeFeatureStubs(offers, selection.specs);
+}
+
 if (import.meta.main) {
   const cli = parseCli(process.argv.slice(2));
-  const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
-  const offers: Environment = {
-    production: isProductionEnv(env),
-    observability: (process.env['OBSERVABILITY_ENABLED'] ?? '').trim() !== '0',
-  };
+  const { name, offers } = environmentOffers();
   const tags = cli.tags ?? '';
   const missing = (Object.keys(offers) as (keyof Environment)[]).filter(
     (need) => !offers[need]
   );
   console.log(
-    `health: ${env.env}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
+    `health${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
   );
-  const stubs = writeStubs(offers, selectFeatures(cli));
+  const stubs = writeStubs(cli, offers);
   if (stubs.length === 0) {
     console.error('health: nothing to run');
     process.exit(1);

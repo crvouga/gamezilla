@@ -55,7 +55,6 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
       PERMISSION.friendsUse,
       PERMISSION.peopleSearch,
       PERMISSION.notificationsReceive,
-      PERMISSION.devicesManage,
       PERMISSION.billingSubscribe,
       PERMISSION.billingManage,
     ]) {
@@ -92,7 +91,7 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
   });
 
   test('a host role inherits the member role', () => {
-    expect(allows(ROLE.spaceHost, PERMISSION.spacesWatch)).toBe(true);
+    expect(allows(ROLE.spaceHost, PERMISSION.spacesLeave)).toBe(true);
     expect(allows(ROLE.spaceHost, PERMISSION.spacesRename)).toBe(true);
     expect(allows(ROLE.spaceMember, PERMISSION.spacesRename)).toBe(false);
   });

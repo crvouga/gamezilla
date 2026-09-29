@@ -23,6 +23,7 @@ import { withHome } from './bare-home-client';
 import type {
   HarnessBrowserAppPage,
   HarnessComposition,
+  HarnessRoomGateway,
   HarnessRoomNode,
 } from './composition';
 import type { ProductHarness } from './system/harness';
@@ -34,7 +35,10 @@ export type HarnessSlice = {
   readonly server?: (deps: {
     readonly billing: MembershipProviders | null;
   }) => FeatureServer;
-  readonly roomNode?: (env: EnvTime) => HarnessRoomNode;
+  readonly roomNode?: (
+    env: EnvTime,
+    gateway: HarnessRoomGateway
+  ) => HarnessRoomNode;
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
   readonly browserPages?: readonly HarnessBrowserAppPage[];
   /** What this feature sells; boots the harness's payment provider. */

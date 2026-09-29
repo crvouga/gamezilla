@@ -102,6 +102,8 @@ async function lookupOf(
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'app-platform',
+  // Apalache: 2 steps in about 12 s, 3 in about 160 s; 4 exceed 20 minutes.
+  verifySteps: 2,
   traces: 10,
   maxSteps: 14,
   timeoutMs: 180_000,

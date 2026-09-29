@@ -38,6 +38,13 @@ const STATUSES: ReadonlyArray<readonly [string | null, Grant]> = [
   ['ACTIVE', 'none'],
 ];
 
+/** Statuses of a membership that still renews: another would bill twice. */
+const LIVE: ReadonlySet<string | null> = new Set([
+  'trialing',
+  'active',
+  'delinquent',
+]);
+
 type PeriodEnd = {
   readonly name: string;
   readonly raw: (grace: number) => string | null;
@@ -189,6 +196,7 @@ describe('membership state space', () => {
         facts: {
           auth: c.signedIn ? 'verified' : 'anonymous',
           membership: role === ROLE.planPaid ? 'active' : 'none',
+          subscription: c.signedIn && LIVE.has(c.status[0]) ? 'live' : 'none',
           billing: 'on',
         },
         role,

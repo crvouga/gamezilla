@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="hosting-limit-decisions" name="The hosting limit" namespace="https://gamezilla.dev/decisions">
+  <decision id="hosting-limit" name="May this person host another open space?">
+    <description>Guests and free accounts host at most one open space at a time; Plus members host as many as they like.</description>
+    <decisionTable id="hosting-limit-table" hitPolicy="UNIQUE">
+      <input id="who" label="who is asking">
+        <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="who-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="open" label="open spaces they host">
+        <inputExpression id="open-expression" typeRef="number"><text>open spaces they host</text></inputExpression>
+        <inputValues id="open-values"><text>[0..50]</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","hosting limit reached"</text></outputValues>
+      </output>
+      <rule id="first-space">
+        <description>Anyone may host their first open space.</description>
+        <inputEntry id="first-space-in-1"><text>"guest","free account"</text></inputEntry>
+        <inputEntry id="first-space-in-2"><text>&lt; 1</text></inputEntry>
+        <outputEntry id="first-space-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="first-space-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="limit-reached">
+        <description>A guest or free account hosting an open space has reached the hosting limit.</description>
+        <inputEntry id="limit-reached-in-1"><text>"guest","free account"</text></inputEntry>
+        <inputEntry id="limit-reached-in-2"><text>&gt;= 1</text></inputEntry>
+        <outputEntry id="limit-reached-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="limit-reached-out-2"><text>"hosting limit reached"</text></outputEntry>
+      </rule>
+      <rule id="plus-unlimited">
+        <description>A Plus member never reaches the hosting limit.</description>
+        <inputEntry id="plus-unlimited-in-1"><text>"Plus member"</text></inputEntry>
+        <inputEntry id="plus-unlimited-in-2"><text>-</text></inputEntry>
+        <outputEntry id="plus-unlimited-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="plus-unlimited-out-2"><text>"none"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

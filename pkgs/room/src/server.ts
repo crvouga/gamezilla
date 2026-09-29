@@ -32,8 +32,14 @@ export type {
   RoomAuthResult,
   RoomAuthSuccess,
 } from './server/core/auth';
+export {
+  decodeRoomGrants,
+  encodeRoomGrants,
+  ROOM_GRANTS_HEADER,
+} from './server/core/grants-header';
 export type {
   RoomConnection,
+  RoomConnectionOptions,
   RoomServerConfig,
 } from './server/core/room-server';
 export { RoomServer } from './server/core/room-server';

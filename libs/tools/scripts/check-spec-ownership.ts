@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI gate entry (`//#ci:spec-ownership`) and pre-commit check.
 /**
- * Every spec — a `.feature` file, a Quint `.qnt` spec, or a bounded
- * context's ubiquitous language (`specs/ubiquitous-language.yml`,
- * `specs/<domain>/ubiquitous-language.yml`, or `glossary.yaml` under its
- * earlier name, which commits made before the rename still carry) — belongs to the spec writer. An implementer never edits
- * a spec, so a commit that touches one is a spec commit and nothing else: its
+ * Every spec — any file under `specs/` (features, Quint models, DMN decision
+ * tables, Alloy structures, OpenSLO objectives, the ubiquitous languages, the
+ * conformance manifest `specs/conformance.yaml` and the rulebook
+ * `specs/README.md`) and any `.feature` file anywhere — belongs to the spec
+ * writer. An implementer never edits a spec, so a commit that touches one is a spec commit and nothing else: its
  * subject starts with `spec:` (or `spec(scope):`) and it changes only specs,
- * catalogs and docs. A commit that mixes a spec change with
+ * catalogs (`STEPS_CATALOG.md`) and docs (`docs/*.md`). A commit that mixes a spec change with
  * code is refused — the roles cannot be told apart in it.
  *
  *   check-spec-ownership.ts             commits in PR_BASE..PR_HEAD (CI) or
@@ -22,8 +22,7 @@ export type Commit = {
   readonly files: readonly string[];
 };
 
-const SPEC_FILE =
-  /\.feature$|^specs\/[^/]+\/[^/]+\.qnt$|^specs\/(?:[^/]+\/)?(?:ubiquitous-language\.yml|glossary\.yaml)$/;
+const SPEC_FILE = /\.feature$|^specs\//;
 const SPEC_SUBJECT = /^spec(\([^)]*\))?!?:/;
 /** What a spec commit may touch besides specs. */
 const SPEC_SIDE_FILES = [/(^|\/)STEPS_CATALOG\.md$/, /^docs\/.*\.md$/];
@@ -50,7 +49,7 @@ export function ownershipViolations(
     if (specs.length === 0) {
       if (SPEC_SUBJECT.test(commit.subject)) {
         out.push(
-          `${label}: a spec: commit must change a spec (a .feature or a specs/<domain>/*.qnt)`
+          `${label}: a spec: commit must change a spec (a .feature or a file under specs/)`
         );
       }
       continue;
@@ -62,7 +61,7 @@ export function ownershipViolations(
     }
     if (other.length > 0) {
       out.push(
-        `${label}: mixes specs with ${other.join(', ')} — a spec commit changes only specs, glossaries, catalogs and docs`
+        `${label}: mixes specs with ${other.join(', ')} — a spec commit changes only specs/, features, catalogs and docs`
       );
     }
   }

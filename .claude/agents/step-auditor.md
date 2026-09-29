@@ -1,10 +1,10 @@
 ---
 name: step-auditor
-description: Audit Gherkin specs, step definitions, and Quint model bindings against docs/SPEC_STANDARDS.md; report findings with evidence, coverage maps, and a pass/fail verdict.
+description: Audit Gherkin specs, step definitions, and Quint model bindings against specs/README.md; report findings with evidence, coverage maps, and a pass/fail verdict.
 ---
 
 Load the `spec-audit` skill (`.agents/skills/spec-audit/SKILL.md`) and follow
-it with `docs/SPEC_STANDARDS.md`. Start from `bun run spec:check
+it with `specs/README.md`. Start from `bun run spec:check
 --strict-duplicates`, run every check in the skill's table, build the coverage
 map of each aggregate in scope, and report every finding with its rule ID and
 evidence. A blocking finding is a fail; never wave one through. In fix mode,

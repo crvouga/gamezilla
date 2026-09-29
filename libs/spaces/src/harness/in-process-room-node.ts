@@ -5,10 +5,20 @@
  *
  * The games a space can host are an argument: the product passes its whole
  * registry, a feature's spec passes the games it composes (or none).
+ *
+ * No API gateway stands in front of it, so it asks the harness's stand-in
+ * for one ({@link HarnessRoomGateway}) on every connect — the grants the
+ * actor holds in the space, decided from the server database exactly as the
+ * gateway decides them at upgrade — and admits the connection with them. The
+ * space room's gate ({@link authorizeSpaceRoomCommand}) then judges each
+ * command, as in the Durable Object.
  */
 
 import type { EnvTime } from '@libs/feature/public/sync';
-import type { HarnessRoomNode } from '@libs/harness/composition';
+import type {
+  HarnessRoomGateway,
+  HarnessRoomNode,
+} from '@libs/harness/composition';
 import type { Message } from '@pkgs/message';
 import {
   type ClientTransport,
@@ -23,6 +33,7 @@ import {
 } from '@pkgs/room-adapter-memory';
 import type { GameDefinition } from '../public/game';
 import { composeSpaceRoomModule } from '../public/load-game-plugins';
+import { authorizeSpaceRoomCommand } from '../public/space-room-authorize';
 import type { CreateRoomTransport } from '../root/client/room/room-transport-factory';
 
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;
@@ -41,14 +52,14 @@ export type RoomServerApp = HarnessRoomNode & {
 
 function withReadyGate(
   inner: ClientTransport,
-  ready: Promise<void>
+  ready: () => Promise<void>
 ): ClientTransport {
   return {
     get isConnected() {
       return inner.isConnected;
     },
     async connect() {
-      await ready;
+      await ready();
       return inner.connect();
     },
     sendJson(payload) {
@@ -83,6 +94,7 @@ function createTopicEntry(
     module,
     storage,
     clock: env.clock,
+    authorize: authorizeSpaceRoomCommand,
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -100,12 +112,28 @@ function createTopicEntry(
   };
 }
 
+type TransportArgs = Parameters<CreateRoomTransport>[0];
+
+/** Who is connecting, as the gateway would resolve them. */
+function actorOf(args: TransportArgs) {
+  return {
+    memberId: args.identity,
+    deviceId: args.installId,
+    accountId: args.identity === args.installId ? null : args.identity,
+  };
+}
+
 function buildLoopbackTransport(
   env: EnvTime,
   entry: TopicEntry,
-  args: Parameters<CreateRoomTransport>[0]
+  admission: {
+    readonly args: TransportArgs;
+    readonly gateway: HarnessRoomGateway;
+  }
 ): ClientTransport {
+  const { args, gateway } = admission;
   const connectionId = env.createId();
+  let grants: readonly string[] = [];
   const transport = new LoopbackRoomTransport({
     server: {
       registerConnection(id, send, actor, options) {
@@ -115,7 +143,10 @@ function buildLoopbackTransport(
         )) {
           entry.server.unregisterConnection(stale);
         }
-        entry.server.registerConnection(id, send, actor, options);
+        entry.server.registerConnection(id, send, actor, {
+          ...options,
+          grants,
+        });
       },
       unregisterConnection(id) {
         entry.server.unregisterConnection(id);
@@ -128,7 +159,17 @@ function buildLoopbackTransport(
     identity: args.identity,
     clientId: args.clientId,
   });
-  return withReadyGate(transport, entry.ready);
+  return withReadyGate(transport, async () => {
+    await entry.ready;
+    // Every open asks the client for its session token first, as the web
+    // transport's URL factory does (a host whose space was just created waits
+    // there for it to reach the server before the socket opens).
+    await args.getSessionToken();
+    grants = await gateway.roomGrants({
+      topic: entry.server.topic,
+      actor: actorOf(args),
+    });
+  });
 }
 
 /**
@@ -138,8 +179,12 @@ function buildLoopbackTransport(
  */
 export function createInProcessRoomNode(
   env: EnvTime,
-  games: readonly GameDefinition[]
+  deps: {
+    readonly games: readonly GameDefinition[];
+    readonly gateway: HarnessRoomGateway;
+  }
 ): RoomServerApp {
+  const { games, gateway } = deps;
   const topics = new Map<string, TopicEntry>();
   const listeners = new Set<() => void>();
   let disposed = false;
@@ -168,11 +213,10 @@ export function createInProcessRoomNode(
     env,
     createTransport: (args) => {
       if (disposed) throw new Error('RoomServerApp: disposed');
-      return buildLoopbackTransport(
-        env,
-        getOrCreate(`space:${args.spaceId}`),
-        args
-      );
+      return buildLoopbackTransport(env, getOrCreate(`space:${args.spaceId}`), {
+        args,
+        gateway,
+      });
     },
     listTopics: () => [...topics.keys()],
     inspect(topic) {

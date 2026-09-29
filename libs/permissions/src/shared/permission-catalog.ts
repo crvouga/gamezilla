@@ -5,7 +5,6 @@ export const PERMISSION = defineCatalog({
   friendsUse: 'friends:use',
   peopleSearch: 'people:search',
   notificationsReceive: 'notifications:receive',
-  devicesManage: 'devices:manage',
   billingView: 'billing:view',
   billingSubscribe: 'billing:subscribe',
   billingManage: 'billing:manage',
@@ -14,7 +13,6 @@ export const PERMISSION = defineCatalog({
   puzzlesCustomizeFeed: 'puzzles:customize-feed',
   spacesCreate: 'spaces:create',
   spacesJoin: 'spaces:join',
-  spacesWatch: 'spaces:watch',
   spacesLeave: 'spaces:leave',
   spacesRename: 'spaces:rename',
   spacesEnd: 'spaces:end',
@@ -36,23 +34,12 @@ export type AppLimit = (typeof LIMIT)[keyof typeof LIMIT];
  */
 export const ACTION = defineCatalog({
   puzzleRatedSolve: 'puzzle.rated.solve',
-  puzzlePracticeSolve: 'puzzle.practice.solve',
-  accountSyncEnable: 'account.sync.enable',
-  accountDataExport: 'account.data.export',
-  coachEnabled: 'coach.enabled',
-  coachExplanationsView: 'coach.explanations.view',
-  coachRefutationView: 'coach.refutation.view',
-  statsOverviewView: 'stats.overview.view',
 });
 export type AppAction = (typeof ACTION)[keyof typeof ACTION];
 
 /** Actions that are consumed (quotas) rather than merely granted. */
-export const QUOTA_ACTIONS = [
-  ACTION.puzzleRatedSolve,
-  ACTION.puzzlePracticeSolve,
-] as const;
+export const QUOTA_ACTIONS = [ACTION.puzzleRatedSolve] as const;
 export type AppQuota = (typeof QUOTA_ACTIONS)[number];
-export type AppGrant = Exclude<AppAction, AppQuota>;
 
 /** Every key a policy role may list under `permissions`. */
 export type AppPolicyKey = AppPermission | AppAction;

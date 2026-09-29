@@ -4,9 +4,13 @@
  *
  * The runner-generated stub (`.cache/spec/<name>.feature.test.ts`) imports the
  * package's steps entry, reads the feature, and calls {@link runFeature}.
+ * Given a `reportDir`, every scenario that passes or fails is recorded as
+ * behavior evidence (`./evidence`).
  */
 
 import { describe, test } from 'bun:test';
+import type { Layer } from '@pkgs/conformance/evidence';
+import { recordScenario } from './evidence';
 import {
   formatScenarioFailure,
   type StepOutcome,
@@ -42,6 +46,13 @@ export type RunFeatureOptions = {
   /** Per-scenario timeout; default is `bun test --timeout`. */
   readonly timeoutMs?: number | undefined;
   readonly reportHint?: string | undefined;
+  /** Report bucket to record each decided scenario's evidence in. */
+  readonly reportDir?: string | undefined;
+  /**
+   * The layer a passing scenario proves: `system` (default, the harness) or
+   * `release` (a live run against a deployment).
+   */
+  readonly layer?: Layer | undefined;
 };
 
 export type Slice = { readonly index: number; readonly count: number };
@@ -88,7 +99,8 @@ type ScenarioRun = {
   readonly scenario: SpecScenario;
 };
 
-async function runScenario(run: ScenarioRun): Promise<void> {
+/** Runs the scenario; false when a host limit ended it undecided. */
+async function runScenario(run: ScenarioRun): Promise<boolean> {
   const { options, scenario } = run;
   const lifecycle = worldLifecycle();
   const ctx: ScenarioContext = {
@@ -118,7 +130,7 @@ async function runScenario(run: ScenarioRun): Promise<void> {
           console.warn(
             `${options.featureUri}:${String(step.line)} ${scenario.name}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
           );
-          return;
+          return false;
         }
         await lifecycle.failed?.(world, cause).catch((error: unknown) => {
           console.warn(
@@ -150,6 +162,45 @@ async function runScenario(run: ScenarioRun): Promise<void> {
   } finally {
     await lifecycle.dispose(world);
   }
+  return true;
+}
+
+/**
+ * The scenario's test body: run it and, with a `reportDir`, record its
+ * verdict. A scenario a host limit cut short proved nothing and records
+ * nothing, like one the host skips.
+ */
+async function scenarioTest(run: ScenarioRun, source: string): Promise<void> {
+  const { options } = run;
+  const record = (status: 'pass' | 'fail', detail?: string) => {
+    if (options.reportDir === undefined) return;
+    recordScenario({
+      reportDir: options.reportDir,
+      packageName: options.packageName,
+      featureUri: options.featureUri,
+      featureSource: source,
+      layer: options.layer ?? 'system',
+      scenarioName: run.scenario.name,
+      status,
+      detail,
+    });
+  };
+  let completed: boolean;
+  try {
+    completed = await runScenario(run);
+  } catch (cause) {
+    record('fail', failureDetail(cause));
+    throw cause;
+  }
+  if (completed) record('pass');
+}
+
+/** The first line of what broke: the step's own error, not the report around it. */
+function failureDetail(error: unknown): string {
+  const inner =
+    error instanceof Error && error.cause !== undefined ? error.cause : error;
+  const text = inner instanceof Error ? inner.message : String(inner);
+  return text.split('\n')[0] ?? text;
 }
 
 /** Register the feature's scenarios with `bun test`. Call at module top level. */
@@ -163,7 +214,7 @@ export function runFeature(source: string, options: RunFeatureOptions): void {
       if (ordinal % slice.count !== slice.index) continue;
       if (!selected(scenario.tags) || skipped.has(scenario.name)) continue;
       const body = () =>
-        runScenario({ options, featureName: feature.name, scenario });
+        scenarioTest({ options, featureName: feature.name, scenario }, source);
       if (options.timeoutMs === undefined) {
         test(scenario.name, body);
       } else {

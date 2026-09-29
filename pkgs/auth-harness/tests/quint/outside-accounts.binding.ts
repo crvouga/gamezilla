@@ -95,6 +95,8 @@ function outsideAccountName(provider: string, email: string | null): string {
 
 bindQuintModel<SignInTraceWorld>({
   model: 'outside-accounts',
+  // Apalache: 3 steps in about 20 s; 4 take about 6 minutes.
+  verifySteps: 3,
   traces: 40,
   maxSteps: 30,
   actions: {

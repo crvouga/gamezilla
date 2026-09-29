@@ -14,6 +14,8 @@ export type RoomSocketAttachment = {
   readonly topic: string;
   /** OTel connection context; null when application export is disabled. */
   readonly traceparent: string | null;
+  /** Grants the gateway admitted the connection with; none on legacy. */
+  readonly grants: readonly string[];
 };
 
 /**
@@ -60,6 +62,12 @@ function resolveAttachmentClientId(
     : connId;
 }
 
+function readGrants(raw: Record<string, unknown>): readonly string[] {
+  const grants = raw['grants'];
+  if (!Array.isArray(grants)) return [];
+  return grants.filter((g): g is string => typeof g === 'string');
+}
+
 /**
  * Reads and validates the attachment written at upgrade time.
  * Returns `null` when missing or malformed (caller should close the socket).
@@ -87,5 +95,6 @@ export function readRoomSocketAttachment(
     moduleName,
     topic,
     traceparent: traceparentRaw,
+    grants: readGrants(raw),
   };
 }

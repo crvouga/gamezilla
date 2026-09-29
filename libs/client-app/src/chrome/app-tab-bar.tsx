@@ -1,7 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
  * Compact bottom tab bar: one `Clickable` per tab (icon over label, ≥44px,
- * `aria-current="page"` on the active tab). Safe-area padding comes from the
+ * `aria-current="page"` on the active tab). A navigation of buttons, not an
+ * ARIA `tablist`: that role needs `tab` children and arrow-key roving, and a
+ * listener would hear an empty tab list (ACT bc4a75). Safe-area padding comes from the
  * `.safe-bottom` class in `styles/base.css` (never inline `env()`).
  */
 
@@ -72,7 +74,6 @@ export function AppTabBar(props: AppTabBarProps): JSX.Element {
       <div
         class="box flex-row"
         style={{ height: `${height()}px`, 'min-height': `${height()}px` }}
-        role="tablist"
       >
         <For each={tabs()}>
           {(tab) => (

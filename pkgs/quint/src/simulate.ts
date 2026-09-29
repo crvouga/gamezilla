@@ -24,7 +24,8 @@ import { basename, join } from 'node:path';
 import { decodeItfTrace, type ItfTrace, renderQuint } from './itf';
 import { quintSeed } from './wall';
 
-const QUINT_CLI = Bun.resolveSync(
+/** The Quint CLI that ships in the npm package, run under Bun. */
+export const QUINT_CLI = Bun.resolveSync(
   '@informalsystems/quint/dist/src/cli.js',
   import.meta.dir
 );

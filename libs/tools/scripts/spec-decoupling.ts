@@ -1,10 +1,13 @@
 /**
- * D1 (docs/SPEC_STANDARDS.md § D. Decoupling): nothing in `specs/` points at
- * the codebase. Code points at specs, never the other way round, so a feature,
- * a Quint model or a glossary names no file path, no workspace package, no
- * source file, and carries no tag outside the traceability allow-list — a tag
- * that says which host or runner can run a scenario is implementation, and
- * lives beside the bindings instead.
+ * D1 (specs/README.md § D. Decoupling): nothing in `specs/` points at
+ * the codebase. Code points at specs, never the other way round, so no file
+ * under `specs/` — feature, Quint model, decision table, structure,
+ * objective, glossary or the conformance manifest — names a file path, a
+ * workspace package or a source file, and no feature carries a tag outside
+ * the traceability allow-list — a tag that says which host or runner can run
+ * a scenario is implementation, and lives beside the bindings instead. The
+ * one exception is the rulebook, `specs/README.md`, which necessarily names
+ * the paths it lays out.
  *
  * Pure over the files' text, so `check-specs.ts` runs it in milliseconds.
  */
@@ -16,6 +19,9 @@ export const ALLOWED_TAG_PREFIXES: readonly string[] = [
   '@regression:',
 ];
 
+/** The rulebook: it states the layout, so it names paths. */
+export const RULEBOOK = 'specs/README.md';
+
 export type SpecText = {
   /** Repo-relative path (`specs/friends/friend-remove.feature`). */
   readonly path: string;
@@ -25,7 +31,7 @@ export type SpecText = {
 type Rule = { readonly what: string; readonly pattern: RegExp };
 
 const SOURCE_EXTENSIONS =
-  'tsx?|jsx?|mjs|cjs|json|md|sql|ya?ml|toml|sh|feature|qnt|html|css';
+  'tsx?|jsx?|mjs|cjs|json|md|sql|ya?ml|toml|sh|feature|qnt|dmn|als|html|css';
 
 const RULES: readonly Rule[] = [
   {
@@ -87,6 +93,7 @@ export function decouplingProblems(
   files: readonly SpecText[]
 ): readonly string[] {
   return files.flatMap((file) => {
+    if (file.path === RULEBOOK) return [];
     const lines = file.text.split('\n');
     return [
       ...(file.path.endsWith('.feature') ? tagProblems(file.path, lines) : []),

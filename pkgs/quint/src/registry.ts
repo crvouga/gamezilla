@@ -60,6 +60,18 @@ export type QuintBinding<W> = {
   readonly traces?: number;
   /** Steps after `init`, at most. Default {@link DEFAULT_MAX_STEPS}. */
   readonly maxSteps?: number;
+  /**
+   * Steps after `init` Apalache explores when it model-checks every
+   * invariant. Default {@link DEFAULT_VERIFY_STEPS}. The check is exhaustive
+   * up to the bound, so its cost grows steeply with it — with the number of
+   * actions and the sizes of the sets they draw from: at 4 steps most
+   * product models check in 4–35 s, but one with ~35 transitions took 7 s at
+   * 2 steps, 39 s at 3 and over 10 minutes at 4. Lower it for such a model
+   * (the check is killed after 240 s); raise it where a violation needs a
+   * longer run to show. The models gate (`//#ci:models`) reads it from the
+   * binding's text, so write it as a number literal.
+   */
+  readonly verifySteps?: number;
   /** Per-trace test timeout. Default: the runner's. */
   readonly timeoutMs?: number;
   /**
@@ -85,6 +97,7 @@ export type QuintBinding<W> = {
 
 export const DEFAULT_TRACES = 4;
 export const DEFAULT_MAX_STEPS = 10;
+export const DEFAULT_VERIFY_STEPS = 4;
 
 type Registry = {
   world: QuintWorld<unknown> | null;

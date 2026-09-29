@@ -3,6 +3,11 @@
  * deleted a linked account, switched its email forwarding). Re-mirror that
  * user's methods into `auth_external_accounts` so the change syncs to every
  * device, the way `/identity/refresh` does for a change the device made.
+ *
+ * An account left with no sign-in method has had every session ended by the
+ * auth service, so no device is signed into it any more: its devices'
+ * memberships are tombstoned in the same transaction, and the push that
+ * follows takes them off the account on every device still listening.
  */
 
 import type { AuthServerPort } from '@pkgs/auth/server';
@@ -10,6 +15,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import { ExternalAccountRepository } from '../../public/external-account-repository';
+import { AccountDeviceMembership } from '../../shared/auth/writes/account-device-membership';
 import { LinkedIdentityMirror } from './linked-identity-mirror';
 
 export class ChangedAuthUserResync {
@@ -32,10 +38,15 @@ export class ChangedAuthUserResync {
     // Only a real read lists sign-in methods; an unknown user must not
     // tombstone the ones already mirrored.
     if (user === null) return null;
-    await new LinkedIdentityMirror(this.db, this.time).mirror(
-      accountId,
-      user.identities
-    );
+    await this.db.transaction(async (tx) => {
+      await new LinkedIdentityMirror(tx, this.time).mirror(
+        accountId,
+        user.identities
+      );
+      if (user.identities.length === 0) {
+        await new AccountDeviceMembership(tx, this.time).endAll(accountId);
+      }
+    });
     return accountId;
   }
 }

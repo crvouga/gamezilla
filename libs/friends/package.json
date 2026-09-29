@@ -59,7 +59,9 @@
   },
   "devDependencies": {
     "@libs/billing": "workspace:*",
+    "@pkgs/alloy": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/dmn": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",

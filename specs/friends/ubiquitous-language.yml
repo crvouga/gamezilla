@@ -22,7 +22,7 @@ terms:
       mutual: when Alice is Bob's friend, Bob is Alice's.
     forms: [friends, friend's, friends']
     avoid: [buddy, follower]
-    model: [Friend]
+    model: [Friend, friend]
     published: true
 
   - term: friendship

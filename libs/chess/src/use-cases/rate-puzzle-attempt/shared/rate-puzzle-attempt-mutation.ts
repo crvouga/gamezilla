@@ -11,8 +11,16 @@
  * duplicated upload and an out-of-order replay all find the row already
  * there and leave the rating alone. That is also what makes an
  * exhausted-pool re-serve unrated (§9).
+ *
+ * The daily puzzle limit is charged when a rated puzzle starts (the
+ * `consumeQuota` the start gate sends first, replayed before this one), so a
+ * new rated result needs that charge: a device that skips or loses the start
+ * cannot record results past the limit. A charge on any day counts, so a
+ * puzzle started before midnight or before the app closed still finishes.
  */
 
+import { requireChargedInMutation } from '@libs/permissions/public/mutation-permission';
+import { ACTION } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
 import type { MutationDb } from '@pkgs/sync-engine/shared';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
@@ -27,6 +35,7 @@ import {
   readPuzzleRatingState,
 } from '../../../shared/chess/chess-puzzle-rating';
 import { chessPuzzleRatingEventId } from '../../../shared/chess/chess-puzzle-rating-event';
+import { ratedStartKeyPrefix } from '../../../shared/chess/rated-start-key';
 
 const ratePuzzleAttemptArgs = z.object({
   ownerId: z.string().min(1),
@@ -159,6 +168,13 @@ export const ratePuzzleAttemptMutation = defineMutation({
     const eventId = chessPuzzleRatingEventId(args.ownerId, args.puzzleId);
     // The ledger row is the whole idempotency story (see the file comment).
     if (await alreadyRated(tx, eventId)) return;
+    await requireChargedInMutation(
+      { tx, env },
+      {
+        quota: ACTION.puzzleRatedSolve,
+        keyPrefix: ratedStartKeyPrefix(args.puzzleId),
+      }
+    );
     const profile = await readProfile(tx, args.ownerId);
     const after = applyPuzzleAttemptRating({
       player: profile.state,

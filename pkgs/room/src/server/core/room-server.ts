@@ -39,10 +39,18 @@ export type RoomServerConfig<
   topic: string;
   module: RoomModule<S, C, E, Identity>;
   storage: RoomStorage;
+  /**
+   * Per-command gate, run before `handle` (injected commands included).
+   * `grants` are the opaque grants the sender's connection was admitted with
+   * ({@link RoomConnectionOptions.grants}) — whatever the host in front of
+   * the room decided at upgrade; a socket-less (injected) command has none.
+   * A refusal rejects the command as `unauthorized`, never logged.
+   */
   authorize?: (
     identity: Identity,
     topic: string,
-    command: RoomCommand<C>
+    command: RoomCommand<C>,
+    grants: readonly string[]
   ) => Promise<{ ok: true } | { ok: false; reason: string }>;
   clock: Clock;
   effectHandlers?: readonly RoomEffectHandler[];
@@ -54,7 +62,22 @@ export type RoomConnection = {
   readonly id: string;
   readonly send: Sender;
   readonly actor: RoomActor;
+  /** Opaque grants the connection was admitted with (never broadcast). */
+  readonly grants: readonly string[];
 };
+
+export type RoomConnectionOptions = {
+  /** Skip the roster broadcast (bulk re-attach after hibernation). */
+  readonly silent?: boolean;
+  /**
+   * Opaque grants decided by the host in front of the room when it admitted
+   * the connection (e.g. an API gateway); handed to `authorize` with every
+   * command the connection sends. Default: none.
+   */
+  readonly grants?: readonly string[];
+};
+
+const NO_GRANTS: readonly string[] = Object.freeze([]);
 
 type CommandFrame = Extract<
   ClientToServerWire,
@@ -141,7 +164,7 @@ export class RoomServer<
     id: string,
     send: Sender,
     actor: RoomActor,
-    options?: { readonly silent?: boolean }
+    options?: RoomConnectionOptions
   ): void {
     crash.ok(!this.connections.has(id), 'duplicate connection id', { id });
     crash.ok(actor.id.length > 0, 'RoomActor.id must be non-empty', { actor });
@@ -155,7 +178,12 @@ export class RoomServer<
         `Tiger: roster full (MAX_ROSTER_SIZE=${String(MAX_ROSTER_SIZE)})`
       );
     }
-    this.connections.set(id, { id, send, actor });
+    this.connections.set(id, {
+      id,
+      send,
+      actor,
+      grants: options?.grants ?? NO_GRANTS,
+    });
     if (options?.silent !== true) this.broadcastRoster();
   }
 
@@ -259,10 +287,11 @@ export class RoomServer<
 
   private async authorizeOrNull(
     identity: Identity,
-    command: RoomCommand<C>
+    command: RoomCommand<C>,
+    grants: readonly string[]
   ): Promise<RoomError | null> {
     if (this.authorize === undefined) return null;
-    const a = await this.authorize(identity, this.topic, command);
+    const a = await this.authorize(identity, this.topic, command, grants);
     if (a.ok) return null;
     return { type: ROOM_ERROR_TYPE.unauthorized, reason: a.reason };
   }
@@ -352,7 +381,11 @@ export class RoomServer<
       ts: this.clock.now(),
       payload: args.payload,
     };
-    const denied = await this.authorizeOrNull(args.identity, command);
+    const denied = await this.authorizeOrNull(
+      args.identity,
+      command,
+      NO_GRANTS
+    );
     if (denied !== null) {
       await this.reject(commandId, denied, null);
       return;
@@ -404,7 +437,7 @@ export class RoomServer<
       ts: parsed.ts,
       payload: parsed.payload as C,
     };
-    const denied = await this.authorizeOrNull(identity, command);
+    const denied = await this.authorizeOrNull(identity, command, conn.grants);
     if (denied !== null) {
       await this.reject(commandId, denied, send);
       return;

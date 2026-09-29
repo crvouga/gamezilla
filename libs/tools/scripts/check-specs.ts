@@ -1,8 +1,9 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI gate entry (`bun run spec:check`, `//#ci:specs`).
 /**
- * The spec gate: every `specs/<domain>/*.qnt` Quint model has exactly one
- * binding, every `specs/<domain>/*.feature` scenario binds to exactly one step
+ * The spec gate: `specs/` holds only spec kinds that run (`spec-kinds.ts`),
+ * every `specs/<domain>/*.qnt` Quint model, `*.dmn` decision table, `*.als`
+ * structure and `*.openslo.yaml` objective has exactly one binding, every `specs/<domain>/*.feature` scenario binds to exactly one step
  * definition, no definition is unused or pending, every scenario carries its
  * `@domain` and known `@goal`s, every goal a feature proves is tagged there,
  * step text says intent (no UI mechanics, implementation words or narrator),
@@ -11,9 +12,9 @@
  * long script, several events, acting after a Then outside journeys,
  * architecture words, a feature without a why), and every spec speaks its
  * bounded context's ubiquitous language (`spec-glossary.ts`: no avoided
- * synonym, no other context's term unless borrowed, every Quint name a
- * glossary term, cross-context imports only of published events), and
- * nothing in specs/ points at code (`spec-decoupling.ts`, D1: no file path,
+ * synonym, no other context's term unless borrowed, every Quint name and
+ * Alloy sig and field a glossary term, cross-context imports only of published events), and
+ * nothing in specs/ but its rulebook points at code (`spec-decoupling.ts`, D1: no file path,
  * workspace package, source file, or tag outside the traceability allow-list),
  * and no spec package walks its harness at random outside a Quint replay
  * (`behavior-tests.ts`).
@@ -47,7 +48,7 @@ import {
 
 const strictDuplicates = process.argv.includes('--strict-duplicates');
 
-/** The thresholds `docs/SPEC_STANDARDS.md` (§ The gate) states for a brief scenario. */
+/** The thresholds `specs/README.md` (§ The gate) states for a brief scenario. */
 const SMELLS = {
   maxSteps: 8,
   maxActions: 3,
@@ -161,7 +162,8 @@ const scenarios = packages.reduce(
   (n, pkg) => n + pkg.features.reduce((m, f) => m + f.scenarios.length, 0),
   0
 );
-const models = packages.reduce((n, pkg) => n + pkg.models.length, 0);
+const count = (of: (pkg: (typeof packages)[number]) => readonly unknown[]) =>
+  String(packages.reduce((n, pkg) => n + of(pkg).length, 0));
 console.log(
-  `ok: ${String(packages.length)} packages, ${String(scenarios)} scenarios, ${String(models)} Quint models, ${String(allDefinitions.length)} step definitions, ${String(uniqueSoft.length)} wording warnings`
+  `ok: ${String(packages.length)} packages, ${String(scenarios)} scenarios, ${count((p) => p.models)} Quint models, ${count((p) => p.decisions)} decision tables, ${count((p) => p.structures)} structures, ${count((p) => p.objectives)} objective files, ${String(allDefinitions.length)} step definitions, ${String(uniqueSoft.length)} wording warnings`
 );

@@ -253,5 +253,50 @@
     "id": "railway-empty-environment",
     "summary": "Deploy failed on every run once the broker moved into one shared Railway project: `railway_environment` (provider v0.6) creates an EMPTY environment with no instance of the `emqx` service, so `customDomainCreate` failed with \"ServiceInstance not found\", dev's foundation never applied, and prd (gated behind dev) never redeployed. Fixed by duplicating the production environment (`clone-environment.sh`, run by `terraform_data.clone`) instead; the script refuses an empty environment with the same name.",
     "regressionTest": "libs/infra/tests/clone-environment.test.ts"
+  },
+  {
+    "id": "people-search-unenforced",
+    "summary": "The people search query (searchProfiles) had no authorize hook, and the sync server only refuses callers with no actor id, so a guest's install got search results from the server although the app hides search from guests. Fixed by authorizing the query through the permission layer (people:search). Found by the access decision table's server layer.",
+    "regressionTest": "libs/friends/tests/people-search-authorization.test.ts"
+  },
+  {
+    "id": "space-leave-when-absent",
+    "summary": "leaveSpace took no permission decision and requireSpacePermission treated every non-host as a member, so someone not in a space got a silent success instead of being refused. Fixed by deciding the person's place in the space (host, joined, not in it) through the permission layer. Found by the space-roles decision table.",
+    "regressionTest": "libs/spaces/tests/space-leave-when-absent.test.ts"
+  },
+  {
+    "id": "rated-puzzle-quota-bypass",
+    "summary": "ratePuzzleAttempt recorded a rated result without checking the rated-puzzle quota ledger, so a guest past the 20-a-day limit (a client that skipped or replayed past the refused consume) still got rated results recorded on the server. Fixed with requireChargedInMutation: a rated result needs a charged start unless the person has no limit. Found by the daily-puzzle-limit decision table.",
+    "regressionTest": "libs/chess/tests/puzzle-session/rated-puzzle-quota.test.ts"
+  },
+  {
+    "id": "forced-sign-out-stale-device-row",
+    "summary": "After Apple deleted an account's only Apple account, the server ended every session but kept each device's live auth_account_devices row, and a device kept its own live row after any sign-out because it only synced the rows of the account it was in. Fixed by tombstoning every membership of an account left with no sign-in method in the same transaction, and syncing each device its own memberships in every account. Found by the accounts Alloy structure audit.",
+    "regressionTest": "libs/auth/src/root/server/changed-auth-user-resync.test.ts"
+  },
+  {
+    "id": "a11y-tab-bar-empty-tablist",
+    "summary": "The bottom tab bar exposed role=tablist with plain buttons and no tab children, so a listener heard an empty tab list (ACT bc4a75, WCAG 1.3.1). Fixed by dropping the role: the bar is a nav of buttons with aria-current.",
+    "regressionTest": "libs/client-app/tests/chrome/app-tab-bar.test.tsx"
+  },
+  {
+    "id": "a11y-profile-avatar-unnamed",
+    "summary": "The avatar on a person's own profile was drawn as a decorative image (alt=\"\"), so a listener heard nothing for it (ACT 23a2a8, WCAG 1.1.1). Fixed by ProfileAvatarFigure: one role=img named \"Your avatar\".",
+    "regressionTest": "libs/profile/tests/profile-avatar-figure.test.tsx"
+  },
+  {
+    "id": "a11y-focus-lost-on-navigation",
+    "summary": "Navigating between screens (opening Settings from the account menu, coming back) dropped keyboard focus to the start of the page (WCAG 2.4.3). Fixed in ScreenBase/AppFrame: the next screen takes focus on its title, or back on the control the person left it from.",
+    "regressionTest": "pkgs/ui/tests/screen-focus.test.tsx"
+  },
+  {
+    "id": "a11y-menu-label-not-in-name",
+    "summary": "Menu rows were named by their label alone (\"Theme\" for a row showing \"Theme System\") and the Connectivity row by its status alone (\"Online\"), so a listener did not hear the visible label (ACT 2ee8b8, WCAG 2.5.3). Fixed: a row's name comes from what it shows unless an aria-label is authored; the Connectivity row authors none.",
+    "regressionTest": "pkgs/ui/tests/floating-menu.test.tsx"
+  },
+  {
+    "id": "space-game-choice-unguarded",
+    "summary": "The space room's select-game command was accepted from anyone connected (the room route is open to anyone and no command gate existed), so a joined member or someone not in the space could make the game choice; only the host (spaces:select-game) may. Fixed: the room gateway decides the actor's space grants through the permission layer at upgrade, strips any client-supplied grants, and the room refuses SelectGame without them. Found by the space-roles decision table.",
+    "regressionTest": "libs/spaces/tests/space-game-choice.test.ts"
   }
 ]

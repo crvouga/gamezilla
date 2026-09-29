@@ -436,7 +436,7 @@ function createServerRouter(args: {
     .route('/', createPubSubTokenRoutes(servers))
     .route('/', tts.app)
     .route('/', llm.app)
-    .route('/', createRoomApp())
+    .route('/', createRoomApp(servers.roomGrants))
     .route('/matchmaking', createMatchmakingSubApp());
 
   // Whatever the composed features contribute, in feature order. The shell

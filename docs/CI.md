@@ -22,7 +22,11 @@ set, so the verdict is the same.
 
 `//#check` depends on every package's `tc`, `lint`, `test`, `test:contract`
 and the parts of its `test:spec` (`test:spec:<k>`, below); the root leaves (`//#lint:root`, syncpack, audit, i18n,
-agent-commands, workspace-lifecycle, goals); `@apps/product#check:offline-shell` (every file the
+agent-commands, workspace-lifecycle, goals, specs, conformance — the manifest's
+world is closed and every entry of it has an automated check, see
+[`specs/README.md`](../specs/README.md#the-conformance-manifest) — models,
+Apalache model-checking every Quint model once per model text — and
+spec-ownership); `@apps/product#check:offline-shell` (every file the
 wall client can load is precached, under budget, from the real `dist/`); each
 Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload
 limit); `@libs/runtime#check:schema-evolution`; `@libs/tools#check:actionlint`;
@@ -246,7 +250,7 @@ Deploy also refuses a commit with no PR and re-runs the whole gate first.
 ## Health and critical journeys
 
 Every health check and critical journey is Gherkin
-([`SPEC_STANDARDS.md`](SPEC_STANDARDS.md#live-domains)): `specs/health/`
+([`specs/README.md`](../specs/README.md#live-domains)): `specs/health/`
 (DNS/TLS, the Workers, Postgres + schema, client config, R2, EMQX, Grafana
 Cloud, secrets, billing keys, the Google OAuth client, infrastructure drift)
 and `specs/journeys/`. `@apps/product`'s `health` task

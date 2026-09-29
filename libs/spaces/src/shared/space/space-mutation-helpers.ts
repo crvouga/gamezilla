@@ -12,6 +12,7 @@ import {
   spaceOpenSessionEntityId,
 } from './participation/participation-ids';
 import { isSpaceHostActor } from './participation/space-participation-policy';
+import { storedSpacePresence } from './stored-space-presence';
 
 type SpaceHostRow = {
   readonly host_id: string | null;
@@ -78,9 +79,13 @@ export async function requireSpacePermission(
     readonly message: string;
   }
 ): Promise<void> {
-  const row = await getSpaceHost(tx, args.spaceId);
+  await getSpaceHost(tx, args.spaceId);
   const decision = await decideInMutation({ tx, env }, args.permission, {
-    spacePresence: isHost(env, row) ? 'host' : 'guest',
+    spacePresence: await storedSpacePresence(tx, args.spaceId, {
+      memberId: memberId(env),
+      accountId: env.accountId,
+      deviceId: env.deviceId,
+    }),
   });
   if (!decision.allowed) {
     throw new MutationError('SPACE_PERMISSION_DENIED', args.message);

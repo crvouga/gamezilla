@@ -14,7 +14,7 @@
 import type { ClientEnv, ServerHttp } from '@libs/client-app/shell/client-env';
 import type { FeatureClient } from '@libs/feature/public/client';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
-import type { FeatureServer } from '@libs/feature/public/server';
+import type { FeatureServer, RoomGrantsCtx } from '@libs/feature/public/server';
 import type { EnvTime } from '@libs/feature/public/sync';
 import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
 import type { CatalogAction, CatalogProperty } from '@pkgs/harness';
@@ -45,6 +45,19 @@ export type HarnessRoomInspect = {
   readonly committedState: RoomState;
   readonly roster: readonly RoomActor[];
   readonly storage: RoomStorageTopicSnapshot | null;
+};
+
+/**
+ * What the API room gateway decides at upgrade, for a room node with no
+ * gateway in front of it: the grants the connecting actor holds in the
+ * topic's room, decided by the composed features against the server
+ * database (`FeatureServer.roomGrants`).
+ */
+export type HarnessRoomGateway = {
+  readonly roomGrants: (args: {
+    readonly topic: string;
+    readonly actor: RoomGrantsCtx['actor'];
+  }) => Promise<readonly string[]>;
 };
 
 export type HarnessRoomNode = {
@@ -87,7 +100,10 @@ export type HarnessComposition = {
   readonly migratePostgres?: MigrateHarnessPostgres;
   /** Folded into the seed fingerprint when `migratePostgres` is custom. */
   readonly migrateFingerprint?: string;
-  readonly roomNode?: (env: EnvTime) => HarnessRoomNode;
+  readonly roomNode?: (
+    env: EnvTime,
+    gateway: HarnessRoomGateway
+  ) => HarnessRoomNode;
   /** Rows every harness of this composition starts with, after migrate. */
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
   readonly browserPages?: readonly HarnessBrowserAppPage[];

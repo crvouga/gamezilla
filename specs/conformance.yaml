@@ -1,0 +1,136 @@
+# What the product is, and what must be proven automatically before a release
+# of it is called product-equivalent and ready for production (the strategy in
+# the rulebook beside this file, parts 11, 12, 18, 22, 23 and 25).
+#
+# The world is closed: every capability, contract, environment and release
+# gate the product has is listed here, and every one listed must have an
+# automated check that proves it. Something the product does that is missing
+# here, or something listed here that nothing checks, fails the release.
+
+product:
+  # Every bounded context, one per folder beside this file.
+  contexts:
+    - auth
+    - billing
+    - chess
+    - friends
+    - health
+    - journeys
+    - matchmaking
+    - profile
+    - room
+    - runtime
+    - spaces
+    - sync-engine
+
+  # The kinds of person the product treats differently.
+  tiers:
+    - guest
+    - free account
+    - Plus member
+
+  # Everything a person may or may not be allowed to do. Each is answered by
+  # exactly one decision table, named by its decision.
+  capabilities:
+    - { id: keep a friends list, context: friends, decided by: access }
+    - { id: use people search, context: friends, decided by: access }
+    - { id: get notifications, context: friends, decided by: access }
+    - { id: see the billing plans, context: billing, decided by: access }
+    - { id: subscribe, context: billing, decided by: access }
+    - { id: use the billing portal, context: billing, decided by: access }
+    - { id: wait for a match, context: matchmaking, decided by: access }
+    - { id: play puzzles, context: chess, decided by: access }
+    - { id: customize the puzzle feed, context: chess, decided by: access }
+    - { id: solve a rated puzzle, context: chess, decided by: daily-puzzle-limit }
+    - { id: create a space, context: spaces, decided by: access }
+    - { id: join a space, context: spaces, decided by: access }
+    - { id: host another open space, context: spaces, decided by: hosting-limit }
+    - { id: leave the space, context: spaces, decided by: space-roles }
+    - { id: rename a space, context: spaces, decided by: space-roles }
+    - { id: end a space, context: spaces, decided by: space-roles }
+    - { id: manage who is in the space, context: spaces, decided by: space-roles }
+    - { id: make the game choice, context: spaces, decided by: space-roles }
+
+  # Promises made to people outside the product that a rewrite must keep.
+  public contracts:
+    - id: space links
+      context: spaces
+      promise: A space link keeps taking whoever opens it to that space.
+    - id: app addresses
+      context: runtime
+      promise: >-
+        Every address the app shows keeps working, and an address that leads
+        nowhere says so and offers a way back.
+    - id: older apps
+      context: runtime
+      promise: >-
+        An app older than the one people are being served is told to update
+        and keeps everything people saved on the device.
+    - id: health report
+      context: health
+      promise: The team can always ask a live environment whether it is well.
+
+conformance:
+  # Every kind of specification is required: each must have at least one
+  # spec, and every spec of the kind must be checked against the product.
+  behavior: required
+  decisions: required
+  dynamics: required
+  structure: required
+  objectives: required
+  accessibility: required
+
+# Where the product must behave as specified. Anywhere not listed is outside
+# the product's promise, rather than untested.
+environments:
+  - id: a phone's web browser
+    promise: The app on a phone, in Chrome, the primary way people use it.
+  - id: online
+    promise: A device that can reach everyone else.
+  - id: offline
+    promise: A device that cannot, for as long as people keep using it.
+  - id: an app one version behind
+    promise: A device still running the previous version of the app.
+  - id: English
+    promise: The only language the app speaks.
+  - id: UTC
+    promise: >-
+      The clock days and limits are counted by; the daily puzzle limit starts
+      again at midnight UTC wherever a person is.
+
+production readiness:
+  manual testing allowed: false
+  require:
+    - specification validity
+    - implementation conformance
+    - permission enforcement
+    - assembled system acceptance
+    - accessibility conformance
+    - production-safe synthetics
+    - quality objectives
+    - release engineering gates
+    - completeness
+  # Anything but a machine-evidenced pass is a failure.
+  fail on:
+    - manual
+    - unknown
+    - skipped
+    - not run
+    - missing evidence
+    - stale evidence
+    - missing automation
+
+# Evidence a release needs that is about how this product is built, not what
+# it does. The checks live outside this folder; each must exist and gate.
+release gates:
+  - dependency vulnerabilities
+  - dependency consistency
+  - leaked secrets
+  - settings the app needs
+  - release artifact limits
+  - offline start
+  - database evolution
+  - infrastructure policy
+  - workflow validity
+  - type safety
+  - lint

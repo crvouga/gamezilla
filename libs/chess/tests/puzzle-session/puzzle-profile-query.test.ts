@@ -4,7 +4,7 @@
  * rate its next puzzle from a different state than the device that earned it.
  */
 import { expect, test } from 'bun:test';
-
+import { BILLING_TABLES } from '@libs/billing/public/schema';
 import {
   applyPuzzleAttemptRating,
   DEFAULT_PUZZLE_RATING_STATE,
@@ -13,6 +13,7 @@ import {
 import { CHESS_TABLES } from '@libs/chess/public/schema';
 import { ratePuzzleAttemptMutation } from '@libs/chess/root/mutations';
 import { CHESS_QUERIES } from '@libs/chess/root/queries';
+import { uniqueTables } from '@libs/permissions/root/conformance/world';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import type { Sql } from '@pkgs/sql';
@@ -37,9 +38,13 @@ const env = {
 test('the synced puzzle profile carries rating, deviation and volatility', async () => {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(db, registerTables([...CHESS_TABLES]), {
-    ownership: 'declared-only',
-  });
+  await applySqliteSchema(
+    db,
+    registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+    {
+      ownership: 'declared-only',
+    }
+  );
   const parsed = await ratePuzzleAttemptMutation.args['~standard'].validate({
     ownerId: OWNER,
     puzzleId: 'p1',

@@ -321,5 +321,19 @@ describe('tags and catalogs', () => {
         skip: ['Alice removes Bob'],
       })
     ).toContain('skip: ["Alice removes Bob"]');
+    expect(source).not.toContain('reportDir');
+    expect(
+      stubSource({
+        bridge: '/repo/pkgs/gherkin/src/bun-test.ts',
+        featurePath: '/repo/specs/health/sign-in.feature',
+        featureUri: 'specs/health/sign-in.feature',
+        packageName: '@apps/product',
+        stepsEntry: '/repo/apps/product/tests/steps/index.ts',
+        reportDir: '/repo/apps/product/.cache/health-report',
+        layer: 'release',
+      })
+    ).toContain(
+      'reportDir: "/repo/apps/product/.cache/health-report", layer: "release"'
+    );
   });
 });

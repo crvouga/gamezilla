@@ -5,7 +5,7 @@
 > release.
 
 This is the policy behind [`GOAL.md`](GOAL.md) § "The bar". Behavior tests
-are specs ([`SPEC_STANDARDS.md`](SPEC_STANDARDS.md)); the gate's mechanics
+are specs ([`specs/README.md`](../specs/README.md)); the gate's mechanics
 (caching, budgets, workflows) are [`CI.md`](CI.md).
 
 ## 1. No manual testing
@@ -47,7 +47,7 @@ The default for all new behavior.
 | --- | --- | --- |
 | **Property** | Pure functions: round-trips, idempotence, invariants, metamorphic relations, agreement with an oracle | `assertProperty` from `@pkgs/property` |
 | **Model-based** | Stateful code: a reference model runs beside the real thing under generated commands and must agree after every step | `fc.commands` + `fc.modelRun` inside `assertProperty`; `defineSystem` / `system.explore` in `@pkgs/harness` |
-| **Product model** | A product feature end to end | a Quint model in `specs/<domain>/` ([`SPEC_STANDARDS.md`](SPEC_STANDARDS.md#quint-models)) |
+| **Product model** | A product feature end to end | a Quint model in `specs/<domain>/` ([`specs/README.md`](../specs/README.md#quint-models)) |
 
 - **`assertProperty` is the only entry point.** It pins the seed (`FC_SEED`,
   default `424242`) and run count (`PBT_NUM_RUNS`, default `40`). Raw

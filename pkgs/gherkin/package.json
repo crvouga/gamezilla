@@ -17,7 +17,8 @@
     "@cucumber/cucumber-expressions": "catalog:",
     "@cucumber/gherkin": "catalog:",
     "@cucumber/messages": "catalog:",
-    "@cucumber/tag-expressions": "catalog:"
+    "@cucumber/tag-expressions": "catalog:",
+    "@pkgs/conformance": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

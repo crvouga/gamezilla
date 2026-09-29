@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  generateCommitMessage,
   parseGitSyncArgs,
   parsePorcelainPaths,
   SyncError,
@@ -106,5 +107,42 @@ describe('worktreeForBranch', () => {
   test('returns null when no worktree has it, and ignores prefixes', () => {
     expect(worktreeForBranch(porcelain, 'mai')).toBeNull();
     expect(worktreeForBranch(porcelain, 'feature')).toBeNull();
+  });
+});
+
+describe('generateCommitMessage', () => {
+  test('names the package and passes the commit rules', () => {
+    const message = generateCommitMessage([
+      'libs/friends/src/a.ts',
+      'libs/friends/src/b.ts',
+    ]);
+    expect(message).toBe('chore(friends): update 2 files');
+    expect(validateCommitMessage(message)).toEqual([]);
+  });
+
+  test('picks spec, docs, test and ci types from the paths', () => {
+    expect(generateCommitMessage(['specs/sync-engine/a.qnt'])).toBe(
+      'spec(sync-engine): update a.qnt'
+    );
+    expect(generateCommitMessage(['docs/A.md', 'docs/B.md'])).toBe(
+      'docs(docs): update 2 files'
+    );
+    expect(generateCommitMessage(['libs/x/tests/a.test.ts'])).toBe(
+      'test(x): update a.test.ts'
+    );
+    expect(generateCommitMessage(['.github/workflows/check.yml'])).toBe(
+      'ci(.github): update check.yml'
+    );
+  });
+
+  test('drops the scope when paths span packages, and stays within the limit', () => {
+    expect(generateCommitMessage(['libs/a/x.ts', 'libs/b/y.ts'])).toBe(
+      'chore: update 2 files'
+    );
+    expect(
+      validateCommitMessage(
+        generateCommitMessage([`libs/${'q'.repeat(90)}/x.ts`])
+      )
+    ).toEqual([]);
   });
 });

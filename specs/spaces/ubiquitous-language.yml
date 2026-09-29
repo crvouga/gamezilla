@@ -17,7 +17,7 @@ terms:
       open until its host ends it or leaves it.
     forms: [spaces, space's]
     avoid: [session, game room, lobby room, party]
-    model: [InSpace, SpaceEvent]
+    model: [InSpace, SpaceEvent, Space]
     published: true
 
   - term: host
@@ -26,7 +26,7 @@ terms:
       rename or end it, and it ends when they leave.
     forms: [hosts, hosting, hosted, host's]
     avoid: [owner, creator]
-    model: [hostOf]
+    model: [hostOf, host]
     published: true
 
   - term: join
@@ -35,7 +35,7 @@ terms:
       friend's space, from the lobby. A person who joins is in the space.
     forms: [joins, joined, joining]
     avoid: [enter the space]
-    model: [join, PersonJoined]
+    model: [join, PersonJoined, joined]
     published: true
 
   - term: leave
@@ -55,7 +55,7 @@ terms:
       from then on.
     forms: [end, ends, ended, ending, ends the space, ended the space]
     avoid: [close the space, shut down, delete the space]
-    model: [endSpace, Ended, SpaceEnded]
+    model: [endSpace, Ended, SpaceEnded, EndedSpace]
     published: true
 
   - term: open space
@@ -64,13 +64,14 @@ terms:
       return to it.
     forms: [open spaces]
     avoid: [live space, active space, running space]
-    model: [openSpaces, SpaceOpened]
+    model: [openSpaces, SpaceOpened, OpenSpace]
     published: true
 
   - term: lobby
     definition: >-
-      Where a person finds spaces: it lists their own open spaces and every
-      open space of their friends, each of which they can return to or join.
+      Where a person finds spaces: it lists every open space they host or
+      have joined, and every open space a friend of theirs hosts or has
+      joined, each of which they can return to or join.
     forms: [lobby's, lobbies]
     avoid: [space list, dashboard]
     model: [Lobby, lobby, _listing]
@@ -184,3 +185,4 @@ terms:
     from: billing
   - term: friend
     from: friends
+    model: [friend]

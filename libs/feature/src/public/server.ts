@@ -34,6 +34,22 @@ export type PubSubTopicCtx = {
 };
 
 /**
+ * Who is opening a live room connection, as the room gateway resolved them
+ * at upgrade: the room identity (`accountId ?? deviceId`), the install, and
+ * the account when the bearer resolved one.
+ */
+export type RoomGrantsCtx = {
+  readonly db: SqlClient;
+  readonly topic: string;
+  readonly actor: {
+    readonly memberId: string;
+    readonly deviceId: string;
+    readonly accountId: string | null;
+  };
+  readonly nowMs: number;
+};
+
+/**
  * A feature's sub-app as the host sees it.
  *
  * `Hono` with its default generics: a feature's routes are typed inside the
@@ -66,6 +82,12 @@ export type FeatureServer = {
    * beyond the actor's own topic, which the platform always grants.
    */
   readonly pubsubTopics?: (ctx: PubSubTopicCtx) => Promise<readonly Topic[]>;
+  /**
+   * What the connecting actor may do in a live room this feature owns —
+   * permission keys the feature decided through `@libs/permissions` — handed
+   * to the room with the connection. Empty for topics it does not own.
+   */
+  readonly roomGrants?: (ctx: RoomGrantsCtx) => Promise<readonly string[]>;
 };
 
 export function defineFeatureServer(server: FeatureServer): FeatureServer {

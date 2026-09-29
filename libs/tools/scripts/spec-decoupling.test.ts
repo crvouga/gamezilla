@@ -61,7 +61,7 @@ describe('decouplingProblems (D1)', () => {
       'specs/room/ubiquitous-language.yml',
       [
         '# bound in @pkgs/room-harness',
-        '# see docs/SPEC_STANDARDS.md',
+        '# see specs/README.md',
         '# the kernel is ubiquitous-language.yml',
         '# written in room.steps.ts',
       ].join('\n')
@@ -69,12 +69,32 @@ describe('decouplingProblems (D1)', () => {
     expect(errors).toContain(
       ':1: D1 names a workspace package "@pkgs/room-harness"'
     );
-    expect(errors).toContain(
-      ':2: D1 names a repo directory "docs/SPEC_STANDARDS.md"'
-    );
+    expect(errors).toContain(':2: D1 names a repo directory "specs/README.md"');
     expect(errors).toContain(
       ':3: D1 names a source file "ubiquitous-language.yml"'
     );
     expect(errors).toContain(':4: D1 names a source file "room.steps.ts"');
+  });
+
+  test('every spec kind and the manifest are held to D1; the rulebook is not', () => {
+    for (const path of [
+      'specs/billing/access.dmn',
+      'specs/spaces/spaces.als',
+      'specs/health/api.openslo.yaml',
+      'specs/conformance.yaml',
+    ]) {
+      expect(problems(path, '# bound in libs/billing/tests/dmn')).toHaveLength(
+        1
+      );
+    }
+    expect(
+      problems('specs/billing/refunds.qnt', '// see access.dmn and spaces.als')
+    ).toHaveLength(2);
+    expect(
+      problems(
+        'specs/README.md',
+        'specs/<context>/<table>.dmn is bound in tests/dmn/ of @libs/billing'
+      )
+    ).toEqual([]);
   });
 });

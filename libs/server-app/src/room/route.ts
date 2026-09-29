@@ -1,5 +1,6 @@
 import { BearerAuthResolver } from '@libs/auth/public/bearer-resolve';
 import { ANON_ID_HEADER } from '@libs/auth/public/session-middleware';
+import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
 import { injectRequestHeaders } from '@pkgs/observability/worker';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
@@ -21,6 +22,22 @@ export const ROOM_ACTOR_ID_HEADER = 'x-actor-id';
 export const ROOM_ACTOR_CLIENT_ID_HEADER = 'x-actor-client-id';
 
 /**
+ * Header carrying the grants the gateway admitted the connection with
+ * (comma-separated permission keys). Must match the room host's grants
+ * header (default `x-actor-grants`; `ROOM_GRANTS_HEADER` in `@pkgs/room`).
+ * Only the gateway sets it: a client-supplied value is always replaced.
+ */
+export const ROOM_ACTOR_GRANTS_HEADER = 'x-actor-grants';
+
+/** Who is connecting, as resolved from the upgrade request. */
+type RoomActor = {
+  /** Room identity: the account when the bearer resolves, else the install. */
+  readonly memberId: string;
+  readonly deviceId: string;
+  readonly accountId: string | null;
+};
+
+/**
  * Generic room-server WebSocket-upgrade gateway. Open to anyone — never blocks on
  * auth. Resolves the best available actor id from the request and forwards
  * the upgrade to the `ROOM` DO; the DO validates `module` and runs game
@@ -36,6 +53,12 @@ export const ROOM_ACTOR_CLIENT_ID_HEADER = 'x-actor-client-id';
  *
  * Fallback: a fresh per-connection UUID when no anonId is available.
  *
+ * Grants: the composed features decide, from the stored rows, what the actor
+ * may do in the topic's room (for a space: the game choice, host only —
+ * `roomGrants`), and the gateway forwards them in
+ * {@link ROOM_ACTOR_GRANTS_HEADER}, replacing anything the client sent under
+ * that name. A failed decision admits the connection with no grants.
+ *
  * - Path: `/room` (always WebSocket).
  * - Query `topic`: non-empty string keying the DO instance via `idFromName`.
  * - Query `module`: forwarded to the DO unchanged (validated there).
@@ -43,7 +66,9 @@ export const ROOM_ACTOR_CLIENT_ID_HEADER = 'x-actor-client-id';
  * - Query `token` / `anonId` and `Authorization` / `x-anon-id` headers:
  *   consumed by actor-id resolution; passed through otherwise.
  */
-export function createRoomApp() {
+export function createRoomApp(
+  roomGrants: ComposedFeatureServers['roomGrants']
+) {
   return new Hono<ApiHonoEnv>().get('/room', async (c) => {
     const topic =
       new URL(c.req.raw.url).searchParams.get('topic')?.trim() ?? '';
@@ -57,12 +82,15 @@ export function createRoomApp() {
       return c.json({ error: 'ROOM binding not configured' }, 503);
     }
 
-    const actorId = await resolveRoomActorId(c);
+    const actor = await resolveRoomActor(c);
+    const grants = await decideRoomGrants(roomGrants, { topic, actor });
     const clientId = parseClientId(c.req.raw);
     const stub = ns.get(ns.idFromName(topic));
     const headers = new Headers(c.req.raw.headers);
     injectRequestHeaders(headers);
-    headers.set(ROOM_ACTOR_ID_HEADER, actorId);
+    headers.set(ROOM_ACTOR_ID_HEADER, actor.memberId);
+    headers.delete(ROOM_ACTOR_GRANTS_HEADER);
+    headers.set(ROOM_ACTOR_GRANTS_HEADER, grants.join(','));
     if (clientId !== null) {
       headers.set(ROOM_ACTOR_CLIENT_ID_HEADER, clientId);
     }
@@ -76,19 +104,42 @@ export function createRoomApp() {
   });
 }
 
-async function resolveRoomActorId(c: Context<ApiHonoEnv>): Promise<string> {
+async function resolveRoomActor(c: Context<ApiHonoEnv>): Promise<RoomActor> {
   const request = c.req.raw;
   const bearer = parseBearer(request);
   const anonId = parseAnonId(request);
 
   if (bearer !== null && anonId !== null && isUuid(anonId)) {
     const accountId = await tryResolveAccount(c, bearer, anonId);
-    if (accountId !== null) return accountId;
+    if (accountId !== null) {
+      return { memberId: accountId, deviceId: anonId, accountId };
+    }
     // Stale bearer: fall back to install id so the socket can still sync.
-    return anonId;
+    return { memberId: anonId, deviceId: anonId, accountId: null };
   }
-  if (anonId !== null) return anonId;
-  return requireRequestStore().createId();
+  const deviceId = anonId ?? requireRequestStore().createId();
+  return { memberId: deviceId, deviceId, accountId: null };
+}
+
+/**
+ * What the actor may do in the topic's room, decided now from the stored
+ * rows. Never blocks the upgrade: a failed decision is no grants.
+ */
+async function decideRoomGrants(
+  roomGrants: ComposedFeatureServers['roomGrants'],
+  args: { readonly topic: string; readonly actor: RoomActor }
+): Promise<readonly string[]> {
+  const { sqlClient, clock } = requireRequestStore();
+  try {
+    return await roomGrants({
+      db: sqlClient,
+      topic: args.topic,
+      actor: args.actor,
+      nowMs: clock.now(),
+    });
+  } catch {
+    return [];
+  }
 }
 
 async function tryResolveAccount(

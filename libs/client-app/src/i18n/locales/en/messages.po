@@ -2808,6 +2808,10 @@ msgstr "You've used this for now"
 msgid "you@example.com"
 msgstr "you@example.com"
 
+#: libs/profile/src/root/client/profile-avatar-figure.tsx
+msgid "Your avatar"
+msgstr "Your avatar"
+
 #: libs/client-app/src/chrome/offline-indicator.tsx
 msgid "Your changes are saved locally and will sync when the connection is healthy again."
 msgstr "Your changes are saved locally and will sync when the connection is healthy again."

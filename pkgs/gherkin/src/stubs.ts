@@ -19,6 +19,10 @@ export type StubInput = {
   readonly skip?: readonly string[] | undefined;
   /** One slice of the feature's scenarios (`RunFeatureOptions.slice`). */
   readonly slice?: StubSlice | undefined;
+  /** Report bucket for behavior evidence (`RunFeatureOptions.reportDir`). */
+  readonly reportDir?: string | undefined;
+  /** Layer a passing scenario proves (`RunFeatureOptions.layer`). */
+  readonly layer?: 'system' | 'release' | undefined;
 };
 
 export type StubSlice = { readonly index: number; readonly count: number };
@@ -41,6 +45,14 @@ function sliceOption(slice: StubSlice | undefined): string {
   return slice === undefined ? '' : `, slice: ${JSON.stringify(slice)}`;
 }
 
+function evidenceOptions(input: StubInput): string {
+  const q = JSON.stringify;
+  return [
+    input.reportDir === undefined ? '' : `, reportDir: ${q(input.reportDir)}`,
+    input.layer === undefined ? '' : `, layer: ${q(input.layer)}`,
+  ].join('');
+}
+
 function skipOption(skip: readonly string[] | undefined): string {
   return skip === undefined || skip.length === 0
     ? ''
@@ -55,7 +67,7 @@ export function stubSource(input: StubInput): string {
     `import { runFeature } from ${q(input.bridge)};`,
     '',
     `const source = await Bun.file(${q(input.featurePath)}).text();`,
-    `runFeature(source, { packageName: ${q(input.packageName)}, featureUri: ${q(input.featureUri)}${skipOption(input.skip)}${sliceOption(input.slice)} });`,
+    `runFeature(source, { packageName: ${q(input.packageName)}, featureUri: ${q(input.featureUri)}${skipOption(input.skip)}${sliceOption(input.slice)}${evidenceOptions(input)} });`,
     '',
   ].join('\n');
 }

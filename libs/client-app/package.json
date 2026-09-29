@@ -101,6 +101,7 @@
   },
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",

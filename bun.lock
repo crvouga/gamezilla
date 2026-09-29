@@ -128,6 +128,7 @@
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/object-store-opfs": "workspace:*",
         "@pkgs/object-store-s3": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/polyfill": "workspace:*",
         "@pkgs/postgres-embedded": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
@@ -319,6 +320,7 @@
         "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -389,6 +391,7 @@
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -454,6 +457,7 @@
       },
       "devDependencies": {
         "@lingui/babel-plugin-lingui-macro": "catalog:",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -575,7 +579,9 @@
       },
       "devDependencies": {
         "@libs/billing": "workspace:*",
+        "@pkgs/alloy": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
@@ -611,6 +617,7 @@
         "@libs/permissions": "workspace:*",
         "@libs/server-app": "workspace:*",
         "@libs/test-ids": "workspace:*",
+        "@pkgs/alloy": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-inhouse": "workspace:*",
@@ -621,6 +628,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
         "@pkgs/harness": "workspace:*",
@@ -634,6 +642,7 @@
         "@pkgs/object-store": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/observability": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/outbox": "workspace:*",
         "@pkgs/postgres-embedded": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
@@ -753,8 +762,11 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
+        "@pkgs/secure-storage": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -793,10 +805,14 @@
       },
       "devDependencies": {
         "@libs/billing": "workspace:*",
+        "@pkgs/a11y": "workspace:*",
+        "@pkgs/alloy": "workspace:*",
+        "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -886,6 +902,7 @@
       },
       "devDependencies": {
         "@libs/test-ids": "workspace:*",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -1074,8 +1091,11 @@
       "devDependencies": {
         "@libs/harness": "workspace:*",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/conformance": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/equal": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "fast-check": "catalog:",
@@ -1103,6 +1123,17 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/a11y": {
+      "name": "@pkgs/a11y",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "happy-dom": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/aedes-server": {
       "name": "@pkgs/aedes-server",
       "version": "0.0.0",
@@ -1113,6 +1144,19 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/alloy": {
+      "name": "@pkgs/alloy",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/conformance": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -1538,6 +1582,16 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/conformance": {
+      "name": "@pkgs/conformance",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/database-url-policy": {
       "name": "@pkgs/database-url-policy",
       "version": "0.0.0",
@@ -1698,6 +1752,19 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/dmn": {
+      "name": "@pkgs/dmn",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/conformance": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/emqx-server": {
       "name": "@pkgs/emqx-server",
       "version": "0.0.0",
@@ -1753,6 +1820,7 @@
         "@cucumber/gherkin": "catalog:",
         "@cucumber/messages": "catalog:",
         "@cucumber/tag-expressions": "catalog:",
+        "@pkgs/conformance": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2251,6 +2319,19 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/openslo": {
+      "name": "@pkgs/openslo",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/conformance": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/os": {
       "name": "@pkgs/os",
       "version": "0.0.0",
@@ -2413,6 +2494,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@informalsystems/quint": "catalog:",
+        "@pkgs/conformance": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property": "workspace:*",
@@ -2864,6 +2946,7 @@
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@solidjs/testing-library": "catalog:",
@@ -2951,6 +3034,7 @@
         "@dicebear/core": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -4006,7 +4090,11 @@
 
     "@parcel/watcher-win32-x64": ["@parcel/watcher-win32-x64@2.5.1", "", { "os": "win32", "cpu": "x64" }, "sha512-9lHBdJITeNR++EvSQVUcaZoWupyHfXe1jZvGZ06O/5MflPcuPLtEphScIBL+AiCWBO46tDSHzWyD0uDmmZqsgA=="],
 
+    "@pkgs/a11y": ["@pkgs/a11y@workspace:pkgs/a11y"],
+
     "@pkgs/aedes-server": ["@pkgs/aedes-server@workspace:pkgs/aedes-server"],
+
+    "@pkgs/alloy": ["@pkgs/alloy@workspace:pkgs/alloy"],
 
     "@pkgs/assert": ["@pkgs/assert@workspace:pkgs/assert"],
 
@@ -4058,6 +4146,8 @@
 
     "@pkgs/colors": ["@pkgs/colors@workspace:pkgs/colors"],
 
+    "@pkgs/conformance": ["@pkgs/conformance@workspace:pkgs/conformance"],
+
     "@pkgs/database-url-policy": ["@pkgs/database-url-policy@workspace:pkgs/database-url-policy"],
 
     "@pkgs/db-indexes": ["@pkgs/db-indexes@workspace:pkgs/db-indexes"],
@@ -4077,6 +4167,8 @@
     "@pkgs/device": ["@pkgs/device@workspace:pkgs/device"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
+
+    "@pkgs/dmn": ["@pkgs/dmn@workspace:pkgs/dmn"],
 
     "@pkgs/emqx-server": ["@pkgs/emqx-server@workspace:pkgs/emqx-server"],
 
@@ -4143,6 +4235,8 @@
     "@pkgs/observability-cli": ["@pkgs/observability-cli@workspace:pkgs/observability-cli"],
 
     "@pkgs/observability-mcp": ["@pkgs/observability-mcp@workspace:pkgs/observability-mcp"],
+
+    "@pkgs/openslo": ["@pkgs/openslo@workspace:pkgs/openslo"],
 
     "@pkgs/os": ["@pkgs/os@workspace:pkgs/os"],
 

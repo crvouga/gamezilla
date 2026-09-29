@@ -1,8 +1,9 @@
 /**
  * Reads every bounded context's ubiquitous language (`specs/ubiquitous-language.yml`,
  * the shared kernel, and `specs/<domain>/ubiquitous-language.yml`) with the prose of
- * its features and the names of its Quint specs, and holds the specs to it
- * (`@pkgs/gherkin/glossary`). Part of `check-specs.ts`.
+ * its features and the names of its Quint specs and Alloy structures (sigs
+ * and fields, `spec-alloy-names.ts`, checked like Quint names), and holds the
+ * specs to it (`@pkgs/gherkin/glossary`). Part of `check-specs.ts`.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -16,6 +17,7 @@ import {
   type QuintSpecNames,
 } from '@pkgs/gherkin/glossary';
 import { quintNames } from '@pkgs/quint/names';
+import { alloyNames } from './spec-alloy-names';
 import { REPO_ROOT, SPECS_DIR } from './spec-packages';
 
 export const GLOSSARY_FILE = 'ubiquitous-language.yml';
@@ -29,7 +31,7 @@ function readGlossary(
   const path = join(REPO_ROOT, uri);
   if (!existsSync(path)) {
     problems.push(
-      `${uri}: missing — every bounded context declares its ubiquitous language (docs/SPEC_STANDARDS.md)`
+      `${uri}: missing — every bounded context declares its ubiquitous language (specs/README.md)`
     );
     return { uri, domain, context: '', purpose: '', terms: [] };
   }
@@ -87,6 +89,15 @@ export function languageProblems(): readonly string[] {
         uri,
         domain,
         ...quintNames(readFileSync(join(REPO_ROOT, uri), 'utf8')),
+      });
+    }
+    for (const uri of filesOf(domain, '.als')) {
+      quint.push({
+        uri,
+        domain,
+        module: null,
+        imports: [],
+        declarations: alloyNames(readFileSync(join(REPO_ROOT, uri), 'utf8')),
       });
     }
   }

@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI entry (`bun run spec`).
 /**
- * Run specs — Gherkin features and Quint models — across every package that
- * runs `specs/<domain>/` domains against the harness. A spec path
- * (`specs/chess/puzzle-play.feature`, `specs/spaces/space-hosting.qnt`) goes
+ * Run specs — Gherkin features, Quint models, decision tables, structures and
+ * objectives — across every package that runs `specs/<domain>/` domains
+ * against the harness. A spec path (`specs/chess/puzzle-play.feature`,
+ * `specs/spaces/space-hosting.qnt`, `specs/billing/access.dmn`) goes
  * only to the package whose `specDomains` lists its domain. Live domains
  * (`liveDomains`) run through `bun run health`, never here.
  */
@@ -46,8 +47,9 @@ function hasSpecScript(dir: string): boolean {
 
 function domainOfPath(arg: string): string | null {
   return (
-    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.(?:feature|qnt)$/.exec(arg)?.[1] ??
-    null
+    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.(?:feature|qnt|dmn|als|openslo\.yaml)$/.exec(
+      arg
+    )?.[1] ?? null
   );
 }
 

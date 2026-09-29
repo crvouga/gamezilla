@@ -15,6 +15,10 @@ import { useLingui } from '@lingui/solid/macro';
 import { Gamepad2Icon } from '@pkgs/ui';
 import { type JSX, lazy, Suspense } from 'solid-js';
 
+import {
+  createSpaceHostingsInFlight,
+  SpaceHostingsInFlightContext,
+} from '../../public/room/space-hostings-in-flight';
 import { AppGamesProvider, type LoadGameRegistry } from './app/games-provider';
 
 export type { GameRegistry, LoadGameRegistry } from './app/games-provider';
@@ -50,10 +54,15 @@ export function createSpacesClient(options: {
   function SpacesChrome(props: {
     readonly children: JSX.Element;
   }): JSX.Element {
+    // Once per client, above the session remounts: a space created just
+    // before a remount is still waited on by the room that opens after it.
+    const hostings = createSpaceHostingsInFlight();
     return (
-      <AppGamesProvider loadGameRegistry={options.loadGameRegistry}>
-        {props.children}
-      </AppGamesProvider>
+      <SpaceHostingsInFlightContext.Provider value={hostings}>
+        <AppGamesProvider loadGameRegistry={options.loadGameRegistry}>
+          {props.children}
+        </AppGamesProvider>
+      </SpaceHostingsInFlightContext.Provider>
     );
   }
   return defineFeatureClient({

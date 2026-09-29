@@ -2,7 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseFeature } from '@pkgs/gherkin/parse';
-import { type Environment, HOST_LIMITS, hostSkips } from './health';
+import {
+  type Environment,
+  HOST_LIMITS,
+  hostSkips,
+  parseCli,
+  selectSpecs,
+} from './health';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
@@ -65,5 +71,47 @@ describe('health host limits', () => {
       expect(names.length).toBeGreaterThan(0);
       if (limit.scenario !== undefined) expect(names).toContain(limit.scenario);
     }
+  });
+});
+
+describe('health runs features, health --objectives runs objectives', () => {
+  const [feature, objective, journeys] = [
+    'specs/health/api.feature',
+    'specs/health/availability.openslo.yaml',
+    'specs/journeys/critical-journeys.feature',
+  ].map((path) => join(REPO_ROOT, path)) as [string, string, string];
+  const all = [feature, objective, journeys];
+  const select = (argv: readonly string[]) =>
+    selectSpecs({ all, cli: parseCli(argv) });
+
+  test('a plain run checks every feature and no objective', () => {
+    expect(select([])).toEqual({
+      ok: true,
+      specs: [feature, journeys],
+    });
+  });
+
+  test('an objectives run checks every objective and no feature', () => {
+    expect(select(['--objectives'])).toEqual({ ok: true, specs: [objective] });
+  });
+
+  test("a named spec must be of the run's kind", () => {
+    expect(select(['specs/health/availability.openslo.yaml'])).toEqual({
+      ok: false,
+      error:
+        'specs/health/availability.openslo.yaml is an objective file: run it with --objectives',
+    });
+    expect(select(['--objectives', 'specs/health/api.feature'])).toEqual({
+      ok: false,
+      error: 'specs/health/api.feature is not an objective file',
+    });
+    expect(
+      select(['--objectives', 'specs/health/availability.openslo.yaml'])
+    ).toEqual({ ok: true, specs: [objective] });
+  });
+
+  test('objectives take no tags, and named specs must be live', () => {
+    expect(select(['--objectives', '--tags', '@domain:health']).ok).toBe(false);
+    expect(select(['specs/chess/puzzle-play.feature']).ok).toBe(false);
   });
 });

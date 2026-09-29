@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { MAX_SPEC_PARTS, specPartProblems } from './spec-packages';
+import {
+  MAX_SPEC_PARTS,
+  specPackages,
+  specPartProblems,
+} from './spec-packages';
 
 const RUNNER = 'bun run ../../libs/harness/scripts/test-spec.ts';
 
@@ -46,5 +50,36 @@ describe('specPartProblems', () => {
       'libs/a/package.json: "test:spec:2" is past specParts (2) — delete it',
       `libs/a/package.json: "test:spec:1" is missing — "${RUNNER} --part 1/2"`,
     ]);
+  });
+});
+
+describe('specPackages', () => {
+  const packages = specPackages();
+  const inDomain = (path: string, domains: readonly string[]) =>
+    domains.some((domain) => path.startsWith(`specs/${domain}/`));
+
+  test('decision tables and structures come from the harness domains', () => {
+    for (const pkg of packages) {
+      for (const path of pkg.decisions) {
+        expect(path.endsWith('.dmn') && inDomain(path, pkg.specDomains)).toBe(
+          true
+        );
+      }
+      for (const path of pkg.structures) {
+        expect(path.endsWith('.als') && inDomain(path, pkg.specDomains)).toBe(
+          true
+        );
+      }
+    }
+  });
+
+  test('objectives come from harness and live domains alike', () => {
+    for (const pkg of packages) {
+      for (const path of pkg.objectives) {
+        expect(
+          path.endsWith('.openslo.yaml') && inDomain(path, pkg.domains)
+        ).toBe(true);
+      }
+    }
   });
 });

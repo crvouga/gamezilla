@@ -39,13 +39,14 @@ function resolveItemLabel(row: FloatingMenuItemRow): JSX.Element {
   return row.id;
 }
 
-function resolveItemAriaLabel(row: FloatingMenuItemRow): string {
+/**
+ * Only an authored `aria-label` overrides the row's text: otherwise the name
+ * comes from what the row shows (label and subtitle), so a listener hears the
+ * visible label (WCAG 2.5.3, ACT 2ee8b8).
+ */
+function authoredAriaLabel(row: FloatingMenuItemRow): string | undefined {
   const aria = row['aria-label']?.trim();
-  if (aria !== undefined && aria.length > 0) return aria;
-  const label = row.label;
-  if (typeof label === 'string' && label.trim().length > 0) return label.trim();
-  if (typeof label === 'number') return String(label);
-  return row.id;
+  return aria !== undefined && aria.length > 0 ? aria : undefined;
 }
 
 /** Strings go through host text classes; component titles render as-is. */
@@ -126,7 +127,7 @@ export function FloatingMenuItem(props: {
         'min-height': cssPx(FLOATING_MENU_ITEM_MIN_HEIGHT),
       }}
       role="menuitem"
-      aria-label={resolveItemAriaLabel(props.row)}
+      aria-label={authoredAriaLabel(props.row)}
       disabled={props.row.disabled ?? false}
       onClick={() => props.onSelect(props.row)}
     >

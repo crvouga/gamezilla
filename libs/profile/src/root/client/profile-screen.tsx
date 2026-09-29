@@ -4,6 +4,7 @@ import { Button, ScreenBase, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
+import { ProfileAvatarFigure } from './profile-avatar-figure';
 
 export type ProfileScreenProps = {
   /** Centered friends stats row (signed-in counts; guests open sign-in on tap). */
@@ -39,7 +40,9 @@ function ProfileScreenContent(props: {
   return (
     <div class="box gap-6 pt-2">
       <div class="box items-center gap-3">
-        <MyProfileAvatar size={96} />
+        <ProfileAvatarFigure>
+          <MyProfileAvatar size={96} />
+        </ProfileAvatarFigure>
         <div class="box items-center gap-1 self-stretch min-w-0">
           <MyUsername variant="heading" numberOfLines={1} class="text-center" />
         </div>

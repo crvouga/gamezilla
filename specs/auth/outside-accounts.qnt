@@ -82,22 +82,23 @@ module outside_accounts {
   pure def _without(m: a -> b, k: a): a -> b =
     m.keys().exclude(Set(k)).mapBy(x => m.get(x))
 
+  /// No two different things in `s`.
+  pure def _atMostOne(s: Set[t]): bool = s.forall(x => s.forall(y => x == y))
+
   /// The account an outside account gets into (0: none).
   pure def ownerOf(methods: int -> Set[OutsideAccount], o: OutsideAccount): int =
     methods.keys().fold(0, (found, a) => if (methods.get(a).contains(o)) a else found)
 
   /// The matching account for a new outside account (0: none).
-  pure def matchingAccount(methods: int -> Set[OutsideAccount], o: OutsideAccount): int =
-    OUTSIDE_ACCOUNTS
-      .filter(p =>
-        sameEmailAddress(o, p)
-          and ownerOf(methods, p) != 0
-          and methods.get(ownerOf(methods, p)).forall(q => providerOf(q) != providerOf(o))
-      )
-      .fold(0, (found, p) => ownerOf(methods, p))
-
   pure def _partnerOf(o: OutsideAccount): OutsideAccount =
     OUTSIDE_ACCOUNTS.filter(p => sameEmailAddress(o, p)).fold(o, (found, p) => p)
+
+  pure def matchingAccount(methods: int -> Set[OutsideAccount], o: OutsideAccount): int = {
+    val p = _partnerOf(o)
+    val owner = ownerOf(methods, p)
+    if (p != o and owner != 0 and methods.get(owner).forall(q => providerOf(q) != providerOf(o))) owner
+    else 0
+  }
 
   pure def _signedIn(held: Device -> int, live: int -> int, d: Device): bool =
     held.keys().contains(d) and live.keys().contains(held.get(d))
@@ -292,7 +293,7 @@ module outside_accounts {
     val methods = signInMethods.get(a)
     all {
       _signedIn(_held, _live, device),
-      if (offline.contains(device) or methods.size() <= 1) _unchanged
+      if (offline.contains(device) or _atMostOne(methods)) _unchanged
       else
         _update(
           _held, _live, _signInCount,
@@ -396,7 +397,7 @@ module outside_accounts {
       not(owner != 0 and _outside.stopped.contains(outsideAccount)),
       _update(
         _held,
-        if (owner != 0 and left.size() == 0) _endAll(_live, owner) else _live,
+        if (owner != 0 and left == Set()) _endAll(_live, owner) else _live,
         _signInCount,
         if (owner != 0) signInMethods.set(owner, left) else signInMethods,
         accountCount, _proofs,
@@ -409,7 +410,7 @@ module outside_accounts {
   /// 11 minutes pass: every chance to confirm a matching account lapses.
   /// Nobody sees this on its own: they are told when they next answer.
   action chanceToConfirmLapses: bool = all {
-    askedToConfirm.size() > 0,
+    askedToConfirm != Set(),
     _update(
       _held, _live, _signInCount, signInMethods, accountCount,
       _proofs.keys().mapBy(d => _proofs.get(d).with("lapsed", true)),
@@ -420,7 +421,7 @@ module outside_accounts {
   /// 30 days pass: every sign-in lapses, and so does every chance to
   /// confirm a matching account.
   action signInsLapse: bool = all {
-    _live.keys().size() > 0,
+    _live.keys() != Set(),
     _update(
       _held, Map(), _signInCount, signInMethods, accountCount,
       _proofs.keys().mapBy(d => _proofs.get(d).with("lapsed", true)),
@@ -451,18 +452,18 @@ module outside_accounts {
 
   /// An account never has two outside accounts from one provider.
   val invOneOfEachProvider = signInMethods.keys().forall(a =>
-    PROVIDERS.forall(p => signInMethods.get(a).filter(q => providerOf(q) == p).size() <= 1)
+    PROVIDERS.forall(p => _atMostOne(signInMethods.get(a).filter(q => providerOf(q) == p)))
   )
 
   /// An outside account gets into at most one account.
   val invOneAccountEach = OUTSIDE_ACCOUNTS.forall(o =>
-    signInMethods.keys().filter(a => signInMethods.get(a).contains(o)).size() <= 1
+    _atMostOne(signInMethods.keys().filter(a => signInMethods.get(a).contains(o)))
   )
 
   /// Devices are signed into accounts that exist, and that some sign-in
   /// method still gets into.
-  val invSignedIntoReachableAccounts = signedInto.keys().forall(d =>
-    signedInto.get(d) >= 1 and signedInto.get(d) <= accountCount
-      and signInMethods.get(signedInto.get(d)).size() > 0
-  )
+  val invSignedIntoReachableAccounts = signedInto.keys().forall(d => {
+    val a = signedInto.get(d)
+    a >= 1 and a <= accountCount and signInMethods.get(a) != Set()
+  })
 }
