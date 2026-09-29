@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { TAILWIND_DIR } from './report-publish';
+import { reportsStoreUnconfigured, TAILWIND_DIR } from './report-publish';
 
 describe('report-publish', () => {
   // regression: report-publish-wrangler-not-found
@@ -14,5 +14,12 @@ describe('report-publish', () => {
     expect(
       existsSync(join(TAILWIND_DIR, 'node_modules/.bin/tailwindcss'))
     ).toBe(true);
+  });
+
+  test('skips only when no reports credential exists', () => {
+    expect(reportsStoreUnconfigured({})).toBe(true);
+    expect(reportsStoreUnconfigured({ REPORTS_BUCKET: ' ' })).toBe(true);
+    // A partly set credential is a misconfiguration, not a missing store.
+    expect(reportsStoreUnconfigured({ REPORTS_BUCKET: 'reports' })).toBe(false);
   });
 });

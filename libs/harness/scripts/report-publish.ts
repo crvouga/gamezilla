@@ -21,7 +21,8 @@
  *
  * Needs `REPORTS_BUCKET`, `REPORTS_ENDPOINT`, `REPORTS_WRITE_ACCESS_KEY_ID`
  * and `REPORTS_WRITE_SECRET_ACCESS_KEY` (written by OpenTofu; `secrets-run`
- * loads them).
+ * loads them). With none of them set, the environment has no reports store
+ * yet and every command skips with a warning.
  */
 
 import {
@@ -124,6 +125,25 @@ function compileFrameCss(): string {
   }
 }
 
+const REPORTS_ENV = [
+  'REPORTS_BUCKET',
+  'REPORTS_ENDPOINT',
+  'REPORTS_WRITE_ACCESS_KEY_ID',
+  'REPORTS_WRITE_SECRET_ACCESS_KEY',
+] as const;
+
+/**
+ * True when none of the reports credentials exist: the environment's
+ * foundation stack has not been applied since it gained the reports bucket
+ * (Deploy applies it), so there is no store to publish to yet. A partly set
+ * credential is a misconfiguration and still fails in `required`.
+ */
+export function reportsStoreUnconfigured(
+  env: Readonly<Record<string, string | undefined>>
+): boolean {
+  return REPORTS_ENV.every((name) => (env[name]?.trim() ?? '') === '');
+}
+
 function required(name: string): string {
   const value = process.env[name]?.trim() ?? '';
   if (value === '') {
@@ -209,6 +229,12 @@ async function publishBucket(
 
 async function main(argv: readonly string[]): Promise<void> {
   const [command, arg] = argv;
+  if (reportsStoreUnconfigured(process.env)) {
+    console.log(
+      '::warning::report-publish: no reports store in this secrets environment yet (Deploy creates it); nothing published'
+    );
+    return;
+  }
   const store = reportsStore();
   const sha = headSha();
   if (command === 'open') {
