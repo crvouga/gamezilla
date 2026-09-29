@@ -17,8 +17,6 @@
       "!!**/.cache",
       "!**/*.lock",
       "!libs/client-app/src/i18n/locales/*/messages.ts",
-      "!pkgs/idp-mock/src/server/assets.generated.ts",
-      "!pkgs/billing-mock-provider/src/server/assets.generated.ts",
       "!.superset/config.json",
       "!.super.engineering/config.json",
       "!apps/product/public/sql-workers/**/*.js",

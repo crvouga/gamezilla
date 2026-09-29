@@ -89,6 +89,8 @@
       "dependencies": {
         "@apps/client": "workspace:*",
         "@apps/server": "workspace:*",
+        "@crvouga/mockingbird-service-oauth": "catalog:",
+        "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/billing": "workspace:*",
         "@libs/chess": "workspace:*",
@@ -109,7 +111,6 @@
         "@pkgs/assert-crash-browser": "workspace:*",
         "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
-        "@pkgs/billing-mock": "workspace:*",
         "@pkgs/billing-paddle": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
@@ -122,7 +123,6 @@
         "@pkgs/harness": "workspace:*",
         "@pkgs/harness-console": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/idp-mock": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
@@ -292,9 +292,8 @@
         "@lingui/solid": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/billing": "workspace:*",
-        "@pkgs/billing-mock": "workspace:*",
-        "@pkgs/billing-mock-provider": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
+        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
@@ -312,12 +311,12 @@
         "@pkgs/uuid": "workspace:*",
         "hono": "catalog:",
         "solid-js": "catalog:",
+        "stripe": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@lingui/core": "catalog:",
         "@pkgs/billing-paddle": "workspace:*",
-        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/dmn": "workspace:*",
@@ -609,6 +608,8 @@
       "name": "@libs/harness",
       "version": "0.0.0",
       "dependencies": {
+        "@crvouga/mockingbird-service-oauth": "catalog:",
+        "@crvouga/mockingbird-service-stripe": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/client-app": "workspace:*",
         "@libs/client-config": "workspace:*",
@@ -622,8 +623,7 @@
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
-        "@pkgs/billing-mock": "workspace:*",
-        "@pkgs/billing-mock-provider": "workspace:*",
+        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
@@ -633,7 +633,6 @@
         "@pkgs/gherkin": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/harness-console": "workspace:*",
-        "@pkgs/idp-mock": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/kv-postgres": "workspace:*",
         "@pkgs/kv-web": "workspace:*",
@@ -667,6 +666,7 @@
         "@solidjs/router": "catalog:",
         "better-sqlite3": "catalog:",
         "solid-js": "catalog:",
+        "stripe": "catalog:",
       },
       "devDependencies": {
         "@pkgs/harness-report": "workspace:*",
@@ -1271,11 +1271,11 @@
       "name": "@pkgs/auth-harness",
       "version": "0.0.0",
       "dependencies": {
+        "@crvouga/mockingbird-service-oauth": "catalog:",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/idp-mock": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -1312,8 +1312,8 @@
         "jose": "catalog:",
       },
       "devDependencies": {
+        "@crvouga/mockingbird-service-oauth": "catalog:",
         "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/idp-mock": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
@@ -1338,53 +1338,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/billing-mock": {
-      "name": "@pkgs/billing-mock",
-      "version": "0.0.0",
-      "dependencies": {
-        "@noble/hashes": "catalog:",
-        "@pkgs/billing": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/billing-mock-provider": {
-      "name": "@pkgs/billing-mock-provider",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/billing-mock": "workspace:*",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
-        "@pkgs/db-schema": "workspace:*",
-        "@pkgs/db-schema-sqlite": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sql-client-sqlite": "workspace:*",
-        "@pkgs/static-file-server": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-        "hono": "catalog:",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/billing": "workspace:*",
-        "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/property": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@tailwindcss/vite": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
-        "tailwindcss": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-        "vite-plugin-solid": "catalog:",
-      },
-    },
     "pkgs/billing-paddle": {
       "name": "@pkgs/billing-paddle",
       "version": "0.0.0",
@@ -1406,7 +1359,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/billing": "workspace:*",
-        "@pkgs/billing-mock": "workspace:*",
         "@pkgs/billing-paddle": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
@@ -1421,6 +1373,7 @@
       "name": "@pkgs/billing-stripe",
       "version": "0.0.0",
       "dependencies": {
+        "@crvouga/mockingbird-service-stripe": "catalog:",
         "@pkgs/billing": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "stripe": "catalog:",
@@ -1935,44 +1888,6 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
-      },
-    },
-    "pkgs/idp-mock": {
-      "name": "@pkgs/idp-mock",
-      "version": "0.0.0",
-      "dependencies": {
-        "@lingui/core": "catalog:",
-        "@lingui/solid": "catalog:",
-        "@noble/hashes": "catalog:",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/db-migrate": "workspace:*",
-        "@pkgs/db-schema": "workspace:*",
-        "@pkgs/db-schema-sqlite": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/i18n": "workspace:*",
-        "@pkgs/logger": "workspace:*",
-        "@pkgs/sql": "workspace:*",
-        "@pkgs/sql-client": "workspace:*",
-        "@pkgs/sql-client-sqlite": "workspace:*",
-        "@pkgs/ui": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-        "@solidjs/router": "catalog:",
-        "hono": "catalog:",
-        "jose": "catalog:",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@lingui/babel-plugin-lingui-macro": "catalog:",
-        "@lingui/conf": "catalog:",
-        "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/vite-workspace-resolver": "workspace:*",
-        "@tailwindcss/vite": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "tailwindcss": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-        "vite-plugin-solid": "catalog:",
       },
     },
     "pkgs/invariants": {
@@ -3208,8 +3123,10 @@
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
+    "@crvouga/mockingbird-service-oauth": "^1.0.2",
     "@crvouga/mockingbird-service-postgres": "^0.3.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
+    "@crvouga/mockingbird-service-stripe": "^1.2.0",
     "@cucumber/cucumber-expressions": "^20.1.0",
     "@cucumber/gherkin": "^42.0.1",
     "@cucumber/messages": "^34.2.1",
@@ -3582,9 +3499,13 @@
 
     "@colors/colors": ["@colors/colors@1.5.0", "", {}, "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ=="],
 
+    "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@1.0.2", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.0.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-/L1/ANFGEzny2yFGZkQe/Jb2jNLaRFxom9XbEh3AYndytX/cr+eEIWfgXF40Ks0U4J3NJ2VTQcofZo64OloNQQ=="],
+
     "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@0.3.0", "", {}, "sha512-7r2j5w+zDSB3SxrcFHmTqw8yELd6rRL7P0AZuNGfu0imp+IUQzMPDDWBm96GgeuRFkALpHAYpz+UhE2uot2/Ag=="],
 
     "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@0.3.0", "", {}, "sha512-3ULGmlWaBprKZgVMkqrMZL1wAvwz+Dcq58jqKT/k+fKT4JpcG9OInycz7pXJnsShEjVd4uV2gFy49r3BnXnFnA=="],
+
+    "@crvouga/mockingbird-service-stripe": ["@crvouga/mockingbird-service-stripe@1.2.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.0.0", "hono": "4.11.9" }, "bin": { "mockingbird-stripe": "dist/cli.js" } }, "sha512-kiYMvLTDGwp4h14bZCce7Xe8dWToE5erGi6pOmDNkf3FAK6I6nU8SQtvEzEoMQc/j/F90m6D4Ud0I6dUZGLeNg=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
@@ -4118,10 +4039,6 @@
 
     "@pkgs/billing": ["@pkgs/billing@workspace:pkgs/billing"],
 
-    "@pkgs/billing-mock": ["@pkgs/billing-mock@workspace:pkgs/billing-mock"],
-
-    "@pkgs/billing-mock-provider": ["@pkgs/billing-mock-provider@workspace:pkgs/billing-mock-provider"],
-
     "@pkgs/billing-paddle": ["@pkgs/billing-paddle@workspace:pkgs/billing-paddle"],
 
     "@pkgs/billing-providers": ["@pkgs/billing-providers@workspace:pkgs/billing-providers"],
@@ -4191,8 +4108,6 @@
     "@pkgs/http-client": ["@pkgs/http-client@workspace:pkgs/http-client"],
 
     "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
-
-    "@pkgs/idp-mock": ["@pkgs/idp-mock@workspace:pkgs/idp-mock"],
 
     "@pkgs/invariants": ["@pkgs/invariants@workspace:pkgs/invariants"],
 
@@ -5835,6 +5750,12 @@
     "@babel/helper-create-regexp-features-plugin/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "@babel/preset-env/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
+
+    "@crvouga/mockingbird-service-oauth/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.0.0", "", {}, "sha512-dM6XNM6Wa2wReBuybMRDKcUw95GftsiV+QGZYyJuccrqDTEnNMVPoH7cHtvsPHN5luzQrOtXjC7R/B5p/rugHw=="],
+
+    "@crvouga/mockingbird-service-stripe/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.0.0", "", {}, "sha512-dM6XNM6Wa2wReBuybMRDKcUw95GftsiV+QGZYyJuccrqDTEnNMVPoH7cHtvsPHN5luzQrOtXjC7R/B5p/rugHw=="],
+
+    "@crvouga/mockingbird-service-stripe/hono": ["hono@4.11.9", "", {}, "sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ=="],
 
     "@cspotcode/source-map-support/@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 

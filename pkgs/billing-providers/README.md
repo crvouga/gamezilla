@@ -1,7 +1,7 @@
 # `@pkgs/billing-providers`
 
 The one list of membership providers this product can bill through
-(`MEMBERSHIP_PROVIDER_MODULES`: Stripe, Paddle, the mock), and the helpers
+(`MEMBERSHIP_PROVIDER_MODULES`: Stripe, Paddle), and the helpers
 composition roots use to iterate it:
 
 - `createConfiguredMembershipProviders({ env, chooseCheckout })` — builds every

@@ -1,18 +1,18 @@
 /**
  * One actor's web browser, for everything the app hands off to the web: the
- * Google / Apple sign-in window (`openAuthSession`) and any page a composed feature
- * serves into it, such as a billing provider's hosted checkout
+ * Google / Apple sign-in window (`openAuthSession`) and any vendor page the app
+ * opens, such as the payment provider's hosted checkout and billing portal
  * (`openExternalUrl`).
  *
  * It is a small but real browser. It loads documents over the actor's network
  * (the provider on its own origin, everything else through the load balancer),
  * keeps a cookie jar per origin so the provider remembers the person between
- * visits, follows redirects, and renders the page it lands on with that page's
- * own UI — the provider's screens, a feature's {@link HarnessBrowserAppPage} — so a
- * scenario signs in and pays by tapping those pages, exactly as it would in
- * a live browser. The page shows as a sheet over the app
- * (`HarnessBrowserSheet`); leaving it — the sign-in callback, a link back to the
- * app, the close button — returns to the app.
+ * visits, follows redirects, and renders the page it lands on — the vendor's
+ * own HTML, its links and its forms — so a scenario signs in and pays by
+ * tapping those pages, exactly as it would in a live browser. It runs no page
+ * scripts: the vendors' pages work without them. The page shows as a sheet
+ * over the app (`HarnessBrowserSheet`); leaving it — the sign-in callback, a
+ * link back to the app, the close button — returns to the app.
  */
 
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
@@ -21,25 +21,18 @@ import type {
   OpenAuthSession,
   OpenAuthSessionResult,
 } from '@pkgs/auth-inhouse/client';
-import { IDP_TEST_IDS } from '@pkgs/idp-mock/shared';
 import type { OpenExternalUrl } from '@pkgs/ui';
 import { type Accessor, createSignal } from 'solid-js';
 
-import type { HarnessBrowserAppPage } from '../composition';
 import { requestHref } from './http-request';
-import { harnessIdpOf } from './idp';
 
 /** Redirect hops one load may take (launch → provider → callback → app). */
 const MAX_HOPS = 12;
 
 export type HarnessBrowserPage =
   | { readonly kind: 'loading'; readonly url: string }
-  | { readonly kind: 'idp'; readonly url: string; readonly html: string }
-  | {
-      readonly kind: 'app';
-      readonly url: string;
-      readonly page: HarnessBrowserAppPage;
-    }
+  /** An HTML page: the vendor's own markup, rendered without scripts. */
+  | { readonly kind: 'document'; readonly url: string; readonly html: string }
   | {
       readonly kind: 'error';
       readonly url: string;
@@ -62,13 +55,10 @@ export type HarnessBrowser = {
   /** Load a document in the open tab (links, form navigations, redirects). */
   readonly navigate: (url: string) => void;
   /**
-   * Submit a top-level form POST and load what it answers — Apple's
-   * `response_mode=form_post` hand-off back to the app's API.
+   * Submit a top-level form POST and load what it answers — a page's form, or
+   * Apple's `response_mode=form_post` hand-off back to the app's API.
    */
-  readonly post: (
-    action: string,
-    fields: Readonly<Record<string, string>>
-  ) => void;
+  readonly post: (action: string, fields: FormFields) => void;
   readonly setAddress: (url: string) => void;
   /** The person closes the window without finishing. */
   readonly close: () => void;
@@ -128,56 +118,40 @@ function isAppUrl(url: URL, appOrigin: string | null): boolean {
   return url.origin === HARNESS_SERVER_URL && !url.pathname.startsWith('/api/');
 }
 
+/** A form's fields in document order; a name may repeat. */
+export type FormFields =
+  | Readonly<Record<string, string>>
+  | readonly (readonly [string, string])[];
+
 /** A POST the browser makes as part of one load (a form submission). */
 type FormPost = {
   readonly url: URL;
-  readonly fields: Readonly<Record<string, string>>;
+  readonly fields: FormFields;
 };
 
-/**
- * A provider's `form_post` hand-off document auto-submits by script; a
- * browser runs it, so this one does too.
- */
-function autoSubmitted(url: URL, html: string): FormPost | null {
-  if (!html.includes(IDP_TEST_IDS.formPostPage)) return null;
-  const action = /<form[^>]*action="([^"]*)"/.exec(html)?.[1];
-  if (action === undefined) return null;
-  const fields: Record<string, string> = {};
-  for (const match of html.matchAll(/<input\b[^>]*>/gi)) {
-    const name = /name="([^"]*)"/.exec(match[0])?.[1];
-    const value = /value="([^"]*)"/.exec(match[0])?.[1] ?? '';
-    if (name === undefined) continue;
-    fields[name] = value
-      .replaceAll('&quot;', '"')
-      .replaceAll('&lt;', '<')
-      .replaceAll('&gt;', '>')
-      .replaceAll('&amp;', '&');
-  }
-  return { url: new URL(action.replaceAll('&amp;', '&'), url), fields };
+function isHtml(response: Response): boolean {
+  return (response.headers.get('content-type') ?? '').includes('text/html');
 }
 
-/** What a non-app response is: a redirect hop, an error, or a page to show. */
+/**
+ * What a non-app response is: a redirect hop, a page to show, or an error. A
+ * browser shows whatever HTML it is answered, error statuses included.
+ */
 async function landedOn(
   url: URL,
-  response: Response,
-  pages: readonly HarnessBrowserAppPage[]
+  response: Response
 ): Promise<HarnessBrowserPage | URL | FormPost> {
   const location = response.headers.get('location');
   if (location !== null) return new URL(location, url);
-  if (!response.ok) {
-    return {
-      kind: 'error',
-      url: url.href,
-      message: `${String(response.status)} ${response.statusText}`.trim(),
-    };
+  if (isHtml(response)) {
+    return { kind: 'document', url: url.href, html: await response.text() };
   }
-  const page = pages.find((candidate) => candidate.matches(url));
-  if (page !== undefined) return { kind: 'app', url: url.href, page };
-  if (harnessIdpOf(url.href) !== null) {
-    const html = await response.text();
-    return autoSubmitted(url, html) ?? { kind: 'idp', url: url.href, html };
-  }
-  return { kind: 'error', url: url.href, message: 'Unsupported page' };
+  await response.body?.cancel();
+  return {
+    kind: 'error',
+    url: url.href,
+    message: `${String(response.status)} ${response.statusText}`.trim(),
+  };
 }
 
 /** A navigation is a GET; an auto-submitted `form_post` is a form POST. */
@@ -187,15 +161,15 @@ function requestInitFor(hop: URL | FormPost): RequestInit {
     method: 'POST',
     redirect: 'manual',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams(hop.fields).toString(),
+    body: new URLSearchParams(
+      hop.fields as Record<string, string> | [string, string][]
+    ).toString(),
   };
 }
 
 export function createHarnessBrowser(args: {
   /** The actor's network: provider origin + load balancer. */
   readonly network: ServerHttp;
-  /** Pages the composed features serve into the browser. */
-  readonly pages: readonly HarnessBrowserAppPage[];
   /**
    * Where the app itself is served (its links back, e.g. a billing return
    * URL built from `window.location.origin`), or `null` when unknown.
@@ -234,7 +208,7 @@ export function createHarnessBrowser(args: {
     }
     if (isAppUrl(url, args.appOrigin())) return 'app';
     const response = await fetch(url.href, requestInitFor(hop));
-    return await landedOn(url, response, args.pages);
+    return await landedOn(url, response);
   };
 
   const load = async (start: URL | FormPost): Promise<void> => {

@@ -11,7 +11,7 @@ import fc from 'fast-check';
 import { AUTH_ACTIONS } from './actions';
 import { startActor } from './actor';
 import { sessionUserOf } from './checks';
-import { DIRECTORIES } from './example-app';
+import { DIRECTORIES, emailOfEntry } from './example-app';
 import { authFingerprint, authInvariantViolations } from './invariants';
 import { createAuthModel } from './model';
 import { startStore } from './nodes';
@@ -183,12 +183,10 @@ export const auth = defineSystem<AuthSurface, AuthArgs>({
       violations: [],
       outcomes: {},
       directory: {
-        google: DIRECTORIES.google.map((draft) =>
-          emailOfDraft(draft, 'gmail.com')
+        google: DIRECTORIES.google.map((entry) =>
+          emailOfEntry(entry, 'google')
         ),
-        apple: DIRECTORIES.apple.map((draft) =>
-          emailOfDraft(draft, 'icloud.com')
-        ),
+        apple: DIRECTORIES.apple.map((entry) => emailOfEntry(entry, 'apple')),
       },
       fingerprint: null,
       lastStatus: null,
@@ -204,12 +202,5 @@ export const auth = defineSystem<AuthSurface, AuthArgs>({
   actions: [...AUTH_ACTIONS],
   properties: [invariantsHold],
 });
-
-function emailOfDraft(
-  draft: { readonly handle?: string; readonly email?: string },
-  domain: string
-): string {
-  return draft.email ?? `${draft.handle ?? ''}@${domain}`;
-}
 
 export type { AuthSurface };

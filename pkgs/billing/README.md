@@ -8,7 +8,7 @@ everything a payment provider must be able to do for us.
 `MembershipBilling` has an identity and three methods, and speaks only our
 vocabulary:
 
-- `provider` — a lowercase slug (`stripe`, `paddle`, `mock`) that keys stored
+- `provider` — a lowercase slug (`stripe`, `paddle`) that keys stored
   data: the projection row, the account's customer link (`billing:<provider>`)
   and the callback path (`<offer.callbackPath>/<provider>`). The app treats it
   as an opaque key and never compares it to a vendor name.
@@ -49,7 +49,7 @@ Composition roots never name a provider. Each provider package exports one
 `secrets` (always optional: no provider is required), `create(env)` (the
 adapter, or `null` when its credentials are absent) and, when its catalog is
 not handed to it at boot, `reconcile(env)`. `@pkgs/billing-providers` holds
-the one list (`MEMBERSHIP_PROVIDER_MODULES`: Stripe, Paddle, the mock), and
+the one list (`MEMBERSHIP_PROVIDER_MODULES`: Stripe, Paddle), and
 the API Worker (`createConfiguredMembershipProviders`), `billing:sync` and the
 secret registry each iterate it. Adding, dropping or swapping a provider is an
 edit to that list plus configuration; `tests/provider-modules.test.ts` there
@@ -85,8 +85,7 @@ own provider's wire, and the assertions are identical:
 
 | Implementation | Harness |
 | --- | --- |
-| `StripeMembershipBilling` (`@pkgs/billing-stripe`) | the real Stripe SDK over a fake Stripe REST origin |
-| `MockMembershipBilling` (`@pkgs/billing-mock`) | a fake of the mock wire |
+| `StripeMembershipBilling` (`@pkgs/billing-stripe`) | the real Stripe SDK against Stripe in test mode, simulated (`@crvouga/mockingbird-service-stripe`) |
 | `PaddleMembershipBilling` (`@pkgs/billing-paddle`) | the adapter over a fake Paddle REST origin |
 | a made-up third provider (`membership.contract.test.ts`) | its own vocabulary and signature scheme |
 
@@ -115,10 +114,10 @@ cancel that is the cancel time, not the period the person gave up.
 ## Implementations
 
 - **Stripe** (`@pkgs/billing-stripe`) — the only place Stripe status names,
-  event names and price lookup keys exist. `./harness` is a fake Stripe origin.
+  event names and price lookup keys exist. `./harness` is Stripe in test mode,
+  simulated in process (`StripeTestMode`, over
+  `@crvouga/mockingbird-service-stripe`). Harnesses and the localhost stack
+  bill through that simulated Stripe with this adapter, exactly as production
+  bills through Stripe.
 - **Paddle** (`@pkgs/billing-paddle`) — the only place Paddle status names,
   event names and custom-data keys exist. `./harness` is a fake Paddle origin.
-- **Mock** (`@pkgs/billing-mock` adapter + `@pkgs/billing-mock-provider`) — a
-  simulated payment provider with its own origin and state, Stripe's object
-  model and lifecycle, signed webhooks and test clocks. Harnesses and the localhost
-  stack bill through it; the app treats it exactly as any other provider.

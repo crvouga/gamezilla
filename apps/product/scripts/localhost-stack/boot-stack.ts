@@ -1,10 +1,9 @@
 // @io-wall-ok — tools composition root.
 
 /**
- * Boot the whole product on loopback: backing services, simulated Google and
- * Apple,
- * N API instances, the balancer in front of them, and (optionally) the built
- * web bundle.
+ * Boot the whole product on loopback: backing services, simulated Google,
+ * Apple and Stripe, N API instances, the balancer in front of them, and
+ * (optionally) the built web bundle.
  *
  * Every port is OS-assigned and every piece of state lives under one
  * instance directory, so several stacks run side by side with no
@@ -15,14 +14,20 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import {
+  createServer as createStripeServer,
+  type StripeServer,
+} from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { membershipCallbackPath } from '@pkgs/billing';
-import {
-  MOCK_BILLING_PROVIDER,
-  MockBillingBindingKeys,
-  mockBillingCatalogFromOffer,
-} from '@pkgs/billing-mock';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers';
+import {
+  STRIPE_MEMBERSHIP_PROVIDER,
+  STRIPE_PROVIDER,
+  StripeBindingKeys,
+  StripeSecretKeys,
+} from '@pkgs/billing-stripe';
+import { createLogger } from '@pkgs/logger';
 
 import { bootInfra, type InfraHandles } from './boot-infra';
 import {
@@ -33,13 +38,13 @@ import {
 } from './free-port';
 import { startLoadBalancer } from './load-balancer';
 import { type StackManifest, writeManifest } from './manifest';
+import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import type { StackOptions } from './stack-options';
 import { type IdpState, type StackIdps, startStackIdps } from './start-idps';
 
 const REPO_ROOT = join(import.meta.dir, '../../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
-const BILLING_SECRET_KEY = 'sk_test_mock_localhost_stack';
-const BILLING_WEBHOOK_SECRET = 'whsec_mock_localhost_stack';
+const BILLING_SECRET_KEY = 'sk_test_localhost_stack';
 /** Product super-app serves both `/` and the always-available `/harness`. */
 const PRODUCT_DEV_ARGS = [
   'run',
@@ -61,33 +66,50 @@ function nodeId(index: number): string {
   return `api-${String.fromCharCode(97 + index)}`;
 }
 
+/** Stripe, simulated, with its webhook endpoint's signing secret. */
+type BillingProvider = {
+  readonly server: StripeServer;
+  readonly webhookSecret: string;
+};
+
 /**
- * The mock payment provider, on its own port with its own SQLite file in the
- * instance directory — reached by the API nodes exactly as they reach any provider,
- * and sending its webhooks to the balancer.
+ * Stripe, simulated (`@crvouga/mockingbird-service-stripe`), on its own port
+ * with its state in the instance directory. Its catalog, billing portal
+ * configuration and webhook endpoint are what `billing:sync` reconciles into
+ * Stripe — the same module, over the same adapter — so the API nodes reach it
+ * and hear from it (signed webhooks, through the balancer) as they do Stripe.
  */
 async function startBillingProvider(args: {
   readonly apiOrigin: string;
   readonly port: number;
   readonly dataDir: string;
-}): Promise<ChildProcess> {
-  const child = spawn('bun', ['pkgs/billing-mock-provider/scripts/serve.ts'], {
-    cwd: REPO_ROOT,
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      BILLING_MOCK_PORT: String(args.port),
-      BILLING_MOCK_CATALOG: JSON.stringify(
-        mockBillingCatalogFromOffer(PLUS_MEMBERSHIP_OFFER)
-      ),
-      BILLING_MOCK_SECRET_KEY: BILLING_SECRET_KEY,
-      BILLING_MOCK_WEBHOOK_URL: `${args.apiOrigin}${membershipCallbackPath(PLUS_MEMBERSHIP_OFFER, MOCK_BILLING_PROVIDER)}`,
-      BILLING_MOCK_WEBHOOK_SECRET: BILLING_WEBHOOK_SECRET,
-      BILLING_MOCK_STATE_PATH: join(args.dataDir, 'billing.sqlite'),
-    },
+}): Promise<BillingProvider> {
+  const server = await createStripeServer({
+    port: args.port,
+    sqlite: mockingbirdSqliteFile(join(args.dataDir, 'billing.sqlite')),
+    accounts: [{ id: 'acct_localhost_stack', keys: [BILLING_SECRET_KEY] }],
   });
-  await waitForHttp(`http://127.0.0.1:${String(args.port)}/health`);
-  return child;
+  const bindings: Readonly<Record<string, string>> = {
+    [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
+    [StripeBindingKeys.apiOrigin]: server.url,
+  };
+  await STRIPE_MEMBERSHIP_PROVIDER.reconcile?.({
+    readSecret: (name) => Promise.resolve(bindings[name] ?? null),
+    offer: PLUS_MEMBERSHIP_OFFER,
+    now: () => Date.now(),
+    fetch: (input, init) => fetch(input, init),
+    callbackUrl: `${args.apiOrigin}${membershipCallbackPath(PLUS_MEMBERSHIP_OFFER, STRIPE_PROVIDER)}`,
+    log: createLogger({
+      name: 'localhost-stack:billing',
+      now: () => Date.now(),
+    }),
+  });
+  const endpoint = server.runtime.instance().apiWebhookEndpoints()[0];
+  if (endpoint === undefined) {
+    await server.close();
+    throw new Error('billing: reconcile left the simulated Stripe no webhook');
+  }
+  return { server, webhookSecret: endpoint.secret };
 }
 
 function waitForChildExit(child: ChildProcess): Promise<void> {
@@ -124,7 +146,7 @@ function startApiNode(args: {
   readonly port: number;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
-  readonly billingOrigin: string;
+  readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
 }): ChildProcess {
@@ -140,17 +162,17 @@ function startApiNode(args: {
       SECRETS_ENV: 'dev',
       API_URL: args.apiOrigin,
       AUTH_SECRET,
-      // The stack bills through the mock alone: no real provider's
-      // credentials from the parent environment are configured beside it.
+      // The stack bills through the simulated Stripe alone: no real
+      // provider's credentials from the parent environment reach it.
       ...Object.fromEntries(
         MEMBERSHIP_PROVIDER_MODULES.flatMap((module) =>
           module.secrets.map((secret) => [secret.name, ''])
         )
       ),
-      BILLING_PROVIDER: MOCK_BILLING_PROVIDER,
-      [MockBillingBindingKeys.origin]: args.billingOrigin,
-      [MockBillingBindingKeys.secretKey]: BILLING_SECRET_KEY,
-      [MockBillingBindingKeys.webhookSecret]: BILLING_WEBHOOK_SECRET,
+      BILLING_PROVIDER: STRIPE_PROVIDER,
+      [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
+      [StripeSecretKeys.webhookSecret]: args.billing.webhookSecret,
+      [StripeBindingKeys.apiOrigin]: args.billing.server.url,
       WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
     },
   });
@@ -210,7 +232,7 @@ async function startApiTier(args: {
   readonly options: StackOptions;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
-  readonly billingOrigin: string;
+  readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
 }): Promise<ApiTier> {
@@ -226,7 +248,7 @@ async function startApiTier(args: {
         port: reservation.port,
         apiOrigin: args.apiOrigin,
         idpEnv: args.idpEnv,
-        billingOrigin: args.billingOrigin,
+        billing: args.billing,
         webOrigin: args.webOrigin,
         infraEnv: args.infra.env,
       })
@@ -247,7 +269,7 @@ async function startApiTier(args: {
 }
 
 async function stopIdps(idps: StackIdps): Promise<void> {
-  await Promise.all([stopChild(idps.google), stopChild(idps.apple)]);
+  await Promise.all([idps.google.close(), idps.apple.close()]);
 }
 
 /** Boots infra and the simulated IdPs, unwinding whichever side succeeded on failure. */
@@ -270,7 +292,6 @@ async function bootInfraAndIdps(args: {
   await google.release();
   await apple.release();
   const idpPromise = startStackIdps({
-    repoRoot: REPO_ROOT,
     apiOrigin: args.apiOrigin,
     ports: { google: google.port, apple: apple.port },
     state: args.idpState,
@@ -290,7 +311,7 @@ async function bootInfraAndIdps(args: {
 }
 
 type BillingAndApi = {
-  readonly billingChild: ChildProcess;
+  readonly billing: BillingProvider;
   readonly api: ApiTier;
 };
 
@@ -307,9 +328,9 @@ async function startBillingAndApi(args: {
   readonly unwind: () => Promise<void>;
 }): Promise<BillingAndApi> {
   await args.releaseBillingPort();
-  let billingChild: ChildProcess;
+  let billing: BillingProvider;
   try {
-    billingChild = await startBillingProvider({
+    billing = await startBillingProvider({
       apiOrigin: args.apiOrigin,
       port: args.billingPort,
       dataDir: args.dataDir,
@@ -323,13 +344,13 @@ async function startBillingAndApi(args: {
       options: args.options,
       apiOrigin: args.apiOrigin,
       idpEnv: args.idpEnv,
-      billingOrigin: `http://127.0.0.1:${String(args.billingPort)}`,
+      billing,
       webOrigin: args.webOrigin,
       infra: args.infra,
     });
-    return { billingChild, api };
+    return { billing, api };
   } catch (error) {
-    await stopChild(billingChild);
+    await billing.server.close();
     await args.unwind();
     throw error;
   }
@@ -374,7 +395,7 @@ export async function bootLocalhostStack(
     idpReservations,
     idpState,
   });
-  const { api, billingChild } = await startBillingAndApi({
+  const { api, billing } = await startBillingAndApi({
     options,
     apiOrigin,
     idpEnv: idps.apiEnv,
@@ -437,7 +458,7 @@ export async function bootLocalhostStack(
       if (webChild !== null) await stopChild(webChild);
       await Promise.all(api.children.map((child) => stopChild(child)));
       await stopIdps(idps);
-      await stopChild(billingChild);
+      await billing.server.close();
       await balancer.stop();
       await infra.stop();
     },

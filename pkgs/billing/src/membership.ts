@@ -81,7 +81,7 @@ export type CallbackResult =
  * What the app needs from a payment provider: start a plus membership, let the
  * person manage it, and learn what changed. Nothing else belongs here.
  *
- * Every implementation — Stripe, Paddle, the mock provider — must pass
+ * Every implementation — Stripe, Paddle — must pass
  * `describeMembershipBillingContract` (`./membership-billing-contract`); the
  * app treats them identically and never branches on which one it holds. It
  * may hold several at once ({@link MembershipProviders}).

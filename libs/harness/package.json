@@ -16,6 +16,8 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
+    "@crvouga/mockingbird-service-oauth": "catalog:",
+    "@crvouga/mockingbird-service-stripe": "catalog:",
     "@libs/auth": "workspace:*",
     "@libs/client-app": "workspace:*",
     "@libs/client-config": "workspace:*",
@@ -29,8 +31,7 @@
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/billing": "workspace:*",
-    "@pkgs/billing-mock": "workspace:*",
-    "@pkgs/billing-mock-provider": "workspace:*",
+    "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
@@ -40,7 +41,6 @@
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/harness-console": "workspace:*",
-    "@pkgs/idp-mock": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/kv-web": "workspace:*",
@@ -73,7 +73,8 @@
     "@pkgs/uuid": "workspace:*",
     "@solidjs/router": "catalog:",
     "better-sqlite3": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "stripe": "catalog:"
   },
   "devDependencies": {
     "@pkgs/harness-report": "workspace:*",

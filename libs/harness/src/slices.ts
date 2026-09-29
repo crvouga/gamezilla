@@ -21,7 +21,6 @@ import type { CatalogAction, CatalogProperty } from '@pkgs/harness';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { withHome } from './bare-home-client';
 import type {
-  HarnessBrowserAppPage,
   HarnessComposition,
   HarnessRoomGateway,
   HarnessRoomNode,
@@ -40,7 +39,6 @@ export type HarnessSlice = {
     gateway: HarnessRoomGateway
   ) => HarnessRoomNode;
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
-  readonly browserPages?: readonly HarnessBrowserAppPage[];
   /** What this feature sells; boots the harness's payment provider. */
   readonly billingOffer?: PlusMembershipOffer;
   readonly properties?: readonly CatalogProperty<ProductHarness>[];
@@ -144,7 +142,6 @@ export function composeHarnessSlices(
     seedServer: async (sqlClient) => {
       for (const seed of seeds) await seed(sqlClient);
     },
-    browserPages: ordered.flatMap((s) => s.browserPages ?? []),
     properties: ordered.flatMap((s) => s.properties ?? []),
     actions: ordered.flatMap((s) => s.actions ?? []),
   };

@@ -6,9 +6,17 @@
 
 export {
   APPLE_DIRECTORY,
+  type AuthIdp,
+  type AuthIdps,
+  accountAt,
+  accountIdOf,
   DIRECTORIES,
+  type DirectoryEntry,
+  emailOfEntry,
   GOOGLE_DIRECTORY,
   idpForUrl,
+  NO_PROVIDER_FAULTS,
+  type ProviderFaults,
   startIdpNodes,
 } from './providers';
 export {

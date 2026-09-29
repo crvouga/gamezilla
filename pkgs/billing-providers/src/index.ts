@@ -11,17 +11,12 @@ import {
   type MembershipProviderModule,
   type MembershipProviders,
 } from '@pkgs/billing';
-import { MOCK_MEMBERSHIP_PROVIDER } from '@pkgs/billing-mock';
 import { PADDLE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-paddle';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe';
 import type { SecretStore } from '@pkgs/secret-store';
 
 export const MEMBERSHIP_PROVIDER_MODULES: readonly MembershipProviderModule[] =
-  [
-    STRIPE_MEMBERSHIP_PROVIDER,
-    PADDLE_MEMBERSHIP_PROVIDER,
-    MOCK_MEMBERSHIP_PROVIDER,
-  ];
+  [STRIPE_MEMBERSHIP_PROVIDER, PADDLE_MEMBERSHIP_PROVIDER];
 
 /** `MembershipProviderEnv.readSecret` over a secret store: trimmed, blank is unset. */
 export function membershipSecretReader(

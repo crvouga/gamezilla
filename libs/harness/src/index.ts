@@ -9,7 +9,6 @@
  */
 
 export {
-  type HarnessBrowserAppPage,
   type HarnessComposition,
   type HarnessRoomNode,
   noRoomNode,

@@ -1,34 +1,51 @@
 /**
- * Walking a provider's sign-in window the way a person does: the address
- * step, the account chooser (a browser that signed in before), the password
- * step and the consent card — whichever the provider serves. Google and
- * Apple share the screens; Apple's first authorization adds the name and
- * "Share / Hide My Email" questions to the consent card.
+ * Walking a provider's sign-in window the way a person does: the account
+ * chooser, a new account when theirs is not listed, the consent card, and —
+ * for Sign in with Apple — the hand-off page that posts the answer back to
+ * the app (the browser runs no page scripts, so the person presses its
+ * Continue, as a browser without JavaScript does). Google and Apple share the
+ * screens; Apple's consent card adds "Share / Hide My Email".
+ *
+ * The screens are the simulated provider's own
+ * (`@crvouga/mockingbird-service-oauth`), found by their `oauth-mock-*` test
+ * ids.
  */
 
-import {
-  appleSubOf,
-  IDP_PASSWORD,
-  IDP_TEST_IDS,
-  type IdpProviderKind,
-  idpSubOf,
-} from '@pkgs/idp-mock/shared';
 import type { Driver } from '@pkgs/ui-testing';
 
+import { type HarnessIdpProvider, harnessIdpAccountId } from '../fabric/idp';
 import { pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
 
 const WAIT_MS = 15_000;
-/** Screens one sign-in can pass through (chooser → identifier → password → consent). */
+/** Screens one sign-in can pass through (chooser → sign-up → consent → hand-off). */
 const MAX_PROVIDER_STEPS = 8;
 
-type ProviderScreen = 'identifier' | 'chooser' | 'password' | 'consent';
+/** The simulated provider's `data-testid`s. */
+const PROVIDER_PAGE = {
+  chooser: 'oauth-mock-chooser',
+  account: (accountId: string) => `oauth-mock-account-${accountId}`,
+  createAccount: 'oauth-mock-create-account',
+  signup: 'oauth-mock-signup',
+  signupName: 'oauth-mock-signup-name',
+  signupEmail: 'oauth-mock-signup-email',
+  signupSubmit: 'oauth-mock-signup-submit',
+  consent: 'oauth-mock-consent',
+  allow: 'oauth-mock-allow',
+  deny: 'oauth-mock-deny',
+  hideEmail: 'oauth-mock-hide-email',
+  shareEmail: 'oauth-mock-share-email',
+  handoff: 'oauth-mock-form-post',
+  handoffContinue: 'oauth-mock-form-post-continue',
+} as const;
+
+type ProviderScreen = 'chooser' | 'signup' | 'consent' | 'handoff';
 
 const SCREENS: readonly (readonly [ProviderScreen, string])[] = [
-  ['identifier', IDP_TEST_IDS.identifierPage],
-  ['chooser', IDP_TEST_IDS.chooserPage],
-  ['password', IDP_TEST_IDS.passwordPage],
-  ['consent', IDP_TEST_IDS.consentPage],
+  ['chooser', PROVIDER_PAGE.chooser],
+  ['signup', PROVIDER_PAGE.signup],
+  ['consent', PROVIDER_PAGE.consent],
+  ['handoff', PROVIDER_PAGE.handoff],
 ];
 
 const SCREEN_TEST_IDS: Readonly<Record<ProviderScreen, string>> =
@@ -36,7 +53,7 @@ const SCREEN_TEST_IDS: Readonly<Record<ProviderScreen, string>> =
 
 /** How the person answers the provider. */
 export type ProviderAnswers = {
-  readonly provider: IdpProviderKind;
+  readonly provider: HarnessIdpProvider;
   readonly email: string;
   /** Apple's first authorization: share the real address or a relay. */
   readonly emailChoice?: 'share' | 'hide';
@@ -61,32 +78,38 @@ async function currentScreen(
   );
 }
 
-function subOf(answers: ProviderAnswers): string {
-  return answers.provider === 'apple'
-    ? appleSubOf(answers.email)
-    : idpSubOf(answers.email);
-}
-
-/** The chooser: this account's row, or "Use another account". */
+/** The chooser: this account's row, or a new account at this address. */
 async function choose(ui: Driver, answers: ProviderAnswers): Promise<void> {
-  const row = ui.get(IDP_TEST_IDS.chooserAccount(subOf(answers)));
+  const row = ui.get(PROVIDER_PAGE.account(harnessIdpAccountId(answers.email)));
   if (await row.isVisible()) {
     await row.tap({ timeoutMs: WAIT_MS });
     return;
   }
-  await ui.get(IDP_TEST_IDS.chooserUseAnother).tap({ timeoutMs: WAIT_MS });
+  await ui.get(PROVIDER_PAGE.createAccount).tap({ timeoutMs: WAIT_MS });
+}
+
+/** A new account at the person's address, named after it. */
+async function signUp(ui: Driver, answers: ProviderAnswers): Promise<void> {
+  const handle = answers.email.slice(0, answers.email.indexOf('@'));
+  await ui.get(PROVIDER_PAGE.signupName).input(handle);
+  await ui.get(PROVIDER_PAGE.signupEmail).input(answers.email);
+  await ui.get(PROVIDER_PAGE.signupSubmit).tap({ timeoutMs: WAIT_MS });
 }
 
 async function consent(ui: Driver, answers: ProviderAnswers): Promise<void> {
   if (answers.consent === 'deny') {
-    await ui.get(IDP_TEST_IDS.consentDeny).tap({ timeoutMs: WAIT_MS });
+    await ui.get(PROVIDER_PAGE.deny).tap({ timeoutMs: WAIT_MS });
     return;
   }
-  const hide = ui.get(IDP_TEST_IDS.consentHideEmail);
-  if (answers.emailChoice === 'hide' && (await hide.isVisible())) {
-    await hide.tap({ timeoutMs: WAIT_MS });
+  const choice =
+    answers.emailChoice === 'hide'
+      ? PROVIDER_PAGE.hideEmail
+      : PROVIDER_PAGE.shareEmail;
+  const radio = ui.get(choice);
+  if (answers.emailChoice !== undefined && (await radio.isVisible())) {
+    await radio.tap({ timeoutMs: WAIT_MS });
   }
-  await ui.get(IDP_TEST_IDS.consentAllow).tap({ timeoutMs: WAIT_MS });
+  await ui.get(PROVIDER_PAGE.allow).tap({ timeoutMs: WAIT_MS });
 }
 
 /** One screen of the provider, answered the way the person would. */
@@ -99,18 +122,15 @@ async function answer(
     await choose(ui, answers);
     return;
   }
+  if (screen === 'signup') {
+    await signUp(ui, answers);
+    return;
+  }
   if (screen === 'consent') {
     await consent(ui, answers);
     return;
   }
-  if (screen === 'identifier') {
-    await ui.get(IDP_TEST_IDS.identifierEmail).clear();
-    await ui.get(IDP_TEST_IDS.identifierEmail).input(answers.email);
-    await ui.get(IDP_TEST_IDS.identifierNext).tap({ timeoutMs: WAIT_MS });
-    return;
-  }
-  await ui.get(IDP_TEST_IDS.passwordInput).input(IDP_PASSWORD);
-  await ui.get(IDP_TEST_IDS.passwordNext).tap({ timeoutMs: WAIT_MS });
+  await ui.get(PROVIDER_PAGE.handoffContinue).tap({ timeoutMs: WAIT_MS });
 }
 
 /**

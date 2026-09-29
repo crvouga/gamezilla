@@ -14,7 +14,7 @@
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness/system/identity';
 import { actorIds, partitioned } from '@libs/harness/system/observations';
-import { membershipStatusOf } from '@pkgs/billing-mock';
+import { membershipStatusOf } from '@pkgs/billing-stripe';
 import { type CheckpointAction, defineProperty } from '@pkgs/harness';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';

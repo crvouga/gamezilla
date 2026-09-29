@@ -1,28 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import { createHarnessClock, type HarnessClockBundle } from '@pkgs/clock';
-import {
-  createIdpMockApp,
-  createIdpSigningKeys,
-  IdpStore,
-} from '@pkgs/idp-mock/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-mock/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
 import { createInMemoryAuthClientStorage } from '../src/client/bearer-token-store';
 import { createInhouseAuthClient } from '../src/client/create-inhouse-auth-client';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
 import { AuthPostgresDatabaseMigration } from '../src/server/auth-database-migration';
 import { createAuthApp } from '../src/server/create-auth-app';
-
-/**
- * One RSA key pair per file: minting RS256 keys is the costliest part of an
- * IdP boot, and no test here is about key generation. Every test still boots
- * its own store and app.
- */
-const SIGNING_KEYS = createIdpSigningKeys();
+import { googleEndpointsFor } from '../src/server/inhouse-auth-config';
+import { ALICE_EMAIL, simulatedGoogle } from './support/simulated-google';
 
 const BASE_URL = 'http://harness.local';
 const IDP_URL = 'http://idp.harness';
@@ -56,25 +44,12 @@ async function bootNodes(): Promise<{
   }).migrate({ sqlClient, logger: createNoopLogger() });
 
   let nextId = 0;
-  const idpStore = await IdpStore.open({
-    provider: 'google',
-    sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 2 }),
+  const google = simulatedGoogle({
+    origin: IDP_URL,
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+    redirectUris: [REDIRECT_URI],
     clock: harness.clock,
-    createId: () => `idp-${(nextId += 1)}`,
-    createKeys: () => SIGNING_KEYS,
-  });
-  const idp = await createIdpMockApp({
-    store: idpStore,
-    issuer: IDP_URL,
-    clients: [
-      {
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        redirectUris: [REDIRECT_URI],
-        appName: 'Gamezilla',
-      },
-    ],
-    accounts: [{ handle: 'alice' }],
   });
 
   const wire: WireFetch = async (input, init) => {
@@ -82,7 +57,7 @@ async function bootNodes(): Promise<{
       input instanceof Request && init === undefined
         ? input
         : new Request(input, init);
-    if (request.url.startsWith(IDP_URL)) return idp.app.fetch(request);
+    if (request.url.startsWith(IDP_URL)) return google(request);
     return app.request(request);
   };
 
@@ -99,7 +74,7 @@ async function bootNodes(): Promise<{
       google: {
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
-        endpoints: idpEndpoints(IDP_URL),
+        endpoints: googleEndpointsFor(IDP_URL),
       },
     },
   });
@@ -114,7 +89,7 @@ describe('createInProcessOpenAuthSession / harness parity', () => {
     const { wire, harness } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
-      account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
+      account: { email: ALICE_EMAIL },
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
@@ -131,11 +106,11 @@ describe('createInProcessOpenAuthSession / harness parity', () => {
     expect(token?.length).toBeGreaterThan(0);
   });
 
-  test('a wrong password never reaches a session', async () => {
+  test('an account the provider does not hold never reaches a session', async () => {
     const { wire, harness } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
-      account: { email: 'alice@gmail.com', password: 'wrong' },
+      account: { email: 'nobody@gmail.com' },
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
@@ -154,7 +129,7 @@ describe('createInProcessOpenAuthSession / harness parity', () => {
     const { wire, harness } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
-      account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
+      account: { email: ALICE_EMAIL },
       consent: 'deny',
     });
     const port = createInhouseAuthClient({

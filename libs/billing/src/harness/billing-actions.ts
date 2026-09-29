@@ -18,17 +18,6 @@ import type { ProductHarness } from '@libs/harness/system/harness';
 import { accountIdOf } from '@libs/harness/system/identity';
 import { nodeText } from '@libs/harness/system/observations';
 import { Handles } from '@libs/test-ids';
-import {
-  MOCK_BILLING_PATHS,
-  MOCK_TEST_PAYMENT_METHODS,
-  type MockCheckoutSession,
-  type MockList,
-  type MockPrice,
-} from '@pkgs/billing-mock';
-import {
-  MOCK_BILLING_PAGE_API,
-  MOCK_BILLING_TEST_IDS,
-} from '@pkgs/billing-mock-provider/shared';
 
 import { PLUS_MEMBERSHIP_OFFER } from '../public/offer';
 import {
@@ -38,7 +27,6 @@ import {
   driveProvider,
   type EarlierNews,
   expireCardOnFile,
-  providerCall,
   refundLastPayment,
   repeatEarlierNews,
   runBillingPeriodOn,
@@ -53,6 +41,45 @@ export {
 } from './billing-provider-driver';
 
 const WAIT_MS = 20_000;
+
+/**
+ * The `data-testid`s of Stripe's hosted checkout and billing portal, as the
+ * Stripe mock serves them.
+ */
+const STRIPE_PAGE = {
+  checkoutCard: 'stripe-mock-card',
+  checkoutExpiry: 'stripe-mock-exp',
+  checkoutCvc: 'stripe-mock-cvc',
+  checkoutZip: 'stripe-mock-zip',
+  checkoutPay: 'stripe-mock-pay',
+  checkoutCancel: 'stripe-mock-cancel',
+  portalReturn: 'stripe-mock-portal-return',
+  portalNotice: 'stripe-mock-portal-notice',
+  portalCancelPlan: 'stripe-mock-portal-cancel-plan',
+  portalCancelReason: (reason: string) => `stripe-mock-portal-reason-${reason}`,
+  portalCancelConfirm: 'stripe-mock-portal-cancel-confirm',
+  portalRenew: 'stripe-mock-portal-renew',
+  portalUpdatePlan: 'stripe-mock-portal-update-plan',
+  portalPriceOption: (lookupKey: string) =>
+    `stripe-mock-portal-price-option-${lookupKey}`,
+  portalContinue: 'stripe-mock-portal-continue',
+  portalConfirmUpdate: 'stripe-mock-portal-confirm-update',
+  portalAddPaymentMethod: 'stripe-mock-portal-add-payment-method',
+  portalCard: 'stripe-mock-portal-card',
+  portalExpiry: 'stripe-mock-portal-exp',
+  portalCvc: 'stripe-mock-portal-cvc',
+  portalZip: 'stripe-mock-portal-zip',
+  portalSaveCard: 'stripe-mock-portal-save-card',
+  portalPayInvoice: 'stripe-mock-portal-pay-invoice',
+} as const;
+
+/** A working test card, as a person types it into a card form. */
+const TEST_CARD = {
+  number: '4242424242424242',
+  expiry: '12 / 34',
+  cvc: '123',
+  zip: '94107',
+} as const;
 
 /**
  * Press one of the billing screen's own buttons once it accepts a press. Each
@@ -95,15 +122,21 @@ export const openBilling = scenarioAction({
 
 /**
  * Subscribe to plus: the app hands off to the provider's hosted checkout in
- * the actor's browser, the person pays there, and the checkout returns to the
- * app. Then wait for the tier to read `paid`.
+ * the actor's browser, the person types a card there and pays, and the
+ * checkout returns to the app. Then wait for the tier to read `paid`.
  */
 export const subscribeToPlus = scenarioAction({
   name: 'subscribeToPlus',
   act: async (s, actorId: string) => {
     await pressBillingButton(s, actorId, 'subscribe');
     const ui = await actorUi(s, actorId);
-    await ui.get(MOCK_BILLING_TEST_IDS.checkoutPay).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(STRIPE_PAGE.checkoutCard)
+      .input(TEST_CARD.number, { timeoutMs: WAIT_MS });
+    await ui.get(STRIPE_PAGE.checkoutExpiry).input(TEST_CARD.expiry);
+    await ui.get(STRIPE_PAGE.checkoutCvc).input(TEST_CARD.cvc);
+    await ui.get(STRIPE_PAGE.checkoutZip).input(TEST_CARD.zip);
+    await ui.get(STRIPE_PAGE.checkoutPay).tap({ timeoutMs: WAIT_MS });
     await pollUntil(
       s,
       async () =>
@@ -124,9 +157,7 @@ export const leaveCheckout = scenarioAction({
   act: async (s, actorId: string) => {
     await pressBillingButton(s, actorId, 'subscribe');
     const ui = await actorUi(s, actorId);
-    await ui
-      .get(MOCK_BILLING_TEST_IDS.checkoutCancel)
-      .tap({ timeoutMs: WAIT_MS });
+    await ui.get(STRIPE_PAGE.checkoutCancel).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
@@ -138,72 +169,103 @@ export const managePlus = scenarioAction({
     await pressBillingButton(s, actorId, 'manage');
     const ui = await actorUi(s, actorId);
     await ui
-      .get(MOCK_BILLING_TEST_IDS.portalReturn)
+      .get(STRIPE_PAGE.portalReturn)
       .expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 
+type PortalUi = Awaited<ReturnType<typeof actorUi>>;
+
+/** Wait for the portal to confirm the change it just made. */
+async function portalConfirmed(ui: PortalUi): Promise<void> {
+  await ui.get(STRIPE_PAGE.portalNotice).expect.visible({ timeoutMs: WAIT_MS });
+}
+
 /**
- * Open the portal, press `buttons` in order (a destructive change opens its
- * confirmation first), wait for the portal to confirm the change, then take
- * the portal's own link back to the app.
+ * Open the portal, make a change there (`change` taps through the portal's own
+ * pages and waits for it to confirm), then take the portal's own link back to
+ * the app.
  */
 async function inPortal(
   s: ProductHarness,
   actorId: string,
-  buttons: readonly string[]
+  change: (ui: PortalUi) => Promise<void>
 ): Promise<void> {
   await pressBillingButton(s, actorId, 'manage');
   const ui = await actorUi(s, actorId);
-  for (const testId of buttons) {
-    await ui.get(testId).tap({ timeoutMs: WAIT_MS });
-  }
-  await ui
-    .get(MOCK_BILLING_TEST_IDS.portalNotice)
-    .expect.visible({ timeoutMs: WAIT_MS });
-  await ui.get(MOCK_BILLING_TEST_IDS.portalReturn).tap({ timeoutMs: WAIT_MS });
+  await change(ui);
+  await ui.get(STRIPE_PAGE.portalReturn).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
 }
 
+/** Cancel the plan, saying why: it stops at the end of the period. */
 export const cancelPlus = scenarioAction({
   name: 'cancelPlus',
   act: async (s, actorId: string) => {
-    await inPortal(s, actorId, [
-      MOCK_BILLING_TEST_IDS.portalCancelStart,
-      MOCK_BILLING_TEST_IDS.portalCancel,
-    ]);
+    await inPortal(s, actorId, async (ui) => {
+      await ui.get(STRIPE_PAGE.portalCancelPlan).tap({ timeoutMs: WAIT_MS });
+      const [reason] = PLUS_MEMBERSHIP_OFFER.portal.cancellationReasons;
+      if (reason !== undefined) {
+        await ui
+          .get(STRIPE_PAGE.portalCancelReason(reason))
+          .tap({ timeoutMs: WAIT_MS });
+      }
+      await ui.get(STRIPE_PAGE.portalCancelConfirm).tap({ timeoutMs: WAIT_MS });
+      await portalConfirmed(ui);
+    });
   },
 });
 
+/** Renew a plan set to cancel at the end of the period. */
 export const resumePlus = scenarioAction({
   name: 'resumePlus',
   act: async (s, actorId: string) => {
-    await inPortal(s, actorId, [MOCK_BILLING_TEST_IDS.portalRenew]);
+    await inPortal(s, actorId, async (ui) => {
+      await ui.get(STRIPE_PAGE.portalRenew).tap({ timeoutMs: WAIT_MS });
+      await portalConfirmed(ui);
+    });
   },
 });
 
-/** In the portal: pay the unpaid invoice with a new, working card. */
+/** In the portal: add a new, working card, then pay the unpaid invoice with it. */
 export const payWithNewCard = scenarioAction({
   name: 'payWithNewCard',
   act: async (s, actorId: string) => {
-    await inPortal(s, actorId, [
-      MOCK_BILLING_TEST_IDS.portalPayInvoice,
-      MOCK_BILLING_TEST_IDS.portalPaymentMethod,
-    ]);
+    await inPortal(s, actorId, async (ui) => {
+      await ui
+        .get(STRIPE_PAGE.portalAddPaymentMethod)
+        .tap({ timeoutMs: WAIT_MS });
+      await ui
+        .get(STRIPE_PAGE.portalCard)
+        .input(TEST_CARD.number, { timeoutMs: WAIT_MS });
+      await ui.get(STRIPE_PAGE.portalExpiry).input(TEST_CARD.expiry);
+      await ui.get(STRIPE_PAGE.portalCvc).input(TEST_CARD.cvc);
+      await ui.get(STRIPE_PAGE.portalZip).input(TEST_CARD.zip);
+      await ui.get(STRIPE_PAGE.portalSaveCard).tap({ timeoutMs: WAIT_MS });
+      await portalConfirmed(ui);
+      await ui.get(STRIPE_PAGE.portalPayInvoice).tap({ timeoutMs: WAIT_MS });
+      await portalConfirmed(ui);
+    });
   },
 });
 
+/** Switch the plan to the offer price `priceKey`, confirming the change. */
 export const switchPlusInterval = scenarioAction({
   name: 'switchPlusInterval',
   act: async (s, actorId: string, priceKey: string) => {
-    const catalogPriceId =
+    const lookupKey =
       PLUS_MEMBERSHIP_OFFER.prices[
         priceKey as keyof typeof PLUS_MEMBERSHIP_OFFER.prices
       ]?.catalogPriceId ?? priceKey;
-    await inPortal(s, actorId, [
-      MOCK_BILLING_TEST_IDS.portalSwitchStart(catalogPriceId),
-      MOCK_BILLING_TEST_IDS.portalSwitch(catalogPriceId),
-    ]);
+    await inPortal(s, actorId, async (ui) => {
+      await ui.get(STRIPE_PAGE.portalUpdatePlan).tap({ timeoutMs: WAIT_MS });
+      await ui
+        .get(STRIPE_PAGE.portalPriceOption(lookupKey))
+        .tap({ timeoutMs: WAIT_MS });
+      await ui.get(STRIPE_PAGE.portalContinue).tap({ timeoutMs: WAIT_MS });
+      await ui.get(STRIPE_PAGE.portalConfirmUpdate).tap({ timeoutMs: WAIT_MS });
+      await portalConfirmed(ui);
+    });
   },
 });
 
@@ -264,9 +326,10 @@ export const runFreeTrialToDaysLeft = scenarioAction({
 
 /**
  * Start and pay a fresh checkout for the actor's customer at the provider —
- * the session the app's own checkout would create, paid through the hosted
- * page's API. The lifecycle walk's `resubscribe` stimulus: a provider-side
- * step that works whatever screen the payer is on.
+ * the session the app's own checkout would create, completed with a working
+ * test card through the provider's test controls. The lifecycle walk's
+ * `resubscribe` stimulus: a provider-side step that works whatever screen the
+ * payer is on.
  */
 export const checkoutPlusAtProvider = scenarioAction({
   name: 'checkoutPlusAtProvider',
@@ -274,33 +337,42 @@ export const checkoutPlusAtProvider = scenarioAction({
     const accountId = await accountIdOf(s, actorId);
     if (accountId === null) return;
     const provider = billingProviders(s).checkout();
-    const call = providerCall(provider);
     const spec =
       PLUS_MEMBERSHIP_OFFER.prices[PLUS_MEMBERSHIP_OFFER.defaultPriceKey];
-    const prices = await call<MockList<MockPrice>>(
-      'GET',
-      `${MOCK_BILLING_PATHS.prices}?lookup_keys=${spec.catalogPriceId}`
-    );
-    const price = prices.data[0]?.id ?? '';
-    const session = await call<MockCheckoutSession>(
-      'POST',
-      MOCK_BILLING_PATHS.checkoutSessions,
+    const prices = await provider.stripe.prices.list({
+      lookup_keys: [spec.catalogPriceId],
+      limit: 1,
+    });
+    const price = prices.data[0]?.id;
+    if (price === undefined) {
+      throw new Error(`billing: no price ${spec.catalogPriceId}`);
+    }
+    const returnUrl = `${HARNESS_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`;
+    const session = await provider.stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: await customerOf(s, accountId, provider),
+      client_reference_id: accountId,
+      line_items: [{ price, quantity: 1 }],
+      success_url: returnUrl,
+      cancel_url: returnUrl,
+      subscription_data: {
+        metadata: { accountId },
+        trial_period_days: spec.trialPeriodDays,
+      },
+    });
+    const completed = await provider.fetch(
+      `${provider.origin}/__admin/checkout/sessions/${session.id}/complete`,
       {
-        mode: 'subscription',
-        customer: await customerOf(s, accountId, provider),
-        line_items: [{ price, quantity: 1 }],
-        success_url: `${HARNESS_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
-        cancel_url: `${HARNESS_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
-        subscription_data: {
-          metadata: { accountId },
-          trial_period_days: spec.trialPeriodDays,
-        },
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ card: TEST_CARD.number }),
       }
     );
-    await call('POST', MOCK_BILLING_PAGE_API.checkoutConfirm(session.id), {
-      price,
-      paymentMethod: MOCK_TEST_PAYMENT_METHODS.visa,
-    });
+    if (!completed.ok) {
+      throw new Error(
+        `billing: completing checkout ${session.id} → ${String(completed.status)}: ${await completed.text()}`
+      );
+    }
     await s.session.waitForIdle();
   },
 });
@@ -311,7 +383,7 @@ export const checkoutPlusAtProvider = scenarioAction({
  * switches payment provider to it.
  */
 export const FIRST_PAYMENT_PROVIDER = HARNESS_FIRST_BILLING_PROVIDER;
-export const SECOND_PAYMENT_PROVIDER = 'mock-second';
+export const SECOND_PAYMENT_PROVIDER = 'stripe-second';
 
 /**
  * The team switches payment provider: new checkouts go to provider

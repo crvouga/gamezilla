@@ -111,7 +111,6 @@ export function makeHarnessClientEnv(
   });
   const browser = createHarnessBrowser({
     network: browserFetch,
-    pages: deps.composition.browserPages ?? [],
     // DOM types claim `location` always exists; under Bun it does not.
     appOrigin: () =>
       'location' in globalThis ? globalThis.location.origin : null,

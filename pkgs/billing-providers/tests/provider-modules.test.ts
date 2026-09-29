@@ -9,7 +9,6 @@ import {
   type MembershipProviderEnv,
 } from '@pkgs/billing';
 import { CONTRACT_OFFER } from '@pkgs/billing/membership-billing-contract';
-import { MockBillingBindingKeys } from '@pkgs/billing-mock';
 import { PaddleSecretKeys } from '@pkgs/billing-paddle';
 import {
   createConfiguredMembershipProviders,
@@ -31,11 +30,6 @@ function env(secrets: Readonly<Record<string, string>>): MembershipProviderEnv {
 const CONFIGURED: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   stripe: { [StripeSecretKeys.secretKey]: 'sk_test_x' },
   paddle: { [PaddleSecretKeys.apiKey]: 'pdl_sdbx_apikey_x' },
-  mock: {
-    [MockBillingBindingKeys.origin]: 'http://127.0.0.1:9',
-    [MockBillingBindingKeys.secretKey]: 'sk_test_mock_x',
-    [MockBillingBindingKeys.webhookSecret]: 'whsec_x',
-  },
 };
 
 describe('the provider modules', () => {
@@ -111,11 +105,17 @@ describe('createConfiguredMembershipProviders', () => {
   });
 
   test('a module misconfigured names itself', async () => {
-    await expect(
-      createConfiguredMembershipProviders({
-        env: env({ [MockBillingBindingKeys.origin]: 'http://127.0.0.1:9' }),
-        chooseCheckout: () => null,
-      })
-    ).rejects.toBeInstanceOf(MembershipProviderConfigError);
+    const misconfigured = {
+      provider: 'broken',
+      secrets: [],
+      create: () => Promise.reject(new Error('half its bindings are set')),
+    };
+    const result = createConfiguredMembershipProviders({
+      env: env({}),
+      chooseCheckout: () => null,
+      modules: [...MEMBERSHIP_PROVIDER_MODULES, misconfigured],
+    });
+    await expect(result).rejects.toBeInstanceOf(MembershipProviderConfigError);
+    await expect(result).rejects.toThrow('billing provider broken');
   });
 });

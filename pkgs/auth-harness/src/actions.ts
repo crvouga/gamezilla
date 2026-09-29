@@ -9,7 +9,6 @@ import { OAUTH_PROVIDER_IDS, type OauthProviderId } from '@pkgs/auth/shared';
 import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse/shared';
 import { defineAction } from '@pkgs/harness';
 import { gen } from '@pkgs/harness/fast-check';
-import type { IdpFaults } from '@pkgs/idp-mock/shared';
 import fc from 'fast-check';
 
 import {
@@ -25,6 +24,7 @@ import {
   declinePendingFlow,
   signInFlow,
 } from './client-flows';
+import type { ProviderFaults } from './example-app';
 import { migrateAuthSchema } from './nodes';
 import type { AuthSurface, ProviderAnswers } from './types';
 import { requireActor } from './types';
@@ -42,7 +42,7 @@ export const GHOST_EMAIL = 'ghost@nowhere.test';
 
 /** Provider misbehaviour, by name, so recordings stay readable. */
 export const AUTH_FAULTS: Readonly<
-  Record<string, { provider: OauthProviderId; patch: Partial<IdpFaults> }>
+  Record<string, { provider: OauthProviderId; patch: Partial<ProviderFaults> }>
 > = {
   'google.token-500': {
     provider: 'google',
@@ -394,18 +394,17 @@ export const googleEmailChanged = defineAction({
   name: 'googleEmailChanged',
   weight: 0.3,
   sample: (s: AuthSurface) => gen(arbEmail(s, 'google')),
-  act: async (s: AuthSurface, email: string) => {
-    await googleEmailChangedFlow(s, email);
+  act: (s: AuthSurface, email: string) => {
+    googleEmailChangedFlow(s, email);
   },
 });
 
 export const setProviderFault = defineAction({
   name: 'setProviderFault',
   sample: () => gen(fc.constantFrom(...Object.keys(AUTH_FAULTS))),
-  act: async (s: AuthSurface, name: string) => {
+  act: (s: AuthSurface, name: string) => {
     const fault = AUTH_FAULTS[name];
-    if (fault !== undefined)
-      await setFaultsFlow(s, fault.provider, fault.patch);
+    if (fault !== undefined) setFaultsFlow(s, fault.provider, fault.patch);
   },
 });
 
@@ -413,8 +412,8 @@ export const clearProviderFaults = defineAction({
   name: 'clearProviderFaults',
   weight: 2,
   sample: () => gen(arbProvider()),
-  act: async (s: AuthSurface, provider: OauthProviderId) => {
-    await setFaultsFlow(s, provider, null);
+  act: (s: AuthSurface, provider: OauthProviderId) => {
+    setFaultsFlow(s, provider, null);
   },
 });
 
@@ -422,8 +421,8 @@ export const rotateProviderKeys = defineAction({
   name: 'rotateProviderKeys',
   weight: 0.5,
   sample: () => gen(arbProvider()),
-  act: async (s: AuthSurface, provider: OauthProviderId) => {
-    await rotateKeysFlow(s, provider);
+  act: (s: AuthSurface, provider: OauthProviderId) => {
+    rotateKeysFlow(s, provider);
   },
 });
 

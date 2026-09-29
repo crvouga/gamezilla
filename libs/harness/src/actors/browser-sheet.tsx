@@ -3,11 +3,10 @@
  * The actor's web browser, drawn as a sheet over the app — how an in-app
  * browser (the sign-in window, a hosted billing page) looks on a phone.
  *
- * The page body is the page's own UI: the provider's screens
- * (`@pkgs/idp-mock/embedded`) or a page a composed feature serves
- * (`HarnessComposition.browserPages`), on the browser's network. Links
- * inside it are document loads, so a click on one goes to the browser rather
- * than to the host document.
+ * The page body is the page's own UI — the sign-in provider's screens, the
+ * payment provider's checkout and portal — as served (`DocumentPage`), on
+ * the browser's network. Links inside it are document loads, so a click on
+ * one goes to the browser rather than to the host document.
  *
  * `isolateStyles` renders the page into a shadow root with the page's own
  * stylesheet, so a live document (the product harness) shows it as designed
@@ -15,8 +14,6 @@
  * queries the light DOM and happy-dom paints no CSS.
  */
 
-import { IdpEmbeddedPage } from '@pkgs/idp-mock/embedded';
-import { IDP_SPA_CSS } from '@pkgs/idp-mock/server/assets.generated';
 import { type JSX, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
 import { render } from 'solid-js/web';
 import type {
@@ -24,6 +21,7 @@ import type {
   HarnessBrowserPage,
   HarnessBrowserTab,
 } from '../fabric/browser';
+import { DocumentPage, documentCss } from './document-page';
 
 export const HARNESS_BROWSER_TEST_IDS = {
   sheet: 'harness-browser',
@@ -37,8 +35,7 @@ export type HarnessBrowserSheetProps = {
 };
 
 function pageCss(page: HarnessBrowserPage): string {
-  if (page.kind === 'idp') return IDP_SPA_CSS;
-  if (page.kind === 'app') return page.page.css;
+  if (page.kind === 'document') return documentCss(page.html);
   return '';
 }
 
@@ -71,26 +68,15 @@ function PageBody(props: {
   const navigate = (url: string): void => props.browser.navigate(url);
   return (
     <Switch>
-      <Match when={props.page.kind === 'idp' ? props.page : undefined}>
+      <Match when={props.page.kind === 'document' ? props.page : undefined}>
         {(page) => (
-          <IdpEmbeddedPage
-            fetch={props.browser.fetch}
+          <DocumentPage
             html={page().html}
             navigate={navigate}
             post={(action, fields) => props.browser.post(action, fields)}
-            onLocationChange={(url) => props.browser.setAddress(url)}
             url={page().url}
           />
         )}
-      </Match>
-      <Match when={props.page.kind === 'app' ? props.page : undefined}>
-        {(page) =>
-          page().page.render({
-            fetch: props.browser.fetch,
-            navigate,
-            url: page().url,
-          })
-        }
       </Match>
       <Match when={props.page.kind === 'error' ? props.page : undefined}>
         {(page) => (

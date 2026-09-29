@@ -8,14 +8,13 @@
  */
 
 import type { AppleProviderConfig } from '@pkgs/auth-inhouse/server';
-import { createAuthApp } from '@pkgs/auth-inhouse/server';
+import {
+  appleEndpointsFor,
+  createAuthApp,
+  googleEndpointsFor,
+} from '@pkgs/auth-inhouse/server';
 import type { Ports } from '@pkgs/harness';
 import type { HttpClient } from '@pkgs/http-client';
-import {
-  type AppleClientKeys,
-  createAppleClientKeys,
-} from '@pkgs/idp-mock/server';
-import { appleEndpoints, idpEndpoints } from '@pkgs/idp-mock/shared';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
 
@@ -43,6 +42,27 @@ export const APPLE_CLIENT_ID = 'test.auth-harness.signin';
 export const APPLE_TEAM_ID = 'TEAMSIM001';
 export const APPLE_KEY_ID = 'KEYSIM0001';
 
+/** The P-256 pair the example app signs its Apple client secret with. */
+export type AppleClientKeys = {
+  readonly privateJwk: JsonWebKey;
+  readonly publicJwk: JsonWebKey;
+};
+
+async function createAppleClientKeys(): Promise<AppleClientKeys> {
+  const pair = await crypto.subtle.generateKey(
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    true,
+    ['sign', 'verify']
+  );
+  const {
+    key_ops: _ops,
+    ext: _ext,
+    ...privateJwk
+  } = await crypto.subtle.exportKey('jwk', pair.privateKey);
+  const { d: _d, ...publicJwk } = privateJwk;
+  return { privateJwk, publicJwk };
+}
+
 /**
  * The example app's ES256 Sign in with Apple key: generated once per
  * process and shared by every run (no scenario is about it).
@@ -60,8 +80,8 @@ export async function appleRelyingPartyConfig(): Promise<AppleProviderConfig> {
     clientId: APPLE_CLIENT_ID,
     teamId: APPLE_TEAM_ID,
     keyId: APPLE_KEY_ID,
-    privateJwk: keys.privateJwk,
-    endpoints: appleEndpoints(APPLE_ORIGIN),
+    privateJwk: { ...keys.privateJwk },
+    endpoints: appleEndpointsFor(APPLE_ORIGIN),
     issuer: APPLE_ORIGIN,
   };
 }
@@ -85,7 +105,7 @@ export async function buildExampleApp(
       google: {
         clientId: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        endpoints: idpEndpoints(GOOGLE_ORIGIN),
+        endpoints: googleEndpointsFor(GOOGLE_ORIGIN),
       },
       apple: await appleRelyingPartyConfig(),
     },
