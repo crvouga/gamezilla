@@ -3103,6 +3103,7 @@
     "browserslist": "4.28.8",
     "esbuild": "^0.28.1",
     "fast-uri": "^3.1.6",
+    "hono": "^4.13.9",
     "ip-address": "^10.3.1",
     "js-cookie": "^3.0.7",
     "js-yaml": "^4.3.2",
@@ -5754,8 +5755,6 @@
     "@crvouga/mockingbird-service-oauth/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.0.0", "", {}, "sha512-dM6XNM6Wa2wReBuybMRDKcUw95GftsiV+QGZYyJuccrqDTEnNMVPoH7cHtvsPHN5luzQrOtXjC7R/B5p/rugHw=="],
 
     "@crvouga/mockingbird-service-stripe/@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@1.0.0", "", {}, "sha512-dM6XNM6Wa2wReBuybMRDKcUw95GftsiV+QGZYyJuccrqDTEnNMVPoH7cHtvsPHN5luzQrOtXjC7R/B5p/rugHw=="],
-
-    "@crvouga/mockingbird-service-stripe/hono": ["hono@4.11.9", "", {}, "sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ=="],
 
     "@cspotcode/source-map-support/@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 

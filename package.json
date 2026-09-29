@@ -78,6 +78,7 @@
     "browserslist": "4.28.8",
     "esbuild": "^0.28.1",
     "fast-uri": "^3.1.6",
+    "hono": "^4.13.9",
     "ip-address": "^10.3.1",
     "js-cookie": "^3.0.7",
     "js-yaml": "^4.3.2",
