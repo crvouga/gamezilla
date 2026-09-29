@@ -86,10 +86,14 @@ Then('their account offers to sign in again', async (w) => {
   await w.journey.act('expectSignInOffered', expectSignInOffered);
 });
 
-/** Host a space and end it when the scenario closes, unless it ended it. */
+/**
+ * Host a space and end it when the scenario closes, unless it ended it.
+ * The cleanup is registered first so a failure after the space exists still
+ * ends it, instead of leaving the monitor account at its hosting limit.
+ */
 async function hostDeferringEnd(w: JourneyWorld): Promise<void> {
-  await w.journey.act('hostSpace', hostSpace);
   w.journey.defer(HOSTED_SPACE, endActiveSpace);
+  await w.journey.act('hostSpace', hostSpace);
 }
 
 When('they host a space', async (w) => {

@@ -73,8 +73,54 @@ export async function endActiveSpace(ui: Driver): Promise<void> {
   await expectVisible(ui, Handles.spaceEnded);
 }
 
+/**
+ * A free account hosts one live space, and the production monitor account is
+ * that same account on every run. A run that died after creating a space left
+ * it live, and the next create is the Plus invitation. End those leftovers
+ * first. Hosting none is unchanged.
+ */
+const LEFTOVER_HOST_LIMIT = 20;
+
+async function showSpaces(ui: Driver): Promise<void> {
+  if (await ui.get(Handles.spaceCreate).isVisible()) return;
+  if (await ui.get(Handles.tabSpaces).isVisible()) {
+    await tap(ui, Handles.tabSpaces);
+    return;
+  }
+  await pressBackUntilVisible(ui, Handles.spaceCreate, JOURNEY_WAIT_MS);
+}
+
+async function hostUsername(ui: Driver): Promise<string> {
+  await openTab(ui, Handles.tabProfile);
+  const raw = (await ui.get(Handles.profileDisplayUsername).text()) ?? '';
+  const username = raw.trim().replace(/^@/, '');
+  check(
+    username.length > 0,
+    'the profile has no username to find hosted spaces'
+  );
+  return username;
+}
+
+async function releaseLeftoverHostedSpaces(ui: Driver): Promise<void> {
+  await showSpaces(ui);
+  if (!(await ui.get(Handles.spacesHostingCount).isVisible())) return;
+  const card = Handles.spaceCard(await hostUsername(ui));
+  for (let released = 0; released < LEFTOVER_HOST_LIMIT; released += 1) {
+    await showSpaces(ui);
+    if (!(await ui.get(card).isVisible())) return;
+    await tap(ui, card);
+    await endActiveSpace(ui);
+  }
+  await showSpaces(ui);
+  check(
+    !(await ui.get(card).isVisible()),
+    'hosted spaces are still open after ending the leftovers'
+  );
+}
+
 /** Host a space from the Spaces tab; ends inside it. */
 export async function hostSpace(ui: Driver): Promise<void> {
+  await releaseLeftoverHostedSpaces(ui);
   await openTab(ui, Handles.tabSpaces);
   await tap(ui, Handles.spaceCreate);
   await expectVisible(ui, Handles.spaceClose);
