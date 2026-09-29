@@ -3126,10 +3126,10 @@
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.8.1",
-    "@crvouga/mockingbird-service-oauth": "^1.0.2",
+    "@crvouga/mockingbird-service-oauth": "^1.5.0",
     "@crvouga/mockingbird-service-postgres": "^0.3.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
-    "@crvouga/mockingbird-service-stripe": "^1.2.0",
+    "@crvouga/mockingbird-service-stripe": "^1.7.0",
     "@cucumber/cucumber-expressions": "^20.1.0",
     "@cucumber/gherkin": "^42.0.1",
     "@cucumber/messages": "^34.2.1",
@@ -3502,13 +3502,13 @@
 
     "@colors/colors": ["@colors/colors@1.5.0", "", {}, "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ=="],
 
-    "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@1.0.2", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.0.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-/L1/ANFGEzny2yFGZkQe/Jb2jNLaRFxom9XbEh3AYndytX/cr+eEIWfgXF40Ks0U4J3NJ2VTQcofZo64OloNQQ=="],
+    "@crvouga/mockingbird-service-oauth": ["@crvouga/mockingbird-service-oauth@1.5.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.0.0" }, "bin": { "mockingbird-oauth": "dist/cli.js" } }, "sha512-1BsFm0tzb7zQmcJgfSNT08/NRovDQQBwlU2TLYLtz+xYMsqOhebBM3UkJ/xdnbp8zSjqE3SJ04MrKTXUP5+gkA=="],
 
     "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@0.3.0", "", {}, "sha512-7r2j5w+zDSB3SxrcFHmTqw8yELd6rRL7P0AZuNGfu0imp+IUQzMPDDWBm96GgeuRFkALpHAYpz+UhE2uot2/Ag=="],
 
     "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@0.3.0", "", {}, "sha512-3ULGmlWaBprKZgVMkqrMZL1wAvwz+Dcq58jqKT/k+fKT4JpcG9OInycz7pXJnsShEjVd4uV2gFy49r3BnXnFnA=="],
 
-    "@crvouga/mockingbird-service-stripe": ["@crvouga/mockingbird-service-stripe@1.2.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.0.0", "hono": "4.11.9" }, "bin": { "mockingbird-stripe": "dist/cli.js" } }, "sha512-kiYMvLTDGwp4h14bZCce7Xe8dWToE5erGi6pOmDNkf3FAK6I6nU8SQtvEzEoMQc/j/F90m6D4Ud0I6dUZGLeNg=="],
+    "@crvouga/mockingbird-service-stripe": ["@crvouga/mockingbird-service-stripe@1.7.0", "", { "dependencies": { "@crvouga/mockingbird-service-sqlite": "1.0.0", "hono": "4.11.9" }, "bin": { "mockingbird-stripe": "dist/cli.js" } }, "sha512-WmXC7ybDpmAZIRv4SUctRC6aNiZmxr61TQYrL0BYiI+S2YZq8RTMU9MA/lqnAvGQzFsA43/XaU6Po21kXxnuRA=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
