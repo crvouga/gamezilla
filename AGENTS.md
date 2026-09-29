@@ -190,17 +190,18 @@ test:max`: sidecars from `@pkgs/postgres-embedded`, `@pkgs/s3-server`,
   and never read `idp_*` tables, IdP secrets or `/auth/*` wire shapes from
   product code — extend the port.
 - **Providers: Google everywhere, Apple outside production.** Simulations and
-  the stack run `@pkgs/idp-mock`, which serves Google's (and Sign in with
-  Apple's) real protocol, so the production provider code is what runs.
-  `GOOGLE_IDP_ORIGIN` redirects Google (unset = real Google). Apple is
-  mock-only: enabled by all five `APPLE_*` bindings, refused when
-  `SECRETS_ENV=prd`. Test odd provider behavior through the mock's faults and
-  `/__idp/*`, never a stubbed relying party.
-- **The mock never passes for a real provider.** Its screens say `OAuth Mock`
-  (`IDP_BRAND`, `pkgs/idp-mock/src/shared/brand.ts`) — no Google logo,
-  palette, titles or footer, no invented real-looking brand — yet keep full
-  flow parity (address, account chooser, password, consent, create-account,
-  refusal).
+  the stack run `@crvouga/mockingbird-service-oauth`, which serves Google's
+  (and Sign in with Apple's) real protocol, so the production provider code
+  is what runs. `GOOGLE_IDP_ORIGIN` redirects Google (unset = real Google).
+  Apple is mock-only: enabled by all five `APPLE_*` bindings, refused when
+  `SECRETS_ENV=prd`. Test odd provider behavior through the mock's behavior,
+  faults and `/__admin/*`, never a stubbed relying party.
+- **Vendors are simulated by Mockingbird, never by in-house mocks.** Stripe
+  (`@crvouga/mockingbird-service-stripe`) and Google / Apple
+  (`@crvouga/mockingbird-service-oauth`) run in process in harnesses and as
+  servers in the stack. A gap or divergence in a simulated vendor is an issue
+  at [crvouga/mockingbird](https://github.com/crvouga/mockingbird/blob/main/docs/REPORTING_ISSUES.md),
+  never a local mock or a workaround in product code.
 - **Accounts link, never merge silently.** At most one identity per provider
   per user; an identity never moves; the last one cannot be removed. A new
   identity joins an existing account by address only when both addresses are

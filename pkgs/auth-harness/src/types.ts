@@ -3,10 +3,9 @@ import type { OauthProviderId } from '@pkgs/auth/shared';
 import type { BearerTokenStore } from '@pkgs/auth-inhouse/client';
 import type { createAuthServerAdapter } from '@pkgs/auth-inhouse/server';
 import type { Session } from '@pkgs/harness';
-import type { IdpMock } from '@pkgs/idp-mock/server';
-import type { IdpEmailChoice } from '@pkgs/idp-mock/shared';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
+import type { AuthIdps } from './example-app';
 import type { AuthModel } from './model';
 
 export type AuthFabric = 'mockingbird-sqlite' | 'mockingbird-postgres';
@@ -22,7 +21,7 @@ export type ProviderAnswers = {
   readonly email: string;
   readonly consent: 'allow' | 'deny';
   /** Apple's first authorization only. */
-  readonly emailChoice: IdpEmailChoice;
+  readonly emailChoice: 'share' | 'hide';
 };
 
 /** How the last auth action this actor took ended, as the client saw it. */
@@ -68,7 +67,7 @@ export type AuthStore = {
   readonly sql: SqlClient;
   readonly server: ReturnType<typeof createAuthServerAdapter>;
   /** One provider node per flavor, each with its own accounts and faults. */
-  readonly idps: Readonly<Record<OauthProviderId, IdpMock>>;
+  readonly idps: AuthIdps;
   readonly appleClientId: string;
   readonly fetch: (path: string, init?: RequestInit) => Promise<Response>;
   /** Absolute-URL fetch across every node, for the actors' browsers. */

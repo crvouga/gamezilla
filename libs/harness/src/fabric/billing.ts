@@ -1,25 +1,38 @@
 /**
  * The payment provider nodes.
  *
- * Production bills through real providers, so the simulation runs a whole payment
- * provider: its own origin, its own customers, subscriptions, invoices and
- * test clocks, its own hosted checkout and portal. Nothing about it is shared
- * with the API — the API reaches it through the membership adapter over the
- * network, and it reaches the API only by delivering signed webhooks through
- * the load balancer, as real providers do.
+ * Production bills through Stripe, so the simulation runs Stripe: the stateful
+ * Stripe mock (`@crvouga/mockingbird-service-stripe`), with its own origin,
+ * customers, subscriptions, invoices, hosted checkout and billing portal.
+ * Nothing about it is shared with the API — the API reaches it through its
+ * production Stripe adapter over the network, and it reaches the API only by
+ * delivering signed webhooks through the load balancer, as Stripe does. Its
+ * catalog, portal configuration and webhook endpoint are the ones the app's
+ * own offer reconcile creates, as a deploy creates them.
  *
  * It sits on `createHarnessNet` like every other node, so it can be partitioned
  * away from the API (webhooks retry) or from a client's browser.
  *
+ * Its clock is the harness clock, plus however far a tester moved the
+ * provider's clock ahead ({@link HarnessBillingProvider.advanceClock}) — the
+ * way a tester runs a Stripe test clock forward without the app's days
+ * passing.
+ *
  * A harness boots with one provider. The team may switch payment provider
- * ({@link HarnessBillingProviders.switchCheckout}): the new one boots as a node of
- * its own — its own id, origin, keys and state — and new checkouts go there,
- * while every provider booted so far keeps serving its members.
+ * ({@link HarnessBillingProviders.switchCheckout}): the new one — a second
+ * Stripe account — boots as a node of its own, with its own id, origin, keys
+ * and state, and new checkouts go there, while every provider booted so far
+ * keeps serving its members.
  */
+
+import {
+  createRuntime,
+  type StripeRuntime,
+  type StripeRuntimeOptions,
+} from '@crvouga/mockingbird-service-stripe';
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import {
   HARNESS_BILLING_SECRET_KEY,
-  HARNESS_BILLING_WEBHOOK_SECRET,
   HARNESS_FIRST_BILLING_PROVIDER,
   HARNESS_SERVER_URL,
   harnessBillingOrigin,
@@ -31,23 +44,24 @@ import {
   type PlusMembershipOffer,
 } from '@pkgs/billing';
 import {
-  MockMembershipBilling,
-  mockBillingCatalogFromOffer,
-} from '@pkgs/billing-mock';
-import {
-  createMockBillingProvider,
-  type MockBillingProvider,
-} from '@pkgs/billing-mock-provider/server';
+  createStripeClient,
+  createStripeMembershipBilling,
+  reconcileStripeOffer,
+  type StripeMembershipBilling,
+} from '@pkgs/billing-stripe';
 import type { Clock, Timers } from '@pkgs/clock';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { CreateId } from '@pkgs/uuid';
+import { createNoopLogger } from '@pkgs/logger';
+import type Stripe from 'stripe';
 
+import { createStripeWebhookRelay } from './billing-webhooks';
 import { requestHref } from './http-request';
 import type { HarnessNet } from './net';
-import { type HarnessSql, openFreshHarnessClientSql } from './sql';
 
 /** The first provider's network node id; later ones are `billing-<id>`. */
 export const HARNESS_BILLING_ID = 'billing';
+
+/** How often the provider runs what fell due (renewals, expiries). */
+const LIFECYCLE_TICK_MS = 60_000;
 
 function netNodeOf(provider: string): string {
   return provider === HARNESS_FIRST_BILLING_PROVIDER
@@ -55,78 +69,144 @@ function netNodeOf(provider: string): string {
     : `${HARNESS_BILLING_ID}-${provider}`;
 }
 
-function keysOf(provider: string): {
-  readonly secretKey: string;
-  readonly webhookSecret: string;
-} {
+function secretKeyOf(provider: string): string {
   return provider === HARNESS_FIRST_BILLING_PROVIDER
-    ? {
-        secretKey: HARNESS_BILLING_SECRET_KEY,
-        webhookSecret: HARNESS_BILLING_WEBHOOK_SECRET,
-      }
-    : {
-        secretKey: `${HARNESS_BILLING_SECRET_KEY}_${provider}`,
-        webhookSecret: `${HARNESS_BILLING_WEBHOOK_SECRET}_${provider}`,
-      };
+    ? HARNESS_BILLING_SECRET_KEY
+    : `${HARNESS_BILLING_SECRET_KEY}_${provider.replaceAll('-', '_')}`;
 }
 
-/** One provider as a harness node, plus the key its API takes. */
+type ProviderClock = NonNullable<StripeRuntimeOptions['clock']>;
+
+/** The harness clock, run ahead by however far a tester moved it. */
+function providerClock(app: Clock): ProviderClock {
+  let aheadMs = 0;
+  const now = (): number => app.now() + aheadMs;
+  return {
+    now,
+    set: (ms) => {
+      aheadMs = Math.max(0, ms - app.now());
+    },
+    advance: (ms) => {
+      aheadMs = Math.max(0, aheadMs + ms);
+    },
+    freeze: () => undefined,
+    unfreeze: () => undefined,
+    reset: () => {
+      aheadMs = 0;
+    },
+    state: () => ({ now: now(), frozen: false, offsetMs: aheadMs }),
+  };
+}
+
+/** One provider as a harness node, plus the keys its API takes. */
 export type HarnessBillingProvider = {
   /** The id the app knows it by: its callback path, its customer links. */
   readonly id: string;
   readonly offer: PlusMembershipOffer;
-  readonly provider: MockBillingProvider;
   readonly origin: string;
   readonly secretKey: string;
+  /** The signing secret of the webhook endpoint the offer reconcile made. */
   readonly webhookSecret: string;
   /** Its node on the harness network. */
   readonly netNode: string;
   /** Operator access (tests, the harness's controls): no network hop. */
   readonly fetch: ServerHttp;
+  /** A tester's Stripe client, in test mode with the secret key. */
+  readonly stripe: Stripe;
+  /** The provider's clock, ahead of the harness clock by what testers moved. */
+  now(): number;
+  /** Run the provider's clock ahead by `ms`, and whatever fell due. */
+  advanceClock(ms: number): Promise<void>;
+  /** Deliver a webhook event again, as it was first sent. */
+  resendEvent(eventId: string): void;
 };
 
 type ProviderDeps = {
   readonly offer: PlusMembershipOffer;
   readonly clock: Clock;
   readonly timers: Timers;
-  readonly createId: CreateId;
   /** How a provider reaches the API (the load balancer, from its node). */
   readonly toApi: (netNode: string) => ServerHttp;
 };
 
-async function createHarnessBillingProvider(
-  deps: ProviderDeps & {
-    readonly id: string;
-    readonly sqlClient: SqlClient;
-  }
-): Promise<HarnessBillingProvider> {
-  const origin = harnessBillingOrigin(deps.id);
-  const keys = keysOf(deps.id);
-  const netNode = netNodeOf(deps.id);
-  const provider = await createMockBillingProvider({
-    sqlClient: deps.sqlClient,
+type ProviderNode = {
+  readonly provider: HarnessBillingProvider;
+  dispose(): void;
+};
+
+async function bootProvider(
+  deps: ProviderDeps,
+  id: string
+): Promise<ProviderNode> {
+  const origin = harnessBillingOrigin(id);
+  const netNode = netNodeOf(id);
+  const secretKey = secretKeyOf(id);
+  const clock = providerClock(deps.clock);
+  const relay = createStripeWebhookRelay({
+    endpoints: () => runtime.instance().apiWebhookEndpoints(),
+    send: (input, init) => deps.toApi(netNode)(input, init),
     clock: deps.clock,
     timers: deps.timers,
-    createId: deps.createId,
-    fetch: (input, init) => deps.toApi(netNode)(input, init),
-    origin,
-    catalog: mockBillingCatalogFromOffer(deps.offer),
-    secretKey: keys.secretKey,
-    webhook: {
-      url: `${HARNESS_SERVER_URL}${membershipCallbackPath(deps.offer, deps.id)}`,
-      secret: keys.webhookSecret,
-    },
   });
-  return {
-    id: deps.id,
+  const runtime: StripeRuntime = createRuntime({
+    clock,
+    accounts: [
+      { id: `acct_${netNode.replaceAll('-', '_')}`, keys: [secretKey] },
+    ],
+    // The relay delivers (issue 160); the provider's own hub sends nothing.
+    webhooks: { retryDelaysMs: [] },
+    onWebhook: (event) => relay.publish(event),
+  });
+  const fetch: ServerHttp = async (input, init) =>
+    await runtime.fetch(new Request(requestHref(input), init));
+  const stripe = createStripeClient(secretKey, { origin, fetch });
+  await reconcileStripeOffer(
+    stripe,
+    deps.offer,
+    {
+      callbackUrl: `${HARNESS_SERVER_URL}${membershipCallbackPath(deps.offer, id)}`,
+    },
+    createNoopLogger()
+  );
+  const endpoint = runtime.instance().apiWebhookEndpoints()[0];
+  if (endpoint === undefined) {
+    throw new Error(`billing: ${id} has no webhook endpoint after reconcile`);
+  }
+  const ticker = deps.timers.setInterval(
+    () => runtime.tick(),
+    LIFECYCLE_TICK_MS
+  );
+  const provider: HarnessBillingProvider = {
+    id,
     offer: deps.offer,
-    provider,
     origin,
-    secretKey: keys.secretKey,
-    webhookSecret: keys.webhookSecret,
+    secretKey,
+    webhookSecret: endpoint.secret,
     netNode,
-    fetch: async (input, init) =>
-      provider.app.fetch(new Request(requestHref(input), init)),
+    fetch,
+    stripe,
+    now: () => clock.now(),
+    advanceClock: async (ms) => {
+      const response = await fetch(`${origin}/__admin/clock`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ advance: ms }),
+      });
+      if (!response.ok) {
+        throw new Error(
+          `billing: ${id} clock advance → ${String(response.status)}: ${await response.text()}`
+        );
+      }
+    },
+    resendEvent: (eventId) => relay.resend(eventId),
+  };
+  return {
+    provider,
+    dispose: () => {
+      deps.timers.clearInterval(ticker);
+      relay.dispose();
+      runtime.stop();
+    },
   };
 }
 
@@ -161,33 +241,11 @@ export type HarnessBillingProviders = {
   dispose(): Promise<void>;
 };
 
-async function bootProvider(
-  deps: ProviderDeps,
-  id: string
-): Promise<{
-  readonly provider: HarnessBillingProvider;
-  readonly sql: HarnessSql;
-}> {
-  const sql = await openFreshHarnessClientSql(
-    id === HARNESS_FIRST_BILLING_PROVIDER
-      ? 'harness_billing'
-      : `harness_billing_${id}`,
-    deps.clock
-  );
-  const provider = await createHarnessBillingProvider({
-    ...deps,
-    id,
-    sqlClient: sql.sqlClient,
-  });
-  return { provider, sql };
-}
-
 /** Boots the first provider when the composition sells something. */
 export async function openHarnessBillingProviders(args: {
   readonly offer: PlusMembershipOffer | undefined;
   readonly clock: Clock;
   readonly timers: Timers;
-  readonly createId: CreateId;
   readonly toApi: (netNode: string) => ServerHttp;
 }): Promise<HarnessBillingProviders | null> {
   const offer = args.offer;
@@ -220,19 +278,19 @@ export async function openHarnessBillingProviders(args: {
       if (provider === undefined) throw new Error(`billing: no ${id}`);
       return provider;
     },
-    async dispose() {
-      for (const n of nodes.values()) await n.sql.disconnect();
+    dispose() {
+      for (const n of nodes.values()) n.dispose();
+      return Promise.resolve();
     },
   };
 }
 
 /**
- * One API instance's membership providers — the mock provider's adapter for
- * every booted provider, the same one the stack runs, registered exactly as
- * production registers its providers — or `null` when the harness sells nothing.
- * The registry is re-read at each request, so a switch of payment provider
- * reaches every instance at once, as a redeploy with the new configuration
- * would.
+ * One API instance's membership providers — the production Stripe adapter
+ * for every booted provider, registered exactly as production registers its
+ * providers — or `null` when the harness sells nothing. The registry is
+ * re-read at each request, so a switch of payment provider reaches every
+ * instance at once, as a redeploy with the new configuration would.
  */
 export function harnessMembershipBilling(args: {
   readonly billing: HarnessBillingProviders | null;
@@ -242,22 +300,24 @@ export function harnessMembershipBilling(args: {
 }): MembershipProviders | null {
   const billing = args.billing;
   if (billing === null) return null;
-  const adapters = new Map<string, MockMembershipBilling>();
-  const adapterOf = (node: HarnessBillingProvider): MockMembershipBilling => {
+  const adapters = new Map<string, StripeMembershipBilling>();
+  const adapterOf = (node: HarnessBillingProvider): StripeMembershipBilling => {
     const known = adapters.get(node.id);
     if (known !== undefined) return known;
-    const adapter = new MockMembershipBilling({
+    const adapter = createStripeMembershipBilling({
       provider: node.id,
-      origin: node.origin,
       secretKey: node.secretKey,
       webhookSecret: node.webhookSecret,
       offer: billing.offer,
       now: () => args.clock.now(),
-      fetch: harnessBillingFetchFrom({
-        billing: node,
-        net: args.net,
-        from: args.from,
-      }),
+      transport: {
+        origin: node.origin,
+        fetch: harnessBillingFetchFrom({
+          billing: node,
+          net: args.net,
+          from: args.from,
+        }),
+      },
     });
     adapters.set(node.id, adapter);
     return adapter;

@@ -11,8 +11,8 @@
  * (`billing-lifecycle-properties.ts`) are checked after each one; the Quint
  * model `specs/billing/membership-lifecycle.qnt` drives them.
  *
- * Billing time moves on the provider's per-customer test clock, as in Stripe
- * test mode, not on the app's: a virtual hour of the whole app costs seconds of
+ * Billing time moves on the provider's own clock, as a Stripe test clock
+ * moves, not on the app's: a virtual hour of the whole app costs seconds of
  * real time (every heartbeat and poll fires), so days of grace are covered by
  * the plan resolver's own state-space tests (`@libs/permissions`), not here.
  */

@@ -18,11 +18,11 @@
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
   },
   "dependencies": {
+    "@crvouga/mockingbird-service-oauth": "catalog:",
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/idp-mock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

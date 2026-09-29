@@ -1,8 +1,9 @@
 /**
  * The environment the model reasons about: what each provider will say about
  * an account, and whether a round trip can succeed at all given the faults
- * switched on. Read from the provider nodes directly — they are the world,
- * not the system under test.
+ * switched on. Read from the provider nodes directly — their directories and
+ * their grants (what each has granted the example app) — because they are
+ * the world, not the system under test.
  */
 
 import {
@@ -10,12 +11,13 @@ import {
   type AuthErrorCode,
   type OauthProviderId,
 } from '@pkgs/auth/shared';
-import type { IdpEmailChoice, IdpFaults } from '@pkgs/idp-mock/shared';
 
 import {
   APPLE_CLIENT_ID,
-  APPLE_TEAM_ID,
+  type AuthIdp,
+  accountAt,
   GOOGLE_CLIENT_ID,
+  type ProviderFaults,
 } from './example-app';
 import type { SeenIdentity } from './model';
 import type { AuthStore, ProviderAnswers } from './types';
@@ -24,13 +26,34 @@ import type { AuthStore, ProviderAnswers } from './types';
 const TOLERANCE_S = 60;
 /** The relying party refuses an id_token issued further ahead than this. */
 const MAX_FUTURE_IAT_S = 300;
-/** Mock id_tokens live this long. */
-const ID_TOKEN_LIFETIME_S = 3599;
-
-const GOOGLE_SCOPES = ['openid', 'email', 'profile'] as const;
+/** The providers' id_tokens live this long. */
+const ID_TOKEN_LIFETIME_S = 3600;
 
 export function clientIdOf(provider: OauthProviderId): string {
   return provider === 'apple' ? APPLE_CLIENT_ID : GOOGLE_CLIENT_ID;
+}
+
+/** What the provider has granted the example app for `accountId`. */
+export type ProviderGrant = {
+  readonly subject: string;
+  readonly granted: boolean;
+  readonly emailChoice: 'share' | 'hide' | null;
+};
+
+/**
+ * The provider's own account of the grant: the subject the app is (or would
+ * be) issued, whether it holds a consent, and Apple's address choice.
+ */
+export async function grantOf(
+  idp: AuthIdp,
+  provider: OauthProviderId,
+  accountId: string
+): Promise<ProviderGrant> {
+  const grant = await idp.runtime
+    .instance()
+    .grant(clientIdOf(provider), accountId);
+  if (grant === null) throw new Error(`${provider} has no ${accountId}`);
+  return grant;
 }
 
 /**
@@ -43,45 +66,49 @@ export async function seenIdentity(
   provider: OauthProviderId,
   answers: Pick<ProviderAnswers, 'email' | 'emailChoice'>
 ): Promise<SeenIdentity | null> {
-  const idp = store.idps[provider].ctx.store;
-  const account = await idp.accountByEmail(answers.email);
+  const idp = store.idps[provider];
+  const account = accountAt(idp, answers.email);
   if (account === null) return null;
+  const grant = await grantOf(idp, provider, account.id);
   if (provider === 'google') {
     return {
       provider,
-      sub: account.sub,
+      sub: grant.subject,
       email: account.email,
-      verified: account.emailVerified,
+      verified: account.emailVerified ?? true,
       isPrivate: false,
     };
   }
-  const grant = await idp.grant(account.sub, APPLE_CLIENT_ID);
-  const choice: IdpEmailChoice = grant?.emailChoice ?? answers.emailChoice;
-  const email =
-    choice === 'hide'
-      ? (await idp.relayAddress(account.sub, APPLE_TEAM_ID)).email
-      : account.email;
+  const hide = (grant.emailChoice ?? answers.emailChoice) === 'hide';
   return {
     provider,
-    sub: account.sub,
-    email,
+    sub: grant.subject,
+    email: hide ? (account.relayEmail ?? null) : account.email,
     verified: true,
-    isPrivate: choice === 'hide',
+    isPrivate: hide,
   };
 }
 
-/** Whether the consent card will be shown (and so a "deny" answer bites). */
+/**
+ * Whether the consent card will be shown (and so a "deny" answer bites):
+ * Apple asks every time; Google only until the app holds a grant.
+ */
 async function consentShown(
   store: AuthStore,
   provider: OauthProviderId,
-  sub: string
+  email: string
 ): Promise<boolean> {
   if (provider === 'apple') return true;
-  const idp = store.idps.google.ctx.store;
-  return !(await idp.hasGrant(sub, GOOGLE_CLIENT_ID, GOOGLE_SCOPES));
+  const idp = store.idps.google;
+  const account = accountAt(idp, email);
+  if (account === null) return true;
+  return !(await grantOf(idp, provider, account.id)).granted;
 }
 
-function exchangeFails(provider: OauthProviderId, faults: IdpFaults): boolean {
+function exchangeFails(
+  provider: OauthProviderId,
+  faults: ProviderFaults
+): boolean {
   if (faults.tokenEndpoint !== 'ok') return true;
   if (provider === 'google') return faults.userinfoEndpoint !== 'ok';
   // Apple is verified by id_token: the key and the clock matter.
@@ -105,11 +132,11 @@ export async function providerVerdict(
   seen: SeenIdentity | null
 ): Promise<AuthErrorCode | null> {
   if (seen === null) return AUTH_ERROR.cancelled;
-  const faults = await store.idps[provider].ctx.store.faults();
+  const faults = store.idps[provider].faults();
   if (faults.denyConsent) return AUTH_ERROR.cancelled;
   if (
     answers.consent === 'deny' &&
-    (await consentShown(store, provider, seen.sub))
+    (await consentShown(store, provider, answers.email))
   ) {
     return AUTH_ERROR.cancelled;
   }

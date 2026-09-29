@@ -1,7 +1,5 @@
 export {
-  FakeStripe,
-  type FakeStripeCheckout,
-  type FakeStripeCustomer,
-  type FakeStripeFetch,
-  type FakeStripeSubscription,
-} from './fake-stripe';
+  type PinnedSubscription,
+  StripeTestMode,
+  type StripeTestModeFetch,
+} from './stripe-test-mode';

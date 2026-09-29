@@ -90,12 +90,7 @@ function parseButtons(body: string): HeadlessButton[] {
   return buttons;
 }
 
-/** The first `<form>` on the page, the way a keyboard-only user would see it. */
-export function parseFirstForm(html: string): HeadlessForm | null {
-  const match = /<form\b([^>]*)>([\s\S]*?)<\/form>/i.exec(html);
-  if (match === null) return null;
-  const tag = `<form${match[1] ?? ''}>`;
-  const body = match[2] ?? '';
+function parseForm(tag: string, body: string): HeadlessForm {
   const { hidden, inputNames, defaults } = parseInputs(body);
   return {
     action: decodeEntities(attr(tag, 'action')),
@@ -105,6 +100,18 @@ export function parseFirstForm(html: string): HeadlessForm | null {
     defaults,
     buttons: parseButtons(body),
   };
+}
+
+/** Every `<form>` on the page, in document order. */
+export function parseForms(html: string): HeadlessForm[] {
+  return [...html.matchAll(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi)].map(
+    (match) => parseForm(`<form${match[1] ?? ''}>`, match[2] ?? '')
+  );
+}
+
+/** The first `<form>` on the page, the way a keyboard-only user would see it. */
+export function parseFirstForm(html: string): HeadlessForm | null {
+  return parseForms(html)[0] ?? null;
 }
 
 export function formSubmitBody(args: {

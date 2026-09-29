@@ -31,15 +31,15 @@ export const HARNESS_APPLE_CLIENT_ID = 'harness.gamezilla.signin';
 export const HARNESS_APPLE_TEAM_ID = 'SIMTEAM001';
 export const HARNESS_APPLE_KEY_ID = 'SIMKEY0001';
 
-/** Origin of the mock payment provider node inside a harness. */
+/** Origin of the payment provider node (Stripe, simulated) inside a harness. */
 export const HARNESS_BILLING_URL = 'http://billing.harness';
 
 /**
  * The provider id of the harness's first payment provider — the one it boots
- * with. A harness can take on more (a switch of payment provider); each gets its
- * own id and origin.
+ * with, Stripe's own id. A harness can take on more (a switch of payment
+ * provider to a second Stripe account); each gets its own id and origin.
  */
-export const HARNESS_FIRST_BILLING_PROVIDER = 'mock';
+export const HARNESS_FIRST_BILLING_PROVIDER = 'stripe';
 
 /** Origin of the harness's payment provider `provider`. */
 export function harnessBillingOrigin(provider: string): string {
@@ -56,8 +56,5 @@ export function isHarnessBillingOrigin(origin: string): boolean {
   );
 }
 
-/** The key the harness API's billing adapter calls that provider with. */
-export const HARNESS_BILLING_SECRET_KEY = 'sk_test_mock_harness';
-
-/** The secret that provider signs its webhooks to the harness API with. */
-export const HARNESS_BILLING_WEBHOOK_SECRET = 'whsec_mock_harness';
+/** The test-mode key the harness API's billing adapter calls that provider with. */
+export const HARNESS_BILLING_SECRET_KEY = 'sk_test_harness';

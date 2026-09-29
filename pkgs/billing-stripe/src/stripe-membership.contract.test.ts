@@ -1,7 +1,8 @@
 /**
  * The Stripe adapter against the shared membership contract. The real Stripe
  * SDK runs end to end — request encoding, response parsing, webhook signature
- * verification — over the fake Stripe REST origin (`@pkgs/billing-stripe/harness`).
+ * verification — against Stripe in test mode, simulated
+ * (`@pkgs/billing-stripe/harness`).
  */
 import {
   CONTRACT_ENDED_AT_MS,
@@ -15,7 +16,7 @@ import {
   type MembershipBillingContractHarness,
 } from '@pkgs/billing/membership-billing-contract';
 
-import { FakeStripe, type FakeStripeSubscription } from './harness';
+import { type PinnedSubscription, StripeTestMode } from './harness';
 import { createStripeMembershipBilling } from './stripe-membership';
 
 const STRIPE_STATUS: Readonly<Record<ContractSituation, string>> = {
@@ -39,7 +40,7 @@ function endedAtS(situation: ContractSituation): number | null {
 
 function stripeSubscription(
   subscription: ContractSubscription
-): FakeStripeSubscription {
+): PinnedSubscription {
   return {
     id: subscription.id,
     customer: subscription.customerId,
@@ -51,7 +52,7 @@ function stripeSubscription(
       subscription.priceKey === null
         ? 'legacy_price'
         : (CONTRACT_OFFER.prices[subscription.priceKey]?.catalogPriceId ??
-          null),
+          'legacy_price'),
   };
 }
 
@@ -63,23 +64,35 @@ const EVENT_TYPE: Readonly<Record<ContractCallbackKind, string>> = {
   unrelated: 'invoice.paid',
 };
 
-function openStripeHarness(): Promise<MembershipBillingContractHarness> {
-  const stripe = new FakeStripe();
-  return Promise.resolve({
+async function openStripeHarness(): Promise<MembershipBillingContractHarness> {
+  const stripe = new StripeTestMode({ nowMs: CONTRACT_NOW_MS });
+  await stripe.seedPrices(
+    Object.values(CONTRACT_OFFER.prices).map((spec) => spec.catalogPriceId)
+  );
+  let pinned: Promise<void> = Promise.resolve();
+  return {
     billing: createStripeMembershipBilling({
-      secretKey: 'sk_test_contract',
+      secretKey: stripe.secretKey,
       webhookSecret: stripe.webhookSecret,
       offer: CONTRACT_OFFER,
       now: () => CONTRACT_NOW_MS,
-      transport: { origin: stripe.origin, fetch: stripe.fetch },
+      transport: {
+        origin: stripe.origin,
+        // The adapter reads the subscription as last pinned.
+        fetch: async (input, init) => {
+          await pinned;
+          return await stripe.fetch(input, init);
+        },
+      },
     }),
     setSubscription: (subscription) => {
-      stripe.setSubscription(stripeSubscription(subscription));
+      pinned = stripe.putSubscription(stripeSubscription(subscription));
     },
     setUnavailable: (unavailable) => {
       stripe.down = unavailable;
     },
     callback: async ({ subscriptionId, kind, signature }) => {
+      await pinned;
       const delivery = await stripe.webhook({
         type: EVENT_TYPE[kind],
         subscriptionId,
@@ -95,7 +108,7 @@ function openStripeHarness(): Promise<MembershipBillingContractHarness> {
         ? { headers: new Headers(), rawBody: delivery.rawBody }
         : delivery;
     },
-  });
+  };
 }
 
 describeMembershipBillingContract('StripeMembershipBilling', openStripeHarness);

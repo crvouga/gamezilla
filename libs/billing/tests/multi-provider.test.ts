@@ -1,8 +1,9 @@
 /**
  * The billing routes over two real providers at once: the production Stripe
- * and Paddle adapters, each against its fake REST origin, behind the real
- * billing routes and a real SQLite database. Only the vendors are faked, at
- * their wire.
+ * and Paddle adapters — Stripe in test mode, simulated
+ * (`@pkgs/billing-stripe/harness`), Paddle against its fake REST origin —
+ * behind the real billing routes and a real SQLite database. Only the vendors
+ * are simulated, at their wire.
  *
  * These are the wire and storage contracts of running two providers: which
  * callback path verifies which provider's deliveries, where a checkout mints
@@ -24,7 +25,7 @@ import {
 import { PaddleMembershipBilling } from '@pkgs/billing-paddle';
 import { FakePaddle } from '@pkgs/billing-paddle/harness';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe';
-import { FakeStripe } from '@pkgs/billing-stripe/harness';
+import { StripeTestMode } from '@pkgs/billing-stripe/harness';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';
@@ -41,7 +42,7 @@ type ProviderId = 'stripe' | 'paddle';
 
 /** Two fake vendors, their production adapters, and the routes over both. */
 class TwoProviders {
-  readonly stripe = new FakeStripe();
+  readonly stripe = new StripeTestMode({ nowMs: NOW });
   readonly paddle = new FakePaddle();
   readonly adapters: Readonly<Record<ProviderId, MembershipBilling>>;
   checkoutAt: ProviderId = 'stripe';
@@ -53,7 +54,7 @@ class TwoProviders {
     }
     this.adapters = {
       stripe: createStripeMembershipBilling({
-        secretKey: 'sk_test_world',
+        secretKey: this.stripe.secretKey,
         webhookSecret: this.stripe.webhookSecret,
         offer: PLUS_MEMBERSHIP_OFFER,
         now: () => NOW,
@@ -156,20 +157,20 @@ class TwoProviders {
     if (customer === null) throw new Error(`${accountId} never checked out`);
     this.seq += 1;
     const id = `sub_${provider}_${String(this.seq)}`;
-    this.set(provider, id, customer, status);
+    await this.set(provider, id, customer, status);
     expect(await this.announce(provider, id)).toBe(200);
     return id;
   }
 
-  set(
+  async set(
     provider: ProviderId,
     id: string,
     customer: string,
     status: 'trialing' | 'active' | 'ended'
-  ): void {
+  ): Promise<void> {
     const periodEndMs = NOW + 20 * DAY;
     if (provider === 'stripe') {
-      this.stripe.setSubscription({
+      await this.stripe.putSubscription({
         id,
         customer,
         status: status === 'ended' ? 'canceled' : status,
@@ -224,10 +225,12 @@ class TwoProviders {
   async end(provider: ProviderId, id: string): Promise<void> {
     const customer =
       provider === 'stripe'
-        ? this.stripe.subscription(id)?.customer
+        ? await this.stripe.stripe.subscriptions
+            .retrieve(id)
+            .then((s) => s.customer as string)
         : this.paddle.subscription(id)?.customerId;
     if (customer === undefined) throw new Error(`no ${provider} ${id}`);
-    this.set(provider, id, customer, 'ended');
+    await this.set(provider, id, customer, 'ended');
     const ended = await this.delivery(provider, id, 'ended');
     expect(await this.deliver(provider, ended)).toBe(200);
   }
@@ -242,6 +245,9 @@ async function openTwoProviders(): Promise<TwoProviders> {
     { ownership: 'declared-only' }
   );
   const two = new TwoProviders(db);
+  await two.stripe.seedPrices(
+    Object.values(PLUS_MEMBERSHIP_OFFER.prices).map((s) => s.catalogPriceId)
+  );
   for (const account of ['ada', 'bo']) await two.signUp(account);
   return two;
 }
@@ -276,11 +282,10 @@ describe('checkout across providers', () => {
     two.checkoutAt = 'stripe';
     expect(await two.checkout('ada')).toBe(200);
     expect(await two.customerOf('ada', 'stripe')).toBe(atStripe);
-    expect(two.stripe.customers.size).toBe(1);
-    expect(two.stripe.checkouts.map((c) => c.customer)).toEqual([
-      atStripe,
-      atStripe,
-    ]);
+    const customers = await two.stripe.stripe.customers.list();
+    expect(customers.data.map((c) => c.id)).toEqual([atStripe]);
+    const checkouts = await two.stripe.stripe.checkout.sessions.list();
+    expect(checkouts.data.map((c) => c.customer)).toEqual([atStripe, atStripe]);
   });
 });
 
@@ -311,7 +316,7 @@ describe('deliveries reach only their own provider', () => {
     if (adaAtStripe === null) throw new Error('ada has no Stripe customer');
     // Paddle reports a subscription whose customer id happens to equal
     // Ada's Stripe customer id. It is not Ada's.
-    two.set('paddle', 'sub_collide', adaAtStripe, 'active');
+    await two.set('paddle', 'sub_collide', adaAtStripe, 'active');
     expect(await two.announce('paddle', 'sub_collide')).toBe(200);
     expect(await two.membershipRows('ada')).toBe(0);
   });

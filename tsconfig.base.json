@@ -99,12 +99,6 @@
       "@pkgs/auth-harness/*": ["./pkgs/auth-harness/src/*"],
       "@pkgs/auth/*": ["./pkgs/auth/src/*"],
       "@pkgs/billing": ["./pkgs/billing/src/index.ts"],
-      "@pkgs/billing-mock": ["./pkgs/billing-mock/src/index.ts"],
-      "@pkgs/billing-mock-provider/start-server": [
-        "./pkgs/billing-mock-provider/scripts/start-provider-server.ts"
-      ],
-      "@pkgs/billing-mock-provider/*": ["./pkgs/billing-mock-provider/src/*"],
-      "@pkgs/billing-mock/*": ["./pkgs/billing-mock/src/*"],
       "@pkgs/billing-paddle": ["./pkgs/billing-paddle/src/index.ts"],
       "@pkgs/billing-paddle/*": ["./pkgs/billing-paddle/src/*"],
       "@pkgs/billing-providers": ["./pkgs/billing-providers/src/index.ts"],
@@ -144,10 +138,6 @@
       "@pkgs/git": ["./pkgs/git/src/index.ts"],
       "@pkgs/http-client": ["./pkgs/http-client/src/index.ts"],
       "@pkgs/http-client/*": ["./pkgs/http-client/src/*"],
-      "@pkgs/idp-mock/start-server": [
-        "./pkgs/idp-mock/scripts/start-idp-server.ts"
-      ],
-      "@pkgs/idp-mock/*": ["./pkgs/idp-mock/src/*"],
       "@pkgs/i18n": ["./pkgs/i18n/src/index.ts"],
       "@pkgs/i18n/*": ["./pkgs/i18n/src/*"],
       "@pkgs/invariants": ["./pkgs/invariants/src/index.ts"],

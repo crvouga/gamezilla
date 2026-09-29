@@ -2,7 +2,7 @@
  * What billing contributes to a server: checkout, portal and webhook routes.
  *
  * The provider is a port on `ServerEnv`; billing reads it rather than
- * choosing one, so a simulation (the mock provider) and production (whichever
+ * choosing one, so a simulation (Stripe, simulated) and production (whichever
  * providers are configured) mount the same routes and take the same path.
  */
 

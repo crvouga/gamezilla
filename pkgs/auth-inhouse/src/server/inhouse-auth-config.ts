@@ -9,6 +9,7 @@ import {
 } from '@pkgs/auth/server';
 
 import {
+  type AppleOauthEndpoints,
   GOOGLE_PRODUCTION_ENDPOINTS,
   type GoogleOauthEndpoints,
 } from '../shared/auth-constants';
@@ -76,10 +77,12 @@ function trimOrigin(origin: string): string {
 }
 
 /**
- * A simulated provider serves Google's paths from one origin; production
- * spreads them across three hosts.
+ * A simulated provider serves Google's paths from one origin
+ * (`GOOGLE_IDP_ORIGIN`); production (`null`) spreads them across three hosts.
  */
-function googleEndpointsFor(idpOrigin: string | null): GoogleOauthEndpoints {
+export function googleEndpointsFor(
+  idpOrigin: string | null
+): GoogleOauthEndpoints {
   if (idpOrigin === null) return GOOGLE_PRODUCTION_ENDPOINTS;
   const base = trimOrigin(idpOrigin);
   return {
@@ -87,6 +90,17 @@ function googleEndpointsFor(idpOrigin: string | null): GoogleOauthEndpoints {
     tokenUrl: `${base}/token`,
     userinfoUrl: `${base}/v1/userinfo`,
     revokeUrl: `${base}/revoke`,
+  };
+}
+
+/** Sign in with Apple's paths on the simulated provider at `idpOrigin`. */
+export function appleEndpointsFor(idpOrigin: string): AppleOauthEndpoints {
+  const base = trimOrigin(idpOrigin);
+  return {
+    authorizeUrl: `${base}/auth/authorize`,
+    tokenUrl: `${base}/auth/token`,
+    jwksUrl: `${base}/auth/keys`,
+    revokeUrl: `${base}/auth/revoke`,
   };
 }
 
@@ -153,19 +167,13 @@ async function readApple(
       'APPLE_IDP_ORIGIN, APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID and APPLE_PRIVATE_JWK go together'
     );
   }
-  const base = trimOrigin(origin);
   return {
     clientId,
     teamId,
     keyId,
     privateJwk: parseJwk(jwk),
-    issuer: base,
-    endpoints: {
-      authorizeUrl: `${base}/auth/authorize`,
-      tokenUrl: `${base}/auth/token`,
-      jwksUrl: `${base}/auth/keys`,
-      revokeUrl: `${base}/auth/revoke`,
-    },
+    issuer: trimOrigin(origin),
+    endpoints: appleEndpointsFor(origin),
   };
 }
 

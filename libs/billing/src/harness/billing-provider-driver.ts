@@ -1,8 +1,8 @@
 /**
- * Driving the harness's payment provider the way a tester drives any provider in
- * test mode: through its REST API with the secret key — test clocks, test cards,
- * subscription updates, event resends. Never through the app: whatever
- * changes here reaches the app only as a signed webhook.
+ * Driving the harness's payment provider the way a tester drives Stripe in
+ * test mode: through its API with the secret key — the provider's clock, test
+ * cards, subscription updates, refunds, event redelivery. Never through the
+ * app: whatever changes here reaches the app only as a signed webhook.
  */
 import { billingCustomerLinkProvider } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
@@ -12,18 +12,9 @@ import type {
 } from '@libs/harness/fabric/billing';
 import { letTimePass } from '@libs/harness/system/actions';
 import type { ProductHarness } from '@libs/harness/system/harness';
-import {
-  MOCK_BILLING_PATHS,
-  MOCK_TEST_PAYMENT_METHODS,
-  type MockCustomer,
-  type MockEvent,
-  type MockInvoice,
-  type MockList,
-  type MockSubscription,
-  type MockTestPaymentMethod,
-} from '@pkgs/billing-mock';
+import type Stripe from 'stripe';
 
-const DAY_S = 24 * 60 * 60;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Provider statuses with nothing left to cancel. */
 const ENDED_STATUSES: ReadonlySet<string> = new Set([
@@ -31,6 +22,15 @@ const ENDED_STATUSES: ReadonlySet<string> = new Set([
   'unpaid',
   'incomplete_expired',
 ]);
+
+/** Stripe's test cards, by what a charge on them does. */
+const TEST_CARDS = {
+  visa: 'pm_card_visa',
+  /** Attaches to the customer; every charge on it declines. */
+  chargeCustomerFail: 'pm_card_chargeCustomerFail',
+  /** Every charge on it declines with `expired_card`. */
+  expired: 'pm_card_chargeDeclinedExpiredCard',
+} as const;
 
 /** A lifecycle transition, in the provider's test-mode vocabulary. */
 export const BILLING_OBSERVE_KINDS = [
@@ -47,8 +47,6 @@ export const BILLING_OBSERVE_KINDS = [
 
 export type BillingObserveKind = (typeof BILLING_OBSERVE_KINDS)[number];
 
-type Call = <T>(method: string, path: string, body?: unknown) => Promise<T>;
-
 /** Every payment provider the harness has booted, and where checkouts go. */
 export function billingProviders(s: ProductHarness): HarnessBillingProviders {
   const providers = s.harness.billing;
@@ -56,27 +54,6 @@ export function billingProviders(s: ProductHarness): HarnessBillingProviders {
     throw new Error('billing: this harness composes no payment provider');
   }
   return providers;
-}
-
-/** One provider's REST API, with its secret key. */
-export function providerCall(provider: HarnessBillingProvider): Call {
-  return async <T>(method: string, path: string, body?: unknown) => {
-    const response = await provider.fetch(`${provider.origin}${path}`, {
-      method,
-      headers: {
-        authorization: `Bearer ${provider.secretKey}`,
-        'content-type': 'application/json',
-      },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
-    const payload = (await response.json()) as unknown;
-    if (!response.ok) {
-      throw new Error(
-        `billing provider ${provider.id} ${method} ${path} → ${String(response.status)}: ${JSON.stringify(payload)}`
-      );
-    }
-    return payload as T;
-  };
 }
 
 /** The customer the app linked to this account at `provider`, if any. */
@@ -130,16 +107,17 @@ export async function customerOf(
 
 /**
  * Every subscription `provider` holds for `customer`, newest first. Reading
- * settles the customer (due renewals and retries run), as the provider's API does.
+ * runs whatever fell due at the provider, as any request to it does.
  */
 export async function providerSubscriptions(
   customer: string,
   provider: HarnessBillingProvider
-): Promise<readonly MockSubscription[]> {
-  const list = await providerCall(provider)<MockList<MockSubscription>>(
-    'GET',
-    `${MOCK_BILLING_PATHS.subscriptions}?customer=${customer}&status=all&limit=100`
-  );
+): Promise<readonly Stripe.Subscription[]> {
+  const list = await provider.stripe.subscriptions.list({
+    customer,
+    status: 'all',
+    limit: 100,
+  });
   return list.data;
 }
 
@@ -150,7 +128,7 @@ export async function subscriptionsEverywhere(
 ): Promise<
   readonly {
     readonly provider: HarnessBillingProvider;
-    readonly subscriptions: readonly MockSubscription[];
+    readonly subscriptions: readonly Stripe.Subscription[];
   }[]
 > {
   const found = [];
@@ -165,123 +143,139 @@ export async function subscriptionsEverywhere(
   return found;
 }
 
-async function latestSubscription(
-  call: Call,
-  customer: string
-): Promise<MockSubscription> {
-  const list = await call<MockList<MockSubscription>>(
-    'GET',
-    `${MOCK_BILLING_PATHS.subscriptions}?customer=${customer}&status=all&limit=100`
-  );
-  const subscription = list.data[0];
+/** The provider holding the account's membership, and its customer there. */
+type At = {
+  readonly provider: HarnessBillingProvider;
+  readonly stripe: Stripe;
+  readonly customer: string;
+};
+
+async function latestSubscription(at: At): Promise<Stripe.Subscription> {
+  const subscription = (
+    await providerSubscriptions(at.customer, at.provider)
+  )[0];
   if (subscription === undefined) throw new Error('billing: no subscription');
   return subscription;
 }
 
-function periodEnd(subscription: MockSubscription): number {
-  return subscription.items.data[0]?.current_period_end ?? 0;
+/** When the subscription's current period ends, in ms. */
+function periodEndMs(subscription: Stripe.Subscription): number {
+  return (subscription.items.data[0]?.current_period_end ?? 0) * 1000;
 }
 
-async function useCard(
-  call: Call,
-  customer: string,
-  card: MockTestPaymentMethod
-): Promise<void> {
-  await call('POST', MOCK_BILLING_PATHS.customer(customer), {
-    invoice_settings: { default_payment_method: card },
+/**
+ * The customer's card on file becomes test card `card`: attached, and the
+ * default for the customer and for their subscription (checkout set the
+ * subscription's own default, which wins over the customer's).
+ */
+async function useCard(at: At, card: string): Promise<void> {
+  const method = await at.stripe.paymentMethods.attach(card, {
+    customer: at.customer,
+  });
+  await at.stripe.customers.update(at.customer, {
+    invoice_settings: { default_payment_method: method.id },
+  });
+  const subscription = await latestSubscription(at);
+  await at.stripe.subscriptions.update(subscription.id, {
+    default_payment_method: method.id,
   });
 }
 
-async function advanceTo(call: Call, customer: string, frozenS: number) {
-  await call('POST', MOCK_BILLING_PATHS.advanceCustomerClock(customer), {
-    frozen_time: frozenS,
-  });
+/** Run the provider's clock — not the app's — to `ms`, and what fell due. */
+async function runProviderClockTo(at: At, ms: number): Promise<void> {
+  const ahead = ms - at.provider.now();
+  if (ahead > 0) await at.provider.advanceClock(ahead);
 }
 
-type Step = (
-  call: Call,
-  customer: string,
-  provider: HarnessBillingProvider
-) => Promise<void>;
+/** Past the end of the current period: the renewal (or the ending) runs. */
+async function runOutPeriodAtProvider(at: At): Promise<void> {
+  await runProviderClockTo(
+    at,
+    periodEndMs(await latestSubscription(at)) + 1000
+  );
+}
+
+type Step = (at: At) => Promise<void>;
 
 const STEPS: Readonly<Record<BillingObserveKind, Step>> = {
-  period_end: async (call, customer) => {
-    await advanceTo(
-      call,
-      customer,
-      periodEnd(await latestSubscription(call, customer))
-    );
+  period_end: runOutPeriodAtProvider,
+  payment_failed: async (at) => {
+    await useCard(at, TEST_CARDS.chargeCustomerFail);
+    await runOutPeriodAtProvider(at);
   },
-  payment_failed: async (call, customer) => {
-    await useCard(call, customer, MOCK_TEST_PAYMENT_METHODS.chargeCustomerFail);
-    await advanceTo(
-      call,
-      customer,
-      periodEnd(await latestSubscription(call, customer))
-    );
+  payment_recovered: async (at) => {
+    await useCard(at, TEST_CARDS.visa);
+    const invoice = (await latestSubscription(at)).latest_invoice;
+    const id = typeof invoice === 'string' ? invoice : invoice?.id;
+    if (id !== undefined) await at.stripe.invoices.pay(id);
   },
-  payment_recovered: async (call, customer) => {
-    await useCard(call, customer, MOCK_TEST_PAYMENT_METHODS.visa);
-    const invoice = (await latestSubscription(call, customer)).latest_invoice;
-    if (invoice !== null) {
-      const id = typeof invoice === 'string' ? invoice : invoice.id;
-      await call('POST', MOCK_BILLING_PATHS.invoicePay(id));
+  payment_retries_exhausted: async (at) => {
+    // Past the last retry of a failed renewal (Stripe retries for up to a
+    // week), with the account set to cancel the subscription once every retry
+    // failed. The Stripe mock runs no retries yet
+    // (https://github.com/crvouga/mockingbird/issues/161), so after the week the
+    // cancellation that setting makes is made here.
+    await runProviderClockTo(at, at.provider.now() + 8 * DAY_MS);
+    const subscription = await latestSubscription(at);
+    if (!ENDED_STATUSES.has(subscription.status)) {
+      await at.stripe.subscriptions.cancel(subscription.id);
     }
   },
-  payment_retries_exhausted: async (call, customer) => {
-    // Past the last retry of a failed renewal.
-    const clock = await call<{ test_clock_frozen_time: number }>(
-      'GET',
-      MOCK_BILLING_PATHS.customer(customer)
-    );
-    await advanceTo(call, customer, clock.test_clock_frozen_time + 8 * DAY_S);
+  cancel_at_period_end: async (at) => {
+    const { id } = await latestSubscription(at);
+    await at.stripe.subscriptions.update(id, { cancel_at_period_end: true });
   },
-  cancel_at_period_end: async (call, customer) => {
-    const { id } = await latestSubscription(call, customer);
-    await call('POST', MOCK_BILLING_PATHS.subscription(id), {
-      cancel_at_period_end: true,
-    });
+  resume: async (at) => {
+    const { id } = await latestSubscription(at);
+    await at.stripe.subscriptions.update(id, { cancel_at_period_end: false });
   },
-  resume: async (call, customer) => {
-    const { id } = await latestSubscription(call, customer);
-    await call('POST', MOCK_BILLING_PATHS.subscription(id), {
-      cancel_at_period_end: false,
-    });
+  cancel_now: async (at) => {
+    const { id } = await latestSubscription(at);
+    await at.stripe.subscriptions.cancel(id);
   },
-  cancel_now: async (call, customer) => {
-    const { id } = await latestSubscription(call, customer);
-    await call('DELETE', MOCK_BILLING_PATHS.subscription(id));
-  },
-  switch_interval: async (call, customer, provider) => {
-    const subscription = await latestSubscription(call, customer);
+  switch_interval: async (at) => {
+    const subscription = await latestSubscription(at);
     const item = subscription.items.data[0];
-    const offer = provider.offer;
+    const offer = at.provider.offer;
     const target = offer.switchablePriceKeys
       .map((key) => offer.prices[key]?.catalogPriceId)
-      .find((catalogPriceId) => catalogPriceId !== item?.price.lookup_key);
+      .find((lookupKey) => lookupKey !== item?.price.lookup_key);
     if (item === undefined || target === undefined) {
       throw new Error('billing: no other interval to switch to');
     }
-    const prices = await call<MockList<{ id: string }>>(
-      'GET',
-      `${MOCK_BILLING_PATHS.prices}?lookup_keys=${target}`
-    );
-    await call('POST', MOCK_BILLING_PATHS.subscription(subscription.id), {
-      items: [{ id: item.id, price: prices.data[0]?.id }],
+    const prices = await at.stripe.prices.list({
+      lookup_keys: [target],
+      limit: 1,
+    });
+    const price = prices.data[0]?.id;
+    if (price === undefined) throw new Error(`billing: no price ${target}`);
+    await at.stripe.subscriptions.update(subscription.id, {
+      items: [{ id: item.id, price }],
       proration_behavior: 'always_invoice',
     });
   },
-  redeliver_last_event: async (call) => {
-    const events = await call<MockList<MockEvent>>(
-      'GET',
-      `${MOCK_BILLING_PATHS.events}?type=customer.subscription.updated&limit=1`
-    );
+  redeliver_last_event: async (at) => {
+    const events = await at.stripe.events.list({
+      type: 'customer.subscription.updated',
+      limit: 1,
+    });
     const event = events.data[0];
-    if (event !== undefined) {
-      await call('POST', MOCK_BILLING_PATHS.resendEvent(event.id));
-    }
+    if (event !== undefined) at.provider.resendEvent(event.id);
   },
 };
+
+/** The provider holding the account's membership, its API and customer. */
+async function atMembershipProvider(
+  s: ProductHarness,
+  accountId: string
+): Promise<At> {
+  const provider = await membershipProviderOf(s, accountId);
+  return {
+    provider,
+    stripe: provider.stripe,
+    customer: await customerOf(s, accountId, provider),
+  };
+}
 
 /** Runs one lifecycle transition at the provider for the account's customer. */
 export async function driveProvider(
@@ -289,25 +283,7 @@ export async function driveProvider(
   accountId: string,
   kind: BillingObserveKind
 ): Promise<void> {
-  const at = await atMembershipProvider(s, accountId);
-  await STEPS[kind](at.call, at.customer, at.provider);
-}
-
-/** The provider holding the account's membership, its API and customer. */
-async function atMembershipProvider(
-  s: ProductHarness,
-  accountId: string
-): Promise<{
-  readonly provider: HarnessBillingProvider;
-  readonly call: Call;
-  readonly customer: string;
-}> {
-  const provider = await membershipProviderOf(s, accountId);
-  return {
-    provider,
-    call: providerCall(provider),
-    customer: await customerOf(s, accountId, provider),
-  };
+  await STEPS[kind](await atMembershipProvider(s, accountId));
 }
 
 /**
@@ -318,60 +294,51 @@ export async function refundLastPayment(
   s: ProductHarness,
   accountId: string
 ): Promise<void> {
-  const { call, customer } = await atMembershipProvider(s, accountId);
-  const invoices = await call<MockList<MockInvoice>>(
-    'GET',
-    `${MOCK_BILLING_PATHS.invoices}?customer=${customer}&limit=100`
-  );
-  const paid = invoices.data.find(
-    (invoice) => invoice.status === 'paid' && invoice.amount_paid > 0
+  const at = await atMembershipProvider(s, accountId);
+  const intents = await at.stripe.paymentIntents.list({
+    customer: at.customer,
+    limit: 100,
+  });
+  const paid = intents.data.find(
+    (intent) => intent.status === 'succeeded' && intent.amount_received > 0
   );
   if (paid === undefined) throw new Error('billing: no payment to refund');
-  await call('POST', MOCK_BILLING_PATHS.refunds, { invoice: paid.id });
-  const subscription = await latestSubscription(call, customer);
+  await at.stripe.refunds.create({ payment_intent: paid.id });
+  const subscription = await latestSubscription(at);
   if (!ENDED_STATUSES.has(subscription.status)) {
-    await call('DELETE', MOCK_BILLING_PATHS.subscription(subscription.id));
+    await at.stripe.subscriptions.cancel(subscription.id);
   }
 }
 
-/** The customer's card on file passes its expiry date. */
+/**
+ * The customer's card on file expires: from now on every charge on it
+ * declines with `expired_card`, as Stripe's expired test card does.
+ */
 export async function expireCardOnFile(
   s: ProductHarness,
   accountId: string
 ): Promise<void> {
-  const at = await atMembershipProvider(s, accountId);
-  const call = at.call;
-  const customer = await call<MockCustomer>(
-    'GET',
-    MOCK_BILLING_PATHS.customer(at.customer)
-  );
-  const card = customer.invoice_settings.default_payment_method;
-  if (card === null) throw new Error('billing: no card on file');
-  await call('POST', MOCK_BILLING_PATHS.expirePaymentMethod(card));
+  await useCard(await atMembershipProvider(s, accountId), TEST_CARDS.expired);
 }
 
 /**
  * Time runs on for everyone — the device, the server and the provider — to
  * `leftMs` before the end of the customer's current billing period, and the
- * provider runs what fell due. Unlike a test clock, the app sees the same
- * date the provider bills on, so what it does days after the end is what
- * production does.
+ * provider runs what fell due. Unlike the provider's clock alone, the app sees
+ * the same date the provider bills on, so what it does days after the end is
+ * what production does.
  */
 export async function runBillingPeriodOn(
   s: ProductHarness,
   accountId: string,
   leftMs: number
 ): Promise<void> {
-  const { call, customer } = await atMembershipProvider(s, accountId);
-  const endS = periodEnd(await latestSubscription(call, customer));
-  const clock = await call<{ test_clock_frozen_time: number }>(
-    'GET',
-    MOCK_BILLING_PATHS.customer(customer)
-  );
-  const gapMs = (endS - clock.test_clock_frozen_time) * 1000 - leftMs;
+  const at = await atMembershipProvider(s, accountId);
+  const endMs = periodEndMs(await latestSubscription(at));
+  const gapMs = endMs - at.provider.now() - leftMs;
   if (gapMs > 0) await Promise.resolve(letTimePass.act(s, gapMs));
   // Reading the customer's subscriptions runs what fell due at the provider.
-  await latestSubscription(call, customer);
+  await latestSubscription(at);
 }
 
 /** Time runs on for everyone to the end of the current billing period. */
@@ -387,8 +354,9 @@ export async function providerTrialEndMs(
   s: ProductHarness,
   accountId: string
 ): Promise<number | null> {
-  const { call, customer } = await atMembershipProvider(s, accountId);
-  const { trial_end } = await latestSubscription(call, customer);
+  const { trial_end } = await latestSubscription(
+    await atMembershipProvider(s, accountId)
+  );
   return trial_end === null ? null : trial_end * 1000;
 }
 
@@ -398,7 +366,7 @@ export type EarlierNews = {
   readonly back: number;
 };
 
-function aboutCustomer(event: MockEvent, customer: string): boolean {
+function aboutCustomer(event: Stripe.Event, customer: string): boolean {
   if (!event.type.startsWith('customer.subscription.')) return false;
   const object = event.data.object as { readonly customer?: unknown };
   return object.customer === customer;
@@ -421,14 +389,10 @@ export async function repeatEarlierNews(
   }
   const customer = await customerAt(s, accountId, provider);
   if (customer === null) return;
-  const call = providerCall(provider);
   const events = (
-    await call<MockList<MockEvent>>(
-      'GET',
-      `${MOCK_BILLING_PATHS.events}?limit=100`
-    )
+    await provider.stripe.events.list({ limit: 100 })
   ).data.filter((event) => aboutCustomer(event, customer));
   const event = events[Math.min(news.back, events.length - 1)];
   if (event === undefined) return;
-  await call('POST', MOCK_BILLING_PATHS.resendEvent(event.id));
+  provider.resendEvent(event.id);
 }

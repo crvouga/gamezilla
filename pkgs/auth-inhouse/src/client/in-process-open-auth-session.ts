@@ -9,7 +9,7 @@ import {
   formSubmitBody,
   type HeadlessButton,
   type HeadlessForm,
-  parseFirstForm,
+  parseForms,
 } from './headless-form';
 
 export type InProcessOpenAuthSessionFault =
@@ -21,8 +21,8 @@ export type InProcessOpenAuthSessionFault =
 export type InProcessOpenAuthSessionConfig = {
   /** Must reach both the API and the identity provider. */
   readonly fetch: HttpFetch;
-  /** What the simulated person types on the provider's sign-in screen. */
-  readonly account: { readonly email: string; readonly password: string };
+  /** The account the simulated person signs in as, by its address. */
+  readonly account: { readonly email: string };
   /** What the simulated person answers on the consent screen (default `allow`). */
   readonly consent?: 'allow' | 'deny';
   /**
@@ -73,7 +73,7 @@ function faultResult(
 
 /**
  * Host-scoped cookies, as a browser keeps them: two providers that both call
- * their cookie `IDP_SID` must never see each other's.
+ * their session cookie by the same name must never see each other's.
  */
 export type AuthCookieJar = {
   header(url: string): string;
@@ -102,16 +102,42 @@ export function createAuthCookieJar(): AuthCookieJar {
   };
 }
 
-function pickButton(
-  form: HeadlessForm,
+type Submission = {
+  readonly form: HeadlessForm;
+  readonly button: HeadlessButton | null;
+};
+
+/** The first form holding a button that `matches`, with that button. */
+function formWith(
+  forms: readonly HeadlessForm[],
+  matches: (button: HeadlessButton) => boolean
+): Submission | null {
+  for (const form of forms) {
+    const button = form.buttons.find(matches);
+    if (button !== undefined) return { form, button };
+  }
+  return null;
+}
+
+/**
+ * What the person presses: the chooser row with their address on it; the
+ * consent answer; backing out when their account is not on offer; or the one
+ * button of a hand-off page ("Continue").
+ */
+function pickSubmission(
+  forms: readonly HeadlessForm[],
   email: string,
   consent: 'allow' | 'deny'
-): HeadlessButton | null {
-  const mine = form.buttons.find((button) => button.content.includes(email));
-  if (mine !== undefined) return mine;
-  const answer = form.buttons.find((button) => button.value === consent);
-  if (answer !== undefined) return answer;
-  return form.buttons[form.buttons.length - 1] ?? null;
+): Submission | null {
+  const first = forms[0];
+  return (
+    formWith(forms, (button) => button.content.includes(email)) ??
+    formWith(forms, (button) => button.value === consent) ??
+    formWith(forms, (button) => button.value === 'deny') ??
+    (first === undefined
+      ? null
+      : { form: first, button: first.buttons.at(-1) ?? null })
+  );
 }
 
 function typedFields(
@@ -121,7 +147,6 @@ function typedFields(
   const typed: Record<string, string> = {};
   for (const name of form.inputNames) {
     if (name === 'email') typed[name] = config.account.email;
-    if (name.includes('password')) typed[name] = config.account.password;
   }
   return { ...typed, ...config.answers };
 }
@@ -129,21 +154,18 @@ function typedFields(
 type Hop = { readonly url: string; readonly init?: RequestInit };
 
 function submitHop(args: {
-  readonly form: HeadlessForm;
+  readonly submission: Submission;
   readonly base: string;
   readonly config: InProcessOpenAuthSessionConfig;
 }): Hop {
+  const { form, button } = args.submission;
   const body = formSubmitBody({
-    form: args.form,
-    typed: typedFields(args.form, args.config),
-    button: pickButton(
-      args.form,
-      args.config.account.email,
-      args.config.consent ?? 'allow'
-    ),
+    form,
+    typed: typedFields(form, args.config),
+    button,
   });
-  const action = new URL(args.form.action, args.base).toString();
-  if (args.form.method === 'get') {
+  const action = new URL(form.action, args.base).toString();
+  if (form.method === 'get') {
     return { url: `${action}?${body}`, init: { method: 'GET' } };
   }
   return {
@@ -181,9 +203,13 @@ async function walk(
       continue;
     }
     if (!response.ok) return { type: 'cancel' };
-    const form = parseFirstForm(await response.text());
-    if (form === null) return { type: 'cancel' };
-    hop = submitHop({ form, base: hop.url, config });
+    const submission = pickSubmission(
+      parseForms(await response.text()),
+      config.account.email,
+      config.consent ?? 'allow'
+    );
+    if (submission === null) return { type: 'cancel' };
+    hop = submitHop({ submission, base: hop.url, config });
   }
   return { type: 'cancel' };
 }

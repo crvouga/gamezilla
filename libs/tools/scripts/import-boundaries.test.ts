@@ -308,7 +308,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'libs/zz/src/harness/provider-driver.ts',
-    source: "import { MOCK_BILLING_PATHS } from '@pkgs/billing-mock';",
+    source: "import { createStripeClient } from '@pkgs/billing-stripe';",
     message: null,
   },
   {

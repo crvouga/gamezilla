@@ -4,27 +4,22 @@ import {
   AuthSqliteDatabaseMigration,
   createAuthApp,
   createOauthCallbackRelayApp,
+  googleEndpointsFor,
   type OauthCallbackRelay,
   parseRelayTargets,
 } from '@pkgs/auth-inhouse/server';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse/shared';
 import { createHarnessClock } from '@pkgs/clock';
-import {
-  createIdpMockApp,
-  createIdpSigningKeys,
-  IdpStore,
-} from '@pkgs/idp-mock/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-mock/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
+import { ALICE_EMAIL, simulatedGoogle } from './support/simulated-google';
 
 /**
  * Two deployments of the IdP share one provider registration: the provider
  * knows only the relay's callback. A sign-in launched on either deployment
  * must finish there, through the relay.
  */
-const SIGNING_KEYS = createIdpSigningKeys();
 
 const RELAY_ORIGIN = 'https://auth.example.test';
 const PRD_API = 'https://api.example.test';
@@ -36,7 +31,7 @@ const SECRET = 'auth-system-secret-0123456789abcdef';
 const CLIENT_ID = 'cid.apps.googleusercontent.com';
 const CLIENT_SECRET = 'csecret';
 const START_MS = 1_767_225_600_000;
-const ACCOUNT = { email: 'alice@gmail.com', password: IDP_PASSWORD };
+const ACCOUNT = { email: ALICE_EMAIL };
 const REGISTERED_CALLBACK = `${RELAY_ORIGIN}${PREFIX}/auth/callback/google`;
 
 type Wire = (
@@ -91,7 +86,7 @@ async function bootDeployment(
         google: {
           clientId: CLIENT_ID,
           clientSecret: CLIENT_SECRET,
-          endpoints: idpEndpoints(IDP_URL),
+          endpoints: googleEndpointsFor(IDP_URL),
         },
       },
       callbackRelay: deployment.relay,
@@ -102,26 +97,13 @@ async function bootDeployment(
 
 async function bootFleet(): Promise<{ readonly wire: Wire }> {
   const { clock } = createHarnessClock({ startMs: START_MS });
-  let nextIdpId = 0;
-  const idp = await createIdpMockApp({
-    store: await IdpStore.open({
-      provider: 'google',
-      sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 9 }),
-      clock,
-      createId: () => `idp-${(nextIdpId += 1)}`,
-      createKeys: () => SIGNING_KEYS,
-    }),
-    issuer: IDP_URL,
-    clients: [
-      {
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        // The one registration every deployment shares.
-        redirectUris: [REGISTERED_CALLBACK],
-        appName: 'Example',
-      },
-    ],
-    accounts: [{ handle: 'alice' }],
+  const google = simulatedGoogle({
+    origin: IDP_URL,
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+    // The one registration every deployment shares.
+    redirectUris: [REGISTERED_CALLBACK],
+    clock,
   });
   const hosts = new Map<string, Hono>();
   const wire: Wire = async (input, init) => {
@@ -130,7 +112,7 @@ async function bootFleet(): Promise<{ readonly wire: Wire }> {
       input instanceof Request && init === undefined
         ? input
         : new Request(href, init);
-    if (href.startsWith(IDP_URL)) return await idp.app.fetch(request);
+    if (href.startsWith(IDP_URL)) return await google(request);
     const host = hosts.get(new URL(href).origin);
     if (host === undefined) throw new Error(`no route to ${href}`);
     return await host.request(request);

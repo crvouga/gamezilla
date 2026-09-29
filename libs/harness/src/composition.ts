@@ -11,7 +11,7 @@
  * change.
  */
 
-import type { ClientEnv, ServerHttp } from '@libs/client-app/shell/client-env';
+import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import type { FeatureClient } from '@libs/feature/public/client';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
 import type { FeatureServer, RoomGrantsCtx } from '@libs/feature/public/server';
@@ -25,7 +25,6 @@ import type {
 } from '@pkgs/room-adapter-memory';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
-import type { JSX } from 'solid-js';
 
 import type { ProductHarness } from './system/harness';
 
@@ -71,20 +70,6 @@ export type HarnessRoomNode = {
   dispose(): void;
 };
 
-/** A page a feature serves into the actor's web browser (a hosted checkout). */
-export type HarnessBrowserAppPage = {
-  readonly name: string;
-  /** Whether this page renders the URL. */
-  readonly matches: (url: URL) => boolean;
-  /** Stylesheet for the isolated (shadow-root) rendering in a live document. */
-  readonly css: string;
-  readonly render: (props: {
-    readonly url: string;
-    readonly fetch: ServerHttp;
-    readonly navigate: (url: string) => void;
-  }) => JSX.Element;
-};
-
 export type HarnessComposition = {
   /** Names the seed cache and the report; distinct per feature set. */
   readonly name: string;
@@ -106,7 +91,6 @@ export type HarnessComposition = {
   ) => HarnessRoomNode;
   /** Rows every harness of this composition starts with, after migrate. */
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
-  readonly browserPages?: readonly HarnessBrowserAppPage[];
   /**
    * What the composition sells. When set, the harness runs a payment provider
    * node with this catalog and gives every API instance an adapter to it.

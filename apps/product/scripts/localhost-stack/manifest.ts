@@ -30,7 +30,7 @@ export type StackManifest = {
     readonly google: string;
     readonly apple: string;
   };
-  /** The mock payment provider, on its own origin with its own state. */
+  /** Stripe, simulated, on its own origin with its own state. */
   readonly billingOrigin: string;
   readonly databaseUrl: string;
   readonly s3Endpoint: string | null;

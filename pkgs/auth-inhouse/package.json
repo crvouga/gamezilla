@@ -40,8 +40,8 @@
     "jose": "catalog:"
   },
   "devDependencies": {
+    "@crvouga/mockingbird-service-oauth": "catalog:",
     "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/idp-mock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

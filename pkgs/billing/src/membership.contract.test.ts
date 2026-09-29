@@ -1,8 +1,8 @@
 // goal:room-to-grow:4
 /**
  * The contract is provider-agnostic: a third, made-up provider with its own
- * vocabulary, ids and signature scheme passes the same suite Stripe and the
- * mock provider run. Nothing in the port knows about any of them.
+ * vocabulary, ids and signature scheme passes the same suite Stripe and
+ * Paddle run. Nothing in the port knows about any of them.
  */
 
 import type {

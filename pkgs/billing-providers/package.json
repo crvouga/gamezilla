@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@pkgs/billing": "workspace:*",
-    "@pkgs/billing-mock": "workspace:*",
     "@pkgs/billing-paddle": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/secret-store": "workspace:*"

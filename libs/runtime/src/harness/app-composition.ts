@@ -6,7 +6,6 @@
  */
 
 import { BILLING_HARNESS_ACTIONS } from '@libs/billing/harness/billing-actions';
-import { billingBrowserPage } from '@libs/billing/harness/billing-browser-page';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { CHESS_HARNESS_ACTIONS } from '@libs/chess/harness/chess-actions';
 import { seedChessPuzzlesForHarness } from '@libs/chess/harness/chess-harness-seed';
@@ -41,7 +40,6 @@ export const APP_COMPOSITION: HarnessComposition = {
   roomNode: (env, gateway) =>
     createInProcessRoomNode(env, { games: GAME_DEFINITIONS, gateway }),
   seedServer: seedChessPuzzlesForHarness,
-  browserPages: [billingBrowserPage],
   billingOffer: PLUS_MEMBERSHIP_OFFER,
   properties: [searchDoesNotHang, nextPuzzleDifferent],
   actions: [

@@ -2,28 +2,17 @@ import { describe, expect, test } from 'bun:test';
 import {
   AuthSqliteDatabaseMigration,
   createAuthApp,
+  googleEndpointsFor,
 } from '@pkgs/auth-inhouse/server';
 import {
   AUTH_NATIVE_SSO_CALLBACK_URL,
   oauthClientCallbackUrl,
 } from '@pkgs/auth-inhouse/shared';
 import { createHarnessClock } from '@pkgs/clock';
-import {
-  createIdpMockApp,
-  createIdpSigningKeys,
-  IdpStore,
-} from '@pkgs/idp-mock/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-mock/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
-
-/**
- * One RSA key pair per file: minting RS256 keys is the costliest part of an
- * IdP boot, and no test here is about key generation. Every test still boots
- * its own store and app.
- */
-const SIGNING_KEYS = createIdpSigningKeys();
+import { ALICE_EMAIL, simulatedGoogle } from './support/simulated-google';
 
 const BASE_URL = 'https://api.gamezilla.app';
 const IDP_URL = 'https://accounts.idp.test';
@@ -34,7 +23,7 @@ const CLIENT_ID = 'cid.apps.googleusercontent.com';
 const CLIENT_SECRET = 'csecret';
 /** 2026-01-01T00:00:00Z — IdP and relying party share one virtual clock. */
 const START_MS = 1_767_225_600_000;
-const ACCOUNT = { email: 'alice@gmail.com', password: IDP_PASSWORD };
+const ACCOUNT = { email: ALICE_EMAIL };
 
 type Wire = (
   input: string | URL | Request,
@@ -49,25 +38,12 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
   });
   let nextId = 0;
   const { clock } = createHarnessClock({ startMs: START_MS });
-  const idpStore = await IdpStore.open({
-    provider: 'google',
-    sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 2 }),
+  const google = simulatedGoogle({
+    origin: IDP_URL,
+    clientId: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+    redirectUris: [`${BASE_URL}${PREFIX}/auth/callback/google`],
     clock,
-    createId: () => `idp-${(nextId += 1)}`,
-    createKeys: () => SIGNING_KEYS,
-  });
-  const idp = await createIdpMockApp({
-    store: idpStore,
-    issuer: IDP_URL,
-    clients: [
-      {
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        redirectUris: [`${BASE_URL}${PREFIX}/auth/callback/google`],
-        appName: 'Gamezilla',
-      },
-    ],
-    accounts: [{ handle: 'alice' }],
   });
   const wire: Wire = async (input, init) => {
     const href =
@@ -82,7 +58,7 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
       input instanceof Request && init === undefined
         ? input
         : new Request(href, init);
-    if (href.startsWith(IDP_URL)) return idp.app.fetch(request);
+    if (href.startsWith(IDP_URL)) return google(request);
     return app.request(request);
   };
   const authApp = createAuthApp({
@@ -103,7 +79,7 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
       google: {
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
-        endpoints: idpEndpoints(IDP_URL),
+        endpoints: googleEndpointsFor(IDP_URL),
       },
     },
   });

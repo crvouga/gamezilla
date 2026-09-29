@@ -70,16 +70,18 @@ opens an app link with `HarnessActor.openLink(path)` and reports its route with
 `currentPath()` — how a guest with only a space's link gets in.
 
 **Sign-in** — there is no dev provider. Every mode signs in through Google
-or Apple against `@pkgs/idp-mock`: two simulated providers, each with its own
-origin, account directory, browser sessions and consent grants. In-process
-runs mount them as the `idp` and `idp-apple` nodes on `createHarnessNet` (so either
-can be partitioned); the localhost stack runs each as its own process on its
-own port. Every actor holds one Google account (`<actor>@gmail.com`) and two
-Apple Accounts — one on the same Gmail address (linking by email) and one on
-iCloud (only an explicit link joins it). The actor's browser walks the
-provider's real screens (`system/provider-walk.ts`: address, chooser,
-password, consent, Apple's Share / Hide My Email) and auto-submits Apple's
-`form_post` page, so a provider flow change fails the suite instead of
+or Apple against `@crvouga/mockingbird-service-oauth`: two simulated
+providers, each with its own origin, account directory, browser sessions and
+consent grants (`fabric/idp.ts`). In-process runs mount them as the `idp` and
+`idp-apple` nodes on `createHarnessNet` (so either can be partitioned); the
+localhost stack serves each on its own port. Every actor holds one Google
+account (`<actor>@gmail.com`) and two Apple Accounts — one on the same Gmail
+address (linking by email) and one on iCloud (only an explicit link joins
+it). The actor's browser renders the provider's own pages as served
+(`actors/document-page.tsx`) and walks them (`system/provider-walk.ts`:
+chooser, sign-up, consent with Apple's Share / Hide My Email, and Apple's
+`form_post` hand-off, whose Continue it presses as a browser without
+JavaScript does), so a provider flow change fails the suite instead of
 silently diverging.
 
 Auth actions: `signInWithGoogle` / `signInWithApple` / `signInWithProviderAs`,
@@ -113,26 +115,31 @@ product libs. ProductHarness web may still load SQLite WASM from
 `apps/product/public/generated/`.
 
 **Billing** — a composition that sells something (`billingOffer` on its
-slice) gets a **payment provider node** (`fabric/billing.ts`,
-`@pkgs/billing-mock-provider`) at `HARNESS_BILLING_URL`, with its own SQLite state,
-the way it gets the simulated Google. Every API instance holds the production
-adapter to it (`MockMembershipBilling`, registered in its
+slice) gets a **payment provider node** (`fabric/billing.ts`): Stripe,
+simulated (`@crvouga/mockingbird-service-stripe`), at `HARNESS_BILLING_URL`
+with its own state, the way it gets the simulated Google. Its catalog,
+billing portal configuration and webhook endpoint are what the app's own
+offer reconcile creates. Every API instance holds the production Stripe
+adapter to it (`createStripeMembershipBilling`, registered in its
 `MembershipProviders`) through the network; the provider delivers **signed
-webhooks** back through the load balancer to `/api/billing/callback/mock`,
-and billing's only write path is that callback route — exactly how every
-real provider reaches production. The team can **switch payment provider**
-(`HarnessBillingProviders.switchCheckout`, billing's `switchPaymentProvider`
-action): a second provider node boots with its own id, origin
-(`harnessBillingOrigin`), keys and state, new checkouts go there, and every
-earlier provider keeps serving its members — each API instance re-reads the
-registry per request, as a redeploy with the new configuration would. The
-actor's browser loads the provider's hosted checkout and portal from its own
-origin, so `subscribeToPlus` / `cancelPlus` / `resumePlus` /
-`switchPlusInterval` are the same walk at every fidelity.
-`observeMembership(kind)` is the tester acting at the provider through its
-REST API: per-customer **test clocks** (renewals, dunning retries), Stripe's
-**test cards** (`pm_card_chargeCustomerFail`), subscription updates, event
-**resends** — never a clock jump for the rest of the harness.
+webhooks** (`Stripe-Signature`, on the harness clock:
+`fabric/billing-webhooks.ts`) back through the load balancer to
+`/api/billing/callback/stripe`, and billing's only write path is that
+callback route — exactly how Stripe reaches production. The team can
+**switch payment provider** (`HarnessBillingProviders.switchCheckout`,
+billing's `switchPaymentProvider` action): a second Stripe account boots as
+a node with its own id, origin (`harnessBillingOrigin`), keys and state, new
+checkouts go there, and every earlier provider keeps serving its members —
+each API instance re-reads the registry per request, as a redeploy with the
+new configuration would. The actor's browser loads Stripe's hosted checkout
+and billing portal from the provider's origin and renders them as served
+(`actors/document-page.tsx`), so `subscribeToPlus` / `cancelPlus` /
+`resumePlus` / `switchPlusInterval` type into and tap Stripe's own pages.
+`observeMembership(kind)` is the tester acting at the provider with the
+Stripe SDK in test mode: the provider's clock run ahead (renewals, as a test
+clock runs), Stripe's **test cards** (`pm_card_chargeCustomerFail`),
+subscription updates, refunds, event **redelivery** — never a clock jump for
+the rest of the harness.
 `checkoutPlusAtProvider` pays a fresh checkout session at the provider (the
 billing screen keeps Subscribe hidden while the grace window still grants
 access). `advanceBillingClock(ms)` is the virtual-time escape hatch; the

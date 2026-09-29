@@ -1,17 +1,16 @@
 // @io-wall-ok — tools composition root.
 
 /**
- * The stack's two simulated identity providers — Google and Apple — each a
- * `@pkgs/idp-mock` process on its own port with its own state, and the API
- * bindings that point the Worker at them.
+ * The stack's two simulated identity providers — Google and Apple
+ * (`@crvouga/mockingbird-service-oauth` on each one's wire profile), each on
+ * its own port with its own state — and the API bindings that point the
+ * Worker at them.
  */
 
-import { type ChildProcess, spawn } from 'node:child_process';
+import type { Account } from '@crvouga/mockingbird-service-oauth';
+import { createServer } from '@crvouga/mockingbird-service-oauth/server';
 
-import { createAppleClientKeys } from '@pkgs/idp-mock/server/idp-keys';
-import type { IdpProviderKind } from '@pkgs/idp-mock/shared';
-
-import { waitForHttp } from './free-port';
+import { mockingbirdSqliteFile } from './mockingbird-sqlite';
 import type { IdpStateMode } from './stack-options';
 
 const GOOGLE_CLIENT_ID = 'localhost-stack.apps.googleusercontent.com';
@@ -20,14 +19,40 @@ const APPLE_CLIENT_ID = 'dev.localhost-stack.signin';
 const APPLE_TEAM_ID = 'STACKTEAM1';
 const APPLE_KEY_ID = 'STACKKEY01';
 
+/** Who a fresh stack's providers know, so the chooser has a list worth reading. */
+const GOOGLE_ACCOUNTS = ['alice', 'bob', 'chris', 'dan', 'ed', 'fred'].map(
+  (handle) => `${handle}@gmail.com`
+);
+const APPLE_ACCOUNTS = [
+  'alice@icloud.com',
+  'bob@icloud.com',
+  // The same person as Google's `chris`: sign in with both to link.
+  'chris@gmail.com',
+  'dan@icloud.com',
+];
+
+function accountAt(email: string): Account {
+  const handle = email.slice(0, email.indexOf('@'));
+  const givenName = handle.charAt(0).toUpperCase() + handle.slice(1);
+  return {
+    id: email.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    email,
+    name: `${givenName} Tester`,
+    givenName,
+    familyName: 'Tester',
+  };
+}
+
 export type IdpState = {
   readonly mode: IdpStateMode;
   readonly path: string | null;
 };
 
+type IdpServer = Awaited<ReturnType<typeof createServer>>;
+
 export type StackIdps = {
-  readonly google: ChildProcess;
-  readonly apple: ChildProcess;
+  readonly google: IdpServer;
+  readonly apple: IdpServer;
   /** Worker bindings for both providers. */
   readonly apiEnv: Readonly<Record<string, string>>;
 };
@@ -41,42 +66,29 @@ function appleState(state: IdpState): IdpState {
   return { mode: state.mode, path };
 }
 
-async function startIdp(args: {
-  readonly repoRoot: string;
-  readonly provider: IdpProviderKind;
-  readonly port: number;
-  readonly state: IdpState;
-  readonly env: Readonly<Record<string, string>>;
-}): Promise<ChildProcess> {
-  const child = spawn(
-    'bun',
-    [
-      '--conditions=browser',
-      '--conditions=development',
-      '--preload',
-      './pkgs/bun-test-solid/src/register.ts',
-      'pkgs/idp-mock/scripts/serve.ts',
-    ],
-    {
-      cwd: args.repoRoot,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        ...args.env,
-        IDP_PROVIDER: args.provider,
-        IDP_PORT: String(args.port),
-        IDP_STATE_MODE: args.state.mode,
-        ...(args.state.path === null
-          ? {}
-          : { IDP_STATE_PATH: args.state.path }),
-        IDP_APP_NAME: 'Gamezilla',
-      },
-    }
+function storageOf(state: IdpState) {
+  return state.path === null
+    ? {}
+    : { sqlite: mockingbirdSqliteFile(state.path) };
+}
+
+/** The P-256 pair the API signs its Apple client secret with. */
+async function createAppleClientKeys(): Promise<{
+  readonly privateJwk: JsonWebKey;
+  readonly publicJwk: JsonWebKey;
+}> {
+  const pair = await crypto.subtle.generateKey(
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    true,
+    ['sign', 'verify']
   );
-  await waitForHttp(
-    `http://127.0.0.1:${String(args.port)}/.well-known/openid-configuration`
-  );
-  return child;
+  const {
+    key_ops: _ops,
+    ext: _ext,
+    ...privateJwk
+  } = await crypto.subtle.exportKey('jwk', pair.privateKey);
+  const { d: _d, ...publicJwk } = privateJwk;
+  return { privateJwk, publicJwk };
 }
 
 /**
@@ -85,45 +97,55 @@ async function startIdp(args: {
  * exactly as a developer's downloaded `.p8` key splits between Apple and them.
  */
 export async function startStackIdps(args: {
-  readonly repoRoot: string;
   readonly apiOrigin: string;
   readonly ports: { readonly google: number; readonly apple: number };
   readonly state: IdpState;
 }): Promise<StackIdps> {
   const keys = await createAppleClientKeys();
-  const callback = (provider: IdpProviderKind): string =>
+  const callback = (provider: 'google' | 'apple'): string =>
     `${args.apiOrigin}/api/auth/callback/${provider}`;
+  const origin = (port: number): string => `http://127.0.0.1:${String(port)}`;
   const started = await Promise.allSettled([
-    startIdp({
-      repoRoot: args.repoRoot,
+    createServer({
       provider: 'google',
       port: args.ports.google,
-      state: args.state,
-      env: {
-        IDP_CLIENT_ID: GOOGLE_CLIENT_ID,
-        IDP_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,
-        IDP_REDIRECT_URIS: callback('google'),
-      },
+      issuer: origin(args.ports.google),
+      ...storageOf(args.state),
+      accounts: GOOGLE_ACCOUNTS.map(accountAt),
+      clients: [
+        {
+          id: GOOGLE_CLIENT_ID,
+          name: 'Gamezilla',
+          secret: GOOGLE_CLIENT_SECRET,
+          redirectUris: [callback('google')],
+        },
+      ],
     }),
-    startIdp({
-      repoRoot: args.repoRoot,
+    createServer({
       provider: 'apple',
       port: args.ports.apple,
-      state: appleState(args.state),
-      env: {
-        IDP_CLIENT_ID: APPLE_CLIENT_ID,
-        IDP_REDIRECT_URIS: callback('apple'),
-        IDP_APPLE_TEAM_ID: APPLE_TEAM_ID,
-        IDP_APPLE_KEY_ID: APPLE_KEY_ID,
-        IDP_APPLE_PUBLIC_JWK: JSON.stringify(keys.publicJwk),
-        IDP_APPLE_NOTIFICATION_URL: `${args.apiOrigin}/api/auth/apple/notifications`,
-      },
+      issuer: origin(args.ports.apple),
+      ...storageOf(appleState(args.state)),
+      accounts: APPLE_ACCOUNTS.map(accountAt),
+      behavior: { session: { reuseLastAccount: false } },
+      clients: [
+        {
+          id: APPLE_CLIENT_ID,
+          name: 'Gamezilla',
+          redirectUris: [callback('apple')],
+          apple: {
+            teamId: APPLE_TEAM_ID,
+            keyId: APPLE_KEY_ID,
+            publicKey: keys.publicJwk,
+          },
+        },
+      ],
     }),
   ]);
   const [google, apple] = started;
   if (google.status === 'rejected' || apple.status === 'rejected') {
     for (const result of started) {
-      if (result.status === 'fulfilled') result.value.kill('SIGTERM');
+      if (result.status === 'fulfilled') await result.value.close();
     }
     const failed = google.status === 'rejected' ? google : apple;
     throw failed.status === 'rejected' ? failed.reason : new Error('idp boot');
@@ -134,8 +156,8 @@ export async function startStackIdps(args: {
     apiEnv: {
       WEB_CLIENT_GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID,
       WEB_CLIENT_GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,
-      GOOGLE_IDP_ORIGIN: `http://127.0.0.1:${String(args.ports.google)}`,
-      APPLE_IDP_ORIGIN: `http://127.0.0.1:${String(args.ports.apple)}`,
+      GOOGLE_IDP_ORIGIN: google.value.url,
+      APPLE_IDP_ORIGIN: apple.value.url,
       APPLE_CLIENT_ID,
       APPLE_TEAM_ID,
       APPLE_KEY_ID,
