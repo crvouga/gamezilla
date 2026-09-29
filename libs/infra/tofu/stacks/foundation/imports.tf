@@ -11,7 +11,7 @@ import {
 # `project_id:name` — production's is the project's default environment.
 import {
   for_each = var.imports.foundation.railway_environment == null ? toset([]) : toset([var.imports.foundation.railway_environment])
-  to       = module.pubsub.railway_environment.this
+  to       = module.pubsub.railway_environment.default[0]
   id       = each.value
 }
 
@@ -58,6 +58,17 @@ import {
 # project — docs/INFRA.md.)
 removed {
   from = module.pubsub.railway_project.this
+  lifecycle {
+    destroy = false
+  }
+}
+
+# Dev's first attempt at the shared project made an EMPTY environment here
+# (no service instance, so its custom domain could never be created). Forget
+# it: the module now clones the environment instead, and the empty one is
+# deleted once by hand in the Railway dashboard (docs/INFRA.md).
+removed {
+  from = module.pubsub.railway_environment.this
   lifecycle {
     destroy = false
   }

@@ -199,10 +199,14 @@ environment is a **Railway environment** of that project, named after its
 env file's `suffix` — production is the project's default `production`
 environment — created by its foundation stack (`modules/pubsub`) along with
 the service's variables (its broker credentials) and custom domain in that
-environment. A Railway environment that is not a fork gets an instance of
-every service, with its own volume, and Railway keeps each instance's build
-and region in step with the service, so a change to the shared service
-reaches every environment at once.
+environment. Only a **duplicate** of an environment holds an instance of the
+service (build, region, its own volume): the provider's `railway_environment`
+makes an empty one, whose custom domain fails with "ServiceInstance not
+found". So every non-production environment is created by duplicating
+`production` (`modules/pubsub/clone-environment.sh`, run by a `terraform_data`
+provisioner; it reads the clone's id back with a read-only `http` data source
+and deletes the clone on teardown). Drop the script once the provider can
+clone (terraform-provider-railway PR #83).
 
 Environments share the service's configuration, never its data: variables,
 volume contents and hostnames are per Railway environment. Tearing a
@@ -212,9 +216,11 @@ Environments used to own a Railway project each. The foundation stack now
 forgets those (`removed`, never a delete); production's project became the
 shared one. A standard environment that had its own project (dev's
 `gamezilla-dev`) moves on its next deploy: its broker variables and custom
-domain are replaced into its new Railway environment of the shared project,
-and the old project, no longer managed, is deleted once by hand in the
-Railway dashboard after that deploy is healthy.
+domain are replaced into its new Railway environment of the shared project.
+Before that deploy, delete dev's empty `development` environment in the
+Railway dashboard (an earlier attempt made it; the clone script refuses to
+reuse it), and delete the old project, no longer managed, once by hand after
+the deploy is healthy.
 
 ## Object storage
 

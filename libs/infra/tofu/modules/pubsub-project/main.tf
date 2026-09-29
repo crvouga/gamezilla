@@ -1,8 +1,10 @@
 # The one Railway project every environment's MQTT broker runs in, and the
 # `emqx` service they share. Each environment is a Railway environment of
-# this project (modules/pubsub, per env stack), so the service's build and
-# placement below reach every environment: Railway applies a service's
-# instance settings to every environment that is not a fork.
+# this project (modules/pubsub, per env stack), a duplicate of production so
+# it holds an instance of this service (a new empty environment does not).
+# The build and placement below are set on the service; whether a later change
+# reaches an already-duplicated environment is Railway's behavior, not
+# something this stack guarantees — check `bun health` after changing them.
 #
 # STATEFUL and global: the project and the service (whose volume holds
 # `/opt/emqx/data` in each environment) are never destroyed or replaced — not

@@ -183,6 +183,7 @@ export const CREDENTIAL_ENV: Readonly<
   foundation: {
     ...EDGE,
     RAILWAY_TOKEN: 'RAILWAY_TOKEN',
+    TF_VAR_railway_token: 'RAILWAY_TOKEN',
     NEON_API_KEY: 'NEON_API_KEY',
     GRAFANA_CLOUD_ACCESS_POLICY_TOKEN: 'GRAFANA_CLOUD_API_TOKEN',
   },

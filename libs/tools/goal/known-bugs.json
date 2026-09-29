@@ -248,5 +248,10 @@
     "id": "sign-in-refresh-race",
     "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
+  },
+  {
+    "id": "railway-empty-environment",
+    "summary": "Deploy failed on every run once the broker moved into one shared Railway project: `railway_environment` (provider v0.6) creates an EMPTY environment with no instance of the `emqx` service, so `customDomainCreate` failed with \"ServiceInstance not found\", dev's foundation never applied, and prd (gated behind dev) never redeployed. Fixed by duplicating the production environment (`clone-environment.sh`, run by `terraform_data.clone`) instead; the script refuses an empty environment with the same name.",
+    "regressionTest": "libs/infra/tests/clone-environment.test.ts"
   }
 ]
