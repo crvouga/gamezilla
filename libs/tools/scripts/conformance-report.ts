@@ -20,7 +20,7 @@
  *
  *   - after `bun check:local` (turbo runs or restores every `test:spec:<k>`
  *     part, and each part's outputs are its `.cache/harness-report/part-<k>/`
- *     bucket), or after the restore step the Check workflow's `check:report`
+ *     bucket), or after the restore step the Check workflow's `report:part`
  *     jobs run on GitHub (`turbo-ci-run.ts --restore-outputs`), which leaves
  *     every bucket on disk;
  *   - with live evidence after `bun health` (SECRETS_ENV names the
