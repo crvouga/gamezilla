@@ -105,6 +105,18 @@ function resolveWaiters(waiters: Array<() => void>): void {
   for (const resolve of pending) resolve();
 }
 
+/** A {@link SubscriptionRuntime.wakeAllAndDrain} caller: done once sweep `after` finishes. */
+type FlushWaiter = { readonly after: number; readonly resolve: () => void };
+
+function resolveFlushWaiters(waiters: FlushWaiter[], sweepsDone: number): void {
+  for (let i = waiters.length - 1; i >= 0; i -= 1) {
+    const waiter = waiters[i]!;
+    if (waiter.after > sweepsDone) continue;
+    waiters.splice(i, 1);
+    waiter.resolve();
+  }
+}
+
 /** Owns event-driven query scopes; applies responses to local SQLite. */
 export class SubscriptionRuntime {
   private readonly entries = new Map<string, Entry>();
@@ -122,7 +134,9 @@ export class SubscriptionRuntime {
   private coalesceTimer: unknown = null;
   private reconcileTimer: unknown = null;
   private inFlight = false;
-  private flushWaiters: Array<() => void> = [];
+  private flushWaiters: FlushWaiter[] = [];
+  /** Sweeps finished so far; orders {@link flushWaiters}. */
+  private sweepsDone = 0;
   /** Resolves when the current in-flight sweep finishes after {@link stop}. */
   private inFlightDrain: Array<() => void> = [];
   /**
@@ -196,7 +210,7 @@ export class SubscriptionRuntime {
     this.disposeLifecycle?.();
     this.disposeLifecycle = null;
     for (const entry of this.entries.values()) entry.generation += 1;
-    resolveWaiters(this.flushWaiters);
+    resolveFlushWaiters(this.flushWaiters, Number.POSITIVE_INFINITY);
   }
 
   /**
@@ -236,13 +250,17 @@ export class SubscriptionRuntime {
   /**
    * Wake every active scope and resolve after the resulting sweep drains.
    * Does not reset first-sync gates (no loading flicker for pull-to-refresh).
+   * Later wakes never hold it: sweeps that keep being enqueued after it
+   * would otherwise leave the caller waiting forever.
    */
   wakeAllAndDrain(): Promise<void> {
     if (!this.running || !this.foregrounded) return Promise.resolve();
     this.enqueue('all');
     if (this.pending === null && !this.inFlight) return Promise.resolve();
+    // A sweep in flight started before this wake; the one after it carries it.
+    const after = this.sweepsDone + (this.inFlight ? 2 : 1);
     return new Promise((resolve) => {
-      this.flushWaiters.push(resolve);
+      this.flushWaiters.push({ after, resolve });
     });
   }
 
@@ -389,13 +407,13 @@ export class SubscriptionRuntime {
 
   private async flushPending(): Promise<void> {
     if (!this.running || !this.foregrounded) {
-      resolveWaiters(this.flushWaiters);
+      resolveFlushWaiters(this.flushWaiters, Number.POSITIVE_INFINITY);
       return;
     }
     if (this.inFlight) return;
     const pending = this.pending;
     if (pending === null) {
-      resolveWaiters(this.flushWaiters);
+      resolveFlushWaiters(this.flushWaiters, Number.POSITIVE_INFINITY);
       return;
     }
     this.pending = null;
@@ -404,7 +422,7 @@ export class SubscriptionRuntime {
         ? this.listSweepEntries()
         : this.listSweepEntries().filter((e) => pending.has(e.scope));
     if (active.length === 0) {
-      resolveWaiters(this.flushWaiters);
+      resolveFlushWaiters(this.flushWaiters, Number.POSITIVE_INFINITY);
       return;
     }
     this.inFlight = true;
@@ -417,9 +435,10 @@ export class SubscriptionRuntime {
       this.options.onError(error);
     } finally {
       this.inFlight = false;
+      this.sweepsDone += 1;
       resolveWaiters(this.inFlightDrain);
+      resolveFlushWaiters(this.flushWaiters, this.sweepsDone);
       if (this.pending !== null) this.scheduleFlush();
-      else resolveWaiters(this.flushWaiters);
     }
   }
 

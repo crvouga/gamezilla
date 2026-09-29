@@ -323,5 +323,10 @@
     "id": "sync-hash-sqlite-stored-types",
     "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
+  },
+  {
+    "id": "sync-refresh-starved-by-later-sweeps",
+    "summary": "refreshQueries() resolved only once no sweep was pending, so sweeps enqueued after it (drift heals, pushes) held it forever and the \"New space\" connection check never returned. Fixed: it resolves once the sweep that carries its wake finishes.",
+    "regressionTest": "pkgs/sync-engine/src/client/subscription-runtime.test.ts"
   }
 ]
