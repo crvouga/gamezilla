@@ -327,7 +327,6 @@
       "outputs": [".cache/harness-report/part-5/**"]
     },
     "check:models": {
-      "dependsOn": ["@libs/tools#tc", "@pkgs/quint#tc"],
       "inputs": [
         "package.json",
         "tests/quint/**",

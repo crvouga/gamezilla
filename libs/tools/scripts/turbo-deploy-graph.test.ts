@@ -186,6 +186,15 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
+  test('check:models hashes only the models and their checker', () => {
+    // Apalache's verdict depends on the model's text alone. A dependsOn folds
+    // that task's hash in (a `@libs/tools#tc` made every tooling edit re-run
+    // every model), and $TURBO_DEFAULT$ would re-run them on product edits.
+    const task = loadTasks()['check:models'];
+    expect(task?.dependsOn).toBeUndefined();
+    expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
+  });
+
   // goal:the-bar:1 — every check that gates a release also gates a PR merge.
   test('//#deploy is //#check plus the live-env leaves', () => {
     const tasks = loadTasks();
