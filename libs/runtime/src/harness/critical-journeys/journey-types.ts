@@ -16,8 +16,11 @@ export type JourneyAccess = 'anonymous' | 'signed-in';
  * app (an identity provider's popup) and plain HTTP to follow them.
  */
 export type JourneyBrowser = {
-  /** API origin the web client talks to, e.g. `https://api.example.com`. */
-  readonly apiOrigin: string;
+  /**
+   * Origin Google sends people back to (`<origin>/api/auth/callback/google`):
+   * the one OAuth callback relay every environment shares.
+   */
+  readonly oauthCallbackOrigin: string;
   readonly http: HttpClient;
   /**
    * Resolve with the URL of the first popup the page opened whose URL

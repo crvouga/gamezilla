@@ -62,7 +62,7 @@ export async function expectGoogleHandOff(
     authorize.hostname === 'accounts.google.com',
     `OAuth launch redirected to ${authorize.hostname}, not accounts.google.com`
   );
-  const expected = `${browser.apiOrigin}/api/auth/callback/google`;
+  const expected = `${browser.oauthCallbackOrigin}/api/auth/callback/google`;
   const redirectUri = authorize.searchParams.get('redirect_uri');
   check(
     redirectUri === expected,

@@ -30,6 +30,8 @@ export const EVIDENCE_DIR = join(
 export type LiveTarget = {
   readonly webOrigin: string;
   readonly apiOrigin: string;
+  /** The OAuth callback relay's origin (`authRelayOrigin`). */
+  readonly oauthCallbackOrigin: string;
   readonly http: HttpClient;
 };
 
@@ -107,7 +109,7 @@ export function journeyBrowser(
   target: LiveTarget
 ): JourneyBrowser {
   return {
-    apiOrigin: target.apiOrigin,
+    oauthCallbackOrigin: target.oauthCallbackOrigin,
     http: target.http,
     waitForPopup: async (match, timeoutMs) => {
       const deadline = wallClock.now() + timeoutMs;
