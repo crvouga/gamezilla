@@ -41,7 +41,7 @@ libs/infra/
                       environment + its import of the shared one, the
                       OAuth relay's hostname (auth.<zone>), the private
                       spec-report bucket every env's API reads
-                      (`bun check:report`), and the Railway
+                      (`bun check` publishes to it), and the Railway
                       broker project + service every env shares
       foundation/     everything before Worker code ships (+ secrets.json)
       edge/           custom domains, after the Workers exist

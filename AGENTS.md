@@ -112,7 +112,9 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 `bun check` is the whole gate and runs on GitHub, not on this machine (it
 `git-sync`s the branch, dispatches the Check workflow and blocks on its
-verdict); `bun check:local` runs the same gate locally when you choose to.
+verdict) and publishes the spec report of the commit to `/reports/<sha>`
+([`docs/CI.md`](docs/CI.md#the-spec-report)); `bun check:local` runs the same
+gate locally when you choose to, and publishes nothing.
 `bun health` probes the live deployments. Every check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
@@ -165,11 +167,6 @@ super.engineering's app project settings.
   S3rver, Aedes MQTT, simulated Google and Apple IdPs, N Bun API instances
   running the production Worker handler behind a load balancer
   ([`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md)).
-- **`bun run check:report`** — one report over every package's spec suite,
-  snapshots included, built on GitHub into the shared reports store and
-  opened at `/reports/<commit sha>` (any deployment; it fills in live); this
-  machine only dispatches and waits
-  ([`docs/CI.md`](docs/CI.md#the-spec-report)).
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** migrates `DATABASE_URL`; **`bun run db:wipe:dev`** wipes
   a non-production database.
