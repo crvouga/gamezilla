@@ -111,14 +111,14 @@ report is part of the Check workflow, and Check is red if it did not publish.
   Server-Sent Events (`/api/reports`, `libs/server-app/src/reports/route.ts`).
   Nothing is served from the bucket directly and there is no report hostname.
 - **One publish job per spec part, after the shards.** `check:plan` lists the
-  parts (`report-matrix.ts`) beside the shard split; `report:open`
+  parts (`report-matrix.ts`) beside the shard split; `check:publish-open`
   (beside the plan) writes the commit's record and snapshot stylesheet; once
-  the shards are done, `report:part` runs one job per part `k`: turbo
+  the shards are done, `check:publish` runs one job per part `k`: turbo
   restores `test:spec:<k>` of every package (`turbo-ci-run --restore-outputs`:
   a part whose code has not changed restores its cached bucket, and a suite
   that failed — never cached — runs again) and the job publishes each
   package's bucket (`libs/harness/scripts/report-publish.ts`);
-  `report:close` marks the commit complete. A page open on a running
+  `check:publish-close` marks the commit complete. A page open on a running
   commit shows each part the moment it is published. A red suite still
   publishes its report; the run is red.
 - **Keyed by the pull request's head.** Everything lives under
@@ -203,8 +203,8 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
    drops outputs holding a masked value) publishes the split from
    [`check-shards.ts`](../libs/tools/scripts/check-shards.ts), balanced by
    `check-task-costs.json`, and up to `MAX_SHARDS` `check:shard` runners run
-   their misses. Then `report:open`, `report:part` (one job per spec part)
-   and `report:close` publish the spec report
+   their misses. Then `check:publish-open`, `check:publish` (one job per spec
+   part) and `check:publish-close` publish the spec report
    ([below](#the-spec-report)). The `check` job — the one required check — is
    green only when the plan, every shard and the report are. Each shard
    uploads its turbo run summary; refresh the costs from a cold run (one that touched `turbo.json`) with

@@ -153,7 +153,9 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
             definition: definitionText(match, step),
             calls: (lifecycle.calls?.(world) ?? []).slice(callsBefore),
             cause,
-            reportHint: options.reportHint ?? 'report: /reports/<commit sha>, published by bun check',
+            reportHint:
+              options.reportHint ??
+              'report: /reports/<commit sha>, published by bun check',
           }),
           { cause }
         );

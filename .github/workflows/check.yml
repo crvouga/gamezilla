@@ -43,11 +43,12 @@ jobs:
   # `/reports/<sha>` on any deployment streams it
   # (libs/harness/scripts/report-publish.ts; docs/CI.md#the-spec-report):
   #
-  #   report:open   the commit's record and snapshot stylesheet, first
-  #   report:part   one runner per spec part, after the shards: turbo
-  #                 restores that part's cached buckets (a suite that failed
-  #                 is not cached, so it runs again) and the part is published
-  #   report:close  mark the commit complete
+  #   check:publish-open   the commit's record and snapshot stylesheet, first
+  #   check:publish        one runner per spec part, after the shards: turbo
+  #                        restores that part's cached buckets (a suite that
+  #                        failed is not cached, so it runs again) and the
+  #                        part is published
+  #   check:publish-close  mark the commit complete
   check-plan:
     name: check:plan
     runs-on: ubuntu-latest
@@ -190,8 +191,8 @@ jobs:
           WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
 
-  report-open:
-    name: report:open
+  check-publish-open:
+    name: check:publish-open
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -213,10 +214,10 @@ jobs:
       - name: open
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts open
 
-  report-part:
-    name: report:part
-    needs: [check-matrix, report-open, check-shard]
-    if: always() && needs.check-matrix.result == 'success' && needs.report-open.result == 'success'
+  check-publish:
+    name: check:publish
+    needs: [check-matrix, check-publish-open, check-shard]
+    if: always() && needs.check-matrix.result == 'success' && needs.check-publish-open.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -255,10 +256,10 @@ jobs:
         if: always()
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts source "part-${PART}"
 
-  report-close:
-    name: report:close
-    needs: [report-open, report-part]
-    if: always() && needs.report-open.result == 'success'
+  check-publish-close:
+    name: check:publish-close
+    needs: [check-publish-open, check-publish]
+    if: always() && needs.check-publish-open.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -287,9 +288,9 @@ jobs:
         check-plan,
         check-matrix,
         check-shard,
-        report-open,
-        report-part,
-        report-close,
+        check-publish-open,
+        check-publish,
+        check-publish-close,
       ]
     if: always()
     runs-on: ubuntu-latest
@@ -301,9 +302,9 @@ jobs:
           MATRIX: ${{ needs.check-matrix.result }}
           SHARDS: ${{ needs.check-shard.result }}
           SHARD_COUNT: ${{ needs.check-matrix.outputs.shards }}
-          REPORT_OPEN: ${{ needs.report-open.result }}
-          REPORT: ${{ needs.report-part.result }}
-          REPORT_CLOSE: ${{ needs.report-close.result }}
+          REPORT_OPEN: ${{ needs.check-publish-open.result }}
+          REPORT: ${{ needs.check-publish.result }}
+          REPORT_CLOSE: ${{ needs.check-publish-close.result }}
         # Skipped shards are green only when the plan found nothing to run.
         run: |
           echo "check:plan=$PLAN check:matrix=$MATRIX check:shard=$SHARDS shards=$SHARD_COUNT report=$REPORT_OPEN/$REPORT/$REPORT_CLOSE"

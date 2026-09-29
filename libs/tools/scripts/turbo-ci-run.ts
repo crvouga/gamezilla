@@ -43,7 +43,7 @@
  *   finishes. Both live in `check-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
- * - `--restore-outputs` (the Check workflow's `report:part` jobs): leave every
+ * - `--restore-outputs` (the Check workflow's `check:publish` jobs): leave every
  *   task's cached outputs on disk. A plain run skips turbo when everything
  *   hit, which is right for a verdict but restores nothing; this mode
  *   prefetches every remote hit, runs turbo over the whole set (hits restore

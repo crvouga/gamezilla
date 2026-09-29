@@ -9,7 +9,7 @@
  *
  *   parts=[0,1,2,3,4]
  *
- * One `report:part` runner per spec part: part `k` publishes `test:spec:<k>`
+ * One `check:publish` runner per spec part: part `k` publishes `test:spec:<k>`
  * of every package that has one. `bun check` splits every suite the same way
  * and weighs the parts to be about equal, so the parts finish together.
  */
