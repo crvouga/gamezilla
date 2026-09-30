@@ -1,3 +1,4 @@
+# live
 # People can open the app at its address, and the app answers them.
 # Reaching the app and Serving people require that right now. They do not
 # say how often. The rate below stands in until the team confirms it.
@@ -43,7 +44,7 @@ spec:
     judged over the last four weeks. Neither that rate nor that stretch of
     time is written in Reaching the app or Serving people. The rate is not
     yet a promise of the product.
-  service: health
+  service: runtime
   indicatorRef: team-checks-passing
   timeWindow:
     - duration: 28d

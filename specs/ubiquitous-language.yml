@@ -52,3 +52,17 @@ terms:
       connection, with nothing for the person to do.
     forms: [offline, online, back online, connected, disconnected]
     avoid: [network error, socket]
+
+  - term: environment
+    definition: >-
+      One complete, separate copy of the product; production is one. "This
+      environment" is the copy a check is looking at.
+    forms: [environments, environment's, this environment]
+    avoid: [deployment, stage, stack, instance]
+
+  - term: production environment
+    definition: >-
+      An environment real people use, and the only kind that takes real
+      payments.
+    forms: [production environments, production]
+    avoid: [prod, live environment]

@@ -233,3 +233,13 @@ terms:
       method shows whether mail is forwarded.
     forms: [forwards mail, forwarding mail, stops forwarding mail, stopped forwarding mail, mail is forwarded, mail is not forwarded]
     model: [mailNotForwarded, stopForwardingMail, forwardMailAgain]
+
+  - term: way back to the app
+    definition: >-
+      Where Google sends a person once they have signed in: always back to the
+      app they started from, in the environment they started in.
+
+  - term: on the web
+    definition: >-
+      Using the app at its address rather than as an app installed on a
+      device.
