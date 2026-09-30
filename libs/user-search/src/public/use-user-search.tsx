@@ -21,6 +21,7 @@ import {
   onCleanup,
 } from 'solid-js';
 import {
+  USER_SEARCH_DEBOUNCE_MS,
   USER_SEARCH_MAX_RESULTS,
   type UserSearchResult,
 } from './user-search-types';
@@ -100,7 +101,7 @@ export function useDebouncedUserSearchEffect(
 
     const handle = timers.setTimeout(() => {
       setDebouncedQuery(trimmed);
-    }, 300);
+    }, USER_SEARCH_DEBOUNCE_MS);
 
     onCleanup(() => {
       timers.clearTimeout(handle);

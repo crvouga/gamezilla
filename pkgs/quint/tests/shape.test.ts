@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   formatModelShapeIssue,
-  modelShapeIssues,
   type ModelShapeCode,
+  modelShapeIssues,
 } from '@pkgs/quint/shape';
 
 const SOUND = `
@@ -83,16 +83,15 @@ describe('modelShapeIssues', () => {
   });
 
   test('published events are not an aggregate', () => {
-    expect(modelShapeIssues('module events {\n}\n', 'specs/friends/events.qnt')).toEqual(
-      []
-    );
+    expect(
+      modelShapeIssues('module events {\n}\n', 'specs/friends/events.qnt')
+    ).toEqual([]);
   });
 
   test('names the missing connection when nothing models it', () => {
-    const source = SOUND.replaceAll('_offline', '_spare').replaceAll(
-      '_loseConnection',
-      '_pause'
-    ).replaceAll('_connectionReturns', '_resume');
+    const source = SOUND.replaceAll('_offline', '_spare')
+      .replaceAll('_loseConnection', '_pause')
+      .replaceAll('_connectionReturns', '_resume');
     expect(codes(source)).toContain('no-connectivity');
   });
 
@@ -102,15 +101,22 @@ describe('modelShapeIssues', () => {
       'val invAlways = true'
     ).replace("    _tallyAtCutOff' = 0,\n", '');
     expect(codes(source)).toEqual(
-      expect.arrayContaining(['trivial-invariant', 'var-uninitialized', 'no-coupling-invariant'])
+      expect.arrayContaining([
+        'trivial-invariant',
+        'var-uninitialized',
+        'no-coupling-invariant',
+      ])
     );
   });
 
   test('an action step never calls is unreachable, and so is a connection it drops for everyone', () => {
     const source = SOUND.replace(
-      '_offline\' = _offline.union(Set(person))',
-      '_offline\' = PEOPLE'
-    ).replace('any { addOne(person), _loseConnection(person), _connectionReturns }', 'any { addOne(person), _connectionReturns }');
+      "_offline' = _offline.union(Set(person))",
+      "_offline' = PEOPLE"
+    ).replace(
+      'any { addOne(person), _loseConnection(person), _connectionReturns }',
+      'any { addOne(person), _connectionReturns }'
+    );
     expect(codes(source)).toEqual(
       expect.arrayContaining(['unreachable-action', 'no-disconnect'])
     );
@@ -118,8 +124,8 @@ describe('modelShapeIssues', () => {
 
   test('a single bool is one device; a set that drops every device is not', () => {
     const dropped = SOUND.replace(
-      '_offline\' = _offline.union(Set(person))',
-      '_offline\' = PEOPLE'
+      "_offline' = _offline.union(Set(person))",
+      "_offline' = PEOPLE"
     );
     expect(codes(dropped)).toContain('disconnect-drops-everyone');
   });
@@ -131,8 +137,8 @@ describe('modelShapeIssues', () => {
     );
     expect(first).toBeDefined();
     if (first === undefined) return;
-    expect(formatModelShapeIssue('specs/room/tally-shape.qnt', first)).toContain(
-      '[module-name]'
-    );
+    expect(
+      formatModelShapeIssue('specs/room/tally-shape.qnt', first)
+    ).toContain('[module-name]');
   });
 });

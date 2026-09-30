@@ -4,6 +4,7 @@ import {
   scenarioAction,
 } from '@libs/harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
+import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search/public/user-search-types';
 
 const WAIT_MS = 10_000;
 
@@ -16,8 +17,11 @@ export const searchUsername = scenarioAction({
     const input = ui.get(Handles.searchInput);
     await input.clear();
     await input.input(username);
+    // Idle flushes the effect that arms the keystroke timer. That timer is
+    // still in the future, so advance it before waiting on the spinner.
     await s.session.waitForIdle();
-    // Debounce + sync query must settle; a stuck Searching… spinner fails here.
+    await s.session.advanceTime(USER_SEARCH_DEBOUNCE_MS);
+    await s.session.waitForIdle();
     await ui.get(Handles.searchLoading).expect.hidden({ timeoutMs: WAIT_MS });
   },
 });
