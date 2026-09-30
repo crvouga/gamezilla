@@ -1,10 +1,11 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI: `@apps/product#health`, the live health of one environment.
 /**
- * Runs every feature of this package's `liveDomains` (`specs/health/`,
- * `specs/journeys/`) against the environment `SECRETS_ENV` names — its
- * Workers, database, bucket, broker, secrets and infrastructure, and the
- * critical journeys in a real browser. The last step of every deploy and the
+ * Runs this package's `liveDomains` (`specs/journeys/`) and every
+ * `@synthetic` feature, wherever it sits, against the environment
+ * `SECRETS_ENV` names — its Workers, database, bucket, broker, secrets and
+ * infrastructure, and the critical journeys in a real browser. `--synthetic`
+ * runs only the `@synthetic` features. The last step of every deploy and the
  * Health workflow's schedule. Every decided scenario is recorded as `release`
  * evidence in `.cache/health-report/evidence/`.
  *
@@ -21,17 +22,20 @@
  * (specs/README.md D1), so that knowledge lives here, beside the
  * bindings.
  *
- *   health                                              every feature
- *   health specs/health/sign-in.feature                 one feature (repo-relative)
+ *   health                                              journeys and @synthetic features
+ *   health --synthetic                                  @synthetic features only
+ *   health --target production                          same, with SECRETS_ENV=prd
+ *   health specs/auth/sign-in.feature                   one feature (repo-relative)
  *   health --tags '@domain:journeys'                    features narrowed by tags
- *   health --objectives                                 every objective file
- *   health --objectives specs/health/availability.openslo.yaml   one objective file
+ *   health --objectives                                 every live objective file
+ *   health --objectives specs/runtime/availability.openslo.yaml   one objective
  */
 
 import { spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -40,6 +44,8 @@ import { join, relative, resolve } from 'node:path';
 import { isProductionEnv } from '@libs/infra/public/env-file';
 import { envFile } from '@libs/infra/public/envs';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
+import { isLiveObjectiveSource } from '@pkgs/openslo/live';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
@@ -69,6 +75,10 @@ type Cli = {
   readonly tags: string | undefined;
   /** `--objectives`: run the objective files instead of the features. */
   readonly objectives: boolean;
+  /** `--synthetic`: `@synthetic` features only, not the critical journeys. */
+  readonly synthetic: boolean;
+  /** `--target`: `dev`/`test` or `prd`/`production`. Sets `SECRETS_ENV`. */
+  readonly target: string | undefined;
   readonly bunArgs: readonly string[];
 };
 
@@ -77,16 +87,28 @@ export function parseCli(argv: readonly string[]): Cli {
   const bunArgs: string[] = [];
   let tags: string | undefined;
   let objectives = false;
+  let synthetic = false;
+  let target: string | undefined;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i] ?? '';
     if (arg === '--objectives') objectives = true;
+    else if (arg === '--synthetic') synthetic = true;
     else if (arg === '--tags') tags = argv[++i];
     else if (arg.startsWith('--tags=')) tags = arg.slice('--tags='.length);
+    else if (arg === '--target') target = argv[++i];
+    else if (arg.startsWith('--target=')) target = arg.slice('--target='.length);
     else if (arg.endsWith(FEATURE_SUFFIX) || arg.endsWith(SLO_SUFFIX))
       specPaths.push(arg);
     else bunArgs.push(arg);
   }
-  return { specPaths, tags, objectives, bunArgs };
+  return { specPaths, tags, objectives, synthetic, target, bunArgs };
+}
+
+/** `dev` and `prd` are the environments. `test` and `production` are aliases. */
+export function targetEnv(target: string): string | null {
+  if (target === 'dev' || target === 'test') return 'dev';
+  if (target === 'prd' || target === 'production') return 'prd';
+  return null;
 }
 
 function liveDomains(): readonly string[] {
@@ -96,16 +118,50 @@ function liveDomains(): readonly string[] {
   return manifest.liveDomains ?? [];
 }
 
-/** Every feature and objective file of the live domains (absolute). */
+function specsWhere(
+  suffix: string,
+  take: (text: string) => boolean
+): readonly string[] {
+  const root = join(REPO_ROOT, 'specs');
+  return readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((domain) => {
+      const dir = join(root, domain.name);
+      return readdirSync(dir, { withFileTypes: true })
+        .filter((entry) => entry.isFile() && entry.name.endsWith(suffix))
+        .map((entry) => join(dir, entry.name))
+        .filter((path) => take(readFileSync(path, 'utf8')));
+    })
+    .sort();
+}
+
+/** Journeys, every `@synthetic` feature, and every `# live` objective. */
 function allSpecs(): readonly string[] {
-  return liveDomains().flatMap((domain) => {
+  const fromDomains = liveDomains().flatMap((domain) => {
     const dir = join(REPO_ROOT, 'specs', domain);
     if (!existsSync(dir)) return [];
     return [`*${FEATURE_SUFFIX}`, `*${SLO_SUFFIX}`]
       .flatMap((glob) => [...new Bun.Glob(glob).scanSync({ cwd: dir })])
-      .sort()
       .map((file) => join(dir, file));
   });
+  return [
+    ...new Set([
+      ...fromDomains,
+      ...specsWhere(FEATURE_SUFFIX, isSyntheticFeatureSource),
+      ...specsWhere(SLO_SUFFIX, isLiveObjectiveSource),
+    ]),
+  ].sort();
+}
+
+/** `--synthetic` keeps the tagged features and drops journeys and objectives. */
+function scopedSpecs(cli: Cli): readonly string[] {
+  const all = allSpecs();
+  if (!cli.synthetic) return all;
+  return all.filter(
+    (path) =>
+      path.endsWith(FEATURE_SUFFIX) &&
+      isSyntheticFeatureSource(readFileSync(path, 'utf8'))
+  );
 }
 
 export type Selection =
@@ -175,18 +231,18 @@ export const HOST_LIMITS: readonly HostLimit[] = [
     why: 'the critical journeys drive a real browser against the production web app',
   },
   {
-    feature: 'specs/health/payments.feature',
+    feature: 'specs/billing/payments.feature',
     scenario: 'People can pay for Plus in production',
     needs: 'production',
     why: 'only production takes real payments',
   },
   {
-    feature: 'specs/health/request-records.feature',
+    feature: 'specs/runtime/request-records.feature',
     needs: 'observability',
     why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no request records',
   },
   {
-    feature: 'specs/health/finding-a-person.feature',
+    feature: 'specs/profile/finding-a-person.feature',
     needs: 'observability',
     why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no trail of what happened to a person',
   },
@@ -288,7 +344,7 @@ function environmentOffers(): {
 }
 
 function writeStubs(cli: Cli, offers: Environment): readonly string[] {
-  const selection = selectSpecs({ all: allSpecs(), cli });
+  const selection = selectSpecs({ all: scopedSpecs(cli), cli });
   if (!selection.ok) {
     console.error(`health: ${selection.error} (${liveDomains().join(', ')})`);
     process.exit(1);
@@ -299,15 +355,33 @@ function writeStubs(cli: Cli, offers: Environment): readonly string[] {
     : writeFeatureStubs(offers, selection.specs);
 }
 
+function applyTarget(target: string | undefined): void {
+  if (target === undefined) return;
+  const env = targetEnv(target);
+  if (env === null) {
+    console.error(
+      `health: --target ${target} is not an environment (dev, test, prd, production)`
+    );
+    process.exit(1);
+  }
+  process.env['SECRETS_ENV'] = env;
+}
+
 if (import.meta.main) {
   const cli = parseCli(process.argv.slice(2));
+  if (cli.synthetic && cli.objectives) {
+    console.error('health: --synthetic does not run objectives');
+    process.exit(1);
+  }
+  applyTarget(cli.target);
   const { name, offers } = environmentOffers();
   const tags = cli.tags ?? '';
   const missing = (Object.keys(offers) as (keyof Environment)[]).filter(
     (need) => !offers[need]
   );
+  const label = cli.synthetic ? 'synthetic' : 'health';
   console.log(
-    `health${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
+    `${label}${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
   );
   const stubs = writeStubs(cli, offers);
   if (stubs.length === 0) {

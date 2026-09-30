@@ -22,6 +22,8 @@ import {
 } from '@pkgs/conformance/manifest';
 import type { SpecFile, SpecFileKind } from '@pkgs/conformance/proofs';
 import { parseDmn } from '@pkgs/dmn/model';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
+import { isLiveObjectiveSource } from '@pkgs/openslo/live';
 import { parseOpenSlo } from '@pkgs/openslo/parse';
 
 import {
@@ -69,6 +71,22 @@ export function specDirectories(): readonly string[] {
     .sort();
 }
 
+/** The live package runs its domains, plus every synthetic feature and `# live` objective. */
+function runsLive(
+  pkg: SpecPackage,
+  input: {
+    readonly context: string;
+    readonly liveTask: boolean;
+    readonly synthetic: boolean;
+    readonly liveObjective: boolean;
+  }
+): boolean {
+  if (!input.liveTask || !scriptsOf(pkg.dir).includes(LIVE_TASK)) return false;
+  if (pkg.liveDomains.includes(input.context)) return true;
+  if (pkg.liveDomains.length === 0) return false;
+  return input.synthetic || input.liveObjective;
+}
+
 function scriptsOf(dir: string): readonly string[] {
   const manifest = JSON.parse(read(`${dir}/package.json`)) as {
     readonly scripts?: Readonly<Record<string, string>>;
@@ -95,17 +113,27 @@ function specFile(input: {
   if (kind === null) return null;
   const [kindName, , noun] = kind;
   const path = `${SPECS_DIR}/${input.context}/${input.name}`;
-  const harness = input.packages.filter((pkg) =>
-    pkg.specDomains.includes(input.context)
-  );
+  const text =
+    kindName === 'behavior' || kindName === 'objectives' ? read(path) : '';
+  const synthetic = kindName === 'behavior' && isSyntheticFeatureSource(text);
+  const liveObjective =
+    kindName === 'objectives' && isLiveObjectiveSource(text);
+  const harness =
+    synthetic || liveObjective
+      ? []
+      : input.packages.filter((pkg) =>
+          pkg.specDomains.includes(input.context)
+        );
   // A live run checks features and objectives only (spec-packages.ts).
   const liveKinds: readonly SpecFileKind[] = ['behavior', 'objectives'];
   const live = liveKinds.includes(kindName)
-    ? input.packages.filter(
-        (pkg) =>
-          pkg.liveDomains.includes(input.context) &&
-          input.liveTask &&
-          scriptsOf(pkg.dir).includes(LIVE_TASK)
+    ? input.packages.filter((pkg) =>
+        runsLive(pkg, {
+          context: input.context,
+          liveTask: input.liveTask,
+          synthetic,
+          liveObjective,
+        })
       )
     : [];
   const runners = [...harness, ...live];

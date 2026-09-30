@@ -12,7 +12,8 @@
  * decision tables, structures and objectives with their `tests/<kind>/**`
  * bindings. The harness runner (`test-spec.ts`) runs every kind in
  * `specDomains`; a live run (`health`) runs features and objectives in
- * `liveDomains`, so a live package binds the objectives of its live domains.
+ * `liveDomains`, plus every `@synthetic` feature and every `# live`
+ * objective, so a live package binds those wherever they sit.
  * Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
  */
 
@@ -25,6 +26,12 @@ import {
   extractSteps,
 } from '@pkgs/gherkin/extract';
 import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
+import {
+  featuresFor,
+  liveObjectivePaths,
+  objectivesFor,
+  syntheticFeatures,
+} from './spec-live';
 import {
   BINDING_KINDS,
   type BindingKind,
@@ -342,6 +349,8 @@ export function specPackages(): readonly SpecPackage[] {
     const manifest = readManifest(dir);
     if (manifest.name !== undefined) byName.set(manifest.name, dir);
   }
+  const synthetic = syntheticFeatures();
+  const liveObjectives = liveObjectivePaths();
   const out: SpecPackage[] = [];
   for (const dir of dirs) {
     const manifest = readManifest(dir);
@@ -362,11 +371,21 @@ export function specPackages(): readonly SpecPackage[] {
         kindSpecs(kind, specDomains, liveDomains),
       ])
     ) as Record<BindingKind['field'], readonly string[]>;
+    const live = liveDomains.length > 0;
+    const objectives = objectivesFor(
+      kinds.objectives,
+      liveObjectives,
+      live
+    );
     const problems = [
       ...own.problems,
       ...modelProblems(dir, models),
       ...BINDING_KINDS.flatMap((kind) =>
-        kindProblems(dir, kind, kinds[kind.field])
+        kindProblems(
+          dir,
+          kind,
+          kind.field === 'objectives' ? objectives : kinds[kind.field]
+        )
       ),
     ];
     const imports: string[] = [];
@@ -397,7 +416,7 @@ export function specPackages(): readonly SpecPackage[] {
       domains,
       specDomains,
       liveDomains,
-      features: readFeatures(domains),
+      features: featuresFor(readFeatures(domains), synthetic, live),
       definitions: own.steps,
       imports,
       sharedSteps,
@@ -405,7 +424,7 @@ export function specPackages(): readonly SpecPackage[] {
       models,
       decisions: kinds.decisions,
       structures: kinds.structures,
-      objectives: kinds.objectives,
+      objectives,
       problems,
     });
   }
