@@ -86,7 +86,7 @@
     "sharp": "^0.35.4",
     "shell-quote": "^1.10.0",
     "smol-toml": "^1.8.0",
-    "undici": "7.29.0",
+    "undici": "7.29.1",
     "ws": "^8.21.0"
   },
   "devDependencies": {
@@ -170,7 +170,7 @@
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
     "@typescript/native": "npm:typescript@~7.0.2",
-    "@xmldom/xmldom": "0.8.11",
+    "@xmldom/xmldom": "0.8.15",
     "aedes": "^1.2.0",
     "babel-plugin-macros": "^3.1.0",
     "babel-preset-solid": "^1.9.15",
