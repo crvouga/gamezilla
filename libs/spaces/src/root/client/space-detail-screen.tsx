@@ -8,6 +8,7 @@ import { useSpaceByLink } from '../../use-cases/open-space-link/client/use-space
 import { ActiveSpace } from './active-space/active-space';
 import { SpaceEndedScreen } from './join-space/space-ended-screen';
 import { SpaceJoinPrompt } from './join-space/space-join-prompt';
+import { useReopenLostHostSession } from './reopen-lost-host-session';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
@@ -35,6 +36,7 @@ export function SpaceDetailScreen(): JSX.Element {
 function SpaceDetailBody(props: { readonly spaceId: string }): JSX.Element {
   const linkAnswered = useSpaceByLink(() => props.spaceId);
   const presence = useSpacePresence(() => props.spaceId);
+  useReopenLostHostSession(() => props.spaceId);
 
   const joinedEnded = (): boolean => {
     const current = presence();

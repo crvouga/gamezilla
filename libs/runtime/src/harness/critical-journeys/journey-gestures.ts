@@ -59,8 +59,35 @@ export async function openTab(ui: Driver, tab: string): Promise<void> {
   await tap(ui, tab);
 }
 
+const ENTER_POLLS = 10;
+const ENTER_SETTLE_MS = 2_000;
+
+/**
+ * Be inside the space. A fresh device has no open session, so a hosted
+ * space opens on Join; End exists only after joining.
+ */
+async function enterHostedSpace(ui: Driver): Promise<void> {
+  const end = ui.get(Handles.spaceEnd);
+  const join = ui.get(Handles.spaceJoin);
+  for (let attempt = 0; attempt < ENTER_POLLS; attempt += 1) {
+    if (await end.isVisible()) return;
+    if (await join.isVisible()) {
+      await tap(ui, Handles.spaceJoin);
+      return;
+    }
+    try {
+      await join.expect.visible({ timeoutMs: ENTER_SETTLE_MS });
+      await tap(ui, Handles.spaceJoin);
+      return;
+    } catch {
+      // The space chrome may arrive without a join step.
+    }
+  }
+}
+
 /** End the space the person is in and see it ended. */
 export async function endActiveSpace(ui: Driver): Promise<void> {
+  await enterHostedSpace(ui);
   await tap(ui, Handles.spaceEnd);
   await tap(ui, Handles.spaceEndConfirm);
   await ui
@@ -77,17 +104,21 @@ export async function endActiveSpace(ui: Driver): Promise<void> {
  * A free account hosts one live space, and the production monitor account is
  * that same account on every run. A run that died after creating a space left
  * it live, and the next create is the Plus invitation. End those leftovers
- * first. Hosting none is unchanged.
+ * first. The hosting count is hidden both while the list is still syncing
+ * and when the person hosts none, so wait until the list has answered.
  */
 const LEFTOVER_HOST_LIMIT = 20;
 
 async function showSpaces(ui: Driver): Promise<void> {
-  if (await ui.get(Handles.spaceCreate).isVisible()) return;
-  if (await ui.get(Handles.tabSpaces).isVisible()) {
-    await tap(ui, Handles.tabSpaces);
-    return;
+  await atTabShell(ui);
+  if (!(await ui.get(Handles.spaceCreate).isVisible())) {
+    if (await ui.get(Handles.tabSpaces).isVisible()) {
+      await tap(ui, Handles.tabSpaces);
+    } else {
+      await pressBackUntilVisible(ui, Handles.spaceCreate, JOURNEY_WAIT_MS);
+    }
   }
-  await pressBackUntilVisible(ui, Handles.spaceCreate, JOURNEY_WAIT_MS);
+  await expectVisible(ui, Handles.spacesListReady);
 }
 
 async function hostUsername(ui: Driver): Promise<string> {

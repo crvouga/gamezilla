@@ -1,8 +1,10 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { useSyncEngineInstance } from '@pkgs/sync-engine/solid';
 import {
   EmptyState,
   Gamepad2Icon,
+  LoadingState,
   PlusIcon,
   ScreenBase,
   type ScreenBasePrimaryAction,
@@ -22,6 +24,7 @@ import {
 } from './spaces-notices';
 import { useCheckConnection } from './use-check-connection';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
+import { useSpacesListReady } from './use-spaces-list-ready';
 
 function sortCurrentSpacesFirst(
   spaceIds: readonly string[],
@@ -91,9 +94,13 @@ function useStartSpace(): {
   const router = useRouter();
   const createSpace = useCreateSpace();
   const checkConnection = useCheckConnection();
+  const engine = useSyncEngineInstance();
   const [notice, setNotice] = createSignal<SpacesNotice | null>(null);
   const start = async (): Promise<void> => {
     setNotice(null);
+    // The hosting limit counts the server's live spaces. Wait until this
+    // device has them, or a create the server will refuse opens anyway.
+    await engine.waitForFirstSync();
     if (!(await checkConnection())) {
       setNotice({ kind: 'offline' });
       return;
@@ -112,6 +119,7 @@ export function SpacesScreen(): JSX.Element {
   const { t } = useLingui();
   const attempt = useStartSpace();
   const startSpace = attempt.start;
+  const listReady = useSpacesListReady();
 
   const primaryAction = createMemo((): ScreenBasePrimaryAction => {
     return {
@@ -140,11 +148,23 @@ export function SpacesScreen(): JSX.Element {
       primaryAction={primaryAction()}
       content={({ bodyClass }) => (
         // Lobby cards are cards already — never nest them inside an Island.
-        <div class={`box gap-3 ${bodyClass}`}>
-          <SpacesHostingCount />
-          <SpacesAttemptNotice notice={attempt.notice()} />
-          <SpacesList onCreateSpace={onCreateSpace} />
-        </div>
+        <Show
+          when={listReady()}
+          fallback={
+            <div class={bodyClass}>
+              <LoadingState />
+            </div>
+          }
+        >
+          <div
+            class={`box gap-3 ${bodyClass}`}
+            data-testid={Handles.spacesListReady}
+          >
+            <SpacesHostingCount />
+            <SpacesAttemptNotice notice={attempt.notice()} />
+            <SpacesList onCreateSpace={onCreateSpace} />
+          </div>
+        </Show>
       )}
     />
   );

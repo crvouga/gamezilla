@@ -22,9 +22,16 @@ export async function pressBackUntilVisible(
   timeoutMs: number
 ): Promise<void> {
   const goal = ui.get(target);
+  const back = ui.get(Handles.navBack);
   for (let press = 0; press < BACK_PRESS_LIMIT; press += 1) {
     if (await goal.isVisible()) return;
-    await ui.get(Handles.navBack).tap({ timeoutMs });
+    // A screen with no back control (the tab shell, still painting) must not
+    // spend the whole wait on nav-back. The goal showing is the success.
+    if (!(await back.isVisible())) {
+      await goal.expect.visible({ timeoutMs });
+      return;
+    }
+    await back.tap({ timeoutMs });
     try {
       await goal.expect.visible({ timeoutMs: BACK_SETTLE_MS });
       return;

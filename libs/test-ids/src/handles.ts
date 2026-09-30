@@ -64,6 +64,11 @@ export const Handles = {
   spaceMembersClose: 'space-members-close',
   /** How many live spaces the viewer hosts, on the Spaces screen. */
   spacesHostingCount: 'spaces-hosting-count',
+  /**
+   * The Spaces list has heard from the server, including when it hosts none.
+   * Absent while that answer is still on its way.
+   */
+  spacesListReady: 'spaces-list-ready',
   /** Spaces screen / link: this needs a connection. */
   spacesNeedConnection: 'spaces-need-connection',
   /** Spaces screen: the hosting limit's invitation to Plus. */

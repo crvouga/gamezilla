@@ -33,7 +33,8 @@ export function useSpaceJoinSnapshot(
   const viewerDeviceId = useMyDeviceId();
   const query = createQuery(
     () => sql<SpaceJoinLocalRow>`
-      SELECT host_id, host_member_id, host_account_id, ended_at, visibility
+      SELECT host_id, host_member_id, host_account_id, ended_at, visibility,
+        deleted_at
       FROM spaces
       WHERE id = ${resolveId()}
     `

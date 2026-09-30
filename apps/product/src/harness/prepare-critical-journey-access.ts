@@ -7,12 +7,16 @@ export type CriticalJourneyAccessSetup = {
   readonly signIn: () => Promise<void>;
 };
 
-/** Establish the browser state a critical journey declares. */
+/**
+ * Establish the browser state a critical journey declares.
+ * `launch()` only waits for document navigation, so every journey waits for
+ * the tab shell before the first gesture. Signed-in journeys then sign in.
+ */
 export async function prepareCriticalJourneyAccess(
   setup: CriticalJourneyAccessSetup
 ): Promise<void> {
   await setup.launch();
-  if (setup.access !== 'signed-in') return;
   await setup.waitForTabShell();
+  if (setup.access !== 'signed-in') return;
   await setup.signIn();
 }
