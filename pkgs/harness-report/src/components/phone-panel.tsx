@@ -12,7 +12,7 @@ import {
   untrack,
 } from 'solid-js';
 import { useReport } from '../app/report-context';
-import { blobDataUrl, blobText } from '../lib/frames';
+import { blobDataUrl } from '../lib/frames';
 import { PHONE_H, PHONE_W, zoomScale } from '../lib/phone';
 import {
   createSnapshotIframe,
@@ -25,8 +25,12 @@ import {
 type PanelProps = {
   test: HtmlReportTest;
   blob: ReportSnapshotBlob | null;
+  /** HTML to paint. Null while a real snapshot's file is still arriving. */
+  html: string | null;
   /** `blob` is this client's latest earlier snapshot (none this frame). */
   stale: boolean;
+  /** A snapshot was requested and has not arrived. */
+  pending: boolean;
   nodeId: string;
   hit: ReportStepHit | null;
   zoom: string;
@@ -89,7 +93,7 @@ function useSnapshotPainter(
       setHitState('none');
       return;
     }
-    const html = blobText(props.test, blob);
+    const html = props.html;
     const doc = snapshotDocument(iframe, report.frameCss);
     if (html === null || !doc) return;
     setHitState(paintSnapshot(doc, { key: blob.file, html }, hit));
@@ -104,21 +108,29 @@ function useSnapshotPainter(
 
   onMount(() => {
     host()?.appendChild(iframe);
-    // A re-attached iframe gets a fresh document; repaint the current frame.
+    // about:blank is often already complete by the time the listener exists,
+    // so paint now as well as on load. Missing either one leaves every
+    // HTML snapshot blank.
     const reload = () => {
       const blob = untrack(() => props.blob);
       const hit = untrack(() => props.hit);
-      if (blob?.media === 'html') paint(blob, hit);
+      if (blob && blob.media !== 'png') paint(blob, hit);
     };
     iframe.addEventListener('load', reload);
+    reload();
     onCleanup(() => iframe.removeEventListener('load', reload));
   });
 
   createEffect(() => {
     const blob = props.blob;
     const hit = props.hit;
-    if (blob) untrack(() => paint(blob, hit));
-    else setPainted(null);
+    // Track the HTML and stylesheet: both arrive after the panel mounts.
+    const html = props.html;
+    const css = report.frameCss;
+    if (blob && (blob.media === 'png' || html !== null)) {
+      untrack(() => paint(blob, hit));
+    }
+    void css;
   });
 
   return { hitState, painted };
@@ -193,7 +205,9 @@ export function PhonePanel(props: PanelProps) {
             alt=""
           />
           <Show when={painted() === null}>
-            <div class="sr-client-empty">No snapshot yet</div>
+            <div class="sr-client-empty">
+              {props.pending ? 'Loading snapshot…' : 'No snapshot yet'}
+            </div>
           </Show>
         </div>
       </div>

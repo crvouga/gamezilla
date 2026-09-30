@@ -10,3 +10,4 @@ export {
   RemoteReportsApp,
   type RemoteReportsAppProps,
 } from './remote/remote-reports-app';
+export type { ReportCache } from './remote/fetcher';

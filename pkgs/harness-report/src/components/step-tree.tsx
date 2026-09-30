@@ -120,9 +120,6 @@ export function StepTree(props: {
                 <Show when={row.step.selector}>
                   {(s) => <div class="sel-txt">{s()}</div>}
                 </Show>
-                <Show when={row.step.detail}>
-                  {(d) => <div class="sel-txt">{d()}</div>}
-                </Show>
                 <Show when={row.step.error}>
                   {(err) => <div class="err">{err()}</div>}
                 </Show>

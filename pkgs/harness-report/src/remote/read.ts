@@ -192,6 +192,56 @@ async function readFrame(
     : { contentType: obj.contentType, base64: bytesToBase64(bytes) };
 }
 
+/** One test's timeline, without its frame files. */
+export function readTestReport(
+  store: ObjectStore,
+  args: {
+    readonly sha: string;
+    readonly source: string;
+    readonly testId: string;
+  }
+): Promise<RunReport | null> {
+  return readJson<RunReport>(
+    store,
+    remoteTestReportKey(args.sha, args.source, args.testId)
+  );
+}
+
+export type FrameBody = {
+  readonly bytes: Uint8Array;
+  readonly contentType: string;
+};
+
+/** One frame file's bytes, or null when the test never wrote it. */
+export async function readFrameBody(
+  store: ObjectStore,
+  args: {
+    readonly sha: string;
+    readonly source: string;
+    readonly testId: string;
+    readonly file: string;
+  }
+): Promise<FrameBody | null> {
+  const key = remoteTestFileKey(args.sha, args.source, args.testId, args.file);
+  const obj = await store.get(key);
+  if (obj === null) return null;
+  const bytes = await readObjectBytes(store, key);
+  if (bytes === null) return null;
+  return { bytes, contentType: obj.contentType };
+}
+
+/** Every source record of a commit, in the order each read finishes. */
+export async function listSourceRecords(
+  store: ObjectStore,
+  sha: string
+): Promise<SourceRecord[]> {
+  const out: SourceRecord[] = [];
+  for await (const source of newSources(store, sha, new Set())) {
+    out.push(source);
+  }
+  return out;
+}
+
 /** A test's report, then each of its frame files as its read finishes. */
 export async function* testEvents(
   store: ObjectStore,

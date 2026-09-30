@@ -8,7 +8,10 @@
  * - `GET /reports/:sha/events` — the commit, then each source as it is read;
  *   a running commit stays open and sends new sources as CI publishes them
  *   (`?have=a,b` skips the sources a reconnecting client holds)
+ * - `GET /reports/:sha/sources` — every source record, cacheable once complete
  * - `GET /reports/:sha/frame.css` — the stylesheet its snapshots render with
+ * - `GET /reports/:sha/tests/:source/:testId` — one test's timeline, no frames
+ * - `GET /reports/:sha/tests/:source/:testId/files/*` — one frame file
  * - `GET /reports/:sha/tests/:source/:testId/events` — a test, then its frames
  *
  * Mounted ahead of the per-request database middleware: nothing here touches
@@ -24,9 +27,13 @@ import {
   encodeSseEvent,
   frameCssKey,
   isCommitSha,
+  isFramePath,
   isKeySegment,
   listCommits,
+  listSourceRecords,
   readCommit,
+  readFrameBody,
+  readTestReport,
   type TestEvent,
   testEvents,
 } from '@pkgs/harness-report';
@@ -50,6 +57,13 @@ export type ReportsAppDeps = {
 };
 
 const NO_STORE = { 'cache-control': 'no-store' } as const;
+const IMMUTABLE = {
+  'cache-control': 'public, max-age=31536000, immutable',
+} as const;
+
+function cacheFor(complete: boolean): Record<string, string> {
+  return complete ? IMMUTABLE : NO_STORE;
+}
 
 function eventStream(
   events: AsyncGenerator<CommitEvent | TestEvent>
@@ -73,6 +87,17 @@ function eventStream(
       ...NO_STORE,
     },
   });
+}
+
+function frameFileParam(raw: string | undefined): string | null {
+  if (raw === undefined || raw.length === 0) return null;
+  let file: string;
+  try {
+    file = decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
+  return isFramePath(file) ? file : null;
 }
 
 function haveSources(raw: string | undefined): ReadonlySet<string> {
@@ -119,6 +144,14 @@ export function createReportsApp(deps: ReportsAppDeps) {
         })
       );
     })
+    .get('/:sha/sources', async (c) => {
+      const sha = c.req.param('sha');
+      if (!isCommitSha(sha)) return notFound();
+      if (deps.store === null) return unavailable();
+      const commit = await readCommit(deps.store, sha);
+      const sources = await listSourceRecords(deps.store, sha);
+      return c.json({ sources }, 200, cacheFor(commit?.state === 'complete'));
+    })
     .get('/:sha/frame.css', async (c) => {
       const sha = c.req.param('sha');
       if (!isCommitSha(sha)) return notFound();
@@ -130,6 +163,49 @@ export function createReportsApp(deps: ReportsAppDeps) {
         headers: {
           'content-type': css.contentType,
           'cache-control': 'public, max-age=300',
+        },
+      });
+    })
+    .get('/:sha/tests/:source/:testId', async (c) => {
+      const sha = c.req.param('sha');
+      const source = c.req.param('source');
+      const testId = c.req.param('testId');
+      if (!isCommitSha(sha) || !isKeySegment(source) || !isKeySegment(testId)) {
+        return notFound();
+      }
+      if (deps.store === null) return unavailable();
+      const report = await readTestReport(deps.store, { sha, source, testId });
+      if (report === null) return notFound();
+      const commit = await readCommit(deps.store, sha);
+      return c.json(report, 200, cacheFor(commit?.state === 'complete'));
+    })
+    .get('/:sha/tests/:source/:testId/files/*', async (c) => {
+      const sha = c.req.param('sha');
+      const source = c.req.param('source');
+      const testId = c.req.param('testId');
+      const file = frameFileParam(c.req.param('*'));
+      if (
+        !isCommitSha(sha) ||
+        !isKeySegment(source) ||
+        !isKeySegment(testId) ||
+        file === null
+      ) {
+        return notFound();
+      }
+      if (deps.store === null) return unavailable();
+      const body = await readFrameBody(deps.store, {
+        sha,
+        source,
+        testId,
+        file,
+      });
+      if (body === null) return notFound();
+      const commit = await readCommit(deps.store, sha);
+      return new Response(body.bytes, {
+        status: 200,
+        headers: {
+          'content-type': body.contentType,
+          ...cacheFor(commit?.state === 'complete'),
         },
       });
     })

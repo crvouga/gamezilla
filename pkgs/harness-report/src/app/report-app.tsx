@@ -12,8 +12,10 @@ import '../styles.css';
 export type HarnessReportAppProps = {
   data: ReportData;
   frameCss?: string | undefined;
-  /** Loads each test's steps and frames on first view (a streamed report). */
+  /** Loads each test's steps on first view; frame files follow as they paint. */
   loader?: ReportTestLoader | undefined;
+  /** True while the test list itself is still arriving. */
+  pending?: boolean;
   /** A way out of this report (a list of reports), shown in the header. */
   home?: { readonly label: string; readonly onOpen: () => void } | undefined;
 };
@@ -27,6 +29,7 @@ export function HarnessReportApp(props: HarnessReportAppProps) {
       data={props.data}
       frameCss={props.frameCss}
       loader={props.loader}
+      pending={props.pending}
     >
       <div class="harness-report-root sr-app">
         <Header nav={nav} home={props.home} />

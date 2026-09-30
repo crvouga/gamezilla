@@ -41,6 +41,9 @@ export function FrameCaption(props: {
             <span class="muted" data-frame-time="">
               {`+${fmtMs(sel().frame.capturedAtMs - props.test.report.meta.startedAtMs)}`}
             </span>
+            <span class="muted" data-frame-duration="">
+              {fmtMs(sel().frame.durationMs)}
+            </span>
             <span class="muted">
               {`frame ${sel().index + 1} / ${props.frames.length}`}
             </span>
