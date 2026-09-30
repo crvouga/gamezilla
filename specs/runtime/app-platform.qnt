@@ -298,4 +298,20 @@ module app_platform {
 
   /// Whoever is in a space is hosting it.
   val invInSpaceHosts = opened.forall(p => place.get(p) == InSpace implies hosting.contains(p))
+
+  /// Settings remembers a tab the person actually moves between.
+  val invSettingsRemembersTheTab = opened.forall(p =>
+    place.get(p) == Settings implies
+      lastTab.keys().contains(p) and TABS.contains(lastTab.get(p))
+  )
+
+  /// A search remembers whose name was typed.
+  val invSearchRemembersWho = opened.forall(p =>
+    place.get(p) == Search implies searchedFor.keys().contains(p)
+  )
+
+  /// A device is cut off only after the person has opened the app.
+  val invCutOffOnlyAfterOpening = PEOPLE.forall(p =>
+    offline.contains(p) implies opened.contains(p)
+  )
 }

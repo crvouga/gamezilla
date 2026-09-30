@@ -6,7 +6,10 @@
 // can join a friend's open space from their lobby, step out, and leave it. A
 // lobby lists every open space of the person and their friends. Ending a
 // space shows everyone still in it that it has ended; from there they go
-// back to the lobby.
+// back to the lobby. Losing the connection is not leaving. Creating, joining,
+// stepping out, leaving, looking at presence and ending a space need a
+// connection. The host ending a space still shows everyone in it, including
+// someone whose device has no connection, that it has ended.
 //
 // What a person can observe: their whereabouts, which spaces are open, what
 // their lobby lists, and how many people the presence they are looking at
@@ -34,6 +37,15 @@ module space_hosting {
   var lobby: Person -> Set[Person]
   /// What the presence each person is looking at counts: people in that space.
   var presence: Person -> int
+  /// People whose device has no connection.
+  var _offline: Set[Person]
+  /// How many times each person has hosted, joined, left or looked, and how
+  /// many when their connection went.
+  var _done: Person -> int
+  var _doneAtCutOff: Person -> int
+
+  def _acted(person: Person): Person -> int =
+    _done.set(person, _done.get(person) + 1)
 
   pure def hostOf(p: Whereabouts): Person = match p {
     | InSpace(h) => h
@@ -52,74 +64,119 @@ module space_hosting {
       .filter(p => match whereabouts.get(p) { | ViewingPresence(_) => true | _ => false })
       .mapBy(p => presenceOf(whereabouts, hostOf(whereabouts.get(p))).size())
 
-  action _moveTo(newWhereabouts: Person -> Whereabouts, newOpenSpaces: Set[Person]): bool = all {
+  action _moveTo(
+    newWhereabouts: Person -> Whereabouts,
+    newOpenSpaces: Set[Person],
+    newOffline: Set[Person],
+    newDone: Person -> int,
+    newCutOff: Person -> int,
+  ): bool = all {
     whereabouts' = newWhereabouts,
     openSpaces' = newOpenSpaces,
     lobby' = _listing(newWhereabouts, newOpenSpaces),
     presence' = _counting(newWhereabouts),
+    _offline' = newOffline,
+    _done' = newDone,
+    _doneAtCutOff' = newCutOff,
   }
 
-  action init = _moveTo(PEOPLE.mapBy(_ => Lobby), Set())
+  action init = _moveTo(
+    PEOPLE.mapBy(_ => Lobby), Set(), Set(), PEOPLE.mapBy(_ => 0), PEOPLE.mapBy(_ => 0),
+  )
 
   /// Create a space: the person hosts it and is in it, and it is open.
   action createSpace(person: Person): bool = all {
+    not(_offline.contains(person)),
     whereabouts.get(person) == Lobby,
     not(openSpaces.contains(person)),
-    _moveTo(whereabouts.set(person, InSpace(person)), openSpaces.union(Set(person))),
+    _moveTo(
+      whereabouts.set(person, InSpace(person)), openSpaces.union(Set(person)),
+      _offline, _acted(person), _doneAtCutOff,
+    ),
   }
 
   /// Return from the lobby to one's own open space.
   action returnToSpace(person: Person): bool = all {
+    not(_offline.contains(person)),
     whereabouts.get(person) == Lobby,
     openSpaces.contains(person),
-    _moveTo(whereabouts.set(person, InSpace(person)), openSpaces),
+    _moveTo(whereabouts.set(person, InSpace(person)), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Join a friend's open space from the lobby.
   action join(person: Person, host: Person): bool = all {
+    not(_offline.contains(person)),
     whereabouts.get(person) == Lobby,
     host != person,
     openSpaces.contains(host),
-    _moveTo(whereabouts.set(person, InSpace(host)), openSpaces),
+    _moveTo(whereabouts.set(person, InSpace(host)), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Step out to the lobby without leaving the space.
   action stepOut(person: Person): bool = all {
+    not(_offline.contains(person)),
     match whereabouts.get(person) { | InSpace(_) => true | _ => false },
-    _moveTo(whereabouts.set(person, Lobby), openSpaces),
+    _moveTo(whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Someone who is not the host leaves the space for good.
   action leave(person: Person): bool = all {
+    not(_offline.contains(person)),
     match whereabouts.get(person) { | InSpace(h) => h != person | _ => false },
-    _moveTo(whereabouts.set(person, Lobby), openSpaces),
+    _moveTo(whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Look at who is in the space.
   action viewPresence(person: Person): bool = all {
+    not(_offline.contains(person)),
     match whereabouts.get(person) { | InSpace(_) => true | _ => false },
-    _moveTo(whereabouts.set(person, ViewingPresence(hostOf(whereabouts.get(person)))), openSpaces),
+    _moveTo(
+      whereabouts.set(person, ViewingPresence(hostOf(whereabouts.get(person)))), openSpaces,
+      _offline, _acted(person), _doneAtCutOff,
+    ),
   }
 
   /// Stop looking at who is in the space, still in it.
   action stopViewingPresence(person: Person): bool = all {
+    not(_offline.contains(person)),
     match whereabouts.get(person) { | ViewingPresence(_) => true | _ => false },
-    _moveTo(whereabouts.set(person, InSpace(hostOf(whereabouts.get(person)))), openSpaces),
+    _moveTo(
+      whereabouts.set(person, InSpace(hostOf(whereabouts.get(person)))), openSpaces,
+      _offline, _acted(person), _doneAtCutOff,
+    ),
   }
 
   /// The host ends their space: everyone in it sees that it has ended.
   action endSpace(person: Person): bool = all {
+    not(_offline.contains(person)),
     whereabouts.get(person) == InSpace(person),
     _moveTo(
       PEOPLE.mapBy(p => if (hostOf(whereabouts.get(p)) == person) Ended else whereabouts.get(p)),
       openSpaces.exclude(Set(person)),
+      _offline, _acted(person), _doneAtCutOff,
     ),
   }
 
   /// From a space that has ended, go back to the lobby.
   action goBackToLobby(person: Person): bool = all {
+    not(_offline.contains(person)),
     whereabouts.get(person) == Ended,
-    _moveTo(whereabouts.set(person, Lobby), openSpaces),
+    _moveTo(whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
+  }
+
+  /// `person`'s device loses its connection. That is not leaving.
+  action _loseConnection(person: Person): bool = all {
+    not(_offline.contains(person)),
+    _moveTo(
+      whereabouts, openSpaces, _offline.union(Set(person)), _done,
+      _doneAtCutOff.set(person, _done.get(person)),
+    ),
+  }
+
+  /// Every connection comes back.
+  action _connectionReturns: bool = all {
+    _offline != Set(),
+    _moveTo(whereabouts, openSpaces, Set(), _done, _doneAtCutOff),
   }
 
   action step = {
@@ -135,6 +192,8 @@ module space_hosting {
       stopViewingPresence(person),
       endSpace(person),
       goBackToLobby(person),
+      _loseConnection(person),
+      _connectionReturns,
     }
   }
 
@@ -145,4 +204,25 @@ module space_hosting {
 
   /// Every open space's host is one of the people.
   val invHostsAreThePeople = openSpaces.subseteq(PEOPLE)
+
+  /// A lobby lists the open spaces, and only while the person is in the lobby.
+  val invLobbyListsOpenSpaces = and {
+    lobby.keys().forall(p => whereabouts.get(p) == Lobby and lobby.get(p) == openSpaces),
+    PEOPLE.forall(p => whereabouts.get(p) == Lobby implies lobby.keys().contains(p)),
+  }
+
+  /// Presence counts the people in the space being looked at, and only then.
+  val invPresenceCountsTheSpace = PEOPLE.forall(p =>
+    match whereabouts.get(p) {
+      | ViewingPresence(h) =>
+        presence.keys().contains(p) and presence.get(p) == presenceOf(whereabouts, h).size()
+      | _ => not(presence.keys().contains(p))
+    }
+  )
+
+  /// With no connection, a person hosts, joins, leaves and looks no further
+  /// time. Losing the connection is not leaving.
+  val invOfflineDoesNoMore = PEOPLE.forall(p =>
+    _offline.contains(p) implies _done.get(p) == _doneAtCutOff.get(p)
+  )
 }

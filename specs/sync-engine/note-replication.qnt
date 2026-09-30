@@ -835,4 +835,24 @@ module note_replication {
       _drain(st, _book.damaged, p, _pending.get(p)))
     _everyEdit(_processed(healed.log).union(_book.discarded))
   }
+
+  /// The owners a person sees are the owners on their device. The shared
+  /// notes' owners are the shared ones.
+  val invOwnersFollowTheDevice = and {
+    owners.get(SHARED) == _ownersOf(_shared),
+    PEOPLE.forall(p => owners.get(p) == _ownersOf(_device(p))),
+  }
+
+  /// How many edits are still unsent is how many are still queued.
+  val invUnsentIsStillQueued = PEOPLE.forall(p =>
+    unsent.get(p) == _pending.get(p).keys()
+      .filter(mid => not(_processed(_taken).contains(mid))).size()
+  )
+
+  /// A rejection is a refused edit that person has not dismissed.
+  val invRejectionsAreUndismissed = PEOPLE.forall(p =>
+    rejections.get(p) == _taken.keys().filter(i =>
+      _at(i).person == p and _at(i).refused and not(_book.dismissed.contains(i))
+    ).size()
+  )
 }

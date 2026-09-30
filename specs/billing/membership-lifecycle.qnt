@@ -301,4 +301,8 @@ module membership_lifecycle {
 
   /// Credit never goes negative.
   val invCreditNotNegative = credit >= 0
+
+  /// A declined card is what leaves the newest membership delinquent.
+  val invDelinquentCardDeclines =
+    _count(memberships) > 0 and _newest.status == "delinquent" implies cardDeclines
 }

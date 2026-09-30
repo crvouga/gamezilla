@@ -12,6 +12,9 @@
 // accept each other, and a matched person stays matched: they cannot stop
 // waiting, and changing their range does nothing for them. Once matched, or
 // once they stop waiting, a person may wait for a match again.
+//
+// A person with no connection cannot wait, stop waiting or change their
+// range. Matchmaking can still pair two people who are waiting.
 module matching {
   type Person = str
 
@@ -35,32 +38,56 @@ module matching {
   var standing: Person -> Standing
   /// The range each person waits with (kept after their wait ends).
   var _range: Person -> RatingRange
+  /// People whose device has no connection.
+  var _offline: Set[Person]
+  /// How many times each person has waited, stopped or changed their range,
+  /// and how many when their connection went.
+  var _done: Person -> int
+  var _doneAtCutOff: Person -> int
 
   pure val RANGES: Set[RatingRange] = Set(Narrow, Wide)
 
   action init = all {
     standing' = PEOPLE.mapBy(_ => NotWaiting),
     _range' = PEOPLE.mapBy(_ => Narrow),
+    _offline' = Set(),
+    _done' = PEOPLE.mapBy(_ => 0),
+    _doneAtCutOff' = PEOPLE.mapBy(_ => 0),
   }
+
+  def _acted(person: Person): Person -> int =
+    _done.set(person, _done.get(person) + 1)
 
   /// `person` waits for a match with `ratingRange`; while already waiting, they
   /// are told so and nothing changes.
   action waitForMatch(person: Person, ratingRange: RatingRange): bool = all {
+    not(_offline.contains(person)),
     standing' = if (standing.get(person) == Waiting) standing else standing.set(person, Waiting),
     _range' = if (standing.get(person) == Waiting) _range else _range.set(person, ratingRange),
+    _offline' = _offline,
+    _done' = _acted(person),
+    _doneAtCutOff' = _doneAtCutOff,
   }
 
   /// `person` stops waiting: only a wait ends; a matched person stays
   /// matched, and a person not waiting has nothing to stop.
   action stopWaiting(person: Person): bool = all {
+    not(_offline.contains(person)),
     standing' = if (standing.get(person) == Waiting) standing.set(person, NotWaiting) else standing,
     _range' = _range,
+    _offline' = _offline,
+    _done' = _acted(person),
+    _doneAtCutOff' = _doneAtCutOff,
   }
 
   /// `person` changes their range: it counts only while they are waiting.
   action changeRange(person: Person, ratingRange: RatingRange): bool = all {
+    not(_offline.contains(person)),
     standing' = standing,
     _range' = if (standing.get(person) == Waiting) _range.set(person, ratingRange) else _range,
+    _offline' = _offline,
+    _done' = _acted(person),
+    _doneAtCutOff' = _doneAtCutOff,
   }
 
   /// Two people waiting who accept each other.
@@ -87,6 +114,29 @@ module matching {
       if (partners.size() == 1) Matched(partners.fold(p, (_, q) => q)) else standing.get(p)
     }),
     _range' = _range,
+    _offline' = _offline,
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff,
+  }
+
+  /// `person`'s device loses its connection.
+  action _loseConnection(person: Person): bool = all {
+    not(_offline.contains(person)),
+    standing' = standing,
+    _range' = _range,
+    _offline' = _offline.union(Set(person)),
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff.set(person, _done.get(person)),
+  }
+
+  /// Every connection comes back.
+  action _connectionReturns: bool = all {
+    _offline != Set(),
+    standing' = standing,
+    _range' = _range,
+    _offline' = Set(),
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff,
   }
 
   action step = {
@@ -97,6 +147,8 @@ module matching {
       stopWaiting(person),
       changeRange(person, ratingRange),
       pairUp,
+      _loseConnection(person),
+      _connectionReturns,
     }
   }
 
@@ -110,4 +162,10 @@ module matching {
 
   /// Nobody is matched with themselves.
   val invNoSelfMatch = PEOPLE.forall(p => standing.get(p) != Matched(p))
+
+  /// With no connection, a person waits, stops and changes their range no
+  /// further time. Matchmaking may still pair them.
+  val invOfflineDoesNoMore = PEOPLE.forall(p =>
+    _offline.contains(p) implies _done.get(p) == _doneAtCutOff.get(p)
+  )
 }

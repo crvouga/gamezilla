@@ -466,4 +466,14 @@ module outside_accounts {
     val a = signedInto.get(d)
     a >= 1 and a <= accountCount and signInMethods.get(a) != Set()
   })
+
+  /// A device is asked to confirm exactly while a matching account waits
+  /// for its answer.
+  val invAskedWhileAMatchWaits = askedToConfirm == _proofs.keys()
+
+  /// A device with no connection is signed into a real account, or into none.
+  val invOfflineSignedIntoARealAccount = DEVICES.forall(d =>
+    offline.contains(d) and signedInto.keys().contains(d) implies
+      signedInto.get(d) >= 1 and signedInto.get(d) <= accountCount
+  )
 }

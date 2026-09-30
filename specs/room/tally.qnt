@@ -288,4 +288,10 @@ module tally {
   /// no change is lost or counted twice.
   val invNothingLost =
     tally + PEOPLE.fold(0, (sum, p) => sum + _waiting.get(p)) == _made
+
+  /// An open app shows the tally it last showed. A closed app shows nothing.
+  val invOpenAppShowsWhatItLastShowed = PEOPLE.forall(p =>
+    if (phoneState.get(p) == AppClosed) not(shownTally.keys().contains(p))
+    else shownTally.keys().contains(p) and shownTally.get(p) == _lastShown.get(p)
+  )
 }
