@@ -46,6 +46,12 @@ export type MqttPubSubOptions = {
   protocolVersion?: 4 | 5;
   /** Injectable for unit tests. Defaults to `mqtt.connect`. */
   connectFn?: MqttConnectFn;
+  /**
+   * Logical topic → broker topic. Identity, except on AWS IoT where `:`
+   * would split a topic ARN. Must be injective: inbound messages are matched
+   * by comparing the wire topic back to each logical subscription.
+   */
+  toWireTopic?: (topic: string) => string;
 };
 
 export function createMqttPubSub(options: MqttPubSubOptions): PubSub {
@@ -61,6 +67,7 @@ class MqttPubSub implements PubSub {
   private readonly keepaliveSec: number;
   private readonly protocolVersion: 4 | 5;
   private readonly connectFn: MqttConnectFn;
+  private readonly toWireTopic: (topic: string) => string;
   private readonly timers: Timers;
   private readonly random: () => number;
   private readonly logger: Logger;
@@ -83,6 +90,7 @@ class MqttPubSub implements PubSub {
     this.keepaliveSec = options.keepaliveSec ?? 30;
     this.protocolVersion = options.protocolVersion ?? 5;
     this.connectFn = options.connectFn ?? mqtt.connect;
+    this.toWireTopic = options.toWireTopic ?? ((topic) => topic);
     this.timers = options.timers;
     this.random = options.random;
     this.logger = options.logger;
@@ -96,7 +104,7 @@ class MqttPubSub implements PubSub {
     const payload = encodePayload(data);
     await this.waitUntilConnected();
     const client = this.requireClient();
-    await publishQos1(client, topic, payload);
+    await publishQos1(client, this.toWireTopic(topic), payload);
   }
 
   subscribe(topic: Topic, handler: Handler): () => void {
@@ -110,7 +118,7 @@ class MqttPubSub implements PubSub {
     }
     set.add(handler);
     if (isFirst && this.client?.connected) {
-      this.client.subscribe(topic, { qos: MQTT_PUBSUB_QOS });
+      this.client.subscribe(this.toWireTopic(topic), { qos: MQTT_PUBSUB_QOS });
     }
     return () => this.unsubscribeHandler(topic, handler);
   }
@@ -151,7 +159,7 @@ class MqttPubSub implements PubSub {
     if (set.size > 0) return;
     this.topics.delete(topic);
     if (this.client?.connected) {
-      this.client.unsubscribe(topic);
+      this.client.unsubscribe(this.toWireTopic(topic));
     }
   }
 
@@ -215,13 +223,22 @@ class MqttPubSub implements PubSub {
 
   private resubscribeAll(client: MqttClient): void {
     for (const topic of this.topics.keys()) {
-      client.subscribe(topic, { qos: MQTT_PUBSUB_QOS });
+      client.subscribe(this.toWireTopic(topic), { qos: MQTT_PUBSUB_QOS });
     }
   }
 
-  private dispatchMessage(topic: string, raw: string): void {
+  private logicalTopic(wireTopic: string): Topic | undefined {
+    for (const topic of this.topics.keys()) {
+      if (this.toWireTopic(topic) === wireTopic) return topic;
+    }
+    return undefined;
+  }
+
+  private dispatchMessage(wireTopic: string, raw: string): void {
     const data = decodePayload(raw, this.logger);
     if (data === undefined) return;
+    const topic = this.logicalTopic(wireTopic);
+    if (topic === undefined) return;
     const set = this.topics.get(topic);
     if (!set) return;
     for (const handler of [...set]) {

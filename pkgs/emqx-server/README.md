@@ -6,8 +6,9 @@ only once this node answers its HTTP API and accepts MQTT. Pass
 `isolatedEmqxPorts()` for free ports and a unique node name so parallel
 suites and other worktrees never share a broker. SSL/WSS listeners are off
 and the broker runs on two non-spinning Erlang schedulers (`ERL_FLAGS`).
-The production broker on Railway is OpenTofu
-(`libs/infra/tofu/modules/pubsub`).
+Deployed invalidation is AWS IoT Core
+(`libs/infra/tofu/modules/pubsub`). This package is the laptop and harness
+stand-in: those providers have no local mode.
 
 Default ports (dev):
 

@@ -2,8 +2,9 @@
  * `tofu/global.tfvars.json`: what is the same for every environment — the
  * project slug, where state lives, the secrets project, the repository and
  * the one OAuth callback relay every environment signs in through, the
- * bucket that serves every commit's spec report, and the
- * one Railway project every environment's broker runs in.
+ * bucket that serves every commit's spec report, the PlanetScale
+ * organization every environment's database lives in, and the AWS region
+ * of the invalidation broker.
  * Every stack reads it as its first `-var-file`.
  */
 import { z } from 'zod';
@@ -27,7 +28,20 @@ export const globalFileSchema = z
         shared_env: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
       })
       .strict(),
-    neon_project: z.object({ project_id: id, root_branch_id: id }).strict(),
+    /**
+     * PlanetScale organization slug and the Neki region. `organization` is
+     * the slug PlanetScale shows for the account; `gamezilla` matches the
+     * project name and has not been confirmed against the account. A wrong
+     * slug fails the foundation apply with the organization's name.
+     */
+    planetscale: z
+      .object({
+        organization: slug,
+        region: id,
+      })
+      .strict(),
+    /** One AWS region for IoT Core. Growth stays in this region. */
+    aws: z.object({ region: id }).strict(),
     grafana: z
       .object({
         stack_slug: z.string().regex(/^[a-z][a-z0-9]*$/),
@@ -63,14 +77,6 @@ export const globalFileSchema = z
         bucket: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/),
         retention_days: z.number().int().positive(),
       })
-      .strict(),
-    /**
-     * The one Railway project every environment's MQTT broker runs in and
-     * its shared `emqx` service (fleet stack). Each environment is a Railway
-     * environment of it named after the env file's `suffix`.
-     */
-    railway: z
-      .object({ workspace_id: id, project_id: id, service_id: id })
       .strict(),
     global_imports: z
       .object({

@@ -5,8 +5,10 @@ import type {
 import { sql } from '@pkgs/sql';
 
 /**
- * `obs_read` is created by `neon_role.obs_read` in
- * libs/infra/tofu/modules/database. Foundation apply runs before migrations,
+ * `obs_read` is created by `planetscale_neki_role.obs_read` in
+ * libs/infra/tofu/modules/database. The login name Neki issues may carry a
+ * suffix, in which case this grant is skipped and `pg_read_all_data` still
+ * covers SELECT. Foundation apply runs before migrations,
  * so the role exists here on a deployed environment and is absent on a local
  * database. Tables are granted only after they exist.
  */

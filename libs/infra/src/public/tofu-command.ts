@@ -7,7 +7,7 @@
  *               environment, CI identity, repo
  *   fleet       global, by CI: every env file's secrets environment and its
  *               import of the shared one; the OAuth relay's hostname;
- *               the Railway project and broker service every env shares
+ *               the private spec-report bucket every env's API reads
  *   foundation  per environment, before Worker code ships
  *   edge        per environment, after Worker code ships
  */
@@ -182,15 +182,15 @@ export const CREDENTIAL_ENV: Readonly<
   edge: EDGE,
   foundation: {
     ...EDGE,
-    RAILWAY_TOKEN: 'RAILWAY_TOKEN',
-    TF_VAR_railway_token: 'RAILWAY_TOKEN',
-    NEON_API_KEY: 'NEON_API_KEY',
+    PLANETSCALE_SERVICE_TOKEN_ID: 'PLANETSCALE_SERVICE_TOKEN_ID',
+    PLANETSCALE_SERVICE_TOKEN: 'PLANETSCALE_SERVICE_TOKEN',
+    TF_VAR_aws_access_key_id: 'AWS_ACCOUNT_ACCESS_KEY_ID',
+    TF_VAR_aws_secret_access_key: 'AWS_ACCOUNT_SECRET_ACCESS_KEY',
     GRAFANA_CLOUD_ACCESS_POLICY_TOKEN: 'GRAFANA_CLOUD_API_TOKEN',
   },
   fleet: {
     TF_VAR_state_passphrase: 'TOFU_STATE_PASSPHRASE',
     CLOUDFLARE_API_TOKEN: 'CLOUDFLARE_API_TOKEN',
-    RAILWAY_TOKEN: 'RAILWAY_TOKEN',
     ...STATE_CREDENTIALS,
   },
   // The state credential is optional here: bootstrap creates it.
@@ -235,7 +235,53 @@ export function tofuEnvironment(
   const missing = copyCredentials(secrets, CREDENTIAL_ENV[target.stack], env);
   if (target.stack === 'bootstrap')
     copyCredentials(secrets, STATE_CREDENTIALS, env);
+  if (target.stack === 'foundation') fillAwsAccountKeys(secrets, env, missing);
   return { env, missing };
+}
+
+/**
+ * The child process's `AWS_ACCESS_KEY_ID` is the R2 state key
+ * (`STATE_CREDENTIALS`). The AWS provider reads `TF_VAR_aws_*` instead.
+ * Prefer the account-key names; fall back to `AWS_ACCESS_KEY_ID` when that
+ * is the name the secret store already uses.
+ */
+function fillAwsAccountKeys(
+  secrets: Readonly<Record<string, string | undefined>>,
+  env: Record<string, string>,
+  missing: string[]
+): void {
+  fillFallback(secrets, env, missing, {
+    target: 'TF_VAR_aws_access_key_id',
+    primary: 'AWS_ACCOUNT_ACCESS_KEY_ID',
+    fallback: 'AWS_ACCESS_KEY_ID',
+  });
+  fillFallback(secrets, env, missing, {
+    target: 'TF_VAR_aws_secret_access_key',
+    primary: 'AWS_ACCOUNT_SECRET_ACCESS_KEY',
+    fallback: 'AWS_SECRET_ACCESS_KEY',
+  });
+}
+
+function fillFallback(
+  secrets: Readonly<Record<string, string | undefined>>,
+  env: Record<string, string>,
+  missing: string[],
+  names: {
+    readonly target: string;
+    readonly primary: string;
+    readonly fallback: string;
+  }
+): void {
+  const primary = secrets[names.primary]?.trim() ?? '';
+  if (primary.length > 0) {
+    env[names.target] = primary;
+    return;
+  }
+  const fallback = secrets[names.fallback]?.trim() ?? '';
+  if (fallback.length === 0) return;
+  env[names.target] = fallback;
+  const at = missing.indexOf(names.primary);
+  if (at >= 0) missing.splice(at, 1);
 }
 
 /** Bootstrap has run once the state credential exists in the store. */

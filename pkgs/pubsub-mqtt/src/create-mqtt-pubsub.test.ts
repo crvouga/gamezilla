@@ -230,4 +230,25 @@ describe('createMqttPubSub', () => {
     expect(ps.status()).toBe('down');
     await expect(ps.publish('events', 1)).rejects.toThrow();
   });
+
+  test('maps a logical topic onto the wire and back', async () => {
+    const fake = new FakeMqttClient();
+    const { ps } = await boot(fake, {
+      toWireTopic: (topic) => topic.replaceAll(':', '/'),
+    });
+    const received: unknown[] = [];
+    const unsubscribe = ps.subscribe('user:actor1', (data) => {
+      received.push(data);
+    });
+    expect(fake.subscribeCalls).toEqual([
+      { topic: 'user/actor1', qos: MQTT_PUBSUB_QOS },
+    ]);
+    await ps.publish('user:actor1', { ok: true });
+    expect(fake.publishCalls[0]?.topic).toBe('user/actor1');
+    fake.emit('message', 'user/actor1', Buffer.from('{"ok":true}'));
+    expect(received).toEqual([{ ok: true }]);
+    unsubscribe();
+    expect(fake.unsubscribeCalls).toEqual(['user/actor1']);
+    ps.close();
+  });
 });

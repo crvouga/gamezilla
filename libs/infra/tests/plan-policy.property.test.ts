@@ -55,15 +55,11 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'infisical_identity_oidc_auth',
   'infisical_project_environment',
   'infisical_project_identity',
-  'neon_branch',
-  'neon_endpoint',
-  // Replacing obs_read mints a new password and drops its grants.
-  'neon_role',
+  // Replacing a Neki role mints a new password. The branch holds the data.
+  'planetscale_neki_branch',
+  'planetscale_neki_role',
   'postgresql_extension',
   'random_password',
-  'railway_environment',
-  'railway_project',
-  'railway_service',
 ]);
 
 const ACTIONS = [

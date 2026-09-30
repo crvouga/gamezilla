@@ -20,7 +20,11 @@ variable "infisical" {
   })
 }
 
-variable "neon_project" {
+variable "planetscale" {
+  type = any
+}
+
+variable "aws" {
   type = any
 }
 
@@ -48,15 +52,6 @@ variable "reports" {
     retention_days = number
   })
   description = "The private bucket every environment's API reads the per-commit spec reports from."
-}
-
-variable "railway" {
-  type = object({
-    workspace_id = string
-    project_id   = string
-    service_id   = string
-  })
-  description = "The one broker project and its shared `emqx` service."
 }
 
 variable "global_imports" {

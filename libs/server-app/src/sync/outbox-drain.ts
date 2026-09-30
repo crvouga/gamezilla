@@ -53,7 +53,9 @@ export async function drainAndNotifyOutbox(args: {
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return result.processed;
-  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore).get();
+  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore, () =>
+    store.clock.now()
+  ).get();
   if (pubsub === undefined) {
     return result.processed;
   }

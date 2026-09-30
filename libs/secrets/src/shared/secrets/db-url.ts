@@ -77,7 +77,7 @@ export async function validateReadonlyDatabaseUrl(
 
 export const DATABASE_URL = new Secret({
   name: 'DATABASE_URL',
-  hint: "Postgres connection URL — derived by OpenTofu from the env's Neon branch endpoint (libs/infra/tofu/modules/database).",
+  hint: "Postgres connection URL — derived by OpenTofu from this environment's PlanetScale Neki migrate role (libs/infra/tofu/modules/database).",
   pushToApiWorker: true,
   managedBy: 'tofu',
   validate: validateDatabaseUrl,

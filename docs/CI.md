@@ -230,8 +230,8 @@ branch (the exact graph, against the dev replica). After the deploy steps
 pass, `SECRETS_ENV=dev bun run health` re-probes without deploying. Merge
 right after both are green: resources a rehearsal adopts are in the env's
 state, and until the branch lands `main`'s Deploy would plan to delete them.
-The Railway broker builds from `main`, so broker image changes reach dev only
-after merge.
+AWS IoT and PlanetScale Neki have no image this repo builds. A rehearsal
+apply changes the live dev database and broker hostname.
 
 **Bun** is pinned to `1.4.2` (`mise.toml`, `packageManager`). 1.3.x does not
 resolve `.tsx` through wildcard subpaths and fails on the runner.
@@ -258,7 +258,7 @@ Deploy also refuses a commit with no PR and re-runs the whole gate first.
 
 Every health check and critical journey is Gherkin
 ([`specs/README.md`](../specs/README.md#live-domains)): `specs/health/`
-(DNS/TLS, the Workers, Postgres + schema, client config, R2, EMQX, Grafana
+(DNS/TLS, the Workers, Postgres + schema, client config, R2, AWS IoT, Grafana
 Cloud, secrets, billing keys, the Google OAuth client, infrastructure drift)
 and `specs/journeys/`. `@apps/product`'s `health` task
 (`apps/product/scripts/health.ts`, `cache: false`) runs them through

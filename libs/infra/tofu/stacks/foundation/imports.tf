@@ -8,40 +8,9 @@ import {
   id       = each.value
 }
 
-# `project_id:name` — production's is the project's default environment.
-import {
-  for_each = var.imports.foundation.railway_environment == null ? toset([]) : toset([var.imports.foundation.railway_environment])
-  to       = module.pubsub.railway_environment.default[0]
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.railway_domain == null ? toset([]) : toset([var.imports.foundation.railway_domain])
-  to       = module.pubsub.railway_custom_domain.broker
-  id       = each.value
-}
-
 import {
   for_each = var.imports.foundation.broker_dns == null ? toset([]) : toset([var.imports.foundation.broker_dns])
   to       = module.pubsub.cloudflare_dns_record.broker
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.broker_dns_verify == null ? toset([]) : toset([var.imports.foundation.broker_dns_verify])
-  to       = module.pubsub.cloudflare_dns_record.broker_verification
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.neon_branch == null ? toset([]) : toset([var.imports.foundation.neon_branch])
-  to       = module.database.neon_branch.this[0]
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.neon_endpoint == null ? toset([]) : toset([var.imports.foundation.neon_endpoint])
-  to       = module.database.neon_endpoint.this
   id       = each.value
 }
 
@@ -51,11 +20,30 @@ import {
   id       = "write-only:${var.infisical.project_id}:${var.env}:/:${each.value}"
 }
 
-# The Railway project and the `emqx` service are shared by every environment
-# and now belong to the fleet stack (modules/pubsub-project), which adopts
-# them by id: forget, never delete. (Each environment used to own a project
-# of its own; dev's old one is deleted by hand once dev runs in the shared
-# project — docs/INFRA.md.)
+# Neon and Railway stay in those vendors. An ordinary apply must not delete
+# them: forget the addresses that were in this state. A person deletes the
+# old project and the old broker after this path is healthy (docs/INFRA.md).
+removed {
+  from = module.database.neon_branch.this
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.database.neon_endpoint.this
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.database.neon_role.obs_read
+  lifecycle {
+    destroy = false
+  }
+}
+
 removed {
   from = module.pubsub.railway_project.this
   lifecycle {
@@ -63,10 +51,6 @@ removed {
   }
 }
 
-# Dev's first attempt at the shared project made an EMPTY environment here
-# (no service instance, so its custom domain could never be created). Forget
-# it: the module now clones the environment instead, and the empty one is
-# deleted once by hand in the Railway dashboard (docs/INFRA.md).
 removed {
   from = module.pubsub.railway_environment.this
   lifecycle {
@@ -75,7 +59,35 @@ removed {
 }
 
 removed {
+  from = module.pubsub.railway_environment.default
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
   from = module.pubsub.railway_service.emqx
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.pubsub.railway_variable.broker
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.pubsub.railway_custom_domain.broker
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.pubsub.terraform_data.clone
   lifecycle {
     destroy = false
   }
