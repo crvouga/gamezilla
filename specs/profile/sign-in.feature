@@ -1,10 +1,12 @@
-@domain:profile @goal:social:1
+@domain:profile
 Feature: Sign in and out
   When a person signs in, they want their profile to go with their account
-  to every device they sign in on, and to sign out of this device whenever
-  they choose.
+  to every device, so they can sign out of this device and find that same
+  profile when they sign in again.
 
-  @goal:social:2 @goal:always-true:10
+  Rule: The account's profile follows the person, and this device can sign out
+    No counter-example: a guest who has not signed in has a profile on this device only, which signing in then keeps.
+
   Scenario: A guest keeps their profile when signing in
     Given Alice is a guest
     And Alice's username is @alice_guest

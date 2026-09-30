@@ -57,20 +57,50 @@ import {
 
 const SECOND_MS = 1_000;
 const MINUTE_MS = 60 * SECOND_MS;
+/** Lobby cards and presence settle on the same virtual budget. */
+const PRESENCE_SETTLES_MS = 20 * SECOND_MS;
 /** A link to a space that was never created. */
 const NO_SUCH_SPACE_LINK = '/space/no-such-space';
 const SPACE_LINK = 'spaceLink';
 const SPACE_HOST = 'spaceHost';
 
-/** Into `host`'s live space from `actor`'s lobby card, once it lists it. */
+/**
+ * Into `host`'s live space from `actor`'s lobby card, once it lists it.
+ * An ended space is not listed: the same join then has nothing to open,
+ * and the scenario says whether a join was offered.
+ */
 async function joinHostFromLobby(
   w: HarnessWorld,
   actor: Actor,
   host: Actor
 ): Promise<void> {
   await w.s.apply(openSpacesTab, actor);
-  await w.s.until((surf) => lobbyCardVisible(surf, actor, host));
+  if (!(await hostCardListed(w, actor, host))) return;
   await w.s.apply(joinFromLobby, actor, host);
+}
+
+/** The card has the presence window to sync. Absence after that is final. */
+async function hostCardListed(
+  w: HarnessWorld,
+  actor: Actor,
+  host: Actor
+): Promise<boolean> {
+  try {
+    await w.s.until((surf) => lobbyCardVisible(surf, actor, host), {
+      maxMs: PRESENCE_SETTLES_MS,
+    });
+    return true;
+  } catch (error) {
+    if (!lobbyWaitElapsed(error)) throw error;
+    return false;
+  }
+}
+
+function lobbyWaitElapsed(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    error.message.startsWith('until: predicate not met')
+  );
 }
 
 async function shareLink(w: HarnessWorld, host: Actor): Promise<string> {
@@ -101,8 +131,6 @@ async function hostSpace(w: HarnessWorld, host: Actor): Promise<void> {
   await w.s.apply(createSpace, host);
   await shareLink(w, host);
 }
-
-const PRESENCE_SETTLES_MS = 20 * SECOND_MS;
 
 // ------------------------------------------------------------------- host
 
@@ -173,7 +201,11 @@ When('{actor} returns to their space', async (w, actor: Actor) => {
 Then(
   "{actor}'s lobby lists {actor}'s space",
   async (w, actor: Actor, host: Actor) => {
-    await w.s.until((surf) => lobbyCardVisible(surf, actor, host));
+    // Look at the lobby; the card arrives with the friend's space.
+    await w.s.apply(openSpacesTab, actor);
+    await w.s.until((surf) => lobbyCardVisible(surf, actor, host), {
+      maxMs: PRESENCE_SETTLES_MS,
+    });
   }
 );
 

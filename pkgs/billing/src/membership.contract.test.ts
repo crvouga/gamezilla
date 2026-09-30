@@ -1,4 +1,3 @@
-// goal:room-to-grow:4
 /**
  * The contract is provider-agnostic: a third, made-up provider with its own
  * vocabulary, ids and signature scheme passes the same suite Stripe and

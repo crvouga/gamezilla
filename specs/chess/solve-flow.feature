@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:8 @goal:chess-puzzles:9 @goal:chess-puzzles:10
+@domain:chess
 Feature: The solve flow
   When a solver opens a puzzle, they want to know at once whose move it is
   and whether each move was right, so solving feels like playing. A puzzle

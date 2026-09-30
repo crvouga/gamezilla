@@ -1,4 +1,4 @@
-@domain:chess @goal:guest-free-and-paid:2 @goal:guest-free-and-paid:3 @goal:always-true:6
+@domain:chess
 Feature: The puzzle limit holds everywhere, and only for guests
   When people play many puzzles in a day, they want the daily puzzle limit to
   be the same wherever they play: free accounts and Plus members never meet

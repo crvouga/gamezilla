@@ -11,6 +11,7 @@ import {
   expectAvatarSeed,
   expectGamesOffered,
   expectGoogleHandOff,
+  expectInSpace,
   expectNextPuzzleReady,
   expectNoSearchResults,
   expectPlusPrices,
@@ -20,6 +21,7 @@ import {
   hostSpace,
   type JourneyBrowser,
   type JourneyWorld,
+  joinFromLink,
   saveAvatar,
   searchPeople,
   signOut,
@@ -108,9 +110,48 @@ Then('the space offers games to play', async (w) => {
   await w.journey.act('expectGamesOffered', expectGamesOffered);
 });
 
-When('they end the space', async (w) => {
+async function endHostedSpace(w: JourneyWorld): Promise<void> {
   await w.journey.act('endActiveSpace', endActiveSpace);
   w.journey.settle(HOSTED_SPACE);
+}
+
+When('they end the space', async (w) => {
+  await endHostedSpace(w);
+});
+
+Given('a person is hosting a space', async (w) => {
+  await hostDeferringEnd(w);
+});
+
+Given('a person has ended the space', async (w) => {
+  await hostDeferringEnd(w);
+  await endHostedSpace(w);
+});
+
+When('a guest joins the space from the link', async (w) => {
+  const link = await w.journey.spaceLink();
+  await w.journey.openGuest(link);
+  await w.journey.actAsGuest('joinFromLink', joinFromLink);
+});
+
+Then('the guest is in the space', async (w) => {
+  await w.journey.actAsGuest('expectInSpace', expectInSpace);
+});
+
+Then('the guest is told the space has ended', async (w) => {
+  await w.journey.actAsGuest('expectSpaceEnded', expectSpaceEnded);
+});
+
+Given('the app has been opened on a fresh device', async (w) => {
+  await w.journey.open('anonymous');
+});
+
+Given('the device is offline', async (w) => {
+  await w.journey.offline();
+});
+
+When('the app reopens', async (w) => {
+  await w.journey.reopen();
 });
 
 Then('the space shows it has ended', async (w) => {

@@ -1,7 +1,3 @@
-// goal:guest-free-and-paid:2
-// goal:guest-free-and-paid:3
-// goal:always-true:6
-// goal:room-to-grow:3
 import { describe, expect, test } from 'bun:test';
 
 import {

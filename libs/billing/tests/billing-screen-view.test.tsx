@@ -27,6 +27,7 @@ import {
   inputFor,
   ROW_KINDS,
   type RowKind,
+  row,
   UNLOCK_LABEL,
 } from './support/billing-matrix';
 
@@ -105,6 +106,8 @@ describe('billing screen: every caller × row × switch × customer', () => {
             const status = screen.getByTestId(Handles.billingStatus);
             expect(status.getAttribute('data-state')).toBe(view.state);
             expectMarkers(view, status);
+            const credit = screen.queryByTestId(Handles.billingCredit);
+            expect(credit !== null).toBe(view.creditCents > 0);
             expect(status.textContent?.length ?? 0).toBeGreaterThan(0);
             cleanup();
           });
@@ -112,6 +115,36 @@ describe('billing screen: every caller × row × switch × customer', () => {
       }
     }
   }
+});
+
+describe('billing screen: plus credit', () => {
+  test('shows the credit left from the yearly plan', () => {
+    const view = buildBillingView({
+      ...inputFor('account', 'active', true, true),
+      row: { ...row('active'), credit_cents: 5300 },
+    });
+    expect(view.creditCents).toBe(5300);
+    renderView(view);
+    const credit = screen.getByTestId(Handles.billingCredit);
+    expect(credit.getAttribute('data-credit-cents')).toBe('5300');
+    expect(credit.textContent).toContain('Plus credit');
+    expect(credit.textContent).toContain('yearly plan');
+    expect(credit.textContent).toContain('$53.00');
+    cleanup();
+  });
+
+  test('a debt or a blank balance is not shown as credit', () => {
+    for (const credit_cents of [-20, 'nope', null] as const) {
+      const view = buildBillingView({
+        ...inputFor('account', 'active', true, true),
+        row: { ...row('active'), credit_cents },
+      });
+      expect(view.creditCents).toBe(0);
+      renderView(view);
+      expect(screen.queryByTestId(Handles.billingCredit)).toBeNull();
+      cleanup();
+    }
+  });
 });
 
 describe('billing screen: actions', () => {

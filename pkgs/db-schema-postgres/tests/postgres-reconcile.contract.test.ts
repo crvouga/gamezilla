@@ -1,4 +1,4 @@
-// goal:the-bar:5 — legacy NOT NULL/int4 columns reconcile correctly
+// legacy NOT NULL/int4 columns reconcile correctly
 // against real Postgres (mockingbird-postgres rejects ALTER COLUMN SET NOT NULL).
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';

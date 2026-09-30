@@ -1,4 +1,4 @@
-@domain:chess @goal:works-offline:2
+@domain:chess
 Feature: Puzzles offline
   When a device goes offline before it ever had puzzles, a solver wants to be
   told that puzzles need a connection instead of waiting forever, so they

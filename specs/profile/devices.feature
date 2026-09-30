@@ -1,4 +1,4 @@
-@domain:profile @goal:works-offline:5
+@domain:profile
 Feature: The devices on an account
   When a person wonders where they are signed in, they want to see every
   device on their account, so a device they do not recognize stands out.

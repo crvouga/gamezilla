@@ -25,7 +25,7 @@
  *   test:spec specs/spaces/space-hosting.qnt         one model
  *   test:spec specs/billing/access.dmn               one decision table
  *   test:spec -t 'ends the friendship'               scenarios by name
- *   test:spec --tags '@goal:social:5'                scenarios by tag expression
+ *   test:spec --tags '@domain:friends'               scenarios by tag expression
  *   test:spec tests/harness/critical-journeys.test.tsx   one code test
  *   test:spec --part 2/5                             one of five parts
  *

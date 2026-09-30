@@ -1,4 +1,3 @@
-// goal:spaces:2
 import { describe, expect, test } from 'bun:test';
 
 import { decideJoin } from '@libs/spaces/public/participation/space-participation-policy';

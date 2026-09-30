@@ -1,4 +1,4 @@
-@domain:profile @goal:always-true:10
+@domain:profile
 Feature: Abandon signing in
   When a guest starts signing in and changes their mind, they want to stay
   exactly the guest they were, with nothing lost, so they can sign in

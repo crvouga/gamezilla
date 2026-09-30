@@ -4,7 +4,7 @@
  * Lint one package: path naming, banned words (`banned-words.ts`), Biome (which also carries the import-boundary
  * rules), the Solid oxlint scope, the package-boundary rules, the `tc` scope
  * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`), the spawned-CLI
- * rule (`spawned-clis.ts`) and the goal proofs that live in it, over that
+ * rule (`spawned-clis.ts`) and the known-bug regressions that live in it, over that
  * package's files and nothing else. The external tools run concurrently: a
  * package's lint costs its slowest tool, not the sum.
  *
@@ -26,7 +26,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import type { GoalChecks, KnownBug } from '../goal/goal-manifest';
+import type { KnownBug } from '../goal/goal-manifest';
 import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
@@ -125,10 +125,9 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(join(REPO_ROOT, path), 'utf8')) as T;
 }
 
-/** Goal proofs (`docs/GOAL.md`) that point into `pkg` still hold. */
-function goalProofsOk(pkg: string): boolean {
+/** Known-bug regression tests that live in `pkg` still carry their marker. */
+function knownBugsOk(pkg: string): boolean {
   const errors = validateProofFiles({
-    checks: readJson<GoalChecks>('libs/tools/goal/goal-checks.json'),
     knownBugs: readJson<readonly KnownBug[]>('libs/tools/goal/known-bugs.json'),
     files: {
       owns: (path) => path.startsWith(`${pkg}/`),
@@ -141,7 +140,7 @@ function goalProofsOk(pkg: string): boolean {
       },
     },
   });
-  for (const error of errors) console.error(`goal: ${error}`);
+  for (const error of errors) console.error(error);
   return errors.length === 0;
 }
 
@@ -290,7 +289,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
   const results = [
     files !== null && namingOk(files),
     wordsOk(pkg, files ?? []),
-    goalProofsOk(pkg),
+    knownBugsOk(pkg),
     clean(
       pkg,
       "Lingui macros outside the catalog sources render hashed ids in production — add the package's src dir to libs/tools/scripts/lingui-scope.ts",

@@ -1,5 +1,5 @@
 {
-  "release": 6,
+  "release": 7,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -33,6 +33,7 @@
       "billing_subscriptions": {
         "account_id": "text",
         "cancel_at_period_end": "boolean",
+        "credit_cents": "integer",
         "current_period_end": "timestamp",
         "price_key": "text",
         "provider": "text",

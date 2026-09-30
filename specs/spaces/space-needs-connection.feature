@@ -1,4 +1,4 @@
-@domain:spaces @goal:works-offline:6
+@domain:spaces
 Feature: Spaces need a connection
   When a person has no connection and tries to create or join a space, they
   want to be told that spaces need a connection, so they are never left

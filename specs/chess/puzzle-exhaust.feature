@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:5
+@domain:chess
 Feature: An exhausted feed
   When a solver has played every puzzle in the pool, they want the feed to
   keep serving, so it never runs dry. No puzzle comes back while unplayed ones

@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:7
+@domain:billing
 Feature: Subscribe to Plus
   When a signed-in person decides to pay for Plus, they want paid access as
   soon as checkout succeeds, so they can use Plus right away, starting with a

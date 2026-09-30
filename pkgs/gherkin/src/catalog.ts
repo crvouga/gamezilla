@@ -82,7 +82,7 @@ export function renderPackageCatalog(
     CATALOG_HEADER,
     `# Step catalog — ${pkg.name}`,
     '',
-    `Tag every scenario with the \`@domain\` of its \`specs/<domain>/\` directory (${pkg.domains.map((d) => `\`@domain:${d}\``).join(', ')}) and its \`@goal:<section>:<n>\` from \`docs/GOAL.md\`. Features: ${String(pkg.features.length)}, scenarios: ${String(scenarioCount)}. Steps used here: ${String(counts.size)} distinct wordings.`,
+    `Tag every scenario with the \`@domain\` of its \`specs/<domain>/\` directory (${pkg.domains.map((d) => `\`@domain:${d}\``).join(', ')}). Features: ${String(pkg.features.length)}, scenarios: ${String(scenarioCount)}. Steps used here: ${String(counts.size)} distinct wordings.`,
     '',
     `## Steps of ${pkg.name}`,
     '',

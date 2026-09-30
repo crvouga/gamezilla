@@ -1,4 +1,3 @@
-// goal:social:6
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';

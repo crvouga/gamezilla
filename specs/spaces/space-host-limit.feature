@@ -1,4 +1,4 @@
-@domain:spaces @goal:guest-free-and-paid:1 @goal:guest-free-and-paid:2 @goal:guest-free-and-paid:6
+@domain:spaces
 Feature: How many spaces a person can host
   When a person already hosts as many spaces as their hosting limit allows and
   wants another, they want to be invited to Plus rather than stopped by an
@@ -29,6 +29,7 @@ Feature: How many spaces a person can host
       And Alice is not invited to get Plus
 
   Rule: Plus members never reach a hosting limit
+    No counter-example: a guest or a free account at their hosting limit is the first rule's refusal.
 
     Scenario: A Plus member hosts a second space at once
       Given Alice is a Plus member

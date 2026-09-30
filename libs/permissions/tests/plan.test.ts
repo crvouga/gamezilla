@@ -1,6 +1,3 @@
-// goal:guest-free-and-paid:10
-// goal:always-true:4
-// goal:always-true:5
 import { describe, expect, test } from 'bun:test';
 import {
   type AccessInputs,
