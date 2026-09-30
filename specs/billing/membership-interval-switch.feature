@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: Switch Plus plans
   When a Plus member switches from the monthly plan to the yearly plan after
   the free trial, they want the paid year to start right away, so they are on

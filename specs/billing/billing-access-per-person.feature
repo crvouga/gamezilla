@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: Paid access belongs to one person
   When someone else uses a Plus member's device, as a guest or signed in with
   their own account, the Plus member wants their membership to stay theirs,

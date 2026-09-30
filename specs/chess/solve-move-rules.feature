@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:6
+@domain:chess
 Feature: Who may move, and when
   When a solver moves a piece, they want only legal moves by the side to move
   to count, so a slip is never held against them. An illegal move is no move

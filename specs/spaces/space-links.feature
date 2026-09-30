@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:2
+@domain:spaces
 Feature: What a space's link leads to
   When a person follows a space link, they want to know where it leads: into
   an open space, or plainly to a space that has ended or does not exist, so

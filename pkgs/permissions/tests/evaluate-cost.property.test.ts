@@ -1,4 +1,3 @@
-// goal:guest-free-and-paid:5
 import { describe, expect, test } from 'bun:test';
 import {
   can,

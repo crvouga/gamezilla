@@ -1,6 +1,6 @@
 # Agent Notes
 
-Docs: [`docs/GOAL.md`](docs/GOAL.md) (what v1 must be),
+What the app is is specified in [`specs/`](specs/). Implementation:
 [`docs/TESTING.md`](docs/TESTING.md), [`specs/README.md`](specs/README.md),
 [`docs/CI.md`](docs/CI.md), [`docs/DETERMINISM.md`](docs/DETERMINISM.md),
 [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md),
@@ -12,7 +12,7 @@ rule once: link to a doc rather than restating it.
 
 - **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property` only; `fc.commands` models; `@pkgs/harness` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus an entry in `libs/tools/goal/known-bugs.json`. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`docs/TESTING.md`](docs/TESTING.md).
 
-- **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
+- **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; `docs/` is implementation and never a second product definition. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
 - **Never leave deprecated code.** No `@deprecated` markers, deprecated aliases, shim re-exports, or "kept for migration" optional fields. Delete the old API and update every call site in the same change.
 

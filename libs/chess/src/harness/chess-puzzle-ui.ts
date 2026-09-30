@@ -94,31 +94,36 @@ export async function expectPlayReady(
 }
 
 /**
- * Synthesize layout on the board frame (and board once mounted). happy-dom
- * reports 0×0 rects, so {@link ChessPuzzleBoardFrame} stays gated on size=0
- * until `layout()` installs a measurable box and fires the layout event.
+ * The board frame has a measurable box. happy-dom reports 0×0, so
+ * {@link ChessPuzzleBoardFrame} stays gated until `layout()` installs one.
+ * False while the frame is still gated or absent.
  */
+async function boardReadyNow(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  const frame = ui.get(Handles.chessPuzzleBoardFrame);
+  const boardNode = ui.get(Handles.chessPuzzleBoard);
+  if (!(await frame.isVisible())) return false;
+  await frame.layout();
+  if (!(await boardNode.isVisible())) return false;
+  await boardNode.layout();
+  try {
+    const probe = await (await puzzleBoard(s, actorId)).readProbe();
+    return probe.size > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function waitBoardReady(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  const frame = ui.get(Handles.chessPuzzleBoardFrame);
-  const boardNode = ui.get(Handles.chessPuzzleBoard);
-  const board = await puzzleBoard(s, actorId);
   await pollUntil(
     s,
-    async () => {
-      await frame.layout();
-      if (!(await boardNode.isVisible())) return null;
-      await boardNode.layout();
-      try {
-        const probe = await board.readProbe();
-        return probe.size > 0 ? true : null;
-      } catch {
-        return null;
-      }
-    },
+    async () => ((await boardReadyNow(s, actorId)) ? true : null),
     { maxMs: WAIT_MS, description: 'chess-puzzle-board ready' }
   );
 }
@@ -180,26 +185,67 @@ export async function openPuzzleFromChessMenu(
   await expectPlayReady(s, actorId);
 }
 
+type ReturnedPuzzleScreen = 'notice' | 'board';
+
 /**
- * Back to the puzzle screen: from the chess choices through the puzzle
- * entry, or one step back from wherever an interruption (signing in) left
- * the actor. A pending attempt comes back as it was. Already on the puzzle
- * screen (say, looking at the day's limit), there is nowhere to go back to.
+ * The limit or the offline notice is the screen (no board belongs there),
+ * or the board itself is ready.
  */
-export async function returnToPuzzles(
+async function returnedPuzzleScreen(
+  s: ProductHarness,
+  actorId: string
+): Promise<ReturnedPuzzleScreen | null> {
+  if (await isPuzzleLimitVisible(s, actorId)) return 'notice';
+  if (await isPuzzleOfflineNoticeVisible(s, actorId)) return 'notice';
+  return (await boardReadyNow(s, actorId)) ? 'board' : null;
+}
+
+/**
+ * On the puzzle screen, wait until a board is ready or the limit / offline
+ * notice is what the screen shows. A board still waits until the solver may
+ * move, or the puzzle is already over; a notice does not.
+ */
+async function settleReturnedPuzzleScreen(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessPuzzlePlayScreen).expect.visible({
+    timeoutMs: WAIT_MS,
+  });
+  const settled = await pollUntil(s, () => returnedPuzzleScreen(s, actorId), {
+    maxMs: WAIT_MS,
+    description: 'puzzle screen settled',
+  });
+  if (settled === 'board') await waitUntilInteractiveOrSolved(s, actorId);
+}
+
+/** Reach the puzzle screen from the chess choices, or one step back. */
+async function openPuzzleReturn(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return;
   if (await ui.get(Handles.chessMenuPuzzle).isVisible()) {
-    await openPuzzleFromChessMenu(s, actorId);
+    await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
     return;
   }
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessPuzzlePlayScreen).expect.visible({
-    timeoutMs: WAIT_MS,
-  });
+}
+
+/**
+ * Back to the puzzle screen: from the chess choices through the puzzle
+ * entry, or one step back from wherever an interruption (signing in) left
+ * the actor. A pending attempt comes back as it was. Settles on a ready
+ * board, or on the limit / offline notice when that is the screen.
+ */
+export async function returnToPuzzles(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  await openPuzzleReturn(s, actorId);
+  await settleReturnedPuzzleScreen(s, actorId);
 }
 
 async function waitExpectedUci(

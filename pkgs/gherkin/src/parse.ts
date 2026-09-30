@@ -33,7 +33,7 @@ export type SpecStep = {
 export type SpecScenario = {
   readonly name: string;
   readonly line: number;
-  /** Feature tags folded in, as Gherkin does (`@domain:x`, `@goal:y:1`). */
+  /** Feature tags folded in, as Gherkin does (`@domain:x`, `@regression:bug-1`). */
   readonly tags: readonly string[];
   readonly steps: readonly SpecStep[];
 };

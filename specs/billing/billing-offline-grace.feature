@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:10
+@domain:billing
 Feature: Paid access while offline
   When a Plus member loses their connection, even while a failed payment is
   still being put right, they want to keep paid access, so going offline

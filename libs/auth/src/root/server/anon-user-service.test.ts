@@ -1,5 +1,3 @@
-// goal:social:2
-// goal:always-true:10
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import { registerTables } from '@pkgs/db-schema';

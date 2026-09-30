@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:9 @goal:works-offline:4 @goal:always-true:3
+@domain:chess
 Feature: Puzzles finished offline count once
   When a puzzle finishes offline (a clean solve, a hint, a wrong move, the
   solution, or a skip), the solver wants it logged the same way once the

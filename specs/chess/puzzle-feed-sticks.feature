@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:4 @goal:works-offline:5
+@domain:chess
 Feature: Feed choices stick
   When a solver has set up their feed, they want those feed choices kept, so
   the feed is still theirs after the app closes and on their other devices.

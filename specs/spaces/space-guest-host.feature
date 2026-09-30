@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:1
+@domain:spaces
 Feature: A guest can host
   When a guest wants to be somewhere with other people, they want to create a
   space and host it without an account, so nobody has to sign in first.

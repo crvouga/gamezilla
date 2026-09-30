@@ -9,6 +9,7 @@ import { expect } from 'bun:test';
 
 import {
   playNextSolutionMove,
+  pressPuzzleNextIfVisible,
   suggestNonSolutionMove,
 } from '@libs/chess/harness/chess-actions';
 import {
@@ -16,11 +17,13 @@ import {
   type HostPuzzleCommand,
 } from '@libs/chess/harness/chess-puzzle-room-probe';
 import {
+  isEmptyPoolVisible,
   isPuzzleSolved,
   type PuzzleSpectatorProbe,
   readActivePuzzleId,
   readPuzzleDebug,
   readPuzzleDisplayFen,
+  readPuzzlePickState,
   readPuzzleSpectator,
   readPuzzleStatus,
 } from '@libs/chess/harness/chess-puzzle-ui';
@@ -34,6 +37,8 @@ import {
   When,
 } from '@libs/harness/spec/define';
 import { accountIdOf } from '@libs/harness/system/identity';
+import { visible } from '@libs/harness/system/observations';
+import { Handles } from '@libs/test-ids';
 import {
   activePuzzle,
   rememberBoard,
@@ -144,13 +149,32 @@ Then(
   }
 );
 
+/**
+ * After the host's move, the opponent's reply keeps the board locked until
+ * it finishes. A puzzle that move already ended stays locked: that is a
+ * failure, not a pass.
+ */
+async function untilHostCanMove(w: HarnessWorld, actor: Actor): Promise<void> {
+  const seen = await w.s.until(
+    async (surf) => {
+      if ((await readPuzzleDebug(surf, actor))?.interactive === true) {
+        return 'interactive';
+      }
+      if (await isPuzzleSolved(surf, actor)) return 'solved';
+      return null;
+    },
+    { maxMs: SETTLE_MS, pred: (state) => state !== null }
+  );
+  expect(seen).toBe('interactive');
+}
+
 Then(
   '{actor} is the host of the puzzle and can move pieces',
   async (w, actor: Actor) => {
     const probe = await spectatorProbe(w, actor);
     expect(probe.role).toBe('host');
     expect(probe.spectating).toBe(false);
-    expect((await w.s.read(readPuzzleDebug, actor))?.interactive).toBe(true);
+    await untilHostCanMove(w, actor);
   }
 );
 
@@ -195,6 +219,31 @@ When(
     await watcherAttempts(w, watcher, host, 'skip');
   }
 );
+
+When(
+  "{actor} tries to move on from {actor}'s puzzle",
+  async (w, watcher: Actor, host: Actor) => {
+    await w.s.apply(focusActor, host);
+    await rememberBoard(w, host);
+    await w.s.apply(focusActor, watcher);
+    // A watcher is not offered Next. Pressing it only if it is showing is
+    // the attempt; a Next that advanced the host's puzzle fails the Then.
+    await w.s.apply(pressPuzzleNextIfVisible, watcher);
+  }
+);
+
+Then('{actor} is not offered a puzzle of his own', async (w, actor: Actor) => {
+  expect(await w.s.read(readActivePuzzleId, actor)).toBeNull();
+  expect(await w.s.read(visible, actor, [Handles.chessPuzzleActionNext])).toBe(
+    false
+  );
+  expect(await w.s.read(visible, actor, [Handles.chessPuzzleSummaryNext])).toBe(
+    false
+  );
+  expect(await w.s.read(isEmptyPoolVisible, actor)).toBe(false);
+  const pick = await w.s.read(readPuzzlePickState, actor);
+  expect(pick === null || pick === 'waiting').toBe(true);
+});
 
 // -------------------------------------------------------------- suggestions
 

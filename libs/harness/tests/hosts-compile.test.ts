@@ -1,4 +1,4 @@
-// goal:room-to-grow:5 — the non-web delivery path (desktop / Bun.WebView host)
+// the non-web delivery path (desktop / Bun.WebView host)
 // compiles from the same product sources, without macOS UI execution. Every
 // product system registers it beside the in-process host
 // (`defineProductSystem`), so any spec suite runs on it with `HARNESS_MODE=real`.

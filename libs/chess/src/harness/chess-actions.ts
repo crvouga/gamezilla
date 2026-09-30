@@ -46,7 +46,6 @@ import {
   pressChessMenuBackToGameMenu,
   pressPuzzleBackToChessMenu,
   pressPuzzleHint,
-  pressPuzzleNextIfVisible,
   pressPuzzleRetry,
   pressPuzzleSolution,
   readActivePuzzleId,
@@ -58,6 +57,7 @@ import {
   solvePuzzle,
   tapEmptyPoolPrimaryAction,
   pressPuzzleNext as tapPuzzleNext,
+  pressPuzzleNextIfVisible as tapPuzzleNextIfVisible,
   skipPuzzle as tapPuzzleSkip,
   pressPuzzleSummaryNext as tapPuzzleSummaryNext,
   waitPuzzleHintStage,
@@ -108,6 +108,15 @@ export const pressPuzzleNext = scenarioAction({
 export const pressPuzzleNextNoWait = scenarioAction({
   name: 'pressPuzzleNextNoWait',
   act: tapPuzzleNext,
+});
+
+/**
+ * Tap the action bar's Next only when it is already on screen. Waiting would
+ * be the wrong ask while a puzzle is still being solved and Next is absent.
+ */
+export const pressPuzzleNextIfVisible = scenarioAction({
+  name: 'pressPuzzleNextIfVisible',
+  act: tapPuzzleNextIfVisible,
 });
 
 /** Drag a legal move that is not the solution; the attempt turns `wrong`. */
@@ -161,7 +170,7 @@ export const pressPuzzleNextTwice = scenarioAction({
       ? tapPuzzleSummaryNext
       : tapPuzzleNext;
     await first(s, actorId);
-    await pressPuzzleNextIfVisible(s, actorId);
+    await tapPuzzleNextIfVisible(s, actorId);
     await settleAfterPuzzleNext(s, actorId);
   },
 });
@@ -558,6 +567,7 @@ export const CHESS_HARNESS_ACTIONS = [
   returnToPuzzleScreen,
   pressPuzzleNext,
   pressPuzzleNextNoWait,
+  pressPuzzleNextIfVisible,
   playWrongPuzzleMove,
   retryPuzzle,
   requestPuzzleHint,

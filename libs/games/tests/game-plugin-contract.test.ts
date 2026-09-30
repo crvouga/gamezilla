@@ -1,5 +1,3 @@
-// goal:room-to-grow:1
-// goal:room-to-grow:2
 import { describe, expect, test } from 'bun:test';
 
 import type { GameDefinition } from '@libs/spaces/public/game';

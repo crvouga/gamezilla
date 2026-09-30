@@ -11,7 +11,11 @@ import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';
 import { type BillingActions, BillingPlanCard } from './billing-plan-card';
-import { type BillingView, summarizeOffer } from './billing-view-model';
+import {
+  type BillingView,
+  formatMinorUnits,
+  summarizeOffer,
+} from './billing-view-model';
 
 export type { BillingActions };
 
@@ -28,6 +32,12 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
   const trialDays = (): number =>
     props.offer.prices[props.offer.defaultPriceKey]?.trialPeriodDays ?? 0;
   const productName = (): string => props.offer.portal.businessProfileHeadline;
+  const creditAmount = (): string | null => {
+    if (props.view.creditCents <= 0) return null;
+    const currency =
+      props.offer.prices[props.offer.defaultPriceKey]?.currency ?? 'usd';
+    return formatMinorUnits(props.view.creditCents, currency, props.locale);
+  };
   return (
     <div
       class="box w-full max-w-160 gap-6 self-center p-4"
@@ -39,6 +49,7 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
         trialDays={trialDays()}
         formatDate={props.formatDate}
         actions={props.actions}
+        creditAmount={creditAmount()}
       />
       <Show when={props.view.showPricing}>
         <BillingPricing

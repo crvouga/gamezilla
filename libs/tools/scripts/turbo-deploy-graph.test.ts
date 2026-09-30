@@ -195,7 +195,7 @@ describe('turbo check/deploy graph invariants', () => {
     expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
   });
 
-  // goal:the-bar:1 — every check that gates a release also gates a PR merge.
+  // every check that gates a release also gates a PR merge.
   test('//#deploy is //#check plus the live-env leaves', () => {
     const tasks = loadTasks();
     expect(tasks['//#deploy']?.dependsOn).toEqual(['//#check', ...DEPLOY_ONLY]);

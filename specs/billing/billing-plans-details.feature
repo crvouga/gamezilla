@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:7
+@domain:billing
 Feature: What the billing plans tell a person
   When a person looks at the billing plans, they want to see what Plus costs
   and where their own membership stands, so they can decide what to do next

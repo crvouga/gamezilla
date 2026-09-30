@@ -3,10 +3,9 @@
  * definitions. Fails on: undefined / ambiguous / pending steps, unused
  * definitions, UI mechanics or implementation words in step text, a narrator
  * ("I", "the user") instead of a named person, a scenario with no outcome, a
- * `Given` after the scenario has acted, missing or foreign `@domain`, unknown
- * `@goal`, a goal proven by a feature that no scenario tags, and duplicate
- * scenario names. Near-duplicate wording (`similarity.ts`) and softer BDD
- * smells (`smells.ts`) are reported separately as warnings.
+ * `Given` after the scenario has acted, missing or foreign `@domain`, and
+ * duplicate scenario names. Near-duplicate wording (`similarity.ts`) and
+ * softer BDD smells (`smells.ts`) are reported separately as warnings.
  */
 
 import {
@@ -15,7 +14,7 @@ import {
 } from '@cucumber/cucumber-expressions';
 import type { ExtractedStep } from './extract';
 import type { SpecFeature } from './parse';
-import { domainOf, goalsOf } from './tags';
+import { domainOf } from './tags';
 
 export type PackageSpecs = {
   /** Workspace name, e.g. `@libs/friends`. */
@@ -45,10 +44,6 @@ export type SpecCheckInput = {
   /** Definitions in imported step files whose owner is not a spec package. */
   readonly external?: readonly ExtractedStep[];
   readonly parameterTypes: ParameterTypeRegistry;
-  /** Every goal statement id (`social:5`). */
-  readonly goalIds: ReadonlySet<string>;
-  /** Goal id → feature uris listed as its proofs in the goal manifest. */
-  readonly goalSpecProofs: ReadonlyMap<string, readonly string[]>;
 };
 
 /** Words that describe the UI, not the intent. Steps say what, never how. */
@@ -247,7 +242,6 @@ function checkScenarioSteps(check: ScenarioStepCheck): void {
 function checkScenarioTags(
   pkg: PackageSpecs,
   feature: SpecFeature,
-  input: SpecCheckInput,
   errors: string[]
 ): void {
   const names = new Set<string>();
@@ -267,13 +261,6 @@ function checkScenarioTags(
       errors.push(
         `${where}: @domain:${domain} but the feature lives in ${feature.uri} (expected @domain:${allowed.join(' or @domain:')})`
       );
-    }
-    for (const goal of goalsOf(scenario.tags)) {
-      if (!input.goalIds.has(goal)) {
-        errors.push(
-          `${where}: unknown goal @goal:${goal} (not a docs/GOAL.md statement)`
-        );
-      }
     }
   }
 }
@@ -321,30 +308,6 @@ function checkStepWording(feature: SpecFeature, errors: string[]): void {
   }
 }
 
-function checkGoalProofs(input: SpecCheckInput, errors: string[]): void {
-  const taggedIn = new Map<string, Set<string>>();
-  for (const pkg of input.packages) {
-    for (const feature of pkg.features) {
-      for (const scenario of feature.scenarios) {
-        for (const goal of goalsOf(scenario.tags)) {
-          const uris = taggedIn.get(goal) ?? new Set<string>();
-          uris.add(feature.uri);
-          taggedIn.set(goal, uris);
-        }
-      }
-    }
-  }
-  for (const [goal, uris] of input.goalSpecProofs) {
-    for (const uri of uris) {
-      if (!taggedIn.get(goal)?.has(uri)) {
-        errors.push(
-          `goal ${goal}: ${uri} is listed as its proof but no scenario there is tagged @goal:${goal}`
-        );
-      }
-    }
-  }
-}
-
 function checkUnused(
   compiled: readonly Compiled[],
   used: ReadonlySet<Compiled>,
@@ -367,12 +330,11 @@ export function checkSpecs(input: SpecCheckInput): readonly string[] {
   for (const pkg of input.packages) {
     for (const feature of pkg.features) {
       checkScenarioSteps({ compiled, errors, feature, pkg, used });
-      checkScenarioTags(pkg, feature, input, errors);
+      checkScenarioTags(pkg, feature, errors);
       checkStepWording(feature, errors);
       checkScenarioShape(feature, errors);
     }
   }
-  checkGoalProofs(input, errors);
   checkUnused(compiled, used, errors);
   return errors;
 }

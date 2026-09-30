@@ -1,4 +1,4 @@
-// goal:the-bar:5 — PubSub contract runs against local EMQX or externally
+// PubSub contract runs against local EMQX or externally
 // supplied broker. When no broker URL is provided, starts EMQX automatically.
 
 import { afterAll, describe, expect, test } from 'bun:test';

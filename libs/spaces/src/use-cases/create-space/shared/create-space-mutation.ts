@@ -14,7 +14,7 @@ import {
  * Open a space the actor hosts. Guests and free accounts host one live space
  * at a time (`spaces:hosted`); reaching it is a permanent `limit_reached`
  * rejection whose decision invites to Plus. Every space is public: anyone
- * with its link may join (visibility is not a v1 choice).
+ * with its link may join. Visibility is not a choice.
  */
 export const createSpaceMutation = defineMutation({
   name: 'createSpace',

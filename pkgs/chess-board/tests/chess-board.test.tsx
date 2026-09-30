@@ -1,4 +1,3 @@
-// goal:chess-puzzles:10
 /** @jsxImportSource solid-js */
 
 import { describe, expect, it } from 'bun:test';

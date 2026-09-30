@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:6
+@domain:spaces
 Feature: Find and return to your space
   When a host steps out of their open space, they want to find it in their
   lobby and return to it, so stepping out never costs them their space.

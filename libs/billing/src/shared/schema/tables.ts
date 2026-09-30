@@ -15,6 +15,8 @@ export const billingSubscriptions = defineTable({
     status: 'text',
     current_period_end: 'timestamp',
     cancel_at_period_end: 'boolean',
+    /** Provider credit in cents (never negative). Blank until a callback reads it. */
+    credit_cents: 'integer',
   },
   indexes: ['account_id'],
   uniqueIndexes: [['provider', 'provider_subscription_id']],

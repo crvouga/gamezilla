@@ -1,4 +1,4 @@
-@domain:profile @goal:social:3
+@domain:profile
 Feature: Profile defaults
   When a newcomer opens the app, they want a username and avatar of their
   own straight away, so they can play and be found without setting anything

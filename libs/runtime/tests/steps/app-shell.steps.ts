@@ -7,6 +7,7 @@ import { openSettingsAs } from '../harness/keyboard-actions';
 /** `data-screen` ids of the shell's destinations. */
 const SETTINGS = 'more';
 const SPACES = 'spaces';
+const PROFILE = 'profile';
 
 When('{actor} opens the app', async (w, actor: Actor) => {
   await w.s.apply(spawnActor, actor);
@@ -31,4 +32,10 @@ Then('{actor} is (still )on Spaces', async (w, actor: Actor) => {
   // Look at the person's own device; bringing it into view must not move them.
   await w.s.apply(focusActor, actor);
   await w.s.until((harness) => onScreen(harness, actor, SPACES));
+});
+
+Then('{actor} is (still )on Profile', async (w, actor: Actor) => {
+  // Look at the person's own device; bringing it into view must not move them.
+  await w.s.apply(focusActor, actor);
+  await w.s.until((harness) => onScreen(harness, actor, PROFILE));
 });

@@ -1,4 +1,4 @@
-@domain:runtime @goal:always-true:1
+@domain:runtime
 Feature: An app too old for the product
   When a person's version of the app is too old for the product, they want
   to be asked to update the app rather than shown errors, so they can carry on

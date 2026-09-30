@@ -1,4 +1,3 @@
-// goal:guest-free-and-paid:9
 import { describe, expect, test } from 'bun:test';
 import type { MembershipStatus, PlusMembershipOffer } from '@pkgs/billing';
 import { StripeTestMode } from './harness';
@@ -170,6 +169,47 @@ describe('StripeMembershipBilling', () => {
       })
     );
     expect(result.kind).toBe('unverified');
+  });
+
+  test('readCallback reports customer credit in cents, never a debt', async () => {
+    const { stripe, billing } = await openAdapter();
+    const result = await billing.startCheckout({
+      accountId: 'acct-1',
+      customerId: null,
+      email: 'person@people.test',
+      returnUrl: RETURN_URL,
+    });
+    const [session] = (await stripe.stripe.checkout.sessions.list()).data;
+    await stripe.completeCheckout(session?.id ?? '');
+    const [subscription] = (
+      await stripe.stripe.subscriptions.list({ customer: result.customerId })
+    ).data;
+    const event = stripe.lastSent(
+      'customer.subscription.created',
+      subscription?.id ?? ''
+    );
+    const read = async (): Promise<
+      Awaited<ReturnType<typeof billing.readCallback>>
+    > =>
+      await billing.readCallback(
+        await stripe.signed({
+          rawBody: event.body,
+          timestampS: Math.floor(stripe.now() / 1000),
+        })
+      );
+    await stripe.stripe.customers.createBalanceTransaction(result.customerId, {
+      amount: -5300,
+      currency: 'usd',
+    });
+    expect(await read()).toMatchObject({
+      kind: 'membership',
+      creditCents: 5300,
+    });
+    await stripe.stripe.customers.createBalanceTransaction(result.customerId, {
+      amount: 5700,
+      currency: 'usd',
+    });
+    expect(await read()).toMatchObject({ kind: 'membership', creditCents: 0 });
   });
 
   test('readCallback ignores an unrelated event type', async () => {
