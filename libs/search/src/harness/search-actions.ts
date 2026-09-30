@@ -3,26 +3,43 @@ import {
   pollUntil,
   scenarioAction,
 } from '@libs/harness/system/actor-ui';
+import type { ProductHarness } from '@libs/harness/system/harness';
 import { Handles } from '@libs/test-ids';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search/public/user-search-types';
+
+import { peopleSearchShowsAnswer } from '../public/search-result-phase';
 
 const WAIT_MS = 10_000;
 
 type ActorDriver = Awaited<ReturnType<typeof actorUi>>;
 
-/** A settled answer: the list, nobody, offline, or sign-in. Not the spinner. */
+/** A painted row, nobody, offline, or sign-in. Not the spinner or list shell. */
 async function peopleSearchAnswered(ui: ActorDriver): Promise<boolean> {
-  if (await ui.get(Handles.searchLoading).isVisible()) return false;
-  const markers = [
-    Handles.searchEmpty,
-    Handles.searchNeedsConnection,
-    Handles.searchDenied,
-    Handles.searchResults,
-  ];
-  for (const marker of markers) {
-    if (await ui.get(marker).isVisible()) return true;
+  return peopleSearchShowsAnswer({
+    loading: await ui.get(Handles.searchLoading).isVisible(),
+    empty: await ui.get(Handles.searchEmpty).isVisible(),
+    needsConnection: await ui.get(Handles.searchNeedsConnection).isVisible(),
+    denied: await ui.get(Handles.searchDenied).isVisible(),
+    paintedRow: await ui.get(Handles.searchResultRow).isVisible(),
+  });
+}
+
+/**
+ * Move the clock across one keystroke debounce that the simulation actually
+ * ran. A starved advance does not commit the username, so it is tried again.
+ */
+async function advanceSearchDebounce(s: ProductHarness): Promise<void> {
+  let waited = 0;
+  while (waited < WAIT_MS) {
+    const starvedBefore = s.session.scheduler.starvedAdvances();
+    await s.session.advanceTime(USER_SEARCH_DEBOUNCE_MS);
+    await s.session.waitForIdle();
+    if (s.session.scheduler.starvedAdvances() === starvedBefore) return;
+    waited += USER_SEARCH_DEBOUNCE_MS;
   }
-  return false;
+  throw new Error(
+    `Timed out after ${String(WAIT_MS)}ms waiting for the people-search debounce`
+  );
 }
 
 export const searchUsername = scenarioAction({
@@ -37,10 +54,11 @@ export const searchUsername = scenarioAction({
     await input.clear();
     await s.session.waitForIdle();
     await input.input(username);
-    // Idle arms the keystroke timer. The probe does not treat a hidden
-    // spinner as done: that is also the state before the timer fires, and
-    // stopping there leaves the clock short of the new search.
     await s.session.waitForIdle();
+    // The previous person is still painted until this keystroke's debounce
+    // commits. Probing first would accept that person, and the next step's
+    // wall-clock wait would never fire the timer.
+    await advanceSearchDebounce(s);
     await pollUntil(
       s,
       async () => ((await peopleSearchAnswered(ui)) ? true : null),

@@ -19,3 +19,21 @@ export function searchResultPhase(input: {
   if (input.resultCount === 0) return 'empty';
   return 'results';
 }
+
+/**
+ * A people search has an answer on screen: a painted row, nobody, offline,
+ * or sign-in. The list shell is not one — it can mount before a row paints.
+ * The spinner is not one either.
+ */
+export function peopleSearchShowsAnswer(input: {
+  readonly loading: boolean;
+  readonly empty: boolean;
+  readonly needsConnection: boolean;
+  readonly denied: boolean;
+  readonly paintedRow: boolean;
+}): boolean {
+  if (input.loading) return false;
+  return (
+    input.empty || input.needsConnection || input.denied || input.paintedRow
+  );
+}

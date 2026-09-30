@@ -39,20 +39,26 @@ function searchCtx(now: () => Date, hits: { n: number }) {
 }
 
 describe('people search rate limit', () => {
-  test('a second server still answers after the first server is limited', async () => {
+  // regression: people-search-rate-shared-server
+  // regression: people-search-rate-says-nobody
+  test('a name already searched still runs after other names fill the budget', async () => {
     const query = FRIENDS_QUERIES.find((q) => q.name === 'searchProfiles');
     if (query === undefined) throw new Error('searchProfiles missing');
     const hits = { n: 0 };
     const first = steppingClock(1_700_000_000_000);
     for (let i = 0; i < USER_SEARCH_RATE_LIMIT; i++) {
-      await query.run(searchCtx(first, hits), { query: 'alice' } as never);
+      await query.run(searchCtx(first, hits), {
+        query: `name${String(i)}`,
+      } as never);
     }
     expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT);
-    await query.run(searchCtx(first, hits), { query: 'alice' } as never);
+    await query.run(searchCtx(first, hits), { query: 'bob' } as never);
     expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT);
+    await query.run(searchCtx(first, hits), { query: 'name0' } as never);
+    expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT + 1);
 
     const second = steppingClock(1_700_000_000_000);
-    await query.run(searchCtx(second, hits), { query: 'alice' } as never);
-    expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT + 1);
+    await query.run(searchCtx(second, hits), { query: 'bob' } as never);
+    expect(hits.n).toBe(USER_SEARCH_RATE_LIMIT + 2);
   });
 });

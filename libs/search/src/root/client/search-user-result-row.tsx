@@ -13,20 +13,24 @@ export function SearchUserResultRow(props: {
   const edgePx = spacingScale(MENU_ROW_PX_STEP);
 
   return (
-    <div
-      class="box self-stretch"
-      {...dataAttrs({ testid: Handles.searchUserResult(props.user.username) })}
-      style={{
-        'padding-left': `${edgePx}px`,
-        'padding-right': `${edgePx}px`,
-      }}
-    >
-      <Show
-        when={slots.userRow}
-        fallback={<UserSearchResultRow user={props.user} />}
+    <div {...dataAttrs({ testid: Handles.searchResultRow })}>
+      <div
+        class="box self-stretch"
+        {...dataAttrs({
+          testid: Handles.searchUserResult(props.user.username),
+        })}
+        style={{
+          'padding-left': `${edgePx}px`,
+          'padding-right': `${edgePx}px`,
+        }}
       >
-        {(userRow) => userRow()(props.user)}
-      </Show>
+        <Show
+          when={slots.userRow}
+          fallback={<UserSearchResultRow user={props.user} />}
+        >
+          {(userRow) => userRow()(props.user)}
+        </Show>
+      </div>
     </div>
   );
 }

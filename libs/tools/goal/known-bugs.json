@@ -386,7 +386,12 @@
   },
   {
     "id": "people-search-stale-results-look-settled",
-    "summary": "People search kept the previous person on screen while a new username was still settling, so the spinner stayed hidden. The harness treated a hidden spinner as a finished search and stopped advancing virtual time, and the next step waited for a row that never arrived. Fixed: an in-flight search shows Searching, and the harness keeps advancing the debounce until the list, nobody, or an offline or sign-in answer is on screen.",
+    "summary": "People search kept the previous person on screen while a new username was still settling, and the list shell can be in the DOM before any row paints. The harness treated that as a finished search and stopped advancing virtual time, so the next step waited on the wall clock for a button the debounce never painted. Fixed: an in-flight search shows Searching, a search counts only once a row or a real empty, offline, or sign-in answer is painted, the keystroke debounce is advanced before that check, and Add, open, and unblock keep the clock moving until their own control is on screen.",
     "regressionTest": "libs/search/tests/search-result-phase.test.ts"
+  },
+  {
+    "id": "people-search-rate-says-nobody",
+    "summary": "People search counted every keystroke and every refetch toward a 30-a-minute cap, then answered the next name with an empty list. The screen said nobody was found, so Add never appeared. A friendship trace moves virtual time between letters and refetches the open search, and one person spent the whole budget that way. Fixed: a name already counted in the window still runs, and typing a name is one change rather than one search per letter.",
+    "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
   }
 ]
