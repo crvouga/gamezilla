@@ -1,10 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  createIotHttpPubSub,
-  iotWireTopic,
-  signAws4,
-} from '@pkgs/pubsub/iot';
 import { PubSubPublishError } from '@pkgs/pubsub/interface';
+import { createIotHttpPubSub, iotWireTopic, signAws4 } from '@pkgs/pubsub/iot';
 
 const EMPTY_SHA =
   'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
@@ -79,8 +75,8 @@ describe('createIotHttpPubSub', () => {
       now: () => 0,
       fetchImpl: () => Promise.resolve(new Response('no', { status: 403 })),
     });
-    await expect(pubsub.publish('health-ping', { ok: true })).rejects.toBeInstanceOf(
-      PubSubPublishError
-    );
+    await expect(
+      pubsub.publish('health-ping', { ok: true })
+    ).rejects.toBeInstanceOf(PubSubPublishError);
   });
 });

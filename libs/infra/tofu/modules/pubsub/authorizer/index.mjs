@@ -70,7 +70,8 @@ function policyDocument(payload, region, accountId, clientId) {
   const publish = [];
   const rules = Array.isArray(payload.acl) ? payload.acl : [];
   for (const rule of rules) {
-    if (rule?.permission !== 'allow' || typeof rule.topic !== 'string') continue;
+    if (rule?.permission !== 'allow' || typeof rule.topic !== 'string')
+      continue;
     const wire = iotWireTopic(rule.topic);
     if (!/^[A-Za-z0-9_/-]+$/.test(wire)) continue;
     const filter = topicArn(region, accountId, 'topicfilter', wire);
@@ -118,10 +119,15 @@ function policyDocument(payload, region, accountId, clientId) {
  */
 export function authorize(event, config) {
   if (config.tokenSecret.length === 0) return deny();
-  if (config.region.length === 0 || config.accountId.length === 0) return deny();
+  if (config.region.length === 0 || config.accountId.length === 0)
+    return deny();
   const mqtt = event?.protocolData?.mqtt ?? {};
   const clientId = String(mqtt.clientId ?? '');
-  if (clientId.length === 0 || clientId.includes(':') || clientId.includes('/')) {
+  if (
+    clientId.length === 0 ||
+    clientId.includes(':') ||
+    clientId.includes('/')
+  ) {
     return deny();
   }
   const token = tokenFromPassword(mqtt.password ?? event?.token ?? '');
@@ -130,11 +136,11 @@ export function authorize(event, config) {
   const remaining = payload.exp - config.nowSec;
   const disconnectAfterInSeconds = Math.min(
     MAX_DISCONNECT_SEC,
-    Math.max(1, remaining),
+    Math.max(1, remaining)
   );
   const refreshAfterInSeconds = Math.max(
     1,
-    Math.min(300, disconnectAfterInSeconds - 1),
+    Math.min(300, disconnectAfterInSeconds - 1)
   );
   return {
     isAuthenticated: true,

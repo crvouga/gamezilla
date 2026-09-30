@@ -120,7 +120,7 @@ resource "aws_iot_authorizer" "this" {
   authorizer_function_arn = aws_lambda_function.authorizer.arn
   signing_disabled        = true
   status                  = "ACTIVE"
-  enable_caching          = false
+  enable_caching_for_http = false
 
   depends_on = [aws_lambda_permission.iot]
 }

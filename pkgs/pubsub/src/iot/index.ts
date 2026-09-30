@@ -1,7 +1,7 @@
 export {
   createIotHttpPubSub,
-  iotEndpointHost,
   type IotHttpPubSubOptions,
+  iotEndpointHost,
 } from './create-iot-http-pubsub';
-export { signAws4, type AwsSigV4Input, type AwsSigV4Result } from './sign-aws4';
+export { type AwsSigV4Input, type AwsSigV4Result, signAws4 } from './sign-aws4';
 export { iotWireTopic } from './wire-topic';

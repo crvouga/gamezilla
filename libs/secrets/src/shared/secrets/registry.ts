@@ -36,11 +36,8 @@ import {
   OBSERVABILITY_COLLECTOR_URL,
   OBSERVABILITY_COLLECTOR_USER,
 } from './observability-secrets';
+import { EMQX_JWT_SECRET, EMQX_WSS_URL } from './pubsub-emqx-secrets';
 import { IOT_SECRETS } from './pubsub-iot-secrets';
-import {
-  EMQX_JWT_SECRET,
-  EMQX_WSS_URL,
-} from './pubsub-emqx-secrets';
 import { REPORTS_SECRETS } from './reports-credentials';
 import {
   S3_ACCESS_KEY_ID,
