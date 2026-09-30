@@ -75,6 +75,11 @@ export const joinFromPrompt = scenarioAction({
   name: 'joinFromPrompt',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
+    // A host opening their own live space is taken in, so Join never shows.
+    if (await ui.get(Handles.spaceClose).isVisible()) {
+      await waitActiveSpace(s, actorId);
+      return;
+    }
     await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
     await waitActiveSpace(s, actorId);
   },

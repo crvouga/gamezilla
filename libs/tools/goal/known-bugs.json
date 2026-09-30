@@ -368,5 +368,15 @@
     "id": "reports-api-domparser",
     "summary": "The reports API Worker bundled the AWS SDK browser XML parser, which constructs DOMParser. workerd has none, so listing the reports bucket threw and /api/reports was 500 (the screen said it could not reach the API). Fixed by installing xmldom's DOMParser only when the runtime does not already have one, before the S3 client is used.",
     "regressionTest": "pkgs/object-store-s3/tests/s3-dom-parser.test.ts"
+  },
+  {
+    "id": "journey-host-stuck-on-own-join",
+    "summary": "Critical journeys left the monitor account on the join screen of its own live space, where End is not shown. Join waited on a query sweep with no deadline, so the button stayed on Joining and the space stayed live for the next run. Deploy and Health then failed the same way every time. Fixed: a host looking at their own live space is taken inside, and the connection check stops waiting after a few seconds.",
+    "regressionTest": "libs/spaces/tests/reopen-lost-host-session.test.ts"
+  },
+  {
+    "id": "infra-plan-read-transient",
+    "summary": "A Railway GraphQL client error while reading EMQX_DASHBOARD_PASSWORD failed the drift check as if the environment had been changed by hand. The plan produced no diff; the provider connection dropped. Fixed: a plan read that fails with a transient provider error is tried again.",
+    "regressionTest": "libs/infra/tests/plan-retry.test.ts"
   }
 ]

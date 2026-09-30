@@ -33,6 +33,10 @@ import {
   type PlanJson,
 } from '@libs/infra/public/plan-policy';
 import {
+  planFailureIsTransient,
+  planReadFailed,
+} from '@libs/infra/public/plan-retry';
+import {
   applyArgs,
   destroyPlanArgs,
   fleetEnvResources,
@@ -127,21 +131,37 @@ function teardownScope(target: Target, cli: Cli): readonly string[] {
   return fleetEnvResources(cli.env);
 }
 
+const PLAN_ATTEMPTS = 3;
+/** A dropped provider connection is often up again a moment later. */
+const PLAN_RETRY_WAIT_MS = 1_000;
+
 /** Plans to a file and returns the tofu exit code (0 no-op, 2 changes). */
-function planTarget(
+async function planTarget(
   target: Target,
   env: Record<string, string>,
   cli: Cli
-): number {
+): Promise<number> {
   if (tofu(initArgs(PATHS, target), env) !== 0)
     fail(`${target.stack}: tofu init failed`);
   const args =
     cli.command === 'destroy'
       ? destroyPlanArgs(PATHS, target, teardownScope(target, cli))
       : planArgs(PATHS, target);
-  const status = tofu(args, env);
-  if (status !== 0 && status !== 2) fail(`${target.stack}: tofu plan failed`);
-  return status;
+  for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
+    const result = spawnTool('tofu', args, { env, capture: true });
+    const output = `${result.stdout}${result.stderr}`;
+    if (output.length > 0) {
+      process.stdout.write(output.endsWith('\n') ? output : `${output}\n`);
+    }
+    if (!planReadFailed(result.status)) return result.status;
+    const retry = planFailureIsTransient(output) && attempt < PLAN_ATTEMPTS;
+    if (!retry) break;
+    console.error(
+      `[infra] ${target.stack}: plan read failed, retrying (${String(attempt)})`
+    );
+    await Bun.sleep(PLAN_RETRY_WAIT_MS);
+  }
+  fail(`${target.stack}: tofu plan failed`);
 }
 
 function checkPolicy(
@@ -185,7 +205,7 @@ async function run(cli: Cli, target: Target, firstRun: boolean): Promise<void> {
   const env = await toolEnvironment(target);
   const label = `${target.stack}/${target.env ?? cli.env ?? 'global'}`;
   const teardown = teardownOf(target, cli);
-  const status = planTarget(target, env, cli);
+  const status = await planTarget(target, env, cli);
   checkPolicy(target, env, teardown);
   if (status === 0) {
     console.log(`[infra] ${label}: no changes`);

@@ -1,16 +1,11 @@
 /**
- * A host who leaves ends the space. A live space whose session on this
- * device was tombstoned is a session the device lost, not a step-out: reopen
- * it. Another device has no session row and still uses the join screen.
+ * A host looking at their own live space belongs inside it. End, the games,
+ * and ending a leftover all live there. Someone who does not host it still
+ * sees Join. An ended space is not reopened.
  */
-export function shouldReopenLostHostSession(args: {
+export function shouldEnterOwnLiveSpace(args: {
   readonly isHost: boolean;
-  /** Tombstone timestamp when this device's session row exists and is closed. */
-  readonly sessionDeletedAt: string | null | undefined;
+  readonly spaceEnded: boolean;
 }): boolean {
-  return (
-    args.isHost &&
-    args.sessionDeletedAt != null &&
-    args.sessionDeletedAt.length > 0
-  );
+  return args.isHost && !args.spaceEnded;
 }
