@@ -363,5 +363,10 @@
     "id": "journey-leftover-opens-on-join",
     "summary": "A fresh device opening a leftover hosted space lands on Join, because that device has no open session, and End exists only after joining. The journey looked for End immediately and timed out, so the monitor account stayed at its hosting limit. Fixed: when Join is on screen, join the space, then end it.",
     "regressionTest": "libs/runtime/tests/critical-journey-host-space.test.ts"
+  },
+  {
+    "id": "reports-api-domparser",
+    "summary": "The reports API Worker bundled the AWS SDK browser XML parser, which constructs DOMParser. workerd has none, so listing the reports bucket threw and /api/reports was 500 (the screen said it could not reach the API). Fixed by installing xmldom's DOMParser only when the runtime does not already have one, before the S3 client is used.",
+    "regressionTest": "pkgs/object-store-s3/tests/s3-dom-parser.test.ts"
   }
 ]

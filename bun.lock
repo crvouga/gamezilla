@@ -103,6 +103,7 @@
         "@libs/pubsub": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/secrets": "workspace:*",
+        "@libs/server-app": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -146,6 +147,7 @@
         "@solidjs/router": "catalog:",
         "better-sqlite3": "catalog:",
         "chess.js": "catalog:",
+        "hono": "catalog:",
         "solid-js": "catalog:",
         "zod": "catalog:",
       },
@@ -2173,6 +2175,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store": "workspace:*",
+        "@xmldom/xmldom": "catalog:",
       },
       "devDependencies": {
         "@pkgs/s3-server": "workspace:*",
@@ -3180,6 +3183,7 @@
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
     "@typescript/native": "npm:typescript@~7.0.2",
+    "@xmldom/xmldom": "0.8.11",
     "aedes": "^1.2.0",
     "babel-plugin-macros": "^3.1.0",
     "babel-preset-solid": "^1.9.15",
@@ -4585,6 +4589,8 @@
     "@typescript/typescript-win32-arm64": ["@typescript/typescript-win32-arm64@7.0.2", "", { "os": "win32", "cpu": "arm64" }, "sha512-Gyl1Vy6OsWesLzmq+EP0Fb7b4Nid5232AvcA2SFcdYreldpNtYFFofPjnt62y9hQy7VTaZp65ICJjuAQRaVcIQ=="],
 
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
+
+    "@xmldom/xmldom": ["@xmldom/xmldom@0.8.11", "", {}, "sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw=="],
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 

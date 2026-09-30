@@ -170,6 +170,7 @@
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
     "@typescript/native": "npm:typescript@~7.0.2",
+    "@xmldom/xmldom": "0.8.11",
     "aedes": "^1.2.0",
     "babel-plugin-macros": "^3.1.0",
     "babel-preset-solid": "^1.9.15",
