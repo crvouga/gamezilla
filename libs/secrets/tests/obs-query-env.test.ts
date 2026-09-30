@@ -11,9 +11,9 @@ describe('production query credentials', () => {
     expect(productionQueryRequested(['last', '--source', 'tempo'])).toBe(true);
     expect(productionQueryRequested(['last', '--source=prod'])).toBe(true);
     expect(productionQueryRequested(['last'])).toBe(false);
-    expect(productionQueryRequested(['last', '--source', '.observability'])).toBe(
-      false
-    );
+    expect(
+      productionQueryRequested(['last', '--source', '.observability'])
+    ).toBe(false);
   });
 
   test('fills missing query keys and leaves an owner url and a set token alone', () => {

@@ -5,8 +5,8 @@ import {
   type LocalClock,
   NdjsonTraceStore,
   normalizePersonName,
-  parseLocalClock,
   type PersonDirectory,
+  parseLocalClock,
   type ResolvedIdentity,
 } from '@pkgs/observability/query';
 
@@ -148,17 +148,23 @@ describe('finding a person from a name, a place, and their own clock', () => {
 
   test('Gilbert, Arizona at 6:33pm MST finds the crash and the device clock', async () => {
     const people = directory([{ userId: CHRIS, matchedAs: 'name' }]);
-    const report = await findPersonTrouble(storeOf([CRASH, CONNECTION]), people, {
-      name: 'Chris Vouga',
-      at: '6:33pm MST',
-      place: 'Gilbert, Arizona',
-      nowMs: NOW_MS,
-    });
+    const report = await findPersonTrouble(
+      storeOf([CRASH, CONNECTION]),
+      people,
+      {
+        name: 'Chris Vouga',
+        at: '6:33pm MST',
+        place: 'Gilbert, Arizona',
+        nowMs: NOW_MS,
+      }
+    );
     expect(report.code).toBe(0);
     expect(report.sawTrouble).toBe(true);
     expect(report.userIds).toEqual([CHRIS]);
     expect(report.text).toContain(`person: Chris Vouga -> user.id ${CHRIS}`);
-    expect(report.text).toContain('18:33 MST (UTC-07:00) = 2026-09-29T01:33:00.000Z');
+    expect(report.text).toContain(
+      '18:33 MST (UTC-07:00) = 2026-09-29T01:33:00.000Z'
+    );
     expect(report.text).toContain('connection: Phoenix, Arizona, US');
     expect(report.text).toContain('device-clock: America/Phoenix');
     expect(report.text).toContain('place: matched Gilbert, Arizona');
@@ -182,7 +188,9 @@ describe('finding a person from a name, a place, and their own clock', () => {
     );
     expect(report.code).toBe(0);
     expect(report.sawTrouble).toBe(true);
-    expect(report.text).toContain('place: asked Las Vegas; connection appeared at Phoenix, Arizona, US');
+    expect(report.text).toContain(
+      'place: asked Las Vegas; connection appeared at Phoenix, Arizona, US'
+    );
     expect(report.text).toContain('device-clock: America/Phoenix');
     expect(report.text).toContain('app crashed');
   });
@@ -200,7 +208,9 @@ describe('finding a person from a name, a place, and their own clock', () => {
     );
     expect(report.code).toBe(1);
     expect(report.sawTrouble).toBe(false);
-    expect(report.text).toContain('Nothing happened for Chris Vouga at that time.');
+    expect(report.text).toContain(
+      'Nothing happened for Chris Vouga at that time.'
+    );
     expect(report.text).toContain(`person: Chris Vouga -> user.id ${CHRIS}`);
   });
 
@@ -215,22 +225,30 @@ describe('finding a person from a name, a place, and their own clock', () => {
       { name: 'Nobody Home', at: '6:33pm MST', nowMs: NOW_MS }
     );
     expect(report.code).toBe(1);
-    expect(report.text).toContain('Nothing happened for Nobody Home at that time.');
+    expect(report.text).toContain(
+      'Nothing happened for Nobody Home at that time.'
+    );
     expect(report.userIds).toEqual([]);
   });
 
   test('the same name in two places keeps the city that was asked', async () => {
-    const report = await findPersonTrouble(storeOf([CRASH, CONNECTION, VEGAS]), directory([
-      { userId: CHRIS, matchedAs: 'name' },
-      { userId: OTHER, matchedAs: 'name' },
-    ]), {
-      name: 'Chris   Vouga',
-      at: '18:33 MST',
-      place: 'Las Vegas',
-      nowMs: NOW_MS,
-    });
+    const report = await findPersonTrouble(
+      storeOf([CRASH, CONNECTION, VEGAS]),
+      directory([
+        { userId: CHRIS, matchedAs: 'name' },
+        { userId: OTHER, matchedAs: 'name' },
+      ]),
+      {
+        name: 'Chris   Vouga',
+        at: '18:33 MST',
+        place: 'Las Vegas',
+        nowMs: NOW_MS,
+      }
+    );
     expect(report.userIds).toEqual([OTHER]);
-    expect(report.text).toContain('people: 2 share this name; 1 match this place and time');
+    expect(report.text).toContain(
+      'people: 2 share this name; 1 match this place and time'
+    );
     expect(report.text).toContain(`user.id ${OTHER}`);
     expect(report.text).not.toContain(`user.id ${CHRIS}`);
     expect(report.text).toContain('place: matched Las Vegas');

@@ -5,8 +5,8 @@ import {
   TempoTraceStore,
 } from '@pkgs/observability/query';
 import {
-  personTroubleDocument,
   type PersonPlant,
+  personTroubleDocument,
 } from './person-trouble-document';
 
 export type { PersonPlant } from './person-trouble-document';

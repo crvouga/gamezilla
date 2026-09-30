@@ -1,5 +1,5 @@
-import { ATTR } from '@pkgs/observability/core';
 import type { NarrateSpan } from '@pkgs/observability/core';
+import { ATTR } from '@pkgs/observability/core';
 
 export function splitPlace(place: string): {
   readonly city: string;

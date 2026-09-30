@@ -44,9 +44,14 @@ export class LookupIdentityResolver implements IdentityResolver {
   async resolvePeople(name: string): Promise<readonly ResolvedIdentity[]> {
     const value = name.trim();
     if (value.length === 0) return [];
-    if (value.includes('@')) return this.#one(this.#byEmail, value.toLowerCase(), 'email');
+    if (value.includes('@'))
+      return this.#one(this.#byEmail, value.toLowerCase(), 'email');
     if (!value.includes(' ')) {
-      const byUsername = await this.#one(this.#byUsername, value.toLowerCase(), 'username');
+      const byUsername = await this.#one(
+        this.#byUsername,
+        value.toLowerCase(),
+        'username'
+      );
       if (byUsername.length > 0) return byUsername;
     }
     return this.#named(value);

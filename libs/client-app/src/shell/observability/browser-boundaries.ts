@@ -38,10 +38,11 @@ function reportError(error: unknown, source: string): string | undefined {
   span.setAttribute(ATTR.APP_ERROR_TRACE_ID, traceId);
   span.end();
   const pending = flushTraces?.();
-  if (pending !== undefined) void pending.then(
-    () => undefined,
-    () => undefined
-  );
+  if (pending !== undefined)
+    void pending.then(
+      () => undefined,
+      () => undefined
+    );
   return traceId;
 }
 

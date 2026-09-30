@@ -1,3 +1,4 @@
+import { ATTR } from '@pkgs/observability/core';
 import { parseLocalClock, splitPlace } from '@pkgs/observability/query';
 
 export type PersonPlant = {
@@ -46,8 +47,8 @@ export function personTroubleDocument(plant: PersonPlant): {
         error: true,
         service: 'gamezilla-client',
         attributes: [
-          attribute('user.id', plant.userId),
-          attribute('app.device.timezone', clock.timeZone),
+          attribute(ATTR.USER_ID, plant.userId),
+          attribute(ATTR.APP_DEVICE_TIMEZONE, clock.timeZone),
         ],
       }),
       resourceSpan({
@@ -69,16 +70,18 @@ function placeAttributes(
   region: string | undefined
 ): readonly Attribute[] {
   return [
-    attribute('user.id', userId),
-    ...(city.length === 0 ? [] : [attribute('app.client.city', city)]),
-    ...(region === undefined ? [] : [attribute('app.client.region', region)]),
+    attribute(ATTR.USER_ID, userId),
+    ...(city.length === 0 ? [] : [attribute(ATTR.APP_CLIENT_CITY, city)]),
+    ...(region === undefined
+      ? []
+      : [attribute(ATTR.APP_CLIENT_REGION, region)]),
   ];
 }
 
 function resourceSpan(input: ResourceSpanInput): unknown {
   const start = String(input.instantMs * 1_000_000);
   return {
-    resource: { attributes: [attribute('service.name', input.service)] },
+    resource: { attributes: [attribute(ATTR.SERVICE_NAME, input.service)] },
     scopeSpans: [
       {
         spans: [

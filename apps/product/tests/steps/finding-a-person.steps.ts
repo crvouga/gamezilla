@@ -4,18 +4,16 @@
 import { expect } from 'bun:test';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';
 import {
+  type PersonPlant,
+  type PersonProbeCredentials,
+  type PersonRead,
+  type PersonReadResult,
   plantPersonTrouble,
   readPersonTrouble,
 } from '@libs/observability/server/person-trouble-probe';
-import type {
-  PersonPlant,
-  PersonProbeCredentials,
-  PersonRead,
-  PersonReadResult,
-} from '@libs/observability/server/person-trouble-probe';
 import { wallClock } from '@pkgs/clock';
 import { eventually, Given, Then, When } from './define';
-import { requireSecret, type LiveWorld } from './live-world';
+import { type LiveWorld, requireSecret } from './live-world';
 import { wallWait } from './wall-wait';
 
 const TOKEN_WARMUP_MS = 3 * 60 * 1000;
@@ -104,7 +102,8 @@ function plantOf(w: LiveWorld): PersonPlant {
 
 function questionOf(w: LiveWorld): Question {
   const value = w.memo.get(QUESTION);
-  if (!isQuestion(value)) throw new Error('the team has not followed the trail yet');
+  if (!isQuestion(value))
+    throw new Error('the team has not followed the trail yet');
   return value;
 }
 

@@ -126,9 +126,11 @@ credential.
   `ATTR` keys, add narration coverage.
 - Only boundaries record: runtime entrypoints, client interaction / route /
   error, HTTP middleware, SQL client, room adapter, sync upload and replay,
-  the logger bridge and the test-failure sink. The allowlist is the
-  `observability-boundary-imports.grit` entry in `biome.json`; business code
-  never imports observability.
+  the logger bridge and the test-failure sink. The same list holds the
+  connection-place stamp and the health plant that writes a person's trouble
+  in the attribute names and clock reading the query uses. The allowlist is
+  the `observability-boundary-imports.grit` entry in `biome.json`; business
+  code never imports observability.
 - Sampling is 100% locally and in CI; production uses head sampling. No tail
   sampling: a successful request with a wrong answer matters.
 - Telemetry is not the source of truth. A mutation's id and originating

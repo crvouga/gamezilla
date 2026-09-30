@@ -318,15 +318,25 @@ describe('obs output contract', () => {
 
   test('person finds a crash from a name, a place, and 6:33pm MST', async () => {
     const lines = [
-      lineAt('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbb', {
-        'user.id': 'user-chris',
-        'app.device.timezone': 'America/Phoenix',
-      }, 'error'),
-      lineAt('cccccccccccccccccccccccccccccccc', 'dddddddddddddddd', {
-        'user.id': 'user-chris',
-        'app.client.city': 'Phoenix',
-        'app.client.region': 'Arizona',
-      }, 'ok'),
+      lineAt(
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        'bbbbbbbbbbbbbbbb',
+        {
+          'user.id': 'user-chris',
+          'app.device.timezone': 'America/Phoenix',
+        },
+        'error'
+      ),
+      lineAt(
+        'cccccccccccccccccccccccccccccccc',
+        'dddddddddddddddd',
+        {
+          'user.id': 'user-chris',
+          'app.client.city': 'Phoenix',
+          'app.client.region': 'Arizona',
+        },
+        'ok'
+      ),
     ].join('\n');
     const result = await runCommand(
       {

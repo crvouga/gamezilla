@@ -115,7 +115,11 @@ function missed(parts: ReportParts): PersonTroubleReport {
       ...(range === undefined
         ? []
         : [`utc-range: ${iso(range.startMs)} .. ${iso(range.endMs)}`]),
-      ...personLines(name, people, people.map((person) => person.userId)),
+      ...personLines(
+        name,
+        people,
+        people.map((person) => person.userId)
+      ),
       `clock: ${clock.label} = ${iso(clock.instantMs)}`,
       `Nothing happened for ${name} at that time.`,
       'next: bun obs last --window 30m',
@@ -130,7 +134,10 @@ async function loadTraces(
   people: readonly ResolvedIdentity[],
   range: TimeRange
 ): Promise<Loaded[]> {
-  const byTrace = new Map<string, { readonly userId: string; readonly ref: TraceRef }>();
+  const byTrace = new Map<
+    string,
+    { readonly userId: string; readonly ref: TraceRef }
+  >();
   for (const person of people) {
     for (const ref of await store.findByUser(person.userId, range)) {
       remember(byTrace, person.userId, ref);
@@ -146,7 +153,8 @@ async function loadTraces(
   const loaded: Loaded[] = [];
   for (const item of ordered) {
     const trace = await store.getTrace(item.ref.traceId);
-    if (trace !== null) loaded.push({ userId: item.userId, trace, ref: item.ref });
+    if (trace !== null)
+      loaded.push({ userId: item.userId, trace, ref: item.ref });
   }
   return loaded;
 }
@@ -162,7 +170,10 @@ function remember(
   }
 }
 
-function selectByPlace(loaded: readonly Loaded[], place: string | undefined): Selection {
+function selectByPlace(
+  loaded: readonly Loaded[],
+  place: string | undefined
+): Selection {
   const asked = place?.trim() ?? '';
   const connection = firstRecorded(loaded, recordedPlace);
   const deviceZone = firstRecorded(loaded, recordedDeviceTimeZone);
@@ -238,7 +249,9 @@ function renderTrouble(parts: ReportParts, userIds: readonly string[]): string {
     `device-clock: ${selected.deviceZone ?? 'not recorded'}`,
     placeLine(parts, selected),
     '',
-    error === undefined ? 'No error was recorded.' : narrate([error], { maxLines: 24 }),
+    error === undefined
+      ? 'No error was recorded.'
+      : narrate([error], { maxLines: 24 }),
     nextLine(error, selected),
   ].join('\n');
 }
@@ -276,7 +289,9 @@ function hasError(traces: readonly Loaded[]): boolean {
 
 function firstError(traces: readonly Loaded[]): NarrateSpan | undefined {
   for (const item of traces) {
-    const span = item.trace.spans.find((candidate) => candidate.status === 'error');
+    const span = item.trace.spans.find(
+      (candidate) => candidate.status === 'error'
+    );
     if (span !== undefined) return span;
   }
   return undefined;
@@ -296,7 +311,8 @@ function firstRecorded(
 }
 
 function nextLine(error: NarrateSpan | undefined, selected: Selection): string {
-  if (error !== undefined) return `next: bun obs span ${error.traceId} ${error.spanId}`;
+  if (error !== undefined)
+    return `next: bun obs span ${error.traceId} ${error.spanId}`;
   const traceId = selected.traces[0]?.trace.traceId ?? '';
   return `next: bun obs trace ${traceId}`;
 }

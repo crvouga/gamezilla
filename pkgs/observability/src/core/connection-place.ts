@@ -19,9 +19,7 @@ export function connectionAttributes(
     ...(city === undefined ? {} : { [ATTR.APP_CLIENT_CITY]: city }),
     ...(region === undefined ? {} : { [ATTR.APP_CLIENT_REGION]: region }),
     ...(country === undefined ? {} : { [ATTR.APP_CLIENT_COUNTRY]: country }),
-    ...(timeZone === undefined
-      ? {}
-      : { [ATTR.APP_CLIENT_TIMEZONE]: timeZone }),
+    ...(timeZone === undefined ? {} : { [ATTR.APP_CLIENT_TIMEZONE]: timeZone }),
   };
 }
 
@@ -29,5 +27,7 @@ function placeText(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   if (trimmed.length === 0) return undefined;
-  return trimmed.length <= PLACE_LIMIT ? trimmed : trimmed.slice(0, PLACE_LIMIT);
+  return trimmed.length <= PLACE_LIMIT
+    ? trimmed
+    : trimmed.slice(0, PLACE_LIMIT);
 }

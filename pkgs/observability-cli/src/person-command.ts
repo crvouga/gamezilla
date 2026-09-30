@@ -50,7 +50,11 @@ export async function personCommand(
   return { code: report.code, text: report.text };
 }
 
-function clockText(at: string, zone: string | undefined, nowMs: number): string {
+function clockText(
+  at: string,
+  zone: string | undefined,
+  nowMs: number
+): string {
   if (zone === undefined || parseLocalClock(at, nowMs) !== undefined) return at;
   return `${at} ${zone}`;
 }
