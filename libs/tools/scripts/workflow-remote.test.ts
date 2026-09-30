@@ -4,6 +4,8 @@ import { join } from 'node:path';
 
 import { findNewRun, WORKFLOW_DISPATCH } from './workflow-remote';
 
+const SCROLL_DOWN = '\u001b[B';
+
 const WORKFLOWS = join(import.meta.dirname, '../../../.github/workflows');
 
 describe('findNewRun', () => {
@@ -42,6 +44,44 @@ describe('WORKFLOW_DISPATCH', () => {
       refuseOnMain: false,
       printsReport: false,
     });
+  });
+
+  // regression: watch-scroll-echo
+  test('scroll keys are not echoed while the watch holds the tty', async () => {
+    const chunks: Uint8Array[] = [];
+    const terminal = new Bun.Terminal({
+      cols: 80,
+      rows: 24,
+      data(_term, data) {
+        chunks.push(Uint8Array.from(data));
+      },
+    });
+    const proc = Bun.spawn(
+      ['bun', join(import.meta.dirname, 'workflow-remote-tty-fixture.ts')],
+      { terminal }
+    );
+    const shown = (): string => Buffer.concat(chunks).toString('utf8');
+    try {
+      let text = '';
+      for (
+        let attempt = 0;
+        attempt < 200 && !text.includes('READY');
+        attempt += 1
+      ) {
+        await Bun.sleep(20);
+        text = shown();
+      }
+      expect(text).toContain('READY');
+      terminal.write(SCROLL_DOWN + SCROLL_DOWN + SCROLL_DOWN);
+      expect(await proc.exited).toBe(0);
+      const out = shown();
+      expect(out).toContain('DONE');
+      expect(out).not.toContain('^[[B');
+      expect(out).not.toContain(SCROLL_DOWN);
+    } finally {
+      proc.kill();
+      terminal.close();
+    }
   });
 
   test('workflow jobs call the local runners', () => {

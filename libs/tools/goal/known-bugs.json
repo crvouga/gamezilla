@@ -383,5 +383,10 @@
     "id": "people-search-rate-says-nobody",
     "summary": "People search counted every keystroke and every refetch toward a 30-a-minute cap, then answered the next name with an empty list. The screen said nobody was found, so Add never appeared. A friendship trace moves virtual time between letters and refetches the open search, and one person spent the whole budget that way. Fixed: a name already counted in the window still runs, and typing a name is one change rather than one search per letter.",
     "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
+  },
+  {
+    "id": "watch-scroll-echo",
+    "summary": "Scrolling while bun check, bun health, or bun deploy watched a GitHub run printed a stream of ^[[B. A scroll wheel sends down-arrow keys, and the watcher left the terminal echoing input, so those keys landed in the transcript. Fixed by turning echo off for the watch and discarding the keys, then restoring the terminal.",
+    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
   }
 ]

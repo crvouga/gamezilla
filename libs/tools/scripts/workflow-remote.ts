@@ -3,9 +3,10 @@
 /**
  * `bun check`, `bun health`, and `bun deploy`: dispatch the matching
  * workflow on GitHub and block until it finishes. The exit code is the
- * run's verdict. Ctrl-C / SIGTERM / SIGHUP cancel the run on GitHub
- * before exiting (SIGKILL cannot be caught — cancel that run with
- * `gh run cancel <id>`).
+ * run's verdict. While the watch runs, keystroke echo is off, so a
+ * scroll wheel's arrow keys stay out of the transcript. Ctrl-C still
+ * cancels (SIGTERM / SIGHUP do too). SIGKILL cannot be caught — cancel
+ * that run with `gh run cancel <id>`.
  *
  *   bun check  [--message "type(scope): summary"]  → check.yml on this branch
  *   bun health [--message "type(scope): summary"]  → health.yml on this branch
@@ -79,6 +80,69 @@ export function isRemoteCommand(value: string): value is RemoteCommand {
 }
 
 class WorkflowRemoteError extends Error {}
+
+type Stty = {
+  readonly code: number;
+  readonly out: string;
+  readonly err: string;
+};
+
+function stty(args: readonly string[]): Stty {
+  const result = Bun.spawnSync(['stty', ...args], {
+    stdin: 'inherit',
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+  return {
+    code: result.exitCode ?? 1,
+    out: result.stdout.toString().trim(),
+    err: result.stderr.toString().trim(),
+  };
+}
+
+function sttyOk(args: readonly string[]): string {
+  const result = stty(args);
+  if (result.code !== 0) {
+    throw new WorkflowRemoteError(
+      `stty ${args.join(' ')} failed: ${result.err || result.out}`
+    );
+  }
+  return result.out;
+}
+
+const discardTTYInput = (): void => {};
+
+export type TtyHold = {
+  release(): void;
+};
+
+/**
+ * A scroll wheel delivers arrow keys (`^[[B` down, `^[[A` up). While a
+ * watch is the foreground job those keys are echoed into the transcript
+ * unless echo is off. `isig` stays on, so Ctrl-C is still a signal.
+ * `release` puts the previous settings back.
+ */
+export function holdTTY(): TtyHold {
+  if (process.stdin.isTTY !== true) return { release() {} };
+  const saved = sttyOk(['-g']);
+  sttyOk(['-echo', '-icanon']);
+  let released = false;
+  const release = (): void => {
+    if (released) return;
+    released = true;
+    process.stdin.off('data', discardTTYInput);
+    process.stdin.pause();
+    if (stty([saved]).code !== 0) stty(['sane']);
+  };
+  try {
+    process.stdin.on('data', discardTTYInput);
+    process.stdin.resume();
+  } catch (error) {
+    release();
+    throw error;
+  }
+  return { release };
+}
 
 type Run = {
   readonly code: number;
@@ -219,6 +283,7 @@ type WatchState = {
   readonly label: string;
   runId: number | null;
   watcher: ChildProcess | null;
+  tty: TtyHold | null;
   readonly lookup: () => number | null;
 };
 
@@ -231,6 +296,7 @@ function cancelOnSignals(state: WatchState): void {
   const onSignal = (signal: NodeJS.Signals) => {
     if (handled) return;
     handled = true;
+    state.tty?.release();
     state.watcher?.kill('SIGTERM');
     const runId = state.runId ?? state.lookup();
     if (runId !== null) cancelRun(state.label, runId);
@@ -273,6 +339,7 @@ async function runWorkflow(
     label,
     runId: null,
     watcher: null,
+    tty: null,
     lookup: () =>
       findNewRun(listDispatchRuns(workflow, branch), knownIds, sha)
         ?.databaseId ?? null,
@@ -297,19 +364,25 @@ async function runWorkflow(
   console.log(`${label}: ${url}`);
 
   // Own process group: the terminal's Ctrl-C reaches only this script, which
-  // cancels the run before the watcher goes away.
-  const watcher = spawn(
-    'gh',
-    ['run', 'watch', String(state.runId), '--exit-status', '--interval', '3'],
-    { stdio: 'inherit', detached: true }
-  );
-  state.watcher = watcher;
-  const code = await new Promise<number>((resolve) => {
-    watcher.on('close', (exitCode) => resolve(exitCode ?? 1));
-  });
-  if (code !== 0) printFailedLog(label, state.runId);
-  console.log(`${label}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
-  return { code, url };
+  // cancels the run before the watcher goes away. stdin stays here so a
+  // scroll's arrow keys can be discarded instead of echoed.
+  state.tty = holdTTY();
+  try {
+    const watcher = spawn(
+      'gh',
+      ['run', 'watch', String(state.runId), '--exit-status', '--interval', '3'],
+      { stdio: ['ignore', 'inherit', 'inherit'], detached: true }
+    );
+    state.watcher = watcher;
+    const code = await new Promise<number>((resolve) => {
+      watcher.on('close', (exitCode) => resolve(exitCode ?? 1));
+    });
+    if (code !== 0) printFailedLog(label, state.runId);
+    console.log(`${label}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+    return { code, url };
+  } finally {
+    state.tty.release();
+  }
 }
 
 /** Where the commit's spec report is read: the dev deployment's reports screen. */
