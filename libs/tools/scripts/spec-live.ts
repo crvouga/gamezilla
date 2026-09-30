@@ -25,7 +25,8 @@ function filesEnding(suffix: string): readonly string[] {
     const dir = join(SPECS_DIR, domain);
     return readdirSync(dir, { withFileTypes: true })
       .filter((entry) => entry.isFile() && entry.name.endsWith(suffix))
-      .map((entry) => `specs/${domain}/${entry.name}`);
+      .map((entry) => `specs/${domain}/${entry.name}`)
+      .sort();
   });
 }
 

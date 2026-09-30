@@ -33,8 +33,12 @@ import { verify } from '@pkgs/quint/verify';
 
 import { REPO_ROOT, type SpecPackage, specPackages } from './spec-packages';
 
-/** Checks at once: each is a JVM with an SMT solver, several cores busy. */
-const CONCURRENCY = 3;
+/**
+ * One check at a time. Each is a JVM with an SMT solver, and the Check
+ * runner has two cores; two at once miss the timeout on the larger models
+ * while they are still searching the last step.
+ */
+const CONCURRENCY = 1;
 /** A check is killed after this long (the binding lowers the bound instead). */
 const TIMEOUT_MS = 240_000;
 /** Package-relative; the `check:models` task's output. */
