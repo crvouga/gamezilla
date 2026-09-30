@@ -7,7 +7,6 @@
  * to configuration — never to product code.
  */
 import type { Clock } from '@pkgs/clock';
-import type { DatabaseMigration } from '@pkgs/db-migrate';
 import type { HttpClient } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
@@ -77,12 +76,13 @@ export type AuthProviderModule = {
    */
   create(env: AuthProviderEnv): Promise<AuthProvider>;
   /**
-   * Schema the service keeps in the product's Postgres, run by the migrate
-   * runner. Absent for a hosted service.
+   * Schema the service keeps in the product's Postgres, run by reconcile.
+   * Absent for a hosted service.
    */
-  postgresMigration?(args: {
+  reconcilePostgres?(args: {
+    readonly sqlClient: SqlClient;
     readonly dbScope: PostgresDbScope;
-  }): DatabaseMigration;
+  }): Promise<void>;
 };
 
 /** A module could not be built from its configuration. */

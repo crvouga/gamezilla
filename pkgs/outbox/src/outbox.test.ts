@@ -8,8 +8,8 @@ import {
   OutboxConsumerRegistry,
 } from './define-consumer';
 import { drainOutbox } from './drain';
-import { reconcileOutbox } from './reconcile';
 import { Outbox } from './outbox';
+import { reconcileOutbox } from './reconcile';
 
 const ns = createMessageNamespace('outbox', 'test');
 

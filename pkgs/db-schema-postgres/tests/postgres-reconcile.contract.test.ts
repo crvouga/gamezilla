@@ -1,5 +1,5 @@
-// legacy NOT NULL/int4 columns reconcile correctly
-// against real Postgres (mockingbird-postgres rejects ALTER COLUMN SET NOT NULL).
+// Legacy NOT NULL, int4, and managed defaults reconcile on real Postgres.
+// mockingbird-postgres rejects ALTER COLUMN SET NOT NULL.
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -50,8 +50,7 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
     await stop?.();
   });
 
-  test('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
-    // Create the initial schema with the postgres driver.
+  test('legacy NOT NULL, int4, and now() default reconcile in place', async () => {
     await reconcilePostgresSchema(
       sqlClient,
       registerTables([
@@ -64,21 +63,21 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
       sqlClient.dbScope
     );
 
-    // Simulate legacy DDL that mockingbird-postgres cannot run.
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`)
-    );
     await sqlClient.run(
       raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body SET NOT NULL`)
     );
     await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating DROP NOT NULL`)
+      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`)
     );
     await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body DROP NOT NULL`)
+      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating TYPE integer`)
+    );
+    await sqlClient.run(
+      raw(
+        `ALTER TABLE legacy_puzzle_shape ALTER COLUMN created_at SET DEFAULT now()`
+      )
     );
 
-    // Reconcile — should be a no-op.
     const schema = defineSchema({
       tables: {
         legacy_puzzle_shape: { rating: 'integer', body: 'text' },
@@ -87,14 +86,14 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
     await postgres(schema, sqlClient).reconcile();
 
     const catalog = await readPostgresCatalog(sqlClient, schema._declared);
-    const rating = catalog.tables
-      .get('legacy_puzzle_shape')
-      ?.columns.find((c) => c.name === 'rating');
-    const body = catalog.tables
-      .get('legacy_puzzle_shape')
-      ?.columns.find((c) => c.name === 'body');
+    const table = catalog.tables.get('legacy_puzzle_shape');
+    const rating = table?.columns.find((c) => c.name === 'rating');
+    const body = table?.columns.find((c) => c.name === 'body');
+    const createdAt = table?.columns.find((c) => c.name === 'created_at');
     expect(rating?.type).toBe('integer');
+    expect(rating?.physical).toBe('int8');
     expect(rating?.nullable).toBe(true);
     expect(body?.nullable).toBe(true);
+    expect(createdAt?.columnDefault).toBeNull();
   });
 });

@@ -47,10 +47,10 @@ away.
 secret store when they are not already set. It never loads
 `DATABASE_URL` or `GRAFANA_CLOUD_API_TOKEN`. OpenTofu creates the Neon role
 `obs_read` and writes `OBS_READONLY_DATABASE_URL` (the pooled host, password
-URL-encoded). The migration then grants that role `SELECT` on `profile`,
+URL-encoded). Reconcile then grants that role `SELECT` on `profile`,
 `idp_users`, and `idp_accounts`. Display names are matched there and only
 the account id is sent to Tempo. A local database has no `obs_read` role,
-so the grant is skipped. Until the next foundation apply and migration,
+so the grant is skipped. Until the next foundation apply and reconcile,
 production does not have the role yet, and a real name cannot be resolved.
 `specs/profile/finding-a-person.feature` plants its own person and does not
 need the role.

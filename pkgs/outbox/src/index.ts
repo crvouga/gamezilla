@@ -4,8 +4,8 @@ export {
   resolveRetryPolicy,
 } from './define-consumer';
 export { type DrainOutboxDeps, drainOutbox } from './drain';
-export { reconcileOutbox, reconcileOutboxPostgres } from './reconcile';
 export { insertOutboxEvent, Outbox } from './outbox';
+export { reconcileOutbox, reconcileOutboxPostgres } from './reconcile';
 export {
   OUTBOX_DELIVERIES_TABLE,
   OUTBOX_EVENTS_TABLE,

@@ -23,7 +23,6 @@
     "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

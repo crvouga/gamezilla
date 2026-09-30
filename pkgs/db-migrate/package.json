@@ -17,9 +17,7 @@
   },
   "dependencies": {
     "@pkgs/logger": "workspace:*",
-    "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sql-client-postgres": "workspace:*"
+    "@pkgs/sql-client": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

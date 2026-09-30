@@ -13,15 +13,14 @@ import type { Kv, KvRecord } from '@pkgs/kv/interface';
 import type { Logger } from '@pkgs/logger/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { KvImplPostgresTx } from './impl-postgres-tx';
-import { KvPostgresDatabaseMigration } from './postgres-database-migration';
+import { reconcileKvPostgres } from './reconcile-postgres';
 
 /**
  * Postgres-backed {@link Kv}.
  *
- * - **`new KvImplPostgres(sqlClient, now)`** — hot paths after migrate.
- * - **`KvImplPostgres.open(...)`** — migrate then construct.
+ * - **`new KvImplPostgres(sqlClient, now)`** — hot paths after reconcile.
+ * - **`KvImplPostgres.open(...)`** — reconcile then construct.
  */
 export class KvImplPostgres implements Kv {
   constructor(
@@ -34,21 +33,17 @@ export class KvImplPostgres implements Kv {
     logger: Logger;
     now: () => number;
   }): Promise<KvImplPostgres> {
-    await KvImplPostgres.migrateUp(args);
+    await KvImplPostgres.reconcile(args);
     return new KvImplPostgres(args.sqlClient, args.now);
   }
 
-  static async migrateUp(args: {
+  static async reconcile(args: {
     sqlClient: SqlClient;
     logger: Logger;
   }): Promise<void> {
-    await new KvPostgresDatabaseMigration({
-      dbScope: createPostgresDbScope('public'),
+    await reconcileKvPostgres(args.sqlClient, args.logger, {
       skipAdvisoryLock: true,
       alreadyInTransaction: false,
-    }).migrate({
-      sqlClient: args.sqlClient,
-      logger: args.logger,
     });
   }
 

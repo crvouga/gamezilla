@@ -63,7 +63,6 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-indexes-postgres": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/entity-store": "workspace:*",

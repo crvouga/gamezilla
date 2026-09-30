@@ -19,7 +19,7 @@ import { raw, sql } from '@pkgs/sql';
 import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { cutoverMatchmakingTables } from './cutover-migration';
+import { dropPreSchemaMatchmakingTables } from './pre-schema-tables';
 import {
   MATCHMAKING_ACTIVE_PARTITIONS_TABLE,
   MATCHMAKING_SCHEMA_STATE_ID,
@@ -213,7 +213,7 @@ async function migrateInner(opts: MigrateOptions): Promise<void> {
   const { sqlClient } = opts;
   const nowMs = opts.now?.() ?? 0;
   const engine = getUnderlyingSqlClient(sqlClient);
-  await cutoverMatchmakingTables(engine);
+  await dropPreSchemaMatchmakingTables(engine);
   await applyMatchmakingSchema(engine);
   await maybeRebuildSchema(sqlClient, schema, nowMs);
 }

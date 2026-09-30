@@ -1,15 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  AuthSqliteDatabaseMigration,
   createAuthApp,
   googleEndpointsFor,
+  reconcileIdpSqlite,
 } from '@pkgs/auth-inhouse/server';
 import {
   AUTH_NATIVE_SSO_CALLBACK_URL,
   oauthClientCallbackUrl,
 } from '@pkgs/auth-inhouse/shared';
 import { createHarnessClock } from '@pkgs/clock';
-import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
 import { ALICE_EMAIL, simulatedGoogle } from './support/simulated-google';
@@ -32,10 +31,7 @@ type Wire = (
 
 async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
   const sql = SqlClientImplMockingbirdSqlite.open({ seed: 1 });
-  await new AuthSqliteDatabaseMigration().migrate({
-    sqlClient: sql,
-    logger: createNoopLogger(),
-  });
+  await reconcileIdpSqlite(sql);
   let nextId = 0;
   const { clock } = createHarnessClock({ startMs: START_MS });
   const google = simulatedGoogle({

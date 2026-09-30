@@ -1,7 +1,3 @@
-import type {
-  DatabaseMigration,
-  DatabaseMigrationContext,
-} from '@pkgs/db-migrate';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -21,33 +17,24 @@ const MATCHMAKING_TABLES = [
 
 /**
  * Ephemeral matchmaking tick state: drop pre-defineTable shapes when present
- * so reconcile can create the managed-column layout. No-op on fresh DBs or
- * when tables already have `deleted_at`.
+ * so reconcile can create the managed-column layout. No-op on fresh databases
+ * and when the tables already have `deleted_at`.
  */
-export class MatchmakingCutoverMigration implements DatabaseMigration {
-  async migrate(ctx: DatabaseMigrationContext): Promise<void> {
-    await cutoverMatchmakingTables(ctx.sqlClient, (msg) => {
-      ctx.logger.info(msg);
-    });
-  }
-}
-
-/** Portable cutover used by {@link migrate} (no DatabaseMigrationContext). */
-export async function cutoverMatchmakingTables(
+export async function dropPreSchemaMatchmakingTables(
   sqlClient: SqlClient,
   log?: (message: string) => void
 ): Promise<void> {
-  if (!(await needsCutover(sqlClient))) {
-    log?.('matchmaking cutover: already defineTable shape or fresh');
+  if (!(await needsDrop(sqlClient))) {
+    log?.('matchmaking pre-schema: already defineTable shape or fresh');
     return;
   }
   for (const table of MATCHMAKING_TABLES) {
     await sqlClient.run(unsafe(`DROP TABLE IF EXISTS ${table}`));
   }
-  log?.('matchmaking cutover: dropped pre-defineTable tables');
+  log?.('matchmaking pre-schema: dropped pre-defineTable tables');
 }
 
-async function needsCutover(sqlClient: SqlClient): Promise<boolean> {
+async function needsDrop(sqlClient: SqlClient): Promise<boolean> {
   const anyPresent = await anyTableReadable(sqlClient);
   if (!anyPresent) return false;
   for (const table of MATCHMAKING_TABLES) {

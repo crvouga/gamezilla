@@ -369,7 +369,7 @@ Domain tables come from the host’s `LocalDomainSchema.domainSchema` (e.g.
 ### Server Postgres (framework)
 
 Applied by package-local `defineTable` schema (`syncEngineServerSchema`) via
-`SyncEngineDatabaseMigration` (cutover + `PostgresSchemaDatabaseMigration`).
+`reconcileSyncEnginePostgres`.
 Not registered in product `appSchema`:
 
 | Table | Purpose |
@@ -668,10 +668,10 @@ single-flight (it does) — mainly HTTP/server load then.
 ## Schema & versioning
 
 - **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
-  `@pkgs/db-schema-sqlite`; Postgres migrate separate.
+  `@pkgs/db-schema-sqlite`; Postgres reconcile is separate.
 - **Framework local:** package-local `syncEngineLocalSchema` via `reconcileSqliteSchema`; `SCHEMA_EPOCH`
   in `queries/client/local-schema.ts`.
-- **Framework server:** `syncEngineServerSchema` via `SyncEngineDatabaseMigration` (cutover + Postgres reconcile).
+- **Framework server:** `syncEngineServerSchema` via `reconcileSyncEnginePostgres`.
 - **Query/mutation wire names:** breaking changes ship as a new `name`
   (e.g. `joinSpaceV2`). Protocol cutover for clients is `upgrade_required`
   (no wipe) + pending-queue preserve-and-drain. No dual handlers for old

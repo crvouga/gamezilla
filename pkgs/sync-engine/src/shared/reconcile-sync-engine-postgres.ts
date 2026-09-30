@@ -1,10 +1,10 @@
 import type { ReconcilePostgresSchemaOptions } from '@pkgs/db-schema-postgres';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   createPostgresDbScope,
   type PostgresDbScope,
 } from '@pkgs/sql-client/postgres-db-scope';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { syncEngineServerSchema } from './schema/tables';
 

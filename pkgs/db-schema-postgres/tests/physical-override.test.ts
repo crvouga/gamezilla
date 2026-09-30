@@ -37,7 +37,7 @@ describe('postgres logical type vs physical catalog type', () => {
 });
 
 describe('postgres physical override end-to-end', () => {
-  test('catalog reports the raw physical type and drives drift', async () => {
+  test('catalog reports the raw physical type and widens a bare integer', async () => {
     const harness =
       await createMockingbirdPostgresTestClient('physical_override');
     try {
@@ -63,15 +63,18 @@ describe('postgres physical override end-to-end', () => {
       if (!idempotent.ok) return;
       expect(idempotent.operations).toEqual([]);
 
-      // The same column declared without the override expects bigint, so the
-      // int4 catalog column is drift.
+      // Declared integer with no physical override is bigint, so int4 widens.
       const plain = defineSchema({
         tables: { metrics: { rating: 'integer' } },
       });
-      const drift = planServer(plain._declared, catalog);
-      expect(drift.ok).toBe(false);
-      if (drift.ok) return;
-      expect(drift.drift.map((d) => d.path)).toContain('metrics.rating');
+      const widened = planServer(plain._declared, catalog);
+      expect(widened.ok).toBe(true);
+      if (!widened.ok) return;
+      expect(
+        widened.operations.some(
+          (op) => op.kind === 'widen_integer' && op.column === 'rating'
+        )
+      ).toBe(true);
     } finally {
       await harness.close();
     }

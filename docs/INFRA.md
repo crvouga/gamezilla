@@ -185,7 +185,7 @@ Cloudflare Hyperdrive config per environment on the branch's direct
 `@libs/server-app/config/env`). Hyperdrive keeps warm, pooled connections next
 to the database, so a request skips the TLS and auth handshake. Query caching
 is **off**: sync hydration must read its own writes. `DATABASE_URL` stays the
-database's identity — migrations and tooling connect with it, and the
+database's identity — reconcile and tooling connect with it, and the
 non-production URL policy always checks it. `wrangler dev` and the localhost
 stack have no binding and connect directly.
 

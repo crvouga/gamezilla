@@ -15,7 +15,10 @@ import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres/ensure-schema';
-import { extractWorkload, reconcileSyncEnginePostgres } from '@pkgs/sync-engine/shared';
+import {
+  extractWorkload,
+  reconcileSyncEnginePostgres,
+} from '@pkgs/sync-engine/shared';
 
 import { grantObsRead } from './grant-obs-read';
 import { runMigrateIndexReconcile } from './run-migrate-index-reconcile';
@@ -149,7 +152,8 @@ async function reconcileWorkloadIndexes(
 export async function reconcilePostgres(
   deps: ReconcilePostgresDeps
 ): Promise<void> {
-  const skipIndexReconcile = deps.skipIndexReconcile ?? deps.skipAdvisoryLock;
+  const skipIndexReconcile =
+    deps.skipIndexReconcile ?? deps.skipAdvisoryLock ?? false;
   const resolved = { ...deps, skipIndexReconcile };
   await ensurePostgresSchema(resolved.sqlClient, resolved.dbScope);
   if (!resolved.skipSqliteCompat) {

@@ -44,7 +44,6 @@
     "@pkgs/billing-providers": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",

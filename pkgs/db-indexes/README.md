@@ -8,7 +8,7 @@ CI (`assertIndexableWorkload` / `assertQueryRegistryIndexable`) fails if any
 `defineQuery` statement is unindexable (not PK, schema leftmost, autoidx
 candidate, or catalog allowlist). Online reconcile still skip-not-throw for
 `below_min_rows` / `low_improvement`. Migrate uses `MIGRATE_RECONCILE_CONFIG`
-(no row/improvement gates) and fails the migration if desired indexes cannot
+(no row/improvement gates) and fails reconcile if desired indexes cannot
 be applied.
 
 ## Public API
