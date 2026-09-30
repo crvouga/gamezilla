@@ -20,4 +20,16 @@ describe('prepareCriticalJourneyAccess', () => {
     });
     expect(steps).toEqual(['launch', 'tab-shell', 'sign-in']);
   });
+
+  // regression: journey-guest-starts-before-tab-shell
+  test('settles the initial tab route before an anonymous journey', async () => {
+    const steps: string[] = [];
+    await prepareCriticalJourneyAccess({
+      access: 'anonymous',
+      launch: recordStep(steps, 'launch'),
+      waitForTabShell: recordStep(steps, 'tab-shell'),
+      signIn: recordStep(steps, 'sign-in'),
+    });
+    expect(steps).toEqual(['launch', 'tab-shell']);
+  });
 });

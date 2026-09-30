@@ -14,7 +14,8 @@ export const mySpaces = defineQuery({
         id, title, host_id, created_at, ended_at, visibility,
         host_account_id, host_member_id, deleted_at
       FROM spaces
-      WHERE ${visible}`);
+      WHERE ${visible}
+      ORDER BY CASE WHEN ended_at IS NULL THEN 0 ELSE 1 END, id`);
     return { spaces: rows };
   },
 });

@@ -22,6 +22,8 @@ export type SpaceJoinLocalRow = {
   readonly host_account_id: string | null;
   readonly ended_at: string | null;
   readonly visibility: string | null;
+  /** Set when the row is a tombstone. A tombstone is not a live space. */
+  readonly deleted_at?: string | null;
 };
 
 export type ResolveSpaceJoinSnapshotInput = {
@@ -86,8 +88,11 @@ export function resolveSpaceJoinSnapshot(
   if (input.rowLoading) {
     return { status: 'loading', joinable: false };
   }
-  if (input.row !== null) {
-    return snapshotFromResolvedRow(input.row, input);
+  const row = input.row;
+  const tombstoned =
+    row !== null && row.deleted_at != null && row.deleted_at.length > 0;
+  if (row !== null && !tombstoned) {
+    return snapshotFromResolvedRow(row, input);
   }
   if (input.linkAnswered) return { status: 'missing', joinable: false };
   if (!input.online) return { status: 'offline', joinable: false };
