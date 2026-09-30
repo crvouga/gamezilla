@@ -15,8 +15,13 @@ export type StackOptions = {
   readonly withMqtt: boolean;
   /** Native OTLP file collector by default; LGTM is the opt-in Docker UI. */
   readonly observabilityBackend: ObservabilityBackend;
-  /** Serve the built web bundle. Off for API-only runs. */
+  /** Serve the web app. Off for API-only runs. */
   readonly withWeb: boolean;
+  /**
+   * Pin the web listener. Null asks the OS for a port. The workspace run
+   * script passes its `VITE_PORT` so the run pane opens this stack.
+   */
+  readonly webPort: number | null;
   /**
    * Serve the web app as a fixed snapshot: no HMR and no file watching, so
    * edits in the working tree cannot reload a browser mid-run (test runs).
@@ -78,6 +83,16 @@ function parseIdpState(argv: readonly string[]): {
   return { mode: raw, path };
 }
 
+function parseWebPort(argv: readonly string[]): number | null {
+  const raw = value(argv, 'web-port');
+  if (raw === null) return null;
+  const port = Number(raw);
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new Error(`--web-port must be a TCP port (got '${raw}')`);
+  }
+  return port;
+}
+
 function parseObservabilityBackend(
   argv: readonly string[]
 ): ObservabilityBackend {
@@ -94,13 +109,19 @@ function parseObservabilityBackend(
 export function parseStackOptions(argv: readonly string[]): StackOptions {
   const nodes = Number(value(argv, 'api-nodes') ?? '2');
   const idpState = parseIdpState(argv);
+  const withWeb = !flag(argv, 'no-web');
+  const webPort = parseWebPort(argv);
+  if (webPort !== null && !withWeb) {
+    throw new Error('--web-port requires the web app (omit --no-web)');
+  }
   return {
     instanceId: value(argv, 'instance') ?? defaultInstanceId(),
     apiNodes: Number.isFinite(nodes) && nodes > 0 ? Math.floor(nodes) : 2,
     withS3: !flag(argv, 'no-s3'),
     withMqtt: !flag(argv, 'no-mqtt'),
     observabilityBackend: parseObservabilityBackend(argv),
-    withWeb: !flag(argv, 'no-web'),
+    withWeb,
+    webPort,
     frozenWeb: flag(argv, 'frozen-web'),
     testHooks: flag(argv, 'test-hooks'),
     keepData: flag(argv, 'keep-data'),

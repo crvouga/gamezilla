@@ -3,11 +3,10 @@ import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/public/loc
 /**
  * Where the reports screen reads `/api/reports`.
  *
- * `bun dev` is the Vite app alone. Its client is pointed at wrangler on
- * `localhost:8788`, which that command does not start, so the screen would
- * have no API. On that loopback dev server the page origin serves the reports
- * API itself. A configured API that is not the default wrangler preview
- * (the localhost stack, a deployed API) stays the source.
+ * The localhost stack points the client at its own API. A Vite dev server
+ * whose API is still the wrangler preview origin (`localhost:8788`) serves
+ * `/api/reports` on the page origin instead, because that command does not
+ * start wrangler. Any other configured API stays the source.
  */
 export function reportsApiBase(args: {
   readonly dev: boolean;

@@ -3,7 +3,8 @@
 // @io-wall-ok — tools composition root.
 
 /**
- * `bun run stack` — run one full localhost stack in the foreground.
+ * `bun run dev` — run one full localhost stack in the foreground.
+ * `bun run stack` is the same command.
  *
  * Prints the manifest path; every consumer (tests, a browser, another agent)
  * reads addresses from there rather than assuming a port.

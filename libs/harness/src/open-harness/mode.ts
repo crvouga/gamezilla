@@ -4,7 +4,7 @@
  * - `fast` — everything in this process, virtual time.
  * - `real` — a live browser over loopback HTTP, sidecars booted by the test.
  * - `stack` — a live browser against a separately booted localhost stack
- *   (`bun run stack`): real balancer, real API instances, real provider.
+ *   (`bun run dev`): real balancer, real API instances, real provider.
  */
 export type HarnessMode = 'fast' | 'real' | 'stack';
 

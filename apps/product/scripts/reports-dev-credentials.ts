@@ -1,10 +1,11 @@
-// @io-wall-ok — local `bun dev` reads the shared reports bucket
+// @io-wall-ok — the product Vite server reads the shared reports bucket
 /**
- * Reports read credentials for the Vite dev server. `bun dev` does not boot
- * the API Worker, and this machine's current Infisical profile may belong to
- * a different instance than `.infisical.json`, so a bare `infisical export`
- * never sees `REPORTS_*`. Pick the logged-in profile whose domain matches
- * the repo, then read those four values. Nothing here is sent to the browser.
+ * Reports read credentials for the product Vite server. That server does not
+ * boot the API Worker, and this machine's current Infisical profile may
+ * belong to a different instance than `.infisical.json`, so a bare
+ * `infisical export` never sees `REPORTS_*`. Pick the logged-in profile
+ * whose domain matches the repo, then read those four values. Nothing here
+ * is sent to the browser.
  */
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';

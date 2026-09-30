@@ -2,8 +2,9 @@
 /**
  * `/reports` and `/reports/<sha>`: every commit's spec report, streamed from
  * this deployment's API (`/api/reports`, which reads the one reports store
- * every environment shares). `bun dev` serves that API on the page origin,
- * because it does not start the wrangler preview the client otherwise calls.
+ * every environment shares). The localhost stack reads it from its API. A
+ * Vite server still aimed at the wrangler preview origin reads it from the
+ * page origin, because that server does not start wrangler.
  * Loaded as its own lazy chunk, so the wall client
  * never downloads the viewer, and isolated from the product: no sync engine,
  * no product chrome.
