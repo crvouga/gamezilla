@@ -57,6 +57,8 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'infisical_project_identity',
   'neon_branch',
   'neon_endpoint',
+  // Replacing obs_read mints a new password and drops its grants.
+  'neon_role',
   'postgresql_extension',
   'random_password',
   'railway_environment',
