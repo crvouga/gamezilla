@@ -71,11 +71,14 @@ function matches(entity: CatalogEntity, query: CatalogQuery): boolean {
   return q.length === 0 || entity.search.toLowerCase().includes(q);
 }
 
-function compare(a: CatalogEntity, b: CatalogEntity, sort: CatalogSort): number {
+function compare(
+  a: CatalogEntity,
+  b: CatalogEntity,
+  sort: CatalogSort
+): number {
   if (sort === 'duration') return (b.durationMs ?? -1) - (a.durationMs ?? -1);
   if (sort === 'status') {
-    const rank =
-      (STATUS_RANK[a.status] ?? 9) - (STATUS_RANK[b.status] ?? 9);
+    const rank = (STATUS_RANK[a.status] ?? 9) - (STATUS_RANK[b.status] ?? 9);
     if (rank !== 0) return rank;
   }
   if (a.title < b.title) return -1;
@@ -131,7 +134,9 @@ export function arrangeCatalog(
 ): readonly CatalogGroupView[] {
   const shown = entities.filter((entity) => matches(entity, query));
   const sorted =
-    query.sort === 'recent' ? shown : [...shown].sort((a, b) => compare(a, b, query.sort));
+    query.sort === 'recent'
+      ? shown
+      : [...shown].sort((a, b) => compare(a, b, query.sort));
   const order: string[] = [];
   const map = new Map<string, CatalogEntity[]>();
   for (const entity of sorted) {
@@ -148,7 +153,10 @@ export function arrangeCatalog(
     const list = map.get(name) ?? [];
     return {
       name,
-      durationMs: list.reduce((sum, entity) => sum + (entity.durationMs ?? 0), 0),
+      durationMs: list.reduce(
+        (sum, entity) => sum + (entity.durationMs ?? 0),
+        0
+      ),
       failed: list.filter((entity) => entity.status === 'failed').length,
       entities: list,
     };

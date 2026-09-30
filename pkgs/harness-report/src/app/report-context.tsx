@@ -42,7 +42,7 @@ export function ReportProvider(
     data: ReportData;
     frameCss: string | undefined;
     loader: ReportTestLoader | undefined;
-    pending?: boolean;
+    pending?: boolean | undefined;
   }>
 ) {
   // Getters: a streamed report grows `data` and fills in `frameCss` later.

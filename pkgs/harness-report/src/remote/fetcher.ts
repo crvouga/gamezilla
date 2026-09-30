@@ -71,11 +71,7 @@ export type ReportFetcher = {
   commits(cursor: string | null): Promise<CommitPage>;
   sources(sha: string): Promise<readonly SourceRecord[]>;
   frameCss(sha: string): Promise<string>;
-  test(
-    sha: string,
-    source: string,
-    testId: string
-  ): Promise<RunReport | null>;
+  test(sha: string, source: string, testId: string): Promise<RunReport | null>;
   blob(
     sha: string,
     source: string,
@@ -123,7 +119,8 @@ async function decodeBlob(response: Response): Promise<HtmlReportBlob | null> {
   if (!response.ok) throw new Error(String(response.status));
   const contentType =
     response.headers.get('content-type') ?? 'application/octet-stream';
-  if (isTextType(contentType)) return { contentType, text: await response.text() };
+  if (isTextType(contentType))
+    return { contentType, text: await response.text() };
   const bytes = new Uint8Array(await response.arrayBuffer());
   return { contentType, base64: toBase64(bytes) };
 }
@@ -138,6 +135,16 @@ function cachedBlob(raw: string | null): HtmlReportBlob | null {
   }
 }
 
+function missingFrame(): Error {
+  const error = new Error('missing_frame');
+  error.name = 'MissingFrame';
+  return error;
+}
+
+function isMissingFrame(error: unknown): boolean {
+  return error instanceof Error && error.name === 'MissingFrame';
+}
+
 async function loadBlob(
   args: ReportFetcherArgs,
   path: string,
@@ -145,9 +152,42 @@ async function loadBlob(
 ): Promise<HtmlReportBlob | null> {
   const saved = cachedBlob(await args.cache.get(key));
   if (saved !== null) return saved;
-  const blob = await decodeBlob(await args.http.fetch(apiUrl(args.apiBase, path)));
+  const blob = await decodeBlob(
+    await args.http.fetch(apiUrl(args.apiBase, path))
+  );
   if (blob !== null) await args.cache.set(key, JSON.stringify(blob));
   return blob;
+}
+
+type BlobRef = {
+  readonly sha: string;
+  readonly source: string;
+  readonly testId: string;
+  readonly file: string;
+};
+
+/** A 404 is not a successful query, so a later scrub can try the file again. */
+async function fetchBlob(
+  args: ReportFetcherArgs,
+  ref: BlobRef
+): Promise<HtmlReportBlob | null> {
+  const key = reportQueryKey.blob(ref.sha, ref.source, ref.testId, ref.file);
+  try {
+    return await args.client.fetchQuery({
+      queryKey: key,
+      staleTime: Number.POSITIVE_INFINITY,
+      retry: false,
+      queryFn: async () => {
+        const path = blobPath(ref.sha, ref.source, ref.testId, ref.file);
+        const blob = await loadBlob(args, path, key.join('\n'));
+        if (blob === null) throw missingFrame();
+        return blob;
+      },
+    });
+  } catch (error) {
+    if (isMissingFrame(error)) return null;
+    throw error;
+  }
 }
 
 function blobPath(
@@ -164,7 +204,9 @@ function blobPath(
 }
 
 /** Query-cached reads. Frame files resolve from `cache` before the network. */
-export function createHttpReportFetcher(args: ReportFetcherArgs): ReportFetcher {
+export function createHttpReportFetcher(
+  args: ReportFetcherArgs
+): ReportFetcher {
   const { http, apiBase, client } = args;
   return {
     commits: (cursor) =>
@@ -173,9 +215,7 @@ export function createHttpReportFetcher(args: ReportFetcherArgs): ReportFetcher 
         queryFn: async () => {
           const query =
             cursor === null ? '' : `?cursor=${encodeURIComponent(cursor)}`;
-          return readJson<CommitPage>(
-            await http.fetch(apiUrl(apiBase, query))
-          );
+          return readJson<CommitPage>(await http.fetch(apiUrl(apiBase, query)));
         },
       }),
     sources: (sha) =>
@@ -192,7 +232,9 @@ export function createHttpReportFetcher(args: ReportFetcherArgs): ReportFetcher 
       client.fetchQuery({
         queryKey: reportQueryKey.css(sha),
         queryFn: async () => {
-          const response = await http.fetch(apiUrl(apiBase, `/${sha}/frame.css`));
+          const response = await http.fetch(
+            apiUrl(apiBase, `/${sha}/frame.css`)
+          );
           if (response.status === 404) return '';
           if (response.status === 503) throw new ReportsUnavailable();
           if (!response.ok) throw new Error(String(response.status));
@@ -214,15 +256,6 @@ export function createHttpReportFetcher(args: ReportFetcherArgs): ReportFetcher 
         },
       }),
     blob: (sha, source, testId, file) =>
-      client.fetchQuery({
-        queryKey: reportQueryKey.blob(sha, source, testId, file),
-        staleTime: Number.POSITIVE_INFINITY,
-        queryFn: () =>
-          loadBlob(
-            args,
-            blobPath(sha, source, testId, file),
-            reportQueryKey.blob(sha, source, testId, file).join('\n')
-          ),
-      }),
+      fetchBlob(args, { sha, source, testId, file }),
   };
 }

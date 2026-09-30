@@ -58,7 +58,9 @@ function CatalogBar(props: {
       <select
         aria-label="Status"
         value={props.query.status}
-        onChange={(e) => set({ status: e.currentTarget.value as CatalogStatus })}
+        onChange={(e) =>
+          set({ status: e.currentTarget.value as CatalogStatus })
+        }
       >
         <For each={STATUSES}>
           {(status) => (
@@ -165,7 +167,11 @@ export function EntityBrowser(props: {
   );
   return (
     <div class="sr-list">
-      <CatalogBar query={props.query} counts={counts()} onQuery={props.onQuery} />
+      <CatalogBar
+        query={props.query}
+        counts={counts()}
+        onQuery={props.onQuery}
+      />
       <Show when={props.pending && props.entities.length === 0}>
         <CatalogSkeleton />
       </Show>

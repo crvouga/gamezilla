@@ -14,9 +14,17 @@ import {
   encodeSseEvent,
   frameCssKey,
   isKeySegment,
+  listSourceRecords,
+  readFrameBody,
+  readTestReport,
   type TestEvent,
   testEvents,
 } from '../src/index';
+import {
+  createHttpReportFetcher,
+  memoryReportCache,
+  reportQueryClient,
+} from '../src/remote/fetcher';
 import {
   closeCommit,
   openCommit,
@@ -47,6 +55,83 @@ function sse(events: AsyncGenerator<CommitEvent | TestEvent>): Response {
   );
 }
 
+type StepTree = {
+  readonly frames: readonly {
+    readonly snapshots: readonly { readonly file: string }[];
+  }[];
+  readonly steps: readonly StepTree[];
+};
+
+function htmlFile(steps: readonly StepTree[]): string | undefined {
+  for (const step of steps) {
+    for (const frame of step.frames) {
+      const file = frame.snapshots.find((blob) => blob.file.endsWith('.html'));
+      if (file !== undefined) return file.file;
+    }
+    const nested = htmlFile(step.steps);
+    if (nested !== undefined) return nested;
+  }
+  return undefined;
+}
+
+function pair(
+  match: RegExpMatchArray | null
+): { source: string; testId: string } | null {
+  if (match?.[1] === undefined || match[2] === undefined) return null;
+  return { source: match[1], testId: match[2] };
+}
+
+async function apiResponse(
+  store: ObjectStoreImplInMemory,
+  server: { clock: HarnessClock; timers: Timers },
+  url: URL
+): Promise<Response> {
+  const rest = url.pathname.slice(`/api/reports/${SHA}`.length);
+  if (rest === '/events') {
+    const have = (url.searchParams.get('have') ?? '')
+      .split(',')
+      .filter(isKeySegment);
+    return sse(
+      commitEvents(store, SHA, {
+        ...server,
+        have: new Set(have),
+        pollMs: 1_000,
+        tailMs: 1_500,
+      })
+    );
+  }
+  if (rest === '/frame.css') {
+    const css = await store.get(frameCssKey(SHA));
+    return new Response(css?.body ?? null, { status: css ? 200 : 404 });
+  }
+  if (rest === '/sources') {
+    return Response.json({ sources: await listSourceRecords(store, SHA) });
+  }
+  const events = pair(/^\/tests\/([^/]+)\/([^/]+)\/events$/.exec(rest));
+  if (events !== null) return sse(testEvents(store, { sha: SHA, ...events }));
+  const file = /^\/tests\/([^/]+)\/([^/]+)\/files\/(.+)$/.exec(rest);
+  const named = pair(file);
+  if (named !== null && file?.[3] !== undefined) {
+    const body = await readFrameBody(store, {
+      sha: SHA,
+      ...named,
+      file: decodeURIComponent(file[3]),
+    });
+    if (body === null) return new Response(null, { status: 404 });
+    const copy = new ArrayBuffer(body.bytes.byteLength);
+    new Uint8Array(copy).set(body.bytes);
+    return new Response(copy, {
+      headers: { 'content-type': body.contentType },
+    });
+  }
+  const reportId = pair(/^\/tests\/([^/]+)\/([^/]+)$/.exec(rest));
+  if (reportId === null) return new Response(null, { status: 404 });
+  const report = await readTestReport(store, { sha: SHA, ...reportId });
+  return report === null
+    ? new Response(null, { status: 404 })
+    : Response.json(report);
+}
+
 /** The reports API over `store`, in process, with the server's own clock. */
 function fakeApi(
   store: ObjectStoreImplInMemory,
@@ -55,32 +140,10 @@ function fakeApi(
   const requests: string[] = [];
   return {
     requests,
-    async fetch(input) {
+    fetch(input) {
       const url = new URL(String(input));
       requests.push(`${url.pathname}${url.search}`);
-      const rest = url.pathname.slice(`/api/reports/${SHA}`.length);
-      if (rest === '/events') {
-        const have = (url.searchParams.get('have') ?? '')
-          .split(',')
-          .filter(isKeySegment);
-        return sse(
-          commitEvents(store, SHA, {
-            ...server,
-            have: new Set(have),
-            pollMs: 1_000,
-            tailMs: 1_500,
-          })
-        );
-      }
-      if (rest === '/frame.css') {
-        const css = await store.get(frameCssKey(SHA));
-        return new Response(css?.body ?? null, { status: css ? 200 : 404 });
-      }
-      const m = /^\/tests\/([^/]+)\/([^/]+)\/events$/.exec(rest);
-      if (m?.[1] !== undefined && m[2] !== undefined) {
-        return sse(testEvents(store, { sha: SHA, source: m[1], testId: m[2] }));
-      }
-      return new Response(null, { status: 404 });
+      return apiResponse(store, server, url);
     },
   };
 }
@@ -129,8 +192,20 @@ async function until(ready: () => boolean): Promise<void> {
 
 function open(http: HttpClient): { report: RemoteReport; dispose: () => void } {
   const { timers } = createHarnessClock();
+  const fetcher = createHttpReportFetcher({
+    http,
+    apiBase: API,
+    client: reportQueryClient(),
+    cache: memoryReportCache(),
+  });
   return createRoot((dispose) => {
-    const report = createRemoteReport({ http, timers, apiBase: API, sha: SHA });
+    const report = createRemoteReport({
+      http,
+      timers,
+      apiBase: API,
+      sha: SHA,
+      fetcher,
+    });
     return {
       report,
       dispose: () => {
@@ -160,11 +235,11 @@ describe('a streamed report', () => {
     await until(() => report.loader.state(TEST_ID).kind === 'ready');
     const test = report.data.tests[0];
     expect(test?.report.steps.length).toBeGreaterThan(0);
-    expect(
-      Object.entries(test?.blobs ?? {}).find(([file]) =>
-        file.endsWith('.html')
-      )?.[1].text
-    ).toContain('hello');
+    expect(test?.blobs).toEqual({});
+    const file = htmlFile(test?.report.steps ?? []);
+    if (file === undefined) throw new Error('expected an html frame');
+    report.loader.ensureBlob?.(TEST_ID, file);
+    await until(() => (test?.blobs[file]?.text ?? '').includes('hello'));
     expect(report.frameCss()).toBe('body{}');
     expect(report.loader.state('libs-chess--part-0/nope').kind).toBe('missing');
     dispose();

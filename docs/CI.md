@@ -138,8 +138,10 @@ report is part of the Check workflow, and Check is red if it did not publish.
   frame, so a package's cached `test:spec:<k>` bucket already holds the
   frames the report shows; there is no separate cache entry.
 - **Streamed, never bundled.** The screen lists tests as each part's record
-  arrives and loads a test's steps and snapshots only when it is opened, so a
-  commit's reports never have to fit in one download.
+  arrives and loads a test's steps when it is opened. Each frame file is
+  fetched on demand. Commits, sources, timelines and the stylesheet stay in a
+  persistent query cache, so a commit's reports never have to fit in one
+  download.
 
 ## `turbo-ci-run`
 

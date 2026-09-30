@@ -23,19 +23,16 @@ import {
 
 import { HarnessReportApp } from '../app/report-app';
 import { CatalogSkeleton, EntityBrowser } from '../components/entity-browser';
-import {
-  type CatalogEntity,
-  type CatalogQuery,
-} from '../lib/catalog';
+import type { CatalogEntity, CatalogQuery } from '../lib/catalog';
 import { fmtDate } from '../lib/format';
 import {
   createHttpReportFetcher,
   memoryReportCache,
   type ReportCache,
   type ReportFetcher,
+  ReportsUnavailable,
   reportQueryClient,
   reportQueryKey,
-  ReportsUnavailable,
 } from './fetcher';
 import { attachReportCache } from './persist';
 import type { CommitPage, CommitRecord } from './protocol';
@@ -51,7 +48,7 @@ export type RemoteReportsAppProps = {
   readonly sha: string | null;
   readonly onOpen: (sha: string | null) => void;
   /** Survives reloads. Defaults to an in-memory cache. */
-  readonly cache?: ReportCache;
+  readonly cache?: ReportCache | undefined;
 };
 
 const COMMIT_QUERY: CatalogQuery = {
@@ -128,9 +125,7 @@ export function RemoteReportsApp(props: RemoteReportsAppProps) {
           keyed
           fallback={<CommitList fetcher={fetcher} onOpen={props.onOpen} />}
         >
-          {(sha) => (
-            <CommitReport {...props} sha={sha} fetcher={fetcher} />
-          )}
+          {(sha) => <CommitReport {...props} sha={sha} fetcher={fetcher} />}
         </Show>
       </Show>
     </QueryClientProvider>

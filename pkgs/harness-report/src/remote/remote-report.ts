@@ -261,9 +261,12 @@ async function loadBlob(ctx: Ctx, id: string, file: string): Promise<void> {
       parts.testId,
       file
     );
-    if (disposed(ctx) || blob === null) return;
-    const at = testIndex(ctx, id);
-    if (at >= 0) ctx.setStore('data', 'tests', at, 'blobs', file, blob);
+    if (!disposed(ctx) && blob !== null) {
+      const at = testIndex(ctx, id);
+      if (at >= 0) ctx.setStore('data', 'tests', at, 'blobs', file, blob);
+    }
+  } catch {
+    // The file can be asked for again. A 404 is not remembered.
   } finally {
     ctx.inflight.delete(key);
   }
@@ -303,7 +306,8 @@ async function loadCached(ctx: Ctx): Promise<void> {
     if (disposed(ctx)) return;
     for (const source of sources) addSource(ctx, source);
     ctx.setFrameCss(css);
-    if (sources.length > 0 && ctx.phase() === 'connecting') ctx.setPhase('live');
+    if (sources.length > 0 && ctx.phase() === 'connecting')
+      ctx.setPhase('live');
   } catch {
     if (!disposed(ctx) && ctx.frameCss() === undefined) ctx.setFrameCss('');
   }

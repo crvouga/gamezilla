@@ -38,7 +38,7 @@ import {
   testEvents,
 } from '@pkgs/harness-report';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { Hono } from 'hono';
+import { type Context, Hono } from 'hono';
 
 import { apiCors } from '../app/cors';
 
@@ -89,6 +89,15 @@ function eventStream(
   });
 }
 
+function bytesResponse(
+  bytes: Uint8Array,
+  headers: Record<string, string>
+): Response {
+  const copy = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(copy).set(bytes);
+  return new Response(copy, { status: 200, headers });
+}
+
 function frameFileParam(raw: string | undefined): string | null {
   if (raw === undefined || raw.length === 0) return null;
   let file: string;
@@ -104,15 +113,117 @@ function haveSources(raw: string | undefined): ReadonlySet<string> {
   return new Set((raw ?? '').split(',').filter(isKeySegment));
 }
 
-export function createReportsApp(deps: ReportsAppDeps) {
-  const unavailable = () =>
-    Response.json(
-      { error: 'reports_unavailable' },
-      { status: 503, headers: NO_STORE }
-    );
-  const notFound = () =>
-    Response.json({ error: 'not_found' }, { status: 404, headers: NO_STORE });
+function unavailable(): Response {
+  return Response.json(
+    { error: 'reports_unavailable' },
+    { status: 503, headers: NO_STORE }
+  );
+}
 
+function notFound(): Response {
+  return Response.json(
+    { error: 'not_found' },
+    { status: 404, headers: NO_STORE }
+  );
+}
+
+function storeOf(
+  deps: ReportsAppDeps,
+  sha: string
+): NonNullable<ReportsAppDeps['store']> | Response {
+  if (!isCommitSha(sha)) return notFound();
+  if (deps.store === null) return unavailable();
+  return deps.store;
+}
+
+function testParams(c: Context):
+  | Response
+  | {
+      readonly sha: string;
+      readonly source: string;
+      readonly testId: string;
+    } {
+  const sha = c.req.param('sha');
+  const source = c.req.param('source');
+  const testId = c.req.param('testId');
+  if (
+    sha === undefined ||
+    source === undefined ||
+    testId === undefined ||
+    !isCommitSha(sha) ||
+    !isKeySegment(source) ||
+    !isKeySegment(testId)
+  ) {
+    return notFound();
+  }
+  return { sha, source, testId };
+}
+
+function sourcesRoute(deps: ReportsAppDeps) {
+  return async (c: Context) => {
+    const sha = c.req.param('sha') ?? '';
+    const store = storeOf(deps, sha);
+    if (store instanceof Response) return store;
+    const commit = await readCommit(store, sha);
+    const sources = await listSourceRecords(store, sha);
+    return c.json({ sources }, 200, cacheFor(commit?.state === 'complete'));
+  };
+}
+
+function testRoute(deps: ReportsAppDeps) {
+  return async (c: Context) => {
+    const params = testParams(c);
+    if (params instanceof Response) return params;
+    const store = storeOf(deps, params.sha);
+    if (store instanceof Response) return store;
+    const report = await readTestReport(store, params);
+    if (report === null) return notFound();
+    const commit = await readCommit(store, params.sha);
+    return c.json(report, 200, cacheFor(commit?.state === 'complete'));
+  };
+}
+
+/** Hono's tail `*` matches the rest of the path and does not expose it. */
+function frameFileOf(
+  url: string,
+  params: { readonly source: string; readonly testId: string }
+): string | null {
+  const marker = `/tests/${params.source}/${params.testId}/files/`;
+  const path = new URL(url).pathname;
+  const at = path.indexOf(marker);
+  if (at < 0) return null;
+  return frameFileParam(path.slice(at + marker.length));
+}
+
+function fileRoute(deps: ReportsAppDeps) {
+  return async (c: Context) => {
+    const params = testParams(c);
+    if (params instanceof Response) return params;
+    const file = frameFileOf(c.req.url, params);
+    if (file === null) return notFound();
+    const store = storeOf(deps, params.sha);
+    if (store instanceof Response) return store;
+    const body = await readFrameBody(store, { ...params, file });
+    if (body === null) return notFound();
+    const commit = await readCommit(store, params.sha);
+    return bytesResponse(body.bytes, {
+      'content-type': body.contentType,
+      ...cacheFor(commit?.state === 'complete'),
+    });
+  };
+}
+
+function testEventsRoute(deps: ReportsAppDeps) {
+  return (c: Context) => {
+    const params = testParams(c);
+    if (params instanceof Response) return params;
+    const store = storeOf(deps, params.sha);
+    if (store instanceof Response) return store;
+    return eventStream(testEvents(store, params));
+  };
+}
+
+export function createReportsApp(deps: ReportsAppDeps) {
   return new Hono()
     .use('*', apiCors)
     .get('/', async (c) => {
@@ -144,14 +255,7 @@ export function createReportsApp(deps: ReportsAppDeps) {
         })
       );
     })
-    .get('/:sha/sources', async (c) => {
-      const sha = c.req.param('sha');
-      if (!isCommitSha(sha)) return notFound();
-      if (deps.store === null) return unavailable();
-      const commit = await readCommit(deps.store, sha);
-      const sources = await listSourceRecords(deps.store, sha);
-      return c.json({ sources }, 200, cacheFor(commit?.state === 'complete'));
-    })
+    .get('/:sha/sources', sourcesRoute(deps))
     .get('/:sha/frame.css', async (c) => {
       const sha = c.req.param('sha');
       if (!isCommitSha(sha)) return notFound();
@@ -166,57 +270,7 @@ export function createReportsApp(deps: ReportsAppDeps) {
         },
       });
     })
-    .get('/:sha/tests/:source/:testId', async (c) => {
-      const sha = c.req.param('sha');
-      const source = c.req.param('source');
-      const testId = c.req.param('testId');
-      if (!isCommitSha(sha) || !isKeySegment(source) || !isKeySegment(testId)) {
-        return notFound();
-      }
-      if (deps.store === null) return unavailable();
-      const report = await readTestReport(deps.store, { sha, source, testId });
-      if (report === null) return notFound();
-      const commit = await readCommit(deps.store, sha);
-      return c.json(report, 200, cacheFor(commit?.state === 'complete'));
-    })
-    .get('/:sha/tests/:source/:testId/files/*', async (c) => {
-      const sha = c.req.param('sha');
-      const source = c.req.param('source');
-      const testId = c.req.param('testId');
-      const file = frameFileParam(c.req.param('*'));
-      if (
-        !isCommitSha(sha) ||
-        !isKeySegment(source) ||
-        !isKeySegment(testId) ||
-        file === null
-      ) {
-        return notFound();
-      }
-      if (deps.store === null) return unavailable();
-      const body = await readFrameBody(deps.store, {
-        sha,
-        source,
-        testId,
-        file,
-      });
-      if (body === null) return notFound();
-      const commit = await readCommit(deps.store, sha);
-      return new Response(body.bytes, {
-        status: 200,
-        headers: {
-          'content-type': body.contentType,
-          ...cacheFor(commit?.state === 'complete'),
-        },
-      });
-    })
-    .get('/:sha/tests/:source/:testId/events', (c) => {
-      const sha = c.req.param('sha');
-      const source = c.req.param('source');
-      const testId = c.req.param('testId');
-      if (!isCommitSha(sha) || !isKeySegment(source) || !isKeySegment(testId)) {
-        return notFound();
-      }
-      if (deps.store === null) return unavailable();
-      return eventStream(testEvents(deps.store, { sha, source, testId }));
-    });
+    .get('/:sha/tests/:source/:testId', testRoute(deps))
+    .get('/:sha/tests/:source/:testId/files/*', fileRoute(deps))
+    .get('/:sha/tests/:source/:testId/events', testEventsRoute(deps));
 }

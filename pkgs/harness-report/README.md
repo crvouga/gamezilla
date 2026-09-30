@@ -15,10 +15,19 @@ await closeCommit(store, { sha, endedAtMs });
 // An API (`@pkgs/harness-report`): encode each event with `encodeSseEvent`.
 listCommits(store, { limit, cursor });
 commitEvents(store, sha, { clock, timers, pollMs, tailMs }); // commit, then sources
-testEvents(store, { sha, source, testId }); // a test, then its frame files
+listSourceRecords(store, sha); // cacheable once the commit is complete
+readTestReport(store, { sha, source, testId }); // timeline, no frame files
+readFrameBody(store, { sha, source, testId, file }); // one frame file
 
 // The browser (`@pkgs/harness-report/client`):
-<RemoteReportsApp http={http} timers={timers} apiBase={apiBase} sha={sha} onOpen={open} />
+<RemoteReportsApp
+  http={http}
+  timers={timers}
+  apiBase={apiBase}
+  sha={sha}
+  cache={cache}
+  onOpen={open}
+/>
 ```
 
 `store` is any `ObjectStore` scoped to `REPORTS_ROOT_PREFIX`; `local` is the
@@ -28,9 +37,13 @@ every test it names. A running commit's stream re-lists its sources and sends
 each new one as it lands; a reconnect passes the sources it holds and never
 gets them again. The key layout is in `src/remote/keys.ts`.
 
-The list fills in source by source; a test's steps and frame files stream in
-the first time it is opened (`ReportTestLoader`), so a commit's reports never
-have to fit in one download.
+The list fills in source by source. Opening a test fetches its timeline only;
+each frame file is fetched when that frame is shown, and the ones just beside
+it, so a commit's reports never have to fit in one download. Commits, sources,
+timelines and the snapshot stylesheet go through a TanStack Query cache that
+persists across visits. Frame bytes live in a separate cache (IndexedDB in the
+product, a map in tests) and are not written into that document. A finished
+commit's JSON and frame files are immutable; a running commit is `no-store`.
 
 ## Viewer
 
@@ -52,8 +65,13 @@ snapshot with the driver's chained first-match semantics and draws a single
 overlay from real layout; if the target is absent it says so instead of
 guessing.
 
-UI suites (`html` / `png`) get phone panels + press overlays; headless suites
-(`json` / `text` / `bytes`) get a document stage.
+Every frame paints in a phone panel. A UI snapshot (`html` / `png`) is that
+panel; a press overlay is drawn on the HTML. A frame with no UI snapshot —
+including a Quint step, which also keeps a model card beside any UI it
+captured — is painted from the step's recorded state (`name = value` as a
+table, plus the step and frame durations). Other captured blobs stay in the
+aside. The test list and the commit list share one catalog: search, status,
+group and sort, with duration on each row.
 
 ## Entries
 
@@ -69,7 +87,7 @@ UI suites (`html` / `png`) get phone panels + press overlays; headless suites
 src/
   remote/        store keys, protocol, read + publish sides, streamed client
   app/           Solid root + hash routing + keyboard
-  components/    header, steps, toolbar, scrubber, phone/doc stages
+  components/    header, steps, toolbar, scrubber, phone stage, catalog
   views/         test list, one test
   lib/           pure helpers (frames, format, hash, phone)
 ```

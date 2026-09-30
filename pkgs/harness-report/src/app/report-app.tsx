@@ -15,7 +15,7 @@ export type HarnessReportAppProps = {
   /** Loads each test's steps on first view; frame files follow as they paint. */
   loader?: ReportTestLoader | undefined;
   /** True while the test list itself is still arriving. */
-  pending?: boolean;
+  pending?: boolean | undefined;
   /** A way out of this report (a list of reports), shown in the header. */
   home?: { readonly label: string; readonly onOpen: () => void } | undefined;
 };

@@ -7,10 +7,10 @@ import { EntityBrowser } from '../components/entity-browser';
 import {
   type CatalogEntity,
   type CatalogGroup,
-  catalogParams,
   type CatalogQuery,
   type CatalogSort,
   type CatalogStatus,
+  catalogParams,
 } from '../lib/catalog';
 import { fileLabel } from '../lib/format';
 

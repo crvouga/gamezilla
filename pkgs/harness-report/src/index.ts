@@ -8,8 +8,8 @@ export * from './remote/keys';
 export * from './remote/protocol';
 export {
   type CommitEventsOptions,
-  type FrameBody,
   commitEvents,
+  type FrameBody,
   listCommits,
   listSourceRecords,
   readCommit,

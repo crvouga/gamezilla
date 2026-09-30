@@ -48,10 +48,7 @@ function modelSlot(
   return { nodeId: 'model', blob, stale: false, html };
 }
 
-function slotHtml(
-  test: HtmlReportTest,
-  slot: OrderedUiBlob
-): string | null {
+function slotHtml(test: HtmlReportTest, slot: OrderedUiBlob): string | null {
   if (slot.blob?.media !== 'html') return null;
   return blobText(test, slot.blob);
 }

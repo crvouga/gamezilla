@@ -1,5 +1,6 @@
 /** Browser / Solid entry: the viewer and the streamed reports screen. */
 export { HarnessReportApp } from './app/report-app';
+export type { ReportCache } from './remote/fetcher';
 export {
   createRemoteReport,
   type RemoteReport,
@@ -10,4 +11,3 @@ export {
   RemoteReportsApp,
   type RemoteReportsAppProps,
 } from './remote/remote-reports-app';
-export type { ReportCache } from './remote/fetcher';

@@ -1,4 +1,3 @@
-import type { HtmlReportTest } from '@pkgs/harness';
 import { createEffect, createMemo, Match, Show, Switch } from 'solid-js';
 import { type TestLoad, useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
@@ -44,11 +43,7 @@ export function TestView(props: { nav: ReportNav }) {
     return l.kind === 'error' ? l.message : null;
   });
   return (
-    <Switch
-      fallback={
-        <div class="sr-note">{`Waiting for ${testId()}…`}</div>
-      }
-    >
+    <Switch fallback={<div class="sr-note">{`Waiting for ${testId()}…`}</div>}>
       <Match when={known()}>
         <LoadedTestView nav={props.nav} testId={testId()} />
       </Match>
