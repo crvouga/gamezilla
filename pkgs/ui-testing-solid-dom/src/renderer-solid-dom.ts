@@ -205,15 +205,17 @@ export function createSolidDomRenderedApp(
       syncLayout();
       return Promise.resolve(ensureElementLayout(asElement(element), provider));
     },
-    typeText: async (element, text) => {
+    typeText: (element, text) => {
       const field = findTextField(asElement(element));
       focusInto(field);
       writeFieldText(field, `${field.value}${text}`);
+      return Promise.resolve();
     },
-    clearText: async (element) => {
+    clearText: (element) => {
       const field = findTextField(asElement(element));
       focusInto(field);
       writeFieldText(field, '');
+      return Promise.resolve();
     },
     pressKey: async (domKey, target) => {
       if (target !== undefined) focusInto(asElement(target));
