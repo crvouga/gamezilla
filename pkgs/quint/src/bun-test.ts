@@ -11,7 +11,7 @@
  */
 
 import { describe, test } from 'bun:test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 import { registerModelChecks } from './model-checks';
@@ -30,6 +30,7 @@ import {
   replayTraceTwice,
   untakenActions,
 } from './replay';
+import { formatModelShapeIssue, modelShapeIssues } from './shape';
 import { simulate } from './simulate';
 
 export type RunModelOptions = {
@@ -80,6 +81,22 @@ export function runQuintModel(options: RunModelOptions): void {
     const binding = boundModel(model);
     if (slice.index === 0) {
       registerModelChecks({ specPath: options.specPath, record });
+    }
+    const shape = modelShapeIssues(
+      readFileSync(options.specPath, 'utf8'),
+      options.specPath
+    );
+    if (shape.length > 0) {
+      if (slice.index !== 0) {
+        test('has the shape of an offline-first aggregate', () => {
+          throw new Error(
+            shape
+              .map((item) => formatModelShapeIssue(options.specPath, item))
+              .join('\n')
+          );
+        });
+      }
+      return;
     }
     let drawn: Drawn;
     try {
@@ -139,10 +156,12 @@ function registerModelWide(input: Registration): void {
       record,
       id: 'simulate',
       layer: 'specification',
-      body: () =>
-        drawn.invariants.length === 0
-          ? `${draw}; no invariant to check`
-          : `${drawn.invariants.join(', ')} held on ${draw}`,
+      body: () => {
+        if (drawn.invariants.length === 0) {
+          throw new Error(`${model}: a model with no invariant proves nothing`);
+        }
+        return `${drawn.invariants.join(', ')} held on ${draw}`;
+      },
     }));
 
   test(`takes every bound action (${draw})`, () =>

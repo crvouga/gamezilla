@@ -25,7 +25,12 @@ import {
   readActivePuzzleId,
   readPuzzleStatus,
 } from '@libs/chess/harness/chess-puzzle-ui';
-import { focusActor, restartApp } from '@libs/harness';
+import {
+  focusActor,
+  partition,
+  restartApp,
+  restoreNetwork,
+} from '@libs/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint/world';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { bringToFront, visible } from '@libs/harness/system/observations';
@@ -92,8 +97,8 @@ function hostDoes(
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'puzzle-attempt',
-  traces: 6,
-  maxSteps: 12,
+  traces: 12,
+  maxSteps: 16,
   // Two views read after every step: a trace runs ~10s alone, but several
   // times that beside the rest of the package's suite.
   timeoutMs: 180_000,
@@ -129,6 +134,12 @@ bindQuintModel<QuintHarnessWorld>({
       await w.s.apply(restartApp, HOST);
       await w.s.apply(returnToOwnSpace, HOST);
     }),
+    _loseConnection: async (w, picks) => {
+      await w.s.apply(partition, String(picks['person']));
+    },
+    _connectionReturns: async (w) => {
+      await w.s.apply(restoreNetwork);
+    },
   },
   observe: async (w) => {
     const view = new Map<QuintValue, QuintValue>();

@@ -84,6 +84,8 @@ bindQuintModel<RoomTraceWorld>({
     timePasses: async (w, picks) => {
       await traceRoom(w).advanceTime(seconds(picks, 'seconds') * SECOND_MS);
     },
+    _loseConnection: () => Promise.resolve(),
+    _connectionReturns: () => Promise.resolve(),
   },
   observe: async (w) => {
     const s = traceRoom(w);

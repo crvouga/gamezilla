@@ -59,6 +59,8 @@ bindQuintModel<RoomTraceWorld>({
         payload: AddOne({}),
       });
     },
+    _loseConnection: () => Promise.resolve(),
+    _connectionReturns: () => Promise.resolve(),
   },
   observe: async (w) => {
     const room = await readServer(traceRoom(w));

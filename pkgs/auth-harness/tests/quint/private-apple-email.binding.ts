@@ -54,6 +54,8 @@ bindQuintModel<SignInTraceWorld>({
     forwardMailAgain: async (w) => {
       await forwarding(w, true);
     },
+    _phoneGoesOffline: () => Promise.resolve(),
+    _phoneBackOnline: () => Promise.resolve(),
   },
   observe: async (w) => {
     const methods = await traceAuth(w).read(identitiesOf, DEVICE);

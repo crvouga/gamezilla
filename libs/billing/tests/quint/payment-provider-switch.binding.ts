@@ -46,8 +46,8 @@ function person(picks: Picks): string {
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'payment-provider-switch',
-  traces: 8,
-  maxSteps: 12,
+  traces: 12,
+  maxSteps: 16,
   timeoutMs: 180_000,
   actions: {
     init: async (w) => {
@@ -85,6 +85,8 @@ bindQuintModel<QuintHarnessWorld>({
         back: Number(picks['back']),
       });
     },
+    _loseConnection: () => Promise.resolve(),
+    _connectionReturns: () => Promise.resolve(),
   },
   observe: async (w) => {
     const membershipStatus = new Map<QuintValue, QuintValue>();

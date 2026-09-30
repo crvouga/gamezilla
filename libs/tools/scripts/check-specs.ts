@@ -9,7 +9,8 @@
  * narrator), every scenario ends in an outcome with its context first, and the catalogs
  * are current, and no scenario has a BDD smell (`@pkgs/gherkin/smells`: a
  * long script, several events, acting after a Then outside journeys,
- * architecture words, a feature without a why), and every spec speaks its
+ * architecture words, a feature without a why), every Quint aggregate has
+ * the offline-first shape (`model-shape.ts`), and every spec speaks its
  * bounded context's ubiquitous language (`spec-glossary.ts`: no avoided
  * synonym, no other context's term unless borrowed, every Quint name and
  * Alloy sig and field a glossary term, cross-context imports only of published events), and
@@ -31,6 +32,7 @@ import { parameterTypeRegistryFrom } from '@pkgs/gherkin/registry';
 import { nearDuplicates } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import { randomWalkViolations } from './behavior-tests';
+import { modelShapeProblems } from './model-shape';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
 import { languageProblems } from './spec-glossary';
@@ -79,6 +81,7 @@ const errors: string[] = [
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(),
+  ...modelShapeProblems(),
   ...randomWalkViolations(
     packages.flatMap((pkg) =>
       ['src', 'tests'].flatMap((root) =>

@@ -6,10 +6,12 @@
  * obligation fails its test too; the evidence is the record.
  *
  *   id               layer            decided by
+ *   shape            specification    static shape (`./shape`), before any trace
  *   typecheck        specification    `quint typecheck`
  *   verify           specification    Apalache, every invariant up to the bound
  *                                     (recorded by the package's `check:models`)
- *   simulate         specification    every invariant held while drawing traces
+ *   simulate         specification    every invariant held while drawing traces;
+ *                                     no invariant is a failure
  *   trace:<n>        implementation   the product agreed with trace n
  *   bound-actions    completeness     the traces took every bound action
  *   determinism      implementation   a trace replayed twice ends the same

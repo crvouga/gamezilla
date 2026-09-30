@@ -125,8 +125,8 @@ async function toTabs(w: QuintHarnessWorld, actor: string): Promise<void> {
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'friendship',
-  traces: 10,
-  maxSteps: 12,
+  traces: 24,
+  maxSteps: 24,
   timeoutMs: 180_000,
   actions: {
     init: async (w) => {
@@ -188,6 +188,8 @@ bindQuintModel<QuintHarnessWorld>({
       await toTabs(w, actor);
       await w.s.apply(unblockFriend, actor, other);
     },
+    _loseConnection: () => Promise.resolve(),
+    _connectionReturns: () => Promise.resolve(),
   },
   observe: async (w) => {
     const friendshipStatus = new Map<QuintValue, QuintValue>();
