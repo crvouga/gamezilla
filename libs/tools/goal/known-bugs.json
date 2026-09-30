@@ -378,5 +378,10 @@
     "id": "infra-plan-read-transient",
     "summary": "A Railway GraphQL client error while reading EMQX_DASHBOARD_PASSWORD failed the drift check as if the environment had been changed by hand. The plan produced no diff; the provider connection dropped. Fixed: a plan read that fails with a transient provider error is tried again.",
     "regressionTest": "libs/infra/tests/plan-retry.test.ts"
+  },
+  {
+    "id": "people-search-rate-shared-server",
+    "summary": "People search kept one rate-limit map for the whole process, keyed only by account id. Parallel spec harnesses share that process and quint traces mint the same account ids, so one trace used up the budget and a later search came back empty. Fixed: each server's clock has its own bucket.",
+    "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
   }
 ]

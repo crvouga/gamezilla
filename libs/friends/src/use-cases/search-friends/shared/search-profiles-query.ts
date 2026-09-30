@@ -9,15 +9,26 @@ import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
-const searchTimestamps = new Map<string, number[]>();
+/**
+ * Stamps per clock function, then per viewer. Each sync app passes one stable
+ * `env.now`, so two harnesses in one process do not share a budget. A module
+ * map keyed only by account id did: quint traces mint the same ids.
+ */
+const rateBuckets = new WeakMap<() => Date, Map<string, number[]>>();
 
-function isRateLimited(userId: string, nowMs: number): boolean {
+function isRateLimited(userId: string, now: () => Date): boolean {
+  const nowMs = now().getTime();
   const windowStart = nowMs - USER_SEARCH_RATE_WINDOW_MS;
-  const prior = searchTimestamps.get(userId) ?? [];
+  let byUser = rateBuckets.get(now);
+  if (byUser === undefined) {
+    byUser = new Map();
+    rateBuckets.set(now, byUser);
+  }
+  const prior = byUser.get(userId) ?? [];
   let recent = prior.filter((ts) => ts >= windowStart);
-  // Frozen harness clocks keep every stamp equal to `nowMs`, which would lock the
-  // window forever after RATE_LIMIT hits. Reset the bucket in that case so DST
-  // / paused-clock hosts can keep searching.
+  // A frozen clock keeps every stamp equal to `nowMs`, which would lock the
+  // window forever after RATE_LIMIT hits. Reset that bucket so a paused host
+  // can keep searching.
   if (
     recent.length >= USER_SEARCH_RATE_LIMIT &&
     recent.every((ts) => ts === nowMs)
@@ -28,7 +39,7 @@ function isRateLimited(userId: string, nowMs: number): boolean {
     return true;
   }
   recent.push(nowMs);
-  searchTimestamps.set(userId, recent);
+  byUser.set(userId, recent);
   return false;
 }
 
@@ -48,7 +59,7 @@ export const searchProfiles = defineQuery({
     if (viewerId.length === 0) {
       return { profile: [] };
     }
-    if (isRateLimited(viewerId, ctx.env.now().getTime())) {
+    if (isRateLimited(viewerId, ctx.env.now)) {
       return { profile: [] };
     }
     const likeQuery = `${query.trim().toLowerCase()}%`;
