@@ -1,8 +1,9 @@
 /**
  * Steps entry for the `specs/<domain>/` features this package runs against a
- * deployed environment (`liveDomains`, `bun run health`): registers the live
- * world and every step definition — the health checks' own and the critical
- * journeys' (shared with the harness run in `@libs/runtime`).
+ * deployed environment (`liveDomains` plus every `@synthetic` feature,
+ * `bun run health`): registers the live world and every step definition —
+ * the synthetic checks' own and the critical journeys' (shared with the
+ * harness run in `@libs/runtime`).
  */
 
 import '@libs/runtime/steps/journeys.steps';

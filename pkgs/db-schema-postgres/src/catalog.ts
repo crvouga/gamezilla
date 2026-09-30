@@ -25,8 +25,9 @@ async function readDeclaredPostgresTables(
     data_type: string;
     udt_name: string;
     is_nullable: string;
+    column_default: string | null;
   }>(sql`
-    SELECT table_name, column_name, data_type, udt_name, is_nullable
+    SELECT table_name, column_name, data_type, udt_name, is_nullable, column_default
     FROM information_schema.columns
     WHERE table_schema = ${schemaName}
     ORDER BY table_name, ordinal_position
@@ -54,6 +55,7 @@ async function readDeclaredPostgresTables(
       physical: string;
       nullable: boolean;
       isPrimaryKey: boolean;
+      columnDefault: string | null;
     }[]
   >();
 
@@ -67,6 +69,7 @@ async function readDeclaredPostgresTables(
       physical: row.udt_name,
       nullable: row.is_nullable === 'YES',
       isPrimaryKey: pkSet.has(`${row.table_name}.${row.column_name}`),
+      columnDefault: row.column_default,
     });
     byTable.set(row.table_name, cols);
   }

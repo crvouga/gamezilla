@@ -24,7 +24,7 @@ desired catalog  +  introspected catalog
 
 `ownership: 'declared-only'` (**default** for SQLite) leaves undeclared tables alone so
 package-local infra schemas (sync-engine, outbox, …) can share the SQLite file
-via their own `applySqliteSchema` / `SqliteSchemaDatabaseMigration` passes.
+via their own `reconcileSqliteSchema` / `SqliteSchemaDatabaseMigration` passes.
 `whole-db` drops undeclared tables (test / wholly-owned DBs only).
 
 ## Lifecycle recipes (expand / contract)
@@ -146,12 +146,12 @@ Two committed artifacts enforce it in the Check workflow (`//#check`):
 ```ts
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import {
-  applyPostgresSchema,
+  reconcilePostgresSchema,
   PostgresSchemaDatabaseMigration,
   PostgresSchemaIndexReconcileMigration,
 } from '@pkgs/db-schema-postgres';
 import {
-  applySqliteSchema,
+  reconcileSqliteSchema,
   SqliteSchemaDatabaseMigration,
 } from '@pkgs/db-schema-sqlite';
 
@@ -164,7 +164,7 @@ leaves index DDL to the separate phase). `PostgresSchemaIndexReconcileMigration`
 runs after that transaction so every build is `CREATE INDEX CONCURRENTLY`, and
 it drops any invalid leftover from a previously failed build.
 
-**SQLite** — `SqliteSchemaDatabaseMigration` / `applySqliteSchema` with
+**SQLite** — `SqliteSchemaDatabaseMigration` / `reconcileSqliteSchema` with
 `ownership: 'declared-only'` for the shared client file. Rebuilds are bracketed
 with `PRAGMA foreign_keys = OFF` + `legacy_alter_table = ON`, and an interrupted
 rebuild is recovered from its `_old_<table>` staging table on the next boot.

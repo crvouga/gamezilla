@@ -32,7 +32,10 @@ function filesEnding(suffix: string): readonly string[] {
 /** Every feature whose feature line is `@synthetic`. */
 export function syntheticFeatures(): readonly SpecFeature[] {
   return filesEnding('.feature').flatMap((uri) => {
-    const feature = parseFeature(readFileSync(join(REPO_ROOT, uri), 'utf8'), uri);
+    const feature = parseFeature(
+      readFileSync(join(REPO_ROOT, uri), 'utf8'),
+      uri
+    );
     return feature.tags.includes(SYNTHETIC_TAG) ? [feature] : [];
   });
 }

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
@@ -25,7 +25,7 @@ async function applyTables(
   client: SqlClient,
   tables: readonly TableDef[]
 ): Promise<void> {
-  await applySqliteSchema(client, registerTables(tables));
+  await reconcileSqliteSchema(client, registerTables(tables));
 }
 
 describe('SqlClientImplMockingbirdSqlite lifecycle', () => {

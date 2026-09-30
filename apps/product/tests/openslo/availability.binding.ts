@@ -1,6 +1,6 @@
 // @io-wall-ok — composition root: the wall clock, the real HTTP client, GitHub credentials from the process env.
 /**
- * `specs/health/availability.openslo.yaml`, measured for the environment
+ * `specs/runtime/availability.openslo.yaml`, measured for the environment
  * the run targets (`SECRETS_ENV`, as the live world reads it): the Health
  * workflow's `health:<env>` jobs over the objective's window, read from the
  * GitHub REST API (`health-job-results.ts`). Needs `GITHUB_TOKEN` with

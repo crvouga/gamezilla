@@ -7,17 +7,18 @@ import {
   type PostgresSchemaDatabaseMigrationOptions,
 } from './postgres-schema-database-migration';
 
-export type ApplyPostgresSchemaOptions = PostgresSchemaDatabaseMigrationOptions;
+export type ReconcilePostgresSchemaOptions =
+  PostgresSchemaDatabaseMigrationOptions;
 
 /**
  * Apply a {@link Schema} to Postgres. Uses the migration class so legacy
  * wall DEFAULT cleanup on managed columns still runs.
  */
-export async function applyPostgresSchema(
+export async function reconcilePostgresSchema(
   client: SqlClient,
   schema: Schema,
   dbScope: PostgresDbScope,
-  options?: ApplyPostgresSchemaOptions
+  options?: ReconcilePostgresSchemaOptions
 ): Promise<void> {
   await new PostgresSchemaDatabaseMigration(schema, dbScope, options).migrate({
     sqlClient: client,

@@ -194,7 +194,7 @@ export const LINES = {
     label: 'production-safe synthetics',
     feeds: [
       { live: 'specs/journeys/critical-journeys.feature' },
-      { live: 'specs/health/serving-people.feature' },
+      { live: 'specs/runtime/serving-people.feature' },
     ],
     rule: evidence({
       kind: 'behavior',
@@ -206,7 +206,7 @@ export const LINES = {
   'live-objectives': {
     section: 'release',
     label: 'OpenSLO readiness policy',
-    feeds: [{ live: 'specs/health/availability.openslo.yaml' }],
+    feeds: [{ live: 'specs/runtime/availability.openslo.yaml' }],
     rule: evidence({ kind: 'objectives', layer: 'release', runs: 'live' }),
   },
   'release-gates': {

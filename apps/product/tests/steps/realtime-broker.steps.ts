@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's EMQX broker.
-/** `specs/health/live-updates.feature`. */
+/** `specs/spaces/live-updates.feature`. */
 
 import { expect } from 'bun:test';
 import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';

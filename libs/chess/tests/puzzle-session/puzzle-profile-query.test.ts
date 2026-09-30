@@ -15,7 +15,7 @@ import { ratePuzzleAttemptMutation } from '@libs/chess/root/mutations';
 import { CHESS_QUERIES } from '@libs/chess/root/queries';
 import { uniqueTables } from '@libs/permissions/root/conformance/world';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import type { Sql } from '@pkgs/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import type { QueryRow } from '@pkgs/sync-engine/shared';
@@ -38,7 +38,7 @@ const env = {
 test('the synced puzzle profile carries rating, deviation and volatility', async () => {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(
+  await reconcileSqliteSchema(
     db,
     registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
     {

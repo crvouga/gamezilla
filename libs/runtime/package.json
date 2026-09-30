@@ -26,6 +26,7 @@
     "./steps/*": "./tests/steps/*.ts"
   },
   "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "check:schema-evolution": "bun run scripts/check-schema-evolution.ts",
     "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -35,8 +36,7 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/harness/**'",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/2",
-    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/2",
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
+    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/2"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",

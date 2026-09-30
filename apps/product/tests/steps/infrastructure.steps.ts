@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: plans both OpenTofu stacks against the environment.
-/** `specs/health/declared-environment.feature`. */
+/** `specs/runtime/declared-environment.feature`. */
 
 import { expect } from 'bun:test';
 import { join } from 'node:path';

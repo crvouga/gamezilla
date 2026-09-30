@@ -1,13 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { parseFeature } from '@pkgs/gherkin/parse';
 import {
+  allSpecs,
   type Environment,
   HOST_LIMITS,
   hostSkips,
   parseCli,
+  scopedSpecs,
   selectSpecs,
+  targetEnv,
 } from './health';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
@@ -36,18 +39,18 @@ describe('health host limits', () => {
       hostSkips(STANDARD, 'specs/journeys/critical-journeys.feature')
         .wholeFeature
     ).toBe(true);
-    expect(hostSkips(STANDARD, 'specs/health/payments.feature')).toEqual({
+    expect(hostSkips(STANDARD, 'specs/billing/payments.feature')).toEqual({
       wholeFeature: false,
       scenarios: ['People can pay for Plus in production'],
     });
-    expect(hostSkips(STANDARD, 'specs/health/spaces.feature')).toEqual({
+    expect(hostSkips(STANDARD, 'specs/spaces/spaces.feature')).toEqual({
       wholeFeature: false,
       scenarios: [],
     });
   });
 
   test('every environment proves the OAuth relay returns sign-ins home', () => {
-    expect(hostSkips(STANDARD, 'specs/health/sign-in.feature')).toEqual({
+    expect(hostSkips(STANDARD, 'specs/auth/sign-in.feature')).toEqual({
       wholeFeature: false,
       scenarios: [],
     });
@@ -57,13 +60,13 @@ describe('health host limits', () => {
     expect(
       hostSkips(
         { ...PRODUCTION, observability: false },
-        'specs/health/request-records.feature'
+        'specs/runtime/request-records.feature'
       ).wholeFeature
     ).toBe(true);
     expect(
       hostSkips(
         { ...PRODUCTION, observability: false },
-        'specs/health/finding-a-person.feature'
+        'specs/profile/finding-a-person.feature'
       ).wholeFeature
     ).toBe(true);
   });
@@ -82,8 +85,8 @@ describe('health host limits', () => {
 
 describe('health runs features, health --objectives runs objectives', () => {
   const [feature, objective, journeys] = [
-    'specs/health/api.feature',
-    'specs/health/availability.openslo.yaml',
+    'specs/runtime/serving-people.feature',
+    'specs/runtime/availability.openslo.yaml',
     'specs/journeys/critical-journeys.feature',
   ].map((path) => join(REPO_ROOT, path)) as [string, string, string];
   const all = [feature, objective, journeys];
@@ -102,22 +105,63 @@ describe('health runs features, health --objectives runs objectives', () => {
   });
 
   test("a named spec must be of the run's kind", () => {
-    expect(select(['specs/health/availability.openslo.yaml'])).toEqual({
+    expect(select(['specs/runtime/availability.openslo.yaml'])).toEqual({
       ok: false,
       error:
-        'specs/health/availability.openslo.yaml is an objective file: run it with --objectives',
-    });
-    expect(select(['--objectives', 'specs/health/api.feature'])).toEqual({
-      ok: false,
-      error: 'specs/health/api.feature is not an objective file',
+        'specs/runtime/availability.openslo.yaml is an objective file: run it with --objectives',
     });
     expect(
-      select(['--objectives', 'specs/health/availability.openslo.yaml'])
+      select(['--objectives', 'specs/runtime/serving-people.feature'])
+    ).toEqual({
+      ok: false,
+      error: 'specs/runtime/serving-people.feature is not an objective file',
+    });
+    expect(
+      select(['--objectives', 'specs/runtime/availability.openslo.yaml'])
     ).toEqual({ ok: true, specs: [objective] });
   });
 
   test('objectives take no tags, and named specs must be live', () => {
-    expect(select(['--objectives', '--tags', '@domain:health']).ok).toBe(false);
+    expect(select(['--objectives', '--tags', '@synthetic']).ok).toBe(false);
     expect(select(['specs/chess/puzzle-play.feature']).ok).toBe(false);
+  });
+});
+
+describe('synthetic discovery', () => {
+  const uri = (path: string) => relative(REPO_ROOT, path);
+
+  test('a live run sees journeys, every synthetic feature, and the live objective', () => {
+    const specs = allSpecs().map(uri);
+    expect(specs).toContain('specs/journeys/critical-journeys.feature');
+    expect(specs).toContain('specs/runtime/reaching-the-app.feature');
+    expect(specs).toContain('specs/auth/sign-in.feature');
+    expect(specs).toContain('specs/billing/payments.feature');
+    expect(specs).toContain('specs/spaces/spaces.feature');
+    expect(specs).toContain('specs/spaces/live-updates.feature');
+    expect(specs).toContain('specs/profile/finding-a-person.feature');
+    expect(specs).toContain('specs/runtime/availability.openslo.yaml');
+    expect(specs.some((path) => path.startsWith('specs/health/'))).toBe(false);
+  });
+
+  test('--synthetic keeps tagged features and drops journeys and objectives', () => {
+    const specs = scopedSpecs(parseCli(['--synthetic'])).map(uri);
+    expect(specs).toContain('specs/runtime/serving-people.feature');
+    expect(specs).not.toContain('specs/journeys/critical-journeys.feature');
+    expect(specs).not.toContain('specs/runtime/availability.openslo.yaml');
+    expect(specs.every((path) => path.endsWith('.feature'))).toBe(true);
+  });
+
+  test('target aliases and the synthetic flag', () => {
+    expect(targetEnv('dev')).toBe('dev');
+    expect(targetEnv('test')).toBe('dev');
+    expect(targetEnv('prd')).toBe('prd');
+    expect(targetEnv('production')).toBe('prd');
+    expect(targetEnv('staging')).toBeNull();
+    expect(parseCli(['--synthetic', '--target', 'production'])).toMatchObject({
+      synthetic: true,
+      objectives: false,
+      target: 'production',
+    });
+    expect(parseCli(['--target=test']).target).toBe('test');
   });
 });

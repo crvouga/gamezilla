@@ -669,7 +669,7 @@ single-flight (it does) — mainly HTTP/server load then.
 
 - **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
   `@pkgs/db-schema-sqlite`; Postgres migrate separate.
-- **Framework local:** package-local `syncEngineLocalSchema` via `applySqliteSchema`; `SCHEMA_EPOCH`
+- **Framework local:** package-local `syncEngineLocalSchema` via `reconcileSqliteSchema`; `SCHEMA_EPOCH`
   in `queries/client/local-schema.ts`.
 - **Framework server:** `syncEngineServerSchema` via `SyncEngineDatabaseMigration` (cutover + Postgres reconcile).
 - **Query/mutation wire names:** breaking changes ship as a new `name`

@@ -3,7 +3,7 @@ import type {
   DatabaseMigrationContext,
 } from '@pkgs/db-migrate';
 import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema-postgres';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   createPostgresDbScope,
@@ -15,7 +15,7 @@ import { outboxSchema } from './schema/tables';
 
 /** Apply outbox defineTable schema to SQLite (client / harness). */
 export async function migrateOutbox(sqlClient: SqlClient): Promise<void> {
-  await applySqliteSchema(sqlClient, outboxSchema, {
+  await reconcileSqliteSchema(sqlClient, outboxSchema, {
     ownership: 'declared-only',
   });
 }

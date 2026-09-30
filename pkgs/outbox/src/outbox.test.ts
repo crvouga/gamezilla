@@ -8,7 +8,7 @@ import {
   OutboxConsumerRegistry,
 } from './define-consumer';
 import { drainOutbox } from './drain';
-import { migrateOutbox } from './migrate';
+import { reconcileOutbox } from './reconcile';
 import { Outbox } from './outbox';
 
 const ns = createMessageNamespace('outbox', 'test');
@@ -25,7 +25,7 @@ describe('outbox', () => {
   test('send is idempotent by id; drain runs consumer once', async () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
-    await migrateOutbox(db);
+    await reconcileOutbox(db);
     const adapters = createHarnessAdapters({ seed: 1 });
     const seen: number[] = [];
     const registry = new OutboxConsumerRegistry();
@@ -80,7 +80,7 @@ describe('outbox', () => {
   test('two consumers get independent deliveries', async () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
-    await migrateOutbox(db);
+    await reconcileOutbox(db);
     const adapters = createHarnessAdapters({ seed: 2 });
     const a: number[] = [];
     const b: number[] = [];

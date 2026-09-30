@@ -1,5 +1,5 @@
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { SqlClientWebState } from './types';
@@ -40,7 +40,9 @@ export async function migrateToyKv(
     await client.run(raw('DROP TABLE IF EXISTS toy_kv'));
     state.expected.clear();
   }
-  await applySqliteSchema(client, toyKvSchema, { ownership: 'declared-only' });
+  await reconcileSqliteSchema(client, toyKvSchema, {
+    ownership: 'declared-only',
+  });
   await client.run(raw(`PRAGMA user_version = ${epoch * VERSION_STRIDE + 1}`));
   state.appliedEpoch = epoch;
 }

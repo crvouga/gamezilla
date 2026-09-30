@@ -372,11 +372,7 @@ export function specPackages(): readonly SpecPackage[] {
       ])
     ) as Record<BindingKind['field'], readonly string[]>;
     const live = liveDomains.length > 0;
-    const objectives = objectivesFor(
-      kinds.objectives,
-      liveObjectives,
-      live
-    );
+    const objectives = objectivesFor(kinds.objectives, liveObjectives, live);
     const problems = [
       ...own.problems,
       ...modelProblems(dir, models),

@@ -121,9 +121,7 @@ function specFile(input: {
   const harness =
     synthetic || liveObjective
       ? []
-      : input.packages.filter((pkg) =>
-          pkg.specDomains.includes(input.context)
-        );
+      : input.packages.filter((pkg) => pkg.specDomains.includes(input.context));
   // A live run checks features and objectives only (spec-packages.ts).
   const liveKinds: readonly SpecFileKind[] = ['behavior', 'objectives'];
   const live = liveKinds.includes(kindName)

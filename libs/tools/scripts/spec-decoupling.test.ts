@@ -31,12 +31,27 @@ describe('decouplingProblems (D1)', () => {
 
   test('a host or runner tag is reported, on the feature or a scenario', () => {
     const errors = problems(
-      'specs/health/payments.feature',
-      '@domain:health @production\nFeature: Payments\n  @oauth-relay\n  Scenario: x'
+      'specs/billing/payments.feature',
+      '@domain:billing @production\nFeature: Payments\n  @oauth-relay\n  Scenario: x'
     ).join('\n');
     expect(errors).toContain('payments.feature:1: D1 tag @production');
     expect(errors).toContain('payments.feature:3: D1 tag @oauth-relay');
-    expect(errors).not.toContain('@domain:health');
+    expect(errors).not.toContain('@domain:billing');
+  });
+
+  test('@synthetic is an exact tag', () => {
+    expect(
+      problems(
+        'specs/billing/payments.feature',
+        '@domain:billing @synthetic\nFeature: Payments\n  Scenario: x'
+      )
+    ).toEqual([]);
+    const errors = problems(
+      'specs/billing/payments.feature',
+      '@domain:billing @synthetic-production\nFeature: Payments\n  Scenario: x'
+    ).join('\n');
+    expect(errors).toContain('D1 tag @synthetic-production');
+    expect(errors).not.toContain('D1 tag @synthetic ');
   });
 
   test('tags are only read from tag lines, and not in Quint or glossaries', () => {
@@ -80,7 +95,7 @@ describe('decouplingProblems (D1)', () => {
     for (const path of [
       'specs/billing/access.dmn',
       'specs/spaces/spaces.als',
-      'specs/health/api.openslo.yaml',
+      'specs/runtime/availability.openslo.yaml',
       'specs/conformance.yaml',
     ]) {
       expect(problems(path, '# bound in libs/billing/tests/dmn')).toHaveLength(

@@ -1,6 +1,6 @@
 /**
  * Live checks that a Grafana Cloud token still works — used by
- * `specs/health/traces.feature` (`apps/product/tests/steps/traces.steps.ts`). The stack, policies and tokens themselves
+ * `specs/runtime/request-records.feature` (`apps/product/tests/steps/traces.steps.ts`). The stack, policies and tokens themselves
  * are OpenTofu resources (`libs/infra/tofu/modules/observability`).
  */
 import type { HttpClient } from '@pkgs/http-client';

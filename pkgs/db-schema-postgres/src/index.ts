@@ -1,7 +1,3 @@
-export {
-  type ApplyPostgresSchemaOptions,
-  applyPostgresSchema,
-} from './apply-postgres-schema';
 export { BACKFILL_BATCH_ROWS, type PostgresDriverOptions } from './driver';
 export {
   PostgresSchemaDatabaseMigration,
@@ -11,3 +7,7 @@ export {
   PostgresSchemaIndexReconcileMigration,
   type PostgresSchemaIndexReconcileMigrationOptions,
 } from './postgres-schema-index-reconcile-migration';
+export {
+  type ReconcilePostgresSchemaOptions,
+  reconcilePostgresSchema,
+} from './reconcile-postgres-schema';

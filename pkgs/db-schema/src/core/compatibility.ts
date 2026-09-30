@@ -15,7 +15,12 @@ import {
   MANAGED_IMPLICIT_COLUMNS,
 } from './types';
 
-export type DeltaKind = 'additive' | 'expand' | 'contract_client' | 'forbidden';
+export type DeltaKind =
+  | 'additive'
+  | 'expand'
+  | 'contract_client'
+  | 'forbidden'
+  | 'repair';
 
 export type ClassifiedColumnDelta = {
   readonly table: string;
@@ -106,6 +111,22 @@ export function expectedPhysicalOf(
   );
 }
 
+/**
+ * `int2` / `int4` stored for a declared `integer` with no physical override
+ * widens to `bigint` in place. Every other type mismatch stays drift.
+ */
+export function isLosslessIntegerWiden(
+  expected: DeclaredColumn,
+  physical: string,
+  mode: 'postgres' | 'sqlite'
+): boolean {
+  if (mode !== 'postgres') return false;
+  if (expected.type !== 'integer') return false;
+  if (expected.physicalPostgres !== undefined) return false;
+  const actual = normalizePgPhysical(physical);
+  return actual === 'int2' || actual === 'int4';
+}
+
 export function logicalTypeMatch(
   expected: ColumnType,
   actual: string,
@@ -164,6 +185,17 @@ function classifyRetiredColumn(args: {
   out.retiredExtras.push({ table: tableName, column: col.name });
   const declared: DeclaredColumn = { type: retired.type };
   if (!logicalTypeMatch(retired.type, col.physical, mode, declared)) {
+    if (isLosslessIntegerWiden(declared, col.physical, mode)) {
+      out.columnDeltas.push({
+        table: tableName,
+        column: col.name,
+        kind: 'repair',
+        reason: 'widen integer',
+        declared,
+        existing: col,
+      });
+      return;
+    }
     const wanted = expectedPhysicalOf(retired.type, mode, declared);
     out.drift.push({
       path: `${tableName}.${col.name}`,
@@ -230,6 +262,17 @@ function classifyTypeMismatch(args: {
   out: MutableClassified;
 }): void {
   const { tableName, col, expected, mode, out } = args;
+  if (isLosslessIntegerWiden(expected, col.physical, mode)) {
+    out.columnDeltas.push({
+      table: tableName,
+      column: col.name,
+      kind: 'repair',
+      reason: 'widen integer',
+      declared: expected,
+      existing: col,
+    });
+    return;
+  }
   const hint = hasLifecycleSource(expected)
     ? ' (use a new column + widenedFrom/renamedFrom + retire the old one; never ALTER TYPE)'
     : '';
@@ -254,9 +297,22 @@ function classifyNullability(args: {
   tableName: string;
   col: IntrospectedColumn;
   expected: DeclaredColumn;
+  mode: 'postgres' | 'sqlite';
   out: MutableClassified;
 }): void {
-  const { tableName, col, expected, out } = args;
+  const { tableName, col, expected, mode, out } = args;
+  const mustBeNullable = !(col.isPrimaryKey || col.name === 'id');
+  if (mode === 'postgres' && mustBeNullable && !col.nullable) {
+    out.columnDeltas.push({
+      table: tableName,
+      column: col.name,
+      kind: 'repair',
+      reason: 'drop not null',
+      declared: expected,
+      existing: col,
+    });
+    return;
+  }
   out.drift.push({
     path: `${tableName}.${col.name}`,
     message:
@@ -299,7 +355,7 @@ function classifyExistingColumns(args: {
       classifyTypeMismatch({ tableName, col, expected, mode, out });
     }
     if (!nullabilityOk(col)) {
-      classifyNullability({ tableName, col, expected, out });
+      classifyNullability({ tableName, col, expected, mode, out });
     }
   }
 }

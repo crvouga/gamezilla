@@ -92,7 +92,7 @@ export {
   filterAcceptableImages,
   filterPublishableImages,
 } from './row-image-guard';
-export { SyncEngineDatabaseMigration } from './sync-engine-database-migration';
+export { reconcileSyncEnginePostgres } from './reconcile-sync-engine-postgres';
 export {
   defineTopicMap,
   subscribeTables,

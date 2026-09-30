@@ -10,12 +10,12 @@
     ]
   },
   "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
     "@crvouga/mockingbird-service-oauth": "catalog:",

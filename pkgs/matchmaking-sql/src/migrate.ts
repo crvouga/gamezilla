@@ -6,8 +6,8 @@
  */
 
 import { assert } from '@pkgs/assert';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { isNamespacedKeyword } from '@pkgs/keyword';
 import {
   DEFAULT_RADIUS_OPTIONS,
@@ -110,7 +110,7 @@ async function applyMatchmakingSchema(sqlClient: SqlClient): Promise<void> {
   // Schema reconcile uses PRAGMA / information_schema — unwrap agnostic gate.
   const engine = getUnderlyingSqlClient(sqlClient);
   if (await isPostgresSqlClient(engine)) {
-    await applyPostgresSchema(
+    await reconcilePostgresSchema(
       engine,
       matchmakingSchema,
       createPostgresDbScope('public'),
@@ -121,7 +121,7 @@ async function applyMatchmakingSchema(sqlClient: SqlClient): Promise<void> {
     );
     return;
   }
-  await applySqliteSchema(engine, matchmakingSchema, {
+  await reconcileSqliteSchema(engine, matchmakingSchema, {
     ownership: 'declared-only',
   });
 }

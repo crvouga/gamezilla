@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: billing vendor keys, validated against the vendor.
-/** `specs/health/payments.feature`: billing keys per environment. */
+/** `specs/billing/payments.feature`: billing keys per environment. */
 
 import { expect } from 'bun:test';
 import { isProductionEnv } from '@libs/infra/public/env-file';

@@ -16,7 +16,7 @@ import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { createPgPool, openPgClient } from '@pkgs/sql-client-postgres/connect';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { applyPostgresSchema } from '../src/index';
+import { reconcilePostgresSchema } from '../src/index';
 
 describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
   let sqlClient: PostgresSqlClient;
@@ -52,7 +52,7 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
 
   test('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
     // Create the initial schema with the postgres driver.
-    await applyPostgresSchema(
+    await reconcilePostgresSchema(
       sqlClient,
       registerTables([
         defineTable({

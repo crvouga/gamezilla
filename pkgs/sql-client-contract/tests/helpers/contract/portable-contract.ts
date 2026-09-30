@@ -4,8 +4,8 @@
  */
 import { afterEach, beforeEach, expect, test } from 'bun:test';
 import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
@@ -34,12 +34,12 @@ async function applySchema(
       'dbScope' in client && (client as PostgresSqlClient).dbScope !== undefined
         ? (client as PostgresSqlClient).dbScope
         : createPostgresDbScope('public');
-    await applyPostgresSchema(client, schema, dbScope, {
+    await reconcilePostgresSchema(client, schema, dbScope, {
       skipAdvisoryLock: true,
     });
     return;
   }
-  await applySqliteSchema(client, schema);
+  await reconcileSqliteSchema(client, schema);
 }
 
 function registerInt8WireSafetyTest(

@@ -1,4 +1,4 @@
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -47,7 +47,7 @@ async function backfillLocalMutationColumns(db: SqlClient): Promise<void> {
 
 /** Apply local framework defineTable schema (declared-only ownership). */
 export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {
-  await applySqliteSchema(db, syncEngineLocalSchema, {
+  await reconcileSqliteSchema(db, syncEngineLocalSchema, {
     ownership: 'declared-only',
   });
   await backfillLocalMutationColumns(db);

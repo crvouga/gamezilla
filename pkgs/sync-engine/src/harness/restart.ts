@@ -1,5 +1,4 @@
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
-import { createLogger } from '@pkgs/logger';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';

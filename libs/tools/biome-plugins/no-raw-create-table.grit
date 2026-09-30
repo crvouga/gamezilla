@@ -12,6 +12,6 @@ file($body) where {
     JsTemplateExpression() as $node
   } where {
     $node <: r"(?s).*CREATE TABLE.*",
-    register_diagnostic(span=$node, message="Do not author CREATE TABLE by hand — use defineTable + applySqliteSchema/applyPostgresSchema (or SchemaDatabaseMigration). Only @pkgs/db-schema-postgres / @pkgs/db-schema-sqlite emit.ts may emit CREATE TABLE.", severity="error")
+    register_diagnostic(span=$node, message="Do not author CREATE TABLE by hand — use defineTable + reconcileSqliteSchema/reconcilePostgresSchema (or SchemaDatabaseMigration). Only @pkgs/db-schema-postgres / @pkgs/db-schema-sqlite emit.ts may emit CREATE TABLE.", severity="error")
   }
 }

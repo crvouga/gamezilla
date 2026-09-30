@@ -4,8 +4,8 @@
  */
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
@@ -41,12 +41,17 @@ async function applyNotesSchema(
   dialect: 'sqlite' | 'postgres'
 ): Promise<void> {
   if (dialect === 'postgres') {
-    await applyPostgresSchema(client, notesSchema, postgresDbScope(client), {
-      skipAdvisoryLock: true,
-    });
+    await reconcilePostgresSchema(
+      client,
+      notesSchema,
+      postgresDbScope(client),
+      {
+        skipAdvisoryLock: true,
+      }
+    );
     return;
   }
-  await applySqliteSchema(client, notesSchema);
+  await reconcileSqliteSchema(client, notesSchema);
 }
 
 async function openMockingbirdSqlite(): Promise<Backend> {

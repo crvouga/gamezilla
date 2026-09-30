@@ -3,8 +3,7 @@
 import { Database } from 'bun:sqlite';
 import { wallClock } from '@pkgs/clock';
 
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
-import { createLogger } from '@pkgs/logger';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw, type Sql, sql } from '@pkgs/sql';
 import { assertSqlIdentifier } from '@pkgs/sql/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client/interface';

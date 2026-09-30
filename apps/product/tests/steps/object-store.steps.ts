@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's R2 bucket.
-/** `specs/health/stored-files.feature`. */
+/** `specs/runtime/stored-files.feature`. */
 
 import { expect } from 'bun:test';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';

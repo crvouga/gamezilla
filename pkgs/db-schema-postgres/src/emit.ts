@@ -59,6 +59,12 @@ export function emitServerOperation(
       }
       return sql`DROP INDEX IF EXISTS ${ident(op.name)}`;
     }
+    case 'drop_not_null':
+      return sql`ALTER TABLE ${ident(op.table)} ALTER COLUMN ${ident(op.column)} DROP NOT NULL`;
+    case 'widen_integer':
+      return sql`ALTER TABLE ${ident(op.table)} ALTER COLUMN ${ident(op.column)} TYPE bigint`;
+    case 'drop_default':
+      return sql`ALTER TABLE ${ident(op.table)} ALTER COLUMN ${ident(op.column)} DROP DEFAULT`;
   }
 }
 
@@ -69,4 +75,4 @@ export function isConcurrentlyUnsupportedError(err: unknown): boolean {
 
 /** Destructive DDL patterns that must never appear in server output. */
 export const FORBIDDEN_SERVER_DDL =
-  /\bDROP TABLE\b|\bDROP COLUMN\b|ALTER (TABLE .+ )?ALTER COLUMN .+ TYPE|\bRENAME\b|\bDROP VIEW\b|\bDROP TYPE\b|\bTRUNCATE\b/i;
+  /\bDROP TABLE\b|\bDROP COLUMN\b|ALTER (TABLE .+ )?ALTER COLUMN .+ TYPE (?!bigint\b)|\bRENAME\b|\bDROP VIEW\b|\bDROP TYPE\b|\bTRUNCATE\b/i;

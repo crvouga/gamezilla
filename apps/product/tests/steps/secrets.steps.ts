@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: Infisical export and every vendor credential.
 /**
- * `specs/health/connected-services.feature`. Unlike the fingerprint-cached
+ * `specs/runtime/connected-services.feature`. Unlike the fingerprint-cached
  * `@libs/secrets#check`, this re-runs every registry `validate` live, so a
  * revoked key or suspended vendor account shows up between deploys.
  */

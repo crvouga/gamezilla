@@ -96,7 +96,8 @@ export function parseCli(argv: readonly string[]): Cli {
     else if (arg === '--tags') tags = argv[++i];
     else if (arg.startsWith('--tags=')) tags = arg.slice('--tags='.length);
     else if (arg === '--target') target = argv[++i];
-    else if (arg.startsWith('--target=')) target = arg.slice('--target='.length);
+    else if (arg.startsWith('--target='))
+      target = arg.slice('--target='.length);
     else if (arg.endsWith(FEATURE_SUFFIX) || arg.endsWith(SLO_SUFFIX))
       specPaths.push(arg);
     else bunArgs.push(arg);
@@ -136,7 +137,7 @@ function specsWhere(
 }
 
 /** Journeys, every `@synthetic` feature, and every `# live` objective. */
-function allSpecs(): readonly string[] {
+export function allSpecs(): readonly string[] {
   const fromDomains = liveDomains().flatMap((domain) => {
     const dir = join(REPO_ROOT, 'specs', domain);
     if (!existsSync(dir)) return [];
@@ -154,7 +155,7 @@ function allSpecs(): readonly string[] {
 }
 
 /** `--synthetic` keeps the tagged features and drops journeys and objectives. */
-function scopedSpecs(cli: Cli): readonly string[] {
+export function scopedSpecs(cli: Cli): readonly string[] {
   const all = allSpecs();
   if (!cli.synthetic) return all;
   return all.filter(

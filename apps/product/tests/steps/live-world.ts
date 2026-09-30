@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: the world every `liveDomains` scenario runs in.
 /**
- * The world a live scenario (`specs/health/`, `specs/journeys/`) runs in:
+ * The world a live scenario (`@synthetic` features, `specs/journeys/`) runs in:
  * the environment `SECRETS_ENV` names, plain HTTP, and — only once a journey
  * step asks — a fresh real-browser device. A failed step saves the page's
  * evidence before the scenario's deferred cleanups (ending a hosted space)

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
@@ -17,7 +17,7 @@ const DEVICE_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_B = '22222222-2222-4222-8222-222222222222';
 
 async function migrate(db: SqlClient): Promise<void> {
-  await applySqliteSchema(db, registerTables([...AUTH_TABLES]));
+  await reconcileSqliteSchema(db, registerTables([...AUTH_TABLES]));
 }
 
 describe('AnonUserService', () => {

@@ -1,5 +1,6 @@
 import { resolveBackfillSql } from './backfill';
 import {
+  type ClassifiedDelta,
   classifyDelta,
   desiredColumns,
   findColumn,
@@ -170,6 +171,46 @@ function planColumnAdds(
   return ops;
 }
 
+const DROP_DEFAULT_COLUMNS: ReadonlySet<string> = new Set([
+  'id',
+  'created_at',
+  'updated_at',
+]);
+
+function planRepairs(
+  classified: ClassifiedDelta,
+  declared: ReadonlyDeclaredSchema,
+  catalog: IntrospectedCatalog
+): ServerOperation[] {
+  const ops: ServerOperation[] = [];
+  for (const delta of classified.columnDeltas) {
+    if (delta.kind !== 'repair') continue;
+    const table = asSchemaIdent(delta.table);
+    const column = asSchemaIdent(delta.column);
+    if (delta.reason === 'widen integer') {
+      ops.push({ kind: 'widen_integer', table, column });
+      continue;
+    }
+    if (delta.reason === 'drop not null') {
+      ops.push({ kind: 'drop_not_null', table, column });
+    }
+  }
+  for (const tableName of Object.keys(declared.tables)) {
+    const existing = catalog.tables.get(tableName);
+    if (!existing) continue;
+    for (const col of existing.columns) {
+      if (!DROP_DEFAULT_COLUMNS.has(col.name)) continue;
+      if (col.columnDefault == null || col.columnDefault === '') continue;
+      ops.push({
+        kind: 'drop_default',
+        table: asSchemaIdent(tableName),
+        column: asSchemaIdent(col.name),
+      });
+    }
+  }
+  return ops;
+}
+
 export function planServer(
   declared: ReadonlyDeclaredSchema,
   catalog: IntrospectedCatalog,
@@ -185,8 +226,15 @@ export function planServer(
     return { ok: false, drift: classified.drift };
   }
   const which = options?.operations ?? 'all';
+  const tableOps =
+    which === 'index'
+      ? []
+      : [
+          ...planRepairs(classified, declared, catalog),
+          ...planColumnAdds(declared, catalog),
+        ];
   const operations: ServerOperation[] = [
-    ...(which === 'index' ? [] : planColumnAdds(declared, catalog)),
+    ...tableOps,
     ...(which === 'table' ? [] : planIndexOperations(declared, catalog)),
   ];
   return { ok: true, operations };

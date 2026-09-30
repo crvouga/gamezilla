@@ -1,11 +1,12 @@
 // @io-wall-ok — the product Vite server reads the shared reports bucket
 /**
- * Reports read credentials for the product Vite server. That server does not
- * boot the API Worker, and this machine's current Infisical profile may
- * belong to a different instance than `.infisical.json`, so a bare
+ * Reports read credentials for local app instances: the product Vite server,
+ * and every API node of `bun dev`. This machine's current Infisical profile
+ * may belong to a different instance than `.infisical.json`, so a bare
  * `infisical export` never sees `REPORTS_*`. Pick the logged-in profile
  * whose domain matches the repo, then read those four values. Nothing here
- * is sent to the browser.
+ * is sent to the browser. The values are the dev environment's read
+ * credential for the one bucket OpenTofu provisions.
  */
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -54,6 +55,36 @@ export function reportsSecretsFromRecord(
   for (const key of REPORTS_KEYS) {
     const value = record[key]?.trim() ?? '';
     if (value.length > 0) out[key] = value;
+  }
+  return out;
+}
+
+/**
+ * The four read bindings for the one reports bucket OpenTofu provisions.
+ * Every API instance — each node of a localhost stack, and every deployment —
+ * reads that bucket, so a local `bun dev` lists the same commits as production.
+ */
+export function reportsReadCredential(
+  record: Readonly<Record<string, string>>,
+  bucket: string
+): Readonly<Record<string, string>> {
+  const picked = reportsSecretsFromRecord(record);
+  const out: Record<string, string> = {};
+  const missing: string[] = [];
+  for (const key of REPORTS_KEYS) {
+    const value = picked[key];
+    if (value === undefined) missing.push(key);
+    else out[key] = value;
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `The read credential for ${bucket} must include ${missing.join(', ')}. The foundation stack writes it into the dev secrets environment.`
+    );
+  }
+  if (out['REPORTS_BUCKET'] !== bucket) {
+    throw new Error(
+      `REPORTS_BUCKET must be the provisioned reports bucket ${bucket} (got ${String(out['REPORTS_BUCKET'])}).`
+    );
   }
   return out;
 }
