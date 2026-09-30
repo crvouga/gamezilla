@@ -15,9 +15,9 @@ export type PortReservation = {
   release(): Promise<void>;
 };
 
-export function reservePort(): PortReservation {
+export function reservePort(port = 0): PortReservation {
   const server = Bun.serve({
-    port: 0,
+    port,
     hostname: '127.0.0.1',
     fetch: () => new Response('reserved', { status: 503 }),
   });

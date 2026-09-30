@@ -45,12 +45,15 @@ import { type IdpState, type StackIdps, startStackIdps } from './start-idps';
 const REPO_ROOT = join(import.meta.dir, '../../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
 const BILLING_SECRET_KEY = 'sk_test_localhost_stack';
-/** Product super-app serves both `/` and the always-available `/harness`. */
+/**
+ * The product web app (`/` and `/harness`). This is Vite itself: the package
+ * `dev` script is this stack, so the web child must not call it.
+ */
 const PRODUCT_DEV_ARGS = [
   'run',
   '--cwd',
   'apps/product',
-  'dev',
+  'vite',
   '--',
   '--host',
   '127.0.0.1',
@@ -370,7 +373,7 @@ function reserveStackPorts(options: StackOptions) {
     lbReservation: reservePort(),
     idpReservations: { google: reservePort(), apple: reservePort() },
     billingReservation: reservePort(),
-    webReservation: options.withWeb ? reservePort() : null,
+    webReservation: options.withWeb ? reservePort(options.webPort ?? 0) : null,
   };
 }
 

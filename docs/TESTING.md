@@ -11,7 +11,7 @@ gate's mechanics (caching, budgets, workflows) are [`CI.md`](CI.md).
 
 - No QA pass, click-through, staging soak or "tested locally". A PR's
   Verification section names automated checks only.
-- `bun run dev`, `bun run stack` and the Harness are for building and
+- `bun run dev` (the localhost stack) and the Harness are for building and
   debugging, never evidence. Wanting to look at the app means a check is
   missing: write it.
 - A bug found any way at all is fixed only with an automated regression test
