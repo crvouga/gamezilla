@@ -1,6 +1,7 @@
-# How quickly a note written on one device shows on the others: nearly every
-# note (19 in 20) within a fifth of a second, even over slow connections.
-# The same promise as "Notes arrive quickly", kept all the time.
+# How quickly a note written for other people shows on their devices.
+# Notes arrive quickly: at least 19 in every 20 within a fifth of a second,
+# even over a slow connection. One note within a quarter of a second stays
+# a behavior example, not a second rate.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -8,16 +9,18 @@ metadata:
   displayName: Time for a note to reach another device
 spec:
   description: >-
-    For each note a person writes, how long it takes, in thousandths of a
-    second, from the moment they write it until it shows on another device
-    of someone it is shared with.
+    For each note a person writes for other people, how long it takes, in
+    thousandths of a second, from the moment they write it until it shows on
+    another device of someone it is shared with. A fifth of a second is 200
+    of those. This is the wait Notes arrive quickly is about.
   thresholdMetric:
     metricSource:
       type: product
       spec:
         measures: >-
           The time between a person writing a note on one device and that
-          note showing on another device of someone in the same shared space.
+          note showing on another device of someone in the same shared space,
+          including when the connection is slow.
 ---
 apiVersion: openslo/v1
 kind: SLO
@@ -26,8 +29,12 @@ metadata:
   displayName: Notes arrive quickly
 spec:
   description: >-
-    People never notice a wait for a note written on another device: nearly
-    every note shows on the other devices within a fifth of a second.
+    People never notice a wait for a note written on another device. Notes
+    arrive quickly promises that, even over a slow connection, at least 19 in
+    every 20 notes show on the other devices within a fifth of a second. It
+    is judged over the last four weeks, which Notes arrive quickly does not
+    name. A note that must show within a quarter of a second is that same
+    promise's single example, and is not a second rate.
   service: sync-engine
   indicatorRef: note-arrival-time
   timeWindow:
