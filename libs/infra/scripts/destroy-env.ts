@@ -3,7 +3,7 @@
 /**
  * Tears one `protection: "standard"` environment down completely — the
  * inverse of its deploy — so environments are cattle: destroy one, and the
- * next Deploy (or `SECRETS_ENV=<env> bun run deploy`) rebuilds it from its
+ * next Deploy (or `SECRETS_ENV=<env> bun run deploy:local`) rebuilds it from its
  * env file alone.
  *
  *   bun run infra:destroy -- --env <env> --confirm <env>
@@ -13,7 +13,7 @@
  *   1. edge       custom domains              tofu destroy (edge)
  *   2. Workers    api, web, room              wrangler delete
  *   3. objects    the env's bucket, emptied   scripts/empty-bucket.ts
- *   4. foundation Neon branch + endpoint, Hyperdrive, bucket, broker,
+ *   4. foundation Neki database, Hyperdrive, bucket, IoT broker,
  *                 trace tokens, secrets       tofu destroy (foundation)
  *   5. fleet      the env's secrets environment + shared import
  *                                             tofu destroy --stack fleet --env
@@ -120,5 +120,5 @@ step(
 );
 
 console.log(
-  `\n[infra:destroy] ${env.env} is gone. Rebuild it: \`bun run infra:fleet && SECRETS_ENV=${env.env} bun run deploy\` (or the Deploy workflow). Retire it: delete libs/infra/tofu/envs/${env.env}.tfvars.json and its envs.ts entry.`
+  `\n[infra:destroy] ${env.env} is gone. Rebuild it: \`bun run infra:fleet && SECRETS_ENV=${env.env} bun run deploy:local\` (or \`bun deploy\`, which ships every environment from main). Retire it: delete libs/infra/tofu/envs/${env.env}.tfvars.json and its envs.ts entry.`
 );

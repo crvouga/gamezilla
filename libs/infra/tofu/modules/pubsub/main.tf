@@ -1,51 +1,32 @@
-# MQTT broker: this environment's instance of the shared EMQX service
-# (modules/pubsub-project) — a Railway environment of the one project, its
-# credentials and its hostname — behind a Cloudflare DNS name.
+# Query invalidation for one environment: AWS IoT Core, MQTT over WebSocket
+# on this environment's existing broker hostname. AWS owns the connections,
+# the fan-out, and the brokers. The app owns topics (game id, query hash,
+# actor id). A missed message is recovered by the sync engine; this broker
+# is not a source of truth, so every resource here is replaceable.
 #
-# STATEFUL: the Railway environment (the broker instance and its
-# `/opt/emqx/data` volume) is never destroyed or replaced outside a standard
-# environment's teardown (policy/stateful.rego).
-#
-# Production adopts the project's default `production` environment. Every other
-# environment is a duplicate of it (`clone_from`): the provider's
-# `railway_environment` can only make an EMPTY environment, which holds no
-# instance of the `emqx` service, so a custom domain there fails with
-# "ServiceInstance not found" (clone-environment.sh).
+# Clients connect with the same HMAC token the API already mints. An
+# unsigned custom authorizer checks it and turns the token's acl claim into
+# an IoT session policy. The Worker publishes with SigV4; it has no instance
+# role, so it uses an IAM user key written into the secret store.
 
 terraform {
   required_providers {
+    aws        = { source = "hashicorp/aws" }
+    archive    = { source = "hashicorp/archive" }
     cloudflare = { source = "cloudflare/cloudflare" }
-    railway    = { source = "terraform-community-providers/railway" }
-    random     = { source = "hashicorp/random" }
-    http       = { source = "hashicorp/http" }
   }
 }
 
-variable "project_id" {
-  type        = string
-  description = "The shared Railway project (modules/pubsub-project, fleet stack)."
+variable "project" {
+  type = string
 }
 
-variable "service_id" {
-  type        = string
-  description = "The shared `emqx` service in that project."
+variable "suffix" {
+  type = string
 }
 
-variable "environment_name" {
-  type        = string
-  description = "This environment's Railway environment; production is the project's default one."
-}
-
-variable "clone_from" {
-  type        = string
-  default     = null
-  description = "Railway environment to duplicate into `environment_name`; null adopts `environment_name` as an existing environment (production's default one)."
-}
-
-variable "railway_token" {
-  type        = string
-  sensitive   = true
-  description = "Railway API token: reads the environment ids of the project (the provider has no data source for them)."
+variable "region" {
+  type = string
 }
 
 variable "hostname" {
@@ -56,154 +37,189 @@ variable "zone_id" {
   type = string
 }
 
-variable "zone_name" {
-  type = string
-}
-
-variable "target_port" {
-  type    = number
-  default = 8080
-}
-
-variable "credentials" {
-  type = object({
-    api_key            = string
-    api_secret         = string
-    jwt_secret         = string
-    dashboard_password = string
-  })
-  sensitive   = true
-  description = "Broker credentials (resolved by the secrets module: kept once minted)."
+variable "jwt_secret" {
+  type      = string
+  sensitive = true
 }
 
 locals {
-  cloned      = var.clone_from != null
-  graphql_url = "https://backboard.railway.com/graphql/v2"
+  authorizer_name = "${var.project}-iot-${var.suffix}"
+  function_name   = "${var.project}-iot-auth-${var.suffix}"
+  domain_name     = "${var.project}-iot-domain-${var.suffix}"
+  publisher_name  = "${var.project}-iot-pub-${var.suffix}"
+  role_name       = "${var.project}-iot-auth-role-${var.suffix}"
 }
 
-# Production: the project's default environment, adopted by import.
-resource "railway_environment" "default" {
-  count = local.cloned ? 0 : 1
+data "aws_caller_identity" "current" {}
 
-  name       = var.environment_name
-  project_id = var.project_id
+data "aws_iot_endpoint" "data" {
+  endpoint_type = "iot:Data-ATS"
 }
 
-# Everything else: a duplicate of `clone_from`, which carries the service's
-# instance (build, region, volume). Deleted with the environment's teardown.
-resource "terraform_data" "clone" {
-  count = local.cloned ? 1 : 0
-
-  triggers_replace = [var.project_id, var.environment_name, var.clone_from]
-  input = {
-    project_id = var.project_id
-    name       = var.environment_name
-    source     = var.clone_from
-  }
-
-  provisioner "local-exec" {
-    command = "${path.module}/clone-environment.sh create"
-    environment = {
-      PROJECT_ID = var.project_id
-      NAME       = var.environment_name
-      SOURCE     = var.clone_from
-    }
-  }
-
-  # RAILWAY_TOKEN comes from the process environment (`secrets-run`).
-  provisioner "local-exec" {
-    when    = destroy
-    command = "${path.module}/clone-environment.sh delete"
-    environment = {
-      PROJECT_ID = self.input.project_id
-      NAME       = self.input.name
-      SOURCE     = self.input.source
-    }
-  }
+data "archive_file" "authorizer" {
+  type        = "zip"
+  source_file = "${path.module}/authorizer/index.mjs"
+  output_path = "${path.module}/authorizer.zip"
 }
 
-# The clone's id, read back from Railway (read-only, so drift checks run it
-# too). Unknown until the clone exists, which orders everything below after it.
-data "http" "environments" {
-  count = local.cloned ? 1 : 0
+resource "aws_cloudwatch_log_group" "authorizer" {
+  name              = "/aws/lambda/${local.function_name}"
+  retention_in_days = 14
+}
 
-  url    = local.graphql_url
-  method = "POST"
-  request_headers = {
-    Authorization  = "Bearer ${var.railway_token}"
-    "Content-Type" = "application/json"
-  }
-  request_body = jsonencode({
-    query     = "query($id: String!) { project(id: $id) { environments { edges { node { id name } } } } }"
-    variables = { id = var.project_id }
+resource "aws_iam_role" "authorizer" {
+  name = local.role_name
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRole"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
   })
+}
 
-  depends_on = [terraform_data.clone]
+resource "aws_iam_role_policy_attachment" "authorizer_logs" {
+  role       = aws_iam_role.authorizer.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
 
-  lifecycle {
-    postcondition {
-      condition     = self.status_code == 200 && can(jsondecode(self.response_body).data.project.environments.edges)
-      error_message = "Railway did not list the project's environments (HTTP ${self.status_code}): ${self.response_body}"
+resource "aws_lambda_function" "authorizer" {
+  function_name    = local.function_name
+  role             = aws_iam_role.authorizer.arn
+  runtime          = "nodejs22.x"
+  handler          = "index.handler"
+  filename         = data.archive_file.authorizer.output_path
+  source_code_hash = data.archive_file.authorizer.output_base64sha256
+  timeout          = 5
+  memory_size      = 128
+
+  environment {
+    variables = {
+      TOKEN_SECRET   = var.jwt_secret
+      AWS_ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
   }
+
+  depends_on = [
+    aws_cloudwatch_log_group.authorizer,
+    aws_iam_role_policy_attachment.authorizer_logs,
+  ]
 }
 
-locals {
-  environment_ids = local.cloned ? {
-    for e in jsondecode(data.http.environments[0].response_body).data.project.environments.edges : e.node.name => e.node.id
-  } : {}
-  environment_id = local.cloned ? local.environment_ids[var.environment_name] : railway_environment.default[0].id
-  variables = {
-    PORT                    = tostring(var.target_port)
-    EMQX_API_KEY            = var.credentials.api_key
-    EMQX_API_SECRET         = var.credentials.api_secret
-    EMQX_JWT_SECRET         = var.credentials.jwt_secret
-    EMQX_DASHBOARD_PASSWORD = var.credentials.dashboard_password
+resource "aws_lambda_permission" "iot" {
+  statement_id  = "AllowIoTInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.authorizer.function_name
+  principal     = "iot.amazonaws.com"
+  source_arn    = "arn:aws:iot:${var.region}:${data.aws_caller_identity.current.account_id}:authorizer/${local.authorizer_name}"
+}
+
+resource "aws_iot_authorizer" "this" {
+  name                    = local.authorizer_name
+  authorizer_function_arn = aws_lambda_function.authorizer.arn
+  signing_disabled        = true
+  status                  = "ACTIVE"
+  enable_caching_for_http = false
+
+  depends_on = [aws_lambda_permission.iot]
+}
+
+resource "aws_acm_certificate" "broker" {
+  domain_name       = var.hostname
+  validation_method = "DNS"
+}
+
+resource "cloudflare_dns_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.broker.domain_validation_options :
+    dvo.domain_name => {
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
+    }
   }
+
+  zone_id = var.zone_id
+  name    = trimsuffix(each.value.name, ".")
+  type    = each.value.type
+  content = trimsuffix(each.value.value, ".")
+  proxied = false
+  ttl     = 1
+  comment = "OpenTofu: libs/infra pubsub certificate"
 }
 
-# Variables: importing cannot read Railway's stored values, so the first
-# apply re-sends them (same values, except any regenerated) and Railway
-# redeploys the broker once; MQTT clients reconnect with backoff.
-resource "railway_variable" "broker" {
-  for_each = nonsensitive(toset(keys(local.variables)))
-
-  environment_id = local.environment_id
-  service_id     = var.service_id
-  name           = each.key
-  value          = local.variables[each.key]
+resource "aws_acm_certificate_validation" "broker" {
+  certificate_arn = aws_acm_certificate.broker.arn
+  validation_record_fqdns = [
+    for record in cloudflare_dns_record.cert_validation : record.name
+  ]
 }
 
-resource "railway_custom_domain" "broker" {
-  environment_id = local.environment_id
-  service_id     = var.service_id
-  domain         = var.hostname
-  target_port    = var.target_port
+resource "aws_iot_domain_configuration" "broker" {
+  name                    = local.domain_name
+  domain_name             = var.hostname
+  service_type            = "DATA"
+  application_protocol    = "MQTT_WSS"
+  authentication_type     = "CUSTOM_AUTH"
+  server_certificate_arns = [aws_acm_certificate_validation.broker.certificate_arn]
+
+  authorizer_config {
+    allow_authorizer_override = false
+    default_authorizer_name   = aws_iot_authorizer.this.name
+  }
 }
 
 resource "cloudflare_dns_record" "broker" {
   zone_id = var.zone_id
   name    = var.hostname
   type    = "CNAME"
-  content = railway_custom_domain.broker.dns_record_value
+  content = data.aws_iot_endpoint.data.endpoint_address
   proxied = false
   ttl     = 1
   comment = "OpenTofu: libs/infra pubsub"
 }
 
-resource "cloudflare_dns_record" "broker_verification" {
-  zone_id = var.zone_id
-  name    = "${railway_custom_domain.broker.verification_host_label}.${var.zone_name}"
-  type    = "TXT"
-  content = railway_custom_domain.broker.verification_record_value
-  ttl     = 1
-  comment = "OpenTofu: libs/infra pubsub"
+resource "aws_iam_user" "publisher" {
+  name = local.publisher_name
 }
 
-output "api_url" {
-  value = "https://${var.hostname}"
+resource "aws_iam_user_policy" "publisher" {
+  name = local.publisher_name
+  user = aws_iam_user.publisher.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "iot:Publish"
+      Resource = "arn:aws:iot:${var.region}:${data.aws_caller_identity.current.account_id}:topic/*"
+    }]
+  })
+}
+
+resource "aws_iam_access_key" "publisher" {
+  user = aws_iam_user.publisher.name
 }
 
 output "wss_url" {
   value = "wss://${var.hostname}/mqtt"
+}
+
+output "data_endpoint" {
+  description = "IoT data-plane hostname. The Worker signs HTTPS publishes to it."
+  value       = data.aws_iot_endpoint.data.endpoint_address
+}
+
+output "region" {
+  value = var.region
+}
+
+output "publisher_access_key_id" {
+  value     = aws_iam_access_key.publisher.id
+  sensitive = true
+}
+
+output "publisher_secret_access_key" {
+  value     = aws_iam_access_key.publisher.secret
+  sensitive = true
 }

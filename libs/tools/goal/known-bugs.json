@@ -250,19 +250,9 @@
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
-    "id": "railway-empty-environment",
-    "summary": "Deploy failed on every run once the broker moved into one shared Railway project: `railway_environment` (provider v0.6) creates an EMPTY environment with no instance of the `emqx` service, so `customDomainCreate` failed with \"ServiceInstance not found\", dev's foundation never applied, and prd (gated behind dev) never redeployed. Fixed by duplicating the production environment (`clone-environment.sh`, run by `terraform_data.clone`) instead; the script refuses an empty environment with the same name.",
-    "regressionTest": "libs/infra/tests/clone-environment.test.ts"
-  },
-  {
     "id": "infisical-ci-token-expired",
     "summary": "Health (and any Deploy step reading secrets live) failed after its tenth minute with \"Your token has expired\": the CI identity's OIDC-minted Infisical token lives 600s, and the admin CLI store published it as INFISICAL_TOKEN, which the resolver then read back as the caller's own token and never minted again. Fixed by marking a minted token with its expiry (INFISICAL_TOKEN_EXPIRES_AT) and re-resolving before every CLI call, minting a new token a minute before the old one expires; a caller's own token is never replaced.",
     "regressionTest": "pkgs/secret-provider/tests/oidc-access-token.test.ts"
-  },
-  {
-    "id": "railway-empty-environment-stuck",
-    "summary": "Deploy still stopped at dev's foundation after the clone fix: the empty `development` environment the provider had already made stayed in the shared Railway project, and `clone-environment.sh create` refused it and asked for a hand delete in the dashboard. Fixed by having create delete an empty non-production environment, wait until Railway's background delete frees the name, and clone afresh (it holds no service instance, so nothing is lost); production and the clone source are never replaced.",
-    "regressionTest": "libs/infra/tests/clone-environment.test.ts"
   },
   {
     "id": "report-publish-wrangler-not-found",
@@ -393,5 +383,10 @@
     "id": "people-search-rate-says-nobody",
     "summary": "People search counted every keystroke and every refetch toward a 30-a-minute cap, then answered the next name with an empty list. The screen said nobody was found, so Add never appeared. A friendship trace moves virtual time between letters and refetches the open search, and one person spent the whole budget that way. Fixed: a name already counted in the window still runs, and typing a name is one change rather than one search per letter.",
     "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
+  },
+  {
+    "id": "watch-scroll-echo",
+    "summary": "Scrolling while bun check, bun health, or bun deploy watched a GitHub run printed a stream of ^[[B. A scroll wheel sends down-arrow keys, and the watcher left the terminal echoing input, so those keys landed in the transcript. Fixed by turning echo off for the watch and discarding the keys, then restoring the terminal.",
+    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
   }
 ]

@@ -15,14 +15,15 @@ function openRequestSqlClient(): SqlClient {
   return requestStore.sqlClient;
 }
 
-/** Resolves EMQX HTTP pubsub from the current request's secret store. */
+/** Resolves the publish-only invalidation client from the request secret store. */
 function createRequestScopedPubSub(): PubSub {
   return {
     async publish(topic, data) {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
       const pubsub = await new HttpPubSubFromSecretStore(
-        store.secretStore
+        store.secretStore,
+        () => store.clock.now()
       ).get();
       if (pubsub === undefined) return;
       await pubsub.publish(topic, data);

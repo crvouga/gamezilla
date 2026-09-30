@@ -83,14 +83,4 @@ resource "cloudflare_r2_bucket_lifecycle" "reports" {
   }]
 }
 
-# The one Railway project every environment's MQTT broker runs in, and the
-# `emqx` service they share (each environment's foundation stack adds its own
-# Railway environment of it). Global because it is shared; the ids in
-# global.tfvars.json `railway` are what the environments build on.
-module "pubsub_project" {
-  source         = "../../modules/pubsub-project"
-  project_name   = var.project
-  workspace_id   = var.railway.workspace_id
-  github_repo    = "${var.github.owner}/${var.github.repo}"
-  root_directory = "libs/pubsub/emqx-deploy"
-}
+

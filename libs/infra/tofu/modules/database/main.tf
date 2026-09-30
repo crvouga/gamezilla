@@ -1,46 +1,51 @@
-# Postgres. Every environment is a branch of ONE Neon project (created once,
-# by a human, with the project). The production environment runs on the
-# project's root branch; every other environment gets its own branch of it,
-# created here — so a new replica starts as a copy of production's data and
-# needs no console step. OpenTofu also owns each branch's read-write endpoint
-# and derives DATABASE_URL from them, plus the Hyperdrive config the API
-# Worker connects through. Inside the branch, OpenTofu owns only
-# database-level configuration (extensions); tables are the app's migrations.
+# Postgres on PlanetScale Neki. Each environment is its own database
+# (`<project>-<suffix>`, branch `main`), so a standard environment can be
+# created and torn down without touching production, and Deploy can apply
+# standard environments before production. A new database starts empty:
+# `@libs/runtime#migrate` builds the schema. PlanetScale owns placement,
+# routing, and resharding. The app only has a connection string.
 #
-# Neon resources are deleted only by tearing down a whole standard
-# environment (`bun run infra:destroy`); libs/infra/policy/stateful.rego
-# refuses it for production and in every ordinary apply.
+# The API Worker reaches the router through Cloudflare Hyperdrive (pooling
+# next to the database, query cache off). Migrations use a separate role
+# that inherits `postgres`, because the app role can read and write rows
+# and cannot change tables.
+#
+# Neki branches and roles are deleted only by tearing down a whole standard
+# environment. Production's branch is deletion-protected and
+# `prevent_destroy`. libs/infra/policy/stateful.rego refuses a production
+# teardown and any ordinary delete of these types.
 
 terraform {
   required_providers {
-    cloudflare = { source = "cloudflare/cloudflare" }
-    neon       = { source = "kislerdm/neon" }
-    postgresql = { source = "cyrilgdn/postgresql" }
+    cloudflare  = { source = "cloudflare/cloudflare" }
+    planetscale = { source = "planetscale/planetscale" }
+    postgresql  = { source = "cyrilgdn/postgresql" }
   }
 }
 
-variable "neon_project_id" {
+variable "organization" {
   type        = string
-  description = "The one Neon project every environment branches from (global.tfvars.json)."
+  description = "PlanetScale organization slug (global.tfvars.json)."
 }
 
-variable "root_branch_id" {
+variable "region" {
   type        = string
-  description = "The project's root branch: production's database, every other branch's parent."
+  description = "Neki region. Growth stays in this region; PlanetScale reshardes."
+}
+
+variable "database_name" {
+  type        = string
+  description = "This environment's Neki database. Creating the branch creates it."
 }
 
 variable "production" {
   type        = bool
-  description = "Runs on the root branch instead of a branch of its own."
-}
-
-variable "branch_name" {
-  type = string
+  description = "Production's branch cannot be destroyed or replaced by OpenTofu."
 }
 
 variable "account_id" {
   type        = string
-  description = "Cloudflare account the Hyperdrive config lives in (the Workers' account)."
+  description = "Cloudflare account the Hyperdrive config lives in."
 }
 
 variable "hyperdrive_name" {
@@ -48,74 +53,114 @@ variable "hyperdrive_name" {
 }
 
 locals {
-  # The role and database every branch inherits from the root at creation.
-  role     = "neondb_owner"
-  database = "neondb"
+  branch_name = "main"
+  database    = "postgres"
+  port        = 5432
 }
 
-resource "neon_branch" "this" {
+resource "planetscale_neki_branch" "production" {
+  count = var.production ? 1 : 0
+
+  organization       = var.organization
+  database           = var.database_name
+  name               = local.branch_name
+  region             = var.region
+  deletion_protected = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "planetscale_neki_branch" "standard" {
   count = var.production ? 0 : 1
 
-  project_id = var.neon_project_id
-  parent_id  = var.root_branch_id
-  name       = var.branch_name
+  organization       = var.organization
+  database           = var.database_name
+  name               = local.branch_name
+  region             = var.region
+  deletion_protected = false
+}
+
+# DDL. `postgres` is the inherited role that may change tables.
+resource "planetscale_neki_role" "migrate" {
+  organization    = var.organization
+  database        = var.database_name
+  branch          = local.branch_name
+  name            = "migrate"
+  inherited_roles = ["postgres"]
+
+  depends_on = [
+    planetscale_neki_branch.production,
+    planetscale_neki_branch.standard,
+  ]
+}
+
+# The API Worker. Row access across shards; not DDL.
+resource "planetscale_neki_role" "app" {
+  organization    = var.organization
+  database        = var.database_name
+  branch          = local.branch_name
+  name            = "app"
+  inherited_roles = ["pg_read_all_data", "pg_write_all_data"]
+
+  depends_on = [
+    planetscale_neki_branch.production,
+    planetscale_neki_branch.standard,
+  ]
+}
+
+# `bun obs person`. pg_read_all_data covers SELECT; pg_monitor covers
+# pg_stat_statements. The login name Neki issues may carry a branch suffix.
+resource "planetscale_neki_role" "obs_read" {
+  organization    = var.organization
+  database        = var.database_name
+  branch          = local.branch_name
+  name            = "obs_read"
+  inherited_roles = ["pg_read_all_data", "pg_monitor"]
+
+  depends_on = [
+    planetscale_neki_branch.production,
+    planetscale_neki_branch.standard,
+  ]
 }
 
 locals {
-  branch_id = var.production ? var.root_branch_id : neon_branch.this[0].id
+  migrate_host = regex(
+    "^[^:/]+",
+    replace(replace(planetscale_neki_role.migrate.access_host_url, "/^postgres(?:ql)?:\\/\\//", ""), "/^[^@/]+@/", ""),
+  )
+  app_host = regex(
+    "^[^:/]+",
+    replace(replace(planetscale_neki_role.app.access_host_url, "/^postgres(?:ql)?:\\/\\//", ""), "/^[^@/]+@/", ""),
+  )
+  obs_host = regex(
+    "^[^:/]+",
+    replace(replace(planetscale_neki_role.obs_read.access_host_url, "/^postgres(?:ql)?:\\/\\//", ""), "/^[^@/]+@/", ""),
+  )
 }
 
-resource "neon_endpoint" "this" {
-  project_id               = var.neon_project_id
-  branch_id                = local.branch_id
-  type                     = "read_write"
-  autoscaling_limit_min_cu = 0.25
-  autoscaling_limit_max_cu = 8
-  suspend_timeout_seconds  = 0
-}
-
-data "neon_branch_role_password" "owner" {
-  project_id = var.neon_project_id
-  branch_id  = local.branch_id
-  role_name  = local.role
-
-  depends_on = [neon_endpoint.this]
-}
-
-# SELECT-only login for `bun obs person`. The name matches
-# GrantObsReadMigration in libs/runtime, which grants the tables after they
-# exist. This role holds no one's data; losing the password only locks agents
-# out of name lookup.
-resource "neon_role" "obs_read" {
-  project_id = var.neon_project_id
-  branch_id  = local.branch_id
-  name       = "obs_read"
-}
-
-# Slow-query statistics (`bun obs`, docs/OBSERVABILITY.md). Neon
-# preloads the library; the extension must exist in the app database.
-# CREATE EXTENSION IF NOT EXISTS — adopting an existing one is a no-op.
+# Slow-query statistics (`bun obs`). Neki still needs the extension created
+# in the database after the profile allows it. The default profile is
+# created with the branch; this adopts an existing extension.
 resource "postgresql_extension" "pg_stat_statements" {
   name = "pg_stat_statements"
 }
 
-# Hyperdrive: the API Worker's connection to the branch. It keeps warm
-# connections to the direct (unpooled) endpoint next to the database and
-# pools them for every Worker isolate, so a request never pays a TLS + auth
-# handshake to Neon. Query caching is off: sync hydration must read its own
-# writes, and a cached `SELECT` would serve a snapshot from before them.
-# Stateless: replacing it only changes the id the next Worker deploy binds.
+# Hyperdrive pools connections from every Worker isolate to the Neki router.
+# Query caching is off: sync hydration must read its own writes.
+# Replacing it only changes the id the next Worker deploy binds.
 resource "cloudflare_hyperdrive_config" "this" {
   account_id = var.account_id
   name       = var.hyperdrive_name
 
   origin = {
     scheme   = "postgres"
-    host     = neon_endpoint.this.host
-    port     = 5432
+    host     = local.app_host
+    port     = local.port
     database = local.database
-    user     = local.role
-    password = data.neon_branch_role_password.owner.password
+    user     = planetscale_neki_role.app.username
+    password = planetscale_neki_role.app.password
   }
 
   caching = {
@@ -124,28 +169,28 @@ resource "cloudflare_hyperdrive_config" "this" {
 }
 
 output "hyperdrive_id" {
-  description = "Bound into the API Worker as HYPERDRIVE (wrangler render)."
+  description = "Bound into the API Worker as HYPERDRIVE."
   value       = cloudflare_hyperdrive_config.this.id
 }
 
 output "database_url" {
-  description = "Migrations, tooling and the non-production URL policy connect with this: the pooled host. Workers go through Hyperdrive."
-  value       = "postgresql://${local.role}:${data.neon_branch_role_password.owner.password}@${neon_endpoint.this.host_pooling}/${local.database}?sslmode=require&channel_binding=require"
+  description = "Migrations and tooling. The Worker uses Hyperdrive and the app role."
+  value       = "postgresql://${urlencode(planetscale_neki_role.migrate.username)}:${urlencode(planetscale_neki_role.migrate.password)}@${local.migrate_host}:${local.port}/${local.database}?sslmode=verify-full"
   sensitive   = true
 }
 
 output "obs_readonly_database_url" {
-  description = "SELECT-only pooled URL for bun obs. Role obs_read; password is URL-encoded. Not the owner DATABASE_URL."
-  value       = "postgresql://obs_read:${urlencode(neon_role.obs_read.password)}@${neon_endpoint.this.host_pooling}/${local.database}?sslmode=require&channel_binding=require"
+  description = "SELECT-only URL for bun obs. Not the migrate role."
+  value       = "postgresql://${urlencode(planetscale_neki_role.obs_read.username)}:${urlencode(planetscale_neki_role.obs_read.password)}@${local.obs_host}:${local.port}/${local.database}?sslmode=verify-full"
   sensitive   = true
 }
 
 output "connection" {
-  description = "Direct (unpooled) coordinates for DDL."
+  description = "Coordinates for the PostgreSQL provider (DDL, extensions)."
   value = {
-    host     = neon_endpoint.this.host
-    user     = local.role
-    password = data.neon_branch_role_password.owner.password
+    host     = local.migrate_host
+    user     = planetscale_neki_role.migrate.username
+    password = planetscale_neki_role.migrate.password
     database = local.database
   }
   sensitive = true

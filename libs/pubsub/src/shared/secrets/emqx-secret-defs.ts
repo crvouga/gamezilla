@@ -16,28 +16,6 @@ function requireNonEmpty(value: string, label: string): void {
   }
 }
 
-function requireHttpsUrl(value: string, label: string): void {
-  const v = value.trim();
-  requireNonEmpty(v, label);
-  let url: URL;
-  try {
-    url = new URL(v);
-  } catch {
-    throw new Error(`${label} must be a valid URL`);
-  }
-  if (url.protocol !== 'https:') {
-    throw new Error(`${label} must use https://`);
-  }
-}
-
-async function validateEmqxApiUrl(
-  input: PubsubEmqxSecretValidateInput
-): Promise<void> {
-  const v = input.secretValue.trim();
-  if (v.length === 0) return;
-  requireHttpsUrl(v, 'EMQX_API_URL');
-}
-
 async function validateEmqxWssUrl(
   input: PubsubEmqxSecretValidateInput
 ): Promise<void> {
@@ -58,17 +36,12 @@ async function validateNonEmpty(
 
 /**
  * Secret definitions for the registry. Callers wrap these with their
- * `Secret` class (`@libs/secrets`). Every value is written per environment by
- * OpenTofu (`libs/infra/tofu/modules/pubsub` + `secrets`).
+ * `Secret` class (`@libs/secrets`). OpenTofu writes both per environment.
+ * The HMAC secret signs client tokens; the authorizer on AWS IoT Core checks
+ * the same secret. Local EMQX sidecars still use it. The WSS URL is what
+ * clients connect to (`client_config.emqx_wss_url`).
  */
 export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
-  {
-    name: 'EMQX_API_URL',
-    hint: 'https://<broker host> — EMQX HTTP API (via Caddy)',
-    optional: true,
-    pushToApiWorker: true,
-    validate: validateEmqxApiUrl,
-  },
   {
     name: 'EMQX_WSS_URL',
     hint: 'wss://<broker host>/mqtt — the API Worker materializes it into synced client_config',
@@ -77,31 +50,10 @@ export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
     validate: validateEmqxWssUrl,
   },
   {
-    name: 'EMQX_API_KEY',
-    hint: 'EMQX dashboard API key (Basic auth username)',
-    optional: true,
-    pushToApiWorker: true,
-    validate: (i) => validateNonEmpty('EMQX_API_KEY', i),
-  },
-  {
-    name: 'EMQX_API_SECRET',
-    hint: 'EMQX dashboard API secret (Basic auth password)',
-    optional: true,
-    pushToApiWorker: true,
-    validate: (i) => validateNonEmpty('EMQX_API_SECRET', i),
-  },
-  {
     name: 'EMQX_JWT_SECRET',
-    hint: 'HMAC secret shared with EMQX JWT authenticator (MQTT password = JWT)',
+    hint: 'HMAC secret for client MQTT tokens. The IoT authorizer verifies it; local EMQX does too.',
     optional: true,
     pushToApiWorker: true,
     validate: (i) => validateNonEmpty('EMQX_JWT_SECRET', i),
-  },
-  {
-    name: 'EMQX_DASHBOARD_PASSWORD',
-    hint: 'EMQX dashboard `admin` password; set on every broker boot. Never on a Worker.',
-    optional: true,
-    pushToApiWorker: false,
-    validate: (i) => validateNonEmpty('EMQX_DASHBOARD_PASSWORD', i),
   },
 ];

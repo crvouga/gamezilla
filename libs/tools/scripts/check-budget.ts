@@ -1,5 +1,5 @@
 /**
- * Hard time limits for the `bun check:local` / `bun run deploy` gate.
+ * Hard time limits for the `bun check:local` / `bun deploy:local` gate.
  *
  * Two limits, both enforced by `turbo-ci-run.ts` so every surface that runs
  * the gate (`bun check:local`, the Check workflow, the Deploy workflow) gets them:

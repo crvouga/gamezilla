@@ -5,8 +5,9 @@ name: Health
 #   <Workflow> · <trigger>
 run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
 
-# Health: is the deployment good? Live-resource health between deploys: `bun run health` runs
-# `@apps/product#health` (turbo `health` with `--only`, so nothing is deployed):
+# Health: is the deployment good? `bun health` dispatches this workflow.
+# Each job runs `bun run health:local` (`@apps/product#health`, turbo
+# `health` with `--only`, so nothing is deployed):
 # every Gherkin scenario in specs/health/ and specs/journeys/ against
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
 # vendor credentials, the Workers, DNS and TLS — plus the critical user
@@ -97,7 +98,7 @@ jobs:
         # on purpose: turbo-ci-run hits its own deadline first and names the
         # probe that hung, instead of GitHub cancelling the job silently.
         timeout-minutes: 25
-        run: bun run health
+        run: bun run health:local
 
       # Critical journeys (specs/journeys/, apps/product/tests/steps/live-world.ts)
       # save a screenshot, the page HTML and the browser console per failure.

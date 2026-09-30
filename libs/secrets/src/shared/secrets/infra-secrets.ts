@@ -3,8 +3,9 @@ import { requireNonEmpty, Secret, type SecretInput } from './secret';
 /**
  * Credentials OpenTofu itself needs (`libs/infra/scripts/tofu.ts`). The state
  * bucket's access key is written by the bootstrap stack that creates the
- * bucket; the passphrase (which encrypts that stack's own state) and the Neon
- * key (Neon projects are never created by code) are entered by a person.
+ * bucket; the passphrase (which encrypts that stack's own state) is entered
+ * by a person. PlanetScale and the AWS account keys are entered by a person
+ * too: OpenTofu uses them and never creates the accounts.
  */
 
 async function validateMinLength(
@@ -46,13 +47,37 @@ export const TOFU_STATE_SECRET_ACCESS_KEY = new Secret({
     validateMinLength(input, 'TOFU_STATE_SECRET_ACCESS_KEY', 32),
 });
 
-export const NEON_API_KEY = new Secret({
-  name: 'NEON_API_KEY',
+export const PLANETSCALE_SERVICE_TOKEN_ID = new Secret({
+  name: 'PLANETSCALE_SERVICE_TOKEN_ID',
+  hint: "PlanetScale service token id. OpenTofu creates each environment's Neki database with it. Account-wide, shared.",
+  validate: (input) =>
+    validateMinLength(input, 'PLANETSCALE_SERVICE_TOKEN_ID', 8),
+});
+
+export const PLANETSCALE_SERVICE_TOKEN = new Secret({
+  name: 'PLANETSCALE_SERVICE_TOKEN',
+  hint: 'PlanetScale service token paired with PLANETSCALE_SERVICE_TOKEN_ID. Account-wide, shared. Never pushed to a Worker.',
+  validate: (input) =>
+    validateMinLength(input, 'PLANETSCALE_SERVICE_TOKEN', 16),
+});
+
+export const AWS_ACCOUNT_ACCESS_KEY_ID = new Secret({
+  name: 'AWS_ACCOUNT_ACCESS_KEY_ID',
   hint: [
-    'Neon → Account settings → API keys (read/write): OpenTofu creates each',
-    "non-production environment's branch and endpoint and derives DATABASE_URL.",
+    'AWS access key id for the account that owns IoT Core.',
+    'Not the R2 state key (TOFU_STATE_ACCESS_KEY_ID). OpenTofu reads this',
+    'as TF_VAR_aws_access_key_id because the tofu process uses',
+    'AWS_ACCESS_KEY_ID for the state bucket.',
   ].join('\n'),
-  validate: (input) => validateMinLength(input, 'NEON_API_KEY', 16),
+  validate: (input) =>
+    validateMinLength(input, 'AWS_ACCOUNT_ACCESS_KEY_ID', 16),
+});
+
+export const AWS_ACCOUNT_SECRET_ACCESS_KEY = new Secret({
+  name: 'AWS_ACCOUNT_SECRET_ACCESS_KEY',
+  hint: 'AWS secret access key paired with AWS_ACCOUNT_ACCESS_KEY_ID. Not the R2 state secret. Never pushed to a Worker.',
+  validate: (input) =>
+    validateMinLength(input, 'AWS_ACCOUNT_SECRET_ACCESS_KEY', 32),
 });
 
 export const GITHUB_ADMIN_TOKEN = new Secret({

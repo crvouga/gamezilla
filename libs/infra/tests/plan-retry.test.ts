@@ -9,7 +9,7 @@ describe('plan retry', () => {
   test('a provider client error is a failed read, not a diff', () => {
     const output = [
       'Error: Client Error',
-      'with module.pubsub.railway_variable.broker["EMQX_DASHBOARD_PASSWORD"]',
+      'with module.database.postgresql_extension.pg_stat_statements',
       'read tcp: connection reset by peer',
     ].join('\n');
     expect(planReadFailed(1)).toBe(true);

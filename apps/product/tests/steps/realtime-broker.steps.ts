@@ -1,147 +1,121 @@
-// @io-wall-ok — live health: the environment's EMQX broker.
+// @io-wall-ok — live health: this environment's AWS IoT data plane.
 /** `specs/health/live-updates.feature`. */
 
 import { expect } from 'bun:test';
 import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
 import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
-import { createHttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
-import {
-  COMMITTED_EMQX_CREDENTIALS,
-  EMQX_STOCK_DASHBOARD_PASSWORD,
-} from '@pkgs/emqx-server/ports';
+import { wallClock } from '@pkgs/clock';
+import { COMMITTED_EMQX_CREDENTIALS } from '@pkgs/emqx-server/ports';
 import type { HttpClient } from '@pkgs/http-client';
+import { createIotHttpPubSub, iotEndpointHost } from '@pkgs/pubsub/iot';
 import { awaitApiAnswered, liveRows } from './client-config.steps';
 import { eventually, Then } from './define';
 import { liveSecret } from './live-secrets';
 import type { LiveWorld } from './live-world';
 import { wallWait } from './wall-wait';
 
-/** A broker OpenTofu just created (or restarted) builds for a few minutes. */
-const BROKER_WARMUP_MS = 10 * 60 * 1000;
+/** A custom domain's first answer can lag the apply by a couple of minutes. */
+const DATA_PLANE_WARMUP_MS = 3 * 60 * 1000;
 const RETRY_MS = 10_000;
 
-/**
- * The broker's credentials as the secret store holds them now: an apply may
- * have replaced them (a placeholder or `regenerate`d value) since the run's
- * env was injected.
- */
-type Broker = {
-  readonly apiUrl: string;
-  readonly apiKey: string;
-  readonly apiSecret: string;
+type Publisher = {
+  readonly host: string;
+  readonly region: string;
+  readonly accessKeyId: string;
+  readonly secretAccessKey: string;
 };
 
-async function broker(w: LiveWorld): Promise<Broker> {
+async function publisher(w: LiveWorld): Promise<Publisher> {
   return {
-    apiUrl: await liveSecret(w, Name.apiUrl),
-    apiKey: await liveSecret(w, Name.apiKey),
-    apiSecret: await liveSecret(w, Name.apiSecret),
+    host: iotEndpointHost(await liveSecret(w, Name.iotDataEndpoint)),
+    region: await liveSecret(w, Name.iotRegion),
+    accessKeyId: await liveSecret(w, Name.iotAccessKeyId),
+    secretAccessKey: await liveSecret(w, Name.iotSecretAccessKey),
   };
 }
 
-function basicAuth(b: Broker): string {
-  return `Basic ${btoa(`${b.apiKey}:${b.apiSecret}`)}`;
-}
-
-async function nodeStatuses(
+async function statusOf(
   http: HttpClient,
-  b: Broker
-): Promise<readonly string[] | null> {
+  url: string,
+  init?: RequestInit
+): Promise<number> {
   try {
-    const res = await http.fetch(`${b.apiUrl}/api/v5/nodes`, {
-      headers: { Authorization: basicAuth(b), Accept: 'application/json' },
-    });
-    if (res.status !== 200) return null;
-    const nodes = (await res.json()) as ReadonlyArray<{ node_status?: string }>;
-    return nodes.map((n) => n.node_status ?? 'unknown');
+    const res = await http.fetch(url, init);
+    await res.body?.cancel();
+    return res.status;
   } catch {
-    return null;
+    return 0;
   }
 }
 
-/** The broker's API authenticates and every node is running. */
+/** Unsigned requests are refused, which is how the data plane shows it is there. */
 Then('what happens in a space can reach everyone in it', async (w) => {
-  const b = await broker(w);
-  const seen: { statuses: readonly string[] | null } = { statuses: null };
+  const host = iotEndpointHost(await liveSecret(w, Name.iotDataEndpoint));
+  let status = 0;
   await eventually(
     async () => {
-      seen.statuses = await nodeStatuses(w.http, b);
-      return (
-        seen.statuses !== null &&
-        seen.statuses.length > 0 &&
-        seen.statuses.every((s) => s === 'running')
-      );
+      status = await statusOf(w.http, `https://${host}/`);
+      return status === 403;
     },
-    { maxWaitMs: BROKER_WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
+    { maxWaitMs: DATA_PLANE_WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
   );
-  const last = seen.statuses;
-  expect(last, 'EMQX API never authenticated').not.toBeNull();
-  expect(last?.length ?? 0).toBeGreaterThan(0);
-  expect(last).toEqual((last ?? []).map(() => 'running'));
+  expect(status).toBe(403);
 });
 
 /** The server's publish path accepts a message. */
 Then('the app can pass on what happens in a space', async (w) => {
-  const b = await broker(w);
-  const pubsub = createHttpPubSubFromSecretStore({
-    apiBaseUrl: b.apiUrl,
-    apiKey: b.apiKey,
-    apiSecret: b.apiSecret,
+  const creds = await publisher(w);
+  const pubsub = createIotHttpPubSub({
+    endpoint: creds.host,
+    accessKeyId: creds.accessKeyId,
+    secretAccessKey: creds.secretAccessKey,
+    region: creds.region,
+    now: () => wallClock.now(),
+    fetchImpl: (input, init) => w.http.fetch(input, init),
   });
   await pubsub.publish('health-ping', { ok: true });
 });
 
 /**
- * Clients are given the broker's WSS address from the secret store, and it
- * points at the broker's host.
+ * Clients are given this environment's WebSocket address from the secret
+ * store, and the synced config is that same address.
  */
 Then(
   "people's apps follow what happens in this environment's spaces",
   async (w) => {
     const wssUrl = await liveSecret(w, Name.wssUrl);
     await awaitApiAnswered(w);
-    const wss = new URL(wssUrl);
-    expect(wss.protocol).toBe('wss:');
-    expect(wss.hostname).toBe(
-      new URL(await liveSecret(w, Name.apiUrl)).hostname
-    );
+    expect(new URL(wssUrl).protocol).toBe('wss:');
     const config = parseClientConfigRows(await liveRows());
     expect(config[ClientConfigKey.emqxWssUrl]).toBe(wssUrl);
   }
 );
 
-/** The broker dashboard refuses the stock admin login. */
+/** An unsigned publish is refused. There is no stock admin login on IoT. */
 Then(
   'nobody can listen in on spaces or disturb them with the default password',
   async (w) => {
-    const res = await w.http.fetch(
-      `${await liveSecret(w, Name.apiUrl)}/api/v5/login`,
+    const host = iotEndpointHost(await liveSecret(w, Name.iotDataEndpoint));
+    const status = await statusOf(
+      w.http,
+      `https://${host}/topics/${encodeURIComponent('health-ping')}?qos=1`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: 'admin',
-          password: EMQX_STOCK_DASHBOARD_PASSWORD,
-        }),
+        headers: { 'content-type': 'application/octet-stream' },
+        body: '{}',
       }
     );
-    await res.body?.cancel();
-    expect(res.status).toBe(401);
+    expect(status).not.toBe(200);
   }
 );
 
-/** No broker credential is one of the committed public credentials. */
+/** No deployed credential is one of the committed public sidecar values. */
 Then(
   'nobody can listen in on spaces or disturb them with a publicly known password',
   async (w) => {
     const committed: string[] = [];
-    for (const name of [
-      Name.apiKey,
-      Name.apiSecret,
-      Name.jwtSecret,
-      Name.dashboardPassword,
-    ]) {
+    for (const name of [Name.iotSecretAccessKey, Name.jwtSecret]) {
       if (COMMITTED_EMQX_CREDENTIALS.has(await liveSecret(w, name))) {
         committed.push(name);
       }
