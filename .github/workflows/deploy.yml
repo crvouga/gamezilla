@@ -168,6 +168,18 @@ jobs:
         id: deploy
         run: bun run deploy
 
+      # Same evidence as production: dev is the job that fails first, and
+      # without the page the next fix is guessing.
+      - name: Upload critical journey evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}
+          path: apps/product/.cache/critical-journeys/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:

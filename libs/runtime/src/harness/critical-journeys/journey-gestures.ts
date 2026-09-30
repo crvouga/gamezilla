@@ -59,30 +59,44 @@ export async function openTab(ui: Driver, tab: string): Promise<void> {
   await tap(ui, tab);
 }
 
-const ENTER_POLLS = 10;
-const ENTER_SETTLE_MS = 2_000;
+const ENTER_POLLS = 3;
+const ENTER_SETTLE_MS = 5_000;
+
+async function endIsUp(ui: Driver): Promise<boolean> {
+  try {
+    await ui
+      .get(Handles.spaceEnd)
+      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Be inside the space. A fresh device has no open session, so a hosted
- * space opens on Join; End exists only after joining.
+ * space opens on Join; End exists only after that join has finished.
+ * Tapping Join and returning immediately misses End while the join is
+ * still running, and one tap is not enough when the first one does not
+ * take. The last poll still taps: giving up while Join is on screen
+ * leaves the space live.
  */
 async function enterHostedSpace(ui: Driver): Promise<void> {
   const end = ui.get(Handles.spaceEnd);
   const join = ui.get(Handles.spaceJoin);
   for (let attempt = 0; attempt < ENTER_POLLS; attempt += 1) {
     if (await end.isVisible()) return;
-    if (await join.isVisible()) {
-      await tap(ui, Handles.spaceJoin);
-      return;
+    if (!(await join.isVisible())) {
+      try {
+        await join.expect.visible({ timeoutMs: ENTER_SETTLE_MS });
+      } catch {
+        continue;
+      }
     }
-    try {
-      await join.expect.visible({ timeoutMs: ENTER_SETTLE_MS });
-      await tap(ui, Handles.spaceJoin);
-      return;
-    } catch {
-      // The space chrome may arrive without a join step.
-    }
+    await tap(ui, Handles.spaceJoin);
+    if (await endIsUp(ui)) return;
   }
+  check(false, 'the hosted space never opened, so it cannot be ended');
 }
 
 /** End the space the person is in and see it ended. */
