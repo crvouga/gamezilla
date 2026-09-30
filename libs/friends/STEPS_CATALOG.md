@@ -11,6 +11,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | Given | {actor} has been without a connection for {int} minutes | {actor}, {int} | friends, spaces |
 | Given | {actor} has blocked {actor} | {actor}, {actor} | friends, spaces |
+| Given | {actor} has cancelled the friend request to {actor} | {actor}, {actor} | friends, spaces |
 | Given | {actor} has come back to the space after closing the app | {actor} | friends, spaces |
 | Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | Given | {actor} has ended the space | {actor} | friends, spaces |

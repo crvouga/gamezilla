@@ -43,7 +43,11 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | a person has ended the space | — | runtime |
+| Given | a person is hosting a space | — | runtime |
 | Given | a person is signed in on a fresh device | — | runtime |
+| Given | the app has been opened on a fresh device | — | runtime |
+| Given | the device is offline | — | runtime |
 | Given | they are hosting a space | — | runtime |
 | Given | they have started a chess puzzle in the space | — | runtime |
 | Step | a person opens the app on a fresh device | — | runtime |
@@ -52,11 +56,15 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | Google is asked to sign them in and send them back to the app | — | runtime |
 | Then | Plus is offered at its monthly and yearly prices | — | runtime |
 | Then | the app gets past its opening screen onto the tabs | — | runtime |
+| Then | the guest is in the space | — | runtime |
+| Then | the guest is told the space has ended | — | runtime |
 | Then | the next puzzle is ready to play | — | runtime |
 | Then | the search finishes with no results | — | runtime |
 | Then | the space offers games to play | — | runtime |
 | Then | the space shows it has ended | — | runtime |
 | Then | their account offers to sign in again | — | runtime |
+| When | a guest joins the space from the link | — | runtime |
+| When | the app reopens | — | runtime |
 | When | they end the space | — | runtime |
 | When | they host a space | — | runtime |
 | When | they look at the billing plans | — | runtime |

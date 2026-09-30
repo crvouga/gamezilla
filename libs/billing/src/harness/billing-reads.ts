@@ -61,12 +61,22 @@ function attribute(tag: string, name: string): string | null {
   return new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1] ?? null;
 }
 
+/** Plus credit on the billing screen, in cents. Absent line means none. */
+function creditCentsIn(html: string): number {
+  const tag = openingTag(html, Handles.billingCredit);
+  if (tag === null) return 0;
+  const parsed = Number(attribute(tag, 'data-credit-cents'));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 /** The membership as the billing screen shows it. */
 export type MembershipShown = {
   /** `none` | `incomplete` | `trialing` | `active` | `canceling` | `delinquent` | `ended`. */
   readonly state: string;
   /** The date the status line names (trial end, renewal, access end), in ms. */
   readonly periodEndMs: number | null;
+  /** Plus credit the screen shows, in cents. `0` when the line is absent. */
+  readonly creditCents: number;
 };
 
 /** The billing screen's status line, or `null` while it is not on screen. */
@@ -76,11 +86,12 @@ export async function membershipShown(
 ): Promise<MembershipShown | null> {
   const html = await actorHtml(s, actorId);
   const tag = html === null ? null : openingTag(html, Handles.billingStatus);
-  if (tag === null) return null;
+  if (html === null || tag === null) return null;
   const end = attribute(tag, 'data-period-end');
   return {
     state: attribute(tag, 'data-state') ?? 'none',
     periodEndMs: end === null ? null : Date.parse(end),
+    creditCents: creditCentsIn(html),
   };
 }
 

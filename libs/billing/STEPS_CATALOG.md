@@ -19,9 +19,11 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor}'s memberships have ended at both payment providers | {actor} | billing |
 | Given | {actor}'s payment has been refunded | {actor} | billing |
 | Given | {actor}'s payment has failed | {actor} | billing |
+| Given | {actor}'s Plus credit no longer covers a renewal | {actor} | billing |
 | Given | {actor}'s renewal on the expired card has failed | {actor} | billing |
 | Given | the team has switched back to the first payment provider | — | billing |
 | Given | the team has switched payment provider | — | billing |
+| Step | {actor} has Plus credit from the yearly plan | {actor} | billing |
 | Then | {actor} has free access | {actor} | billing |
 | Then | {actor} has free access on {actor}'s device | {actor}, {actor} | billing |
 | Then | {actor} has paid access | {actor} | billing |
@@ -64,6 +66,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} renews the membership in the billing portal | {actor} | billing |
 | When | {actor} signs in with Google on {actor}'s device | {actor}, {actor} | billing |
 | When | {actor} subscribes to Plus | {actor} | billing |
+| When | {actor} switches the membership to the monthly plan in the billing portal | {actor} | billing |
 | When | {actor} switches the membership to the yearly plan in the billing portal | {actor} | billing |
 | When | {actor} views the billing plans | {actor} | billing |
 | When | {actor}'s billing period ends | {actor} | billing |

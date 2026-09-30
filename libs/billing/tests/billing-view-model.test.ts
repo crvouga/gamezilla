@@ -191,6 +191,29 @@ describe('billing view: dates', () => {
     expect(view.priceKey).toBe('subscription_monthly');
   });
 
+  test('plus credit is the balance in cents, never below nothing', () => {
+    const base = inputFor('account', 'active', true, true);
+    expect(
+      buildBillingView({
+        ...base,
+        row: { ...row('active'), credit_cents: 5300 },
+      }).creditCents
+    ).toBe(5300);
+    expect(
+      buildBillingView({
+        ...base,
+        row: { ...row('active'), credit_cents: '4600' },
+      }).creditCents
+    ).toBe(4600);
+    expect(
+      buildBillingView({ ...base, row: { ...row('active'), credit_cents: -5 } })
+        .creditCents
+    ).toBe(0);
+    expect(
+      buildBillingView(inputFor('guest', 'active', true, true)).creditCents
+    ).toBe(0);
+  });
+
   test('a trialing row set to cancel reads as canceling', () => {
     const view = buildBillingView({
       ...inputFor('account', 'trialing', true, true),
@@ -233,6 +256,13 @@ const arbRow: fc.Arbitrary<MembershipRow | null> = fc.option(
     cancel_at_period_end: fc.option(fc.constantFrom(0, 1, true, false), {
       nil: null,
     }),
+    credit_cents: fc.option(
+      fc.oneof(
+        fc.integer({ min: -1_000_000, max: 1_000_000 }),
+        fc.constantFrom('5300', '-4', 'nope', '')
+      ),
+      { nil: null }
+    ),
   }),
   { nil: null }
 );
@@ -259,6 +289,7 @@ describe('billing view: properties over arbitrary rows', () => {
         expect(view.state).toBe('none');
         expect(view.tier).toBe('free');
         expect(view.manage).toBe(false);
+        expect(view.creditCents).toBe(0);
       }),
       FC
     );

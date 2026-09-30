@@ -10,7 +10,8 @@ export const mySubscription = defineQuery({
     const rows = await ctx.db.query(sql`
       SELECT
         id, account_id, provider, provider_subscription_id, price_key,
-        status, current_period_end, cancel_at_period_end, deleted_at
+        status, current_period_end, cancel_at_period_end, credit_cents,
+        deleted_at
       FROM billing_subscriptions
       WHERE account_id = ${account}`);
     return { billing_subscriptions: rows };

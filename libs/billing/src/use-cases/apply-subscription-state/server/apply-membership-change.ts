@@ -24,6 +24,7 @@ export async function applyMembershipChange(args: {
       status: change.membership.status,
       periodEndMs: change.membership.periodEndMs,
       endsAtPeriodEnd: change.membership.endsAtPeriodEnd,
+      creditCents: change.creditCents ?? null,
     });
   });
 }

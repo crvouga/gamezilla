@@ -6,11 +6,11 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | Package | Runs | Features | Scenarios | Own steps | Catalog |
 | --- | --- | --- | --- | --- | --- |
 | @apps/product | `specs/health/`, `specs/journeys/` | 12 | 39 | 31 | [catalog](../apps/product/STEPS_CATALOG.md) |
-| @libs/billing | `specs/billing/` | 15 | 47 | 67 | [catalog](../libs/billing/STEPS_CATALOG.md) |
-| @libs/chess | `specs/chess/` | 29 | 139 | 178 | [catalog](../libs/chess/STEPS_CATALOG.md) |
-| @libs/friends | `specs/friends/`, `specs/spaces/` | 24 | 72 | 104 | [catalog](../libs/friends/STEPS_CATALOG.md) |
+| @libs/billing | `specs/billing/` | 15 | 47 | 70 | [catalog](../libs/billing/STEPS_CATALOG.md) |
+| @libs/chess | `specs/chess/` | 29 | 139 | 184 | [catalog](../libs/chess/STEPS_CATALOG.md) |
+| @libs/friends | `specs/friends/`, `specs/spaces/` | 24 | 72 | 105 | [catalog](../libs/friends/STEPS_CATALOG.md) |
 | @libs/profile | `specs/profile/` | 11 | 43 | 56 | [catalog](../libs/profile/STEPS_CATALOG.md) |
-| @libs/runtime | `specs/runtime/`, `specs/journeys/` | 9 | 34 | 58 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
+| @libs/runtime | `specs/runtime/`, `specs/journeys/` | 9 | 34 | 67 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
 | @pkgs/auth-harness | `specs/auth/` | 6 | 40 | 67 | [catalog](../pkgs/auth-harness/STEPS_CATALOG.md) |
 | @pkgs/matchmaking-harness | `specs/matchmaking/` | 2 | 13 | 19 | [catalog](../pkgs/matchmaking-harness/STEPS_CATALOG.md) |
 | @pkgs/room-harness | `specs/room/` | 4 | 29 | 42 | [catalog](../pkgs/room-harness/STEPS_CATALOG.md) |

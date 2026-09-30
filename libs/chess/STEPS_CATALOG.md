@@ -71,6 +71,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is asked which piece White promotes to on {word} | {actor}, {word} | chess |
 | Then | {actor} is invited to sign in for more puzzles | {actor} | chess |
 | Then | {actor} is invited to sign in to customize the feed | {actor} | chess |
+| Then | {actor} is not offered a puzzle of his own | {actor} | chess |
+| Then | {actor} is not offered the puzzle that is over | {actor} | chess |
+| Then | {actor} is not offered to move on | {actor} | chess |
 | Then | {actor} is not shown the puzzle limit | {actor} | chess |
 | Then | {actor} is not told the feed is empty | {actor} | chess |
 | Then | {actor} is on a different puzzle than the one before within {int} seconds | {actor}, {int} | chess |
@@ -142,6 +145,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} asks for a hint | {actor} | chess |
 | When | {actor} asks for another hint | {actor} | chess |
 | When | {actor} asks for another puzzle | {actor} | chess |
+| When | {actor} asks for the next puzzle | {actor} | chess |
 | When | {actor} asks for the next puzzle twice in quick succession | {actor} | chess |
 | When | {actor} asks to see the solution move | {actor} | chess |
 | When | {actor} castles by moving the king onto its own rook | {actor} | chess |
@@ -154,6 +158,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} jumps to the {end} of the revealed line | {actor}, {end} | chess |
 | When | {actor} jumps to the {end} of the review | {actor}, {end} | chess |
 | When | {actor} jumps to the {end} of the review with the keyboard | {actor}, {end} | chess |
+| When | {actor} leaves the puzzle for the chess choices | {actor} | chess |
 | When | {actor} limits the feed to the {string} theme | {actor}, {string} | chess |
 | When | {actor} moves on to the next puzzle | {actor} | chess |
 | When | {actor} opens puzzles in their space | {actor} | chess |
@@ -180,6 +185,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} suggests a move that is not the solution | {actor} | chess |
 | When | {actor} switches the feed to a custom target raised by {int} step(s) and saves the feed settings | {actor}, {int} | chess |
 | When | {actor} tries the illegal move {word} | {actor}, {word} | chess |
+| When | {actor} tries to move on from {actor}'s puzzle | {actor}, {actor} | chess |
 | When | {actor} tries to move the opponent's piece {word} | {actor}, {word} | chess |
 | When | {actor} tries to play the next move of {actor}'s puzzle | {actor}, {actor} | chess |
 | When | {actor} tries to skip {actor}'s puzzle | {actor}, {actor} | chess |
@@ -235,6 +241,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends |
 | Given | {actor} has been without a connection for {int} minutes | {actor}, {int} | friends |
 | Given | {actor} has blocked {actor} | {actor}, {actor} | friends |
+| Given | {actor} has cancelled the friend request to {actor} | {actor}, {actor} | friends |
 | Given | {actor} has come back to the space after closing the app | {actor} | friends |
 | Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends |
 | Given | {actor} has ended the space | {actor} | friends |

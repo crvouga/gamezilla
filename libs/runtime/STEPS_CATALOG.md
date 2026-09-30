@@ -16,13 +16,18 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is using the keyboard alone | {actor} | runtime, journeys |
 | Given | {actor}'s app became outdated while {actor} was offline | {actor}, {actor} | runtime, journeys |
 | Given | {actor}'s app is older than the product accepts | {actor} | runtime, journeys |
+| Given | a person has ended the space | — | runtime, journeys |
+| Given | a person is hosting a space | — | runtime, journeys |
 | Given | a person is signed in on a fresh device | — | runtime, journeys |
+| Given | the app has been opened on a fresh device | — | runtime, journeys |
+| Given | the device is offline | — | runtime, journeys |
 | Given | they are hosting a space | — | runtime, journeys |
 | Given | they have started a chess puzzle in the space | — | runtime, journeys |
 | Step | a person opens the app on a fresh device | — | runtime, journeys |
 | Then | {actor} hears the picture on their profile described as their avatar | {actor} | runtime, journeys |
 | Then | {actor} hears what every control in Settings does | {actor} | runtime, journeys |
 | Then | {actor} hears what every control on the tabs does | {actor} | runtime, journeys |
+| Then | {actor} is (still )on Profile | {actor} | runtime, journeys |
 | Then | {actor} is (still )on Settings | {actor} | runtime, journeys |
 | Then | {actor} is (still )on Spaces | {actor} | runtime, journeys |
 | Then | {actor} is asked to update the app within {int} seconds | {actor}, {int} | runtime, journeys |
@@ -41,6 +46,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | Google is asked to sign them in and send them back to the app | — | runtime, journeys |
 | Then | Plus is offered at its monthly and yearly prices | — | runtime, journeys |
 | Then | the app gets past its opening screen onto the tabs | — | runtime, journeys |
+| Then | the guest is in the space | — | runtime, journeys |
+| Then | the guest is told the space has ended | — | runtime, journeys |
 | Then | the next puzzle is ready to play | — | runtime, journeys |
 | Then | the search finishes with no results | — | runtime, journeys |
 | Then | the space offers games to play | — | runtime, journeys |
@@ -56,6 +63,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} opens the Profile tab | {actor} | runtime, journeys |
 | When | {actor} takes the way back to Spaces | {actor} | runtime, journeys |
 | When | {actor} updates the app | {actor} | runtime, journeys |
+| When | a guest joins the space from the link | — | runtime, journeys |
+| When | the app reopens | — | runtime, journeys |
 | When | they end the space | — | runtime, journeys |
 | When | they host a space | — | runtime, journeys |
 | When | they look at the billing plans | — | runtime, journeys |

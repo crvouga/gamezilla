@@ -18,9 +18,11 @@ import { envFile } from '@libs/infra/public/envs';
 import {
   atTabShell,
   confirmSignedIn,
+  type JourneyAccess,
   type JourneyGestures,
   type JourneyHost,
   type JourneyWorld,
+  spaceLinkFromLocation,
 } from '@libs/runtime/harness/critical-journeys';
 import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
 import { wallClock } from '@pkgs/clock';
@@ -28,9 +30,11 @@ import { type ScenarioContext, setWorld } from '@pkgs/gherkin/registry';
 import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
 import {
   type Device,
+  emulateOffline,
   journeyBrowser,
   type LiveTarget,
   openDevice,
+  readLocation,
   saveEvidence,
 } from './live-browser';
 
@@ -81,36 +85,93 @@ type Browsing = {
   close(): Promise<void>;
 };
 
-function browsing(target: LiveTarget): Browsing {
-  let device: Device | null = null;
-  let stepFailed = false;
-  const cleanups = new Map<string, JourneyGestures>();
-  const openedDevice = (): Device => {
-    if (device === null) {
-      throw new Error('no device: a journey opens the app first');
-    }
-    return device;
-  };
-  const host: JourneyHost = {
+type LiveDevices = {
+  host: Device | null;
+  guest: Device | null;
+  /** The device the last gesture ran on — what a failure should capture. */
+  shown: Device | null;
+};
+
+type FailureFlag = { failed: boolean };
+
+function requireDevice(device: Device | null, who: string): Device {
+  if (device === null) {
+    throw new Error(`no ${who}: a journey opens the app first`);
+  }
+  return device;
+}
+
+async function openLiveDevice(
+  target: LiveTarget,
+  devices: LiveDevices,
+  access: JourneyAccess
+): Promise<void> {
+  const opened = await openDevice(target);
+  devices.host = opened;
+  devices.shown = opened;
+  // `launch()` only waits for document navigation. Let the initial lazy
+  // tab route settle before leaving for the hosted-auth callback.
+  await prepareCriticalJourneyAccess({
+    access,
+    launch: () => opened.driver.launch(),
+    waitForTabShell: () => atTabShell(opened.driver),
+    signIn: () => signIn(opened, target),
+  });
+}
+
+async function ensureHost(
+  target: LiveTarget,
+  devices: LiveDevices
+): Promise<Device> {
+  if (devices.host === null) await openLiveDevice(target, devices, 'anonymous');
+  return requireDevice(devices.host, 'device');
+}
+
+async function openGuestDevice(
+  target: LiveTarget,
+  devices: LiveDevices,
+  link: string
+): Promise<void> {
+  if (devices.guest === null) devices.guest = await openDevice(target);
+  const guest = requireDevice(devices.guest, 'guest');
+  devices.shown = guest;
+  await guest.view.navigate(new URL(link, target.webOrigin).href);
+}
+
+function liveJourneyHost(
+  target: LiveTarget,
+  devices: LiveDevices,
+  cleanups: Map<string, JourneyGestures>
+): JourneyHost {
+  return {
     runId: RUN_ID,
     get browser() {
-      return device === null ? null : journeyBrowser(device, target);
+      return devices.host === null
+        ? null
+        : journeyBrowser(devices.host, target);
     },
     // The deployed bundle is a production build: no puzzle answers on the page.
     showsPuzzleAnswers: false,
-    open: async (access) => {
-      const opened = await openDevice(target);
-      device = opened;
-      // `launch()` only waits for document navigation. Let the initial lazy
-      // tab route settle before leaving for the hosted-auth callback.
-      await prepareCriticalJourneyAccess({
-        access,
-        launch: () => opened.driver.launch(),
-        waitForTabShell: () => atTabShell(opened.driver),
-        signIn: () => signIn(opened, target),
-      });
+    open: (access) => openLiveDevice(target, devices, access),
+    act: async (_name, gestures) => {
+      const current = await ensureHost(target, devices);
+      devices.shown = current;
+      await gestures(current.driver);
     },
-    act: (_name, gestures) => gestures(openedDevice().driver),
+    actAsGuest: async (_name, gestures) => {
+      const current = requireDevice(devices.guest, 'guest');
+      devices.shown = current;
+      await gestures(current.driver);
+    },
+    spaceLink: async () =>
+      spaceLinkFromLocation(
+        await readLocation(requireDevice(devices.host, 'device').view)
+      ),
+    openGuest: (link) => openGuestDevice(target, devices, link),
+    offline: async () => {
+      await emulateOffline(requireDevice(devices.host, 'device').view);
+    },
+    reopen: () => requireDevice(devices.host, 'device').driver.launch(),
     defer: (key, cleanup) => {
       cleanups.set(key, cleanup);
     },
@@ -118,29 +179,48 @@ function browsing(target: LiveTarget): Browsing {
       cleanups.delete(key);
     },
   };
+}
+
+async function closeBrowsing(
+  devices: LiveDevices,
+  cleanups: Map<string, JourneyGestures>,
+  failureFlag: FailureFlag
+): Promise<void> {
+  let failure: unknown = null;
+  try {
+    const host = devices.host;
+    if (host !== null) {
+      for (const cleanup of cleanups.values()) {
+        await cleanup(host.driver).catch((error: unknown) => {
+          failure ??= error;
+        });
+      }
+      await host.close();
+    }
+  } finally {
+    if (devices.guest !== null) await devices.guest.close();
+  }
+  if (failure === null) return;
+  if (!failureFlag.failed) throw failure;
+  console.error(
+    `cleanup after the failed step also failed: ${String(failure)}`
+  );
+}
+
+function browsing(target: LiveTarget): Browsing {
+  const devices: LiveDevices = { host: null, guest: null, shown: null };
+  const cleanups = new Map<string, JourneyGestures>();
+  const failureFlag: FailureFlag = { failed: false };
   return {
-    host,
+    host: liveJourneyHost(target, devices, cleanups),
     evidence: (id, cause) => {
-      stepFailed = true;
+      failureFlag.failed = true;
+      const device = devices.shown ?? devices.host;
       return device === null
         ? Promise.resolve(null)
         : saveEvidence(id, device, cause);
     },
-    close: async () => {
-      if (device === null) return;
-      let failure: unknown = null;
-      for (const cleanup of cleanups.values()) {
-        await cleanup(device.driver).catch((error: unknown) => {
-          failure ??= error;
-        });
-      }
-      await device.close();
-      if (failure === null) return;
-      if (!stepFailed) throw failure;
-      console.error(
-        `cleanup after the failed step also failed: ${String(failure)}`
-      );
-    },
+    close: () => closeBrowsing(devices, cleanups, failureFlag),
   };
 }
 

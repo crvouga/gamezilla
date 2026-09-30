@@ -8,4 +8,9 @@ export type MembershipRow = {
   readonly price_key: string | null;
   readonly current_period_end: string | null;
   readonly cancel_at_period_end: number | boolean | null;
+  /**
+   * Provider credit in cents. Blank on a row written before credit was
+   * projected; a number may arrive as text from Postgres. Never shown below 0.
+   */
+  readonly credit_cents?: number | string | null;
 };

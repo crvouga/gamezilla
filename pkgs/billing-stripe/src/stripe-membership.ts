@@ -109,6 +109,21 @@ function accessEndMs(
   return periodEndMs === null ? endedAtMs : Math.min(periodEndMs, endedAtMs);
 }
 
+/**
+ * Stripe's customer balance is negative when the customer has credit. The
+ * port's credit is that amount in cents, and never below nothing. A payload
+ * that is not a customer (or has no balance) is unread.
+ */
+function creditCentsFromCustomer(
+  record: UnknownRecord | null
+): number | undefined {
+  if (record === null || record['object'] !== 'customer') return undefined;
+  if (record['deleted'] === true) return 0;
+  const balance = readNumber(record, 'balance');
+  if (balance === null) return undefined;
+  return Math.max(0, -Math.trunc(balance));
+}
+
 function toMembership(
   subscription: UnknownRecord,
   forcedEnded: boolean
@@ -353,6 +368,7 @@ export class StripeMembershipBilling implements MembershipBilling {
     const customerId = readId(subscription, 'customer');
     if (customerId === null) return { kind: 'ignored' };
 
+    const creditCents = await this.creditCentsOf(customerId);
     const change: MembershipChange = {
       provider: this.provider,
       customerId,
@@ -362,8 +378,29 @@ export class StripeMembershipBilling implements MembershipBilling {
         subscription,
         event.type === 'customer.subscription.deleted'
       ),
+      ...(creditCents === undefined ? {} : { creditCents }),
     };
     return { kind: 'membership', ...change };
+  }
+
+  /**
+   * Credit on the customer now. A customer Stripe does not know leaves the
+   * stored credit alone; any other failure throws so the delivery is retried.
+   */
+  private async creditCentsOf(customerId: string): Promise<number | undefined> {
+    try {
+      return creditCentsFromCustomer(
+        asRecord(await this.stripe.customers.retrieve(customerId))
+      );
+    } catch (error) {
+      if (
+        error instanceof Stripe.errors.StripeInvalidRequestError &&
+        error.statusCode === 404
+      ) {
+        return undefined;
+      }
+      throw error;
+    }
   }
 
   /**
