@@ -119,8 +119,9 @@ migrations reliably. `wrangler.toml` is env-agnostic; `@libs/infra/public/wrangl
 renders it per environment (name, DO `script_name`) and refuses any
 `deleted_classes`. Hostnames are the edge stack's, never wrangler's.
 
-Deploy and Health run from `main`. Do not dispatch Deploy from a laptop.
-`bun check` is the release gate and runs on GitHub.
+`bun check`, `bun health`, and `bun deploy` dispatch the three workflows
+from a laptop ([`docs/CI.md`](CI.md)). Deploy ships `main` only.
+`bun check` is the release gate.
 
 ### Hard cutover
 
@@ -190,7 +191,7 @@ entries (its secrets environment and shared import). A failed step is
 resumed by rerunning.
 
 The env file stays: the next Deploy (or `bun run infra:fleet &&
-SECRETS_ENV=<env> bun run deploy`) rebuilds the environment from nothing.
+SECRETS_ENV=<env> bun run deploy:local`) rebuilds the environment from nothing.
 Its database is a new empty Neki database plus migrations, not a copy of
 production. To retire it, delete its env file and `envs.ts` entry in a PR —
 deleting the file alone deletes nothing (the fleet plan's
@@ -397,7 +398,7 @@ production.
    `"production"` env; Health probes every env hourly.
 
 To rehearse before merging: `bun run infra:fleet`, then
-`SECRETS_ENV=<env> bun run deploy` ([CI.md](CI.md#workflows)). Tear it down
+`SECRETS_ENV=<env> bun run deploy:local` ([CI.md](CI.md#workflows)). Tear it down
 again with `bun run infra:destroy` ([above](#tearing-an-environment-down)).
 
 ## First deployment of this cutover

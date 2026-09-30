@@ -9,8 +9,8 @@ Get all three workflows green, and do it in **one pull request** on the current 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
 | **Check** (`.github/workflows/check.yml`) | the code is bad | every PR — `bun check` dispatches it |
-| **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main` — `bun run deploy`, every standard env then production |
-| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly — `bun health` for every env |
+| **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main`, and `bun deploy` dispatches it on `main` |
+| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
 
 Deploy and Health only run from `main`, so a fix for them reaches CI only after a
 human merges the PR. Agents never merge. The loop therefore ends with a green Check
@@ -55,7 +55,7 @@ shows it fixed afterwards:
 | Check (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check:local` |
 | Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#check` leaf first |
 | Deploy, a deploy step (build, wrangler, migrate) | that package's script with `SECRETS_ENV=dev`, using the dry-run form where one exists (e.g. `wrangler deploy --dry-run`) |
-| Health | `bun health` (dev), `bun health:prd` (read-only probes) |
+| Health | `SECRETS_ENV=dev bun run health:local`, `bun health:prd` (read-only probes) |
 
 Fix the root cause the repo's way (see `AGENTS.md`):
 
@@ -100,18 +100,19 @@ Stop and report instead of looping when either of these happens:
 
 ## 5. After the human merges
 
-The merge triggers Deploy. Watch it, then run Health once so you are not waiting for the
-hourly schedule:
+The merge triggers Deploy. Watch that run. Do not start a second Deploy while it is
+still going. If `main` has no Deploy for the merged commit, `bun deploy` dispatches
+it (it ships `origin/main` only). Then `bun health` runs Health without waiting for
+the hourly schedule:
 
 ```bash
 gh run watch "$(gh run list --workflow deploy.yml --branch main --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
-gh workflow run health.yml --ref main
-gh run watch "$(gh run list --workflow health.yml --branch main --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
+bun health
 ```
 
-`health.yml` deploys nothing, so dispatching it is safe. **Never** dispatch `deploy.yml`
-yourself. If Deploy or Health is still red on `main`, start again at step 1 on a new branch
-from `main`. That is the one case where a second PR is right, because the first one has merged.
+`bun health` deploys nothing. If Deploy or Health is still red on `main`, start again
+at step 1 on a new branch from `main`. That is the one case where a second PR is right,
+because the first one has merged.
 
 ## Report
 

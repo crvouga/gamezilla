@@ -5,7 +5,9 @@ name: Deploy
 #   <Workflow> · <trigger>
 run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Deploy: ships the code. `main` is what ships, to every environment in
+# Deploy: ships the code. `bun deploy` dispatches this workflow on `main`.
+# Each environment job runs `bun run deploy:local`. `main` is what ships,
+# to every environment in
 # libs/infra/tofu/envs/<env>.tfvars.json — adding an env file needs no edit
 # here:
 #
@@ -30,7 +32,7 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
 # `deploy:prd` package.json aliases, which force TURBO_UI=tui (a TTY UI).
 #
-# This never runs on pull requests: each environment is a shared singleton,
+# This never runs on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
 # secrets. PRs get `bun run check` in the Check workflow
 # (.github/workflows/check.yml) instead.
@@ -75,6 +77,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Deploy ships refs/heads/main only (got ${GITHUB_REF})."
+            exit 1
+          fi
           prs="$(gh api "repos/${{ github.repository }}/commits/${GITHUB_SHA}/pulls" --jq 'length')"
           if [ "$prs" -eq 0 ]; then
             echo "::error::${GITHUB_SHA} is not associated with a pull request — main only moves through merged PRs."
@@ -166,7 +172,7 @@ jobs:
 
       - name: deploy:${{ matrix.env }}
         id: deploy
-        run: bun run deploy
+        run: bun run deploy:local
 
       # Same evidence as production: dev is the job that fails first, and
       # without the page the next fix is guessing.
@@ -227,7 +233,7 @@ jobs:
 
       - name: deploy:${{ matrix.env }}
         id: deploy
-        run: bun run deploy
+        run: bun run deploy:local
 
       # The deploy ends with `@apps/product#health`, the critical journeys too.
       - name: Upload critical journey evidence

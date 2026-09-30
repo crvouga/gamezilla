@@ -3,7 +3,7 @@
 /**
  * Tears one `protection: "standard"` environment down completely — the
  * inverse of its deploy — so environments are cattle: destroy one, and the
- * next Deploy (or `SECRETS_ENV=<env> bun run deploy`) rebuilds it from its
+ * next Deploy (or `SECRETS_ENV=<env> bun run deploy:local`) rebuilds it from its
  * env file alone.
  *
  *   bun run infra:destroy -- --env <env> --confirm <env>
@@ -120,5 +120,5 @@ step(
 );
 
 console.log(
-  `\n[infra:destroy] ${env.env} is gone. Rebuild it: \`bun run infra:fleet && SECRETS_ENV=${env.env} bun run deploy\` (or the Deploy workflow). Retire it: delete libs/infra/tofu/envs/${env.env}.tfvars.json and its envs.ts entry.`
+  `\n[infra:destroy] ${env.env} is gone. Rebuild it: \`bun run infra:fleet && SECRETS_ENV=${env.env} bun run deploy:local\` (or \`bun deploy\`, which ships every environment from main). Retire it: delete libs/infra/tofu/envs/${env.env}.tfvars.json and its envs.ts entry.`
 );

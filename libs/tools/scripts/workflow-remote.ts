@@ -1,32 +1,38 @@
 #!/usr/bin/env bun
 // @io-wall-ok — gh CLI entry
 /**
- * `bun check`: run the Check workflow (`.github/workflows/check.yml`) on
- * GitHub for the current branch and block until it finishes, so the gate
- * spends GitHub's runners, not this machine. The exit code is the run's
- * verdict. `bun check:local` runs the same gate on this machine instead. Ctrl-C / SIGTERM / SIGHUP cancel the run on GitHub
+ * `bun check`, `bun health`, and `bun deploy`: dispatch the matching
+ * workflow on GitHub and block until it finishes. The exit code is the
+ * run's verdict. Ctrl-C / SIGTERM / SIGHUP cancel the run on GitHub
  * before exiting (SIGKILL cannot be caught — cancel that run with
  * `gh run cancel <id>`).
  *
- * Every run also publishes the spec report of the commit (part of the
- * workflow, never optional); its address is printed once the branch is synced:
- * `https://<dev apex>/reports/<sha>`, on any deployment, filling in live.
+ *   bun check  [--message "type(scope): summary"]  → check.yml on this branch
+ *   bun health [--message "type(scope): summary"]  → health.yml on this branch
+ *   bun deploy                                     → deploy.yml on main
  *
- *   bun check [--message "type(scope): description"]
+ * Check and health run `/git-sync` first, so the run checks out this
+ * HEAD, current with trunk. Check refuses on `main`. Deploy does not
+ * commit: it fast-forwards local `main` and dispatches `origin/main`,
+ * the only ref that workflow accepts.
  *
- * First it runs `/git-sync` (`git-sync.ts`): commits a dirty tree with
- * `--message` (or a generated one), merges `origin/<branch>` and the latest `origin/main`
- * (aborting on conflict), pushes, and fast-forwards local `main` — so the run
- * checks out the local HEAD, current with trunk. Refuses on `main`.
+ * Workflow jobs run the local runners (`turbo-ci-run`, `bun health:local`,
+ * `bun deploy:local`), never these commands, which would dispatch again.
+ * Check also prints the spec report address once the branch is synced:
+ * `https://<dev apex>/reports/<sha>`.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { gitSync, parseGitSyncArgs, SyncError } from './git-sync';
+import {
+  type GitSyncOptions,
+  gitSync,
+  parseGitSyncArgs,
+  SyncError,
+} from './git-sync';
 
-const WORKFLOW = 'check.yml';
 const DEV_ENV_FILE = join(
   import.meta.dirname,
   '../../infra/tofu/envs/dev.tfvars.json'
@@ -34,8 +40,45 @@ const DEV_ENV_FILE = join(
 const FIND_RUN_ATTEMPTS = 30;
 const FIND_RUN_INTERVAL_MS = 2000;
 const FAILED_LOG_LINES = 200;
+const TRUNK = 'main';
 
-class CheckRemoteError extends Error {}
+export type RemoteCommand = 'check' | 'health' | 'deploy';
+
+/** How one laptop command maps onto its workflow. */
+export type WorkflowDispatch = {
+  readonly workflow: string;
+  /** `branch` git-syncs the checkout; `trunk` only fast-forwards main. */
+  readonly sync: 'branch' | 'trunk';
+  readonly refuseOnMain: boolean;
+  readonly printsReport: boolean;
+};
+
+export const WORKFLOW_DISPATCH: Record<RemoteCommand, WorkflowDispatch> = {
+  check: {
+    workflow: 'check.yml',
+    sync: 'branch',
+    refuseOnMain: true,
+    printsReport: true,
+  },
+  health: {
+    workflow: 'health.yml',
+    sync: 'branch',
+    refuseOnMain: false,
+    printsReport: false,
+  },
+  deploy: {
+    workflow: 'deploy.yml',
+    sync: 'trunk',
+    refuseOnMain: false,
+    printsReport: false,
+  },
+};
+
+export function isRemoteCommand(value: string): value is RemoteCommand {
+  return Object.hasOwn(WORKFLOW_DISPATCH, value);
+}
+
+class WorkflowRemoteError extends Error {}
 
 type Run = {
   readonly code: number;
@@ -55,7 +98,7 @@ function run(cmd: readonly string[]): Run {
 function must(cmd: readonly string[]): string {
   const result = run(cmd);
   if (result.code !== 0) {
-    throw new CheckRemoteError(
+    throw new WorkflowRemoteError(
       `${cmd.join(' ')} failed: ${result.err || result.out}`
     );
   }
@@ -98,21 +141,51 @@ function listDispatchRuns(workflow: string, branch: string): ListedRun[] {
   return JSON.parse(out) as ListedRun[];
 }
 
-/** `/git-sync` the branch so the run checks out exactly the local HEAD. */
-function syncBranch(argv: readonly string[]): {
+type PreparedRun = {
   readonly branch: string;
   readonly sha: string;
-} {
-  const options = parseGitSyncArgs(argv);
-  if (options.trunkOnly)
-    throw new CheckRemoteError('--trunk-only is not a Check run.');
-  if (must(['git', 'branch', '--show-current']) === 'main') {
-    throw new CheckRemoteError(
+};
+
+/** Deploy ships `origin/main`. A message would commit the feature branch. */
+function prepareTrunk(options: GitSyncOptions): PreparedRun {
+  if (options.message !== null || options.leaveConflicts) {
+    throw new WorkflowRemoteError(
+      'deploy ships origin/main and does not commit or merge.'
+    );
+  }
+  gitSync({ message: null, trunkOnly: true, leaveConflicts: false });
+  return {
+    branch: TRUNK,
+    sha: must(['git', 'rev-parse', 'origin/main']),
+  };
+}
+
+/** Check and health run on the synced checkout. */
+function prepareBranch(
+  target: WorkflowDispatch,
+  options: GitSyncOptions
+): PreparedRun {
+  if (options.trunkOnly) {
+    throw new WorkflowRemoteError('--trunk-only is not a workflow run.');
+  }
+  const current = must(['git', 'branch', '--show-current']);
+  if (target.refuseOnMain && current === TRUNK) {
+    throw new WorkflowRemoteError(
       'refusing to run on main: use a feature branch.'
     );
   }
   const branch = gitSync(options);
   return { branch, sha: must(['git', 'rev-parse', 'HEAD']) };
+}
+
+function prepareRun(
+  target: WorkflowDispatch,
+  argv: readonly string[]
+): PreparedRun {
+  const options = parseGitSyncArgs(argv);
+  return target.sync === 'trunk'
+    ? prepareTrunk(options)
+    : prepareBranch(target, options);
 }
 
 async function waitForRun(
@@ -126,7 +199,7 @@ async function waitForRun(
     if (found !== undefined) return found.databaseId;
     await Bun.sleep(FIND_RUN_INTERVAL_MS);
   }
-  throw new CheckRemoteError(
+  throw new WorkflowRemoteError(
     `dispatched ${workflow} but no run for ${sha.slice(0, 9)} appeared; see ` +
       `\`gh run list --workflow ${workflow} --branch ${branch}\`.`
   );
@@ -194,7 +267,7 @@ async function runWorkflow(
 ): Promise<{ readonly code: number; readonly url: string }> {
   const { workflow, label, branch, sha } = options;
   const knownIds = new Set(
-    listDispatchRuns(workflow, branch).map((r) => r.databaseId)
+    listDispatchRuns(workflow, branch).map((listed) => listed.databaseId)
   );
   const state: WatchState = {
     label,
@@ -247,12 +320,21 @@ function reportUrl(sha: string): string {
   return `https://${env.hosts.apex}/reports/${sha}`;
 }
 
-async function main(): Promise<number> {
-  const { branch, sha } = syncBranch(process.argv.slice(2));
-  console.log(`check: spec report ${reportUrl(sha)}`);
+async function runCommand(argv: readonly string[]): Promise<number> {
+  const command = argv[0] ?? '';
+  if (!isRemoteCommand(command)) {
+    throw new WorkflowRemoteError(
+      'usage: workflow-remote.ts <check|health|deploy> [--message "type(scope): summary"]'
+    );
+  }
+  const target = WORKFLOW_DISPATCH[command];
+  const { branch, sha } = prepareRun(target, argv.slice(1));
+  if (target.printsReport) {
+    console.log(`${command}: spec report ${reportUrl(sha)}`);
+  }
   const { code } = await runWorkflow({
-    workflow: WORKFLOW,
-    label: 'check',
+    workflow: target.workflow,
+    label: command,
     branch,
     sha,
   });
@@ -260,13 +342,15 @@ async function main(): Promise<number> {
 }
 
 if (import.meta.main) {
+  const command = process.argv[2] ?? '';
+  const label = isRemoteCommand(command) ? command : 'workflow';
   try {
-    process.exit(await main());
+    process.exit(await runCommand(process.argv.slice(2)));
   } catch (error) {
-    if (!(error instanceof CheckRemoteError || error instanceof SyncError)) {
+    if (!(error instanceof WorkflowRemoteError || error instanceof SyncError)) {
       throw error;
     }
-    console.error(`check: ${error.message}`);
+    console.error(`${label}: ${error.message}`);
     process.exit(1);
   }
 }

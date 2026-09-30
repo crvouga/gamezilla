@@ -23,7 +23,7 @@
  *     bucket), or after the restore step the Check workflow's `check:publish`
  *     jobs run on GitHub (`turbo-ci-run.ts --restore-outputs`), which leaves
  *     every bucket on disk;
- *   - with live evidence after `bun health` (SECRETS_ENV names the
+ *   - with live evidence after `bun health:local` (SECRETS_ENV names the
  *     environment), for the RELEASE / LIVE lines and PRODUCTION READINESS.
  *
  * Exits 0 only when PRODUCTION READINESS is PASS.
