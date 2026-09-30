@@ -77,6 +77,7 @@ module "secrets" {
     OBS_TEMPO_URL                   = module.observability.tempo_url
     OBS_TEMPO_USER                  = module.observability.tempo_user
     OBS_TEMPO_TOKEN                 = module.observability.tempo_token
+    OBS_READONLY_DATABASE_URL       = module.database.obs_readonly_database_url
   }
 }
 

@@ -51,4 +51,28 @@ describe('secrets and environment protection', () => {
       })
     ).toMatch(/https:\/\/ in production/);
   });
+
+  test('the read-only database url is checked by shape and is not pinged', async () => {
+    const readonly = SECRETS.find(
+      (s) => s.name === ObservabilitySecretName.readonlyDatabaseUrl
+    );
+    expect(readonly?.optional).toBe(true);
+    expect(readonly?.managedBy).toBe('tofu');
+    if (readonly === undefined) return;
+    const env = synthetic('live', 'production');
+    expect(
+      await validateSecretOrError(readonly, {
+        env,
+        secretValue: 'postgresql://obs_read:secret@db.example/neondb',
+        secrets: new Map(),
+      })
+    ).toBeNull();
+    expect(
+      await validateSecretOrError(readonly, {
+        env,
+        secretValue: 'https://tempo.example',
+        secrets: new Map(),
+      })
+    ).toMatch(/postgres/);
+  });
 });

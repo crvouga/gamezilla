@@ -9,6 +9,7 @@ import '@libs/runtime/steps/journeys.steps';
 import './api.steps';
 import './billing.steps';
 import './client-config.steps';
+import './finding-a-person.steps';
 import './google-oauth.steps';
 import './infrastructure.steps';
 import './object-store.steps';

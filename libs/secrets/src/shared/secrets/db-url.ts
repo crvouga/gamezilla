@@ -52,6 +52,29 @@ async function validateDatabaseUrl(input: SecretInput): Promise<void> {
   }
 }
 
+/** Shape and non-production policy only. Agents must not ping this URL to validate it. */
+export async function validateReadonlyDatabaseUrl(
+  input: SecretInput
+): Promise<void> {
+  const value = input.secretValue.trim();
+  if (value.length === 0) throw new Error('Must be non-empty');
+  if (!POSTGRES_URL_PREFIX.test(value)) {
+    throw new Error('Must start with postgres:// or postgresql://');
+  }
+  try {
+    new URL(value);
+  } catch {
+    throw new Error('Must be a valid URL');
+  }
+  if (!isProductionEnv(input.env)) {
+    await assertNonProdDatabaseUrl(
+      value,
+      { surface: 'secret.validate', secretsEnv: input.env.env },
+      { productionUrls: await productionDatabaseUrls() }
+    );
+  }
+}
+
 export const DATABASE_URL = new Secret({
   name: 'DATABASE_URL',
   hint: "Postgres connection URL — derived by OpenTofu from the env's Neon branch endpoint (libs/infra/tofu/modules/database).",

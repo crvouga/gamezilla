@@ -17,6 +17,13 @@ import { recordRecentTraceId } from './browser-identity';
 
 type InteractionOutcome = 'navigation' | 'mutation' | 'request' | 'no_op';
 
+let flushTraces: (() => Promise<void>) | undefined;
+
+/** The browser batch exporter. A crash must flush before the page goes away. */
+export function setBrowserTraceFlush(flush: () => Promise<void>): void {
+  flushTraces = flush;
+}
+
 function reportError(error: unknown, source: string): string | undefined {
   const exception = error instanceof Error ? error : new Error(String(error));
   const span = startSpan('client.error', {
@@ -30,6 +37,12 @@ function reportError(error: unknown, source: string): string | undefined {
   recordRecentTraceId(traceId);
   span.setAttribute(ATTR.APP_ERROR_TRACE_ID, traceId);
   span.end();
+  const pending = flushTraces?.();
+  if (pending !== undefined)
+    void pending.then(
+      () => undefined,
+      () => undefined
+    );
   return traceId;
 }
 

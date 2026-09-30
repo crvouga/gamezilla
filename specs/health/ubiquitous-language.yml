@@ -147,6 +147,23 @@ terms:
       something not working as it should.
     forms: [runs into trouble, ran into trouble]
 
+  - term: the team
+    from: kernel
+
+  - term: the time on their clock
+    definition: >-
+      The time of day the person goes by, where they are, such as half past
+      six in the evening Mountain time. It is the clock on their own device.
+    forms: [the time on her clock, the time on his clock, time on their clock]
+    avoid: [timestamp, UTC, timezone offset]
+
+  - term: where their connection appeared
+    definition: >-
+      The place the app saw the person's connection come from. It can differ
+      from the place where the person lives and from the time on their clock.
+    forms: [where her connection appeared, where his connection appeared, connection appeared]
+    avoid: [IP address, geolocation, VPN, geo]
+
   - term: way back to the app
     definition: >-
       Where Google sends a person once they have signed in: always back to the

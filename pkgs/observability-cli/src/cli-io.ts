@@ -18,6 +18,7 @@ import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres/connect';
 import { parseArgs } from './args';
 import { runCommand } from './commands';
+import { peopleByName } from './person-directory';
 import { discoverLatestLocalTraceSource } from './source-discovery';
 import { SqlMutationTraceIndex } from './sql-mutation-trace-index';
 import { SqlPgStatsSource } from './sql-pg-stats';
@@ -101,6 +102,7 @@ async function openReadOnlyDatabase(): Promise<{
         `);
         return rows[0]?.id ?? null;
       },
+      byName: peopleByName(opened.sqlClient),
     }),
   };
 }

@@ -6,6 +6,8 @@ export type ObservabilityIdentity = {
   readonly userId?: string;
   readonly sessionId?: string;
   readonly deviceId?: string;
+  /** IANA zone of the person's own clock, such as America/Phoenix. */
+  readonly deviceTimeZone?: string;
   readonly buildSha?: string;
 };
 
@@ -23,6 +25,9 @@ export function stampIdentity(
   }
   if (identity.deviceId !== undefined) {
     span.setAttribute(ATTR.APP_DEVICE_ID, identity.deviceId);
+  }
+  if (identity.deviceTimeZone !== undefined) {
+    span.setAttribute(ATTR.APP_DEVICE_TIMEZONE, identity.deviceTimeZone);
   }
   if (identity.buildSha !== undefined) {
     span.setAttribute(ATTR.APP_BUILD_SHA, identity.buildSha);

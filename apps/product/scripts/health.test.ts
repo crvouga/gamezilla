@@ -60,6 +60,12 @@ describe('health host limits', () => {
         'specs/health/request-records.feature'
       ).wholeFeature
     ).toBe(true);
+    expect(
+      hostSkips(
+        { ...PRODUCTION, observability: false },
+        'specs/health/finding-a-person.feature'
+      ).wholeFeature
+    ).toBe(true);
   });
 
   test('every limit names a feature and scenario that exist', () => {

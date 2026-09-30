@@ -66,6 +66,25 @@ function lineWith(attributes: Readonly<Record<string, string>>): string {
   });
 }
 
+function lineAt(
+  traceId: string,
+  spanId: string,
+  attributes: Readonly<Record<string, string>>,
+  status: 'error' | 'ok'
+): string {
+  return JSON.stringify({
+    timestamp: '2026-09-29T01:33:00.000Z',
+    traceId,
+    spanId,
+    name: status === 'error' ? 'client.error' : 'http.server.request',
+    durationMs: 10,
+    status,
+    ...(status === 'error' ? { statusMessage: 'app crashed' } : {}),
+    attributes,
+    events: [],
+  });
+}
+
 function manifestStore(files: Readonly<Record<string, string>>): ObjectStore {
   return {
     async get(key) {
@@ -295,6 +314,75 @@ describe('obs output contract', () => {
     expect(result.text).toContain(secondTrace);
     expect(result.text).toContain('db.query 50.0ms');
     expect(result.text).not.toContain(firstTrace);
+  });
+
+  test('person finds a crash from a name, a place, and 6:33pm MST', async () => {
+    const lines = [
+      lineAt(
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        'bbbbbbbbbbbbbbbb',
+        {
+          'user.id': 'user-chris',
+          'app.device.timezone': 'America/Phoenix',
+        },
+        'error'
+      ),
+      lineAt(
+        'cccccccccccccccccccccccccccccccc',
+        'dddddddddddddddd',
+        {
+          'user.id': 'user-chris',
+          'app.client.city': 'Phoenix',
+          'app.client.region': 'Arizona',
+        },
+        'ok'
+      ),
+    ].join('\n');
+    const result = await runCommand(
+      {
+        store: storeWith(lines),
+        nowMs: Date.parse('2026-09-29T02:00:00.000Z'),
+        identityResolver: {
+          resolve: () => Promise.resolve(null),
+          async resolvePeople(name) {
+            return name === 'Chris Vouga'
+              ? [{ userId: 'user-chris', matchedAs: 'name' }]
+              : [];
+          },
+        },
+      },
+      parseArgs([
+        'person',
+        '--name',
+        'Chris Vouga',
+        '--at',
+        '6:33pm MST',
+        '--place',
+        'Gilbert, Arizona',
+      ])
+    );
+    expect(result.code).toBe(0);
+    expect(result.text).toStartWith('obs/v1\nsource: fixture');
+    expect(result.text).toContain('person: Chris Vouga -> user.id user-chris');
+    expect(result.text).toContain('device-clock: America/Phoenix');
+    expect(result.text).toContain('place: matched Gilbert, Arizona');
+    expect(result.text).toContain('next: bun obs span');
+  });
+
+  test('person without a directory does not search by the raw name', async () => {
+    const store = storeWith(LINE);
+    store.find = () => {
+      throw new Error('raw name reached telemetry');
+    };
+    store.findByUser = () => {
+      throw new Error('raw name reached telemetry');
+    };
+    const result = await runCommand(
+      { store, nowMs: Date.parse('2026-09-29T02:00:00.000Z') },
+      parseArgs(['person', '--name', 'Chris Vouga', '--at', '6:33pm MST'])
+    );
+    expect(result.code).toBe(2);
+    expect(result.text).toContain('OBS_READONLY_DATABASE_URL');
   });
 });
 

@@ -17,6 +17,7 @@ export type {
   AttrValue,
 } from './attributes';
 export { ALLOWED_ATTRIBUTE_KEYS, ATTR } from './attributes';
+export { connectionAttributes } from './connection-place';
 export {
   currentCorrelation,
   deserializeTraceContext,

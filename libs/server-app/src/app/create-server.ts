@@ -15,26 +15,24 @@ import type { AuthProvider } from '@pkgs/auth/server';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
 import {
-  ATTR,
   activeSpan,
-  context,
   currentCorrelation,
-  deserializeTraceContext,
   otlpAuthorization,
-  SpanKind,
   SpanStatusCode,
-  withSpan,
 } from '@pkgs/observability/core';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs';
-import { Hono, type MiddlewareHandler } from 'hono';
+import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { routePath } from 'hono/route';
 import { API_PATH_PREFIX, createAuthProvider } from '../config/auth-provider';
 import { ApiSecretName } from '../config/secret-names';
 import { resolveWebClientOrigin } from '../config/web-client-origin';
 import { createHealthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
+import {
+  createRequestTelemetryMiddleware,
+  takeRequestTraceId,
+} from '../observability/request-telemetry';
 import { createReportsApp } from '../reports/route';
 import {
   apiRequestAsyncLocalStorage,
@@ -56,8 +54,6 @@ import type { ServerEnv } from './server-env';
 function createAppLogger(env: ServerEnv) {
   return createLogger({ name: 'server:app', now: env.clock.now });
 }
-
-const requestTraceIds = new WeakMap<Request, string>();
 
 function isAssertionFailure(err: unknown): err is {
   message: string;
@@ -97,8 +93,7 @@ function createApiErrorHandler(
   exposeTraceId: boolean
 ) {
   return (err: unknown, c: ApiErrorContext) => {
-    const requestTraceId = requestTraceIds.get(c.req.raw);
-    requestTraceIds.delete(c.req.raw);
+    const requestTraceId = takeRequestTraceId(c.req.raw);
     const expected = expectedApiError(err, c);
     if (expected !== null) return expected;
     if (isAssertionFailure(err)) {
@@ -133,39 +128,6 @@ function createApiErrorHandler(
       },
       500
     );
-  };
-}
-
-function createRequestTelemetryMiddleware(): MiddlewareHandler {
-  return async (c, next) => {
-    const traceparent = c.req.header('traceparent');
-    const parent =
-      traceparent === undefined
-        ? undefined
-        : deserializeTraceContext(traceparent);
-    const run = () =>
-      withSpan(
-        'http.server.request',
-        async (span) => {
-          requestTraceIds.set(c.req.raw, span.spanContext().traceId);
-          await next();
-          if (c.res.status >= 500) {
-            span.setStatus({ code: SpanStatusCode.ERROR });
-          }
-          span.setAttribute(ATTR.HTTP_ROUTE, routePath(c));
-          span.setAttribute(ATTR.HTTP_RESPONSE_STATUS_CODE, c.res.status);
-          const outgoing = currentCorrelation().traceparent;
-          if (outgoing !== undefined) c.header('traceparent', outgoing);
-          requestTraceIds.delete(c.req.raw);
-        },
-        {
-          [ATTR.HTTP_REQUEST_METHOD]: c.req.method,
-          [ATTR.CODE_FILE_PATH]: 'libs/server-app/src/app/create-server.ts',
-          [ATTR.CODE_FUNCTION_NAME]: 'createRequestTelemetryMiddleware',
-        },
-        { kind: SpanKind.SERVER }
-      );
-    return parent === undefined ? run() : context.with(parent, run);
   };
 }
 

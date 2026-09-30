@@ -12,10 +12,12 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/http-client": "workspace:*"
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/observability": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

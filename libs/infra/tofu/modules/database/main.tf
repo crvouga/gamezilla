@@ -82,6 +82,16 @@ data "neon_branch_role_password" "owner" {
   depends_on = [neon_endpoint.this]
 }
 
+# SELECT-only login for `bun obs person`. The name matches
+# GrantObsReadMigration in libs/runtime, which grants the tables after they
+# exist. This role holds no one's data; losing the password only locks agents
+# out of name lookup.
+resource "neon_role" "obs_read" {
+  project_id = var.neon_project_id
+  branch_id  = local.branch_id
+  name       = "obs_read"
+}
+
 # Slow-query statistics (`bun obs`, docs/OBSERVABILITY.md). Neon
 # preloads the library; the extension must exist in the app database.
 # CREATE EXTENSION IF NOT EXISTS — adopting an existing one is a no-op.
@@ -121,6 +131,12 @@ output "hyperdrive_id" {
 output "database_url" {
   description = "Migrations, tooling and the non-production URL policy connect with this: the pooled host. Workers go through Hyperdrive."
   value       = "postgresql://${local.role}:${data.neon_branch_role_password.owner.password}@${neon_endpoint.this.host_pooling}/${local.database}?sslmode=require&channel_binding=require"
+  sensitive   = true
+}
+
+output "obs_readonly_database_url" {
+  description = "SELECT-only pooled URL for bun obs. Role obs_read; password is URL-encoded. Not the owner DATABASE_URL."
+  value       = "postgresql://obs_read:${urlencode(neon_role.obs_read.password)}@${neon_endpoint.this.host_pooling}/${local.database}?sslmode=require&channel_binding=require"
   sensitive   = true
 }
 

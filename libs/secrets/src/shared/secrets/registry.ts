@@ -25,6 +25,7 @@ import {
 } from './infra-secrets';
 import {
   GRAFANA_CLOUD_API_TOKEN,
+  OBS_READONLY_DATABASE_URL,
   OBS_TEMPO_TOKEN,
   OBS_TEMPO_URL,
   OBS_TEMPO_USER,
@@ -83,6 +84,7 @@ export const SECRETS: readonly Secret[] = [
   OBS_TEMPO_URL,
   OBS_TEMPO_USER,
   OBS_TEMPO_TOKEN,
+  OBS_READONLY_DATABASE_URL,
   API_URL,
   VITE_API_URL,
   LOCAL_PREVIEW_API_ORIGIN,
