@@ -1,4 +1,3 @@
-// goal:guest-free-and-paid:8
 import { describe, expect, it } from 'bun:test';
 import type {
   CallbackResult,

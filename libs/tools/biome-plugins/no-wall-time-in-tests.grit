@@ -1,6 +1,6 @@
 language js
 
-// goal:the-bar:4 — a test's verdict is a function of the code, and a test is
+// a test's verdict is a function of the code, and a test is
 // fast. Wall time, real sleeps and unseeded randomness make it neither: a
 // real 30 ms sleep before an assert fails on a loaded runner and costs 30 ms
 // on an idle one. Tests run on virtual time (`createHarnessClock`,

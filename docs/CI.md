@@ -58,7 +58,7 @@ opt-in report.
     package is a declared dependency.
   - `lint` is one script for every package: naming, Biome (import
     boundaries included), the Solid oxlint scope, package-boundary rules and
-    the package's `GOAL.md` proofs and banned words, run from the repo root.
+    the package's known-bug regression proofs and banned words, run from the repo root.
     Biome runs on a temporary gitignored `.biome-scope.*.json` that excludes
     every package outside the package's dependency closure (whole-repo
     indexing was the cost), and type-aware oxlint on a temporary gitignored

@@ -13,15 +13,8 @@ export function tagFilter(expression: string | undefined): TagFilter {
 }
 
 export const DOMAIN_TAG = '@domain:';
-export const GOAL_TAG = '@goal:';
 
 export function domainOf(tags: readonly string[]): string | null {
   const tag = tags.find((t) => t.startsWith(DOMAIN_TAG));
   return tag === undefined ? null : tag.slice(DOMAIN_TAG.length);
-}
-
-export function goalsOf(tags: readonly string[]): readonly string[] {
-  return tags
-    .filter((t) => t.startsWith(GOAL_TAG))
-    .map((t) => t.slice(GOAL_TAG.length));
 }

@@ -1,4 +1,3 @@
-// goal:guest-free-and-paid:9
 import { describe, expect, test } from 'bun:test';
 import type { MembershipStatus, PlusMembershipOffer } from '@pkgs/billing';
 import { StripeTestMode } from './harness';

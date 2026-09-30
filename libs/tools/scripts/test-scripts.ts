@@ -1,4 +1,3 @@
-// goal:the-bar:4
 /**
  * The rules a package's test scripts obey, run by lint-package.ts.
  *

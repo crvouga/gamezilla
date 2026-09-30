@@ -1,4 +1,4 @@
-// goal:the-bar:5 — S3-compatible object store contract runs against
+// S3-compatible object store contract runs against
 // local S3rver or externally supplied S3/R2 env vars.
 
 import { afterAll, describe } from 'bun:test';

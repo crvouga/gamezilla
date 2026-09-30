@@ -1,4 +1,3 @@
-// goal:the-bar:4
 /**
  * Every TypeScript file a package tracks is type-checked by that package's
  * `tc`, run by lint-package.ts.

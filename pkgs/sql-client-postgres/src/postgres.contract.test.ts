@@ -1,4 +1,4 @@
-// goal:the-bar:5 — Postgres connection contract runs against real PG.
+// Postgres connection contract runs against real PG.
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';

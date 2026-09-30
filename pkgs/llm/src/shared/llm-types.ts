@@ -1,4 +1,4 @@
-/** OpenAI is the only supported provider in v1. */
+/** OpenAI is the only supported provider. */
 export const LLM_PROVIDER_OPENAI = 'openai' as const;
 
 export type LlmProviderId = typeof LLM_PROVIDER_OPENAI;

@@ -11,7 +11,7 @@ describe('decouplingProblems (D1)', () => {
       problems(
         'specs/friends/friend-remove.feature',
         [
-          '@domain:friends @goal:social:5',
+          '@domain:friends',
           'Feature: Removing a friend',
           '  @regression:friend-request-offline-queued',
           '  Scenario: Alice removes Bob',

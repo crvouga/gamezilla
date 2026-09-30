@@ -1,5 +1,3 @@
-// goal:guest-free-and-paid:1
-// goal:guest-free-and-paid:4
 import { describe, expect, test } from 'bun:test';
 import {
   ACTION,

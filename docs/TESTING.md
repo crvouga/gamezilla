@@ -4,9 +4,8 @@
 > check inside `bun check`, and a green `bun check` means the app is ready to
 > release.
 
-This is the policy behind [`GOAL.md`](GOAL.md) § "The bar". Behavior tests
-are specs ([`specs/README.md`](../specs/README.md)); the gate's mechanics
-(caching, budgets, workflows) are [`CI.md`](CI.md).
+Behavior tests are specs ([`specs/README.md`](../specs/README.md)); the
+gate's mechanics (caching, budgets, workflows) are [`CI.md`](CI.md).
 
 ## 1. No manual testing
 
@@ -74,7 +73,7 @@ An example test pins one concrete case that must never change:
    The guard is never a `*.property.test.ts`: a seed that reaches the bug
    today may not after a generator changes.
 2. **A decided value.** A number or wire shape the product committed to (a
-   `GOAL.md` decision, a vendor's wire format, a migration's output).
+   spec, a vendor's wire format, a migration's output).
 
 When a property subsumes an example that is neither, delete the example.
 
@@ -130,7 +129,6 @@ words, never the package's mechanics.
 | Every test file runs; no silent-pass or retry flags | `libs/tools/scripts/test-scripts.ts` (`lint`) |
 | Every TypeScript file is type-checked | `libs/tools/scripts/tc-scope.ts` (`lint`) |
 | Every known bug has an example regression test | `libs/tools/goal/goal-manifest.ts` (`//#ci:goals` + `lint`) |
-| Every `GOAL.md` statement is proven by a check | `libs/tools/scripts/check-goals.ts` (`//#ci:goals`) |
 | Each Worker bundles under the upload limit | `libs/tools/scripts/check-worker-bundle.ts` (`check:worker-bundle`) |
 | Every wall-client file is precached, under budget | `apps/product/scripts/check-offline-shell.ts` (`check:offline-shell`) |
 | No verdict branches on `CI` | `no-ci-verdict.grit` (`lint`) |

@@ -15,7 +15,6 @@
 /** The only tags a feature may carry: product-level traceability. */
 export const ALLOWED_TAG_PREFIXES: readonly string[] = [
   '@domain:',
-  '@goal:',
   '@regression:',
 ];
 

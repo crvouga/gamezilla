@@ -1,6 +1,6 @@
 language js
 
-// goal:the-bar:4 — a property's verdict is a function of the code alone.
+// a property's verdict is a function of the code alone.
 // `fc.assert` / `fc.check` / `fc.sample` / `fc.statistics` draw from an
 // unseeded generator unless the caller remembers to pass one, so the same
 // tree can pass on one run and fail on the next — and turbo caches whichever
