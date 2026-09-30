@@ -178,19 +178,33 @@ function selectByPlace(
   const connection = firstRecorded(loaded, recordedPlace);
   const deviceZone = firstRecorded(loaded, recordedDeviceTimeZone);
   if (asked.length === 0) {
-    return { traces: loaded, placeMatched: true, connection, deviceZone };
+    return selection(loaded, true, connection, deviceZone);
   }
   const hits = bestPlaceHits(loaded, asked);
   if (hits.length === 0) {
-    return { traces: loaded, placeMatched: false, connection, deviceZone };
+    return selection(loaded, false, connection, deviceZone);
   }
   const users = new Set(hits.map((item) => item.userId));
   const traces = loaded.filter((item) => users.has(item.userId));
+  return selection(
+    traces,
+    true,
+    firstRecorded(traces, recordedPlace) ?? connection,
+    firstRecorded(traces, recordedDeviceTimeZone) ?? deviceZone
+  );
+}
+
+function selection(
+  traces: readonly Loaded[],
+  placeMatched: boolean,
+  connection: string | undefined,
+  deviceZone: string | undefined
+): Selection {
   return {
     traces,
-    placeMatched: true,
-    connection: firstRecorded(traces, recordedPlace) ?? connection,
-    deviceZone: firstRecorded(traces, recordedDeviceTimeZone) ?? deviceZone,
+    placeMatched,
+    ...(connection === undefined ? {} : { connection }),
+    ...(deviceZone === undefined ? {} : { deviceZone }),
   };
 }
 

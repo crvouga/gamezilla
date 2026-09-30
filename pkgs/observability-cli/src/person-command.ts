@@ -26,20 +26,25 @@ export async function personCommand(
   const name = stringFlag(args, 'name') ?? args.operands[0];
   const at = stringFlag(args, 'at');
   if (name === undefined || at === undefined) return { code: 2, text: HELP };
-  if (ctx.identityResolver?.resolvePeople === undefined) {
+  const resolver = ctx.identityResolver;
+  const resolvePeople = resolver?.resolvePeople;
+  if (resolver === undefined || resolvePeople === undefined) {
     return { code: 2, text: DIRECTORY_UNAVAILABLE };
   }
   const windowMs = parseDuration(stringFlag(args, 'window') ?? '30m');
   if (windowMs === undefined) return { code: 2, text: HELP };
-  const report = await findPersonTrouble(ctx.store, ctx.identityResolver, {
-    name,
-    at: clockText(at, stringFlag(args, 'timezone'), ctx.nowMs),
-    nowMs: ctx.nowMs,
-    windowMs,
-    ...(stringFlag(args, 'place') === undefined
-      ? {}
-      : { place: stringFlag(args, 'place') }),
-  });
+  const place = stringFlag(args, 'place');
+  const report = await findPersonTrouble(
+    ctx.store,
+    { resolvePeople: (asked) => resolvePeople.call(resolver, asked) },
+    {
+      name,
+      at: clockText(at, stringFlag(args, 'timezone'), ctx.nowMs),
+      nowMs: ctx.nowMs,
+      windowMs,
+      ...(place === undefined ? {} : { place }),
+    }
+  );
   if (report.unavailable) return { code: 2, text: DIRECTORY_UNAVAILABLE };
   if (args.flags['json'] === true) {
     return {
