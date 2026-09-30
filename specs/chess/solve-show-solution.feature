@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:9
+@domain:chess
 Feature: Showing the solution
   When a solver cannot find the line, they want to see the solution played
   out, so they learn it. Showing the solution plays out the rest of the line,

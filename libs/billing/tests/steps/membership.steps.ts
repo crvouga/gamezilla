@@ -22,14 +22,18 @@ import {
   type MembershipShown,
   membershipShown,
 } from '@libs/billing/harness/billing-reads';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import {
   type Actor,
   Given,
   type HarnessWorld,
+  Step,
   Then,
   When,
 } from '@libs/harness/spec/define';
 import { recall, remember } from '@libs/harness/spec/world';
+import { nodeText } from '@libs/harness/system/observations';
+import { Handles } from '@libs/test-ids';
 
 const MONTHLY = 'subscription_monthly';
 const YEARLY = 'subscription_yearly';
@@ -212,6 +216,57 @@ When(
   }
 );
 
+When(
+  '{actor} switches the membership to the monthly plan in the billing portal',
+  async (w, actor: Actor) => {
+    await rememberRenewal(w, actor);
+    await w.s.apply(switchPlusInterval, actor, MONTHLY);
+  }
+);
+
+/** What the next renewal charges, once the screen marks a current plan. */
+async function renewalCents(w: HarnessWorld, actor: Actor): Promise<number> {
+  await onBilling(w, actor);
+  const plan = await w.s.until(
+    (harness) => currentPlan(harness, actor, PLANS),
+    {
+      ...SHOWN_WAIT,
+      pred: (shown) => shown !== null,
+    }
+  );
+  const spec = Object.values(PLUS_MEMBERSHIP_OFFER.prices).find(
+    (price) => price.key === plan
+  );
+  if (spec === undefined) {
+    throw new Error(`${actor}'s billing screen shows no current plan`);
+  }
+  return spec.unitAmount;
+}
+
+const COVERED_RENEWALS = 36;
+
+Given(
+  "{actor}'s Plus credit no longer covers a renewal",
+  async (w, actor: Actor) => {
+    for (let step = 0; step < COVERED_RENEWALS; step += 1) {
+      const due = await renewalCents(w, actor);
+      const shown = await shownWhere(w, actor, () => true);
+      // Nothing left (including 0 on a yearly plan) does not cover the charge.
+      if (shown.creditCents < due) return;
+      const before = shown.creditCents;
+      await observe(w, actor, 'period_end');
+      await shownWhere(
+        w,
+        actor,
+        (next) =>
+          next.creditCents < before &&
+          (next.state === 'active' || next.state === 'trialing')
+      );
+    }
+    throw new Error(`${actor}'s Plus credit still covers the next renewal`);
+  }
+);
+
 // ------------------------------------------------------ what the screen shows
 
 Then("{actor}'s membership is trialing", async (w, actor: Actor) => {
@@ -269,6 +324,38 @@ Then(
   "{actor}'s membership is no longer set to end at the period end",
   async (w, actor: Actor) => {
     await shownWhere(w, actor, (shown) => shown.state !== 'canceling');
+  }
+);
+
+/**
+ * The same sentence is a Given and a Then. Matching ignores the keyword, so
+ * one definition serves both: still on the yearly plan with nothing left,
+ * switch to monthly; then the screen must show that credit.
+ */
+Step(
+  '{actor} has Plus credit from the yearly plan',
+  async (w, actor: Actor) => {
+    await onBilling(w, actor);
+    const plan = await w.s.until(
+      (harness) => currentPlan(harness, actor, PLANS),
+      {
+        ...SHOWN_WAIT,
+        pred: (shown) => shown !== null,
+      }
+    );
+    const shown = await shownWhere(w, actor, () => true);
+    if (shown.creditCents <= 0 && plan === YEARLY) {
+      await w.s.apply(switchPlusInterval, actor, MONTHLY);
+    }
+    const next = await shownWhere(
+      w,
+      actor,
+      (candidate) => candidate.creditCents > 0
+    );
+    expect(next.creditCents).toBeGreaterThan(0);
+    const text = await w.s.read(nodeText, actor, [Handles.billingCredit]);
+    expect(text ?? '').toMatch(/Plus credit/i);
+    expect(text ?? '').toMatch(/yearly plan/i);
   }
 );
 

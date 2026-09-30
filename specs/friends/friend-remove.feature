@@ -1,4 +1,4 @@
-@domain:friends @goal:social:5
+@domain:friends
 Feature: Remove a friend
   When a person no longer wants someone as a friend, they want to remove
   them, ending the friendship for both at once, so neither still counts the

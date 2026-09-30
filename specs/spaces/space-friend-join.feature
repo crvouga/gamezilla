@@ -1,10 +1,23 @@
-@domain:spaces @goal:spaces:7
+@domain:spaces
 Feature: A friend joins from the lobby
-  When a friend is hosting an open space, a person wants to join it from their
-  lobby, so they do not need its space link.
+  When a friend is hosting an open space, a person wants to find it in their
+  lobby and join it, so they do not need its space link.
 
-  Scenario: A friend joins an open space from the lobby
+  Background:
     Given Alice and Bob are friends
-    And Alice is hosting a space
-    When Bob joins Alice's space from the lobby
-    Then Bob is in the space
+
+  Rule: A friend's lobby lists their open space, and a person can join it from there
+
+    Scenario: A friend's lobby lists a space as soon as it is created
+      When Alice creates a space
+      Then Bob's lobby lists Alice's space
+
+    Scenario: A friend joins an open space from the lobby
+      Given Alice is hosting a space
+      When Bob joins Alice's space from the lobby
+      Then Bob is in the space
+
+    Scenario: A friend is not offered a space that has ended
+      Given Alice has hosted a space and ended it
+      When Bob joins Alice's space from the lobby
+      Then Bob is not offered to join

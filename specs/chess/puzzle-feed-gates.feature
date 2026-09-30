@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:4 @goal:guest-free-and-paid:1 @goal:guest-free-and-paid:6
+@domain:chess
 Feature: Customizing the feed is for people with an account
   When a guest reaches for the feed settings, they want an invitation to sign
   in rather than an error, so customizing the feed is something an account

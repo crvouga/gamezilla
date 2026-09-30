@@ -1,4 +1,4 @@
-@domain:runtime @goal:works-offline:1
+@domain:runtime
 Feature: The app opens without a connection
   When a person has no connection, on a plane or in a tunnel, they want the
   app to open and work anyway after its first opening, so they are never

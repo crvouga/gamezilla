@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: Cancel and subscribe again
   When a Plus member no longer wants Plus, they want to choose when their
   membership ends and to come back whenever they like, so canceling never

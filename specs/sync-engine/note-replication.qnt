@@ -1,5 +1,3 @@
-// goal:works-offline:4 goal:always-true:2 goal:always-true:3
-//
 // Notes kept in step across people's devices.
 //
 // Alice, Bob and Carol each use a device that keeps its own copy of their

@@ -97,6 +97,61 @@ function delay(ms: number): Promise<void> {
   });
 }
 
+export async function readLocation(view: Bun.WebView): Promise<string> {
+  const href = await view.evaluate('location.href');
+  return typeof href === 'string' ? href : '';
+}
+
+/**
+ * Poll until a service worker is active, so a later offline navigation can
+ * still load the shell. `missing` retries; a host with no workers returns.
+ */
+const SHELL_STATE_SCRIPT = `(function () {
+  var sw = navigator.serviceWorker;
+  if (!sw) return 'none';
+  var slot = window.__gzShell;
+  if (!slot || slot.state === 'missing') {
+    window.__gzShell = { state: 'pending' };
+    sw.getRegistration().then(function (reg) {
+      window.__gzShell.state = reg && reg.active ? 'active' : 'missing';
+    }, function () {
+      window.__gzShell.state = 'error';
+    });
+    return 'pending';
+  }
+  return slot.state;
+})()`;
+
+const SHELL_WAIT_MS = 20_000;
+
+export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
+  const deadline = wallClock.now() + SHELL_WAIT_MS;
+  for (;;) {
+    const state = await view.evaluate(SHELL_STATE_SCRIPT);
+    if (state === 'active' || state === 'none' || state === 'error') return;
+    if (wallClock.now() >= deadline) return;
+    await delay(POPUP_POLL_MS);
+  }
+}
+
+/**
+ * The device has no network. Chrome exposes this through CDP
+ * (`Network.emulateNetworkConditions`); other engines have no equivalent.
+ */
+export async function emulateOffline(view: Bun.WebView): Promise<void> {
+  await waitForCachedShell(view);
+  if (resolveTestBrowser().engine !== 'chrome') {
+    throw new Error('this browser cannot cut the network');
+  }
+  await view.cdp('Network.enable');
+  await view.cdp('Network.emulateNetworkConditions', {
+    offline: true,
+    latency: 0,
+    downloadThroughput: 0,
+    uploadThroughput: 0,
+  });
+}
+
 async function popupUrls(view: Bun.WebView): Promise<string[]> {
   const raw = await view.evaluate(
     'JSON.stringify((window.__bunWebviewPopups || { open: [] }).open.map(function (e) { return e.url; }))'

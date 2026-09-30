@@ -1,6 +1,3 @@
-// goal:social:3
-// goal:social:4
-// goal:always-true:9
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 

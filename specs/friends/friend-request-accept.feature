@@ -1,4 +1,4 @@
-@domain:friends @goal:social:5
+@domain:friends
 Feature: Friend request accepted
   When someone a person wants as a friend asks them, the person wants to
   accept from their inbox, so both become friends at once and the asker

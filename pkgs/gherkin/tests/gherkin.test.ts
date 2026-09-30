@@ -15,7 +15,7 @@ import {
 } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
-import { domainOf, goalsOf, tagFilter } from '@pkgs/gherkin/tags';
+import { domainOf, tagFilter } from '@pkgs/gherkin/tags';
 
 describe('feature parsing', () => {
   test('folds feature tags and Background steps into outline examples', () => {
@@ -25,7 +25,7 @@ Feature: Requests
   Background:
     Given Alice is signed in
 
-  @goal:social:5
+  @regression:ask-twice
   Scenario Outline: Ask <person>
     When Alice asks <person>
     Then <person> sees Alice
@@ -45,7 +45,7 @@ Feature: Requests
     ]);
     expect(feature.scenarios[0]?.tags).toEqual([
       '@domain:friends',
-      '@goal:social:5',
+      '@regression:ask-twice',
     ]);
     expect(feature.scenarios[0]?.steps.map((step) => step.text)).toEqual([
       'Alice is signed in',
@@ -92,8 +92,6 @@ Then('people are offered Google sign-in and not Apple sign-in', () => undefined)
       ],
       shared: [],
       parameterTypes: parameterTypeRegistryFrom([]),
-      goalIds: new Set(),
-      goalSpecProofs: new Map(),
     });
 
     expect(errors).toEqual([
@@ -129,8 +127,6 @@ function checkOne(source: string, uri: string): readonly string[] {
     packages: [pkg],
     shared: [],
     parameterTypes: parameterTypeRegistryFrom([]),
-    goalIds: new Set(),
-    goalSpecProofs: new Map(),
   });
 }
 
@@ -264,12 +260,11 @@ When(expression, () => undefined);
 });
 
 describe('tags and catalogs', () => {
-  test('evaluates official tag expressions and extracts domain goals', () => {
-    const tags = ['@domain:friends', '@goal:social:5', '@fast'];
+  test('evaluates official tag expressions and extracts the domain', () => {
+    const tags = ['@domain:friends', '@regression:bug-1', '@fast'];
     expect(tagFilter('@fast and not @slow')(tags)).toBe(true);
     expect(tagFilter('@slow or @broken')(tags)).toBe(false);
     expect(domainOf(tags)).toBe('friends');
-    expect(goalsOf(tags)).toEqual(['social:5']);
   });
 
   test('flags only same-kind wording aliases with equal parameter arity', () => {

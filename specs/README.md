@@ -1481,7 +1481,6 @@ Allowed, and nothing else:
 | Tag | Where | Meaning |
 | --- | --- | --- |
 | `@domain:<dir>` | feature line, required | the bounded context; equals the directory |
-| `@goal:<section>:<n>` | feature or scenario | proves a [`GOAL.md`](../docs/GOAL.md) statement |
 | `@regression:<bug-id>` | scenario | pins an observable bug in `known-bugs.json` |
 
 Aggregate and kind (command, invariant, event, policy) are never tags: the
@@ -1655,10 +1654,9 @@ or product code are written.
 
 **P4 · Demotion keeps every guard.** *Blocking.*
 A scenario removed because it is not behavior (B17) is replaced first by a
-code test that is seen failing when the behavior breaks; its `@goal` proof
-moves to `goal-checks.json` as a `test` proof and its `@regression` to an
-example test marked `// regression: <id>`, in the commit before the `spec:`
-commit that removes it.
+code test that is seen failing when the behavior breaks; its `@regression`
+moves to an example test marked `// regression: <id>`, in the commit before
+the `spec:` commit that removes it.
 *Why: cleaning up specs must never quietly drop coverage.*
 
 ### The gate
@@ -1669,8 +1667,7 @@ checks the rest. It fails on:
 
 - undefined, ambiguous, pending or unused steps; a duplicate scenario name;
   stale step catalogs
-- a missing or foreign `@domain`, an unknown `@goal`, or a goal proven by a
-  feature where no scenario is tagged with it
+- a missing or foreign `@domain`
 - UI mechanics or implementation words in step text (`IMPLEMENTATION_WORDS`
   in `@pkgs/gherkin`), or a narrator ("I", "my", "the user")
 - a scenario with no `Then`, or a `Given` after it has acted
@@ -1679,7 +1676,7 @@ checks the rest. It fails on:
 - code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`; every file but
   this rulebook): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
-  other than `@domain:`, `@goal:`, `@regression:`
+  other than `@domain:`, `@regression:`
 - a random walk outside a Quint model: `.explore(` or `randomActions(` in a
   spec-running package's test outside `tests/quint/`
 - a BDD smell (`@pkgs/gherkin/smells`): more than 8 steps or 3 `When`s,
@@ -1719,12 +1716,11 @@ or used in another sense, is the auditor's to catch (A1, A3).
    writer (P2).
 4. **Gate**: `bun run spec:ownership`, then `bun check`.
 
-`@goal:<section>:<n>` proofs are listed in `libs/tools/goal/goal-checks.json`
-as `spec` proofs; `@regression:<bug-id>` scenarios have a
+`@regression:<bug-id>` scenarios have a
 `libs/tools/goal/known-bugs.json` entry pointing at the feature.
 
 ```sh
-bun run spec --tags '@goal:social:5'
+bun run spec --tags '@domain:friends'
 bun run spec specs/friends/friend-block.feature
 bun run spec specs/spaces/space-hosting.qnt
 bun run spec --package @libs/friends -t 'ends the friendship'

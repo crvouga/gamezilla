@@ -1,4 +1,4 @@
-// goal:the-bar:5 — Postgres live differential runs against real PG via
+// Postgres live differential runs against real PG via
 // embedded postgres or externally supplied DATABASE_URL.
 
 import { afterAll, describe, expect, test } from 'bun:test';

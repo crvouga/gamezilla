@@ -1,4 +1,4 @@
-@domain:profile @goal:social:3
+@domain:profile
 Feature: Edit a profile
   When a person wants to be recognized, they want to choose their own
   username and avatar, so their profile shows what they saved.

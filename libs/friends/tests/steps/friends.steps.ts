@@ -157,6 +157,16 @@ When(
   }
 );
 
+Given(
+  '{actor} has cancelled the friend request to {actor}',
+  async (w, actor: Actor, to: Actor) => {
+    await w.s.apply(cancelFriendRequest, actor, to);
+    // The asker can ask again before the scenario does.
+    await w.s.apply(backToTabs, actor);
+    await w.s.apply(searchUntilAddOffered, actor, to, DECLINE_REACHES_MS);
+  }
+);
+
 When('{actor} asks {actor} again', async (w, actor: Actor, other: Actor) => {
   await w.s.apply(backToTabs, actor);
   await w.s.apply(askAgainFromSearch, actor, other);

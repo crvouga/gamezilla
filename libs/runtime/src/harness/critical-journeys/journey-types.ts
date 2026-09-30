@@ -51,6 +51,22 @@ export type JourneyHost = {
   /** Run `gestures` against the open app. */
   act(name: string, gestures: JourneyGestures): Promise<void>;
   /**
+   * A second person on their own fresh device, not the one who opened the
+   * app. The first call opens that device. Gestures run there.
+   */
+  actAsGuest(name: string, gestures: JourneyGestures): Promise<void>;
+  /**
+   * The space link the open app is on (`/space/<id>`), what Copy link
+   * hands out.
+   */
+  spaceLink(): Promise<string>;
+  /** Open `link` (`/space/<id>`) on the guest's device. */
+  openGuest(link: string): Promise<void>;
+  /** This device has no connection to the app's servers. */
+  offline(): Promise<void>;
+  /** Open the app again on the same device. Its storage stays. */
+  reopen(): Promise<void>;
+  /**
    * Undo a write when the scenario ends, also when a later step fails (a
    * live space left behind blocks the next run). {@link settle} drops it
    * once a step did the undo itself.
@@ -58,6 +74,17 @@ export type JourneyHost = {
   defer(key: string, cleanup: JourneyGestures): void;
   settle(key: string): void;
 };
+
+const SPACE_LINK = /\/space\/[^/?#]+/;
+
+/** `/space/<id>` from an app route or a full URL — what Copy link hands out. */
+export function spaceLinkFromLocation(location: string): string {
+  const link = SPACE_LINK.exec(location)?.[0];
+  if (link === undefined) {
+    throw new Error(`the app is not on a space link (${location})`);
+  }
+  return link;
+}
 
 /** The world the journey steps need: every host's world carries one. */
 export type JourneyWorld = { readonly journey: JourneyHost };

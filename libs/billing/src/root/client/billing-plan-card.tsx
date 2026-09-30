@@ -33,6 +33,8 @@ type PlanCardProps = {
   readonly trialDays: number;
   readonly formatDate: (ms: number) => string;
   readonly actions: BillingActions;
+  /** Formatted Plus credit, or `null` when there is none to show. */
+  readonly creditAmount: string | null;
 };
 
 const TIER_INTENT: Record<BillingTier, BadgeIntent> = {
@@ -115,6 +117,23 @@ function StatusLine(props: {
           <Trans>No membership yet.</Trans>
         </Match>
       </Switch>
+    </p>
+  );
+}
+
+/** Plus credit the provider will spend before the card, when any is left. */
+function CreditLine(props: {
+  readonly cents: number;
+  readonly amount: string;
+}): JSX.Element {
+  const amount = (): string => props.amount;
+  return (
+    <p
+      class="text textBody text-text-secondary"
+      data-testid={Handles.billingCredit}
+      data-credit-cents={String(props.cents)}
+    >
+      <Trans>Plus credit · {amount()} left from your yearly plan</Trans>
     </p>
   );
 }
@@ -243,6 +262,11 @@ export function BillingPlanCard(props: PlanCardProps): JSX.Element {
         <TierChip tier={props.view.tier} />
       </div>
       <StatusLine view={props.view} formatDate={props.formatDate} />
+      <Show when={props.creditAmount}>
+        {(amount) => (
+          <CreditLine cents={props.view.creditCents} amount={amount()} />
+        )}
+      </Show>
       <PlanNotice view={props.view} />
       <PlanActions
         view={props.view}

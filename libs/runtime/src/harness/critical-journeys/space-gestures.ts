@@ -59,3 +59,43 @@ export async function expectPuzzlePlayable(ui: Driver): Promise<void> {
 export async function expectSpaceEnded(ui: Driver): Promise<void> {
   await expectVisible(ui, Handles.spaceEnded);
 }
+
+/** Inside the space: its close control is up (the same signal as an active space). */
+export async function expectInSpace(ui: Driver): Promise<void> {
+  await expectVisible(ui, Handles.spaceClose);
+}
+
+const LINK_POLLS = 10;
+const LINK_SETTLE_MS = 2_000;
+
+type LinkOffer = 'join' | 'ended' | 'inside';
+
+async function linkOffer(ui: Driver): Promise<LinkOffer | null> {
+  if (await ui.get(Handles.spaceEnded).isVisible()) return 'ended';
+  if (await ui.get(Handles.spaceClose).isVisible()) return 'inside';
+  if (await ui.get(Handles.spaceJoin).isVisible()) return 'join';
+  return null;
+}
+
+/**
+ * The space link is already open. Join when it offers to. An ended space
+ * does not, and this does not invent a join.
+ */
+export async function joinFromLink(ui: Driver): Promise<void> {
+  for (let attempt = 0; attempt < LINK_POLLS; attempt += 1) {
+    const offer = await linkOffer(ui);
+    if (offer === 'ended' || offer === 'inside') return;
+    if (offer === 'join') {
+      await tap(ui, Handles.spaceJoin);
+      return;
+    }
+    try {
+      await ui
+        .get(Handles.spaceJoin)
+        .expect.visible({ timeoutMs: LINK_SETTLE_MS });
+    } catch {
+      // The link is still opening.
+    }
+  }
+  throw new Error('the space link did not offer to join or say it ended');
+}

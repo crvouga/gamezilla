@@ -1,4 +1,4 @@
-@domain:friends @goal:social:3
+@domain:friends
 Feature: Profile changes reach other people
   When a person changes their username, they want their friends' lists to
   show the new one and people search to find them by it, not by the one they

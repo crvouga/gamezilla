@@ -16,6 +16,7 @@ import {
   playUntilSolved,
   playWrongPuzzleMove,
   pressPuzzleNext,
+  pressPuzzleNextIfVisible,
   pressPuzzleNextTwice,
   requestPuzzleHint,
   retryPuzzle,
@@ -53,7 +54,9 @@ import {
 } from '@libs/harness/spec/define';
 import { cutConnection } from '@libs/harness/spec/steps/platform';
 import { remember } from '@libs/harness/spec/world';
+import { visible } from '@libs/harness/system/observations';
 import { createSpace } from '@libs/spaces/harness/space-actions';
+import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board-core/types';
 import { NAMED_PUZZLES } from './puzzle-fixtures';
 import {
@@ -610,6 +613,19 @@ Then(
 
 // ------------------------------------------------------------- moving on
 
+When('{actor} asks for the next puzzle', async (w, actor: Actor) => {
+  await w.s.apply(pressPuzzleNextIfVisible, actor);
+});
+
+Then('{actor} is not offered to move on', async (w, actor: Actor) => {
+  expect(await w.s.read(visible, actor, [Handles.chessPuzzleActionNext])).toBe(
+    false
+  );
+  expect(await w.s.read(visible, actor, [Handles.chessPuzzleSummaryNext])).toBe(
+    false
+  );
+});
+
 When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
   await w.s.apply(pressPuzzleNext, actor);
   await trackPuzzle(w, actor);
@@ -634,6 +650,19 @@ Then(
     const before = required(previousPuzzle(w, actor), 'a puzzle before');
     expect(await activePuzzle(w, actor)).not.toBe(before);
     expect(await w.s.read(readPuzzleStatus, actor)).toBe('solving');
+  }
+);
+
+Then(
+  '{actor} is not offered the puzzle that is over',
+  async (w, actor: Actor) => {
+    // trackPuzzle on the way back moved the finished puzzle to "the one before".
+    const over = required(previousPuzzle(w, actor), 'the puzzle that is over');
+    expect(await w.s.read(readActivePuzzleId, actor)).not.toBe(over);
+    expect(await w.s.read(isPuzzleSolved, actor)).toBe(false);
+    expect(await w.s.read(visible, actor, [Handles.chessPuzzleSummary])).toBe(
+      false
+    );
   }
 );
 
@@ -670,8 +699,20 @@ Given(
   }
 );
 
+When(
+  '{actor} leaves the puzzle for the chess choices',
+  async (w, actor: Actor) => {
+    await w.s.apply(leavePuzzleToChessMenu, actor);
+  }
+);
+
 When('{actor} goes back to the puzzles', async (w, actor: Actor) => {
   await w.s.apply(returnToPuzzleScreen, actor);
+  // A puzzle on the board replaces the one tracked before the return.
+  // The limit screen has none: do not invent one.
+  if ((await w.s.read(readActivePuzzleId, actor)) !== null) {
+    await trackPuzzle(w, actor);
+  }
 });
 
 // ------------------------------------------------------------------ account

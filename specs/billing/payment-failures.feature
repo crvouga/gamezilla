@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: Failed payments
   When a Plus member's payment fails, they want to keep paid access while it
   is put right, so a card problem never cuts them off at once: the membership

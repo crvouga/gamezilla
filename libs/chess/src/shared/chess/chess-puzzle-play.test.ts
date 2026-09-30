@@ -1,6 +1,3 @@
-// goal:chess-puzzles:6
-// goal:chess-puzzles:7
-// goal:always-true:8
 import { describe, expect, test } from 'bun:test';
 import { ChessModule } from '@libs/chess/public/chess-module';
 import {

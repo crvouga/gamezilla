@@ -1,6 +1,6 @@
 language js
 
-// goal:the-bar:4 — a green check means every test ran, and ran the same way
+// a green check means every test ran, and ran the same way
 // on every machine. Wired to test files only (`biome.json` plugin
 // `includes`), so it runs in each package's `lint`.
 or {

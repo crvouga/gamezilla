@@ -1723,6 +1723,11 @@ msgstr "Played"
 msgid "Playing"
 msgstr "Playing"
 
+#. placeholder {0}: amount()
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Plus credit · {0} left from your yearly plan"
+msgstr "Plus credit · {0} left from your yearly plan"
+
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Preferences"
 msgstr "Preferences"

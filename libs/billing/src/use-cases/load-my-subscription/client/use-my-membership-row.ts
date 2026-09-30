@@ -15,7 +15,8 @@ export function useMyMembershipRow(): Accessor<MembershipRow | null> {
   const myId = useMyId();
   const query = createQuery(
     () => sql<MembershipRow>`
-    SELECT status, price_key, current_period_end, cancel_at_period_end
+    SELECT status, price_key, current_period_end, cancel_at_period_end,
+      credit_cents
     FROM billing_subscriptions
     WHERE account_id = ${myId()} AND deleted_at IS NULL
     ORDER BY updated_at DESC

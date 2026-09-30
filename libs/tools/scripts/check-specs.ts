@@ -5,9 +5,8 @@
  * every `specs/<domain>/*.qnt` Quint model, `*.dmn` decision table, `*.als`
  * structure and `*.openslo.yaml` objective has exactly one binding, every `specs/<domain>/*.feature` scenario binds to exactly one step
  * definition, no definition is unused or pending, every scenario carries its
- * `@domain` and known `@goal`s, every goal a feature proves is tagged there,
- * step text says intent (no UI mechanics, implementation words or narrator),
- * every scenario ends in an outcome with its context first, and the catalogs
+ * `@domain`, step text says intent (no UI mechanics, implementation words or
+ * narrator), every scenario ends in an outcome with its context first, and the catalogs
  * are current, and no scenario has a BDD smell (`@pkgs/gherkin/smells`: a
  * long script, several events, acting after a Then outside journeys,
  * architecture words, a feature without a why), and every spec speaks its
@@ -31,8 +30,6 @@ import { checkSpecs } from '@pkgs/gherkin/check';
 import { parameterTypeRegistryFrom } from '@pkgs/gherkin/registry';
 import { nearDuplicates } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
-import type { GoalChecks } from '../goal/goal-manifest';
-import { parseGoalMarkdown } from '../goal/goal-statements';
 import { randomWalkViolations } from './behavior-tests';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
@@ -65,24 +62,9 @@ const SMELLS = {
 
 const parameterTypes = parameterTypeRegistryFrom(SPEC_PARAMETER_TYPES);
 
-const statements = parseGoalMarkdown(
-  readFileSync(join(REPO_ROOT, 'docs/GOAL.md'), 'utf8')
-);
-const checks = JSON.parse(
-  readFileSync(join(REPO_ROOT, 'libs/tools/goal/goal-checks.json'), 'utf8')
-) as GoalChecks;
 const packages = specPackages();
 const shared = sharedSteps();
 const external = externalSteps(packages);
-
-const goalSpecProofs = new Map<string, string[]>();
-for (const [id, entry] of Object.entries(checks)) {
-  if (entry.status !== 'proven') continue;
-  for (const proof of entry.proofs) {
-    if (proof.kind !== 'spec') continue;
-    goalSpecProofs.set(id, [...(goalSpecProofs.get(id) ?? []), proof.path]);
-  }
-}
 
 const errors: string[] = [
   ...specsLayoutProblems(packages),
@@ -94,8 +76,6 @@ const errors: string[] = [
     external: external.steps,
     shared: shared.steps,
     parameterTypes,
-    goalIds: new Set(statements.map((s) => s.id)),
-    goalSpecProofs,
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(),

@@ -73,6 +73,8 @@ export type BillingView = {
   readonly notice: BillingNotice | null;
   /** The offer's prices and benefits (hidden while billing is off). */
   readonly showPricing: boolean;
+  /** Plus credit in cents. Never negative; `0` when there is none to show. */
+  readonly creditCents: number;
 };
 
 const DAY_MS = 86_400_000;
@@ -105,6 +107,15 @@ function periodEndOf(row: MembershipRow | null): number | null {
   if (row === null || row.current_period_end === null) return null;
   const parsed = Date.parse(row.current_period_end);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+/** Provider credit in cents, clamped so the screen never shows a debt. */
+function creditCentsOf(row: MembershipRow | null): number {
+  const raw = row?.credit_cents;
+  if (raw === null || raw === undefined || raw === '') return 0;
+  const parsed = typeof raw === 'number' ? raw : Number(raw);
+  if (!Number.isFinite(parsed)) return 0;
+  return Math.max(0, Math.trunc(parsed));
 }
 
 function primaryOf(
@@ -166,6 +177,7 @@ export function buildBillingView(input: BillingViewInput): BillingView {
     manage: input.canView && input.canManage && input.hasCustomer,
     notice: noticeOf(input, state, primary),
     showPricing: input.canView,
+    creditCents: creditCentsOf(row),
   };
 }
 

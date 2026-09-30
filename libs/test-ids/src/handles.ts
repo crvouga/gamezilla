@@ -141,6 +141,8 @@ export const Handles = {
   billingManage: 'billing-manage',
   billingUnlock: 'billing-unlock',
   billingStatus: 'billing-status',
+  /** Plus credit left on the billing screen, with `data-credit-cents`. */
+  billingCredit: 'billing-credit',
   billingNotice: 'billing-notice',
   billingPricing: 'billing-pricing',
   billingPrice: (priceKey: string) => `billing-price-${priceKey}`,

@@ -4,7 +4,6 @@ Feature: Notes across devices
   offline, they want every device they use to have all of their notes once
   the devices are back online.
 
-  @goal:works-offline:5 @goal:always-true:2
   Scenario: Notes written on two devices show on both
     Given Alice uses the app on a phone and a tablet
     And Alice's tablet is offline

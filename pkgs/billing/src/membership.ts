@@ -37,6 +37,12 @@ export type MembershipChange = {
   /** Which of our offer's prices is charged, or `null` when unknown. */
   readonly offerPriceKey: string | null;
   readonly membership: Membership;
+  /**
+   * Credit the provider will apply to the next invoice before the card, in
+   * cents. Never negative. Omitted when this callback could not read it —
+   * the projection keeps the credit it already stored.
+   */
+  readonly creditCents?: number;
 };
 
 export type StartCheckoutInput = {

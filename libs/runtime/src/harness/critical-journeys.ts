@@ -39,12 +39,13 @@ export {
   endActiveSpace,
   hostSpace,
 } from './critical-journeys/journey-gestures';
-export type {
-  JourneyAccess,
-  JourneyBrowser,
-  JourneyGestures,
-  JourneyHost,
-  JourneyWorld,
+export {
+  type JourneyAccess,
+  type JourneyBrowser,
+  type JourneyGestures,
+  type JourneyHost,
+  type JourneyWorld,
+  spaceLinkFromLocation,
 } from './critical-journeys/journey-types';
 export {
   expectNextPuzzleReady,
@@ -52,7 +53,9 @@ export {
 } from './critical-journeys/puzzle-gestures';
 export {
   expectGamesOffered,
+  expectInSpace,
   expectPuzzlePlayable,
   expectSpaceEnded,
+  joinFromLink,
   startChessPuzzle,
 } from './critical-journeys/space-gestures';

@@ -1,15 +1,8 @@
 # Gamezilla
 
-A local-first, offline-first multiplayer game platform. What v1 must be is
-[`docs/GOAL.md`](docs/GOAL.md); how to work in the repo is
-[`AGENTS.md`](AGENTS.md).
-
-## Pricing
-
-One subscription; everything is included. It pays for connection time to our
-coordination servers, the only thing that costs money to run. Single-player
-and offline play are free forever. No tiers, no per-game purchases, no
-cosmetics, no ads, no telemetry-driven monetization.
+A local-first, offline-first multiplayer game platform. What the app is
+is specified in [`specs/`](specs/); how to work in the repo is
+[`AGENTS.md`](AGENTS.md). Docs under [`docs/`](docs/) are implementation.
 
 ## Principles
 
@@ -18,9 +11,9 @@ cosmetics, no ads, no telemetry-driven monetization.
   silent corruption is worse than a crash. Handle or propagate every error;
   no swallowed promises, no `catch {}`. No hidden control flow: every
   dependency is injected, every side effect named.
-- **Local-first.** The app works offline indefinitely. Reads and writes hit
-  the device's SQLite and never wait on the network; changes sync when a
-  connection exists.
+- **Local-first.** Reads and writes hit the device's SQLite and never wait
+  on the network; changes sync when a connection exists. The behavior is
+  specified in [`specs/`](specs/).
 - **Deterministic simulation.** Time, timers, ids, randomness and the network
   are injected ([`docs/DETERMINISM.md`](docs/DETERMINISM.md)), so many clients,
   their faults and their convergence run in-process on virtual time, in

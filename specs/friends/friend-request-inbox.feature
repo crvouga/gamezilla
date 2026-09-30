@@ -1,4 +1,4 @@
-@domain:friends @goal:social:5
+@domain:friends
 Feature: Friend requests reach the inbox
   When someone asks a person to be friends, the person asked wants the friend
   request to reach their inbox while they are using the app, so they find

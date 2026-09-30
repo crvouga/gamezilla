@@ -1,4 +1,3 @@
-// goal:works-offline:1
 /**
  * The offline-shell analysis over built output: what the wall client can load
  * (static, lazy and preload edges from `index.html`, never entering the

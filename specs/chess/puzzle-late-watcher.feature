@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:12 @goal:always-true:7
+@domain:chess
 Feature: Arriving while a puzzle is under way
   When someone arrives mid-puzzle, or their connection drops while watching,
   they want the position the host is actually in, never an older one, so they

@@ -11,6 +11,11 @@ export type MembershipProjection = {
   readonly status: string;
   readonly periodEndMs: number | null;
   readonly endsAtPeriodEnd: boolean;
+  /**
+   * Credit in cents, or `null` when this change did not read it (keep the
+   * stored credit). `0` clears it.
+   */
+  readonly creditCents: number | null;
 };
 
 /** Layer C: transaction-scoped writes to `billing_subscriptions`. */
@@ -34,7 +39,7 @@ export class BillingSubscriptionRepository {
       INSERT INTO billing_subscriptions (
         id, created_at, updated_at, deleted_at,
         account_id, provider, provider_subscription_id, price_key,
-        status, current_period_end, cancel_at_period_end
+        status, current_period_end, cancel_at_period_end, credit_cents
       )
       VALUES (
         ${`${projection.provider}:${projection.subscriptionId}`},
@@ -45,7 +50,8 @@ export class BillingSubscriptionRepository {
         ${projection.offerPriceKey},
         ${projection.status},
         ${periodEnd},
-        ${projection.endsAtPeriodEnd ? 1 : 0}
+        ${projection.endsAtPeriodEnd ? 1 : 0},
+        ${projection.creditCents}
       )
       ON CONFLICT (id) DO UPDATE SET
         updated_at = EXCLUDED.updated_at,
@@ -55,7 +61,8 @@ export class BillingSubscriptionRepository {
         price_key = EXCLUDED.price_key,
         status = EXCLUDED.status,
         current_period_end = EXCLUDED.current_period_end,
-        cancel_at_period_end = EXCLUDED.cancel_at_period_end
+        cancel_at_period_end = EXCLUDED.cancel_at_period_end,
+        credit_cents = COALESCE(EXCLUDED.credit_cents, billing_subscriptions.credit_cents)
     `);
   }
 }

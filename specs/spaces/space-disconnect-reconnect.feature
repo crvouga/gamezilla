@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:5
+@domain:spaces
 Feature: Losing the connection in a space
   When people leave a space, drop out of it, close the app or come back,
   everyone wants its presence to stay true, so nobody shows twice and nobody

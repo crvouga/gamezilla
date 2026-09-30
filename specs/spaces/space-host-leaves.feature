@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:5
+@domain:spaces
 Feature: The host leaving ends the space
   When a host leaves their space, everyone in it wants the space to end, so
   nobody waits in a space its host has left. When a host only loses the

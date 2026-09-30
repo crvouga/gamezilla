@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:8
+@domain:billing
 Feature: Manage a membership in the billing portal
   When a Plus member wants to change their membership, they want to do it
   themselves in the billing portal, so each change reaches their devices

@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: Switch payment provider
   When the team switches payment provider, a Plus member wants their
   membership to carry on where it started, and a person subscribing wants to
