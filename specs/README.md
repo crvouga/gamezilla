@@ -1122,25 +1122,35 @@ A model is an aggregate: a module named after its file in snake_case
   `nondet` arguments named for the action's arguments;
 - invariants as `val inv<Name>`.
 
+The product is offline-first, so every aggregate (not a context's `events.qnt`)
+says in its header what a person sees with no connection, starts connected,
+lets one device lose that connection and get it back, and has an invariant
+for what stays true while the connection is gone. A variable a person can
+observe has to be named by some invariant. An invariant that is literally
+`true` or `false`, or that names no state, proves nothing.
+
 Quint reads `x' = a and b` as `(x' = a) and b`: bracket an assignment's
 right-hand side. An `init` that can never hold draws empty traces, which the
 runner refuses. `next` is a builtin, so no action may be called that.
 
 How a model runs in the package's `test:spec`:
 
-1. Quint draws traces (`quint run --mbt`, bundled, no network) from the
+1. The model's shape is checked (`@pkgs/quint/shape`): the rules above, before
+   any trace is drawn. A failure names the line. The same check runs in
+   `bun run spec:check` and before Apalache, which is not started on a model
+   that fails it.
+2. Quint draws traces (`quint run --mbt`, bundled, no network) from the
    property seed `FC_SEED` (default `424242`), so the verdict is a function of
    the code; `PBT_RANDOM=1` explores other seeds. A model that breaks its own
-   invariant fails here.
-2. Each trace is one test: a fresh harness, every step's action through the
+   invariant fails here. A model with no invariant fails here too.
+3. Each trace is one test: a fresh harness, every step's action through the
    binding (`tests/quint/<model>.binding.ts`: one entry per action, `init`
    included, plus `observe`, which reads the model's variables back without
    acting), then the product's state must equal the model's, re-read on
    virtual time for up to 15 s. Every action is an `s.apply`, so the system's
    standing properties hold after every step too.
-3. One more test fails when no trace takes some bound action.
-
-4. On the first slice only, Quint type checks the model.
+4. One more test fails when no trace takes some bound action.
+5. On the first slice only, Quint type checks the model.
 
 Separately, each package's models check (`check:models`) has Apalache
 (pinned in `mise.toml`, never downloaded) model-check every invariant over
@@ -1682,6 +1692,13 @@ checks the rest. It fails on:
 - a BDD smell (`@pkgs/gherkin/smells`): more than 8 steps or 3 `When`s,
   acting after a `Then` outside `specs/journeys/`, a step naming architecture,
   a feature with no description
+- a Quint aggregate whose shape cannot be checked (`@pkgs/quint/shape`,
+  `libs/tools/scripts/model-shape.ts`): no invariant, an invariant that is
+  literally true or false or names no state, an action `step` never reaches,
+  a variable `init` never sets, a variable a person can observe that no
+  invariant mentions, or no way for one device to lose its connection and
+  come back while that changes what that device can do (`events.qnt` is the
+  published language and is not an aggregate)
 - the glossary (`libs/tools/scripts/spec-glossary.ts`, `@pkgs/gherkin/glossary`):
   a context without `ubiquitous-language.yml`; a term with no definition,
   source or lender, defined twice, redefining a kernel term, or borrowing

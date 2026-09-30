@@ -258,6 +258,7 @@ export function createHandleMutations(
 export function createHandleQuery(
   ctx: HarnessServerHandlerCtx
 ): (request: QueryRequest, auth: HarnessServerAuth) => Promise<QueryResponse> {
+  const now = (): Date => new Date(ctx.now());
   return (request, auth) =>
     runQuery(
       {
@@ -265,7 +266,7 @@ export function createHandleQuery(
         registry: ctx.queries,
         auth: {
           ...auth,
-          now: () => new Date(ctx.now()),
+          now,
         },
         nextCheckpoint: ctx.nextCheckpoint,
         strictQueryLimits: true,

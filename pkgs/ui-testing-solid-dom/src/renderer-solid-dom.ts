@@ -9,7 +9,7 @@ import type { RenderedApp } from '@pkgs/ui-testing/bootstrap/render-adapter';
 import type { ScrollDirection } from '@pkgs/ui-testing/driver/driver';
 import userEvent from '@testing-library/user-event';
 import { fireDrag, fireTapAt } from './dom-gestures';
-import { escapeUserEventText, userEventKeyFromDom } from './dom-keys';
+import { userEventKeyFromDom } from './dom-keys';
 import {
   ensureElementLayout,
   type LayoutProvider,
@@ -146,6 +146,27 @@ function focusInto(element: Element): void {
   if (focusable instanceof HTMLElement) focusable.focus();
 }
 
+/**
+ * Replace the field value in one `input` event. Typing a letter at a time
+ * lets virtual time between keys run a people search for each prefix.
+ */
+function writeFieldText(
+  field: HTMLInputElement | HTMLTextAreaElement,
+  text: string
+): void {
+  const prototype =
+    field instanceof HTMLTextAreaElement
+      ? HTMLTextAreaElement.prototype
+      : HTMLInputElement.prototype;
+  const set = Object.getOwnPropertyDescriptor(prototype, 'value')?.set;
+  if (set === undefined) {
+    field.value = text;
+  } else {
+    set.call(field, text);
+  }
+  field.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 export function createSolidDomRenderedApp(
   scope: SolidDomAppScope
 ): SolidDomRenderedApp {
@@ -184,14 +205,17 @@ export function createSolidDomRenderedApp(
       syncLayout();
       return Promise.resolve(ensureElementLayout(asElement(element), provider));
     },
-    typeText: async (element, text) => {
-      await user.type(
-        findTextField(asElement(element)),
-        escapeUserEventText(text)
-      );
+    typeText: (element, text) => {
+      const field = findTextField(asElement(element));
+      focusInto(field);
+      writeFieldText(field, `${field.value}${text}`);
+      return Promise.resolve();
     },
-    clearText: async (element) => {
-      await user.clear(findTextField(asElement(element)));
+    clearText: (element) => {
+      const field = findTextField(asElement(element));
+      focusInto(field);
+      writeFieldText(field, '');
+      return Promise.resolve();
     },
     pressKey: async (domKey, target) => {
       if (target !== undefined) focusInto(asElement(target));

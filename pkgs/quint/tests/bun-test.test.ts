@@ -46,6 +46,8 @@ const binding: QuintBinding<Door> = {
       d.state = 'closed';
       d.lastBy = who(picks);
     },
+    _loseConnection: async () => {},
+    _connectionReturns: async () => {},
   },
   observe: async (d) => ({ state: d.state, lastBy: d.lastBy }),
   fingerprint: async (d) => `${d.state}:${d.lastBy}`,
@@ -91,6 +93,7 @@ describe('evidence of the model run', () => {
       [...byId].map(([id, o]) => [id.replace(/:\d+$/, ':n'), o.layer])
     );
     expect(layers).toEqual({
+      shape: 'specification',
       typecheck: 'specification',
       simulate: 'specification',
       'bound-actions': 'completeness',

@@ -199,9 +199,13 @@ export const Handles = {
   searchLoading: 'search-loading',
   /** People search result row scoped by the found user's username. */
   searchUserResult: (username: string) => `search-user-result-${username}`,
+  /** Any rendered people-search row, once the list has actually painted one. */
+  searchResultRow: 'search-result-row',
   /** The pressable identity in a people search result (opens their profile). */
   searchUserResultOpen: (username: string) =>
     `search-user-result-open-${username}`,
+  /** The list of people a settled search found. */
+  searchResults: 'search-results',
   /** "No people found" state for a settled search. */
   searchEmpty: 'search-empty',
   /** Signed-out prompt in place of people results (`-action`: Sign in). */

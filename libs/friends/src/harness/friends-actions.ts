@@ -5,6 +5,7 @@ import {
 } from '@libs/harness/system/actor-ui';
 import { searchUsername } from '@libs/search/harness/search-actions';
 import { Handles } from '@libs/test-ids';
+import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search/public/user-search-types';
 
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
@@ -48,21 +49,6 @@ export const cancelFriendRequest = scenarioAction({
     await ui.get(cancel).expect.hidden({ timeoutMs: HIDDEN_MS });
   },
 });
-
-async function searchFriend(
-  s: Parameters<typeof actorUi>[0],
-  actorId: string,
-  username: string
-) {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.tabSearch).tap();
-  const input = ui.get(Handles.searchInput);
-  await input.expect.visible({ timeoutMs: WAIT_MS });
-  await input.clear();
-  await input.input(username);
-  await s.session.waitForIdle();
-  await ui.get(Handles.searchLoading).expect.hidden({ timeoutMs: WAIT_MS });
-}
 
 async function openFriendProfile(
   s: Parameters<typeof actorUi>[0],
@@ -127,10 +113,18 @@ export const blockFriend = scenarioAction({
 export const unblockFriend = scenarioAction({
   name: 'unblockFriend',
   act: async (s, actorId: string, username: string) => {
-    await searchFriend(s, actorId, username);
+    await Promise.resolve(searchUsername.act(s, actorId, username));
     const ui = await actorUi(s, actorId);
     const unblock = Handles.friendUnblock(username);
-    await ui.get(unblock).expect.visible({ timeoutMs: WAIT_MS });
+    await pollUntil(
+      s,
+      async () => ((await ui.get(unblock).isVisible()) ? true : null),
+      {
+        maxMs: WAIT_MS,
+        stepMs: USER_SEARCH_DEBOUNCE_MS,
+        description: `unblock ${username}`,
+      }
+    );
     await ui.get(unblock).tap({ timeoutMs: WAIT_MS });
     await ui.get(unblock).expect.hidden({ timeoutMs: HIDDEN_MS });
   },
@@ -162,10 +156,20 @@ export const addFriend = scenarioAction({
   name: 'addFriend',
   act: async (s, actorId: string, username: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.friendAdd(username)).expect.visible({
-      timeoutMs: WAIT_MS,
-    });
-    await ui.get(Handles.friendAdd(username)).tap();
+    const add = Handles.friendAdd(username);
+    // The search screen can still be settling when this starts. A wall-clock
+    // wait does not fire the debounce timer, so keep virtual time moving
+    // until Add is actually painted.
+    await pollUntil(
+      s,
+      async () => ((await ui.get(add).isVisible()) ? true : null),
+      {
+        maxMs: WAIT_MS,
+        stepMs: USER_SEARCH_DEBOUNCE_MS,
+        description: `add ${username}`,
+      }
+    );
+    await ui.get(add).tap();
   },
 });
 

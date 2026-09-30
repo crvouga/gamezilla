@@ -15,6 +15,14 @@
 // memberships start by then. What a person sees is always their newest
 // membership (the one that counts) and the payment provider whose billing
 // portal manages it.
+//
+// Subscribing and canceling need a connection. A billing period still ends,
+// and the team can still switch payment provider, while a person is offline.
+// Time at a payment provider passes for every membership there together.
+// When one person's billing period ends, every membership there whose
+// billing period is already due ends as well: a free trial becomes active,
+// and an active membership renews. A membership at the other payment
+// provider is left as it is.
 module payment_provider_switch {
   type Person = str
   /// "first" | "second"
@@ -34,6 +42,11 @@ module payment_provider_switch {
   /// latest.
   pure val HOW_FAR_BACK: Set[int] = 0.to(3)
 
+  /// Checking machinery: a free trial is 7 days and a paid billing period is
+  /// 30 days, so a free trial is shorter than the month already running.
+  pure val TRIAL_DAYS: int = 7
+  pure val MONTH_DAYS: int = 30
+
   /// Where new memberships start: the team's choice.
   var newMembershipsAt: PaymentProvider
   /// Each person's membership that counts (their newest): its status, or
@@ -49,6 +62,20 @@ module payment_provider_switch {
   /// Every piece of news each payment provider has told about each person,
   /// numbered from 0, oldest first.
   var _news: PaymentProvider -> (Person -> (int -> MembershipStatus))
+  /// People whose device has no connection.
+  var _offline: Set[Person]
+  /// How many times each person has subscribed or canceled, and how many
+  /// when their connection went.
+  var _done: Person -> int
+  var _doneAtCutOff: Person -> int
+  /// How many days have passed at each payment provider.
+  var _clock: PaymentProvider -> int
+  /// The day each person's billing period is due at each payment provider,
+  /// or 0 when they have none there.
+  var _periodEnd: PaymentProvider -> (Person -> int)
+
+  def _acted(person: Person): Person -> int =
+    _done.set(person, _done.get(person) + 1)
 
   pure def isLive(s: MembershipStatus): bool = s == "trialing" or s == "active"
 
@@ -57,9 +84,22 @@ module payment_provider_switch {
 
   pure def _count(log: int -> MembershipStatus): int = log.keys().size()
 
+  /// A live membership at `provider` whose billing period is due by `target`.
+  def _due(provider: PaymentProvider, target: int, person: Person): bool =
+    billingPortalAt.get(person) == provider
+    and isLive(membershipStatus.get(person))
+    and _periodEnd.get(provider).get(person) <= target
+
   /// Every change goes through here: the payment provider `provider` changes
   /// `person`'s newest membership there to `status` and tells its news.
-  action _change(provider: PaymentProvider, person: Person, status: MembershipStatus): bool = {
+  action _change(
+    provider: PaymentProvider,
+    person: Person,
+    status: MembershipStatus,
+    newDone: Person -> int,
+    newClock: PaymentProvider -> int,
+    newPeriodEnd: PaymentProvider -> (Person -> int),
+  ): bool = {
     val log = _news.get(provider).get(person)
     all {
       _membershipAt' = _membershipAt.setBy(provider, byPerson => byPerson.set(person, status)),
@@ -67,6 +107,11 @@ module payment_provider_switch {
       membershipStatus' = membershipStatus.set(person, status),
       billingPortalAt' = billingPortalAt.set(person, provider),
       newMembershipsAt' = newMembershipsAt,
+      _offline' = _offline,
+      _done' = newDone,
+      _doneAtCutOff' = _doneAtCutOff,
+      _clock' = newClock,
+      _periodEnd' = newPeriodEnd,
     }
   }
 
@@ -76,26 +121,75 @@ module payment_provider_switch {
     billingPortalAt' = PEOPLE.mapBy(_ => "none"),
     _membershipAt' = PAYMENT_PROVIDERS.mapBy(_ => PEOPLE.mapBy(_ => "none")),
     _news' = PAYMENT_PROVIDERS.mapBy(_ => PEOPLE.mapBy(_ => Map())),
+    _offline' = Set(),
+    _done' = PEOPLE.mapBy(_ => 0),
+    _doneAtCutOff' = PEOPLE.mapBy(_ => 0),
+    _clock' = PAYMENT_PROVIDERS.mapBy(_ => 0),
+    _periodEnd' = PAYMENT_PROVIDERS.mapBy(_ => PEOPLE.mapBy(_ => 0)),
   }
 
   /// With no live membership: a free trial at the payment provider new
-  /// memberships start at.
+  /// memberships start at. It is due 7 days from the time there now.
   action subscribe(person: Person): bool = all {
+    not(_offline.contains(person)),
     not(isLive(membershipStatus.get(person))),
-    _change(newMembershipsAt, person, "trialing"),
+    _change(
+      newMembershipsAt,
+      person,
+      "trialing",
+      _acted(person),
+      _clock,
+      _periodEnd.setBy(newMembershipsAt, ends =>
+        ends.set(person, _clock.get(newMembershipsAt) + TRIAL_DAYS)
+      ),
+    ),
   }
 
-  /// The billing period ends at the payment provider holding the live
-  /// membership: a free trial becomes active, an active membership renews.
+  /// Time passes at one payment provider until `target`. Every live
+  /// membership there that is already due ends its billing period.
+  action _endDuePeriods(provider: PaymentProvider, target: int): bool = all {
+    membershipStatus' = PEOPLE.mapBy(p =>
+      if (_due(provider, target, p)) "active" else membershipStatus.get(p)
+    ),
+    billingPortalAt' = billingPortalAt,
+    newMembershipsAt' = newMembershipsAt,
+    _membershipAt' = _membershipAt.set(provider, PEOPLE.mapBy(p =>
+      if (_due(provider, target, p)) "active" else _membershipAt.get(provider).get(p)
+    )),
+    _news' = _news.set(provider, PEOPLE.mapBy(p =>
+      if (_due(provider, target, p))
+        _news.get(provider).get(p).put(_count(_news.get(provider).get(p)), "active")
+      else
+        _news.get(provider).get(p)
+    )),
+    _offline' = _offline,
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff,
+    _clock' = _clock.set(provider, target),
+    _periodEnd' = _periodEnd.set(provider, PEOPLE.mapBy(p =>
+      if (_due(provider, target, p))
+        _periodEnd.get(provider).get(p) + MONTH_DAYS
+      else
+        _periodEnd.get(provider).get(p)
+    )),
+  }
+
+  /// Time passes at the payment provider holding this live membership, until
+  /// its billing period is due. Every membership there that is already due
+  /// ends its billing period too.
   action periodEnd(person: Person): bool = all {
     isLive(membershipStatus.get(person)),
-    _change(billingPortalAt.get(person), person, "active"),
+    _endDuePeriods(
+      billingPortalAt.get(person),
+      _periodEnd.get(billingPortalAt.get(person)).get(person),
+    ),
   }
 
   /// The live membership ends at once, at the payment provider holding it.
   action cancelImmediately(person: Person): bool = all {
+    not(_offline.contains(person)),
     isLive(membershipStatus.get(person)),
-    _change(billingPortalAt.get(person), person, "ended"),
+    _change(billingPortalAt.get(person), person, "ended", _acted(person), _clock, _periodEnd),
   }
 
   /// The team switches which payment provider new memberships start at.
@@ -105,6 +199,11 @@ module payment_provider_switch {
     billingPortalAt' = billingPortalAt,
     _membershipAt' = _membershipAt,
     _news' = _news,
+    _offline' = _offline,
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff,
+    _clock' = _clock,
+    _periodEnd' = _periodEnd,
   }
 
   /// Checking machinery: a payment provider tells the product again of an
@@ -118,6 +217,41 @@ module payment_provider_switch {
     billingPortalAt' = billingPortalAt,
     _membershipAt' = _membershipAt,
     _news' = _news,
+    _offline' = _offline,
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff,
+    _clock' = _clock,
+    _periodEnd' = _periodEnd,
+  }
+
+  /// `person`'s device loses its connection.
+  action _loseConnection(person: Person): bool = all {
+    not(_offline.contains(person)),
+    newMembershipsAt' = newMembershipsAt,
+    membershipStatus' = membershipStatus,
+    billingPortalAt' = billingPortalAt,
+    _membershipAt' = _membershipAt,
+    _news' = _news,
+    _offline' = _offline.union(Set(person)),
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff.set(person, _done.get(person)),
+    _clock' = _clock,
+    _periodEnd' = _periodEnd,
+  }
+
+  /// Every connection comes back.
+  action _connectionReturns: bool = all {
+    _offline != Set(),
+    newMembershipsAt' = newMembershipsAt,
+    membershipStatus' = membershipStatus,
+    billingPortalAt' = billingPortalAt,
+    _membershipAt' = _membershipAt,
+    _news' = _news,
+    _offline' = Set(),
+    _done' = _done,
+    _doneAtCutOff' = _doneAtCutOff,
+    _clock' = _clock,
+    _periodEnd' = _periodEnd,
   }
 
   action step = {
@@ -130,6 +264,7 @@ module payment_provider_switch {
       cancelImmediately(person),
       switchPaymentProvider,
       _providerRepeatsNews(provider, person, back),
+      any { _loseConnection(person), _connectionReturns },
     }
   }
 
@@ -165,4 +300,20 @@ module payment_provider_switch {
   val invBillingPortalOnceSubscribed = PEOPLE.forall(p =>
     (membershipStatus.get(p) == "none") iff (billingPortalAt.get(p) == "none")
   )
+
+  /// New memberships start at one of the two payment providers.
+  val invNewMembershipsAtAProvider = PAYMENT_PROVIDERS.contains(newMembershipsAt)
+
+  /// With no connection, a person subscribes and cancels no further time.
+  /// A billing period can still end.
+  val invOfflineDoesNoMore = PEOPLE.forall(p =>
+    _offline.contains(p) implies _done.get(p) == _doneAtCutOff.get(p)
+  )
+
+  /// A live membership's billing period is still ahead of the time at its
+  /// payment provider. Ending one never leaves a due period behind.
+  val invLivePeriodStillAhead = PAYMENT_PROVIDERS.forall(pp => PEOPLE.forall(p =>
+    not(isLive(_membershipAt.get(pp).get(p)))
+    or _periodEnd.get(pp).get(p) > _clock.get(pp)
+  ))
 }

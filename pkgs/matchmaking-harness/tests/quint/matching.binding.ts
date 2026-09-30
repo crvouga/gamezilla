@@ -121,6 +121,8 @@ bindQuintModel<MatchmakingTraceWorld>({
     pairUp: async (w) => {
       await traceMatchmaking(w).apply(tick, { replicaId: nextReplica(w) });
     },
+    _loseConnection: () => Promise.resolve(),
+    _connectionReturns: () => Promise.resolve(),
   },
   observe: async (w) => {
     const standing = new Map<QuintValue, QuintValue>();

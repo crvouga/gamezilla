@@ -42,6 +42,10 @@ module username_changes {
   var lastUsernameChange: Person -> UsernameChangeResult
   /// People whose device has lost the connection.
   var offline: Set[Person]
+  /// The username a person had when their connection went, and what their
+  /// last username change showed then.
+  var _nameAtCutOff: Person -> str
+  var _resultAtCutOff: Person -> UsernameChangeResult
 
   /// How a typed username is saved.
   pure def _lowercase(name: str): str = if (name == "Ann") "ann" else name
@@ -81,6 +85,8 @@ module username_changes {
     usernameOnDevice' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
     lastUsernameChange' = PEOPLE.mapBy(_ => NoUsernameChange),
     offline' = Set(),
+    _nameAtCutOff' = Map("alice" -> "alice", "bob" -> "bob", "carol" -> GENERATED),
+    _resultAtCutOff' = PEOPLE.mapBy(_ => NoUsernameChange),
   }
 
   /// A person saves a new username, a while after anything they did before.
@@ -92,6 +98,8 @@ module username_changes {
       usernameOnDevice' = after,
       lastUsernameChange' = lastUsernameChange.set(person, _resultOf(username, isOffline, person, typed, false)),
       offline' = offline,
+      _nameAtCutOff' = _nameAtCutOff,
+      _resultAtCutOff' = _resultAtCutOff,
     }
   }
 
@@ -106,6 +114,8 @@ module username_changes {
       usernameOnDevice' = after,
       lastUsernameChange' = lastUsernameChange.set(person, _resultOf(between, isOffline, person, retyped, changed)),
       offline' = offline,
+      _nameAtCutOff' = _nameAtCutOff,
+      _resultAtCutOff' = _resultAtCutOff,
     }
   }
 
@@ -115,6 +125,8 @@ module username_changes {
     usernameOnDevice' = usernameOnDevice,
     lastUsernameChange' = lastUsernameChange,
     offline' = offline.union(Set(person)),
+    _nameAtCutOff' = _nameAtCutOff.set(person, username.get(person)),
+    _resultAtCutOff' = _resultAtCutOff.set(person, lastUsernameChange.get(person)),
   }
 
   action connectionReturns: bool = all {
@@ -123,6 +135,8 @@ module username_changes {
     usernameOnDevice' = usernameOnDevice,
     lastUsernameChange' = lastUsernameChange,
     offline' = Set(),
+    _nameAtCutOff' = _nameAtCutOff,
+    _resultAtCutOff' = _resultAtCutOff,
   }
 
   action step = {
@@ -149,4 +163,13 @@ module username_changes {
 
   /// Saved usernames are lowercase.
   val invStoredLowercase = PEOPLE.forall(p => username.get(p) != "Ann")
+
+  /// Offline, a person keeps the username they had when the connection went.
+  /// A save then shows "You're offline", or the earlier result still stands.
+  val invOfflineKeepsUsername = PEOPLE.forall(p =>
+    offline.contains(p) implies
+      username.get(p) == _nameAtCutOff.get(p) and
+      (lastUsernameChange.get(p) == _resultAtCutOff.get(p) or
+        lastUsernameChange.get(p) == RefusedOffline)
+  )
 }

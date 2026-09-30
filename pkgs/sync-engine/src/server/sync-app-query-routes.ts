@@ -45,6 +45,9 @@ export function mountQueryRoutes(
   app: Hono<{ Variables: SyncSqlVariables }>,
   deps: MountQueryRoutesDeps
 ): void {
+  // One function per app. People search buckets its rate limit by `env.now`,
+  // so harnesses that share a process do not share a budget.
+  const now = (): Date => new Date(deps.now());
   app.post('/query', async (c) => {
     // Capture before awaits — Hono vars are request-pinned; ALS getSql can race
     // under stack ALS when concurrent requests overlap.
@@ -62,7 +65,7 @@ export function mountQueryRoutes(
     const runDeps: RunQueryDeps = {
       db,
       registry: deps.queries,
-      auth: { ...auth, now: () => new Date(deps.now()) },
+      auth: { ...auth, now },
       nextCheckpoint: deps.nextCheckpoint,
       ...(deps.strictQueryLimits === true ? { strictQueryLimits: true } : {}),
     };

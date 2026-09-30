@@ -7,8 +7,10 @@
  */
 
 import { test } from 'bun:test';
+import { readFileSync } from 'node:fs';
 
 import { decide, type RecordObligation } from './model-evidence';
+import { formatModelShapeIssue, modelShapeIssues } from './shape';
 import { typecheck } from './typecheck';
 
 /** Spawns the Quint CLI: ~0.5 s idle, a few seconds under a loaded gate. */
@@ -22,6 +24,26 @@ export type ModelChecksInput = {
 
 export function registerModelChecks(input: ModelChecksInput): void {
   const { specPath, record } = input;
+  test('has the shape of an offline-first aggregate', () =>
+    decide({
+      record,
+      id: 'shape',
+      layer: 'specification',
+      body: () => {
+        const found = modelShapeIssues(
+          readFileSync(specPath, 'utf8'),
+          specPath
+        );
+        if (found.length > 0) {
+          throw new Error(
+            found
+              .map((item) => formatModelShapeIssue(specPath, item))
+              .join('\n')
+          );
+        }
+        return undefined;
+      },
+    }));
   test(
     'type checks',
     () =>

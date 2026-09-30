@@ -14,6 +14,7 @@ import {
 import { UsersIcon } from '@pkgs/ui';
 import {
   type Accessor,
+  batch,
   createEffect,
   createMemo,
   createSignal,
@@ -21,6 +22,7 @@ import {
   onCleanup,
 } from 'solid-js';
 import {
+  USER_SEARCH_DEBOUNCE_MS,
   USER_SEARCH_MAX_RESULTS,
   type UserSearchResult,
 } from './user-search-types';
@@ -99,8 +101,13 @@ export function useDebouncedUserSearchEffect(
     }
 
     const handle = timers.setTimeout(() => {
-      setDebouncedQuery(trimmed);
-    }, 300);
+      // The in-flight flag lands with the query. A render in between would
+      // show the previous person, or nobody, before this search is sent.
+      batch(() => {
+        setDebouncedQuery(trimmed);
+        setAwaitingSync(true);
+      });
+    }, USER_SEARCH_DEBOUNCE_MS);
 
     onCleanup(() => {
       timers.clearTimeout(handle);

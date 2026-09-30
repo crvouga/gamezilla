@@ -16,7 +16,9 @@
  * {@link DEFAULT_VERIFY_STEPS}. At most {@link CONCURRENCY} checks run at
  * once.
  *
- * Each verdict is recorded as the model's `verify` obligation in the
+ * The model's shape is recorded as its `shape` obligation first. A model
+ * that fails that check is not sent to Apalache. A passing shape and the
+ * Apalache verdict are the model's `shape` and `verify` obligations in the
  * package's `.cache/harness-report/models/evidence/` for `bun run conformance`.
  */
 
@@ -25,6 +27,7 @@ import { join, relative } from 'node:path';
 import { sha256 } from '@pkgs/conformance/evidence';
 import { recordEvidence } from '@pkgs/conformance/evidence-store';
 import { DEFAULT_VERIFY_STEPS } from '@pkgs/quint/registry';
+import { formatModelShapeIssue, modelShapeIssues } from '@pkgs/quint/shape';
 import { modelInvariants } from '@pkgs/quint/simulate';
 import { verify } from '@pkgs/quint/verify';
 
@@ -85,9 +88,42 @@ type Verdict = {
 /** Where one package's run writes, and the name its evidence carries. */
 type Run = { readonly reportDir: string; readonly packageName: string };
 
+function record(
+  run: Run,
+  check: ModelCheck,
+  text: string,
+  obligations: readonly {
+    readonly id: string;
+    readonly status: 'pass' | 'fail';
+    readonly detail: string;
+  }[]
+): void {
+  recordEvidence(run.reportDir, {
+    specUri: check.specUri,
+    kind: 'dynamics',
+    specSha256: sha256(text),
+    packageName: run.packageName,
+    obligations: obligations.map((obligation) => ({
+      id: obligation.id,
+      layer: 'specification',
+      status: obligation.status,
+      detail: obligation.detail,
+    })),
+  });
+}
+
 async function runCheck(run: Run, check: ModelCheck): Promise<Verdict> {
   const specPath = join(REPO_ROOT, check.specUri);
   const text = readFileSync(specPath, 'utf8');
+  const shape = modelShapeIssues(text, check.specUri).map((found) =>
+    formatModelShapeIssue(check.specUri, found)
+  );
+  if (shape.length > 0) {
+    const detail = shape.join('\n');
+    record(run, check, text, [{ id: 'shape', status: 'fail', detail }]);
+    console.log(`FAIL ${check.specUri} · shape`);
+    return { check, ok: false, detail };
+  }
   const invariants = modelInvariants(text);
   const result = await verify({
     specPath,
@@ -99,20 +135,10 @@ async function runCheck(run: Run, check: ModelCheck): Promise<Verdict> {
   const detail = result.ok
     ? `${invariants.join(', ')} hold in every state within ${String(check.steps)} steps`
     : result.output;
-  recordEvidence(run.reportDir, {
-    specUri: check.specUri,
-    kind: 'dynamics',
-    specSha256: sha256(text),
-    packageName: run.packageName,
-    obligations: [
-      {
-        id: 'verify',
-        layer: 'specification',
-        status: result.ok ? 'pass' : 'fail',
-        detail,
-      },
-    ],
-  });
+  record(run, check, text, [
+    { id: 'shape', status: 'pass', detail: 'offline-first aggregate' },
+    { id: 'verify', status: result.ok ? 'pass' : 'fail', detail },
+  ]);
   const took = result.ok ? ` (${(result.durationMs / 1000).toFixed(1)} s)` : '';
   console.log(
     `${result.ok ? 'ok  ' : 'FAIL'} ${check.specUri} · ${String(check.steps)} steps${took}`

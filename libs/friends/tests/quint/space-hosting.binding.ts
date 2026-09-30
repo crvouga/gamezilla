@@ -111,6 +111,8 @@ bindQuintModel<QuintHarnessWorld>({
     goBackToLobby: async (w, picks) => {
       await w.s.apply(openSpacesTab, person(picks));
     },
+    _loseConnection: () => Promise.resolve(),
+    _connectionReturns: () => Promise.resolve(),
   },
   observe: async (w) => {
     const whereabouts = new Map<QuintValue, QuintValue>();

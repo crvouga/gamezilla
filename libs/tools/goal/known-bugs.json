@@ -378,5 +378,20 @@
     "id": "infra-plan-read-transient",
     "summary": "A Railway GraphQL client error while reading EMQX_DASHBOARD_PASSWORD failed the drift check as if the environment had been changed by hand. The plan produced no diff; the provider connection dropped. Fixed: a plan read that fails with a transient provider error is tried again.",
     "regressionTest": "libs/infra/tests/plan-retry.test.ts"
+  },
+  {
+    "id": "people-search-rate-shared-server",
+    "summary": "People search kept one rate-limit map for the whole process, keyed only by account id. Parallel spec harnesses share that process and quint traces mint the same account ids, so one trace used up the budget and a later search came back empty. Fixed: each server's clock has its own bucket.",
+    "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
+  },
+  {
+    "id": "people-search-stale-results-look-settled",
+    "summary": "People search kept the previous person on screen while a new username was still settling, and the list shell can be in the DOM before any row paints. The harness treated that as a finished search and stopped advancing virtual time, so the next step waited on the wall clock for a button the debounce never painted. Fixed: an in-flight search shows Searching, a search counts only once a row or a real empty, offline, or sign-in answer is painted, the keystroke debounce is advanced before that check, and Add, open, and unblock keep the clock moving until their own control is on screen.",
+    "regressionTest": "libs/search/tests/search-result-phase.test.ts"
+  },
+  {
+    "id": "people-search-rate-says-nobody",
+    "summary": "People search counted every keystroke and every refetch toward a 30-a-minute cap, then answered the next name with an empty list. The screen said nobody was found, so Add never appeared. A friendship trace moves virtual time between letters and refetches the open search, and one person spent the whole budget that way. Fixed: a name already counted in the window still runs, and typing a name is one change rather than one search per letter.",
+    "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
   }
 ]

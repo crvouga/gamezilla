@@ -9,26 +9,51 @@ import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
-const searchTimestamps = new Map<string, number[]>();
+type SearchStamp = { readonly at: number; readonly query: string };
 
-function isRateLimited(userId: string, nowMs: number): boolean {
+/**
+ * Stamps per clock function, then per viewer. Each sync app passes one stable
+ * `env.now`, so two harnesses in one process do not share a budget. A module
+ * map keyed only by account id did: quint traces mint the same ids.
+ * Repeating a name already counted in the window is free: the screen refetches
+ * that name, and an empty answer there would say the person does not exist.
+ */
+const rateBuckets = new WeakMap<() => Date, Map<string, SearchStamp[]>>();
+
+function isRateLimited(
+  userId: string,
+  query: string,
+  now: () => Date
+): boolean {
+  const nowMs = now().getTime();
   const windowStart = nowMs - USER_SEARCH_RATE_WINDOW_MS;
-  const prior = searchTimestamps.get(userId) ?? [];
-  let recent = prior.filter((ts) => ts >= windowStart);
-  // Frozen harness clocks keep every stamp equal to `nowMs`, which would lock the
-  // window forever after RATE_LIMIT hits. Reset the bucket in that case so DST
-  // / paused-clock hosts can keep searching.
+  const key = query.trim().toLowerCase();
+  let byUser = rateBuckets.get(now);
+  if (byUser === undefined) {
+    byUser = new Map();
+    rateBuckets.set(now, byUser);
+  }
+  const prior = byUser.get(userId) ?? [];
+  let recent = prior.filter((stamp) => stamp.at >= windowStart);
+  // A frozen clock keeps every stamp equal to `nowMs`, which would lock the
+  // window forever after RATE_LIMIT hits. Reset that bucket so a paused host
+  // can keep searching.
   if (
     recent.length >= USER_SEARCH_RATE_LIMIT &&
-    recent.every((ts) => ts === nowMs)
+    recent.every((stamp) => stamp.at === nowMs)
   ) {
     recent = [];
   }
+  if (recent.some((stamp) => stamp.query === key)) {
+    byUser.set(userId, recent);
+    return false;
+  }
   if (recent.length >= USER_SEARCH_RATE_LIMIT) {
+    byUser.set(userId, recent);
     return true;
   }
-  recent.push(nowMs);
-  searchTimestamps.set(userId, recent);
+  recent.push({ at: nowMs, query: key });
+  byUser.set(userId, recent);
   return false;
 }
 
@@ -48,7 +73,7 @@ export const searchProfiles = defineQuery({
     if (viewerId.length === 0) {
       return { profile: [] };
     }
-    if (isRateLimited(viewerId, ctx.env.now().getTime())) {
+    if (isRateLimited(viewerId, query, ctx.env.now)) {
       return { profile: [] };
     }
     const likeQuery = `${query.trim().toLowerCase()}%`;

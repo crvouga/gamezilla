@@ -4,9 +4,14 @@
  * notification. Every action here ends on — or acts on — that screen.
  */
 
-import { actorUi, scenarioAction } from '@libs/harness/system/actor-ui';
+import {
+  actorUi,
+  pollUntil,
+  scenarioAction,
+} from '@libs/harness/system/actor-ui';
 import { searchUsername } from '@libs/search/harness/search-actions';
 import { Handles } from '@libs/test-ids';
+import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search/public/user-search-types';
 
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
@@ -33,7 +38,15 @@ export const openPersonFromSearch = scenarioAction({
     await Promise.resolve(searchUsername.act(s, actorId, username));
     const ui = await actorUi(s, actorId);
     const row = Handles.searchUserResultOpen(username);
-    await ui.get(row).expect.visible({ timeoutMs: WAIT_MS });
+    await pollUntil(
+      s,
+      async () => ((await ui.get(row).isVisible()) ? true : null),
+      {
+        maxMs: WAIT_MS,
+        stepMs: USER_SEARCH_DEBOUNCE_MS,
+        description: `open ${username} from search`,
+      }
+    );
     await ui.get(row).tap({ timeoutMs: WAIT_MS });
     await expectPersonScreen(s, actorId, username);
   },

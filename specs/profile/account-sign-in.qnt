@@ -283,4 +283,15 @@ module account_sign_in {
     if (offline.contains(d)) signedIn(account, d) implies showsSignedIn.contains(d)
     else signedIn(account, d) == showsSignedIn.contains(d)
   )
+
+  /// An online device shows the sign-in methods everyone else knows. An
+  /// offline device keeps the ones it last saw. A device that is not signed
+  /// in shows none.
+  val invShownMethods = and {
+    signInMethodsShown.keys() == account.keys(),
+    account.keys().forall(d =>
+      not(offline.contains(d)) implies
+        signInMethodsShown.get(d) == signInMethods.get(account.get(d))
+    ),
+  }
 }
