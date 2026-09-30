@@ -6,7 +6,6 @@ Feature: Notes survive a crash
   Background:
     Given Alice and Bob are in the shared space "Trip"
 
-  @goal:always-true:1
   Scenario: After a crash the app still shows every note it had
     Given Alice has written the note "Groceries" saying "milk"
     And Bob has written the note "Hotel" saying "Main St"
@@ -15,7 +14,6 @@ Feature: Notes survive a crash
     Then Alice sees the note "Groceries" saying "milk"
     And Alice sees the note "Hotel" saying "Main St"
 
-  @goal:always-true:1
   Scenario: A note written offline before a crash still reaches others
     Given Alice's app is offline
     And Alice has written the note "Groceries" saying "milk"

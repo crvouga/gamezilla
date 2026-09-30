@@ -1,15 +1,16 @@
-@domain:chess @goal:chess-puzzles:2 @goal:chess-puzzles:11
+@domain:chess
 Feature: Puzzle stats and game log
   When a solver has played puzzles, they want to see their rating and every
-  puzzle they played. A solve raises the rating and is logged as solved; a
-  wrong move is itself the failure, drops the rating at once, and is logged
-  as failed.
+  puzzle they played, so a solve and a wrong move each show in the rating
+  and in the game log.
 
   Background:
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: A solve raises the rating
+  Rule: A finished puzzle shows in the rating and in the game log
+
+    Scenario: A solve raises the rating
     When Alice solves the puzzle
     Then Alice's puzzle rating is above 1500
 

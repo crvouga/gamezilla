@@ -1,4 +1,4 @@
-@domain:friends @goal:social:5
+@domain:friends
 Feature: Block and unblock
   When a person no longer wants someone to reach them, they want to block
   that person, ending any friendship or friend request between them and

@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9 @goal:guest-free-and-paid:10 @goal:always-true:4 @goal:always-true:5
+@domain:billing
 Feature: When paid access runs out
   When a membership ends or a Plus member goes offline, the person wants paid
   access to last exactly what they paid for plus the 7 days of grace, so

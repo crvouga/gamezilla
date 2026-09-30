@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:2 @goal:social:1
+@domain:spaces
 Feature: Join a space from its link
   When someone shares a space link, anyone who has it wants to join the space,
   even a guest with no account, so nothing stands between them and the

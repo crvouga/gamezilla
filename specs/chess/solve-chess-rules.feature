@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:6 @goal:chess-puzzles:7
+@domain:chess
 Feature: Chess rules in puzzles
   When a solver finds a correct solution, they want it to count whatever
   chess rule it uses, so a correct move is never called wrong. Every rule of

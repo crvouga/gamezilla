@@ -1,4 +1,4 @@
-@domain:friends @goal:works-offline:6
+@domain:friends
 Feature: Friends need a connection
   When a person is offline and tries to search or ask someone, they want the
   app to say plainly that it needs a connection, so nothing they meant to do

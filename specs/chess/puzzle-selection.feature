@@ -1,9 +1,8 @@
-@domain:chess @goal:chess-puzzles:3
+@domain:chess
 Feature: Choosing the next puzzle
   When a solver moves on, they want a next puzzle suited to their rating and
-  worth playing. The feed serves the nearest ones first and never serves a
-  low-quality puzzle. Once the rating has settled, the feed stays within 100
-  of it while it has puzzles there.
+  worth playing, so the nearest good puzzles come first, a poor puzzle is
+  never served, and a settled rating stays within 100 of puzzles still there.
 
   Background:
     Given the puzzle pool also holds:
@@ -13,7 +12,10 @@ Feature: Choosing the next puzzle
       | 3       | 1800 to 1900   | good                                     |
     And Alice is signed in
 
-  Scenario: A low-quality puzzle is never served
+  Rule: The next puzzle is worth playing and near the solver's rating
+    No counter-example: moving on keeps being offered while a good puzzle remains, and an empty feed is its own feature.
+
+    Scenario: A low-quality puzzle is never served
     Given Alice is playing puzzles in their space
     When Alice plays through every puzzle the feed offers
     Then none of the low-quality puzzles was served to Alice

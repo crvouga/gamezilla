@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: Trial and renewal
   When a billing period ends, a Plus member wants their membership to carry
   on by itself, so paid access is never interrupted: a free trial turns into

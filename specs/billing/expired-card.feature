@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:9
+@domain:billing
 Feature: An expired card
   When a Plus member's card expires, they want it treated like any other
   failed payment, so they keep paid access while it is put right: the

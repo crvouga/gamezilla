@@ -1,4 +1,4 @@
-@domain:friends @goal:social:5
+@domain:friends
 Feature: Another person's profile
   When a person looks someone up or opens their friend request, they want to
   see that person's profile and decide on them right there, with the same

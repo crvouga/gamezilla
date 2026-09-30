@@ -1,4 +1,4 @@
-@domain:chess @goal:works-offline:2 @goal:works-offline:3 @goal:works-offline:4
+@domain:chess
 Feature: Days of puzzles without a connection
   When a solver has puzzles on their device and no connection for days, they
   want to keep playing, so there are no errors, nothing blocked, and nothing

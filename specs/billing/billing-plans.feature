@@ -1,4 +1,4 @@
-@domain:billing @goal:guest-free-and-paid:7 @goal:guest-free-and-paid:8
+@domain:billing
 Feature: What the billing plans offer
   When a person looks at the billing plans, they want to be offered the next
   sensible step, so they never pay twice or lose anything by looking: Plus to

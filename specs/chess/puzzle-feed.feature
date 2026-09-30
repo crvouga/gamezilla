@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:3 @goal:chess-puzzles:4
+@domain:chess
 Feature: Customize the puzzle feed
   When a solver wants harder or easier puzzles, or puzzles they have played
   before, they want to customize the feed by its target and its history

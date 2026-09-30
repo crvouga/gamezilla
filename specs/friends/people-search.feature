@@ -1,4 +1,4 @@
-@domain:friends @goal:social:3
+@domain:friends
 Feature: People search
   When a person wants to find someone, they want people search to find them
   by the start of their username, in any letter case, and to always give an

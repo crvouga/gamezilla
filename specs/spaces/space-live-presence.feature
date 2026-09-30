@@ -1,4 +1,4 @@
-@domain:spaces @goal:spaces:4
+@domain:spaces
 Feature: Presence in a space
   When people are in a space together, each wants to see who else is there
   as it changes, so they know who they are with.

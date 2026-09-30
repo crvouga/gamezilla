@@ -45,6 +45,10 @@ terms:
     from: spaces
   - term: host
     from: spaces
+  - term: join
+    from: spaces
+  - term: space link
+    from: spaces
   - term: end a space
     from: spaces
 

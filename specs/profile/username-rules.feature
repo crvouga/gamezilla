@@ -1,4 +1,4 @@
-@domain:profile @goal:social:3 @goal:social:4
+@domain:profile
 Feature: Username rules
   When a person renames themselves, they want a username that is readable,
   unique and safe to show to other people, so everyone can tell who they

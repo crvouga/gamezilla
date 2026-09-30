@@ -1,15 +1,17 @@
 @domain:chess
 Feature: Puzzle clock and skipping
   When a solver gives up on a puzzle, they want to skip it and start fresh,
-  with a puzzle clock that counts only the time spent solving. A started
-  puzzle's clock runs until the puzzle is over and then stops. A skipped
-  puzzle is over and logged as abandoned; the next puzzle starts fresh.
+  so the clock counts only the time spent solving and the next puzzle starts
+  clean.
 
   Background:
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: The puzzle clock runs while Alice is solving
+  Rule: A skipped puzzle is over, and the clock counts only time spent solving
+    No counter-example: after the puzzle is over the clock has already stopped, so nothing keeps it running.
+
+    Scenario: The puzzle clock runs while Alice is solving
     When 65 seconds pass
     Then Alice's puzzle clock shows at least 60 seconds
 

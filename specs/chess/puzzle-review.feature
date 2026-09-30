@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:11
+@domain:chess
 Feature: Reviewing a puzzle's line
   When a solver has played a puzzle, they want to review its whole line from
   the game log, so they can see how it goes. The review opens on the final

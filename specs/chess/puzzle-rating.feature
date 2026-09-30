@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:2
+@domain:chess
 Feature: Puzzle rating
   When a solver plays puzzles, they want a running puzzle rating that moves
   after every rated puzzle, online or offline, so they can see how they are
