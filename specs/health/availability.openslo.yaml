@@ -1,7 +1,6 @@
-# The app answering people, as the team sees it from outside: nearly every one
-# of the team's regular checks finds that people can open the app at its
-# address and that it answers them. The same promises as "Reaching the app"
-# and "Serving people", kept nearly all the time.
+# People can open the app at its address, and the app answers them.
+# Reaching the app and Serving people require that right now. They do not
+# say how often. The rate below stands in until the team confirms it.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -10,7 +9,8 @@ metadata:
 spec:
   description: >-
     Of the team's regular checks from outside, the share that find people can
-    open the app at its address and that the app answers people.
+    open the app at its address and that the app answers people. That is what
+    Reaching the app and Serving people ask the team to see.
   ratioMetric:
     counter: true
     good:
@@ -36,9 +36,13 @@ metadata:
   displayName: The app answers people
 spec:
   description: >-
-    People can reach the app and it answers them nearly all the time: at
-    least 99 in every 100 of the team's regular checks from outside find it
-    so.
+    People can open the app at its address and the app answers them. Reaching
+    the app and Serving people require that to be true right now, and they do
+    not say how often. Until the team confirms a rate, this stands in for
+    one: at least 99 in every 100 of the team's regular checks from outside,
+    judged over the last four weeks. Neither that rate nor that stretch of
+    time is written in Reaching the app or Serving people. The rate is not
+    yet a promise of the product.
   service: health
   indicatorRef: team-checks-passing
   timeWindow:
