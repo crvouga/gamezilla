@@ -17,12 +17,22 @@ export const searchUsername = scenarioAction({
     const input = ui.get(Handles.searchInput);
     await input.clear();
     await input.input(username);
-    // Idle flushes the effect that arms the keystroke timer. That timer is
-    // still in the future, so advance it before waiting on the spinner.
+    // Idle flushes the effect that arms the keystroke timer. Polling then
+    // advances that timer until Searching leaves. One advance is not enough
+    // when focus has already moved virtual time, or the timer is armed late:
+    // the spinner would stay hidden on the previous person and the clock
+    // would never reach the new search.
     await s.session.waitForIdle();
-    await s.session.advanceTime(USER_SEARCH_DEBOUNCE_MS);
-    await s.session.waitForIdle();
-    await ui.get(Handles.searchLoading).expect.hidden({ timeoutMs: WAIT_MS });
+    await pollUntil(
+      s,
+      async () =>
+        (await ui.get(Handles.searchLoading).isVisible()) ? null : true,
+      {
+        maxMs: WAIT_MS,
+        stepMs: USER_SEARCH_DEBOUNCE_MS,
+        description: `search for ${username} settles`,
+      }
+    );
   },
 });
 

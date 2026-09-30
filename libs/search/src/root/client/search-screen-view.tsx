@@ -16,6 +16,7 @@ import {
 } from '@pkgs/ui';
 import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
 
+import { searchResultPhase } from '../../public/search-result-phase';
 import { SearchRecentQueries } from './search-recent-queries';
 import { SearchUserResultRow } from './search-user-result-row';
 import { useSearchHistory } from './use-search-history';
@@ -29,9 +30,15 @@ function SearchResults(props: {
   results: readonly UserSearchResult[];
 }): JSX.Element {
   const { t } = useLingui();
+  const phase = () =>
+    searchResultPhase({
+      searching: props.searching,
+      needsConnection: props.needsConnection,
+      resultCount: props.results.length,
+    });
   return (
     <Switch>
-      <Match when={props.needsConnection && props.results.length === 0}>
+      <Match when={phase() === 'needs-connection'}>
         <EmptyState
           variant="compact"
           icon={SearchIcon}
@@ -42,14 +49,14 @@ function SearchResults(props: {
           dataSet={{ testid: Handles.searchNeedsConnection }}
         />
       </Match>
-      <Match when={props.searching && props.results.length === 0}>
+      <Match when={phase() === 'searching'}>
         <LoadingState
           variant="compact"
           caption={t`Searching…`}
           dataSet={{ testid: Handles.searchLoading }}
         />
       </Match>
-      <Match when={props.results.length === 0}>
+      <Match when={phase() === 'empty'}>
         <EmptyState
           variant="compact"
           icon={SearchIcon}
@@ -58,7 +65,7 @@ function SearchResults(props: {
           dataSet={{ testid: Handles.searchEmpty }}
         />
       </Match>
-      <Match when={true}>
+      <Match when={phase() === 'results'}>
         <ScreenBodyVirtualList
           items={props.results}
           keyExtractor={(user) => user.userId}

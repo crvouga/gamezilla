@@ -49,21 +49,6 @@ export const cancelFriendRequest = scenarioAction({
   },
 });
 
-async function searchFriend(
-  s: Parameters<typeof actorUi>[0],
-  actorId: string,
-  username: string
-) {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.tabSearch).tap();
-  const input = ui.get(Handles.searchInput);
-  await input.expect.visible({ timeoutMs: WAIT_MS });
-  await input.clear();
-  await input.input(username);
-  await s.session.waitForIdle();
-  await ui.get(Handles.searchLoading).expect.hidden({ timeoutMs: WAIT_MS });
-}
-
 async function openFriendProfile(
   s: Parameters<typeof actorUi>[0],
   actorId: string,
@@ -127,7 +112,7 @@ export const blockFriend = scenarioAction({
 export const unblockFriend = scenarioAction({
   name: 'unblockFriend',
   act: async (s, actorId: string, username: string) => {
-    await searchFriend(s, actorId, username);
+    await Promise.resolve(searchUsername.act(s, actorId, username));
     const ui = await actorUi(s, actorId);
     const unblock = Handles.friendUnblock(username);
     await ui.get(unblock).expect.visible({ timeoutMs: WAIT_MS });
