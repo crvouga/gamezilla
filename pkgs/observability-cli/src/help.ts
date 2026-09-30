@@ -1,6 +1,7 @@
 export const HELP = `obs/v1
 usage: bun obs <command> [arguments] [--source directory] [--json]
 
+  person --name "..." --at "6:33pm MST" [--place "..."] [--timezone MST] [--window 30m]
   last [--window 10m] [--errors]       recent activity, errors first
   find <anything> [--window 24h]       resolve any correlation identifier
   user <user-id> [--at time]           ISO/unix/relative UTC (for example "yesterday 14:30")

@@ -21,6 +21,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
+import { GrantObsReadMigration } from './grant-obs-read-migration';
 import { DomainSchemaIntegerWidthMigration } from './domain-schema-integer-width-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
@@ -121,7 +122,8 @@ export class PostgresMigrationRunner {
       .register(authServiceMigration(dbScope))
       .register(new CutoverLegacyAuthToIdpMigration())
       .register(new PurgeClerkExternalAccountsMigration())
-      .register(new BillingCustomerLinkProviderMigration());
+      .register(new BillingCustomerLinkProviderMigration())
+      .register(new GrantObsReadMigration());
 
     // Index builds must run outside the advisory-locked transaction so every
     // build is CONCURRENTLY and no long lock is held on a live table.

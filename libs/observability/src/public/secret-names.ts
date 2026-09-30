@@ -14,6 +14,8 @@ export const ObservabilitySecretName = {
   tempoUser: 'OBS_TEMPO_USER',
   /** Read-only `traces:read` token. */
   tempoToken: 'OBS_TEMPO_TOKEN',
+  /** SELECT-only Postgres URL for resolving a person's name. Never the owner URL. */
+  readonlyDatabaseUrl: 'OBS_READONLY_DATABASE_URL',
 } as const;
 
 export type ObservabilitySecretKey =

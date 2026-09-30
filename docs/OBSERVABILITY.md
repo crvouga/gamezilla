@@ -7,6 +7,7 @@ Run `bun obs` before adding logs or rerunning a failure.
 
 | Situation | Command |
 | --- | --- |
+| A person's name, where they were, and the time on their clock | `bun obs person --name "Chris Vouga" --at "6:33pm MST" --place "Gilbert, Arizona" --source prod` |
 | It just happened, no identifier | `bun obs last --window 10m` |
 | Any trace, session, mutation, test, device or user id | `bun obs find <id>` |
 | Slow behavior | `bun obs slow --since 1h --layer db` |
@@ -30,12 +31,36 @@ Sources:
   `OBS_TEMPO_TOKEN` (read-only) and `OBS_TEMPO_USER` (Grafana Cloud Basic
   auth; without it, Bearer).
 
-`bun obs user`, identity-shaped `find` and `tail --user` accept a username or
-email when `OBS_READONLY_DATABASE_URL` is set: a role with only `SELECT` on
-`profile`, `idp_users` and `pg_stat_statements` (`OBS_DATABASE_SCHEMA` picks
-the schema). Only the resolved `user.id` goes to Tempo; email is never a span
-attribute. The same connection feeds `slow --layer db`, which falls back to DB
-spans when `pg_stat_statements` is unavailable.
+`bun obs person` is the command for a name, a place, and a clock time such
+as `6:33pm MST` or `6:33 in the evening Mountain time`. Mountain time is
+UTC−7 all year (Arizona). A place matches the city, region, or country
+recorded on the connection; Gilbert, Arizona matches a connection that
+appeared in Phoenix, Arizona, and a connection that appeared in Las Vegas
+is reported as Las Vegas even when the device clock is Arizona. The crash
+span carries `app.device.timezone`. The server span carries
+`app.client.city`, `app.client.region`, `app.client.country`, and
+`app.client.timezone`. The browser flushes that crash before the page goes
+away.
+
+`bun obs --source prod` loads `OBS_TEMPO_URL`, `OBS_TEMPO_USER`,
+`OBS_TEMPO_TOKEN`, and `OBS_READONLY_DATABASE_URL` from the production
+secret store when they are not already set. It never loads
+`DATABASE_URL` or `GRAFANA_CLOUD_API_TOKEN`. OpenTofu creates the Neon role
+`obs_read` and writes `OBS_READONLY_DATABASE_URL` (the pooled host, password
+URL-encoded). The migration then grants that role `SELECT` on `profile`,
+`idp_users`, and `idp_accounts`. Display names are matched there and only
+the account id is sent to Tempo. A local database has no `obs_read` role,
+so the grant is skipped. Until the next foundation apply and migration,
+production does not have the role yet, and a real name cannot be resolved.
+`specs/health/finding-a-person.feature` plants its own person and does not
+need the role.
+
+`bun obs user`, identity-shaped `find` and `tail --user` accept a username
+or email when `OBS_READONLY_DATABASE_URL` is set (`OBS_DATABASE_SCHEMA`
+picks the schema). Email is never a span attribute. The same connection
+feeds `slow --layer db`, which falls back to DB spans when
+`pg_stat_statements` is unavailable. The read role is not granted that
+extension.
 
 `@pkgs/observability-mcp` serves the same read side as MCP tools
 (`find_user_activity`, `get_trace`, `narrate_trace`,

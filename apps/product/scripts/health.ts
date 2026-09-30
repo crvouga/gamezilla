@@ -185,6 +185,11 @@ export const HOST_LIMITS: readonly HostLimit[] = [
     needs: 'observability',
     why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no request records',
   },
+  {
+    feature: 'specs/health/finding-a-person.feature',
+    needs: 'observability',
+    why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no trail of what happened to a person',
+  },
 ];
 
 /** What `env` cannot run in `featureUri`: the whole feature, or some scenarios. */

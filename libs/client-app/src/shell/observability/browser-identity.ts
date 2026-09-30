@@ -21,8 +21,14 @@ export function setBrowserLocalIdentity(
   };
 }
 
+function deviceTimeZone(): string | undefined {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return typeof zone === 'string' && zone.length > 0 ? zone : undefined;
+}
+
 export function browserObservabilityIdentity(): ObservabilityIdentity {
-  return identity;
+  const zone = deviceTimeZone();
+  return zone === undefined ? identity : { ...identity, deviceTimeZone: zone };
 }
 
 export function recordRecentTraceId(traceId: string): void {

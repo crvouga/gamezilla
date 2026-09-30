@@ -20,6 +20,7 @@ import {
 } from './format';
 import { HELP } from './help';
 import { type MutationCommandContext, mutationCommand } from './mutation-chain';
+import { personCommand } from './person-command';
 import { resolveRange } from './time';
 
 export type CommandResult = { readonly code: 0 | 1 | 2; readonly text: string };
@@ -514,6 +515,7 @@ export async function runCommand(
   if (args.command === 'slow') return slow(ctx, args);
   if (args.command === 'schema') return schema(ctx, args);
   if (args.command === 'diff') return diff(ctx, args);
+  if (args.command === 'person') return personCommand(ctx, args);
   if (args.command === 'tail') return tail(ctx, args);
   return { code: args.command === 'help' ? 0 : 2, text: HELP };
 }

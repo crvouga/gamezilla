@@ -8,6 +8,7 @@ description: Debug runtime, sync, request, database, production, or spec failure
 Use the repository `obs` CLI before adding logging or rerunning a failure.
 
 1. Select the narrowest entry command:
+   - A name, a place, or a clock time ("Chris Vouga", "Gilbert, Arizona", "6:33pm MST", or a connection that appeared somewhere else than the clock): `bun obs person --name "<name>" --at "<time and zone>" --place "<place>" --source prod`. Do not look up a user id, convert the zone, or open Grafana. The command loads the production read credentials itself.
    - Just happened, no identifier: `bun obs last`.
    - Any supplied identifier: `bun obs find <identifier>`.
    - Failing spec: `bun obs test '<test name>' --source <artifact-dir>`.

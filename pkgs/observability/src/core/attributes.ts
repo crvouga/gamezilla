@@ -40,6 +40,11 @@ export const ATTR = {
   APP_MUTATION_ID: 'app.mutation.id',
   APP_MUTATION_ORIGIN_TIME_MS: 'app.mutation.origin_time_ms',
   APP_DEVICE_ID: 'app.device.id',
+  APP_DEVICE_TIMEZONE: 'app.device.timezone',
+  APP_CLIENT_CITY: 'app.client.city',
+  APP_CLIENT_REGION: 'app.client.region',
+  APP_CLIENT_COUNTRY: 'app.client.country',
+  APP_CLIENT_TIMEZONE: 'app.client.timezone',
   APP_BUILD_SHA: 'app.build.sha',
   APP_SYNC_BATCH_SIZE: 'app.sync.batch_size',
   APP_TEST_ID: 'app.test.id',
@@ -82,6 +87,11 @@ export type AttrValue = {
   'app.mutation.id': string;
   'app.mutation.origin_time_ms': number;
   'app.device.id': string;
+  'app.device.timezone': string;
+  'app.client.city': string;
+  'app.client.region': string;
+  'app.client.country': string;
+  'app.client.timezone': string;
   'app.build.sha': string;
   'app.sync.batch_size': number;
   'app.test.id': string;

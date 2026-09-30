@@ -1,5 +1,6 @@
 import { isProductionEnv } from '@libs/infra/public/env-file';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';
+import { validateReadonlyDatabaseUrl } from './db-url';
 import {
   requireHttpsUrl,
   requireNonEmpty,
@@ -95,4 +96,12 @@ export const OBS_TEMPO_TOKEN = new Secret({
   optional: true,
   managedBy: 'tofu',
   validate: (i) => validateNonEmpty(i, Name.tempoToken),
+});
+
+export const OBS_READONLY_DATABASE_URL = new Secret({
+  name: Name.readonlyDatabaseUrl,
+  hint: `SELECT-only URL for resolving a person's name. The Neon role is obs_read. ${PROVISIONED}`,
+  optional: true,
+  managedBy: 'tofu',
+  validate: validateReadonlyDatabaseUrl,
 });

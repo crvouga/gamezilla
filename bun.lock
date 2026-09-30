@@ -738,6 +738,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/http-client": "workspace:*",
+        "@pkgs/observability": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",

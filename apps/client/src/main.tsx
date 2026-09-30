@@ -55,11 +55,13 @@ function initializeObservability() {
         ).toString(),
       })
   );
-  const boundaries = telemetry.then(async () =>
-    (
-      await import('@libs/client-app/shell/observability/browser-boundaries')
-    ).installBrowserObservabilityBoundaries()
-  );
+  const boundaries = telemetry.then(async (runtime) => {
+    const boundariesModule = await import(
+      '@libs/client-app/shell/observability/browser-boundaries'
+    );
+    boundariesModule.setBrowserTraceFlush(() => runtime.forceFlush());
+    return boundariesModule.installBrowserObservabilityBoundaries();
+  });
   return { boundaries, telemetry };
 }
 

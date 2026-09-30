@@ -33,6 +33,7 @@ import { routePath } from 'hono/route';
 import { API_PATH_PREFIX, createAuthProvider } from '../config/auth-provider';
 import { ApiSecretName } from '../config/secret-names';
 import { resolveWebClientOrigin } from '../config/web-client-origin';
+import { stampConnectionPlace } from '../observability/stamp-connection-place';
 import { createHealthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { createReportsApp } from '../reports/route';
@@ -147,6 +148,7 @@ function createRequestTelemetryMiddleware(): MiddlewareHandler {
       withSpan(
         'http.server.request',
         async (span) => {
+          stampConnectionPlace(span, c.req.raw);
           requestTraceIds.set(c.req.raw, span.spanContext().traceId);
           await next();
           if (c.res.status >= 500) {

@@ -55,7 +55,7 @@
     "lint:root": "bun run libs/tools/scripts/lint-package.ts",
     "migrate-to-tailwind": "bun run --filter @pkgs/ui codemod -- --write",
     "naming:fix": "bun run libs/tools/scripts/fix-naming.ts",
-    "obs": "bun run pkgs/observability-cli/src/cli-io.ts",
+    "obs": "bun run libs/secrets/src/scripts/obs.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "secrets:pull": "bun run libs/secrets/src/scripts/secrets-pull.ts",
     "secrets:seed": "bun run libs/secrets/src/scripts/secrets-seed.ts",
