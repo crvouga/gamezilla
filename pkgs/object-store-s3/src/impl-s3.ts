@@ -11,6 +11,7 @@ import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
 import { assertRemoteObjectKey } from '@pkgs/object-store/namespace-guard';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store/prefixes';
 import type { S3ObjectStoreConfig } from './s3-config';
+import { installS3DomParser } from './s3-dom-parser';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
@@ -134,6 +135,7 @@ class ObjectStoreImplS3 implements ObjectStore {
     private readonly bucket: string,
     config: S3ObjectStoreConfig
   ) {
+    installS3DomParser();
     this.namespace = normalizeObjectStoreRootPrefix(config.rootPrefix);
     this.client = new S3Client({
       region: config.region,

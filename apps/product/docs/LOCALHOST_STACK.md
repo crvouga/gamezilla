@@ -1,6 +1,7 @@
 # Localhost stack
 
-`bun run stack` runs the whole product on loopback in the foreground:
+`bun run dev` runs the whole product on loopback in the foreground
+(`bun run stack` is the same command):
 
 ```text
 browser ──► web (vite preview, /api proxied)
@@ -28,16 +29,17 @@ simulated vendors are [Mockingbird](https://mockingbird.chrisvouga.dev/)'s
 several stacks — several test runs, several agents — share one machine.
 
 ```bash
-bun run stack                              # 2 API instances, everything on
-bun run stack --api-nodes 4                # a bigger fleet
-bun run stack --instance alpha             # a named, reusable data directory
-bun run stack --no-mqtt --no-s3         # faster boot, less fidelity
-bun run stack --no-web                     # API tier only
-bun run stack --frozen-web --test-hooks           # no HMR, test probes on (what test runs use)
+bun run dev                                # 2 API instances, everything on
+bun run dev --api-nodes 4                  # a bigger fleet
+bun run dev --instance alpha               # a named, reusable data directory
+bun run dev --web-port 5264                # pin the web app (the workspace run script does this)
+bun run dev --no-mqtt --no-s3              # faster boot, less fidelity
+bun run dev --no-web                       # API tier only
+bun run dev --frozen-web --test-hooks      # no HMR, test probes on (what test runs use)
 
-bun run stack --idp-state memory                                   # default: IdP forgets on exit
-bun run stack --idp-state instance --keep-data --instance alpha    # IdP survives restarts of `alpha`
-bun run stack --no-web --idp-state path --idp-state-path /tmp/idp.sqlite
+bun run dev --idp-state memory                                   # default: IdP forgets on exit
+bun run dev --idp-state instance --keep-data --instance alpha    # IdP survives restarts of `alpha`
+bun run dev --no-web --idp-state path --idp-state-path /tmp/idp.sqlite
 
 bun run --filter @apps/product test:stack  # boot a stack, run the harness suite, tear down
 ```

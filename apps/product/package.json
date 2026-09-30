@@ -2,6 +2,7 @@
   "name": "@apps/product",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "exports": {
     "./console-nav/*": [
       "./src/console/console-nav/*.ts",
@@ -31,7 +32,7 @@
     "check:offline-shell": "bun run scripts/check-offline-shell.ts",
     "deploy": "bun run scripts/deploy.ts",
     "predev": "bun run --silent setup",
-    "dev": "vite",
+    "dev": "bun run scripts/localhost-stack/cli.ts --",
     "health": "bun run scripts/health.ts",
     "health:objectives": "bun run scripts/health.ts --objectives",
     "kill": "bun run scripts/kill-dev.ts",
@@ -39,7 +40,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts src/console/console-nav src/console/reports src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts tests/openslo",
+    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts scripts/reports-dev.test.ts scripts/localhost-stack/stack-options.test.ts src/console/console-nav src/console/reports src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts tests/openslo",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:stack": "bun run scripts/test-stack.ts"
@@ -61,6 +62,7 @@
     "@libs/pubsub": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
+    "@libs/server-app": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
@@ -104,6 +106,7 @@
     "@solidjs/router": "catalog:",
     "better-sqlite3": "catalog:",
     "chess.js": "catalog:",
+    "hono": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"
   },

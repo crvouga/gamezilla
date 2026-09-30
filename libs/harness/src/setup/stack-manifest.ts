@@ -27,7 +27,7 @@ export async function readStackAddresses(): Promise<StackAddresses> {
   const path = stackManifestPath();
   if (path === null) {
     throw new Error(
-      `${STACK_MANIFEST_ENV} is required for stack mode — start one with \`bun run stack\``
+      `${STACK_MANIFEST_ENV} is required for stack mode — start one with \`bun run dev\``
     );
   }
   const { readFileSync } = await import('node:fs');

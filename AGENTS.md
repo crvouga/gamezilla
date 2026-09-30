@@ -156,17 +156,13 @@ super.engineering's app project settings.
 
 ## Local development
 
-- **`bun run dev`** — `@apps/product`: the wall client at `/`, the Harness at
-  `/harness` (linked through their command palettes; `?harness` on `/` hands
-  off; `i` / Shift+I opens the project iPad). Harness fabric is
-  mockingbird-postgres server + mockingbird-sqlite clients, Google sign-in
-  against an in-process simulated IdP. No Wrangler, real Postgres, S3rver or
-  MQTT.
+- **`bun run dev`** — the localhost stack: embedded Postgres, S3rver, Aedes
+  MQTT, simulated Google, Apple and Stripe, and N Bun API instances running
+  the production Worker handler behind a load balancer, with the product web
+  app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
+  command. Ports and flags:
+  [`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md).
 - **`bun run dev:client`** — `@apps/client` alone.
-- **`bun run stack`** — the highest-fidelity local run: embedded Postgres,
-  S3rver, Aedes MQTT, simulated Google and Apple IdPs, N Bun API instances
-  running the production Worker handler behind a load balancer
-  ([`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md)).
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** migrates `DATABASE_URL`; **`bun run db:wipe:dev`** wipes
   a non-production database.

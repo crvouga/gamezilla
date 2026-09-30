@@ -80,11 +80,12 @@ build or type errors read the compiler.
   (`app.test.id` = the exact test name, plus package, file and line), so a
   failure is queryable without a rerun. The Check workflow uploads the files
   as `observability-traces-<run-id>`.
-- **`bun run stack`.** An in-process OTLP/HTTP JSON receiver (no Docker)
+- **`bun run dev`.** An in-process OTLP/HTTP JSON receiver (no Docker)
   writes to the stack's `observabilityTraceDir`; the browser exports through
   the API's same-origin ingress, so browser, Worker, sync and SQL spans land
-  together. `bun stack --observability lgtm` adds Grafana/Tempo in Docker;
-  `--no-observability` turns tracing off.
+  together. `bun run dev -- --observability lgtm` adds Grafana/Tempo in
+  Docker; `--no-observability` turns tracing off. `bun run stack` is the
+  same command.
 - **CI collector.** [`collector-ci.yaml`](../pkgs/observability/configs/collector-ci.yaml)
   (validate with `bun run --filter @pkgs/observability check:collector-configs`,
   Docker running).
