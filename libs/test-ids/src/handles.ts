@@ -202,6 +202,8 @@ export const Handles = {
   /** The pressable identity in a people search result (opens their profile). */
   searchUserResultOpen: (username: string) =>
     `search-user-result-open-${username}`,
+  /** The list of people a settled search found. */
+  searchResults: 'search-results',
   /** "No people found" state for a settled search. */
   searchEmpty: 'search-empty',
   /** Signed-out prompt in place of people results (`-action`: Sign in). */

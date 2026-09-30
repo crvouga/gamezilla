@@ -8,6 +8,23 @@ import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search/public/user-search-ty
 
 const WAIT_MS = 10_000;
 
+type ActorDriver = Awaited<ReturnType<typeof actorUi>>;
+
+/** A settled answer: the list, nobody, offline, or sign-in. Not the spinner. */
+async function peopleSearchAnswered(ui: ActorDriver): Promise<boolean> {
+  if (await ui.get(Handles.searchLoading).isVisible()) return false;
+  const markers = [
+    Handles.searchEmpty,
+    Handles.searchNeedsConnection,
+    Handles.searchDenied,
+    Handles.searchResults,
+  ];
+  for (const marker of markers) {
+    if (await ui.get(marker).isVisible()) return true;
+  }
+  return false;
+}
+
 export const searchUsername = scenarioAction({
   name: 'searchUsername',
   act: async (s, actorId: string, username: string) => {
@@ -15,18 +32,18 @@ export const searchUsername = scenarioAction({
     await ui.get(Handles.tabSearch).tap();
     await ui.get(Handles.searchInput).expect.visible({ timeoutMs: WAIT_MS });
     const input = ui.get(Handles.searchInput);
+    // Drop the previous person before the next username is typed, so their
+    // row cannot be mistaken for this search's answer.
     await input.clear();
+    await s.session.waitForIdle();
     await input.input(username);
-    // Idle flushes the effect that arms the keystroke timer. Polling then
-    // advances that timer until Searching leaves. One advance is not enough
-    // when focus has already moved virtual time, or the timer is armed late:
-    // the spinner would stay hidden on the previous person and the clock
-    // would never reach the new search.
+    // Idle arms the keystroke timer. The probe does not treat a hidden
+    // spinner as done: that is also the state before the timer fires, and
+    // stopping there leaves the clock short of the new search.
     await s.session.waitForIdle();
     await pollUntil(
       s,
-      async () =>
-        (await ui.get(Handles.searchLoading).isVisible()) ? null : true,
+      async () => ((await peopleSearchAnswered(ui)) ? true : null),
       {
         maxMs: WAIT_MS,
         stepMs: USER_SEARCH_DEBOUNCE_MS,

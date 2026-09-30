@@ -386,7 +386,7 @@
   },
   {
     "id": "people-search-stale-results-look-settled",
-    "summary": "People search kept the previous person on screen while a new username was still settling, so the spinner stayed hidden. The harness treated that as a finished search and stopped advancing virtual time, and the next step waited for a row that never arrived. Fixed: an in-flight search shows Searching, and the harness keeps advancing the debounce until that spinner leaves.",
+    "summary": "People search kept the previous person on screen while a new username was still settling, so the spinner stayed hidden. The harness treated a hidden spinner as a finished search and stopped advancing virtual time, and the next step waited for a row that never arrived. Fixed: an in-flight search shows Searching, and the harness keeps advancing the debounce until the list, nobody, or an offline or sign-in answer is on screen.",
     "regressionTest": "libs/search/tests/search-result-phase.test.ts"
   }
 ]

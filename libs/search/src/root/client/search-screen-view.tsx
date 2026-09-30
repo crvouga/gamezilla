@@ -67,6 +67,7 @@ function SearchResults(props: {
       </Match>
       <Match when={phase() === 'results'}>
         <ScreenBodyVirtualList
+          dataSet={{ testid: Handles.searchResults }}
           items={props.results}
           keyExtractor={(user) => user.userId}
           estimateSize={60}
