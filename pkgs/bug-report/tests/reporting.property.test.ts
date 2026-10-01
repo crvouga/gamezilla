@@ -1,9 +1,11 @@
 import { expect, test } from 'bun:test';
 import {
-  createBugReporting,
-  type DiagnosticProvider,
   FakeIssueReporter,
   FileSystemIssueReporter,
+} from '@pkgs/bug-report/server';
+import {
+  createBugReporting,
+  type DiagnosticProvider,
 } from '@pkgs/bug-report/shared';
 import { createHarnessClock } from '@pkgs/clock';
 import { readBytes } from '@pkgs/object-store/helpers';

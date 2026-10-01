@@ -110,7 +110,7 @@ export function RootErrorBoundary(props: {
       fallback={(error: unknown, reset) => {
         const normalized = toError(error);
         try {
-          globalThis.dispatchEvent?.(
+          globalThis.dispatchEvent(
             new CustomEvent('product-crash', { detail: normalized })
           );
         } catch {

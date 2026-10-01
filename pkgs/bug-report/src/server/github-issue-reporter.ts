@@ -1,6 +1,6 @@
 import type { HttpClient } from '@pkgs/http-client/types';
-import { reportMarkdown } from '../shared/report-files';
 import type { BugReport, CreatedIssue, IssueReporter } from '../shared/types';
+import { reportMarkdown } from './report-files';
 
 /** GitHub credentials and repository selection stay entirely on the backend. */
 export class GitHubIssueReporter implements IssueReporter {

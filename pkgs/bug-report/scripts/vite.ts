@@ -6,12 +6,12 @@ import { wallClock } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import type { Plugin } from 'vite';
+import { FileSystemIssueReporter } from '../src/server/filesystem-issue-reporter';
 import {
   BUG_REPORT_PATH,
   createBugReportHandler,
   MAX_REPORT_BYTES,
 } from '../src/server/http-handler';
-import { FileSystemIssueReporter } from '../src/shared/filesystem-issue-reporter';
 
 /** Mounted before Vite/product middleware; no product server, secrets or DB involved. */
 export function bugReportsDevPlugin(options: {

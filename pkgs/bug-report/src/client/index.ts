@@ -1,3 +1,4 @@
+export { bugReportEndpoint } from './endpoint';
 export { HttpIssueReporter } from './http-issue-reporter';
 export {
   mountRootReporting,

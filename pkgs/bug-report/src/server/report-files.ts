@@ -1,4 +1,4 @@
-import type { BugReport } from './types';
+import type { BugReport } from '../shared/types';
 
 export function reportDirectory(report: BugReport): string {
   const id = report.id.replace(/[^a-zA-Z0-9-]/g, '-').slice(0, 100);

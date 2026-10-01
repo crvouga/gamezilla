@@ -2,9 +2,10 @@ import { expect, test } from 'bun:test';
 import { HttpIssueReporter } from '@pkgs/bug-report/client';
 import {
   createBugReportHandler,
+  FakeIssueReporter,
   GitHubIssueReporter,
 } from '@pkgs/bug-report/server';
-import { createBugReporting, FakeIssueReporter } from '@pkgs/bug-report/shared';
+import { createBugReporting } from '@pkgs/bug-report/shared';
 import { createHarnessClock } from '@pkgs/clock';
 import { assertProperty, fc } from '@pkgs/property';
 

@@ -1,7 +1,7 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
-import { bugReportsDevPlugin } from '@pkgs/bug-report/vite';
 import { getConfig } from '@lingui/conf';
+import { bugReportsDevPlugin } from '@pkgs/bug-report/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web/vite';
 import {
   DEFAULT_WORKSPACE_SCOPES,

@@ -4,8 +4,8 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { HttpIssueReporter } from '../client/http-issue-reporter';
 import { mountRootReporting } from '../client/mount-root-reporting';
 import { startRootRuntime } from '../client/root-runtime';
+import { FileSystemIssueReporter } from '../server/filesystem-issue-reporter';
 import { createBugReportHandler } from '../server/http-handler';
-import { FileSystemIssueReporter } from '../shared/filesystem-issue-reporter';
 import type { BugReport, DiagnosticProvider } from '../shared/types';
 
 export type ProductCondition =

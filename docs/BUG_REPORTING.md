@@ -79,4 +79,4 @@ account. Future destinations replace the backend reporter port without changing
 the client, diagnostic collection, crash handling or behavioral specs.
 
 Validation uses the executable specs, adapter properties and existing filesystem
-atomic-write checks; release policy is [`TESTING.md`](TESTING.md).
+atomic-write checks; release policy is [`README.md`](../README.md#correctness-machinery).

@@ -1,6 +1,6 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { BugReport, CreatedIssue, IssueReporter } from '../shared/types';
 import { reportDirectory, reportMarkdown } from './report-files';
-import type { BugReport, CreatedIssue, IssueReporter } from './types';
 
 /** ObjectStore is rooted at the repository's .bugs/; every put commits atomically. */
 export class FileSystemIssueReporter implements IssueReporter {

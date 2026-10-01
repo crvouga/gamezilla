@@ -1,4 +1,4 @@
-import type { BugReport, CreatedIssue, IssueReporter } from './types';
+import type { BugReport, CreatedIssue, IssueReporter } from '../shared/types';
 
 export class FakeIssueReporter implements IssueReporter {
   readonly reports = new Map<string, BugReport>();

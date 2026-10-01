@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
 import { HttpIssueReporter } from '@pkgs/bug-report/client';
-import { createBugReportHandler } from '@pkgs/bug-report/server';
-import { createBugReporting, FakeIssueReporter } from '@pkgs/bug-report/shared';
+import {
+  createBugReportHandler,
+  FakeIssueReporter,
+} from '@pkgs/bug-report/server';
+import { createBugReporting } from '@pkgs/bug-report/shared';
 import { createHarnessClock } from '@pkgs/clock';
 
 // regression: bug-report-optional-context-budget
