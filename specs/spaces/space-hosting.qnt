@@ -5,7 +5,7 @@
 // space's presence, which counts who is in it; and end the space. The other
 // can join a friend's open space from their lobby, step out, and leave it. A
 // lobby lists every open space of the person and their friends. Ending a
-// space shows everyone still in it that it has ended; from there they go
+// space shows everyone looking at it that it has ended; from there they go
 // back to the lobby. Losing the connection is not leaving. Creating, joining,
 // stepping out, leaving, looking at presence and ending a space need a
 // connection. Someone without a connection keeps their last known space
@@ -23,13 +23,13 @@ module space_hosting {
 
   /// Lobby: in the lobby; InSpace(host): in the space `host` hosts;
   /// ViewingPresence(host): in it, looking at who is there; Ended: looking at
-  /// a space that has ended; Left: looking at a space the person left.
+  /// a space that has ended; Left(host): looking at a space the person left.
   type Whereabouts =
     | Lobby
     | InSpace(Person)
     | ViewingPresence(Person)
     | Ended
-    | Left
+    | Left(Person)
 
   /// Where each person is.
   var whereabouts: Person -> Whereabouts
@@ -58,6 +58,11 @@ module space_hosting {
     | InSpace(h) => h
     | ViewingPresence(h) => h
     | _ => ""
+  }
+
+  pure def targetOf(p: Whereabouts): Person = match p {
+    | Left(h) => h
+    | _ => hostOf(p)
   }
 
   pure def presenceOf(whereabouts: Person -> Whereabouts, h: Person): Set[Person] =
@@ -154,13 +159,13 @@ module space_hosting {
     if (hostOf(_whereabouts.get(person)) == person)
       _moveTo(
         PEOPLE.mapBy(p =>
-          if (hostOf(_whereabouts.get(p)) == person) Ended
+          if (targetOf(_whereabouts.get(p)) == person) Ended
           else _whereabouts.get(p)
         ),
         openSpaces.exclude(Set(person)), _offline, _acted(person), _doneAtCutOff,
       )
     else
-      _moveTo(_whereabouts.set(person, Left), openSpaces, _offline, _acted(person), _doneAtCutOff),
+      _moveTo(_whereabouts.set(person, Left(hostOf(_whereabouts.get(person)))), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Look at who is in the space.
@@ -183,12 +188,12 @@ module space_hosting {
     ),
   }
 
-  /// The host ends their space: everyone in it sees that it has ended.
+  /// The host ends their space: everyone looking at it sees that it has ended.
   action endSpace(person: Person): bool = all {
     not(_offline.contains(person)),
     _whereabouts.get(person) == InSpace(person),
     _moveTo(
-      PEOPLE.mapBy(p => if (hostOf(_whereabouts.get(p)) == person) Ended else _whereabouts.get(p)),
+      PEOPLE.mapBy(p => if (targetOf(_whereabouts.get(p)) == person) Ended else _whereabouts.get(p)),
       openSpaces.exclude(Set(person)),
       _offline, _acted(person), _doneAtCutOff,
     ),
@@ -197,7 +202,7 @@ module space_hosting {
   /// From a space that has ended or one the person left, go back to the lobby.
   action goBackToLobby(person: Person): bool = all {
     not(_offline.contains(person)),
-    Set(Ended, Left).contains(_whereabouts.get(person)),
+    match _whereabouts.get(person) { | Ended => true | Left(_) => true | _ => false },
     _moveTo(_whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
@@ -262,7 +267,7 @@ module space_hosting {
   val invOfflineDoesNoMore = PEOPLE.forall(p =>
     _offline.contains(p) implies _done.get(p) == _doneAtCutOff.get(p)
   )
-  pure val _places = Set(Lobby, Ended, Left).union(PEOPLE.map(InSpace)).union(PEOPLE.map(ViewingPresence))
+  pure val _places = Set(Lobby, Ended).union(PEOPLE.map(Left)).union(PEOPLE.map(InSpace)).union(PEOPLE.map(ViewingPresence))
 
   // The promises hold for any length of hosting, joining, ending and returning.
   val _inductive = all {

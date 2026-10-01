@@ -17,7 +17,6 @@ Feature: Presence in a space
       Then Alice sees 1 person in the space within 20 seconds
 
   Rule: Leaving shows a clear outcome and lets a friend join again
-    No counter-example: a space that ended cannot be joined again, as the link scenarios cover.
 
     @regression:space-leave-navigation-hides-outcome
     Scenario: Someone who leaves can choose to rejoin the open space
@@ -25,3 +24,10 @@ Feature: Presence in a space
       When Bob leaves the space
       Then Bob is offered to join
       And Alice sees 1 person in the space within 20 seconds
+
+    Scenario: Someone who left stops being offered to join when the space ends
+      Given Alice is hosting a space that Bob joined from the link
+      And Bob has left the space
+      When Alice ends the space
+      Then Bob sees the space has ended within 20 seconds
+      And Bob is not offered to join

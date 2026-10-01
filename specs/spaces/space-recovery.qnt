@@ -46,13 +46,13 @@ module space_recovery {
   /// The host ends the space for everyone, including people who are away.
   action endSpace: bool = all {
     _online.get(HOST), openSpaces.contains(HOST),
-    _update(PEOPLE.mapBy(p => if (_whereabouts.get(p) == InSpace) Ended else Left), _online, Set()),
+    _update(PEOPLE.mapBy(_ => Ended), _online, Set()),
   }
 
   /// Leaving as host shows the ended space to everyone who was still in it.
   action leaveHost: bool = all {
     _online.get(HOST), openSpaces.contains(HOST),
-    _update(PEOPLE.mapBy(p => if (_whereabouts.get(p) == InSpace) Ended else Left), _online, Set()),
+    _update(PEOPLE.mapBy(_ => Ended), _online, Set()),
   }
 
   /// Losing the connection stops showing a person as present, without leaving.
