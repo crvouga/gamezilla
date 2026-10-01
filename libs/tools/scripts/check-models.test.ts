@@ -29,6 +29,7 @@ describe('modelChecks', () => {
   });
 
   test("checks only the package's own models, at their bindings' bounds", () => {
+    // regression: model-check-refusal-recovery-expectation
     const friends = specPackages().find((pkg) => pkg.dir === 'libs/friends');
     expect(friends).toBeDefined();
     if (friends === undefined) return;
@@ -45,6 +46,11 @@ describe('modelChecks', () => {
       },
       {
         specUri: 'specs/sync-engine/note-recovery.qnt',
+        steps: 8,
+        inductiveInvariant: null,
+      },
+      {
+        specUri: 'specs/sync-engine/note-refusal-recovery.qnt',
         steps: 8,
         inductiveInvariant: null,
       },

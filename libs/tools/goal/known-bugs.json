@@ -593,5 +593,10 @@
     "id": "spec-rulebook-commit-subject",
     "summary": "A rulebook change used a docs subject instead of spec, violating ownership. Reworded the commit and keyed the ownership gate on the injected full-SHA range so local history changes cannot reuse an earlier verdict.",
     "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "model-check-refusal-recovery-expectation",
+    "summary": "The model discovery regression expected the old sync model list after note-refusal-recovery was added, rejecting correct discovery of the new bounded model.",
+    "regressionTest": "libs/tools/scripts/check-models.test.ts"
   }
 ]
