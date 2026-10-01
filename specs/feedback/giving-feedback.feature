@@ -19,7 +19,7 @@ Feature: Give actionable product feedback
       When the team sends the feedback
       Then the local feedback includes what happened, what was expected and the reproduction steps
 
-    Scenario Outline: An incomplete bug explains what is needed
+    Scenario Outline: A bug without <detail> explains what is needed
       Given the team has described a bug without <detail>
       When the team sends the feedback
       Then the team is told to provide <detail> before sending feedback
@@ -33,7 +33,7 @@ Feature: Give actionable product feedback
 
   Rule: Feature requests, gaps and polish need a description and an improvement
 
-    Scenario Outline: Feedback beyond bugs reaches the team
+    Scenario Outline: Feedback about <kind> reaches the team
       Given the team has described <kind> saying "Finding the move is difficult" improving "Make the last move easier to see"
       When the team sends the feedback
       Then the local feedback keeps its kind and intended improvement

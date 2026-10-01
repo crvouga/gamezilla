@@ -20,7 +20,7 @@ Feature: Record a reproduction before giving feedback
       Then the team can review the recording before sending feedback
 
     Scenario: Recorded reproduction steps accompany the feedback
-      Given the team has recorded a reproduction
+      Given the team has stopped a reproduction recording
       And the team has described a bug saying "Hint stays loading" expecting "The hint appears" reproducing "Open a puzzle and ask for a hint"
       When the team sends the feedback
       Then the local feedback includes the recording and its reproduction steps
@@ -28,12 +28,12 @@ Feature: Record a reproduction before giving feedback
   Rule: A discarded recording is never sent
 
     Scenario: Discarding a recording removes it from the feedback
-      Given the team has recorded a reproduction
+      Given the team has stopped a reproduction recording
       When the team discards the recording
       Then the feedback has no recording
 
     Scenario: Keeping a recording keeps it available to review
-      Given the team has recorded a reproduction
+      Given the team has stopped a reproduction recording
       When the team opens Support
       Then the team can review the recording before sending feedback
 
