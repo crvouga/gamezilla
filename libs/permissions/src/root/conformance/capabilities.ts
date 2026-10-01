@@ -33,7 +33,7 @@ export const CAPABILITY_KEYS = {
   'wait for a match': PERMISSION.matchmakingUse,
   'play puzzles': PERMISSION.puzzlesPlay,
   'customize the puzzle feed': PERMISSION.puzzlesCustomizeFeed,
-  'solve a rated puzzle': ACTION.puzzleRatedSolve,
+  'start a rated puzzle': ACTION.puzzleRatedSolve,
   'create a space': PERMISSION.spacesCreate,
   'join a space': PERMISSION.spacesJoin,
   'host another open space': LIMIT.hostedSpaces,

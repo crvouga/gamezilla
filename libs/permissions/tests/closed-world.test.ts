@@ -46,6 +46,7 @@ function decidedBy(
 
 describe('closed world: manifest ↔ permission catalog', () => {
   test('the capability map lists exactly the manifest capabilities', async () => {
+    // regression: permission-rated-start-capability-name
     const declared = (await manifestCapabilities()).map((c) => c.id);
     expect(sorted(Object.keys(CAPABILITY_KEYS))).toEqual(sorted(declared));
     expect(new Set(declared).size).toBe(declared.length);

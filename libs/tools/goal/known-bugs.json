@@ -568,5 +568,10 @@
     "id": "quint-boolean-assignment-pruned-proof-graph",
     "summary": "An unparenthesized Boolean assignment compiled into an additional action guard, silently omitting accepted writes from the proof graph.",
     "regressionTest": "pkgs/quint/tests/assignment-shape.test.ts"
+  },
+  {
+    "id": "permission-rated-start-capability-name",
+    "summary": "The permission conformance catalog still named solving a rated puzzle while the specification charges access when the rated puzzle starts.",
+    "regressionTest": "libs/permissions/tests/closed-world.test.ts"
   }
 ]
