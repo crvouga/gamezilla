@@ -2,12 +2,12 @@ import type { Session } from '@pkgs/harness';
 import { readBytes } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { HttpIssueReporter } from '../client/http-issue-reporter';
-import { mountRootReporting } from '../client/mount-root-reporting';
+import { startFeedbackRuntime } from '../client/feedback-runtime';
+import { mountFeedback } from '../client/mount-feedback';
 import { requestFeedback } from '../client/open-feedback';
-import { startRootRuntime } from '../client/root-runtime';
 import type { FeedbackWorkspaceSnapshot } from '../shared/workspace';
 import { mountExampleCommands } from './example-commands';
-// Compile the example's lazy UI before a run; production bootstrap stays lazy.
+// Compile the example's lazy UI before a run; application bootstrap stays lazy.
 import '../client/reporting-surface';
 import { createEvidenceUploader } from '../client/upload-evidence';
 import { createFeedbackHttpApp } from '../server/feedback-http-app';
@@ -18,7 +18,7 @@ import type {
   FeedbackReport,
 } from '../shared/types';
 
-export type ProductCondition =
+export type ApplicationCondition =
   | 'working'
   | 'loading'
   | 'crashed'
@@ -29,9 +29,9 @@ export type ProductCondition =
 export type DiagnosticsCondition = 'available' | 'throws' | 'hangs';
 export function createExampleApp(session: Session) {
   const store = new ObjectStoreImplInMemory();
-  let root: ReturnType<typeof mountRootReporting> | null = null;
+  let root: ReturnType<typeof mountFeedback> | null = null;
   let host: HTMLElement | null = null;
-  let product: HTMLElement | null = null;
+  let application: HTMLElement | null = null;
   let lastReportId = '';
   let snapshot: FeedbackWorkspaceSnapshot | null = null;
   let width = 1200;
@@ -101,25 +101,27 @@ export function createExampleApp(session: Session) {
     root?.dispose();
     root = null;
     host = null;
-    product?.remove();
-    product = null;
+    application?.remove();
+    application = null;
   }
-  function bootProduct(condition: ProductCondition = 'working'): void {
+  function bootApplication(
+    condition: ApplicationCondition = 'working'
+  ): void {
     close();
     deliveryFails = condition === 'delivery-fails';
     host = document.createElement('aside');
     document.body.append(host);
-    product = document.createElement('button');
-    product.textContent = 'Ask for a hint';
-    product.dataset['testid'] = 'example-hint';
-    document.body.append(product);
+    application = document.createElement('button');
+    application.textContent = 'Ask for a hint';
+    application.dataset['testid'] = 'example-hint';
+    document.body.append(application);
     commands = document.createElement('div');
     document.body.append(commands);
     unmountCommands = mountExampleCommands(commands, session);
     const mountedHost = host;
-    startRootRuntime({
-      installReporting(diagnostics) {
-        root = mountRootReporting({
+    startFeedbackRuntime({
+      installFeedback(diagnostics) {
+        root = mountFeedback({
           window,
           document,
           host: mountedHost,
@@ -161,7 +163,7 @@ export function createExampleApp(session: Session) {
           },
         });
       },
-      startProduct() {
+      startApplication() {
         if (condition === 'loading')
           return new Promise(() => {
             /* Unavailable until the diagnostic deadline. */
@@ -240,8 +242,8 @@ export function createExampleApp(session: Session) {
     root?.controller.setStage('write');
     element('feedback-record').click();
     await idle();
-    product?.click();
-    product?.click();
+    application?.click();
+    application?.click();
     if (stop) {
       element('feedback-stop').click();
       await idle();
@@ -309,7 +311,7 @@ export function createExampleApp(session: Session) {
         await open();
       }
       if (action.type === 'reopen') {
-        bootProduct();
+        bootApplication();
         await ready();
         await open();
       }
@@ -328,7 +330,7 @@ export function createExampleApp(session: Session) {
       }
       if (action.type === 'phone') {
         width = 390;
-        bootProduct();
+        bootApplication();
         await ready();
       }
       if (action.type === 'move') {
@@ -374,7 +376,7 @@ export function createExampleApp(session: Session) {
       foreignRefusal = response.status === 404;
     },
     foreignRefusal: () => foreignRefusal,
-    boot: bootProduct,
+    boot: bootApplication,
     ready,
     open,
     describe,

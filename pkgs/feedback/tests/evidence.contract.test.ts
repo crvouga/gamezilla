@@ -89,7 +89,7 @@ test('evidence bytes and reproduction state survive submission through the same 
   );
   const handoff = await store.get(`feedback-${id}/AGENT_HANDOFF.md`);
   expect(new TextDecoder().decode(await readBytes(handoff!.body))).toContain(
-    'demonstrate the failure before changing the product'
+    'pin the literal input in a failing regression before changing the application'
   );
   controller.dispose();
   expect(clock.pendingOneShotCount()).toBe(0);
