@@ -15,11 +15,9 @@ import { useReport } from '../app/report-context';
 import { blobDataUrl } from '../lib/frames';
 import { PHONE_H, PHONE_W, zoomScale } from '../lib/phone';
 import {
-  createSnapshotIframe,
-  drawHit,
+  createSnapshotHost,
   type HitResult,
-  paintSnapshot,
-  snapshotDocument,
+  paintSnapshotHost,
 } from '../lib/snapshot-surface';
 
 type PanelProps = {
@@ -71,8 +69,8 @@ function paintPng(img: HTMLImageElement, url: string): void {
 }
 
 /**
- * Paints `props.blob` into one persistent iframe (HTML) or img (PNG) and
- * draws the press overlay. Never remounts per frame.
+ * Paints `props.blob` into one persistent shadow tree (HTML) or img (PNG)
+ * and draws the press overlay. Never remounts per frame.
  */
 function useSnapshotPainter(
   props: PanelProps,
@@ -80,11 +78,15 @@ function useSnapshotPainter(
   img: () => HTMLImageElement | undefined
 ) {
   const report = useReport();
-  const iframe = createSnapshotIframe();
+  const surface = createSnapshotHost();
   const [hitState, setHitState] = createSignal<HitResult>('none');
   const [painted, setPainted] = createSignal<'html' | 'png' | null>(null);
 
-  const paint = (blob: ReportSnapshotBlob, hit: ReportStepHit | null) => {
+  const paint = (
+    blob: ReportSnapshotBlob,
+    hit: ReportStepHit | null,
+    html: string | null
+  ) => {
     if (blob.media === 'png') {
       const url = blobDataUrl(props.test, blob);
       const el = img();
@@ -93,42 +95,28 @@ function useSnapshotPainter(
       setHitState('none');
       return;
     }
-    const html = props.html;
-    const doc = snapshotDocument(iframe, report.frameCss);
-    if (html === null || !doc) return;
-    setHitState(paintSnapshot(doc, { key: blob.file, html }, hit));
+    if (html === null) return;
+    setHitState(
+      paintSnapshotHost(
+        surface,
+        { key: blob.file, html, css: report.frameCss },
+        hit
+      )
+    );
     setPainted('html');
-    // Web fonts shift layout once they land; re-place the overlay then.
-    if (hit && doc.fonts && doc.fonts.status !== 'loaded') {
-      void doc.fonts.ready.then(() => {
-        if (props.hit === hit) drawHit(doc, hit);
-      });
-    }
   };
 
   onMount(() => {
-    host()?.appendChild(iframe);
-    // about:blank is often already complete by the time the listener exists,
-    // so paint now as well as on load. Missing either one leaves every
-    // HTML snapshot blank.
-    const reload = () => {
-      const blob = untrack(() => props.blob);
-      const hit = untrack(() => props.hit);
-      if (blob && blob.media !== 'png') paint(blob, hit);
-    };
-    iframe.addEventListener('load', reload);
-    reload();
-    onCleanup(() => iframe.removeEventListener('load', reload));
+    host()?.appendChild(surface);
   });
 
   createEffect(() => {
     const blob = props.blob;
     const hit = props.hit;
-    // Track the HTML and stylesheet: both arrive after the panel mounts.
     const html = props.html;
     const css = report.frameCss;
     if (blob && (blob.media === 'png' || html !== null)) {
-      untrack(() => paint(blob, hit));
+      untrack(() => paint(blob, hit, html));
     }
     void css;
   });

@@ -7,6 +7,7 @@ import { EntityBrowser } from '../components/entity-browser';
 import {
   type CatalogEntity,
   type CatalogGroup,
+  type CatalogLayout,
   type CatalogQuery,
   type CatalogSort,
   type CatalogStatus,
@@ -29,6 +30,7 @@ const GROUPS = new Set<string>([
   'runtime',
 ]);
 const SORTS = new Set<string>(['recent', 'name', 'duration', 'status']);
+const LAYOUTS = new Set<string>(['list', 'grid']);
 
 function oneOf<T extends string>(
   value: string | undefined,
@@ -44,6 +46,7 @@ function queryOf(params: Readonly<Record<string, string>>): CatalogQuery {
     status: oneOf<CatalogStatus>(params['status'], STATUSES, 'all'),
     group: oneOf<CatalogGroup>(params['group'], GROUPS, 'package'),
     sort: oneOf<CatalogSort>(params['sort'], SORTS, 'status'),
+    layout: oneOf<CatalogLayout>(params['layout'], LAYOUTS, 'list'),
   };
 }
 
@@ -95,6 +98,7 @@ export function ListView(props: { nav: ReportNav }) {
           status: next.status === 'all' ? '' : next.status,
           group: next.group === 'package' ? '' : next.group,
           sort: next.sort === 'status' ? '' : next.sort,
+          layout: next.layout === 'list' ? '' : next.layout,
         },
       },
       true

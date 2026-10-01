@@ -5,12 +5,14 @@ import {
   type CatalogEntity,
   type CatalogGroup,
   type CatalogGroupView,
+  type CatalogLayout,
   type CatalogQuery,
   type CatalogSort,
   type CatalogStatus,
   catalogCounts,
 } from '../lib/catalog';
 import { fmtMs } from '../lib/format';
+import { type TabOption, TabPicker } from './tab-picker';
 
 const STATUSES: readonly CatalogStatus[] = [
   'all',
@@ -27,9 +29,23 @@ const GROUPS: readonly CatalogGroup[] = [
   'none',
 ];
 const SORTS: readonly CatalogSort[] = ['status', 'duration', 'name', 'recent'];
+const LAYOUTS: readonly CatalogLayout[] = ['list', 'grid'];
 
 function label(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function options(values: readonly string[]): TabOption[] {
+  return values.map((value) => ({ value, label: label(value) }));
+}
+
+function statusOptions(
+  counts: Record<CatalogStatus, number>
+): readonly TabOption[] {
+  return STATUSES.map((status) => ({
+    value: status,
+    label: `${label(status)} ${String(counts[status])}`,
+  }));
 }
 
 function groupSummary(group: CatalogGroupView): string {
@@ -46,7 +62,7 @@ function CatalogBar(props: {
   const set = (patch: Partial<CatalogQuery>) =>
     props.onQuery({ ...props.query, ...patch });
   return (
-    <div class="sr-toolbar sr-catalog">
+    <div class="sr-catalog">
       <input
         class="sr-search"
         type="search"
@@ -55,40 +71,67 @@ function CatalogBar(props: {
         value={props.query.q}
         onInput={(e) => set({ q: e.currentTarget.value })}
       />
-      <select
-        aria-label="Status"
-        value={props.query.status}
-        onChange={(e) =>
-          set({ status: e.currentTarget.value as CatalogStatus })
-        }
-      >
-        <For each={STATUSES}>
-          {(status) => (
-            <option value={status}>
-              {`${label(status)} ${String(props.counts[status])}`}
-            </option>
-          )}
-        </For>
-      </select>
-      <select
-        aria-label="Group"
-        value={props.query.group}
-        onChange={(e) => set({ group: e.currentTarget.value as CatalogGroup })}
-      >
-        <For each={GROUPS}>
-          {(group) => <option value={group}>{`Group: ${label(group)}`}</option>}
-        </For>
-      </select>
-      <select
-        aria-label="Sort"
-        value={props.query.sort}
-        onChange={(e) => set({ sort: e.currentTarget.value as CatalogSort })}
-      >
-        <For each={SORTS}>
-          {(sort) => <option value={sort}>{`Sort: ${label(sort)}`}</option>}
-        </For>
-      </select>
+      <div class="sr-catalog-row">
+        <TabPicker
+          label="Status"
+          value={props.query.status}
+          options={statusOptions(props.counts)}
+          onPick={(status) => set({ status: status as CatalogStatus })}
+        />
+        <TabPicker
+          label="Group"
+          value={props.query.group}
+          options={options(GROUPS)}
+          onPick={(group) => set({ group: group as CatalogGroup })}
+        />
+        <TabPicker
+          label="Sort"
+          value={props.query.sort}
+          options={options(SORTS)}
+          onPick={(sort) => set({ sort: sort as CatalogSort })}
+        />
+        <TabPicker
+          label="Layout"
+          value={props.query.layout}
+          options={options(LAYOUTS)}
+          onPick={(layout) => set({ layout: layout as CatalogLayout })}
+        />
+      </div>
     </div>
+  );
+}
+
+function openHandlers(entity: CatalogEntity, onOpen: (id: string) => void) {
+  const open = () => onOpen(entity.id);
+  return {
+    open,
+    onKeyDown: (e: KeyboardEvent) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      open();
+    },
+  };
+}
+
+function EntityDetail(props: { entity: CatalogEntity }) {
+  return (
+    <Show when={props.entity.detail}>
+      <div class="sub">
+        <span>{props.entity.detail}</span>
+        <Show when={props.entity.href}>
+          {(href) => (
+            <a
+              href={href()}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {' · run'}
+            </a>
+          )}
+        </Show>
+      </div>
+    </Show>
   );
 }
 
@@ -96,42 +139,49 @@ function EntityRow(props: {
   entity: CatalogEntity;
   onOpen: (id: string) => void;
 }) {
-  const open = () => props.onOpen(props.entity.id);
+  const act = openHandlers(props.entity, props.onOpen);
   return (
     <div
       class="sr-row"
       role="link"
       tabindex="0"
       aria-label={`Open ${props.entity.title}`}
-      onClick={open}
-      onKeyDown={(e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        open();
-      }}
+      onClick={act.open}
+      onKeyDown={act.onKeyDown}
     >
       <span class={`sr-dot ${props.entity.status}`} />
       <div>
         <div class="title">{props.entity.title}</div>
-        <Show when={props.entity.detail}>
-          <div class="sub">
-            <span>{props.entity.detail}</span>
-            <Show when={props.entity.href}>
-              {(href) => (
-                <a
-                  href={href()}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {' · run'}
-                </a>
-              )}
-            </Show>
-          </div>
-        </Show>
+        <EntityDetail entity={props.entity} />
       </div>
       <span class="dur">{fmtMs(props.entity.durationMs)}</span>
+    </div>
+  );
+}
+
+function EntityCard(props: {
+  entity: CatalogEntity;
+  onOpen: (id: string) => void;
+}) {
+  const act = openHandlers(props.entity, props.onOpen);
+  return (
+    <div
+      class={`sr-card ${props.entity.status}`}
+      role="link"
+      tabindex="0"
+      aria-label={`Open ${props.entity.title}`}
+      onClick={act.open}
+      onKeyDown={act.onKeyDown}
+    >
+      <div class="top">
+        <span class={`sr-dot ${props.entity.status}`} />
+        <span class="title">{props.entity.title}</span>
+      </div>
+      <EntityDetail entity={props.entity} />
+      <div class="meta">
+        <span>{props.entity.packageName || props.entity.file}</span>
+        <span class="dur">{fmtMs(props.entity.durationMs)}</span>
+      </div>
     </div>
   );
 }
@@ -149,6 +199,35 @@ export function CatalogSkeleton() {
         )}
       </For>
     </div>
+  );
+}
+
+function EntityGroup(props: {
+  group: CatalogGroupView;
+  query: CatalogQuery;
+  onOpen: (id: string) => void;
+}) {
+  return (
+    <section class="sr-group">
+      <Show when={props.query.group !== 'none'}>
+        <div class="sr-group-head">
+          <h2>{props.group.name}</h2>
+          <span class="count">{groupSummary(props.group)}</span>
+        </div>
+      </Show>
+      <div class={props.query.layout === 'grid' ? 'sr-grid' : 'sr-rows'}>
+        <For each={props.group.entities}>
+          {(entity) => (
+            <Show
+              when={props.query.layout === 'grid'}
+              fallback={<EntityRow entity={entity} onOpen={props.onOpen} />}
+            >
+              <EntityCard entity={entity} onOpen={props.onOpen} />
+            </Show>
+          )}
+        </For>
+      </div>
+    </section>
   );
 }
 
@@ -181,19 +260,11 @@ export function EntityBrowser(props: {
       <For each={groups()}>
         {(group) => (
           <Show when={group.entities.length > 0}>
-            <section class="sr-group">
-              <Show when={props.query.group !== 'none'}>
-                <div class="sr-group-head">
-                  <h2>{group.name}</h2>
-                  <span class="count">{groupSummary(group)}</span>
-                </div>
-              </Show>
-              <For each={group.entities}>
-                {(entity) => (
-                  <EntityRow entity={entity} onOpen={props.onOpen} />
-                )}
-              </For>
-            </section>
+            <EntityGroup
+              group={group}
+              query={props.query}
+              onOpen={props.onOpen}
+            />
           </Show>
         )}
       </For>

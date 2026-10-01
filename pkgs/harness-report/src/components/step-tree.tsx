@@ -7,7 +7,7 @@ import {
   For,
   Show,
 } from 'solid-js';
-import { fmtMs } from '../lib/format';
+import { actionLabel, fmtMs } from '../lib/format';
 import type { FlatFrame } from '../lib/frames';
 import {
   firstFrameFor,
@@ -117,6 +117,12 @@ export function StepTree(props: {
                     <span class="hit-flag">● press</span>
                   </Show>
                 </div>
+                <Show when={row.step.action}>
+                  <div class="sel-txt">{actionLabel(row.step)}</div>
+                </Show>
+                <Show when={row.step.detail}>
+                  {(detail) => <div class="detail">{detail()}</div>}
+                </Show>
                 <Show when={row.step.selector}>
                   {(s) => <div class="sel-txt">{s()}</div>}
                 </Show>

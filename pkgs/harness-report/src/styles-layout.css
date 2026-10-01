@@ -4,6 +4,7 @@
     flex-direction: column;
     height: 100%;
     min-height: 0;
+    overflow: hidden;
   }
 
   .sr-content {
@@ -11,6 +12,7 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
   }
 
   .sr-content-scroll {
@@ -66,6 +68,11 @@
     color: var(--color-sr-text);
   }
 
+  .sr-navbtn:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+
   .sr-chips {
     display: flex;
     gap: 6px;
@@ -112,7 +119,7 @@
   }
 
   .sr-list {
-    max-width: 980px;
+    max-width: 1120px;
     margin: 0 auto;
     padding: 20px 20px 48px;
     width: 100%;
@@ -218,17 +225,12 @@
     position: sticky;
     top: 0;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     background: var(--color-sr-bg);
     padding-bottom: 12px;
     margin-bottom: 8px;
-  }
-
-  .sr-catalog select {
-    padding: 6px 8px;
-    border-radius: 8px;
-    border: 1px solid var(--color-sr-border);
-    background: var(--color-sr-panel-2);
-    color: var(--color-sr-text);
   }
 
   .sr-skel .title,
@@ -280,6 +282,7 @@
     flex-direction: column;
     min-width: 0;
     min-height: 0;
+    overflow: hidden;
     background: var(--color-sr-bg);
   }
 
@@ -359,11 +362,19 @@
     letter-spacing: 0.05em;
   }
 
-  .sr-step .sel-txt {
+  .sr-step .sel-txt,
+  .sr-step .detail {
     color: var(--color-sr-muted);
     font-family: var(--font-sr-mono);
     font-size: 11px;
-    word-break: break-all;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  .sr-step .detail {
+    max-height: 4.6em;
+    overflow: auto;
+    margin-top: 2px;
   }
 
   .sr-step .d {

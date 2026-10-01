@@ -11,6 +11,11 @@
 import { type JSX, onCleanup, onMount } from 'solid-js';
 
 import type { FormFields } from '../fabric/browser';
+import {
+  documentCss,
+  HARNESS_BROWSER_PAGE_CLASS,
+  scopePageCss,
+} from './document-css';
 
 export type DocumentPageProps = {
   readonly url: string;
@@ -18,14 +23,6 @@ export type DocumentPageProps = {
   readonly navigate: (url: string) => void;
   readonly post: (action: string, fields: FormFields) => void;
 };
-
-/** The page's own stylesheets, for an isolated (shadow-root) rendering. */
-export function documentCss(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return [...doc.querySelectorAll('style')]
-    .map((style) => style.textContent)
-    .join('\n');
-}
 
 /** The page body's nodes, adopted into `into`'s document, scripts dropped. */
 function bodyNodes(html: string, into: Document): Node[] {
@@ -153,10 +150,18 @@ export function DocumentPage(props: DocumentPageProps): JSX.Element {
   };
 
   onMount(() => {
-    host.replaceChildren(...bodyNodes(props.html, host.ownerDocument));
+    const doc = host.ownerDocument;
+    const nodes = bodyNodes(props.html, doc);
+    const css = scopePageCss(documentCss(props.html));
+    if (css !== '') {
+      const style = doc.createElement('style');
+      style.textContent = css;
+      nodes.unshift(style);
+    }
+    host.replaceChildren(...nodes);
     host.addEventListener('click', onClick);
     onCleanup(() => host.removeEventListener('click', onClick));
   });
 
-  return <div class="min-h-full" ref={host} />;
+  return <div class={`${HARNESS_BROWSER_PAGE_CLASS} min-h-full`} ref={host} />;
 }

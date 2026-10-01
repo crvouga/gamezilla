@@ -6,11 +6,14 @@ export type CatalogGroup = 'none' | 'file' | 'status' | 'package' | 'runtime';
 
 export type CatalogSort = 'recent' | 'name' | 'duration' | 'status';
 
+export type CatalogLayout = 'list' | 'grid';
+
 export type CatalogQuery = {
   readonly q: string;
   readonly status: CatalogStatus;
   readonly group: CatalogGroup;
   readonly sort: CatalogSort;
+  readonly layout: CatalogLayout;
 };
 
 export type CatalogEntity = {
@@ -113,7 +116,7 @@ function compareGroups(
   return 0;
 }
 
-const LIST_KEYS = ['q', 'status', 'group', 'sort'] as const;
+const LIST_KEYS = ['q', 'status', 'group', 'sort', 'layout'] as const;
 
 /** The list's search params, dropped when a test route carries frame and zoom. */
 export function catalogParams(

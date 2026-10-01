@@ -4,7 +4,7 @@ import type { FlatFrame } from './frames';
 /**
  * A self-contained HTML document for a frame that has no UI snapshot: a
  * Quint step's model state, or any spec step that only recorded text.
- * Painted in the same phone iframe as a real snapshot.
+ * Painted in the same phone surface as a real snapshot.
  */
 
 type Section = {

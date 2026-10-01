@@ -29,6 +29,7 @@ const QUERY: CatalogQuery = {
   status: 'all',
   group: 'none',
   sort: 'recent',
+  layout: 'list',
 };
 
 describe('report catalog', () => {
@@ -68,8 +69,14 @@ describe('report catalog', () => {
       running: 0,
     });
     expect(
-      catalogParams({ q: 'kv', status: '', group: 'package', frame: '2' })
-    ).toEqual({ q: 'kv', group: 'package' });
+      catalogParams({
+        q: 'kv',
+        status: '',
+        group: 'package',
+        layout: 'grid',
+        frame: '2',
+      })
+    ).toEqual({ q: 'kv', group: 'package', layout: 'grid' });
   });
 
   test('failed tests sort first, and a search hides the rest', () => {

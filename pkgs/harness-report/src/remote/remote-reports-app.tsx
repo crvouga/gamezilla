@@ -56,6 +56,7 @@ const COMMIT_QUERY: CatalogQuery = {
   status: 'all',
   group: 'none',
   sort: 'recent',
+  layout: 'list',
 };
 
 function commitEntity(commit: CommitRecord): CatalogEntity {

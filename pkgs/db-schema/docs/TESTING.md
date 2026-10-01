@@ -9,6 +9,7 @@
 | Postgres behavior pins | `pkgs/db-schema-postgres/tests/*.test.ts` | `bun test pkgs/db-schema-postgres/tests` |
 | SQLite behavior pins | `pkgs/db-schema-sqlite/tests/*.test.ts` | `bun test pkgs/db-schema-sqlite/tests` |
 | Weeks-behind client worlds | `specs/sync-engine/notes-across-app-updates.feature` | `bun run spec specs/sync-engine/notes-across-app-updates.feature` |
+| Schema safety model (no dangerous edit, no lost or rewritten value, tombstones permanent) | `pkgs/db-schema/tests/quint/schema-safety.qnt` | `bun test pkgs/db-schema/tests/quint/schema-safety.test.ts` |
 | Evolution gate (CI) | `libs/runtime/scripts/check-schema-evolution.ts` | `bun run --filter @libs/runtime check:schema-evolution` |
 | Append-only names (CI) | `apps/server/tests/contract-manifest.test.ts` | `bun run --filter @apps/server test` |
 
@@ -22,7 +23,7 @@
 6. **FK integrity across rebuild** — `ALTER TABLE … RENAME` never repoints another table's foreign key at a staging name.
 7. **Idempotence** — apply(S) twice emits no DDL; apply → introspect → re-plan is empty.
 8. **snake_case** — all schema identifiers validated at authoring time (runtime + type-level).
-9. **Evolution gate** — removing/renaming/retyping without a tombstone, weakening a tombstone, or dropping a tombstone fails `assertEvolvable`.
+9. **Evolution gate** — removing/renaming/retyping without a tombstone, weakening a tombstone, or dropping a tombstone fails `assertEvolvable`. The Quint model `tests/quint/schema-safety.qnt` is the composition oracle: every sequence of adds, fills, copies and retires keeps a filled value, freezes kinds, and never drops a tombstone; a dangerous edit is refused and leaves both copies unchanged. Apalache checks that up to 6 steps, and each drawn trace is replayed through `assertEvolvable`.
 10. **Append-only contract names** — removing or renaming a registered query/mutation name fails `apps/server/tests/contract-manifest.test.ts`.
 
 ## Backends

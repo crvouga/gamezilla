@@ -1632,6 +1632,7 @@
         "@pkgs/sql-client": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

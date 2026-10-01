@@ -23,7 +23,7 @@ export function Header(props: {
 
   return (
     <header class="sr-header">
-      <Show when={isList() ? props.home : undefined}>
+      <Show when={props.home}>
         {(home) => (
           <button
             type="button"

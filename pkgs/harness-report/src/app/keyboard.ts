@@ -1,5 +1,6 @@
 import type { HtmlReportTest } from '@pkgs/harness';
 
+import { catalogParams } from '../lib/catalog';
 import type { FlatFrame } from '../lib/frames';
 import {
   actorIds,
@@ -87,13 +88,14 @@ function neighborKeys(
   testId: string,
   h: KeyNavHandlers
 ): void {
+  const params = catalogParams(h.route().params);
   if (e.key === '[') {
     const id = neighborTest(data, testId, -1);
-    if (id) h.navigate({ view: 'test', testId: id, params: {} });
+    if (id) h.navigate({ view: 'test', testId: id, params });
   }
   if (e.key === ']') {
     const id = neighborTest(data, testId, 1);
-    if (id) h.navigate({ view: 'test', testId: id, params: {} });
+    if (id) h.navigate({ view: 'test', testId: id, params });
   }
 }
 
