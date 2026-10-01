@@ -15,7 +15,6 @@ terraform {
     archive     = { source = "hashicorp/archive", version = "~> 2.7" }
     infisical   = { source = "infisical/infisical", version = "~> 0.19" }
     random      = { source = "hashicorp/random", version = "~> 3.9" }
-    postgresql  = { source = "cyrilgdn/postgresql", version = "~> 1.25" }
   }
 
   backend "s3" {
@@ -78,16 +77,3 @@ provider "infisical" {
 }
 
 provider "random" {}
-
-# The environment's own database, on its direct host (DDL does not go
-# through the pooler).
-provider "postgresql" {
-  host            = module.database.connection.host
-  port            = 5432
-  database        = module.database.connection.database
-  username        = module.database.connection.user
-  password        = module.database.connection.password
-  sslmode         = "verify-full"
-  superuser       = false
-  connect_timeout = 15
-}
