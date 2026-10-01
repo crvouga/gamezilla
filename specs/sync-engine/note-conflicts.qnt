@@ -165,8 +165,10 @@ module note_conflicts {
   }
 
   /// Every edit is either still waiting on its device or has been answered.
-  val invNoLostEdits = 0.to(_next - 1) ==
-    _seen.union(PEOPLE.map(p => _id(_pending.get(p))).filter(id => id >= 0))
+  val invNoLostEdits = {
+    val kept = _seen.union(PEOPLE.map(p => _id(_pending.get(p))).filter(id => id >= 0))
+    kept.size() == _next and kept.forall(id => 0 <= id and id < _next)
+  }
 
   /// Repeating an answered edit preserves all later writing and deletion.
   val invDuplicatePreservesLaterEdits = _duplicate implies _shared == _previous
