@@ -14,30 +14,43 @@ export class HttpIssueReporter implements IssueReporter {
 
   async create(report: BugReport): Promise<CreatedIssue> {
     const controller = new AbortController();
-    const handle = this.options.timers.setTimeout(
-      () => controller.abort(),
-      10_000
-    );
+    let handle: ReturnType<Timers['setTimeout']> | undefined;
+    const deadline = new Promise<never>((_, reject) => {
+      handle = this.options.timers.setTimeout(() => {
+        reject(new Error('Report destination timed out'));
+        controller.abort();
+      }, 10_000);
+    });
     try {
-      const response = await this.options.http.fetch(this.options.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'omit',
-        body: JSON.stringify(report),
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error('Report could not be saved');
-      const result: unknown = await response.json();
-      if (
-        typeof result !== 'object' ||
-        result === null ||
-        !('id' in result) ||
-        typeof result.id !== 'string'
-      )
-        throw new Error('Invalid report receipt');
-      return result as CreatedIssue;
+      return await Promise.race([
+        this.send(report, controller.signal),
+        deadline,
+      ]);
     } finally {
-      this.options.timers.clearTimeout(handle);
+      if (handle !== undefined) this.options.timers.clearTimeout(handle);
     }
+  }
+
+  private async send(
+    report: BugReport,
+    signal: AbortSignal
+  ): Promise<CreatedIssue> {
+    const response = await this.options.http.fetch(this.options.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'omit',
+      body: JSON.stringify(report),
+      signal,
+    });
+    if (!response.ok) throw new Error('Report could not be saved');
+    const result: unknown = await response.json();
+    if (
+      typeof result !== 'object' ||
+      result === null ||
+      !('id' in result) ||
+      typeof result.id !== 'string'
+    )
+      throw new Error('Invalid report receipt');
+    return result as CreatedIssue;
   }
 }
