@@ -27,7 +27,11 @@ module tally_recovery {
     _online' = online,
   }
 
-  action init = _update(CHANGES.mapBy(_ => 0), Set(), Set(), true, PEOPLE.mapBy(_ => true))
+  action init = all {
+    tally' = 0, _made' = CHANGES.mapBy(_ => 0),
+    _counted' = Set(), _heard' = Set(), _available' = true,
+    _online' = PEOPLE.mapBy(_ => true),
+  }
 
   /// A person's next change waits until it can reach the shared tally.
   action addOne(person: str, change: str): bool = all {
