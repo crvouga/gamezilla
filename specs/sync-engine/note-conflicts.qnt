@@ -87,8 +87,8 @@ module note_conflicts {
       _next' = nextId,
       _duplicate' = result.duplicate,
       _deleteBy' = person,
-      _deleteAccepted' = connected.get(person) and not(result.duplicate)
-        and (match edit { | Delete(_) => not(result.refused.contains(_id(edit))) | _ => false }),
+      _deleteAccepted' = (connected.get(person) and not(result.duplicate)
+        and (match edit { | Delete(_) => not(result.refused.contains(_id(edit))) | _ => false })),
       online' = connected,
       notes' = PEOPLE.mapBy(p => _live(views.get(p))).put("shared", _live(result.note)),
       owners' = PEOPLE.mapBy(p => _owner(views.get(p))).put("shared", _owner(result.note)),
