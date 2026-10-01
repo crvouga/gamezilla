@@ -134,10 +134,11 @@ terms:
 
   - term: hear back
     definition: >-
-      The app learning that a note it wrote has been kept for everyone. Word
-      can get lost on the way back; the note still counts exactly once.
+      The app learning whether a note it wrote has been kept for everyone or
+      refused. Word can get lost on the way back; accepted writing still
+      counts exactly once and refused writing is never kept for everyone.
     forms: [hears back]
-    model: [writeUnheard, hearBack]
+    model: [writeUnheard, hearBack, answers]
 
   - term: online-only action
     definition: >-
