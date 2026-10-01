@@ -50,14 +50,23 @@ variable "auth_relay" {
 
 variable "aws_access_key_id" {
   type        = string
+  default     = ""
   sensitive   = true
-  description = "AWS account access key (TF_VAR_aws_access_key_id). Not the R2 state key."
+  description = "AWS access key for this provider (TF_VAR_aws_access_key_id). GitHub OIDC session or a local AWS login. Not the R2 state key."
 }
 
 variable "aws_secret_access_key" {
   type        = string
+  default     = ""
   sensitive   = true
-  description = "AWS account secret key (TF_VAR_aws_secret_access_key). Not the R2 state key."
+  description = "AWS secret key paired with aws_access_key_id. Not the R2 state key."
+}
+
+variable "aws_session_token" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "AWS session token when aws_access_key_id is a temporary OIDC or SSO credential. Empty for long-lived keys."
 }
 
 variable "reports" {

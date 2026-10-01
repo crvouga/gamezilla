@@ -36,6 +36,7 @@ deletable := {
 	"aws_cloudwatch_log_group",
 	"aws_iam_access_key",
 	"aws_iam_role",
+	"aws_iam_role_policy",
 	"aws_iam_role_policy_attachment",
 	"aws_iam_user",
 	"aws_iam_user_policy",

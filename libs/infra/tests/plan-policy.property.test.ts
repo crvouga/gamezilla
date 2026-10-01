@@ -53,6 +53,8 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'grafana_cloud_stack',
   'infisical_identity',
   'infisical_identity_oidc_auth',
+  // Replacing the GitHub OIDC provider would strand every deploy.
+  'aws_iam_openid_connect_provider',
   'infisical_project_environment',
   'infisical_project_identity',
   // Replacing a Neki role mints a new password. The branch holds the data.

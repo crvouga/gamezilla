@@ -28,7 +28,7 @@ function passesThrough(name: string, patterns: readonly string[]): boolean {
  */
 describe('turbo globalPassThroughEnv', () => {
   // regression: turbo-strips-tofu-secrets
-  test('passes the OpenTofu state, PlanetScale, and AWS account secrets through', () => {
+  test('passes the OpenTofu state, PlanetScale, and AWS provider secrets through', () => {
     const patterns = loadPassThroughEnv();
     expect(
       [
@@ -41,6 +41,8 @@ describe('turbo globalPassThroughEnv', () => {
         'AWS_ACCOUNT_SECRET_ACCESS_KEY',
         'AWS_ACCESS_KEY_ID',
         'AWS_SECRET_ACCESS_KEY',
+        'AWS_SESSION_TOKEN',
+        'AWS_ROLE_ARN',
       ].filter((name) => !passesThrough(name, patterns))
     ).toEqual([]);
   });

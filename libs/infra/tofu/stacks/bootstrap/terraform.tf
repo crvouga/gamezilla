@@ -15,6 +15,7 @@ terraform {
     infisical  = { source = "infisical/infisical", version = "~> 0.19" }
     github     = { source = "integrations/github", version = "~> 6.0" }
     grafana    = { source = "grafana/grafana", version = "~> 4.46" }
+    aws        = { source = "hashicorp/aws", version = "~> 5.100" }
   }
 
   backend "s3" {
@@ -66,4 +67,14 @@ provider "infisical" {
   auth = {
     token = var.infisical_token
   }
+}
+
+# Same split as the foundation stack: AWS_ACCESS_KEY_ID in this process is
+# the R2 state key. The person's AWS login (or a later OIDC session) arrives
+# as TF_VAR_aws_*.
+provider "aws" {
+  region     = var.aws.region
+  access_key = var.aws_access_key_id
+  secret_key = var.aws_secret_access_key
+  token      = var.aws_session_token
 }
