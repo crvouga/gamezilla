@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
 import { ident, sql } from '@pkgs/sql';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 
@@ -23,7 +23,7 @@ describe('repairMockingbirdPostgresPgmmBigintSlots', () => {
     });
     openClients.push(client);
     await client.connect();
-    await applyPostgresSchema(
+    await reconcilePostgresSchema(
       client,
       registerTables([
         defineTable({

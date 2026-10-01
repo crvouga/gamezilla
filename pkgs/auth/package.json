@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/uuid": "workspace:*"

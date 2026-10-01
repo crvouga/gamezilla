@@ -1,16 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse/client';
 import {
-  AuthSqliteDatabaseMigration,
   createAuthApp,
   createOauthCallbackRelayApp,
   googleEndpointsFor,
   type OauthCallbackRelay,
   parseRelayTargets,
+  reconcileIdpSqlite,
 } from '@pkgs/auth-inhouse/server';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse/shared';
 import { createHarnessClock } from '@pkgs/clock';
-import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
 import { ALICE_EMAIL, simulatedGoogle } from './support/simulated-google';
@@ -64,10 +63,7 @@ async function bootDeployment(
   seed: number
 ): Promise<Hono> {
   const sql = SqlClientImplMockingbirdSqlite.open({ seed });
-  await new AuthSqliteDatabaseMigration().migrate({
-    sqlClient: sql,
-    logger: createNoopLogger(),
-  });
+  await reconcileIdpSqlite(sql);
   let nextId = 0;
   const { clock } = createHarnessClock({ startMs: START_MS });
   const app = new Hono();

@@ -2,7 +2,7 @@
  * Isomorphic Postgres schema ensure — safe for web / mockingbird-postgres migrate.
  *
  * Lives outside {@link ./connect} so the bundler never loads wall `pg` via
- * `EnsurePostgresSchemaMigration` → `ensurePostgresSchema`.
+ * `ensurePostgresSchema`.
  */
 
 import { raw } from '@pkgs/sql';
@@ -16,7 +16,7 @@ import { assertPgSessionSchema } from './session-schema';
 /**
  * Creates the application schema if it does not exist, then verifies the live
  * session resolves to it. Idempotent; call once at the start of every
- * migration entry point before any DDL runs.
+ * reconcile entry point before any DDL runs.
  */
 export async function ensurePostgresSchema(
   sqlClient: SqlClient,

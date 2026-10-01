@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { createHarnessAdapters } from '@pkgs/uuid';
@@ -19,10 +18,9 @@ describe('EntityStoreImplPostgres', () => {
     await sqlClient.disconnect();
   });
 
-  test('migrateUp + upsert + get + delete', async () => {
-    const logger = createNoopLogger();
-    await EntityStoreImplPostgres.migrateUp({ sqlClient, logger });
-    await EntityStoreImplPostgres.migrateUp({ sqlClient, logger });
+  test('reconcile + upsert + get + delete', async () => {
+    await EntityStoreImplPostgres.reconcile(sqlClient);
+    await EntityStoreImplPostgres.reconcile(sqlClient);
 
     const store = new EntityStoreImplPostgres(sqlClient, adapters.clock.now);
     await store.upsert({

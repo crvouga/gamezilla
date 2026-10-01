@@ -15,7 +15,11 @@ import {
 } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
-import { domainOf, tagFilter } from '@pkgs/gherkin/tags';
+import {
+  domainOf,
+  isSyntheticFeatureSource,
+  tagFilter,
+} from '@pkgs/gherkin/tags';
 
 describe('feature parsing', () => {
   test('folds feature tags and Background steps into outline examples', () => {
@@ -58,7 +62,7 @@ Feature: Requests
 describe('step wording', () => {
   test('rejects UI mechanics and implementation words, not product names', () => {
     const feature = parseFeature(
-      `@domain:health
+      `@domain:auth
 Feature: Signing in
   Scenario: Leaks
     When Alice clicks the sign-in button
@@ -68,7 +72,7 @@ Feature: Signing in
   Scenario: Behavior
     Then people are offered Google sign-in and not Apple sign-in
 `,
-      'specs/health/sign-in.feature'
+      'specs/auth/sign-in.feature'
     );
     const { steps } = extractSteps(
       `
@@ -84,7 +88,7 @@ Then('people are offered Google sign-in and not Apple sign-in', () => undefined)
       packages: [
         {
           name: '@apps/product',
-          domains: ['health'],
+          domains: ['auth'],
           features: [feature],
           definitions: steps,
           imports: [],
@@ -95,9 +99,9 @@ Then('people are offered Google sign-in and not Apple sign-in', () => undefined)
     });
 
     expect(errors).toEqual([
-      'specs/health/sign-in.feature:4: step "Alice clicks the sign-in button" describes UI mechanics ("clicks"); say the intent instead',
-      'specs/health/sign-in.feature:5: step "the API redirects to Google with the OAuth callback" names implementation ("API"); say the product behavior instead',
-      'specs/health/sign-in.feature:6: step "the Postgres schema has every column" names implementation ("Postgres"); say the product behavior instead',
+      'specs/auth/sign-in.feature:4: step "Alice clicks the sign-in button" describes UI mechanics ("clicks"); say the intent instead',
+      'specs/auth/sign-in.feature:5: step "the API redirects to Google with the OAuth callback" names implementation ("API"); say the product behavior instead',
+      'specs/auth/sign-in.feature:6: step "the Postgres schema has every column" names implementation ("Postgres"); say the product behavior instead',
     ]);
   });
 });
@@ -320,8 +324,8 @@ describe('tags and catalogs', () => {
     expect(
       stubSource({
         bridge: '/repo/pkgs/gherkin/src/bun-test.ts',
-        featurePath: '/repo/specs/health/sign-in.feature',
-        featureUri: 'specs/health/sign-in.feature',
+        featurePath: '/repo/specs/auth/sign-in.feature',
+        featureUri: 'specs/auth/sign-in.feature',
         packageName: '@apps/product',
         stepsEntry: '/repo/apps/product/tests/steps/index.ts',
         reportDir: '/repo/apps/product/.cache/health-report',
@@ -330,5 +334,26 @@ describe('tags and catalogs', () => {
     ).toContain(
       'reportDir: "/repo/apps/product/.cache/health-report", layer: "release"'
     );
+  });
+});
+
+describe('isSyntheticFeatureSource', () => {
+  test('the feature line carries the exact tag', () => {
+    expect(
+      isSyntheticFeatureSource('@domain:auth @synthetic\nFeature: Signing in\n')
+    ).toBe(true);
+    expect(
+      isSyntheticFeatureSource('@domain:auth\nFeature: Signing in\n')
+    ).toBe(false);
+    expect(
+      isSyntheticFeatureSource(
+        '@domain:auth\nFeature: Signing in\n  @synthetic\n  Scenario: x\n'
+      )
+    ).toBe(false);
+    expect(
+      isSyntheticFeatureSource(
+        '@domain:auth @synthetic-production\nFeature: Signing in\n'
+      )
+    ).toBe(false);
   });
 });

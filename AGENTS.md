@@ -163,8 +163,8 @@ super.engineering's app project settings.
   [`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md).
 - **`bun run dev:client`** — `@apps/client` alone.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
-- **`bun db:migrate`** migrates `DATABASE_URL`; **`bun run db:wipe:dev`** wipes
-  a non-production database.
+- **`bun db:migrate`** reconciles `DATABASE_URL` to the declared schemas;
+  **`bun run db:wipe:dev`** wipes a non-production database.
 
 Production-likeness comes from port contract suites (mem engines vs live
 Postgres, Kv, ObjectStore, PubSub, billing / TTS / LLM stubs) and
@@ -207,16 +207,17 @@ test:max`: sidecars from `@pkgs/postgres-embedded`, `@pkgs/s3-server`,
 
 ### Database
 
-- Migrations are `DatabaseMigration` classes (`@pkgs/db-migrate`), one unit
-  per package, composed by `PostgresMigrationRunner` in `@libs/runtime`
-  (advisory-locked). Root `db:migrate` runs `libs/runtime/scripts/migrate-cli.ts`.
+- Schema changes are reconciliation only. `reconcilePostgres` in
+  `@libs/runtime` brings Postgres in line; dialect drivers are
+  `reconcilePostgresSchema` / `reconcileSqliteSchema`. There is no migration
+  class. Root `db:migrate` runs `libs/runtime/scripts/migrate-cli.ts`. Seed
+  data stays on `@pkgs/db-migrate` seeders.
 - Tables are `defineTable` only — domain tables in a feature's
   `shared/schema/` (exported via `public/schema.ts`, registered in
   `@libs/runtime/root/app-schema`), framework tables (sync-engine, outbox, kv,
   matchmaking, `idp_*`) package-local and not in `appSchema`. The only DDL
   emitters are `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite`: no raw
-  `.sql` schema files, no `CREATE TABLE` strings (`no-raw-create-table`), no
-  ad-hoc `migrateUp`.
+  `.sql` schema files, no `CREATE TABLE` strings (`no-raw-create-table`).
 - **Non-deploy contexts never reach production Postgres.** Every
   `DATABASE_URL` entrypoint wires `assertNonProductionSecretsEnv` and
   `assertNonProdDatabaseUrl` from `@libs/db/public/database-url-policy`

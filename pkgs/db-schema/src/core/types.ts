@@ -197,6 +197,12 @@ export type IntrospectedColumn = {
   readonly physical: string;
   readonly nullable: boolean;
   readonly isPrimaryKey: boolean;
+  /**
+   * Engine default expression, when the catalog reported one. Absent means
+   * the caller did not read defaults. A non-null value is dropped on the
+   * managed columns that must not mint time or ids.
+   */
+  readonly columnDefault?: string | null;
 };
 
 export type IntrospectedTable = {

@@ -50,7 +50,9 @@ import {
 import { join, relative, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
 import { parseJunit } from '@pkgs/harness';
+import { isLiveObjectiveSource } from '@pkgs/openslo/live';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
@@ -148,9 +150,21 @@ function listSpecs(): readonly string[] {
       ...new Bun.Glob(glob).scanSync({ cwd: dir }),
     ])
       .filter((file) => file !== 'events.qnt')
+      .filter((file) => harnessKeeps(join(dir, file)))
       .sort()
       .map((file) => join(dir, file));
   });
+}
+
+/** `@synthetic` features and `# live` objectives run in `health`, not here. */
+function harnessKeeps(path: string): boolean {
+  if (path.endsWith('.feature')) {
+    return !isSyntheticFeatureSource(readFileSync(path, 'utf8'));
+  }
+  if (path.endsWith('.openslo.yaml')) {
+    return !isLiveObjectiveSource(readFileSync(path, 'utf8'));
+  }
+  return true;
 }
 
 /** The test files of `specs` (absolute paths), long specs sliced. */

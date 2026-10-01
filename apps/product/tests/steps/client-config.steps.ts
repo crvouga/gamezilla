@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: synced client_config rows in the env's Postgres.
 /**
- * `specs/health/serving-people.feature` and `sign-in.feature`. `/api/health/ready` runs behind the
+ * `specs/runtime/serving-people.feature` and `specs/auth/sign-in.feature`. `/api/health/ready` runs behind the
  * request-db middleware, so any answer from it means the Worker has
  * materialized the rows; a failing readiness dependency is the API
  * feature's to report.

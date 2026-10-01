@@ -23,7 +23,7 @@ export async function applyKvStorageOptimizations(
   sqlClient: SqlClient,
   log: Logger
 ): Promise<void> {
-  log.info('kv postgres migrate: applying storage parameters', {
+  log.info('kv postgres reconcile: applying storage parameters', {
     table: TABLE,
   });
   await sqlClient.run(raw(`ALTER TABLE ${TABLE} SET (${STORAGE_PARAMS})`));
@@ -34,11 +34,11 @@ export async function applyKvStorageOptimizations(
   const rows = await sqlClient.query(sql<{ relpersistence: string }>`
     SELECT relpersistence FROM pg_class
      WHERE relname = ${TABLE} AND relnamespace = current_schema()::regnamespace`);
-  assert.array(rows, 'kv migrate: pg_class lookup must return array');
+  assert.array(rows, 'kv reconcile: pg_class lookup must return array');
   const isUnlogged = rows[0]?.relpersistence === 'u';
   if (!isUnlogged) {
     log.warn(
-      'kv postgres migrate: converting kv to UNLOGGED — data will be wiped on Postgres crash and is NOT replicated to standbys; rewrite holds ACCESS EXCLUSIVE',
+      'kv postgres reconcile: converting kv to UNLOGGED — data will be wiped on Postgres crash and is NOT replicated to standbys; rewrite holds ACCESS EXCLUSIVE',
       { table: TABLE }
     );
     await sqlClient.run(raw(`ALTER TABLE ${TABLE} SET UNLOGGED`));

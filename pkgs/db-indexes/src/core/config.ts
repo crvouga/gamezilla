@@ -41,7 +41,7 @@ export const DEFAULT_CONFIG: Config = Object.freeze({
 /**
  * Migrate-complete preset: apply the full desired autoidx set (after prefix
  * consolidation + per-table budget) regardless of row count or EXPLAIN
- * improvement. Used only by {@link PostgresIndexesDatabaseMigration}.
+ * improvement. Used by reconcilePostgres workload index reconcile.
  */
 export const MIGRATE_RECONCILE_CONFIG: Partial<Config> = Object.freeze({
   minTableRows: 0,

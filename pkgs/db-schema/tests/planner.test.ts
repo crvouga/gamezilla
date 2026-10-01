@@ -401,9 +401,39 @@ describe('planClient — tolerant cache behaviour', () => {
 });
 
 describe('drift messages name the physical types that were compared', () => {
-  test('a declared integer stored as int4 says bigint vs int4, not integer twice', () => {
+  test('a declared integer stored as text says bigint vs text, not integer twice', () => {
     // Drift compares physical types, so reporting the logical token on both
     // sides renders a real mismatch as `expected 'integer', found 'integer'`.
+    const schema = declared([
+      defineTable({
+        domain: 'alpha',
+        name: 'alpha',
+        columns: { rating: 'integer' },
+      }),
+    ]);
+    const existing = catalog({
+      tables: [
+        table('alpha', 'postgres', [
+          { name: 'rating', type: 'text', physical: 'text' },
+        ]),
+      ],
+    });
+
+    const classified = classifyDelta({
+      declared: schema,
+      catalog: existing,
+      caps: POSTGRES_CAPS,
+      mode: 'postgres',
+    });
+
+    const drift = classified.drift.find((d) => d.path === 'alpha.rating');
+    expect(drift?.message).toContain('(bigint)');
+    expect(drift?.message).toContain('(text)');
+  });
+});
+
+describe('planServer — lossless repairs', () => {
+  test('an int4 integer widens to bigint instead of failing', () => {
     const schema = declared([
       defineTable({
         domain: 'alpha',
@@ -418,16 +448,81 @@ describe('drift messages name the physical types that were compared', () => {
         ]),
       ],
     });
+    const plan = planServer(schema, existing, { operations: 'table' });
+    if (!plan.ok) throw new Error('expected a repair plan');
+    expect(plan.operations.some((op) => op.kind === 'widen_integer')).toBe(
+      true
+    );
+  });
 
-    const classified = classifyDelta({
-      declared: schema,
-      catalog: existing,
-      caps: POSTGRES_CAPS,
-      mode: 'postgres',
+  test('a NOT NULL non-PK column drops NOT NULL on postgres', () => {
+    const schema = declared([
+      defineTable({
+        domain: 'alpha',
+        name: 'alpha',
+        columns: { body: 'text' },
+      }),
+    ]);
+    const existing = catalog({
+      tables: [
+        table('alpha', 'postgres', [
+          { name: 'body', type: 'text', nullable: false },
+        ]),
+      ],
     });
+    const plan = planServer(schema, existing, { operations: 'table' });
+    if (!plan.ok) throw new Error('expected a repair plan');
+    expect(plan.operations.some((op) => op.kind === 'drop_not_null')).toBe(
+      true
+    );
+  });
 
-    const drift = classified.drift.find((d) => d.path === 'alpha.rating');
-    expect(drift?.message).toContain('(bigint)');
-    expect(drift?.message).toContain('(int4)');
+  test('sqlite still rejects a NOT NULL non-PK column', () => {
+    const schema = declared([
+      defineTable({
+        domain: 'alpha',
+        name: 'alpha',
+        columns: { body: 'text' },
+      }),
+    ]);
+    const existing = catalog({
+      tables: [
+        table('alpha', 'sqlite', [
+          { name: 'body', type: 'text', nullable: false },
+        ]),
+      ],
+    });
+    const plan = planClient(schema, existing);
+    expect(plan.ok).toBe(false);
+  });
+
+  test('a managed column default is dropped', () => {
+    const schema = declared([
+      defineTable({
+        domain: 'alpha',
+        name: 'alpha',
+        columns: { body: 'text' },
+      }),
+    ]);
+    const base = table('alpha', 'postgres', [{ name: 'body', type: 'text' }]);
+    const existing = catalog({
+      tables: [
+        {
+          ...base,
+          columns: base.columns.map((column) =>
+            column.name === 'created_at'
+              ? { ...column, columnDefault: 'now()' }
+              : column
+          ),
+        },
+      ],
+    });
+    const plan = planServer(schema, existing, { operations: 'table' });
+    if (!plan.ok) throw new Error('expected a repair plan');
+    expect(
+      plan.operations.some(
+        (op) => op.kind === 'drop_default' && String(op.column) === 'created_at'
+      )
+    ).toBe(true);
   });
 });

@@ -1,0 +1,55 @@
+# live
+# People can open the app at its address, and the app answers them.
+# Reaching the app and Serving people require that right now. They do not
+# say how often. The rate below stands in until the team confirms it.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: team-checks-passing
+  displayName: The team's checks that find the app answering people
+spec:
+  description: >-
+    Of the team's regular checks from outside, the share that find people can
+    open the app at its address and that the app answers people. That is what
+    Reaching the app and Serving people ask the team to see.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            The team's regular checks from outside in which people could open
+            the app at its address and the app answered people.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: >-
+            Every one of the team's regular checks from outside of whether
+            people can open the app at its address and whether it answers
+            people.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: the-app-answers-people
+  displayName: The app answers people
+spec:
+  description: >-
+    People can open the app at its address and the app answers them. Reaching
+    the app and Serving people require that to be true right now, and they do
+    not say how often. Until the team confirms a rate, this stands in for
+    one: at least 99 in every 100 of the team's regular checks from outside,
+    judged over the last four weeks. Neither that rate nor that stretch of
+    time is written in Reaching the app or Serving people. The rate is not
+    yet a promise of the product.
+  service: runtime
+  indicatorRef: team-checks-passing
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: At least 99 in every 100 checks find the app answering people
+      target: 0.99

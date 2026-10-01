@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's API Worker, DNS and TLS.
-/** `specs/health/reaching-the-app.feature`, `serving-people.feature` and `sign-in.feature`. */
+/** `specs/runtime/reaching-the-app.feature`, `serving-people.feature` and `specs/auth/sign-in.feature`. */
 
 import { expect } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';

@@ -28,15 +28,15 @@ export const APP_COMPOSITION: HarnessComposition = {
   app: APP,
   clients: APP_FEATURE_CLIENTS,
   servers: (deps) => appFeatureServers(deps),
-  // The production runner, cutovers included: the full composition is the
-  // one place a harness proves the real migrate still lands the real schema.
+  // The production reconciler: the full composition is the one place a
+  // harness proves reconcile still lands the real schema.
   migratePostgres: async (args) => {
     const { migrateHarnessPostgres } = await import(
       '../root/harness/migrate-harness-postgres'
     );
     await migrateHarnessPostgres(args);
   },
-  migrateFingerprint: 'libs/runtime PostgresMigrationRunner',
+  migrateFingerprint: 'libs/runtime reconcilePostgres',
   roomNode: (env, gateway) =>
     createInProcessRoomNode(env, { games: GAME_DEFINITIONS, gateway }),
   seedServer: seedChessPuzzlesForHarness,

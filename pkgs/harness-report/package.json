@@ -18,6 +18,8 @@
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
+    "@tanstack/query-persist-client-core": "catalog:",
+    "@tanstack/solid-query": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

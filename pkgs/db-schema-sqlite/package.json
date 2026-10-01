@@ -15,7 +15,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*"

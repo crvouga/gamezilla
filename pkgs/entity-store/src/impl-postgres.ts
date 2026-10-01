@@ -3,10 +3,8 @@
  * (`entityStoreSchema`) — not product appSchema / sync.
  */
 
-import type { Logger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 
 import { entityStoreId } from './entity-id';
 import type {
@@ -15,7 +13,7 @@ import type {
   EntityStoreRow,
   EntityStoreUpsertArgs,
 } from './interface';
-import { EntityStorePostgresDatabaseMigration } from './postgres-database-migration';
+import { reconcileEntityStorePostgres } from './reconcile-postgres';
 
 type Row = {
   id: string;
@@ -70,25 +68,17 @@ export class EntityStoreImplPostgres implements EntityStore {
 
   static async open(args: {
     sqlClient: SqlClient;
-    logger: Logger;
     now: () => number;
   }): Promise<EntityStoreImplPostgres> {
-    await EntityStoreImplPostgres.migrateUp(args);
+    await EntityStoreImplPostgres.reconcile(args.sqlClient);
     return new EntityStoreImplPostgres(args.sqlClient, args.now);
   }
 
-  /** Idempotent Postgres schema apply for the `entity_store` table. */
-  static async migrateUp(args: {
-    sqlClient: SqlClient;
-    logger: Logger;
-  }): Promise<void> {
-    await new EntityStorePostgresDatabaseMigration({
-      dbScope: createPostgresDbScope('public'),
+  /** Bring `entity_store` in line on Postgres. */
+  static async reconcile(sqlClient: SqlClient): Promise<void> {
+    await reconcileEntityStorePostgres(sqlClient, {
       skipAdvisoryLock: true,
       alreadyInTransaction: false,
-    }).migrate({
-      sqlClient: args.sqlClient,
-      logger: args.logger,
     });
   }
 

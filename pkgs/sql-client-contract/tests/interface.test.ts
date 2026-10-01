@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { raw, sql } from '@pkgs/sql';
@@ -18,7 +18,7 @@ async function applyTables(
   client: SqlClient,
   tables: Parameters<typeof registerTables>[0]
 ): Promise<void> {
-  await applySqliteSchema(client, registerTables(tables));
+  await reconcileSqliteSchema(client, registerTables(tables));
 }
 
 async function loadImplementations(): Promise<

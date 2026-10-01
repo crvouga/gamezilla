@@ -18,7 +18,6 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",

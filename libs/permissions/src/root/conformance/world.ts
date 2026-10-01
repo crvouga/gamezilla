@@ -11,7 +11,7 @@
 import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
 import { CLIENT_CONFIG_TABLES } from '@libs/client-config/public/schema';
 import { registerTables, type TableDef } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import type { PermissionPolicy } from '@pkgs/permissions';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -54,7 +54,7 @@ export async function openConformanceDb(
 ): Promise<SqlClient> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(db, registerTables(uniqueTables(tables)), {
+  await reconcileSqliteSchema(db, registerTables(uniqueTables(tables)), {
     ownership: 'declared-only',
   });
   return db;

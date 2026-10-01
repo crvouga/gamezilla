@@ -20,7 +20,7 @@ import {
   ensureProfileMutation,
 } from '@libs/profile/root/mutations';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { assertProperty, fc } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -37,7 +37,7 @@ type User = (typeof USERS)[number];
 
 async function openProfileDb(): Promise<SqlClient> {
   const db = new SqlClientImplBunSqlite(new Database(':memory:'));
-  await applySqliteSchema(db, registerTables(PROFILE_TABLES));
+  await reconcileSqliteSchema(db, registerTables(PROFILE_TABLES));
   return db;
 }
 

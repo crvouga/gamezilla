@@ -169,6 +169,27 @@ terms:
       connection tells the person it needs one, and nothing happens later on
       its own.
 
+  - term: what happens in a space
+    definition: >-
+      What people do in a space, such as joining, leaving and moving pieces,
+      as everyone else in it sees it within moments. This environment's app
+      passes it on, and people's apps follow what happens in this
+      environment's spaces, never another's.
+    forms: [what happens in this environment's spaces, pass on what happens in a space]
+    avoid: [live updates, broker, pub/sub, websocket, push channel]
+
+  - term: listen in on spaces
+    definition: >-
+      Someone outside the team secretly seeing, or disturbing, what happens in
+      people's spaces. Nobody can, not even with a well-known password.
+    forms: [listen in, listen in on spaces or disturb them]
+
+  - term: well-known password
+    definition: >-
+      A password anyone could try: the one something came with from its
+      maker (the default password), or one published anywhere.
+    forms: [well-known passwords, default password, publicly known password]
+
   # Borrowed language
 
   - term: guest

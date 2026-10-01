@@ -23,7 +23,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
-import { PostgresMigrationRunner } from '../src/server/run-postgres-migrations';
+import { reconcilePostgres } from '../src/server/reconcile-postgres';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
@@ -133,16 +133,16 @@ async function main(): Promise<void> {
   try {
     await sqlClient.run(raw('DROP SCHEMA public CASCADE'));
     await sqlClient.run(raw('CREATE SCHEMA public'));
-    log.info('public schema dropped and recreated; remigrating');
-    await new PostgresMigrationRunner({
+    log.info('public schema dropped and recreated; reconciling');
+    await reconcilePostgres({
       sqlClient,
       logger: log,
       dbScope,
       clock: wallClock,
-    }).run();
-    log.info('wipe + remigrate finished');
+    });
+    log.info('wipe + reconcile finished');
     process.stdout.write(
-      '[api:wipe-dev] completed (schema empty + remigrated)\n'
+      '[api:wipe-dev] completed (schema empty + reconciled)\n'
     );
   } finally {
     await pool.end();

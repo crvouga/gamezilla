@@ -55,6 +55,7 @@ const BUCKET_ROOT = '.cache/harness-report';
 export const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
 const UI_CSS = [
   join(REPO_ROOT, 'pkgs/ui/src/theme/tokens.css'),
+  join(REPO_ROOT, 'pkgs/ui/src/components/skin.css'),
   join(REPO_ROOT, 'pkgs/ui/src/components/hosts.css'),
 ];
 
@@ -87,9 +88,10 @@ function listModuleCss(dir: string, out: string[]): void {
 }
 
 /**
- * Stylesheet set for iframe `srcdoc` frames, matching the product mount
- * (tokens + hosts + Tailwind) plus every `pkgs/` CSS module: bun's harness Babel
- * plugin exports unhashed local class names, so the raw module CSS applies.
+ * Stylesheet the phone snapshots share: Tailwind, tokens, skin, hosts, and
+ * every `pkgs/` CSS module. bun's harness Babel plugin exports unhashed local
+ * class names, so the raw module CSS applies. `hosts.css` `@import`s skin,
+ * which a sheet concatenated after Tailwind drops, so skin is inlined above.
  */
 function compileFrameCss(): string {
   const tmp = mkdtempSync(join(tmpdir(), 'harness-report-css-'));
@@ -114,7 +116,11 @@ function compileFrameCss(): string {
     }
     return [
       readFileSync(out, 'utf8'),
-      ...UI_CSS.map((p) => readFileSync(p, 'utf8')),
+      // `hosts.css` `@import`s skin. A sheet concatenated after Tailwind
+      // drops `@import`, so skin is inlined and those lines are removed.
+      ...UI_CSS.map((p) =>
+        readFileSync(p, 'utf8').replace(/@import\s+[^;]+;/g, '')
+      ),
       ...modules.map(
         (p) =>
           `/* ${p.slice(REPO_ROOT.length + 1)} */\n${readFileSync(p, 'utf8')}`

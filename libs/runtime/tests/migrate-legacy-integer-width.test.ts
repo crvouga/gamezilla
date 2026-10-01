@@ -1,11 +1,10 @@
 /**
- * Migrate must upgrade a database whose `integer` columns predate the
- * physical-type drift check (`int4` rather than `bigint`).
+ * Reconcile must widen a database whose `integer` columns are still `int4`
+ * rather than `bigint`.
  *
  * Every deploy from PR #19 to #26 failed `@libs/db#migrate` on this: the dev
- * database's chess columns were `int4`, reconcile compares physical types and
- * never ALTERs one, so it refused. A migration against a fresh database always
- * passed, which is why nothing in `bun check` saw it.
+ * database's chess columns were `int4`, and reconcile treated that as drift.
+ * A fresh database always passed, which is why nothing in `bun check` saw it.
  */
 import { describe, expect, test } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db/public/scope';

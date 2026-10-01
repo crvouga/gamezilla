@@ -14,7 +14,6 @@ product:
     - billing
     - chess
     - friends
-    - health
     - journeys
     - matchmaking
     - profile
@@ -67,7 +66,7 @@ product:
         An app older than the one people are being served is told to update
         and keeps everything people saved on the device.
     - id: health report
-      context: health
+      context: runtime
       promise: The team can always ask a live environment whether it is well.
 
 conformance:

@@ -1,16 +1,18 @@
-import type { HtmlReportTest, ReportSnapshotBlob } from '@pkgs/harness';
-import { createEffect, createMemo, For, Match, Show, Switch } from 'solid-js';
+import { createEffect, createMemo, Match, Show, Switch } from 'solid-js';
 import { type TestLoad, useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
-import { DocStage } from '../components/doc-stage';
 import { FailBanner } from '../components/fail-banner';
 import { FrameCaption } from '../components/frame-caption';
 import { PhoneStage } from '../components/phone-stage';
+import { ScenarioScript } from '../components/scenario-script';
 import { Scrubber } from '../components/scrubber';
+import { SnapshotsAside } from '../components/snapshots-aside';
 import { StepTree } from '../components/step-tree';
+import { TestNav } from '../components/test-nav';
 import { Toolbar } from '../components/toolbar';
-import { blobHeading, fileLabel, fmtMs, formatBlobBody } from '../lib/format';
+import { fileLabel, fmtMs } from '../lib/format';
 import {
+  frameFilesNear,
   frameHasUi,
   isUi,
   neighborFailure,
@@ -20,31 +22,7 @@ import {
 } from '../lib/frames';
 import { showAside, viewMode } from '../lib/hash';
 
-function SnapshotsAside(props: {
-  test: HtmlReportTest;
-  blobs: ReportSnapshotBlob[];
-}) {
-  return (
-    <div class="sr-aside">
-      <For each={props.blobs}>
-        {(b) => (
-          <>
-            <h3>{blobHeading(b)}</h3>
-            <pre>{formatBlobBody(props.test, b)}</pre>
-          </>
-        )}
-      </For>
-    </div>
-  );
-}
-
-function loadingText(load: TestLoad): string {
-  if (load.kind !== 'loading') return '';
-  if (load.framesTotal === null) return 'Loading test…';
-  return `Loading test · ${String(load.frames)} of ${String(load.framesTotal)} frames`;
-}
-
-/** Streams the test in on first view, then shows it. */
+/** Opens the timeline at once. Frame files stream into the phones as they arrive. */
 export function TestView(props: { nav: ReportNav }) {
   const report = useReport();
   const testId = createMemo(() => {
@@ -58,21 +36,25 @@ export function TestView(props: { nav: ReportNav }) {
   const load = createMemo(
     (): TestLoad => report.loader?.state(testId()) ?? { kind: 'ready' }
   );
+  const known = createMemo(
+    () =>
+      report.data.tests.find((t) => t.report.meta.testId === testId()) ?? null
+  );
   const failure = createMemo(() => {
     const l = load();
     return l.kind === 'error' ? l.message : null;
   });
   return (
-    <Switch fallback={<LoadedTestView nav={props.nav} testId={testId()} />}>
-      <Match when={load().kind === 'loading'}>
-        <div class="sr-empty">{loadingText(load())}</div>
+    <Switch fallback={<div class="sr-note">{`Waiting for ${testId()}…`}</div>}>
+      <Match when={known()}>
+        <LoadedTestView nav={props.nav} testId={testId()} />
       </Match>
       <Match when={load().kind === 'missing'}>
-        <div class="sr-empty">{`Unknown test: ${testId()}`}</div>
+        <div class="sr-note">{`Unknown test: ${testId()}`}</div>
       </Match>
       <Match when={failure()}>
         {(message) => (
-          <div class="sr-empty">{`Could not load ${testId()}: ${message()}`}</div>
+          <div class="sr-note">{`Could not load ${testId()}: ${message()}`}</div>
         )}
       </Match>
     </Switch>
@@ -99,6 +81,14 @@ function LoadedTestView(props: { nav: ReportNav; testId: string }) {
   const showSnapshots = createMemo(
     () => hasUi() && showAside(props.nav.route()) && asideBlobs().length > 0
   );
+  createEffect(() => {
+    const selected = sel();
+    const ensure = report.loader?.ensureBlob;
+    if (!selected || !ensure) return;
+    for (const file of frameFilesNear(frames(), selected.index, 8)) {
+      ensure(testId(), file);
+    }
+  });
 
   return (
     <Show
@@ -108,55 +98,59 @@ function LoadedTestView(props: { nav: ReportNav; testId: string }) {
       {(t) => {
         const m = () => t().report.meta;
         return (
-          <div class="sr-detail">
-            <div class="sr-side">
-              <div class="sr-testhead">
-                <h2>
-                  <span class={`sr-dot ${m().status}`} />
-                  {m().title}
-                </h2>
-                <div class="sr-kv">
-                  <span class="mono">{fileLabel(m().sourceFile)}</span>
-                  <span class="mono">{m().testId}</span>
-                  <span>{`seed ${m().seed}`}</span>
-                  <span>{`${m().system} · ${m().runtime}`}</span>
-                  <span>{fmtMs(m().durationMs)}</span>
-                  <Show when={m().sourceFile}>
-                    {(sf) => (
-                      <span class="mono">
-                        {sf()}
-                        {m().sourceLine ? `:${m().sourceLine}` : ''}
-                      </span>
-                    )}
-                  </Show>
+          <div class="sr-test">
+            <TestNav nav={props.nav} testId={testId()} />
+            <ScenarioScript
+              steps={t().report.steps}
+              frames={frames()}
+              selected={sel()}
+              onSelect={(frame) => props.nav.goFrame(frame)}
+            />
+            <div class="sr-detail">
+              <div class="sr-side">
+                <div class="sr-testhead">
+                  <h2>
+                    <span class={`sr-dot ${m().status}`} />
+                    {m().title}
+                  </h2>
+                  <div class="sr-kv">
+                    <span class="mono">{fileLabel(m().sourceFile)}</span>
+                    <span class="mono">{m().testId}</span>
+                    <span>{`seed ${m().seed}`}</span>
+                    <span>{`${m().system} · ${m().runtime}`}</span>
+                    <span>{fmtMs(m().durationMs)}</span>
+                    <Show when={m().sourceFile}>
+                      {(sf) => (
+                        <span class="mono">
+                          {sf()}
+                          {m().sourceLine ? `:${m().sourceLine}` : ''}
+                        </span>
+                      )}
+                    </Show>
+                  </div>
                 </div>
+                <StepTree
+                  test={t()}
+                  frames={frames()}
+                  selected={sel()}
+                  onSelect={(f) => props.nav.goFrame(f)}
+                />
               </div>
-              <StepTree
-                test={t()}
-                frames={frames()}
-                selected={sel()}
-                onSelect={(f) => props.nav.goFrame(f)}
-              />
-            </div>
-            <div class="sr-main">
-              <div class="sr-viewer">
-                <FailBanner
-                  error={m().error}
-                  errorStack={m().errorStack}
-                  failure={firstFailure()}
-                  onJump={(f) => props.nav.goFrame(f)}
-                />
-                <Toolbar
-                  nav={props.nav}
-                  ui={hasUi()}
-                  hasData={asideBlobs().length > 0}
-                />
-                <FrameCaption test={t()} frames={frames()} selected={sel()} />
-                <div class="sr-stage-wrap">
-                  <Show
-                    when={hasUi()}
-                    fallback={<DocStage test={t()} selected={sel()} />}
-                  >
+              <div class="sr-main">
+                <div class="sr-viewer">
+                  <FailBanner
+                    error={m().error}
+                    errorStack={m().errorStack}
+                    failure={firstFailure()}
+                    onJump={(f) => props.nav.goFrame(f)}
+                  />
+                  <Toolbar
+                    nav={props.nav}
+                    ui={frames().length > 0}
+                    hasData={asideBlobs().length > 0}
+                  />
+                  <FrameCaption test={t()} frames={frames()} selected={sel()} />
+                  <div class="sr-stage-wrap">
                     <PhoneStage
                       test={t()}
                       selected={sel()}
@@ -164,12 +158,16 @@ function LoadedTestView(props: { nav: ReportNav; testId: string }) {
                       mode={viewMode(props.nav.route())}
                       node={selectedNode(sel(), props.nav.route(), t())}
                     />
-                  </Show>
-                  <Show when={showSnapshots()}>
-                    <SnapshotsAside test={t()} blobs={asideBlobs()} />
-                  </Show>
+                    <Show when={showSnapshots()}>
+                      <SnapshotsAside test={t()} blobs={asideBlobs()} />
+                    </Show>
+                  </div>
+                  <Scrubber
+                    frames={frames()}
+                    selected={sel()}
+                    nav={props.nav}
+                  />
                 </div>
-                <Scrubber frames={frames()} selected={sel()} nav={props.nav} />
               </div>
             </div>
           </div>

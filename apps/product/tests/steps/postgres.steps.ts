@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's Postgres.
-/** `specs/health/serving-people.feature`. */
+/** `specs/runtime/serving-people.feature`. */
 
 import { expect } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db/public/scope';

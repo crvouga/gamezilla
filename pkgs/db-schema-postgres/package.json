@@ -16,9 +16,7 @@
     "test:contract": "bun test tests/postgres-reconcile.contract.test.ts"
   },
   "dependencies": {
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*"

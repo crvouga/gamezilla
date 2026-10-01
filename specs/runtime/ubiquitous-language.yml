@@ -140,6 +140,104 @@ terms:
     forms: [keyboard's, keyboard alone, the keyboard alone]
     avoid: [focus, focused, focus ring, focus trap, tab key, tabbing, tab order, keyboard navigation]
 
+  - term: the team's plan
+    definition: >-
+      What the team has written down that an environment should have and how
+      it is set up. An environment that differs from it has been changed by
+      hand, lost something by accident, or is part-way through a release.
+    forms: [as the team planned it, as the team planned them, planned it]
+    avoid: [declared environment, infrastructure, config drift, IaC]
+
+  - term: changed by hand
+    definition: >-
+      Changed by someone directly, outside the team's plan for the
+      environment.
+    forms: [change made by hand]
+    avoid: [manual edit, click-ops]
+
+  - term: release
+    definition: >-
+      The team putting out a new edition of the app in an environment. An
+      unfinished release is one that got only part of the way.
+    forms: [releases, unfinished release]
+    avoid: [deploy, deployment, rollout]
+
+  - term: the testing tool
+    definition: >-
+      A tool for the team, at its own address beside the app. People who use
+      the app never need it.
+    forms: [testing tool]
+    avoid: [sim, Simulator, harness, dev tools]
+
+  - term: reach the app securely
+    definition: >-
+      People's devices can trust that an address really is the app, and
+      nobody else can read what passes between them. The team checks it will
+      still hold two weeks from now.
+    forms: [reach every address of the app securely, reach it securely, stays secure]
+    avoid: [TLS, SSL, certificate, HTTPS]
+
+  - term: answer people
+    definition: >-
+      The app responding, right now in this environment, to what people do in
+      it, with everything it needs to do so in place.
+    forms: [answers people]
+    avoid: [uptime, health endpoint, ping]
+
+  - term: what people saved
+    definition: >-
+      Everything people have kept in the app, such as their accounts and
+      progress. It must be ready for the app as it is now.
+    avoid: [database, schema, tables, migration, data store]
+
+  - term: setting the app needs
+    definition: >-
+      Something the team gives the app for this environment so it can run
+      there, such as its access to an outside service. The app is given every
+      one it needs.
+    forms: [every setting it needs]
+    avoid: [secret, env var, environment variable, config key]
+
+  - term: outside service
+    definition: >-
+      A service another company runs that the app relies on to do its job,
+      such as Google for signing in or the company that takes payments. The
+      team gives the app what it needs to use each one, and each must still
+      let the app use it.
+    forms: [outside services]
+    avoid: [vendor, third party, integration]
+
+  - term: lets the app use it
+    definition: >-
+      An outside service still working for the app: the company has not
+      withdrawn the app's use of it, and it has not run out.
+    forms: [still lets the app use it]
+    avoid: [accepts the app, credentials valid, token valid]
+
+  - term: upload
+    definition: >-
+      Something a person puts in the app for it to keep, such as a picture.
+      The app can keep one, show it again and remove it, and each
+      environment's uploads stay apart from every other environment's.
+    forms: [uploads, uploaded]
+    avoid: [stored file, file, bucket, blob, object storage]
+
+  - term: trail
+    definition: >-
+      What the app writes down, each time someone uses it, about what it did
+      for them. People never see it; when someone runs into trouble, the team
+      follows the trail to find out what happened.
+    forms: [trails, leaves a trail, follow the trail, follows the trail]
+    avoid: [request record, trace, traces, span, telemetry, logs]
+    published: true
+
+  - term: run into trouble
+    definition: >-
+      Something going wrong for a person in the app, such as an error or
+      something not working as it should.
+    forms: [runs into trouble, ran into trouble, what went wrong]
+    published: true
+
   # Borrowed from Identity.
   - term: guest
     from: profile
@@ -172,3 +270,7 @@ terms:
   - term: people search
     from: friends
     model: [Search, Lookup, lookup, lookUp, searchedFor, Denied, Nobody, Shows]
+
+  # Borrowed from Billing.
+  - term: Plus
+    from: billing

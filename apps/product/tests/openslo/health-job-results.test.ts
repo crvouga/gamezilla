@@ -12,7 +12,7 @@ import {
 
 const SPEC_PATH = join(
   import.meta.dir,
-  '../../../../specs/health/availability.openslo.yaml'
+  '../../../../specs/runtime/availability.openslo.yaml'
 );
 const SPEC = readFileSync(SPEC_PATH, 'utf8');
 const NOW_MS = Date.UTC(2026, 8, 28, 12);

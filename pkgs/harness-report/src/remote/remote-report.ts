@@ -18,13 +18,13 @@ import { createStore, produce, type SetStoreFunction } from 'solid-js/store';
 
 import type { ReportTestLoader, TestLoad } from '../app/report-context';
 import type { ReportData } from '../types';
+import type { ReportFetcher } from './fetcher';
 import { splitViewerTestId, viewerTestId } from './keys';
 import {
   type CommitEvent,
   type CommitRecord,
   type SourceRecord,
   SseDecoder,
-  type TestEvent,
 } from './protocol';
 
 /** Wait before reconnecting a stream that failed. */
@@ -36,6 +36,8 @@ export type RemoteReportArgs = {
   /** The reports API root (`https://api.example.com/api/reports`). */
   readonly apiBase: string;
   readonly sha: string;
+  /** Cached reads (sources, stylesheet, one test, one frame file). */
+  readonly fetcher: ReportFetcher;
 };
 
 export type RemoteReportPhase =
@@ -127,6 +129,8 @@ type Ctx = {
   readonly setFrameCss: (css: string) => void;
   /** Sources already in the store; sent as `?have=` on reconnect. */
   readonly sources: Set<string>;
+  /** Frame files already being fetched, so a scrub does not refetch. */
+  readonly inflight: Set<string>;
   readonly controller: AbortController;
 };
 
@@ -202,71 +206,35 @@ async function followCommit(ctx: Ctx): Promise<void> {
   }
 }
 
-async function loadFrameCss(ctx: Ctx): Promise<void> {
-  try {
-    const response = await ctx.args.http.fetch(reportUrl(ctx, '/frame.css'), {
-      signal: ctx.controller.signal,
-    });
-    ctx.setFrameCss(response.ok ? await response.text() : '');
-  } catch {
-    if (!disposed(ctx)) ctx.setFrameCss('');
-  }
+function testIndex(ctx: Ctx, id: string): number {
+  return ctx.store.data.tests.findIndex((t) => t.report.meta.testId === id);
 }
 
-/**
- * Collects one test's stream and lands it in the store in one batch at the
- * end, so the viewer never paints a test whose frames are still arriving.
- */
-function testCollector(ctx: Ctx, id: string): (event: TestEvent) => void {
-  const blobs: Record<string, HtmlReportBlob> = {};
-  let steps: HtmlReportTest['report']['steps'] | null = null;
-  let total: number | null = null;
-  return (event) => {
-    if (event.type === 'report') {
-      steps = event.report.steps;
-      total = countFrameFiles(event.report.steps);
-    } else if (event.type === 'blob') {
-      blobs[event.file] = event.blob;
-    }
-    if (event.type !== 'end') {
-      const frames = Object.keys(blobs).length;
-      ctx.setStore('loads', id, {
-        kind: 'loading',
-        frames,
-        framesTotal: total,
-      });
-      return;
-    }
-    const loaded = steps;
-    if (!event.found || loaded === null) {
-      ctx.setStore('loads', id, { kind: 'missing' });
-      return;
-    }
-    batch(() => {
-      const index = ctx.store.data.tests.findIndex(
-        (t) => t.report.meta.testId === id
-      );
-      if (index >= 0) {
-        ctx.setStore('data', 'tests', index, 'report', 'steps', loaded);
-        ctx.setStore('data', 'tests', index, 'blobs', blobs);
-      }
-      ctx.setStore('loads', id, { kind: 'ready' });
-    });
-  };
-}
-
-async function streamTest(ctx: Ctx, id: string): Promise<void> {
+/** The timeline only. Frame files arrive later, one at a time, as they paint. */
+async function loadTest(ctx: Ctx, id: string): Promise<void> {
   const parts = splitViewerTestId(id);
   if (parts === null) {
     ctx.setStore('loads', id, { kind: 'missing' });
     return;
   }
   try {
-    const path = `/tests/${encodeURIComponent(parts.source)}/${encodeURIComponent(parts.testId)}/events`;
-    const response = await ctx.args.http.fetch(reportUrl(ctx, path), {
-      signal: ctx.controller.signal,
+    const report = await ctx.args.fetcher.test(
+      ctx.args.sha,
+      parts.source,
+      parts.testId
+    );
+    if (disposed(ctx)) return;
+    if (report === null) {
+      ctx.setStore('loads', id, { kind: 'missing' });
+      return;
+    }
+    batch(() => {
+      const index = testIndex(ctx, id);
+      if (index >= 0) {
+        ctx.setStore('data', 'tests', index, 'report', 'steps', report.steps);
+      }
+      ctx.setStore('loads', id, { kind: 'ready' });
     });
-    await readEventStream<TestEvent>(response, testCollector(ctx, id));
   } catch (error) {
     if (disposed(ctx)) return;
     ctx.setStore('loads', id, {
@@ -276,13 +244,44 @@ async function streamTest(ctx: Ctx, id: string): Promise<void> {
   }
 }
 
+async function loadBlob(ctx: Ctx, id: string, file: string): Promise<void> {
+  const key = `${id}\n${file}`;
+  if (ctx.inflight.has(key)) return;
+  const index = testIndex(ctx, id);
+  if (index < 0 || ctx.store.data.tests[index]?.blobs[file] !== undefined) {
+    return;
+  }
+  const parts = splitViewerTestId(id);
+  if (parts === null) return;
+  ctx.inflight.add(key);
+  try {
+    const blob = await ctx.args.fetcher.blob(
+      ctx.args.sha,
+      parts.source,
+      parts.testId,
+      file
+    );
+    if (!disposed(ctx) && blob !== null) {
+      const at = testIndex(ctx, id);
+      if (at >= 0) ctx.setStore('data', 'tests', at, 'blobs', file, blob);
+    }
+  } catch {
+    // The file can be asked for again. A 404 is not remembered.
+  } finally {
+    ctx.inflight.delete(key);
+  }
+}
+
 function testLoader(ctx: Ctx): ReportTestLoader {
   return {
     load(id) {
       const current = ctx.store.loads[id];
       if (current !== undefined && current.kind !== 'error') return;
       ctx.setStore('loads', id, LOADING);
-      void streamTest(ctx, id);
+      void loadTest(ctx, id);
+    },
+    ensureBlob(id, file) {
+      void loadBlob(ctx, id, file);
     },
     state(id) {
       const known = ctx.store.data.tests.some(
@@ -292,13 +291,26 @@ function testLoader(ctx: Ctx): ReportTestLoader {
         const settled = ctx.phase() === 'complete' || ctx.phase() === 'missing';
         return settled ? { kind: 'missing' } : LOADING;
       }
-      const load = ctx.store.loads[id];
-      // Snapshots paint into a shell styled once: wait for the stylesheet.
-      if (load?.kind === 'ready' && ctx.frameCss() === undefined)
-        return LOADING;
-      return load ?? LOADING;
+      return ctx.store.loads[id] ?? LOADING;
     },
   };
+}
+
+/** Sources and the snapshot stylesheet, from the query cache when it has them. */
+async function loadCached(ctx: Ctx): Promise<void> {
+  try {
+    const [sources, css] = await Promise.all([
+      ctx.args.fetcher.sources(ctx.args.sha),
+      ctx.args.fetcher.frameCss(ctx.args.sha),
+    ]);
+    if (disposed(ctx)) return;
+    for (const source of sources) addSource(ctx, source);
+    ctx.setFrameCss(css);
+    if (sources.length > 0 && ctx.phase() === 'connecting')
+      ctx.setPhase('live');
+  } catch {
+    if (!disposed(ctx) && ctx.frameCss() === undefined) ctx.setFrameCss('');
+  }
 }
 
 /**
@@ -329,10 +341,11 @@ export function createRemoteReport(args: RemoteReportArgs): RemoteReport {
     frameCss,
     setFrameCss,
     sources: new Set(),
+    inflight: new Set(),
     controller: new AbortController(),
   };
   void followCommit(ctx);
-  void loadFrameCss(ctx);
+  void loadCached(ctx);
   return {
     data: store.data,
     commit,
@@ -341,18 +354,4 @@ export function createRemoteReport(args: RemoteReportArgs): RemoteReport {
     loader: testLoader(ctx),
     dispose: () => ctx.controller.abort(),
   };
-}
-
-function countFrameFiles(steps: HtmlReportTest['report']['steps']): number {
-  const files = new Set<string>();
-  const walk = (list: HtmlReportTest['report']['steps']): void => {
-    for (const step of list) {
-      for (const frame of step.frames) {
-        for (const blob of frame.snapshots) files.add(blob.file);
-      }
-      walk(step.steps);
-    }
-  };
-  walk(steps);
-  return files.size;
 }

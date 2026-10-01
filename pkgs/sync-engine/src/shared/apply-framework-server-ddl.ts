@@ -1,15 +1,10 @@
-import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
-import { SyncEngineDatabaseMigration } from './sync-engine-database-migration';
+import { reconcileSyncEnginePostgres } from './reconcile-sync-engine-postgres';
 
-/** Apply sync-engine framework server tables via defineTable reconcile. */
+/** Bring sync-engine framework server tables in line with their declared schema. */
 export async function applyFrameworkServerDdl(args: {
   sqlClient: SqlClient;
-  logger: Logger;
 }): Promise<void> {
-  await new SyncEngineDatabaseMigration().migrate({
-    sqlClient: args.sqlClient,
-    logger: args.logger,
-  });
+  await reconcileSyncEnginePostgres(args.sqlClient);
 }

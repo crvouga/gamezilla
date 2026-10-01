@@ -8,10 +8,10 @@
  * the browser's network. Links inside it are document loads, so a click on
  * one goes to the browser rather than to the host document.
  *
- * `isolateStyles` renders the page into a shadow root with the page's own
- * stylesheet, so a live document (the product harness) shows it as designed
- * without the page's CSS reaching the app. Tests leave it off: the driver
- * queries the light DOM and happy-dom paints no CSS.
+ * `isolateStyles` renders the page into a shadow root so a live document
+ * (the product harness) cannot see the page's nodes. The page's stylesheet
+ * is always part of the page, scoped to the page wrapper, so a snapshot of
+ * the light DOM still paints Stripe and the sign-in screens as designed.
  */
 
 import { type JSX, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
@@ -21,7 +21,7 @@ import type {
   HarnessBrowserPage,
   HarnessBrowserTab,
 } from '../fabric/browser';
-import { DocumentPage, documentCss } from './document-page';
+import { DocumentPage } from './document-page';
 
 export const HARNESS_BROWSER_TEST_IDS = {
   sheet: 'harness-browser',
@@ -33,11 +33,6 @@ export type HarnessBrowserSheetProps = {
   readonly browser: HarnessBrowser;
   readonly isolateStyles: boolean;
 };
-
-function pageCss(page: HarnessBrowserPage): string {
-  if (page.kind === 'document') return documentCss(page.html);
-  return '';
-}
 
 /** A click on a link inside the page loads that document in the browser. */
 function interceptLinks(
@@ -92,23 +87,14 @@ function PageBody(props: {
   );
 }
 
-/** The page rendered into its own shadow root, with its own stylesheet. */
+/** The page rendered into its own shadow root. Its stylesheet travels with it. */
 function ShadowPage(props: {
-  readonly css: string;
   readonly children: () => JSX.Element;
 }): JSX.Element {
   let host!: HTMLDivElement;
   onMount(() => {
     const root = host.attachShadow({ mode: 'open' });
-    const dispose = render(
-      () => (
-        <>
-          <style>{props.css}</style>
-          {props.children()}
-        </>
-      ),
-      root
-    );
+    const dispose = render(() => props.children(), root);
     onCleanup(dispose);
   });
   return <div class="min-h-full" ref={host} />;
@@ -161,7 +147,7 @@ function Sheet(props: {
       </div>
       <div class="min-h-0 flex-1 overflow-auto" ref={body}>
         <Show fallback={page()} when={props.isolateStyles}>
-          <ShadowPage css={pageCss(props.tab.page)}>{page}</ShadowPage>
+          <ShadowPage>{page}</ShadowPage>
         </Show>
       </div>
     </div>

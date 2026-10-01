@@ -376,14 +376,15 @@ matrices or Quint invariants as hundreds of scenarios. Gherkin focuses
 on meaningful actor journeys, outcomes, failures, and cross-context
 behavior.
 
-> @production-safe\
+> @synthetic\
 > Scenario: Guest can start an available game\
 > Given I am a guest with remaining game usage\
 > When I start an available game\
 > Then the game starts successfully
 
-Selected production-safe scenarios are reused as synthetic checks in CI,
-staging, and production through environment-specific adapters.
+The tag is exactly `@synthetic`. It names no environment. The same scenario
+runs in dev or production because the runner is pointed there, not because
+the spec says so.
 
 ## 9. Reliability and Performance
 
@@ -1043,19 +1044,18 @@ terms:
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
-| App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting | generic |
-| Operations | `health` | the promises a live environment keeps, seen by the team | generic |
+| App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their
 terms and import only their `events.qnt`:
 
 ```text
-Identity ──► Billing, Spaces, Friends, Chess, App, Operations, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
-Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Operations, Journeys
-Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Operations, Journeys
+Identity ──► Billing, Spaces, Friends, Chess, App, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
+Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Journeys
+Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
-App      ──► Operations (addresses, versions), Journeys
+App      ──► Identity (trail, run into trouble), Journeys (tabs)
 Chess    ──► Journeys (a game of chess, a puzzle)
 Room, Sync engine, Matchmaking: stand alone (Sync engine's "shared space" is not a Spaces space)
 ```
@@ -1069,8 +1069,8 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve | — |
-| App (`runtime`) | Settings, tabs, address, version of the app | — |
-| Auth, Room, Matchmaking, Sync engine, Operations, Journeys | — | — |
+| App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble | — |
+| Auth, Room, Matchmaking, Sync engine, Journeys | — | — |
 
 - Publish product concepts, not common words: "open space", never "open".
 - The same word may mean different things in different contexts ("notice",
@@ -1088,7 +1088,7 @@ Quint model, never a `*.test.ts`.
 | The check is about… | Home |
 | --- | --- |
 | What a person can do and see: flows, rules, permissions, what persists, offline behavior, what other people see and when | **Gherkin scenario** |
-| A promise the team observes about a live environment | **Gherkin in `specs/health/`** |
+| A promise the team observes about a live environment | **A `@synthetic` feature in the context that owns it** |
 | A flow that must never break anywhere people use the app | **Gherkin in `specs/journeys/`** |
 | How a feature's observable state evolves under any sequence of actions | **Quint model** |
 | A pure computation: formula, parser, validation table, ordering | **property test** (`assertProperty`) |
@@ -1207,10 +1207,13 @@ product words> } }`, never a vendor query. Windows are rolling
 (`28d`), budgeting is by occurrences. The binding
 (`tests/openslo/<stem>.binding.ts`) measures each indicator: in `bun check`
 on the harness, and for live domains in `health:objectives`, which the
-hourly Health workflow runs after its checks. A rolling window remembers
-past failures, so live objectives never gate a deploy (a fix must be able to
-ship); they gate the production-readiness verdict. No samples in the window
-is a failure, never a pass.
+hourly Health workflow runs after its checks. An objective whose first
+non-empty line is `# live` is measured only against a deployment. The
+harness does not run it and does not require its binding; `health
+--objectives` does. The marker is what makes it live, not `liveDomains`.
+A rolling window remembers past failures, so live objectives never gate a
+deploy (a fix must be able to ship); they gate the production-readiness
+verdict. No samples in the window is a failure, never a pass.
 
 ### The conformance manifest
 
@@ -1234,16 +1237,21 @@ There is no third status: missing or stale evidence is a failure.
 
 ### Live domains
 
-`specs/journeys/` (critical journeys) and `specs/health/` (the promises a
-live environment keeps) describe the deployed product. `@libs/runtime` runs
-the journeys against the simulated app in `bun check`; `@apps/product` runs
-both live (`liveDomains`) in its `health` task
-([`CI.md`](../docs/CI.md#health-and-critical-journeys)). Which resource keeps a health
-promise is the step definitions' business. A domain is run by at most one
-package through `specDomains` and at most one through `liveDomains`. Which
-environment can run a live scenario (production only, the relay, observability
-on) is binding-side knowledge: `HOST_LIMITS` in `apps/product/scripts/health.ts`,
-keyed by feature and scenario name. Specs carry no host tags (B15, D1).
+`specs/journeys/` (critical journeys) describe the deployed product and also
+run on the harness. `@libs/runtime` runs the journeys against the simulated
+app in `bun check`. A `@synthetic` feature is a standing promise about a live
+environment, written in the context that owns it
+([`SYNTHETIC.md`](../docs/SYNTHETIC.md)). The harness does not run it.
+`@apps/product` runs the journeys plus every `@synthetic` feature in its
+`health` task, and only the `@synthetic` features in its `synthetic` task
+([`CI.md`](../docs/CI.md#health-and-critical-journeys)). Which resource keeps
+a promise is the step definitions' business. A domain is run by at most one
+package through `specDomains` and at most one through `liveDomains`.
+`liveDomains` stays `journeys`: a synthetic feature is not a second owner of
+its context. Which environment can run a live scenario (production only, the
+relay, observability on) is binding-side knowledge: `HOST_LIMITS` in
+`apps/product/scripts/health.ts`, keyed by feature and scenario name. Specs
+carry no host tags (B15, D1).
 
 ### Terms this standard uses
 
@@ -1379,10 +1387,10 @@ themselves go in `Rule:` lines, not in the description.
 *Why: one fixed shape makes the why impossible to skip and easy to check;
 rules buried in prose never get a scenario.*
 
-Live domains: `specs/health/` states standing promises checked now, and
+`@synthetic` features state standing promises checked now, and
 `specs/journeys/` states whole journeys. Both are exempt from B4, B5 and C;
-health is also exempt from B17 where the team is the observer the policy
-names.
+a `@synthetic` feature is also exempt from B17 where the team is the
+observer the policy names.
 
 **B3 · Every scenario sits under a `Rule:`.** *Blocking.*
 Each `Rule:` line states one business rule in the context's language
@@ -1492,6 +1500,7 @@ Allowed, and nothing else:
 | --- | --- | --- |
 | `@domain:<dir>` | feature line, required | the bounded context; equals the directory |
 | `@regression:<bug-id>` | scenario | pins an observable bug in `known-bugs.json` |
+| `@synthetic` | feature line, exact | the whole feature is a standing live check; the harness does not run it |
 
 Aggregate and kind (command, invariant, event, policy) are never tags: the
 coverage map (C) derives them from the Quint model and the `Rule:`.
@@ -1686,7 +1695,7 @@ checks the rest. It fails on:
 - code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`; every file but
   this rulebook): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
-  other than `@domain:`, `@regression:`
+  other than `@domain:`, `@regression:` and the exact tag `@synthetic`
 - a random walk outside a Quint model: `.explore(` or `randomActions(` in a
   spec-running package's test outside `tests/quint/`
 - a BDD smell (`@pkgs/gherkin/smells`): more than 8 steps or 3 `When`s,

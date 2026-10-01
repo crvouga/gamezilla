@@ -17,7 +17,7 @@ import {
 } from '@libs/chess/root/mutations';
 import { uniqueTables } from '@libs/permissions/root/conformance/world';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
@@ -43,7 +43,7 @@ function env(atMs: number): MutationEnv {
 async function openDb(): Promise<SqlClient> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(
+  await reconcileSqliteSchema(
     db,
     registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
     {

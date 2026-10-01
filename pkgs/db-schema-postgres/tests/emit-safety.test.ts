@@ -61,6 +61,21 @@ const operations: readonly ServerOperation[] = [
     kind: 'drop_index',
     name: fingerprintForIndexDef(['notes', 'legacy'], false),
   },
+  {
+    kind: 'drop_not_null',
+    table: asSchemaIdent('notes'),
+    column: asSchemaIdent('body'),
+  },
+  {
+    kind: 'widen_integer',
+    table: asSchemaIdent('notes'),
+    column: asSchemaIdent('rating'),
+  },
+  {
+    kind: 'drop_default',
+    table: asSchemaIdent('notes'),
+    column: asSchemaIdent('created_at'),
+  },
 ];
 
 describe('postgres server emit safety', () => {

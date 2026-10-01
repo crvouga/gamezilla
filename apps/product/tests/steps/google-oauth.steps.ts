@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: Google OAuth client configuration.
 /**
- * `specs/health/sign-in.feature`. Asks Google's authorize endpoint
+ * `specs/auth/sign-in.feature`. Asks Google's authorize endpoint
  * directly (no Worker, no sign-in): a registered redirect_uri is answered
  * with the sign-in page; an unregistered one with Google's error page
  * carrying `redirect_uri_mismatch`.

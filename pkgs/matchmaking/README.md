@@ -50,7 +50,7 @@ const { participantId } = await mm.join({
 | Package / subpath | Contents |
 |-------------------|----------|
 | `@pkgs/matchmaking/interface` | `Matchmaking` port, domain types, `createMatchmakingApp`, limits |
-| `@pkgs/matchmaking-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
+| `@pkgs/matchmaking-sql` | `MatchmakingImplSql` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
 | `@pkgs/matchmaking-harness` | The example app and the framework harness (`matchmaking` system + actions / reads) |

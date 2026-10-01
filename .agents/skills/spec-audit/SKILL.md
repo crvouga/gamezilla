@@ -62,8 +62,8 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 | B1 | warn | J. Title is a capability phrase, not "Tests …", a file or component name. | — |
 | B2 | block | M. The description's first sentence matches `When …, … want(s) …, so …`. No description at all is also B2. | partly |
 | B3 | block | M. Every `Scenario`/`Scenario Outline` is inside a `Rule:`. | — |
-| B4 | block | M. Each `Rule:` has a scenario whose `Then` has a refusal marker (the closed list in the standard's "Terms") and one whose `Then` has none — or its description's first line starts `No counter-example:`. J: that the stated why is true. Skip live domains. | — |
-| B5 | block | M. Count `When` plus `And`/`But` between the `When` and the first `Then`: must be exactly 1. Flag any `When` after a `Then`. Skip live domains. | partly |
+| B4 | block | M. Each `Rule:` has a scenario whose `Then` has a refusal marker (the closed list in the standard's "Terms") and one whose `Then` has none — or its description's first line starts `No counter-example:`. J: that the stated why is true. Skip `@synthetic` features and `specs/journeys/`. | — |
+| B5 | block | M. Count `When` plus `And`/`But` between the `When` and the first `Then`: must be exactly 1. Flag any `When` after a `Then`. Skip `@synthetic` features and `specs/journeys/`. | partly |
 | B6 | block | M. Flag a `Given`/`And` in context whose verb after the subject (a cast name, "the team", a role) is a present-simple action (opens, goes, plays, declares, writes, signs in), or that uses "will". J: confirm it is an action, not a state ("is", "has", "are friends", "already signs into"). | — |
 | B7 | block | M. A `When` containing " and " between two verbs, or a count of repetitions ("10 … a day for 3 days"). J: the `When` is one command or event in the present, not a look after the behavior happened in `Given`s. | — |
 | B8 | block | M. `Then` steps with storage, count-of-internals or copy wording (A5 list, "accepted N changes", "waiting to be sent", quoted app text). M: under a Rule that illustrates an invariant, each refusal names a reason. | partly |
@@ -73,7 +73,7 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 | B12 | block | M. Outline with more than 6 rows. J: the varied column is not a business dimension (gesture, error kind, technical failure); an ordered dimension without both sides of its boundary. | — |
 | B13 | block | M. Values matching `foo|bar|baz|lorem|test|user\d|seed`, a run of one repeated letter, or `123`/`1234` or a person not in the cast. | — |
 | B14 | block | M. Every near-duplicate `spec:check --strict-duplicates` reports; every pair of step definitions whose bodies are identical (across all packages). J: two phrasings with one meaning — cite both definitions. | warns |
-| B15 | block | M. Any tag not in the B15 table; a live-run tag outside `specs/health/` and `specs/journeys/`; a `@domain` that isn't the directory. | domain, goal |
+| B15 | block | M. Any tag not in the B15 table. `@synthetic` is exact: `@synthetic-production` and any other suffix are not it. A `@domain` that isn't the directory. | domain, goal |
 | B16 | warn/block | M. Steps per scenario (Background included): > 5 warn, > 8 block. | > 8 |
 | B17 | block | J. A scenario whose outcome only code could observe: exact formula output, validation table, stored state, wire shape, internal counts, transport state. Cite the step and the home the policy table gives it. | — |
 | C1–C6 | block | § Coverage map. | — |
@@ -91,7 +91,7 @@ B15).
 
 ## Coverage map
 
-For each Quint model in scope (skip `specs/health/`, `specs/journeys/`):
+For each Quint model in scope (skip `@synthetic` features and `specs/journeys/`):
 
 1. **Commands and world events**: every `action` except `init`, `step` and
    `_…`. Classify each (standard, "Terms"; J, cite its `///` comment). Find

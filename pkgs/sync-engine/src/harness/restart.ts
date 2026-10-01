@@ -1,5 +1,4 @@
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
-import { createLogger } from '@pkgs/logger';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 
 import type { LocalDomainSchema } from '../client/local-schema-migrate';
 import type { MutationRegistry } from '../mutations/core/types';
@@ -19,17 +18,10 @@ import { openHarnessServerCluster } from './server-cluster';
 import { SERVER_HTTP } from './traffic';
 import type { AddClientArgs, BootedHarnessKernel, ClientMeta } from './types';
 
-/** Silent migrate logger — level silent; `now` unused but required by createLogger. */
-const serverMigrateLogger = createLogger({
-  name: 'kit-restart-server-migrate',
-  level: 'silent',
-  now: () => 0,
-});
-
 export type RestartServerOpts = {
   readonly preserveDb?: boolean;
   readonly checkpointFloor?: bigint;
-  /** Additive domain schema migrate on preserved DB (rolling upgrade). */
+  /** Additive domain schema reconcile on a preserved DB (rolling upgrade). */
   readonly localSchema?: LocalDomainSchema;
   readonly mutationRegistry?: MutationRegistry;
   readonly queryRegistry?: QueryRegistry;
@@ -45,7 +37,7 @@ type StickySchemaArgs = Pick<
 >;
 
 /**
- * Preserve-DB reopen must remigrate with the schema that produced the DB.
+ * Preserve-DB reopen must reconcile with the schema that produced the DB.
  * Pack baseline after an additive upgrade fails SQLite reconcile (undeclared
  * extras need an explicit deprecation entry).
  */
@@ -109,7 +101,7 @@ export async function restartClientImpl(
   let existingDb = preserve
     ? (existing?.dbBundle ?? meta.lastDbBundle)
     : undefined;
-  // Revoke wipe closes SQLite; keepDb must not hand a dead handle to migrate.
+  // Revoke wipe closes SQLite; keepDb must not hand a dead handle to reconcile.
   if (existingDb !== undefined && !(await isDbOpen(existingDb.serial))) {
     existingDb = undefined;
     delete meta.lastDbBundle;
@@ -153,11 +145,11 @@ export async function restartServerImpl(
   const mutationRegistry = opts?.mutationRegistry ?? k.domain.mutationRegistry;
   const queryRegistry = opts?.queryRegistry ?? k.domain.queryRegistry;
 
-  // Rolling upgrade: additive migrate preserved DB to the new domain schema.
+  // Rolling upgrade: additive reconcile of the preserved DB to the new domain schema.
   if (existingDb !== undefined && opts?.localSchema !== undefined) {
-    await new SqliteSchemaDatabaseMigration(opts.localSchema.domainSchema, {
+    await reconcileSqliteSchema(existingDb, opts.localSchema.domainSchema, {
       ownership: 'declared-only',
-    }).migrate({ sqlClient: existingDb, logger: serverMigrateLogger });
+    });
     // Keep domain pack in sync so later restoreNetwork/settle restarts use the new schema.
     (k as { domain: BootedHarnessKernel['domain'] }).domain = {
       ...k.domain,

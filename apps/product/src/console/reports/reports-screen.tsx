@@ -40,6 +40,7 @@ export function ReportsScreen(): JSX.Element {
       <RemoteReportsApp
         http={env.http}
         timers={env.timers}
+        cache={env.cache}
         apiBase={apiBase}
         sha={sha()}
         onOpen={open}

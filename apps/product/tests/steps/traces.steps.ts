@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: Grafana Cloud OTLP ingest and Tempo query.
-/** `specs/health/request-records.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
+/** `specs/runtime/request-records.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
 
 import { expect } from 'bun:test';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';

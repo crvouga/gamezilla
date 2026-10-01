@@ -4,13 +4,13 @@ import { describe, expect, test } from 'bun:test';
 import { PROFILE_TABLES } from '@libs/profile/public/schema';
 import { validateUsername } from '@libs/profile/public/username';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 
 async function openProfileDb() {
   const client = new SqlClientImplBunSqlite(new Database(':memory:'));
-  await applySqliteSchema(client, registerTables(PROFILE_TABLES));
+  await reconcileSqliteSchema(client, registerTables(PROFILE_TABLES));
   return client;
 }
 

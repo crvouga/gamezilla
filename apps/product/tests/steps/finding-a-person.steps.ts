@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: a planted person, then the trail the team follows.
-/** `specs/health/finding-a-person.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
+/** `specs/profile/finding-a-person.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
 
 import { expect } from 'bun:test';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';

@@ -45,6 +45,22 @@ export type ServerOperation =
   | {
       readonly kind: 'drop_index';
       readonly name: PackagePrefixedIndexName;
+    }
+  | {
+      readonly kind: 'drop_not_null';
+      readonly table: SchemaIdent;
+      readonly column: SchemaIdent;
+    }
+  | {
+      /** Lossless `int2` / `int4` → `bigint` for a declared `integer`. */
+      readonly kind: 'widen_integer';
+      readonly table: SchemaIdent;
+      readonly column: SchemaIdent;
+    }
+  | {
+      readonly kind: 'drop_default';
+      readonly table: SchemaIdent;
+      readonly column: SchemaIdent;
     };
 
 export type ClientOperation =
@@ -86,6 +102,9 @@ export const SERVER_OPERATION_KINDS = [
   'backfill',
   'create_index',
   'drop_index',
+  'drop_not_null',
+  'widen_integer',
+  'drop_default',
 ] as const satisfies readonly ServerOperation['kind'][];
 
 export const CLIENT_EXTRA_OPERATION_KINDS = [

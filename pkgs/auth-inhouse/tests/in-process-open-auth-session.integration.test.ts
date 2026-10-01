@@ -1,15 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { createHarnessClock, type HarnessClockBundle } from '@pkgs/clock';
-import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { Hono } from 'hono';
 import { createInMemoryAuthClientStorage } from '../src/client/bearer-token-store';
 import { createInhouseAuthClient } from '../src/client/create-inhouse-auth-client';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
-import { AuthPostgresDatabaseMigration } from '../src/server/auth-database-migration';
 import { createAuthApp } from '../src/server/create-auth-app';
 import { googleEndpointsFor } from '../src/server/inhouse-auth-config';
+import { reconcileIdpPostgres } from '../src/server/reconcile-idp-postgres';
 import { ALICE_EMAIL, simulatedGoogle } from './support/simulated-google';
 
 const BASE_URL = 'http://harness.local';
@@ -37,11 +36,11 @@ async function bootNodes(): Promise<{
 }> {
   const harness = createHarnessClock({ startMs: START_MS });
   const sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
-  await new AuthPostgresDatabaseMigration({
+  await reconcileIdpPostgres(sqlClient, {
     dbScope: createPostgresDbScope('public'),
     skipAdvisoryLock: true,
     alreadyInTransaction: false,
-  }).migrate({ sqlClient, logger: createNoopLogger() });
+  });
 
   let nextId = 0;
   const google = simulatedGoogle({

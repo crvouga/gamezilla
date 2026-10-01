@@ -93,7 +93,15 @@ export function emitClientOperation(
         ...(op.backfills !== undefined ? { backfills: op.backfills } : {}),
       });
     }
+    case 'drop_not_null':
+    case 'widen_integer':
+    case 'drop_default':
+      return refuseSqliteRepair(op.kind);
   }
+}
+
+function refuseSqliteRepair(kind: string): never {
+  throw new Error(`sqlite reconcile does not apply ${kind}`);
 }
 
 function buildTableColumnDdls(

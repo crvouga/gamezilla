@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's client assets Worker.
-/** `specs/health/reaching-the-app.feature`. */
+/** `specs/runtime/reaching-the-app.feature`. */
 
 import { expect } from 'bun:test';
 import { httpProbe } from '@libs/secrets/shared/http-probe';

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
@@ -22,7 +22,7 @@ describe('createSqlCli', () => {
   beforeEach(async () => {
     client = SqlClientImplBunSqlite.open(':memory:');
     await client.connect();
-    await applySqliteSchema(client, usersSchema);
+    await reconcileSqliteSchema(client, usersSchema);
     await client.run(
       raw(`INSERT INTO users (id, name) VALUES ('u1', 'alice')`)
     );

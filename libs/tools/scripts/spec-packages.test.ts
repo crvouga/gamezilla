@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { liveObjectivePaths } from './spec-live';
 import {
   MAX_SPEC_PARTS,
   MODELS_RUNNER,
@@ -117,11 +118,15 @@ describe('specPackages', () => {
   });
 
   test('objectives come from harness and live domains alike', () => {
+    const liveFiles = new Set(liveObjectivePaths());
     for (const pkg of packages) {
+      const borrowsLive = pkg.liveDomains.length > 0;
       for (const path of pkg.objectives) {
-        expect(
-          path.endsWith('.openslo.yaml') && inDomain(path, pkg.domains)
-        ).toBe(true);
+        const owned =
+          path.endsWith('.openslo.yaml') && inDomain(path, pkg.domains);
+        // A live package also runs every `# live` objective, wherever it sits.
+        const borrowed = borrowsLive && liveFiles.has(path);
+        expect(owned || borrowed).toBe(true);
       }
     }
   });

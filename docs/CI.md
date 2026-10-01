@@ -140,8 +140,10 @@ report is part of the Check workflow, and Check is red if it did not publish.
   frame, so a package's cached `test:spec:<k>` bucket already holds the
   frames the report shows; there is no separate cache entry.
 - **Streamed, never bundled.** The screen lists tests as each part's record
-  arrives and loads a test's steps and snapshots only when it is opened, so a
-  commit's reports never have to fit in one download.
+  arrives and loads a test's steps when it is opened. Each frame file is
+  fetched on demand. Commits, sources, timelines and the stylesheet stay in a
+  persistent query cache, so a commit's reports never have to fit in one
+  download.
 
 ## `turbo-ci-run`
 
@@ -273,20 +275,23 @@ Deploy also refuses a commit with no PR and re-runs the whole gate first.
 ## Health and critical journeys
 
 Every health check and critical journey is Gherkin
-([`specs/README.md`](../specs/README.md#live-domains)): `specs/health/`
-(DNS/TLS, the Workers, Postgres + schema, client config, R2, AWS IoT, Grafana
-Cloud, secrets, billing keys, the Google OAuth client, infrastructure drift)
-and `specs/journeys/`. `@apps/product`'s `health` task
-(`apps/product/scripts/health.ts`, `cache: false`) runs them through
-`liveDomains`: one live world per scenario
-(`apps/product/tests/steps/live-world.ts`), step definitions in
-`apps/product/tests/steps/*.steps.ts` (`// @io-wall-ok`, secrets as env).
+([`specs/README.md`](../specs/README.md#live-domains),
+[`SYNTHETIC.md`](SYNTHETIC.md)): `@synthetic` features in the context that
+owns the promise (reaching the app, serving people, the planned environment,
+outside services, uploads, the trail, Google sign-in, real payments, spaces,
+seeing each other play, finding a person) and `specs/journeys/`.
+`@apps/product`'s `health` task (`apps/product/scripts/health.ts`, `cache:
+false`) runs the journeys (`liveDomains`) plus every `@synthetic` feature:
+one live world per scenario (`apps/product/tests/steps/live-world.ts`), step
+definitions in `apps/product/tests/steps/*.steps.ts` (`// @io-wall-ok`,
+secrets as env). `bun run synthetic` runs only the `@synthetic` features.
 Checks are read-only (self-cleaning round-trips at most), assert *configured
 correctly* rather than *up*, and read hosts and names from
 `@libs/infra/public/envs`. Secret validation lives here, not in `bun check`.
 Standalone `bun health:local` passes turbo `--only` and deploys nothing. There is
 deliberately no `//#health` root task (a bare `health` dependency would
-resolve to itself). A new live resource adds a `specs/health/` scenario.
+resolve to itself). A new standing promise is an `@synthetic` feature in its
+own context.
 
 Critical journeys (boot, Google sign-in hand-off, sign in/out, host and end a
 space, open a puzzle, save a profile change, people search) are

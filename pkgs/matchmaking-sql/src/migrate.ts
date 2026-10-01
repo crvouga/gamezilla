@@ -6,8 +6,8 @@
  */
 
 import { assert } from '@pkgs/assert';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { isNamespacedKeyword } from '@pkgs/keyword';
 import {
   DEFAULT_RADIUS_OPTIONS,
@@ -19,7 +19,7 @@ import { raw, sql } from '@pkgs/sql';
 import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { cutoverMatchmakingTables } from './cutover-migration';
+import { dropPreSchemaMatchmakingTables } from './pre-schema-tables';
 import {
   MATCHMAKING_ACTIVE_PARTITIONS_TABLE,
   MATCHMAKING_SCHEMA_STATE_ID,
@@ -110,7 +110,7 @@ async function applyMatchmakingSchema(sqlClient: SqlClient): Promise<void> {
   // Schema reconcile uses PRAGMA / information_schema — unwrap agnostic gate.
   const engine = getUnderlyingSqlClient(sqlClient);
   if (await isPostgresSqlClient(engine)) {
-    await applyPostgresSchema(
+    await reconcilePostgresSchema(
       engine,
       matchmakingSchema,
       createPostgresDbScope('public'),
@@ -121,7 +121,7 @@ async function applyMatchmakingSchema(sqlClient: SqlClient): Promise<void> {
     );
     return;
   }
-  await applySqliteSchema(engine, matchmakingSchema, {
+  await reconcileSqliteSchema(engine, matchmakingSchema, {
     ownership: 'declared-only',
   });
 }
@@ -213,7 +213,7 @@ async function migrateInner(opts: MigrateOptions): Promise<void> {
   const { sqlClient } = opts;
   const nowMs = opts.now?.() ?? 0;
   const engine = getUnderlyingSqlClient(sqlClient);
-  await cutoverMatchmakingTables(engine);
+  await dropPreSchemaMatchmakingTables(engine);
   await applyMatchmakingSchema(engine);
   await maybeRebuildSchema(sqlClient, schema, nowMs);
 }
