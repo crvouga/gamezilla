@@ -433,5 +433,10 @@
     "id": "feedback-evidence-ignores-abort",
     "summary": "An upload response body ignoring cancellation could keep feedback sending indefinitely after the network request completed. Bound the complete upload and receipt read with the same hard deadline.",
     "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+  },
+  {
+    "id": "feedback-changed-evidence-reuses-id",
+    "summary": "Adding evidence after an uncertain delivery could reuse the archived report id and leave the updated recording out of the saved bundle. Preserve ids for unchanged retries and mint a new id for edited evidence.",
+    "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
   }
 ]

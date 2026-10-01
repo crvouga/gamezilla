@@ -195,6 +195,8 @@ export class FeedbackController {
   };
   private recordingChanged(): void {
     const state = this.recorder.state();
+    if (state.phase === 'starting' || state.phase === 'idle')
+      this.publish({ attempted: null });
     if (state.phase === 'recording') this.publish({ visible: false });
     if (state.phase === 'ready') {
       const steps =

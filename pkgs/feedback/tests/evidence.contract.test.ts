@@ -150,3 +150,47 @@ test('an attachment receipt body ignoring cancellation cannot trap submission', 
   await expect(result).rejects.toThrow('Attachment upload timed out');
   expect(clock.pendingOneShotCount()).toBe(0);
 });
+
+// regression: feedback-changed-evidence-reuses-id
+test('changed evidence receives a new report id after an uncertain delivery', async () => {
+  const { clock, timers } = createHarnessClock();
+  let ids = 0;
+  const received: string[] = [];
+  const controller = new FeedbackController({
+    clock,
+    timers,
+    createId: () => `report-${++ids}`,
+    providers: [],
+    reporter: {
+      create: (report) => {
+        received.push(report.id);
+        return received.length === 1
+          ? Promise.reject(new Error('Receipt lost'))
+          : Promise.resolve({ id: report.id });
+      },
+    },
+    upload: async (file) => ({
+      id,
+      name: file.name,
+      contentType: file.contentType,
+      size: file.bytes.length,
+      url: `http://local/api/feedback/evidence/${id}`,
+    }),
+  });
+  controller.setDraft({
+    description: 'The board froze',
+    expected: 'The move appears',
+    reproductionSteps: 'Drag e2 to e3',
+  });
+  await controller.send();
+  expect(controller.state().phase).toBe('failed');
+  controller.attach({
+    name: 'updated-reproduction.webm',
+    contentType: 'video/webm',
+    bytes: new Uint8Array([1, 2, 3]),
+  });
+  await controller.send();
+  expect(received).toEqual(['report-1', 'report-2']);
+  expect(controller.state().phase).toBe('saved');
+  controller.dispose();
+});
