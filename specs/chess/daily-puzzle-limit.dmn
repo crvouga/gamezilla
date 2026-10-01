@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="daily-puzzle-limit-decisions" name="The daily puzzle limit" namespace="https://gamezilla.dev/decisions">
-  <decision id="daily-puzzle-limit" name="May this person solve another rated puzzle today?">
-    <description>A guest solves at most 20 rated puzzles a day, and the day starts again at midnight UTC; puzzles solved before today never count. Free accounts and Plus members have no daily puzzle limit.</description>
+  <decision id="daily-puzzle-limit" name="May this person start another rated puzzle today?">
+    <description>A guest starts at most 20 rated puzzles a day, and the day starts again at midnight UTC; puzzles started before today never count. Free accounts and Plus members have no daily puzzle limit.</description>
     <decisionTable id="daily-puzzle-limit-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
         <inputValues id="who-values"><text>"guest","free account","Plus member"</text></inputValues>
       </input>
-      <input id="today" label="rated puzzles solved today">
-        <inputExpression id="today-expression" typeRef="number"><text>rated puzzles solved today</text></inputExpression>
+      <input id="today" label="rated puzzles started today">
+        <inputExpression id="today-expression" typeRef="number"><text>rated puzzles started today</text></inputExpression>
         <inputValues id="today-values"><text>[0..100]</text></inputValues>
       </input>
-      <input id="earlier" label="rated puzzles solved before today">
-        <inputExpression id="earlier-expression" typeRef="number"><text>rated puzzles solved before today</text></inputExpression>
+      <input id="earlier" label="rated puzzles started before today">
+        <inputExpression id="earlier-expression" typeRef="number"><text>rated puzzles started before today</text></inputExpression>
         <inputValues id="earlier-values"><text>[0..100]</text></inputValues>
       </input>
       <output id="answer" name="answer" typeRef="string">
@@ -22,7 +22,7 @@
         <outputValues id="reason-values"><text>"none","daily puzzle limit reached"</text></outputValues>
       </output>
       <rule id="guest-below-limit">
-        <description>A guest who solved fewer than 20 rated puzzles today may solve another.</description>
+        <description>A guest who started fewer than 20 rated puzzles today may start another.</description>
         <inputEntry id="guest-below-limit-in-1"><text>"guest"</text></inputEntry>
         <inputEntry id="guest-below-limit-in-2"><text>&lt; 20</text></inputEntry>
         <inputEntry id="guest-below-limit-in-3"><text>-</text></inputEntry>
@@ -30,7 +30,7 @@
         <outputEntry id="guest-below-limit-out-2"><text>"none"</text></outputEntry>
       </rule>
       <rule id="guest-at-limit">
-        <description>A guest who solved 20 rated puzzles today has reached the daily puzzle limit.</description>
+        <description>A guest who started 20 rated puzzles today has reached the daily puzzle limit.</description>
         <inputEntry id="guest-at-limit-in-1"><text>"guest"</text></inputEntry>
         <inputEntry id="guest-at-limit-in-2"><text>&gt;= 20</text></inputEntry>
         <inputEntry id="guest-at-limit-in-3"><text>-</text></inputEntry>

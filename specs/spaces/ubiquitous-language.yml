@@ -191,6 +191,10 @@ terms:
     forms: [well-known passwords, default password, publicly known password]
 
   # Borrowed language
+  - term: account deletion
+    from: profile
+  - term: recently proven account
+    from: profile
 
   - term: guest
     from: profile

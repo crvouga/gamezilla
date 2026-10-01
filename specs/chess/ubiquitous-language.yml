@@ -9,6 +9,10 @@ purpose: >-
   puzzle played, online or offline.
 
 terms:
+  - term: account deletion
+    from: profile
+  - term: recently proven account
+    from: profile
   # --- Borrowed -------------------------------------------------------------
 
   - term: guest
@@ -488,3 +492,6 @@ terms:
     source: FIDE Laws of Chess, Articles 3.7.5.1 and 3.1 (a promotion that captures)
   - term: algebraic notation
     source: FIDE Laws of Chess, Appendix C
+
+  - term: keyboard
+    from: runtime

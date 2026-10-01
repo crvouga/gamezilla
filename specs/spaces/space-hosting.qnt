@@ -119,11 +119,22 @@ module space_hosting {
     _moveTo(whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
-  /// Someone who is not the host leaves the space for good.
+  /// Leaving ends the space when the person is its host; otherwise only
+  /// that person leaves it.
   action leave(person: Person): bool = all {
     not(_offline.contains(person)),
-    match whereabouts.get(person) { | InSpace(h) => h != person | _ => false },
-    _moveTo(whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
+    match whereabouts.get(person) { | InSpace(_) => true | _ => false },
+    if (hostOf(whereabouts.get(person)) == person)
+      _moveTo(
+        PEOPLE.mapBy(p =>
+          if (p == person) Lobby
+          else if (hostOf(whereabouts.get(p)) == person) Ended
+          else whereabouts.get(p)
+        ),
+        openSpaces.exclude(Set(person)), _offline, _acted(person), _doneAtCutOff,
+      )
+    else
+      _moveTo(whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Look at who is in the space.

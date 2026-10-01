@@ -6,29 +6,31 @@ Feature: Who may move, and when
   cannot be moved while a wrong move is waiting for a retry, or once the
   puzzle is over.
 
-  Background:
-    Given Alice is signed in
-    And Alice is solving the two-rook clearance puzzle
+  Rule: Only the solver may move and only while the puzzle is being solved
 
-  Scenario: The opponent's pieces cannot be moved
-    When Alice tries to move the opponent's piece g8-f8
-    Then Alice is still asked to find the next move
-    And Alice's board is unchanged
+    Background:
+      Given Alice is signed in
+      And Alice is solving the two-rook clearance puzzle
 
-  Scenario: An illegal move goes back and is not held against the solver
-    When Alice tries the illegal move a1-a8
-    Then Alice's board is unchanged
-    And Alice is still asked to find the next move
-    And Alice's puzzle rating is 1500
+    Scenario: The opponent's pieces cannot be moved
+      When Alice tries to move the opponent's piece g8-f8
+      Then Alice is still asked to find the next move
+      And Alice's board is unchanged
 
-  Scenario: Pieces cannot be moved after a wrong move until a retry
-    When Alice plays a wrong move
-    Then Alice cannot move pieces
+    Scenario: An illegal move goes back and is not held against the solver
+      When Alice tries the illegal move a1-a8
+      Then Alice's board is unchanged
+      And Alice is still asked to find the next move
+      And Alice's puzzle rating is 1500
 
-  Scenario: Pieces cannot be moved once the puzzle is over
-    When Alice solves the puzzle
-    Then Alice cannot move pieces
+    Scenario: Pieces cannot be moved after a wrong move until a retry
+      When Alice plays a wrong move
+      Then Alice cannot move pieces
 
-  Scenario: Picking up a piece shows where it can go
-    When Alice picks up the rook on a1
-    Then Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1
+    Scenario: Pieces cannot be moved once the puzzle is over
+      When Alice solves the puzzle
+      Then Alice cannot move pieces
+
+    Scenario: Picking up a piece shows where it can go
+      When Alice picks up the rook on a1
+      Then Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1

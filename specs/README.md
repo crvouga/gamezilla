@@ -1045,6 +1045,7 @@ terms:
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
+| Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their
@@ -1056,6 +1057,9 @@ Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), J
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
 App      ──► Identity (trail, run into trouble), Journeys (tabs)
+App      ──► Developer tools (address, version of the app, keyboard, control, place in the app)
+Developer tools ──► App (the testing tool)
+Friends, Spaces ──► Developer tools (friend, space)
 Chess    ──► Journeys (a game of chess, a puzzle)
 Room, Sync engine, Matchmaking: stand alone (Sync engine's "shared space" is not a Spaces space)
 ```
@@ -1069,7 +1073,8 @@ Published language:
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve | — |
-| App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble | — |
+| App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
+| Developer tools (`developer-tools`) | the testing tool | — |
 | Auth, Room, Matchmaking, Sync engine, Journeys | — | — |
 
 - Publish product concepts, not common words: "open space", never "open".

@@ -186,12 +186,12 @@ module friendship {
     ),
   }
 
-  /// Block a friend, or someone who asked, from their profile: the
+  /// Block someone from their profile or request: any
   /// friendship, or the waiting friend request, ends.
   action block(person: Person, other: Person): bool = all {
     not(_offline.contains(person)),
     person != other,
-    Set(Friend, RequestReceived).contains(_seen(friendshipStatus, person, other)),
+    Set(Stranger, Friend, RequestSent, RequestReceived).contains(_seen(friendshipStatus, person, other)),
     _update(
       friendships.exclude(Set(Set(person, other))),
       friendRequests.exclude(_between(friendRequests, person, other)),

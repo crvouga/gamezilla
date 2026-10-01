@@ -7,6 +7,17 @@ Feature: Block and unblock
 
   Rule: Blocking ends the friendship and hides the blocker
 
+    Scenario: Blocking someone clears a friend request the blocker sent
+      Given Alice and Bob are signed in
+      And Alice has sent Bob a friend request
+      When Alice blocks Bob
+      Then Bob's inbox stops showing the friend request from Alice within 5 seconds
+
+    Scenario: Blocking a stranger hides the blocker without a friendship first
+      Given Alice and Bob are signed in
+      When Alice blocks Bob
+      Then Bob's search for "alice" shows nobody within 15 seconds
+
     Scenario: Blocking a friend ends the friendship for both
       Given Alice and Bob are friends
       When Alice blocks Bob
