@@ -60,7 +60,7 @@ module space_hosting {
     | _ => ""
   }
 
-  pure def targetOf(p: Whereabouts): Person = match p {
+  pure def _targetOf(p: Whereabouts): Person = match p {
     | Left(h) => h
     | _ => hostOf(p)
   }
@@ -159,7 +159,7 @@ module space_hosting {
     if (hostOf(_whereabouts.get(person)) == person)
       _moveTo(
         PEOPLE.mapBy(p =>
-          if (targetOf(_whereabouts.get(p)) == person) Ended
+          if (_targetOf(_whereabouts.get(p)) == person) Ended
           else _whereabouts.get(p)
         ),
         openSpaces.exclude(Set(person)), _offline, _acted(person), _doneAtCutOff,
@@ -193,7 +193,7 @@ module space_hosting {
     not(_offline.contains(person)),
     _whereabouts.get(person) == InSpace(person),
     _moveTo(
-      PEOPLE.mapBy(p => if (targetOf(_whereabouts.get(p)) == person) Ended else _whereabouts.get(p)),
+      PEOPLE.mapBy(p => if (_targetOf(_whereabouts.get(p)) == person) Ended else _whereabouts.get(p)),
       openSpaces.exclude(Set(person)),
       _offline, _acted(person), _doneAtCutOff,
     ),

@@ -2,7 +2,7 @@
 Feature: Relationships after time away
   When a person returns after time away, they want their friendships and
   friend requests to reflect what other people did while they were away,
-  so old relationships do not leave them stuck or hide a new invitation.
+  so old relationships do not keep them stuck or hide a new friend request.
 
   Rule: An offline friends list keeps the last relationships the person knew
     No counter-example: a person without a connection can only know the relationships they last saw.
@@ -28,7 +28,7 @@ Feature: Relationships after time away
   Rule: Returning reveals friend requests sent while away
     No counter-example: an unanswered friend request remains available when the person returns.
 
-    Scenario: An invitation sent while away appears on return
+    Scenario: A friend request sent while away appears on return
       Given Alice and Bob are signed in
       And Alice is offline
       And Bob has sent Alice a friend request
