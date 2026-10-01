@@ -20,13 +20,16 @@ Feature: Checked notes
 
   Rule: A checked note that breaks the rule is refused and goes back to what it said before
 
+    @regression:sync-refused-write-left-domain-changes
     Scenario: A checked note that breaks the rule is refused
       When Alice writes the checked note "Groceries" saying "refused"
       Then Alice's app says the note "Groceries" was refused
       And Alice does not see the note "Groceries"
+      And the note "Groceries" is not kept for everyone
 
     @regression:pending-reject-verdict-before-rollback
     Scenario: By the time a refusal is reported, the note already says what it said before
       Given Alice has written the checked note "Groceries" saying "milk"
       When Alice writes the checked note "Groceries" saying "refused"
       Then the moment Alice's app says the note "Groceries" was refused, it shows the note saying "milk"
+      And the note "Groceries" is kept for everyone saying "milk"
