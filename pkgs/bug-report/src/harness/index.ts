@@ -37,6 +37,8 @@ export const closeProduct = defineAction({
   act: (world: BugReportingWorld) => world.app.close(),
 });
 export const readReport = (world: BugReportingWorld) => world.app.report();
+export const readEmergencyReport = (world: BugReportingWorld) =>
+  world.app.emergencyReport();
 export const bugReportingSystem = defineSystem<BugReportingWorld>({
   name: 'bug-reporting',
   create(session) {

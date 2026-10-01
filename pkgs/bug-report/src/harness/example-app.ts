@@ -14,7 +14,8 @@ export type ProductCondition =
   | 'crashed'
   | 'router'
   | 'auth'
-  | 'offline';
+  | 'offline'
+  | 'delivery-fails';
 export type DiagnosticsCondition = 'available' | 'throws' | 'hangs';
 
 export function createExampleApp(session: Session) {
@@ -23,6 +24,7 @@ export function createExampleApp(session: Session) {
   let host: HTMLElement | null = null;
   let lastReportId = '';
   let diagnosticsCondition: DiagnosticsCondition = 'available';
+  let deliveryFails = false;
   const providers: DiagnosticProvider[] = [
     'context',
     'screenshot',
@@ -48,7 +50,9 @@ export function createExampleApp(session: Session) {
         const request = new Request(input, init);
         const body = (await request.clone().json()) as BugReport;
         lastReportId = body.id;
-        return server(request);
+        return deliveryFails
+          ? Response.json({ error: 'Unavailable' }, { status: 503 })
+          : server(request);
       },
     },
   });
@@ -56,6 +60,7 @@ export function createExampleApp(session: Session) {
     store,
     boot(condition: ProductCondition = 'working'): void {
       dispose?.();
+      deliveryFails = condition === 'delivery-fails';
       host = document.createElement('aside');
       document.body.append(host);
       const mountedHost = host;
@@ -109,6 +114,13 @@ export function createExampleApp(session: Session) {
             new TextDecoder().decode(await readBytes(value.body))
           ) as BugReport)
         : null;
+    },
+    emergencyReport(): BugReport | null {
+      const text =
+        host?.shadowRoot?.querySelector<HTMLTextAreaElement>(
+          '[name="emergency"]'
+        )?.value;
+      return text ? (JSON.parse(text) as BugReport) : null;
     },
     close(): void {
       dispose?.();

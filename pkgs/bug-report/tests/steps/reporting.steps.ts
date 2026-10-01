@@ -4,6 +4,7 @@ import {
   closeProduct,
   diagnosticsCondition,
   productCondition,
+  readEmergencyReport,
   readReport,
   submitReport,
 } from '@pkgs/bug-report/harness';
@@ -65,4 +66,16 @@ Then('the bug report identifies unavailable diagnostics', async (w) => {
     status: 'unavailable',
     reason: 'Unavailable',
   });
+});
+
+Given('the team cannot send a bug report', (w) =>
+  w.apply(productCondition, 'delivery-fails')
+);
+Then('the team can copy the bug report to keep for later', async (w) => {
+  const report = await w.read(readEmergencyReport);
+  expect(report?.title).toBe('Board froze');
+  expect(report?.description).toBe('Stopped after a move');
+});
+Then('the bug report has not been saved locally', async (w) => {
+  expect(await w.read(readReport)).toBeNull();
 });
