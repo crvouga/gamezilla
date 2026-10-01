@@ -388,5 +388,10 @@
     "id": "watch-scroll-echo",
     "summary": "Scrolling while bun check, bun health, or bun deploy watched a GitHub run printed a stream of ^[[B. A scroll wheel sends down-arrow keys, and the watcher left the terminal echoing input, so those keys landed in the transcript. Fixed by turning echo off for the watch and discarding the keys, then restoring the terminal.",
     "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
+  },
+  {
+    "id": "check-cancel-holds-concurrency",
+    "summary": "A newer push cancelled Check's shards, but publish, close, and the verdict use if: always(), so they kept running and held the check-<pr> concurrency group. The required check on the new commit stayed queued and the PR stayed blocked. Fixed by skipping those jobs when the run is cancelled; a red shard is not a cancellation, so the report and the verdict still run.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
   }
 ]
