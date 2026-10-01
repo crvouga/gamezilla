@@ -348,7 +348,9 @@ const result = spawnSync(
       : ['--preload', process.env['HARNESS_PRELOAD']]),
     '--timeout',
     String(TIMEOUT_MS),
-    '--parallel',
+    // Full product worlds own DOMs, databases and recorded frames. Two
+    // workers keep those worlds moving instead of competing for memory.
+    '--parallel=2',
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,

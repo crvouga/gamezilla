@@ -1048,6 +1048,7 @@
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/kv": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/message": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/room": "workspace:*",

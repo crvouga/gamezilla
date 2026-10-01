@@ -83,7 +83,7 @@ export function LeaveSpaceConfirmModal(
         onPhaseChange={onPhaseChange}
         loadingLabel={<Trans>Ending space…</Trans>}
         successTitle={<Trans>Space ended</Trans>}
-        successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
+        successBody={<Trans>Everyone can see that the space has ended.</Trans>}
         errorTitle={<Trans>Couldn't end space</Trans>}
         stackId="leave-space-confirm-as-host"
         submitDataSet={{ testid: Handles.spaceLeaveConfirm }}

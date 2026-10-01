@@ -1,13 +1,8 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { RoomMetaAttr } from '@pkgs/room';
-import { useNamedRoomRoster } from '@pkgs/room/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
 import { useSpaceRoomClientId } from './space-room-context';
-import {
-  SPACE_ROOM_NAME,
-  useSpaceRoomSelector,
-} from './use-space-room-selector';
+import { useConnectedSpaceRoster } from './use-connected-space-roster';
 
 /**
  * Live connected-client roster from the authoritative room.
@@ -20,12 +15,10 @@ export function useSpacePresence(): {
 } {
   const memberId = useMyId();
   const selfClientId = useSpaceRoomClientId();
-  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
-  const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
+  const roster = useConnectedSpaceRoster();
 
   const peersByMemberId = createMemo(() => {
     const peers = new Map<string, string[]>();
-    if (!roomSynced()) return peers;
     for (const client of roster()) {
       const existing = peers.get(client.id);
       if (existing === undefined) {

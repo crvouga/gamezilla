@@ -9,8 +9,7 @@
 import { setupFriendsPair } from '@libs/friends/harness/setup-friends-pair';
 import { focusActor } from '@libs/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint/world';
-import type { ProductHarness } from '@libs/harness/system/harness';
-import { bringToFront, visible } from '@libs/harness/system/observations';
+import { partition, restoreNetwork } from '@libs/harness/system/actions';
 import {
   closeSpaceMembers,
   createSpace,
@@ -22,12 +21,13 @@ import {
   reenterActiveSpace,
   returnToLobby,
 } from '@libs/spaces/harness/space-actions';
+import { spaceScreenOf } from '@libs/spaces/harness/space-screen-read';
+import { openSpaceHosts } from '@libs/spaces/harness/space-state-reads';
 import {
   lobbyCardVisible,
   readSpaceLink,
   readSpacePresenceCount,
 } from '@libs/spaces/harness/spaces-ui-reads';
-import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 
@@ -42,18 +42,6 @@ function hostKey(link: string): string {
   return `space-host:${link}`;
 }
 
-type Screen = 'ended' | 'viewingPresence' | 'space' | 'lobby' | 'elsewhere';
-
-async function screenOf(s: ProductHarness, actorId: string): Promise<Screen> {
-  await bringToFront(s, actorId);
-  if (await visible(s, actorId, [Handles.spaceEnded])) return 'ended';
-  if (await visible(s, actorId, [Handles.spaceMembersClose]))
-    return 'viewingPresence';
-  if (await visible(s, actorId, [Handles.spaceClose])) return 'space';
-  if (await visible(s, actorId, [Handles.spaceCreate])) return 'lobby';
-  return 'elsewhere';
-}
-
 async function hostHere(
   w: QuintHarnessWorld,
   actorId: string
@@ -65,8 +53,9 @@ async function hostHere(
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'space-hosting',
-  traces: 8,
-  maxSteps: 10,
+  traces: 64,
+  maxSteps: 32,
+  inductiveInvariant: '_inductive',
   timeoutMs: 180_000,
   actions: {
     init: async (w) => {
@@ -111,15 +100,23 @@ bindQuintModel<QuintHarnessWorld>({
     goBackToLobby: async (w, picks) => {
       await w.s.apply(openSpacesTab, person(picks));
     },
-    _loseConnection: () => Promise.resolve(),
-    _connectionReturns: () => Promise.resolve(),
+    _loseConnection: async (w, picks) => {
+      await w.s.apply(partition, person(picks));
+      await w.s.advanceTime(2_000);
+    },
+    _connectionReturns: async (w) => {
+      await w.s.apply(restoreNetwork);
+      await w.s.advanceTime(2_000);
+    },
   },
   observe: async (w) => {
     const whereabouts = new Map<QuintValue, QuintValue>();
     const lobby = new Map<QuintValue, QuintValue>();
     const presence = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
-      const screen = await w.quiet.read(screenOf, actor);
+      lobby.set(actor, new Set());
+      presence.set(actor, 0);
+      const screen = await w.quiet.read(spaceScreenOf, actor);
       if (screen === 'lobby') {
         whereabouts.set(actor, variant('Lobby'));
         const hosts = new Set<QuintValue>();
@@ -139,12 +136,15 @@ bindQuintModel<QuintHarnessWorld>({
           actor,
           (await w.quiet.read(readSpacePresenceCount, actor)) ?? -1
         );
+      } else if (screen === 'left') {
+        whereabouts.set(actor, variant('Left', await hostHere(w, actor)));
       } else if (screen === 'ended') {
         whereabouts.set(actor, variant('Ended'));
       } else {
         whereabouts.set(actor, variant('Elsewhere'));
       }
     }
-    return { whereabouts, lobby, presence };
+    const openSpaces = await w.quiet.read(openSpaceHosts, PEOPLE);
+    return { whereabouts, openSpaces, lobby, presence };
   },
 });

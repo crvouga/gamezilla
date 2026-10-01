@@ -4,6 +4,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
+import type { CreateId } from '@pkgs/uuid';
 import {
   type Accessor,
   createContext,
@@ -14,6 +15,7 @@ import {
 } from 'solid-js';
 
 import { createSpaceOpenRoomsPending } from './space-open-rooms-pending';
+import { SpaceOpenSessionStore } from './space-open-session-store';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
@@ -26,6 +28,14 @@ type SpaceOpenRoomsApi = {
   /** Imperative read (refs). Prefer {@link useSpaceOpenRoomEntry} in render. */
   readonly getEntry: (spaceId: string) => SpaceOpenRoomEntry | null;
   readonly dispatch: (spaceId: string, payload: RoomCommandPayload) => void;
+  readonly viewingIds: Accessor<ReadonlySet<string>>;
+  readonly view: (spaceId: string) => () => void;
+  readonly clientId: (
+    spaceId: string,
+    installId: string,
+    createId: CreateId
+  ) => string;
+  readonly clearClientId: (spaceId: string, installId: string) => void;
 };
 
 const SpaceOpenRoomsContext = createContext<SpaceOpenRoomsApi | null>(null);
@@ -63,7 +73,23 @@ export function SpaceOpenRoomsStoreProvider(props: {
   const [entries, setEntries] = createSignal<
     ReadonlyMap<string, SpaceOpenRoomEntry>
   >(new Map());
+  const [views, setViews] = createSignal<ReadonlyMap<string, number>>(
+    new Map()
+  );
+  const changeView = (spaceId: string, difference: number): void => {
+    setViews((previous) => {
+      const next = new Map(previous);
+      const count = (next.get(spaceId) ?? 0) + difference;
+      if (count > 0) next.set(spaceId, count);
+      else next.delete(spaceId);
+      return next;
+    });
+  };
+  const viewingIds = createMemo(() => new Set(views().keys()));
   const pendingRef = { current: createSpaceOpenRoomsPending() };
+  const sessionRef: { current: SpaceOpenSessionStore | null } = {
+    current: null,
+  };
 
   const setEntry: SpaceOpenRoomsRegistrySetter = (spaceId, entry) => {
     setEntries((prev) => {
@@ -97,6 +123,17 @@ export function SpaceOpenRoomsStoreProvider(props: {
   // Stable identity so dispatch consumers do not churn; entries notify via
   // SpaceOpenRoomsEntriesContext instead.
   const api: SpaceOpenRoomsApi = {
+    clientId: (spaceId, installId, createId) => {
+      sessionRef.current ??= new SpaceOpenSessionStore(createId);
+      return sessionRef.current.getOrCreate(spaceId, installId);
+    },
+    clearClientId: (spaceId, installId) =>
+      sessionRef.current?.clear(spaceId, installId),
+    viewingIds,
+    view: (spaceId) => {
+      changeView(spaceId, 1);
+      return () => changeView(spaceId, -1);
+    },
     getEntry: (spaceId) => entries().get(spaceId) ?? null,
     dispatch: (spaceId, payload) => {
       const entry = entries().get(spaceId);

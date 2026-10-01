@@ -26,12 +26,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -151,7 +151,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -246,7 +246,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -311,7 +311,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -433,5 +433,35 @@
     "id": "friend-block-server-search-disclosure",
     "summary": "People search returned the blocker profile to a blocked actor and relied on a possibly stale client-side filter. The server query now withholds active blockers while preserving discovery in the unblock direction and profile tombstones needed for synchronization. Alice blocking Bob is the literal regression.",
     "regressionTest": "libs/friends/tests/blocked-search.test.ts"
+  },
+  {
+    "id": "space-step-out-presence-lingers",
+    "summary": "Stepping out to the lobby retained a live room connection, leaving people counted as present despite the space promise. Room lifetime now follows actual space views, while membership, queued commands and the open-session identity survive stepping out. The literal friend-step-out sequence is pinned.",
+    "regressionTest": "specs/spaces/space-lifecycle.feature"
+  },
+  {
+    "id": "space-offline-presence-stale",
+    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob\u2019s connection while in Alice\u2019s space is pinned.",
+    "regressionTest": "specs/spaces/space-disconnect-reconnect.feature"
+  },
+  {
+    "id": "space-canceled-open-registers-late",
+    "summary": "The in-process room admission adapter could finish registering a connection after it had been destroyed, creating a ghost connection or taking over a newer open. Admission now honors cancellation before registration. Destroy-before-admission-completes is pinned.",
+    "regressionTest": "libs/spaces/tests/canceled-room-open.test.ts"
+  },
+  {
+    "id": "harness-room-first-open-never-recovers",
+    "summary": "An initial room admission failure left a failed transport installed forever, preventing the heartbeat from retrying after the joined membership reached the server. The first failure now clears and destroys that transport so recovery can open a fresh connection. One failure followed by a heartbeat is pinned.",
+    "regressionTest": "libs/harness/tests/room-connect-recovery.test.ts"
+  },
+  {
+    "id": "space-leave-navigation-hides-outcome",
+    "summary": "Leaving a space navigated through browser history, so joining from a link could send the person to an unrelated screen and hide the outcome. Guests now remain on the open space with an offer to join again; hosts remain on the ended space. Bob joining by link and then leaving is pinned.",
+    "regressionTest": "specs/spaces/space-live-presence.feature"
+  },
+  {
+    "id": "space-session-identities-cross-app-roots",
+    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root\u2019s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
+    "regressionTest": "libs/spaces/tests/independent-space-sessions.test.ts"
   }
 ]

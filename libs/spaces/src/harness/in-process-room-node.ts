@@ -54,13 +54,14 @@ function withReadyGate(
   inner: ClientTransport,
   ready: () => Promise<void>
 ): ClientTransport {
+  let destroyed = false;
   return {
     get isConnected() {
       return inner.isConnected;
     },
     async connect() {
       await ready();
-      return inner.connect();
+      if (!destroyed) return inner.connect();
     },
     sendJson(payload) {
       inner.sendJson(payload);
@@ -72,6 +73,7 @@ function withReadyGate(
       return inner.onHandlers(h);
     },
     destroy() {
+      destroyed = true;
       inner.destroy();
     },
   };

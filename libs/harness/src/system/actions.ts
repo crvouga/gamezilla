@@ -51,6 +51,16 @@ export const restoreNetwork = defineAction({
   },
 });
 
+/** Restore one person's connection while others may remain away. */
+export const restoreActorConnection = defineAction({
+  name: 'restoreActorConnection',
+  enabled: (s: ProductHarness) =>
+    caps(s).includes('partition') && partitioned(s).length > 0,
+  act: (s: ProductHarness, id: string) => {
+    s.session.network.heal(HARNESS_PRIMARY_SERVER_ID, id);
+  },
+});
+
 /** How far one jump of {@link letTimePass} moves the world. */
 const TIME_PASS_HOP_MS = 60 * 60 * 1000;
 /** After each jump: long enough for the requests it set off to answer. */

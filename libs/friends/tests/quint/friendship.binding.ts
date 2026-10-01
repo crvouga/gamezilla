@@ -2,6 +2,7 @@ import {
   friendshipStatusOf,
   localRows,
 } from '@libs/friends/harness/relationship-reads';
+import { sharedRelationships } from '@libs/friends/harness/shared-relationship-reads';
 import { partition, restoreNetwork } from '@libs/harness/system/actions';
 /**
  * `specs/friends/friendship.qnt` against the friends composition: each Quint
@@ -152,6 +153,7 @@ bindQuintModel<QuintHarnessWorld>({
           );
       }
     }
-    return { friendshipStatus };
+    const shared = await w.quiet.read(sharedRelationships, PEOPLE);
+    return { ...shared, friendshipStatus };
   },
 });
