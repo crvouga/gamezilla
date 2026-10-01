@@ -4,7 +4,7 @@ import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-i
 import { ratePuzzleAttemptMutation } from '../../use-cases/rate-puzzle-attempt/shared/rate-puzzle-attempt-mutation';
 import {
   deriveOutcomeScore,
-  hasPlayOutcome,
+  playOutcome,
   sliceCurrentPlay,
 } from '../chess-puzzle-derive';
 import type {
@@ -28,6 +28,7 @@ function mutationRejected(
 }
 
 export type FinalizePlayInput = {
+  readonly attemptKey: string;
   readonly ownerId: string;
   readonly puzzleId: string;
   readonly puzzleRating: number;
@@ -35,7 +36,7 @@ export type FinalizePlayInput = {
   readonly solveIdx: number;
   readonly interactions: readonly ChessPuzzleInteractionRow[];
   readonly terminalKind: ChessPuzzleOutcomeKind;
-  readonly wrongMove: boolean;
+  readonly scorePermille: 0 | 500 | 1000;
 };
 
 export class ChessPuzzleInteractionDb {
@@ -86,8 +87,9 @@ export class ChessPuzzleInteractionDb {
    * alone (§8 / §9 exhausted pool).
    */
   async finalizeRatedAttempt(args: FinalizePlayInput): Promise<void> {
-    if (hasPlayOutcome(args.interactions, args.puzzleId)) return;
-    const terminal: ChessPuzzleInteractionRow = {
+    const play = sliceCurrentPlay(args.interactions, args.puzzleId);
+    const recorded = playOutcome(play);
+    const terminal = recorded ?? {
       puzzleId: args.puzzleId,
       kind: args.terminalKind,
       solveIdx: args.solveIdx,
@@ -96,27 +98,31 @@ export class ChessPuzzleInteractionDb {
       puzzleRating: args.puzzleRating,
       at: '',
     };
-    await this.appendRow({
-      ownerId: args.ownerId,
-      puzzleId: args.puzzleId,
-      puzzleRating: args.puzzleRating,
-      kind: args.terminalKind,
-      solveIdx: args.solveIdx,
-    });
+    if (recorded === null) {
+      const appended = await this.mutationClient.mutate(
+        appendPuzzleInteractionMutation,
+        {
+          interactionId: `${args.ownerId}|${args.attemptKey}`,
+          ownerId: args.ownerId,
+          puzzleId: args.puzzleId,
+          puzzleRating: args.puzzleRating,
+          kind: args.terminalKind,
+          solveIdx: args.solveIdx,
+        }
+      );
+      if (!appended.ok)
+        throw mutationRejected('appendPuzzleInteraction', appended.failures);
+    }
     await this.#rateAttempt({
       ownerId: args.ownerId,
       puzzleId: args.puzzleId,
       puzzleRating: args.puzzleRating,
       puzzleRatingDeviation: args.puzzleRatingDeviation,
-      outcome: args.terminalKind,
-      scorePermille: puzzleScorePermille(
-        args.wrongMove
-          ? 0.5
-          : deriveOutcomeScore([
-              ...sliceCurrentPlay(args.interactions, args.puzzleId),
-              terminal,
-            ])
-      ),
+      outcome: terminal.kind,
+      scorePermille:
+        recorded !== null && recorded.kind !== args.terminalKind
+          ? puzzleScorePermille(deriveOutcomeScore([...play, terminal]))
+          : args.scorePermille,
     });
   }
 }

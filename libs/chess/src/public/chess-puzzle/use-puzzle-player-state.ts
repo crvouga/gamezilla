@@ -18,6 +18,7 @@ import {
 
 import {
   ChessPuzzlePlayAttr,
+  ChessPuzzleResultAttr,
   ClearChessPuzzleRecommendation,
   ReclaimChessPuzzlePlay,
   RecommendChessPuzzleMove,
@@ -182,8 +183,8 @@ function usePuzzlePlayerModel(args: {
     solveIdx: solver.solveIdx,
     interactions,
     interactionsReady,
-    attemptStartedAtMs: startedAtMs,
     canRecord: isPuzzleHost,
+    attemptKey: useSpaceRoomSelector(ChessPuzzleResultAttr.attempt.from),
   });
 
   return {

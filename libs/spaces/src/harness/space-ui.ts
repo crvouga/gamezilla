@@ -102,7 +102,11 @@ export async function ownSpaceCard(
   const cards = [
     ...(html ?? '').matchAll(/data-testid="(space-card-[^"]+)"/g),
   ].map((match) => match[1] ?? '');
-  return cards.length === 1 ? (cards[0] ?? null) : null;
+  if (cards.length === 1) return cards[0] ?? null;
+  const saved = [
+    ...(html ?? '').matchAll(/data-testid="(space-miniplayer-open-[^"]+)"/g),
+  ].map((match) => match[1] ?? '');
+  return saved.length === 1 ? (saved[0] ?? null) : null;
 }
 
 /**

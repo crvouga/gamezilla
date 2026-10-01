@@ -168,7 +168,6 @@ export function makeHarnessClientEnv(
     kv: clientKv(ns),
     secureStorage: clientSecureStorage(ns),
     room: (roomArgs) => {
-      net.assertReachable(id, HARNESS_PRIMARY_SERVER_ID);
       return partitionAwareRoomTransport({
         open: () => roomNode.createTransport(roomArgs),
         reachable: () => net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),

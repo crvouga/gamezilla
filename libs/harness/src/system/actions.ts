@@ -4,7 +4,7 @@ import { describeUiOp, performUiOp, type UiOp } from '@pkgs/ui-testing';
 import { HARNESS_PRIMARY_SERVER_ID } from '../fabric/server-nodes';
 import { ensureActor } from './actor-ui';
 import type { ProductHarness } from './harness';
-import { caps, clientIds, partitioned } from './observations';
+import { caps, partitioned } from './observations';
 
 export const spawnActor = defineAction({
   name: 'spawnActor',
@@ -34,8 +34,8 @@ export const restartApp = defineAction({
 
 export const partition = defineAction({
   name: 'partition',
-  enabled: (s: ProductHarness) =>
-    caps(s).includes('partition') && clientIds(s).length > 0,
+  // Connectivity can change while every app is closed, before a later reopen.
+  enabled: (s: ProductHarness) => caps(s).includes('partition'),
   act: (s: ProductHarness, id: string) => {
     if (id === '') return;
     s.session.network.partition(HARNESS_PRIMARY_SERVER_ID, id);

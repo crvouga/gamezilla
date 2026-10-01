@@ -5,6 +5,7 @@
  */
 
 import './puzzle-attempt.binding';
+import './puzzle-result-recovery.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
 import { openHarness } from '../harness/open-chess-harness';

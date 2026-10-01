@@ -1,6 +1,5 @@
 import { createMessageRouter } from '@pkgs/message';
 import type { RoomState } from '@pkgs/room';
-
 import {
   clearRecommendation,
   recommendMove,
@@ -25,6 +24,11 @@ import {
   ChessPuzzleSolutionShown,
   chessPuzzlePlayEvtNs,
 } from './chess-puzzle-play-messages';
+import {
+  ChessPuzzleResultAttr,
+  decidePuzzleResult,
+  startPuzzleResult,
+} from './chess-puzzle-result';
 
 export const chessPuzzlePlayEventReducer = createMessageRouter<
   RoomState,
@@ -35,6 +39,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     const p = ev.payload;
     return {
       ...state,
+      ...startPuzzleResult(p.hostIdentity, p.attemptId),
       ...ChessPuzzlePlayAttr.puzzleId(p.puzzleId),
       ...ChessPuzzlePlayAttr.fen(p.fen),
       ...ChessPuzzlePlayAttr.moves(p.moves),
@@ -60,6 +65,13 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     const nextFurthest = Math.max(prevFurthest, ev.payload.solveIdx);
     return {
       ...state,
+      ...(ev.payload.status === CHESS_PUZZLE_PLAY_STATUS.solved
+        ? decidePuzzleResult(
+            state,
+            'solved',
+            ChessPuzzleResultAttr.usedHint.from(state) ? 500 : 1000
+          )
+        : {}),
       ...ChessPuzzlePlayAttr.moves(ev.payload.moves),
       ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
       ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
@@ -79,6 +91,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   // piece snaps back (layoutKey remounts the board on the same FEN).
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
     ...state,
+    ...decidePuzzleResult(state, 'failed', 500),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
     ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
@@ -114,6 +127,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   }))
   .on(ChessPuzzleSolutionShown, (state, _ctx, ev) => ({
     ...state,
+    ...decidePuzzleResult(state, 'failed', 0),
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.furthestSolveIdx(ev.payload.solveIdx),
@@ -128,6 +142,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   }))
   .on(ChessPuzzlePlaySkipped, (state, _ctx, ev) => ({
     ...state,
+    ...decidePuzzleResult(state, 'abandoned', 0),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.skipped),
     ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
     ...ChessPuzzlePlayAttr.wrongFromSquare(null),
@@ -160,6 +175,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   }))
   .on(ChessPuzzleHintRevealed, (state, _ctx, ev) => ({
     ...state,
+    ...ChessPuzzleResultAttr.usedHint(true),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.expectedFromSquare(ev.payload.fromSquare),
     ...ChessPuzzlePlayAttr.expectedToSquare(ev.payload.toSquare),
@@ -175,6 +191,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   }))
   .on(ChessPuzzlePlayCleared, (state) => ({
     ...state,
+    ...startPuzzleResult(null, null),
     ...ChessPuzzlePlayAttr.puzzleId(null),
     ...ChessPuzzlePlayAttr.fen(''),
     ...ChessPuzzlePlayAttr.moves(''),
@@ -198,6 +215,7 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
 /** Default values to seed in `SpaceModule.initialState()`. */
 export function chessPuzzlePlayInitialAttrs(): RoomState {
   return {
+    ...startPuzzleResult(null, null),
     ...ChessPuzzlePlayAttr.puzzleId(null),
     ...ChessPuzzlePlayAttr.fen(''),
     ...ChessPuzzlePlayAttr.moves(''),

@@ -19,6 +19,8 @@ export type GameRouterEntry<TCtx, TReturn> = {
 export type GameCommandContext = {
   readonly identity: string;
   readonly ts: number;
+  /** Stable command identity, retained when delivery repeats. */
+  readonly commandId: string;
 };
 
 /**

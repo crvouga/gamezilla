@@ -2,11 +2,10 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import { useLogger } from '@pkgs/logger/solid';
 import { type Accessor, createEffect, untrack } from 'solid-js';
 
-import { hasPendingPlay, hasPlayOutcome } from '../chess-puzzle-derive';
+import { hasPendingPlay } from '../chess-puzzle-derive';
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionRow,
-  type ChessPuzzleOutcomeKind,
 } from '../chess-puzzle-interaction-entities';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -24,13 +23,12 @@ export type InteractionRecorderArgs = {
   interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
   /** The per-puzzle interaction read has landed (restore decisions wait for it). */
   interactionsReady: Accessor<boolean>;
-  /** Room commit time of the attempt's Start — the attempt's identity. */
-  attemptStartedAtMs: Accessor<number | null>;
   /**
    * Only the member driving the shared board owns the attempt. Spectators in
    * the same space watch the room status change but must not be rated for it.
    */
   canRecord: Accessor<boolean>;
+  attemptKey: Accessor<string | null>;
 };
 
 type Ref<T> = { current: T };
@@ -73,12 +71,13 @@ export function useChessPuzzleInteractionRecorder(
 } {
   const myId = useMyId();
   const log = useLogger('chess-puzzle-recorder');
-  const { appendInteraction, finalizePlay } = useChessPuzzleInteractionWrites({
+  const { appendInteraction } = useChessPuzzleInteractionWrites({
     puzzleId: args.puzzleId,
     puzzleRating: args.puzzleRating,
     puzzleRatingDeviation: args.puzzleRatingDeviation,
     solveIdx: args.solveIdx,
     interactions: args.interactions,
+    attemptKey: args.attemptKey,
   });
 
   const reportWriteFailure = (what: string) => (error: unknown) => {
@@ -93,10 +92,8 @@ export function useChessPuzzleInteractionRecorder(
   };
   const prevSolveIdxRef: Ref<number | null> = { current: null };
   const lastUciRef: Ref<string | null> = { current: null };
-  const outcomeForRef: Ref<string | null> = { current: null };
   const attemptKey = (): string | null => {
-    const startedAt = args.attemptStartedAtMs();
-    return startedAt === null ? null : `${args.puzzleId()}|${startedAt}`;
+    return args.attemptKey();
   };
 
   createEffect(() => {
@@ -117,20 +114,6 @@ export function useChessPuzzleInteractionRecorder(
     },
   });
 
-  const recordOutcome = (kind: ChessPuzzleOutcomeKind): void => {
-    const key = attemptKey();
-    if (key === null || outcomeForRef.current === key) return;
-    outcomeForRef.current = key;
-    if (hasPlayOutcome(untrack(args.interactions), untrack(args.puzzleId))) {
-      return;
-    }
-    // The move mutation is still pending: use the transition itself rather
-    // than waiting for its row to arrive in the reactive interaction query.
-    finalizePlay(kind, args.status() === CHESS_PUZZLE_PLAY_STATUS.wrong).catch(
-      reportWriteFailure(kind)
-    );
-  };
-
   createEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = args.status();
@@ -148,7 +131,6 @@ export function useChessPuzzleInteractionRecorder(
       appendInteraction: (kind, extra) => {
         appendInteraction(kind, extra).catch(reportWriteFailure(kind));
       },
-      recordOutcome,
     });
     lastUciRef.current = null;
   });

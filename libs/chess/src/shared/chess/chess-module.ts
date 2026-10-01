@@ -64,7 +64,7 @@ export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
     }
     return commandRouter.dispatch(
       state,
-      { identity, ts: command.ts },
+      { identity, ts: command.ts, commandId: command.id },
       msg,
       (_s, _c, m) =>
         reject({

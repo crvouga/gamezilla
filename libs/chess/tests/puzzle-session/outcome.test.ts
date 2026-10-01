@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { outcomeForTransition } from '@libs/chess/public/chess-puzzle/chess-puzzle-interaction-status-sync';
 import {
   deriveOutcomeScore,
   hasPendingPlay,
@@ -81,26 +80,5 @@ describe('the play outcome (§5: the first one, once)', () => {
     ];
     expect(playOutcome(play)?.kind).toBe('failed');
     expect(deriveOutcomeScore(play)).toBe(0.5);
-  });
-});
-
-describe('outcomeForTransition', () => {
-  test('a live attempt decides the outcome', () => {
-    expect(outcomeForTransition('solving', 'wrong')).toBe('failed');
-    expect(outcomeForTransition('solving', 'revealed')).toBe('failed');
-    expect(outcomeForTransition('wrong', 'revealed')).toBe('failed');
-    expect(outcomeForTransition('solving', 'solved')).toBe('solved');
-    expect(outcomeForTransition('solving', 'skipped')).toBe('abandoned');
-    expect(outcomeForTransition('wrong', 'skipped')).toBe('abandoned');
-  });
-
-  test('a restore (first read after mount or reload) decides nothing', () => {
-    for (const status of ['solving', 'wrong', 'solved', 'revealed'] as const) {
-      expect(outcomeForTransition(null, status)).toBeNull();
-      expect(outcomeForTransition('loading', status)).toBeNull();
-    }
-    expect(outcomeForTransition('solved', 'solving')).toBeNull();
-    expect(outcomeForTransition('wrong', 'solving')).toBeNull();
-    expect(outcomeForTransition('solving', 'solving')).toBeNull();
   });
 });

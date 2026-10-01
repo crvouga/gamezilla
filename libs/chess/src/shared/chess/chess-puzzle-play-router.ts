@@ -228,6 +228,7 @@ function handleStart(
           status: CHESS_PUZZLE_PLAY_STATUS.invalid,
           solveIdx: 0,
           startedAtMs: ctx.ts,
+          attemptId: ctx.commandId,
         }),
       ],
     };
@@ -245,6 +246,7 @@ function handleStart(
         status: setup.status,
         solveIdx: 1,
         startedAtMs: ctx.ts,
+        attemptId: ctx.commandId,
       }),
     ],
   };

@@ -473,5 +473,30 @@
     "id": "gherkin-distinct-contracts-collapsed",
     "summary": "The wording gate collapsed different actor/device parameter types, pending/completed saves and immediate/once-only visibility into aliases. It now retains these substantive distinctions while detecting true filler aliases. All three literal false-alias pairs are pinned.",
     "regressionTest": "pkgs/gherkin/tests/distinct-state-wording.test.ts"
+  },
+  {
+    "id": "puzzle-outcome-recorded-rating-lost",
+    "summary": "Interruption between appending a puzzle outcome and rating the attempt left a permanent rating gap because retry exited when it saw the outcome. Retrying now offers the first recorded outcome to the idempotent rating mutation. The literal interrupted solved attempt is pinned.",
+    "regressionTest": "libs/chess/tests/puzzle-session/interrupted-outcome.test.ts"
+  },
+  {
+    "id": "puzzle-result-lost-as-app-closes",
+    "summary": "A puzzle result arriving while the solver app is closed has no live status transition to record when restored. The original result, including wrong moves and hints, must survive and be recorded exactly once on return. Each of the five literal finish paths is pinned.",
+    "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+  },
+  {
+    "id": "puzzle-attempt-clock-identity-collision",
+    "summary": "Two starts of the same puzzle at the same clock time shared the attempt key. The persisted start command identity now identifies the attempt, survives retries and differs for a fresh start. Both literal starts at 1700000000000 are pinned.",
+    "regressionTest": "libs/chess/tests/puzzle-session/attempt-identity.test.ts"
+  },
+  {
+    "id": "harness-room-created-while-offline",
+    "summary": "The harness room transport factory rejected construction while offline, so the saved board never opened and reconnection could not recover a finished attempt. Only connection attempts now fail while disconnected; local hydration and heartbeat recovery remain available. Finish as the app closes, reopen offline, then reconnect is pinned.",
+    "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+  },
+  {
+    "id": "puzzle-result-lost-by-stats-navigation",
+    "summary": "After a finish arrived while the app was closed, reopening offline and going to stats as the connection returned disposed the board recorder before it heard the result. Result reconciliation now lives across chess menu, stats and settings navigation; the literal close, offline return, reconnect and stats sequence is pinned.",
+    "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
   }
 ]

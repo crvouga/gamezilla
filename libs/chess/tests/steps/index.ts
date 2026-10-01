@@ -18,6 +18,7 @@ import './puzzle-rating.steps';
 import './puzzle-review.steps';
 import './puzzle-allowance.steps';
 import './puzzle-spectator.steps';
+import './puzzle-recovery.steps';
 import './space-game.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
