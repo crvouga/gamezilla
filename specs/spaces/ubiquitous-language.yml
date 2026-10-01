@@ -45,7 +45,7 @@ terms:
       Losing the connection or closing the app is not leaving.
     forms: [leaves, left, leaving]
     avoid: [quit, exit]
-    model: [leave, leaveHost, PersonLeft]
+    model: [leave, leaveHost, Left, PersonLeft]
     published: true
 
   - term: end a space

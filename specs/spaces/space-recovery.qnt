@@ -5,7 +5,7 @@
 // learn that the space ended. This model follows one space through its end.
 module space_recovery {
   type Person = str
-  type RecoveryWhereabouts = InSpace | Lobby | Ended
+  type RecoveryWhereabouts = InSpace | Left | Ended
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val HOST = "alice"
 
@@ -40,19 +40,19 @@ module space_recovery {
   /// Someone leaves for good, without ending the host's space.
   action leave(person: Person): bool = all {
     person != HOST, _online.get(person), _whereabouts.get(person) == InSpace,
-    _update(_whereabouts.set(person, Lobby), _online, openSpaces),
+    _update(_whereabouts.set(person, Left), _online, openSpaces),
   }
 
   /// The host ends the space for everyone, including people who are away.
   action endSpace: bool = all {
     _online.get(HOST), openSpaces.contains(HOST),
-    _update(PEOPLE.mapBy(p => if (_whereabouts.get(p) == InSpace) Ended else Lobby), _online, Set()),
+    _update(PEOPLE.mapBy(p => if (_whereabouts.get(p) == InSpace) Ended else Left), _online, Set()),
   }
 
-  /// Leaving as host ends the space and takes the host to the lobby.
+  /// Leaving as host shows the ended space to everyone who was still in it.
   action leaveHost: bool = all {
     _online.get(HOST), openSpaces.contains(HOST),
-    _update(PEOPLE.mapBy(p => if (p == HOST or _whereabouts.get(p) == Lobby) Lobby else Ended), _online, Set()),
+    _update(PEOPLE.mapBy(p => if (_whereabouts.get(p) == InSpace) Ended else Left), _online, Set()),
   }
 
   /// Losing the connection stops showing a person as present, without leaving.

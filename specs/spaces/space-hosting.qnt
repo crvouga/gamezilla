@@ -23,12 +23,13 @@ module space_hosting {
 
   /// Lobby: in the lobby; InSpace(host): in the space `host` hosts;
   /// ViewingPresence(host): in it, looking at who is there; Ended: looking at
-  /// a space that has ended.
+  /// a space that has ended; Left: looking at a space the person left.
   type Whereabouts =
     | Lobby
     | InSpace(Person)
     | ViewingPresence(Person)
     | Ended
+    | Left
 
   /// Where each person is.
   var whereabouts: Person -> Whereabouts
@@ -146,21 +147,20 @@ module space_hosting {
   }
 
   /// Leaving ends the space when the person is its host; otherwise only
-  /// that person leaves it.
+  /// that person leaves it and can join it again. The outcome stays visible.
   action leave(person: Person): bool = all {
     not(_offline.contains(person)),
     match _whereabouts.get(person) { | InSpace(_) => true | _ => false },
     if (hostOf(_whereabouts.get(person)) == person)
       _moveTo(
         PEOPLE.mapBy(p =>
-          if (p == person) Lobby
-          else if (hostOf(_whereabouts.get(p)) == person) Ended
+          if (hostOf(_whereabouts.get(p)) == person) Ended
           else _whereabouts.get(p)
         ),
         openSpaces.exclude(Set(person)), _offline, _acted(person), _doneAtCutOff,
       )
     else
-      _moveTo(_whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
+      _moveTo(_whereabouts.set(person, Left), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
   /// Look at who is in the space.
@@ -194,10 +194,10 @@ module space_hosting {
     ),
   }
 
-  /// From a space that has ended, go back to the lobby.
+  /// From a space that has ended or one the person left, go back to the lobby.
   action goBackToLobby(person: Person): bool = all {
     not(_offline.contains(person)),
-    _whereabouts.get(person) == Ended,
+    Set(Ended, Left).contains(_whereabouts.get(person)),
     _moveTo(_whereabouts.set(person, Lobby), openSpaces, _offline, _acted(person), _doneAtCutOff),
   }
 
@@ -262,7 +262,7 @@ module space_hosting {
   val invOfflineDoesNoMore = PEOPLE.forall(p =>
     _offline.contains(p) implies _done.get(p) == _doneAtCutOff.get(p)
   )
-  pure val _places = Set(Lobby, Ended).union(PEOPLE.map(InSpace)).union(PEOPLE.map(ViewingPresence))
+  pure val _places = Set(Lobby, Ended, Left).union(PEOPLE.map(InSpace)).union(PEOPLE.map(ViewingPresence))
 
   // The promises hold for any length of hosting, joining, ending and returning.
   val _inductive = all {
