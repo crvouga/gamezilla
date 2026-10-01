@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { MAX_SPEC_PARTS } from './spec-packages';
+import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -12,6 +13,7 @@ type TaskConfig = {
   readonly cache?: boolean;
   readonly inputs?: readonly string[];
   readonly outputs?: readonly string[];
+  readonly env?: readonly string[];
 };
 type Tasks = Readonly<Record<string, TaskConfig>>;
 
@@ -28,6 +30,11 @@ function loadRootScripts(): Readonly<Record<string, string>> {
   ) as { scripts: Record<string, string> };
   return pkg.scripts;
 }
+
+test('spec ownership caches the exact commit range it checks', () => {
+  // regression: spec-rulebook-commit-subject
+  expect(loadTasks()['//#ci:spec-ownership']?.env).toContain(SECRETS_RANGE_ENV);
+});
 
 function turboCiRunTaskArgs(script: string): string[] {
   const marker = 'turbo-ci-run.ts';
