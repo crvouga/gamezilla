@@ -929,7 +929,7 @@ conformance manifest that says which of them a release needs. A spec is the prod
 people can do and what they observe — and never says how the product is
 built, so it stays true through any rewrite. Everything else (units,
 algorithms, wire shapes, storage, performance) is a code test under
-[`TESTING.md`](../docs/TESTING.md).
+[`README.md`](../README.md#correctness-machinery).
 
 This is the one rulebook for specs, step definitions and spec commits. The
 skills are the procedure; they cite these rule IDs and never restate them.
@@ -1244,7 +1244,7 @@ environment, written in the context that owns it
 ([`SYNTHETIC.md`](../docs/SYNTHETIC.md)). The harness does not run it.
 `@apps/product` runs the journeys plus every `@synthetic` feature in its
 `health` task, and only the `@synthetic` features in its `synthetic` task
-([`CI.md`](../docs/CI.md#health-and-critical-journeys)). Which resource keeps
+([`README.md`](../README.md#correctness-machinery)). Which resource keeps
 a promise is the step definitions' business. A domain is run by at most one
 package through `specDomains` and at most one through `liveDomains`.
 `liveDomains` stays `journeys`: a synthetic feature is not a second owner of
