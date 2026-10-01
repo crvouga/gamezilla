@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-28.2';
+export const PERMISSION_POLICY_VERSION = '2026-10-01.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -38,6 +38,8 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.friendsUse,
   PERMISSION.peopleSearch,
   PERMISSION.notificationsReceive,
+  PERMISSION.profileDeleteAccount,
+  PERMISSION.profileExportData,
   PERMISSION.billingSubscribe,
   PERMISSION.billingManage,
   PERMISSION.matchmakingUse,
@@ -62,6 +64,8 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.friendsUse,
   PERMISSION.peopleSearch,
   PERMISSION.notificationsReceive,
+  PERMISSION.profileDeleteAccount,
+  PERMISSION.profileExportData,
   PERMISSION.billingManage,
   PERMISSION.matchmakingUse,
   PERMISSION.puzzlesPlay,
@@ -182,6 +186,8 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       },
     },
     [PERMISSION.billingManage]: SIGN_UP_UNLOCK,
+    [PERMISSION.profileDeleteAccount]: SIGN_UP_UNLOCK,
+    [PERMISSION.profileExportData]: SIGN_UP_UNLOCK,
     [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [LIMIT.hostedSpaces]: {

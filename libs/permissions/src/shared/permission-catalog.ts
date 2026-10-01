@@ -5,6 +5,8 @@ export const PERMISSION = defineCatalog({
   friendsUse: 'friends:use',
   peopleSearch: 'people:search',
   notificationsReceive: 'notifications:receive',
+  profileDeleteAccount: 'profile:delete-account',
+  profileExportData: 'profile:export-data',
   billingView: 'billing:view',
   billingSubscribe: 'billing:subscribe',
   billingManage: 'billing:manage',

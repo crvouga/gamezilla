@@ -8,14 +8,20 @@
  * (or the manifest without the product) fails here.
  */
 import { describe, expect, test } from 'bun:test';
-import { QUOTA_ACTIONS } from '@libs/permissions/public/permission-catalog';
+import {
+  PERMISSION,
+  QUOTA_ACTIONS,
+} from '@libs/permissions/public/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';
 import {
   CAPABILITY_KEYS,
+  capabilityKey,
   catalogKeys,
 } from '@libs/permissions/root/conformance/capabilities';
 import { DMN_INPUT } from '@libs/permissions/root/conformance/people';
 import { MUTATION_ACTIONS } from '@libs/permissions/root/mutation-actions';
 import type { DmnDecision } from '@pkgs/dmn/model';
+import { decide, resolveSubject } from '@pkgs/permissions';
 
 import {
   allDecisions,
@@ -45,6 +51,37 @@ function decidedBy(
 }
 
 describe('closed world: manifest ↔ permission catalog', () => {
+  test('privacy capabilities map to account-only permission decisions', () => {
+    // regression: permission-privacy-capabilities-missing
+    const cases = [
+      ['delete their account', 'profile:delete-account'],
+      ['take a personal-data export', 'profile:export-data'],
+    ] as const;
+    for (const [capability, key] of cases) {
+      expect(capabilityKey(capability)).toBe(key);
+      expect(Object.values(PERMISSION)).toContain(key);
+      const guest = decide(
+        DEFAULT_PERMISSION_POLICY,
+        resolveSubject(DEFAULT_PERMISSION_POLICY, { auth: 'anonymous' }),
+        key
+      );
+      expect(guest).toMatchObject({
+        allowed: false,
+        reason: 'requires_account',
+        unlockRef: `${key}#requires_account`,
+      });
+      for (const membership of ['none', 'active']) {
+        const account = resolveSubject(DEFAULT_PERMISSION_POLICY, {
+          auth: 'verified',
+          membership,
+        });
+        expect(decide(DEFAULT_PERMISSION_POLICY, account, key).allowed).toBe(
+          true
+        );
+      }
+    }
+  });
+
   test('the capability map lists exactly the manifest capabilities', async () => {
     // regression: permission-rated-start-capability-name
     const declared = (await manifestCapabilities()).map((c) => c.id);

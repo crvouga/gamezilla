@@ -59,6 +59,8 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.friendsUse, 'deny', 'allow', 'allow'],
   [PERMISSION.peopleSearch, 'deny', 'allow', 'allow'],
   [PERMISSION.notificationsReceive, 'deny', 'allow', 'allow'],
+  [PERMISSION.profileDeleteAccount, 'deny', 'allow', 'allow'],
+  [PERMISSION.profileExportData, 'deny', 'allow', 'allow'],
   [PERMISSION.billingView, 'allow', 'allow', 'allow'],
   [PERMISSION.billingSubscribe, 'deny', 'allow', 'allow'],
   [PERMISSION.billingManage, 'deny', 'allow', 'allow'],

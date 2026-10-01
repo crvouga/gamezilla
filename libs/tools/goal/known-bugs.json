@@ -583,5 +583,10 @@
     "id": "permission-rated-start-capability-name",
     "summary": "The permission conformance catalog still named solving a rated puzzle while the specification charges access when the rated puzzle starts.",
     "regressionTest": "libs/permissions/tests/closed-world.test.ts"
+  },
+  {
+    "id": "permission-privacy-capabilities-missing",
+    "summary": "The manifest declared account deletion and personal-data exports without corresponding permission keys, capability mappings, or account-only policy grants.",
+    "regressionTest": "libs/permissions/tests/closed-world.test.ts"
   }
 ]

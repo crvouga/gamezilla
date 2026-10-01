@@ -27,6 +27,8 @@ export const CAPABILITY_KEYS = {
   'keep a friends list': PERMISSION.friendsUse,
   'use people search': PERMISSION.peopleSearch,
   'get notifications': PERMISSION.notificationsReceive,
+  'delete their account': PERMISSION.profileDeleteAccount,
+  'take a personal-data export': PERMISSION.profileExportData,
   'see the billing plans': PERMISSION.billingView,
   subscribe: PERMISSION.billingSubscribe,
   'use the billing portal': PERMISSION.billingManage,
