@@ -25,6 +25,37 @@ verdict is produced automatically with zero manual testing.
 
 ## 1. Governing Goals
 
+### Product contract inventory
+
+The inventory includes what people do in the app and what the team does
+with its developer tools. Developer workflows describe choices and visible
+outcomes; their implementation belongs in the repository and package
+briefings. An entry without a complete executable contract remains a
+release gap under Goal 1. Listing an entry does not prove it.
+
+| Surface | Contract home | Completeness work still required |
+| --- | --- | --- |
+| Accounts, profiles and sign-in methods | [`profile/`](profile/), [`auth/`](auth/) | Bind deletion, export, retention and their reactions across contexts; verify production sign-in methods match their promise |
+| Memberships, payments and paid access | [`billing/`](billing/) | Model grace expiration and refunds; prove deletion stops future charges and payment retention expires |
+| Spaces and their people | [`spaces/`](spaces/) | Define and model adding and removing people, including self-removal, removal while offline, and whether someone removed may rejoin |
+| Friendships, requests and blocking | [`friends/`](friends/) | Model the end of a declined request's waiting period and deletion; verify every friendship-status transition |
+| Inbox choices and outcomes | [`friends/`](friends/) | Define reading, marking all read, archiving, dismissing, filtering, expiry and failed actions |
+| Chess puzzles, progress and watching | [`chess/`](chess/) | Complete rating and feed decisions, assistant encouragement and speech, and progress erasure |
+| App navigation, preferences and accessibility | [`runtime/`](runtime/) | Prove every capability across the supported device and input matrix, including interrupted forms and failure recovery |
+| Shared notes, rooms and matchmaking examples | [`sync-engine/`](sync-engine/), [`room/`](room/), [`matchmaking/`](matchmaking/) | Demote implementation-only examples without losing their guards; complete observable model coverage |
+| Test-world views and checkpoints | [`developer-tools/test-world-views.feature`](developer-tools/test-world-views.feature), [`developer-tools/checkpoints.feature`](developer-tools/checkpoints.feature) | Add model and runner coverage; define incomplete saves, failed restores, automatic recovery and isolation |
+| Data notebooks | [`developer-tools/data-notebook.feature`](developer-tools/data-notebook.feature) | Add model and runner coverage; define editing data, answer limits, reordering and automatic answers |
+| Test reports and recorded moments | [`developer-tools/report-catalog.feature`](developer-tools/report-catalog.feature), [`developer-tools/recorded-moments.feature`](developer-tools/recorded-moments.feature), [`developer-tools/report-navigation.feature`](developer-tools/report-navigation.feature) | Add model and runner coverage; define grouping, ordering, playback, access and unavailable reports |
+| Release checks | [`developer-tools/release-check.feature`](developer-tools/release-check.feature), [`conformance.yaml`](conformance.yaml) | Bind every obligation to current evidence; define a quantitative capacity target and prove it |
+| Investigation trails and recovery | [`runtime/request-records.feature`](runtime/request-records.feature), [`profile/finding-a-person.feature`](profile/finding-a-person.feature), [`runtime/privacy-retention.feature`](runtime/privacy-retention.feature) | Define all investigation choices, failures and privacy boundaries; prove recovery cannot revive deleted data |
+| Building, changing and releasing an environment | [`runtime/declared-environment.feature`](runtime/declared-environment.feature), [`runtime/connected-services.feature`](runtime/connected-services.feature) | Define development preparation, automated check and release workflows, cancellation and their failures |
+| Component exploration and team authoring tools | No complete contract yet | Define their observable workflows and connect automated evidence |
+
+The outstanding column records incomplete coverage; it is not permission
+to treat a missing obligation as passing. The audit must replace each gap
+with a verified contract or an explicit product decision before a release
+can claim completeness.
+
 These are the non-negotiable goals of the specification system. Every
 design decision in this strategy is subordinate to them.
 
