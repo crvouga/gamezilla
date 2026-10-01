@@ -84,8 +84,8 @@ export type QuintBinding<W> = {
     Record<string, (world: W, picks: Picks) => Promise<void>>
   >;
   /**
-   * The model's state, read from the world. Every key is a model variable;
-   * the variables it leaves out are the model's own bookkeeping.
+   * The model's state, read from the world. Read every public variable;
+   * only private variables whose names begin with `_` may be left out.
    */
   readonly observe: (world: W) => Promise<Readonly<Record<string, QuintValue>>>;
   /**

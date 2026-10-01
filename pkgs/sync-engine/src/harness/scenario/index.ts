@@ -77,6 +77,7 @@ export {
   clientIds,
   clock,
   connection,
+  deviceCanSynchronize,
   deviceId,
   hasSynced,
   inSync,

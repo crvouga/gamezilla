@@ -1,8 +1,8 @@
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth/public/auth-storage-keys';
 import type { ProductHarness } from '@libs/harness/system/harness';
-import { accountIdOf } from '@libs/harness/system/identity';
 import { sql } from '@pkgs/sql';
 
-/** Which signed-in people still host an open space, including when away. */
+/** Which people still host an open space, including when away. */
 export async function openSpaceHosts(
   s: ProductHarness,
   people: readonly string[]
@@ -16,8 +16,10 @@ export async function openSpaceHosts(
   const hosts = new Set(rows.map((row) => row.host));
   const names = new Set<string>();
   for (const person of people) {
-    const account = await accountIdOf(s, person);
-    if (account !== null && hosts.has(account)) names.add(person);
+    if (!s.actors.has(person)) continue;
+    const env = await s.harness.client(person);
+    const member = env.secureStorage.getValue(LAST_LOCAL_ACCOUNT_ID_KEY);
+    if (typeof member === 'string' && hosts.has(member)) names.add(person);
   }
   return names;
 }

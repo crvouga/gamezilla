@@ -15,6 +15,7 @@
 import {
   focusActor,
   partition,
+  partitioned,
   restoreNetwork,
   returnToTabs,
   signInWithGoogle,
@@ -194,6 +195,11 @@ bindQuintModel<QuintHarnessWorld>({
       username: usernames,
       usernameOnDevice: usernamesOnDevice,
       lastUsernameChange,
+      offline: new Set(
+        (await w.quiet.read(partitioned))
+          .flatMap((pair) => pair.split('|'))
+          .filter((actor) => PEOPLE.some((person) => person === actor))
+      ),
     };
   },
 });

@@ -5,6 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { mutationStatus } from '../../mutations/client/mutation-status';
 import type { HarnessClient } from '../client';
 import { isClosedDatabaseError } from '../invariants';
+import { SERVER_HTTP, syncEndpoint } from '../traffic';
 import { checkDomainInSync } from '../wait-for-in-sync';
 import type { SyncHarness } from './system';
 
@@ -140,6 +141,18 @@ export function liveReconnects(s: SyncHarness, clientId: string): number {
 /** Sync status connection string for a client. */
 export function connection(s: SyncHarness, clientId: string): string | null {
   return clientFor(s, clientId)?.connection() ?? null;
+}
+
+/** Whether the device's injected signal and save channel permit communication. */
+export function deviceCanSynchronize(
+  s: SyncHarness,
+  clientId: string
+): boolean {
+  return (
+    (clientFor(s, clientId)?.lifecycle.lifecycle.isOnline() ?? false) &&
+    !s.kit.network.isHeld(clientId, 'sync') &&
+    !s.kit.network.isEdgePartitioned(syncEndpoint(clientId), SERVER_HTTP)
+  );
 }
 
 /** Last sync error surfaced on a client's status snapshot. */

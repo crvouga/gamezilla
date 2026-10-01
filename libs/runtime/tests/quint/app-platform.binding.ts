@@ -25,6 +25,7 @@ import {
   actorIds,
   bringToFront,
   serverIds as capacityParts,
+  partitioned,
   visible,
 } from '@libs/harness/system/observations';
 import {
@@ -41,6 +42,7 @@ import {
 import { onScreen } from '@libs/harness/system/ui-reads';
 import { searchUsername } from '@libs/search/harness/search-actions';
 import { createSpace, endSpace } from '@libs/spaces/harness/space-actions';
+import { openSpaceHosts } from '@libs/spaces/harness/space-state-reads';
 import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
@@ -193,6 +195,18 @@ bindQuintModel<QuintHarnessWorld>({
       }
     }
     const _capacity = (await w.quiet.read(capacityParts)).length;
-    return { opened, place, signedIn, lookup, _capacity };
+    return {
+      opened,
+      place,
+      signedIn,
+      lookup,
+      _capacity,
+      hosting: await w.quiet.read(openSpaceHosts, PEOPLE),
+      offline: new Set(
+        (await w.quiet.read(partitioned))
+          .flatMap((pair) => pair.split('|'))
+          .filter((actor) => PEOPLE.some((person) => person === actor))
+      ),
+    };
   },
 });
