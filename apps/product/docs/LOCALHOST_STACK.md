@@ -23,6 +23,12 @@ Google's protocol, and billing goes through one that speaks Stripe's — the
 simulated vendors are [Mockingbird](https://mockingbird.chrisvouga.dev/)'s
 (`@crvouga/mockingbird-service-oauth`, `@crvouga/mockingbird-service-stripe`).
 
+**Spec reports are the live bucket.** Every API instance receives the dev
+environment's read credential for the one bucket OpenTofu provisions
+(`gamezilla-reports` in `libs/infra/tofu/global.tfvars.json`). A local stack
+and every deployment list the same commits. S3rver remains this stack's own
+object store.
+
 **Every port is OS-assigned.** A stack publishes its addresses to
 `.cache/localhost-stack/<instance>.json`; consumers read that file (via
 `LOCALHOST_STACK_MANIFEST`) rather than assuming a port. That is what lets

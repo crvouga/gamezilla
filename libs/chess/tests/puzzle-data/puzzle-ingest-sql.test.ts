@@ -5,7 +5,7 @@ import { ChessPuzzleLoadFileSeeder } from '@libs/chess/root/server/seed-chess-pu
 import { PuzzleValidationReport } from '@libs/chess/root/server/validate-chess-puzzles/puzzle-validation-report';
 import { validatePuzzleTable } from '@libs/chess/root/server/validate-chess-puzzles/puzzle-validation-sources';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createLogger } from '@pkgs/logger';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -37,7 +37,7 @@ let idSeq = 0;
 async function openDb(): Promise<SqlClient> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(db, registerTables([...CHESS_TABLES]), {
+  await reconcileSqliteSchema(db, registerTables([...CHESS_TABLES]), {
     ownership: 'declared-only',
   });
   return db;

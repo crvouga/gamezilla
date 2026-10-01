@@ -18,6 +18,16 @@ export const ALLOWED_TAG_PREFIXES: readonly string[] = [
   '@regression:',
 ];
 
+/** Tags that mean one thing and take no suffix. `@synthetic-production` is not one. */
+export const ALLOWED_EXACT_TAGS: readonly string[] = ['@synthetic'];
+
+function tagAllowed(tag: string): boolean {
+  return (
+    ALLOWED_EXACT_TAGS.includes(tag) ||
+    ALLOWED_TAG_PREFIXES.some((prefix) => tag.startsWith(prefix))
+  );
+}
+
 /** The rulebook: it states the layout, so it names paths. */
 export const RULEBOOK = 'specs/README.md';
 
@@ -58,11 +68,9 @@ function tagProblems(path: string, lines: readonly string[]): string[] {
     if (!trimmed.startsWith('@')) continue;
     for (const tag of trimmed.split(/\s+/)) {
       if (tag.startsWith('#')) break;
-      if (ALLOWED_TAG_PREFIXES.some((prefix) => tag.startsWith(prefix))) {
-        continue;
-      }
+      if (tagAllowed(tag)) continue;
       out.push(
-        `${path}:${String(index + 1)}: D1 tag ${tag} is not traceability (${ALLOWED_TAG_PREFIXES.join(', ')}) — where a scenario can run belongs beside its bindings, not in the spec`
+        `${path}:${String(index + 1)}: D1 tag ${tag} is not traceability (${[...ALLOWED_TAG_PREFIXES, ...ALLOWED_EXACT_TAGS].join(', ')}) — where a scenario can run belongs beside its bindings, not in the spec`
       );
     }
   }

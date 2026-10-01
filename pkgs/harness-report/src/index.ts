@@ -9,7 +9,11 @@ export * from './remote/protocol';
 export {
   type CommitEventsOptions,
   commitEvents,
+  type FrameBody,
   listCommits,
+  listSourceRecords,
   readCommit,
+  readFrameBody,
+  readTestReport,
   testEvents,
 } from './remote/read';

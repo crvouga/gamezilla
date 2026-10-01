@@ -12,7 +12,8 @@
  * decision tables, structures and objectives with their `tests/<kind>/**`
  * bindings. The harness runner (`test-spec.ts`) runs every kind in
  * `specDomains`; a live run (`health`) runs features and objectives in
- * `liveDomains`, so a live package binds the objectives of its live domains.
+ * `liveDomains`, plus every `@synthetic` feature and every `# live`
+ * objective, so a live package binds those wherever they sit.
  * Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
  */
 
@@ -32,6 +33,12 @@ import {
   contextEntryProblem,
   specsRootEntryProblem,
 } from './spec-kinds';
+import {
+  featuresFor,
+  liveObjectivePaths,
+  objectivesFor,
+  syntheticFeatures,
+} from './spec-live';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const SHARED_STEPS_DIR = 'libs/harness/src/spec/steps';
@@ -64,7 +71,10 @@ export type SpecPackage = PackageSpecs & {
   readonly decisions: readonly string[];
   /** Repo-relative `.als` structures this package runs (`specDomains`). */
   readonly structures: readonly string[];
-  /** Repo-relative `.openslo.yaml` objectives this package runs (both domain lists). */
+  /**
+   * Repo-relative `.openslo.yaml` objectives this package runs: its domains,
+   * plus every `# live` objective when it has live domains.
+   */
   readonly objectives: readonly string[];
   readonly problems: readonly string[];
 };
@@ -334,14 +344,58 @@ function readManifest(dir: string): Manifest {
   ) as Manifest;
 }
 
-/** Every package that runs spec domains (`specDomains` / `liveDomains`), in path order. */
-export function specPackages(): readonly SpecPackage[] {
-  const dirs = packageDirs();
+function packageNames(dirs: readonly string[]): Map<string, string> {
   const byName = new Map<string, string>();
   for (const dir of dirs) {
     const manifest = readManifest(dir);
     if (manifest.name !== undefined) byName.set(manifest.name, dir);
   }
+  return byName;
+}
+
+function bindingPaths(
+  specDomains: readonly string[],
+  liveDomains: readonly string[]
+): Record<BindingKind['field'], readonly string[]> {
+  return Object.fromEntries(
+    BINDING_KINDS.map((kind) => [
+      kind.field,
+      kindSpecs(kind, specDomains, liveDomains),
+    ])
+  ) as Record<BindingKind['field'], readonly string[]>;
+}
+
+/** Step files a steps entry imports, and whether it pulls in the shared steps. */
+function stepImports(
+  stepsEntry: string,
+  byName: ReadonlyMap<string, string>,
+  problems: string[]
+): { readonly imports: readonly string[]; readonly sharedSteps: boolean } {
+  const imports: string[] = [];
+  let sharedSteps = false;
+  for (const specifier of extractStepImports(
+    readFileSync(join(REPO_ROOT, stepsEntry), 'utf8')
+  )) {
+    if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
+    const file = resolveStepImport(specifier, byName);
+    if (file === null) continue;
+    if (!existsSync(join(REPO_ROOT, file))) {
+      problems.push(
+        `${stepsEntry}: imports ${specifier} but ${file} does not exist`
+      );
+      continue;
+    }
+    imports.push(file);
+  }
+  return { imports, sharedSteps };
+}
+
+/** Every package that runs spec domains (`specDomains` / `liveDomains`), in path order. */
+export function specPackages(): readonly SpecPackage[] {
+  const dirs = packageDirs();
+  const byName = packageNames(dirs);
+  const synthetic = syntheticFeatures();
+  const liveObjectives = liveObjectivePaths();
   const out: SpecPackage[] = [];
   for (const dir of dirs) {
     const manifest = readManifest(dir);
@@ -349,63 +403,50 @@ export function specPackages(): readonly SpecPackage[] {
     const liveDomains = manifest.liveDomains ?? [];
     const domains = [...new Set([...specDomains, ...liveDomains])];
     if (domains.length === 0) continue;
-    const name = manifest.name ?? dir;
     const entryPath = `${dir}/tests/steps/index.ts`;
     const stepsEntry = existsSync(join(REPO_ROOT, entryPath))
       ? entryPath
       : null;
     const own = readSteps(stepFiles(`${dir}/tests/steps`));
     const models = domains.flatMap(domainModelPaths);
-    const kinds = Object.fromEntries(
-      BINDING_KINDS.map((kind) => [
-        kind.field,
-        kindSpecs(kind, specDomains, liveDomains),
-      ])
-    ) as Record<BindingKind['field'], readonly string[]>;
-    const problems = [
+    const kinds = bindingPaths(specDomains, liveDomains);
+    const live = liveDomains.length > 0;
+    const objectives = objectivesFor(kinds.objectives, liveObjectives, live);
+    const problems: string[] = [
       ...own.problems,
       ...modelProblems(dir, models),
       ...BINDING_KINDS.flatMap((kind) =>
-        kindProblems(dir, kind, kinds[kind.field])
+        kindProblems(
+          dir,
+          kind,
+          kind.field === 'objectives' ? objectives : kinds[kind.field]
+        )
       ),
     ];
-    const imports: string[] = [];
-    let sharedSteps = false;
-    if (stepsEntry !== null) {
-      for (const specifier of extractStepImports(
-        readFileSync(join(REPO_ROOT, stepsEntry), 'utf8')
-      )) {
-        if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
-        const file = resolveStepImport(specifier, byName);
-        if (file === null) continue;
-        if (!existsSync(join(REPO_ROOT, file))) {
-          problems.push(
-            `${stepsEntry}: imports ${specifier} but ${file} does not exist`
-          );
-          continue;
-        }
-        imports.push(file);
-      }
-    } else {
+    const linked =
+      stepsEntry === null
+        ? { imports: [] as readonly string[], sharedSteps: false }
+        : stepImports(stepsEntry, byName, problems);
+    if (stepsEntry === null) {
       problems.push(
         `${dir}: runs spec domains but has no tests/steps/index.ts`
       );
     }
     out.push({
-      name,
+      name: manifest.name ?? dir,
       dir,
       domains,
       specDomains,
       liveDomains,
-      features: readFeatures(domains),
+      features: featuresFor(readFeatures(domains), synthetic, live),
       definitions: own.steps,
-      imports,
-      sharedSteps,
+      imports: linked.imports,
+      sharedSteps: linked.sharedSteps,
       stepsEntry,
       models,
       decisions: kinds.decisions,
       structures: kinds.structures,
-      objectives: kinds.objectives,
+      objectives,
       problems,
     });
   }

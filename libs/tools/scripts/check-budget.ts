@@ -34,7 +34,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/db-indexes-postgres#test:contract': 600,
   '@pkgs/kv-postgres#test:contract': 600,
   '@pkgs/object-store-s3#test:contract': 600,
-  // Every specs/health/ and specs/journeys/ scenario, one feature file per
+  // Every @synthetic feature and specs/journeys/ scenario, one feature file per
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the
   // signed-in ones first signing in (health only — never part of `bun check`).

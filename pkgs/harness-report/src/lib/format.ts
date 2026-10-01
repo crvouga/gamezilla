@@ -26,6 +26,40 @@ export function fileLabel(sourceFile: string | undefined): string {
   return sourceFile ? fileName(sourceFile) : 'Other';
 }
 
+function formatArg(value: unknown): string {
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (
+    value === null ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+  try {
+    const text = JSON.stringify(value);
+    if (text === undefined) return '?';
+    return text.length > 72 ? `${text.slice(0, 69)}…` : text;
+  } catch {
+    return '?';
+  }
+}
+
+/** Compact `arg, arg` for an action line. Empty when the step recorded none. */
+export function formatArgs(args: readonly unknown[] | undefined): string {
+  if (args === undefined || args.length === 0) return '';
+  return args.map(formatArg).join(', ');
+}
+
+/** `action(args)`, or the step title when the step is not an action. */
+export function actionLabel(step: {
+  readonly action?: string | undefined;
+  readonly args?: readonly unknown[] | undefined;
+  readonly title: string;
+}): string {
+  if (step.action === undefined || step.action === '') return step.title;
+  return `${step.action}(${formatArgs(step.args)})`;
+}
+
 export function formatBlobBody(
   test: HtmlReportTest,
   blob: ReportSnapshotBlob

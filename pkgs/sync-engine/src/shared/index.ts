@@ -88,11 +88,11 @@ export {
   FRAMEWORK_TOPIC_MAP,
   withFrameworkTopicMap,
 } from './framework-topic-map';
+export { reconcileSyncEnginePostgres } from './reconcile-sync-engine-postgres';
 export {
   filterAcceptableImages,
   filterPublishableImages,
 } from './row-image-guard';
-export { SyncEngineDatabaseMigration } from './sync-engine-database-migration';
 export {
   defineTopicMap,
   subscribeTables,

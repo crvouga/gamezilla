@@ -1,11 +1,11 @@
 // @io-wall-ok
 /**
- * Run definitive `@libs/runtime` Postgres migrations against the local embedded
+ * Reconcile `@libs/runtime` Postgres schemas against the local embedded
  * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).
  */
 
 import { appPostgresDbScope } from '@libs/db/public/scope';
-import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
+import { reconcilePostgres } from '@libs/runtime/server/reconcile-postgres';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
@@ -15,7 +15,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 export async function runLocalMigrate(
   databaseUrl: string = LOCAL_DATABASE_URL
 ): Promise<void> {
-  process.stdout.write('[postgres] migrating…\n');
+  process.stdout.write('[postgres] reconciling…\n');
   const dbScope = appPostgresDbScope();
   const logger = createLogger({
     name: 'postgres:migrate',
@@ -27,16 +27,16 @@ export async function runLocalMigrate(
     max: 1,
   });
   try {
-    await new PostgresMigrationRunner({
+    await reconcilePostgres({
       sqlClient,
       logger,
       dbScope,
       clock: wallClock,
-    }).run();
+    });
   } finally {
     await pool.end();
   }
-  process.stdout.write('[postgres] migrate complete\n');
+  process.stdout.write('[postgres] reconcile complete\n');
 }
 
 if (import.meta.main) {

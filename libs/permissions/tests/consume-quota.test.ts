@@ -6,7 +6,7 @@ import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';
 import { PERMISSIONS_MUTATIONS } from '@libs/permissions/root/mutations';
 import { authorizeAppMutation } from '@libs/permissions/root/server/authorize-app-mutation';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { assertProperty } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -37,7 +37,7 @@ const HOUR = 3_600_000;
 async function openDb(): Promise<SqlClient> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(
+  await reconcileSqliteSchema(
     db,
     registerTables([
       ...PERMISSIONS_TABLES,

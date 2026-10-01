@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
 import { registerTables, type TableDef } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import type { Sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -8,7 +8,7 @@ export async function applySchema(
   client: SqlClient,
   tables: readonly TableDef[]
 ): Promise<void> {
-  await applySqliteSchema(client, registerTables(tables));
+  await reconcileSqliteSchema(client, registerTables(tables));
 }
 
 export async function setup(

@@ -7,7 +7,9 @@
  *
  * Every port is OS-assigned and every piece of state lives under one
  * instance directory, so several stacks run side by side with no
- * coordination beyond the manifest each one writes.
+ * coordination beyond the manifest each one writes. Every API instance reads
+ * the one reports bucket OpenTofu provisions (`gamezilla-reports`), the same
+ * store every deployment reads.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
@@ -19,6 +21,7 @@ import {
   type StripeServer,
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
+import { GLOBAL } from '@libs/infra/public/global';
 import { membershipCallbackPath } from '@pkgs/billing';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers';
 import {
@@ -29,6 +32,10 @@ import {
 } from '@pkgs/billing-stripe';
 import { createLogger } from '@pkgs/logger';
 
+import {
+  loadReportsDevSecrets,
+  reportsReadCredential,
+} from '../reports-dev-credentials';
 import { bootInfra, type InfraHandles } from './boot-infra';
 import {
   type PortReservation,
@@ -144,6 +151,17 @@ async function stopChild(child: ChildProcess): Promise<void> {
   await exited;
 }
 
+/**
+ * Read credential for the shared reports bucket. Loaded once per stack and
+ * handed to every API instance, so they list the same commits.
+ */
+function reportsEnvForStack(): Readonly<Record<string, string>> {
+  return reportsReadCredential(
+    loadReportsDevSecrets(REPO_ROOT),
+    GLOBAL.reports.bucket
+  );
+}
+
 function startApiNode(args: {
   readonly id: string;
   readonly port: number;
@@ -152,6 +170,7 @@ function startApiNode(args: {
   readonly billing: BillingProvider;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
+  readonly reportsEnv: Readonly<Record<string, string>>;
 }): ChildProcess {
   return spawn('bun', ['run', 'apps/server/scripts/serve-api-node.ts'], {
     cwd: REPO_ROOT,
@@ -159,6 +178,7 @@ function startApiNode(args: {
     env: {
       ...process.env,
       ...args.infraEnv,
+      ...args.reportsEnv,
       ...args.idpEnv,
       API_NODE_ID: args.id,
       API_NODE_PORT: String(args.port),
@@ -239,6 +259,10 @@ async function startApiTier(args: {
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
 }): Promise<ApiTier> {
+  const reportsEnv = reportsEnvForStack();
+  process.stdout.write(
+    `[stack] spec reports: ${GLOBAL.reports.bucket} (every API instance)\n`
+  );
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];
   for (let index = 0; index < args.options.apiNodes; index += 1) {
@@ -254,6 +278,7 @@ async function startApiTier(args: {
         billing: args.billing,
         webOrigin: args.webOrigin,
         infraEnv: args.infra.env,
+        reportsEnv,
       })
     );
     backends.push({

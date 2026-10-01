@@ -7,6 +7,8 @@ import {
   commitIndexKey,
   commitKey,
   frameCssKey,
+  remoteTestFileKey,
+  remoteTestReportKey,
   type SourceRecord,
   SseDecoder,
   sourceKey,
@@ -93,6 +95,86 @@ describe('reports API', () => {
     const reports = app(null);
     expect((await reports.request('/')).status).toBe(503);
     expect((await reports.request(`/${SHA}/events`)).status).toBe(503);
+  });
+
+  test('serves sources, one timeline and one frame, cached once complete', async () => {
+    const store = await seeded();
+    const report = {
+      meta: {
+        system: 'chess',
+        runtime: 'sim',
+        seed: '1',
+        startedAtMs: 1,
+        endedAtMs: 2,
+        durationMs: 12,
+        status: 'passed',
+        runId: 'run',
+        testId: 'kv-put',
+        title: 'puts a value',
+        actorIds: ['alice'],
+      },
+      steps: [],
+    };
+    await writeUtf8(
+      store,
+      remoteTestReportKey(SHA, SOURCE.source, 'kv-put'),
+      JSON.stringify(report)
+    );
+    await writeUtf8(
+      store,
+      remoteTestFileKey(SHA, SOURCE.source, 'kv-put', 'frames/f-0001.html'),
+      '<html>hello</html>',
+      'text/html; charset=utf-8'
+    );
+    const reports = app(store);
+    const sources = await reports.request(`/${SHA}/sources`);
+    expect(sources.status).toBe(200);
+    expect(sources.headers.get('cache-control')).toBe(
+      'public, max-age=31536000, immutable'
+    );
+    expect(await sources.json()).toEqual({ sources: [SOURCE] });
+
+    const timeline = await reports.request(
+      `/${SHA}/tests/${SOURCE.source}/kv-put`
+    );
+    expect(timeline.headers.get('cache-control')).toContain('immutable');
+    expect((await timeline.json()).meta.testId).toBe('kv-put');
+
+    const file = await reports.request(
+      `/${SHA}/tests/${SOURCE.source}/kv-put/files/frames/f-0001.html`
+    );
+    expect(file.status).toBe(200);
+    expect(file.headers.get('content-type')).toContain('text/html');
+    expect(file.headers.get('cache-control')).toContain('immutable');
+    expect(await file.text()).toBe('<html>hello</html>');
+  });
+
+  test('a bad sha or a frame path that leaves the test is not found', async () => {
+    const reports = app(await seeded());
+    expect((await reports.request('/not-a-sha/sources')).status).toBe(404);
+    expect(
+      (
+        await reports.request(
+          `/${SHA}/tests/${SOURCE.source}/kv-put/files/..%2F..%2Fcommit.json`
+        )
+      ).status
+    ).toBe(404);
+  });
+
+  test('a running commit is not cached', async () => {
+    const store = await seeded();
+    await writeUtf8(
+      store,
+      commitKey(SHA),
+      JSON.stringify({
+        ...COMMIT,
+        state: 'running',
+        endedAtMs: null,
+        status: null,
+      })
+    );
+    const res = await app(store).request(`/${SHA}/sources`);
+    expect(res.headers.get('cache-control')).toBe('no-store');
   });
 
   test('a browser on another origin may read it', async () => {

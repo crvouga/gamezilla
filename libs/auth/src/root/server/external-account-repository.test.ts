@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
@@ -12,7 +12,7 @@ import { AUTH_TABLES } from '../../public/schema';
 const adapters = createHarnessAdapters({ seed: 1 });
 
 async function migrateTables(db: SqlClient): Promise<void> {
-  await applySqliteSchema(db, registerTables([...AUTH_TABLES]));
+  await reconcileSqliteSchema(db, registerTables([...AUTH_TABLES]));
 }
 
 describe('ExternalAccountRepository', () => {

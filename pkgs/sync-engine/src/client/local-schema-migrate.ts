@@ -1,18 +1,9 @@
 // @sql-vendor-ok — local SQLite client schema uses PRAGMA user_version.
 import type { Schema } from '@pkgs/db-schema';
-import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
-import { createLogger } from '@pkgs/logger';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileOutbox } from '@pkgs/outbox';
 import { unsafe } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-
-/** Silent migrate logger — level silent; `now` unused but required by createLogger. */
-const domainMigrateLogger = createLogger({
-  name: 'local-schema-migrate',
-  level: 'silent',
-  now: () => 0,
-});
-
-import { migrateOutbox } from '@pkgs/outbox';
 import {
   ensureFrameworkSchema,
   RETIRED_LOCAL_TABLES,
@@ -27,35 +18,21 @@ const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
 /**
- * Target `PRAGMA user_version` after migrate.
+ * Target `PRAGMA user_version` after reconcile.
  * Product-harness snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
  */
 export function getLocalSchemaTargetVersion(
   schemaEpoch: number = SCHEMA_EPOCH
 ): number {
-  return schemaEpoch * VERSION_STRIDE + MIGRATIONS.length;
+  return schemaEpoch * VERSION_STRIDE;
 }
 
 export type LocalDomainSchema = {
-  /** Declarative domain schema applied via `SqliteSchemaDatabaseMigration`. */
+  /** Declarative domain schema reconciled onto the local database. */
   readonly domainSchema: Schema;
   /** Domain table names wiped on CACHE clear / epoch bump. */
   readonly cacheTableNames: readonly string[];
 };
-
-type Migration = (db: SqlClient, schema: LocalDomainSchema) => Promise<void>;
-
-const MIGRATIONS: readonly Migration[] = [
-  async (db, schema) => {
-    await dropRetiredTables(db);
-    await ensureFrameworkSchema(db);
-    await migrateOutbox(db);
-    await ensureDomainTables(db, schema);
-  },
-  async (db) => {
-    await ensureFrameworkSchema(db);
-  },
-];
 
 function quoteIdent(value: string): string {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) {
@@ -89,12 +66,12 @@ async function ensureDomainTables(
   schema: LocalDomainSchema
 ): Promise<void> {
   try {
-    await new SqliteSchemaDatabaseMigration(schema.domainSchema, {
+    await reconcileSqliteSchema(db, schema.domainSchema, {
       ownership: 'declared-only',
-    }).migrate({ sqlClient: db, logger: domainMigrateLogger });
+    });
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`ensureDomainTables/migrate: ${detail}`, {
+    throw new Error(`ensureDomainTables/reconcile: ${detail}`, {
       cause: error,
     });
   }
@@ -122,24 +99,12 @@ async function createCurrentSchema(
   try {
     await dropRetiredTables(db);
     await ensureFrameworkSchema(db);
-    await migrateOutbox(db);
+    await reconcileOutbox(db);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(`ensureFrameworkSchema: ${detail}`, { cause: error });
   }
   await ensureDomainTables(db, schema);
-}
-
-async function runPendingMigrations(
-  db: SqlClient,
-  schema: LocalDomainSchema,
-  fromVersion: number
-): Promise<void> {
-  const fromStep = fromVersion % VERSION_STRIDE;
-  for (let index = fromStep; index < MIGRATIONS.length; index += 1) {
-    const migration = MIGRATIONS[index];
-    if (migration !== undefined) await migration(db, schema);
-  }
 }
 
 async function cacheTablesExist(
@@ -173,7 +138,7 @@ export type MigrateLocalSchemaOptions = {
 };
 
 /**
- * Runs additive migrations and applies an epoch-triggered CACHE-only wipe.
+ * Reconciles the local database and applies an epoch-triggered CACHE-only wipe.
  * Resolves `true` when the CACHE tables were (re)created empty, so the
  * caller re-applies queued writes the device still shows.
  */
@@ -206,15 +171,9 @@ export async function migrateLocalSchema(
     if (wiped) {
       await dropCacheTables(db, schema);
       await onPhase?.('afterCacheWipe');
-      await createCurrentSchema(db, schema);
-      await onPhase?.('afterEnsure');
-    } else if (previous < targetVersion) {
-      await runPendingMigrations(db, schema, previous);
-      await onPhase?.('afterEnsure');
-    } else {
-      await ensureDomainTables(db, schema);
-      await onPhase?.('afterEnsure');
     }
+    await createCurrentSchema(db, schema);
+    await onPhase?.('afterEnsure');
 
     await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
     await onPhase?.('done');

@@ -46,6 +46,9 @@ const TABLE_TX_KINDS = new Set<ServerOperation['kind']>([
   'create_table',
   'add_column',
   'backfill',
+  'drop_not_null',
+  'widen_integer',
+  'drop_default',
 ]);
 
 async function runIndexOp(

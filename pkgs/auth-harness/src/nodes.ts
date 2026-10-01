@@ -1,10 +1,9 @@
 import {
-  AuthPostgresDatabaseMigration,
-  AuthSqliteDatabaseMigration,
   createAuthServerAdapter,
+  reconcileIdpPostgres,
+  reconcileIdpSqlite,
 } from '@pkgs/auth-inhouse/server';
 import type { Session } from '@pkgs/harness';
-import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
@@ -32,16 +31,15 @@ export async function migrateAuthSchema(
   fabric: AuthFabric,
   sqlClient: SqlClient
 ): Promise<void> {
-  const logger = createNoopLogger();
   if (fabric === 'mockingbird-sqlite') {
-    await new AuthSqliteDatabaseMigration().migrate({ sqlClient, logger });
+    await reconcileIdpSqlite(sqlClient);
     return;
   }
-  await new AuthPostgresDatabaseMigration({
+  await reconcileIdpPostgres(sqlClient, {
     dbScope: createPostgresDbScope('public'),
     skipAdvisoryLock: true,
     alreadyInTransaction: false,
-  }).migrate({ sqlClient, logger });
+  });
 }
 
 export async function startStore(

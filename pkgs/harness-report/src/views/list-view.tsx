@@ -1,142 +1,127 @@
 import type { HtmlReportTest } from '@pkgs/harness';
-import { createMemo, For, Show } from 'solid-js';
+import { createMemo } from 'solid-js';
+
 import { useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
-import { fileLabel, fmtMs } from '../lib/format';
+import { EntityBrowser } from '../components/entity-browser';
+import {
+  type CatalogEntity,
+  type CatalogGroup,
+  type CatalogLayout,
+  type CatalogQuery,
+  type CatalogSort,
+  type CatalogStatus,
+  catalogParams,
+} from '../lib/catalog';
+import { fileLabel } from '../lib/format';
 
-function matchesFilter(
-  t: HtmlReportTest,
-  status: string | undefined,
-  q: string
-): boolean {
-  if (status && t.report.meta.status !== status) return false;
-  const query = q.trim().toLowerCase();
-  if (!query) return true;
-  const m = t.report.meta;
-  return [
-    m.title,
-    m.testId,
-    m.sourceFile || '',
-    fileLabel(m.sourceFile),
-    m.system,
-    m.runtime,
-  ]
-    .join(' ')
-    .toLowerCase()
-    .includes(query);
+const STATUSES = new Set<string>([
+  'all',
+  'passed',
+  'failed',
+  'skipped',
+  'running',
+]);
+const GROUPS = new Set<string>([
+  'none',
+  'file',
+  'status',
+  'package',
+  'runtime',
+]);
+const SORTS = new Set<string>(['recent', 'name', 'duration', 'status']);
+const LAYOUTS = new Set<string>(['list', 'grid']);
+
+function oneOf<T extends string>(
+  value: string | undefined,
+  allowed: ReadonlySet<string>,
+  fallback: T
+): T {
+  return value !== undefined && allowed.has(value) ? (value as T) : fallback;
 }
 
-function groupTests(tests: readonly HtmlReportTest[]) {
-  const map = new Map<string, HtmlReportTest[]>();
-  const order: string[] = [];
-  for (const t of tests) {
-    const name = fileLabel(t.report.meta.sourceFile);
-    if (!map.has(name)) {
-      map.set(name, []);
-      order.push(name);
-    }
-    map.get(name)?.push(t);
-  }
-  order.sort((a, b) => {
-    if (a === 'Other') return 1;
-    if (b === 'Other') return -1;
-    return a < b ? -1 : a > b ? 1 : 0;
-  });
-  return order.map((name) => ({ name, tests: map.get(name) ?? [] }));
+function queryOf(params: Readonly<Record<string, string>>): CatalogQuery {
+  return {
+    q: params['q'] ?? '',
+    status: oneOf<CatalogStatus>(params['status'], STATUSES, 'all'),
+    group: oneOf<CatalogGroup>(params['group'], GROUPS, 'package'),
+    sort: oneOf<CatalogSort>(params['sort'], SORTS, 'status'),
+    layout: oneOf<CatalogLayout>(params['layout'], LAYOUTS, 'list'),
+  };
+}
+
+function packageOf(testId: string): string {
+  const source = testId.split('/')[0] ?? '';
+  const cut = source.indexOf('--');
+  const name = cut < 0 ? source : source.slice(0, cut);
+  return name.length > 0 ? name : 'report';
+}
+
+function toEntity(test: HtmlReportTest): CatalogEntity {
+  const meta = test.report.meta;
+  const file = fileLabel(meta.sourceFile);
+  const packageName = packageOf(meta.testId);
+  const error = meta.error?.split('\n')[0] ?? '';
+  return {
+    id: meta.testId,
+    title: meta.title,
+    status: meta.status,
+    durationMs: meta.durationMs,
+    file,
+    packageName,
+    runtime: meta.runtime,
+    detail: error,
+    search: [
+      meta.title,
+      meta.testId,
+      meta.sourceFile ?? '',
+      file,
+      meta.system,
+      meta.runtime,
+      packageName,
+      error,
+    ].join(' '),
+    href: null,
+  };
 }
 
 export function ListView(props: { nav: ReportNav }) {
   const report = useReport();
-  const status = createMemo(() => props.nav.route().params['status'] || 'all');
-  const q = createMemo(() => props.nav.route().params['q'] || '');
-  const shown = createMemo(() =>
-    report.data.tests.filter((t) =>
-      matchesFilter(t, status() === 'all' ? undefined : status(), q())
-    )
-  );
-  const groups = createMemo(() => groupTests(shown()));
-
+  const query = createMemo(() => queryOf(props.nav.route().params));
+  const entities = createMemo(() => report.data.tests.map(toEntity));
+  const write = (next: CatalogQuery) => {
+    props.nav.navigate(
+      {
+        view: 'list',
+        params: {
+          q: next.q,
+          status: next.status === 'all' ? '' : next.status,
+          group: next.group === 'package' ? '' : next.group,
+          sort: next.sort === 'status' ? '' : next.sort,
+          layout: next.layout === 'list' ? '' : next.layout,
+        },
+      },
+      true
+    );
+  };
   return (
-    <div class="sr-list">
-      <Show
-        when={shown().length > 0}
-        fallback={
-          <div class="sr-empty">
-            {report.data.tests.length === 0
-              ? 'No tests were reported.'
-              : 'No tests match.'}
-          </div>
-        }
-      >
-        <For each={groups()}>
-          {(group) => {
-            const failed = () =>
-              group.tests.filter((t) => t.report.meta.status === 'failed')
-                .length;
-            return (
-              <div class="sr-group">
-                <div class="sr-group-head">
-                  <h2>{group.name}</h2>
-                  <span class="count">
-                    {group.tests.length} test
-                    {group.tests.length === 1 ? '' : 's'}
-                    {failed() ? ` · ${failed()} failed` : ''}
-                  </span>
-                </div>
-                <For each={group.tests}>
-                  {(t) => {
-                    const m = t.report.meta;
-                    return (
-                      <div
-                        class="sr-row"
-                        role="link"
-                        tabindex="0"
-                        aria-label={`Open ${m.title}`}
-                        onClick={() =>
-                          props.nav.navigate({
-                            view: 'test',
-                            testId: m.testId,
-                            params: {},
-                          })
-                        }
-                        onKeyDown={(e) => {
-                          if (e.key !== 'Enter' && e.key !== ' ') return;
-                          e.preventDefault();
-                          props.nav.navigate({
-                            view: 'test',
-                            testId: m.testId,
-                            params: {},
-                          });
-                        }}
-                      >
-                        <span class={`sr-dot ${m.status}`} />
-                        <div>
-                          <div class="title">{m.title}</div>
-                          <div class="sub">
-                            <span class="mono">{m.testId}</span>
-                            <Show when={m.sourceLine}>
-                              {(line) => <span>{` · L${line()}`}</span>}
-                            </Show>
-                            <Show when={m.error}>
-                              {(err) => (
-                                <span>{` · ${err().split('\n')[0]}`}</span>
-                              )}
-                            </Show>
-                          </div>
-                        </div>
-                        <span class="sr-badge">
-                          {m.runtime} · seed {m.seed}
-                        </span>
-                        <span class="dur">{fmtMs(m.durationMs)}</span>
-                      </div>
-                    );
-                  }}
-                </For>
-              </div>
-            );
-          }}
-        </For>
-      </Show>
-    </div>
+    <EntityBrowser
+      entities={entities()}
+      query={query()}
+      onQuery={write}
+      onOpen={(id) =>
+        props.nav.navigate({
+          view: 'test',
+          testId: id,
+          params: catalogParams(props.nav.route().params),
+        })
+      }
+      empty={
+        report.data.tests.length === 0
+          ? 'No tests were reported.'
+          : 'No tests match.'
+      }
+      pending={report.pending && report.data.tests.length === 0}
+    />
   );
 }

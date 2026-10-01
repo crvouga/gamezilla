@@ -18,6 +18,7 @@
     "./steps/*": "./tests/steps/*.ts"
   },
   "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/harness/**'",
@@ -25,8 +26,7 @@
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/4",
     "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/4",
     "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/4",
-    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4",
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",

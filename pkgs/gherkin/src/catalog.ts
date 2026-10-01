@@ -42,6 +42,18 @@ function usageCounts(features: readonly SpecFeature[]): Map<string, number> {
   return counts;
 }
 
+/** Declared domains, then any feature directory the package also runs. */
+function domainsRun(pkg: CatalogPackage): readonly string[] {
+  const extra: string[] = [];
+  for (const feature of pkg.features) {
+    const domain = feature.uri.split('/')[1] ?? '';
+    if (domain.length === 0) continue;
+    if (pkg.domains.includes(domain) || extra.includes(domain)) continue;
+    extra.push(domain);
+  }
+  return [...pkg.domains, ...extra];
+}
+
 function definitionRows(
   definitions: readonly ExtractedStep[],
   domain: string
@@ -73,6 +85,7 @@ export function renderPackageCatalog(
           '| --- | --- | --- | --- |',
           ...rows,
         ].join('\n');
+  const domains = domainsRun(pkg);
   const counts = usageCounts(pkg.features);
   const scenarioCount = pkg.features.reduce(
     (n, f) => n + f.scenarios.length,
@@ -82,11 +95,11 @@ export function renderPackageCatalog(
     CATALOG_HEADER,
     `# Step catalog — ${pkg.name}`,
     '',
-    `Tag every scenario with the \`@domain\` of its \`specs/<domain>/\` directory (${pkg.domains.map((d) => `\`@domain:${d}\``).join(', ')}). Features: ${String(pkg.features.length)}, scenarios: ${String(scenarioCount)}. Steps used here: ${String(counts.size)} distinct wordings.`,
+    `Tag every scenario with the \`@domain\` of its \`specs/<domain>/\` directory (${domains.map((d) => `\`@domain:${d}\``).join(', ')}). Features: ${String(pkg.features.length)}, scenarios: ${String(scenarioCount)}. Steps used here: ${String(counts.size)} distinct wordings.`,
     '',
     `## Steps of ${pkg.name}`,
     '',
-    table(definitionRows(pkg.definitions, pkg.domains.join(', '))),
+    table(definitionRows(pkg.definitions, domains.join(', '))),
   ];
   if (pkg.sharedSteps !== false) {
     sections.push(
@@ -113,6 +126,13 @@ export function renderPackageCatalog(
   return `${sections.join('\n')}\n`;
 }
 
+/** Declared folders, plus `@synthetic` when the package also runs those features. */
+function runsLabel(pkg: CatalogPackage): string {
+  const folders = pkg.domains.map((domain) => `\`specs/${domain}/\``);
+  const extra = domainsRun(pkg).some((domain) => !pkg.domains.includes(domain));
+  return (extra ? [...folders, '`@synthetic`'] : folders).join(', ');
+}
+
 /** The root index: every package, the spec domains it runs, counts, and the catalog path. */
 export function renderCatalogIndex<P extends CatalogPackage>(
   packages: readonly P[],
@@ -120,7 +140,7 @@ export function renderCatalogIndex<P extends CatalogPackage>(
 ): string {
   const rows = packages.map(
     (pkg) =>
-      `| ${pkg.name} | ${pkg.domains.map((d) => `\`specs/${d}/\``).join(', ')} | ${String(pkg.features.length)} | ${String(pkg.features.reduce((n, f) => n + f.scenarios.length, 0))} | ${String(pkg.definitions.length)} | [catalog](${catalogPathOf(pkg)}) |`
+      `| ${pkg.name} | ${runsLabel(pkg)} | ${String(pkg.features.length)} | ${String(pkg.features.reduce((n, f) => n + f.scenarios.length, 0))} | ${String(pkg.definitions.length)} | [catalog](${catalogPathOf(pkg)}) |`
   );
   return `${[
     CATALOG_HEADER,

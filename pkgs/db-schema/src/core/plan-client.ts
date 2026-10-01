@@ -324,10 +324,13 @@ const CLIENT_OP_ORDER: Record<ClientOperation['kind'], number> = {
   drop_table: 0,
   rebuild_table: 1,
   create_table: 2,
-  add_column: 3,
-  backfill: 4,
-  drop_index: 5,
-  create_index: 6,
+  drop_not_null: 3,
+  widen_integer: 4,
+  drop_default: 5,
+  add_column: 6,
+  backfill: 7,
+  drop_index: 8,
+  create_index: 9,
 };
 
 export function planClient(

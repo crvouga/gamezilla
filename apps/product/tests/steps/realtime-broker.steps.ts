@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: this environment's AWS IoT data plane.
-/** `specs/health/live-updates.feature`. */
+/** `specs/spaces/live-updates.feature`. */
 
 import { expect } from 'bun:test';
 import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';

@@ -8,7 +8,3 @@ export {
   MatchmakingImplSql,
   type MatchmakingImplSqlOptions,
 } from './matchmaking';
-export {
-  MatchmakingDatabaseMigration,
-  type MatchmakingDatabaseMigrationArgs,
-} from './matchmaking-database-migration';

@@ -6,7 +6,7 @@
 import { BILLING_TABLES } from '@libs/billing/public/schema';
 import { FRIENDS_TABLES } from '@libs/friends/public/schema';
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { outboxDeliveries, outboxEvents } from '@pkgs/outbox/schema/tables';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -27,7 +27,7 @@ const clientConfigFixture = defineTable({
 
 export async function openFriendsDb(): Promise<SqlClient> {
   const db = SqlClientImplBunSqlite.openMemory();
-  await applySqliteSchema(
+  await reconcileSqliteSchema(
     db,
     registerTables([
       ...FRIENDS_TABLES,

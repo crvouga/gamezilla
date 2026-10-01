@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
 import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import { dumpData, loadData } from '@pkgs/sql-client/sql-data-snapshot';
@@ -16,12 +16,12 @@ async function applySchema(
 ): Promise<void> {
   const schema = registerTables(tables);
   if (isPostgresSqlClient(client)) {
-    await applyPostgresSchema(client, schema, client.dbScope, {
+    await reconcilePostgresSchema(client, schema, client.dbScope, {
       skipAdvisoryLock: true,
     });
     return;
   }
-  await applySqliteSchema(client, schema);
+  await reconcileSqliteSchema(client, schema);
 }
 
 /** Shared dump→load round-trip — run against every SqlClient adapter. */

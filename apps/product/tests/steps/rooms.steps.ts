@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: Cloudflare API, room Durable Object wiring.
-/** `specs/health/spaces.feature`. */
+/** `specs/spaces/spaces.feature`. */
 
 import { expect } from 'bun:test';
 import { workerName } from '@libs/infra/public/wrangler';

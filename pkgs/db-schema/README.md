@@ -2,8 +2,8 @@
 
 Declarative domain schema with **safe reconciliation** for Postgres (server) and
 SQLite (client). Product code declares tables once via `defineTable` /
-`registerTables`; dialect migration classes apply the catalog. There is **no
-public `reconcile()` API**.
+`registerTables`. Dialect packages bring a live database in line with
+`reconcilePostgresSchema` / `reconcileSqliteSchema`.
 
 ## Safety model
 
@@ -19,12 +19,12 @@ desired catalog  +  introspected catalog
 
 |Dialect|Policy|
 | --- | --- |
-|**Postgres**|Fail-closed. Never `DROP TABLE/COLUMN`, `ALTER TYPE`, `RENAME`. An extra column needs a `retiredColumns`/`retiredTables` tombstone or reconcile fails. Every tombstone must still exist with its frozen type — that is the proof an older client can still read it.|
-|**SQLite**|Client-tolerant. Undeclared columns are **preserved verbatim** (a stale or newer bundle never bricks and never loses local data). Tombstoned columns are dropped by a row-preserving rebuild. Declared-column type/nullability mismatch is drift on both dialects.|
+|**Postgres**|Fail-closed. Never `DROP TABLE/COLUMN`, a general `ALTER TYPE`, or `RENAME`. Lossless repairs run in place: drop `NOT NULL` on a non-primary-key column, widen a declared `integer` stored as `int2` or `int4` to `bigint`, and drop a default on `id`, `created_at`, or `updated_at`. An extra column needs a `retiredColumns`/`retiredTables` tombstone or reconcile fails. Every tombstone must still exist with its frozen type — that is the proof an older client can still read it.|
+|**SQLite**|Client-tolerant. Undeclared columns are **preserved verbatim** (a stale or newer bundle never bricks and never loses local data). Tombstoned columns are dropped by a row-preserving rebuild. A declared-column type or nullability mismatch is drift.|
 
 `ownership: 'declared-only'` (**default** for SQLite) leaves undeclared tables alone so
 package-local infra schemas (sync-engine, outbox, …) can share the SQLite file
-via their own `applySqliteSchema` / `SqliteSchemaDatabaseMigration` passes.
+via their own `reconcileSqliteSchema` passes.
 `whole-db` drops undeclared tables (test / wholly-owned DBs only).
 
 ## Lifecycle recipes (expand / contract)
@@ -80,13 +80,14 @@ bounded `id`-cursor batches (`BACKFILL_BATCH_ROWS`).
 ### Type change
 
 Add a **new** column with `widenedFrom: 'old'` + backfill + retire `old`.
-Never `ALTER … TYPE` on Postgres.
+A declared `integer` stored as `int2` or `int4` is the one in-place widen
+(`TYPE bigint`). Every other type change stays drift.
 
 ## Portable objects
 
 Supported: tables, columns, indexes, unique indexes.
 
-**Out of scope** (use a package-owned `DatabaseMigration`): checks, foreign keys,
+**Out of scope** (reconcile does not emit them): checks, foreign keys,
 views, enums, generated columns, triggers, functions, extensions, partitions,
 sequences. Declaring a non-synced infra table still uses the same `defineTable`
 API, but the portable-object layer above is intentionally absent.
@@ -145,29 +146,21 @@ Two committed artifacts enforce it in the Check workflow (`//#check`):
 
 ```ts
 import { defineTable, registerTables } from '@pkgs/db-schema';
-import {
-  applyPostgresSchema,
-  PostgresSchemaDatabaseMigration,
-  PostgresSchemaIndexReconcileMigration,
-} from '@pkgs/db-schema-postgres';
-import {
-  applySqliteSchema,
-  SqliteSchemaDatabaseMigration,
-} from '@pkgs/db-schema-sqlite';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 
 export const appSchema = registerTables([...TABLES]);
 ```
 
-**Postgres** — table DDL runs inside the advisory-locked migrate transaction
-(`PostgresSchemaDatabaseMigration` with `alreadyInTransaction: true`, which
-leaves index DDL to the separate phase). `PostgresSchemaIndexReconcileMigration`
-runs after that transaction so every build is `CREATE INDEX CONCURRENTLY`, and
-it drops any invalid leftover from a previously failed build.
+**Postgres** — table DDL runs inside the advisory-locked reconcile transaction
+(`alreadyInTransaction: true`, `indexPhase: 'skip'`). A later
+`indexPhase: 'only'` pass builds every index with `CREATE INDEX CONCURRENTLY`
+and drops any invalid leftover from a previously failed build.
 
-**SQLite** — `SqliteSchemaDatabaseMigration` / `applySqliteSchema` with
-`ownership: 'declared-only'` for the shared client file. Rebuilds are bracketed
-with `PRAGMA foreign_keys = OFF` + `legacy_alter_table = ON`, and an interrupted
-rebuild is recovered from its `_old_<table>` staging table on the next boot.
+**SQLite** — `reconcileSqliteSchema` with `ownership: 'declared-only'` for the
+shared client file. Rebuilds are bracketed with `PRAGMA foreign_keys = OFF` +
+`legacy_alter_table = ON`, and an interrupted rebuild is recovered from its
+`_old_<table>` staging table on the next boot.
 
 **Infra packages** (sync-engine, kv, outbox, …) use the same `defineTable` API with
 a package-local schema — never register those tables in product `appSchema`.

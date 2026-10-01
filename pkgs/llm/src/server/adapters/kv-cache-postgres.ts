@@ -5,7 +5,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 /**
  * Postgres-backed {@link Kv} for LLM response caching (Neon WebSocket per request).
  *
- * Does **not** run DDL. Call {@link KvImplPostgres.migrateUp} from your deploy /
+ * Does **not** run DDL. Call {@link KvImplPostgres.reconcile} from your deploy /
  * `db:migrate` pipeline before serving traffic.
  */
 export function createLlmPostgresKv(args: {

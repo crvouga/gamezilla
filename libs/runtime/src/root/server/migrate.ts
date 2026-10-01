@@ -1,9 +1,9 @@
 // @api-wall-ok
 // @io-wall-ok
 /**
- * Programmatic app Postgres migrate orchestration.
+ * Programmatic app Postgres reconcile orchestration.
  *
- * This is composition-root work — it migrates *this product's* schema — so it
+ * This is composition-root work — it reconciles *this product's* schema — so it
  * lives with the fold rather than in `@libs/db`. An infra package that
  * depended on the composition root made a cycle the moment features started
  * depending on the server shell.
@@ -30,7 +30,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client-postgres/connect';
-import { PostgresMigrationRunner } from '../../server/run-postgres-migrations';
+import { reconcilePostgres } from '../../server/reconcile-postgres';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
@@ -145,7 +145,7 @@ async function waitForPostgresReachable(
     }
   }
 
-  assert.fail('postgres did not become reachable before migrate', {
+  assert.fail('postgres did not become reachable before reconcile', {
     timeoutMs: WAIT_FOR_POSTGRES_MS,
     lastError:
       lastError instanceof Error ? lastError.message : String(lastError),
@@ -162,17 +162,17 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
   });
   const log = createLogger({ name: 'api:db:migrate', now });
   try {
-    await new PostgresMigrationRunner({
+    await reconcilePostgres({
       sqlClient,
       logger: log,
       dbScope,
       clock: wallClock,
-    }).run();
+    });
     log.info(
-      'postgres migrations finished (schema + kv + IdP + autoidx; matchmaking self-migrates on first request)'
+      'postgres reconciled (schema + kv + IdP + autoidx; matchmaking reconciles on first request)'
     );
     process.stdout.write(
-      '[api:db:migrate] completed (schema + kv + IdP + autoidx; matchmaking self-migrates on first request)\n'
+      '[api:db:migrate] reconciled (schema + kv + IdP + autoidx; matchmaking reconciles on first request)\n'
     );
   } finally {
     await pool.end();
@@ -180,7 +180,7 @@ async function runMigrateOnce(databaseUrl: string): Promise<void> {
 }
 
 /**
- * Run the composed app migrations against the resolved (or overridden) URL.
+ * Reconcile the composed app schemas against the resolved (or overridden) URL.
  */
 export async function migratePostgresApp(
   options: MigratePostgresAppOptions = {}

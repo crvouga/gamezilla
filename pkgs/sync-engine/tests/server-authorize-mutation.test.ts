@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import {
   createSyncApp,
@@ -24,7 +24,7 @@ type Verdict = { readonly status: string; readonly code?: string };
 async function openHost(authorize?: MutationAuthorize) {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(db, syncEngineServerSchema, {
+  await reconcileSqliteSchema(db, syncEngineServerSchema, {
     ownership: 'declared-only',
   });
   const ran: Array<{ readonly args: unknown; readonly env: MutationEnv }> = [];

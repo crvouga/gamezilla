@@ -14,7 +14,6 @@ import {
   INHOUSE_AUTH_SECRET,
 } from '@pkgs/auth-inhouse/server';
 import { createHarnessClock } from '@pkgs/clock';
-import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { createHarnessIds } from '@pkgs/uuid';
@@ -31,10 +30,10 @@ const SECRETS: Readonly<Record<string, string>> = {
 
 async function openInhouseHarness(): Promise<AuthServerContractHarness> {
   const sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
-  const migration = INHOUSE_AUTH_PROVIDER.postgresMigration?.({
+  await INHOUSE_AUTH_PROVIDER.reconcilePostgres?.({
+    sqlClient,
     dbScope: createPostgresDbScope('public'),
   });
-  await migration?.migrate({ sqlClient, logger: createNoopLogger() });
   const { clock } = createHarnessClock({ startMs: Date.UTC(2026, 0, 1) });
   const { createId } = createHarnessIds(1);
   const provider = await INHOUSE_AUTH_PROVIDER.create({

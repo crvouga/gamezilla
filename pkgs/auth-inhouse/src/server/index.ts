@@ -5,11 +5,6 @@ export {
   isTrustedCallbackUrl,
 } from '../shared/trusted-origins';
 export {
-  AuthPostgresDatabaseMigration,
-  type AuthPostgresDatabaseMigrationOptions,
-  AuthSqliteDatabaseMigration,
-} from './auth-database-migration';
-export {
   type CreateAuthAppDeps,
   type CreateAuthAppProviders,
   createAuthApp,
@@ -45,6 +40,8 @@ export {
 } from './providers/google-oauth';
 export type { ProviderIdentity } from './providers/provider-identity';
 export type { OauthProvidersConfig } from './providers/registry';
+export { reconcileIdpPostgres } from './reconcile-idp-postgres';
+export { reconcileIdpSqlite } from './reconcile-idp-sqlite';
 export {
   SYNTHETIC_MONITOR_PROVIDER,
   SYNTHETIC_MONITOR_USER,

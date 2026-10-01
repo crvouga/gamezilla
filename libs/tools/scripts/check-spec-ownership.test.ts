@@ -16,7 +16,7 @@ describe('spec ownership', () => {
     expect(isSpecFile('specs/conformance.yaml')).toBe(true);
     expect(isSpecFile('specs/billing/access.dmn')).toBe(true);
     expect(isSpecFile('specs/spaces/spaces.als')).toBe(true);
-    expect(isSpecFile('specs/health/api.openslo.yaml')).toBe(true);
+    expect(isSpecFile('specs/runtime/availability.openslo.yaml')).toBe(true);
     expect(isSpecFile('pkgs/dmn/tests/fixtures/access.dmn')).toBe(false);
     expect(isSpecFile('libs/billing/tests/dmn/access.binding.ts')).toBe(false);
     expect(isSpecFile('specs/ubiquitous-language.yml')).toBe(true);

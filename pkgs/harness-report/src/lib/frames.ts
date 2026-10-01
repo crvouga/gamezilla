@@ -33,7 +33,7 @@ const carryCache = new WeakMap<
 function carriedUiBlobs(
   test: HtmlReportTest
 ): ReadonlyMap<string, ReportSnapshotBlob>[] {
-  const cached = carryCache.get(test);
+  const cached = carryCache.get(test.report.steps);
   if (cached) return cached;
   const out: ReadonlyMap<string, ReportSnapshotBlob>[] = [];
   let last = new Map<string, ReportSnapshotBlob>();
@@ -45,7 +45,7 @@ function carriedUiBlobs(
     out.push(next);
     last = next;
   }
-  carryCache.set(test, out);
+  carryCache.set(test.report.steps, out);
   return out;
 }
 
@@ -110,7 +110,7 @@ export function lastFrameBefore(
 }
 
 export function testFrames(test: HtmlReportTest): FlatFrame[] {
-  const cached = frameCache.get(test);
+  const cached = frameCache.get(test.report.steps);
   if (cached) return cached;
 
   const flattened = flattenFrames(test.report.steps, [], 0).map(
@@ -125,12 +125,12 @@ export function testFrames(test: HtmlReportTest): FlatFrame[] {
     ...frame,
     index,
   }));
-  frameCache.set(test, frames);
+  frameCache.set(test.report.steps, frames);
   return frames;
 }
 
 function allUiActorIds(test: HtmlReportTest): string[] {
-  const cached = actorOrderCache.get(test);
+  const cached = actorOrderCache.get(test.report.steps);
   if (cached) return cached;
   const observed: string[] = [];
   const seen = new Set<string>();
@@ -144,7 +144,7 @@ function allUiActorIds(test: HtmlReportTest): string[] {
     }
   }
   if (observed.length === 0) {
-    actorOrderCache.set(test, []);
+    actorOrderCache.set(test.report.steps, []);
     return [];
   }
 
@@ -152,7 +152,7 @@ function allUiActorIds(test: HtmlReportTest): string[] {
   for (const id of observed) {
     if (!ordered.includes(id)) ordered.push(id);
   }
-  actorOrderCache.set(test, ordered);
+  actorOrderCache.set(test.report.steps, ordered);
   return ordered;
 }
 
@@ -214,6 +214,33 @@ export function stageBlobs(frame: FlatFrame | null): ReportSnapshotBlob[] {
 
 export function frameHasUi(frame: FlatFrame | null): boolean {
   return uiBlobs(frame).length > 0;
+}
+
+const PREFETCH_MEDIA: ReadonlySet<string> = new Set([
+  'html',
+  'png',
+  'json',
+  'text',
+]);
+
+/** Frame files around `index` (the visible one, plus neighbors) to fetch ahead. */
+export function frameFilesNear(
+  frames: readonly FlatFrame[],
+  index: number,
+  radius: number
+): readonly string[] {
+  const files: string[] = [];
+  const seen = new Set<string>();
+  const from = Math.max(0, index - radius);
+  const to = Math.min(frames.length, index + radius + 1);
+  for (let i = from; i < to; i += 1) {
+    for (const blob of frames[i]?.frame.snapshots ?? []) {
+      if (!PREFETCH_MEDIA.has(blob.media) || seen.has(blob.file)) continue;
+      seen.add(blob.file);
+      files.push(blob.file);
+    }
+  }
+  return files;
 }
 
 export function actorIds(

@@ -9,6 +9,7 @@ import {
 } from 'solid-js';
 import { useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
+import { catalogParams } from '../lib/catalog';
 import type { FlatFrame } from '../lib/frames';
 import {
   frameHasUi,
@@ -42,7 +43,11 @@ function baseCommands(nav: ReportNav): Command[] {
       label: 'Show all tests',
       hint: 'Esc',
       keywords: 'home list tests report',
-      run: () => nav.navigate({ view: 'list', params: {} }),
+      run: () =>
+        nav.navigate({
+          view: 'list',
+          params: catalogParams(nav.route().params),
+        }),
     },
     {
       id: 'help',
@@ -146,6 +151,7 @@ function uiCommands(nav: ReportNav, route: CommandContext['route']): Command[] {
 }
 
 function testCommands(nav: ReportNav, data: ReportData): Command[] {
+  const params = catalogParams(nav.route().params);
   return data.tests.map((test) => ({
     id: `test:${test.report.meta.testId}`,
     label: `Open ${test.report.meta.title}`,
@@ -155,15 +161,57 @@ function testCommands(nav: ReportNav, data: ReportData): Command[] {
       nav.navigate({
         view: 'test',
         testId: test.report.meta.testId,
-        params: {},
+        params,
       }),
   }));
+}
+
+function moveTestCommands(nav: ReportNav, data: ReportData): Command[] {
+  const route = nav.route();
+  if (route.view !== 'test') return [];
+  const index = data.tests.findIndex(
+    (test) => test.report.meta.testId === route.testId
+  );
+  const params = catalogParams(route.params);
+  const commands: Command[] = [];
+  const prev = data.tests[index - 1];
+  const next = data.tests[index + 1];
+  if (prev) {
+    commands.push({
+      id: 'previous-test',
+      label: `Previous test: ${prev.report.meta.title}`,
+      hint: '[',
+      keywords: 'previous test back report',
+      run: () =>
+        nav.navigate({
+          view: 'test',
+          testId: prev.report.meta.testId,
+          params,
+        }),
+    });
+  }
+  if (next) {
+    commands.push({
+      id: 'next-test',
+      label: `Next test: ${next.report.meta.title}`,
+      hint: ']',
+      keywords: 'next test forward report',
+      run: () =>
+        nav.navigate({
+          view: 'test',
+          testId: next.report.meta.testId,
+          params,
+        }),
+    });
+  }
+  return commands;
 }
 
 function buildCommands(ctx: CommandContext): Command[] {
   const commands = baseCommands(ctx.nav);
   if (ctx.test && ctx.route.view === 'test') {
     commands.push(...timelineCommands(ctx.nav, ctx.test));
+    commands.push(...moveTestCommands(ctx.nav, ctx.data));
     if (frameHasUi(ctx.frame)) commands.push(...uiCommands(ctx.nav, ctx.route));
   }
   commands.push(...testCommands(ctx.nav, ctx.data));

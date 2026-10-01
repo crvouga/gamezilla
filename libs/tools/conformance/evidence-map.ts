@@ -64,15 +64,15 @@ const PUBLIC_CONTRACTS: ProofTable = {
   ],
   'app addresses': [
     { spec: 'specs/runtime/app-addresses.feature' },
-    { live: 'specs/health/reaching-the-app.feature' },
+    { live: 'specs/runtime/reaching-the-app.feature' },
   ],
   'older apps': [
     { spec: 'specs/runtime/app-updates.feature' },
     { spec: 'specs/sync-engine/notes-across-app-updates.feature' },
   ],
   'health report': [
-    { live: 'specs/health/serving-people.feature' },
-    { live: 'specs/health/availability.openslo.yaml' },
+    { live: 'specs/runtime/serving-people.feature' },
+    { live: 'specs/runtime/availability.openslo.yaml' },
   ],
 };
 
@@ -85,7 +85,7 @@ const RELEASE_GATES: ProofTable = {
   // live environment has what it needs to use every outside service.
   'settings the app needs': [
     { task: '@libs/secrets#test' },
-    { live: 'specs/health/connected-services.feature' },
+    { live: 'specs/runtime/connected-services.feature' },
   ],
   'release artifact limits': [
     { task: '@apps/auth-relay#check:worker-bundle' },

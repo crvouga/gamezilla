@@ -27,7 +27,7 @@ import { FakePaddle } from '@pkgs/billing-paddle/harness';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe';
 import { StripeTestMode } from '@pkgs/billing-stripe/harness';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -239,7 +239,7 @@ class TwoProviders {
 async function openTwoProviders(): Promise<TwoProviders> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(
+  await reconcileSqliteSchema(
     db,
     registerTables([...AUTH_TABLES, ...BILLING_TABLES]),
     { ownership: 'declared-only' }

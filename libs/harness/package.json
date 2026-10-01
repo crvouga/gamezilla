@@ -34,7 +34,6 @@
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/dmn": "workspace:*",
     "@pkgs/entity-store": "workspace:*",

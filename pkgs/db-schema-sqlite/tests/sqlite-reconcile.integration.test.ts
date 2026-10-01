@@ -2,7 +2,7 @@ import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { createRecordingSqlClient } from '@pkgs/db-schema/test/fake-sql-client';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { readSqliteCatalog } from '../src/catalog';
@@ -68,7 +68,7 @@ describe('sqlite reconcile integration', () => {
 
   test('preserves undeclared local columns and drops ghost tables when whole-db owned', async () => {
     const { client } = openMemoryClient();
-    await applySqliteSchema(
+    await reconcileSqliteSchema(
       client,
       registerTables([
         defineTable({ domain: 'ghost', name: 'ghost', columns: {} }),
@@ -177,7 +177,7 @@ describe('sqlite reconcile integration', () => {
 
   test('declared-only leaves undeclared tables alone', async () => {
     const { client } = openMemoryClient();
-    await applySqliteSchema(
+    await reconcileSqliteSchema(
       client,
       registerTables([
         defineTable({

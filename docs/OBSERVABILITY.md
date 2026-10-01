@@ -47,13 +47,13 @@ away.
 secret store when they are not already set. It never loads
 `DATABASE_URL` or `GRAFANA_CLOUD_API_TOKEN`. OpenTofu creates the Neki role
 `obs_read` and writes `OBS_READONLY_DATABASE_URL` (the router host, password
-URL-encoded, `sslmode=verify-full`). The migration then grants that role
+URL-encoded, `sslmode=verify-full`). Reconcile then grants that role
 `SELECT` on `profile`, `idp_users`, and `idp_accounts` when the login name
 is exactly `obs_read`. Display names are matched there and only the account
 id is sent to Tempo. A local database has no `obs_read` role, so the grant
 is skipped. `pg_read_all_data` still covers SELECT when Neki suffixes the
 login name and the grant is skipped.
-`specs/health/finding-a-person.feature` plants its own person and does not
+`specs/profile/finding-a-person.feature` plants its own person and does not
 need the role.
 
 `bun obs user`, identity-shaped `find` and `tail --user` accept a username
@@ -98,7 +98,8 @@ build or type errors read the compiler.
   (Worker ingest) and `OBS_TEMPO_URL` / `_USER` / `_TOKEN` (queries)
   ([`INFRA.md`](INFRA.md)). The only manual step is seeding
   `GRAFANA_CLOUD_API_TOKEN` (`bun run secrets:seed -- --env prd
-  GRAFANA_CLOUD_API_TOKEN`). `specs/health/` checks ingest and query live.
+  GRAFANA_CLOUD_API_TOKEN`). `specs/runtime/request-records.feature` and
+  `specs/profile/finding-a-person.feature` check ingest and query live.
   Deploy fails closed without the collector URL and write token;
   `OBSERVABILITY_ENABLED=0` is the emergency kill switch.
 - **Alerts.** Install

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { defineSchema } from '@pkgs/db-schema/core/define-schema';
 import { createRecordingSqlClient } from '@pkgs/db-schema/test/fake-sql-client';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
 import { sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { readPostgresCatalog } from '../src/catalog';
@@ -104,7 +104,7 @@ describe('postgres reconcile integration', () => {
   });
 
   test('undeclared table blindness', async () => {
-    await applyPostgresSchema(
+    await reconcilePostgresSchema(
       sqlClient,
       registerTables([
         defineTable({
@@ -129,7 +129,7 @@ describe('postgres reconcile integration', () => {
   });
 
   test('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
-    await applyPostgresSchema(
+    await reconcilePostgresSchema(
       sqlClient,
       registerTables([
         defineTable({

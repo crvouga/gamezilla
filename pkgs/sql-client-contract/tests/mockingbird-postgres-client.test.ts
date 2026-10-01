@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
-import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
 import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -29,9 +29,14 @@ async function applyTables(
   client: PostgresSqlClient,
   tables: readonly TableDef[]
 ): Promise<void> {
-  await applyPostgresSchema(client, registerTables(tables), client.dbScope, {
-    skipAdvisoryLock: true,
-  });
+  await reconcilePostgresSchema(
+    client,
+    registerTables(tables),
+    client.dbScope,
+    {
+      skipAdvisoryLock: true,
+    }
+  );
 }
 
 describe('SqlClientImplMockingbirdPostgres lifecycle', () => {

@@ -28,7 +28,6 @@
     "@noble/hashes": "catalog:",
     "@pkgs/auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
@@ -42,7 +41,6 @@
   "devDependencies": {
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

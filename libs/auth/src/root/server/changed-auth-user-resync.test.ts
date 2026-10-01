@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { AuthIdentity, AuthUser } from '@pkgs/auth/shared';
 import { registerTables } from '@pkgs/db-schema';
-import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { type Sql, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
@@ -109,7 +109,7 @@ describe('a device signed out of an account is signed into it nowhere', () => {
   beforeEach(async () => {
     db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();
-    await applySqliteSchema(db, registerTables([...AUTH_TABLES]));
+    await reconcileSqliteSchema(db, registerTables([...AUTH_TABLES]));
     anonUsers = new AnonUserService(db, adapters);
   });
 

@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",

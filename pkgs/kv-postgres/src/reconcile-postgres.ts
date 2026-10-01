@@ -1,0 +1,42 @@
+import type { ReconcilePostgresSchemaOptions } from '@pkgs/db-schema-postgres';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
+import { kvSchema } from '@pkgs/kv/schema/tables';
+import type { Logger } from '@pkgs/logger/logger';
+import type { SqlClient } from '@pkgs/sql-client/interface';
+import {
+  createPostgresDbScope,
+  type PostgresDbScope,
+} from '@pkgs/sql-client/postgres-db-scope';
+
+import {
+  applyKvStorageOptimizations,
+  pingKvTable,
+} from './postgres-storage-knobs';
+
+export type ReconcileKvPostgresOptions = {
+  readonly dbScope?: PostgresDbScope;
+  readonly skipAdvisoryLock?: boolean;
+  readonly alreadyInTransaction?: boolean;
+  readonly indexPhase?: ReconcilePostgresSchemaOptions['indexPhase'];
+};
+
+/** Bring `kv` in line, then apply UNLOGGED / fillfactor storage knobs. */
+export async function reconcileKvPostgres(
+  client: SqlClient,
+  logger: Logger,
+  options?: ReconcileKvPostgresOptions
+): Promise<void> {
+  const dbScope = options?.dbScope ?? createPostgresDbScope('public');
+  const log = logger.child({ reconcile: 'kv-postgres' });
+  log.info('kv postgres reconcile: start');
+  await reconcilePostgresSchema(client, kvSchema, dbScope, {
+    skipAdvisoryLock: options?.skipAdvisoryLock ?? true,
+    alreadyInTransaction: options?.alreadyInTransaction ?? true,
+    ...(options?.indexPhase !== undefined
+      ? { indexPhase: options.indexPhase }
+      : {}),
+  });
+  await applyKvStorageOptimizations(client, log);
+  await pingKvTable(client);
+  log.info('kv postgres reconcile: complete');
+}

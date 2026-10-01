@@ -290,7 +290,7 @@ on the **app** role's router and writes its id to the secrets store as
 the Neki router. It is not a second database and it is not an
 application-managed shard. Query caching is **off**: sync hydration must
 read its own writes. `DATABASE_URL` stays the database's identity —
-migrations and tooling connect with it, and the non-production URL policy
+reconcile and tooling connect with it, and the non-production URL policy
 always checks it. `wrangler dev` and the localhost stack have no binding and
 connect to embedded Postgres.
 
@@ -429,17 +429,17 @@ The chicken-and-egg problems and how each is broken:
 | State needs a bucket; the bucket is a resource | The bootstrap stack's first apply uses a local backend, creates the bucket and its credential, writes the credential to the shared secrets environment, then migrates its own state into the bucket (`scripts/bootstrap-backend.ts`). Detected by `TOFU_STATE_ACCESS_KEY_ID` being absent. |
 | State is encrypted; the key cannot come from state | `TOFU_STATE_PASSPHRASE` is a human secret, seeded before anything runs. |
 | CI authenticates to Infisical with the identity the bootstrap stack manages | Bootstrap is applied by a person with their own credentials, never by CI. It creates a new OIDC identity (the provider cannot import an existing OIDC binding) and repoints `SECRETS_IDENTITY_ID`; runs in flight keep using the old identity, which a person deletes afterwards. |
-| Generated secrets already exist | A stored value wins over the generator, so adopting never rotates `AUTH_SECRET` or `EMQX_JWT_SECRET`. Two exceptions are minted fresh: `secrets.regenerate` lists names whose value was copied from another environment, and `stacks/foundation/secrets.json` `placeholders` lists the values committed to git for the local sidecar, which are public and must never reach a deployed authorizer. `specs/health/live-updates.feature` re-reads the store before probing, so a rotation lands in the same deploy. |
+| Generated secrets already exist | A stored value wins over the generator, so adopting never rotates `AUTH_SECRET` or `EMQX_JWT_SECRET`. Two exceptions are minted fresh: `secrets.regenerate` lists names whose value was copied from another environment, and `stacks/foundation/secrets.json` `placeholders` lists the values committed to git for the local sidecar, which are public and must never reach a deployed authorizer. `specs/spaces/live-updates.feature` re-reads the store before probing, so a rotation lands in the same deploy. |
 | Secrets OpenTofu writes already exist | Imported (`imports.foundation.secrets`), so the first apply updates rather than colliding with "already exists". New `IOT_*` secrets are created, not imported. |
 | Custom domains need their Worker | Edge runs after the Worker deploys; wrangler (with no `routes`) never touches existing custom domains in between. |
 | The IoT custom domain's certificate | ACM DNS validation runs inside the foundation apply, before migrate and the Worker deploy. Health then expects an unsigned request to the data plane to be refused (`403`), which is the data plane answering. |
 | `pg_stat_statements` on a brand-new branch | The default profile cannot be imported in the same apply as the branch. If create-extension fails, update profile `default` in a follow-up. Do not declare a second profile. |
 
 Health checks for the human-managed settings (`bun health`, every
-environment, hourly): `specs/health/sign-in.feature` asks Google
+environment, hourly): `specs/auth/sign-in.feature` asks Google
 whether it accepts the one shared OAuth callback and, if not, names the exact
 redirect URI to add, and every environment proves the relay returns each
-other environment's callbacks home; `specs/health/declared-environment.feature` plans every stack and fails on
+other environment's callbacks home; `specs/runtime/declared-environment.feature` plans every stack and fails on
 drift or on a missing / inactive Grafana stack.
 
 Runbook for a person applying this for the first time:

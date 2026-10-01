@@ -91,7 +91,7 @@ const CHECK_AGGREGATOR = '//#check';
 const DEPLOY_AGGREGATOR = '//#deploy';
 /**
  * The live health checks and critical journeys (`@apps/product#health`,
- * `specs/health/` + `specs/journeys/`). Deliberately no `//#health` root
+ * `@synthetic` features + `specs/journeys/`). Deliberately no `//#health` root
  * task: the root `health` script would make a bare `health` dependency
  * resolve to that root task itself, a cycle turbo refuses to plan.
  */

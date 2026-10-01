@@ -15,10 +15,10 @@ import { Hono } from 'hono';
 
 import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
 import { buildAuthTrustedOrigins } from '../shared/trusted-origins';
-import { AuthPostgresDatabaseMigration } from './auth-postgres-database-migration';
 import { createAuthApp } from './create-auth-app';
 import { createAuthServerAdapter } from './create-auth-server-adapter';
 import { readInhouseAuthConfig } from './inhouse-auth-config';
+import { reconcileIdpPostgres } from './reconcile-idp-postgres';
 
 /** Where the IdP's endpoints sit under the API path. */
 const AUTH_PATH_PREFIX = '/auth';
@@ -71,8 +71,8 @@ async function createInhouseAuthProvider(
 export const INHOUSE_AUTH_PROVIDER: AuthProviderModule = {
   provider: IDP_PROVIDER_LABEL,
   create: createInhouseAuthProvider,
-  postgresMigration: ({ dbScope }) =>
-    new AuthPostgresDatabaseMigration({
+  reconcilePostgres: ({ sqlClient, dbScope }) =>
+    reconcileIdpPostgres(sqlClient, {
       dbScope,
       skipAdvisoryLock: true,
       alreadyInTransaction: false,

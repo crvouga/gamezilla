@@ -67,6 +67,8 @@
     "spec:check": "bun run libs/tools/scripts/check-specs.ts",
     "spec:ownership": "bun run libs/tools/scripts/check-spec-ownership.ts",
     "stack": "bun run --silent dev",
+    "synthetic": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @apps/product synthetic",
+    "synthetic:prd": "SECRETS_ENV=prd bun run synthetic",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
     "wipe": "git clean -xfd",
     "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts"
@@ -161,6 +163,8 @@
     "@standard-schema/spec": "^1.1.0",
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/query-persist-client-core": "5.104.0",
+    "@tanstack/solid-query": "5.104.0",
     "@tanstack/solid-virtual": "^3.13.40",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^7.0.1",
