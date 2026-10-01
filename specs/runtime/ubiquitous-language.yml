@@ -36,7 +36,7 @@ terms:
       person lands on Spaces and moves between the tabs freely.
     forms: [tab, the tabs]
     avoid: [home screen, tab bar, navigation bar]
-    model: [OnTab, openTab, lastTab]
+    model: [OnTab, openTab, _lastTab]
     published: true
 
   - term: first opening
@@ -282,7 +282,7 @@ terms:
   # Borrowed from Friends.
   - term: people search
     from: friends
-    model: [Search, Lookup, lookup, lookUp, searchedFor, Denied, Nobody, Shows]
+    model: [Search, Lookup, lookup, lookUp, _searchedFor, Denied, Nobody, Shows]
 
   # Borrowed from Billing.
   - term: Plus
