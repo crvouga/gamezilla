@@ -70,6 +70,10 @@ export type ThemeProviderProps = {
    * scheme. Reactive.
    */
   colorScheme: ColorScheme | 'system';
+  /** Independent overlay roots may follow the document without owning it. */
+  manageDocumentTheme?: boolean;
+  /** Keep overlay roots transparent while retaining theme tokens. */
+  transparent?: boolean;
   /** Optional font stack overrides (merged onto defaults). Read once. */
   fonts?: Partial<FontStacks>;
   /** Overrides {@link defaultTextCasing} for all design-system `Text`. Read once. */
@@ -151,7 +155,11 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
 
   if (isRoot) {
     createEffect(() => {
-      if (typeof document === 'undefined') return;
+      if (
+        typeof document === 'undefined' ||
+        props.manageDocumentTheme === false
+      )
+        return;
       onCleanup(mirrorDocumentTheme(colorScheme()));
     });
   }
@@ -186,6 +194,10 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
         <div
           ref={setHost}
           class="themeHost"
+          classList={{
+            'bg-transparent': props.transparent === true,
+            'bg-none': props.transparent === true,
+          }}
           data-theme={colorScheme()}
           data-component="ThemeProvider"
           style={fontStyle}

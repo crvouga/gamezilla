@@ -41,6 +41,32 @@ describe('nested ThemeProvider', () => {
     }
   });
 
+  test('independent transparent roots leave the document theme under its owner', () => {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    const { unmount } = render(() => (
+      <ThemeProvider
+        colorScheme="light"
+        fixedLayout={FIXED}
+        manageDocumentTheme={false}
+        transparent
+      >
+        <SchemeProbe id="support" />
+      </ThemeProvider>
+    ));
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    const host = document.querySelector('[data-component="ThemeProvider"]');
+    expect(host?.classList.contains('bg-transparent')).toBe(true);
+    expect(host?.classList.contains('bg-none')).toBe(true);
+    expect(
+      document
+        .querySelector('[data-testid="support"]')
+        ?.getAttribute('data-scheme')
+    ).toBe('light');
+    unmount();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    document.documentElement.removeAttribute('data-theme');
+  });
+
   test('outer mirrors document; inner keeps its own host + JS scheme', () => {
     document.documentElement.removeAttribute('data-theme');
 
