@@ -1,34 +1,31 @@
 # Agent Notes
 
-What the app is is specified in [`specs/`](specs/). Implementation:
-[`docs/TESTING.md`](docs/TESTING.md), [`specs/README.md`](specs/README.md),
-[`docs/CI.md`](docs/CI.md), [`docs/DETERMINISM.md`](docs/DETERMINISM.md),
-[`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md),
-[`docs/INFRA.md`](docs/INFRA.md), [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md),
-[`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md). State each
-rule once: link to a doc rather than restating it.
+What the app is is specified in [`specs/`](specs/). How to write a spec is
+[`specs/README.md`](specs/README.md). Product, stack, and mechanism are
+[`README.md`](README.md). State each rule once: link to that file rather
+than restating it.
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property` only; `fc.commands` models; `@pkgs/harness` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus an entry in `libs/tools/goal/known-bugs.json`. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`docs/TESTING.md`](docs/TESTING.md).
+- **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing check, and if no check can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property` only; `fc.commands` models; `@pkgs/harness` systems; Quint models for product features — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus an entry in `libs/tools/goal/known-bugs.json`. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
-- **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; `docs/` is implementation and never a second product definition. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
+- **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. `docs/` holds only the generated step-catalog index. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
 
 - **Never leave deprecated code.** No `@deprecated` markers, deprecated aliases, shim re-exports, or "kept for migration" optional fields. Delete the old API and update every call site in the same change.
 
 - **Access is decided only by `@libs/permissions`.** Feature gates, usage limits, upsells and "sign in to…" prompts all come from a permission decision: `useCan` / `useDecision` / `usePermissions` on the client, `requireInMutation` / `decideInMutation` in mutation bodies, `requirePermission` in server routes. What a denial unlocks is policy config (`unlockRefs`), rendered by `DenialSurface` or run by `useUnlock` — never a feature's own branch. No product code outside auth, billing and permissions reads `isAnon` / `isSignedIn`, imports `@libs/auth/public/access-facts`, queries `is_anon` / `billing_subscriptions`, or names a role or plan (`@libs/permissions/root/access-model` is for tests and the policy root only). The shell chrome shows identity, never a tier. Account-only actions deny anonymous subjects through a policy restriction (`reason: 'requires_account'`). CI: `import-access-facts.grit`, `import-access-model.grit`, `no-access-state-vocabulary.grit`, `no-tier-vocabulary*.grit`.
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness`, `@apps/product`, package `src/harness/`, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness/README.md`](pkgs/harness/README.md)); reports go object store → API → client: CI publishes to the shared reports store, `/api/reports` streams it, and the reports screen (`/reports`, `@pkgs/harness-report`) renders it — never a report tab inside the harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`docs/DETERMINISM.md`](docs/DETERMINISM.md).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness`, `@apps/product`, package `src/harness/`, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness/README.md`](pkgs/harness/README.md)); reports go object store → API → client: CI publishes to the shared reports store, `/api/reports` streams it, and the reports screen (`/reports`, `@pkgs/harness-report`) renders it — never a report tab inside the harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
 
-- **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. Repo-wide docs live in `docs/`, package docs in `<pkg>/docs/` (only `README.md` at the package root). Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`). Check: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
+- **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`). Check: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
 
 - **Agents never create branches or worktrees.** Commit to the branch and worktree you started in: no `EnterWorktree`, no `isolation: "worktree"` subagents, no `git worktree add`, no `git checkout -b` / `git switch -c`. Parallel agents split work by files and commit only their own paths (never `git add -A` over another agent's edits), then `git pull --rebase` before pushing. Enforced by `.claude/hooks/no-agent-worktrees.sh`.
 
-- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`docs/CI.md`](docs/CI.md#main-only-moves-through-a-merged-pr)).
+- **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge and stops; a human merges — never `--admin`, never a red, pending or draft PR. `main` moves only through a merged PR ([`README.md`](README.md#correctness-machinery)).
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 
-- **Infrastructure is OpenTofu; environments are cattle, data is never lost by accident.** Every deployed resource is declared in `libs/infra/tofu` (env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`), so any environment rebuilds from its env file alone. Never create, change or delete infrastructure from TypeScript, a script or a console (`no-infra-outside-tofu.grit`). `libs/infra/policy/stateful.rego` allow-lists the only types an ordinary apply may delete (add one only if losing it loses no data); retire a stateful resource with `removed { lifecycle { destroy = false } }`. The one destroy path is `bun run infra:destroy` for a `protection: "standard"` environment; production and the global stateful resources (`prevent_destroy`) can never be torn down. Guide: [`docs/INFRA.md`](docs/INFRA.md).
+- **Infrastructure is OpenTofu; environments are cattle, data is never lost by accident.** Every deployed resource is declared in `libs/infra/tofu` (env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`), so any environment rebuilds from its env file alone. Never create, change or delete infrastructure from TypeScript, a script or a console (`no-infra-outside-tofu.grit`). `libs/infra/policy/stateful.rego` allow-lists the only types an ordinary apply may delete (add one only if losing it loses no data); retire a stateful resource with `removed { lifecycle { destroy = false } }`. The one destroy path is `bun run infra:destroy` for a `protection: "standard"` environment; production and the global stateful resources (`prevent_destroy`) can never be torn down. Guide: [`README.md`](README.md#deployed-stack).
 
 - **Never disable structural size limits.** The Tiger-Style caps in [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing: no new `'off'` overrides, no `biome-ignore` for them. Refactor instead — extract components, hooks or pure helpers.
 
@@ -48,7 +45,7 @@ rule once: link to a doc rather than restating it.
 
 Run `bun obs` before adding logs or rerunning a failure: `bun obs last` when
 it just happened, `bun obs find <any id>` otherwise. Workflow, sources and
-credentials: [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md).
+credentials: [`README.md`](README.md#correctness-machinery).
 
 ## `@pkgs/ui` design system
 
@@ -112,7 +109,7 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 `bun check`, `bun health`, and `bun deploy` dispatch the Check, Health, and
 Deploy workflows and block on the verdict
-([`docs/CI.md`](docs/CI.md)). `bun check` publishes the spec report of the
+([`README.md`](README.md#correctness-machinery)). `bun check` publishes the spec report of the
 commit to `/reports/<sha>`. `bun check:local`, `bun health:local`, and
 `bun deploy:local` run that work on this machine. Every check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
@@ -120,7 +117,7 @@ touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
 Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
 deploy, infra, secrets, Workers or `health` with `bun run deploy:dev` before
-merging. Details: [`docs/CI.md`](docs/CI.md).
+merging. Details: [`README.md`](README.md#correctness-machinery).
 
 ## Workspaces
 
@@ -160,7 +157,7 @@ super.engineering's app project settings.
   the production Worker handler behind a load balancer, with the product web
   app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
   command. Ports and flags:
-  [`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md).
+  [`README.md`](README.md#laptop).
 - **`bun run dev:client`** — `@apps/client` alone.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
 - **`bun db:migrate`** migrates `DATABASE_URL`; **`bun run db:wipe:dev`** wipes
@@ -236,7 +233,7 @@ test:max`: sidecars from `@pkgs/postgres-embedded`, `@pkgs/s3-server`,
 references, in code, comments or defaults. How features, shells and the
 composition root (`@libs/runtime`, the one package that knows every feature)
 fit together, and how to add a feature, is
-[`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md).
+[`README.md`](README.md#repository).
 
 A product lib is organized by use case, so one directory traces a request
 from client to server to database:
@@ -283,7 +280,7 @@ each probed in `libs/tools/scripts/import-boundaries.test.ts`, plus
 
 **Games.** A game is a feature package modeled on `@libs/chess`: a
 `RoomModule` in `shared/` with `hash(state)`
-([`docs/DETERMINISM.md`](docs/DETERMINISM.md)), its `*GameShared` definition
+([`README.md`](README.md#correctness-machinery)), its `*GameShared` definition
 appended to `GAME_DEFINITIONS` in `libs/games/src/game-plugins.ts`, and its
 `src/` added to the Lingui catalogs (`LINGUI_CATALOG_SOURCES`, `libs/tools/scripts/lingui-scope.ts`).
 **Billing providers** each export one `MembershipProviderModule`;
