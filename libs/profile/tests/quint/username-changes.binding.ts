@@ -133,6 +133,8 @@ bindQuintModel<QuintHarnessWorld>({
         const id = await w.s.read(accountIdOf, actor);
         if (id === null) throw new Error(`${actor} did not sign in`);
         w.memo.set(profileIdKey(actor), id);
+        await save(w, actor, actor);
+        w.memo.delete(lastUsernameChangeKey(actor));
       }
       await w.s.apply(focusActor, GUEST);
       const [guestId] = await w.s.until(

@@ -598,5 +598,10 @@
     "id": "model-check-refusal-recovery-expectation",
     "summary": "The model discovery regression expected the old sync model list after note-refusal-recovery was added, rejecting correct discovery of the new bounded model.",
     "regressionTest": "libs/tools/scripts/check-models.test.ts"
+  },
+  {
+    "id": "username-model-initial-name",
+    "summary": "The username model binding signed in Alice and Bob but left their generated names in place, diverging at init from the model's named accounts. Setup now saves the required names through the profile UI before recording any model action.",
+    "regressionTest": "libs/profile/tests/harness/username-model-initialization.test.ts"
   }
 ]
