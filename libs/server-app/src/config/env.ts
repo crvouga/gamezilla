@@ -55,8 +55,8 @@ export type ApiWorkerEnv = {
    */
   DEPLOYMENT_PROTECTION?: string;
   BUILD_SHA?: string;
-  BUG_REPORT_GITHUB_TOKEN?: string;
-  BUG_REPORT_GITHUB_REPOSITORY?: string;
+  FEEDBACK_GITHUB_TOKEN?: string;
+  FEEDBACK_GITHUB_REPOSITORY?: string;
   ROOM?: RoomNamespace;
   /**
    * Hyperdrive in front of the environment's Postgres (rendered by

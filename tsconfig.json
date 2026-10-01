@@ -257,8 +257,8 @@
     "pkgs/solid-context/src/**/*.tsx",
     "pkgs/vite-workspace-resolver/src/**/*.ts",
     "libs/test-ids/src/**/*.ts",
-    "pkgs/bug-report/src/**/*.ts",
-    "pkgs/bug-report/scripts/**/*.ts"
+    "pkgs/feedback/src/**/*.ts",
+    "pkgs/feedback/scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

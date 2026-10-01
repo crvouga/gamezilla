@@ -59,7 +59,7 @@
     "jose": "catalog:",
     "pg": "catalog:",
     "zod": "catalog:",
-    "@pkgs/bug-report": "workspace:*"
+    "@pkgs/feedback": "workspace:*"
   },
   "devDependencies": {
     "@libs/games": "workspace:*",

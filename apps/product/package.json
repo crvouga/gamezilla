@@ -110,7 +110,7 @@
     "hono": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:",
-    "@pkgs/bug-report": "workspace:*"
+    "@pkgs/feedback": "workspace:*"
   },
   "devDependencies": {
     "@babel/runtime": "catalog:",

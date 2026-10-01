@@ -395,18 +395,18 @@
     "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
   },
   {
-    "id": "bug-report-optional-context-budget",
+    "id": "feedback-optional-context-budget",
     "summary": "Individually bounded diagnostics could collectively exceed the reporting HTTP limit and reject the basic report. Enforce a total UTF-8 diagnostic budget and mark excess context unavailable.",
-    "regressionTest": "pkgs/bug-report/tests/diagnostic-budget.test.ts"
+    "regressionTest": "pkgs/feedback/tests/diagnostic-budget.test.ts"
   },
   {
-    "id": "bug-report-http-ignores-abort",
+    "id": "feedback-http-ignores-abort",
     "summary": "An HTTP transport or response body ignoring AbortSignal left reporting pending forever. A hard deadline now preserves the emergency recovery path.",
-    "regressionTest": "pkgs/bug-report/tests/http-deadline.test.ts"
+    "regressionTest": "pkgs/feedback/tests/http-deadline.test.ts"
   },
   {
-    "id": "bug-report-vite-node-import",
-    "summary": "The bug-report Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
-    "regressionTest": "pkgs/bug-report/tests/vite-config.contract.test.ts"
+    "id": "feedback-vite-node-import",
+    "summary": "The feedback Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
+    "regressionTest": "pkgs/feedback/tests/vite-config.contract.test.ts"
   }
 ]

@@ -13,9 +13,9 @@ import {
 } from './auth-secrets';
 import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
 import {
-  BUG_REPORT_GITHUB_REPOSITORY,
-  BUG_REPORT_GITHUB_TOKEN,
-} from './bug-report-secrets';
+  FEEDBACK_GITHUB_REPOSITORY,
+  FEEDBACK_GITHUB_TOKEN,
+} from './feedback-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
@@ -57,8 +57,8 @@ import { TURBO_API, TURBO_TOKEN } from './turbo-token';
  * are reported, never deleted (a human-entered value cannot be recovered).
  */
 export const SECRETS: readonly Secret[] = [
-  BUG_REPORT_GITHUB_TOKEN,
-  BUG_REPORT_GITHUB_REPOSITORY,
+  FEEDBACK_GITHUB_TOKEN,
+  FEEDBACK_GITHUB_REPOSITORY,
   CLOUDFLARE_API_TOKEN,
   CLOUDFLARE_ACCOUNT_ID,
   DATABASE_URL,

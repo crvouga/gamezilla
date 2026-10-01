@@ -53,8 +53,8 @@
         "@libs/secrets": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@pkgs/assert": "workspace:*",
-        "@pkgs/bug-report": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/feedback": "workspace:*",
         "@pkgs/git": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -117,11 +117,11 @@
         "@pkgs/billing-paddle": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
-        "@pkgs/bug-report": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/feedback": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
         "@pkgs/git": "workspace:*",
         "@pkgs/harness": "workspace:*",
@@ -214,10 +214,10 @@
         "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
-        "@pkgs/bug-report": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/feedback": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/llm": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -893,7 +893,6 @@
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
         "@pkgs/kv-postgres": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
@@ -1397,29 +1396,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/bug-report": {
-      "name": "@pkgs/bug-report",
-      "version": "0.0.0",
-      "dependencies": {
-        "@opentelemetry/api": "catalog:",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/harness": "workspace:*",
-        "@pkgs/http-client": "workspace:*",
-        "@pkgs/object-store": "workspace:*",
-        "@pkgs/object-store-node-fs": "workspace:*",
-        "@pkgs/uuid": "workspace:*",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/gherkin": "workspace:*",
-        "@pkgs/os": "workspace:*",
-        "@pkgs/property": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "pkgs/bun-test-solid": {
       "name": "@pkgs/bun-test-solid",
       "version": "0.0.0",
@@ -1784,6 +1760,29 @@
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "pkgs/feedback": {
+      "name": "@pkgs/feedback",
+      "version": "0.0.0",
+      "dependencies": {
+        "@opentelemetry/api": "catalog:",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/harness": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
+        "@pkgs/os": "workspace:*",
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
       },
     },
     "pkgs/gherkin": {
@@ -4073,8 +4072,6 @@
 
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
 
-    "@pkgs/bug-report": ["@pkgs/bug-report@workspace:pkgs/bug-report"],
-
     "@pkgs/bun-test-solid": ["@pkgs/bun-test-solid@workspace:pkgs/bun-test-solid"],
 
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
@@ -4120,6 +4117,8 @@
     "@pkgs/entity-store": ["@pkgs/entity-store@workspace:pkgs/entity-store"],
 
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
+
+    "@pkgs/feedback": ["@pkgs/feedback@workspace:pkgs/feedback"],
 
     "@pkgs/gherkin": ["@pkgs/gherkin@workspace:pkgs/gherkin"],
 

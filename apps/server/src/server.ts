@@ -1,7 +1,7 @@
-// @io-wall-ok — platform entrypoint; bug reporting never imports product bootstrap
+// @io-wall-ok — platform entrypoint; feedback never imports product bootstrap
 import type { ApiWorkerEnv } from '@libs/server-app/config/env';
-import { BUG_REPORT_PATH } from '@pkgs/bug-report/server';
-import { handleRootBugReport } from './root-bug-reporting-boot';
+import { FEEDBACK_PATH } from '@pkgs/feedback/server';
+import { handleRootFeedbackReport } from './root-feedback-boot';
 
 export default {
   async fetch(
@@ -9,8 +9,8 @@ export default {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<Response> {
-    if (new URL(request.url).pathname === BUG_REPORT_PATH)
-      return handleRootBugReport(request, env);
+    if (new URL(request.url).pathname === FEEDBACK_PATH)
+      return handleRootFeedbackReport(request, env);
     const product = await import('./product/server');
     return product.default.fetch(request, env, ctx);
   },

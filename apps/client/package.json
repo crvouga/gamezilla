@@ -38,7 +38,7 @@
     "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "solid-js": "catalog:",
-    "@pkgs/bug-report": "workspace:*",
+    "@pkgs/feedback": "workspace:*",
     "@pkgs/http-client": "workspace:*"
   },
   "devDependencies": {
