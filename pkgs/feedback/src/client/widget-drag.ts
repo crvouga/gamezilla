@@ -5,15 +5,11 @@ export function widgetPosition(
   bounds: { width: number; height: number },
   frame: { width: number; height: number }
 ) {
+  const minimumX = frame.width - bounds.width + 32;
+  const minimumY = frame.height - bounds.height + 48;
   return {
-    x: Math.max(
-      Math.min(0, position.x),
-      -Math.max(0, bounds.width - frame.width - 32)
-    ),
-    y: Math.max(
-      Math.min(0, position.y),
-      -Math.max(0, bounds.height - frame.height - 48)
-    ),
+    x: Math.max(Math.min(0, position.x), minimumX),
+    y: Math.max(Math.min(0, position.y), minimumY),
   };
 }
 export function useWidgetDrag(

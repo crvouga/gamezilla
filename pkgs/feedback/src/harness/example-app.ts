@@ -238,8 +238,6 @@ export function createExampleApp(session: Session) {
     await ready();
     root?.controller.open('problem');
     root?.controller.setStage('write');
-    element('feedback-context').click();
-    await session.waitForIdle();
     element('feedback-record').click();
     await idle();
     product?.click();
@@ -443,6 +441,14 @@ export function createExampleApp(session: Session) {
       managementText:
         document.querySelector('[data-testid="feedback-management"]')
           ?.textContent ?? '',
+      stage: root?.controller.workspace.state().stage,
+      heading: host?.querySelector('h2')?.textContent ?? '',
+      hasContextScreen:
+        document.querySelector('[data-component="FeedbackContext"]') !== null,
+      hasAttachControl:
+        document.querySelector('[data-testid="feedback-attach"]') !== null,
+      hasRecordControl:
+        document.querySelector('[data-testid="feedback-record"]') !== null,
       buttons: [...(host?.querySelectorAll('button') ?? [])]
         .map((button) => button.textContent.trim())
         .filter(Boolean),

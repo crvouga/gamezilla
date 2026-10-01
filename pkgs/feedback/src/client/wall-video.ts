@@ -95,15 +95,6 @@ export function browserRecordingPort(timers: Timers): RecordingPort {
     },
   };
 }
-export function browserEvidencePreview(file: EvidenceFile) {
-  const url = URL.createObjectURL(
-    new Blob([file.bytes as Uint8Array<ArrayBuffer>], {
-      type: file.contentType,
-    })
-  );
-  return { url, dispose: () => URL.revokeObjectURL(url) };
-}
-
 function createMediaRecorder(stream: MediaStream): MediaRecorder {
   try {
     return new MediaRecorder(stream, { videoBitsPerSecond: 700_000 });

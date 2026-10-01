@@ -107,9 +107,7 @@ function readWorkspace(value: unknown): FeedbackWorkspaceSnapshot {
     | FeedbackWorkspaceSnapshot['position']
     | undefined;
   const stage =
-    input['stage'] === 'manage' ||
-    input['stage'] === 'read' ||
-    input['stage'] === 'context'
+    input['stage'] === 'manage' || input['stage'] === 'read'
       ? input['stage']
       : 'write';
   return {

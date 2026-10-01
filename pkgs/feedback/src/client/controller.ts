@@ -41,10 +41,6 @@ export type FeedbackControllerOptions = {
     read: () => 'light' | 'dark';
     subscribe: (listener: () => void) => () => void;
   };
-  readonly preview?: (file: EvidenceFile) => {
-    url: string;
-    dispose: () => void;
-  };
   readonly upload?: (file: EvidenceFile) => Promise<FeedbackAttachment>;
 };
 
@@ -76,6 +72,7 @@ export class FeedbackController {
   private restoring = false;
   private restoreGeneration = 0;
   private evidencePending: Promise<void> = Promise.resolve();
+  private editorParent: Extract<WizardStage, 'manage' | 'read'> = 'manage';
   private readonly evidenceReceipts = new WeakMap<
     EvidenceFile,
     FeedbackAttachment
@@ -166,6 +163,15 @@ export class FeedbackController {
     this.workspace.stage(stage);
     this.publish({});
   };
+  edit = (): void => {
+    this.editorParent = 'read';
+    this.setStage('write');
+  };
+  editorBack = (): void => this.setStage(this.editorParent);
+  editorBackLabel = (): 'Back' | 'Issues' =>
+    this.editorParent === 'read' ? 'Back' : 'Issues';
+  editorTitle = (): 'Edit issue' | 'New issue' =>
+    this.editorParent === 'read' ? 'Edit issue' : 'New issue';
   setManagement = (
     next: Partial<
       import('../shared/workspace').FeedbackWorkspaceSnapshot['management']
@@ -189,6 +195,7 @@ export class FeedbackController {
   newDraft = async (): Promise<void> => {
     if (this.current.phase === 'sending') return;
     await this.evidencePending;
+    this.editorParent = 'manage';
     this.workspace.create();
     await this.restoreActive();
     this.open();
@@ -227,19 +234,6 @@ export class FeedbackController {
     this.workspace.patch({ position: { x, y } });
     this.publish({});
   };
-  removeRemoteAttachment = (id: string): void => {
-    if (this.current.phase === 'sending') return;
-    const report = this.workspace.active()?.report;
-    if (report)
-      this.workspace.update({
-        attempted: null,
-        report: {
-          ...report,
-          attachments: report.attachments.filter((a) => a.id !== id),
-        },
-      });
-    this.publish({ attempted: null, phase: 'idle' });
-  };
   setDraft = (next: Partial<FeedbackDraft>): void => {
     if (this.current.phase === 'sending') return;
     this.publish({
@@ -263,7 +257,6 @@ export class FeedbackController {
   reportAttachmentError = (message: string): void => {
     this.publish({ message });
   };
-  preview = (file: EvidenceFile) => this.options.preview?.(file);
   attach = async (file: EvidenceFile): Promise<void> => {
     if (this.current.phase === 'sending') return;
     if (!file.bytes.byteLength) {
@@ -425,6 +418,7 @@ export class FeedbackController {
       );
       this.restoring = false;
       this.publish({ files: [] });
+      this.setStage('read');
     } catch {
       this.publish({
         phase: 'failed',

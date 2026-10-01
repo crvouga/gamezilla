@@ -15,3 +15,4 @@ export { createReproductionRecorder } from './recording';
 export { createRootDiagnostics } from './root-diagnostics';
 export { startRootRuntime } from './root-runtime';
 export { createEvidenceUploader } from './upload-evidence';
+export { widgetPosition } from './widget-drag';

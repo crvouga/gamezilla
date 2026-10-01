@@ -25,26 +25,26 @@ export function FeedbackDetail(props: {
           <div class="box flex-row items-start justify-between gap-3">
             <div class="box min-w-0 gap-1">
               <h3 class="text text-lg font-semibold break-words">
-                {doc().title || 'Untitled feedback'}
+                {doc().title || 'Untitled issue'}
               </h3>
               <p class="text textCaption">
-                {doc().report ? 'Sent feedback' : 'Draft'}
+                {doc().report ? 'Reported issue' : 'Draft'}
               </p>
             </div>
             <OverflowMenuButton
-              aria-label="Feedback actions"
-              header={{ title: doc().title || 'Untitled feedback' }}
+              aria-label="Issue actions"
+              header={{ title: doc().title || 'Untitled issue' }}
               actions={[
                 {
                   id: 'edit',
-                  label: 'Edit feedback',
+                  label: 'Edit issue',
                   icon: SquarePenIcon,
-                  onClick: () => props.controller.setStage('write'),
+                  onClick: props.controller.edit,
                   dataSet: { testid: `feedback-edit-${doc().id}` },
                 },
                 {
                   id: 'delete',
-                  label: 'Delete feedback',
+                  label: 'Delete issue',
                   icon: Trash2Icon,
                   onClick: () => setDeleting(true),
                   dataSet: { testid: `feedback-delete-${doc().id}` },
@@ -69,12 +69,12 @@ export function FeedbackDetail(props: {
           <MutationModal
             visible={deleting()}
             onClose={() => setDeleting(false)}
-            title="Delete feedback?"
-            message={`Delete “${doc().title || 'Untitled feedback'}”? This cannot be undone.`}
+            title="Delete issue?"
+            message={`Delete “${doc().title || 'Untitled issue'}”? This cannot be undone.`}
             operation={() => props.controller.remove(doc().id)}
-            submitLabel="Delete feedback"
+            submitLabel="Delete issue"
             variant="destructive"
-            successTitle="Feedback deleted"
+            successTitle="Issue deleted"
             stackId="feedback-delete"
             submitDataSet={{ testid: 'feedback-delete-confirm' }}
             dismissDataSet={{ testid: 'feedback-delete-done' }}

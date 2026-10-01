@@ -480,6 +480,11 @@
     "regressionTest": "pkgs/ui/tests/button.test.tsx"
   },
   {
+    "id": "feedback-widget-handle-offscreen",
+    "summary": "The feedback widget clamp assumed the widget was shorter than the viewport, so a tall resized editor forced y=0 and left its grab handle above the visible area. Fixed by allowing the bottom-anchored widget to translate downward when only its header can fit.",
+    "regressionTest": "pkgs/feedback/tests/widget-drag.contract.test.ts"
+  },
+  {
     "id": "foundation-provider-bootstrap-cycle",
     "summary": "The first Neki foundation plan configured the PostgreSQL provider from a role that the same plan had not created yet. OpenTofu substituted localhost and failed before it could create the database; the transition also tried to delete the retired broker's random credentials. Fixed by leaving pg_stat_statements with Neki's PlanetScale-managed default profile, removing the cyclic provider, and forgetting retired credentials without destroying them.",
     "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"

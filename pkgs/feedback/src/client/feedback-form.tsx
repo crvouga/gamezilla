@@ -5,6 +5,7 @@ import { type Accessor, type JSX, Show } from 'solid-js';
 import { FEEDBACK_TEMPLATES } from '../shared/templates';
 import type { FeedbackKind } from '../shared/types';
 import type { FeedbackController, FeedbackState } from './controller';
+import { EvidenceControls } from './evidence-controls';
 
 const TEMPLATE_COMMANDS: Readonly<Record<string, FeedbackKind>> = {
   '/bug': 'problem',
@@ -156,14 +157,7 @@ function FeedbackEditor(props: {
         dataSet={{ testid: 'feedback-body' }}
       />
       <div class="box flex-row items-center justify-between gap-2 border-t border-border px-2 py-2">
-        <Button
-          title="Add context"
-          variant="ghost"
-          size="sm"
-          disabled={props.state().phase === 'sending'}
-          onClick={() => props.controller.setStage('context')}
-          dataSet={{ testid: 'feedback-context' }}
-        />
+        <EvidenceControls controller={props.controller} />
         <div class="box flex-row items-center gap-2">
           <Show when={props.state().draft.body.length >= 28_000}>
             <p class="text textCaption">

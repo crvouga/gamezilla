@@ -10,7 +10,7 @@ import { HttpIssueReporter } from './http-issue-reporter';
 import { mountRootReporting } from './mount-root-reporting';
 import { startRootRuntime } from './root-runtime';
 import { createEvidenceUploader } from './upload-evidence';
-import { browserEvidencePreview, browserRecordingPort } from './wall-video';
+import { browserRecordingPort } from './wall-video';
 
 /** Endpoint is platform configuration; it never depends on product bootstrap. */
 export function bootBrowserRoot(options: {
@@ -55,7 +55,6 @@ export function bootBrowserRoot(options: {
           },
         },
         video: browserRecordingPort(wallTimers),
-        preview: browserEvidencePreview,
         upload: createEvidenceUploader({
           endpoint: options.endpoint,
           http,

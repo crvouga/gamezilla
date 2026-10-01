@@ -42,6 +42,7 @@ import {
   MonitorPlay,
   Moon,
   Paintbrush,
+  Paperclip,
   Pause,
   Play,
   Plus,
@@ -99,6 +100,7 @@ export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);
+export const PaperclipIcon = createIcon(Paperclip);
 export const PauseIcon = createIcon(Pause);
 export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);

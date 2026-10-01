@@ -27,6 +27,7 @@ function DesktopWidget(props: { controller: FeedbackController }) {
     return props.controller.workspace.state().position;
   };
   const previous = document.activeElement;
+  let resizeObserver: ResizeObserver | undefined;
   const escape = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       event.stopPropagation();
@@ -37,11 +38,16 @@ function DesktopWidget(props: { controller: FeedbackController }) {
     frame?.querySelector<HTMLInputElement>('input')?.focus();
     frame?.addEventListener('keydown', escape);
     window.addEventListener('resize', drag.clamp);
+    if (frame && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(drag.clamp);
+      resizeObserver.observe(frame);
+    }
     drag.clamp();
   });
   onCleanup(() => {
     frame?.removeEventListener('keydown', escape);
     window.removeEventListener('resize', drag.clamp);
+    resizeObserver?.disconnect();
     if (previous instanceof HTMLElement) previous.focus();
   });
   return (

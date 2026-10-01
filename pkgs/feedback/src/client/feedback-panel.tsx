@@ -1,8 +1,7 @@
 /** @jsxImportSource solid-js */
-import { Button, SuccessState } from '@pkgs/ui';
+import { Button } from '@pkgs/ui';
 import { Match, Show, Switch } from 'solid-js';
 import type { FeedbackController } from './controller';
-import { FeedbackContext } from './feedback-context';
 import { FeedbackDetail } from './feedback-detail';
 import { FeedbackForm } from './feedback-form';
 import { FeedbackManagement } from './feedback-management';
@@ -19,12 +18,9 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
     return props.controller.workspace.warning;
   };
   const title = () => {
-    if (workspace().stage === 'manage') return 'Feedback';
-    if (workspace().stage === 'read') return 'Feedback detail';
-    if (workspace().stage === 'context') return 'Add context';
-    return props.controller.workspace.active()?.report
-      ? 'Edit feedback'
-      : 'New feedback';
+    if (workspace().stage === 'manage') return 'Issues';
+    if (workspace().stage === 'read') return 'Issue';
+    return props.controller.editorTitle();
   };
   return (
     <div class="box gap-4 p-4" data-component="FeedbackPanel">
@@ -56,20 +52,6 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
         <Match when={workspace().stage === 'read'}>
           <FeedbackDetail controller={props.controller} state={state} />
         </Match>
-        <Match when={workspace().stage === 'context'}>
-          <FeedbackContext controller={props.controller} state={state} />
-        </Match>
-        <Match when={state().phase === 'saved'}>
-          <SuccessState
-            title="Feedback saved"
-            body="Your report and context are safe."
-            action={{
-              label: 'View feedback',
-              onClick: () => props.controller.setStage('read'),
-            }}
-            variant="compact"
-          />
-        </Match>
         <Match when={workspace().stage === 'write'}>
           <FeedbackForm controller={props.controller} state={state} />
         </Match>
@@ -80,13 +62,13 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
 
 function StageAction(props: {
   controller: FeedbackController;
-  stage: 'write' | 'manage' | 'read' | 'context';
+  stage: 'write' | 'manage' | 'read';
 }) {
   return (
     <Switch>
       <Match when={props.stage === 'manage'}>
         <Button
-          title="New"
+          title="New issue"
           variant="ghost"
           size="sm"
           onClick={() => {
@@ -106,23 +88,12 @@ function StageAction(props: {
           dataSet={{ testid: 'feedback-back' }}
         />
       </Match>
-      <Match when={props.stage === 'context'}>
-        <Button
-          title="Done"
-          variant="ghost"
-          size="sm"
-          onClick={() => props.controller.setStage('write')}
-          dataSet={{ testid: 'feedback-context-done' }}
-        />
-      </Match>
       <Match when={props.stage === 'write'}>
         <Button
-          title="History"
+          title={props.controller.editorBackLabel()}
           variant="ghost"
           size="sm"
-          onClick={() => {
-            void props.controller.manage();
-          }}
+          onClick={props.controller.editorBack}
           dataSet={{ testid: 'feedback-manage' }}
         />
       </Match>

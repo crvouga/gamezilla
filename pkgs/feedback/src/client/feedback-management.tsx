@@ -85,7 +85,7 @@ function FeedbackRow(props: { doc: FeedbackDocument; onOpen: () => void }) {
       .find(Boolean) ?? 'No description yet';
   return (
     <ListItem
-      title={props.doc.title || 'Untitled feedback'}
+      title={props.doc.title || 'Untitled issue'}
       subtitle={`${status()} · ${excerpt()}`}
       trailing={<ChevronRightIcon size={18} />}
       onClick={props.onOpen}
