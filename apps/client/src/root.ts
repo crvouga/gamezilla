@@ -4,7 +4,7 @@ import { bootBrowserRoot } from '@pkgs/feedback/browser-root';
 import { feedbackEndpoint } from '@pkgs/feedback/client';
 
 bootBrowserRoot({
-  build: import.meta.env.VITE_COMMIT_HASH,
+  build: import.meta.env.VITE_COMMIT_HASH ?? 'unknown',
   endpoint: import.meta.env.DEV
     ? '/api/feedback'
     : feedbackEndpoint(import.meta.env.VITE_API_URL || location.origin),
