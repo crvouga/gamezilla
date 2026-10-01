@@ -498,5 +498,10 @@
     "id": "puzzle-result-lost-by-stats-navigation",
     "summary": "After a finish arrived while the app was closed, reopening offline and going to stats as the connection returned disposed the board recorder before it heard the result. Result reconciliation now lives across chess menu, stats and settings navigation; the literal close, offline return, reconnect and stats sequence is pinned.",
     "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+  },
+  {
+    "id": "profile-snapshot-stale-username-claim",
+    "summary": "Own-profile, profile-by-id and friendship snapshots omitted the normalized username used by the local uniqueness constraint. A rename could leave the old name reserved on another device and collide when that name was assigned elsewhere. Every profile snapshot now carries the normalized name. The literal alice_old to ALICE_NEW change is pinned through both public profile queries.",
+    "regressionTest": "libs/profile/tests/profile-snapshot.test.ts"
   }
 ]

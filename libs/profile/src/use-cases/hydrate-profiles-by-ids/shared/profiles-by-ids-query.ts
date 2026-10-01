@@ -11,7 +11,7 @@ export const profilesByIds = defineQuery({
   limit: 200,
   async run(ctx, { ids }) {
     const rows = await ctx.db.query(sql`
-      SELECT id, created_at, username, avatar_config, username_changed_at, deleted_at
+      SELECT id, created_at, username, username_norm, avatar_config, username_changed_at, deleted_at
       FROM profile
       WHERE id IN (${join(ids)})
 `);
