@@ -1,10 +1,10 @@
 import type { Clock } from '@pkgs/clock';
-import { readBytes } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { FeedbackAttachment, FeedbackRepository } from '../shared/types';
+import type { FeedbackRepository } from '../shared/types';
 import { createEvidenceHandler, EVIDENCE_ID } from './evidence-handler';
 import { createFeedbackReportHandler, FEEDBACK_PATH } from './http-handler';
 import { createFeedbackManagementHandler } from './management-handler';
+import { resolveReportEvidence } from './resolve-report-evidence';
 
 export function createFeedbackHttpApp(options: {
   reporter: FeedbackRepository;
@@ -18,21 +18,9 @@ export function createFeedbackHttpApp(options: {
     ...options,
     reporter: {
       async create(input) {
-        const attachments: FeedbackAttachment[] = [];
-        for (const attachment of input.attachments) {
-          if (!EVIDENCE_ID.test(attachment.id))
-            throw new Error('Invalid evidence');
-          const metadata = await options.store.get(
-            `evidence/${attachment.id}.json`
-          );
-          if (!metadata) throw new Error('Evidence missing');
-          attachments.push(
-            JSON.parse(
-              new TextDecoder().decode(await readBytes(metadata.body))
-            ) as FeedbackAttachment
-          );
-        }
-        return options.reporter.create({ ...input, attachments });
+        return options.reporter.create(
+          await resolveReportEvidence(input, options.store)
+        );
       },
     },
   });

@@ -34,9 +34,7 @@ export class GitHubIssueReporter implements IssueReporter {
         },
         body: JSON.stringify({
           title: report.title,
-          body: this.options.reportBaseUrl
-            ? `${reportMarkdown(report)}\n\nReproduction bundle: ${this.options.reportBaseUrl}/${report.id}\n\nRead the exact starting context and ordered actions in the bundle, then add a failing product spec before fixing the issue.`
-            : `${reportMarkdown(report)}\n\n\`\`\`json\n${JSON.stringify(report, null, 2)}\n\`\`\``,
+          body: this.body(report),
         }),
       }
     );
@@ -66,7 +64,7 @@ export class GitHubIssueReporter implements IssueReporter {
         headers: this.headers(),
         body: JSON.stringify({
           title: report.title,
-          body: reportMarkdown(report),
+          body: this.body(report),
         }),
       }
     );
@@ -90,6 +88,11 @@ export class GitHubIssueReporter implements IssueReporter {
     const result = (await response.json()) as { errors?: unknown[] };
     if (!response.ok || result.errors?.length)
       throw new Error('GitHub feedback could not be deleted');
+  }
+  private body(report: FeedbackReport): string {
+    return this.options.reportBaseUrl
+      ? `${reportMarkdown(report)}\n\nReproduction bundle: ${this.options.reportBaseUrl}/${report.id}\n\nRead the exact starting context and ordered actions in the bundle, then add a failing product spec before fixing the issue.`
+      : `${reportMarkdown(report)}\n\n\`\`\`json\n${JSON.stringify(report, null, 2)}\n\`\`\``;
   }
   private headers(): Record<string, string> {
     return {

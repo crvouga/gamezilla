@@ -196,6 +196,7 @@ export class FeedbackController {
     await this.restoreActive();
   };
   manage = async (): Promise<void> => {
+    if (this.current.phase === 'sending') return;
     this.setStage('manage');
     try {
       this.workspace.merge(
@@ -223,15 +224,17 @@ export class FeedbackController {
     this.publish({});
   };
   removeRemoteAttachment = (id: string): void => {
+    if (this.current.phase === 'sending') return;
     const report = this.workspace.active()?.report;
     if (report)
       this.workspace.update({
+        attempted: null,
         report: {
           ...report,
           attachments: report.attachments.filter((a) => a.id !== id),
         },
       });
-    this.publish({});
+    this.publish({ attempted: null, phase: 'idle' });
   };
   setDraft = (next: Partial<FeedbackDraft>): void => {
     if (this.current.phase === 'sending') return;
@@ -324,8 +327,10 @@ export class FeedbackController {
     const state = this.recorder.state();
     this.workspace.update({ recording: state.recording });
     if (state.phase === 'idle') this.workspace.update({ video: null });
-    if (state.phase === 'starting' || state.phase === 'idle')
+    if (state.phase === 'starting' || state.phase === 'idle') {
+      this.workspace.update({ attempted: null });
       this.publish({ attempted: null });
+    }
     if (state.phase === 'recording') this.publish({ visible: false });
     if (state.phase === 'ready') {
       this.publish({ visible: true });

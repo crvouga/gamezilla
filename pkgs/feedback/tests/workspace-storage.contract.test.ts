@@ -1,0 +1,146 @@
+import { expect, test } from 'bun:test';
+import { createHarnessClock } from '@pkgs/clock';
+import {
+  createBrowserWorkspace,
+  FeedbackController,
+} from '@pkgs/feedback/client';
+import { FakeIssueReporter } from '@pkgs/feedback/server';
+import type { FeedbackWorkspaceSnapshot } from '@pkgs/feedback/shared';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import { assertProperty, fc } from '@pkgs/property';
+
+function storage() {
+  const values = new Map<string, string>();
+  const port: Storage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+    removeItem: (key) => {
+      values.delete(key);
+    },
+    clear: () => values.clear(),
+    key: (index) => [...values.keys()][index] ?? null,
+    get length() {
+      return values.size;
+    },
+  };
+  return port;
+}
+test('the browser journal imports the complete old draft before retiring its original key', async () => {
+  await assertProperty(
+    'feedback-draft-journal',
+    fc.asyncProperty(
+      fc.string(),
+      fc.string(),
+      fc.string(),
+      async (description, expected, reproductionSteps) => {
+        const port = storage();
+        const original = JSON.stringify({
+          kind: 'problem',
+          description,
+          expected,
+          reproductionSteps,
+        });
+        port.setItem('root-feedback-draft', original);
+        const adapter = createBrowserWorkspace(
+          () => port,
+          () => 'draft-id'
+        );
+        const snapshot = adapter.workspace.load();
+        expect(snapshot?.documents[0]?.description).toContain(description);
+        expect(snapshot?.documents[0]?.description).toContain(expected);
+        expect(snapshot?.documents[0]?.description).toContain(
+          reproductionSteps
+        );
+        expect(port.getItem('root-feedback-draft')).toBe(original);
+        adapter.workspace.save(snapshot!);
+        expect(port.getItem('root-feedback-draft')).toBeNull();
+        expect(adapter.workspace.load()).toEqual(snapshot);
+        expect(
+          createBrowserWorkspace(
+            () => port,
+            () => 'another-id'
+          ).authorId
+        ).toBe(adapter.authorId);
+      }
+    )
+  );
+});
+
+function fixture(evidence = new ObjectStoreImplInMemory()) {
+  const { clock, timers } = createHarnessClock();
+  const repository = new FakeIssueReporter();
+  let ids = 0;
+  let snapshot: FeedbackWorkspaceSnapshot | null = null;
+  const options = {
+    clock,
+    timers,
+    authorId: 'author-one',
+    providers: [],
+    reporter: repository,
+    evidence,
+    createId: () => `id-${++ids}`,
+    workspace: {
+      load: () => snapshot,
+      save: (next: FeedbackWorkspaceSnapshot) => {
+        snapshot = structuredClone(next);
+      },
+    },
+  };
+  return { options, persisted: () => snapshot, repository };
+}
+
+// regression: feedback-attachment-switches-draft
+test('an attachment completing after selection changes only its original persisted draft', async () => {
+  let release: (() => void) | undefined;
+  const base = new ObjectStoreImplInMemory();
+  const evidence = Object.assign(base, {
+    put: async (key: string, bytes: Uint8Array, type: string) => {
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      await ObjectStoreImplInMemory.prototype.put.call(base, key, bytes, type);
+    },
+  });
+  const world = fixture(evidence);
+  const controller = new FeedbackController(world.options);
+  await controller.ready;
+  const original = controller.workspace.state().activeId;
+  const attaching = controller.attach({
+    name: 'board.png',
+    contentType: 'image/png',
+    bytes: new Uint8Array([1, 2, 3]),
+  });
+  await controller.newDraft();
+  release?.();
+  await attaching;
+  const docs = world.persisted()?.documents;
+  expect(docs?.find((d) => d.id === original)?.files).toHaveLength(1);
+  expect(docs?.find((d) => d.id !== original)?.files).toHaveLength(0);
+  controller.dispose();
+});
+
+// regression: feedback-reload-repeats-submission
+test('the journal preserves an uncertain submission id through controller recreation', async () => {
+  const world = fixture();
+  const submitted: string[] = [];
+  world.repository.create = async (report) => {
+    submitted.push(report.id);
+    throw new Error('Receipt lost');
+  };
+  const first = new FeedbackController(world.options);
+  await first.ready;
+  first.setDraft({
+    title: 'Board stopped',
+    description: 'Stopped after a move',
+  });
+  await first.send();
+  first.dispose();
+  const second = new FeedbackController(world.options);
+  await second.ready;
+  await second.send();
+  expect(submitted).toHaveLength(2);
+  expect(submitted[1]).toBe(submitted[0]);
+  second.dispose();
+});

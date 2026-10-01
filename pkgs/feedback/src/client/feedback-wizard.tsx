@@ -10,13 +10,13 @@ import { onCleanup, onMount, Show } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { FeedbackPanel } from './feedback-panel';
 import { useFeedbackState, useRecordingState } from './use-feedback-state';
-import { widgetDrag } from './widget-drag';
+import { useWidgetDrag } from './widget-drag';
 
 function DesktopWidget(props: { controller: FeedbackController }) {
   const state = useFeedbackState(() => props.controller);
   let frame: HTMLElement | undefined;
   const layout = useThemeLayout();
-  const drag = widgetDrag(
+  const drag = useWidgetDrag(
     () => props.controller,
     () => frame,
     layout.layout
@@ -50,7 +50,10 @@ function DesktopWidget(props: { controller: FeedbackController }) {
       aria-modal="false"
       aria-label="Developer feedback"
       class="box fixed right-4 bottom-6 w-110 max-w-full rounded-2xl border border-border bg-surface shadow-2xl pointer-events-auto overflow-hidden"
-      style={{ transform: `translate(${position().x}px, ${position().y}px)` }}
+      style={{
+        transform: `translate(${position().x}px, ${position().y}px)`,
+        'max-height': `${Math.max(0, layout.layout().height - 48)}px`,
+      }}
       {...dataAttrs({ component: 'FeedbackWidget', testid: 'feedback-widget' })}
     >
       <div class="box flex-row items-center gap-2 border-b border-border px-4 py-3">

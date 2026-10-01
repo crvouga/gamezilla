@@ -16,6 +16,23 @@ export class FileSystemIssueReporter implements FeedbackRepository {
   }
 
   async create(report: FeedbackReport): Promise<CreatedIssue> {
+    const previous = await this.load(report.id);
+    if (previous) {
+      if (
+        previous.authorId !== report.authorId ||
+        previous.status === 'deleted'
+      )
+        throw new Error(
+          'Feedback belongs to another developer or is unavailable.'
+        );
+      return {
+        id: report.id,
+        location: `.feedback/${reportDirectory(previous)}/report.md`,
+      };
+    }
+    return this.persist(report);
+  }
+  private async persist(report: FeedbackReport): Promise<CreatedIssue> {
     const directory = reportDirectory(report);
     // A single atomic JSON commit is the authoritative, durable report.
     await this.write(
@@ -65,22 +82,9 @@ export class FileSystemIssueReporter implements FeedbackRepository {
   }
 
   async enrich(_issue: CreatedIssue, report: FeedbackReport): Promise<void> {
-    const directory = reportDirectory(report);
-    await this.write(
-      `${directory}/diagnostics.json`,
-      JSON.stringify(report.diagnostics, null, 2),
-      'application/json'
-    );
-    await this.write(
-      `${directory}/report.json`,
-      JSON.stringify(report, null, 2),
-      'application/json'
-    );
-    await this.write(
-      `${directory}/report.md`,
-      reportMarkdown(report),
-      'text/markdown'
-    );
+    const previous = await this.read(report.id, report.authorId);
+    if (previous)
+      await this.persist({ ...previous, diagnostics: report.diagnostics });
   }
   async list(authorId: string): Promise<readonly FeedbackReport[]> {
     const keys = (await this.store.listKeys()).filter((key) =>
@@ -92,6 +96,13 @@ export class FileSystemIssueReporter implements FeedbackRepository {
     return reports.filter((r): r is FeedbackReport => r !== null);
   }
   async read(id: string, authorId: string): Promise<FeedbackReport | null> {
+    const report = await this.load(id);
+    if (!report) return null;
+    return report.authorId === authorId && report.status !== 'deleted'
+      ? report
+      : null;
+  }
+  private async load(id: string): Promise<FeedbackReport | null> {
     if (!/^[a-zA-Z0-9-]{1,100}$/.test(id))
       throw new Error('Invalid feedback id');
     const object = await this.store.get(`feedback-${id}/report.json`);
@@ -99,9 +110,7 @@ export class FileSystemIssueReporter implements FeedbackRepository {
     const report = JSON.parse(
       new TextDecoder().decode(await readBytes(object.body))
     ) as FeedbackReport;
-    return report.authorId === authorId && report.status !== 'deleted'
-      ? report
-      : null;
+    return report;
   }
   async update(report: FeedbackReport): Promise<CreatedIssue> {
     const previous = await this.read(report.id, report.authorId);
@@ -109,7 +118,7 @@ export class FileSystemIssueReporter implements FeedbackRepository {
       throw new Error(
         'Feedback belongs to another developer or is unavailable.'
       );
-    return this.create({ ...report, createdAt: previous.createdAt });
+    return this.persist({ ...report, createdAt: previous.createdAt });
   }
   async remove(id: string, authorId: string): Promise<void> {
     const report = await this.read(id, authorId);
@@ -117,6 +126,6 @@ export class FileSystemIssueReporter implements FeedbackRepository {
       throw new Error(
         'Feedback belongs to another developer or is unavailable.'
       );
-    await this.create({ ...report, status: 'deleted' });
+    await this.persist({ ...report, status: 'deleted' });
   }
 }

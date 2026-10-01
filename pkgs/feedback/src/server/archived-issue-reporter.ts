@@ -26,6 +26,14 @@ export class ArchivedIssueReporter implements FeedbackRepository {
       : null;
   }
   async create(report: FeedbackReport): Promise<CreatedIssue> {
+    const existing = await this.archive.read(report.id, report.authorId);
+    if (
+      !existing &&
+      (await this.store.head(`feedback-${report.id}/report.json`))
+    )
+      throw new Error(
+        'Feedback belongs to another developer or is unavailable.'
+      );
     const saved = await this.receipt(report.id);
     if (saved) return saved;
     await this.archive.create(report);

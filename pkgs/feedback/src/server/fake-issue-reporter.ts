@@ -7,11 +7,24 @@ import type {
 export class FakeIssueReporter implements FeedbackRepository {
   readonly reports = new Map<string, FeedbackReport>();
   create(report: FeedbackReport): Promise<CreatedIssue> {
-    this.reports.set(report.id, structuredClone(report));
+    const previous = this.reports.get(report.id);
+    if (
+      previous &&
+      (previous.authorId !== report.authorId || previous.status === 'deleted')
+    )
+      return Promise.reject(
+        new Error('Feedback belongs to another developer or is unavailable.')
+      );
+    if (!previous) this.reports.set(report.id, structuredClone(report));
     return Promise.resolve({ id: report.id });
   }
   enrich(issue: CreatedIssue, report: FeedbackReport): Promise<void> {
-    this.reports.set(issue.id, structuredClone(report));
+    const previous = this.reports.get(issue.id);
+    if (previous?.authorId === report.authorId && previous.status !== 'deleted')
+      this.reports.set(
+        issue.id,
+        structuredClone({ ...previous, diagnostics: report.diagnostics })
+      );
     return Promise.resolve();
   }
   list(authorId: string): Promise<readonly FeedbackReport[]> {
@@ -35,7 +48,11 @@ export class FakeIssueReporter implements FeedbackRepository {
       throw new Error(
         'Feedback belongs to another developer or is unavailable.'
       );
-    return this.create({ ...report, createdAt: previous.createdAt });
+    this.reports.set(
+      report.id,
+      structuredClone({ ...report, createdAt: previous.createdAt })
+    );
+    return { id: report.id };
   }
   async remove(id: string, authorId: string): Promise<void> {
     const previous = await this.read(id, authorId);

@@ -1,93 +1,66 @@
-# Product feedback
+# Feedback
 
-Behavior: [feedback specs](../../specs/feedback/). The platform installs Support
-before importing the product. The feedback UI has an independent Solid root,
-using `@pkgs/ui` menus, fields, responsive surfaces and submission feedback. It
-follows the app theme without owning the document theme. Product routing, sign-in,
-sync and database startup are not dependencies.
+Behavior is defined in [feedback specs](../../specs/feedback/). The browser
+installs the independent reporting root before importing product modules.
+Routing, sign-in, sync, database boot and account state are not dependencies.
+The command-palette descriptor, keyboard shortcut and unlisted `/feedback`
+entry all signal the same root. There is no persistent launcher.
 
-Open **Support**, or **Ctrl/Cmd+Shift+B**. `/feedback` opens the same surface
-without importing the product. A stopped reproduction remains available when the
-surface is closed and reopened. Text drafts recover through browser storage when
-it is available; recordings and selected files stay in memory until discarded or
-the page closes. Save the video from its review before closing the page if needed.
-A stopped renderer cannot execute JavaScript; open `/feedback` separately or use
-the CLI from outside that page.
+## Ports
 
-## Reproduction evidence
+`FeedbackRepository` owns create, list, read, update and remove. Its adapters are
+`HttpIssueReporter`, `FakeIssueReporter`, `FileSystemIssueReporter` and
+`ArchivedIssueReporter` with `GitHubIssueReporter`. Application code uses the
+same controller and HTTP data port in every environment.
 
-Recording starts only through an explicit action. It captures clicks, permitted
-input values, navigation keys and pointer endpoints with stable control identifiers
-and relative times. Password, email, telephone, secret/code fields and elements
-marked `data-feedback-private` are excluded. No activity listeners are installed
-outside a recording. Screen sharing is requested only by that action, with audio
-disabled. Unsupported or declined video still permits action recording. Both the
-steps and video are reviewable and discardable before sending.
+`FeedbackWorkspacePort` is a synchronous journal for documents, the active
+selection, wizard stage, management filters, position and uncertain submissions.
+The browser adapter uses local storage and imports older text drafts before
+retiring their old key. Binary evidence goes through an injected `ObjectStore`;
+the browser composition uses the Cache API adapter. Writing and stopped
+recordings remain journalled independently of UI mounting. Storage errors are
+visible and never cause the journal to be cleared.
 
-Recordings stop at 90 seconds; action capture is bounded to 200 actions / 32 KB.
-Video and image attachments have a 12 MB limit. Screen video is supported where
-the browser supplies `getDisplayMedia` and `MediaRecorder`; elsewhere the person
-can attach an existing recording or screenshot. No microphone capture is used.
+Authorship is a persisted, unlisted device scope, independent of app accounts.
+It filters management operations; it is not an authentication system. Sharing a
+report's unlisted bundle address shares its evidence.
 
-`registerFeedbackContext` from `@pkgs/feedback/context` registers a named,
-on-demand context provider with a cleanup function. Chess play and review provide
-starting FEN, solution moves, current FEN, orientation, review position and hint
-state. The browser adds page/device/build details, the bounded crash trail and
-recent trace IDs. Providers have serialization/size isolation and a 500 ms
-deadline, with missing evidence identified rather than blocking delivery.
+## Destinations
 
-## Local and hosted reports
+Local Vite middleware mounts `/api/feedback` before product middleware and uses
+an ObjectStore rooted in the worktree's `.feedback/`. Tests substitute in-process
+adapters. The hosted Worker requires the existing object-store credentials and
+`FEEDBACK_GITHUB_TOKEN` / `FEEDBACK_GITHUB_REPOSITORY`. It archives the report,
+creates a GitHub issue and persists the destination receipt. A vendor failure
+retains the archive and the draft and is reported as a failed send.
 
-The Vite plugin mounts `/api/feedback` ahead of product middleware. Local reports
-use the filesystem ObjectStore rooted at this worktree's `.feedback/`, without
-GitHub, internet, product API or database dependencies. Hosted reports use the
-existing API object store with credentials required for durability. The platform
-Worker handles this route before loading product bootstrap.
+Management uses `/api/feedback/items` through the same HTTP port. Updates change
+the existing issue. Confirmed deletion uses GitHub's `deleteIssue` mutation and
+keeps an archive tombstone. The GitHub token must permit these issue operations.
+Local deletion also retains a tombstone rather than erasing an archive.
 
-`report.json` is the authoritative normalized bundle, committed first. Companion
-files are best effort, so interruption cannot erase a successfully saved report:
+`report.json` is authoritative; Markdown, diagnostics, ordered reproduction
+and the agent handoff are best-effort companion files. Attachment metadata is
+resolved from stored evidence rather than trusting submitted URLs.
 
-```text
-.feedback/
-  feedback-<id>/
-    report.json
-    report.md
-    diagnostics.json
-    reproduction.json
-    AGENT_HANDOFF.md
-  evidence/<attachment-id>
-  evidence/<attachment-id>.json
-  index/feedback-<id>.json
-```
+## Evidence and isolation
 
-The bundle preserves observed and expected outcomes, reproduction steps, ordered
-actions, initial/final context and attachment references. `AGENT_HANDOFF.md`
-directs an agent to restore the starting state in the appropriate public harness,
-write the expected product behavior in specs, demonstrate the reported failure,
-and only then fix it. A video alone is not proof of a deterministic reproduction.
+Recording installs interaction listeners only while active. Password, email,
+telephone, secret fields and feedback controls are excluded. Screen sharing is
+requested explicitly and microphone audio is disabled. Recording ports can
+supply video; action recording remains usable when video is unavailable.
 
-`GET /api/feedback/reports/<uuid>` returns the bundle; attachment URLs stream
-stored bytes. UUID links are unguessable sharing links: anyone given a link can
-read its evidence. Request origin, media type, upload size and attachment ownership
-are checked. Attachment metadata is resolved from storage rather than trusted
-client URLs. The browser uses injected HTTP and bounded deadlines throughout.
-
-Optional backend-only `FEEDBACK_GITHUB_TOKEN` and `FEEDBACK_GITHUB_REPOSITORY`
-(`owner/repository`) forward reports to GitHub with a bundle link. An absent token
-or GitHub outage does not erase the durable report. Missing storage returns an
-unavailable response; the browser keeps its draft and offers an emergency JSON
-copy plus downloadable evidence. No external issue is created by checks.
+`registerFeedbackContext` from `@pkgs/feedback/context` contributes bounded,
+on-demand diagnostics. Clock, timers, IDs, HTTP, journals, video and binary
+storage are injected at the independent browser and Worker composition roots.
 
 ```sh
-bun feedback problem 'Board stops after a move' 'The move appears' 'Open the puzzle and drag e2 to e3'
-bun feedback feature 'Finding recent puzzles is difficult' 'Show a recent puzzles list'
+bun feedback problem '## Observation\n\nThe board stops after a move' 'Board movement'
 bun feedback --list
 bun feedback --inspect <report-id>
 ```
 
-The CLI uses the same API; `FEEDBACK_API_URL` overrides its default
-`http://localhost:5173/api/feedback`. `--list` reads authoritative local reports,
-including those whose companion writes were interrupted. Existing `.bugs/` data
-is retained on disk; new reports use `.feedback/`.
+`FEEDBACK_API_URL` overrides the CLI's local API address. The CLI list reads
+archived reports directly, including reports whose companion writes failed.
 
-Release policy: [repository checks](../../README.md#correctness-machinery).
+Verification and release policy: [repository checks](../../README.md#correctness-machinery).

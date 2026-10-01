@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock';
-import { HttpIssueReporter } from '@pkgs/feedback/client';
+import {
+  createEvidenceUploader,
+  HttpIssueReporter,
+} from '@pkgs/feedback/client';
 import {
   ArchivedIssueReporter,
   createFeedbackHttpApp,
@@ -36,6 +39,7 @@ function github(store: ObjectStoreImplInMemory) {
   const destination = new GitHubIssueReporter({
     repository: 'team/product',
     token: 'in-process-token',
+    reportBaseUrl: 'https://example.com/api/feedback/reports',
     http: {
       async fetch(input, init) {
         const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
@@ -79,6 +83,13 @@ test.each(['fake', 'filesystem', 'github'] as const)(
                 : external.repository;
           const original = report('report-one', 'author-one', body);
           await repository.create(original);
+          await repository.create({
+            ...original,
+            description: 'Duplicate delivery',
+          });
+          await expect(
+            repository.create({ ...original, authorId: 'author-two' })
+          ).rejects.toThrow('another developer');
           await repository.create(
             report('report-two', 'author-two', 'Another observation')
           );
@@ -101,6 +112,9 @@ test.each(['fake', 'filesystem', 'github'] as const)(
           );
           await repository.remove(original.id, original.authorId);
           expect(await repository.list(original.authorId)).toEqual([]);
+          await expect(repository.create(original)).rejects.toThrow(
+            'unavailable'
+          );
           expect(
             await repository.read(original.id, original.authorId)
           ).toBeNull();
@@ -109,6 +123,11 @@ test.each(['fake', 'filesystem', 'github'] as const)(
             expect(
               external.requests.find((r) => r.method === 'PATCH')?.body['title']
             ).toBe('Board polish');
+            expect(
+              external.requests.find((r) => r.method === 'PATCH')?.body['body']
+            ).toContain(
+              `Reproduction bundle: https://example.com/api/feedback/reports/${original.id}`
+            );
             expect(external.requests.at(-1)?.body['variables']).toEqual({
               id: 'issue-node',
             });
@@ -144,14 +163,29 @@ test('the same HTTP data port supports complete CRUD and rejects a foreign autho
   );
   expect(await port.read(original.id, 'author-two')).toBeNull();
   await expect(port.remove(original.id, 'author-two')).rejects.toThrow();
+  const upload = createEvidenceUploader({
+    timers,
+    endpoint: 'http://local/api/feedback',
+    createId: () => '73866a17-20db-4cd4-9a86-65c29bd3fd90',
+    http: { fetch: (input, init) => handler(new Request(input, init)) },
+  });
+  const receipt = await upload({
+    name: 'board.png',
+    contentType: 'image/png',
+    bytes: new Uint8Array([1, 2]),
+  });
   await port.update({
     ...original,
+    attachments: [{ ...receipt, url: 'https://wrong.example/file' }],
     title: 'Updated observation',
     description: 'New writing',
   });
   expect((await port.read(original.id, original.authorId))?.title).toBe(
     'Updated observation'
   );
+  expect(
+    (await port.read(original.id, original.authorId))?.attachments
+  ).toEqual([receipt]);
   await port.remove(original.id, original.authorId);
   expect(await port.list(original.authorId)).toEqual([]);
   expect(clock.pendingOneShotCount()).toBe(0);

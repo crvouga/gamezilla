@@ -104,7 +104,7 @@ export function createExampleApp(session: Session) {
     product?.remove();
     product = null;
   }
-  function boot(condition: ProductCondition = 'working') {
+  function bootProduct(condition: ProductCondition = 'working'): void {
     close();
     deliveryFails = condition === 'delivery-fails';
     host = document.createElement('aside');
@@ -303,7 +303,7 @@ export function createExampleApp(session: Session) {
         await open();
       }
       if (action.type === 'reopen') {
-        boot();
+        bootProduct();
         await ready();
         await open();
       }
@@ -322,7 +322,7 @@ export function createExampleApp(session: Session) {
       }
       if (action.type === 'phone') {
         width = 390;
-        boot();
+        bootProduct();
         await ready();
       }
       if (action.type === 'move') {
@@ -368,7 +368,7 @@ export function createExampleApp(session: Session) {
       foreignRefusal = response.status === 404;
     },
     foreignRefusal: () => foreignRefusal,
-    boot,
+    boot: bootProduct,
     ready,
     open,
     describe,

@@ -1,11 +1,14 @@
 import type { Clock } from '@pkgs/clock';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { FeedbackRepository } from '../shared/types';
 import { readBoundedBody } from './bounded-body';
 import { MAX_REPORT_BYTES } from './http-handler';
 import { normalizeReport } from './normalize-report';
+import { resolveReportEvidence } from './resolve-report-evidence';
 
 type Options = {
   reporter: FeedbackRepository;
+  store: ObjectStore;
   clock: Clock;
   allowedOrigin: string;
 };
@@ -86,5 +89,9 @@ async function perform(
   );
   if (report.id !== id || report.authorId !== author)
     return reply({ error: 'Feedback does not match its author' }, 400);
-  return reply(await options.reporter.update(report));
+  return reply(
+    await options.reporter.update(
+      await resolveReportEvidence(report, options.store)
+    )
+  );
 }

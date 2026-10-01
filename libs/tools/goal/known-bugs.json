@@ -26,12 +26,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -151,7 +151,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -246,7 +246,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -311,7 +311,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -448,5 +448,15 @@
     "id": "feedback-typing-steals-focus",
     "summary": "Each feedback answer edit invalidated the dialog visibility dependency even though it stayed open, restarting focus handling and moving focus to Close. Memoize visibility independently of draft updates so typing keeps field focus.",
     "regressionTest": "pkgs/feedback/tests/focus.contract.test.ts"
+  },
+  {
+    "id": "feedback-attachment-switches-draft",
+    "summary": "An attachment finishing after a new draft was selected could persist in the newly selected draft. Capture the initiating document and commit evidence only to that document.",
+    "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
+  },
+  {
+    "id": "feedback-reload-repeats-submission",
+    "summary": "Reopening after an uncertain submission discarded the attempted report id and could create duplicate feedback. Journal attempted reports and recover their ids for unchanged retries.",
+    "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
   }
 ]

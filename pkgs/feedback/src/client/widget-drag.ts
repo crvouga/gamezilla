@@ -16,7 +16,7 @@ export function widgetPosition(
     ),
   };
 }
-export function widgetDrag(
+export function useWidgetDrag(
   controller: () => FeedbackController,
   host: () => HTMLElement | undefined,
   bounds: () => { width: number; height: number }

@@ -80,7 +80,7 @@ test('companion-file or enrichment failure preserves the authoritative report', 
     'feedback-reliability',
     fc.asyncProperty(
       text,
-      fc.integer({ min: 2, max: 4 }),
+      fc.integer({ min: 3, max: 5 }),
       async (title, failureAt) => {
         let writes = 0;
         const store = new ObjectStoreImplInMemory({
