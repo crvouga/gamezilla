@@ -19,11 +19,14 @@ module match_recovery {
   var _available: bool
   var _online: str -> bool
   var _firstWinner: str
+  var _previousTime: str -> int
+  var _previousStatus: str
 
   action _update(status: str, turn: str, won: str, left: str -> int, available: bool, online: str -> bool): bool = all {
     matchStatus' = status, playerToMove' = turn, winner' = won, timeLeft' = left,
     _available' = available, _online' = online,
     _firstWinner' = if (_firstWinner == "") won else _firstWinner,
+    _previousTime' = timeLeft, _previousStatus' = matchStatus,
   }
   action _settle(left: str -> int, available: bool, online: str -> bool): bool = {
     val expired = matchStatus == "playing" and left.get(playerToMove) == 0 and available
@@ -34,6 +37,7 @@ module match_recovery {
     matchStatus' = "not started", playerToMove' = "white", winner' = "",
     timeLeft' = PLAYERS.mapBy(_ => 0), _available' = true,
     _online' = PLAYERS.mapBy(_ => true), _firstWinner' = "",
+    _previousTime' = PLAYERS.mapBy(_ => 0), _previousStatus' = "not started",
   }
 
   /// Either connected player starts a match that has not started.
@@ -84,16 +88,17 @@ module match_recovery {
   /// Only an ended match has a winner.
   val invWinnerOnlyWhenOver = (winner != "") == (matchStatus == "over")
   /// A player never receives extra time, including while disconnected.
-  val invTimeNeverGrows = PLAYERS.forall(p => timeLeft.get(p) >= 0 and timeLeft.get(p) <= 4)
+  val invTimeNeverGrows = PLAYERS.forall(p =>
+    timeLeft.get(p) >= 0 and timeLeft.get(p) <= 4 and
+    (_previousStatus != "not started" implies timeLeft.get(p) <= _previousTime.get(p)))
   /// The player whose time ran out loses to their opponent.
   val invExpiredPlayerLoses = matchStatus == "over" implies
     timeLeft.get(playerToMove) == 0 and winner == _opponent(playerToMove)
   /// Returning cannot leave a usable match playing with an expired clock.
   val invNoUsableExpiredMatch = (_available and matchStatus == "playing") implies timeLeft.get(playerToMove) > 0
-  /// Someone going offline cannot change a decided winner.
-  val invWinnerStaysWhileOffline = PLAYERS.forall(p =>
-    (not(_online.get(p)) and _firstWinner != "") implies winner == _firstWinner)
-  val _state = (matchStatus, playerToMove, winner, timeLeft, _available, _online, _firstWinner)
+  /// No later action, outage or return can change a decided winner.
+  val invWinnerPermanent = _firstWinner != "" implies winner == _firstWinner
+  val _state = (matchStatus, playerToMove, winner, timeLeft, _available, _online, _firstWinner, _previousTime, _previousStatus)
   /// Time keeps passing, and the room eventually remains available.
   temporal _recovery = eventually(always(_available)) and timePasses.weakFair(_state)
   /// A playing match eventually ends even if both players lose their connections.
