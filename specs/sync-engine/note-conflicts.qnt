@@ -6,7 +6,7 @@
 module note_conflicts {
   type Person = str
   type Note = { body: str, owner: Person, exists: bool, deleted: bool }
-  type Edit = Nothing | Write(str) | Delete
+  type Edit = _Nothing | Write(str) | Delete
 
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val EMPTY = { body: "", owner: "", exists: false, deleted: false }
@@ -38,12 +38,12 @@ module note_conflicts {
   pure def _apply(note: Note, person: Person, edit: Edit): Note = match edit {
     | Write(body) => { body: body, owner: person, exists: true, deleted: false }
     | Delete => if (note.exists) { ...note, deleted: true } else note
-    | Nothing => note
+    | _Nothing => note
   }
 
   pure def _take(note: Note, known: bool, person: Person, edit: Edit):
     { note: Note, answered: int, refused: int, duplicate: bool } =
-    if (edit == Nothing) { note: note, answered: 0, refused: 0, duplicate: false }
+    if (edit == _Nothing) { note: note, answered: 0, refused: 0, duplicate: false }
     else if (known) { note: note, answered: 0, refused: 0, duplicate: true }
     else if (_allowed(note, person, edit)) {
       note: _apply(note, person, edit), answered: 1, refused: 0, duplicate: false,
@@ -53,7 +53,7 @@ module note_conflicts {
     val result = if (connected.get(person)) _take(_shared, _unheard.contains(person), person, edit)
       else { note: _shared, answered: 0, refused: 0, duplicate: false }
     val pending = _pending.set(person,
-      if (connected.get(person) and not(unheard.contains(person))) Nothing else edit)
+      if (connected.get(person) and not(unheard.contains(person))) _Nothing else edit)
     val snapshots = PEOPLE.mapBy(p => if (connected.get(p)) result.note else _snapshot.get(p))
     val views = PEOPLE.mapBy(p =>
       if (_allowed(snapshots.get(p), p, pending.get(p))) _apply(snapshots.get(p), p, pending.get(p))
@@ -81,7 +81,7 @@ module note_conflicts {
   action init = all {
     _shared' = EMPTY,
     _snapshot' = PEOPLE.mapBy(_ => EMPTY),
-    _pending' = PEOPLE.mapBy(_ => Nothing),
+    _pending' = PEOPLE.mapBy(_ => _Nothing),
     _unheard' = Set(),
     _answered' = 0,
     _refusalCount' = 0,
@@ -97,13 +97,13 @@ module note_conflicts {
 
   /// Write the note; one unsent edit per device represents competing intent.
   action write(person: Person, body: str): bool = all {
-    _pending.get(person) == Nothing,
+    _pending.get(person) == _Nothing,
     _settle(person, Write(body), online, _unheard, _next + 1),
   }
 
   /// Only the owner the device knows may delete the note.
   action deleteNote(person: Person): bool = all {
-    _pending.get(person) == Nothing,
+    _pending.get(person) == _Nothing,
     _allowed(_snapshot.get(person), person, Delete),
     _settle(person, Delete, online, _unheard, _next + 1),
   }
@@ -111,7 +111,7 @@ module note_conflicts {
   /// The shared notes keep a write whose author has not heard back yet.
   action writeUnheard(person: Person, body: str): bool = all {
     online.get(person),
-    _pending.get(person) == Nothing,
+    _pending.get(person) == _Nothing,
     _unheard == Set(),
     _settle(person, Write(body), online, Set(person), _next + 1),
   }
@@ -146,7 +146,7 @@ module note_conflicts {
 
   /// Every edit is either still waiting on its device or has been answered.
   val invNoLostEdits = _answered + PEOPLE.filter(p =>
-    _pending.get(p) != Nothing and not(_unheard.contains(p))).size() == _next
+    _pending.get(p) != _Nothing and not(_unheard.contains(p))).size() == _next
 
   /// Repeating an answered edit preserves all later writing and deletion.
   val invDuplicatePreservesLaterEdits = _duplicate implies _shared == _previous
@@ -157,7 +157,7 @@ module note_conflicts {
 
   /// A connected device with every edit answered agrees with the shared notes.
   val invConnectedAgree = PEOPLE.forall(p =>
-    (online.get(p) and _pending.get(p) == Nothing) implies
+    (online.get(p) and _pending.get(p) == _Nothing) implies
       notes.get(p) == notes.get("shared"))
 
   /// A live note has exactly the owner that wrote it, on every device.
@@ -166,9 +166,64 @@ module note_conflicts {
 
   /// Returning connected devices never remain stuck with an unanswered edit.
   val invConnectedEditsAnswered = PEOPLE.forall(p =>
-    (online.get(p) and not(_unheard.contains(p))) implies _pending.get(p) == Nothing)
+    (online.get(p) and not(_unheard.contains(p))) implies _pending.get(p) == _Nothing)
 
   /// A refused edit is answered once and gives its author one notice.
   val invRefusalsCountOnce = _refusalCount <= _answered
     and PEOPLE.fold(0, (total, p) => total + rejections.get(p)) == _refusalCount
+
+  pure def _validNote(note: Note): bool = note == EMPTY or
+    (note.exists and PEOPLE.contains(note.owner) and Set("milk", "eggs").contains(note.body))
+
+  pure val _notes = Set(EMPTY).union(tuples(Set("milk", "eggs"), PEOPLE, Set(false, true)).map(v =>
+    { body: v._1, owner: v._2, exists: true, deleted: v._3 }))
+
+  // Every action preserves these limits and the promises above, however
+  // long people keep writing, losing their connection, and returning.
+  val _inductive = all {
+    online.in(PEOPLE.setOfMaps(Set(false, true))),
+    rejections.in(PEOPLE.setOfMaps(Nat)),
+    _snapshot.in(PEOPLE.setOfMaps(_notes)),
+    _pending.in(PEOPLE.setOfMaps(Set(_Nothing, Delete, Write("milk"), Write("eggs")))),
+    notes.in(PEOPLE.union(Set("shared")).setOfMaps(_notes)),
+    _unheard.in(PEOPLE.powerset()),
+    _shared.in(_notes),
+    _previous.in(_notes),
+    _deleteBy.in(PEOPLE.union(Set(""))),
+    _answered.in(Nat),
+    _next.in(Nat),
+    _refusalCount.in(Nat),
+    _duplicate.in(Set(false, true)),
+    _deleteAccepted.in(Set(false, true)),
+    online.keys() == PEOPLE,
+    rejections.keys() == PEOPLE,
+    _snapshot.keys() == PEOPLE,
+    _pending.keys() == PEOPLE,
+    notes.keys() == PEOPLE.union(Set("shared")),
+    _unheard.subseteq(PEOPLE),
+    _unheard.size() <= 1,
+    _validNote(_shared),
+    _validNote(_previous),
+    _deleteBy == "" or PEOPLE.contains(_deleteBy),
+    _answered >= 0,
+    _next >= 0,
+    _refusalCount >= 0,
+    notes.get("shared") == _shared,
+    PEOPLE.forall(p => all {
+      _validNote(_snapshot.get(p)),
+      Set(_Nothing, Delete, Write("milk"), Write("eggs")).contains(_pending.get(p)),
+      _unheard.contains(p) implies Set(Write("milk"), Write("eggs")).contains(_pending.get(p)),
+      online.get(p) implies _snapshot.get(p) == _shared,
+      rejections.get(p) >= 0,
+      notes.get(p) == (if (_allowed(_snapshot.get(p), p, _pending.get(p)))
+        _apply(_snapshot.get(p), p, _pending.get(p)) else _snapshot.get(p)),
+    }),
+    invNoLostEdits,
+    invDuplicatePreservesLaterEdits,
+    invOnlyOwnerDeletes,
+    invConnectedAgree,
+    invLiveNotesHaveOwners,
+    invConnectedEditsAnswered,
+    invRefusalsCountOnce,
+  }
 }

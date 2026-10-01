@@ -11,18 +11,23 @@ Feature: Earlier saves preserve later edits
     No counter-example: confirmation of an earlier save never changes a later edit.
 
     Scenario: An earlier save's confirmation preserves another person's writing
-      Given Alice's app will not hear back about its next save
-      And Alice has written the note "Groceries" saying "milk"
+      Given Alice is waiting to hear back about the note "Groceries" saying "milk"
       And Bob has written the note "Groceries" saying "eggs"
       When Alice's app hears back about its last save
       Then Alice sees the note "Groceries" saying "eggs"
       And Bob sees the note "Groceries" saying "eggs"
 
     Scenario: An earlier save's confirmation preserves another person's deletion
-      Given Alice's app will not hear back about its next save
-      And Alice has written the note "Groceries" saying "milk"
+      Given Alice is waiting to hear back about the note "Groceries" saying "milk"
       And Bob has written the note "Groceries" saying "eggs"
       And Bob has deleted the note "Groceries"
       When Alice's app hears back about its last save
       Then Alice does not see the note "Groceries"
       And Bob does not see the note "Groceries"
+
+    Scenario: The earlier writer hears back while both writers await word
+      Given Alice is waiting to hear back about the note "Groceries" saying "milk"
+      And Bob is waiting to hear back about the note "Groceries" saying "eggs"
+      When Alice's app hears back about its last save
+      Then Alice sees the note "Groceries" saying "eggs"
+      And Bob sees the note "Groceries" saying "eggs"
