@@ -45,7 +45,7 @@ terms:
       Losing the connection or closing the app is not leaving.
     forms: [leaves, left, leaving]
     avoid: [quit, exit]
-    model: [leave, PersonLeft]
+    model: [leave, leaveHost, PersonLeft]
     published: true
 
   - term: end a space
@@ -149,7 +149,7 @@ terms:
     definition: >-
       Where a person is in Spaces right now: the lobby, in a space, looking at
       who is in it, or looking at a space that has ended.
-    model: [Whereabouts, whereabouts]
+    model: [Whereabouts, RecoveryWhereabouts, whereabouts]
 
   - term: rename a space
     definition: >-
