@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { createHarnessClock } from '@pkgs/clock';
 import {
   FakeIssueReporter,
   FileSystemIssueReporter,
@@ -7,12 +8,13 @@ import {
   createFeedbackReporting,
   type DiagnosticProvider,
 } from '@pkgs/feedback/shared';
-import { createHarnessClock } from '@pkgs/clock';
 import { readBytes } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { assertProperty, fc } from '@pkgs/property';
 
-const text = fc.string({ maxLength: 200 });
+const text = fc
+  .string({ minLength: 1, maxLength: 200 })
+  .filter((value) => value.trim().length > 0);
 const fault = fc.constantFrom(
   'throw',
   'reject',
@@ -53,15 +55,20 @@ test('optional diagnostics never erase the already-created report', async () => 
         createId: () => 'fixed-id',
         providers: [provider(kind)],
       });
-      const result = await service.submit({ title, description });
+      const result = await service.submit({
+        kind: 'problem',
+        description,
+        expected: title,
+        reproductionSteps: 'Make a move',
+      });
       expect(reporter.reports.get(result.issue.id)?.description).toBe(
-        description
+        description.trim()
       );
       await Promise.resolve();
       await Promise.resolve();
       clock.advance(500);
       const report = await result.enriched;
-      expect(report.title).toBe(title.trim() || 'Emergency feedback report');
+      expect(report.title).toBe(description.trim().split('\n')[0]!);
       expect(report.diagnostics[0]?.status).toBe('unavailable');
       expect(reporter.reports.size).toBe(1);
       expect(clock.pendingOneShotCount()).toBe(0);
@@ -88,14 +95,19 @@ test('companion-file or enrichment failure preserves the authoritative report', 
           clock,
           timers,
           createId: () => 'durable-id',
-        }).submit({ title, description: 'Board stopped' });
+        }).submit({
+          kind: 'problem',
+          description: title,
+          expected: 'Board responds',
+          reproductionSteps: 'Make a move',
+        });
         expect(result.issue.id).toBe('durable-id');
-        const object = await store.get('bug-durable-id/report.json');
+        const object = await store.get('feedback-durable-id/report.json');
         expect(object).not.toBeNull();
         const saved = JSON.parse(
           new TextDecoder().decode(await readBytes(object!.body))
         ) as { title: string };
-        expect(saved.title).toBe(title.trim() || 'Emergency feedback report');
+        expect(saved.title).toBe(title.trim().split('\n')[0]!);
         await result.enriched;
       }
     )
@@ -120,9 +132,14 @@ test('broken clock and id ports still produce an emergency report', async () => 
           throw new Error('Id broken');
         },
       });
-      const result = await service.submit({ title: '', description });
+      const result = await service.submit({
+        kind: 'problem',
+        description,
+        expected: 'Board responds',
+        reproductionSteps: 'Make a move',
+      });
       expect(result.report.createdAt).toBe('unknown');
-      expect(result.report.description).toBe(description);
+      expect(result.report.description).toBe(description.trim());
       expect(reporter.reports.size).toBe(1);
     })
   );

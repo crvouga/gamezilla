@@ -8,7 +8,8 @@
     "./client": "./src/client/index.ts",
     "./harness": "./src/harness/index.ts",
     "./vite": "./scripts/vite.ts",
-    "./browser-root": "./src/client/wall.ts"
+    "./browser-root": "./src/client/wall.ts",
+    "./context": "./src/client/context.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -18,13 +19,19 @@
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
-    "@pkgs/uuid": "workspace:*"
+    "@pkgs/tailwind": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",

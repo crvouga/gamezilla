@@ -122,3 +122,6 @@ libs/infra/tofu/stacks/*/*_override.tf
 
 # Repository-local feedback reports
 /.feedback/
+
+# Existing reports retained after the feedback rename.
+.bugs/

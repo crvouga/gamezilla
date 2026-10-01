@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { createHarnessClock } from '@pkgs/clock';
 import { HttpIssueReporter } from '@pkgs/feedback/client';
 import {
   createFeedbackReportHandler,
@@ -6,10 +7,11 @@ import {
   GitHubIssueReporter,
 } from '@pkgs/feedback/server';
 import { createFeedbackReporting } from '@pkgs/feedback/shared';
-import { createHarnessClock } from '@pkgs/clock';
 import { assertProperty, fc } from '@pkgs/property';
 
-const text = fc.string({ maxLength: 100 });
+const text = fc
+  .string({ minLength: 1, maxLength: 100 })
+  .filter((value) => value.trim().length > 0);
 test('the same HTTP client creates reports through interchangeable backend destinations', async () => {
   await assertProperty(
     'feedback-reliability',
@@ -60,14 +62,19 @@ test('the same HTTP client creates reports through interchangeable backend desti
           timers,
           createId: () => 'report-id',
           providers: [{ name: 'page', collect: () => ({ path: '/chess' }) }],
-        }).submit({ title, description });
+        }).submit({
+          kind: 'problem',
+          description,
+          expected: title,
+          reproductionSteps: 'Make a move',
+        });
         expect(result.issue.id).toBe(useGithub ? '17' : 'report-id');
         expect(clock.pendingOneShotCount()).toBe(0);
         if (useGithub) expect(captured).toHaveLength(1);
         else
           expect(
             (backend as FakeIssueReporter).reports.get('report-id')?.description
-          ).toBe(description);
+          ).toBe(description.trim());
       }
     )
   );
@@ -98,7 +105,9 @@ test('invalid and foreign-origin HTTP requests cannot create issues', async () =
               id: kind === 'id' ? '../../outside' : 'fixed',
               title: 'Board froze',
               description:
-                kind === 'size' ? 'x'.repeat(256_001) : 'Stopped after a move',
+                kind === 'size'
+                  ? 'x'.repeat(1_000_001)
+                  : 'Stopped after a move',
             }),
           })
         );

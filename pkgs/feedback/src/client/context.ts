@@ -4,9 +4,13 @@ const providers = new Set<DiagnosticProvider>();
 const traces: string[] = [];
 
 /** Register only context a person can already see; never auth tokens or a database dump. */
-export function registerFeedbackContext(provider: DiagnosticProvider): () => void {
+export function registerFeedbackContext(
+  provider: DiagnosticProvider
+): () => void {
   providers.add(provider);
-  return () => { providers.delete(provider); };
+  return () => {
+    providers.delete(provider);
+  };
 }
 
 export function feedbackContextProviders(): readonly DiagnosticProvider[] {

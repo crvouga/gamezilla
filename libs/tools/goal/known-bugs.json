@@ -418,5 +418,15 @@
     "id": "social-auth-redirect-outcome",
     "summary": "The same-tab OAuth callback discarded provider errors and pending account-link prompts, leaving resumed sign-in without its result. Publish every callback failure to the auth session for the existing modal.",
     "regressionTest": "pkgs/auth-inhouse/tests/hosted-auth-redirect.test.ts"
+  },
+  {
+    "id": "feedback-recording-stale-stop",
+    "summary": "A discarded recording finishing asynchronously could dispose and overwrite a newly started video session. Retire the captured session and ignore completions from an old recording generation.",
+    "regressionTest": "pkgs/feedback/tests/recording.contract.test.ts"
+  },
+  {
+    "id": "feedback-board-drag-missing",
+    "summary": "Chess square hit buttons take no pointer events and the board captures the pointer. Recording only square targets dropped real chess drags. Preserve board control identifiers and normalized pointer endpoints.",
+    "regressionTest": "pkgs/feedback/tests/interaction.contract.test.ts"
   }
 ]

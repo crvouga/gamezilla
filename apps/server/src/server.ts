@@ -9,7 +9,10 @@ export default {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<Response> {
-    if (new URL(request.url).pathname === FEEDBACK_PATH)
+    if (
+      new URL(request.url).pathname === FEEDBACK_PATH ||
+      new URL(request.url).pathname.startsWith(`${FEEDBACK_PATH}/`)
+    )
       return handleRootFeedbackReport(request, env);
     const product = await import('./product/server');
     return product.default.fetch(request, env, ctx);

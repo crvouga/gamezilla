@@ -1,13 +1,13 @@
 import type { EvidenceFile, ReproductionRecording } from '../shared/types';
 
-export interface VideoSession {
+export type VideoSession = {
   stop(): Promise<EvidenceFile>;
   dispose(): void;
-}
+};
 
-export interface RecordingPort {
+export type RecordingPort = {
   start(): Promise<VideoSession>;
-}
+};
 
 export type RecordingState = {
   readonly phase: 'idle' | 'starting' | 'recording' | 'stopping' | 'ready';

@@ -11,10 +11,10 @@ import {
   type ProductCondition,
 } from './example-app';
 
-export interface FeedbackReportingWorld {
+export type FeedbackReportingWorld = {
   readonly session: Session;
   readonly app: ReturnType<typeof createExampleApp>;
-}
+};
 export const productCondition = defineAction({
   name: 'productCondition',
   act: (world: FeedbackReportingWorld, condition: ProductCondition) =>
@@ -32,6 +32,36 @@ export const submitReport = defineAction({
     input: { title: string; description: string }
   ) => world.app.submit(input.title, input.description),
 });
+export const feedbackAction = defineAction({
+  name: 'feedbackAction',
+  act: async (
+    world: FeedbackReportingWorld,
+    action: {
+      type:
+        | 'open'
+        | 'describe'
+        | 'send'
+        | 'record'
+        | 'start'
+        | 'stop'
+        | 'discard'
+        | 'no-video';
+      draft?: import('../shared/types').FeedbackDraft;
+    }
+  ) => {
+    if (action.type === 'open') await world.app.open();
+    if (action.type === 'describe' && action.draft)
+      await world.app.describe(action.draft);
+    if (action.type === 'send') await world.app.send();
+    if (action.type === 'record') await world.app.record(true);
+    if (action.type === 'start') await world.app.record(false);
+    if (action.type === 'stop') await world.app.stop();
+    if (action.type === 'discard') await world.app.discard();
+    if (action.type === 'no-video') world.app.setVideoAvailable(false);
+  },
+});
+export const readFeedbackView = (world: FeedbackReportingWorld) =>
+  world.app.view();
 export const closeProduct = defineAction({
   name: 'closeProduct',
   act: (world: FeedbackReportingWorld) => world.app.close(),
@@ -41,9 +71,10 @@ export const readEmergencyReport = (world: FeedbackReportingWorld) =>
   world.app.emergencyReport();
 export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
   name: 'feedback',
-  create(session) {
+  async create(session) {
     const app = createExampleApp(session);
     app.boot();
+    await app.ready();
     session.onDispose(() => app.close());
     return { session, app };
   },
@@ -54,5 +85,11 @@ export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
       create: () => virtualTimeRuntime(),
     }),
   ],
-  actions: [productCondition, diagnosticsCondition, submitReport, closeProduct],
+  actions: [
+    productCondition,
+    diagnosticsCondition,
+    submitReport,
+    closeProduct,
+    feedbackAction,
+  ],
 });

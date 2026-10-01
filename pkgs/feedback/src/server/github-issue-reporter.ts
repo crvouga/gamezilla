@@ -1,5 +1,9 @@
 import type { HttpClient } from '@pkgs/http-client/types';
-import type { FeedbackReport, CreatedIssue, IssueReporter } from '../shared/types';
+import type {
+  CreatedIssue,
+  FeedbackReport,
+  IssueReporter,
+} from '../shared/types';
 import { reportMarkdown } from './report-files';
 
 /** GitHub credentials and repository selection stay entirely on the backend. */
@@ -9,6 +13,7 @@ export class GitHubIssueReporter implements IssueReporter {
       readonly http: HttpClient;
       readonly token: string;
       readonly repository: string;
+      readonly reportBaseUrl?: string;
     }
   ) {
     if (!/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(options.repository))
@@ -29,7 +34,9 @@ export class GitHubIssueReporter implements IssueReporter {
         },
         body: JSON.stringify({
           title: report.title,
-          body: `${reportMarkdown(report)}\n\n<details><summary>Diagnostics</summary>\n\n\`\`\`json\n${JSON.stringify(report.diagnostics, null, 2).slice(0, 20_000)}\n\`\`\`\n</details>`,
+          body: this.options.reportBaseUrl
+            ? `${reportMarkdown(report)}\n\nReproduction bundle: ${this.options.reportBaseUrl}/${report.id}\n\nRead the exact starting context and ordered actions in the bundle, then add a failing product spec before fixing the issue.`
+            : `${reportMarkdown(report)}\n\n\`\`\`json\n${JSON.stringify(report, null, 2)}\n\`\`\``,
         }),
       }
     );

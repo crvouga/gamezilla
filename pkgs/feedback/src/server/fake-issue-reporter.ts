@@ -1,12 +1,17 @@
-import type { FeedbackReport, CreatedIssue, IssueReporter } from '../shared/types';
+import type {
+  CreatedIssue,
+  FeedbackReport,
+  IssueReporter,
+} from '../shared/types';
 
 export class FakeIssueReporter implements IssueReporter {
   readonly reports = new Map<string, FeedbackReport>();
-  async create(report: FeedbackReport): Promise<CreatedIssue> {
+  create(report: FeedbackReport): Promise<CreatedIssue> {
     this.reports.set(report.id, structuredClone(report));
-    return { id: report.id };
+    return Promise.resolve({ id: report.id });
   }
-  async enrich(issue: CreatedIssue, report: FeedbackReport): Promise<void> {
+  enrich(issue: CreatedIssue, report: FeedbackReport): Promise<void> {
     this.reports.set(issue.id, structuredClone(report));
+    return Promise.resolve();
   }
 }

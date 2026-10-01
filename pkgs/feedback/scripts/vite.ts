@@ -11,7 +11,7 @@ type DevReportModule = {
 };
 
 /** Mounted before Vite/product middleware; no product server, secrets or DB involved. */
-export function feedbacksDevPlugin(options: {
+export function feedbackDevPlugin(options: {
   readonly repoRoot: string;
 }): Plugin {
   return {
@@ -24,7 +24,12 @@ export function feedbacksDevPlugin(options: {
       )) as DevReportModule;
       const dispatch = backend.createDevReportDispatcher(options.repoRoot);
       server.middlewares.use((request, response, next) => {
-        if (request.url?.split('?')[0] !== backend.FEEDBACK_PATH) {
+        if (
+          !(
+            request.url?.split('?')[0] === backend.FEEDBACK_PATH ||
+            request.url?.startsWith(`${backend.FEEDBACK_PATH}/`)
+          )
+        ) {
           next();
           return;
         }

@@ -7,29 +7,32 @@ import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { FileSystemIssueReporter } from '../src/server/filesystem-issue-reporter.ts';
 import {
+  createFeedbackHttpApp,
   FEEDBACK_PATH,
-  createFeedbackReportHandler,
+  MAX_EVIDENCE_BYTES,
   MAX_REPORT_BYTES,
-} from '../src/server/http-handler.ts';
+} from '../src/server/index.ts';
 
 export { FEEDBACK_PATH };
 
 export function createDevReportDispatcher(repoRoot: string) {
-  const reporter = new FileSystemIssueReporter(
-    createNodeFsObjectStore({
-      rootDir: resolve(repoRoot, '.feedback'),
-      fs: wallNodeFs(),
-      layout: 'tree',
-    })
-  );
+  const store = createNodeFsObjectStore({
+    rootDir: resolve(repoRoot, '.feedback'),
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
+  const reporter = new FileSystemIssueReporter(store);
   return (request: IncomingMessage, response: ServerResponse) =>
-    dispatch(request, response, reporter);
+    dispatch(request, response, { reporter, store });
 }
 
 async function dispatch(
   req: IncomingMessage,
   res: ServerResponse,
-  reporter: FileSystemIssueReporter
+  options: {
+    reporter: FileSystemIssueReporter;
+    store: import('@pkgs/object-store/interface').ObjectStore;
+  }
 ): Promise<void> {
   const origin = `http://${req.headers.host ?? 'localhost'}`;
   const hostname = new URL(origin).hostname;
@@ -43,7 +46,10 @@ async function dispatch(
   for await (const chunk of req) {
     const bytes = new Uint8Array(chunk as Uint8Array);
     size += bytes.byteLength;
-    if (size > MAX_REPORT_BYTES) {
+    if (
+      size >
+      (req.url?.includes('/evidence/') ? MAX_EVIDENCE_BYTES : MAX_REPORT_BYTES)
+    ) {
       res.statusCode = 413;
       res.end('Report too large');
       return;
@@ -61,17 +67,17 @@ async function dispatch(
     if (typeof value === 'string') headers.set(name, value);
   }
   const method = req.method ?? 'GET';
-  const request = new Request(`${origin}${FEEDBACK_PATH}`, {
+  const request = new Request(`${origin}${req.url}`, {
     method,
     headers,
     ...(method === 'POST' ? { body } : {}),
   });
-  const response = await createFeedbackReportHandler({
-    reporter,
+  const response = await createFeedbackHttpApp({
+    ...options,
     clock: wallClock,
     allowedOrigin: origin,
   })(request);
   res.statusCode = response.status;
   response.headers.forEach((value, name) => res.setHeader(name, value));
-  res.end(await response.text());
+  res.end(new Uint8Array(await response.arrayBuffer()));
 }

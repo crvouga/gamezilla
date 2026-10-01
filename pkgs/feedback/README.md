@@ -1,82 +1,93 @@
-# Bug reporting
+# Product feedback
 
-Behavior: [`specs/feedback/`](../specs/feedback/). The platform
-entrypoints install reporting and crash capture before importing the product.
-The reporting form has its own DOM root and isolated styles; it uses no product
-providers, router, authentication, sync engine, database, or feature flags.
+Behavior: [feedback specs](../../specs/feedback/). The platform installs Support
+before importing the product. The feedback UI has an independent Solid root,
+using `@pkgs/ui` menus, fields, responsive surfaces and submission feedback. It
+follows the app theme without owning the document theme. Product routing, sign-in,
+sync and database startup are not dependencies.
 
-Use **Support**, or **Ctrl/Cmd+Shift+B**. `/report-bug` opens reporting alone
-without importing the product. A static link also opens that page in another tab.
-A synchronous infinite loop or a terminated renderer cannot execute any in-page
-JavaScript; use the standalone page or the CLI from outside that failed page.
+Open **Support**, or **Ctrl/Cmd+Shift+B**. `/feedback` opens the same surface
+without importing the product. A stopped reproduction remains available when the
+surface is closed and reopened. Text drafts recover through browser storage when
+it is available; recordings and selected files stay in memory until discarded or
+the page closes. Save the video from its review before closing the page if needed.
+A stopped renderer cannot execute JavaScript; open `/feedback` separately or use
+the CLI from outside that page.
 
-## Local reports
+## Reproduction evidence
 
-`bun dev` and `bun dev:client` mount `POST /api/feedback` before product
-middleware. The endpoint writes directly to the current working repository's
-`.feedback/` through the injected filesystem ObjectStore. No GitHub credentials,
-internet connection, product API server, database, or external service is needed.
-The browser always uses HTTP; it knows no destination adapter.
+Recording starts only through an explicit action. It captures clicks, permitted
+input values, navigation keys and pointer endpoints with stable control identifiers
+and relative times. Password, email, telephone, secret/code fields and elements
+marked `data-feedback-private` are excluded. No activity listeners are installed
+outside a recording. Screen sharing is requested only by that action, with audio
+disabled. Unsupported or declined video still permits action recording. Both the
+steps and video are reviewable and discardable before sending.
+
+Recordings stop at 90 seconds; action capture is bounded to 200 actions / 32 KB.
+Video and image attachments have a 12 MB limit. Screen video is supported where
+the browser supplies `getDisplayMedia` and `MediaRecorder`; elsewhere the person
+can attach an existing recording or screenshot. No microphone capture is used.
+
+`registerFeedbackContext` from `@pkgs/feedback/context` registers a named,
+on-demand context provider with a cleanup function. Chess play and review provide
+starting FEN, solution moves, current FEN, orientation, review position and hint
+state. The browser adds page/device/build details, the bounded crash trail and
+recent trace IDs. Providers have serialization/size isolation and a 500 ms
+deadline, with missing evidence identified rather than blocking delivery.
+
+## Local and hosted reports
+
+The Vite plugin mounts `/api/feedback` ahead of product middleware. Local reports
+use the filesystem ObjectStore rooted at this worktree's `.feedback/`, without
+GitHub, internet, product API or database dependencies. Hosted reports use the
+existing API object store with credentials required for durability. The platform
+Worker handles this route before loading product bootstrap.
+
+`report.json` is the authoritative normalized bundle, committed first. Companion
+files are best effort, so interruption cannot erase a successfully saved report:
 
 ```text
 .feedback/
-  index/
-    bug-<id>.json
-  bug-<id>/
-    report.md
+  feedback-<id>/
     report.json
+    report.md
     diagnostics.json
+    reproduction.json
+    AGENT_HANDOFF.md
+  evidence/<attachment-id>
+  evidence/<attachment-id>.json
+  index/feedback-<id>.json
 ```
 
-`report.md` is the human entrypoint; `report.json` is the authoritative normalized
-report. Each file is replaced by same-directory atomic rename, with JSON committed
-first. Index entries are separate immutable files so concurrent reporters cannot
-lose another report through a shared-index rewrite. If interrupted after the JSON
-commit, a report remains recoverable even if its Markdown, diagnostics, or index
-companion was not written. This protects against process interruption, not disk
-loss or an unflushed filesystem after power failure.
+The bundle preserves observed and expected outcomes, reproduction steps, ordered
+actions, initial/final context and attachment references. `AGENT_HANDOFF.md`
+directs an agent to restore the starting state in the appropriate public harness,
+write the expected product behavior in specs, demonstrate the reported failure,
+and only then fix it. A video alone is not proof of a deterministic reproduction.
 
-`bun feedback 'Board freezes' 'The board stopped after my move'` calls the same root HTTP API. It defaults to the development endpoint at
-`http://localhost:5173/api/feedback`; set `FEEDBACK_API_URL` for another
-port or a hosted endpoint. The reporting backend must remain reachable.
-`bun feedback --list` enumerates authoritative reports, including reports whose index
-write was interrupted. Both operate on this worktree's `.feedback/`.
+`GET /api/feedback/reports/<uuid>` returns the bundle; attachment URLs stream
+stored bytes. UUID links are unguessable sharing links: anyone given a link can
+read its evidence. Request origin, media type, upload size and attachment ownership
+are checked. Attachment metadata is resolved from storage rather than trusted
+client URLs. The browser uses injected HTTP and bounded deadlines throughout.
 
-## Ports and adapters
+Optional backend-only `FEEDBACK_GITHUB_TOKEN` and `FEEDBACK_GITHUB_REPOSITORY`
+(`owner/repository`) forward reports to GitHub with a bundle link. An absent token
+or GitHub outage does not erase the durable report. Missing storage returns an
+unavailable response; the browser keeps its draft and offers an emergency JSON
+copy plus downloadable evidence. No external issue is created by checks.
 
-`@pkgs/feedback/shared` owns the model and `IssueReporter` port. It has no
-filesystem, UI framework, vendor SDK, or HTTP framework dependency. The local
-adapter receives an ObjectStore; its wall filesystem is wired only at a backend
-composition root. The fake adapter and GitHub adapter implement the same port.
+```sh
+bun feedback problem 'Board stops after a move' 'The move appears' 'Open the puzzle and drag e2 to e3'
+bun feedback feature 'Finding recent puzzles is difficult' 'Show a recent puzzles list'
+bun feedback --list
+bun feedback --inspect <report-id>
+```
 
-The client calls one bounded HTTP API through a transport captured before the
-product can replace or instrument global fetch. Optional diagnostics have a
-500 ms deadline, size limits, serialization isolation and an unavailable marker.
-Available page details and the bounded crash trail are captured automatically.
-Telemetry is read lazily; automatic screenshots are currently unavailable and
-recorded as such. No screenshot permission prompt blocks a basic report.
+The CLI uses the same API; `FEEDBACK_API_URL` overrides its default
+`http://localhost:5173/api/feedback`. `--list` reads authoritative local reports,
+including those whose companion writes were interrupted. Existing `.bugs/` data
+is retained on disk; new reports use `.feedback/`.
 
-Reporting saves text as a recoverable draft before submission. If HTTP fails,
-the form shows an emergency JSON copy and keeps the draft when browser storage
-is available. It never claims a backend report was saved without a receipt.
-A completely disconnected hosted browser cannot create a remote issue until it
-can reach the backend; local reporting needs only its loopback HTTP endpoint.
-
-## Hosted destination
-
-The API Worker's platform entrypoint dispatches feedback reports before loading the
-product server or its observability, auth, billing and database bootstrap.
-Production uses the GitHub adapter through injected HTTP. Configure the existing
-secret registry with `FEEDBACK_GITHUB_TOKEN` (a fine-grained token scoped to
-Issues write on the destination repository) and `FEEDBACK_GITHUB_REPOSITORY`
-(`owner/repository`). They are backend-only and included in the existing secret
-push workflow. Missing credentials return an explicit unavailable response;
-the client retains the emergency copy. No GitHub issue is created during checks.
-
-The endpoint checks the configured web origin, accepts JSON only, caps streamed
-request bytes, and normalizes text and diagnostics. It does not rely on a working
-account. Future destinations replace the backend reporter port without changing
-the client, diagnostic collection, crash handling or behavioral specs.
-
-Validation uses the executable specs, adapter properties and existing filesystem
-atomic-write checks; release policy is [`README.md`](../README.md#correctness-machinery).
+Release policy: [repository checks](../../README.md#correctness-machinery).

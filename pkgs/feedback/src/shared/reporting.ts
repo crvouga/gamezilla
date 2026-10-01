@@ -2,31 +2,41 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 import { collectDiagnostics } from './diagnostics';
 import type {
-  FeedbackReport,
   CreatedIssue,
   DiagnosticProvider,
+  FeedbackAttachment,
+  FeedbackDraft,
+  FeedbackReport,
   IssueReporter,
+  ReproductionRecording,
 } from './types';
+import { validateFeedback } from './validation';
 
-export interface FeedbackReportingOptions {
+export type FeedbackReportingOptions = {
   readonly reporter: IssueReporter;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly providers?: readonly DiagnosticProvider[];
   readonly deadlineMs?: number;
-}
+};
 
-export interface SubmittedFeedback {
+export type SubmittedFeedback = {
   readonly issue: CreatedIssue;
   readonly report: FeedbackReport;
   /** Basic report is already persisted. Optional enrichment never rejects. */
   readonly enriched: Promise<FeedbackReport>;
-}
+};
 
 export function createFeedbackReporting(options: FeedbackReportingOptions) {
   let emergencySequence = 0;
-  function baseline(title: string, description: string): FeedbackReport {
+  function baseline(
+    input: FeedbackDraft & {
+      recording?: ReproductionRecording | null;
+      attachments?: readonly FeedbackAttachment[];
+    }
+  ): FeedbackReport {
+    validateFeedback(input);
     let id: string;
     let createdAt: string;
     try {
@@ -42,8 +52,14 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
     return {
       version: 1,
       id,
-      title: title.trim().slice(0, 240) || 'Emergency feedback report',
-      description: description.slice(0, 32_000),
+      ...input,
+      title:
+        input.description.trim().split('\n').at(0)?.slice(0, 240) ?? 'Feedback',
+      description: input.description.trim(),
+      expected: input.expected.trim(),
+      reproductionSteps: input.reproductionSteps.trim(),
+      recording: input.recording ?? null,
+      attachments: input.attachments ?? [],
       createdAt,
       status: 'open',
       diagnostics: [],
@@ -68,10 +84,14 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
   }
   return {
     async submit(input: {
-      readonly title: string;
+      readonly kind: FeedbackDraft['kind'];
       readonly description: string;
+      readonly expected: string;
+      readonly reproductionSteps: string;
+      readonly recording?: ReproductionRecording | null;
+      readonly attachments?: readonly FeedbackAttachment[];
     }): Promise<SubmittedFeedback> {
-      const report = baseline(input.title, input.description);
+      const report = baseline(input);
       if (options.reporter.enrich === undefined) {
         const diagnostics = await collectDiagnostics(
           options.providers ?? [],

@@ -5,11 +5,11 @@ const MAX_DIAGNOSTIC_BYTES = 64_000;
 
 /** Freeze optional values into bounded JSON; getters, cycles and BigInt may fail. */
 function normalize(value: unknown): unknown {
-  const json = JSON.stringify(value);
+  const json = JSON.stringify(value) as string | undefined;
   if (json === undefined) throw new Error('No diagnostic value');
   if (new TextEncoder().encode(json).byteLength > MAX_DIAGNOSTIC_BYTES)
     throw new Error('Diagnostic too large');
-  return JSON.parse(json) as unknown;
+  return JSON.parse(json);
 }
 
 export function collectDiagnostic(
@@ -71,7 +71,8 @@ export function collectDiagnostic(
 export async function collectDiagnostics(
   providers: readonly DiagnosticProvider[],
   timers: Timers,
-  deadlineMs: number
+  deadlineMs: number,
+  budgetBytes = 64_000
 ): Promise<readonly Diagnostic[]> {
   try {
     const diagnostics = await Promise.all(
@@ -79,7 +80,7 @@ export async function collectDiagnostics(
         .slice(0, 20)
         .map((provider) => collectDiagnostic(provider, timers, deadlineMs))
     );
-    let remaining = 96_000;
+    let remaining = budgetBytes;
     return diagnostics.map((diagnostic) => {
       const size = new TextEncoder().encode(
         JSON.stringify(diagnostic)

@@ -1,12 +1,18 @@
 // @io-wall-ok — minimal browser composition root, before any product imports
 import { wallClock, wallTimers } from '@pkgs/clock';
+import '@pkgs/tailwind/tailwind.css';
+import '@pkgs/ui/tokens.css';
+import '@pkgs/ui/base.css';
 import { HttpIssueReporter } from './http-issue-reporter';
 import { mountRootReporting } from './mount-root-reporting';
 import { startRootRuntime } from './root-runtime';
+import { createEvidenceUploader } from './upload-evidence';
+import { browserEvidencePreview, browserRecordingPort } from './wall-video';
 
 /** Endpoint is platform configuration; it never depends on product bootstrap. */
 export function bootBrowserRoot(options: {
   readonly endpoint: string;
+  readonly build?: string;
   readonly startProduct: () => Promise<unknown>;
 }) {
   const http = { fetch: globalThis.fetch.bind(globalThis) };
@@ -24,6 +30,28 @@ export function bootBrowserRoot(options: {
         clock: wallClock,
         timers: wallTimers,
         createId: () => crypto.randomUUID(),
+        theme: {
+          read: () =>
+            document.documentElement.dataset['theme'] === 'light'
+              ? 'light'
+              : 'dark',
+          subscribe(listener) {
+            const observer = new MutationObserver(listener);
+            observer.observe(document.documentElement, {
+              attributes: true,
+              attributeFilter: ['data-theme'],
+            });
+            return () => observer.disconnect();
+          },
+        },
+        video: browserRecordingPort(wallTimers),
+        preview: browserEvidencePreview,
+        upload: createEvidenceUploader({
+          endpoint: options.endpoint,
+          http,
+          timers: wallTimers,
+          createId: () => crypto.randomUUID(),
+        }),
         reporter: new HttpIssueReporter({
           http,
           endpoint: options.endpoint,
@@ -42,29 +70,19 @@ export function bootBrowserRoot(options: {
               agent: navigator.userAgent,
               width: innerWidth,
               height: innerHeight,
+              pixelRatio: devicePixelRatio,
+              language: navigator.language,
+              online: navigator.onLine,
+              theme: document.documentElement.dataset['theme'],
+              build: options.build ?? 'unknown',
             }),
-          },
-          {
-            name: 'screenshot',
-            collect: () => {
-              throw new Error('Automatic screenshot unavailable');
-            },
-          },
-          {
-            name: 'telemetry',
-            collect: async () => {
-              const { context, trace } = await import('@opentelemetry/api');
-              const span = trace.getSpan(context.active());
-              if (!span) throw new Error('Telemetry context unavailable');
-              return span.spanContext();
-            },
           },
         ],
       });
-      if (location.pathname === '/report-bug') runtime.open();
+      if (location.pathname === '/feedback') runtime.open();
     },
     startProduct: () =>
-      location.pathname === '/report-bug'
+      location.pathname === '/feedback'
         ? Promise.resolve()
         : options.startProduct(),
   });

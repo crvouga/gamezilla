@@ -1,8 +1,8 @@
 import { expect } from 'bun:test';
 import {
-  type FeedbackReportingWorld,
   closeProduct,
   diagnosticsCondition,
+  type FeedbackReportingWorld,
   productCondition,
   readEmergencyReport,
   readReport,
@@ -19,7 +19,7 @@ Given("the team's app stays loading", (w) =>
 Given("the team's app has crashed", (w) =>
   w.apply(productCondition, 'crashed')
 );
-Given("the team's app cannot open a screen", (w) =>
+Given("the team's app cannot open Settings", (w) =>
   w.apply(productCondition, 'router')
 );
 Given("the team's app cannot sign in", (w) =>
@@ -34,24 +34,22 @@ Given('some diagnostics are unavailable', (w) =>
 Given('some diagnostics never arrive', (w) =>
   w.apply(diagnosticsCondition, 'hangs')
 );
-Given(
-  'the team has kept a local feedback report titled {string}',
-  (w, title: string) =>
-    w.apply(submitReport, {
-      title,
-      description: 'The board stopped after my move',
-    })
+Given('the team has kept local feedback titled {string}', (w, title: string) =>
+  w.apply(submitReport, {
+    title,
+    description: 'The board stopped after my move',
+  })
 );
 When(
-  'the team submits a feedback report titled {string} saying {string}',
+  'the team submits feedback titled {string} saying {string}',
   (w, title: string, description: string) =>
     w.apply(submitReport, { title, description })
 );
 When("the team's app closes", (w) => w.apply(closeProduct));
-Then('the team can read the local feedback report', async (w) => {
+Then('the team can read the local feedback', async (w) => {
   expect(await w.read(readReport)).not.toBeNull();
 });
-Then('the feedback report contains the available diagnostics', async (w) => {
+Then('the feedback contains the available diagnostics', async (w) => {
   const report = await w.read(readReport);
   expect(report?.diagnostics).toContainEqual({
     name: 'context',
@@ -59,7 +57,7 @@ Then('the feedback report contains the available diagnostics', async (w) => {
     value: { captured: true },
   });
 });
-Then('the feedback report identifies unavailable diagnostics', async (w) => {
+Then('the feedback identifies unavailable diagnostics', async (w) => {
   const report = await w.read(readReport);
   expect(report?.diagnostics).toContainEqual({
     name: 'context',
@@ -68,14 +66,14 @@ Then('the feedback report identifies unavailable diagnostics', async (w) => {
   });
 });
 
-Given('the team cannot send a feedback report', (w) =>
+Given('the team cannot send feedback', (w) =>
   w.apply(productCondition, 'delivery-fails')
 );
-Then('the team can copy the feedback report to keep for later', async (w) => {
+Then('the team can copy the feedback to keep for later', async (w) => {
   const report = await w.read(readEmergencyReport);
   expect(report?.title).toBe('Board froze');
-  expect(report?.description).toBe('Stopped after a move');
+  expect(report?.description).toBe('Board froze\nStopped after a move');
 });
-Then('the feedback report has not been saved locally', async (w) => {
+Then('the feedback has not been saved locally', async (w) => {
   expect(await w.read(readReport)).toBeNull();
 });

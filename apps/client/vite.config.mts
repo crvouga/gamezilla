@@ -1,7 +1,7 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
-import { feedbacksDevPlugin } from '@pkgs/feedback/vite';
+import { feedbackDevPlugin } from '@pkgs/feedback/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web/vite';
 import {
   DEFAULT_WORKSPACE_SCOPES,
@@ -34,7 +34,7 @@ const DEV_PORT = 8081;
 export default defineConfig(({ mode }) => {
   const analyze = process.env['ANALYZE'] === '1';
   const plugins: PluginOption[] = [
-    feedbacksDevPlugin({ repoRoot }),
+    feedbackDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     sqliteWebAssets({
       repoRoot,

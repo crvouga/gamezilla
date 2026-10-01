@@ -1,6 +1,10 @@
 import type { Timers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client/types';
-import type { FeedbackReport, CreatedIssue, IssueReporter } from '../shared/types';
+import type {
+  CreatedIssue,
+  FeedbackReport,
+  IssueReporter,
+} from '../shared/types';
 
 /** The client sees one domain API, never a filesystem path or vendor configuration. */
 export class HttpIssueReporter implements IssueReporter {
@@ -14,7 +18,7 @@ export class HttpIssueReporter implements IssueReporter {
 
   async create(report: FeedbackReport): Promise<CreatedIssue> {
     const controller = new AbortController();
-    let handle: ReturnType<Timers['setTimeout']> | undefined;
+    let handle: unknown;
     const deadline = new Promise<never>((_, reject) => {
       handle = this.options.timers.setTimeout(() => {
         reject(new Error('Report destination timed out'));

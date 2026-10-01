@@ -1,46 +1,88 @@
-// @io-wall-ok — reporting backend composition root; no product bootstrap
+// @io-wall-ok — feedback backend composition root; no product bootstrap
 import type { ApiWorkerEnv } from '@libs/server-app/config/env';
+import { workerEnvToSecretRecord } from '@libs/server-app/config/env';
+import { createApiObjectStore } from '@libs/server-app/config/object-store';
+import { createApiSecretStore } from '@libs/server-app/config/secret-store';
 import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import {
-  createFeedbackReportHandler,
+  createFeedbackHttpApp,
+  FileSystemIssueReporter,
   GitHubIssueReporter,
 } from '@pkgs/feedback/server';
-import { wallClock, wallTimers } from '@pkgs/clock';
 
 export async function handleRootFeedbackReport(
   request: Request,
   env: ApiWorkerEnv
 ): Promise<Response> {
-  const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
-  const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
-  if (!token || !repository)
+  const http = {
+    async fetch(input: RequestInfo | URL, init?: RequestInit) {
+      const controller = new AbortController();
+      const handle = wallTimers.setTimeout(() => controller.abort(), 8000);
+      const abort = () => controller.abort();
+      init?.signal?.addEventListener('abort', abort, { once: true });
+      try {
+        return await globalThis.fetch(input, {
+          ...init,
+          signal: controller.signal,
+        });
+      } finally {
+        wallTimers.clearTimeout(handle);
+        init?.signal?.removeEventListener('abort', abort);
+      }
+    },
+  };
+  try {
+    const secretStore = createApiSecretStore(
+      workerEnvToSecretRecord(env),
+      wallClock.now
+    );
+    const store = (
+      await createApiObjectStore(secretStore, {
+        now: wallClock.now,
+        http,
+        requireCredentials: true,
+      })
+    ).withPrefix('feedback');
+    const archive = new FileSystemIssueReporter(store);
+    const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
+    const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
+    const origin = new URL(request.url).origin;
+    const github =
+      token && repository
+        ? new GitHubIssueReporter({
+            token,
+            repository,
+            http,
+            reportBaseUrl: `${origin}/api/feedback/reports`,
+          })
+        : null;
+    return await createFeedbackHttpApp({
+      store,
+      clock: wallClock,
+      allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
+      reporter: {
+        async create(report) {
+          await archive.create(report);
+          // The durable bundle survives a vendor outage; a saved receipt is truthful.
+          if (github) {
+            try {
+              return await github.create(report);
+            } catch {
+              /* Report is safely archived. */
+            }
+          }
+          return {
+            id: report.id,
+            url: `${origin}/api/feedback/reports/${report.id}`,
+          };
+        },
+      },
+    })(request);
+  } catch {
     return Response.json(
-      { error: 'Bug report destination unavailable' },
+      { error: 'Feedback storage unavailable; keep your emergency copy' },
       { status: 503 }
     );
-  const reporter = new GitHubIssueReporter({
-    token,
-    repository,
-    http: {
-      async fetch(input, init) {
-        const controller = new AbortController();
-        const handle = wallTimers.setTimeout(() => controller.abort(), 8000);
-        try {
-          return await globalThis.fetch(input, {
-            ...init,
-            signal: controller.signal,
-          });
-        } finally {
-          wallTimers.clearTimeout(handle);
-        }
-      },
-    },
-  });
-  return createFeedbackReportHandler({
-    reporter,
-    clock: wallClock,
-    allowedOrigin: resolveWebClientOrigin(
-      env.API_URL?.trim() || new URL(request.url).origin
-    ),
-  })(request);
+  }
 }

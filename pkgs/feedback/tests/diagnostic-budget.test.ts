@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
+import { createHarnessClock } from '@pkgs/clock';
 import { HttpIssueReporter } from '@pkgs/feedback/client';
 import {
   createFeedbackReportHandler,
   FakeIssueReporter,
 } from '@pkgs/feedback/server';
 import { createFeedbackReporting } from '@pkgs/feedback/shared';
-import { createHarnessClock } from '@pkgs/clock';
 
 // regression: feedback-optional-context-budget
 test('large optional context cannot make a useful report exceed the HTTP limit', async () => {
@@ -30,7 +30,12 @@ test('large optional context cannot make a useful report exceed the HTTP limit',
       name: `context-${i}`,
       collect: () => '界'.repeat(20_000),
     })),
-  }).submit({ title: 'Board freezes', description: '界'.repeat(32_000) });
+  }).submit({
+    kind: 'problem',
+    expected: 'Board responds',
+    reproductionSteps: 'Make a move',
+    description: '界'.repeat(32_000),
+  });
   expect(submitted.issue.id).toBe('large-context');
   expect(destination.reports.get('large-context')?.description).toHaveLength(
     32_000

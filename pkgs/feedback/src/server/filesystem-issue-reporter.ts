@@ -1,6 +1,10 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { FeedbackReport, CreatedIssue, IssueReporter } from '../shared/types';
-import { reportDirectory, reportMarkdown } from './report-files';
+import type {
+  CreatedIssue,
+  FeedbackReport,
+  IssueReporter,
+} from '../shared/types';
+import { agentHandoff, reportDirectory, reportMarkdown } from './report-files';
 
 /** ObjectStore is rooted at the repository's .feedback/; every put commits atomically. */
 export class FileSystemIssueReporter implements IssueReporter {
@@ -20,6 +24,16 @@ export class FileSystemIssueReporter implements IssueReporter {
     );
     // Companion failure must not turn a persisted report into a failed submission.
     await Promise.allSettled([
+      this.write(
+        `${directory}/reproduction.json`,
+        JSON.stringify(report.recording, null, 2),
+        'application/json'
+      ),
+      this.write(
+        `${directory}/AGENT_HANDOFF.md`,
+        agentHandoff(report),
+        'text/markdown'
+      ),
       this.write(
         `${directory}/diagnostics.json`,
         JSON.stringify(report.diagnostics, null, 2),

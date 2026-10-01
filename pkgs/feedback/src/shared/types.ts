@@ -12,23 +12,30 @@ export type Diagnostic =
 
 export type FeedbackKind = 'problem' | 'feature' | 'gap' | 'polish';
 
-export interface FeedbackDraft {
+export type FeedbackDraft = {
   readonly kind: FeedbackKind;
   readonly description: string;
   readonly expected: string;
   readonly reproductionSteps: string;
-}
+};
 
-export interface ReproductionAction {
+export type ReproductionAction = {
   readonly atMs: number;
-  readonly type: 'click' | 'input' | 'navigation' | 'pointerdown' | 'pointerup';
+  readonly type:
+    | 'click'
+    | 'input'
+    | 'navigation'
+    | 'pointerdown'
+    | 'pointerup'
+    | 'keydown';
   readonly path: string;
   readonly target: string;
   readonly label: string;
   readonly value: string | null;
-}
+  readonly point: { readonly x: number; readonly y: number } | null;
+};
 
-export interface ReproductionRecording {
+export type ReproductionRecording = {
   readonly version: 1;
   readonly startedAt: string;
   readonly durationMs: number;
@@ -36,23 +43,23 @@ export interface ReproductionRecording {
   readonly finalContext: readonly Diagnostic[];
   readonly actions: readonly ReproductionAction[];
   readonly truncated: boolean;
-}
+};
 
-export interface EvidenceFile {
+export type EvidenceFile = {
   readonly name: string;
   readonly contentType: string;
   readonly bytes: Uint8Array;
-}
+};
 
-export interface FeedbackAttachment {
+export type FeedbackAttachment = {
   readonly id: string;
   readonly name: string;
   readonly contentType: string;
   readonly size: number;
   readonly url: string;
-}
+};
 
-export interface FeedbackReport extends FeedbackDraft {
+export type FeedbackReport = {
   readonly version: 1;
   readonly id: string;
   readonly title: string;
@@ -62,21 +69,21 @@ export interface FeedbackReport extends FeedbackDraft {
   readonly diagnostics: readonly Diagnostic[];
   readonly recording: ReproductionRecording | null;
   readonly attachments: readonly FeedbackAttachment[];
-}
+} & FeedbackDraft;
 
-export interface CreatedIssue {
+export type CreatedIssue = {
   readonly id: string;
   readonly url?: string;
   readonly location?: string;
-}
+};
 
 /** Destination-neutral port. Enrichment is optional and never affects creation. */
-export interface IssueReporter {
+export type IssueReporter = {
   create(report: FeedbackReport): Promise<CreatedIssue>;
   enrich?(issue: CreatedIssue, report: FeedbackReport): Promise<void>;
-}
+};
 
-export interface DiagnosticProvider {
+export type DiagnosticProvider = {
   readonly name: string;
-  collect(signal: AbortSignal): unknown | Promise<unknown>;
-}
+  collect(signal: AbortSignal): unknown;
+};

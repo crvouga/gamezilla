@@ -1,3 +1,4 @@
+import { recordFeedbackTrace } from '@pkgs/feedback/context';
 import type { ObservabilityIdentity } from '@pkgs/observability/core';
 
 let identity: ObservabilityIdentity = {};
@@ -33,6 +34,7 @@ export function browserObservabilityIdentity(): ObservabilityIdentity {
 
 export function recordRecentTraceId(traceId: string): void {
   recentTraceId = traceId;
+  recordFeedbackTrace(traceId);
 }
 
 export function installBrowserObsHelper(): void {
