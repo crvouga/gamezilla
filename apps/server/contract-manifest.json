@@ -24,8 +24,7 @@
     "renameSpace",
     "savePuzzleFeedSettings",
     "sendFriendRequest",
-    "unblockUser",
-    "upsertPuzzleProfile"
+    "unblockUser"
   ],
   "queries": [
     "chessPuzzleById",

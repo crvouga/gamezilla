@@ -10,8 +10,9 @@ import { sql } from '@pkgs/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import type { MutationClient } from '@pkgs/sync-engine/client';
 
-test('recovery completes a recorded outcome whose rating write was interrupted', async () => {
+test('a failed result write leaves no half-finished attempt and retry counts once', async () => {
   // regression: puzzle-outcome-recorded-rating-lost
+  // regression: puzzle-result-queued-without-rating
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await reconcileSqliteSchema(
@@ -20,7 +21,7 @@ test('recovery completes a recorded outcome whose rating write was interrupted',
     { ownership: 'declared-only' }
   );
   let id = 0;
-  let interrupt = true;
+  let interrupt: 'before' | 'inside' | 'none' = 'before';
   const createId = () => `interaction-${String(++id)}`;
   const env = {
     actorId: 'alice',
@@ -34,11 +35,31 @@ test('recovery completes a recorded outcome whose rating write was interrupted',
     query: db.query.bind(db),
     drain: () => Promise.resolve(),
     mutate: async (mutation, args) => {
-      if (mutation.name === 'ratePuzzleAttempt' && interrupt) {
-        interrupt = false;
+      if (mutation.name === 'ratePuzzleAttempt' && interrupt === 'before') {
+        interrupt = 'inside';
         throw new Error('interrupted before rating');
       }
-      await db.transaction((tx) => mutation.run({ tx, env }, args));
+      await db.transaction((tx) =>
+        mutation.run(
+          {
+            env,
+            tx: {
+              query: tx.query.bind(tx),
+              run: async (query) => {
+                if (
+                  interrupt === 'inside' &&
+                  query.sql.includes('INTO chess_puzzle_profiles')
+                ) {
+                  interrupt = 'none';
+                  throw new Error('interrupted while writing profile');
+                }
+                return tx.run(query);
+              },
+            },
+          },
+          args
+        )
+      );
       return { ok: true, mutationId: createId() };
     },
   };
@@ -61,17 +82,24 @@ test('recovery completes a recorded outcome whose rating write was interrupted',
         kind, solve_idx AS solveIdx, uci, correct, at
       FROM chess_puzzle_interactions ORDER BY at ASC, id ASC
     `);
-    await expect(
-      recorder.finalizeRatedAttempt({ ...attempt, interactions: await rows() })
-    ).rejects.toThrow('interrupted before rating');
-    await recorder.finalizeRatedAttempt({
-      ...attempt,
-      interactions: await rows(),
-    });
-    await recorder.finalizeRatedAttempt({
-      ...attempt,
-      interactions: await rows(),
-    });
+    await expect(recorder.finalizeRatedAttempt(attempt)).rejects.toThrow(
+      'interrupted before rating'
+    );
+    expect((await rows()).map((row) => row.kind)).toEqual(['started']);
+    await expect(recorder.finalizeRatedAttempt(attempt)).rejects.toThrow(
+      'interrupted while writing profile'
+    );
+    expect((await rows()).map((row) => row.kind)).toEqual(['started']);
+    expect(
+      await db.query(
+        sql<{ id: string }>`SELECT id FROM chess_puzzle_rating_events`
+      )
+    ).toEqual([]);
+    expect(
+      await db.query(sql<{ id: string }>`SELECT id FROM chess_puzzle_profiles`)
+    ).toEqual([]);
+    await recorder.finalizeRatedAttempt(attempt);
+    await recorder.finalizeRatedAttempt(attempt);
     expect((await rows()).map((row) => row.kind)).toEqual([
       'started',
       'solved',

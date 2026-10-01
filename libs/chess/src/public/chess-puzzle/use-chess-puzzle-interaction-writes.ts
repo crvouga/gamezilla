@@ -5,7 +5,6 @@ import type { Accessor } from 'solid-js';
 
 import type {
   ChessPuzzleInteractionKind,
-  ChessPuzzleInteractionRow,
   ChessPuzzleOutcomeKind,
 } from '../chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
@@ -21,7 +20,6 @@ export function useChessPuzzleInteractionWrites(args: {
   puzzleRating: Accessor<number>;
   puzzleRatingDeviation: Accessor<number>;
   solveIdx: Accessor<number>;
-  interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
   attemptKey: Accessor<string | null>;
 }): {
   appendInteraction: (
@@ -68,7 +66,6 @@ export function useChessPuzzleInteractionWrites(args: {
       puzzleRating: args.puzzleRating(),
       puzzleRatingDeviation: args.puzzleRatingDeviation(),
       solveIdx: args.solveIdx(),
-      interactions: args.interactions(),
       terminalKind,
       scorePermille,
     });

@@ -12,6 +12,7 @@ import {
   playUntilSolved,
   retryPuzzle,
   returnToOwnSpace,
+  showChessStatsScreen,
 } from './chess-actions';
 
 export const closePuzzleApp = scenarioAction({
@@ -37,6 +38,15 @@ export const retryFinishedPuzzle = scenarioAction({
   act: async (s, device: string) => {
     await Promise.resolve(retryPuzzle.act(s, device));
     await Promise.resolve(playUntilSolved.act(s, device));
+  },
+});
+
+export const viewPuzzleStatsAfterReturn = scenarioAction({
+  name: 'viewPuzzleStatsAfterReturn',
+  act: async (s, device: string) => {
+    await ensureActor(s, device);
+    await Promise.resolve(returnToOwnSpace.act(s, device));
+    await Promise.resolve(showChessStatsScreen.act(s, device));
   },
 });
 

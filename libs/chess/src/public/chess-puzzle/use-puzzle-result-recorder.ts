@@ -1,15 +1,11 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-import type {
-  ChessPuzzleInteractionRow,
-  ChessPuzzleOutcomeKind,
-} from '../chess-puzzle-interaction-entities';
+import type { ChessPuzzleOutcomeKind } from '../chess-puzzle-interaction-entities';
 
 /** Reconcile a decided result after restore, including an interrupted rating write. */
 export function usePuzzleResultRecorder(args: {
   readonly recorder: {
     readonly puzzleId: Accessor<string>;
-    readonly interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
     readonly interactionsReady: Accessor<boolean>;
     readonly canRecord: Accessor<boolean>;
     readonly result: Accessor<{

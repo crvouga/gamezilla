@@ -503,5 +503,15 @@
     "id": "profile-snapshot-stale-username-claim",
     "summary": "Own-profile, profile-by-id and friendship snapshots omitted the normalized username used by the local uniqueness constraint. A rename could leave the old name reserved on another device and collide when that name was assigned elsewhere. Every profile snapshot now carries the normalized name. The literal alice_old to ALICE_NEW change is pinned through both public profile queries.",
     "regressionTest": "libs/profile/tests/profile-snapshot.test.ts"
+  },
+  {
+    "id": "puzzle-result-queued-without-rating",
+    "summary": "Result finalization queued an outcome and its rating as separate mutations. Failure before the second write stranded a completed outcome without a rating. One mutation now records the outcome, first rating and upload together. Literal interruption before the write and during profile persistence proves rollback and exact-once recovery.",
+    "regressionTest": "libs/chess/tests/puzzle-session/interrupted-outcome.test.ts"
+  },
+  {
+    "id": "puzzle-inconsistent-result-score",
+    "summary": "The rating mutation accepted full credit for a failed result, zero credit for a solve and partial credit for an abandoned attempt. It now rejects outcome and credit combinations that the puzzle rules exclude, before any result is stored. All three literal contradictory combinations are pinned.",
+    "regressionTest": "libs/chess/tests/puzzle-session/rate-puzzle-attempt.test.ts"
   }
 ]

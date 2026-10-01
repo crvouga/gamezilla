@@ -76,7 +76,6 @@ export function useChessPuzzleInteractionRecorder(
     puzzleRating: args.puzzleRating,
     puzzleRatingDeviation: args.puzzleRatingDeviation,
     solveIdx: args.solveIdx,
-    interactions: args.interactions,
     attemptKey: args.attemptKey,
   });
 

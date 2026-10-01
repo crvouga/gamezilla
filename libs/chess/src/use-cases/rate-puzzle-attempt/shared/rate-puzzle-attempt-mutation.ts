@@ -38,6 +38,8 @@ import { chessPuzzleRatingEventId } from '../../../shared/chess/chess-puzzle-rat
 import { ratedStartKeyPrefix } from '../../../shared/chess/rated-start-key';
 
 const ratePuzzleAttemptArgs = z.object({
+  attemptKey: z.string().min(1),
+  solveIdx: z.number().int().nonnegative(),
   ownerId: z.string().min(1),
   puzzleId: z.string().min(1),
   // The catalog's own range, not the player's: `applyPuzzleAttemptRating`
@@ -94,6 +96,33 @@ async function alreadyRated(tx: MutationDb, eventId: string): Promise<boolean> {
     LIMIT 1
   `);
   return rows.length > 0;
+}
+
+async function recordOutcome(
+  tx: MutationDb,
+  args: RatePuzzleAttemptArgs,
+  at: string
+): Promise<void> {
+  const id = `${args.ownerId}|${args.attemptKey}`;
+  const rows = await tx.query(sql<{ puzzle_id: string; kind: string }>`
+    SELECT puzzle_id, kind FROM chess_puzzle_interactions WHERE id = ${id}
+  `);
+  if (rows[0] !== undefined) {
+    if (rows[0].puzzle_id !== args.puzzleId || rows[0].kind !== args.outcome)
+      throw new MutationError(
+        'CHESS_ATTEMPT_ALREADY_FINISHED',
+        'The attempt already has its first result.'
+      );
+    return;
+  }
+  await tx.run(sql`
+    INSERT INTO chess_puzzle_interactions (
+      id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx, at
+    ) VALUES (
+      ${id}, ${args.ownerId}, ${args.puzzleId}, ${args.puzzleRating},
+      ${args.outcome}, ${args.solveIdx}, ${at}
+    ) ON CONFLICT (id) DO NOTHING
+  `);
 }
 
 async function insertRatingEvent(
@@ -159,22 +188,31 @@ export const ratePuzzleAttemptMutation = defineMutation({
         'You can only update your own puzzle activity.'
       );
     }
-    if (!isPuzzleScorePermille(args.scorePermille)) {
+    if (
+      !isPuzzleScorePermille(args.scorePermille) ||
+      (args.outcome === 'solved' && args.scorePermille === 0) ||
+      (args.outcome === 'failed' && args.scorePermille === 1000) ||
+      (args.outcome === 'abandoned' && args.scorePermille !== 0)
+    ) {
       throw new MutationError(
         'CHESS_RATING_SCORE_INVALID',
         'A puzzle attempt scores 0, 500 or 1000 permille.'
       );
     }
     const eventId = chessPuzzleRatingEventId(args.ownerId, args.puzzleId);
-    // The ledger row is the whole idempotency story (see the file comment).
-    if (await alreadyRated(tx, eventId)) return;
-    await requireChargedInMutation(
-      { tx, env },
-      {
-        quota: ACTION.puzzleRatedSolve,
-        keyPrefix: ratedStartKeyPrefix(args.puzzleId),
-      }
-    );
+    const rated = await alreadyRated(tx, eventId);
+    if (!rated)
+      await requireChargedInMutation(
+        { tx, env },
+        {
+          quota: ACTION.puzzleRatedSolve,
+          keyPrefix: ratedStartKeyPrefix(args.puzzleId),
+        }
+      );
+    const at = env.now().toISOString();
+    // Result, first rating, and queued upload share the mutation transaction.
+    await recordOutcome(tx, args, at);
+    if (rated) return;
     const profile = await readProfile(tx, args.ownerId);
     const after = applyPuzzleAttemptRating({
       player: profile.state,
@@ -182,7 +220,6 @@ export const ratePuzzleAttemptMutation = defineMutation({
       puzzleRatingDeviation: args.puzzleRatingDeviation,
       scorePermille: args.scorePermille,
     });
-    const at = env.now().toISOString();
     await insertRatingEvent(tx, args, {
       before: profile.state,
       after,

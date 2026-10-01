@@ -55,6 +55,8 @@ function ratedResultServerLayer(): DecisionLayer {
     idempotencyKey: ratedStartKey(ATTEMPTED_PUZZLE, c.nowMs),
   }));
   const result = replayOperation(ratePuzzleAttemptMutation, (c) => ({
+    attemptKey: 'attempted-start',
+    solveIdx: 3,
     ownerId: c.env.actorId,
     puzzleId: ATTEMPTED_PUZZLE,
     puzzleRating: 1500,

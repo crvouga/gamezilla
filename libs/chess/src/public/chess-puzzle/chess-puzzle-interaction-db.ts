@@ -2,16 +2,7 @@ import type { MutationClient } from '@pkgs/sync-engine/client';
 import type { CreateId } from '@pkgs/uuid';
 import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation';
 import { ratePuzzleAttemptMutation } from '../../use-cases/rate-puzzle-attempt/shared/rate-puzzle-attempt-mutation';
-import {
-  deriveOutcomeScore,
-  playOutcome,
-  sliceCurrentPlay,
-} from '../chess-puzzle-derive';
-import type {
-  ChessPuzzleInteractionRow,
-  ChessPuzzleOutcomeKind,
-} from '../chess-puzzle-interaction-entities';
-import { puzzleScorePermille } from '../chess-puzzle-rating';
+import type { ChessPuzzleOutcomeKind } from '../chess-puzzle-interaction-entities';
 import type { AppendPuzzleInteractionInput } from '../writes/append-puzzle-interaction-write';
 
 function mutationRejected(
@@ -34,7 +25,6 @@ export type FinalizePlayInput = {
   readonly puzzleRating: number;
   readonly puzzleRatingDeviation: number;
   readonly solveIdx: number;
-  readonly interactions: readonly ChessPuzzleInteractionRow[];
   readonly terminalKind: ChessPuzzleOutcomeKind;
   readonly scorePermille: 0 | 500 | 1000;
 };
@@ -64,6 +54,8 @@ export class ChessPuzzleInteractionDb {
    * server's authoritative one come from the same definition.
    */
   async #rateAttempt(args: {
+    attemptKey: string;
+    solveIdx: number;
     ownerId: string;
     puzzleId: string;
     puzzleRating: number;
@@ -81,48 +73,20 @@ export class ChessPuzzleInteractionDb {
   }
 
   /**
-   * Append the play's rated outcome (at most once per play), then hand the
-   * attempt to the rating mutation. A repeat attempt on an already-rated
-   * puzzle still records the outcome row; the mutation leaves the rating
-   * alone (§8 / §9 exhausted pool).
+   * Result, rating, and queued upload commit together. A repeat attempt on
+   * an already-rated puzzle still records its outcome; the mutation leaves
+   * the first rating alone (§8 / §9 exhausted pool).
    */
   async finalizeRatedAttempt(args: FinalizePlayInput): Promise<void> {
-    const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-    const recorded = playOutcome(play);
-    const terminal = recorded ?? {
-      puzzleId: args.puzzleId,
-      kind: args.terminalKind,
-      solveIdx: args.solveIdx,
-      uci: null,
-      correct: null,
-      puzzleRating: args.puzzleRating,
-      at: '',
-    };
-    if (recorded === null) {
-      const appended = await this.mutationClient.mutate(
-        appendPuzzleInteractionMutation,
-        {
-          interactionId: `${args.ownerId}|${args.attemptKey}`,
-          ownerId: args.ownerId,
-          puzzleId: args.puzzleId,
-          puzzleRating: args.puzzleRating,
-          kind: args.terminalKind,
-          solveIdx: args.solveIdx,
-        }
-      );
-      if (!appended.ok)
-        throw mutationRejected('appendPuzzleInteraction', appended.failures);
-    }
     await this.#rateAttempt({
+      attemptKey: args.attemptKey,
+      solveIdx: args.solveIdx,
       ownerId: args.ownerId,
       puzzleId: args.puzzleId,
       puzzleRating: args.puzzleRating,
       puzzleRatingDeviation: args.puzzleRatingDeviation,
-      outcome: terminal.kind,
-      scorePermille:
-        recorded !== null && recorded.kind !== args.terminalKind
-          ? puzzleScorePermille(deriveOutcomeScore([...play, terminal]))
-          : args.scorePermille,
+      outcome: args.terminalKind,
+      scorePermille: args.scorePermille,
     });
   }
 }

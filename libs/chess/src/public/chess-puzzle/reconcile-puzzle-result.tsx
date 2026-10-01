@@ -33,14 +33,12 @@ export function ReconcilePuzzleResult(): null {
     puzzleRating: () => entity.rating,
     puzzleRatingDeviation: () => entity.ratingDeviation,
     solveIdx,
-    interactions: interactions.rows,
     attemptKey: () => result().attempt,
   });
   usePuzzleResultRecorder({
     myId,
     recorder: {
       puzzleId,
-      interactions: interactions.rows,
       interactionsReady: () => interactions.ready() && entity.fen.length > 0,
       canRecord: () => result().owner === myId(),
       result,
