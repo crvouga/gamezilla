@@ -18,7 +18,7 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
 import { resolveTestBrowser } from '@pkgs/ui-testing-bun-webview/test-browser';
 
-const POPUP_POLL_MS = 250;
+const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
 /** Uploaded by the Health and Deploy workflows when a journey fails. */
@@ -130,7 +130,7 @@ export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
     const state = await view.evaluate(SHELL_STATE_SCRIPT);
     if (state === 'active' || state === 'none' || state === 'error') return;
     if (wallClock.now() >= deadline) return;
-    await delay(POPUP_POLL_MS);
+    await delay(NAVIGATION_POLL_MS);
   }
 }
 
@@ -152,32 +152,28 @@ export async function emulateOffline(view: Bun.WebView): Promise<void> {
   });
 }
 
-async function popupUrls(view: Bun.WebView): Promise<string[]> {
-  const raw = await view.evaluate(
-    'JSON.stringify((window.__bunWebviewPopups || { open: [] }).open.map(function (e) { return e.url; }))'
-  );
-  return typeof raw === 'string' ? (JSON.parse(raw) as string[]) : [];
-}
-
 export function journeyBrowser(
   device: Device,
   target: LiveTarget
 ): JourneyBrowser {
   return {
     oauthCallbackOrigin: target.oauthCallbackOrigin,
-    http: target.http,
-    waitForPopup: async (match, timeoutMs) => {
+    waitForNavigation: async (match, timeoutMs) => {
       const deadline = wallClock.now() + timeoutMs;
+      let lastUrl = '';
       for (;;) {
-        const urls = await popupUrls(device.view);
-        const found = urls.find(match);
-        if (found !== undefined) return found;
+        try {
+          lastUrl = await readLocation(device.view);
+          if (match(lastUrl)) return lastUrl;
+        } catch {
+          // A document replacement can briefly make evaluation unavailable.
+        }
         if (wallClock.now() >= deadline) {
           throw new Error(
-            `no matching popup within ${String(timeoutMs)}ms (opened: ${urls.join(', ') || 'none'})`
+            `no matching navigation within ${String(timeoutMs)}ms (current URL: ${lastUrl})`
           );
         }
-        await delay(POPUP_POLL_MS);
+        await delay(NAVIGATION_POLL_MS);
       }
     },
   };

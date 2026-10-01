@@ -408,5 +408,15 @@
     "id": "feedback-vite-node-import",
     "summary": "The feedback Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
     "regressionTest": "pkgs/feedback/tests/vite-config.contract.test.ts"
+  },
+  {
+    "id": "social-auth-popup-blocked",
+    "summary": "Social sign-in depended on window.open, which IDE integrated browsers and popup-blocking browsers refused. Navigate the current tab and complete sign-in on the callback route instead.",
+    "regressionTest": "libs/client-app/tests/shell/wall-open-auth-session.test.ts"
+  },
+  {
+    "id": "social-auth-redirect-outcome",
+    "summary": "The same-tab OAuth callback discarded provider errors and pending account-link prompts, leaving resumed sign-in without its result. Publish every callback failure to the auth session for the existing modal.",
+    "regressionTest": "pkgs/auth-inhouse/tests/hosted-auth-redirect.test.ts"
   }
 ]

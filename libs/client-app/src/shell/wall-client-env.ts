@@ -127,7 +127,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     devMenu: createNoopDevMenuPort(),
     objectStore: createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
     serverUrl,
-    // The in-house IdP, reached on the API origin through a popup.
+    // The in-house IdP, reached on the API origin through same-tab navigation.
     createAuthClient: () =>
       createInhouseAuthClient({
         baseURL: serverUrl,
@@ -135,7 +135,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
         timers: wallTimers,
         fetch: server,
         storage: createSecureStoreAuthClientStorage(secureStorage),
-        openAuthSession: createWallOpenAuthSession(wallTimers),
+        openAuthSession: createWallOpenAuthSession(),
         callbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
       }),
     openExternalUrl: (url) => {

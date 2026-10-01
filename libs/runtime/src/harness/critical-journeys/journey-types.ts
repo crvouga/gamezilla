@@ -5,15 +5,14 @@
  * (`@apps/product#health`); each runner supplies a {@link JourneyHost}.
  */
 
-import type { HttpClient } from '@pkgs/http-client';
 import type { Driver } from '@pkgs/ui-testing';
 
 /** The state a host puts a fresh device in before the journey starts. */
 export type JourneyAccess = 'anonymous' | 'signed-in';
 
 /**
- * What only a real browser can offer: the pages a journey opens outside the
- * app (an identity provider's popup) and plain HTTP to follow them.
+ * What only a real browser can offer: following the current tab from the app
+ * to the identity provider.
  */
 export type JourneyBrowser = {
   /**
@@ -21,12 +20,11 @@ export type JourneyBrowser = {
    * the one OAuth callback relay every environment shares.
    */
   readonly oauthCallbackOrigin: string;
-  readonly http: HttpClient;
   /**
-   * Resolve with the URL of the first popup the page opened whose URL
-   * satisfies `match`; reject after `timeoutMs`.
+   * Resolve with the current tab URL once it satisfies `match`; reject after
+   * `timeoutMs`.
    */
-  waitForPopup(
+  waitForNavigation(
     match: (url: string) => boolean,
     timeoutMs: number
   ): Promise<string>;
