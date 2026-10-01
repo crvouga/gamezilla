@@ -26,6 +26,7 @@ Feature: Puzzles finished offline count once
   Rule: Closing the app as an attempt finishes preserves the first result
     No counter-example: returning cannot refuse a decided result.
 
+    @regression:puzzle-result-lost-as-app-closes
     Scenario Outline: Finishing by <finish> as the app closes keeps the result
       Given Alice is signed in
       And Alice is playing puzzles in their space
@@ -42,6 +43,8 @@ Feature: Puzzles finished offline count once
         | showing the solution                            | failed    | 0      | 0        |
         | skipping it                                     | abandoned | 0      | 0        |
 
+    @regression:harness-room-created-while-offline
+    @regression:puzzle-result-lost-by-stats-navigation
     Scenario: Returning offline keeps the result for the next connection
       Given Alice is signed in
       And Alice is playing puzzles in their space
