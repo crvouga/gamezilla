@@ -1,7 +1,8 @@
 # The role GitHub Actions assumes to apply AWS (IoT Core, the authorizer
 # Lambda, its IAM user). No long-lived account key: the workflow's OIDC
 # token is the credential. Bootstrap creates this once, with a person's
-# AWS login, and publishes the role ARN as the Actions variable AWS_ROLE_ARN.
+# AWS login, and publishes separate deploy and read-only health role ARNs as
+# Actions variables. A branch health check must never inherit deploy access.
 #
 # The Worker's publish key is a different credential (modules/pubsub). A
 # Worker has no GitHub token, so it keeps that generated IAM user key.
@@ -18,16 +19,23 @@ variable "project" {
 
 variable "github_repository" {
   type        = string
-  description = "owner/repo whose main deploys and production environment may assume the role."
+  description = "owner/repo whose workflows may assume the CI roles."
 }
 
 locals {
-  issuer    = "https://token.actions.githubusercontent.com"
-  role_name = "${var.project}-github-deploy"
+  issuer           = "https://token.actions.githubusercontent.com"
+  deploy_role_name = "${var.project}-github-deploy"
+  health_role_name = "${var.project}-github-health"
   # Deploy on main has no GitHub environment (subject is the ref). Production
   # jobs set environment: production, which replaces the ref in the subject.
-  subjects = [
+  deploy_subjects = [
     "repo:${var.github_repository}:ref:refs/heads/main",
+    "repo:${var.github_repository}:environment:production",
+  ]
+  # Health is branch-addressable, so every branch in this repository may
+  # inspect the AWS resources. The role below has no mutation actions.
+  health_subjects = [
+    "repo:${var.github_repository}:ref:refs/heads/*",
     "repo:${var.github_repository}:environment:production",
   ]
 }
@@ -48,7 +56,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 resource "aws_iam_role" "deploy" {
-  name = local.role_name
+  name = local.deploy_role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -60,7 +68,7 @@ resource "aws_iam_role" "deploy" {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
         }
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = local.subjects
+          "token.actions.githubusercontent.com:sub" = local.deploy_subjects
         }
       }
     }]
@@ -72,7 +80,7 @@ resource "aws_iam_role" "deploy" {
 }
 
 resource "aws_iam_role_policy" "deploy" {
-  name = local.role_name
+  name = local.deploy_role_name
   role = aws_iam_role.deploy.id
   policy = jsonencode({
     Version = "2012-10-17"
@@ -224,6 +232,114 @@ resource "aws_iam_role_policy" "deploy" {
   })
 }
 
+resource "aws_iam_role" "health" {
+  name = local.health_role_name
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Action    = "sts:AssumeRoleWithWebIdentity"
+      Principal = { Federated = aws_iam_openid_connect_provider.github.arn }
+      Condition = {
+        StringEquals = {
+          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+        }
+        StringLike = {
+          "token.actions.githubusercontent.com:sub" = local.health_subjects
+        }
+      }
+    }]
+  })
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+# Only the reads OpenTofu performs while refreshing the foundation stack.
+# This role can report drift from any branch but cannot apply it.
+resource "aws_iam_role_policy" "health" {
+  name = local.health_role_name
+  role = aws_iam_role.health.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "IotRead"
+        Effect = "Allow"
+        Action = [
+          "iot:DescribeAuthorizer",
+          "iot:ListAuthorizers",
+          "iot:DescribeDomainConfiguration",
+          "iot:ListDomainConfigurations",
+          "iot:DescribeEndpoint",
+          "iot:ListTagsForResource",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "LambdaRead"
+        Effect = "Allow"
+        Action = [
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration",
+          "lambda:GetFunctionCodeSigningConfig",
+          "lambda:ListTags",
+          "lambda:GetPolicy",
+          "lambda:ListVersionsByFunction",
+        ]
+        Resource = [
+          "arn:aws:lambda:*:*:function:${var.project}-iot-*",
+          "arn:aws:lambda:*:*:function:${var.project}-iot-*:*",
+        ]
+      },
+      {
+        Sid      = "LogsRead"
+        Effect   = "Allow"
+        Action   = ["logs:DescribeLogGroups", "logs:ListTagsForResource"]
+        Resource = "*"
+      },
+      {
+        Sid    = "AcmRead"
+        Effect = "Allow"
+        Action = [
+          "acm:DescribeCertificate",
+          "acm:ListCertificates",
+          "acm:ListTagsForCertificate",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "IamRead"
+        Effect = "Allow"
+        Action = [
+          "iam:GetRole",
+          "iam:ListRoleTags",
+          "iam:ListInstanceProfilesForRole",
+          "iam:ListAttachedRolePolicies",
+          "iam:GetRolePolicy",
+          "iam:ListRolePolicies",
+          "iam:GetUser",
+          "iam:ListUserTags",
+          "iam:GetUserPolicy",
+          "iam:ListUserPolicies",
+          "iam:ListAccessKeys",
+          "iam:ListGroupsForUser",
+          "iam:ListAttachedUserPolicies",
+        ]
+        Resource = [
+          "arn:aws:iam::*:role/${var.project}-iot-*",
+          "arn:aws:iam::*:user/${var.project}-iot-*",
+        ]
+      },
+    ]
+  })
+}
+
 output "role_arn" {
   value = aws_iam_role.deploy.arn
+}
+
+output "health_role_arn" {
+  value = aws_iam_role.health.arn
 }

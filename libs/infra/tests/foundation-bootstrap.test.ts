@@ -15,6 +15,15 @@ const GLOBAL_VARIABLES = join(
   import.meta.dirname,
   '../tofu/global.tfvars.json'
 );
+const AWS_CI = join(
+  import.meta.dirname,
+  '../tofu/modules/aws-ci-identity/main.tf'
+);
+const BOOTSTRAP = join(import.meta.dirname, '../tofu/stacks/bootstrap/main.tf');
+const HEALTH_WORKFLOW = join(
+  import.meta.dirname,
+  '../../../.github/workflows/health.yml'
+);
 
 describe('foundation bootstrap', () => {
   // regression: foundation-provider-bootstrap-cycle
@@ -48,5 +57,25 @@ describe('foundation bootstrap', () => {
     };
 
     expect(variables.planetscale.region).toBe('us-east');
+  });
+
+  // regression: health-branch-aws-oidc-read-role — a workflow_dispatch on
+  // refs/heads/fix-deploy-ci-aws-role-arn was rejected by AWS STS because the
+  // only role trusted main, while broadening that deploy role would let a
+  // feature branch mutate the account.
+  test('branch health checks use a separate read-only AWS role', () => {
+    const awsCi = readFileSync(AWS_CI, 'utf8');
+    const bootstrap = readFileSync(BOOTSTRAP, 'utf8');
+    const health = readFileSync(HEALTH_WORKFLOW, 'utf8');
+
+    expect(awsCi).toContain('"repo:${var.github_repository}:ref:refs/heads/*"');
+    expect(awsCi).toContain('resource "aws_iam_role_policy" "health"');
+    expect(awsCi).not.toMatch(
+      /resource "aws_iam_role_policy" "health"[\s\S]*?Action = \[[\s\S]*?"(?:iot|lambda|logs|acm|iam):(Create|Delete|Update|Put|Tag|Untag|Attach|Detach|Add|Remove|Request)/
+    );
+    expect(bootstrap).toContain(
+      'AWS_HEALTH_ROLE_ARN = module.aws_ci.health_role_arn'
+    );
+    expect(health).toContain('AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}');
   });
 });

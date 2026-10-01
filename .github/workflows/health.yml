@@ -80,7 +80,8 @@ jobs:
     env:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      # Health refreshes the declared AWS resources but must never mutate them.
+      AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
