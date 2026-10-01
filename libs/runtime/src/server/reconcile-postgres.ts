@@ -7,6 +7,7 @@ import { MIGRATE_RECONCILE_CONFIG, resolveConfig } from '@pkgs/db-indexes';
 import { createPostgresPort } from '@pkgs/db-indexes-postgres';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
 import { reconcileEntityStorePostgres } from '@pkgs/entity-store/reconcile-postgres';
+import { applyKvStorageOptimizations } from '@pkgs/kv-postgres/postgres-storage-knobs';
 import { reconcileKvPostgres } from '@pkgs/kv-postgres/reconcile-postgres';
 import type { Logger } from '@pkgs/logger';
 import { reconcileOutboxPostgres } from '@pkgs/outbox';
@@ -68,6 +69,7 @@ async function reconcileDeclaredSchemas(pass: SchemaPass): Promise<void> {
     skipAdvisoryLock: true as const,
     alreadyInTransaction: pass.alreadyInTransaction,
     indexPhase: pass.indexPhase,
+    skipStorageOptimizations: true,
   };
   pass.logger.info('reconciling sync-engine schema');
   await reconcileSyncEnginePostgres(pass.sqlClient, options);
@@ -160,6 +162,9 @@ export async function reconcilePostgres(
     await installPostgresSqliteCompat({ sqlClient: resolved.sqlClient });
   }
   await reconcileSchemas(resolved);
+  await applyKvStorageOptimizations(resolved.sqlClient, resolved.logger, {
+    allowTemporarilyUnavailableTable: true,
+  });
   await APP_AUTH_PROVIDER.reconcilePostgres?.({
     sqlClient: resolved.sqlClient,
     dbScope: resolved.dbScope,
