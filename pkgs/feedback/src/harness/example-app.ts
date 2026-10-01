@@ -4,6 +4,8 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { HttpIssueReporter } from '../client/http-issue-reporter';
 import { mountRootReporting } from '../client/mount-root-reporting';
 import { startRootRuntime } from '../client/root-runtime';
+// Compile the example's lazy UI before a run; production bootstrap stays lazy.
+import '../client/reporting-surface';
 import { createEvidenceUploader } from '../client/upload-evidence';
 import { createFeedbackHttpApp } from '../server/feedback-http-app';
 import { FileSystemIssueReporter } from '../server/filesystem-issue-reporter';
