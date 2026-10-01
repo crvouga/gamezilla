@@ -551,7 +551,7 @@
       "outputLogs": "errors-only"
     },
     "//#ci:spec-ownership": {
-      "env": ["PR_BASE", "PR_HEAD"],
+      "env": ["PR_BASE", "PR_HEAD", "CHECK_SECRETS_RANGE"],
       "inputs": ["libs/tools/scripts/check-spec-ownership.ts"],
       "outputs": [],
       "outputLogs": "errors-only"

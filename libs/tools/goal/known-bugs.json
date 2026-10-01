@@ -588,5 +588,10 @@
     "id": "permission-privacy-capabilities-missing",
     "summary": "The manifest declared account deletion and personal-data exports without corresponding permission keys, capability mappings, or account-only policy grants.",
     "regressionTest": "libs/permissions/tests/closed-world.test.ts"
+  },
+  {
+    "id": "spec-rulebook-commit-subject",
+    "summary": "A rulebook change used a docs subject instead of spec, violating ownership. Reworded the commit and keyed the ownership gate on the injected full-SHA range so local history changes cannot reuse an earlier verdict.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
   }
 ]

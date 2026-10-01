@@ -7,6 +7,19 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
+  test('rulebook changes require spec subjects even when labeled documentation', () => {
+    // regression: spec-rulebook-commit-subject
+    expect(
+      ownershipViolations([
+        {
+          sha: '5b99004138',
+          subject: 'docs(specs): define canonical spec locations',
+          files: ['specs/README.md'],
+        },
+      ])
+    ).toHaveLength(1);
+  });
+
   test('recognizes every Gherkin file, wherever it is, and every file under specs/', () => {
     expect(isSpecFile('specs/friends/friend-remove.feature')).toBe(true);
     expect(isSpecFile('libs/friends/features/remove.feature')).toBe(true);
