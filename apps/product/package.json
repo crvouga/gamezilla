@@ -109,7 +109,8 @@
     "chess.js": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@pkgs/bug-report": "workspace:*"
   },
   "devDependencies": {
     "@babel/runtime": "catalog:",

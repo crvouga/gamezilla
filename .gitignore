@@ -119,3 +119,6 @@ libs/infra/tofu/stacks/*/*_override.tf
 
 # Per-machine orchestrator overrides (committed hooks live in libs/tools/workspace)
 /.superset/config.local.json
+
+# Repository-local bug reports
+/.bugs/

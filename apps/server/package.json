@@ -58,7 +58,8 @@
     "hono": "catalog:",
     "jose": "catalog:",
     "pg": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@pkgs/bug-report": "workspace:*"
   },
   "devDependencies": {
     "@libs/games": "workspace:*",

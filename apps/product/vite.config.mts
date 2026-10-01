@@ -1,5 +1,6 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
+import { bugReportsDevPlugin } from '@pkgs/bug-report/vite';
 import { getConfig } from '@lingui/conf';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web/vite';
 import {
@@ -30,6 +31,7 @@ const FROZEN = process.env['PRODUCT_DEV_FROZEN'] === '1';
 
 export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
+    bugReportsDevPlugin({ repoRoot }),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     sqliteWebAssets({
       repoRoot,

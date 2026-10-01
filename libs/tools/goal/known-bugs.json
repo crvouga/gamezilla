@@ -388,5 +388,10 @@
     "id": "watch-scroll-echo",
     "summary": "Scrolling while bun check, bun health, or bun deploy watched a GitHub run printed a stream of ^[[B. A scroll wheel sends down-arrow keys, and the watcher left the terminal echoing input, so those keys landed in the transcript. Fixed by turning echo off for the watch and discarding the keys, then restoring the terminal.",
     "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
+  },
+  {
+    "id": "bug-report-optional-context-budget",
+    "summary": "Individually bounded diagnostics could collectively exceed the reporting HTTP limit and reject the basic report. Enforce a total UTF-8 diagnostic budget and mark excess context unavailable.",
+    "regressionTest": "pkgs/bug-report/tests/diagnostic-budget.test.ts"
   }
 ]

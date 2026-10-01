@@ -46,6 +46,10 @@ rule once: link to a doc rather than restating it.
 
 ## Debugging
 
+Local bug reports are stored under `.bugs/`. Before investigating reported
+defects, inspect that directory for open reports (`bun bug --list`). Reporting
+architecture and recovery: [`docs/BUG_REPORTING.md`](docs/BUG_REPORTING.md).
+
 Run `bun obs` before adding logs or rerunning a failure: `bun obs last` when
 it just happened, `bun obs find <any id>` otherwise. Workflow, sources and
 credentials: [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md).

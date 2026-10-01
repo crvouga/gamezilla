@@ -71,7 +71,8 @@
     "synthetic:prd": "SECRETS_ENV=prd bun run synthetic",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
     "wipe": "git clean -xfd",
-    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts"
+    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts",
+    "bug": "bun run pkgs/bug-report/scripts/report.ts"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",

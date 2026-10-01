@@ -53,8 +53,10 @@
         "@libs/secrets": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/bug-report": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/git": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/observability": "workspace:*",
@@ -115,6 +117,7 @@
         "@pkgs/billing-paddle": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
+        "@pkgs/bug-report": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
@@ -211,6 +214,7 @@
         "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
+        "@pkgs/bug-report": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
@@ -1391,6 +1395,29 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "pkgs/bug-report": {
+      "name": "@pkgs/bug-report",
+      "version": "0.0.0",
+      "dependencies": {
+        "@opentelemetry/api": "catalog:",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/harness": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/object-store": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
+        "@pkgs/harness": "workspace:*",
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
       },
     },
     "pkgs/bun-test-solid": {
@@ -4045,6 +4072,8 @@
     "@pkgs/billing-stripe": ["@pkgs/billing-stripe@workspace:pkgs/billing-stripe"],
 
     "@pkgs/browser": ["@pkgs/browser@workspace:pkgs/browser"],
+
+    "@pkgs/bug-report": ["@pkgs/bug-report@workspace:pkgs/bug-report"],
 
     "@pkgs/bun-test-solid": ["@pkgs/bun-test-solid@workspace:pkgs/bun-test-solid"],
 

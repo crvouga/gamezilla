@@ -37,7 +37,9 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/bug-report": "workspace:*",
+    "@pkgs/http-client": "workspace:*"
   },
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",
