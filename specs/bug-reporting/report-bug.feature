@@ -58,3 +58,12 @@ Feature: Report trouble even when the app is unusable
       Given the team has kept a local bug report titled "Chess board freezes"
       When the team's app closes
       Then the team can read the local bug report
+
+  Rule: A bug report that cannot be sent remains available to keep
+    No counter-example: connection trouble never prevents keeping the title and description.
+
+    Scenario: Unreachable reporting lets the team keep the bug report for later
+      Given the team cannot send a bug report
+      When the team submits a bug report titled "Board froze" saying "Stopped after a move"
+      Then the team can copy the bug report to keep for later
+      And the bug report has not been saved locally
