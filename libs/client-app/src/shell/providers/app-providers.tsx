@@ -6,6 +6,7 @@
  * Split so `ProductApp` can paint `AppFrame` + `BootPaintGate` **outside**
  * the SQLite boot gate: shell chrome and first paint must not wait on WASM.
  *
+ * `AppThemeProvider` stays above root crash recovery in `ProductApp`.
  * - {@link AppProvidersOuter}: shell → infrastructure → auth → services →
  *   overlay/surface portals (so `AppFrame` chrome can open menus before SQLite)
  * - {@link AppProvidersSession}: local database
@@ -18,12 +19,14 @@
  */
 
 import type { JSX } from 'solid-js';
+import { useClientEnv } from '../client-env-context';
 import { EmbeddedAppProvider } from '../embedded-app-context';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
+import { AppThemeProvider } from './app-theme-provider';
 import { AppUiPortals } from './app-ui-portals';
 
 export function AppProvidersOuter(props: {
@@ -56,9 +59,12 @@ export function AppProviders(props: {
   readonly children: JSX.Element;
   readonly embedded?: boolean | undefined;
 }): JSX.Element {
+  const env = useClientEnv();
   return (
-    <AppProvidersOuter embedded={props.embedded}>
-      <AppProvidersSession>{props.children}</AppProvidersSession>
-    </AppProvidersOuter>
+    <AppThemeProvider kv={env.kv}>
+      <AppProvidersOuter embedded={props.embedded}>
+        <AppProvidersSession>{props.children}</AppProvidersSession>
+      </AppProvidersOuter>
+    </AppThemeProvider>
   );
 }

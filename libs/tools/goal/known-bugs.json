@@ -523,5 +523,15 @@
     "id": "feedback-command-eager-expansion",
     "summary": "Typing a complete slash command expanded it before acceptance, with no keyboard suggestions.",
     "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "crash-screen-hardcoded-theme",
+    "summary": "The root crash screen discarded the selected theme and rendered hardcoded red colors. Keep the minimal theme root mounted above recovery and render themed, responsive recovery controls with expandable diagnostics.",
+    "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  },
+  {
+    "id": "crash-copy-rejection",
+    "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
+    "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
   }
 ]
