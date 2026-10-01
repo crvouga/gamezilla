@@ -31,3 +31,22 @@ Feature: Earlier saves preserve later edits
       When Alice's app hears back about its last save
       Then Alice sees the note "Groceries" saying "eggs"
       And Bob sees the note "Groceries" saying "eggs"
+
+  Rule: Signing back in preserves shared writing and forgets unsent writing from the ended sign-in
+    No counter-example: ending a sign-in must not send unsent writing on the person's next sign-in.
+
+    Scenario: Signing back in keeps another person's later writing
+      Given Alice is waiting to hear back about the note "Groceries" saying "milk"
+      And Bob has written the note "Groceries" saying "eggs"
+      And Alice's app has been signed out elsewhere
+      When Alice's app signs back in
+      Then Alice sees the note "Groceries" saying "eggs"
+      And Bob sees the note "Groceries" saying "eggs"
+
+    Scenario: Signing back in forgets writing that never reached anyone else
+      Given Alice's app is offline
+      And Alice has written the note "Groceries" saying "milk"
+      And Alice's app has been signed out elsewhere
+      When Alice's app signs back in
+      Then Alice does not see the note "Groceries"
+      And Bob does not see the note "Groceries"

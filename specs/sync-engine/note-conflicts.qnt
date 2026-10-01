@@ -29,6 +29,8 @@ module note_conflicts {
   var _duplicate: bool
   var _deleteBy: Person
   var _deleteAccepted: bool
+  var _forgotten: int
+  var _signedOut: bool
 
   pure def _allowed(note: Note, person: Person, edit: Edit): bool = match edit {
     | Delete => not(note.exists) or note.deleted or note.owner == person
@@ -67,6 +69,8 @@ module note_conflicts {
       _answered' = _answered + result.answered,
       _refusalCount' = _refusalCount + result.refused,
       _next' = nextId,
+      _forgotten' = _forgotten,
+      _signedOut' = false,
       _duplicate' = result.duplicate,
       _deleteBy' = person,
       _deleteAccepted' = (connected.get(person) and not(result.duplicate)
@@ -86,6 +90,8 @@ module note_conflicts {
     _answered' = 0,
     _refusalCount' = 0,
     _next' = 0,
+    _forgotten' = 0,
+    _signedOut' = false,
     _previous' = EMPTY,
     _duplicate' = false,
     _deleteBy' = "",
@@ -135,17 +141,41 @@ module note_conflicts {
     _settle(person, _pending.get(person), online.set(person, true), _unheard.exclude(Set(person)), _next),
   }
 
+  /// Signing out elsewhere forgets unsent writing and notices before the
+  /// person signs back in. Writing already kept remains in the shared notes.
+  action signedOutElsewhere(person: Person): bool = {
+    val connected = online.set(person, true)
+    val pending = _pending.set(person, _Nothing)
+    val snapshots = PEOPLE.mapBy(p => if (connected.get(p)) _shared else _snapshot.get(p))
+    val views = PEOPLE.mapBy(p =>
+      if (_allowed(snapshots.get(p), p, pending.get(p))) _apply(snapshots.get(p), p, pending.get(p))
+      else snapshots.get(p))
+    all {
+      _shared' = _shared, _previous' = _shared,
+      _snapshot' = snapshots, _pending' = pending,
+      _unheard' = _unheard.exclude(Set(person)),
+      _answered' = _answered, _next' = _next,
+      _forgotten' = _forgotten + (if (_pending.get(person) != _Nothing and not(_unheard.contains(person))) 1 else 0),
+      _refusalCount' = _refusalCount - rejections.get(person),
+      _duplicate' = false, _signedOut' = true,
+      _deleteBy' = person, _deleteAccepted' = false,
+      online' = connected, notes' = views.put("shared", _shared),
+      rejections' = rejections.set(person, 0),
+    }
+  }
+
   action step = {
     nondet person = PEOPLE.oneOf()
     nondet body = Set("milk", "eggs").oneOf()
     any {
       write(person, body), deleteNote(person), writeUnheard(person, body),
       hearBack(person), goOffline(person), goOnline(person),
+      signedOutElsewhere(person),
     }
   }
 
-  /// Every edit is either still waiting on its device or has been answered.
-  val invNoLostEdits = _answered + PEOPLE.filter(p =>
+  /// Every edit is waiting, answered, or deliberately forgotten on sign-out.
+  val invNoLostEdits = _answered + _forgotten + PEOPLE.filter(p =>
     _pending.get(p) != _Nothing and not(_unheard.contains(p))).size() == _next
 
   /// Repeating an answered edit preserves all later writing and deletion.
@@ -172,6 +202,9 @@ module note_conflicts {
   val invRefusalsCountOnce = _refusalCount <= _answered
     and PEOPLE.fold(0, (total, p) => total + rejections.get(p)) == _refusalCount
 
+  /// Signing back in never sends writing discarded when the sign-in ended.
+  val invSignedOutWritingStaysForgotten = _signedOut implies _shared == _previous
+
   pure def _validNote(note: Note): bool = note == EMPTY or
     (note.exists and PEOPLE.contains(note.owner) and Set("milk", "eggs").contains(note.body))
 
@@ -195,6 +228,8 @@ module note_conflicts {
     _refusalCount.in(Nat),
     _duplicate.in(Set(false, true)),
     _deleteAccepted.in(Set(false, true)),
+    _forgotten.in(Nat),
+    _signedOut.in(Set(false, true)),
     online.keys() == PEOPLE,
     rejections.keys() == PEOPLE,
     _snapshot.keys() == PEOPLE,
@@ -225,5 +260,6 @@ module note_conflicts {
     invLiveNotesHaveOwners,
     invConnectedEditsAnswered,
     invRefusalsCountOnce,
+    invSignedOutWritingStaysForgotten,
   }
 }

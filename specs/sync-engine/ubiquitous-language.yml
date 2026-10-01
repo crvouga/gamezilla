@@ -116,6 +116,15 @@ terms:
 
   # --- Devices, connection, crashes -------------------------------------------
 
+  - term: sign-in
+    definition: >-
+      The person's permission to use their notes on a device. Ending a
+      sign-in elsewhere forgets unsent writing on that device once it learns
+      the sign-in ended. Signing back in restores shared writing, including
+      later writing by someone else, without sending the forgotten writing.
+    forms: [signs back in, signed out elsewhere, signing back in, sign-out]
+    model: [signedOutElsewhere, invSignedOutWritingStaysForgotten]
+
   - term: crash
     definition: >-
       The app stops without warning. When it reopens it still has every note
