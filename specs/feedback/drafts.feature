@@ -36,3 +36,11 @@ Feature: Keep feedback drafts
       When the team sends the feedback
       Then the draft is titled "Board movement" saying "Keep the last move visible"
       And the team can copy the feedback to keep for later
+
+  Rule: Closing the app keeps reviewable recordings
+    No counter-example: a recording stays with its draft until the author discards it.
+
+    Scenario: Returning to the app restores a reproduction ready to review
+      Given the team has stopped a reproduction recording
+      When the team's app reopens after closing
+      Then the team can review the recording before sending feedback

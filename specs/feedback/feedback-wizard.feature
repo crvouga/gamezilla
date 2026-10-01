@@ -11,6 +11,11 @@ Feature: Keep the feedback wizard out of the way
       When the team opens feedback from the command palette
       Then the team has one feedback wizard
 
+    Scenario: Opening feedback again keeps the same wizard
+      Given the team has opened the feedback wizard
+      When the team opens feedback from the command palette
+      Then the team has one feedback wizard
+
   Rule: Feedback does not occupy the app until opened
     No counter-example: closing the wizard keeps feedback out of the way.
 
