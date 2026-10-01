@@ -5,7 +5,7 @@
  *
  * The heavy game-plugin registry is injected by the composition root as a
  * lazy loader (spaces cannot depend on the games that depend on it) and still
- * loads only under `/space/*` (see docs/LOW_END_ANDROID_PERF.md). Empty
+ * loads only under `/space/*` (see README.md). Empty
  * registries cover non-space routes.
  */
 import {

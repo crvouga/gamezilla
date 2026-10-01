@@ -1,6 +1,6 @@
 language js
 
-// Shared game/domain logic may not import networking or wall Io construction (docs/DETERMINISM.md).
+// Shared game/domain logic may not import networking or wall Io construction (README.md).
 // Matches every static import / export-from source, dynamic import() and
 // require() specifier. Ported from dependency-cruiser, which had silently
 // cruised 0 modules per package.
@@ -19,6 +19,6 @@ file($body) where {
   } where {
     $src <: r"^['\"](?:@pkgs/(?:http-client|pubsub|pubsub-emqx)(?:/[^'\"]*)?|[^'\"]*/wall-io|[^'\"]*/wall)['\"]$",
     not $src <: r".*@pkgs/pubsub/interface['\"]$",
-    register_diagnostic(span=$src, message="Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See docs/DETERMINISM.md.", severity="error")
+    register_diagnostic(span=$src, message="Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See README.md.", severity="error")
   }
 }

@@ -1,7 +1,7 @@
 /**
  * Repo naming convention — pure, no I/O.
  *
- * - Markdown docs: `SCREAMING_SNAKE_CASE.md` (`README.md`, `docs/TESTING.md`).
+ * - Markdown docs: `SCREAMING_SNAKE_CASE.md` (`README.md`).
  * - Every other file and every directory: `lower-kebab-case`, with a
  *   lowercase extension chain (`foo-bar.test.ts`, `icon@2x.png`).
  *

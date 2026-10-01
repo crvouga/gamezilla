@@ -37,7 +37,7 @@ suite lives in a package that may depend on every feature it composes. Two
 features read another's tables directly today — permissions reads
 `billing_subscriptions`; spaces and people search read friends' — so billing
 is in every composition and spaces' and search's flows run in friends. Each is a port waiting to
-be declared ([`docs/FEATURE_SUBSYSTEMS.md`](../../docs/FEATURE_SUBSYSTEMS.md)).
+be declared ([`README.md`](../../README.md#repository)).
 
 ```ts
 // libs/<feature>/tests/harness/open-<feature>-harness.ts
@@ -60,7 +60,7 @@ folds in production's order. Run one package's suite with
 | Host name | Factory | UI | SQL / HTTP |
 | --- | --- | --- | --- |
 | `in-process` (default) | `inProcessRuntime({ composition })` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-harness) | Seeded mockingbird-postgres + mockingbird-sqlite; in-process Hono `fetch`; caps include `partition` |
-| `bun-webview` | `bunWebviewRuntime({ composition })` — registered on every product system | `Bun.WebView` per actor | Seed SQL + model network by default; `HARNESS_MODE=real` uses real Postgres + S3rver/EMQX (booted by the app that registers `registerRealStackBooter` — `@apps/product`'s `test:max` preload) and no `partition` cap; `HARNESS_MODE=stack` attaches to a separately booted [localhost stack](../../apps/product/docs/LOCALHOST_STACK.md) |
+| `bun-webview` | `bunWebviewRuntime({ composition })` — registered on every product system | `Bun.WebView` per actor | Seed SQL + model network by default; `HARNESS_MODE=real` uses real Postgres + S3rver/EMQX (booted by the app that registers `registerRealStackBooter` — `@apps/product`'s `test:max` preload) and no `partition` cap; `HARNESS_MODE=stack` attaches to a separately booted [localhost stack](../../README.md#laptop) |
 
 Open a run with `openHarness(system, testId, options)` from
 `@libs/harness/open-harness/open-harness` — `system.run({ seed, runtime })` plus
@@ -180,7 +180,7 @@ commit, where `/reports/<sha>` streams it
 ([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
 testcases also become `test.failure` spans under
 `.cache/harness-report/traces/` for `bun obs test`
-([`docs/OBSERVABILITY.md`](../../docs/OBSERVABILITY.md)). Capture is owned by
+([`README.md`](../../README.md#correctness-machinery)). Capture is owned by
 the packages: `defineProductSystem` declares `defineSnapshot`s (`html` per
 actor, `topology`), `openHarness` wraps each actor's driver in
 `recordingDriver`, and `TestViewportProvider` sizes the 390×844 actor frame.

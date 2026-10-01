@@ -14,7 +14,7 @@
  * the header badge and the global menu read it, and they paint before SQLite.
  * Feature *session* providers mount inside `sync-engine-ready-tree.tsx`, so
  * mutation / avatar graphs stay off the initial entry chunk
- * (see docs/LOW_END_ANDROID_PERF.md).
+ * (see README.md).
  */
 
 import type { JSX } from 'solid-js';

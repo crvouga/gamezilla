@@ -17,7 +17,7 @@ import { spacesHarnessSlice } from '@libs/spaces/harness/spaces-harness-slice';
  * fills search's row slot), the inbox delivers the request, profile hosts the
  * friend count, and the list badges a friend's live space. Billing is in
  * because permissions reads its `billing_subscriptions` rows directly (see
- * docs/FEATURE_SUBSYSTEMS.md). No games: a chess change leaves this cached.
+ * README.md). No games: a chess change leaves this cached.
  *
  * The spaces specs (`space-*.test.tsx`) run here too: spaces' server SQL reads
  * friends' `friends_friendships` table directly (lobby visibility, join

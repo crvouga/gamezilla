@@ -325,7 +325,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
     ),
     clean(
       pkg,
-      'behavior tests are specs, and a package has one example app (docs/TESTING.md § 4)',
+      'behavior tests are specs, and a package has one example app (README.md)',
       behaviorTestViolations({ files: pkgFiles })
     ),
     clean(

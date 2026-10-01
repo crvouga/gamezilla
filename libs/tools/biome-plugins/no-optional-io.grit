@@ -2,9 +2,9 @@ language js
 
 or {
   `$name?: Io` as $ann where {
-    register_diagnostic(span=$ann, message="Do not use optional io?: Io — inject Io as a required dependency. See docs/DETERMINISM.md.", severity="error")
+    register_diagnostic(span=$ann, message="Do not use optional io?: Io — inject Io as a required dependency. See README.md.", severity="error")
   },
   `io = wallIo($args)` as $def where {
-    register_diagnostic(span=$def, message="Do not default io = wallIo(...) — inject Io explicitly. See docs/DETERMINISM.md.", severity="error")
+    register_diagnostic(span=$def, message="Do not default io = wallIo(...) — inject Io explicitly. See README.md.", severity="error")
   }
 }

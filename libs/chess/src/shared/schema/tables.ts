@@ -43,7 +43,7 @@ export const chessPuzzleProfiles = defineTable({
   columns: {
     owner_id: 'text',
     // §8 Glicko-2 state. Rating and deviation are rounded and volatility is
-    // held in micros so nothing float ever reaches the wire (DETERMINISM.md).
+    // held in micros so nothing float ever reaches the wire (README.md).
     rating: 'integer',
     rating_deviation: 'integer',
     volatility_micros: 'integer',

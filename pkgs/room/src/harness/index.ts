@@ -1,6 +1,6 @@
 /**
  * Harness-only entry of `@pkgs/room`: the one example app every test of the
- * room framework drives (docs/TESTING.md, "One example app per package").
+ * room framework drives (README.md).
  * `@pkgs/room-harness` runs it in rooms; `@pkgs/room`'s and the adapters'
  * own tests use its module directly, since they sit below the harness.
  */

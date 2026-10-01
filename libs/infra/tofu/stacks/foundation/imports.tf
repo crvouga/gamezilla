@@ -22,7 +22,7 @@ import {
 
 # Neon and Railway stay in those vendors. An ordinary apply must not delete
 # them: forget the addresses that were in this state. A person deletes the
-# old project and the old broker after this path is healthy (docs/INFRA.md).
+# old project and the old broker after this path is healthy (README.md).
 removed {
   from = module.database.neon_branch.this
   lifecycle {

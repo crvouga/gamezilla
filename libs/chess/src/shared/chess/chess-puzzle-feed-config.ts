@@ -289,7 +289,7 @@ export function chessPuzzleFeedConfigFingerprint(
 
 /**
  * The synced form of a feed config: JSON with a fixed key order, so the same
- * choices always encode to the same text on every device (DETERMINISM.md).
+ * choices always encode to the same text on every device (README.md).
  */
 export function encodeChessPuzzleFeedConfig(
   config: ChessPuzzleFeedConfig
