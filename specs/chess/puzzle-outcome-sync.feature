@@ -5,6 +5,7 @@ Feature: Puzzles finished offline count once
   connection is back, so it counts exactly once without their doing anything.
 
   Rule: Every rated attempt finished offline counts once on all the account's devices
+    No counter-example: a finished rated attempt is always kept.
 
     Scenario Outline: A puzzle finished offline by <finish> is logged as <outcome>, once
       Given Alice is signed in
@@ -23,11 +24,12 @@ Feature: Puzzles finished offline count once
         | skipping it                                     | abandoned | 0      | 0        |
 
   Rule: Closing the app as an attempt finishes preserves the first result
+    No counter-example: returning cannot refuse a decided result.
 
-    Scenario Outline: The result arrives as the app closes
+    Scenario Outline: Finishing by <finish> as the app closes keeps the result
       Given Alice is signed in
       And Alice is playing puzzles in their space
-      And Alice finishes the puzzle by <finish> as the app closes
+      And Alice has finished the puzzle by <finish> as the app closes
       When Alice returns to their space
       Then Alice's game log records that puzzle as <outcome>
       And Alice's stats show 1 played, <solved> solved, and <accuracy>% accuracy
@@ -39,3 +41,13 @@ Feature: Puzzles finished offline count once
         | playing a wrong move, retrying, then solving it  | failed    | 0      | 0        |
         | showing the solution                            | failed    | 0      | 0        |
         | skipping it                                     | abandoned | 0      | 0        |
+
+    Scenario: Returning offline keeps the result for the next connection
+      Given Alice is signed in
+      And Alice is playing puzzles in their space
+      And Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes
+      And Alice is offline
+      And Alice has returned to their space
+      When the connection comes back
+      Then Alice's game log records that puzzle as failed
+      And Alice's stats show 1 played, 0 solved, and 0% accuracy
