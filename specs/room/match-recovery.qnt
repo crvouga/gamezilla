@@ -91,6 +91,10 @@ module match_recovery {
   val invTimeNeverGrows = PLAYERS.forall(p =>
     timeLeft.get(p) >= 0 and timeLeft.get(p) <= 4 and
     (_previousStatus != "not started" implies timeLeft.get(p) <= _previousTime.get(p)))
+  /// Losing a connection cannot restart the disconnected player's clock.
+  val invDisconnectedClockNeverRestarts = PLAYERS.forall(p =>
+    (not(_online.get(p)) and _previousStatus != "not started") implies
+      timeLeft.get(p) <= _previousTime.get(p))
   /// The player whose time ran out loses to their opponent.
   val invExpiredPlayerLoses = matchStatus == "over" implies
     timeLeft.get(playerToMove) == 0 and winner == _opponent(playerToMove)
