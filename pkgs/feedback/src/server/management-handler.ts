@@ -11,6 +11,7 @@ type Options = {
   store: ObjectStore;
   clock: Clock;
   allowedOrigin: string;
+  basePath: string;
 };
 type RequestContext = {
   request: Request;
@@ -35,7 +36,11 @@ export function createFeedbackManagementHandler(options: Options) {
     if (request.method === 'OPTIONS')
       return new Response(null, { status: 204, headers });
     const author = request.headers.get('X-Feedback-Author') ?? '';
-    const id = new URL(request.url).pathname.split('/').at(4);
+    const pathname = new URL(request.url).pathname;
+    const itemPath = `${options.basePath}/items/`;
+    const id = pathname.startsWith(itemPath)
+      ? pathname.slice(itemPath.length)
+      : undefined;
     if (
       !/^[a-zA-Z0-9-]{1,100}$/.test(author) ||
       (id && !/^[a-zA-Z0-9-]{1,100}$/.test(id))

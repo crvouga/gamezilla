@@ -1,8 +1,8 @@
 import type { Session } from '@pkgs/harness';
 import { readBytes } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { HttpIssueReporter } from '../client/http-issue-reporter';
 import { startFeedbackRuntime } from '../client/feedback-runtime';
+import { HttpIssueReporter } from '../client/http-issue-reporter';
 import { mountFeedback } from '../client/mount-feedback';
 import { requestFeedback } from '../client/open-feedback';
 import type { FeedbackWorkspaceSnapshot } from '../shared/workspace';
@@ -104,9 +104,7 @@ export function createExampleApp(session: Session) {
     application?.remove();
     application = null;
   }
-  function bootApplication(
-    condition: ApplicationCondition = 'working'
-  ): void {
+  function bootApplication(condition: ApplicationCondition = 'working'): void {
     close();
     deliveryFails = condition === 'delivery-fails';
     host = document.createElement('aside');

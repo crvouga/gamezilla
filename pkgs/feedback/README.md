@@ -1,10 +1,26 @@
 # Feedback
 
-Behavior is defined in [feedback specs](../../specs/feedback/). The browser
-installs the independent reporting root before importing product modules.
-Routing, sign-in, sync, database boot and account state are not dependencies.
-The command-palette descriptor, keyboard shortcut and unlisted `/feedback`
-entry all signal the same root. There is no persistent launcher.
+Behavior is defined in [feedback specs](../../specs/feedback/). This package is
+a self-contained feedback capability: its shared model, browser client, HTTP
+application, storage adapters and harness depend only on reusable `@pkgs/*`
+ports. It does not know the host application's routes, accounts, database,
+domain model or lifecycle. The ready-made browser adapter installs feedback
+before starting an application; lower-level consumers can compose the same
+controller and HTTP application directly.
+
+## Public boundaries
+
+- `@pkgs/feedback/shared` is the canonical report schema and domain ports.
+- `@pkgs/feedback/client` is the port-driven controller and browser UI.
+- `@pkgs/feedback/server` is the HTTP application and repository adapters.
+- `@pkgs/feedback/browser` is an optional browser composition adapter.
+- `@pkgs/feedback/context` is the narrow diagnostics-registration surface.
+- `@pkgs/feedback/vite` and `@pkgs/feedback/harness` are development surfaces.
+
+The browser adapter accepts the API endpoint, application starter, optional
+standalone path, optional application-error event and storage namespace. The
+HTTP application accepts an optional base path. These namespaces allow several
+hosts or embedded contexts to coexist without route or storage collisions.
 
 ## Ports
 
@@ -15,11 +31,11 @@ same controller and HTTP data port in every environment.
 
 `FeedbackWorkspacePort` is a synchronous journal for documents, the active
 selection, wizard stage, management filters, position and uncertain submissions.
-The browser adapter uses local storage and imports older text drafts before
-retiring their old key. Binary evidence goes through an injected `ObjectStore`;
-the browser composition uses the Cache API adapter. Writing and stopped
-recordings remain journalled independently of UI mounting. Storage errors are
-visible and never cause the journal to be cleared.
+The browser adapter uses namespaced local storage and imports older text drafts
+before retiring their old key. Binary evidence goes through an injected
+`ObjectStore`; the browser composition uses the same namespace for its Cache API
+adapter. Writing and stopped recordings remain journalled independently of UI
+mounting. Storage errors are visible and never cause the journal to be cleared.
 
 Authorship is a persisted, unlisted device scope, independent of app accounts.
 It filters management operations; it is not an authentication system. Sharing a
@@ -27,7 +43,7 @@ report's unlisted bundle address shares its evidence.
 
 ## Destinations
 
-Local Vite middleware mounts `/api/feedback` before product middleware and uses
+Local Vite middleware mounts `/api/feedback` before host middleware and uses
 an ObjectStore rooted in the worktree's `.feedback/`. Tests substitute in-process
 adapters. The hosted Worker requires the existing object-store credentials and
 `FEEDBACK_GITHUB_TOKEN` / `FEEDBACK_GITHUB_REPOSITORY`. It archives the report,

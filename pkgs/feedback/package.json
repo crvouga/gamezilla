@@ -8,7 +8,7 @@
     "./client": "./src/client/index.ts",
     "./harness": "./src/harness/index.ts",
     "./vite": "./scripts/vite.ts",
-    "./browser": "./src/client/browser.ts",
+    "./browser": "./src/client/wall.ts",
     "./context": "./src/client/context.ts"
   },
   "scripts": {

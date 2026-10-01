@@ -26,7 +26,9 @@ export function mountFeedback(
     target: options.window,
     diagnostics: options.diagnostics,
     openFeedback: () => controller.open(),
-    applicationErrorEvent: options.applicationErrorEvent,
+    ...(options.applicationErrorEvent
+      ? { applicationErrorEvent: options.applicationErrorEvent }
+      : {}),
   });
   const removeInteractions = installInteractionRecording({
     document: options.document,

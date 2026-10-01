@@ -6,9 +6,9 @@ import { createBrowserWorkspace } from './browser-workspace';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
+import { startFeedbackRuntime } from './feedback-runtime';
 import { HttpIssueReporter } from './http-issue-reporter';
 import { mountFeedback } from './mount-feedback';
-import { startFeedbackRuntime } from './feedback-runtime';
 import { createEvidenceUploader } from './upload-evidence';
 import { browserRecordingPort } from './wall-video';
 
@@ -19,17 +19,20 @@ export function bootBrowserFeedback(options: {
   readonly startApplication: () => Promise<unknown>;
   readonly standalonePath?: string;
   readonly applicationErrorEvent?: string;
+  readonly storageNamespace?: string;
 }) {
   const http = { fetch: globalThis.fetch.bind(globalThis) };
+  const storageNamespace = options.storageNamespace ?? 'feedback';
   const host = document.createElement('aside');
   host.setAttribute('data-component', 'FeedbackHost');
   document.body.append(host);
-  const persistence = createBrowserWorkspace(
-    () => localStorage,
-    () => crypto.randomUUID()
-  );
+  const persistence = createBrowserWorkspace({
+    storage: () => localStorage,
+    createId: () => crypto.randomUUID(),
+    namespace: storageNamespace,
+  });
   const evidence = createCacheApiObjectStore({
-    baseDir: 'feedback-evidence',
+    baseDir: `${storageNamespace}-evidence`,
     caches: globalThis.caches,
   });
   const standalonePath = options.standalonePath ?? '/feedback';
@@ -40,7 +43,9 @@ export function bootBrowserFeedback(options: {
         document,
         host,
         diagnostics,
-        applicationErrorEvent: options.applicationErrorEvent,
+        ...(options.applicationErrorEvent
+          ? { applicationErrorEvent: options.applicationErrorEvent }
+          : {}),
         clock: wallClock,
         timers: wallTimers,
         createId: () => crypto.randomUUID(),

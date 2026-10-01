@@ -4,13 +4,13 @@ export {
   FeedbackController,
   type FeedbackControllerOptions,
 } from './controller';
+export { createFeedbackDiagnostics } from './diagnostics-buffer';
 export { feedbackEndpoint } from './endpoint';
 export { feedbackCommand } from './feedback-command';
+export { startFeedbackRuntime } from './feedback-runtime';
 export { HttpIssueReporter } from './http-issue-reporter';
 export { feedbackInteraction } from './interaction-recording';
 export { feedbackMarkdownBlocks, safeMarkdownHref } from './markdown-blocks';
-export { createFeedbackDiagnostics } from './diagnostics-buffer';
-export { startFeedbackRuntime } from './feedback-runtime';
 export { mountFeedback } from './mount-feedback';
 export { FEEDBACK_OPEN_EVENT, requestFeedback } from './open-feedback';
 export { createReproductionRecorder } from './recording';

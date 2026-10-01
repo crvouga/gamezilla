@@ -2,12 +2,44 @@ import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock';
 import { HttpIssueReporter } from '@pkgs/feedback/client';
 import {
+  createFeedbackHttpApp,
   createFeedbackReportHandler,
   FakeIssueReporter,
   GitHubIssueReporter,
 } from '@pkgs/feedback/server';
 import { createFeedbackReporting } from '@pkgs/feedback/shared';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { assertProperty, fc } from '@pkgs/property';
+
+test('the HTTP app mounts beneath a host-selected base path', async () => {
+  const store = new ObjectStoreImplInMemory();
+  const server = createFeedbackHttpApp({
+    clock: { now: () => 0 },
+    store,
+    reporter: new FakeIssueReporter(),
+    allowedOrigin: 'http://local',
+    basePath: '/support/feedback',
+  });
+
+  expect((await server(new Request('http://local/api/feedback'))).status).toBe(
+    404
+  );
+  const headers = { 'X-Feedback-Author': 'another-app' };
+  expect(
+    (
+      await server(
+        new Request('http://local/support/feedback/items', { headers })
+      )
+    ).status
+  ).toBe(200);
+  expect(
+    await (
+      await server(
+        new Request('http://local/support/feedback/items/missing', { headers })
+      )
+    ).json()
+  ).toBeNull();
+});
 
 const text = fc
   .string({ minLength: 1, maxLength: 100 })

@@ -6,8 +6,8 @@ import {
   virtualTimeRuntime,
 } from '@pkgs/harness';
 import {
-  createExampleApp,
   type ApplicationCondition,
+  createExampleApp,
   type DiagnosticsCondition,
 } from './example-app';
 

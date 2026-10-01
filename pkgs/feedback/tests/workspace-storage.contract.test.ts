@@ -43,10 +43,10 @@ test('the browser journal imports the complete old draft before retiring its ori
           reproductionSteps,
         });
         port.setItem('root-feedback-draft', original);
-        const adapter = createBrowserWorkspace(
-          () => port,
-          () => 'draft-id'
-        );
+        const adapter = createBrowserWorkspace({
+          storage: () => port,
+          createId: () => 'draft-id',
+        });
         const snapshot = adapter.workspace.load();
         expect(snapshot?.documents[0]?.body).toContain(body);
         expect(snapshot?.documents[0]?.body).toContain(expected);
@@ -56,14 +56,33 @@ test('the browser journal imports the complete old draft before retiring its ori
         expect(port.getItem('root-feedback-draft')).toBeNull();
         expect(adapter.workspace.load()).toEqual(snapshot);
         expect(
-          createBrowserWorkspace(
-            () => port,
-            () => 'another-id'
-          ).authorId
+          createBrowserWorkspace({
+            storage: () => port,
+            createId: () => 'another-id',
+          }).authorId
         ).toBe(adapter.authorId);
       }
     )
   );
+});
+
+test('browser journals are isolated by host namespace', () => {
+  const port = storage();
+  const first = createBrowserWorkspace({
+    storage: () => port,
+    createId: () => 'first-author',
+    namespace: 'first-app',
+  });
+  const second = createBrowserWorkspace({
+    storage: () => port,
+    createId: () => 'second-author',
+    namespace: 'second-app',
+  });
+
+  expect(first.authorId).toBe('first-author');
+  expect(second.authorId).toBe('second-author');
+  expect(port.getItem('first-app-author')).toBe('first-author');
+  expect(port.getItem('second-app-author')).toBe('second-author');
 });
 
 function fixture(evidence = new ObjectStoreImplInMemory()) {

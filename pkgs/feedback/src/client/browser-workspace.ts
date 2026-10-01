@@ -7,35 +7,49 @@ import type {
 } from '../shared/workspace';
 
 /** Platform journal adapter; the controller never reads browser storage. */
-export function createBrowserWorkspace(
-  storage: () => Storage,
-  createId: CreateId
-) {
-  let authorId = createId();
+export function createBrowserWorkspace(options: {
+  readonly storage: () => Storage;
+  readonly createId: CreateId;
+  readonly namespace?: string;
+}) {
+  const namespace = storageNamespace(options.namespace ?? 'feedback');
+  const authorKey = `${namespace}-author`;
+  const workspaceKey = `${namespace}-workspace`;
+  let authorId = options.createId();
   try {
-    authorId = storage().getItem('feedback-author') ?? authorId;
-    storage().setItem('feedback-author', authorId);
+    authorId = options.storage().getItem(authorKey) ?? authorId;
+    options.storage().setItem(authorKey, authorId);
   } catch {
     /* The workspace surfaces storage failure without blocking the app. */
   }
   const workspace: FeedbackWorkspacePort = {
     load() {
-      const saved = storage().getItem('feedback-workspace');
+      const saved = options.storage().getItem(workspaceKey);
       if (saved) return readWorkspace(JSON.parse(saved));
-      const legacy = storage().getItem('root-feedback-draft');
+      const legacy =
+        namespace === 'feedback'
+          ? options.storage().getItem('root-feedback-draft')
+          : null;
       return legacy
         ? importLegacyDraft(
             JSON.parse(legacy) as Parameters<typeof importLegacyDraft>[0],
-            createId
+            options.createId
           )
         : null;
     },
     save(snapshot) {
-      storage().setItem('feedback-workspace', JSON.stringify(snapshot));
-      storage().removeItem('root-feedback-draft');
+      options.storage().setItem(workspaceKey, JSON.stringify(snapshot));
+      if (namespace === 'feedback')
+        options.storage().removeItem('root-feedback-draft');
     },
   };
   return { authorId, workspace };
+}
+
+function storageNamespace(value: string): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$/.test(value))
+    throw new Error('Invalid feedback storage namespace');
+  return value;
 }
 function importLegacyDraft(
   value: {

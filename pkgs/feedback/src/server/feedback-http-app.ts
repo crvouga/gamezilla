@@ -13,8 +13,10 @@ export function createFeedbackHttpApp(options: {
   store: ObjectStore;
   clock: Clock;
   allowedOrigin: string;
+  basePath?: string;
 }) {
-  const management = createFeedbackManagementHandler(options);
+  const basePath = feedbackBasePath(options.basePath ?? FEEDBACK_PATH);
+  const management = createFeedbackManagementHandler({ ...options, basePath });
   const evidence = createEvidenceHandler(options);
   const report = createFeedbackReportHandler({
     ...options,
@@ -29,14 +31,14 @@ export function createFeedbackHttpApp(options: {
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
     if (
-      url.pathname === `${FEEDBACK_PATH}/items` ||
-      url.pathname.startsWith(`${FEEDBACK_PATH}/items/`)
+      url.pathname === `${basePath}/items` ||
+      url.pathname.startsWith(`${basePath}/items/`)
     )
       return management(request);
-    if (url.pathname.startsWith(`${FEEDBACK_PATH}/evidence/`))
+    if (url.pathname.startsWith(`${basePath}/evidence/`))
       return evidence(request);
     if (
-      url.pathname.startsWith(`${FEEDBACK_PATH}/reports/`) &&
+      url.pathname.startsWith(`${basePath}/reports/`) &&
       request.method === 'GET'
     ) {
       const id = url.pathname.split('/').at(-1) ?? '';
@@ -57,8 +59,15 @@ export function createFeedbackHttpApp(options: {
           )
         : new Response('Report unavailable', { status: 404 });
     }
-    if (url.pathname !== FEEDBACK_PATH)
+    if (url.pathname !== basePath)
       return new Response('Not found', { status: 404 });
     return report(request);
   };
+}
+
+function feedbackBasePath(value: string): string {
+  const path = value.length > 1 ? value.replace(/\/$/, '') : value;
+  if (!/^\/[a-zA-Z0-9/_-]*[a-zA-Z0-9_-]$/.test(path))
+    throw new Error('Invalid feedback base path');
+  return path;
 }

@@ -9,4 +9,4 @@ export {
   FEEDBACK_PATH,
   MAX_REPORT_BYTES,
 } from './http-handler';
-export { reportMarkdown } from './report-files';
+export { agentHandoff, reportMarkdown } from './report-files';
