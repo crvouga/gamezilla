@@ -7,7 +7,9 @@ import { apiRequestAsyncLocalStorage } from '../request-scope';
 export async function notifyClientConfigChannels(label: string): Promise<void> {
   const store = apiRequestAsyncLocalStorage.getStore();
   if (store === undefined) return;
-  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore).get();
+  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore, () =>
+    store.clock.now()
+  ).get();
   if (pubsub === undefined) return;
   await notifyChannels({
     pubsub,

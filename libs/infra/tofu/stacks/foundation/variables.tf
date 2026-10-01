@@ -24,12 +24,19 @@ variable "infisical" {
   })
 }
 
-variable "neon_project" {
+variable "planetscale" {
   type = object({
-    project_id     = string
-    root_branch_id = string
+    organization = string
+    region       = string
   })
-  description = "The one Neon project every environment is a branch of, and its root branch (production's)."
+  description = "PlanetScale organization slug and the Neki region every environment's database lives in."
+}
+
+variable "aws" {
+  type = object({
+    region = string
+  })
+  description = "AWS region for IoT Core. One region: growth does not add regions to operate."
 }
 
 variable "github" {
@@ -41,19 +48,25 @@ variable "auth_relay" {
   description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
 }
 
-variable "railway" {
-  type = object({
-    workspace_id = string
-    project_id   = string
-    service_id   = string
-  })
-  description = "The one broker project and its shared `emqx` service (owned by the fleet stack); each environment is a Railway environment of it."
+variable "aws_access_key_id" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "AWS access key for this provider (TF_VAR_aws_access_key_id). GitHub OIDC session or a local AWS login. Not the R2 state key."
 }
 
-variable "railway_token" {
+variable "aws_secret_access_key" {
   type        = string
+  default     = ""
   sensitive   = true
-  description = "Railway API token (TF_VAR_railway_token from RAILWAY_TOKEN): the pubsub module reads the project's environment ids with it."
+  description = "AWS secret key paired with aws_access_key_id. Not the R2 state key."
+}
+
+variable "aws_session_token" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "AWS session token when aws_access_key_id is a temporary OIDC or SSO credential. Empty for long-lived keys."
 }
 
 variable "reports" {
@@ -134,14 +147,9 @@ variable "secrets" {
 variable "imports" {
   type = object({
     foundation = optional(object({
-      r2_bucket           = optional(string)
-      railway_environment = optional(string)
-      railway_domain      = optional(string)
-      broker_dns          = optional(string)
-      broker_dns_verify   = optional(string)
-      neon_branch         = optional(string)
-      neon_endpoint       = optional(string)
-      secrets             = optional(list(string), [])
+      r2_bucket  = optional(string)
+      broker_dns = optional(string)
+      secrets    = optional(list(string), [])
     }), {})
     edge = optional(any)
   })

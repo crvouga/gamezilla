@@ -8,14 +8,14 @@ terraform {
   required_version = "~> 1.12"
 
   required_providers {
-    cloudflare = { source = "cloudflare/cloudflare", version = "~> 5.25" }
-    railway    = { source = "terraform-community-providers/railway", version = "~> 0.6" }
-    grafana    = { source = "grafana/grafana", version = "~> 4.46" }
-    neon       = { source = "kislerdm/neon", version = "~> 0.18" }
-    infisical  = { source = "infisical/infisical", version = "~> 0.19" }
-    random     = { source = "hashicorp/random", version = "~> 3.9" }
-    http       = { source = "hashicorp/http", version = "~> 3.5" }
-    postgresql = { source = "cyrilgdn/postgresql", version = "~> 1.25" }
+    cloudflare  = { source = "cloudflare/cloudflare", version = "~> 5.25" }
+    grafana     = { source = "grafana/grafana", version = "~> 4.46" }
+    planetscale = { source = "planetscale/planetscale", version = "~> 1.11" }
+    aws         = { source = "hashicorp/aws", version = "~> 5.100" }
+    archive     = { source = "hashicorp/archive", version = "~> 2.7" }
+    infisical   = { source = "infisical/infisical", version = "~> 0.19" }
+    random      = { source = "hashicorp/random", version = "~> 3.9" }
+    postgresql  = { source = "cyrilgdn/postgresql", version = "~> 1.25" }
   }
 
   backend "s3" {
@@ -53,15 +53,23 @@ terraform {
 }
 
 # Credentials arrive as environment variables injected by `secrets-run`:
-# CLOUDFLARE_API_TOKEN, RAILWAY_TOKEN, NEON_API_KEY,
-# GRAFANA_CLOUD_ACCESS_POLICY_TOKEN (see scripts/tofu.ts).
+# CLOUDFLARE_API_TOKEN, PLANETSCALE_SERVICE_TOKEN_ID, PLANETSCALE_SERVICE_TOKEN,
+# GRAFANA_CLOUD_ACCESS_POLICY_TOKEN. The AWS provider does not read
+# AWS_ACCESS_KEY_ID: that name is the R2 state credential in this process
+# (see scripts/tofu.ts). GitHub Actions assumes AWS_ROLE_ARN; the wrapper
+# passes that session as TF_VAR_aws_*. A laptop uses the AWS CLI the same way.
 provider "cloudflare" {}
-
-provider "railway" {}
 
 provider "grafana" {}
 
-provider "neon" {}
+provider "planetscale" {}
+
+provider "aws" {
+  region     = var.aws.region
+  access_key = var.aws_access_key_id
+  secret_key = var.aws_secret_access_key
+  token      = var.aws_session_token
+}
 
 provider "infisical" {
   auth = {
@@ -79,7 +87,7 @@ provider "postgresql" {
   database        = module.database.connection.database
   username        = module.database.connection.user
   password        = module.database.connection.password
-  sslmode         = "require"
+  sslmode         = "verify-full"
   superuser       = false
   connect_timeout = 15
 }

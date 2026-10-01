@@ -4,13 +4,15 @@
  * pure lets tests pin exactly what reaches `tofu`.
  *
  *   bootstrap   global, by a person: state bucket, shared secrets
- *               environment, CI identity, repo
+ *               environment, CI identity, the AWS OIDC role, repo
  *   fleet       global, by CI: every env file's secrets environment and its
  *               import of the shared one; the OAuth relay's hostname;
- *               the Railway project and broker service every env shares
+ *               the private spec-report bucket every env's API reads
  *   foundation  per environment, before Worker code ships
  *   edge        per environment, after Worker code ships
  */
+
+import { type AwsSession, accountKeySession } from './aws-session';
 
 export type Stack = 'bootstrap' | 'fleet' | 'foundation' | 'edge';
 
@@ -182,15 +184,13 @@ export const CREDENTIAL_ENV: Readonly<
   edge: EDGE,
   foundation: {
     ...EDGE,
-    RAILWAY_TOKEN: 'RAILWAY_TOKEN',
-    TF_VAR_railway_token: 'RAILWAY_TOKEN',
-    NEON_API_KEY: 'NEON_API_KEY',
+    PLANETSCALE_SERVICE_TOKEN_ID: 'PLANETSCALE_SERVICE_TOKEN_ID',
+    PLANETSCALE_SERVICE_TOKEN: 'PLANETSCALE_SERVICE_TOKEN',
     GRAFANA_CLOUD_ACCESS_POLICY_TOKEN: 'GRAFANA_CLOUD_API_TOKEN',
   },
   fleet: {
     TF_VAR_state_passphrase: 'TOFU_STATE_PASSPHRASE',
     CLOUDFLARE_API_TOKEN: 'CLOUDFLARE_API_TOKEN',
-    RAILWAY_TOKEN: 'RAILWAY_TOKEN',
     ...STATE_CREDENTIALS,
   },
   // The state credential is optional here: bootstrap creates it.
@@ -224,7 +224,8 @@ function copyCredentials(
 export function tofuEnvironment(
   secrets: Readonly<Record<string, string | undefined>>,
   paths: TofuPaths,
-  target: Target
+  target: Target,
+  aws: AwsSession | null = null
 ): TofuEnvResult {
   const env: Record<string, string> = {
     TF_IN_AUTOMATION: '1',
@@ -235,7 +236,43 @@ export function tofuEnvironment(
   const missing = copyCredentials(secrets, CREDENTIAL_ENV[target.stack], env);
   if (target.stack === 'bootstrap')
     copyCredentials(secrets, STATE_CREDENTIALS, env);
+  if (target.stack === 'foundation' || target.stack === 'bootstrap')
+    writeAwsProvider(secrets, env, missing, aws);
   return { env, missing };
+}
+
+/**
+ * The child process's `AWS_ACCESS_KEY_ID` is the R2 state key. A session
+ * from GitHub OIDC or the local AWS CLI wins; otherwise long-lived account
+ * keys, including the `AWS_ACCESS_KEY_ID` name already in the secret store.
+ */
+function writeAwsProvider(
+  secrets: Readonly<Record<string, string | undefined>>,
+  env: Record<string, string>,
+  missing: string[],
+  aws: AwsSession | null
+): void {
+  const credentials = aws ?? accountKeySession(secrets);
+  if (credentials === null) {
+    missing.push('AWS_ROLE_ARN');
+    return;
+  }
+  env['TF_VAR_aws_access_key_id'] = credentials.accessKeyId;
+  env['TF_VAR_aws_secret_access_key'] = credentials.secretAccessKey;
+  if (credentials.sessionToken.length > 0)
+    env['TF_VAR_aws_session_token'] = credentials.sessionToken;
+}
+
+export function missingSecretsMessage(
+  stack: Stack,
+  missing: readonly string[]
+): string {
+  const hint = missing.some((name) => name.startsWith('TOFU_STATE_ACCESS'))
+    ? 'run `bun run infra:bootstrap` first'
+    : missing.includes('AWS_ROLE_ARN')
+      ? 'set AWS_ROLE_ARN (GitHub OIDC, written by infra:bootstrap) or log in with the AWS CLI'
+      : 'bun run secrets:seed';
+  return `missing secrets for the ${stack} stack: ${missing.join(', ')} (${hint})`;
 }
 
 /** Bootstrap has run once the state credential exists in the store. */

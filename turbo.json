@@ -19,7 +19,13 @@
     "PADDLE_*",
     "STRIPE_*",
     "CLOUDFLARE_*",
-    "RAILWAY_*",
+    "PLANETSCALE_*",
+    "AWS_ACCOUNT_*",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_SESSION_TOKEN",
+    "AWS_ROLE_ARN",
+    "IOT_*",
     "S3_*",
     "REPORTS_*",
     "ELEVEN_LABS_*",
@@ -38,7 +44,7 @@
     "OBS_*",
     "TURBO_*",
     "TOFU_*",
-    "NEON_*",
+
     "SYNTHETIC_MONITOR_TOKEN",
     "TMPDIR"
   ],

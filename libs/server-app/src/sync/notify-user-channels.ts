@@ -25,7 +25,9 @@ export async function notifyUserChannels(
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return;
-  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore).get();
+  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore, () =>
+    store.clock.now()
+  ).get();
   if (pubsub === undefined) return;
   const tables = options.tables;
   const deferPublish = options.deferPublish !== false;

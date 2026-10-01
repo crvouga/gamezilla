@@ -4,7 +4,8 @@
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./scripts/**/*.ts",
-    "./tests/**/*.ts"
+    "./tests/**/*.ts",
+    "./tofu/**/*.mts"
   ],
   "exclude": ["node_modules"]
 }

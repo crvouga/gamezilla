@@ -34,9 +34,9 @@ import { verify } from '@pkgs/quint/verify';
 import { REPO_ROOT, type SpecPackage, specPackages } from './spec-packages';
 
 /**
- * One check at a time. Each is a JVM with an SMT solver, and the Check
- * runner has two cores; two at once miss the timeout on the larger models
- * while they are still searching the last step.
+ * One model at a time. Each check is a JVM plus an SMT solver, and the
+ * Check runner has two cores. Friendship and space hosting both ran out
+ * the 240s bound at step 4 when they solved together.
  */
 const CONCURRENCY = 1;
 /** A check is killed after this long (the binding lowers the bound instead). */

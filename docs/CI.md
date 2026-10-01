@@ -1,14 +1,16 @@
 # CI and the gate
 
-Two commands: `bun check` checks the **code** (every task cached; verifies,
-never mutates); `bun health` checks the **live deployments** (`dev`;
-`bun health:prd` for production). What a test is lives in
-[`TESTING.md`](TESTING.md).
+Three commands dispatch the three workflows and block on the run:
+`bun check` (is the code good?), `bun health` (is the deployment good?),
+and `bun deploy` (ship `main`). What a test is lives in
+[`TESTING.md`](TESTING.md). The same work on this machine is
+`bun check:local`, `bun health:local` (`bun health:prd` for production),
+and `bun deploy:local` (`bun deploy:dev` / `bun deploy:prd`).
 
 ## `bun check`
 
 **`bun check` runs in the cloud.** It is
-[`check-remote.ts`](../libs/tools/scripts/check-remote.ts): it
+[`workflow-remote.ts`](../libs/tools/scripts/workflow-remote.ts): it
 [`/git-sync`](../.agents/commands/git-sync.md)s the branch (commits a dirty
 tree with `--message`, merges `origin/main`, pushes), dispatches the Check
 workflow ([below](#workflows)) on that commit, streams it, and exits with the
@@ -187,15 +189,29 @@ gitignored `.cache/secrets/`; `secrets-run` prefers it for `SECRETS_ENV=dev`
 secrets-auth; `prd` and deploy stay Infisical-first. Run `secrets:pull` then
 `bun check:local` and CI reuses the same remote cache entries.
 
+## `bun health` and `bun deploy`
+
+Same dispatcher. `bun health` git-syncs the checkout (including `main`)
+and dispatches Health on that commit, so a branch's probes run against
+the live environments. `bun deploy` does not commit: it fast-forwards
+local `main` and dispatches Deploy on `origin/main`. That workflow
+refuses every other ref. Ctrl-C cancels the GitHub run. Cancelling
+Deploy stops it between steps; an apply that already started is not
+rolled back.
+
+`bun health:local` and `bun deploy:local` are what the workflow jobs run,
+and what a laptop runs to rehearse one environment. `bun health:local`
+passes turbo `--only` and deploys nothing.
+
 ## Workflows
 
 Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
 
 | Workflow | File | Question |
 | --- | --- | --- |
-| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check`, every PR; `bun check` dispatches it by hand) |
-| **Deploy** | `.github/workflows/deploy.yml` | Ship `main` (`bun run deploy`) |
-| **Health** | `.github/workflows/health.yml` | Is the deployment good? (`bun health`, hourly) |
+| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check` dispatches it; every PR) |
+| **Deploy** | `.github/workflows/deploy.yml` | Ship `main` (`bun deploy` dispatches it; push to `main`) |
+| **Health** | `.github/workflows/health.yml` | Is the deployment good? (`bun health` dispatches it; hourly) |
 
 1. **Check** runs on every PR to `main` and on `workflow_dispatch` (what
    `bun check` fires); it never runs on a push to `main`, which only moves
@@ -218,22 +234,22 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
    through [`workflow-env-matrix.ts`](../libs/infra/scripts/workflow-env-matrix.ts)
    and guards that the commit came from a merged PR) runs one `deploy:<env>`
    job per `protection: "standard"` env in parallel, then — only if all
-   pass — each `"production"` env. Each runs `bun run deploy` with
+   pass — each `"production"` env. Each runs `bun run deploy:local` with
    `SECRETS_ENV=<env>`: `//#check`, then `@apps/server#check:api` and every
    `health` task, which pull `@libs/infra#apply:foundation` → migrate → room
    deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing
    sync. Uncached deploy steps always rerun.
-3. **Health** runs `bun health` hourly as one `health:<env>` job per env
+3. **Health** runs `bun health:local` hourly as one `health:<env>` job per env
    file and deploys nothing.
 
 **Rehearse deploy before merging** anything touching deploy, infra, secrets,
 Workers or `health`: `mise install`, then `bun run deploy:dev` from the PR
 branch (the exact graph, against the dev replica). After the deploy steps
-pass, `SECRETS_ENV=dev bun run health` re-probes without deploying. Merge
+pass, `SECRETS_ENV=dev bun run health:local` re-probes without deploying. Merge
 right after both are green: resources a rehearsal adopts are in the env's
 state, and until the branch lands `main`'s Deploy would plan to delete them.
-The Railway broker builds from `main`, so broker image changes reach dev only
-after merge.
+AWS IoT and PlanetScale Neki have no image this repo builds. A rehearsal
+apply changes the live dev database and broker hostname.
 
 **Bun** is pinned to `1.4.2` (`mise.toml`, `packageManager`). 1.3.x does not
 resolve `.tsx` through wildcard subpaths and fails on the runner.
@@ -272,7 +288,7 @@ secrets as env). `bun run synthetic` runs only the `@synthetic` features.
 Checks are read-only (self-cleaning round-trips at most), assert *configured
 correctly* rather than *up*, and read hosts and names from
 `@libs/infra/public/envs`. Secret validation lives here, not in `bun check`.
-Standalone `bun health` passes turbo `--only` and deploys nothing. There is
+Standalone `bun health:local` passes turbo `--only` and deploys nothing. There is
 deliberately no `//#health` root task (a bare `health` dependency would
 resolve to itself). A new standing promise is an `@synthetic` feature in its
 own context.

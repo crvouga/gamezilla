@@ -2,10 +2,10 @@
 # `tofu show -json <plan>` and refuses to apply on any `deny`).
 #
 # Deletion is ALLOW-LISTED: only the resource types in `deletable` may ever be
-# deleted or replaced. Everything else — buckets, the broker service, its
-# Railway environments and their volumes, the Grafana stack, generated secrets, any Neon resource and any type
-# added in the future — is protected by default, so forgetting to classify a
-# new stateful resource cannot lose data. Retire such a resource with a
+# deleted or replaced. Everything else — buckets, Neki branches and roles,
+# the Grafana stack, generated secrets, and any type added in the future —
+# is protected by default, so forgetting to classify a new stateful resource
+# cannot lose data. Retire such a resource with a
 # `removed { lifecycle { destroy = false } }` block (a "forget", not a delete).
 #
 # The one exception is tearing a whole environment down on purpose
@@ -30,10 +30,20 @@ deletable := {
 	"grafana_cloud_access_policy_token",
 	"infisical_secret",
 	"infisical_secret_import",
-	"railway_custom_domain",
-	"railway_service_domain",
-	"railway_variable",
 	"terraform_data",
+	"aws_acm_certificate",
+	"aws_acm_certificate_validation",
+	"aws_cloudwatch_log_group",
+	"aws_iam_access_key",
+	"aws_iam_role",
+	"aws_iam_role_policy",
+	"aws_iam_role_policy_attachment",
+	"aws_iam_user",
+	"aws_iam_user_policy",
+	"aws_iot_authorizer",
+	"aws_iot_domain_configuration",
+	"aws_lambda_function",
+	"aws_lambda_permission",
 }
 
 # An array, not a set: two identical change objects are still two changes.

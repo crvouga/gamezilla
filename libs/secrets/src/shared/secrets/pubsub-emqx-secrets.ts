@@ -17,13 +17,8 @@ function wrapDefs(): Secret[] {
   });
 }
 
-const [apiUrl, wssUrl, apiKey, apiSecret, jwtSecret, dashboardPassword] =
-  wrapDefs();
+const [wssUrl, jwtSecret] = wrapDefs();
 
 /** Re-exported for registry — names/validation owned by `@libs/pubsub`. */
-export const EMQX_API_URL = apiUrl!;
 export const EMQX_WSS_URL = wssUrl!;
-export const EMQX_API_KEY = apiKey!;
-export const EMQX_API_SECRET = apiSecret!;
 export const EMQX_JWT_SECRET = jwtSecret!;
-export const EMQX_DASHBOARD_PASSWORD = dashboardPassword!;

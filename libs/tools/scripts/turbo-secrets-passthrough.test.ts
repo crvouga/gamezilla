@@ -28,14 +28,21 @@ function passesThrough(name: string, patterns: readonly string[]): boolean {
  */
 describe('turbo globalPassThroughEnv', () => {
   // regression: turbo-strips-tofu-secrets
-  test('passes the OpenTofu state and Neon secrets through to apply:foundation', () => {
+  test('passes the OpenTofu state, PlanetScale, and AWS provider secrets through', () => {
     const patterns = loadPassThroughEnv();
     expect(
       [
         'TOFU_STATE_PASSPHRASE',
         'TOFU_STATE_ACCESS_KEY_ID',
         'TOFU_STATE_SECRET_ACCESS_KEY',
-        'NEON_API_KEY',
+        'PLANETSCALE_SERVICE_TOKEN_ID',
+        'PLANETSCALE_SERVICE_TOKEN',
+        'AWS_ACCOUNT_ACCESS_KEY_ID',
+        'AWS_ACCOUNT_SECRET_ACCESS_KEY',
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY',
+        'AWS_SESSION_TOKEN',
+        'AWS_ROLE_ARN',
       ].filter((name) => !passesThrough(name, patterns))
     ).toEqual([]);
   });

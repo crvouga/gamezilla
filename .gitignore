@@ -106,6 +106,9 @@ turbo-platform-key.json
 
 # OpenTofu: the bootstrap stack's first-run local backend (libs/infra/scripts/bootstrap-backend.ts)
 libs/infra/tofu/stacks/*/*_override.tf
+# Provider binaries from a local `tofu init`. Lock files stay committed;
+# lint keeps its own cache under libs/infra/.cache/tofu.
+**/.terraform/
 
 # Per-package Biome scan scope (libs/tools/scripts/biome-scope.ts)
 /.biome-scope.*.json

@@ -41,7 +41,7 @@ url = "https://github.com/apalache-mc/apalache/releases/download/v{{version}}/ap
 checksum = "sha256:a61c07569d7195ddc589f01037fa10fafef4fb0796af2f1c9cb45226375dfbfc"
 
 # Local MQTT broker for `@pkgs/emqx-server` (fidelity-max harnesses, test:contract).
-# Keep in step with the production image in libs/pubsub/emqx-deploy/Dockerfile.
+# Keep in step with the version pin in libs/pubsub/emqx-deploy/Dockerfile.
 [tools."github:emqx/emqx"]
 version = "5.8.6"
 bin_path = "bin"

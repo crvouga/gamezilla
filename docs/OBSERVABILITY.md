@@ -45,13 +45,14 @@ away.
 `bun obs --source prod` loads `OBS_TEMPO_URL`, `OBS_TEMPO_USER`,
 `OBS_TEMPO_TOKEN`, and `OBS_READONLY_DATABASE_URL` from the production
 secret store when they are not already set. It never loads
-`DATABASE_URL` or `GRAFANA_CLOUD_API_TOKEN`. OpenTofu creates the Neon role
-`obs_read` and writes `OBS_READONLY_DATABASE_URL` (the pooled host, password
-URL-encoded). Reconcile then grants that role `SELECT` on `profile`,
-`idp_users`, and `idp_accounts`. Display names are matched there and only
-the account id is sent to Tempo. A local database has no `obs_read` role,
-so the grant is skipped. Until the next foundation apply and reconcile,
-production does not have the role yet, and a real name cannot be resolved.
+`DATABASE_URL` or `GRAFANA_CLOUD_API_TOKEN`. OpenTofu creates the Neki role
+`obs_read` and writes `OBS_READONLY_DATABASE_URL` (the router host, password
+URL-encoded, `sslmode=verify-full`). Reconcile then grants that role
+`SELECT` on `profile`, `idp_users`, and `idp_accounts` when the login name
+is exactly `obs_read`. Display names are matched there and only the account
+id is sent to Tempo. A local database has no `obs_read` role, so the grant
+is skipped. `pg_read_all_data` still covers SELECT when Neki suffixes the
+login name and the grant is skipped.
 `specs/profile/finding-a-person.feature` plants its own person and does not
 need the role.
 

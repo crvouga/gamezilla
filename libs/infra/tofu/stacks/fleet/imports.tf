@@ -7,15 +7,19 @@ import {
   id       = each.value
 }
 
-# The broker project and service are always adopted by the ids the
-# environments are given (global.tfvars.json `railway`), so the two can never
-# disagree. An import of a resource already in state is a no-op.
-import {
-  to = module.pubsub_project.railway_project.this
-  id = var.railway.project_id
+# The shared Railway project and its EMQX service used to live here. Forget
+# them: an apply must not delete the broker or its volume. A person deletes
+# the project after IoT Core is healthy (docs/INFRA.md).
+removed {
+  from = module.pubsub_project.railway_project.this
+  lifecycle {
+    destroy = false
+  }
 }
 
-import {
-  to = module.pubsub_project.railway_service.emqx
-  id = var.railway.service_id
+removed {
+  from = module.pubsub_project.railway_service.emqx
+  lifecycle {
+    destroy = false
+  }
 }

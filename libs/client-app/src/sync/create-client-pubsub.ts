@@ -4,6 +4,7 @@ import { parseClientConfigRows } from '@libs/client-config/public/parse-client-c
 import type { Timers } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
+import { iotWireTopic } from '@pkgs/pubsub/iot';
 import { createAedesPubSub } from '@pkgs/pubsub-aedes/create-aedes-pubsub';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx/create-emqx-pubsub';
 import { sql } from '@pkgs/sql';
@@ -36,8 +37,9 @@ export async function readEmqxWssUrlFromLocalDb(
 }
 
 /**
- * Client composition root for MQTT pub/sub. Loopback WebSocket brokers use the
- * Aedes MQTT 3.1.1 adapter; secure WebSocket brokers use the EMQX MQTT 5 adapter.
+ * Client composition root for MQTT pub/sub. Loopback `ws:` brokers keep
+ * colon topics (Aedes, MQTT 3.1.1). `wss:` is AWS IoT: MQTT 5, and colon
+ * topics are mapped to slash topics only on that path.
  */
 export function createClientPubSub(args: {
   readonly url: string;
@@ -50,9 +52,8 @@ export function createClientPubSub(args: {
   readonly logger: Logger;
 }): PubSub {
   const deviceId = args.auth.getDeviceId() ?? 'device';
-  const createPubSub = args.url.startsWith('ws:')
-    ? createAedesPubSub
-    : createEmqxPubSub;
+  const loopback = args.url.startsWith('ws:');
+  const createPubSub = loopback ? createAedesPubSub : createEmqxPubSub;
   return createPubSub({
     url: args.url,
     clientIdPrefix: deviceId,
@@ -60,6 +61,7 @@ export function createClientPubSub(args: {
     protocolVersion: args.url.startsWith('ws://') ? 4 : 5,
     random: args.random,
     logger: args.logger,
+    ...(args.url.startsWith('wss:') ? { toWireTopic: iotWireTopic } : {}),
     auth: async () =>
       fetchPubSubToken({
         config: args.config,

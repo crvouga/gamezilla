@@ -100,7 +100,7 @@ export const OBS_TEMPO_TOKEN = new Secret({
 
 export const OBS_READONLY_DATABASE_URL = new Secret({
   name: Name.readonlyDatabaseUrl,
-  hint: `SELECT-only URL for resolving a person's name. The Neon role is obs_read. ${PROVISIONED}`,
+  hint: `SELECT-only URL for resolving a person's name. The Neki role is obs_read. ${PROVISIONED}`,
   optional: true,
   managedBy: 'tofu',
   validate: validateReadonlyDatabaseUrl,

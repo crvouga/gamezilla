@@ -205,17 +205,29 @@ describe('turbo check/deploy graph invariants', () => {
     ]);
   });
 
-  test('bun check:local and bun deploy go through turbo-ci-run', () => {
+  test('local runners go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
     expect(turboCiRunTaskArgs(scripts['check:local'] ?? '')).toEqual(['check']);
-    expect(turboCiRunTaskArgs(scripts['deploy'] ?? '')).toEqual(['//#deploy']);
-    expect(turboCiRunTaskArgs(scripts['health'] ?? '')).toEqual(['health']);
+    expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([
+      '//#deploy',
+    ]);
+    expect(turboCiRunTaskArgs(scripts['health:local'] ?? '')).toEqual([
+      'health',
+    ]);
+    expect(scripts['deploy:dev']).toContain('deploy:local');
+    expect(scripts['deploy:prd']).toContain('deploy:local');
+    expect(scripts['health:prd']).toContain('health:local');
   });
 
-  test('bun check runs the Check workflow; only check:local runs the gate here', () => {
+  test('bun check, bun health, and bun deploy dispatch their workflows', () => {
     const scripts = loadRootScripts();
-    expect(scripts['check']).toContain('check-remote.ts');
+    const dispatch = 'libs/tools/scripts/workflow-remote.ts';
+    expect(scripts['check']).toBe(`bun run ${dispatch} check`);
+    expect(scripts['health']).toBe(`bun run ${dispatch} health`);
+    expect(scripts['deploy']).toBe(`bun run ${dispatch} deploy`);
     expect(scripts['check']).not.toContain('turbo-ci-run');
+    expect(scripts['health']).not.toContain('turbo-ci-run');
+    expect(scripts['deploy']).not.toContain('turbo-ci-run');
     expect(scripts).not.toHaveProperty('check:remote');
   });
 

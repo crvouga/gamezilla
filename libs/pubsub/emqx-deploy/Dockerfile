@@ -1,4 +1,4 @@
-# Multi-stage: Caddy + official EMQX 5.x for Railway (`$PORT` public HTTPS).
+# Version pin for the local EMQX sidecar. Not deployed.
 ARG EMQX_VERSION=5.8.6
 ARG CADDY_VERSION=2.9.1
 
@@ -16,8 +16,7 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
   && chown -R emqx:emqx /opt/emqx/data /opt/emqx/etc
 
-# Credentials (EMQX_API_KEY, EMQX_API_SECRET, EMQX_JWT_SECRET) are Railway
-# variables set by @libs/pubsub#provision — never baked into the image.
+# Credentials are never baked into the image. The laptop sidecar injects them.
 ENV EMQX_NODE__DATA_DIR=/opt/emqx/data \
     EMQX_LISTENERS__TCP__DEFAULT__BIND=127.0.0.1:1883 \
     EMQX_LISTENERS__WS__DEFAULT__BIND=127.0.0.1:8083 \

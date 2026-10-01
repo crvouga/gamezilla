@@ -15,7 +15,7 @@ const TRANSIENT_PLAN_FAILURE = [
 
 /**
  * The plan never produced a diff: the provider connection dropped while
- * reading live state (Railway's GraphQL API does this). Read it again.
+ * reading live state. Read it again.
  */
 export function planFailureIsTransient(output: string): boolean {
   return TRANSIENT_PLAN_FAILURE.some((needle) => output.includes(needle));

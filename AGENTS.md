@@ -110,12 +110,11 @@ Centered modals take `size="small" | "medium" | "large" | "fullWidth"`
 
 ## Checks and CI
 
-`bun check` is the whole gate and runs on GitHub, not on this machine (it
-`git-sync`s the branch, dispatches the Check workflow and blocks on its
-verdict) and publishes the spec report of the commit to `/reports/<sha>`
-([`docs/CI.md`](docs/CI.md#the-spec-report)); `bun check:local` runs the same
-gate locally when you choose to, and publishes nothing.
-`bun health` probes the live deployments. Every check is a cached, per-package task that reads only its own package; a new
+`bun check`, `bun health`, and `bun deploy` dispatch the Check, Health, and
+Deploy workflows and block on the verdict
+([`docs/CI.md`](docs/CI.md)). `bun check` publishes the spec report of the
+commit to `/reports/<sha>`. `bun check:local`, `bun health:local`, and
+`bun deploy:local` run that work on this machine. Every check is a cached, per-package task that reads only its own package; a new
 check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.

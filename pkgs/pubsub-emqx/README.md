@@ -7,9 +7,10 @@ EMQX adapter for `@pkgs/pubsub`. Two factories, **one** returned type (`PubSub`)
 
 ## Broker config expectations (EMQX 5.x)
 
-Local broker for tests/CI: `@pkgs/emqx-server` (ports 8083 / 18083, the EMQX
-release pinned in `mise.toml`). Production: Railway, declared in OpenTofu
-(`libs/infra/tofu/modules/pubsub`).
+Local broker for tests, harnesses, and the laptop stack: `@pkgs/emqx-server`
+(ports 8083 / 18083, the EMQX release pinned in `mise.toml`). Deployed
+invalidation is AWS IoT Core (`@pkgs/pubsub/iot`); this package remains the
+local HTTP and WebSocket adapter.
 
 Operators / broker should configure:
 

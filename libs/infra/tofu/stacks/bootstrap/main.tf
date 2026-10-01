@@ -86,6 +86,12 @@ module "ci_identity" {
   github_repository = "${var.github.owner}/${var.github.repo}"
 }
 
+module "aws_ci" {
+  source            = "../../modules/aws-ci-identity"
+  project           = var.project
+  github_repository = "${var.github.owner}/${var.github.repo}"
+}
+
 module "repository" {
   source          = "../../modules/repository"
   name            = var.github.repo
@@ -93,6 +99,7 @@ module "repository" {
   variables = {
     SECRETS_IDENTITY_ID = module.ci_identity.identity_id
     SECRETS_PROJECT_ID  = var.infisical.project_slug
+    AWS_ROLE_ARN        = module.aws_ci.role_arn
   }
 }
 
