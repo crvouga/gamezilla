@@ -31,6 +31,7 @@ import {
 } from '../shared/managed-columns';
 import { wrapMutationDb } from '../shared/wrap-mutation-db';
 import { mapConstraintError } from './map-constraint-error';
+import { storedReplayVerdict } from './stored-replay-verdict';
 
 export type MutationRow = {
   readonly id: string;
@@ -183,7 +184,7 @@ async function replayMutationCore(
         deps,
         m,
       });
-      if (!claimed) return { status: 'duplicate' as const };
+      if (!claimed) return storedReplayVerdict(txc, m.id);
 
       const mutation = deps.registry[m.name];
       if (mutation === undefined) {
