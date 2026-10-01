@@ -187,11 +187,18 @@ export class FeedbackController {
       this.publish({ message: 'Choose a video or an image.' });
       return;
     }
-    this.publish({ files: [...this.current.files, file], message: null });
+    this.publish({
+      files: [...this.current.files, file],
+      attempted: null,
+      message: null,
+    });
   };
   removeFile = (index: number): void => {
     if (this.current.phase === 'sending') return;
-    this.publish({ files: this.current.files.filter((_, i) => i !== index) });
+    this.publish({
+      files: this.current.files.filter((_, i) => i !== index),
+      attempted: null,
+    });
   };
   private recordingChanged(): void {
     const state = this.recorder.state();
