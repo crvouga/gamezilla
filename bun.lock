@@ -158,6 +158,7 @@
         "@lingui/conf": "catalog:",
         "@pkgs/os": "workspace:*",
         "@pkgs/property": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@pkgs/sql-client-sqlite-web": "workspace:*",
         "@pkgs/vite-workspace-resolver": "workspace:*",
         "@tailwindcss/vite": "catalog:",

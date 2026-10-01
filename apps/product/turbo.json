@@ -2,9 +2,42 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**"
+      ]
+    },
     "health:objectives": {
       "cache": false,
       "outputs": []
+    },
+    "test:contract": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "tests/quint/system/**",
+        "package.json",
+        "$TURBO_ROOT$/specs/auth/**",
+        "$TURBO_ROOT$/specs/billing/**",
+        "$TURBO_ROOT$/specs/chess/**",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/matchmaking/**",
+        "$TURBO_ROOT$/specs/profile/**",
+        "$TURBO_ROOT$/specs/room/**",
+        "$TURBO_ROOT$/specs/spaces/**",
+        "$TURBO_ROOT$/specs/sync-engine/**"
+      ],
+      "outputs": [".cache/harness-report/models/**"],
+      "outputLogs": "errors-only"
     }
   }
 }
