@@ -10,11 +10,9 @@ module note_conflicts {
 
   pure val PEOPLE = Set("alice", "bob", "carol")
   pure val EMPTY = { body: "", owner: "", exists: false, deleted: false }
-  pure val TITLE = "Groceries"
 
   /// The note and its owner on each device and in the shared notes.
-  var notes: str -> (str -> str)
-  var owners: str -> (str -> Person)
+  var notes: str -> Note
   /// Notices of refused edits on each device.
   var rejections: Person -> int
   /// Whether each device has a connection.
@@ -51,12 +49,6 @@ module note_conflicts {
       note: _apply(note, person, edit), answered: 1, refused: 0, duplicate: false,
     } else { note: note, answered: 1, refused: 1, duplicate: false }
 
-  pure def _live(note: Note): str -> str =
-    if (note.exists and not(note.deleted)) Map(TITLE -> note.body) else Map()
-
-  pure def _owner(note: Note): str -> Person =
-    if (note.exists and not(note.deleted)) Map(TITLE -> note.owner) else Map()
-
   action _settle(person: Person, edit: Edit, connected: Person -> bool, unheard: Set[Person], nextId: int): bool = {
     val result = if (connected.get(person)) _take(_shared, _unheard.contains(person), person, edit)
       else { note: _shared, answered: 0, refused: 0, duplicate: false }
@@ -80,8 +72,7 @@ module note_conflicts {
       _deleteAccepted' = (connected.get(person) and not(result.duplicate)
         and edit == Delete and result.refused == 0),
       online' = connected,
-      notes' = PEOPLE.mapBy(p => _live(views.get(p))).put("shared", _live(result.note)),
-      owners' = PEOPLE.mapBy(p => _owner(views.get(p))).put("shared", _owner(result.note)),
+      notes' = views.put("shared", result.note),
       rejections' = rejections.set(person, rejections.get(person)
         + result.refused),
     }
@@ -100,8 +91,7 @@ module note_conflicts {
     _deleteBy' = "",
     _deleteAccepted' = false,
     online' = PEOPLE.mapBy(_ => true),
-    notes' = PEOPLE.mapBy(_ => Map()).put("shared", Map()),
-    owners' = PEOPLE.mapBy(_ => Map()).put("shared", Map()),
+    notes' = PEOPLE.mapBy(_ => EMPTY).put("shared", EMPTY),
     rejections' = PEOPLE.mapBy(_ => 0),
   }
 
@@ -168,12 +158,11 @@ module note_conflicts {
   /// A connected device with every edit answered agrees with the shared notes.
   val invConnectedAgree = PEOPLE.forall(p =>
     (online.get(p) and _pending.get(p) == Nothing) implies
-      (notes.get(p) == notes.get("shared") and owners.get(p) == owners.get("shared")))
+      notes.get(p) == notes.get("shared"))
 
   /// A live note has exactly the owner that wrote it, on every device.
   val invLiveNotesHaveOwners = notes.keys().forall(p =>
-    notes.get(p).keys() == owners.get(p).keys()
-      and owners.get(p).keys().forall(title => PEOPLE.contains(owners.get(p).get(title))))
+    (notes.get(p).exists and not(notes.get(p).deleted)) implies PEOPLE.contains(notes.get(p).owner))
 
   /// Returning connected devices never remain stuck with an unanswered edit.
   val invConnectedEditsAnswered = PEOPLE.forall(p =>
