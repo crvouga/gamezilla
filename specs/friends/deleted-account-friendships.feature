@@ -1,5 +1,5 @@
 @domain:friends
-Feature: Withdraw a deleted account from other people
+Feature: Remove a deleted account from other people
   When a person deletes their account, other people want friendships and
   requests to reflect that choice, so nobody waits for a deleted account to answer.
 

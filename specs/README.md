@@ -1035,7 +1035,7 @@ terms:
 
 | Context | `specs/` | Owns | Kind |
 | --- | --- | --- | --- |
-| Identity | `profile` | who a person is to the product: guests, accounts, signing in and out, sign-in methods, usernames, avatars, profiles, the devices on an account | supporting |
+| Identity | `profile` | who a person is to the product: guests, accounts, signing in and out, sign-in methods, usernames, avatars, profiles, the devices on an account, account deletion, personal-data exports and retention | supporting |
 | Billing | `billing` | Plus: memberships, trials, renewals, paid access, grace, refunds, the billing portal | generic (the provider does the paying) |
 | Spaces | `spaces` | live spaces: hosting, joining, leaving, ending, links, the lobby, presence, the hosting limit | core |
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
@@ -1053,6 +1053,7 @@ terms and import only their `events.qnt`:
 
 ```text
 Identity ──► Billing, Spaces, Friends, Chess, App, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
+Identity ──► Billing, Spaces, Friends, Chess, App (account deletion, personal data, retention, recently proven account)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
@@ -1068,8 +1069,8 @@ Published language:
 
 | Context | Published terms | `events.qnt` |
 | --- | --- | --- |
-| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged` |
-| Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
+| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
+| Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve | — |

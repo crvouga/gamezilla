@@ -26,7 +26,7 @@ terms:
       and confirming the consequences. The account cannot be used again;
       their ordinary personal data is erased within 30 days. A later sign-in
       starts afresh instead of recovering the deleted account.
-    forms: [delete their account, deletes their account, deleted account, deleted accounts]
+    forms: [delete their account, deletes their account, deleted account, deleted accounts, confirms account deletion, account deletion has been confirmed, confirmed deletion]
     published: true
     model: [AccountDeletion, Active, Deleting, Deleted, deletion, profilesShown, confirmDeletion, AccountDeletionConfirmed, invDeletedProfileHidden, invDeletedAccessEnds]
 

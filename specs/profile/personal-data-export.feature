@@ -43,7 +43,7 @@ Feature: Take a private copy of personal data
 
   Rule: Downloads belong to the proven account and expire after 7 days
 
-    Scenario: The owner downloads a ready export
+    Scenario: The person downloads a ready export
       Given Alice has a recently proven account
       And Alice's personal-data export has been ready for 6 days
       When Alice downloads the personal-data export

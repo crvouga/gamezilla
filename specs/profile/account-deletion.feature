@@ -23,6 +23,12 @@ Feature: Permanently delete an account
       Then Alice is told to prove the account again before deletion
       And Alice still has the same account
 
+    Scenario: Proof exactly ten minutes old requires signing in again
+      Given Alice completed signing in exactly 10 minutes ago
+      When Alice confirms account deletion
+      Then Alice is told to prove the account again before deletion
+      And Alice still has the same account
+
     Scenario: A guest cannot delete an account they do not have
       Given Alice is a guest
       When Alice asks for account deletion

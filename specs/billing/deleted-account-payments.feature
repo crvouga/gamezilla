@@ -1,7 +1,7 @@
 @domain:billing
 Feature: Stop charging a deleted account
   When a person deletes their account, they want future membership charges
-  to stop, so giving up the account does not leave a recurring payment behind.
+  to stop, so giving up the account does not keep a recurring payment running.
 
   Rule: Confirmed account deletion stops future charges and paid access
 
@@ -10,7 +10,7 @@ Feature: Stop charging a deleted account
       And Alice has a recently proven account
       When Alice confirms account deletion
       Then Alice's membership cannot renew because the account was deleted
-      And Alice's paid access has ended
+      And Alice no longer has paid access
 
     Scenario: An unfinished cancellation cannot be called complete
       Given Alice's account deletion has been confirmed
