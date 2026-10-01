@@ -147,3 +147,41 @@ test('a screen permission result arriving after discard is immediately released'
   expect(recorder.state().phase).toBe('idle');
   expect(clock.pendingOneShotCount()).toBe(0);
 });
+
+// regression: feedback-context-before-screen-permission
+test('starting context reflects the position after the screen chooser closes', async () => {
+  const { clock, timers } = createHarnessClock();
+  let position = 'Before choosing the app tab';
+  let release:
+    | ((value: {
+        stop: () => Promise<EvidenceFile>;
+        dispose: () => void;
+      }) => void)
+    | undefined;
+  const recorder = createReproductionRecorder({
+    clock,
+    timers,
+    captureContext: async () => [
+      { name: 'position', status: 'available', value: position },
+    ],
+    video: {
+      start: () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    },
+  });
+  const starting = recorder.start();
+  await microtasks();
+  position = 'After choosing the app tab';
+  release?.({ stop: async () => file, dispose() {} });
+  await starting;
+  expect(recorder.state().recording?.initialContext).toEqual([
+    {
+      name: 'position',
+      status: 'available',
+      value: 'After choosing the app tab',
+    },
+  ]);
+  recorder.dispose();
+});

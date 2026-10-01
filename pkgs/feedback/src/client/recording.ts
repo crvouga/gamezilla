@@ -60,7 +60,6 @@ class ReproductionRecorder {
     this.publish({ ...IDLE, phase: 'starting' });
     const capture =
       this.options.video?.start().catch(() => null) ?? Promise.resolve(null);
-    const initialContext = await this.options.captureContext();
     const session = await capture;
     if (generation !== this.generation) {
       session?.dispose();
@@ -68,6 +67,8 @@ class ReproductionRecorder {
     }
     this.video = session;
     if (session) this.sessions.add(session);
+    const initialContext = await this.options.captureContext();
+    if (generation !== this.generation) return;
     this.started = this.options.clock.now();
     this.publish({
       ...IDLE,
