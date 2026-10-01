@@ -1,3 +1,4 @@
+// @spec-meta — Quint runner fixture
 module door_induction {
   var state: str
 

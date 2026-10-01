@@ -252,8 +252,8 @@ function modelProblems(
     }
   }
   for (const [model, files] of bindings) {
-    // A package-local model (internal invariants, run from the package's own
-    // `test` via `runQuintModel`) sits beside its binding in `tests/quint/`.
+    // A package-local `@spec-meta` model is test machinery rather than a
+    // product specification. The location gate checks that distinction.
     if (existsSync(join(REPO_ROOT, quintDir, `${model}.qnt`))) continue;
     if (!stems.has(model)) {
       problems.push(

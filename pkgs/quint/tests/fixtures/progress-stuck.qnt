@@ -1,3 +1,4 @@
+// @spec-meta — temporal-checker fixture
 module progress_stuck {
   var done: bool
   var busy: bool

@@ -1,4 +1,4 @@
-// The door model with an invariant its own actions break.
+// @spec-meta — Quint runner fixture: the door model with an invariant its own actions break.
 module door_broken {
   var state: str
 
