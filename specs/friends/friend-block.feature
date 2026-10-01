@@ -32,6 +32,14 @@ Feature: Block and unblock
       When Bob searches for "alice"
       Then Bob's search does not show Alice
 
+    @regression:friend-block-missed-while-offline
+    Scenario: A block made while the other person is away still hides the blocker
+      Given Alice and Bob are signed in
+      And Bob is offline
+      And Alice has blocked Bob
+      When the connection comes back
+      Then Bob's search for "alice" shows nobody within 15 seconds
+
     Scenario: Blocking someone from their request clears the request
       Given Alice and Bob are signed in
       And Bob has sent Alice a friend request
@@ -46,6 +54,15 @@ Feature: Block and unblock
       And Bob's search for "alice" shows nobody within 15 seconds
 
   Rule: The blocker can undo a block
+
+    @regression:friend-block-missed-while-offline
+    Scenario: Unblocking while the other person is away lets them find the blocker again
+      Given Alice and Bob are friends
+      And Alice has blocked Bob
+      And Bob is offline
+      And Alice has unblocked Bob
+      When the connection comes back
+      Then Bob's search offers to ask Alice again within 15 seconds
 
     Scenario: The blocker can still find the person they blocked
       Given Alice and Bob are friends
