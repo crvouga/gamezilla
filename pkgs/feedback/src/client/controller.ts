@@ -1,12 +1,9 @@
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { FeedbackWorkspacePort, WizardStage } from '../shared/workspace';
-import { FEEDBACK_TEMPLATES } from '../shared/templates';
-import { DraftEvidence } from './draft-evidence';
-import { FeedbackWorkspace } from './workspace';
 import type { CreateId } from '@pkgs/uuid';
 import { collectDiagnostics } from '../shared/diagnostics';
 import { createFeedbackReporting } from '../shared/reporting';
+import { FEEDBACK_TEMPLATES } from '../shared/templates';
 import type {
   CreatedIssue,
   DiagnosticProvider,
@@ -18,9 +15,12 @@ import type {
   FeedbackRepository,
 } from '../shared/types';
 import { EMPTY_FEEDBACK, feedbackErrors } from '../shared/validation';
+import type { FeedbackWorkspacePort, WizardStage } from '../shared/workspace';
 import { feedbackContextProviders } from './context';
+import { DraftEvidence } from './draft-evidence';
 import { createReproductionRecorder } from './recording';
 import type { RecordingPort } from './recording-types';
+import { FeedbackWorkspace } from './workspace';
 
 export type FeedbackControllerOptions = {
   readonly reporter: FeedbackRepository;
@@ -70,6 +70,7 @@ export class FeedbackController {
   private readonly draftEvidence: DraftEvidence;
   readonly ready: Promise<void>;
   private restoring = false;
+  private restoreGeneration = 0;
   private evidencePending: Promise<void> = Promise.resolve();
   private readonly evidenceReceipts = new WeakMap<
     EvidenceFile,
@@ -94,17 +95,42 @@ export class FeedbackController {
     this.ready = this.restoreActive();
   }
   private async restoreActive(): Promise<void> {
+    const generation = ++this.restoreGeneration;
     const active = this.workspace.active();
     this.restoring = true;
     this.recorder.discard();
-    this.publish({ draft: active ?? EMPTY_FEEDBACK, files: [], phase: 'idle', issue: active?.issue ?? null, attempted: null });
+    this.publish({
+      draft: active
+        ? {
+            kind: active.kind,
+            title: active.title,
+            description: active.description,
+          }
+        : EMPTY_FEEDBACK,
+      files: [],
+      phase: 'idle',
+      issue: active?.issue ?? null,
+      attempted: active?.attempted ?? null,
+    });
     if (active) {
       try {
-        const files = await Promise.all(active.files.map(file => this.draftEvidence.read(file)));
-        const video = active.video ? await this.draftEvidence.read(active.video) : null;
+        const files = await Promise.all(
+          active.files.map((file) => this.draftEvidence.read(file))
+        );
+        const video = active.video
+          ? await this.draftEvidence.read(active.video)
+          : null;
+        if (generation !== this.restoreGeneration) return;
         this.publish({ files });
         this.recorder.restore(active.recording, video);
-      } catch (error) { this.publish({ message: error instanceof Error ? error.message : 'Evidence could not be restored.' }); }
+      } catch (error) {
+        this.publish({
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Evidence could not be restored.',
+        });
+      }
     }
     this.restoring = false;
     this.publish({});
@@ -124,37 +150,87 @@ export class FeedbackController {
     this.current = { ...this.current, ...next };
     for (const listener of this.listeners) listener();
   }
-  private persist(): void { this.workspace.update(this.current.draft); this.publish({}); }
-  setStage = (stage: WizardStage): void => { this.workspace.stage(stage); this.publish({}); };
+  private persist(): void {
+    this.workspace.update({
+      ...this.current.draft,
+      attempted: this.current.attempted,
+    });
+    this.publish({});
+  }
+  setStage = (stage: WizardStage): void => {
+    if (this.current.phase === 'sending') return;
+    this.workspace.stage(stage);
+    this.publish({});
+  };
+  setManagement = (
+    next: Partial<
+      import('../shared/workspace').FeedbackWorkspaceSnapshot['management']
+    >
+  ): void => {
+    this.workspace.patch({
+      management: { ...this.workspace.state().management, ...next },
+    });
+    this.publish({});
+  };
   applyTemplate = (kind: FeedbackKind): void => {
-    const template = FEEDBACK_TEMPLATES.find(t => t.kind === kind);
-    if (template) this.setDraft({ kind, description: [this.current.draft.description, template.body].filter(Boolean).join('\n\n') });
+    const template = FEEDBACK_TEMPLATES.find((t) => t.kind === kind);
+    if (template)
+      this.setDraft({
+        kind,
+        description: [this.current.draft.description, template.body]
+          .filter(Boolean)
+          .join('\n\n'),
+      });
   };
   newDraft = async (): Promise<void> => {
     if (this.current.phase === 'sending') return;
     await this.evidencePending;
-    this.workspace.create(); await this.restoreActive(); this.open();
+    this.workspace.create();
+    await this.restoreActive();
+    this.open();
   };
   select = async (id: string): Promise<void> => {
     if (this.current.phase === 'sending') return;
     await this.evidencePending;
-    this.workspace.select(id); await this.restoreActive();
+    this.workspace.select(id);
+    await this.restoreActive();
   };
   manage = async (): Promise<void> => {
     this.setStage('manage');
-    try { this.workspace.merge(await this.options.reporter.list(this.options.authorId)); this.publish({}); }
-    catch { this.publish({ message: 'Reports could not be refreshed. Your saved drafts are available.' }); }
+    try {
+      this.workspace.merge(
+        await this.options.reporter.list(this.options.authorId)
+      );
+      this.publish({});
+    } catch {
+      this.publish({
+        message:
+          'Reports could not be refreshed. Your saved drafts are available.',
+      });
+    }
   };
   remove = async (id: string): Promise<void> => {
-    const doc = this.workspace.state().documents.find(d => d.id === id);
+    const doc = this.workspace.state().documents.find((d) => d.id === id);
     if (!doc) return;
-    if (doc.report) await this.options.reporter.remove(doc.report.id, this.options.authorId);
-    this.workspace.remove(id); await this.restoreActive(); this.setStage('manage');
+    if (doc.report)
+      await this.options.reporter.remove(doc.report.id, this.options.authorId);
+    this.workspace.remove(id);
+    await this.restoreActive();
+    this.setStage('manage');
   };
-  move = (x: number, y: number): void => { this.workspace.patch({ position: { x, y } }); this.publish({}); };
+  move = (x: number, y: number): void => {
+    this.workspace.patch({ position: { x, y } });
+    this.publish({});
+  };
   removeRemoteAttachment = (id: string): void => {
     const report = this.workspace.active()?.report;
-    if (report) this.workspace.update({ report: { ...report, attachments: report.attachments.filter(a => a.id !== id) } });
+    if (report)
+      this.workspace.update({
+        report: {
+          ...report,
+          attachments: report.attachments.filter((a) => a.id !== id),
+        },
+      });
     this.publish({});
   };
   setDraft = (next: Partial<FeedbackDraft>): void => {
@@ -205,11 +281,25 @@ export class FeedbackController {
       this.publish({ message: 'Choose a video or an image.' });
       return;
     }
+    const activeId = this.workspace.state().activeId;
     try {
       const saved = await this.draftEvidence.save(file);
-      const active = this.workspace.active();
-      this.workspace.update({ files: [...(active?.files ?? []), saved] });
-    } catch { this.publish({ message: 'Attachment could not be saved. Keep the original file and try again.' }); return; }
+      const active = this.workspace
+        .state()
+        .documents.find((doc) => doc.id === activeId);
+      if (!active) return;
+      this.workspace.updateDocument(activeId, {
+        files: [...active.files, saved],
+        attempted: null,
+      });
+      if (this.workspace.state().activeId !== activeId) return;
+    } catch {
+      this.publish({
+        message:
+          'Attachment could not be saved. Keep the original file and try again.',
+      });
+      return;
+    }
     this.publish({
       files: [...this.current.files, file],
       attempted: null,
@@ -218,7 +308,12 @@ export class FeedbackController {
   };
   removeFile = (index: number): void => {
     if (this.current.phase === 'sending') return;
-    this.workspace.update({ files: (this.workspace.active()?.files ?? []).filter((_, i) => i !== index) });
+    this.workspace.update({
+      attempted: null,
+      files: (this.workspace.active()?.files ?? []).filter(
+        (_, i) => i !== index
+      ),
+    });
     this.publish({
       files: this.current.files.filter((_, i) => i !== index),
       attempted: null,
@@ -229,14 +324,30 @@ export class FeedbackController {
     const state = this.recorder.state();
     this.workspace.update({ recording: state.recording });
     if (state.phase === 'idle') this.workspace.update({ video: null });
-    if (state.phase === 'starting' || state.phase === 'idle') this.publish({ attempted: null });
+    if (state.phase === 'starting' || state.phase === 'idle')
+      this.publish({ attempted: null });
     if (state.phase === 'recording') this.publish({ visible: false });
     if (state.phase === 'ready') {
       this.publish({ visible: true });
       if (state.video) {
-        this.evidencePending = this.draftEvidence.save(state.video).then(video => {
-          this.workspace.update({ video }); this.publish({});
-        }).catch(() => this.publish({ message: 'Recording video could not be saved. Download it before closing.' }));
+        const activeId = this.workspace.state().activeId;
+        const recording = state.recording;
+        this.evidencePending = this.draftEvidence
+          .save(state.video)
+          .then((video) => {
+            const doc = this.workspace
+              .state()
+              .documents.find((d) => d.id === activeId);
+            if (doc?.recording === recording)
+              this.workspace.updateDocument(activeId, { video });
+            this.publish({});
+          })
+          .catch(() =>
+            this.publish({
+              message:
+                'Recording video could not be saved. Download it before closing.',
+            })
+          );
       }
     }
     this.publish({});
@@ -262,15 +373,26 @@ export class FeedbackController {
         ...this.options,
         providers: this.providers(),
         authorId: this.options.authorId,
-        createId: () => this.workspace.active()?.report?.id ?? this.current.attempted?.id ?? this.options.createId(),
+        createId: () =>
+          this.workspace.active()?.report?.id ??
+          this.current.attempted?.id ??
+          this.options.createId(),
         reporter: {
           create: async (report) => {
+            this.workspace.update({ attempted: report });
             this.publish({ attempted: report });
             const attachments = await this.uploadEvidence();
             const previous = this.workspace.active()?.report;
-            const complete = { ...report, attachments: [...(previous?.attachments ?? []), ...attachments], createdAt: previous?.createdAt ?? report.createdAt };
+            const complete = {
+              ...report,
+              attachments: [...(previous?.attachments ?? []), ...attachments],
+              createdAt: previous?.createdAt ?? report.createdAt,
+            };
+            this.workspace.update({ attempted: complete });
             this.publish({ attempted: complete });
-            return previous ? this.options.reporter.update(complete) : this.options.reporter.create(complete);
+            return previous
+              ? this.options.reporter.update(complete)
+              : this.options.reporter.create(complete);
           },
         },
       });
@@ -280,9 +402,20 @@ export class FeedbackController {
         attachments: [],
       });
       this.publish({ phase: 'saved', issue: saved.issue });
-      this.workspace.update({ report: this.current.attempted ?? saved.report, issue: saved.issue, files: [], video: null });
+      this.workspace.update({
+        report: this.current.attempted ?? saved.report,
+        attempted: null,
+        issue: saved.issue,
+        files: [],
+        video: null,
+      });
+      this.restoring = true;
+      this.recorder.restore(
+        this.current.attempted?.recording ?? saved.report.recording,
+        null
+      );
+      this.restoring = false;
       this.publish({ files: [] });
-
     } catch (error) {
       this.publish({
         phase: 'failed',

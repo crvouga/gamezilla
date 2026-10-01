@@ -1777,6 +1777,7 @@
         "@pkgs/i18n": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/object-store-opfs": "workspace:*",
         "@pkgs/tailwind": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/uuid": "workspace:*",

@@ -83,26 +83,40 @@ export class FileSystemIssueReporter implements FeedbackRepository {
     );
   }
   async list(authorId: string): Promise<readonly FeedbackReport[]> {
-    const keys = (await this.store.listKeys()).filter(key => /^feedback-[^/]+\/report.json$/.test(key));
-    const reports = await Promise.all(keys.map(key => this.read(key.split('/')[0]!.slice(9), authorId)));
+    const keys = (await this.store.listKeys()).filter((key) =>
+      /^feedback-[^/]+\/report.json$/.test(key)
+    );
+    const reports = await Promise.all(
+      keys.map((key) => this.read(key.slice(9, key.indexOf('/')), authorId))
+    );
     return reports.filter((r): r is FeedbackReport => r !== null);
   }
   async read(id: string, authorId: string): Promise<FeedbackReport | null> {
-    if (!/^[a-zA-Z0-9-]{1,100}$/.test(id)) throw new Error('Invalid feedback id');
+    if (!/^[a-zA-Z0-9-]{1,100}$/.test(id))
+      throw new Error('Invalid feedback id');
     const object = await this.store.get(`feedback-${id}/report.json`);
     if (!object) return null;
-    const report = JSON.parse(new TextDecoder().decode(await readBytes(object.body))) as FeedbackReport;
-    return report.authorId === authorId && report.status !== 'deleted' ? report : null;
+    const report = JSON.parse(
+      new TextDecoder().decode(await readBytes(object.body))
+    ) as FeedbackReport;
+    return report.authorId === authorId && report.status !== 'deleted'
+      ? report
+      : null;
   }
   async update(report: FeedbackReport): Promise<CreatedIssue> {
     const previous = await this.read(report.id, report.authorId);
-    if (!previous) throw new Error('Feedback belongs to another developer or is unavailable.');
+    if (!previous)
+      throw new Error(
+        'Feedback belongs to another developer or is unavailable.'
+      );
     return this.create({ ...report, createdAt: previous.createdAt });
   }
   async remove(id: string, authorId: string): Promise<void> {
     const report = await this.read(id, authorId);
-    if (!report) throw new Error('Feedback belongs to another developer or is unavailable.');
+    if (!report)
+      throw new Error(
+        'Feedback belongs to another developer or is unavailable.'
+      );
     await this.create({ ...report, status: 'deleted' });
   }
-
 }

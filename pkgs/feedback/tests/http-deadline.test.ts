@@ -7,8 +7,6 @@ import { assertProperty, fc } from '@pkgs/property';
 // regression: feedback-http-ignores-abort
 const report: FeedbackReport = {
   kind: 'problem',
-  expected: 'Board responds',
-  reproductionSteps: 'Make a move',
   recording: null,
   attachments: [],
   version: 1,
@@ -17,6 +15,7 @@ const report: FeedbackReport = {
   description: 'After a move',
   createdAt: '2026-09-30T00:00:00.000Z',
   status: 'open',
+  authorId: 'local',
   diagnostics: [],
 };
 

@@ -71,7 +71,7 @@ export const editFeedbackAnswer = defineAction({
 });
 export const readFeedbackAnswer = (
   world: FeedbackReportingWorld,
-  field: 'description' | 'expected' | 'steps'
+  field: 'description' | 'title'
 ) => world.app.readAnswer(field);
 export const closeProduct = defineAction({
   name: 'closeProduct',
@@ -80,6 +80,24 @@ export const closeProduct = defineAction({
 export const readReport = (world: FeedbackReportingWorld) => world.app.report();
 export const readEmergencyReport = (world: FeedbackReportingWorld) =>
   world.app.emergencyReport();
+export const wizardAction = defineAction({
+  name: 'wizardAction',
+  act: (
+    world: FeedbackReportingWorld,
+    input: Parameters<FeedbackReportingWorld['app']['wizard']>[0]
+  ) => world.app.wizard(input),
+});
+export const foreignFeedback = defineAction({
+  name: 'foreignFeedback',
+  act: (world: FeedbackReportingWorld, title: string) =>
+    world.app.foreign(title),
+});
+export const changeForeignFeedback = defineAction({
+  name: 'changeForeignFeedback',
+  act: (world: FeedbackReportingWorld) => world.app.tryForeignEdit(),
+});
+export const readForeignRefusal = (world: FeedbackReportingWorld) =>
+  world.app.foreignRefusal();
 export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
   name: 'feedback',
   async create(session) {
@@ -103,5 +121,8 @@ export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
     closeProduct,
     feedbackAction,
     editFeedbackAnswer,
+    wizardAction,
+    foreignFeedback,
+    changeForeignFeedback,
   ],
 });

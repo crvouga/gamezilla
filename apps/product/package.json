@@ -79,6 +79,7 @@
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/feedback": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/harness": "workspace:*",
@@ -109,8 +110,7 @@
     "chess.js": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:",
-    "@pkgs/feedback": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@babel/runtime": "catalog:",

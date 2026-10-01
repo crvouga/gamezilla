@@ -6,6 +6,7 @@ import {
 } from '@pkgs/feedback/client';
 import {
   createFeedbackHttpApp,
+  FakeIssueReporter,
   FileSystemIssueReporter,
 } from '@pkgs/feedback/server';
 import type { FeedbackReport } from '@pkgs/feedback/shared';
@@ -31,6 +32,9 @@ test('evidence bytes and reproduction state survive submission through the same 
     clock,
     timers,
     createId: () => id,
+    authorId: 'local',
+    workspace: { load: () => null, save: () => {} },
+    evidence: store,
     providers: [
       {
         name: 'chess-puzzle',
@@ -40,8 +44,8 @@ test('evidence bytes and reproduction state survive submission through the same 
         }),
       },
     ],
-    reporter: {
-      create: async (report) => {
+    reporter: Object.assign(new FakeIssueReporter(), {
+      create: async (report: FeedbackReport) => {
         const response = await http.fetch('http://local/api/feedback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -50,7 +54,7 @@ test('evidence bytes and reproduction state survive submission through the same 
         expect(response.status).toBe(201);
         return response.json() as Promise<{ id: string }>;
       },
-    },
+    }),
     upload: createEvidenceUploader({
       http,
       timers,
@@ -60,10 +64,8 @@ test('evidence bytes and reproduction state survive submission through the same 
   });
   controller.setDraft({
     description: 'The board froze',
-    expected: 'The legal move appears',
-    reproductionSteps: 'Drag e2 to e3',
   });
-  controller.attach({
+  await controller.attach({
     name: 'reproduction.webm',
     contentType: 'video/webm',
     bytes: new Uint8Array([1, 2, 3]),
@@ -160,15 +162,18 @@ test('changed evidence receives a new report id after an uncertain delivery', as
     clock,
     timers,
     createId: () => `report-${++ids}`,
+    authorId: 'local',
+    workspace: { load: () => null, save: () => {} },
+    evidence: new ObjectStoreImplInMemory(),
     providers: [],
-    reporter: {
-      create: (report) => {
+    reporter: Object.assign(new FakeIssueReporter(), {
+      create: (report: FeedbackReport) => {
         received.push(report.id);
         return received.length === 1
           ? Promise.reject(new Error('Receipt lost'))
           : Promise.resolve({ id: report.id });
       },
-    },
+    }),
     upload: async (file) => ({
       id,
       name: file.name,
@@ -179,18 +184,16 @@ test('changed evidence receives a new report id after an uncertain delivery', as
   });
   controller.setDraft({
     description: 'The board froze',
-    expected: 'The move appears',
-    reproductionSteps: 'Drag e2 to e3',
   });
   await controller.send();
   expect(controller.state().phase).toBe('failed');
-  controller.attach({
+  await controller.attach({
     name: 'updated-reproduction.webm',
     contentType: 'video/webm',
     bytes: new Uint8Array([1, 2, 3]),
   });
   await controller.send();
-  expect(received).toEqual(['report-1', 'report-2']);
+  expect(received).toEqual(['report-2', 'report-4']);
   expect(controller.state().phase).toBe('saved');
   controller.dispose();
 });

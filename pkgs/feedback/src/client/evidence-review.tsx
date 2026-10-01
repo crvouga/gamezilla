@@ -155,7 +155,7 @@ async function attachFile(
     return;
   }
   try {
-    controller.attach({
+    await controller.attach({
       name: file.name,
       contentType: file.type,
       bytes: new Uint8Array(await file.arrayBuffer()),

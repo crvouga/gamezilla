@@ -8,7 +8,6 @@ import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   ArchivedIssueReporter,
   createFeedbackHttpApp,
-  FileSystemIssueReporter,
   GitHubIssueReporter,
 } from '@pkgs/feedback/server';
 
@@ -45,25 +44,22 @@ export async function handleRootFeedbackReport(
         requireCredentials: true,
       })
     ).withPrefix('feedback');
-    const archive = new FileSystemIssueReporter(store);
     const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
     const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
     const origin = new URL(request.url).origin;
-    const github =
-      token && repository
-        ? new GitHubIssueReporter({
-            token,
-            repository,
-            http,
-            reportBaseUrl: `${origin}/api/feedback/reports`,
-          })
-        : null;
+    if (!token || !repository)
+      throw new Error('GitHub feedback destination is not configured');
+    const github = new GitHubIssueReporter({
+      token,
+      repository,
+      http,
+      reportBaseUrl: `${origin}/api/feedback/reports`,
+    });
     return await createFeedbackHttpApp({
       store,
       clock: wallClock,
       allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
-      reporter: github ? new ArchivedIssueReporter(store, github) : archive,
-
+      reporter: new ArchivedIssueReporter(store, github),
     })(request);
   } catch {
     return Response.json(

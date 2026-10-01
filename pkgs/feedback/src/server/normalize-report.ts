@@ -98,7 +98,8 @@ export function normalizeReport(body: unknown, clock: Clock): FeedbackReport {
     version: 1,
     id: input.id,
     title:
-      input.title.trim() || input.description.trim().split('\n').at(0)?.slice(0, 240) || 'Feedback',
+      input.title.trim() ||
+      (input.description.trim().split('\n').at(0)?.slice(0, 240) ?? 'Feedback'),
     kind: draft.kind,
     description: input.description,
     authorId: input.authorId,

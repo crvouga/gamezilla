@@ -3,6 +3,7 @@ export {
   type FeedbackReportingOptions,
   type SubmittedFeedback,
 } from './reporting';
+export { FEEDBACK_TEMPLATES } from './templates';
 export type {
   CreatedIssue,
   Diagnostic,
@@ -18,5 +19,9 @@ export type {
   ReproductionRecording,
 } from './types';
 export { EMPTY_FEEDBACK, feedbackErrors, validateFeedback } from './validation';
-export type { FeedbackDocument, FeedbackWorkspacePort, FeedbackWorkspaceSnapshot, WizardStage } from './workspace';
-export { FEEDBACK_TEMPLATES } from './templates';
+export type {
+  FeedbackDocument,
+  FeedbackWorkspacePort,
+  FeedbackWorkspaceSnapshot,
+  WizardStage,
+} from './workspace';

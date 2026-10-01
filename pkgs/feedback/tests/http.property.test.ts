@@ -15,68 +15,62 @@ const text = fc
 test('the same HTTP client creates reports through interchangeable backend destinations', async () => {
   await assertProperty(
     'feedback-reliability',
-    fc.asyncProperty(
-      text,
-      text,
-      fc.boolean(),
-      async (title, description, useGithub) => {
-        const { clock, timers } = createHarnessClock();
-        const captured: unknown[] = [];
-        const backend = useGithub
-          ? new GitHubIssueReporter({
-              token: 'server-only-token',
-              repository: 'team/project',
-              http: {
-                async fetch(input, init) {
-                  expect(String(input)).toBe(
-                    'https://api.github.com/repos/team/project/issues'
-                  );
-                  expect(new Headers(init?.headers).get('Authorization')).toBe(
-                    'Bearer server-only-token'
-                  );
-                  captured.push(JSON.parse(String(init?.body)));
-                  return Response.json(
-                    {
-                      number: 17,
-                      html_url: 'https://github.com/team/project/issues/17',
-                    },
-                    { status: 201 }
-                  );
-                },
+    fc.asyncProperty(text, fc.boolean(), async (description, useGithub) => {
+      const { clock, timers } = createHarnessClock();
+      const captured: unknown[] = [];
+      const backend = useGithub
+        ? new GitHubIssueReporter({
+            token: 'server-only-token',
+            repository: 'team/project',
+            http: {
+              async fetch(input, init) {
+                expect(String(input)).toBe(
+                  'https://api.github.com/repos/team/project/issues'
+                );
+                expect(new Headers(init?.headers).get('Authorization')).toBe(
+                  'Bearer server-only-token'
+                );
+                captured.push(JSON.parse(String(init?.body)));
+                return Response.json(
+                  {
+                    number: 17,
+                    html_url: 'https://github.com/team/project/issues/17',
+                  },
+                  { status: 201 }
+                );
               },
-            })
-          : new FakeIssueReporter();
-        const handler = createFeedbackReportHandler({
-          reporter: backend,
-          clock,
-          allowedOrigin: 'http://local',
-        });
-        const frontend = new HttpIssueReporter({
-          endpoint: 'http://local/api/feedback',
-          timers,
-          http: { fetch: (input, init) => handler(new Request(input, init)) },
-        });
-        const result = await createFeedbackReporting({
-          reporter: frontend,
-          clock,
-          timers,
-          createId: () => 'report-id',
-          providers: [{ name: 'page', collect: () => ({ path: '/chess' }) }],
-        }).submit({
-          kind: 'problem',
-          description,
-          expected: title,
-          reproductionSteps: 'Make a move',
-        });
-        expect(result.issue.id).toBe(useGithub ? '17' : 'report-id');
-        expect(clock.pendingOneShotCount()).toBe(0);
-        if (useGithub) expect(captured).toHaveLength(1);
-        else
-          expect(
-            (backend as FakeIssueReporter).reports.get('report-id')?.description
-          ).toBe(description.trim());
-      }
-    )
+            },
+          })
+        : new FakeIssueReporter();
+      const handler = createFeedbackReportHandler({
+        reporter: backend,
+        clock,
+        allowedOrigin: 'http://local',
+      });
+      const frontend = new HttpIssueReporter({
+        endpoint: 'http://local/api/feedback',
+        timers,
+        http: { fetch: (input, init) => handler(new Request(input, init)) },
+      });
+      const result = await createFeedbackReporting({
+        reporter: frontend,
+        clock,
+        timers,
+        createId: () => 'report-id',
+        providers: [{ name: 'page', collect: () => ({ path: '/chess' }) }],
+      }).submit({
+        kind: 'problem',
+        title: '',
+        description,
+      });
+      expect(result.issue.id).toBe(useGithub ? '17' : 'report-id');
+      expect(clock.pendingOneShotCount()).toBe(0);
+      if (useGithub) expect(captured).toHaveLength(1);
+      else
+        expect(
+          (backend as FakeIssueReporter).reports.get('report-id')?.description
+        ).toBe(description);
+    })
   );
 });
 

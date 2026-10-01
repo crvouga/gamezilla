@@ -59,8 +59,7 @@ if (args[0] === '--list') {
     kind: (args[0] ??
       'problem') as import('@pkgs/feedback/shared').FeedbackKind,
     description: args[1] ?? '',
-    expected: args[2] ?? '',
-    reproductionSteps: args[3] ?? '',
+    title: args[2] ?? '',
   });
   console.log(result.issue.location ?? result.issue.id);
 }

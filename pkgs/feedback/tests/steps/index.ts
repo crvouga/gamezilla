@@ -1,5 +1,6 @@
 import './feedback.steps';
 import './reporting.steps';
+import './wizard.steps';
 import {
   type FeedbackReportingWorld,
   feedbackReportingSystem,

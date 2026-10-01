@@ -51,27 +51,53 @@ export class GitHubIssueReporter implements IssueReporter {
       typeof result.html_url !== 'string'
     )
       throw new Error('Invalid issue response');
-    return { id: String(result.number), url: result.html_url, nodeId: result.node_id };
+    return {
+      id: String(result.number),
+      url: result.html_url,
+      ...(result.node_id ? { nodeId: result.node_id } : {}),
+    };
   }
   async update(issue: CreatedIssue, report: FeedbackReport): Promise<void> {
     if (!/^\d+$/.test(issue.id)) throw new Error('Invalid issue receipt');
-    const response = await this.options.http.fetch(`https://api.github.com/repos/${this.options.repository}/issues/${issue.id}`, {
-      method: 'PATCH', headers: this.headers(),
-      body: JSON.stringify({ title: report.title, body: reportMarkdown(report) }),
-    });
+    const response = await this.options.http.fetch(
+      `https://api.github.com/repos/${this.options.repository}/issues/${issue.id}`,
+      {
+        method: 'PATCH',
+        headers: this.headers(),
+        body: JSON.stringify({
+          title: report.title,
+          body: reportMarkdown(report),
+        }),
+      }
+    );
     if (!response.ok) throw new Error('GitHub feedback could not be updated');
   }
   async remove(issue: CreatedIssue): Promise<void> {
-    if (!issue.nodeId) throw new Error('GitHub issue cannot be deleted without its receipt');
-    const response = await this.options.http.fetch('https://api.github.com/graphql', {
-      method: 'POST', headers: this.headers(),
-      body: JSON.stringify({ query: 'mutation DeleteFeedback($id: ID!) { deleteIssue(input: { issueId: $id }) { clientMutationId } }', variables: { id: issue.nodeId } }),
-    });
-    const result = await response.json() as { errors?: unknown[] };
-    if (!response.ok || result.errors?.length) throw new Error('GitHub feedback could not be deleted');
+    if (!issue.nodeId)
+      throw new Error('GitHub issue cannot be deleted without its receipt');
+    const response = await this.options.http.fetch(
+      'https://api.github.com/graphql',
+      {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          query:
+            'mutation DeleteFeedback($id: ID!) { deleteIssue(input: { issueId: $id }) { clientMutationId } }',
+          variables: { id: issue.nodeId },
+        }),
+      }
+    );
+    const result = (await response.json()) as { errors?: unknown[] };
+    if (!response.ok || result.errors?.length)
+      throw new Error('GitHub feedback could not be deleted');
   }
   private headers(): Record<string, string> {
-    return { Accept: 'application/vnd.github+json', Authorization: `Bearer ${this.options.token}`, 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'feedback', 'Content-Type': 'application/json' };
+    return {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${this.options.token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'feedback',
+      'Content-Type': 'application/json',
+    };
   }
-
 }

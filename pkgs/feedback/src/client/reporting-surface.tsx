@@ -2,16 +2,27 @@
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock/solid';
-import { OVERLAY_PORTAL_Z_INDEX, OverlayPortalProvider, SurfaceStackProvider, ThemeProvider } from '@pkgs/ui';
+import {
+  OVERLAY_PORTAL_Z_INDEX,
+  OverlayPortalProvider,
+  SurfaceStackProvider,
+  ThemeProvider,
+} from '@pkgs/ui';
 import { createSignal, onCleanup } from 'solid-js';
 import { render } from 'solid-js/web';
-import type { FeedbackController, FeedbackControllerOptions } from './controller';
+import type {
+  FeedbackController,
+  FeedbackControllerOptions,
+} from './controller';
 import { FeedbackWizard } from './feedback-wizard';
 
 export function createReportingSurface(
   host: HTMLElement,
   controller: FeedbackController,
-  ports: Pick<FeedbackControllerOptions, 'clock' | 'timers' | 'theme' | 'layout'>
+  ports: Pick<
+    FeedbackControllerOptions,
+    'clock' | 'timers' | 'theme' | 'layout'
+  >
 ) {
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   host.style.setProperty('z-index', String(OVERLAY_PORTAL_Z_INDEX));
@@ -31,7 +42,7 @@ export function createReportingSurface(
             colorScheme={scheme()}
             transparent
             manageDocumentTheme={false}
-            fixedLayout={ports.layout}
+            {...(ports.layout ? { fixedLayout: ports.layout } : {})}
           >
             <OverlayPortalProvider>
               <SurfaceStackProvider>

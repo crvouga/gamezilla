@@ -45,7 +45,7 @@ function provider(kind: string): DiagnosticProvider {
 test('optional diagnostics never erase the already-created report', async () => {
   await assertProperty(
     'feedback-reliability',
-    fc.asyncProperty(text, text, fault, async (title, description, kind) => {
+    fc.asyncProperty(text, fault, async (description, kind) => {
       const reporter = new FakeIssueReporter();
       const { clock, timers } = createHarnessClock();
       const service = createFeedbackReporting({
@@ -57,12 +57,11 @@ test('optional diagnostics never erase the already-created report', async () => 
       });
       const result = await service.submit({
         kind: 'problem',
+        title: '',
         description,
-        expected: title,
-        reproductionSteps: 'Make a move',
       });
       expect(reporter.reports.get(result.issue.id)?.description).toBe(
-        description.trim()
+        description
       );
       await Promise.resolve();
       await Promise.resolve();
@@ -97,9 +96,8 @@ test('companion-file or enrichment failure preserves the authoritative report', 
           createId: () => 'durable-id',
         }).submit({
           kind: 'problem',
+          title: '',
           description: title,
-          expected: 'Board responds',
-          reproductionSteps: 'Make a move',
         });
         expect(result.issue.id).toBe('durable-id');
         const object = await store.get('feedback-durable-id/report.json');
@@ -134,12 +132,11 @@ test('broken clock and id ports still produce an emergency report', async () => 
       });
       const result = await service.submit({
         kind: 'problem',
+        title: '',
         description,
-        expected: 'Board responds',
-        reproductionSteps: 'Make a move',
       });
       expect(result.report.createdAt).toBe('unknown');
-      expect(result.report.description).toBe(description.trim());
+      expect(result.report.description).toBe(description);
       expect(reporter.reports.size).toBe(1);
     })
   );

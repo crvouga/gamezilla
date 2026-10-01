@@ -52,10 +52,12 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
     }
     return {
       version: 1,
-      id,
       ...input,
+      id,
       title:
-        input.title.trim() || input.description.trim().split('\n').at(0)?.slice(0, 240) || 'Feedback',
+        input.title.trim() ||
+        (input.description.trim().split('\n').at(0)?.slice(0, 240) ??
+          'Feedback'),
       description: input.description,
       authorId: options.authorId ?? 'local',
       recording: input.recording ?? null,
