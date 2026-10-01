@@ -13,7 +13,7 @@ import {
   SurfaceStackProvider,
   ThemeProvider,
 } from '@pkgs/ui';
-import { createSignal, onCleanup, Show } from 'solid-js';
+import { createMemo, createSignal, onCleanup, Show } from 'solid-js';
 import { render } from 'solid-js/web';
 import type { FeedbackKind } from '../shared/types';
 import type {
@@ -31,6 +31,7 @@ const KINDS: readonly { kind: FeedbackKind; label: string }[] = [
 ];
 function SupportSurface(props: { controller: FeedbackController }) {
   const state = useFeedbackState(() => props.controller);
+  const visible = createMemo(() => state().visible);
   const recording = useRecordingState(() => props.controller);
   return (
     <>
@@ -77,7 +78,7 @@ function SupportSurface(props: { controller: FeedbackController }) {
         </Show>
       </div>
       <ResponsiveSurface
-        visible={state().visible}
+        visible={visible()}
         onClose={props.controller.close}
         title={
           KINDS.find((item) => item.kind === state().draft.kind)?.label ??

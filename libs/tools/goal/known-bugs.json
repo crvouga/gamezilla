@@ -443,5 +443,10 @@
     "id": "feedback-context-before-screen-permission",
     "summary": "Initial product state could be captured before a person finished choosing the screen, while the product continued to change. Capture the starting position after the chooser resolves, and release video immediately if recording is cancelled during context collection.",
     "regressionTest": "pkgs/feedback/tests/recording.contract.test.ts"
+  },
+  {
+    "id": "feedback-typing-steals-focus",
+    "summary": "Each feedback answer edit invalidated the dialog visibility dependency even though it stayed open, restarting focus handling and moving focus to Close. Memoize visibility independently of draft updates so typing keeps field focus.",
+    "regressionTest": "pkgs/feedback/tests/focus.contract.test.ts"
   }
 ]

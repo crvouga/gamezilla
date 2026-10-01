@@ -175,6 +175,31 @@ export function createExampleApp(session: Session) {
     );
     await idle();
   }
+  function answer(field: 'description' | 'expected' | 'steps') {
+    const input = element(`feedback-${field}`).querySelector('textarea');
+    if (!input) throw new Error('Feedback field missing');
+    return input;
+  }
+  async function editAnswer(input: {
+    field: 'description' | 'expected' | 'steps';
+    text: string;
+  }) {
+    const field = answer(input.field);
+    field.focus();
+    field.setSelectionRange(field.value.length, field.value.length);
+    for (const character of input.text) {
+      field.setRangeText(
+        character,
+        field.selectionStart,
+        field.selectionEnd,
+        'end'
+      );
+      field.dispatchEvent(
+        new InputEvent('input', { bubbles: true, data: character })
+      );
+      await session.waitForIdle();
+    }
+  }
   async function record(stop: boolean) {
     await ready();
     root?.controller.open('problem');
@@ -194,6 +219,14 @@ export function createExampleApp(session: Session) {
     open,
     describe,
     send,
+    editAnswer,
+    readAnswer(field: 'description' | 'expected' | 'steps') {
+      const input = answer(field);
+      return {
+        value: input.value,
+        focused: document.activeElement === input,
+      };
+    },
     record,
     close,
     setDiagnostics(condition: DiagnosticsCondition) {

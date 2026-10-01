@@ -62,6 +62,17 @@ export const feedbackAction = defineAction({
 });
 export const readFeedbackView = (world: FeedbackReportingWorld) =>
   world.app.view();
+export const editFeedbackAnswer = defineAction({
+  name: 'editFeedbackAnswer',
+  act: (
+    world: FeedbackReportingWorld,
+    input: Parameters<FeedbackReportingWorld['app']['editAnswer']>[0]
+  ) => world.app.editAnswer(input),
+});
+export const readFeedbackAnswer = (
+  world: FeedbackReportingWorld,
+  field: 'description' | 'expected' | 'steps'
+) => world.app.readAnswer(field);
 export const closeProduct = defineAction({
   name: 'closeProduct',
   act: (world: FeedbackReportingWorld) => world.app.close(),
@@ -91,5 +102,6 @@ export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
     submitReport,
     closeProduct,
     feedbackAction,
+    editFeedbackAnswer,
   ],
 });
