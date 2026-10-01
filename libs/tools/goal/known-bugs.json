@@ -393,5 +393,15 @@
     "id": "check-cancel-holds-concurrency",
     "summary": "A newer push cancelled Check's shards, but publish, close, and the verdict use if: always(), so they kept running and held the check-<pr> concurrency group. The required check on the new commit stayed queued and the PR stayed blocked. Fixed by skipping those jobs when the run is cancelled; a red shard is not a cancellation, so the report and the verdict still run.",
     "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "foundation-provider-bootstrap-cycle",
+    "summary": "The first Neki foundation plan configured the PostgreSQL provider from a role that the same plan had not created yet. OpenTofu substituted localhost and failed before it could create the database; the transition also tried to delete the retired broker's random credentials. Fixed by leaving pg_stat_statements with Neki's PlanetScale-managed default profile, removing the cyclic provider, and forgetting retired credentials without destroying them.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+  },
+  {
+    "id": "neki-aws-region-name-is-not-region-slug",
+    "summary": "The Neki branch used AWS's region name us-east-1, but PlanetScale's organization catalog names that region with the slug us-east. The API rejected the first branch with HTTP 422 after other foundation resources had already applied. Fixed by keeping AWS IoT on us-east-1 while passing PlanetScale's us-east slug to Neki.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
   }
 ]

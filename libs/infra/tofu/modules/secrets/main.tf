@@ -89,7 +89,7 @@ resource "terraform_data" "derived_names" {
   }
 }
 
-resource "random_password" "generated" {
+resource "random_password" "generated_value" {
   for_each = toset(var.generated)
 
   length  = 43
@@ -109,7 +109,7 @@ locals {
       && length(local.stored_generated[name]) > 0
       && !contains(var.placeholders, local.stored_generated[name])
       ? local.stored[name].value
-      : random_password.generated[name].result
+      : random_password.generated_value[name].result
     )
   }
 

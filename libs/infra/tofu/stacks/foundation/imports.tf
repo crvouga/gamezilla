@@ -45,6 +45,13 @@ removed {
 }
 
 removed {
+  from = module.database.postgresql_extension.pg_stat_statements
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
   from = module.pubsub.railway_project.this
   lifecycle {
     destroy = false
@@ -88,6 +95,15 @@ removed {
 
 removed {
   from = module.pubsub.terraform_data.clone
+  lifecycle {
+    destroy = false
+  }
+}
+
+# The retired broker keeps its credentials in Railway. Forget the local
+# random values without deleting them from state as an ordinary resource.
+removed {
+  from = module.secrets.random_password.generated
   lifecycle {
     destroy = false
   }
