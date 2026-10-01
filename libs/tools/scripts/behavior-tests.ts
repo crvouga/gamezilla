@@ -1,6 +1,6 @@
 /**
  * The shape rules for a package's behavior tests, run by lint-package.ts
- * (docs/TESTING.md § 4 "Behavior tests are specs" and "One example app per
+ * (README.md, "One example app per
  * package"):
  *
  * - A test that acts as a person would and checks what they see is a

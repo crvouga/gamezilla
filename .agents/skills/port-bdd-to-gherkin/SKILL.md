@@ -53,7 +53,7 @@ Sort every legacy `test(...)` into exactly one destination:
 | Standing `defineProperty` checks on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
 | Same-seed-twice determinism of a product harness | **The model's `fingerprint`** in its Quint binding: the runner replays the longest trace twice and compares |
 | Hash canonicality, `@pkgs/harness` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
-| Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads (`docs/TESTING.md`) |
+| Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads ([`README.md`](../../../README.md#correctness-machinery)) |
 | A past bug | A scenario tagged `@regression:<id>` if the bug was observable behavior. Otherwise an example regression test |
 
 Write a **parity ledger** in the scratchpad (it goes in the PR body later).

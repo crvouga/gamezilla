@@ -47,8 +47,11 @@ jobs:
   #   check:publish        one runner per spec part, after the shards: turbo
   #                        restores that part's cached buckets (a suite that
   #                        failed is not cached, so it runs again) and the
-  #                        part is published
-  #   check:publish-close  mark the commit complete
+  #                        part is published. Skipped when this run is
+  #                        cancelled: `always()` would still start it, and
+  #                        it would hold the concurrency group so the next
+  #                        commit's required check never starts
+  #   check:publish-close  mark the commit complete. Same cancel skip
   check-plan:
     name: check:plan
     runs-on: ubuntu-latest
@@ -217,7 +220,10 @@ jobs:
   check-publish:
     name: check:publish
     needs: [check-matrix, check-publish-open, check-shard]
-    if: always() && needs.check-matrix.result == 'success' && needs.check-publish-open.result == 'success'
+    # Red shards still publish. A cancelled run must not: these jobs hold
+    # `check-<pr>` until they finish, which leaves the next commit's
+    # required check queued.
+    if: always() && !cancelled() && needs.check-matrix.result == 'success' && needs.check-publish-open.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -259,7 +265,7 @@ jobs:
   check-publish-close:
     name: check:publish-close
     needs: [check-publish-open, check-publish]
-    if: always() && needs.check-publish-open.result == 'success'
+    if: always() && !cancelled() && needs.check-publish-open.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -292,7 +298,7 @@ jobs:
         check-publish,
         check-publish-close,
       ]
-    if: always()
+    if: always() && !cancelled()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

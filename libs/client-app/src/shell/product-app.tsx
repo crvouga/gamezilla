@@ -7,7 +7,7 @@
  *
  * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
  * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
- * not block the frame itself (see docs/LOW_END_ANDROID_PERF.md). Anything a
+ * not block the frame itself (see README.md). Anything a
  * feature needs painted above the SQLite gate — an unread-count root, a game
  * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */

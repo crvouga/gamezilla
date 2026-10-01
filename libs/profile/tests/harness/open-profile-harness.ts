@@ -13,7 +13,7 @@ import { PROFILE_HARNESS_SLICE } from '@libs/profile/harness/profile-harness-sli
  * auth flows return to) and username / avatar editing. It also hosts the auth
  * specs, since auth is platform and the harness itself depends on it. Billing
  * is in because permissions reads its `billing_subscriptions` rows directly
- * (see docs/FEATURE_SUBSYSTEMS.md).
+ * (see README.md).
  */
 const PROFILE_SYSTEM = defineProductSystem(
   composeHarnessSlices('profile', [

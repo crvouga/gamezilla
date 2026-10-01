@@ -390,6 +390,11 @@
     "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
   },
   {
+    "id": "check-cancel-holds-concurrency",
+    "summary": "A newer push cancelled Check's shards, but publish, close, and the verdict use if: always(), so they kept running and held the check-<pr> concurrency group. The required check on the new commit stayed queued and the PR stayed blocked. Fixed by skipping those jobs when the run is cancelled; a red shard is not a cancellation, so the report and the verdict still run.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
     "id": "bug-report-optional-context-budget",
     "summary": "Individually bounded diagnostics could collectively exceed the reporting HTTP limit and reject the basic report. Enforce a total UTF-8 diagnostic budget and mark excess context unavailable.",
     "regressionTest": "pkgs/bug-report/tests/diagnostic-budget.test.ts"

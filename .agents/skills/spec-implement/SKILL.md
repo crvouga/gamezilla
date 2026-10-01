@@ -8,7 +8,7 @@ description: Make Gherkin scenarios and Quint models in specs/<domain>/ pass —
 You make the spec true **without changing a word of it**, through step
 definitions so thin that the behavior lives in the product and the harness. The
 rules are [`specs/README.md`](../../../specs/README.md) (D1–D6,
-P1–P4); test rules are [`docs/TESTING.md`](../../../docs/TESTING.md).
+P1–P4); test rules are [`README.md`](../../../README.md#correctness-machinery).
 
 ## Hard rules
 
@@ -110,7 +110,7 @@ steps never call other steps.
 
 1. Run the one scenario. If its `Then` fails because the product lacks the
    behavior, write the **smallest product change** that makes it pass,
-   test-first at the unit level where `docs/TESTING.md` asks for it.
+   test-first at the unit level where [`README.md`](../../../README.md#correctness-machinery) asks for it.
 2. Green → refactor product, harness and steps with the scenario still green.
    Re-run after each refactor.
 3. Next scenario. Repeat 1–3 until every scenario in the handoff passes.

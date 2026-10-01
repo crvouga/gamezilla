@@ -5,7 +5,7 @@ import type { AvatarConfig } from './avatar-config';
 
 /**
  * DiceBear stays off the shell entry graph — load only when a persisted
- * avatar config exists (see docs/LOW_END_ANDROID_PERF.md).
+ * avatar config exists (see README.md).
  */
 const ProfileDiceBearAvatar = lazy(async () => {
   const mod = await import('./profile-dicebear-avatar');

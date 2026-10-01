@@ -3,7 +3,7 @@
  * Boot paint latch: the product navigator paints once fonts are ready
  * (system stack / `document.fonts.ready`). Local SQLite may still be opening
  * in the background — do **not** block first paint on WASM (low-end Android
- * bar; see docs/LOW_END_ANDROID_PERF.md).
+ * bar; see README.md).
  *
  * `markEngineReady` remains for sync boot bookkeeping; it does not gate paint.
  */

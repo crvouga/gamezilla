@@ -1,7 +1,7 @@
 # Testing the SQL clients
 
 `@pkgs/sql-client-contract` is the shared suite every `SqlClient` backend
-passes. Repo-wide testing policy: [`docs/TESTING.md`](../../../docs/TESTING.md).
+passes. Repo-wide testing policy: [`README.md`](../../../README.md#correctness-machinery).
 
 ## Layers
 
