@@ -1,11 +1,17 @@
 /** @jsxImportSource solid-js */
 import { asLocalized } from '@pkgs/i18n';
-import { Button, TextInput, useMutationButton } from '@pkgs/ui';
-import { type Accessor, For, Show } from 'solid-js';
+import { Button, SendIcon, TextInput, useMutationButton } from '@pkgs/ui';
+import { type Accessor, type JSX, Show } from 'solid-js';
 import { FEEDBACK_TEMPLATES } from '../shared/templates';
+import type { FeedbackKind } from '../shared/types';
 import type { FeedbackController, FeedbackState } from './controller';
-import { EvidenceReview } from './evidence-review';
-import { MarkdownPreview } from './markdown-preview';
+
+const TEMPLATE_COMMANDS: Readonly<Record<string, FeedbackKind>> = {
+  '/bug': 'problem',
+  '/feature': 'feature',
+  '/gap': 'gap',
+  '/polish': 'polish',
+};
 
 export function FeedbackForm(props: {
   controller: FeedbackController;
@@ -20,7 +26,7 @@ export function FeedbackForm(props: {
         );
     },
     labels: {
-      idle: 'Send feedback',
+      idle: 'Send',
       loading: 'Sending…',
       success: 'Sent',
       error: 'Try again',
@@ -30,9 +36,27 @@ export function FeedbackForm(props: {
     props.state();
     return props.controller.workspace.state();
   };
+  const isUpdate = () =>
+    workspace().documents.find((doc) => doc.id === workspace().activeId)
+      ?.report !== null;
+  const updateBody = (value: string): void => {
+    const lines = value.split('\n');
+    const command =
+      TEMPLATE_COMMANDS[(lines.at(-1) ?? '').trim().toLowerCase()];
+    if (!command) {
+      props.controller.setDraft({ body: value });
+      return;
+    }
+    const template = FEEDBACK_TEMPLATES.find((item) => item.kind === command);
+    const existing = lines.slice(0, -1).join('\n').trimEnd();
+    props.controller.setDraft({
+      kind: command,
+      body: [existing, template?.body ?? ''].filter(Boolean).join('\n\n'),
+    });
+  };
   return (
     <form
-      class="box gap-4"
+      class="box gap-3"
       data-testid="feedback-form"
       data-component="FeedbackForm"
       onSubmit={(event) => {
@@ -40,16 +64,23 @@ export function FeedbackForm(props: {
         void mutation.run();
       }}
     >
-      <FeedbackEditor controller={props.controller} state={props.state} />
-      <details class="box rounded-xl border border-border bg-surface-muted px-3 py-2">
-        <summary class="text text-sm font-medium cursor-pointer select-none py-1">
-          Preview
-        </summary>
-        <div class="box border-t border-border mt-2 pt-3">
-          <MarkdownPreview value={props.state().draft.body} />
-        </div>
-      </details>
-      <FeedbackContext controller={props.controller} state={props.state} />
+      <FeedbackEditor
+        controller={props.controller}
+        state={props.state}
+        onChangeBody={updateBody}
+        submit={
+          <Button
+            {...mutation.buttonProps}
+            title={isUpdate() ? 'Save' : mutation.buttonProps.title}
+            icon={SendIcon}
+            type="submit"
+            size="sm"
+            onClick={undefined}
+            onRetry={undefined}
+            dataSet={{ testid: 'feedback-submit' }}
+          />
+        }
+      />
       <Show when={props.state().message}>
         <p class="text text-sm text-warning" role="alert">
           {props.state().message}
@@ -80,130 +111,68 @@ export function FeedbackForm(props: {
           </div>
         </details>
       </Show>
-      <div class="box border-t border-border pt-4">
-        <Button
-          {...mutation.buttonProps}
-          title={
-            workspace().documents.find((d) => d.id === workspace().activeId)
-              ?.report
-              ? 'Save changes'
-              : mutation.buttonProps.title
-          }
-          type="submit"
-          onClick={undefined}
-          onRetry={undefined}
-          fullWidth
-          dataSet={{ testid: 'feedback-submit' }}
-        />
-      </div>
     </form>
   );
 }
+
 function FeedbackEditor(props: {
   controller: FeedbackController;
   state: Accessor<FeedbackState>;
+  onChangeBody: (value: string) => void;
+  submit: JSX.Element;
 }) {
   return (
-    <div class="box gap-4" data-component="FeedbackEditor">
-      <div class="box gap-2">
-        <p class="text textLabel">Optional template</p>
-        <div class="box flex-row flex-wrap gap-2">
-          <For each={FEEDBACK_TEMPLATES}>
-            {(template) => (
-              <Button
-                title={template.label}
-                size="sm"
-                variant={
-                  props.state().draft.kind === template.kind
-                    ? 'solid'
-                    : 'outline'
-                }
-                disabled={props.state().phase === 'sending'}
-                onClick={() => props.controller.applyTemplate(template.kind)}
-                dataSet={{ testid: `feedback-template-${template.kind}` }}
-              />
-            )}
-          </For>
-        </div>
-      </div>
+    <div
+      class="box overflow-hidden rounded-xl border border-border bg-surface"
+      data-component="FeedbackEditor"
+    >
       <TextInput
         name="title"
-        label="Title"
-        placeholder={asLocalized('A short headline, if you like')}
+        aria-label={asLocalized('Feedback title')}
+        placeholder={asLocalized('Title (optional)')}
         maxlength={240}
         value={props.state().draft.title}
         onChangeText={(title) => props.controller.setDraft({ title })}
         disabled={props.state().phase === 'sending'}
+        class="gap-0"
+        fieldClass="border-0 rounded-none bg-transparent font-semibold"
         dataSet={{ testid: 'feedback-title' }}
       />
       <TextInput
         multiline
-        rows={9}
+        rows={11}
         name="body"
-        label="Your feedback"
+        aria-label={asLocalized('Feedback')}
         placeholder={asLocalized(
-          'Write freely. Headings, lists, links, and code are welcome.'
+          'Describe what happened, what you expected, and what should improve.\n\nType /bug, /feature, /gap, or /polish for a guided outline.'
         )}
         maxlength={32000}
-        fieldClass="font-mono text-sm leading-relaxed"
+        class="gap-0 border-t border-border"
+        fieldClass="border-0 rounded-none bg-transparent text-sm leading-relaxed"
         value={props.state().draft.body}
-        onChangeText={(body) => props.controller.setDraft({ body })}
+        onChangeText={props.onChangeBody}
         disabled={props.state().phase === 'sending'}
-        error={
-          props.state().errors.body
-            ? asLocalized(props.state().errors.body ?? '')
-            : undefined
-        }
+        invalid={props.state().errors.body !== undefined}
         dataSet={{ testid: 'feedback-body' }}
       />
-      <div class="box flex-row justify-between">
-        <p class="text textCaption">Markdown supported</p>
-        <p class="text textCaption">
-          {props.state().draft.body.length.toString()} / 32,000
-        </p>
+      <div class="box flex-row items-center justify-between gap-2 border-t border-border px-2 py-2">
+        <Button
+          title="Add context"
+          variant="ghost"
+          size="sm"
+          disabled={props.state().phase === 'sending'}
+          onClick={() => props.controller.setStage('context')}
+          dataSet={{ testid: 'feedback-context' }}
+        />
+        <div class="box flex-row items-center gap-2">
+          <Show when={props.state().draft.body.length >= 28_000}>
+            <p class="text textCaption">
+              {props.state().draft.body.length.toString()} / 32,000
+            </p>
+          </Show>
+          {props.submit}
+        </div>
       </div>
     </div>
-  );
-}
-function FeedbackContext(props: {
-  controller: FeedbackController;
-  state: Accessor<FeedbackState>;
-}) {
-  const attachments = () => {
-    props.state();
-    return props.controller.workspace.active()?.report?.attachments ?? [];
-  };
-  return (
-    <details class="box rounded-xl border border-border bg-surface-muted px-3 py-2">
-      <summary class="text text-sm font-medium cursor-pointer select-none py-1">
-        Add context
-      </summary>
-      <div class="box gap-3 border-t border-border mt-2 pt-3">
-        <EvidenceReview controller={props.controller} />
-        <For each={attachments()}>
-          {(file) => (
-            <div class="box flex-row items-center justify-between gap-2">
-              <a
-                class="text text-sm text-tint truncate"
-                href={file.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {file.name}
-              </a>
-              <Button
-                title="Remove"
-                size="sm"
-                variant="ghost"
-                onClick={() => props.controller.removeRemoteAttachment(file.id)}
-              />
-            </div>
-          )}
-        </For>
-        <p class="text textCaption">
-          Diagnostics are automatic. Recordings and attachments are optional.
-        </p>
-      </div>
-    </details>
   );
 }

@@ -66,7 +66,7 @@ function importLegacyDraft(
     version: 1,
     activeId: id,
     stage: 'write',
-    management: { search: '', filter: 'all' },
+    management: { search: '' },
     position: { x: 0, y: 0 },
     documents: [
       {
@@ -92,19 +92,33 @@ function readWorkspace(value: unknown): FeedbackWorkspaceSnapshot {
   if (!Array.isArray(input['documents']))
     throw new Error('Unreadable saved feedback');
   const documents = input['documents'].map(readDocument);
-  const management = input['management'] as
-    | FeedbackWorkspaceSnapshot['management']
-    | undefined;
+  const savedManagement = input['management'];
+  const management =
+    typeof savedManagement === 'object' &&
+    savedManagement !== null &&
+    typeof (savedManagement as Record<string, unknown>)['search'] === 'string'
+      ? {
+          search: (savedManagement as Record<string, unknown>)[
+            'search'
+          ] as string,
+        }
+      : { search: '' };
   const position = input['position'] as
     | FeedbackWorkspaceSnapshot['position']
     | undefined;
+  const stage =
+    input['stage'] === 'manage' ||
+    input['stage'] === 'read' ||
+    input['stage'] === 'context'
+      ? input['stage']
+      : 'write';
   return {
     version: 1,
     activeId: typeof input['activeId'] === 'string' ? input['activeId'] : '',
     documents,
-    management: management ?? { search: '', filter: 'all' },
+    management,
     position: position ?? { x: 0, y: 0 },
-    stage: input['stage'] === 'manage' ? 'manage' : 'write',
+    stage,
   };
 }
 

@@ -20,7 +20,7 @@ export class FeedbackWorkspace {
       activeId: '',
       documents: [],
       stage: 'write',
-      management: { search: '', filter: 'all' },
+      management: { search: '' },
       position: { x: 0, y: 0 },
     };
     try {
@@ -83,12 +83,12 @@ export class FeedbackWorkspace {
       documents: [...this.value.documents, doc],
       activeId: id,
       stage: 'write',
-      management: { search: '', filter: 'all' },
+      management: { search: '' },
     });
   }
   select(id: string): void {
     if (this.value.documents.some((d) => d.id === id))
-      this.patch({ activeId: id, stage: 'write' });
+      this.patch({ activeId: id, stage: 'read' });
   }
   remove(id: string): void {
     this.patch({

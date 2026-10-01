@@ -18,14 +18,13 @@ export type FeedbackDocument = FeedbackDraft & {
   readonly files: readonly SavedEvidence[];
   readonly video: SavedEvidence | null;
 };
-export type WizardStage = 'write' | 'manage';
+export type WizardStage = 'write' | 'manage' | 'read' | 'context';
 export type FeedbackWorkspaceSnapshot = {
   readonly version: 1;
   readonly activeId: string;
   readonly documents: readonly FeedbackDocument[];
   readonly management: {
     readonly search: string;
-    readonly filter: 'all' | 'draft' | 'sent';
   };
   readonly stage: WizardStage;
   readonly position: { readonly x: number; readonly y: number };

@@ -228,9 +228,18 @@ export function createExampleApp(session: Session) {
       await session.waitForIdle();
     }
   }
+  async function enterTemplateCommand(command: string) {
+    const field = answer('body');
+    field.value = `${field.value}${field.value ? '\n' : ''}${command}`;
+    field.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    await session.waitForIdle();
+  }
   async function record(stop: boolean) {
     await ready();
     root?.controller.open('problem');
+    root?.controller.setStage('write');
+    element('feedback-context').click();
+    await session.waitForIdle();
     element('feedback-record').click();
     await idle();
     product?.click();
@@ -256,6 +265,10 @@ export function createExampleApp(session: Session) {
     if (action.type === 'edit') {
       const id = root?.controller.workspace.state().activeId;
       await root?.controller.manage();
+      element(`feedback-open-${id}`).click();
+      await session.waitForIdle();
+      element('feedback-actions').click();
+      await session.waitForIdle();
       element(`feedback-edit-${id}`).click();
       await session.waitForIdle();
       await describe({
@@ -268,6 +281,10 @@ export function createExampleApp(session: Session) {
     if (action.type === 'delete' || action.type === 'cancel-delete') {
       const id = root?.controller.workspace.state().activeId;
       await root?.controller.manage();
+      element(`feedback-open-${id}`).click();
+      await session.waitForIdle();
+      element('feedback-actions').click();
+      await session.waitForIdle();
       element(`feedback-delete-${id}`).click();
       await session.waitForIdle();
       if (action.type === 'delete') {
@@ -305,11 +322,11 @@ export function createExampleApp(session: Session) {
       }
       if (action.type === 'bug-template') {
         await open();
-        element('feedback-template-problem').click();
+        await enterTemplateCommand('/bug');
       }
       if (action.type === 'polish-template') {
         await open();
-        element('feedback-template-polish').click();
+        await enterTemplateCommand('/polish');
       }
       if (action.type === 'phone') {
         width = 390;
@@ -426,6 +443,9 @@ export function createExampleApp(session: Session) {
       managementText:
         document.querySelector('[data-testid="feedback-management"]')
           ?.textContent ?? '',
+      buttons: [...(host?.querySelectorAll('button') ?? [])]
+        .map((button) => button.textContent.trim())
+        .filter(Boolean),
       recording: root?.controller.recorder.state() ?? null,
       videoStarts,
       errors: root?.controller.state().errors ?? {},

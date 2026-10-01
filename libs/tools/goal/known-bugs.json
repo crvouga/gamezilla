@@ -468,5 +468,10 @@
     "id": "feedback-opfs-client-path",
     "summary": "The shipped client TypeScript configuration omitted the OPFS package path used by the feedback browser root, so a cold app type-check could not resolve evidence storage. Keep the concrete feedback import resolvable through the client path map.",
     "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
+  },
+  {
+    "id": "feedback-template-submit",
+    "summary": "Buttons without an explicit type inside the feedback form inherited HTML's submit default, so choosing a template sent the draft. The shared Button now defaults to type=button and only explicit submit controls submit forms.",
+    "regressionTest": "pkgs/ui/tests/button.test.tsx"
   }
 ]

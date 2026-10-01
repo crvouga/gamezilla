@@ -1,7 +1,9 @@
 /** @jsxImportSource solid-js */
 import { Button, SuccessState } from '@pkgs/ui';
-import { Show } from 'solid-js';
+import { Match, Show, Switch } from 'solid-js';
 import type { FeedbackController } from './controller';
+import { FeedbackContext } from './feedback-context';
+import { FeedbackDetail } from './feedback-detail';
 import { FeedbackForm } from './feedback-form';
 import { FeedbackManagement } from './feedback-management';
 import { useFeedbackState } from './use-feedback-state';
@@ -16,26 +18,19 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
     state();
     return props.controller.workspace.warning;
   };
+  const title = () => {
+    if (workspace().stage === 'manage') return 'Feedback';
+    if (workspace().stage === 'read') return 'Feedback detail';
+    if (workspace().stage === 'context') return 'Add context';
+    return props.controller.workspace.active()?.report
+      ? 'Edit feedback'
+      : 'New feedback';
+  };
   return (
     <div class="box gap-4 p-4" data-component="FeedbackPanel">
       <div class="box flex-row items-center justify-between gap-3">
-        <div class="box gap-0.5">
-          <h2 class="text font-semibold">
-            {workspace().stage === 'manage' ? 'Your feedback' : 'New feedback'}
-          </h2>
-          <p class="text textCaption">Saved on this device</p>
-        </div>
-        <Button
-          title={workspace().stage === 'manage' ? 'Back to writing' : 'History'}
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            if (workspace().stage === 'manage')
-              props.controller.setStage('write');
-            else void props.controller.manage();
-          }}
-          dataSet={{ testid: 'feedback-manage' }}
-        />
+        <h2 class="text font-semibold">{title()}</h2>
+        <StageAction controller={props.controller} stage={workspace().stage} />
       </div>
       <Show when={warning()}>
         <div
@@ -54,43 +49,83 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
           />
         </div>
       </Show>
-      <Show
-        when={workspace().stage === 'manage'}
-        fallback={
-          <Show
-            when={state().phase === 'saved'}
-            fallback={
-              <FeedbackForm controller={props.controller} state={state} />
-            }
-          >
-            <SuccessState
-              title="Feedback saved"
-              body="Your report and context are safe."
-              action={{
-                label: 'Your feedback',
-                onClick: () => {
-                  void props.controller.manage();
-                },
-              }}
-              variant="compact"
-            />
-            <Button
-              title="Write another"
-              variant="outline"
-              onClick={() => {
-                void props.controller.newDraft();
-              }}
-            />
-          </Show>
-        }
-      >
-        <FeedbackManagement controller={props.controller} state={state} />
-      </Show>
-      <Show when={warning()}>
-        <p class="text textCaption" role="status" aria-live="polite">
-          Draft needs saving
-        </p>
-      </Show>
+      <Switch>
+        <Match when={workspace().stage === 'manage'}>
+          <FeedbackManagement controller={props.controller} state={state} />
+        </Match>
+        <Match when={workspace().stage === 'read'}>
+          <FeedbackDetail controller={props.controller} state={state} />
+        </Match>
+        <Match when={workspace().stage === 'context'}>
+          <FeedbackContext controller={props.controller} state={state} />
+        </Match>
+        <Match when={state().phase === 'saved'}>
+          <SuccessState
+            title="Feedback saved"
+            body="Your report and context are safe."
+            action={{
+              label: 'View feedback',
+              onClick: () => props.controller.setStage('read'),
+            }}
+            variant="compact"
+          />
+        </Match>
+        <Match when={workspace().stage === 'write'}>
+          <FeedbackForm controller={props.controller} state={state} />
+        </Match>
+      </Switch>
     </div>
+  );
+}
+
+function StageAction(props: {
+  controller: FeedbackController;
+  stage: 'write' | 'manage' | 'read' | 'context';
+}) {
+  return (
+    <Switch>
+      <Match when={props.stage === 'manage'}>
+        <Button
+          title="New"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            void props.controller.newDraft();
+          }}
+          dataSet={{ testid: 'feedback-new' }}
+        />
+      </Match>
+      <Match when={props.stage === 'read'}>
+        <Button
+          title="Back"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            void props.controller.manage();
+          }}
+          dataSet={{ testid: 'feedback-back' }}
+        />
+      </Match>
+      <Match when={props.stage === 'context'}>
+        <Button
+          title="Done"
+          variant="ghost"
+          size="sm"
+          onClick={() => props.controller.setStage('write')}
+          dataSet={{ testid: 'feedback-context-done' }}
+        />
+      </Match>
+      <Match when={props.stage === 'write'}>
+        <Button
+          title="History"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            void props.controller.manage();
+          }}
+          dataSet={{ testid: 'feedback-manage' }}
+        />
+      </Match>
+    </Switch>
   );
 }
