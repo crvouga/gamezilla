@@ -7,7 +7,6 @@ import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-usern
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
 import { HARNESS_SERVER_URL } from '@libs/feature/public/harness-constants';
-import { assert } from '@pkgs/assert';
 import {
   createInhouseAuthClient,
   createNamespacedAuthClientStorage,
@@ -37,6 +36,7 @@ import { harnessClientNamespace } from './client-namespace';
 import { type HarnessIdps, harnessBrowserFetch } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
 import type { HarnessNet } from './net';
+import { partitionAwarePubSub } from './partition-aware-pubsub';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import {
@@ -91,6 +91,29 @@ function clientServerFetch(deps: HarnessClientEnvDeps, id: string) {
   });
 }
 
+function clientEvents(deps: HarnessClientEnvDeps, id: string) {
+  const pubsubLogger = createLogger({
+    name: `harness-${id}:pubsub`,
+    now: () => deps.session.ports.clock.now(),
+  });
+  const openEvents = (): ReturnType<typeof createInMemoryPubSub> =>
+    partitionAwarePubSub({
+      inner: createInMemoryPubSub({
+        bus: deps.pubSubBus,
+        logger: pubsubLogger,
+      }),
+      reachable: () => deps.net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),
+      timers: deps.timers,
+    });
+  let liveEvents: ReturnType<typeof createInMemoryPubSub> = openEvents();
+  const recreate = (): ReturnType<typeof createInMemoryPubSub> => {
+    liveEvents.close();
+    liveEvents = openEvents();
+    return liveEvents;
+  };
+  return { current: () => liveEvents, recreate };
+}
+
 export function makeHarnessClientEnv(
   deps: HarnessClientEnvDeps,
   args: {
@@ -98,7 +121,7 @@ export function makeHarnessClientEnv(
     readonly clientSql: Map<string, HarnessSql>;
   }
 ): { readonly env: ClientEnv; readonly browser: HarnessBrowser } {
-  const { session, seed, timers, net, pubSubBus, roomNode } = deps;
+  const { session, seed, timers, net, roomNode } = deps;
   const { id, clientSql } = args;
   const ns = harnessClientNamespace(id);
   const serverFetch = clientServerFetch(deps, id);
@@ -117,17 +140,7 @@ export function makeHarnessClientEnv(
     // The actor id doubles as the harness username (client-a / client-b).
     onAuthSuccess: () => setPendingSignupUsername(id),
   });
-  const pubsubLogger = createLogger({
-    name: `harness-${id}:pubsub`,
-    now: () => session.ports.clock.now(),
-  });
-  let liveEvents: ReturnType<typeof createInMemoryPubSub> | null =
-    createInMemoryPubSub({ bus: pubSubBus, logger: pubsubLogger });
-  const createPubSub = (): ReturnType<typeof createInMemoryPubSub> => {
-    liveEvents?.close();
-    liveEvents = createInMemoryPubSub({ bus: pubSubBus, logger: pubsubLogger });
-    return liveEvents;
-  };
+  const events = clientEvents(deps, id);
   const env: ClientEnv = {
     clock: session.ports.clock,
     timers,
@@ -138,10 +151,9 @@ export function makeHarnessClientEnv(
     seed,
     server: serverFetch,
     get events() {
-      assert.defined(liveEvents, 'harness client events');
-      return liveEvents;
+      return events.current();
     },
-    createPubSub,
+    createPubSub: events.recreate,
     openSqlClient: async () => {
       let handle = clientSql.get(id);
       if (handle === undefined) {

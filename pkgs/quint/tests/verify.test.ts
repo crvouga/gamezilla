@@ -82,6 +82,59 @@ describe('verify', () => {
     if (result.ok) return;
     expect(result.output).toContain('proves nothing');
   });
+
+  test(
+    'an inductive candidate must survive every transition, even when ordinary safety holds',
+    async () => {
+      // regression: quint-inductive-candidate-unchecked
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-induction.qnt'),
+        invariants: ['invKnownState'],
+        inductiveInvariant: '_notInductive',
+        maxSteps: 4,
+        outDir: join(OUT, 'false-induction'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.output).toContain('_notInductive');
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test(
+    'a preserved candidate must imply the requested safety property',
+    async () => {
+      // regression: quint-inductive-candidate-unchecked
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-induction.qnt'),
+        invariants: ['invNeverOpen'],
+        inductiveInvariant: '_inductive',
+        maxSteps: 4,
+        outDir: join(OUT, 'false-implication'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.output).toContain('invNeverOpen');
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test(
+    'a preserved candidate proves the requested invariants by induction',
+    async () => {
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-induction.qnt'),
+        invariants: ['invKnownState'],
+        inductiveInvariant: '_inductive',
+        maxSteps: 4,
+        outDir: join(OUT, 'induction'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result).toMatchObject({ ok: true });
+    },
+    CHECK_TIMEOUT_MS
+  );
 });
 
 describe('the pinned Apalache', () => {

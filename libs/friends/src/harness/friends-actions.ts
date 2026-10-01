@@ -96,20 +96,6 @@ export const removeFriend = scenarioAction({
   },
 });
 
-export const blockFriend = scenarioAction({
-  name: 'blockFriend',
-  act: async (s, actorId: string, username: string) => {
-    const ui = await actorUi(s, actorId);
-    await openFriendProfile(s, actorId, username);
-    await ui.get('header-overflow-menu').tap({ timeoutMs: WAIT_MS });
-    const block = Handles.friendBlock(username);
-    await ui.get(block).tap({ timeoutMs: WAIT_MS });
-    const confirm = Handles.friendBlockConfirm(username);
-    await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
-    await ui.get(confirm).expect.hidden({ timeoutMs: HIDDEN_MS });
-  },
-});
-
 export const unblockFriend = scenarioAction({
   name: 'unblockFriend',
   act: async (s, actorId: string, username: string) => {
@@ -212,7 +198,6 @@ export const FRIENDS_HARNESS_ACTIONS = [
   declineFriendRequest,
   cancelFriendRequest,
   removeFriend,
-  blockFriend,
   unblockFriend,
   openFriendsList,
 ];

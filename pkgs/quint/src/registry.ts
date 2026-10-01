@@ -72,6 +72,8 @@ export type QuintBinding<W> = {
    * from the binding's text, so write it as a number literal.
    */
   readonly verifySteps?: number;
+  /** Candidate proved by induction, instead of stopping at a sequence bound. */
+  readonly inductiveInvariant?: string;
   /** Per-trace test timeout. Default: the runner's. */
   readonly timeoutMs?: number;
   /**

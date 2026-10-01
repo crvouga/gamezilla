@@ -10,6 +10,7 @@
  *   typecheck        specification    `quint typecheck`
  *   verify           specification    Apalache, every invariant up to the bound
  *                                     (recorded by the package's `check:models`)
+ *   temporal:<name>  specification    TLC, complete finite graph and cycles
  *   simulate         specification    every invariant held while drawing traces;
  *                                     no invariant is a failure
  *   trace:<n>        implementation   the product agreed with trace n

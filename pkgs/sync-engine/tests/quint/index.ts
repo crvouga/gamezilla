@@ -4,6 +4,8 @@
  */
 
 import './note-replication.binding';
+import './note-conflicts.binding';
+import './note-recovery.binding';
 
 import { useNoteWorld } from './note-world';
 

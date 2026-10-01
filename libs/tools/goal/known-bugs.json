@@ -393,5 +393,45 @@
     "id": "check-cancel-holds-concurrency",
     "summary": "A newer push cancelled Check's shards, but publish, close, and the verdict use if: always(), so they kept running and held the check-<pr> concurrency group. The required check on the new commit stayed queued and the PR stayed blocked. Fixed by skipping those jobs when the run is cancelled; a red shard is not a cancellation, so the report and the verdict still run.",
     "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "quint-temporal-obligations-unchecked",
+    "summary": "Model and release checks could accept safety evidence while declared temporal properties were never checked. TLC now checks finite graphs and the conformance verdict requires every declared temporal obligation. A safe model with permanently unreachable completion is pinned as the regression.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+  },
+  {
+    "id": "quint-inductive-candidate-unchecked",
+    "summary": "A requested inductive candidate was ignored by the model verifier, allowing ordinary safety evidence to stand in for an unbounded proof. The verifier now requires initialization, transition preservation, and implication; a candidate broken by opening a safe door is pinned.",
+    "regressionTest": "pkgs/quint/tests/verify.test.ts"
+  },
+  {
+    "id": "quint-progress-count-as-exhaustive",
+    "summary": "The TLC evidence reader took the first progress count instead of the completed graph, reporting a varying partial size as exhaustive evidence. It now requires successful graph completion, an empty final queue, and the final count and search depth. The literal 13,084-to-19,000 output is pinned.",
+    "regressionTest": "pkgs/quint/tests/tlc-state-space.test.ts"
+  },
+  {
+    "id": "friend-block-non-friend-route",
+    "summary": "The executable blocking adapter required an existing friendship, leaving blocking strangers and pending outgoing requests unverified. The adapter now opens the person through search and uses the general blocking action. Both literal failing scenarios are pinned.",
+    "regressionTest": "specs/friends/friend-block.feature"
+  },
+  {
+    "id": "puzzle-quota-start-count-binding",
+    "summary": "Rated puzzle entitlement conformance still read solved counts after the product promise changed to charge quota when a rated puzzle starts. The decision bindings now consume start counts at the exact day boundary; the failing literal 0 today and 100 earlier input is pinned.",
+    "regressionTest": "libs/permissions/tests/puzzle-start-counts.test.ts"
+  },
+  {
+    "id": "product-harness-offline-events-leak",
+    "summary": "Partitioned product clients still received in-memory live events, so offline relationship traces used current server knowledge. Events now respect the same reachability gate as HTTP and room connections, drop changes during a cut, and signal reconnect so sync can repair. The literal before/offline/after sequence is pinned.",
+    "regressionTest": "libs/harness/tests/partition-aware-pubsub.test.ts"
+  },
+  {
+    "id": "friend-block-missed-while-offline",
+    "summary": "Reconnecting devices downloaded only blocks they created, missing incoming blocks or their removal while offline. The block snapshot now includes both parties and tombstones, preserving search privacy and allowing recovery after unblock. Literal block and unblock during the other device outage are pinned.",
+    "regressionTest": "specs/friends/friend-block.feature"
+  },
+  {
+    "id": "friend-block-server-search-disclosure",
+    "summary": "People search returned the blocker profile to a blocked actor and relied on a possibly stale client-side filter. The server query now withholds active blockers while preserving discovery in the unblock direction and profile tombstones needed for synchronization. Alice blocking Bob is the literal regression.",
+    "regressionTest": "libs/friends/tests/blocked-search.test.ts"
   }
 ]

@@ -17,7 +17,7 @@ import { ACTION } from '../../shared/permission-catalog';
 import { grantKeyOf } from './capabilities';
 import { clientGatingLayer } from './client';
 import { capabilityOf, identityFor, personOf } from './people';
-import { insertSolved, solvedEntries } from './puzzle-ledger';
+import { insertStarted, startedEntries } from './puzzle-ledger';
 import {
   ACCESS_REASONS,
   DAILY_PUZZLE_LIMIT_REASONS,
@@ -44,7 +44,7 @@ export function accessClientLayer(options: ClientOptions): DecisionLayer {
 
 /**
  * `daily-puzzle-limit`, on the device: whether the app lets the person start
- * another rated puzzle, with their solved puzzles in the synced ledger.
+ * another rated puzzle, with their started puzzles in the synced ledger.
  */
 export function dailyPuzzleLimitClientLayer(
   options: ClientOptions
@@ -53,9 +53,9 @@ export function dailyPuzzleLimitClientLayer(
     ...options,
     observes: ['answer', 'reason'],
     seed: (c) =>
-      insertSolved(c.db, {
+      insertStarted(c.db, {
         ownerId: identityFor(personOf(c.input)).actorId,
-        entries: solvedEntries(c.input, c.nowMs),
+        entries: startedEntries(c.input, c.nowMs),
       }),
     probe: () => {
       const permissions = usePermissions();

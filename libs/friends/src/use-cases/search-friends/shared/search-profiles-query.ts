@@ -77,20 +77,21 @@ export const searchProfiles = defineQuery({
       return { profile: [] };
     }
     const likeQuery = `${query.trim().toLowerCase()}%`;
+    // Active blocks govern discovery; profile tombstones still reach allowed viewers.
     const rows = await ctx.db.query(sql`
       SELECT
-        id,
-        created_at,
-        username,
-        avatar_config,
-        username_changed_at,
-        username_norm,
-        deleted_at
-      FROM profile
-      WHERE id <> ${viewerId}
-        AND username_norm <> ''
-        AND username_norm LIKE ${likeQuery}
-      ORDER BY username_norm ASC
+        p.id, p.created_at, p.username, p.avatar_config,
+        p.username_changed_at, p.username_norm, p.deleted_at
+      FROM profile AS p
+      LEFT JOIN friends_blocks AS block
+        ON block.blocker_id = p.id
+          AND block.blocked_id = ${viewerId}
+          AND block.deleted_at IS NULL
+      WHERE p.id <> ${viewerId}
+        AND p.username_norm <> ''
+        AND p.username_norm LIKE ${likeQuery}
+        AND block.id IS NULL
+      ORDER BY p.username_norm ASC
     `);
     return { profile: rows };
   },

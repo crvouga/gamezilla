@@ -24,6 +24,7 @@ const FEATURE: ReportSpec = {
   live: false,
   accessibility: false,
   scenarios: ['A guest creates a space', 'A member creates a space'],
+  temporalProperties: [],
 };
 
 const DECISIONS: ReportSpec = {
@@ -36,6 +37,7 @@ const DECISIONS: ReportSpec = {
   live: false,
   accessibility: false,
   scenarios: [],
+  temporalProperties: [],
 };
 
 function record(
@@ -84,6 +86,42 @@ function line(report: ReportInput, id: LineId) {
 }
 
 describe('evaluateLines', () => {
+  test('a safety verdict cannot stand in for a declared progress obligation', () => {
+    // regression: quint-temporal-obligations-unchecked
+    const model: ReportSpec = {
+      ...FEATURE,
+      path: 'specs/sync-engine/note-recovery.qnt',
+      kind: 'dynamics',
+      scenarios: [],
+      temporalProperties: ['liveEditsFinish', 'liveDevicesAgree'],
+    };
+    const safety = record(model, [pass('verify', 'specification')]);
+    expect(
+      line(input({ specs: [model], records: [safety] }), 'model-checking')
+        .status
+    ).toBe('fail');
+    const oneProperty = record(model, [
+      pass('temporal:liveEditsFinish', 'specification'),
+    ]);
+    expect(
+      line(
+        input({ specs: [model], records: [safety, oneProperty] }),
+        'model-checking'
+      ).status
+    ).toBe('fail');
+    const allProperties = record(model, [
+      pass('temporal:liveDevicesAgree', 'specification'),
+    ]);
+    expect(
+      line(
+        input({
+          specs: [model],
+          records: [safety, oneProperty, allProperties],
+        }),
+        'model-checking'
+      ).status
+    ).toBe('pass');
+  });
   test('missing evidence fails', () => {
     expect(line(input({}), 'acceptance')).toMatchObject({
       status: 'fail',

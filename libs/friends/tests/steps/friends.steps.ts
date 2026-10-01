@@ -9,7 +9,6 @@ import { expect } from 'bun:test';
 import {
   acceptFriendRequest,
   addFriend,
-  blockFriend,
   cancelFriendRequest,
   declineFriendRequest,
   openFriendLiveSpace,
@@ -46,6 +45,7 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from '@libs/friends/harness/person-actions';
+import { pendingRequestStored } from '@libs/friends/harness/relationship-reads';
 import { setupFriendsPair } from '@libs/friends/harness/setup-friends-pair';
 import { backToTabs, focusActor, returnToTabs } from '@libs/harness';
 import {
@@ -96,7 +96,7 @@ Given(
   async (w, from: Actor, to: Actor) => {
     await w.s.apply(searchUsername, from, to);
     await w.s.apply(addFriend, from, to);
-    await w.s.until((surf) => friendRequestCardVisible(surf, to, from));
+    await w.s.until((surf) => pendingRequestStored(surf, from, to));
   }
 );
 
@@ -413,6 +413,11 @@ When('{actor} removes {actor}', async (w, actor: Actor, other: Actor) => {
   await w.s.apply(returnToTabs, actor);
 });
 
+Given('{actor} has removed {actor}', async (w, actor: Actor, other: Actor) => {
+  await w.s.apply(removeFriend, actor, other);
+  await w.s.apply(returnToTabs, actor);
+});
+
 When(
   '{actor} starts removing {actor} but keeps them',
   async (w, actor: Actor, other: Actor) => {
@@ -428,8 +433,8 @@ async function block(
   actor: Actor,
   other: Actor
 ): Promise<void> {
-  await w.s.apply(blockFriend, actor, other);
-  await w.s.apply(returnToTabs, actor);
+  await w.s.apply(openPersonFromSearch, actor, other);
+  await w.s.apply(blockPerson, actor, other);
 }
 
 When('{actor} blocks {actor}', async (w, actor: Actor, other: Actor) => {
@@ -452,6 +457,14 @@ When('{actor} unblocks {actor}', async (w, actor: Actor, other: Actor) => {
   await w.s.apply(backToTabs, actor);
   await w.s.apply(unblockFriend, actor, other);
 });
+
+Given(
+  '{actor} has unblocked {actor}',
+  async (w, actor: Actor, other: Actor) => {
+    await w.s.apply(backToTabs, actor);
+    await w.s.apply(unblockFriend, actor, other);
+  }
+);
 
 Then('{actor} can unblock {actor}', async (w, actor: Actor, other: Actor) => {
   expect(await w.s.read(unblockOffered, actor, other)).toBe(true);

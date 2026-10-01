@@ -249,10 +249,12 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has hosted a space and ended it | {actor} | friends |
 | Given | {actor} has lost the connection long enough to drop out of the space | {actor} | friends |
 | Given | {actor} has opened {actor}'s profile from their request | {actor}, {actor} | friends |
+| Given | {actor} has removed {actor} | {actor}, {actor} | friends |
 | Given | {actor} has renamed themselves to {username} | {actor}, {username} | friends |
 | Given | {actor} has searched for {string} | {actor}, {string} | friends |
 | Given | {actor} has sent {actor} a friend request | {actor}, {actor} | friends |
 | Given | {actor} has sent {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
+| Given | {actor} has unblocked {actor} | {actor}, {actor} | friends |
 | Given | {actor} is a Plus member | {actor} | friends |
 | Given | {actor} is hosting a space | {actor} | friends |
 | Given | {actor} is hosting a space that {actor} joined from the link | {actor}, {actor} | friends |

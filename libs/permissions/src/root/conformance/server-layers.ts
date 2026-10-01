@@ -15,7 +15,7 @@ import { ACTION } from '../../shared/permission-catalog';
 import { consumeQuotaMutation } from '../../use-cases/consume-quota/shared/consume-quota-mutation';
 import { grantKeyOf } from './capabilities';
 import { capabilityOf, identityFor, personOf } from './people';
-import { insertSolved, solvedEntries } from './puzzle-ledger';
+import { insertStarted, startedEntries } from './puzzle-ledger';
 import { DAILY_PUZZLE_LIMIT_REASONS } from './reasons';
 import {
   allOperations,
@@ -77,7 +77,7 @@ export function accessServerLayer(options: AccessServerOptions): DecisionLayer {
 }
 
 /**
- * `daily-puzzle-limit`, at the server: the person's solved puzzles in the
+ * `daily-puzzle-limit`, at the server: the person's started puzzles in the
  * ledger, then one more rated puzzle consumed through the replay (the
  * authorize hook consumes with the server clock; the body is then a no-op).
  * A refusal's code is the product's reason, so the reason is observed too.
@@ -96,9 +96,9 @@ export function dailyPuzzleLimitServerLayer(options: {
     ...options,
     reasons: DAILY_PUZZLE_LIMIT_REASONS,
     seed: (c) =>
-      insertSolved(c.db, {
+      insertStarted(c.db, {
         ownerId: identityFor(personOf(c.input)).actorId,
-        entries: solvedEntries(c.input, c.nowMs),
+        entries: startedEntries(c.input, c.nowMs),
       }),
     operationFor: () => consume,
   });

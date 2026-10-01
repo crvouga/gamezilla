@@ -36,6 +36,8 @@ export type ReportSpec = {
   readonly accessibility: boolean;
   /** Behavior: the scenario names of the current text. */
   readonly scenarios: readonly string[];
+  /** Dynamics: every public temporal property in the current model text. */
+  readonly temporalProperties: readonly string[];
 };
 
 export type TaskVerdict = {
@@ -159,6 +161,15 @@ function specProblems(
       if (!fresh.has(key(rule.layer, `scenario:${name}`))) {
         out.push(
           `${spec.path}: not run — scenario "${name}" has no ${rule.layer} verdict`
+        );
+      }
+    }
+  }
+  if (spec.kind === 'dynamics' && rule.layer === 'specification') {
+    for (const property of spec.temporalProperties) {
+      if (!fresh.has(key('specification', `temporal:${property}`))) {
+        out.push(
+          `${spec.path}: not run — temporal property "${property}" has no specification verdict`
         );
       }
     }

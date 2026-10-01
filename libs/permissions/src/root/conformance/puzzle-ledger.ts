@@ -1,7 +1,7 @@
 /**
- * The rated puzzles a case's person already solved, as consumption-ledger
- * rows placed on the day boundary itself: "solved today" at exactly UTC
- * midnight of the case's day (the first instant that counts), "solved before
+ * The rated puzzles a case's person already started, as consumption-ledger
+ * rows placed on the day boundary itself: "started today" at exactly UTC
+ * midnight of the case's day (the first instant that counts), "started before
  * today" one millisecond earlier (the last instant that does not). A window
  * off by one millisecond either way changes the count, so the boundary is
  * part of every case.
@@ -28,8 +28,8 @@ export function utcMidnightOf(nowMs: number): number {
   return Math.floor(nowMs / DAY_MS) * DAY_MS;
 }
 
-/** The case's solved puzzles: today's at midnight, earlier ones 1 ms before. */
-export function solvedEntries(
+/** The case's started puzzles: today's at midnight, earlier ones 1 ms before. */
+export function startedEntries(
   input: CaseInput,
   nowMs: number
 ): readonly LedgerEntry[] {
@@ -49,7 +49,7 @@ export function solvedEntries(
 }
 
 /** The same entries as synced ledger rows owned by `ownerId`. */
-export async function insertSolved(
+export async function insertStarted(
   db: SqlClient,
   args: {
     readonly ownerId: string;
@@ -57,7 +57,7 @@ export async function insertSolved(
   }
 ): Promise<void> {
   for (const [index, entry] of args.entries.entries()) {
-    const id = `solved-${String(index)}`;
+    const id = `started-${String(index)}`;
     await db.run(sql`
       INSERT INTO permissions_quota_ledger (
         id, owner_id, quota, idempotency_key, amount, consumed_at,

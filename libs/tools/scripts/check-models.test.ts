@@ -38,7 +38,21 @@ describe('modelChecks', () => {
     );
     const sync = specPackages().find((pkg) => pkg.dir === 'pkgs/sync-engine');
     expect(sync === undefined ? [] : modelChecks(sync)).toEqual([
-      { specUri: 'specs/sync-engine/note-replication.qnt', steps: 1 },
+      {
+        specUri: 'specs/sync-engine/note-conflicts.qnt',
+        steps: 8,
+        inductiveInvariant: '_inductive',
+      },
+      {
+        specUri: 'specs/sync-engine/note-recovery.qnt',
+        steps: 8,
+        inductiveInvariant: null,
+      },
+      {
+        specUri: 'specs/sync-engine/note-replication.qnt',
+        steps: 1,
+        inductiveInvariant: null,
+      },
     ]);
   });
 });

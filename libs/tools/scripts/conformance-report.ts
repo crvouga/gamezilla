@@ -41,6 +41,7 @@ import { join } from 'node:path';
 import { closureProblems } from '@pkgs/conformance/closure';
 import { type EvidenceRecord, sha256 } from '@pkgs/conformance/evidence';
 import { readEvidence } from '@pkgs/conformance/evidence-store';
+import { modelTemporalProperties } from '@pkgs/quint/temporal';
 
 import {
   evaluateLines,
@@ -123,12 +124,17 @@ const scenarios = new Map(
     )
   )
 );
-const reportSpecs: ReportSpec[] = specs.map((spec) => ({
-  ...spec,
-  sha256: sha256(readFileSync(join(REPO_ROOT, spec.path), 'utf8')),
-  accessibility: EVIDENCE_MAP.accessibility.includes(spec.path),
-  scenarios: scenarios.get(spec.path) ?? [],
-}));
+const reportSpecs: ReportSpec[] = specs.map((spec) => {
+  const source = readFileSync(join(REPO_ROOT, spec.path), 'utf8');
+  return {
+    ...spec,
+    sha256: sha256(source),
+    accessibility: EVIDENCE_MAP.accessibility.includes(spec.path),
+    scenarios: scenarios.get(spec.path) ?? [],
+    temporalProperties:
+      spec.kind === 'dynamics' ? modelTemporalProperties(source) : [],
+  };
+});
 
 const records: EvidenceRecord[] = [];
 const malformed: string[] = [];
