@@ -9,6 +9,7 @@
  * the palette opens via `mod+k` / `mod+shift+p` from `CommandRegistryProvider`.
  */
 
+import { requestFeedback } from '@pkgs/feedback/client';
 import { useLingui } from '@lingui/solid/macro';
 import {
   type Command,
@@ -152,12 +153,19 @@ function PerformanceCommands(): JSX.Element {
   return null;
 }
 
+function FeedbackCommands(): JSX.Element {
+  const { t } = useLingui();
+  useRegisterCommands(() => [{ id: 'feedback-open', title: t`Open developer feedback`, category: t`Developer`, icon: ScrollTextIcon, keywords: [t`feedback`, t`bug`, t`draft`, t`report`], run: () => requestFeedback() }]);
+  return null;
+}
+
 export function AppCommands(): JSX.Element {
   return (
     <>
       <NavigationCommands />
       <AppearanceCommands />
       <PerformanceCommands />
+      <FeedbackCommands />
     </>
   );
 }

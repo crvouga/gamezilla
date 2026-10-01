@@ -31,7 +31,8 @@
     "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/object-store-opfs": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",

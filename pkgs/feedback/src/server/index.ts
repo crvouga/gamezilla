@@ -9,3 +9,4 @@ export {
   MAX_REPORT_BYTES,
 } from './http-handler';
 export { reportMarkdown } from './report-files';
+export { ArchivedIssueReporter } from './archived-issue-reporter';

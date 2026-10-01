@@ -1,4 +1,9 @@
 import type { Clock, Timers } from '@pkgs/clock';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { FeedbackWorkspacePort, WizardStage } from '../shared/workspace';
+import { FEEDBACK_TEMPLATES } from '../shared/templates';
+import { DraftEvidence } from './draft-evidence';
+import { FeedbackWorkspace } from './workspace';
 import type { CreateId } from '@pkgs/uuid';
 import { collectDiagnostics } from '../shared/diagnostics';
 import { createFeedbackReporting } from '../shared/reporting';
@@ -10,27 +15,24 @@ import type {
   FeedbackDraft,
   FeedbackKind,
   FeedbackReport,
-  IssueReporter,
+  FeedbackRepository,
 } from '../shared/types';
 import { EMPTY_FEEDBACK, feedbackErrors } from '../shared/validation';
 import { feedbackContextProviders } from './context';
 import { createReproductionRecorder } from './recording';
 import type { RecordingPort } from './recording-types';
 
-export type FeedbackDraftStore = {
-  save(value: string): void;
-  load(): string | null;
-  clear(): void;
-};
-
 export type FeedbackControllerOptions = {
-  readonly reporter: IssueReporter;
+  readonly reporter: FeedbackRepository;
+  readonly workspace: FeedbackWorkspacePort;
+  readonly authorId: string;
+  readonly evidence: ObjectStore;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly providers: readonly DiagnosticProvider[];
-  readonly draft?: FeedbackDraftStore;
   readonly video?: RecordingPort;
+  readonly layout?: { width: number; height: number };
   readonly theme?: {
     read: () => 'light' | 'dark';
     subscribe: (listener: () => void) => () => void;
@@ -64,6 +66,11 @@ export class FeedbackController {
     files: [],
     message: null,
   };
+  readonly workspace: FeedbackWorkspace;
+  private readonly draftEvidence: DraftEvidence;
+  readonly ready: Promise<void>;
+  private restoring = false;
+  private evidencePending: Promise<void> = Promise.resolve();
   private readonly evidenceReceipts = new WeakMap<
     EvidenceFile,
     FeedbackAttachment
@@ -72,6 +79,8 @@ export class FeedbackController {
   readonly recorder: ReturnType<typeof createReproductionRecorder>;
   private readonly recordingSubscription: () => void;
   constructor(private readonly options: FeedbackControllerOptions) {
+    this.workspace = new FeedbackWorkspace(options.workspace, options.createId);
+    this.draftEvidence = new DraftEvidence(options.evidence, options.createId);
     this.recorder = createReproductionRecorder({
       clock: options.clock,
       timers: options.timers,
@@ -82,32 +91,25 @@ export class FeedbackController {
     this.recordingSubscription = this.recorder.subscribe(() =>
       this.recordingChanged()
     );
-    try {
-      const saved = options.draft?.load();
-      if (saved) {
-        const data = JSON.parse(saved) as Partial<FeedbackDraft>;
-        if (typeof data.description === 'string')
-          this.current = {
-            ...this.current,
-            draft: {
-              kind:
-                data.kind &&
-                ['problem', 'feature', 'gap', 'polish'].includes(data.kind)
-                  ? data.kind
-                  : 'problem',
-              description: data.description,
-              expected: typeof data.expected === 'string' ? data.expected : '',
-              reproductionSteps:
-                typeof data.reproductionSteps === 'string'
-                  ? data.reproductionSteps
-                  : '',
-            },
-          };
-      }
-    } catch {
-      /* Optional storage never blocks feedback. */
-    }
+    this.ready = this.restoreActive();
   }
+  private async restoreActive(): Promise<void> {
+    const active = this.workspace.active();
+    this.restoring = true;
+    this.recorder.discard();
+    this.publish({ draft: active ?? EMPTY_FEEDBACK, files: [], phase: 'idle', issue: active?.issue ?? null, attempted: null });
+    if (active) {
+      try {
+        const files = await Promise.all(active.files.map(file => this.draftEvidence.read(file)));
+        const video = active.video ? await this.draftEvidence.read(active.video) : null;
+        this.publish({ files });
+        this.recorder.restore(active.recording, video);
+      } catch (error) { this.publish({ message: error instanceof Error ? error.message : 'Evidence could not be restored.' }); }
+    }
+    this.restoring = false;
+    this.publish({});
+  }
+
   private providers(): readonly DiagnosticProvider[] {
     return [...this.options.providers, ...feedbackContextProviders()];
   }
@@ -122,13 +124,39 @@ export class FeedbackController {
     this.current = { ...this.current, ...next };
     for (const listener of this.listeners) listener();
   }
-  private persist(): void {
-    try {
-      this.options.draft?.save(JSON.stringify(this.current.draft));
-    } catch {
-      /* Storage may be unavailable. */
-    }
-  }
+  private persist(): void { this.workspace.update(this.current.draft); this.publish({}); }
+  setStage = (stage: WizardStage): void => { this.workspace.stage(stage); this.publish({}); };
+  applyTemplate = (kind: FeedbackKind): void => {
+    const template = FEEDBACK_TEMPLATES.find(t => t.kind === kind);
+    if (template) this.setDraft({ kind, description: [this.current.draft.description, template.body].filter(Boolean).join('\n\n') });
+  };
+  newDraft = async (): Promise<void> => {
+    if (this.current.phase === 'sending') return;
+    await this.evidencePending;
+    this.workspace.create(); await this.restoreActive(); this.open();
+  };
+  select = async (id: string): Promise<void> => {
+    if (this.current.phase === 'sending') return;
+    await this.evidencePending;
+    this.workspace.select(id); await this.restoreActive();
+  };
+  manage = async (): Promise<void> => {
+    this.setStage('manage');
+    try { this.workspace.merge(await this.options.reporter.list(this.options.authorId)); this.publish({}); }
+    catch { this.publish({ message: 'Reports could not be refreshed. Your saved drafts are available.' }); }
+  };
+  remove = async (id: string): Promise<void> => {
+    const doc = this.workspace.state().documents.find(d => d.id === id);
+    if (!doc) return;
+    if (doc.report) await this.options.reporter.remove(doc.report.id, this.options.authorId);
+    this.workspace.remove(id); await this.restoreActive(); this.setStage('manage');
+  };
+  move = (x: number, y: number): void => { this.workspace.patch({ position: { x, y } }); this.publish({}); };
+  removeRemoteAttachment = (id: string): void => {
+    const report = this.workspace.active()?.report;
+    if (report) this.workspace.update({ report: { ...report, attachments: report.attachments.filter(a => a.id !== id) } });
+    this.publish({});
+  };
   setDraft = (next: Partial<FeedbackDraft>): void => {
     if (this.current.phase === 'sending') return;
     this.publish({
@@ -147,23 +175,13 @@ export class FeedbackController {
   close = (): void => {
     if (this.current.phase === 'sending') return;
     this.publish({ visible: false });
-    if (this.current.phase === 'saved') {
-      this.recorder.discard();
-      this.publish({
-        draft: EMPTY_FEEDBACK,
-        phase: 'idle',
-        issue: null,
-        attempted: null,
-        files: [],
-        message: null,
-      });
-    }
   };
+
   reportAttachmentError = (message: string): void => {
     this.publish({ message });
   };
   preview = (file: EvidenceFile) => this.options.preview?.(file);
-  attach = (file: EvidenceFile): void => {
+  attach = async (file: EvidenceFile): Promise<void> => {
     if (this.current.phase === 'sending') return;
     if (!file.bytes.byteLength) {
       this.publish({ message: 'Choose a non-empty video or image.' });
@@ -187,6 +205,11 @@ export class FeedbackController {
       this.publish({ message: 'Choose a video or an image.' });
       return;
     }
+    try {
+      const saved = await this.draftEvidence.save(file);
+      const active = this.workspace.active();
+      this.workspace.update({ files: [...(active?.files ?? []), saved] });
+    } catch { this.publish({ message: 'Attachment could not be saved. Keep the original file and try again.' }); return; }
     this.publish({
       files: [...this.current.files, file],
       attempted: null,
@@ -195,32 +218,32 @@ export class FeedbackController {
   };
   removeFile = (index: number): void => {
     if (this.current.phase === 'sending') return;
+    this.workspace.update({ files: (this.workspace.active()?.files ?? []).filter((_, i) => i !== index) });
     this.publish({
       files: this.current.files.filter((_, i) => i !== index),
       attempted: null,
     });
   };
   private recordingChanged(): void {
+    if (this.restoring) return;
     const state = this.recorder.state();
-    if (state.phase === 'starting' || state.phase === 'idle')
-      this.publish({ attempted: null });
+    this.workspace.update({ recording: state.recording });
+    if (state.phase === 'idle') this.workspace.update({ video: null });
+    if (state.phase === 'starting' || state.phase === 'idle') this.publish({ attempted: null });
     if (state.phase === 'recording') this.publish({ visible: false });
     if (state.phase === 'ready') {
-      const steps =
-        state.recording?.actions
-          .map(
-            (action, index) =>
-              `${index + 1}. ${action.type === 'input' ? 'Enter' : 'Use'} ${action.label || action.target}${action.value === null ? '' : `: ${action.value}`} (${action.path})`
-          )
-          .join('\n')
-          .slice(0, 32_000) ?? '';
-      if (!this.current.draft.reproductionSteps.trim() && steps)
-        this.setDraft({ reproductionSteps: steps });
       this.publish({ visible: true });
+      if (state.video) {
+        this.evidencePending = this.draftEvidence.save(state.video).then(video => {
+          this.workspace.update({ video }); this.publish({});
+        }).catch(() => this.publish({ message: 'Recording video could not be saved. Download it before closing.' }));
+      }
     }
     this.publish({});
   }
   async send(): Promise<void> {
+    await this.ready;
+    await this.evidencePending;
     if (this.current.phase === 'sending') return;
     const errors = feedbackErrors(this.current.draft);
     if (Object.keys(errors).length) {
@@ -238,14 +261,16 @@ export class FeedbackController {
       const service = createFeedbackReporting({
         ...this.options,
         providers: this.providers(),
-        createId: () => this.current.attempted?.id ?? this.options.createId(),
+        authorId: this.options.authorId,
+        createId: () => this.workspace.active()?.report?.id ?? this.current.attempted?.id ?? this.options.createId(),
         reporter: {
           create: async (report) => {
             this.publish({ attempted: report });
             const attachments = await this.uploadEvidence();
-            const complete = { ...report, attachments };
+            const previous = this.workspace.active()?.report;
+            const complete = { ...report, attachments: [...(previous?.attachments ?? []), ...attachments], createdAt: previous?.createdAt ?? report.createdAt };
             this.publish({ attempted: complete });
-            return this.options.reporter.create(complete);
+            return previous ? this.options.reporter.update(complete) : this.options.reporter.create(complete);
           },
         },
       });
@@ -255,11 +280,9 @@ export class FeedbackController {
         attachments: [],
       });
       this.publish({ phase: 'saved', issue: saved.issue });
-      try {
-        this.options.draft?.clear();
-      } catch {
-        /* Optional storage. */
-      }
+      this.workspace.update({ report: this.current.attempted ?? saved.report, issue: saved.issue, files: [], video: null });
+      this.publish({ files: [] });
+
     } catch (error) {
       this.publish({
         phase: 'failed',

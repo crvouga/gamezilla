@@ -17,6 +17,7 @@ export type FeedbackReportingOptions = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
+  readonly authorId?: string;
   readonly providers?: readonly DiagnosticProvider[];
   readonly deadlineMs?: number;
 };
@@ -54,10 +55,9 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
       id,
       ...input,
       title:
-        input.description.trim().split('\n').at(0)?.slice(0, 240) ?? 'Feedback',
-      description: input.description.trim(),
-      expected: input.expected.trim(),
-      reproductionSteps: input.reproductionSteps.trim(),
+        input.title.trim() || input.description.trim().split('\n').at(0)?.slice(0, 240) || 'Feedback',
+      description: input.description,
+      authorId: options.authorId ?? 'local',
       recording: input.recording ?? null,
       attachments: input.attachments ?? [],
       createdAt,
@@ -86,8 +86,7 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
     async submit(input: {
       readonly kind: FeedbackDraft['kind'];
       readonly description: string;
-      readonly expected: string;
-      readonly reproductionSteps: string;
+      readonly title: string;
       readonly recording?: ReproductionRecording | null;
       readonly attachments?: readonly FeedbackAttachment[];
     }): Promise<SubmittedFeedback> {

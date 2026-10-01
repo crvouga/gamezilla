@@ -1,13 +1,14 @@
+import { readBytes } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type {
   CreatedIssue,
   FeedbackReport,
-  IssueReporter,
+  FeedbackRepository,
 } from '../shared/types';
 import { agentHandoff, reportDirectory, reportMarkdown } from './report-files';
 
 /** ObjectStore is rooted at the repository's .feedback/; every put commits atomically. */
-export class FileSystemIssueReporter implements IssueReporter {
+export class FileSystemIssueReporter implements FeedbackRepository {
   constructor(private readonly store: ObjectStore) {}
 
   private async write(key: string, value: string, type: string): Promise<void> {
@@ -81,4 +82,27 @@ export class FileSystemIssueReporter implements IssueReporter {
       'text/markdown'
     );
   }
+  async list(authorId: string): Promise<readonly FeedbackReport[]> {
+    const keys = (await this.store.listKeys()).filter(key => /^feedback-[^/]+\/report.json$/.test(key));
+    const reports = await Promise.all(keys.map(key => this.read(key.split('/')[0]!.slice(9), authorId)));
+    return reports.filter((r): r is FeedbackReport => r !== null);
+  }
+  async read(id: string, authorId: string): Promise<FeedbackReport | null> {
+    if (!/^[a-zA-Z0-9-]{1,100}$/.test(id)) throw new Error('Invalid feedback id');
+    const object = await this.store.get(`feedback-${id}/report.json`);
+    if (!object) return null;
+    const report = JSON.parse(new TextDecoder().decode(await readBytes(object.body))) as FeedbackReport;
+    return report.authorId === authorId && report.status !== 'deleted' ? report : null;
+  }
+  async update(report: FeedbackReport): Promise<CreatedIssue> {
+    const previous = await this.read(report.id, report.authorId);
+    if (!previous) throw new Error('Feedback belongs to another developer or is unavailable.');
+    return this.create({ ...report, createdAt: previous.createdAt });
+  }
+  async remove(id: string, authorId: string): Promise<void> {
+    const report = await this.read(id, authorId);
+    if (!report) throw new Error('Feedback belongs to another developer or is unavailable.');
+    await this.create({ ...report, status: 'deleted' });
+  }
+
 }

@@ -72,15 +72,15 @@ export function normalizeReport(body: unknown, clock: Clock): FeedbackReport {
   if (
     typeof input.kind !== 'string' ||
     typeof input.description !== 'string' ||
-    typeof input.expected !== 'string' ||
-    typeof input.reproductionSteps !== 'string'
+    typeof input.title !== 'string' ||
+    typeof input.authorId !== 'string' ||
+    !/^[a-zA-Z0-9-]{1,100}$/.test(input.authorId)
   )
     throw new Error('Invalid report text');
   const draft = {
     kind: input.kind,
     description: input.description,
-    expected: input.expected,
-    reproductionSteps: input.reproductionSteps,
+    title: input.title,
   };
   validateFeedback(draft);
   let createdAt = 'unknown';
@@ -98,11 +98,10 @@ export function normalizeReport(body: unknown, clock: Clock): FeedbackReport {
     version: 1,
     id: input.id,
     title:
-      input.description.trim().split('\n').at(0)?.slice(0, 240) ?? 'Feedback',
+      input.title.trim() || input.description.trim().split('\n').at(0)?.slice(0, 240) || 'Feedback',
     kind: draft.kind,
-    description: input.description.trim(),
-    expected: input.expected.trim(),
-    reproductionSteps: input.reproductionSteps.trim(),
+    description: input.description,
+    authorId: input.authorId,
     createdAt,
     status: 'open',
     diagnostics: diagnostics(input.diagnostics),

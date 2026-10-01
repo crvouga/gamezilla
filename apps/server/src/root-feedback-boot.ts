@@ -6,6 +6,7 @@ import { createApiSecretStore } from '@libs/server-app/config/secret-store';
 import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
+  ArchivedIssueReporter,
   createFeedbackHttpApp,
   FileSystemIssueReporter,
   GitHubIssueReporter,
@@ -61,28 +62,8 @@ export async function handleRootFeedbackReport(
       store,
       clock: wallClock,
       allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
-      reporter: {
-        async create(report) {
-          if (await store.head(`feedback-${report.id}/report.json`))
-            return {
-              id: report.id,
-              url: `${origin}/api/feedback/reports/${report.id}`,
-            };
-          await archive.create(report);
-          // The durable bundle survives a vendor outage; a saved receipt is truthful.
-          if (github) {
-            try {
-              return await github.create(report);
-            } catch {
-              /* Report is safely archived. */
-            }
-          }
-          return {
-            id: report.id,
-            url: `${origin}/api/feedback/reports/${report.id}`,
-          };
-        },
-      },
+      reporter: github ? new ArchivedIssueReporter(store, github) : archive,
+
     })(request);
   } catch {
     return Response.json(

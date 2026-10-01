@@ -1,3 +1,4 @@
+import { FEEDBACK_OPEN_EVENT } from './open-feedback';
 import type { FeedbackControllerOptions } from './controller';
 import { FeedbackController } from './controller';
 import { installCrashHandlers } from './crash-handlers';
@@ -18,6 +19,7 @@ export function mountRootReporting(
     ...options,
     providers: [options.diagnostics.provider, ...options.providers],
   });
+  options.document.addEventListener(FEEDBACK_OPEN_EVENT, controller.open);
   const removeCrashHandlers = installCrashHandlers(
     options.window,
     options.diagnostics,
@@ -44,6 +46,7 @@ export function mountRootReporting(
     open: controller.open,
     dispose(): void {
       disposed = true;
+      options.document.removeEventListener(FEEDBACK_OPEN_EVENT, controller.open);
       removeCrashHandlers();
       removeInteractions();
       controller.dispose();

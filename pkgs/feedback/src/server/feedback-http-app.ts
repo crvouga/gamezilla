@@ -1,16 +1,18 @@
 import type { Clock } from '@pkgs/clock';
 import { readBytes } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { FeedbackAttachment, IssueReporter } from '../shared/types';
+import type { FeedbackAttachment, FeedbackRepository } from '../shared/types';
+import { createFeedbackManagementHandler } from './management-handler';
 import { createEvidenceHandler, EVIDENCE_ID } from './evidence-handler';
 import { createFeedbackReportHandler, FEEDBACK_PATH } from './http-handler';
 
 export function createFeedbackHttpApp(options: {
-  reporter: IssueReporter;
+  reporter: FeedbackRepository;
   store: ObjectStore;
   clock: Clock;
   allowedOrigin: string;
 }) {
+  const management = createFeedbackManagementHandler(options);
   const evidence = createEvidenceHandler(options);
   const report = createFeedbackReportHandler({
     ...options,
@@ -36,6 +38,7 @@ export function createFeedbackHttpApp(options: {
   });
   return async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
+    if (url.pathname === `${FEEDBACK_PATH}/items` || url.pathname.startsWith(`${FEEDBACK_PATH}/items/`)) return management(request);
     if (url.pathname.startsWith(`${FEEDBACK_PATH}/evidence/`))
       return evidence(request);
     if (

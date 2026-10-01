@@ -1,4 +1,6 @@
 // @io-wall-ok — minimal browser composition root, before any product imports
+import { createCacheApiObjectStore } from '@pkgs/object-store-opfs/impl-cache-api';
+import type { FeedbackWorkspaceSnapshot } from '../shared/workspace';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
@@ -19,7 +21,11 @@ export function bootBrowserRoot(options: {
   const host = document.createElement('aside');
   host.setAttribute('data-component', 'RootFeedbackReportingHost');
   document.body.append(host);
-  const draftKey = 'root-feedback-draft';
+  const draftKey = 'feedback-workspace';
+  const authorKey = 'feedback-author';
+  const authorId = localStorage.getItem(authorKey) ?? crypto.randomUUID();
+  localStorage.setItem(authorKey, authorId);
+  const evidence = createCacheApiObjectStore({ baseDir: 'feedback-evidence', caches: globalThis.caches });
   return startRootRuntime({
     installReporting(diagnostics) {
       const runtime = mountRootReporting({
@@ -57,10 +63,11 @@ export function bootBrowserRoot(options: {
           endpoint: options.endpoint,
           timers: wallTimers,
         }),
-        draft: {
-          save: (value) => localStorage.setItem(draftKey, value),
-          load: () => localStorage.getItem(draftKey),
-          clear: () => localStorage.removeItem(draftKey),
+        authorId,
+        evidence,
+        workspace: {
+          save: snapshot => localStorage.setItem(draftKey, JSON.stringify(snapshot)),
+          load: () => { const text = localStorage.getItem(draftKey); return text ? JSON.parse(text) as FeedbackWorkspaceSnapshot : null; },
         },
         providers: [
           {
