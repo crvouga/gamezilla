@@ -61,6 +61,22 @@ function isPostgresUrl(url: string): boolean {
   return url.startsWith('postgresql://') || url.startsWith('postgres://');
 }
 
+export function selectMigrateDatabaseUrl(candidates: {
+  readonly override?: string | undefined;
+  readonly live?: string | undefined;
+  readonly injected?: string | undefined;
+}): string | undefined {
+  for (const candidate of [
+    candidates.override,
+    candidates.live,
+    candidates.injected,
+  ]) {
+    const url = candidate?.trim() ?? '';
+    if (isPostgresUrl(url)) return url;
+  }
+  return undefined;
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => timers.setTimeout(resolve, ms));
 }
@@ -74,24 +90,23 @@ async function resolveSecretsEnvForMigrate(): Promise<string> {
 async function resolveDatabaseUrlForMigrate(
   override: string | undefined
 ): Promise<string> {
-  const fromOverride = override?.trim() ?? '';
-  if (fromOverride.length > 0 && isPostgresUrl(fromOverride)) {
-    return fromOverride;
-  }
-  const fromEnv = (process.env['DATABASE_URL'] ?? '').trim();
-  if (fromEnv.length > 0 && isPostgresUrl(fromEnv)) {
-    return fromEnv;
-  }
+  const explicit = selectMigrateDatabaseUrl({ override });
+  if (explicit !== undefined) return explicit;
+
+  let live: string | undefined;
   if (!preferLocalSecretsOnly()) {
     try {
-      const fromSecrets = (await fetchSecret('DATABASE_URL')).trim();
-      if (fromSecrets.length > 0 && isPostgresUrl(fromSecrets)) {
-        return fromSecrets;
-      }
+      live = await fetchSecret('DATABASE_URL');
     } catch {
       // Infisical unavailable — fall through to local `.dev.vars`.
     }
   }
+  const selected = selectMigrateDatabaseUrl({
+    live,
+    injected: process.env['DATABASE_URL'],
+  });
+  if (selected !== undefined) return selected;
+
   const fromDevVars = readDevVarsDatabaseUrl();
   if (fromDevVars !== null && isPostgresUrl(fromDevVars)) {
     return fromDevVars;

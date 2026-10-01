@@ -403,5 +403,15 @@
     "id": "neki-aws-region-name-is-not-region-slug",
     "summary": "The Neki branch used AWS's region name us-east-1, but PlanetScale's organization catalog names that region with the slug us-east. The API rejected the first branch with HTTP 422 after other foundation resources had already applied. Fixed by keeping AWS IoT on us-east-1 while passing PlanetScale's us-east slug to Neki.",
     "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+  },
+  {
+    "id": "deploy-migrate-stale-database-url",
+    "summary": "Foundation wrote the new Neki DATABASE_URL, but the migration task preferred the stale process value injected before foundation ran. Worker deploy refreshed its secrets and connected to the new empty database, so readiness and auth failed because client_config did not exist. Fixed by preferring the live post-foundation secret while retaining the injected URL as an offline fallback.",
+    "regressionTest": "libs/runtime/tests/migrate-database-url.test.ts"
+  },
+  {
+    "id": "neki-kv-storage-ddl-unsupported",
+    "summary": "The first schema reconcile on Neki stopped at ALTER COLUMN SET STORAGE with NK013 because Neki cannot preserve that storage setting as shards join. Catching it inside the schema transaction still left the transaction aborted, and after commit the router could briefly return 42P01 for the newly created table. Fixed by committing required schema first, then applying optional storage tuning in autocommit, where explicit unsupported errors are skipped and temporary table visibility defers tuning without hiding unrelated failures.",
+    "regressionTest": "pkgs/kv-postgres/tests/postgres-storage-knobs.test.ts"
   }
 ]

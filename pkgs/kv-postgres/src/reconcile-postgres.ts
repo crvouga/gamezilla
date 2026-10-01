@@ -8,15 +8,13 @@ import {
   type PostgresDbScope,
 } from '@pkgs/sql-client/postgres-db-scope';
 
-import {
-  applyKvStorageOptimizations,
-  pingKvTable,
-} from './postgres-storage-knobs';
+import { applyKvStorageOptimizations } from './postgres-storage-knobs';
 
 export type ReconcileKvPostgresOptions = {
   readonly dbScope?: PostgresDbScope;
   readonly skipAdvisoryLock?: boolean;
   readonly alreadyInTransaction?: boolean;
+  readonly skipStorageOptimizations?: boolean;
   readonly indexPhase?: ReconcilePostgresSchemaOptions['indexPhase'];
 };
 
@@ -36,7 +34,10 @@ export async function reconcileKvPostgres(
       ? { indexPhase: options.indexPhase }
       : {}),
   });
-  await applyKvStorageOptimizations(client, log);
-  await pingKvTable(client);
+  if (!options?.skipStorageOptimizations) {
+    await applyKvStorageOptimizations(client, log, {
+      alreadyInTransaction: options?.alreadyInTransaction ?? false,
+    });
+  }
   log.info('kv postgres reconcile: complete');
 }
