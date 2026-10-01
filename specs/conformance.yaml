@@ -12,6 +12,7 @@ product:
   contexts:
     - auth
     - billing
+    - feedback
     - chess
     - friends
     - journeys

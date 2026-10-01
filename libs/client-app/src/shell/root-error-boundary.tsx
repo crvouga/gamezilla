@@ -109,6 +109,13 @@ export function RootErrorBoundary(props: {
     <ErrorBoundary
       fallback={(error: unknown, reset) => {
         const normalized = toError(error);
+        try {
+          globalThis.dispatchEvent(
+            new CustomEvent('product-crash', { detail: normalized })
+          );
+        } catch {
+          /* reporting enrichment cannot break the crash screen */
+        }
         return <CrashScreen error={normalized} reset={reset} />;
       }}
     >

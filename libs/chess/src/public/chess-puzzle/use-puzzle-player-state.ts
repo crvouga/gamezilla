@@ -6,9 +6,10 @@ import {
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { formatUci } from '@pkgs/chess-rules/uci';
+import { registerFeedbackContext } from '@pkgs/feedback/context';
 import { RoomMetaAttr } from '@pkgs/room';
 import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal } from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 
 import { isBoardSquare } from '../../shared/puzzle-session/recommendations';
 import {
@@ -194,6 +195,7 @@ function usePuzzlePlayerModel(args: {
     interactions,
     allInteractions,
     movesStr,
+    initialFen: fen,
     displayFen: solver.displayFen,
     layoutKey: solver.layoutKey,
     status: solver.status,
@@ -376,9 +378,28 @@ export function usePuzzlePlayerState(args: {
     readyGeneration: args.readyGeneration,
     startNonce: args.startNonce,
   });
-  return usePuzzlePlayerUi({
+  const ui = usePuzzlePlayerUi({
     puzzleId: args.puzzleId,
     onRequestNext: args.onRequestNext,
     m,
   });
+  onCleanup(
+    registerFeedbackContext({
+      name: 'chess-puzzle',
+      collect: () => ({
+        puzzleId: m.puzzleId(),
+        solutionMoves: m.movesStr(),
+        initialFen: m.initialFen(),
+        displayFen: m.displayFen(),
+        orientation: m.orientation(),
+        status: m.status(),
+        solveIndex: m.solveIdx(),
+        furthestSolveIndex: m.furthestSolveIdx(),
+        hintStage: ui.hintStage(),
+        playGeneration: args.playGeneration(),
+        readyGeneration: args.readyGeneration(),
+      }),
+    })
+  );
+  return ui;
 }

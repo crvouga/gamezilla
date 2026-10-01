@@ -18,6 +18,7 @@ import {
 import type { LinkingOps } from './auth-client-linking';
 import {
   type AuthClientAdapterConfig,
+  codeOrThrow,
   exchangeCode,
   type SignInCtx,
   signInOauth,
@@ -81,7 +82,7 @@ function createAuthSessionStore(args: {
   readonly fetch: HttpFetch;
   readonly baseURL: string;
   readonly bearerStore: BearerTokenStore;
-}): AuthSessionStore {
+}): AuthSessionStore & { fail(error: Error): void } {
   const listeners = new Set<() => void>();
   let state: AuthSessionState = AUTH_SESSION_INITIAL;
   let generation = 0;
@@ -90,6 +91,10 @@ function createAuthSessionStore(args: {
     for (const listener of listeners) listener();
   };
   return {
+    fail(error) {
+      generation += 1;
+      publish({ session: null, isHydrated: true, error });
+    },
     getSnapshot: () => state,
     subscribe(listener) {
       listeners.add(listener);
@@ -202,8 +207,25 @@ export function createInhouseAuthClient(
     async completeHostedAuthRedirect() {
       if (typeof globalThis.location === 'undefined') return;
       const outcome = readCallbackOutcome(globalThis.location.href);
-      if (outcome.kind !== 'code') return;
-      await exchangeCode(ctx, outcome.code);
+      try {
+        const code = codeOrThrow(outcome);
+        const previous = await bearerStore.read();
+        await exchangeCode(ctx, code);
+        // Linking preserves the bearer across navigation; retire the session
+        // the callback replaced, just as the in-process linking flow does.
+        if (previous !== null && previous !== (await bearerStore.read())) {
+          await postJson(
+            config.fetch,
+            apiUrl(config.baseURL, '/auth/sign-out'),
+            {},
+            previous
+          );
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        session.fail(error);
+        throw error;
+      }
     },
   };
 }

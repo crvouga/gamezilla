@@ -5,6 +5,7 @@
   "globalDependencies": ["tsconfig.base.json"],
   "globalPassThroughEnv": [
     "GITHUB_*",
+    "FEEDBACK_*",
     "POST_DEPLOY_*",
     "VITE_*",
     "PREVIEW_PORT",

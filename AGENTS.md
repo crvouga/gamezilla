@@ -43,6 +43,10 @@ than restating it.
 
 ## Debugging
 
+Local feedback reports are stored under `.feedback/`. Before investigating reported
+defects, inspect that directory for open reports (`bun feedback --list`). Reporting
+architecture and recovery: [`docs/FEEDBACKING.md`](docs/FEEDBACKING.md).
+
 Run `bun obs` before adding logs or rerunning a failure: `bun obs last` when
 it just happened, `bun obs find <any id>` otherwise. Workflow, sources and
 credentials: [`README.md`](README.md#correctness-machinery).

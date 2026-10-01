@@ -30,37 +30,46 @@ export async function startGoogleSignIn(ui: Driver): Promise<void> {
   await tap(ui, Handles.authMethodGoogle);
 }
 
-function isOauthLaunch(url: string): boolean {
+function googleAuthorizationUrl(url: string): URL | null {
   try {
-    return new URL(url).pathname.endsWith('/auth/oauth/launch');
+    let parsed = new URL(url);
+    // Google can replace the authorization endpoint with its account chooser.
+    // That page carries the original request directly or in `continue`.
+    for (let hop = 0; hop < 4; hop += 1) {
+      if (parsed.hostname !== 'accounts.google.com') return null;
+      if (parsed.searchParams.has('redirect_uri')) return parsed;
+      const next = parsed.searchParams.get('continue');
+      if (next === null) return null;
+      parsed = new URL(next);
+    }
+    return null;
   } catch {
-    return false;
+    return null;
   }
 }
 
 /**
- * The popup opened our OAuth launch, and that launch hands the person to
- * Google with our callback. It stops at Google's door: a real Google account
- * cannot be scripted.
+ * The current tab hands the person to Google with our callback. It stops at
+ * Google's door: a real Google account cannot be scripted.
  */
 export async function expectGoogleHandOff(
   browser: JourneyBrowser
 ): Promise<void> {
-  const launchUrl = await browser.waitForPopup(isOauthLaunch, JOURNEY_WAIT_MS);
-  const launch = new URL(launchUrl);
-  check(
-    launch.searchParams.get('provider') === 'google',
-    `popup launched provider ${String(launch.searchParams.get('provider'))}, not google`
+  const authorize = googleAuthorizationUrl(
+    await browser.waitForNavigation(
+      (url) => googleAuthorizationUrl(url) !== null,
+      JOURNEY_WAIT_MS
+    )
   );
-  const res = await browser.http.fetch(launchUrl, { redirect: 'manual' });
+  if (authorize === null)
+    throw new Error('Google authorization URL is missing');
   check(
-    res.status === 302,
-    `OAuth launch answered HTTP ${String(res.status)}, not 302`
+    authorize.searchParams.get('response_type') === 'code',
+    'Google was not asked for an authorization code'
   );
-  const authorize = new URL(res.headers.get('location') ?? 'about:blank');
   check(
-    authorize.hostname === 'accounts.google.com',
-    `OAuth launch redirected to ${authorize.hostname}, not accounts.google.com`
+    (authorize.searchParams.get('state') ?? '').length > 0,
+    'Google was not given the state needed to return to the app'
   );
   const expected = `${browser.oauthCallbackOrigin}/api/auth/callback/google`;
   const redirectUri = authorize.searchParams.get('redirect_uri');

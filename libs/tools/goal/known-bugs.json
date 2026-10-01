@@ -400,6 +400,61 @@
     "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
   },
   {
+    "id": "feedback-optional-context-budget",
+    "summary": "Individually bounded diagnostics could collectively exceed the reporting HTTP limit and reject the basic report. Enforce a total UTF-8 diagnostic budget and mark excess context unavailable.",
+    "regressionTest": "pkgs/feedback/tests/diagnostic-budget.test.ts"
+  },
+  {
+    "id": "feedback-http-ignores-abort",
+    "summary": "An HTTP transport or response body ignoring AbortSignal left reporting pending forever. A hard deadline now preserves the emergency recovery path.",
+    "regressionTest": "pkgs/feedback/tests/http-deadline.test.ts"
+  },
+  {
+    "id": "feedback-vite-node-import",
+    "summary": "The feedback Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
+    "regressionTest": "pkgs/feedback/tests/vite-config.contract.test.ts"
+  },
+  {
+    "id": "social-auth-popup-blocked",
+    "summary": "Social sign-in depended on window.open, which IDE integrated browsers and popup-blocking browsers refused. Navigate the current tab and complete sign-in on the callback route instead.",
+    "regressionTest": "libs/client-app/tests/shell/wall-open-auth-session.test.ts"
+  },
+  {
+    "id": "social-auth-redirect-outcome",
+    "summary": "The same-tab OAuth callback discarded provider errors and pending account-link prompts, leaving resumed sign-in without its result. Publish every callback failure to the auth session for the existing modal.",
+    "regressionTest": "pkgs/auth-inhouse/tests/hosted-auth-redirect.test.ts"
+  },
+  {
+    "id": "feedback-recording-stale-stop",
+    "summary": "A discarded recording finishing asynchronously could dispose and overwrite a newly started video session. Retire the captured session and ignore completions from an old recording generation.",
+    "regressionTest": "pkgs/feedback/tests/recording.contract.test.ts"
+  },
+  {
+    "id": "feedback-board-drag-missing",
+    "summary": "Chess square hit buttons take no pointer events and the board captures the pointer. Recording only square targets dropped real chess drags. Preserve board control identifiers and normalized pointer endpoints.",
+    "regressionTest": "pkgs/feedback/tests/interaction.contract.test.ts"
+  },
+  {
+    "id": "feedback-evidence-ignores-abort",
+    "summary": "An upload response body ignoring cancellation could keep feedback sending indefinitely after the network request completed. Bound the complete upload and receipt read with the same hard deadline.",
+    "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+  },
+  {
+    "id": "feedback-changed-evidence-reuses-id",
+    "summary": "Adding evidence after an uncertain delivery could reuse the archived report id and leave the updated recording out of the saved bundle. Preserve ids for unchanged retries and mint a new id for edited evidence.",
+    "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+  },
+  {
+    "id": "feedback-context-before-screen-permission",
+    "summary": "Initial product state could be captured before a person finished choosing the screen, while the product continued to change. Capture the starting position after the chooser resolves, and release video immediately if recording is cancelled during context collection.",
+    "regressionTest": "pkgs/feedback/tests/recording.contract.test.ts"
+  },
+  {
+    "id": "feedback-typing-steals-focus",
+    "summary": "Each feedback answer edit invalidated the dialog visibility dependency even though it stayed open, restarting focus handling and moving focus to Close. Memoize visibility independently of draft updates so typing keeps field focus.",
+    "regressionTest": "pkgs/feedback/tests/focus.contract.test.ts"
+  },
+  {
     "id": "foundation-provider-bootstrap-cycle",
     "summary": "The first Neki foundation plan configured the PostgreSQL provider from a role that the same plan had not created yet. OpenTofu substituted localhost and failed before it could create the database; the transition also tried to delete the retired broker's random credentials. Fixed by leaving pg_stat_statements with Neki's PlanetScale-managed default profile, removing the cyclic provider, and forgetting retired credentials without destroying them.",
     "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
