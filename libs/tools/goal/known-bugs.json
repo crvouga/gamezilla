@@ -463,5 +463,10 @@
     "id": "feedback-raw-transport-error",
     "summary": "A failed feedback submission exposed the browser's raw \"Load failed\" transport error and expanded a large emergency payload, even though the draft was safely journalled. Fixed by presenting a concise recovery state, keeping the draft editable, and moving the machine-readable recovery payload behind an explicit disclosure.",
     "regressionTest": "specs/feedback/drafts.feature"
+  },
+  {
+    "id": "feedback-opfs-client-path",
+    "summary": "The shipped client TypeScript configuration omitted the OPFS package path used by the feedback browser root, so a cold app type-check could not resolve evidence storage. Keep the concrete feedback import resolvable through the client path map.",
+    "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
   }
 ]
