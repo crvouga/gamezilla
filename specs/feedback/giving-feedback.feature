@@ -56,7 +56,7 @@ Feature: Write feedback freely
     No counter-example: a suggested template never replaces the author's writing.
 
     Scenario: A suggested bug template keeps the observation
-      Given the team has a draft titled "Board movement" saying "Keep this observation\n\n/bug"
+      Given the team has a draft titled "Board movement" saying "Keep this observation /bug"
       When the team chooses the suggested bug template
       Then the draft includes "Keep this observation"
       And the draft offers prompts for what happened, what was expected and reproduction steps
