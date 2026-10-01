@@ -51,3 +51,12 @@ Feature: Puzzles finished offline count once
       When the connection comes back
       Then Alice's game log records that puzzle as failed
       And Alice's stats show 1 played, 0 solved, and 0% accuracy
+
+    Scenario: Reading stats offline before hearing the finish keeps its result
+      Given Alice is signed in
+      And Alice is playing puzzles in their space
+      And Alice has finished the puzzle by playing a wrong move, retrying, then solving it as the app closes
+      And Alice is viewing their puzzle stats offline
+      When the connection comes back
+      Then Alice's game log records that puzzle as failed
+      And Alice's stats show 1 played, 0 solved, and 0% accuracy
