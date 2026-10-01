@@ -1045,6 +1045,7 @@ terms:
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
+| Bug reporting | `bug-reporting` | keeping a bug report and diagnostics when the app cannot help the team | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their

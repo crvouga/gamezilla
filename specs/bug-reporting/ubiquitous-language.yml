@@ -20,3 +20,7 @@ terms:
       A bug report kept with the team's working repository, readable without
       an account or a connection.
     forms: [local bug reports, repository]
+  - term: run into trouble
+    from: runtime
+  - term: sign in
+    from: profile

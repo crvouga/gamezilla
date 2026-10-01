@@ -8,7 +8,7 @@ Feature: Report trouble even when the app is unusable
 
     Scenario: A working app lets the team keep a bug report
       Given the team's app is working
-      When the team submits a bug report titled "Chess board freezes" saying "The board stopped after my move"
+      When the team submits a bug report titled "Chess board freezes" saying "The board stopped after a move"
       Then the team can read the local bug report
       And the bug report contains the available diagnostics
 
@@ -35,7 +35,7 @@ Feature: Report trouble even when the app is unusable
   Rule: Missing diagnostics never prevent a bug report
     No counter-example: diagnostics are helpful but never required.
 
-    Scenario: Unavailable diagnostics still leave a useful bug report
+    Scenario: Unavailable diagnostics still keep a useful bug report
       Given some diagnostics are unavailable
       When the team submits a bug report titled "Board disappeared" saying "The app went blank"
       Then the team can read the local bug report
@@ -43,7 +43,7 @@ Feature: Report trouble even when the app is unusable
 
     Scenario: Diagnostics that never arrive do not hold up a bug report
       Given some diagnostics never arrive
-      When the team submits a bug report titled "App stopped responding" saying "Nothing happens after my move"
+      When the team submits a bug report titled "App stopped responding" saying "Nothing happens after a move"
       Then the team can read the local bug report
 
   Rule: Local bug reports need no connection and survive closing the app
@@ -54,7 +54,7 @@ Feature: Report trouble even when the app is unusable
       When the team submits a bug report titled "Offline board freezes" saying "The board stopped while offline"
       Then the team can read the local bug report
 
-    Scenario: Closing the app leaves the bug report readable
+    Scenario: Closing the app keeps the bug report readable
       Given the team has kept a local bug report titled "Chess board freezes"
       When the team's app closes
       Then the team can read the local bug report
