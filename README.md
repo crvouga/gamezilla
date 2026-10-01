@@ -4,7 +4,7 @@ Local-first multiplayer game platform. A person opens the app on a phone, tablet
 
 This file is the one briefing a fresh session should load: product, stack, and how the repo is worked. Executable product truth lives in [`specs/`](specs/). How to write a spec lives in [`specs/README.md`](specs/README.md). The injected agent contract is [`AGENTS.md`](AGENTS.md); it points here and does not restate this file. When this file and a spec disagree, the spec wins. Change product behavior by changing `specs/` first, in a `spec:` commit, then the code.
 
-`docs/` holds the generated step catalog [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) (`bun run spec:catalog`) and [`docs/SYNTHETIC.md`](docs/SYNTHETIC.md) (where standing live checks live). Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
+`docs/` holds one generated file, [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) (`bun run spec:catalog`). Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
 
 Private repo: `crvouga/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
 
@@ -55,7 +55,7 @@ Bounded contexts in `specs/`. Each folder is one context. The file extension say
 | Sync | `@pkgs/sync-engine` (`specs/sync-engine/`) | Shared rows (spec'd as notes) show at once, survive crash, offline, and app update, and count once. Leave a shared place and rejoin to catch up. Some actions are online-only and do not fire later. Server arrival order wins. |
 | Room | `@pkgs/room` (`specs/room/`) | One live topic. Shared tally, who is in the room, who owns it, timed match. Same picture after offline time or a crash. This is the session engine spaces and games sit on. It is separate from sync. |
 | Matchmaking | `specs/matchmaking/`, engine `@pkgs/matchmaking` | People waiting are paired with someone they accept who accepts them. A match already made is kept. Specified. Not in the shipped feature fold (`APP_FEATURES`). |
-| Health | `specs/health/` | Promises a live environment keeps right now, seen by the team from outside: reach the app, sign in, serve people, spaces, live updates, uploads, payments real only in production, outside services, request trail, find a person's trouble, environment matches the plan. |
+| Live checks | `@synthetic` on the owning feature | Promises a live environment keeps right now, seen by the team from outside: reach the app, sign in, serve people, spaces, live updates, uploads, payments real only in production, outside services, request trail, find a person's trouble, environment matches the plan. |
 | Journeys | `specs/journeys/` | Flows that must not break where people use the app: open past the opening screen, Google sign-in and the way back, sign out, host a space and end it, start a puzzle, keep an avatar edit, people search, see what Plus offers. Plus [`specs/journeys/join-and-offline.feature`](specs/journeys/join-and-offline.feature). |
 
 ### Capabilities
@@ -200,59 +200,99 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 
 UI is Solid. Components run once; reactivity tracks. Read `props.x` in the component body (never destructure props). Style with `class` / `classList` and `@pkgs/ui` tokens. `style` is only for dynamic values classes cannot express. `data-component` and `data-screen` exist for tests and are stripped from production bundles. `data-testid` ships in every build because live journeys drive the real bundle by it. Mutation weight picks the widget: `MutationModal` for confirm-first actions, `useMutationButton` for lightweight actions, `FormActionsFooter` for screen forms.
 
-## Deployed stack
+## Infrastructure
 
-Growth adds usage and cost. It does not add servers. Application code owns logical keys (`gameId`, `queryHash`, partition keys, object keys). Providers own physical scale.
+Three rules cover every deployed resource.
 
-| Need | Production | Laptop (`bun run dev`) |
-| --- | --- | --- |
-| API compute | Cloudflare Workers | Bun processes running the same Worker handler, behind a local load balancer. Room upgrades hash to one instance per topic. |
-| CDN / web | Cloudflare CDN | Vite preview |
-| Live rooms | Cloudflare Durable Objects | Bun room adapter |
-| Object storage | Cloudflare R2 | S3rver (`@pkgs/s3-server`) |
-| SQL | PlanetScale Neki (Postgres) via Hyperdrive, region `us-east-1`, org slug `gamezilla` | embedded Postgres (`@pkgs/postgres-embedded`) |
-| Invalidation | AWS IoT Core MQTT, custom authorizer | Aedes, or the EMQX sidecar |
-| Sign-in | Google. Apple outside production. | Mockingbird OAuth (`@crvouga/mockingbird-service-oauth`) speaking the real protocols |
-| Payments | Stripe and Paddle modules; access only after a verified webhook | Mockingbird Stripe (`@crvouga/mockingbird-service-stripe`) |
-| Secrets | Infisical. CI assumes AWS with GitHub OIDC. | `.cache/secrets` via `bun run secrets:pull` |
-| Traces | Grafana Cloud (one stack; free plan allows one) | local / same pipeline |
-| Spec reports | private R2 bucket, published by `bun check`, streamed at `/api/reports` | same client at `/reports` |
+**Infrastructure as code.** OpenTofu under `libs/infra/tofu` is the only declaration. Modules and stacks name no environment. Shared values are `global.tfvars.json`. Per-environment values are only `envs/prd.tfvars.json` (`protection: "production"`) and `envs/dev.tfvars.json` (`protection: "standard"`). TypeScript, scripts, and consoles do not create, change, or delete infrastructure (`no-infra-outside-tofu.grit`). `scripts/tofu.ts` is the only way OpenTofu runs: plan, policy, state backup, apply.
 
-Every deployed resource is OpenTofu under `libs/infra/tofu`. Modules and stacks are env-agnostic. Per-environment values are only `libs/infra/tofu/envs/<env>.tfvars.json` (`prd`, `dev`) plus `global.tfvars.json`. TypeScript, scripts, and consoles do not create infrastructure. Worker code and Durable Object migrations ship with `wrangler deploy` (the Cloudflare provider does not apply DO migrations reliably). Hostnames come from the edge stack. Postgres tables ship with `@libs/runtime#migrate`. The billing catalog ships with `@libs/billing#billing:sync`. The Cloudflare zone, the PlanetScale organization, and human secrets are asserted, not created.
+**Zero ops.** Growth adds usage and cost. It adds no servers, clusters, replicas, shards, nodes to patch, or pools to size. A bigger day is a bigger bill.
 
-Layout: `modules/` (state, ci-identity, aws-ci-identity, repository, naming, object-store, pubsub, trace-stack, observability, database, secrets, edge), `stacks/` (`bootstrap` by a person, `fleet` global, `foundation`, `edge`), `envs/`, `policy/stateful.rego`, `scripts/tofu.ts` (plan, apply, drift, destroy). State is an R2 bucket, key `<stack>/<env>.tfstate`, encrypted with `TOFU_STATE_PASSPHRASE`. GitHub Actions assumes `AWS_ROLE_ARN` with the job OIDC token. The Worker IoT publish key is a generated IAM user (`iot:Publish` only). Do not `tofu apply` from a laptop against production.
+**Web scale.** This is the architecture at Google, YouTube, Facebook, and GitHub scale. Workers, the CDN, Durable Objects, R2, PlanetScale Neki, and AWS IoT Core already run at that size. Application code owns logical keys (`gameId`, `queryHash`, partition keys, object keys). Providers own placement, routing, and capacity. Neki and IoT are both `us-east-1`. PlanetScale reshardes inside that region.
 
-Four layers keep data: `prevent_destroy` on global state, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch; `stateful.rego` allow-lists what an ordinary apply may delete (credentials, DNS, routing, connection config, derived secrets — Neki branches and roles are protected; a production mass-delete is refused); `removed { lifecycle { destroy = false } }` forgets a resource; the zone and human secrets are assert-only. Every apply copies state to `backups/<stack>/<env>/<timestamp>.tfstate`. Neon and the old Railway broker are forgotten that way, not deleted by an apply.
+MQTT carries invalidation. Postgres is the record. A missed message is recovered by refetching. PlanetScale and AWS IoT have no local mode, so `bun run dev` uses embedded Postgres and a local MQTT broker. The Laptop section is the rest of that substitute.
+
+### Global, once (bootstrap)
+
+A person applies this. CI does not.
+
+| Resource | Why |
+| --- | --- |
+| R2 bucket `gamezilla-tofu-state` and its scoped token | Encrypted state for every stack, key `<stack>/<env>.tfstate`, passphrase `TOFU_STATE_PASSPHRASE`. Losing the bucket loses the record of what OpenTofu owns. `prevent_destroy`. |
+| Infisical environment `shared`, and the state-credential secrets in it | Account-wide secrets live once. Every environment imports them, so a rotation is one edit. `prevent_destroy`. |
+| Grafana Cloud stack | One stack (the free plan allows one). Trace history for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
+| Infisical OIDC identity for this repository | GitHub Actions reads and writes secrets with the job token. |
+| AWS IAM OIDC provider and deploy role | GitHub Actions assumes AWS for IoT and the authorizer. The role ARN is the Actions variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
+| GitHub repository settings, `main` protection, Actions variables | `main` moves through a PR whose required check (`check`) is green. Force-push and deletion stay off. Workflows read `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, and `AWS_ROLE_ARN`. The repository is `prevent_destroy`. |
+
+### Fleet (every deploy)
+
+| Resource | Why |
+| --- | --- |
+| Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
+| Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
+| R2 bucket `gamezilla-reports`, objects expire after 30 days | `bun check` publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
+
+### Each environment (foundation, then edge)
+
+Production is `gamezilla-production`. Dev is `gamezilla-development`.
+
+| Resource | Why |
+| --- | --- |
+| R2 bucket `gamezilla-<suffix>` and a bucket-scoped S3 token | Blobs: uploads, the TTS audio cache. Endpoint `https://<account>.r2.cloudflarestorage.com`, region `auto`. The Worker prefixes every key with `gamezilla/` before any feature prefix. |
+| Read token and write token on `gamezilla-reports` | The API reads. Check writes. Each token is scoped to that bucket. |
+| Grafana write policy and token; read policy and token | Workers ingest on the write token. `bun obs` queries on the read token. One environment rotates without touching the other. |
+| Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
+| Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `REPORTS_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets/src/shared/secrets/registry.ts`. `bun health` checks each required secret live. |
+| Neki database `gamezilla-<suffix>`, branch `main` | System of record for that environment. Creating the branch creates the database. It starts empty; `@libs/runtime#migrate` reconciles the schema. Environments do not share rows. Production's branch is deletion-protected and `prevent_destroy`. |
+| Role `migrate`, inherits `postgres` | DDL. This is `DATABASE_URL`, used by migrate and the Postgres provider. |
+| Role `app`, inherits `pg_read_all_data` and `pg_write_all_data` | The API's rows. Table changes stay on `migrate`. |
+| Role `obs_read`, inherits `pg_read_all_data` and `pg_monitor` | `bun obs`, via `OBS_READONLY_DATABASE_URL`. The login Neki issues may carry a suffix; `pg_read_all_data` still covers `SELECT`. |
+| Hyperdrive `gamezilla-db-<suffix>` | Workers have no connection pool. Hyperdrive pools the app role's router. Query cache is off, so a sync read sees its own write. The Worker opens `env.HYPERDRIVE.connectionString`. |
+| Extension `pg_stat_statements` | Slow-query statistics for `bun obs`. |
+| IoT custom domain, ACM certificate, DNS-only CNAME | Browsers connect at `emqx.gamezilla.app` or `emqx-dev.gamezilla.app` (`wss://<host>/mqtt`, secret `EMQX_WSS_URL`, synced key `emqx_wss_url`). The certificate is the TLS. DNS stays unproxied so the socket reaches IoT. The domain is data-plane, MQTT over WebSocket, custom auth, and this authorizer is the default. |
+| Lambda authorizer (Node 22), its log group (14 days), its execution role | Browsers hold no signing key. The function checks `EMQX_JWT_SECRET` and turns the token's `acl` into a session policy: connect, subscribe, receive, publish. Caching is off. App topics use `:`; the IoT wire uses `/` (`user:actor1` → `user/actor1`) at this boundary only. Loopback brokers on the laptop keep colon topics. |
+| IAM user, `iot:Publish` on `topic/*`, and its access key | The Worker publishes with SigV4 (`IOT_*`). A Worker cannot present a GitHub OIDC token, so this key is separate from `AWS_ROLE_ARN`. |
+| Custom domains for the apex, `www`, and the API | Public names, attached after the Workers exist. Production: `gamezilla.app`, `www.gamezilla.app`, `api.gamezilla.app`. Dev: `dev.gamezilla.app`, `www-dev.gamezilla.app`, `api-dev.gamezilla.app`. Cloudflare's edge serves them. |
+
+### Shipped beside OpenTofu
+
+| Thing | Why it is not a resource here |
+| --- | --- |
+| API Worker `gamezilla-api-<suffix>`, room Worker `gamezilla-room-<suffix>` and its Durable Object classes, web Worker `gamezilla-client-<suffix>`, auth-relay Worker `gamezilla-auth-relay` | `wrangler deploy`. Names come from `@libs/infra`. The Cloudflare provider does not apply Durable Object migrations reliably. Hostnames stay on the edge stack. One Durable Object is one live topic; Cloudflare places it. |
+| Postgres schema | `@libs/runtime#migrate` reconciles it. A new database starts empty. |
+| Billing catalog (products, prices, webhook endpoints) | `@libs/billing#billing:sync`. The offer is product data the code reads. Paddle has no OpenTofu provider. |
+
+### A person holds these
+
+OpenTofu looks them up. It does not create them.
+
+| Thing | Why a person holds it |
+| --- | --- |
+| Cloudflare zone `gamezilla.app` | DNS for every hostname above. |
+| PlanetScale organization `gamezilla` | The account the databases are created in. The slug is configuration. |
+| Shared secrets, seeded once with `bun run secrets:seed` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `GITHUB_ADMIN_TOKEN`, `GRAFANA_CLOUD_API_TOKEN`, `PLANETSCALE_SERVICE_TOKEN_ID`, `PLANETSCALE_SERVICE_TOKEN`, `TOFU_STATE_PASSPHRASE`, `TURBO_API`, `TURBO_TOKEN`, `ELEVEN_LABS_API_KEY`, `WEB_CLIENT_GOOGLE_CLIENT_ID`, `WEB_CLIENT_GOOGLE_CLIENT_SECRET`. Unknown keys in the store are left alone. |
+| The Google OAuth client | One redirect, `https://auth.gamezilla.app/api/auth/callback/google`. Google's console has no API. |
+
+### Data stays
+
+An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon and the old Railway broker are forgotten that way. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
 ```sh
-bun run infra:bootstrap
-bun run infra:fleet
-bun run --filter @libs/infra plan:foundation    # SECRETS_ENV picks the env
-bun run --filter @libs/infra plan:edge
-bun run infra:destroy -- --env <env> --confirm <env>   # protection: standard only
+bun run infra:destroy -- --env <env> --confirm <env>
 ```
 
-A standard teardown runs deploy in reverse (edge, Workers, empty the bucket, foundation, that env's fleet entries) and leaves the env file, so the next deploy rebuilds an empty database plus migrations. Deleting the env file alone deletes nothing. To add an environment: copy `dev` without `imports`, set `protection: "standard"`, register it in `libs/infra/src/public/envs.ts`, merge. Deploy runs every standard env in parallel, then production. Health probes every env hourly. Rehearse with `bun run deploy:dev` before merging anything that touches deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands.
+That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the api, web, and room Workers, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
-Each environment is its own Neki database (`gamezilla-production`, `gamezilla-development`), branch `main`, `us-east-1`. Roles: `migrate` (inherits `postgres`, `DATABASE_URL`, DDL), `app` (read/write all data, Hyperdrive, the Worker), `obs_read` (read-only, `OBS_READONLY_DATABASE_URL`). The Worker never dials Neki. Hyperdrive pools the app role and caches nothing, so hydration reads its own writes. The Neki login name may be suffixed; the exact-name `obs_read` grant is skipped then, and `pg_read_all_data` still covers `SELECT`.
-
-IoT is one data plane per env. Public hostnames stay `emqx.gamezilla.app` and `emqx-dev.gamezilla.app` (`wss://<host>/mqtt`, secret `EMQX_WSS_URL`, synced key `emqx_wss_url`). The authorizer is a Node 22 Lambda checking the API's HMAC JWT (`EMQX_JWT_SECRET`); caching is off. App topics use `:`; the IoT wire uses `/` (`user:actor1` → `user/actor1`) at that boundary only. Loopback brokers keep colon topics. There is no deployed EMQX.
-
-Secret kinds in `stacks/foundation/secrets.json`: `shared` (a person, once, `bun run secrets:seed`), `human` (asserted), `generated` (OpenTofu, existing value wins), `derived` (resource outputs: `DATABASE_URL`, `HYPERDRIVE_ID`, `S3_*`, `IOT_*`, `API_URL`, `OBSERVABILITY_*`). Account-wide credentials live in the `shared` Infisical environment and are imported everywhere. Unknown keys are left alone. The registry of names the app needs is `libs/secrets/src/shared/secrets/registry.ts`. Google has one redirect, `https://auth.gamezilla.app/api/auth/callback/google`; the relay Worker forwards by the OAuth state tag, so a new environment needs no console edit.
-
-Object keys are prefixed with the product namespace (`gamezilla/`) before any feature prefix. R2 endpoint is `https://<accountid>.r2.cloudflarestorage.com`, region `auto`. `bun health` checks each required secret live. `bun check` does not.
-
-Deploy chain:
+A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse with `bun run deploy:dev` before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands.
 
 ```text
-deploy:fleet   auth-relay Worker, then fleet stack (global, once)
+deploy:fleet   auth-relay Worker, then the fleet stack
 deploy:<env>   foundation -> migrate -> room-server -> server -> product
                -> edge -> billing:sync -> health
 ```
 
-`bun deploy` ships `main` only. Rehearse deploy, infra, secrets, Workers, or health with `bun run deploy:dev` before merging.
-
-Non-deploy commands cannot reach production Postgres. `DATABASE_URL` entrypoints reject production env and production hostnames (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.
+`bun deploy` ships `main` only. Do not `tofu apply` from a laptop against production. Non-deploy commands cannot reach production Postgres (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.
 
 ## Laptop
 
@@ -307,7 +347,23 @@ Exactly three workflows, on `ubuntu-latest`. Check runs on PRs (`//#check`, `SEC
 
 The spec report is part of Check. Check is red if it did not publish. One private R2 bucket (`reports` in `global.tfvars.json`) holds `commits/<sha>/`. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step. A red suite still publishes. `bun check:local` does not.
 
-Health and critical journeys are Gherkin. `specs/health/` checks that an environment is configured as declared (DNS, TLS, Workers, Postgres, R2, IoT, Grafana, secrets, billing keys, the Google client, drift), read-only, from `@libs/infra/public/envs`. `specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
+Standing live checks are Gherkin features tagged exactly `@synthetic` on the feature line, after `@domain:`, in the context that owns the promise. The environment is where the runner points. A `.feature` has no schedule. The harness does not run `@synthetic`. `specs/journeys/` stays untagged: those journeys run on the harness in `bun check` and live on Health. Tagging them `@synthetic` would take them out of the harness.
+
+Tagged: `specs/runtime/reaching-the-app.feature`, `serving-people.feature`, `declared-environment.feature`, `connected-services.feature`, `stored-files.feature`, `request-records.feature`; `specs/auth/sign-in.feature`; `specs/billing/payments.feature` (production checks that the keys are real and charges nobody); `specs/spaces/spaces.feature`, `live-updates.feature`; `specs/profile/finding-a-person.feature`. `specs/runtime/availability.openslo.yaml` is `# live`, target 0.99 over 28 days, and does not gate a deploy.
+
+| Command | What it checks | Where |
+| --- | --- | --- |
+| `bun run synthetic` | `@synthetic` only | dev |
+| `bun run synthetic:prd` | `@synthetic` only | production |
+| `bun health` | journeys and `@synthetic` | dev (hourly Health) |
+| `bun health:prd` | journeys and `@synthetic` | production |
+| `bun run --filter @apps/product health:objectives` | `# live` objectives | the `SECRETS_ENV` already loaded |
+
+`@synthetic` added no workflow. `--synthetic` and `--objectives` together are refused. `--target staging` is refused. There is no staging: `test` means `dev`, `production` means `prd`. `--target` sets `SECRETS_ENV` for the host lookup inside the product script; pick the environment with `synthetic` or `synthetic:prd` so those secrets load. A failure names the scenario, the step, and the environment. `synthetic.check` is not its own span; the evidence record already names the feature and scenario.
+
+Leave a check untagged until it can run on a dedicated synthetic identity, clean up, and leave no real side effect. That includes journeys that host, end, or join a space, solve a puzzle, or change an avatar (they already run live as journeys on the synthetic monitor account), anything that reads a real person's data, sends a real notification, or takes a real payment, and edge cases, destructive admin, and checks that are not idempotent. A synthetic check uses dedicated identities, never a real person's data. Host limits are `HOST_LIMITS` in `apps/product/scripts/health.ts`. Specs carry no host tags. Infrastructure health, runtime invariants, and OpenSLO stay their own checks. The availability objective is `# live` so `bun check` does not measure GitHub from the harness.
+
+`specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
 While iterating, prefer `bun run --filter <pkg> tc` and `bun run --filter <pkg> test` before a full check.
 
@@ -349,7 +405,7 @@ Repo file names: markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md` matche
 - No `@deprecated` aliases or shim re-exports. Delete the old API and update call sites in the same change.
 - No new `'off'` or `biome-ignore` for the Tiger-Style size caps in `biome.json` (lines per file, lines per function, params, nested callbacks, cognitive complexity, classes per file). Extract a function or a component.
 - `pkgs/` stays product-agnostic.
-- Infrastructure changes are `.tf` and `envs/*.tfvars.json` only.
+- Infrastructure is OpenTofu, zero-ops, and web scale (Google, YouTube, Facebook, GitHub). Changes are `.tf` and `envs/*.tfvars.json` only.
 - Vendors are simulated by Mockingbird. A gap in a simulated vendor is an issue on `crvouga/mockingbird`, not an in-repo mock.
 - Assert invariants and crash. Handle or propagate every error. No empty `catch`.
 
@@ -377,6 +433,6 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 **Matchmaking** (`specs/matchmaking/`): waiting for a match; being matched.
 
-**Health** (`specs/health/`): reaching the app; signing in; serving people; spaces; seeing each other play; keeping uploads; payments; outside services; finding out what happened; finding a person's trouble; environments stay as planned.
+**Live checks** (`@synthetic`, in the owning context): reaching the app; serving people; the environment as planned; outside services; uploads; the request trail; signing in; payments; spaces; live updates; finding a person's trouble. Availability: `specs/runtime/availability.openslo.yaml`.
 
 **Journeys** (`specs/journeys/`): critical journeys; joining from a link, and opening with no connection.

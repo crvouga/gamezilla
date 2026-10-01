@@ -5,7 +5,7 @@ description: Implement read-only specs â€” Gherkin scenarios and Quint models â€
 
 Load the `spec-implement` skill (`.agents/skills/spec-implement/SKILL.md`)
 and follow it with `specs/README.md`, `AGENTS.md`, and
-`docs/TESTING.md`. Show every new scenario failing for the right reason before
+`README.md` (Correctness machinery). Show every new scenario failing for the right reason before
 writing steps or product code. Never edit a spec (`specs/<domain>/*.feature`,
 `*.qnt`, `ubiquitous-language.yml`): hand unimplementable wording back to the
 spec writer in product terms. Keep definitions thin (harness calls only, no
