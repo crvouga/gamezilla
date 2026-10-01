@@ -14,8 +14,13 @@ export class MemoryRoomStorage implements RoomStorage {
     return this.entries.at(-1)?.seq ?? 0;
   }
 
-  async appendCommittedEntries(_t: string, batch: LogEntry[]): Promise<void> {
+  async commitCommand(
+    _t: string,
+    id: string,
+    batch: LogEntry[]
+  ): Promise<void> {
     for (const e of batch) this.entries.push(e);
+    this.dedup.set(id, { kind: 'committed', entries: [...batch] });
   }
 
   async getDedupOutcome(
@@ -28,7 +33,7 @@ export class MemoryRoomStorage implements RoomStorage {
   async putDedupOutcome(
     _t: string,
     id: string,
-    o: CommandDedupOutcome
+    o: Extract<CommandDedupOutcome, { kind: 'rejected' }>
   ): Promise<void> {
     this.dedup.set(id, o);
   }

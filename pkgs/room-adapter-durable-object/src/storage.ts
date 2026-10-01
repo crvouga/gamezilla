@@ -66,19 +66,21 @@ export class DurableObjectRoomStorage implements RoomStorage {
     return this.readLastSeq();
   }
 
-  async appendCommittedEntries(
+  async commitCommand(
     _topic: string,
+    commandId: string,
     newEntries: LogEntry[]
   ): Promise<void> {
     if (newEntries.length === 0) return;
     await this.ensureV3();
+    if ((await this.getDedupOutcome(_topic, commandId)) !== null) return;
     const prevLast = await this.readLastSeq();
     let expect = prevLast + 1;
     const batch: Record<string, unknown> = {};
     for (const e of newEntries) {
       if (e.seq !== expect) {
         throw new Error(
-          `DurableObjectRoomStorage.appendCommittedEntries: expected seq ${String(expect)}, got ${String(e.seq)}`
+          `DurableObjectRoomStorage.commitCommand: expected seq ${String(expect)}, got ${String(e.seq)}`
         );
       }
       batch[eventKey(this.ns, e.seq)] = e;
@@ -86,7 +88,16 @@ export class DurableObjectRoomStorage implements RoomStorage {
     }
     const lastSeq = newEntries[newEntries.length - 1]!.seq;
     batch[this.ns.meta] = { lastSeq } satisfies RoomDoMeta;
-    await putEntriesBatched(this.kv, batch);
+    batch[dedupKey(this.ns, commandId)] = {
+      kind: 'committed',
+      entries: newEntries,
+    } satisfies CommandDedupOutcome;
+    try {
+      await this.kv.transaction((tx) => putEntriesBatched(tx, batch));
+    } catch (error) {
+      this.lastSeq = null;
+      throw error;
+    }
     this.lastSeq = lastSeq;
   }
 
@@ -104,9 +115,10 @@ export class DurableObjectRoomStorage implements RoomStorage {
   async putDedupOutcome(
     _topic: string,
     commandId: string,
-    outcome: CommandDedupOutcome
+    outcome: Extract<CommandDedupOutcome, { kind: 'rejected' }>
   ): Promise<void> {
     await this.ensureV3();
+    if ((await this.getDedupOutcome(_topic, commandId)) !== null) return;
     await this.kv.put(dedupKey(this.ns, commandId), outcome);
   }
 

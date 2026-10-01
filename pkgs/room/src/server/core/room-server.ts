@@ -106,7 +106,7 @@ function rejectedFrame(commandId: string, error: RoomError): unknown {
  * All storage-touching work (commands, injects, welcome loads) rides one
  * serial chain, so the in-memory tip / state and the log never diverge and a
  * welcome always sees a consistent snapshot. The committed tip is cached
- * after hydrate, so a commit costs exactly two storage writes (log + dedup)
+ * after hydrate, so a commit saves its log and retry verdict atomically
  * and one dedup read — no tip reads on the hot path.
  */
 export class RoomServer<
@@ -316,17 +316,20 @@ export class RoomServer<
         ts,
       };
     }
-    await this.storage.appendCommittedEntries(this.topic, entries);
-    this.lastSeq = base + entries.length;
     let state = this.committedState;
     for (let i = 0; i < entries.length; i++) {
       state = this.module.reduce(state, entries[i]!.event);
     }
+    try {
+      await this.storage.commitCommand(this.topic, args.commandId, entries);
+    } catch (error) {
+      // The storage acknowledgement may be lost after an atomic commit. Reload
+      // before accepting another command so its state and sequence are current.
+      await this.hydrateFromStorage();
+      throw error;
+    }
+    this.lastSeq = base + entries.length;
     this.committedState = state;
-    await this.storage.putDedupOutcome(this.topic, args.commandId, {
-      kind: 'committed',
-      entries,
-    });
     this.broadcast({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.committed,

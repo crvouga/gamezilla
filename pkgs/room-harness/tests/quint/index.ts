@@ -4,6 +4,7 @@
  */
 
 import './tally.binding';
+import './tally-recovery.binding';
 import './ownership.binding';
 import './match-clock.binding';
 
