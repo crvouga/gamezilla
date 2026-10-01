@@ -22,7 +22,7 @@ Feature: Checked notes
 
     @regression:sync-refused-draft-reached-another-person
     Scenario: Refused writing never replaces another person's shared note
-      Given Alice and Bob are in the shared space "Trip"
+      Given Alice and Bob have slow connections
       And Alice has written the checked note "Groceries" saying "milk"
       And the note "Groceries" has reached Bob
       And Alice's app will not hear back about its next save
