@@ -1,18 +1,28 @@
 /** @jsxImportSource solid-js */
 import { asLocalized } from '@pkgs/i18n';
-import { Button, SendIcon, TextInput, useMutationButton } from '@pkgs/ui';
+import {
+  Button,
+  MarkdownEditor,
+  type MarkdownEditorCommand,
+  SendIcon,
+  TextInput,
+  useMutationButton,
+} from '@pkgs/ui';
 import { type Accessor, type JSX, Show } from 'solid-js';
 import { FEEDBACK_TEMPLATES } from '../shared/templates';
 import type { FeedbackKind } from '../shared/types';
 import type { FeedbackController, FeedbackState } from './controller';
 import { EvidenceControls } from './evidence-controls';
 
-const TEMPLATE_COMMANDS: Readonly<Record<string, FeedbackKind>> = {
-  '/bug': 'problem',
-  '/feature': 'feature',
-  '/gap': 'gap',
-  '/polish': 'polish',
-};
+const TEMPLATE_COMMANDS: readonly MarkdownEditorCommand[] =
+  FEEDBACK_TEMPLATES.map((template) => ({
+    id: template.kind === 'problem' ? 'bug' : template.kind,
+    label: template.label,
+    description: template.label,
+    aliases:
+      template.kind === 'problem' ? ['bugfix', 'bugix', 'fix', 'problem'] : [],
+    body: template.body,
+  }));
 
 export function FeedbackForm(props: {
   controller: FeedbackController;
@@ -40,24 +50,9 @@ export function FeedbackForm(props: {
   const isUpdate = () =>
     workspace().documents.find((doc) => doc.id === workspace().activeId)
       ?.report !== null;
-  const updateBody = (value: string): void => {
-    const lines = value.split('\n');
-    const command =
-      TEMPLATE_COMMANDS[(lines.at(-1) ?? '').trim().toLowerCase()];
-    if (!command) {
-      props.controller.setDraft({ body: value });
-      return;
-    }
-    const template = FEEDBACK_TEMPLATES.find((item) => item.kind === command);
-    const existing = lines.slice(0, -1).join('\n').trimEnd();
-    props.controller.setDraft({
-      kind: command,
-      body: [existing, template?.body ?? ''].filter(Boolean).join('\n\n'),
-    });
-  };
   return (
     <form
-      class="box gap-3"
+      class="box flex-1 min-h-0 shrink gap-3 overflow-hidden"
       data-testid="feedback-form"
       data-component="FeedbackForm"
       onSubmit={(event) => {
@@ -68,7 +63,9 @@ export function FeedbackForm(props: {
       <FeedbackEditor
         controller={props.controller}
         state={props.state}
-        onChangeBody={updateBody}
+        onSubmit={() => {
+          void mutation.run();
+        }}
         submit={
           <Button
             {...mutation.buttonProps}
@@ -119,12 +116,12 @@ export function FeedbackForm(props: {
 function FeedbackEditor(props: {
   controller: FeedbackController;
   state: Accessor<FeedbackState>;
-  onChangeBody: (value: string) => void;
+  onSubmit: () => void;
   submit: JSX.Element;
 }) {
   return (
     <div
-      class="box overflow-hidden rounded-xl border border-border bg-surface"
+      class="box flex-1 min-h-0 shrink overflow-hidden rounded-xl border border-border bg-surface"
       data-component="FeedbackEditor"
     >
       <TextInput
@@ -139,19 +136,21 @@ function FeedbackEditor(props: {
         fieldClass="border-0 rounded-none bg-transparent font-semibold"
         dataSet={{ testid: 'feedback-title' }}
       />
-      <TextInput
-        multiline
-        rows={11}
-        name="body"
-        aria-label={asLocalized('Feedback')}
-        placeholder={asLocalized(
+      <MarkdownEditor
+        aria-label="Feedback"
+        placeholder={
           'Describe what happened, what you expected, and what should improve.\n\nType /bug, /feature, /gap, or /polish for a guided outline.'
-        )}
-        maxlength={32000}
-        class="gap-0 border-t border-border"
-        fieldClass="border-0 rounded-none bg-transparent text-sm leading-relaxed"
+        }
+        maxLength={32000}
         value={props.state().draft.body}
-        onChangeText={props.onChangeBody}
+        onChange={(body) => props.controller.setDraft({ body })}
+        commands={TEMPLATE_COMMANDS}
+        onCommand={(id) =>
+          props.controller.setDraft({
+            kind: id === 'bug' ? 'problem' : (id as FeedbackKind),
+          })
+        }
+        onSubmit={props.onSubmit}
         disabled={props.state().phase === 'sending'}
         invalid={props.state().errors.body !== undefined}
         dataSet={{ testid: 'feedback-body' }}

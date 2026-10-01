@@ -219,7 +219,16 @@
     "workbox-build": "^7.4.1",
     "workbox-window": "^7.4.1",
     "wrangler": "^4.141.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "prosemirror-commands": "^1.7.2",
+    "prosemirror-history": "^1.5.1",
+    "prosemirror-inputrules": "^1.5.1",
+    "prosemirror-keymap": "^1.2.3",
+    "prosemirror-markdown": "^1.13.8",
+    "prosemirror-model": "^1.25.12",
+    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.42.6"
   },
   "trustedDependencies": [
     "better-sqlite3",

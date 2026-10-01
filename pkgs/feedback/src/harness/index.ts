@@ -62,6 +62,37 @@ export const feedbackAction = defineAction({
 });
 export const readFeedbackView = (world: FeedbackReportingWorld) =>
   world.app.view();
+export const editorAction = defineAction({
+  name: 'editorAction',
+  act: async (
+    world: FeedbackReportingWorld,
+    input: { type: 'write' | 'key' | 'format'; text: string }
+  ) => {
+    if (input.type === 'write') await world.app.editor.write(input.text);
+    if (input.type === 'key') await world.app.editor.key(input.text);
+    if (input.type === 'format') await world.app.editor.format(input.text);
+  },
+});
+export const readEditorView = (world: FeedbackReportingWorld) =>
+  world.app.editor.view();
+export const navigationAction = defineAction({
+  name: 'navigationAction',
+  act: async (
+    world: FeedbackReportingWorld,
+    input: { type: 'open' | 'focus' | 'key'; text: string; key?: string }
+  ) => {
+    if (input.type === 'open') await world.app.navigation.openIssue(input.text);
+    if (input.type === 'focus')
+      await world.app.navigation.focusIcon(input.text);
+    if (input.type === 'key')
+      await world.app.navigation.key({
+        label: input.text,
+        key: input.key ?? 'Escape',
+      });
+  },
+});
+export const readNavigationView = (world: FeedbackReportingWorld) =>
+  world.app.navigation.view();
 export const editFeedbackAnswer = defineAction({
   name: 'editFeedbackAnswer',
   act: (
@@ -121,6 +152,8 @@ export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
     closeApplication,
     feedbackAction,
     editFeedbackAnswer,
+    editorAction,
+    navigationAction,
     wizardAction,
     foreignFeedback,
     changeForeignFeedback,

@@ -10,7 +10,6 @@ export { feedbackCommand } from './feedback-command';
 export { startFeedbackRuntime } from './feedback-runtime';
 export { HttpIssueReporter } from './http-issue-reporter';
 export { feedbackInteraction } from './interaction-recording';
-export { feedbackMarkdownBlocks, safeMarkdownHref } from './markdown-blocks';
 export { mountFeedback } from './mount-feedback';
 export { FEEDBACK_OPEN_EVENT, requestFeedback } from './open-feedback';
 export { createReproductionRecorder } from './recording';

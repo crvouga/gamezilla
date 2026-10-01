@@ -56,7 +56,7 @@ function DesktopWidget(props: { controller: FeedbackController }) {
       role="dialog"
       aria-modal="false"
       aria-label="Feedback"
-      class="box fixed right-4 bottom-4 w-104 max-w-full rounded-2xl border border-border bg-surface shadow-2xl pointer-events-auto overflow-hidden"
+      class="box fixed right-4 bottom-4 w-128 h-160 max-w-full rounded-2xl border border-border bg-surface shadow-2xl pointer-events-auto overflow-hidden"
       style={{
         transform: `translate(${position().x}px, ${position().y}px)`,
         'max-height': `${Math.max(0, layout.layout().height - 48)}px`,
@@ -86,7 +86,7 @@ function DesktopWidget(props: { controller: FeedbackController }) {
           dataSet={{ testid: 'feedback-close' }}
         />
       </div>
-      <div class="box min-h-0 overflow-y-auto overscroll-contain">
+      <div class="box flex-1 min-h-0 shrink overflow-hidden">
         <FeedbackPanel controller={props.controller} />
       </div>
     </section>
@@ -96,6 +96,7 @@ export function FeedbackWizard(props: { controller: FeedbackController }) {
   const state = useFeedbackState(() => props.controller);
   const recording = useRecordingState(() => props.controller);
   const layout = useLayoutMode();
+  const themeLayout = useThemeLayout();
   return (
     <>
       <Show when={recording().phase === 'recording'}>
@@ -124,6 +125,10 @@ export function FeedbackWizard(props: { controller: FeedbackController }) {
               onClose={props.controller.close}
               title="Feedback"
               stackId="feedback"
+              bodyHeight={Math.max(
+                0,
+                Math.min(640, themeLayout.layout().height - 120)
+              )}
               dataSet={{ testid: 'feedback-surface' }}
               closeDataSet={{ testid: 'feedback-close' }}
             >

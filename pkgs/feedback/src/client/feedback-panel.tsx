@@ -5,10 +5,12 @@ import type { FeedbackController } from './controller';
 import { FeedbackDetail } from './feedback-detail';
 import { FeedbackForm } from './feedback-form';
 import { FeedbackManagement } from './feedback-management';
+import { useStageFocus } from './stage-focus';
 import { useFeedbackState } from './use-feedback-state';
 
 export function FeedbackPanel(props: { controller: FeedbackController }) {
   const state = useFeedbackState(() => props.controller);
+  let host: HTMLDivElement | undefined;
   const workspace = () => {
     state();
     return props.controller.workspace.state();
@@ -17,13 +19,21 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
     state();
     return props.controller.workspace.warning;
   };
+  useStageFocus(
+    () => host,
+    () => workspace().stage
+  );
   const title = () => {
     if (workspace().stage === 'manage') return 'Issues';
     if (workspace().stage === 'read') return 'Issue';
     return props.controller.editorTitle();
   };
   return (
-    <div class="box gap-4 p-4" data-component="FeedbackPanel">
+    <div
+      ref={host}
+      class="box flex-1 h-full min-h-0 shrink gap-4 p-4 overflow-hidden"
+      data-component="FeedbackPanel"
+    >
       <div class="box flex-row items-center justify-between gap-3">
         <h2 class="text font-semibold">{title()}</h2>
         <StageAction controller={props.controller} stage={workspace().stage} />

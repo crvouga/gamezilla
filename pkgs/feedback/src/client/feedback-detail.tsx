@@ -1,13 +1,14 @@
 /** @jsxImportSource solid-js */
 import {
+  IconButton,
+  MarkdownContent,
   MutationModal,
-  OverflowMenuButton,
+  ScrollView,
   SquarePenIcon,
   Trash2Icon,
 } from '@pkgs/ui';
 import { type Accessor, createSignal, Show } from 'solid-js';
 import type { FeedbackController, FeedbackState } from './controller';
-import { MarkdownPreview } from './markdown-preview';
 
 export function FeedbackDetail(props: {
   controller: FeedbackController;
@@ -21,7 +22,10 @@ export function FeedbackDetail(props: {
   return (
     <Show when={document()}>
       {(doc) => (
-        <div class="box gap-4" data-component="FeedbackDetail">
+        <div
+          class="box flex-1 min-h-0 shrink gap-4 overflow-hidden"
+          data-component="FeedbackDetail"
+        >
           <div class="box flex-row items-start justify-between gap-3">
             <div class="box min-w-0 gap-1">
               <h3 class="text text-lg font-semibold break-words">
@@ -31,31 +35,47 @@ export function FeedbackDetail(props: {
                 {doc().report ? 'Reported issue' : 'Draft'}
               </p>
             </div>
-            <OverflowMenuButton
+            <div
+              class="box flex-row gap-1"
+              role="group"
               aria-label="Issue actions"
-              header={{ title: doc().title || 'Untitled issue' }}
-              actions={[
-                {
-                  id: 'edit',
-                  label: 'Edit issue',
-                  icon: SquarePenIcon,
-                  onClick: props.controller.edit,
-                  dataSet: { testid: `feedback-edit-${doc().id}` },
-                },
-                {
-                  id: 'delete',
-                  label: 'Delete issue',
-                  icon: Trash2Icon,
-                  onClick: () => setDeleting(true),
-                  dataSet: { testid: `feedback-delete-${doc().id}` },
-                },
-              ]}
-              dataSet={{ testid: 'feedback-actions' }}
+              data-component="FeedbackActions"
+            >
+              <IconButton
+                label="Edit issue"
+                tooltip="default"
+                tooltipFloating
+                tooltipPlacement="top"
+                onClick={props.controller.edit}
+                dataSet={{ testid: `feedback-edit-${doc().id}` }}
+              >
+                <SquarePenIcon size={18} />
+              </IconButton>
+              <IconButton
+                label="Delete issue"
+                tooltip="default"
+                tooltipFloating
+                tooltipPlacement="top"
+                onClick={() => setDeleting(true)}
+                dataSet={{ testid: `feedback-delete-${doc().id}` }}
+              >
+                <Trash2Icon size={18} />
+              </IconButton>
+            </div>
+          </div>
+          <ScrollView
+            class="flex-1 min-h-0 shrink overflow-y-auto overscroll-contain rounded-xl border border-border"
+            contentClass="p-4"
+            flushEdge={false}
+            role="region"
+            aria-label="Issue description"
+            tabIndex={0}
+          >
+            <MarkdownContent
+              value={doc().body}
+              dataSet={{ testid: 'feedback-markdown-preview' }}
             />
-          </div>
-          <div class="box rounded-xl border border-border p-4">
-            <MarkdownPreview value={doc().body} />
-          </div>
+          </ScrollView>
           <Show when={doc().issue?.url}>
             <a
               class="text text-sm text-tint"

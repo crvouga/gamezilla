@@ -7,6 +7,8 @@ import { mountFeedback } from '../client/mount-feedback';
 import { requestFeedback } from '../client/open-feedback';
 import type { FeedbackWorkspaceSnapshot } from '../shared/workspace';
 import { mountExampleCommands } from './example-commands';
+import { createExampleEditor } from './example-editor';
+import { createExampleNavigation } from './example-navigation';
 // Compile the example's lazy UI before a run; application bootstrap stays lazy.
 import '../client/reporting-surface';
 import { createEvidenceUploader } from '../client/upload-evidence';
@@ -28,6 +30,8 @@ export type ApplicationCondition =
   | 'delivery-fails';
 export type DiagnosticsCondition = 'available' | 'throws' | 'hangs';
 export function createExampleApp(session: Session) {
+  const editor = createExampleEditor(session);
+  const navigation = createExampleNavigation(session);
   const store = new ObjectStoreImplInMemory();
   let root: ReturnType<typeof mountFeedback> | null = null;
   let host: HTMLElement | null = null;
@@ -186,7 +190,8 @@ export function createExampleApp(session: Session) {
     await ready();
     if (!root?.controller.state().visible) await open();
     root?.controller.setStage('write');
-    for (const key of ['title', 'body'] as const) {
+    root?.controller.setDraft({ body: draft.body, kind: draft.kind });
+    for (const key of ['title'] as const) {
       const input = element(`feedback-${key}`).querySelector<
         HTMLInputElement | HTMLTextAreaElement
       >('input, textarea');
@@ -204,6 +209,7 @@ export function createExampleApp(session: Session) {
     await idle();
   }
   function answer(field: 'body' | 'title') {
+    if (field === 'body') return editor.field();
     const input = element(`feedback-${field}`).querySelector<
       HTMLInputElement | HTMLTextAreaElement
     >('input, textarea');
@@ -212,7 +218,13 @@ export function createExampleApp(session: Session) {
   }
   async function editAnswer(input: { field: 'body' | 'title'; text: string }) {
     root?.controller.setStage('write');
+    if (input.field === 'body') {
+      for (const character of input.text) await editor.append(character);
+      return;
+    }
     const field = answer(input.field);
+    if (!(field instanceof HTMLInputElement))
+      throw new Error('Title field missing');
     field.focus();
     field.setSelectionRange(field.value.length, field.value.length);
     for (const character of input.text) {
@@ -229,10 +241,11 @@ export function createExampleApp(session: Session) {
     }
   }
   async function enterTemplateCommand(command: string) {
-    const field = answer('body');
-    field.value = `${field.value}${field.value ? '\n' : ''}${command}`;
-    field.dispatchEvent(new InputEvent('input', { bubbles: true }));
-    await session.waitForIdle();
+    root?.controller.setStage('write');
+    await editor.write(
+      `${root?.controller.state().draft.body ?? ''}\n\n${command}`.trim()
+    );
+    await editor.key('Enter');
   }
   async function record(stop: boolean) {
     await ready();
@@ -265,8 +278,6 @@ export function createExampleApp(session: Session) {
       await root?.controller.manage();
       element(`feedback-open-${id}`).click();
       await session.waitForIdle();
-      element('feedback-actions').click();
-      await session.waitForIdle();
       element(`feedback-edit-${id}`).click();
       await session.waitForIdle();
       await describe({
@@ -280,8 +291,6 @@ export function createExampleApp(session: Session) {
       const id = root?.controller.workspace.state().activeId;
       await root?.controller.manage();
       element(`feedback-open-${id}`).click();
-      await session.waitForIdle();
-      element('feedback-actions').click();
       await session.waitForIdle();
       element(`feedback-delete-${id}`).click();
       await session.waitForIdle();
@@ -301,6 +310,8 @@ export function createExampleApp(session: Session) {
   }
   return {
     store,
+    editor,
+    navigation,
     async wizard(action: { type: string; title?: string; body?: string }) {
       await ready();
       if (action.type === 'close') root?.controller.close();
@@ -383,7 +394,10 @@ export function createExampleApp(session: Session) {
     readAnswer(field: 'body' | 'title') {
       const input = answer(field);
       return {
-        value: input.value,
+        value:
+          field === 'body'
+            ? root?.controller.state().draft.body
+            : (input as HTMLInputElement).value,
         focused: document.activeElement === input,
       };
     },

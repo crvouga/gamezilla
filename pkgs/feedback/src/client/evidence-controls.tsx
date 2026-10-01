@@ -27,6 +27,9 @@ export function EvidenceControls(props: { controller: FeedbackController }) {
       data-component="FeedbackEvidenceControls"
     >
       <IconButton
+        tooltip="default"
+        tooltipFloating
+        tooltipPlacement="top-start"
         label={
           recording().phase === 'ready'
             ? 'Discard recording'
@@ -67,6 +70,9 @@ export function EvidenceControls(props: { controller: FeedbackController }) {
       />
       <IconButton
         label="Attach screenshot or video"
+        tooltip="default"
+        tooltipFloating
+        tooltipPlacement="top-start"
         size={32}
         disabled={state().phase === 'sending'}
         onClick={() => chooser?.click()}
@@ -78,6 +84,9 @@ export function EvidenceControls(props: { controller: FeedbackController }) {
         <p class="text textCaption whitespace-nowrap">{attachmentLabel()}</p>
         <IconButton
           label="Remove latest attachment"
+          tooltip="default"
+          tooltipFloating
+          tooltipPlacement="top-start"
           size={32}
           disabled={state().phase === 'sending'}
           onClick={() => props.controller.removeFile(state().files.length - 1)}

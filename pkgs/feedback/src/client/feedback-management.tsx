@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   List,
   ListItem,
+  ScrollView,
   SearchIcon,
   TextInput,
 } from '@pkgs/ui';
@@ -37,7 +38,7 @@ export function FeedbackManagement(props: {
   });
   return (
     <div
-      class="box gap-3"
+      class="box flex-1 min-h-0 shrink gap-3 overflow-hidden"
       data-component="FeedbackManagement"
       data-testid="feedback-management"
     >
@@ -58,18 +59,27 @@ export function FeedbackManagement(props: {
           </div>
         }
       >
-        <List separator={false}>
-          <For each={documents()}>
-            {(doc) => (
-              <FeedbackRow
-                doc={doc}
-                onOpen={() => {
-                  void props.controller.select(doc.id);
-                }}
-              />
-            )}
-          </For>
-        </List>
+        <ScrollView
+          class="box flex-1 min-h-0 shrink overflow-y-auto overscroll-contain"
+          role="region"
+          aria-label="Issues"
+          tabIndex={0}
+          dataSet={{ testid: 'feedback-issue-scroll' }}
+          flushEdge={false}
+        >
+          <List separator={false}>
+            <For each={documents()}>
+              {(doc) => (
+                <FeedbackRow
+                  doc={doc}
+                  onOpen={() => {
+                    void props.controller.select(doc.id);
+                  }}
+                />
+              )}
+            </For>
+          </List>
+        </ScrollView>
       </Show>
     </div>
   );

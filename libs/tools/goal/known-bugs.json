@@ -503,5 +503,25 @@
     "id": "neki-kv-storage-ddl-unsupported",
     "summary": "The first schema reconcile on Neki stopped at ALTER COLUMN SET STORAGE with NK013 because Neki cannot preserve that storage setting as shards join. Catching it inside the schema transaction still left the transaction aborted, and after commit the router could briefly return 42P01 for the newly created table. Fixed by committing required schema first, then applying optional storage tuning in autocommit, where explicit unsupported errors are skipped and temporary table visibility defers tuning without hiding unrelated failures.",
     "regressionTest": "pkgs/kv-postgres/tests/postgres-storage-knobs.test.ts"
+  },
+  {
+    "id": "feedback-widget-unbounded",
+    "summary": "The issue list grew with its content and stage changes left keyboard focus on removed controls.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-actions-hidden-menu",
+    "summary": "The issue detail hid its only two actions behind an unnecessary menu.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-icon-label-clipping",
+    "summary": "Evidence controls had pointer-only labels clipped by the editor frame.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-command-eager-expansion",
+    "summary": "Typing a complete slash command expanded it before acceptance, with no keyboard suggestions.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
   }
 ]
