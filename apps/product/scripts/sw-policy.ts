@@ -66,7 +66,7 @@ export const PRECACHE_GLOB_IGNORES: readonly string[] = [
  * stores). The wall shell is ~8.3 MB raw / ~2.4 MB gzip today, dominated by
  * node-sql-parser (mutation SQL capture, ~2.4 MB raw), DiceBear (~2 MB) and
  * sqlite3.wasm (~0.9 MB). On a low-end Android over Slow 3G
- * (docs/LOW_END_ANDROID_PERF.md) the service worker installs it in the
+ * (README.md) the service worker installs it in the
  * background after first paint, so it never gates interactivity — but it is
  * data and storage the person pays for once. 9 MiB leaves ~14% headroom so
  * growth is a deliberate decision: shrink the heavy chunks before raising it.

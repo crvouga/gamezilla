@@ -1,5 +1,5 @@
 /**
- * The one example app every `@pkgs/harness` test drives (docs/TESTING.md
+ * The one example app every `@pkgs/harness` test drives (README.md
  * § "One example app per package"): a counter and a small key-value store
  * shared by two clients. It uses every capability the framework offers —
  * sampled and guarded actions, a pool-excluded action that fails, a

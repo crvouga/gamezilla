@@ -29,7 +29,7 @@ import {
  *   re-arms it for the opponent, and the room ends the match when it fires.
  *
  * One kitchen-sink module on purpose: a new room capability grows this app
- * instead of adding another fixture (docs/TESTING.md, "One example app per
+ * instead of adding another fixture (README.md, "One example app per
  * package").
  */
 

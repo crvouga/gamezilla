@@ -1,6 +1,6 @@
 /**
  * The one example app every `@pkgs/harness-report` test reports on
- * (docs/TESTING.md § "One example app per package"): a counter and a small
+ * (README.md): a counter and a small
  * key-value store that Alice and Bob look at. It captures every snapshot
  * medium the report renders — JSON, text, HTML and PNG — and a test that
  * needs a report with no screens (a synthesized state frame) configures it with

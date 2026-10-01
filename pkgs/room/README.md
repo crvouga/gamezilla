@@ -90,7 +90,7 @@ bun run --filter @pkgs/room bench
 client-only checks (`never`, lagging peer) stay client-scoped.
 
 **Required on every `RoomModule`:** `hash(state)` — deterministic domain hash
-(see [`docs/DETERMINISM.md`](../../docs/DETERMINISM.md)). Used by harness settle and
+(see [`README.md`](../../README.md#correctness-machinery)). Used by harness settle and
 by game modules in product.
 
 ---
@@ -323,7 +323,7 @@ replays are idempotent.
 
 ## Testing
 
-Policy: [`docs/TESTING.md`](../../docs/TESTING.md). Every test of the room
+Policy: [`README.md`](../../README.md#correctness-machinery). Every test of the room
 packages drives **one** example app, the game room (`gameRoomModule` in
 `@pkgs/room/harness`; `@pkgs/room-harness` runs it as `exampleApp` /
 `exampleSystem`). It lives in `@pkgs/room` because this package's and the
@@ -372,7 +372,7 @@ When proposing a change, check:
 3. Are effects optional on success and absent on reject?
 4. Will unknown custom effects fail loudly (handler claim protocol)?
 5. Is there a harness scenario (or kit row) that would catch the regression?
-6. Does `hash(state)` stay deterministic (see `docs/DETERMINISM.md`)?
+6. Does `hash(state)` stay deterministic (see `README.md`)?
 
 ---
 

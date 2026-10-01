@@ -9,7 +9,7 @@ import {
 
 # The shared Railway project and its EMQX service used to live here. Forget
 # them: an apply must not delete the broker or its volume. A person deletes
-# the project after IoT Core is healthy (docs/INFRA.md).
+# the project after IoT Core is healthy (README.md).
 removed {
   from = module.pubsub_project.railway_project.this
   lifecycle {

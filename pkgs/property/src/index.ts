@@ -1,7 +1,7 @@
 /**
  * The one way to run a property in this repo: `assertProperty` pins the seed
  * and run count identically on every machine, so a property's verdict is a
- * function of the code and turbo can cache it (docs/TESTING.md § 3).
+ * function of the code and turbo can cache it (README.md).
  *
  * A leaf over fast-check alone, so pure packages can property-test without
  * depending on the harness kernel — and without a cycle for the packages the harness

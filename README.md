@@ -4,7 +4,7 @@ Local-first multiplayer game platform. A person opens the app on a phone, tablet
 
 This file is the one briefing a fresh session should load: product, stack, and how the repo is worked. Executable product truth lives in [`specs/`](specs/). How to write a spec lives in [`specs/README.md`](specs/README.md). The injected agent contract is [`AGENTS.md`](AGENTS.md); it points here and does not restate this file. When this file and a spec disagree, the spec wins. Change product behavior by changing `specs/` first, in a `spec:` commit, then the code.
 
-`docs/` holds one generated file, [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) (`bun run spec:catalog`). Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
+`docs/` holds the generated step catalog [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) (`bun run spec:catalog`) and [`docs/SYNTHETIC.md`](docs/SYNTHETIC.md) (where standing live checks live). Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
 
 Private repo: `crvouga/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
 

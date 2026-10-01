@@ -10,7 +10,7 @@ A leaf over fast-check alone: pure packages property-test without depending on
 the harness kernel, and packages the harness is built on (`@pkgs/uuid`) can use it
 without a cycle. Raw `fc.assert` / `fc.check` / `fc.sample` / `fc.statistics`
 are banned elsewhere (`no-unpinned-property.grit`). Policy:
-[`docs/TESTING.md`](../../docs/TESTING.md).
+[`README.md`](../../README.md#correctness-machinery).
 
 ```ts
 import { assertProperty, fc } from '@pkgs/property';

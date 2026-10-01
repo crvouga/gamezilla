@@ -719,7 +719,7 @@ Mutation UX is the product's (see `AGENTS.md` § "Mutation UX").
 
 ## Testing
 
-Policy: [`docs/TESTING.md`](../../docs/TESTING.md); spec rules:
+Policy: [`README.md`](../../README.md#correctness-machinery); spec rules:
 [`specs/README.md`](../../specs/README.md).
 
 | Suite | Path | Role |

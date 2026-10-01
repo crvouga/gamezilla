@@ -5,7 +5,7 @@ choices ⇒ the same timeline. Packages declare a **System** that boots a typed
 surface `S` behind a **Runtime**; the framework drives **Actions**, checks
 **Properties**, captures **Snapshots**, and records a **Recording** for replay.
 The algebra does not know about clients, browsers, SQL, rooms, or networks — a
-Runtime supplies those. Root policy: [`docs/DETERMINISM.md`](../../docs/DETERMINISM.md).
+Runtime supplies those. Root policy: [`README.md`](../../README.md#correctness-machinery).
 
 ---
 

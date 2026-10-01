@@ -1,7 +1,7 @@
 language js
 
 // Manual recording is deliberately confined to boundary files
-// (docs/OBSERVABILITY.md § Recording). The plugin include allowlist in
+// (README.md). The plugin include allowlist in
 // biome.json names those files; every other production source file is checked.
 file($body) where {
   $body <: includes "@pkgs/observability/",
