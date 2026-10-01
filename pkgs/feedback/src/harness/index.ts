@@ -7,17 +7,17 @@ import {
 } from '@pkgs/harness';
 import {
   createExampleApp,
+  type ApplicationCondition,
   type DiagnosticsCondition,
-  type ProductCondition,
 } from './example-app';
 
 export type FeedbackReportingWorld = {
   readonly session: Session;
   readonly app: ReturnType<typeof createExampleApp>;
 };
-export const productCondition = defineAction({
-  name: 'productCondition',
-  act: (world: FeedbackReportingWorld, condition: ProductCondition) =>
+export const applicationCondition = defineAction({
+  name: 'applicationCondition',
+  act: (world: FeedbackReportingWorld, condition: ApplicationCondition) =>
     world.app.boot(condition),
 });
 export const diagnosticsCondition = defineAction({
@@ -73,8 +73,8 @@ export const readFeedbackAnswer = (
   world: FeedbackReportingWorld,
   field: 'body' | 'title'
 ) => world.app.readAnswer(field);
-export const closeProduct = defineAction({
-  name: 'closeProduct',
+export const closeApplication = defineAction({
+  name: 'closeApplication',
   act: (world: FeedbackReportingWorld) => world.app.close(),
 });
 export const readReport = (world: FeedbackReportingWorld) => world.app.report();
@@ -115,10 +115,10 @@ export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
     }),
   ],
   actions: [
-    productCondition,
+    applicationCondition,
     diagnosticsCondition,
     submitReport,
-    closeProduct,
+    closeApplication,
     feedbackAction,
     editFeedbackAnswer,
     wizardAction,
