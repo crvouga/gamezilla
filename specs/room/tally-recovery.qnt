@@ -3,7 +3,8 @@
 // unavailable at any point and return; a counted change still counts once.
 // Once the room stays available, waiting changes eventually count and their
 // makers eventually hear back. Later changes never replace earlier ones.
-// This follows three changes. Open apps and offline display are in tally.qnt.
+// This follows three changes. Separate promises cover open apps and what
+// they show while offline.
 // Alice and Bob can independently lose their connections; an offline change
 // still waits and counts when its maker has a connection again.
 module tally_recovery {
