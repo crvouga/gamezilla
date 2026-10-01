@@ -909,8 +909,11 @@ msgstr "Every install signed into your account shows up here."
 msgid "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
 msgstr "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
 
-#: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
+msgid "Everyone can see that the space has ended."
+msgstr "Everyone can see that the space has ended."
+
+#: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
 msgstr "Everyone has been returned to the lobby."
 
