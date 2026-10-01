@@ -1241,7 +1241,7 @@ There is no third status: missing or stale evidence is a failure.
 run on the harness. `@libs/runtime` runs the journeys against the simulated
 app in `bun check`. A `@synthetic` feature is a standing promise about a live
 environment, written in the context that owns it
-([`SYNTHETIC.md`](../docs/SYNTHETIC.md)). The harness does not run it.
+([`README.md`](../README.md#correctness-machinery)). The harness does not run it.
 `@apps/product` runs the journeys plus every `@synthetic` feature in its
 `health` task, and only the `@synthetic` features in its `synthetic` task
 ([`README.md`](../README.md#correctness-machinery)). Which resource keeps
