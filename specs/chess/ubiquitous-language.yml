@@ -426,6 +426,7 @@ terms:
       the rating moved over time. They count each puzzle's rated attempt
       only.
     avoid: [statistics, scoreboard]
+    model: [readStats]
 
   - term: accuracy
     definition: The share of rated attempts solved, as a whole percentage.
