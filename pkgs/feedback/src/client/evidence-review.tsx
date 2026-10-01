@@ -148,9 +148,21 @@ async function attachFile(
   controller: FeedbackController,
   file: File
 ): Promise<void> {
-  controller.attach({
-    name: file.name,
-    contentType: file.type,
-    bytes: new Uint8Array(await file.arrayBuffer()),
-  });
+  if (file.size > 12 * 1024 * 1024) {
+    controller.reportAttachmentError(
+      'Keep attachments under 12 MB. Choose a shorter recording.'
+    );
+    return;
+  }
+  try {
+    controller.attach({
+      name: file.name,
+      contentType: file.type,
+      bytes: new Uint8Array(await file.arrayBuffer()),
+    });
+  } catch {
+    controller.reportAttachmentError(
+      'The attachment could not be read. Choose it again.'
+    );
+  }
 }

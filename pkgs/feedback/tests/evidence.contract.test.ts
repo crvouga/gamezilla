@@ -127,3 +127,26 @@ test('evidence validates type, origin, id and size before accepting bytes', asyn
     )
   );
 });
+
+// regression: feedback-evidence-ignores-abort
+test('an attachment receipt body ignoring cancellation cannot trap submission', async () => {
+  const { clock, timers } = createHarnessClock();
+  const upload = createEvidenceUploader({
+    endpoint: 'http://local/api/feedback',
+    timers,
+    createId: () => id,
+    http: {
+      fetch: async () =>
+        ({ ok: true, json: () => new Promise(() => {}) }) as Response,
+    },
+  });
+  const result = upload({
+    name: 'reproduction.webm',
+    contentType: 'video/webm',
+    bytes: new Uint8Array([1, 2, 3]),
+  });
+  for (let i = 0; i < 8; i++) await Promise.resolve();
+  clock.advance(20_000);
+  await expect(result).rejects.toThrow('Attachment upload timed out');
+  expect(clock.pendingOneShotCount()).toBe(0);
+});

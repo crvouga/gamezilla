@@ -63,6 +63,11 @@ export async function handleRootFeedbackReport(
       allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
       reporter: {
         async create(report) {
+          if (await store.head(`feedback-${report.id}/report.json`))
+            return {
+              id: report.id,
+              url: `${origin}/api/feedback/reports/${report.id}`,
+            };
           await archive.create(report);
           // The durable bundle survives a vendor outage; a saved receipt is truthful.
           if (github) {

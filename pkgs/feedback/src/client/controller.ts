@@ -64,6 +64,10 @@ export class FeedbackController {
     files: [],
     message: null,
   };
+  private readonly evidenceReceipts = new WeakMap<
+    EvidenceFile,
+    FeedbackAttachment
+  >();
   private readonly listeners = new Set<() => void>();
   readonly recorder: ReturnType<typeof createReproductionRecorder>;
   private readonly recordingSubscription: () => void;
@@ -81,21 +85,22 @@ export class FeedbackController {
     try {
       const saved = options.draft?.load();
       if (saved) {
-        const data = JSON.parse(saved) as FeedbackDraft;
-        if (
-          typeof data.description === 'string' &&
-          typeof data.expected === 'string' &&
-          typeof data.reproductionSteps === 'string'
-        )
+        const data = JSON.parse(saved) as Partial<FeedbackDraft>;
+        if (typeof data.description === 'string')
           this.current = {
             ...this.current,
             draft: {
-              kind: ['problem', 'feature', 'gap', 'polish'].includes(data.kind)
-                ? data.kind
-                : 'problem',
+              kind:
+                data.kind &&
+                ['problem', 'feature', 'gap', 'polish'].includes(data.kind)
+                  ? data.kind
+                  : 'problem',
               description: data.description,
-              expected: data.expected,
-              reproductionSteps: data.reproductionSteps,
+              expected: typeof data.expected === 'string' ? data.expected : '',
+              reproductionSteps:
+                typeof data.reproductionSteps === 'string'
+                  ? data.reproductionSteps
+                  : '',
             },
           };
       }
@@ -130,6 +135,7 @@ export class FeedbackController {
       draft: { ...this.current.draft, ...next },
       errors: {},
       phase: 'idle',
+      attempted: null,
       message: null,
     });
     this.persist();
@@ -152,6 +158,9 @@ export class FeedbackController {
         message: null,
       });
     }
+  };
+  reportAttachmentError = (message: string): void => {
+    this.publish({ message });
   };
   preview = (file: EvidenceFile) => this.options.preview?.(file);
   attach = (file: EvidenceFile): void => {
@@ -220,6 +229,7 @@ export class FeedbackController {
       const service = createFeedbackReporting({
         ...this.options,
         providers: this.providers(),
+        createId: () => this.current.attempted?.id ?? this.options.createId(),
         reporter: {
           create: async (report) => {
             this.publish({ attempted: report });
@@ -260,7 +270,15 @@ export class FeedbackController {
       throw new Error(
         'Attachments are unavailable. Keep your recording, or remove it to send the feedback.'
       );
-    return Promise.all(files.map(upload));
+    return Promise.all(
+      files.map(async (file) => {
+        const cached = this.evidenceReceipts.get(file);
+        if (cached) return cached;
+        const receipt = await upload(file);
+        this.evidenceReceipts.set(file, receipt);
+        return receipt;
+      })
+    );
   }
   emergencyCopy(): string {
     return JSON.stringify(

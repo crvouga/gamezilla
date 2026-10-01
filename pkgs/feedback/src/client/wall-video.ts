@@ -16,9 +16,7 @@ export function browserRecordingPort(timers: Timers): RecordingPort {
         video: { frameRate: 15 },
         audio: false,
       });
-      const recorder = new MediaRecorder(stream, {
-        videoBitsPerSecond: 700_000,
-      });
+      const recorder = createMediaRecorder(stream);
       const chunks: Blob[] = [];
       let size = 0;
       let overflow = false;
@@ -65,7 +63,12 @@ export function browserRecordingPort(timers: Timers): RecordingPort {
           if (recorder.state !== 'inactive') recorder.stop();
         })
       );
-      recorder.start(1000);
+      try {
+        recorder.start(1000);
+      } catch (error) {
+        stream.getTracks().forEach((track) => track.stop());
+        throw error;
+      }
       return {
         async stop() {
           if (recorder.state !== 'inactive') recorder.stop();
@@ -99,4 +102,13 @@ export function browserEvidencePreview(file: EvidenceFile) {
     })
   );
   return { url, dispose: () => URL.revokeObjectURL(url) };
+}
+
+function createMediaRecorder(stream: MediaStream): MediaRecorder {
+  try {
+    return new MediaRecorder(stream, { videoBitsPerSecond: 700_000 });
+  } catch (error) {
+    stream.getTracks().forEach((track) => track.stop());
+    throw error;
+  }
 }

@@ -428,5 +428,10 @@
     "id": "feedback-board-drag-missing",
     "summary": "Chess square hit buttons take no pointer events and the board captures the pointer. Recording only square targets dropped real chess drags. Preserve board control identifiers and normalized pointer endpoints.",
     "regressionTest": "pkgs/feedback/tests/interaction.contract.test.ts"
+  },
+  {
+    "id": "feedback-evidence-ignores-abort",
+    "summary": "An upload response body ignoring cancellation could keep feedback sending indefinitely after the network request completed. Bound the complete upload and receipt read with the same hard deadline.",
+    "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
   }
 ]
