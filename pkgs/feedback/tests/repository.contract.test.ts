@@ -11,22 +11,22 @@ import {
   FileSystemIssueReporter,
   GitHubIssueReporter,
 } from '@pkgs/feedback/server';
-import type { FeedbackReport, FeedbackRepository } from '@pkgs/feedback/shared';
+import {
+  createFeedbackBody,
+  type FeedbackReport,
+  type FeedbackRepository,
+} from '@pkgs/feedback/shared';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { assertProperty, fc } from '@pkgs/property';
 
-function report(
-  id: string,
-  authorId: string,
-  description: string
-): FeedbackReport {
+function report(id: string, authorId: string, body: string): FeedbackReport {
   return {
-    version: 1,
+    schema: 'feedback.report/v2',
     id,
     authorId,
     title: 'Board movement',
     kind: 'polish',
-    description,
+    body: createFeedbackBody(body),
     createdAt: '2026-10-01T00:00:00.000Z',
     status: 'open',
     diagnostics: [],
@@ -85,7 +85,7 @@ test.each(['fake', 'filesystem', 'github'] as const)(
           await repository.create(original);
           await repository.create({
             ...original,
-            description: 'Duplicate delivery',
+            body: createFeedbackBody('Duplicate delivery'),
           });
           await expect(
             repository.create({ ...original, authorId: 'author-two' })
@@ -103,7 +103,7 @@ test.each(['fake', 'filesystem', 'github'] as const)(
           ).rejects.toThrow('another developer');
           const edited = {
             ...original,
-            description: `${body}\n\n## Improvement`,
+            body: createFeedbackBody(`${body}\n\n## Improvement`),
             title: 'Board polish',
           };
           await repository.update(edited);
@@ -126,7 +126,7 @@ test.each(['fake', 'filesystem', 'github'] as const)(
             expect(
               external.requests.find((r) => r.method === 'PATCH')?.body['body']
             ).toContain(
-              `Reproduction bundle: https://example.com/api/feedback/reports/${original.id}`
+              `Structured feedback bundle: https://example.com/api/feedback/reports/${original.id}`
             );
             expect(external.requests.at(-1)?.body['variables']).toEqual({
               id: 'issue-node',
@@ -158,9 +158,7 @@ test('the same HTTP data port supports complete CRUD and rejects a foreign autho
     '# Observation\n\nKeep [this](https://example.com) exactly.'
   );
   await port.create(original);
-  expect((await port.list(original.authorId))[0]?.description).toBe(
-    original.description
-  );
+  expect((await port.list(original.authorId))[0]?.body).toEqual(original.body);
   expect(await port.read(original.id, 'author-two')).toBeNull();
   await expect(port.remove(original.id, 'author-two')).rejects.toThrow();
   const upload = createEvidenceUploader({
@@ -178,7 +176,7 @@ test('the same HTTP data port supports complete CRUD and rejects a foreign autho
     ...original,
     attachments: [{ ...receipt, url: 'https://wrong.example/file' }],
     title: 'Updated observation',
-    description: 'New writing',
+    body: createFeedbackBody('New writing'),
   });
   expect((await port.read(original.id, original.authorId))?.title).toBe(
     'Updated observation'

@@ -17,32 +17,22 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
     return props.controller.workspace.warning;
   };
   return (
-    <div class="box gap-4 p-5" data-component="FeedbackPanel">
-      <div
-        class="box flex-row gap-2"
-        role="navigation"
-        aria-label="Feedback wizard"
-      >
+    <div class="box gap-4 p-4" data-component="FeedbackPanel">
+      <div class="box flex-row items-center justify-between gap-3">
+        <div class="box gap-0.5">
+          <h2 class="text font-semibold">
+            {workspace().stage === 'manage' ? 'Your feedback' : 'New feedback'}
+          </h2>
+          <p class="text textCaption">Saved on this device</p>
+        </div>
         <Button
-          title="1 · Write"
-          variant={workspace().stage === 'write' ? 'solid' : 'ghost'}
-          size="sm"
-          onClick={() => props.controller.setStage('write')}
-          dataSet={{ testid: 'feedback-write' }}
-        />
-        <Button
-          title="2 · Review"
-          variant={workspace().stage === 'review' ? 'solid' : 'ghost'}
-          size="sm"
-          onClick={() => props.controller.setStage('review')}
-          dataSet={{ testid: 'feedback-review' }}
-        />
-        <Button
-          title="Manage"
-          variant={workspace().stage === 'manage' ? 'solid' : 'ghost'}
+          title={workspace().stage === 'manage' ? 'Back to writing' : 'History'}
+          variant="ghost"
           size="sm"
           onClick={() => {
-            void props.controller.manage();
+            if (workspace().stage === 'manage')
+              props.controller.setStage('write');
+            else void props.controller.manage();
           }}
           dataSet={{ testid: 'feedback-manage' }}
         />
@@ -75,7 +65,7 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
           >
             <SuccessState
               title="Feedback saved"
-              body="Your report and context are safe. You can keep working or find it in Manage."
+              body="Your report and context are safe."
               action={{
                 label: 'Your feedback',
                 onClick: () => {
@@ -96,11 +86,11 @@ export function FeedbackPanel(props: { controller: FeedbackController }) {
       >
         <FeedbackManagement controller={props.controller} state={state} />
       </Show>
-      <p class="text textCaption" role="status" aria-live="polite">
-        {warning()
-          ? 'Draft needs saving'
-          : 'Draft kept on this device · close whenever you need'}
-      </p>
+      <Show when={warning()}>
+        <p class="text textCaption" role="status" aria-live="polite">
+          Draft needs saving
+        </p>
+      </Show>
     </div>
   );
 }

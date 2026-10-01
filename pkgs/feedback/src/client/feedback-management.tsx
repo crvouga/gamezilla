@@ -1,8 +1,17 @@
 /** @jsxImportSource solid-js */
-import { Button, MutationModal, TextInput } from '@pkgs/ui';
+import { Button, MutationModal, SegmentedControl, TextInput } from '@pkgs/ui';
 import { type Accessor, createMemo, createSignal, For, Show } from 'solid-js';
-import type { FeedbackDocument } from '../shared/workspace';
+import type {
+  FeedbackDocument,
+  FeedbackWorkspaceSnapshot,
+} from '../shared/workspace';
 import type { FeedbackController, FeedbackState } from './controller';
+
+const FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'draft', label: 'Drafts' },
+  { key: 'sent', label: 'Sent' },
+] as const;
 
 export function FeedbackManagement(props: {
   controller: FeedbackController;
@@ -25,9 +34,14 @@ export function FeedbackManagement(props: {
       .state()
       .documents.filter(
         (doc) =>
+          (doc.report !== null ||
+            doc.title.trim().length > 0 ||
+            doc.body.trim().length > 0 ||
+            doc.recording !== null ||
+            doc.files.length > 0) &&
           (filter() === 'all' ||
             (filter() === 'sent') === (doc.report !== null)) &&
-          `${doc.title}\n${doc.description}`
+          `${doc.title}\n${doc.body}`
             .toLowerCase()
             .includes(search().toLowerCase())
       );
@@ -44,37 +58,15 @@ export function FeedbackManagement(props: {
       data-component="FeedbackManagement"
       data-testid="feedback-management"
     >
-      <div class="box flex-row items-center justify-between">
-        <h2 class="text font-semibold">Your feedback</h2>
-        <Button
-          title="New feedback"
-          size="sm"
-          onClick={() => {
-            void props.controller.newDraft();
-          }}
-          dataSet={{ testid: 'feedback-new' }}
-        />
-      </div>
-      <TextInput
-        label="Find feedback"
-        value={search()}
-        onChangeText={setSearch}
-        dataSet={{ testid: 'feedback-search' }}
+      <ManagementControls
+        search={search()}
+        filter={filter()}
+        onSearch={setSearch}
+        onFilter={setFilter}
+        onNew={() => {
+          void props.controller.newDraft();
+        }}
       />
-      <div class="box flex-row gap-2">
-        <For each={['all', 'draft', 'sent'] as const}>
-          {(value) => (
-            <Button
-              title={
-                value === 'all' ? 'All' : value === 'draft' ? 'Drafts' : 'Sent'
-              }
-              variant={filter() === value ? 'solid' : 'ghost'}
-              size="sm"
-              onClick={() => setFilter(value)}
-            />
-          )}
-        </For>
-      </div>
       <Show
         when={documents().length}
         fallback={
@@ -107,6 +99,40 @@ export function FeedbackManagement(props: {
   );
 }
 
+function ManagementControls(props: {
+  search: string;
+  filter: FeedbackWorkspaceSnapshot['management']['filter'];
+  onSearch: (value: string) => void;
+  onFilter: (value: FeedbackWorkspaceSnapshot['management']['filter']) => void;
+  onNew: () => void;
+}) {
+  return (
+    <div class="box gap-4">
+      <div class="box flex-row justify-end">
+        <Button
+          title="New feedback"
+          size="sm"
+          onClick={props.onNew}
+          dataSet={{ testid: 'feedback-new' }}
+        />
+      </div>
+      <TextInput
+        label="Find feedback"
+        value={props.search}
+        onChangeText={props.onSearch}
+        dataSet={{ testid: 'feedback-search' }}
+      />
+      <SegmentedControl
+        segments={FILTERS}
+        selected={props.filter}
+        onSelect={props.onFilter}
+        aria-label="Feedback status"
+        dataSet={{ testid: 'feedback-filter' }}
+      />
+    </div>
+  );
+}
+
 function FeedbackRow(props: {
   doc: FeedbackDocument;
   controller: FeedbackController;
@@ -114,7 +140,7 @@ function FeedbackRow(props: {
 }) {
   return (
     <article
-      class="box rounded-xl border border-border bg-surface p-4 gap-2"
+      class="box rounded-xl border border-border bg-surface p-3 gap-2"
       data-component="FeedbackDocument"
       data-testid={`feedback-document-${props.doc.id}`}
     >
@@ -127,7 +153,7 @@ function FeedbackRow(props: {
         </span>
       </div>
       <p class="text textCaption line-clamp-2 whitespace-pre-wrap">
-        {props.doc.description || 'Waiting for your first thought…'}
+        {props.doc.body || 'Waiting for your first thought…'}
       </p>
       <div class="box flex-row gap-2">
         <Button

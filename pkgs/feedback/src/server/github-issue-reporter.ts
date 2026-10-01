@@ -91,7 +91,7 @@ export class GitHubIssueReporter implements IssueReporter {
   }
   private body(report: FeedbackReport): string {
     return this.options.reportBaseUrl
-      ? `${reportMarkdown(report)}\n\nReproduction bundle: ${this.options.reportBaseUrl}/${report.id}\n\nRead the exact starting context and ordered actions in the bundle, then add a failing product spec before fixing the issue.`
+      ? `${reportMarkdown(report)}\n\nStructured feedback bundle: ${this.options.reportBaseUrl}/${report.id}\n\nRead report.json first, restore the exact starting context and ordered actions, then add a failing product spec before fixing the issue.`
       : `${reportMarkdown(report)}\n\n\`\`\`json\n${JSON.stringify(report, null, 2)}\n\`\`\``;
   }
   private headers(): Record<string, string> {

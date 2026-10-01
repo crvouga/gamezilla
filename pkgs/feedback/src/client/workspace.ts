@@ -106,8 +106,10 @@ export class FeedbackWorkspace {
     for (const report of reports) {
       if (!documents.some((d) => d.report?.id === report.id))
         documents.push({
-          ...report,
           id: report.id,
+          kind: report.kind,
+          title: report.title,
+          body: report.body.source,
           report,
           attempted: null,
           issue: { id: report.id },

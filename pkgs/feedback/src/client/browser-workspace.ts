@@ -1,5 +1,7 @@
 import type { CreateId } from '@pkgs/uuid';
+import { readFeedbackReport } from '../shared/read-report';
 import type {
+  FeedbackDocument,
   FeedbackWorkspacePort,
   FeedbackWorkspaceSnapshot,
 } from '../shared/workspace';
@@ -19,7 +21,7 @@ export function createBrowserWorkspace(
   const workspace: FeedbackWorkspacePort = {
     load() {
       const saved = storage().getItem('feedback-workspace');
-      if (saved) return JSON.parse(saved) as FeedbackWorkspaceSnapshot;
+      if (saved) return readWorkspace(JSON.parse(saved));
       const legacy = storage().getItem('root-feedback-draft');
       return legacy
         ? importLegacyDraft(
@@ -47,7 +49,7 @@ function importLegacyDraft(
   if (typeof value.description !== 'string')
     throw new Error('Unreadable saved feedback');
   const id = createId();
-  const description = [
+  const body = [
     value.description,
     value.expected ? `## Expected outcome\n\n${value.expected}` : '',
     value.reproductionSteps
@@ -71,7 +73,7 @@ function importLegacyDraft(
         id,
         kind,
         title: '',
-        description,
+        body,
         report: null,
         attempted: null,
         issue: null,
@@ -80,5 +82,61 @@ function importLegacyDraft(
         video: null,
       },
     ],
+  };
+}
+
+function readWorkspace(value: unknown): FeedbackWorkspaceSnapshot {
+  if (typeof value !== 'object' || value === null)
+    throw new Error('Unreadable saved feedback');
+  const input = value as Record<string, unknown>;
+  if (!Array.isArray(input['documents']))
+    throw new Error('Unreadable saved feedback');
+  const documents = input['documents'].map(readDocument);
+  const management = input['management'] as
+    | FeedbackWorkspaceSnapshot['management']
+    | undefined;
+  const position = input['position'] as
+    | FeedbackWorkspaceSnapshot['position']
+    | undefined;
+  return {
+    version: 1,
+    activeId: typeof input['activeId'] === 'string' ? input['activeId'] : '',
+    documents,
+    management: management ?? { search: '', filter: 'all' },
+    position: position ?? { x: 0, y: 0 },
+    stage: input['stage'] === 'manage' ? 'manage' : 'write',
+  };
+}
+
+function readDocument(value: unknown): FeedbackDocument {
+  if (typeof value !== 'object' || value === null)
+    throw new Error('Unreadable saved draft');
+  const input = value as Record<string, unknown>;
+  const source =
+    typeof input['body'] === 'string'
+      ? input['body']
+      : typeof input['description'] === 'string'
+        ? input['description']
+        : '';
+  return {
+    id: typeof input['id'] === 'string' ? input['id'] : '',
+    kind:
+      input['kind'] === 'feature' ||
+      input['kind'] === 'gap' ||
+      input['kind'] === 'polish'
+        ? input['kind']
+        : 'problem',
+    title: typeof input['title'] === 'string' ? input['title'] : '',
+    body: source,
+    report: input['report'] ? readFeedbackReport(input['report']) : null,
+    attempted: input['attempted']
+      ? readFeedbackReport(input['attempted'])
+      : null,
+    issue: (input['issue'] as FeedbackDocument['issue']) ?? null,
+    recording: (input['recording'] as FeedbackDocument['recording']) ?? null,
+    files: Array.isArray(input['files'])
+      ? (input['files'] as FeedbackDocument['files'])
+      : [],
+    video: (input['video'] as FeedbackDocument['video']) ?? null,
   };
 }

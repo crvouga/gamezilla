@@ -2,6 +2,10 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { collectDiagnostics } from '../shared/diagnostics';
+import {
+  createFeedbackBody,
+  resolveFeedbackTitle,
+} from '../shared/report-body';
 import { createFeedbackReporting } from '../shared/reporting';
 import { FEEDBACK_TEMPLATES } from '../shared/templates';
 import type {
@@ -104,7 +108,7 @@ export class FeedbackController {
         ? {
             kind: active.kind,
             title: active.title,
-            description: active.description,
+            body: active.body,
           }
         : EMPTY_FEEDBACK,
       files: [],
@@ -177,7 +181,7 @@ export class FeedbackController {
     if (template)
       this.setDraft({
         kind,
-        description: [this.current.draft.description, template.body]
+        body: [this.current.draft.body, template.body]
           .filter(Boolean)
           .join('\n\n'),
       });
@@ -421,13 +425,11 @@ export class FeedbackController {
       );
       this.restoring = false;
       this.publish({ files: [] });
-    } catch (error) {
+    } catch {
       this.publish({
         phase: 'failed',
         message:
-          error instanceof Error
-            ? error.message
-            : 'Feedback could not be sent.',
+          'Draft kept on this device. Send it when reporting is available.',
       });
     }
   }
@@ -453,9 +455,13 @@ export class FeedbackController {
   emergencyCopy(): string {
     return JSON.stringify(
       this.current.attempted ?? {
-        ...this.current.draft,
+        schema: 'feedback.recovery/v1',
+        kind: this.current.draft.kind,
+        title: resolveFeedbackTitle(this.current.draft),
+        body: createFeedbackBody(this.current.draft.body),
         recording: this.recorder.state().recording,
         diagnostics: [],
+        attachments: [],
       },
       null,
       2

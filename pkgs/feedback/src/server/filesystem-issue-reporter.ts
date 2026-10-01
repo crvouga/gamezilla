@@ -1,5 +1,6 @@
 import { readBytes } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { readFeedbackReport } from '../shared/read-report';
 import type {
   CreatedIssue,
   FeedbackReport,
@@ -67,6 +68,8 @@ export class FileSystemIssueReporter implements FeedbackRepository {
         JSON.stringify(
           {
             id: report.id,
+            schema: report.schema,
+            kind: report.kind,
             title: report.title,
             createdAt: report.createdAt,
             status: report.status,
@@ -107,10 +110,9 @@ export class FileSystemIssueReporter implements FeedbackRepository {
       throw new Error('Invalid feedback id');
     const object = await this.store.get(`feedback-${id}/report.json`);
     if (!object) return null;
-    const report = JSON.parse(
-      new TextDecoder().decode(await readBytes(object.body))
-    ) as FeedbackReport;
-    return report;
+    return readFeedbackReport(
+      JSON.parse(new TextDecoder().decode(await readBytes(object.body)))
+    );
   }
   async update(report: FeedbackReport): Promise<CreatedIssue> {
     const previous = await this.read(report.id, report.authorId);

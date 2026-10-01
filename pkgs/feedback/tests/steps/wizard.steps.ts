@@ -15,11 +15,11 @@ import type { Run } from '@pkgs/harness';
 const { Given, When, Then } = stepsFor<Run<FeedbackReportingWorld>>();
 Given(
   'the team has a draft titled {string} saying {string}',
-  async (w, title: string, description: string) => {
+  async (w, title: string, body: string) => {
     await w.apply(wizardAction, { type: 'new' });
     await w.apply(feedbackAction, {
       type: 'describe',
-      draft: { kind: 'problem', title, description },
+      draft: { kind: 'problem', title, body },
     });
   }
 );
@@ -68,45 +68,53 @@ When('the team cancels deleting that feedback', (w) =>
 );
 When(
   'the team changes that feedback to {string} saying {string}',
-  (w, title: string, description: string) =>
-    w.apply(wizardAction, { type: 'edit', title, description })
+  (w, title: string, body: string) =>
+    w.apply(wizardAction, { type: 'edit', title, body })
 );
 When('the team tries to change that feedback', (w) =>
   w.apply(changeForeignFeedback)
 );
 Then(
   'the draft is titled {string} saying {string}',
-  async (w, title: string, description: string) => {
+  async (w, title: string, body: string) => {
     expect((await w.read(readFeedbackView)).draft).toMatchObject({
       title,
-      description,
+      body,
     });
   }
 );
 Then('the draft includes {string}', async (w, text: string) => {
-  expect((await w.read(readFeedbackView)).draft?.description).toContain(text);
+  expect((await w.read(readFeedbackView)).draft?.body).toContain(text);
 });
 Then('the feedback keeps the Markdown {string}', async (w, text: string) => {
-  expect((await w.read(readReport))?.description).toBe(text);
+  expect((await w.read(readReport))?.body.source).toBe(text);
 });
 Then(
   'the team is told to write something before sending feedback',
   async (w) => {
-    expect((await w.read(readFeedbackView)).errors.description).toContain(
+    expect((await w.read(readFeedbackView)).errors.body).toContain(
       'Write something'
+    );
+  }
+);
+Then(
+  'the team is told the draft is kept until feedback can be sent',
+  async (w) => {
+    expect((await w.read(readFeedbackView)).text).toContain(
+      'Draft kept on this device. Send it when reporting is available.'
     );
   }
 );
 Then(
   'the draft offers prompts for what happened, what was expected and reproduction steps',
   async (w) => {
-    expect((await w.read(readFeedbackView)).draft?.description).toContain(
+    expect((await w.read(readFeedbackView)).draft?.body).toContain(
       '## Reproduction steps'
     );
   }
 );
 Then('the draft offers prompts for an intended improvement', async (w) => {
-  expect((await w.read(readFeedbackView)).draft?.description).toContain(
+  expect((await w.read(readFeedbackView)).draft?.body).toContain(
     '## Intended improvement'
   );
 });
@@ -143,11 +151,11 @@ Then('feedback management shows {string}', async (w, title: string) => {
 });
 Then(
   'feedback management shows {string} saying {string}',
-  async (w, title: string, description: string) => {
+  async (w, title: string, body: string) => {
     await w.apply(wizardAction, { type: 'manage' });
     const view = await w.read(readFeedbackView);
     expect(view.managementText).toContain(title);
-    expect(view.managementText).toContain(description);
+    expect(view.managementText).toContain(body);
   }
 );
 Then('feedback management does not show {string}', async (w, title: string) => {

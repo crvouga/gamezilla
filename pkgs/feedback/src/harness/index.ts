@@ -29,8 +29,8 @@ export const submitReport = defineAction({
   name: 'submitReport',
   act: (
     world: FeedbackReportingWorld,
-    input: { title: string; description: string }
-  ) => world.app.submit(input.title, input.description),
+    input: { title: string; body: string }
+  ) => world.app.submit(input.title, input.body),
 });
 export const feedbackAction = defineAction({
   name: 'feedbackAction',
@@ -71,7 +71,7 @@ export const editFeedbackAnswer = defineAction({
 });
 export const readFeedbackAnswer = (
   world: FeedbackReportingWorld,
-  field: 'description' | 'title'
+  field: 'body' | 'title'
 ) => world.app.readAnswer(field);
 export const closeProduct = defineAction({
   name: 'closeProduct',

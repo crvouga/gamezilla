@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 import {
   Button,
+  CloseIconButton,
   dataAttrs,
   ResponsiveSurface,
   useLayoutMode,
@@ -48,8 +49,8 @@ function DesktopWidget(props: { controller: FeedbackController }) {
       ref={frame}
       role="dialog"
       aria-modal="false"
-      aria-label="Developer feedback"
-      class="box fixed right-4 bottom-6 w-110 max-w-full rounded-2xl border border-border bg-surface shadow-2xl pointer-events-auto overflow-hidden"
+      aria-label="Feedback"
+      class="box fixed right-4 bottom-4 w-104 max-w-full rounded-2xl border border-border bg-surface shadow-2xl pointer-events-auto overflow-hidden"
       style={{
         transform: `translate(${position().x}px, ${position().y}px)`,
         'max-height': `${Math.max(0, layout.layout().height - 48)}px`,
@@ -72,12 +73,9 @@ function DesktopWidget(props: { controller: FeedbackController }) {
           <span class="text-tint mr-2" aria-hidden="true">
             ⠿
           </span>
-          Developer feedback
+          Feedback
         </button>
-        <Button
-          title="Close"
-          variant="ghost"
-          size="sm"
+        <CloseIconButton
           onClick={props.controller.close}
           dataSet={{ testid: 'feedback-close' }}
         />
@@ -118,7 +116,7 @@ export function FeedbackWizard(props: { controller: FeedbackController }) {
             <ResponsiveSurface
               visible={state().visible}
               onClose={props.controller.close}
-              title="Developer feedback"
+              title="Feedback"
               stackId="feedback"
               dataSet={{ testid: 'feedback-surface' }}
               closeDataSet={{ testid: 'feedback-close' }}

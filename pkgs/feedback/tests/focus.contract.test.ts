@@ -14,12 +14,12 @@ test('typing in feedback answers retains focus', async () => {
     draft: {
       kind: 'problem',
       title: '',
-      description: '',
+      body: '',
     },
   });
   await session.apply(feedbackAction, { type: 'send' });
   for (const [field, text] of [
-    ['description', 'The board froze'],
+    ['body', 'The board froze'],
     ['title', 'Board movement'],
   ] as const) {
     await session.apply(editFeedbackAnswer, { field, text });

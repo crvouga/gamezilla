@@ -45,7 +45,7 @@ function provider(kind: string): DiagnosticProvider {
 test('optional diagnostics never erase the already-created report', async () => {
   await assertProperty(
     'feedback-reliability',
-    fc.asyncProperty(text, fault, async (description, kind) => {
+    fc.asyncProperty(text, fault, async (body, kind) => {
       const reporter = new FakeIssueReporter();
       const { clock, timers } = createHarnessClock();
       const service = createFeedbackReporting({
@@ -58,16 +58,14 @@ test('optional diagnostics never erase the already-created report', async () => 
       const result = await service.submit({
         kind: 'problem',
         title: '',
-        description,
+        body,
       });
-      expect(reporter.reports.get(result.issue.id)?.description).toBe(
-        description
-      );
+      expect(reporter.reports.get(result.issue.id)?.body.source).toBe(body);
       await Promise.resolve();
       await Promise.resolve();
       clock.advance(500);
       const report = await result.enriched;
-      expect(report.title).toBe(description.trim().split('\n')[0]!);
+      expect(report.title).toBe(body.trim().split('\n')[0]!);
       expect(report.diagnostics[0]?.status).toBe('unavailable');
       expect(reporter.reports.size).toBe(1);
       expect(clock.pendingOneShotCount()).toBe(0);
@@ -97,7 +95,7 @@ test('companion-file or enrichment failure preserves the authoritative report', 
         }).submit({
           kind: 'problem',
           title: '',
-          description: title,
+          body: title,
         });
         expect(result.issue.id).toBe('durable-id');
         const object = await store.get('feedback-durable-id/report.json');
@@ -115,7 +113,7 @@ test('companion-file or enrichment failure preserves the authoritative report', 
 test('broken clock and id ports still produce an emergency report', async () => {
   await assertProperty(
     'feedback-reliability',
-    fc.asyncProperty(text, async (description) => {
+    fc.asyncProperty(text, async (body) => {
       const reporter = new FakeIssueReporter();
       const { timers } = createHarnessClock();
       const service = createFeedbackReporting({
@@ -133,10 +131,10 @@ test('broken clock and id ports still produce an emergency report', async () => 
       const result = await service.submit({
         kind: 'problem',
         title: '',
-        description,
+        body,
       });
       expect(result.report.createdAt).toBe('unknown');
-      expect(result.report.description).toBe(description);
+      expect(result.report.body.source).toBe(body);
       expect(reporter.reports.size).toBe(1);
     })
   );

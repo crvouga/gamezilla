@@ -18,7 +18,7 @@ export type FeedbackDocument = FeedbackDraft & {
   readonly files: readonly SavedEvidence[];
   readonly video: SavedEvidence | null;
 };
-export type WizardStage = 'write' | 'review' | 'manage';
+export type WizardStage = 'write' | 'manage';
 export type FeedbackWorkspaceSnapshot = {
   readonly version: 1;
   readonly activeId: string;

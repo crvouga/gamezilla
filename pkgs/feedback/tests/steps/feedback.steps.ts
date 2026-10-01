@@ -17,11 +17,11 @@ When('the team opens Support', (w) =>
 );
 Given(
   'the team has described a bug saying {string} expecting {string} reproducing {string}',
-  (w, description: string, expected: string, steps: string) =>
+  (w, body: string, expected: string, steps: string) =>
     describe(w, {
       kind: 'problem',
-      title: description,
-      description: `## What happened\n${description}\n\n## What was expected\n${expected}\n\n## Reproduction steps\n${steps}`,
+      title: body,
+      body: `## What happened\n${body}\n\n## What was expected\n${expected}\n\n## Reproduction steps\n${steps}`,
     })
 );
 When('the team sends the feedback', (w) =>
@@ -74,7 +74,7 @@ Then(
     const report = await w.read(readReport);
     expect(report?.recording?.actions).toHaveLength(2);
     expect(report?.recording?.initialContext).not.toHaveLength(0);
-    expect(report?.description).toContain('Open a puzzle and ask for a hint');
+    expect(report?.body.source).toContain('Open a puzzle and ask for a hint');
     expect(report?.attachments).toHaveLength(1);
   }
 );

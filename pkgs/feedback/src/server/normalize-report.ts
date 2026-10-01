@@ -1,6 +1,12 @@
 import type { Clock } from '@pkgs/clock';
+import {
+  createFeedbackBody,
+  resolveFeedbackTitle,
+} from '../shared/report-body';
 import type {
   Diagnostic,
+  FeedbackAttachment,
+  FeedbackKind,
   FeedbackReport,
   ReproductionRecording,
 } from '../shared/types';
@@ -66,21 +72,30 @@ function recording(value: unknown): ReproductionRecording | null {
 export function normalizeReport(body: unknown, clock: Clock): FeedbackReport {
   if (typeof body !== 'object' || body === null)
     throw new Error('Invalid report');
-  const input = body as Partial<FeedbackReport>;
-  if (typeof input.id !== 'string' || !/^[a-zA-Z0-9-]{1,100}$/.test(input.id))
+  const input = body as Record<string, unknown>;
+  const reportBody = input['body'];
+  if (
+    typeof input['id'] !== 'string' ||
+    !/^[a-zA-Z0-9-]{1,100}$/.test(input['id'])
+  )
     throw new Error('Invalid report id');
   if (
-    typeof input.kind !== 'string' ||
-    typeof input.description !== 'string' ||
-    typeof input.title !== 'string' ||
-    typeof input.authorId !== 'string' ||
-    !/^[a-zA-Z0-9-]{1,100}$/.test(input.authorId)
+    input['schema'] !== 'feedback.report/v2' ||
+    typeof input['kind'] !== 'string' ||
+    !['problem', 'feature', 'gap', 'polish'].includes(input['kind']) ||
+    typeof reportBody !== 'object' ||
+    reportBody === null ||
+    (reportBody as Record<string, unknown>)['format'] !== 'markdown' ||
+    typeof (reportBody as Record<string, unknown>)['source'] !== 'string' ||
+    typeof input['title'] !== 'string' ||
+    typeof input['authorId'] !== 'string' ||
+    !/^[a-zA-Z0-9-]{1,100}$/.test(input['authorId'])
   )
     throw new Error('Invalid report text');
   const draft = {
-    kind: input.kind,
-    description: input.description,
-    title: input.title,
+    kind: input['kind'] as FeedbackKind,
+    body: (reportBody as Record<string, unknown>)['source'] as string,
+    title: input['title'],
   };
   validateFeedback(draft);
   let createdAt = 'unknown';
@@ -90,23 +105,23 @@ export function normalizeReport(body: unknown, clock: Clock): FeedbackReport {
     /* Emergency report. */
   }
   if (
-    input.attachments !== undefined &&
-    (!Array.isArray(input.attachments) || input.attachments.length > 4)
+    input['attachments'] !== undefined &&
+    (!Array.isArray(input['attachments']) || input['attachments'].length > 4)
   )
     throw new Error('Too many attachments');
   return {
-    version: 1,
-    id: input.id,
-    title:
-      input.title.trim() ||
-      (input.description.trim().split('\n').at(0)?.slice(0, 240) ?? 'Feedback'),
+    schema: 'feedback.report/v2',
+    id: input['id'],
+    title: resolveFeedbackTitle(draft),
     kind: draft.kind,
-    description: input.description,
-    authorId: input.authorId,
+    body: createFeedbackBody(draft.body),
+    authorId: input['authorId'],
     createdAt,
     status: 'open',
-    diagnostics: diagnostics(input.diagnostics),
-    recording: recording(input.recording),
-    attachments: input.attachments ?? [],
+    diagnostics: diagnostics(input['diagnostics']),
+    recording: recording(input['recording']),
+    attachments: Array.isArray(input['attachments'])
+      ? (input['attachments'] as readonly FeedbackAttachment[])
+      : [],
   };
 }

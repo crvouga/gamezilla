@@ -1,5 +1,7 @@
 import type { Clock } from '@pkgs/clock';
+import { readBytes } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { readFeedbackReport } from '../shared/read-report';
 import type { FeedbackRepository } from '../shared/types';
 import { createEvidenceHandler, EVIDENCE_ID } from './evidence-handler';
 import { createFeedbackReportHandler, FEEDBACK_PATH } from './http-handler';
@@ -42,13 +44,17 @@ export function createFeedbackHttpApp(options: {
         return new Response('Invalid report id', { status: 400 });
       const object = await options.store.get(`feedback-${id}/report.json`);
       return object
-        ? new Response(object.body, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Cache-Control': 'no-store',
-              'X-Content-Type-Options': 'nosniff',
-            },
-          })
+        ? Response.json(
+            readFeedbackReport(
+              JSON.parse(new TextDecoder().decode(await readBytes(object.body)))
+            ),
+            {
+              headers: {
+                'Cache-Control': 'no-store',
+                'X-Content-Type-Options': 'nosniff',
+              },
+            }
+          )
         : new Response('Report unavailable', { status: 404 });
     }
     if (url.pathname !== FEEDBACK_PATH)

@@ -63,7 +63,7 @@ test('evidence bytes and reproduction state survive submission through the same 
     }),
   });
   controller.setDraft({
-    description: 'The board froze',
+    body: 'The board froze',
   });
   await controller.attach({
     name: 'reproduction.webm',
@@ -183,7 +183,7 @@ test('changed evidence receives a new report id after an uncertain delivery', as
     }),
   });
   controller.setDraft({
-    description: 'The board froze',
+    body: 'The board froze',
   });
   await controller.send();
   expect(controller.state().phase).toBe('failed');

@@ -1,6 +1,7 @@
 import type { Clock, Timers } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 import { collectDiagnostics } from './diagnostics';
+import { createFeedbackBody, resolveFeedbackTitle } from './report-body';
 import type {
   CreatedIssue,
   DiagnosticProvider,
@@ -51,14 +52,11 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
       createdAt = 'unknown';
     }
     return {
-      version: 1,
-      ...input,
+      schema: 'feedback.report/v2',
       id,
-      title:
-        input.title.trim() ||
-        (input.description.trim().split('\n').at(0)?.slice(0, 240) ??
-          'Feedback'),
-      description: input.description,
+      title: resolveFeedbackTitle(input),
+      kind: input.kind,
+      body: createFeedbackBody(input.body),
       authorId: options.authorId ?? 'local',
       recording: input.recording ?? null,
       attachments: input.attachments ?? [],
@@ -87,7 +85,7 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
   return {
     async submit(input: {
       readonly kind: FeedbackDraft['kind'];
-      readonly description: string;
+      readonly body: string;
       readonly title: string;
       readonly recording?: ReproductionRecording | null;
       readonly attachments?: readonly FeedbackAttachment[];

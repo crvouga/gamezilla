@@ -39,9 +39,13 @@ the existing issue. Confirmed deletion uses GitHub's `deleteIssue` mutation and
 keeps an archive tombstone. The GitHub token must permit these issue operations.
 Local deletion also retains a tombstone rather than erasing an archive.
 
-`report.json` is authoritative; Markdown, diagnostics, ordered reproduction
-and the agent handoff are best-effort companion files. Attachment metadata is
-resolved from stored evidence rather than trusting submitted URLs.
+`report.json` is the authoritative `feedback.report/v2` document. Its
+`body.source` preserves the author's Markdown verbatim and `body.sections`
+provides the same content as ordered `{ heading, content }` objects for agents.
+Markdown, diagnostics, ordered reproduction and the agent handoff are
+best-effort companion files. Attachment metadata is resolved from stored
+evidence rather than trusting submitted URLs. Readers canonicalize older
+stored reports at the boundary; writers only produce v2.
 
 ## Evidence and isolation
 

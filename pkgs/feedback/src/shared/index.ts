@@ -1,3 +1,9 @@
+export { readFeedbackReport } from './read-report';
+export {
+  createFeedbackBody,
+  parseFeedbackSections,
+  resolveFeedbackTitle,
+} from './report-body';
 export {
   createFeedbackReporting,
   type FeedbackReportingOptions,
@@ -10,10 +16,12 @@ export type {
   DiagnosticProvider,
   EvidenceFile,
   FeedbackAttachment,
+  FeedbackBody,
   FeedbackDraft,
   FeedbackKind,
   FeedbackReport,
   FeedbackRepository,
+  FeedbackSection,
   IssueReporter,
   ReproductionAction,
   ReproductionRecording,

@@ -186,7 +186,7 @@ export function createExampleApp(session: Session) {
     await ready();
     if (!root?.controller.state().visible) await open();
     root?.controller.setStage('write');
-    for (const key of ['title', 'description'] as const) {
+    for (const key of ['title', 'body'] as const) {
       const input = element(`feedback-${key}`).querySelector<
         HTMLInputElement | HTMLTextAreaElement
       >('input, textarea');
@@ -198,23 +198,19 @@ export function createExampleApp(session: Session) {
 
   async function send() {
     await ready();
-    root?.controller.setStage('review');
     element('feedback-form').dispatchEvent(
       new Event('submit', { cancelable: true, bubbles: true })
     );
     await idle();
   }
-  function answer(field: 'description' | 'title') {
+  function answer(field: 'body' | 'title') {
     const input = element(`feedback-${field}`).querySelector<
       HTMLInputElement | HTMLTextAreaElement
     >('input, textarea');
     if (!input) throw new Error('Feedback field missing');
     return input;
   }
-  async function editAnswer(input: {
-    field: 'description' | 'title';
-    text: string;
-  }) {
+  async function editAnswer(input: { field: 'body' | 'title'; text: string }) {
     root?.controller.setStage('write');
     const field = answer(input.field);
     field.focus();
@@ -235,7 +231,6 @@ export function createExampleApp(session: Session) {
   async function record(stop: boolean) {
     await ready();
     root?.controller.open('problem');
-    root?.controller.setStage('review');
     element('feedback-record').click();
     await idle();
     product?.click();
@@ -248,7 +243,7 @@ export function createExampleApp(session: Session) {
   async function managementAction(action: {
     type: string;
     title?: string;
-    description?: string;
+    body?: string;
   }) {
     if (action.type === 'palette') {
       element('example-commands').click();
@@ -265,7 +260,7 @@ export function createExampleApp(session: Session) {
       await session.waitForIdle();
       await describe({
         title: action.title ?? '',
-        description: action.description ?? '',
+        body: action.body ?? '',
         kind: 'problem',
       });
       await send();
@@ -291,11 +286,7 @@ export function createExampleApp(session: Session) {
   }
   return {
     store,
-    async wizard(action: {
-      type: string;
-      title?: string;
-      description?: string;
-    }) {
+    async wizard(action: { type: string; title?: string; body?: string }) {
       await ready();
       if (action.type === 'close') root?.controller.close();
       if (action.type === 'return') {
@@ -337,7 +328,7 @@ export function createExampleApp(session: Session) {
       const draft = {
         kind: 'problem' as const,
         title,
-        description: 'Private observation',
+        body: 'Private observation',
       };
       await server(
         new Request('http://local/api/feedback', {
@@ -362,7 +353,7 @@ export function createExampleApp(session: Session) {
             'Content-Type': 'application/json',
             'X-Feedback-Author': 'local',
           },
-          body: JSON.stringify({ title: 'Changed', description: 'Changed' }),
+          body: JSON.stringify({ title: 'Changed', body: 'Changed' }),
         })
       );
       foreignRefusal = response.status === 404;
@@ -374,7 +365,7 @@ export function createExampleApp(session: Session) {
     describe,
     send,
     editAnswer,
-    readAnswer(field: 'description' | 'title') {
+    readAnswer(field: 'body' | 'title') {
       const input = answer(field);
       return {
         value: input.value,
@@ -397,11 +388,11 @@ export function createExampleApp(session: Session) {
       element('feedback-discard').click();
       await idle();
     },
-    async submit(title: string, description: string) {
+    async submit(title: string, body: string) {
       await describe({
         kind: 'problem',
         title,
-        description,
+        body,
       });
       await send();
     },

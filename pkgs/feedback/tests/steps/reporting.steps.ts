@@ -37,13 +37,12 @@ Given('some diagnostics never arrive', (w) =>
 Given('the team has kept local feedback titled {string}', (w, title: string) =>
   w.apply(submitReport, {
     title,
-    description: 'The board stopped after my move',
+    body: 'The board stopped after my move',
   })
 );
 When(
   'the team submits feedback titled {string} saying {string}',
-  (w, title: string, description: string) =>
-    w.apply(submitReport, { title, description })
+  (w, title: string, body: string) => w.apply(submitReport, { title, body })
 );
 When("the team's app closes", (w) => w.apply(closeProduct));
 Then('the team can read the local feedback', async (w) => {
@@ -72,7 +71,7 @@ Given('the team cannot send feedback', (w) =>
 Then('the team can copy the feedback to keep for later', async (w) => {
   const report = await w.read(readEmergencyReport);
   expect(report).toBeTruthy();
-  expect(report).toContain('description');
+  expect(report).toContain('body');
 });
 Then('the feedback has not been saved locally', async (w) => {
   expect(await w.read(readReport)).toBeNull();

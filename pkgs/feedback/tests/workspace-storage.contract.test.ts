@@ -34,11 +34,11 @@ test('the browser journal imports the complete old draft before retiring its ori
       fc.string(),
       fc.string(),
       fc.string(),
-      async (description, expected, reproductionSteps) => {
+      async (body, expected, reproductionSteps) => {
         const port = storage();
         const original = JSON.stringify({
           kind: 'problem',
-          description,
+          description: body,
           expected,
           reproductionSteps,
         });
@@ -48,11 +48,9 @@ test('the browser journal imports the complete old draft before retiring its ori
           () => 'draft-id'
         );
         const snapshot = adapter.workspace.load();
-        expect(snapshot?.documents[0]?.description).toContain(description);
-        expect(snapshot?.documents[0]?.description).toContain(expected);
-        expect(snapshot?.documents[0]?.description).toContain(
-          reproductionSteps
-        );
+        expect(snapshot?.documents[0]?.body).toContain(body);
+        expect(snapshot?.documents[0]?.body).toContain(expected);
+        expect(snapshot?.documents[0]?.body).toContain(reproductionSteps);
         expect(port.getItem('root-feedback-draft')).toBe(original);
         adapter.workspace.save(snapshot!);
         expect(port.getItem('root-feedback-draft')).toBeNull();
@@ -133,7 +131,7 @@ test('the journal preserves an uncertain submission id through controller recrea
   await first.ready;
   first.setDraft({
     title: 'Board stopped',
-    description: 'Stopped after a move',
+    body: 'Stopped after a move',
   });
   await first.send();
   first.dispose();
@@ -143,4 +141,30 @@ test('the journal preserves an uncertain submission id through controller recrea
   expect(submitted).toHaveLength(2);
   expect(submitted[1]).toBe(submitted[0]);
   second.dispose();
+});
+
+// regression: feedback-raw-transport-error
+test('a raw transport failure keeps the draft and exposes only actionable recovery', async () => {
+  const world = fixture();
+  world.repository.create = () => Promise.reject(new TypeError('Load failed'));
+  const controller = new FeedbackController(world.options);
+  await controller.ready;
+  controller.setDraft({
+    title: 'Board movement',
+    body: 'Keep the last move visible',
+  });
+  await controller.send();
+  expect(controller.state().phase).toBe('failed');
+  expect(controller.state().message).toBe(
+    'Draft kept on this device. Send it when reporting is available.'
+  );
+  expect(controller.state().message).not.toContain('Load failed');
+  expect(world.persisted()?.documents[0]?.body).toBe(
+    'Keep the last move visible'
+  );
+  expect(JSON.parse(controller.emergencyCopy())).toMatchObject({
+    schema: 'feedback.report/v2',
+    body: { source: 'Keep the last move visible' },
+  });
+  controller.dispose();
 });

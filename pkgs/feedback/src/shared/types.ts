@@ -14,8 +14,19 @@ export type FeedbackKind = 'problem' | 'feature' | 'gap' | 'polish';
 
 export type FeedbackDraft = {
   readonly kind: FeedbackKind;
-  readonly description: string;
   readonly title: string;
+  readonly body: string;
+};
+
+export type FeedbackSection = {
+  readonly heading: string | null;
+  readonly content: string;
+};
+
+export type FeedbackBody = {
+  readonly format: 'markdown';
+  readonly source: string;
+  readonly sections: readonly FeedbackSection[];
 };
 
 export type ReproductionAction = {
@@ -59,17 +70,18 @@ export type FeedbackAttachment = {
 };
 
 export type FeedbackReport = {
-  readonly version: 1;
+  readonly schema: 'feedback.report/v2';
   readonly id: string;
   readonly title: string;
-  readonly description: string;
+  readonly kind: FeedbackKind;
+  readonly body: FeedbackBody;
   readonly createdAt: string;
   readonly status: 'open' | 'deleted';
   readonly authorId: string;
   readonly diagnostics: readonly Diagnostic[];
   readonly recording: ReproductionRecording | null;
   readonly attachments: readonly FeedbackAttachment[];
-} & FeedbackDraft;
+};
 
 export type CreatedIssue = {
   readonly id: string;

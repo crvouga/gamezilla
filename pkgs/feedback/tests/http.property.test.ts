@@ -15,7 +15,7 @@ const text = fc
 test('the same HTTP client creates reports through interchangeable backend destinations', async () => {
   await assertProperty(
     'feedback-reliability',
-    fc.asyncProperty(text, fc.boolean(), async (description, useGithub) => {
+    fc.asyncProperty(text, fc.boolean(), async (body, useGithub) => {
       const { clock, timers } = createHarnessClock();
       const captured: unknown[] = [];
       const backend = useGithub
@@ -61,15 +61,15 @@ test('the same HTTP client creates reports through interchangeable backend desti
       }).submit({
         kind: 'problem',
         title: '',
-        description,
+        body,
       });
       expect(result.issue.id).toBe(useGithub ? '17' : 'report-id');
       expect(clock.pendingOneShotCount()).toBe(0);
       if (useGithub) expect(captured).toHaveLength(1);
       else
         expect(
-          (backend as FakeIssueReporter).reports.get('report-id')?.description
-        ).toBe(description);
+          (backend as FakeIssueReporter).reports.get('report-id')?.body.source
+        ).toBe(body);
     })
   );
 });
@@ -98,7 +98,7 @@ test('invalid and foreign-origin HTTP requests cannot create issues', async () =
             body: JSON.stringify({
               id: kind === 'id' ? '../../outside' : 'fixed',
               title: 'Board froze',
-              description:
+              body:
                 kind === 'size'
                   ? 'x'.repeat(1_000_001)
                   : 'Stopped after a move',
