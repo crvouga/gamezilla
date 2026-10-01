@@ -59,7 +59,6 @@ export type ReplayMutationDeps = {
   readonly auth: ReplayAuth;
   readonly now: () => number;
   readonly createId: CreateId;
-  readonly serverNow?: () => Date;
   /** Host guard run before every mutation body (server replay only). */
   readonly authorize?: MutationAuthorize;
 };
@@ -145,52 +144,20 @@ async function applyReplayMutationInTxn(args: {
     isAnon: deps.auth.isAnon,
     now: () => new Date(m.createdAt),
     createId: deps.createId,
-    ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
+    serverNow: () => new Date(deps.now()),
   };
 
   const wrapped = wrapMutationDb(txc, env);
-  try {
-    await deps.authorize?.({
-      name: m.name,
-      args: parsedValue,
-      tx: wrapped.tx,
-      env,
-      serverNow: deps.serverNow ?? (() => new Date(deps.now())),
-    });
-    await mutation.run({ tx: wrapped.tx, env }, parsedValue);
-  } catch (e) {
-    const mapped = mapConstraintError(e, mutation.constraintErrors);
-    if (mapped !== undefined) {
-      await recordRejectedInTxn({
-        txc,
-        m,
-        failure: mapped,
-        deps,
-        claimed: true,
-      });
-      return {
-        status: 'rejected',
-        code: mapped.code,
-        message: mapped.message,
-      };
-    }
-    if (isMutationError(e)) {
-      const failure = mutationErrorToFailure(e, m.name);
-      await recordRejectedInTxn({
-        txc,
-        m,
-        failure,
-        deps,
-        claimed: true,
-      });
-      return {
-        status: 'rejected',
-        code: failure.code,
-        message: failure.message,
-      };
-    }
-    throw e;
-  }
+  // Permanent failures propagate through the replay transaction's rollback
+  // before a separate transaction records their durable rejection.
+  await deps.authorize?.({
+    name: m.name,
+    args: parsedValue,
+    tx: wrapped.tx,
+    env,
+    serverNow: () => new Date(deps.now()),
+  });
+  await mutation.run({ tx: wrapped.tx, env }, parsedValue);
   await appendObservabilityEvent({
     txc,
     deps,

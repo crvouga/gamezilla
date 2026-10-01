@@ -6,6 +6,7 @@
 import './note-replication.binding';
 import './note-conflicts.binding';
 import './note-recovery.binding';
+import './note-refusal-recovery.binding';
 
 import { useNoteWorld } from './note-world';
 

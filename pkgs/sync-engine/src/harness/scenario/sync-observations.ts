@@ -155,6 +155,11 @@ export function deviceCanSynchronize(
   );
 }
 
+/** The connection signal the app receives, independently of an unanswered save. */
+export function deviceOnlineSignal(s: SyncHarness, clientId: string): boolean {
+  return clientFor(s, clientId)?.lifecycle.lifecycle.isOnline() ?? false;
+}
+
 /** Last sync error surfaced on a client's status snapshot. */
 export function lastError(s: SyncHarness, clientId: string): string | null {
   return clientFor(s, clientId)?.lastError() ?? null;

@@ -11,6 +11,7 @@
  * aggregate, so it has nothing to check here.
  */
 
+import { assignmentShapeIssues } from './shape-assignment';
 import { offlineShapeIssues } from './shape-connectivity';
 import {
   byKind,
@@ -203,7 +204,9 @@ export function modelShapeIssues(
   const base = fileName.split('/').pop() ?? fileName;
   if (base === 'events.qnt') return [];
   const model = parseModel(source);
-  return [...structureIssues(model, base), ...offlineShapeIssues(model)].sort(
-    (a, b) => a.line - b.line || a.code.localeCompare(b.code)
-  );
+  return [
+    ...structureIssues(model, base),
+    ...assignmentShapeIssues(model),
+    ...offlineShapeIssues(model),
+  ].sort((a, b) => a.line - b.line || a.code.localeCompare(b.code));
 }

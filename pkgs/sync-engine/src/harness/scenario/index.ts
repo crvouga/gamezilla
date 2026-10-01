@@ -79,6 +79,7 @@ export {
   connection,
   deviceCanSynchronize,
   deviceId,
+  deviceOnlineSignal,
   hasSynced,
   inSync,
   invariantViolations,

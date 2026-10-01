@@ -6,6 +6,7 @@ import {
   auth,
   connect,
   deleteNote,
+  deviceOnlineSignal,
   disconnect,
   httpFault,
   lastMutationId,
@@ -20,6 +21,7 @@ import {
   restart,
   resumeNetwork,
   setNote,
+  online as setOnline,
 } from '@pkgs/sync-engine/harness';
 import type { NoteWorld } from './note-world';
 
@@ -52,6 +54,7 @@ async function observe(w: NoteWorld) {
     { body: string; owner: string; exists: boolean; deleted: boolean }
   >();
   const refusals = new Map<string, number>();
+  const online = new Map<string, boolean>();
   for (const person of ['server', ...PEOPLE]) {
     const row = await w.s.read(liveNote, person, TITLE);
     const key = person === 'server' ? 'shared' : person;
@@ -69,8 +72,9 @@ async function observe(w: NoteWorld) {
   }
   for (const person of PEOPLE) {
     refusals.set(person, (await w.s.read(rejections, person)).length);
+    online.set(person, await w.s.read(deviceOnlineSignal, person));
   }
-  return { notes, rejections: refusals };
+  return { notes, rejections: refusals, online };
 }
 
 bindQuintModel<NoteWorld>({
@@ -100,9 +104,13 @@ bindQuintModel<NoteWorld>({
       w.owed.set(person, id);
     },
     hearBack: (w, p) => hearBack(w, personOf(p)),
-    goOffline: (w, p) => w.s.apply(disconnect, personOf(p)),
+    goOffline: async (w, p) => {
+      await w.s.apply(setOnline, personOf(p), false);
+      await w.s.apply(disconnect, personOf(p));
+    },
     goOnline: async (w, p) => {
       const person = personOf(p);
+      await w.s.apply(setOnline, person, true);
       await w.s.apply(resumeNetwork, person, 'sync');
       await w.s.apply(connect, person);
       await w.s.until((s) => queuedEdits(s, person), {
@@ -113,6 +121,7 @@ bindQuintModel<NoteWorld>({
     },
     signedOutElsewhere: async (w, p) => {
       const person = personOf(p);
+      await w.s.apply(setOnline, person, true);
       await w.s.apply(auth, person, 'revoked');
       await w.s.apply(resumeNetwork, person, 'sync');
       await w.s.apply(connect, person);

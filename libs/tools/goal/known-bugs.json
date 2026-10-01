@@ -538,5 +538,35 @@
     "id": "room-interrupted-timeout-lost-wake",
     "summary": "A timeout whose event write aborted could restore the same deadline against an already consumed wake, leaving the match permanently playing. Wake execution now rearms before injection and preserves failed and not-yet-executed deadlines.",
     "regressionTest": "pkgs/room-adapter-durable-object/tests/match-wake-failure.test.ts"
+  },
+  {
+    "id": "puzzle-concurrent-results-lost-rating",
+    "summary": "Concurrent results from separate devices could overwrite the running rating with two events based on the same prior value.",
+    "regressionTest": "libs/chess/tests/puzzle-session/rating-concurrency.test.ts"
+  },
+  {
+    "id": "sync-refused-write-left-domain-changes",
+    "summary": "A permanent refusal after earlier domain writes committed those writes instead of rolling them back.",
+    "regressionTest": "specs/sync-engine/checked-notes.feature"
+  },
+  {
+    "id": "sync-server-clock-missing-from-body",
+    "summary": "Production replay did not supply the authoritative server clock to time-sensitive mutation bodies.",
+    "regressionTest": "pkgs/sync-engine/tests/server-authorize-mutation.test.ts"
+  },
+  {
+    "id": "sync-native-postgres-constraint-refusal-retried",
+    "summary": "Bun exposes the PostgreSQL SQLSTATE as errno, so mapped permanent constraint refusals were treated as retryable failures.",
+    "regressionTest": "pkgs/sync-engine/tests/constraint-batch-rollback.test.ts"
+  },
+  {
+    "id": "sync-refused-draft-reached-another-person",
+    "summary": "Optimistic row fanout published a checked draft before acceptance, allowing refused writing onto another person's device.",
+    "regressionTest": "specs/sync-engine/checked-notes.feature"
+  },
+  {
+    "id": "quint-boolean-assignment-pruned-proof-graph",
+    "summary": "An unparenthesized Boolean assignment compiled into an additional action guard, silently omitting accepted writes from the proof graph.",
+    "regressionTest": "pkgs/quint/tests/assignment-shape.test.ts"
   }
 ]

@@ -4,6 +4,7 @@ import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 import {
   addClient,
   connect,
+  deviceOnlineSignal,
   disconnect,
   httpFault,
   lastMutationId,
@@ -13,6 +14,7 @@ import {
   partition,
   resumeNetwork,
   setNote,
+  online as setOnline,
 } from '@pkgs/sync-engine/harness';
 import type { NoteWorld } from './note-world';
 
@@ -55,6 +57,7 @@ async function hearBack(w: NoteWorld, person: string): Promise<void> {
 }
 
 async function goOnline(w: NoteWorld, person: string): Promise<void> {
+  await w.s.apply(setOnline, person, true);
   await w.s.apply(connect, person);
   w.recovery.offline.delete(person);
   if (w.owed.has(person) && !w.recovery.accepted.has(person)) {
@@ -64,6 +67,7 @@ async function goOnline(w: NoteWorld, person: string): Promise<void> {
 
 async function observe(w: NoteWorld) {
   const notes = new Map<string, { body: string; owner: string }>();
+  const online = new Map<string, boolean>();
   for (const person of ['server', ...PEOPLE]) {
     const row = await w.s.read(liveNote, person, TITLE);
     notes.set(
@@ -73,7 +77,9 @@ async function observe(w: NoteWorld) {
         : { body: row.body, owner: row.ownerId }
     );
   }
-  return { notes };
+  for (const person of PEOPLE)
+    online.set(person, await w.s.read(deviceOnlineSignal, person));
+  return { notes, online };
 }
 
 bindQuintModel<NoteWorld>({
@@ -89,6 +95,7 @@ bindQuintModel<NoteWorld>({
     hearBack: (w, p) => hearBack(w, personOf(p)),
     goOffline: async (w, p) => {
       const person = personOf(p);
+      await w.s.apply(setOnline, person, false);
       await w.s.apply(disconnect, person);
       w.recovery.offline.add(person);
     },
