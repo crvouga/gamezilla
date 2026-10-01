@@ -30,6 +30,14 @@ Feature: Keep feedback drafts
   Rule: Trouble sending keeps the draft
     No counter-example: feedback stays editable until sending succeeds.
 
+    @regression:feedback-raw-transport-error
+    Scenario: Failed sending explains that the draft is kept
+      Given the team cannot send feedback
+      And the team has a draft titled "Board movement" saying "Keep the last move visible"
+      When the team sends the feedback
+      Then the team is told the draft is kept until feedback can be sent
+      And the draft is titled "Board movement" saying "Keep the last move visible"
+
     Scenario: Failed sending preserves the author's writing
       Given the team cannot send feedback
       And the team has a draft titled "Board movement" saying "Keep the last move visible"
