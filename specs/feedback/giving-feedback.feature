@@ -30,3 +30,33 @@ Feature: Write feedback freely
       When the team chooses the polish template
       Then the draft includes "Keep this observation"
       And the draft offers prompts for an intended improvement
+
+  Rule: Formatting is visible while writing feedback
+    No counter-example: formatting never hides the author's writing.
+
+    Scenario: A heading appears as a heading while writing
+      Given the team has a draft titled "Board movement" saying "Movement"
+      When the team makes "Movement" a heading
+      Then the draft shows "Movement" as a heading while writing
+
+  Rule: Writing a template command offers matching templates
+
+    Scenario: A partial command offers the polish template
+      Given the team's app is working
+      When the team writes feedback saying "/pol"
+      Then the team is offered the polish template
+
+    Scenario: An unknown command stays in the author's writing
+      Given the team's app is working
+      When the team writes feedback saying "/board"
+      Then the team is not offered a template because no template matches
+      And the draft includes "/board"
+
+  Rule: Choosing a suggested template keeps existing writing
+    No counter-example: a suggested template never replaces the author's writing.
+
+    Scenario: A suggested bug template keeps the observation
+      Given the team has a draft titled "Board movement" saying "Keep this observation\n\n/bug"
+      When the team chooses the suggested bug template
+      Then the draft includes "Keep this observation"
+      And the draft offers prompts for what happened, what was expected and reproduction steps
