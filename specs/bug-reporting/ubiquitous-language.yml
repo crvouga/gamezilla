@@ -1,0 +1,22 @@
+context: Bug reporting
+purpose: >-
+  Help the team describe trouble with the app and keep a bug report even
+  when the app cannot help them.
+terms:
+  - term: bug report
+    definition: >-
+      A title and description of trouble, with the time it was reported
+      and whatever diagnostics are available, kept for the team to investigate.
+    forms: [bug reports, report, reports]
+  - term: Report Bug
+    definition: >-
+      The way the team opens bug reporting, even when the app is unusable.
+    forms: [bug reporting]
+  - term: diagnostics
+    definition: >-
+      Details about what happened that help the team investigate a bug report.
+  - term: local bug report
+    definition: >-
+      A bug report kept with the team's working repository, readable without
+      an account or a connection.
+    forms: [local bug reports, repository]
