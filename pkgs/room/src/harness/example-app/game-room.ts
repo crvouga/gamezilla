@@ -288,6 +288,17 @@ function handleMatch(
 
 export const gameRoomModule: RoomModule<RoomState, Message, Message, string> = {
   name: assertRoomModuleName('game-room'),
+  recoverEffects(state) {
+    const status = matchStatusAttr.from(state);
+    if (status === MATCH_STATUS.notStarted) return [];
+    if (status === MATCH_STATUS.over)
+      return [CancelScheduleEffect({ id: RAN_OUT_OF_TIME_SCHEDULE_ID })];
+    const player = playerToMoveAttr.from(state) as Player;
+    return armRanOutOfTime(
+      player,
+      turnStartedAtAttr.from(state) + bankOf(state, player)
+    );
+  },
   initialState(): RoomState {
     return {
       ...tallyAttr(0),

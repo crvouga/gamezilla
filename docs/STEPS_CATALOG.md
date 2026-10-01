@@ -13,5 +13,5 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | @libs/runtime | `specs/runtime/`, `specs/journeys/` | 11 | 41 | 67 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
 | @pkgs/auth-harness | `specs/auth/` | 6 | 40 | 67 | [catalog](../pkgs/auth-harness/STEPS_CATALOG.md) |
 | @pkgs/matchmaking-harness | `specs/matchmaking/` | 2 | 13 | 19 | [catalog](../pkgs/matchmaking-harness/STEPS_CATALOG.md) |
-| @pkgs/room-harness | `specs/room/` | 4 | 31 | 44 | [catalog](../pkgs/room-harness/STEPS_CATALOG.md) |
+| @pkgs/room-harness | `specs/room/` | 5 | 34 | 46 | [catalog](../pkgs/room-harness/STEPS_CATALOG.md) |
 | @pkgs/sync-engine | `specs/sync-engine/` | 14 | 54 | 81 | [catalog](../pkgs/sync-engine/STEPS_CATALOG.md) |

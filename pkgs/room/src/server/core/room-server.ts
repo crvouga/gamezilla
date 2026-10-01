@@ -158,6 +158,7 @@ export class RoomServer<
         ? entries[entries.length - 1]!.seq
         : await this.storage.getLastSeq(this.topic);
     this.tipKnown = true;
+    await this.applyCommittedEffects(this.module.recoverEffects(state));
   }
 
   registerConnection(

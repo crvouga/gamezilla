@@ -119,6 +119,8 @@ export function createSpaceModule(
   return {
     name,
     initialState: (): RoomState => buildInitialState(games),
+    recoverEffects: (state) =>
+      games.flatMap((game) => [...game.recoverEffects(state)]),
 
     handle(
       state: RoomState,

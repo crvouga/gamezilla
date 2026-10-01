@@ -1,5 +1,5 @@
 import type { MessageNamespace, MessageRouter } from '@pkgs/message';
-import type { HandleResult, RoomState } from '@pkgs/room';
+import type { HandleResult, RoomEffect, RoomState } from '@pkgs/room';
 import type { JSX } from 'solid-js';
 
 /**
@@ -40,6 +40,8 @@ export type GameDefinition = {
   >[];
   /** Event sub-routers this game contributes (one per namespace). */
   readonly eventRouters: readonly GameRouterEntry<void, RoomState>[];
+  /** Recover idempotent effects from committed game state after a room restart. */
+  readonly recoverEffects: (state: RoomState) => readonly RoomEffect[];
   /**
    * Optional initial-state seed merged into `SpaceModule.initialState()`.
    * Use when a game's reducers expect certain attributes to be present
