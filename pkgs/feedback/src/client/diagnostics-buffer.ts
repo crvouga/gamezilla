@@ -1,7 +1,12 @@
 import type { DiagnosticProvider } from '../shared/types';
 
-/** Small bounded crash trail; no product context or telemetry SDK required. */
-export function createRootDiagnostics() {
+export type FeedbackDiagnostics = {
+  readonly record: (source: string, error: unknown) => void;
+  readonly provider: DiagnosticProvider;
+};
+
+/** Small bounded error trail with no host-app or telemetry dependency. */
+export function createFeedbackDiagnostics(): FeedbackDiagnostics {
   const errors: { source: string; message: string }[] = [];
   return {
     record(source: string, error: unknown): void {

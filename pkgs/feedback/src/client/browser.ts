@@ -1,4 +1,4 @@
-// @io-wall-ok — minimal browser composition root, before any product imports
+// @io-wall-ok — standalone browser adapter
 
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createCacheApiObjectStore } from '@pkgs/object-store-opfs/impl-cache-api';
@@ -7,20 +7,22 @@ import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
 import { HttpIssueReporter } from './http-issue-reporter';
-import { mountRootReporting } from './mount-root-reporting';
-import { startRootRuntime } from './root-runtime';
+import { mountFeedback } from './mount-feedback';
+import { startFeedbackRuntime } from './feedback-runtime';
 import { createEvidenceUploader } from './upload-evidence';
 import { browserRecordingPort } from './wall-video';
 
-/** Endpoint is platform configuration; it never depends on product bootstrap. */
-export function bootBrowserRoot(options: {
+/** Ready-to-use browser adapter; core feedback behavior remains port-driven. */
+export function bootBrowserFeedback(options: {
   readonly endpoint: string;
   readonly build?: string;
-  readonly startProduct: () => Promise<unknown>;
+  readonly startApplication: () => Promise<unknown>;
+  readonly standalonePath?: string;
+  readonly applicationErrorEvent?: string;
 }) {
   const http = { fetch: globalThis.fetch.bind(globalThis) };
   const host = document.createElement('aside');
-  host.setAttribute('data-component', 'RootFeedbackReportingHost');
+  host.setAttribute('data-component', 'FeedbackHost');
   document.body.append(host);
   const persistence = createBrowserWorkspace(
     () => localStorage,
@@ -30,13 +32,15 @@ export function bootBrowserRoot(options: {
     baseDir: 'feedback-evidence',
     caches: globalThis.caches,
   });
-  return startRootRuntime({
-    installReporting(diagnostics) {
-      const runtime = mountRootReporting({
+  const standalonePath = options.standalonePath ?? '/feedback';
+  return startFeedbackRuntime({
+    installFeedback(diagnostics) {
+      const runtime = mountFeedback({
         window,
         document,
         host,
         diagnostics,
+        applicationErrorEvent: options.applicationErrorEvent,
         clock: wallClock,
         timers: wallTimers,
         createId: () => crypto.randomUUID(),
@@ -85,11 +89,11 @@ export function bootBrowserRoot(options: {
           },
         ],
       });
-      if (location.pathname === '/feedback') runtime.open();
+      if (location.pathname === standalonePath) runtime.open();
     },
-    startProduct: () =>
-      location.pathname === '/feedback'
+    startApplication: () =>
+      location.pathname === standalonePath
         ? Promise.resolve()
-        : options.startProduct(),
+        : options.startApplication(),
   });
 }
