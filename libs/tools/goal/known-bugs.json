@@ -516,10 +516,12 @@
   },
   {
     "id": "room-event-saved-without-retry-verdict",
-    "summary": "An interrupted room commit saved its events without the first retry verdict; restarting and retrying Alice's one add counted it twice. Room storage now atomically persists the complete event batch and verdict, including batches larger than 128 keys."
+    "summary": "An interrupted room commit saved its events without the first retry verdict; restarting and retrying Alice's one add counted it twice. Room storage now atomically persists the complete event batch and verdict, including batches larger than 128 keys.",
+    "regressionTest": "pkgs/room-adapter-durable-object/tests/interrupted-commit.test.ts"
   },
   {
     "id": "room-storage-reply-lost-stale-tip",
-    "summary": "Losing the storage acknowledgement after a room commit left the live engine and storage tip stale; the next legitimate change failed with expected sequence 1, got 2. Reload committed state and invalidate the storage tip after an ambiguous commit failure."
+    "summary": "Losing the storage acknowledgement after a room commit left the live engine and storage tip stale; the next legitimate change failed with expected sequence 1, got 2. Reload committed state and invalidate the storage tip after an ambiguous commit failure.",
+    "regressionTest": "pkgs/room-adapter-durable-object/tests/interrupted-commit.test.ts"
   }
 ]
