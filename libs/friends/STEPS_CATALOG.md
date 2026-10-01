@@ -180,7 +180,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 ## Features
 
-- `specs/friends/deleted-account-friendships.feature` — Withdraw a deleted account from other people (4 scenarios)
+- `specs/friends/deleted-account-friendships.feature` — Remove a deleted account from other people (4 scenarios)
 - `specs/friends/friend-block.feature` — Block and unblock (8 scenarios)
 - `specs/friends/friend-profile.feature` — Another person's profile (6 scenarios)
 - `specs/friends/friend-remove.feature` — Remove a friend (2 scenarios)

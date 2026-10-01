@@ -9,7 +9,7 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | @libs/billing | `specs/billing/` | 16 | 53 | 70 | [catalog](../libs/billing/STEPS_CATALOG.md) |
 | @libs/chess | `specs/chess/` | 30 | 141 | 184 | [catalog](../libs/chess/STEPS_CATALOG.md) |
 | @libs/friends | `specs/friends/`, `specs/spaces/` | 26 | 82 | 105 | [catalog](../libs/friends/STEPS_CATALOG.md) |
-| @libs/profile | `specs/profile/` | 14 | 67 | 56 | [catalog](../libs/profile/STEPS_CATALOG.md) |
+| @libs/profile | `specs/profile/` | 14 | 68 | 56 | [catalog](../libs/profile/STEPS_CATALOG.md) |
 | @libs/runtime | `specs/runtime/`, `specs/journeys/` | 11 | 41 | 67 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
 | @pkgs/auth-harness | `specs/auth/` | 6 | 40 | 67 | [catalog](../pkgs/auth-harness/STEPS_CATALOG.md) |
 | @pkgs/matchmaking-harness | `specs/matchmaking/` | 2 | 13 | 19 | [catalog](../pkgs/matchmaking-harness/STEPS_CATALOG.md) |

@@ -32,6 +32,8 @@ product:
   # Everything a person may or may not be allowed to do. Each is answered by
   # exactly one decision table, named by its decision.
   capabilities:
+    - { id: delete their account, context: profile, decided by: privacy-access }
+    - { id: take a personal-data export, context: profile, decided by: privacy-access }
     - { id: keep a friends list, context: friends, decided by: access }
     - { id: use people search, context: friends, decided by: access }
     - { id: get notifications, context: friends, decided by: access }
