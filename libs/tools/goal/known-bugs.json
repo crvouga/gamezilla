@@ -403,5 +403,15 @@
     "id": "bug-report-http-ignores-abort",
     "summary": "An HTTP transport or response body ignoring AbortSignal left reporting pending forever. A hard deadline now preserves the emergency recovery path.",
     "regressionTest": "pkgs/bug-report/tests/http-deadline.test.ts"
+  },
+  {
+    "id": "bug-report-vite-node-import",
+    "summary": "The bug-report Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
+    "regressionTest": "pkgs/bug-report/tests/vite-config.contract.test.ts"
+  },
+  {
+    "id": "bug-report-native-vite-import",
+    "summary": "The local dev stack could not load the reporting plugin under Node: extensionless ESM imports and non-erasable constructor parameters passed Bun checks but broke the native configuration loader. Pin the native loader as a package gate.",
+    "regressionTest": "pkgs/bug-report/tests/vite-loader.test.ts"
   }
 ]

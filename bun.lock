@@ -1412,7 +1412,7 @@
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
-        "@pkgs/harness": "workspace:*",
+        "@pkgs/os": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

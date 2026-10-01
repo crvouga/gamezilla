@@ -15,25 +15,27 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns=tests/steps/**",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
+    "check:vite-loader": "node --input-type=module -e \"import('./tests/vite-loader-example.ts').then(m => m.verifyViteLoader())\""
   },
   "dependencies": {
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/object-store": "workspace:*",
-    "@pkgs/uuid": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
-    "@pkgs/object-store-node-fs": "workspace:*",
     "@opentelemetry/api": "catalog:",
-    "@pkgs/harness": "workspace:*"
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/harness": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "@pkgs/bun-test-solid": "workspace:*"
+    "vite": "catalog:"
   },
   "specDomains": [
     "bug-reporting"
