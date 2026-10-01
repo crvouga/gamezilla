@@ -10,7 +10,7 @@ module note_recovery {
 
   /// What each person sees, and what the shared notes keep.
   var notes: str -> Note
-  /// Whether each device has a connection.
+  /// Whether each app is told its device has a connection.
   var online: Person -> bool
 
   var _shared: Note

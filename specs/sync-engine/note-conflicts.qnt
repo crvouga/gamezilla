@@ -15,7 +15,7 @@ module note_conflicts {
   var notes: str -> Note
   /// Notices of refused edits on each device.
   var rejections: Person -> int
-  /// Whether each device has a connection.
+  /// Whether each app is told its device has a connection.
   var online: Person -> bool
 
   var _shared: Note
