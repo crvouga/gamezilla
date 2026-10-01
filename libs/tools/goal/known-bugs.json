@@ -440,6 +440,11 @@
     "regressionTest": "libs/friends/tests/blocked-search.test.ts"
   },
   {
+    "id": "friend-closed-request-late-notification",
+    "summary": "The sent-event consumer published a live friend-request notification after cancellation committed first. Independent outbox deliveries could therefore revive a closed request. The consumer now checks the current pending request and its exact id before publishing.",
+    "regressionTest": "libs/friends/tests/closed-request-delivery.test.ts"
+  },
+  {
     "id": "space-step-out-presence-lingers",
     "summary": "Stepping out to the lobby retained a live room connection, leaving people counted as present despite the space promise. Room lifetime now follows actual space views, while membership, queued commands and the open-session identity survive stepping out. The literal friend-step-out sequence is pinned.",
     "regressionTest": "specs/spaces/space-lifecycle.feature"
