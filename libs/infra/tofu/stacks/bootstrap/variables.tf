@@ -70,3 +70,24 @@ variable "infisical_token" {
   type      = string
   sensitive = true
 }
+
+variable "aws_access_key_id" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "AWS access key for the provider. A person's AWS login on the one bootstrap apply that creates the GitHub OIDC role. Not the R2 state key."
+}
+
+variable "aws_secret_access_key" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "AWS secret key paired with aws_access_key_id."
+}
+
+variable "aws_session_token" {
+  type        = string
+  default     = ""
+  sensitive   = true
+  description = "AWS session token when the access key is a temporary SSO credential."
+}

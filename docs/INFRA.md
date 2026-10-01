@@ -60,6 +60,7 @@ libs/infra/
     modules/        env-agnostic building blocks (variables in, outputs out)
       state/          the state bucket + its credential (stateful)
       ci-identity/    GitHub Actions' Infisical OIDC machine identity
+      aws-ci-identity/ GitHub Actions' AWS role, assumed with the job's OIDC token
       repository/     GitHub repo settings, `main` protection, Actions variables
       naming/         physical names — patterns.json, shared with TypeScript
       object-store/   R2 bucket (stateful) + bucket-scoped S3 credential
@@ -207,12 +208,17 @@ its credential (`TOFU_STATE_ACCESS_KEY_ID` / `TOFU_STATE_SECRET_ACCESS_KEY`)
 and writes the credential once, to the shared secrets environment.
 
 The child process's `AWS_ACCESS_KEY_ID` is that R2 state key. The AWS
-provider does not read it. Account keys arrive as `TF_VAR_aws_access_key_id`
-and `TF_VAR_aws_secret_access_key`, from `AWS_ACCOUNT_ACCESS_KEY_ID` /
-`AWS_ACCOUNT_SECRET_ACCESS_KEY`, falling back to `AWS_ACCESS_KEY_ID` /
-`AWS_SECRET_ACCESS_KEY` when those are the names already in the secret
-store. PlanetScale reads `PLANETSCALE_SERVICE_TOKEN_ID` and
-`PLANETSCALE_SERVICE_TOKEN` from the environment.
+provider does not read it. In GitHub Actions the wrapper assumes
+`AWS_ROLE_ARN` (the bootstrap stack's GitHub OIDC role) with the job's OIDC
+token and passes the temporary credentials as `TF_VAR_aws_access_key_id`,
+`TF_VAR_aws_secret_access_key`, and `TF_VAR_aws_session_token`. On a laptop
+it reads the AWS CLI's current login the same way. Long-lived
+`AWS_ACCOUNT_ACCESS_KEY_ID` / `AWS_ACCOUNT_SECRET_ACCESS_KEY` still work
+when no OIDC token and no CLI login are available; they are not stored.
+PlanetScale reads `PLANETSCALE_SERVICE_TOKEN_ID` and
+`PLANETSCALE_SERVICE_TOKEN` from the environment. The Worker's IoT publish
+key (`IOT_ACCESS_KEY_ID`) is a different credential OpenTofu generates,
+because a Worker cannot present a GitHub OIDC token.
 
 ## Secrets
 
@@ -221,7 +227,7 @@ stack touches:
 
 | Kind | Who writes it | Examples |
 | --- | --- | --- |
-| shared | a person, once, in the `shared` environment (`bun run secrets:seed`) | Google OAuth client, PlanetScale service token, AWS account keys, `TOFU_STATE_PASSPHRASE` |
+| shared | a person, once, in the `shared` environment (`bun run secrets:seed`) | Google OAuth client, PlanetScale service token, `TOFU_STATE_PASSPHRASE` |
 | human | a person, per environment (asserted present) | none today |
 | generated | OpenTofu once; an existing value wins unless it is a committed placeholder (`secrets.json` `placeholders`) | `AUTH_SECRET`, `EMQX_JWT_SECRET` (the HMAC secret the API mints and the IoT authorizer checks) |
 | derived | OpenTofu, from resource outputs | `DATABASE_URL`, `HYPERDRIVE_ID`, `EMQX_WSS_URL`, `IOT_*`, `S3_*`, `API_URL`, `OBSERVABILITY_*` |
@@ -440,13 +446,14 @@ Runbook for a person applying this for the first time:
 
 1. Seed the shared secrets: `TOFU_STATE_PASSPHRASE` (same value everywhere),
    `PLANETSCALE_SERVICE_TOKEN_ID`, `PLANETSCALE_SERVICE_TOKEN`,
-   `AWS_ACCOUNT_ACCESS_KEY_ID`, `AWS_ACCOUNT_SECRET_ACCESS_KEY`,
    `GRAFANA_CLOUD_API_TOKEN`, `GITHUB_ADMIN_TOKEN` (prd) —
    `bun run secrets:seed -- --env <env>`. Confirm
    `global.tfvars.json` `planetscale.organization` is the account's slug
    (`gamezilla` until someone confirms it).
-2. `bun run infra:bootstrap` (logged in with `infisical login`), if it has
-   not already been applied.
+2. `bun run infra:bootstrap` (logged in with `infisical login` and the AWS
+   CLI), if it has not already been applied. That apply creates the GitHub
+   OIDC role and writes `AWS_ROLE_ARN`. It is the one step that needs an
+   AWS login; deploys after it assume the role and do not.
 3. Review, read-only, per environment:
    `SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra plan:foundation`
    (and `plan:edge`, and `SECRETS_ENV=dev`). Expect the new Neki and IoT

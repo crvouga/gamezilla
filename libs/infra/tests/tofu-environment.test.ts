@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { tofuEnvironment } from '@libs/infra/public/tofu-command';
+import type { AwsSession } from '@libs/infra/public/aws-session';
+import {
+  missingSecretsMessage,
+  tofuEnvironment,
+} from '@libs/infra/public/tofu-command';
 
 const PATHS = { tofuDir: '/tofu', cacheDir: '/cache' };
 const foundation = { stack: 'foundation' as const, env: 'dev' };
@@ -53,10 +57,63 @@ describe('tofuEnvironment', () => {
     expect(env['AWS_ACCESS_KEY_ID']).toBe('state-id');
   });
 
-  test('reports the account names missing when neither key is set', () => {
+  test('reports AWS_ROLE_ARN missing when neither a session nor a key is set', () => {
     const { env, missing } = tofuEnvironment(baseSecrets(), PATHS, foundation);
-    expect(missing).toContain('AWS_ACCOUNT_ACCESS_KEY_ID');
-    expect(missing).toContain('AWS_ACCOUNT_SECRET_ACCESS_KEY');
+    expect(missing).toEqual(['AWS_ROLE_ARN']);
     expect(env['TF_VAR_aws_access_key_id']).toBeUndefined();
+    expect(missingSecretsMessage('foundation', missing)).toContain(
+      'set AWS_ROLE_ARN'
+    );
+  });
+
+  test('a passed session fills the provider vars and leaves the state key', () => {
+    const session: AwsSession = {
+      accessKeyId: 'ASIAEXAMPLE',
+      secretAccessKey: 'session-secret',
+      sessionToken: 'session-token',
+    };
+    const { env, missing } = tofuEnvironment(
+      {
+        ...baseSecrets(),
+        AWS_ACCOUNT_ACCESS_KEY_ID: 'account-id',
+        AWS_ACCOUNT_SECRET_ACCESS_KEY: 'account-secret',
+      },
+      PATHS,
+      foundation,
+      session
+    );
+    expect(missing).toEqual([]);
+    expect(env['AWS_ACCESS_KEY_ID']).toBe('state-id');
+    expect(env['TF_VAR_aws_access_key_id']).toBe('ASIAEXAMPLE');
+    expect(env['TF_VAR_aws_secret_access_key']).toBe('session-secret');
+    expect(env['TF_VAR_aws_session_token']).toBe('session-token');
+  });
+
+  test('passes a session token that arrived with the account keys', () => {
+    const { env } = tofuEnvironment(
+      {
+        ...baseSecrets(),
+        AWS_ACCOUNT_ACCESS_KEY_ID: 'account-id',
+        AWS_ACCOUNT_SECRET_ACCESS_KEY: 'account-secret',
+        AWS_SESSION_TOKEN: 'account-token',
+      },
+      PATHS,
+      foundation
+    );
+    expect(env['TF_VAR_aws_session_token']).toBe('account-token');
+  });
+
+  test('does not ask edge for AWS credentials', () => {
+    const { missing } = tofuEnvironment(
+      {
+        TOFU_STATE_PASSPHRASE: 'pass',
+        CLOUDFLARE_API_TOKEN: 'cf',
+        TOFU_STATE_ACCESS_KEY_ID: 'state-id',
+        TOFU_STATE_SECRET_ACCESS_KEY: 'state-secret',
+      },
+      PATHS,
+      { stack: 'edge', env: 'dev' }
+    );
+    expect(missing).toEqual([]);
   });
 });

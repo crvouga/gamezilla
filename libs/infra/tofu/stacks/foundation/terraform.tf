@@ -56,7 +56,8 @@ terraform {
 # CLOUDFLARE_API_TOKEN, PLANETSCALE_SERVICE_TOKEN_ID, PLANETSCALE_SERVICE_TOKEN,
 # GRAFANA_CLOUD_ACCESS_POLICY_TOKEN. The AWS provider does not read
 # AWS_ACCESS_KEY_ID: that name is the R2 state credential in this process
-# (see scripts/tofu.ts). Account keys arrive as TF_VAR_aws_access_key_id.
+# (see scripts/tofu.ts). GitHub Actions assumes AWS_ROLE_ARN; the wrapper
+# passes that session as TF_VAR_aws_*. A laptop uses the AWS CLI the same way.
 provider "cloudflare" {}
 
 provider "grafana" {}
@@ -67,6 +68,7 @@ provider "aws" {
   region     = var.aws.region
   access_key = var.aws_access_key_id
   secret_key = var.aws_secret_access_key
+  token      = var.aws_session_token
 }
 
 provider "infisical" {

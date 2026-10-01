@@ -61,25 +61,6 @@ export const PLANETSCALE_SERVICE_TOKEN = new Secret({
     validateMinLength(input, 'PLANETSCALE_SERVICE_TOKEN', 16),
 });
 
-export const AWS_ACCOUNT_ACCESS_KEY_ID = new Secret({
-  name: 'AWS_ACCOUNT_ACCESS_KEY_ID',
-  hint: [
-    'AWS access key id for the account that owns IoT Core.',
-    'Not the R2 state key (TOFU_STATE_ACCESS_KEY_ID). OpenTofu reads this',
-    'as TF_VAR_aws_access_key_id because the tofu process uses',
-    'AWS_ACCESS_KEY_ID for the state bucket.',
-  ].join('\n'),
-  validate: (input) =>
-    validateMinLength(input, 'AWS_ACCOUNT_ACCESS_KEY_ID', 16),
-});
-
-export const AWS_ACCOUNT_SECRET_ACCESS_KEY = new Secret({
-  name: 'AWS_ACCOUNT_SECRET_ACCESS_KEY',
-  hint: 'AWS secret access key paired with AWS_ACCOUNT_ACCESS_KEY_ID. Not the R2 state secret. Never pushed to a Worker.',
-  validate: (input) =>
-    validateMinLength(input, 'AWS_ACCOUNT_SECRET_ACCESS_KEY', 32),
-});
-
 export const GITHUB_ADMIN_TOKEN = new Secret({
   name: 'GITHUB_ADMIN_TOKEN',
   hint: [

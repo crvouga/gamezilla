@@ -42,6 +42,7 @@ import {
   fleetEnvResources,
   GLOBAL_STACKS,
   initArgs,
+  missingSecretsMessage,
   planArgs,
   STACKS,
   type Stack,
@@ -51,6 +52,7 @@ import {
   type TofuPaths,
   tofuEnvironment,
 } from '@libs/infra/public/tofu-command';
+import { resolveAwsSession } from './aws-session';
 import {
   dropLocalBackend,
   hasUnmigratedLocalState,
@@ -111,15 +113,9 @@ function targetFor(stack: Stack): Target {
 async function toolEnvironment(
   target: Target
 ): Promise<Record<string, string>> {
-  const { env, missing } = tofuEnvironment(process.env, PATHS, target);
-  if (missing.length > 0) {
-    const hint = missing.some((m) => m.startsWith('TOFU_STATE_ACCESS'))
-      ? 'run `bun run infra:bootstrap` first'
-      : 'bun run secrets:seed';
-    fail(
-      `missing secrets for the ${target.stack} stack: ${missing.join(', ')} (${hint})`
-    );
-  }
+  const aws = await resolveAwsSession(process.env, target.stack);
+  const { env, missing } = tofuEnvironment(process.env, PATHS, target, aws);
+  if (missing.length > 0) fail(missingSecretsMessage(target.stack, missing));
   if (target.stack === 'edge') return { ...env };
   return { ...env, TF_VAR_infisical_token: await resolveInfisicalToken() };
 }
