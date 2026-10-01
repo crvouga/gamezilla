@@ -42,7 +42,7 @@ module note_refusal_recovery {
       online' = connected,
       _shared' = shared, _snapshot' = snapshots, _body' = bodies,
       _processed' = processed, _previous' = _shared,
-      _unchanged' = delivered and (body == "refused" or _processed.contains(person)),
+      _unchanged' = (delivered and (body == "refused" or _processed.contains(person))),
     }
   }
 
