@@ -24,7 +24,7 @@ Feature: Checked notes
     Scenario: Refused writing never replaces another person's shared note
       Given Alice and Bob are in the shared space "Trip"
       And Alice has written the checked note "Groceries" saying "milk"
-      And Bob sees the note "Groceries" saying "milk"
+      And the note "Groceries" has reached Bob
       And Alice's app will not hear back about its next save
       When Alice writes the checked note "Groceries" saying "refused"
       Then Bob never sees the note "Groceries" saying "refused"
