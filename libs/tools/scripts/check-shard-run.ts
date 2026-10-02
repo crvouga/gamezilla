@@ -15,6 +15,8 @@ import {
   formatBudgetOverruns,
   readLatestRunSummary,
 } from './check-budget';
+import { copyModelEvidence } from './check-model-evidence';
+import { packPlan } from './check-plan-transfer';
 import { executeShard } from './check-shard-process';
 import { redactSecrets } from './check-shard-stream';
 import {
@@ -98,16 +100,34 @@ export async function runShard(index: number): Promise<number> {
     join(DIRECTORY, 'results', `shard-${index}.json`),
     JSON.stringify(result)
   );
-  preserveFailedReports(results);
-  packEvidence(index);
+  transferEvidence(index, results, env);
   console.log(
     `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${result.hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
   );
   return verdict;
 }
 
+function transferEvidence(
+  index: number,
+  results: readonly Result[],
+  env: NodeJS.ProcessEnv
+): void {
+  try {
+    preserveFailedReports(results);
+    packEvidence(index);
+  } catch (error) {
+    console.error(
+      redactSecrets(`Evidence transfer unavailable: ${String(error)}`, env)
+    );
+  }
+}
+
 function packEvidence(index: number): void {
   const paths = [`.cache/check-ci/results/shard-${index}.json`];
+  if (index === 0) {
+    writeFileSync(join(DIRECTORY, 'plan.payload'), packPlan());
+    paths.push('.cache/check-ci/plan.payload');
+  }
   if (existsSync(join(DIRECTORY, 'failed-reports')))
     paths.push('.cache/check-ci/failed-reports');
   const packed = spawnSync('tar', [
@@ -122,6 +142,20 @@ function packEvidence(index: number): void {
 
 function preserveFailedReports(results: readonly Result[]): void {
   for (const result of results.filter((task) => !task.passed)) {
+    if (
+      result.taskId.endsWith('#check:models') ||
+      result.taskId === '@apps/product#test:contract'
+    ) {
+      const task = result.taskId.slice(0, result.taskId.indexOf('#'));
+      const modelPath = join(
+        task.replace('@', ''),
+        '.cache/harness-report/models'
+      );
+      copyModelEvidence(
+        join(ROOT, modelPath),
+        join(DIRECTORY, 'failed-reports', modelPath)
+      );
+    }
     const report = reportTask(result.taskId);
     if (!report) continue;
     const relative = join(

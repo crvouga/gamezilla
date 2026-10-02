@@ -8,6 +8,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { createCheckPlan } from './check-plan';
+import { restorePlan } from './check-plan-transfer';
 import { restoreReportOutputs } from './check-report-restore';
 import { type CheckPlan, imbalance } from './check-shards';
 import { turboChildEnv } from './turbo-ci-run';
@@ -15,6 +17,18 @@ import { turboChildEnv } from './turbo-ci-run';
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');
 const env = turboChildEnv();
+if (import.meta.main) {
+  const transfers = join(DIRECTORY, 'transfers');
+  for (const name of readdirSync(transfers).filter((name) =>
+    /^evidence-\d+\.tar$/.test(name)
+  )) {
+    const result = spawnSync('tar', ['-xf', join(transfers, name), '-C', ROOT]);
+    if (result.status !== 0) throw new Error('Cannot extract shard evidence');
+  }
+  const payload = join(DIRECTORY, 'plan.payload');
+  if (existsSync(payload)) restorePlan(readFileSync(payload, 'utf8'));
+  else await createCheckPlan(); // An early shard-zero failure must not prevent other reports.
+}
 const plan = JSON.parse(
   readFileSync(join(DIRECTORY, 'plan.json'), 'utf8')
 ) as CheckPlan;
@@ -33,13 +47,6 @@ function command(args: string[]): void {
 }
 
 if (import.meta.main) {
-  const transfers = join(DIRECTORY, 'transfers');
-  for (const name of readdirSync(transfers).filter((name) =>
-    /^evidence-\d+\.tar$/.test(name)
-  )) {
-    const result = spawnSync('tar', ['-xf', join(transfers, name), '-C', ROOT]);
-    if (result.status !== 0) throw new Error('Cannot extract shard evidence');
-  }
   const failedReports = join(DIRECTORY, 'failed-reports');
   if (existsSync(failedReports))
     cpSync(failedReports, ROOT, { recursive: true });

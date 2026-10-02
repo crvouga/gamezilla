@@ -2,6 +2,7 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { sourceFingerprint } from './check-benchmark-source';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-benchmarks');
@@ -19,6 +20,12 @@ const CONFIGURATIONS: readonly Configuration[] = [
     cores: 16,
   })),
   ...[32, 64].map((cores) => ({ shards: 16, concurrency: 16, cores })),
+  ...[8, 12, 24, 32].map((shards) => ({ shards, concurrency: 16, cores: 64 })),
+  ...[12, 20, 24].map((concurrency) => ({
+    shards: 16,
+    concurrency,
+    cores: 64,
+  })),
 ];
 
 async function depot(args: readonly string[]): Promise<string> {
@@ -42,8 +49,13 @@ async function depot(args: readonly string[]): Promise<string> {
 async function sample(
   config: Configuration,
   mode: 'cold' | 'normal',
-  index: number
+  index: number,
+  fingerprint: string
 ): Promise<void> {
+  if (sourceFingerprint() !== fingerprint)
+    throw new Error(
+      'Benchmark inputs changed; freeze source before comparing cold/warm samples'
+    );
   const key = `${config.shards}-${config.cores}-${config.concurrency}-${mode}-${index}`;
   const directory = join(DIRECTORY, key);
   mkdirSync(directory, { recursive: true });
@@ -54,6 +66,10 @@ async function sample(
       `CHECK_CONCURRENCY: '${config.concurrency}'\n`
     )
     .replace(/CHECK_CACHE_MODE: .*\n/, `CHECK_CACHE_MODE: ${mode}\n`)
+    .replace(
+      /shard: \$\{\{.*\n/,
+      `shard: [${Array.from({ length: config.shards }, (_, index) => index).join(', ')}]\n`
+    )
     .replace(
       /runs-on: \$\{\{ inputs.runner .*\n/,
       `runs-on: depot-ubuntu-24.04-${config.cores}\n`
@@ -74,7 +90,14 @@ async function sample(
   if (!runId) throw new Error('Depot did not return a run ID');
   writeFileSync(
     join(directory, 'launch.json'),
-    JSON.stringify({ ...config, mode, index, runId, startedAt })
+    JSON.stringify({
+      ...config,
+      mode,
+      index,
+      runId,
+      startedAt,
+      sourceFingerprint: fingerprint,
+    })
   );
   console.log(`benchmark ${key}: ${runId}`);
   await awaitGate(runId, directory, launched);
@@ -92,10 +115,14 @@ async function awaitGate(
         jobs: { job_id: string; job_display_name: string; status: string }[];
       }[];
     };
-    const jobs = state.workflows[0]!.jobs;
+    const jobs = state.workflows[0]?.jobs ?? [];
     const gate = jobs.find((job) => job.job_display_name === 'check');
     if (gate && ['finished', 'failed', 'cancelled'].includes(gate.status)) {
       writeFileSync(join(directory, 'status.json'), json);
+      writeFileSync(
+        join(directory, 'metrics.json'),
+        await depot(['metrics', '--run', runId, '-o', 'json'])
+      );
       const wallMs = Number(process.hrtime.bigint() - launched) / 1e6;
       writeFileSync(
         join(directory, 'verdict.json'),
@@ -105,7 +132,7 @@ async function awaitGate(
         jobs
           .filter((job) => job.job_display_name !== 'check:reports')
           .map(async (job) => {
-            const log = await depot(['logs', job.job_id]);
+            const log = await depot(['logs', job.job_id, '--timestamps']);
             const name = job.job_display_name.replace(/[^a-z0-9-]/g, '-');
             writeFileSync(join(directory, `${name}.log`), log);
           })
@@ -114,7 +141,9 @@ async function awaitGate(
         `benchmark ${runId}: ${gate.status}, observed ${(wallMs / 1000).toFixed(3)}s (includes CLI submission and <=2s observation delay)`
       );
       if (gate.status !== 'finished')
-        throw new Error(`Required gate failed: ${runId}`);
+        console.warn(
+          `Required gate remains ${gate.status}: ${runId}; recording latency, not a successful release`
+        );
       return;
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -125,17 +154,21 @@ async function awaitGate(
 if (import.meta.main) {
   if (process.argv[2] !== '--execute')
     throw new Error(
-      'Usage: check-benchmark.ts --execute [samples=3] [shards=all]'
+      'Usage: check-benchmark.ts --execute [samples=3] [shards or shards-cores-concurrency]'
     );
   const count = Number(process.argv[3] ?? '3');
   if (!Number.isSafeInteger(count) || count < 3)
     throw new Error('Use at least three samples');
   const selected = process.argv[4];
+  const fingerprint = sourceFingerprint();
   for (const config of CONFIGURATIONS.filter(
-    (config) => !selected || config.shards === Number(selected)
+    (config) =>
+      !selected ||
+      config.shards === Number(selected) ||
+      `${config.shards}-${config.cores}-${config.concurrency}` === selected
   ))
     for (let index = 0; index < count; index++) {
-      await sample(config, 'cold', index);
-      await sample(config, 'normal', index);
+      await sample(config, 'cold', index, fingerprint);
+      await sample(config, 'normal', index, fingerprint);
     }
 }

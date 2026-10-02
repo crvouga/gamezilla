@@ -11,17 +11,18 @@ on:
   workflow_dispatch:
     inputs:
       shards:
-        description: Duration-balanced shard count (1..64)
-        type: number
+        description: Duration-balanced shard count
+        type: choice
+        options: [8, 12, 16, 24, 32]
         default: 16
       concurrency:
         description: Turbo slots per shard
         type: number
-        default: 16
+        default: 12
       runner:
         description: Depot runner label
         type: string
-        default: depot-ubuntu-24.04-16
+        default: depot-ubuntu-24.04-64
       cache-mode:
         description: normal or cold (cold forces execution without deleting remote caches)
         type: choice
@@ -36,7 +37,7 @@ env:
   PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
   CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '16' }}
-  CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '16' }}
+  CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '12' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 concurrency:
@@ -44,41 +45,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-plan:
-    name: check:plan
-    runs-on: depot-ubuntu-24.04-16
-    timeout-minutes: 10
-    outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - uses: ./.depot/actions/setup
-      - uses: ./.depot/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-      - name: Compute exact execution plan once
-        id: plan
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
-      - uses: actions/upload-artifact@v6
-        with:
-          name: check-plan
-          path: .cache/check-ci/*.json
-          include-hidden-files: true
-          compression-level: 0
-          retention-days: 7
-
   check-shards:
     name: check:shards
-    needs: check-plan
-    runs-on: ${{ inputs.runner || vars.CHECK_RUNNER || 'depot-ubuntu-24.04-16' }}
+    runs-on: ${{ inputs.runner || vars.CHECK_RUNNER || 'depot-ubuntu-24.04-64' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.check-plan.outputs.matrix) }}
+      matrix:
+        # Presets avoid a planning job before fan-out. Add a count here and in inputs.
+        shard: ${{ fromJSON('{"8":[0,1,2,3,4,5,6,7],"12":[0,1,2,3,4,5,6,7,8,9,10,11],"16":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"24":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],"32":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]}')[format('{0}', inputs.shards || vars.CHECK_SHARDS || '16')] }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -89,19 +64,21 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - uses: actions/download-artifact@v7
-        with:
-          name: check-plan
-          path: .cache/check-ci
+      - name: Plan this shard's exact tasks and cache lookups
+        id: plan
+        env:
+          CHECK_SHARD: ${{ matrix.shard }}
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
       - name: check
         timeout-minutes: 25
         env:
           CHECK_SHARD: ${{ matrix.shard }}
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" RAYON_NUM_THREADS=1 CHECK_LINT_THREADS=1 GOMAXPROCS=1 MODEL_CHECK_CONCURRENCY=4 bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" RAYON_NUM_THREADS=1 CHECK_LINT_THREADS=1 GOMAXPROCS=1 JVM_GC_ARGS='-XX:+UseParallelGC -Xmx8192m -Xms2048m' JAVA_TOOL_OPTIONS=-XX:ActiveProcessorCount=4 MODEL_CHECK_CONCURRENCY=4 bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
       # Successful raw reports already upload as Turbo outputs. Transfer only
-      # verdicts and failed reports (failed checks never enter Turbo cache).
+      # verdicts, one compressed plan, and failed reports (never cached).
       - name: Transfer raw evidence
         if: always() && !cancelled()
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: check-evidence-${{ matrix.shard }}
@@ -116,44 +93,50 @@ jobs:
   # matrix members fail; reports never enter this job's dependency graph.
   check:
     name: check
-    needs: [check-plan, check-shards]
+    needs: [check-shards]
     if: always() && !cancelled()
     runs-on: depot-ubuntu-24.04
     timeout-minutes: 2
     steps:
       - name: Require every shard
         env:
-          PLAN_RESULT: ${{ needs.check-plan.result }}
           SHARD_RESULT: ${{ needs.check-shards.result }}
-        run: test "$PLAN_RESULT" = success && test "$SHARD_RESULT" = success
+        run: test "$SHARD_RESULT" = success
 
   check-reports:
     name: check:reports
-    needs: [check-plan, check-shards]
+    needs: [check-shards]
     if: always() && !cancelled()
     runs-on: depot-ubuntu-24.04-16
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
       - uses: ./.depot/actions/setup
+        with:
+          tools: bun gh
       - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
-      - uses: actions/download-artifact@v7
-        with:
-          name: check-plan
-          path: .cache/check-ci
-      - uses: actions/download-artifact@v7
-        with:
-          pattern: check-evidence-*
-          merge-multiple: true
-          path: .cache/check-ci/transfers
+      - name: Transfer raw evidence without exposing signed URLs
+        run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers
       - name: Aggregate and publish one batch
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
       - name: Prune stale spec reports
-        if: always() && !cancelled()
+        if: success() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply
+      - name: Retain sanitized planning and timing details
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-ci-details
+          path: |
+            .cache/check-ci/plan.json
+            .cache/check-ci/planning.json
+            .cache/check-ci/results/*.json
+          include-hidden-files: true
+          compression-level: 0
+          retention-days: 7
