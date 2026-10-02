@@ -983,5 +983,10 @@
     "id": "check-spec-part-order",
     "summary": "A merge appended test:spec:6 and test:spec:7 after the package checks instead of beside the other six spec parts, breaking the exact Check and Deploy graph contracts. Keep all eight spec leaves together without removing any task.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "harness-offline-account-recovery",
+    "summary": "Account sign-in trace 8 at seed 0x67932 signed Alice out offline and then timed out waiting for auth-method-google after reconnection: the harness threw HarnessPartitionedError and exposed an always-available origin, so anonymous account recovery stopped. Classify simulated HTTP failures and provide the same health-based recovery port used by the production auth bridge.",
+    "regressionTest": "libs/harness/tests/client-server-fetch.test.ts"
   }
 ]

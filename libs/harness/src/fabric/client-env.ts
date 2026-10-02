@@ -6,6 +6,7 @@
 import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
+import { setOriginAvailability } from '@libs/client-app/shell/origin-availability-for-env';
 import { HARNESS_SERVER_URL } from '@libs/feature/public/harness-constants';
 import {
   createInhouseAuthClient,
@@ -32,6 +33,7 @@ import {
 import { appBuildFetch, type HarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
 import { createHarnessBrowser, type HarnessBrowser } from './browser';
+import { harnessClientServerFetch } from './client-server-fetch';
 import { harnessClientSql } from './client-sql';
 import { type HarnessIdps, harnessBrowserFetch } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
@@ -123,7 +125,13 @@ export function makeHarnessClientEnv(
   const { session, seed, timers, net, roomNode } = deps;
   const { id, clientSql } = args;
   const ns = args.namespace;
-  const serverFetch = clientServerFetch(deps, id);
+  const server = harnessClientServerFetch({
+    serverUrl: HARNESS_SERVER_URL,
+    fetch: clientServerFetch(deps, id),
+    clock: session.ports.clock,
+    timers,
+  });
+  const serverFetch = server.fetch;
   const browserFetch = harnessBrowserFetch({
     idps: deps.idps,
     billing: deps.billing,
@@ -187,5 +195,6 @@ export function makeHarnessClientEnv(
     resolveDatabaseName: ({ userId }) => `${ns}_${userId}`,
     mutationSuccessHoldMs: 900,
   };
+  setOriginAvailability(env, server.availability);
   return { env, browser };
 }
