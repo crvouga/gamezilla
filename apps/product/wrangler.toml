@@ -25,6 +25,13 @@ class_name = "RoomServerDurableObject"
 tag = "v1-app-room"
 new_sqlite_classes = ["RoomServerDurableObject"]
 
+# Deploy fills these ordered steps only for an explicitly pinned conflict.
+[[migrations]]
+tag = "v2-app-room-archive"
+
+[[migrations]]
+tag = "v3-app-room-transfer"
+
 [triggers]
 crons = ["*/1 * * * *"]
 
