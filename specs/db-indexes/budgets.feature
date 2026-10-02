@@ -1,3 +1,4 @@
+@domain:db-indexes
 Feature: Bound maintenance work and preserve unfinished work
   When indexing runs during service, the database operator wants bounded maintenance,
   so index work can yield and later resume without losing its obligations.

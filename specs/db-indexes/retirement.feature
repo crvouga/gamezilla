@@ -1,3 +1,4 @@
+@domain:db-indexes
 Feature: Retire only indexes that remain unused
   When a workload changes, the database operator wants obsolete indexes removed cautiously,
   so a temporary workload change cannot discard an index still in use.
@@ -10,7 +11,7 @@ Feature: Retire only indexes that remain unused
       Then the owned index is present
       And the retirement window starts now
 
-    Scenario Outline: The thirty-day window has an exact boundary
+    Scenario Outline: The thirty-day window has an exact boundary — <days> days
       Given the indexing fixture is "expired retirement"
       And the retirement age is <days> days
       When the reconciler runs

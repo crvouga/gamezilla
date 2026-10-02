@@ -1,10 +1,11 @@
+@domain:db-indexes
 Feature: Resume interrupted index reconciliation
   When maintenance is interrupted, the database operator wants a fresh run to finish safely,
   so partial work never requires guessing which operations committed.
 
   Rule: An interrupted action stops its run and remains unfinished
 
-    Scenario Outline: A crash is reported at each build outcome
+    Scenario Outline: A crash is reported at each build outcome — <fixture>
       Given the indexing fixture is "<fixture>"
       When the reconciler runs
       Then the run reports unfinished work
@@ -16,7 +17,7 @@ Feature: Resume interrupted index reconciliation
         | crash after build  |
         | crash invalid build |
 
-    Scenario Outline: A fresh run converges from every interrupted build outcome
+    Scenario Outline: A fresh run converges from every interrupted build outcome — <fixture>
       Given the indexing fixture is "<fixture>"
       And an interrupted run has occurred
       When a fresh reconciler runs

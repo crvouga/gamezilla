@@ -1,10 +1,11 @@
+@domain:db-indexes
 Feature: Admit useful index candidates within configured limits
   When the workload is analyzed, the database operator wants justified bounded candidates,
   so small workloads and low-value candidates do not consume maintenance capacity.
 
   Rule: Online candidates meet the configured row threshold
 
-    Scenario Outline: Admission has an exact ten-thousand-row boundary
+    Scenario Outline: Admission has an exact ten-thousand-row boundary — <fixture>
       Given the indexing fixture is "<fixture>"
       When the reconciler plans
       Then the plan has <count> desired indexes
@@ -18,7 +19,7 @@ Feature: Admit useful index candidates within configured limits
 
   Rule: Online candidates meet the configured improvement threshold
 
-    Scenario Outline: Admission has an exact threefold-improvement boundary
+    Scenario Outline: Admission has an exact threefold-improvement boundary — <fixture>
       Given the indexing fixture is "<fixture>"
       When the reconciler plans
       Then the plan has <count> desired indexes
@@ -68,7 +69,7 @@ Feature: Admit useful index candidates within configured limits
   Rule: No additional index is needed for an empty workload or a primary-key lookup
     No counter-example: additional non-primary access paths belong to the admission rules.
 
-    Scenario Outline: Workloads without additional access paths produce no candidates
+    Scenario Outline: Workloads without additional access paths produce no candidates — <fixture>
       Given the indexing fixture is "<fixture>"
       When the reconciler plans
       Then the plan has 0 desired indexes
