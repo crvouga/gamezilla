@@ -40,6 +40,19 @@ Feature: Complete special chess moves
       And Alice hears no castle sound
       And Alice's activity receives no moves
 
+    Scenario Outline: Dragging the king to its castling destination completes both White pieces
+      Given Alice has a chessboard ready for White <direction> castling
+      When Alice drags the piece from e1 to <destination>
+      Then Alice sees White castled <direction> with the king on <destination> and rook on <rook-destination>
+      And Alice is told White castled <direction>
+      And Alice hears one castle sound
+      And Alice's activity receives one move
+
+      Examples:
+        | direction | destination | rook-destination |
+        | kingside  | g1          | f1               |
+        | queenside | c1          | d1               |
+
     Scenario: Silent castling completes both pieces without sound
       Given Alice has a silent chessboard ready for White kingside castling
       When Alice moves the piece from e1 to g1
@@ -102,6 +115,7 @@ Feature: Complete special chess moves
       Then Alice sees a Black knight on a1
       And Alice sees no captured piece after the animation
       And Alice's chessboard faces Black
+      And Alice hears one capture sound followed by one promotion sound
       And Alice's activity receives one move promoting to a knight
 
     Scenario: Cancelling promotion keeps the pawn at its source
@@ -116,6 +130,13 @@ Feature: Complete special chess moves
       When Alice cancels the promotion with Escape
       Then Alice sees the White pawn remaining on a7
       And Alice is not offered a promotion choice
+      And Alice's activity receives no moves
+
+    Scenario: A cancelled promotion can be requested again
+      Given Alice has cancelled White's promotion from a7 to a8
+      When Alice moves the piece from a7 to a8
+      Then Alice is offered queen, rook, bishop and knight as the promotion choice
+      And Alice sees the White pawn remaining on a7
       And Alice's activity receives no moves
 
     Scenario: Another piece cannot move while the promotion choice waits

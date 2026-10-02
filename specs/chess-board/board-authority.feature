@@ -70,6 +70,12 @@ Feature: Change chessboard settings safely
       And Alice sees no last move marked
       And Alice hears no chessboard sounds
 
+    Scenario: An unrelated position clears the earlier move announcement
+      Given Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7
+      When Alice's activity replaces the position
+      Then Alice sees the replacement position
+      And Alice has no move announcement from the previous position
+
   Rule: Changing orientation cancels a drag without changing the position
     No counter-example: orientation never changes a chess position.
 
