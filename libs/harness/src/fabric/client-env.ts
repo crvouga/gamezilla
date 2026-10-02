@@ -32,17 +32,14 @@ import {
 import { appBuildFetch, type HarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
 import { createHarnessBrowser, type HarnessBrowser } from './browser';
+import { harnessClientSql } from './client-sql';
 import { type HarnessIdps, harnessBrowserFetch } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
 import type { HarnessNet } from './net';
 import { partitionAwarePubSub } from './partition-aware-pubsub';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
-import {
-  type HarnessSql,
-  handleBoundSqlClient,
-  openFreshHarnessClientSql,
-} from './sql';
+import type { HarnessSql } from './sql';
 
 export type HarnessClientEnvDeps = {
   readonly session: Session;
@@ -144,6 +141,7 @@ export function makeHarnessClientEnv(
   });
   const events = clientEvents(deps, id);
   let authClient: ReturnType<typeof createInhouseAuthClient> | undefined;
+  const secureStorage = clientSecureStorage(ns);
   const env: ClientEnv = {
     clock: session.ports.clock,
     timers,
@@ -157,19 +155,14 @@ export function makeHarnessClientEnv(
       return events.current();
     },
     createPubSub: events.recreate,
-    openSqlClient: async () => {
-      let handle = clientSql.get(id);
-      if (handle === undefined) {
-        handle = await openFreshHarnessClientSql(
-          `harness_client_${id}`,
-          session.ports.clock
-        );
-        clientSql.set(id, handle);
-      }
-      return handleBoundSqlClient(handle);
-    },
+    openSqlClient: harnessClientSql({
+      id,
+      handles: clientSql,
+      clock: session.ports.clock,
+      storage: secureStorage,
+    }),
     kv: clientKv(ns),
-    secureStorage: clientSecureStorage(ns),
+    secureStorage,
     room: (roomArgs) => {
       return partitionAwareRoomTransport({
         open: () => roomNode.createTransport(roomArgs),
@@ -191,7 +184,7 @@ export function makeHarnessClientEnv(
         callbackUrl: `${HARNESS_SERVER_URL}/sso-callback`,
       })),
     openExternalUrl: browser.openExternalUrl,
-    resolveDatabaseName: () => ns,
+    resolveDatabaseName: ({ userId }) => `${ns}_${userId}`,
     mutationSuccessHoldMs: 900,
   };
   return { env, browser };

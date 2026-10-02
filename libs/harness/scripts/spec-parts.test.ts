@@ -96,4 +96,35 @@ describe('partOf', () => {
     const parts = [0, 1].map((index) => partOf(sliced, { index, count: 2 }));
     expect(parts.map((p) => p.map((u) => u.slice?.index))).toEqual([[1], [0]]);
   });
+
+  test('the three friends models retain all traces in bounded batches', () => {
+    // regression: spec-model-part-budget
+    const models = [
+      'specs/friends/friendship.qnt',
+      'specs/spaces/space-hosting.qnt',
+      'specs/spaces/space-recovery.qnt',
+    ];
+    const units = models.flatMap((path) => specUnits(path, ''));
+    const parts = Array.from({ length: 8 }, (_, index) =>
+      partOf(units, { index, count: 8 })
+    );
+    const tracesOf = (unit: SpecUnit) =>
+      Array.from({ length: 64 }, (_, index) => index).filter(
+        (index) => index % (unit.slice?.count ?? 1) === (unit.slice?.index ?? 0)
+      );
+    for (const path of models) {
+      const traces = parts
+        .flat()
+        .filter((unit) => unit.path === path)
+        .flatMap(tracesOf);
+      expect(traces.sort((a, b) => a - b)).toEqual(
+        Array.from({ length: 64 }, (_, index) => index)
+      );
+    }
+    for (const part of parts) {
+      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(24);
+      for (const unit of part)
+        expect(tracesOf(unit).length).toBeLessThanOrEqual(8);
+    }
+  });
 });

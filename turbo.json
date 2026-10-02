@@ -45,7 +45,6 @@
     "OBS_*",
     "TURBO_*",
     "TOFU_*",
-
     "SYNTHETIC_MONITOR_TOKEN",
     "TMPDIR"
   ],
@@ -641,7 +640,9 @@
         "@apps/server#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:actionlint",
-        "@libs/tools#check:secrets"
+        "@libs/tools#check:secrets",
+        "test:spec:6",
+        "test:spec:7"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -741,6 +742,34 @@
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
+    },
+    "test:spec:6": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-6/**"]
+    },
+    "test:spec:7": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-7/**"]
     }
   }
 }

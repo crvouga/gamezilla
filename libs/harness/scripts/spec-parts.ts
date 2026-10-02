@@ -26,14 +26,14 @@ export type SpecUnit = {
 /** Scenarios per feature slice. */
 export const SLICE_SCENARIOS = 6;
 /** Files one Quint model's traces are spread over. */
-export const MODEL_SLICES = 4;
+export const MODEL_SLICES = 8;
 
 /**
  * Expected cost of a spec in scenario units, from the spec text alone: a
  * feature's scenarios plus each outline's example rows; a Quint model replays
- * several whole-world traces in one file, measured at ~25 scenarios.
+ * 64 whole-world traces, measured at roughly two scenarios per trace.
  */
-export const MODEL_WEIGHT = 25;
+export const MODEL_WEIGHT = 128;
 /** A decision table, structure or objective: one static check, one unit. */
 export const CHECK_WEIGHT = 1;
 

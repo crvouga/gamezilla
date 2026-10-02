@@ -36,6 +36,34 @@
         "$TURBO_ROOT$/specs/friends/*.qnt",
         "$TURBO_ROOT$/specs/spaces/*.qnt"
       ]
+    },
+    "test:spec:4": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:5": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:6": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:7": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
     }
   }
 }

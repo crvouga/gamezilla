@@ -893,5 +893,20 @@
     "id": "quint-induction-expanded-transitions",
     "summary": "The unchanged specs/friends/friendship.qnt induction proof exceeded its 240-second deadline when its twelve transitions were combined into one solver formula during the full Check. Check every transition separately and discharge direct named conjuncts structurally while retaining candidate initialization and preservation; a closed-to-open counterexample guards the covered-target path.",
     "regressionTest": "pkgs/quint/tests/verify.test.ts"
+  },
+  {
+    "id": "harness-client-sql-identity",
+    "summary": "The Alice device ignored the requested user id and shared one SQLite file between deleted-account and fresh-account, so an old alice profile blocked hydration of the fresh account with a unique username violation. Match production by retaining one file per device and account; inspection follows the active account while existing connections keep their original file.",
+    "regressionTest": "libs/harness/tests/client-sql-identity.test.ts"
+  },
+  {
+    "id": "check-deadline-detached-workers",
+    "summary": "The 600-second deadline killed only the Turbo process group, leaving detached task group 46346 and Bun worker 46357 running and writing the same report buckets during later checks. Snapshot the owned descendant tree and stop children before the root, including separate process groups and excluding concurrent checks.",
+    "regressionTest": "libs/tools/scripts/kill-process-tree.test.ts"
+  },
+  {
+    "id": "spec-model-part-budget",
+    "summary": "The friends suite placed three 64-trace, 32-step models into four parts with sixteen traces per file; all four parts were still running past seven minutes when Check reached its 600-second deadline. Preserve every trace and seed while splitting models into eight files and the friends and chess suites into eight balanced parts.",
+    "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
   }
 ]
