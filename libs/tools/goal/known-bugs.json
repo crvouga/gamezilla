@@ -1478,5 +1478,10 @@
     "id": "chess-puzzle-duplicate-rating-feedback",
     "summary": "Equivalent completion updates repeat the rating-gain cue because the reactive trigger returns a fresh tuple for unchanged result values.",
     "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chessboard-consumer-gate-graph",
+    "summary": "The exact release-graph contract omits the newly required Chessboard consumer conformance gate, rejecting Check and Deploy.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
   }
 ]

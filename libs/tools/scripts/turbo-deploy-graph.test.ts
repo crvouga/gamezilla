@@ -114,6 +114,7 @@ const CHECK_LEAVES = [
   '@libs/runtime#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
+  '@libs/chess#check:board-contract',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
@@ -191,6 +192,7 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   test('//#check is exactly the check surface', () => {
+    // regression: chessboard-consumer-gate-graph
     // regression: check-spec-part-order
     expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
   });
