@@ -6,8 +6,8 @@ import {
   cancelDrag,
   closeBoard,
   configureBoard,
+  confirmOfferedPosition,
   finishAnimation,
-  INITIAL,
   leaveActivity,
   movePiece,
   REPLACEMENT,
@@ -62,7 +62,7 @@ Given(
     await w.apply(setVisibility, false);
   }
 );
-Given("Alice's board settings enable sound", (w) =>
+Given('Alice has chessboard sound enabled', (w) =>
   w.apply(configureBoard, { sound: true })
 );
 When(
@@ -89,11 +89,14 @@ When("Alice's activity replaces the position", (w) =>
   w.apply(configureBoard, { fen: REPLACEMENT })
 );
 When("Alice's activity supplies the same position again", (w) =>
-  w.apply(configureBoard, { fen: INITIAL, fenSyncKey: 1 })
+  w.apply(confirmOfferedPosition)
 );
-When('Alice changes the orientation', (w) =>
-  w.apply(configureBoard, { orientation: 'black' })
-);
+When('Alice changes the orientation', async (w) => {
+  const current = await w.read(readProbe);
+  await w.apply(configureBoard, {
+    orientation: current.orientation === 'white' ? 'black' : 'white',
+  });
+});
 When('Alice resizes the chessboard', (w) =>
   w.apply(configureBoard, { size: 512 })
 );
@@ -107,17 +110,7 @@ When("Alice's chessboard becomes visible", (w) => w.apply(setVisibility, true));
 When('Alice waits for the animation to finish', (w) =>
   w.apply(finishAnimation)
 );
-Then('Alice sees a White pawn on {word}', async (w, square: Square) =>
-  expect((await w.read(readBoard)).pieces).toContain(`wp@${square}`)
-);
-Then(
-  'Alice sees the White pawn remaining on {word}',
-  async (w, square: Square) =>
-    expect((await w.read(readBoard)).pieces).toContain(`wp@${square}`)
-);
-Then('Alice still sees a White knight on f3', async (w) =>
-  expect((await w.read(readBoard)).pieces).toContain('wn@f3')
-);
+
 Then("Alice's activity receives one move", async (w) =>
   expect((await w.read(readBoard)).moves).toHaveLength(1)
 );
@@ -130,11 +123,10 @@ Then('Alice no longer holds a piece', async (w) =>
 Then('Alice sees the replacement position', async (w) =>
   expect((await w.read(readProbe)).fen).toBe(REPLACEMENT)
 );
-Then('Alice still has e2 selected', async (w) =>
-  expect((await w.read(readProbe)).selected).toBe('e2')
-);
-Then("Alice's chessboard faces Black", async (w) =>
-  expect((await w.read(readProbe)).orientation).toBe('black')
+Then("Alice's chessboard faces {word}", async (w, side: string) =>
+  expect((await w.read(readProbe)).orientation === side.toLowerCase()).toBe(
+    true
+  )
 );
 Then('Alice hears one move sound', async (w) => {
   await w.advanceTime(1000);

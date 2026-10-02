@@ -1,3 +1,4 @@
+import '../board-style-preload';
 import {
   type BoardWorld,
   boardSystem,
@@ -18,3 +19,9 @@ setQuintWorld<Run<BoardWorld>>({
 });
 
 import './board-lifecycle.binding';
+import './board-promotion.binding';
+import './board-annotations.binding';
+import './board-options.binding';
+import './board-premoves.binding';
+import './board-independence.binding';
+import './board-keyboard.binding';

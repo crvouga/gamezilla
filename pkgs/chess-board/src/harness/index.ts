@@ -5,21 +5,61 @@ import {
   defineProperty,
   defineRuntime,
   defineSystem,
-  type Session,
   virtualTimeRuntime,
 } from '@pkgs/harness';
+import { annotationActions } from './annotation-actions';
+import { beginArrowObservation } from './annotation-model';
+import { annotationSetupActions } from './annotation-setup';
+import { authorityActions } from './authority-actions';
+import { prepareBlackPromotion } from './black-promotion-setup';
+import type { BoardWorld } from './board-world';
 import { createExampleApp, type ExampleConfig } from './example-app';
-import { CAPTURE, CAPTURED, REPLACEMENT } from './positions';
+import { interactionActions } from './interaction-actions';
+import { keyboardActions } from './keyboard-actions';
+import { lifecycleActions } from './lifecycle-actions';
+import { prepareRapidCapture } from './motion-setup';
+import { optionsActions } from './options-actions';
+import { pairActions } from './pair-actions';
+import { pairConformance } from './pair-conformance';
+import { premoveActions } from './premove-actions';
+import { prepareFixedWidthPromotion } from './width-promotion-setup';
 
+export * from './annotation-actions';
+export * from './annotation-model';
+export * from './annotation-reads';
+export * from './annotation-setup';
+export * from './authority-actions';
+export * from './black-promotion-setup';
+export type { BoardWorld } from './board-world';
+export * from './interaction-actions';
+export * from './interaction-fixtures';
+export * from './interaction-reads';
+export * from './keyboard-actions';
+export * from './keyboard-model';
+export * from './lifecycle-actions';
+export * from './model-evidence';
+export * from './motion-setup';
+export * from './options-actions';
+export * from './options-model';
+export * from './options-reads';
+export * from './pair-actions';
+export * from './pair-reads';
+export type { PairSide } from './pair-world';
 export { CAPTURE, CAPTURED, INITIAL, REPLACEMENT } from './positions';
-export type BoardWorld = {
-  audited: boolean;
-  readonly session: Session;
-  readonly app: ReturnType<typeof createExampleApp>;
-};
+export * from './premove-actions';
+export * from './premove-model';
+export * from './prepared-positions';
+export * from './promotion-access';
+export * from './promotion-model';
+export * from './width-promotion-setup';
 export const setupBoard = defineAction({
   name: 'setupBoard',
-  act: (w: BoardWorld, config: ExampleConfig) => w.app.reset(config),
+  act: (w: BoardWorld, config: ExampleConfig) => {
+    w.app.close();
+    const earlierCompletion = w.app.motion.earlierCompletion;
+    w.app = createExampleApp(w.session, config, earlierCompletion);
+    w.auditedMarkups.clear();
+  },
 });
 export const configureBoard = defineAction({
   name: 'configureBoard',
@@ -99,7 +139,11 @@ export const readSquare = (w: BoardWorld, square: Square) =>
 export const boardSystem = defineSystem<BoardWorld>({
   name: 'chess-board',
   create(session) {
-    return { session, app: createExampleApp(session), audited: false };
+    return {
+      session,
+      app: createExampleApp(session),
+      auditedMarkups: new Set(),
+    };
   },
   runtimes: [
     defineRuntime({
@@ -109,6 +153,7 @@ export const boardSystem = defineSystem<BoardWorld>({
     }),
   ],
   properties: [
+    pairConformance,
     defineProperty({
       name: 'board-render-conformance',
       check(w) {
@@ -125,15 +170,33 @@ export const boardSystem = defineSystem<BoardWorld>({
           visible.pieces.length
         )
           throw new Error('Duplicate visual square');
-        if (!w.audited) {
-          if (auditTree(w.app.host).length > 0)
-            throw new Error('Chessboard accessibility audit failed');
-          w.audited = true;
+        const markup = w.app.host.outerHTML;
+        if (!w.auditedMarkups.has(markup)) {
+          const findings = auditTree(w.app.host);
+          if (findings.length > 0)
+            throw new Error(
+              'Chessboard accessibility audit failed: ' +
+                JSON.stringify(findings)
+            );
+          w.auditedMarkups.add(markup);
         }
       },
     }),
   ],
   actions: [
+    ...interactionActions,
+    ...keyboardActions,
+    ...lifecycleActions,
+    ...authorityActions,
+    ...annotationActions,
+    ...annotationSetupActions,
+    ...optionsActions,
+    ...pairActions,
+    ...premoveActions,
+    beginArrowObservation,
+    prepareBlackPromotion,
+    prepareFixedWidthPromotion,
+    prepareRapidCapture,
     setupBoard,
     configureBoard,
     selectSquare,
@@ -150,23 +213,4 @@ export const boardSystem = defineSystem<BoardWorld>({
   ],
 });
 export const readSlides = (w: BoardWorld) => w.app.motion.slides();
-export const readLifecycle = (w: BoardWorld) => {
-  const probe = w.app.probe();
-  const fen = probe.fen.split(' ').slice(0, 2).join(' ');
-  const boards = [CAPTURE, CAPTURED, REPLACEMENT].map((p) =>
-    p.split(' ').slice(0, 2).join(' ')
-  );
-  return {
-    board: {
-      position: boards.indexOf(fen),
-      selected: probe.selected !== null,
-      dragging: w.app.view().holding,
-      interactive: probe.interactive,
-      soundEnabled: w.app.config().sound !== false,
-      reducedMotion: w.app.motion.env.prefersReducedMotion(),
-      orientation: probe.orientation,
-      transition: w.app.motion.active() > 0,
-      visible: !w.app.motion.env.hidden(),
-    },
-  };
-};
+export { lifecyclePosition, readLifecycle } from './lifecycle-reads';
