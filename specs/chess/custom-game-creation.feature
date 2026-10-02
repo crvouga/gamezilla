@@ -4,6 +4,7 @@ Feature: Create a Custom Game
 
   Rule: Only the host creates the space's Custom Game
 
+    @regression:chess-custom-client-schedules
     Scenario: A guest creates a game without signing in
       Given Alice is a guest
       And Alice is hosting a space
