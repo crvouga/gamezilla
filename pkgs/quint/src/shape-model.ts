@@ -6,6 +6,7 @@
 import { quintNames } from './names';
 
 export type ModelShapeCode =
+  | 'model-profile'
   | 'module-name'
   | 'missing-init'
   | 'missing-step'

@@ -8,10 +8,10 @@
  *   report-publish.ts open              the run starts: the commit's record,
  *                                       its index entry and the stylesheet
  *                                       its snapshots use
- *   report-publish.ts source <bucket>   after the gate: every package's
- *                                       `.cache/harness-report/<bucket>`
- *                                       (`part-<k>`), tests then record
- *   report-publish.ts close             every part is published
+ *   report-publish.ts task <task-id>   in each shard, as soon as a package's
+ *                                       spec part finishes or is restored
+ *   report-publish.ts close             after every shard; verifies that this
+ *                                       run published every assigned part
  *
  * Each source lands the moment its part is published, so the reports screen
  * (`/reports/<sha>` on any deployment) shows the run filling in. A package
@@ -36,20 +36,14 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
 import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report';
-import {
-  closeCommit,
-  openCommit,
-  publishSource,
-} from '@pkgs/harness-report/remote/publish';
+import { closeCommit, openCommit } from '@pkgs/harness-report/remote/publish';
 import { createGlobalHttpClient } from '@pkgs/http-client/global';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
 import { run } from '@pkgs/os';
+import { publishReportTask, verifyPublications } from './report-task-publish';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
-const BUCKET_ROOT = '.cache/harness-report';
 
 /** `@pkgs/tailwind`: its `node_modules/.bin` holds the CLI it declares. */
 export const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
@@ -58,23 +52,6 @@ const UI_CSS = [
   join(REPO_ROOT, 'pkgs/ui/src/components/skin.css'),
   join(REPO_ROOT, 'pkgs/ui/src/components/hosts.css'),
 ];
-
-type PackageManifest = { readonly scripts?: Record<string, string> };
-
-/** Repo-relative dirs of every package with a spec suite. */
-function specPackageDirs(): string[] {
-  const dirs: string[] = [];
-  for (const tier of ['apps', 'libs', 'pkgs']) {
-    for (const name of readdirSync(join(REPO_ROOT, tier))) {
-      const manifest = join(REPO_ROOT, tier, name, 'package.json');
-      if (!existsSync(manifest)) continue;
-      const pkg = JSON.parse(readFileSync(manifest, 'utf8')) as PackageManifest;
-      if (pkg.scripts?.['test:spec'] !== undefined)
-        dirs.push(`${tier}/${name}`);
-    }
-  }
-  return dirs.sort();
-}
 
 function listModuleCss(dir: string, out: string[]): void {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -200,42 +177,11 @@ function runUrl(): string | null {
   return server && repo && id ? `${server}/${repo}/actions/runs/${id}` : null;
 }
 
-async function publishBucket(
-  store: ObjectStore,
-  bucket: string
-): Promise<void> {
-  const sha = headSha();
-  const empty: string[] = [];
-  for (const packageDir of specPackageDirs()) {
-    const dir = join(REPO_ROOT, packageDir, BUCKET_ROOT, bucket);
-    if (!existsSync(dir)) continue;
-    const local = createNodeFsObjectStore({
-      rootDir: dir,
-      fs: wallNodeFs(),
-      layout: 'tree',
-    });
-    const record = await publishSource(store, {
-      sha,
-      packageDir,
-      bucket,
-      local,
-    });
-    if (record === null) {
-      empty.push(packageDir);
-      continue;
-    }
-    console.log(
-      `[report-publish] ${record.source}: ${String(record.tests.length)} test(s), ${record.status}`
-    );
-  }
-  if (empty.length > 0) {
-    console.log(`[report-publish] no harness timeline: ${empty.join(', ')}`);
-  }
-}
-
 async function main(argv: readonly string[]): Promise<void> {
   const [command, arg] = argv;
   if (reportsStoreUnconfigured(process.env)) {
+    if (process.env['GITHUB_ACTIONS'] === 'true')
+      throw new Error('CI requires the reports store');
     console.log(
       '::warning::report-publish: no reports store in this secrets environment yet (Deploy creates it); nothing published'
     );
@@ -243,6 +189,7 @@ async function main(argv: readonly string[]): Promise<void> {
   }
   const store = reportsStore();
   const sha = headSha();
+  const publicationRun = `${process.env['GITHUB_RUN_ID'] ?? 'local'}:${process.env['GITHUB_RUN_ATTEMPT'] ?? '1'}`;
   if (command === 'open') {
     const commit = await openCommit(store, {
       sha,
@@ -254,11 +201,26 @@ async function main(argv: readonly string[]): Promise<void> {
     console.log(`[report-publish] ${sha.slice(0, 9)} open (${commit.branch})`);
     return;
   }
-  if (command === 'source' && arg !== undefined && /^[a-z0-9-]+$/.test(arg)) {
-    await publishBucket(store, arg);
+  if (command === 'task' && arg !== undefined) {
+    await publishReportTask({
+      store,
+      repoRoot: REPO_ROOT,
+      sha,
+      runId: publicationRun,
+      taskId: arg,
+    });
     return;
   }
   if (command === 'close') {
+    const assignment = process.env['SHARD_ASSIGNMENT'];
+    if (assignment === undefined)
+      throw new Error('Closing a report requires SHARD_ASSIGNMENT');
+    await verifyPublications({
+      store,
+      sha,
+      runId: publicationRun,
+      taskIds: (JSON.parse(assignment) as string[][]).flat(),
+    });
     const commit = await closeCommit(store, {
       sha,
       endedAtMs: wallClock.now(),
@@ -266,7 +228,7 @@ async function main(argv: readonly string[]): Promise<void> {
     console.log(`[report-publish] ${sha.slice(0, 9)} ${String(commit.status)}`);
     return;
   }
-  console.error('usage: report-publish.ts open | source <bucket> | close');
+  console.error('usage: report-publish.ts open | task <task-id> | close');
   process.exit(1);
 }
 

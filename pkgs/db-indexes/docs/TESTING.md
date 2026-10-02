@@ -6,14 +6,29 @@
 | --- | --- | --- |
 | Unit / contract / property | `tests/*.test.ts` | `bun run test` |
 | Model-based (index tuning) | `tests/index-tuning.property.test.ts` | `bun run test` |
+| Gherkin maintenance specifications | `specs/db-indexes/*.feature`, `tests/steps/` | `bun run test:spec` |
+| Quint implementation replay | `specs/db-indexes/*.qnt`, `tests/quint/` | `bun run test:spec` |
+| Bounded exhaustive model checks | `specs/db-indexes/*.qnt` | `bun run check:models` |
 | Documentation syntax and bounded Quint reference validity, without adapter replay | `tests/quint/index-contracts.test.ts` | `bun test pkgs/db-indexes/tests/quint/index-contracts.test.ts` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
-Index tuning reference models and their runners live in `tests/quint/`.
-Contract examples live in [AUTOMATIC_INDEXES.md](AUTOMATIC_INDEXES.md). The tuning harness — one reconciler over `HarnessDb` on a
-virtual clock, with the standing `tuningInvariantsHold` property — is
-`indexTuningSystem`, exported from `@pkgs/db-indexes/harness`.
+Executable maintenance specifications live in the isolated
+[Database indexing context](../../../specs/db-indexes/), registered to this
+package. The shared runners generate conformance evidence from the root specs.
+Supplemental index reconciliation reference models and their runners live in
+`tests/quint/`; their contract examples live in
+[AUTOMATIC_INDEXES.md](AUTOMATIC_INDEXES.md). Pure computations, port contracts
+and supplementary generated agreement checks remain package tests.
+
+The technical contract, bounds, coverage and outstanding safety evidence are in
+[SAFETY_CONTRACT.md](./SAFETY_CONTRACT.md). Its runners use public exports and
+virtual clocks; the bundled CLI and pinned checker are documented in
+[@pkgs/quint](../../quint/README.md).
+
+The tuning harness — one reconciler over `HarnessDb` on a virtual clock, with
+the standing `tuningInvariantsHold` property — is `indexTuningSystem`, exported
+from `@pkgs/db-indexes/harness`.
 `tests/index-tuning.property.test.ts` generates sequences of declaring
 lookups, tuning, uses, days passing and the team adding its own index, and
 runs each against the harness and a reference model of the tuning rules:
@@ -38,7 +53,7 @@ a fresh harness ends in the same state. It runs on the pinned seed
 | Invariant | Prod assert | Harness check | Property / model |
 | --- | --- | --- | --- |
 | I1 owned-only DDL | `diffOwnedIndexes` + `reconcile` execute | `tuningInvariantsHold` | `ownership`, `index-tuning.property` (team's own index) |
-| I2 crash-converge | n/a (executor returns crashed) | n/a | not modeled |
+| I2 crash-converge | n/a (executor returns crashed) | `indexSafetySystem` | `execution.feature`, `persisted-interruption.feature`, `index-interruption.qnt` (limits in the safety contract) |
 | I3 usage-hold drop | `pushDeprecateDropActions` | `tuningInvariantsHold` (`I3_usage_hold`) | `index-tuning.property` (uses, retiring) |
 | I4 indexable workload | `assertIndexableWorkload` (CI on APP_QUERIES) | n/a (authoring) | `indexability` |
 

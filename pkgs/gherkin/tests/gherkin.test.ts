@@ -107,7 +107,11 @@ Then('people are offered Google sign-in and not Apple sign-in', () => undefined)
 });
 
 /** `checkSpecs` over one feature whose every step has a definition. */
-function checkOne(source: string, uri: string): readonly string[] {
+function checkOne(
+  source: string,
+  uri: string,
+  allowedImplementationWords?: ReadonlyMap<string, readonly string[]>
+): readonly string[] {
   const feature = parseFeature(source, uri);
   const texts = [
     ...new Set(
@@ -131,8 +135,50 @@ function checkOne(source: string, uri: string): readonly string[] {
     packages: [pkg],
     shared: [],
     parameterTypes: parameterTypeRegistryFrom([]),
+    ...(allowedImplementationWords === undefined
+      ? {}
+      : { allowedImplementationWords }),
   });
 }
+
+test('operator vocabulary is scoped and preserves other wording and shape checks', () => {
+  const source = `@domain:friends
+Feature: Maintenance
+  Scenario: Snapshot
+    Then the database is unchanged
+`;
+  const allowed = new Map([['friends', ['database']]]);
+  expect(
+    checkOne(source, 'specs/friends/maintenance.feature', allowed)
+  ).toEqual([]);
+  expect(
+    checkOne(
+      source,
+      'specs/friends/maintenance.feature',
+      new Map([['other', ['database']]])
+    )
+  ).toHaveLength(1);
+  const unlisted = checkOne(
+    source.replace('database', 'database schema'),
+    'specs/friends/maintenance.feature',
+    allowed
+  );
+  expect(unlisted[0]).toContain('names implementation ("schema")');
+  const badShape = checkOne(
+    source.replace(
+      'Then the database is unchanged',
+      'When Alice clicks a button'
+    ),
+    'specs/friends/maintenance.feature',
+    allowed
+  );
+  expect(badShape).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining('describes UI mechanics'),
+      expect.stringContaining('has no Then'),
+    ])
+  );
+});
 
 describe('scenario shape', () => {
   test('rejects a narrator, a scenario with no outcome, and late context', () => {

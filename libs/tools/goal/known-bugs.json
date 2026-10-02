@@ -1,7 +1,7 @@
 [
   {
     "id": "db-framework-contract-spec-discovery",
-    "summary": "Technical database protocol fixtures were registered as product specs without implementation bindings, failing spec, conformance and offline model shape gates. Preserve reference verification in package tests and document unimplemented adapter obligations outside product specs.",
+    "summary": "Technical database protocol fixtures were registered as product specs without implementation bindings, failing spec, conformance and offline model shape gates. Preserve unbound reference verification in package tests and document unimplemented adapter obligations outside product specs; the separately bound indexing maintenance specifications remain registered.",
     "regressionTest": "libs/tools/scripts/spec-packages.test.ts"
   },
   {
@@ -588,5 +588,20 @@
     "id": "crash-copy-rejection",
     "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
     "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  },
+  {
+    "id": "check-manual-cancels-required-pr",
+    "summary": "On PR #107 at 2a2bda778fd0e66af2a74c7e02ecea6fb80c8956, bun check's manual dispatch cancelled the required PR Check run 36959395506, leaving the PR red despite a successful manual run. Check now observes the automatic PR run and resumes cancelled runs instead of dispatching over them.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+  },
+  {
+    "id": "check-report-concurrent-run-receipt",
+    "summary": "PR and manual Check runs for the same commit overwrote each other's publication receipts, so finalization could reject a fully published report. Receipts now belong to the workflow run and attempt.",
+    "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
+  },
+  {
+    "id": "check-duplicate-trigger-runners",
+    "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
   }
 ]

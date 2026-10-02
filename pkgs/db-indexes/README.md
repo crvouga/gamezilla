@@ -36,12 +36,14 @@ const report = await reconcileIndexes({
 
 ## Testing
 
-See [`TESTING.md`](./docs/TESTING.md) for the property layers, the
-model-based index-tuning test (`tests/index-tuning.property.test.ts`: the
-tuning harness against a reference model of declaring, tuning, retiring and
-the team's own indexes, plus same-sequence replay), and the invariant →
-assert / harness / property map. Index tuning reference models live in `tests/quint/`;
-contract examples and outstanding adapter checks are documented below.
+The [Database indexing context](../../specs/db-indexes/) owns the executable
+Gherkin and Quint specifications. `test:spec` replays them against the public
+harness; `check:models` verifies their bounded invariants. Supplemental index
+reconciliation reference checks remain in `tests/quint/index-contracts.test.ts`;
+they validate documentation examples and model invariants without adapter replay.
+See [`TESTING.md`](./docs/TESTING.md) for property and contract checks, and
+[`SAFETY_CONTRACT.md`](./docs/SAFETY_CONTRACT.md) for coverage, bounds and
+outstanding production safety evidence.
 
 ## Ownership
 

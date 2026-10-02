@@ -140,7 +140,7 @@ async function runCheck(run: Run, check: ModelCheck): Promise<Verdict> {
     ? `${invariants.join(', ')} hold in every state within ${String(check.steps)} steps`
     : result.output;
   record(run, check, text, [
-    { id: 'shape', status: 'pass', detail: 'offline-first aggregate' },
+    { id: 'shape', status: 'pass', detail: 'valid aggregate shape' },
     { id: 'verify', status: result.ok ? 'pass' : 'fail', detail },
   ]);
   const took = result.ok ? ` (${(result.durationMs / 1000).toFixed(1)} s)` : '';
