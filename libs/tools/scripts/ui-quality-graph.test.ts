@@ -74,3 +74,29 @@ test('native inference waits for the existing product symbolic and renderer cont
   );
   expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain('test:contract');
 });
+
+// regression: ui-quality-deploy-order — aggregator siblings allowed publication before the visual verdict.
+test('product publication requires the visual gate to pass', () => {
+  const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
+    'turbo.json'
+  );
+  expect(turbo.tasks['@apps/product#deploy']!.dependsOn).toContain(
+    '@apps/product#check:ui-quality'
+  );
+});
+
+test('environment deploys use the same measured visual runner as Check', () => {
+  type Workflow = {
+    jobs: Record<string, { 'runs-on': string; env?: Record<string, string> }>;
+  };
+  const workflow = (name: string) =>
+    Bun.YAML.parse(
+      readFileSync(join(ROOT, '.depot/workflows', `${name}.yml`), 'utf8')
+    ) as Workflow;
+  const check = workflow('check');
+  const deploy = workflow('deploy');
+  for (const name of ['deploy-standard', 'deploy-production']) {
+    expect(deploy.jobs[name]!['runs-on']).toBe(check.jobs['check']!['runs-on']);
+    expect(deploy.jobs[name]!.env?.['TURBO_CONCURRENCY']).toBe('12');
+  }
+});

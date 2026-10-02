@@ -177,7 +177,8 @@ jobs:
     name: deploy:${{ matrix.env }}
     needs: [deploy-matrix, deploy-fleet]
     if: needs.deploy-matrix.outputs.standard != '[]'
-    runs-on: depot-ubuntu-latest
+    # Match the measured Check runner for the full offline visual corpus.
+    runs-on: depot-ubuntu-24.04-16
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -190,6 +191,7 @@ jobs:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TURBO_CONCURRENCY: '12'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -256,7 +258,8 @@ jobs:
       && (needs.deploy-standard.result == 'success'
         || (needs.deploy-standard.result == 'skipped'
           && needs.deploy-matrix.outputs.standard == '[]'))
-    runs-on: depot-ubuntu-latest
+    # Match the measured Check runner for the full offline visual corpus.
+    runs-on: depot-ubuntu-24.04-16
     timeout-minutes: 55
     environment: production
     strategy:
@@ -267,6 +270,7 @@ jobs:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TURBO_CONCURRENCY: '12'
     steps:
       - name: Checkout
         uses: actions/checkout@v6

@@ -1323,5 +1323,10 @@
     "id": "ui-quality-serial-replay-inference",
     "summary": "The full visual gate alternated replay and inference across 660 screenshot batches, leaving the other stage idle. Prefetch exactly one replay batch while a single model scores; the literal three-document, batch-one regression blocks its first inference until the second replay starts and verifies bounded work and failure cleanup.",
     "regressionTest": "apps/product/tests/ui-quality.test.ts"
+  },
+  {
+    "id": "ui-quality-deploy-order",
+    "summary": "The Deploy aggregator listed Check and product publication as siblings, so publication could complete before a failing visual verdict. Make product deployment directly depend on the visual gate; the literal graph without that dependency fails the regression.",
+    "regressionTest": "libs/tools/scripts/ui-quality-graph.test.ts"
   }
 ]

@@ -339,11 +339,12 @@ describe('turbo check/deploy graph invariants', () => {
     expect(health?.command).toBe('bun run scripts/health.ts');
   });
 
-  test('one application deployment follows migration and the API check', () => {
+  test('one application deployment follows migration, the API check and visual quality', () => {
     const tasks = loadTasks();
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
       '@libs/runtime#migrate',
       '@apps/server#check:api',
+      '@apps/product#check:ui-quality',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
