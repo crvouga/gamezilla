@@ -157,3 +157,10 @@ Feature: Explain positions with chessboard annotations
       Then Alice sees no unfinished personal arrow
       And Alice's chessboard faces Black
       And Alice's activity receives no annotation changes
+
+    Scenario: Turning back preserves the same personal and activity annotations
+      Given Alice has personal arrows and circles alongside activity annotations on a chessboard facing Black
+      When Alice changes the orientation
+      Then Alice still sees the personal arrow from e2 to e4 and circle on d5
+      And Alice sees the activity's arrows and square annotations
+      And Alice's chessboard faces White

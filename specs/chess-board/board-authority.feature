@@ -170,11 +170,17 @@ Feature: Change chessboard settings safely
 
   Rule: Automatic queen promotion changes apply to the next request
 
-    Scenario: A newly enabled automatic queen choice applies to a new request
+    Scenario: Enabling automatic queen promotion applies to the next new request
+      Given Alice has a chessboard ready for White's promotion from a7 to a8
+      When Alice's board settings enable automatic queen promotion
+      Then Alice can request promotion from a7 to a8 automatically to a queen
+      And Alice sees the White pawn remaining on a7
+
+    Scenario: Disabling automatic queen promotion restores the next explicit choice
       Given Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled
-      When Alice moves the piece from a7 to a8
-      Then Alice sees a White queen on a8
-      And Alice's activity receives one move promoting to a queen
+      When Alice's board settings disable automatic queen promotion
+      Then Alice can request promotion from a7 to a8 with an explicit promotion choice
+      And Alice sees the White pawn remaining on a7
 
     Scenario: Enabling automatic queen promotion preserves a pending explicit choice
       Given Alice has a pending White promotion from a7 to a8

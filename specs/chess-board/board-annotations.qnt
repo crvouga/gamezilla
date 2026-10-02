@@ -1,6 +1,8 @@
 // @model-profile: local
 // Alice draws and removes personal arrows and circles without moving pieces.
 // Activity arrows, fills, rings and badges remain under the activity's control.
+// These examples use one personal stroke at a time; another mark begins after
+// the earlier stroke finishes or is abandoned.
 // Unfinished drawing is abandoned by cancellation, disabling, turning the
 // chessboard or replacing its position. Completed marks keep their named
 // squares when orientation changes. The two prepared positions and marked
@@ -25,7 +27,7 @@ module board_annotations {
 
   /// Alice begins a personal arrow without announcing a completed mark.
   action beginPersonalArrow(arrow: str): bool = all {
-    PERSONAL_ARROWS.contains(arrow),
+    PERSONAL_ARROWS.contains(arrow), annotationBoard.pendingArrow == "none",
     annotationBoard' = { ...annotationBoard,
       pendingArrow: if (annotationBoard.enabled) arrow else "none" },
   }
@@ -44,16 +46,17 @@ module board_annotations {
   }
   /// A personal circle toggles its square and announces the current personal arrows.
   action togglePersonalCircle(square: str): bool = all {
-    PERSONAL_CIRCLES.contains(square),
+    PERSONAL_CIRCLES.contains(square), annotationBoard.pendingArrow == "none",
     annotationBoard' = if (annotationBoard.enabled)
       { ...annotationBoard,
         personalCircles: _toggle(annotationBoard.personalCircles, square) }
       else annotationBoard,
   }
   /// Choosing a piece removes personal marks while preserving activity marks.
-  action clearPersonalAnnotations = annotationBoard' = {
-    ...annotationBoard, personalArrows: Set(), personalCircles: Set(),
-    pendingArrow: "none", offeredArrows: Set(),
+  action clearPersonalAnnotations = all {
+    annotationBoard.pendingArrow == "none",
+    annotationBoard' = { ...annotationBoard, personalArrows: Set(),
+      personalCircles: Set(), offeredArrows: Set() },
   }
   /// The activity supplies or removes only its own arrows.
   action setActivityArrows(show: bool): bool = annotationBoard' = {

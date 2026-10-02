@@ -19,6 +19,15 @@ Feature: Queue moves while waiting for the other side
       And Alice sees the White pawn remaining on d2
       And Alice's activity receives no moves
 
+    @regression:chessboard-duplicate-premove
+    Scenario: Repeating a waiting move keeps exactly one preview and queued move
+      Given Alice has the premove from d2 to d4 queued while waiting for Black
+      When Alice queues the premove from d2 to d4
+      Then Alice still sees exactly one translucent White pawn preview on d4
+      And Alice sees only the premove from d2 to d4 queued
+      And Alice hears no chessboard sounds
+      And Alice's activity receives no moves
+
     Scenario: The waiting side may select a premove source
       Given Alice has a chessboard waiting for Black with premoves enabled
       When Alice selects the piece on d2
@@ -30,6 +39,14 @@ Feature: Queue moves while waiting for the other side
       When Alice selects the piece on d2
       Then Alice cannot select White's pawn while Black is to move
       And Alice sees no selection or legal destinations
+      And Alice's activity receives no moves
+
+    Scenario: Disabled premoves refuse queueing a waiting-side move
+      Given Alice has a chessboard waiting for Black with premoves disabled
+      When Alice queues the premove from d2 to d4
+      Then Alice cannot queue a premove while premoves are disabled
+      And Alice sees no queued premoves
+      And Alice sees the White pawn remaining on d2
       And Alice's activity receives no moves
 
     Scenario: Enabling premoves permits a future waiting-side choice

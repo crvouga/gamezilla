@@ -14,7 +14,7 @@ Feature: Respect the activity's chessboard sound choice
     Scenario: A silent chessboard stays silent through a move
       Given Alice has a silent chessboard
       When Alice moves the piece from e2 to e4
-      Then Alice hears no chessboard sounds
+      Then Alice cannot hear chessboard sounds while sound is disabled
       And Alice sees a White pawn on e4
 
     Scenario: A silent capture stays silent
@@ -27,14 +27,14 @@ Feature: Respect the activity's chessboard sound choice
 
     Scenario: Enabling sound allows the next move
       Given Alice has a silent chessboard
-      And Alice's board settings enable sound
+      And Alice has chessboard sound enabled
       When Alice moves the piece from e2 to e4
       Then Alice hears one move sound
 
     Scenario: Disabling sound during a capture prevents its delayed sound
       Given Alice's capture from e4 to d5 is animating
       When Alice's board settings disable sound
-      Then Alice hears no chessboard sounds
+      Then Alice cannot hear delayed chessboard sounds after sound is disabled
       And Alice sees a White pawn on d5
 
     @regression:chessboard-stale-sound

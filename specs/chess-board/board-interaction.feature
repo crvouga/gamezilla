@@ -120,7 +120,7 @@ Feature: Choose and complete chess moves
 
     Scenario: An illegal selected destination clears selection without a move
       Given Alice has selected the piece on e2
-      And Alice's board settings enable sound
+      And Alice has chessboard sound enabled
       When Alice moves the piece from e2 to e5
       Then Alice sees the White pawn remaining on e2
       And Alice sees no selection or legal destinations

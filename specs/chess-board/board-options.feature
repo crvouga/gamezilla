@@ -35,6 +35,21 @@ Feature: Choose the chessboard's appearance
       Then Alice sees a White pawn on e4
       And Alice's activity receives one move
 
+    Scenario: A supported width permits holding a piece before its destination is chosen
+      Given Alice has an interactive chessboard 196 pixels wide
+      When Alice begins dragging the piece on e2
+      Then Alice holds the piece from e2
+      And Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves
+
+    Scenario: Holding another piece clears the earlier selection before a move
+      Given Alice has selected the piece on e2
+      When Alice begins dragging the piece on d2
+      Then Alice holds the piece from d2
+      And Alice sees no selection or legal destinations
+      And Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves
+
     Scenario: The largest supported width offers a legal move
       Given Alice has an interactive chessboard 16384 pixels wide
       When Alice moves the piece from e2 to e4
@@ -55,6 +70,41 @@ Feature: Choose the chessboard's appearance
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
+    Scenario: A preview refuses selecting a piece
+      Given Alice has a chessboard 195 pixels wide
+      When Alice selects the piece on e2
+      Then Alice cannot select a piece while the chessboard is a preview
+      And Alice sees no selection or legal destinations
+      And Alice's activity receives no moves
+
+    Scenario: A preview refuses holding a piece
+      Given Alice has a chessboard 195 pixels wide
+      When Alice begins dragging the piece on e2
+      Then Alice cannot hold a piece while the chessboard is a preview
+      And Alice sees no held piece
+      And Alice's activity receives no moves
+
+    Scenario: Activity-disabled input still refuses a move at a supported width
+      Given Alice has a chessboard 196 pixels wide with interactivity disabled
+      When Alice moves the piece from e2 to e4
+      Then Alice cannot move a piece while interactivity is disabled
+      And Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves
+
+    Scenario: Activity-disabled input refuses selection at a supported width
+      Given Alice has a chessboard 196 pixels wide with interactivity disabled
+      When Alice selects the piece on e2
+      Then Alice cannot select a piece while interactivity is disabled
+      And Alice sees no selection or legal destinations
+      And Alice's activity receives no moves
+
+    Scenario: Activity-disabled input refuses holding at a supported width
+      Given Alice has a chessboard 196 pixels wide with interactivity disabled
+      When Alice begins dragging the piece on e2
+      Then Alice cannot hold a piece while interactivity is disabled
+      And Alice sees no held piece
+      And Alice's activity receives no moves
+
     Scenario: A preview cannot begin a promotion choice
       Given Alice has a chessboard ready for White's promotion from a7 to a8
       And Alice's chessboard is 195 pixels wide
@@ -70,6 +120,21 @@ Feature: Choose the chessboard's appearance
       Then Alice cannot move a piece while the chessboard is a preview
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
+
+    Scenario: A fixed preview width wins over wider available space
+      Given Alice has selected the piece on e2 with a fixed width and enough available space to move
+      When Alice's activity chooses a fixed width of 195 pixels
+      Then Alice cannot move a piece while the chessboard is a preview
+      And Alice sees no selection or legal destinations
+      And Alice's chessboard has the activity's fixed width
+      And Alice's activity receives no moves
+
+    Scenario: Removing a fixed preview width restores playable available space
+      Given Alice has a chessboard with a fixed width of 195 pixels and enough available space to move
+      When Alice's activity removes the fixed width
+      Then Alice's chessboard fills the available width
+      And Alice can select the piece on e2
+      And Alice sees no selection or legal destinations
 
     Scenario: Resizing within the supported range preserves a pending promotion
       Given Alice has a pending White promotion from a7 to a8
@@ -183,3 +248,10 @@ Feature: Choose the chessboard's appearance
       When Alice's activity chooses green and cream board colors
       Then Alice sees green and cream squares
       And Alice is still offered queen, rook, bishop and knight as the promotion choice
+
+    Scenario: Restoring the earlier colors preserves selection and position
+      Given Alice has selected the piece on e2 with green and cream board colors
+      When Alice's activity chooses brown and cream board colors
+      Then Alice sees brown and cream squares
+      And Alice still has e2 selected
+      And Alice sees the White pawn remaining on e2

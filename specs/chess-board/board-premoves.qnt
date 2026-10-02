@@ -7,6 +7,8 @@
 // Instead, Black's rook h2 to d2 captures a single queued pawn's source and
 // drops that premove without another move.
 // Cancellation, disabling and a different supplied position abandon previews.
+// Queueing is a waiting-side command; an own-turn gesture is an ordinary
+// move outside this model. Repeating a queued request keeps its single preview.
 // Chess legality is already decided for these examples, not calculated here.
 // Position tells which prepared replies and White moves have completed. Offers
 // are moves received by the activity from the most recent action. This local
@@ -35,7 +37,7 @@ module board_premoves {
   }
   /// A waiting move adds one preview without moving its source piece.
   action queuePremove(move: str): bool = all {
-    PREMOVES.contains(move),
+    PREMOVES.contains(move), premoveBoard.waiting, not(premoveBoard.replacement),
     premoveBoard' = if (premoveBoard.enabled and premoveBoard.waiting and
         not(premoveBoard.replacement) and not(premoveBoard.position.pawnCaptured) and
         not(premoveBoard.position.movedPieces.contains(move)) and

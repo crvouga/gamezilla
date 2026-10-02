@@ -30,5 +30,6 @@ Feature: Understand the chessboard without sound
     Scenario: An illegal keyboard destination does not move the piece
       Given Alice has an interactive chessboard
       When Alice moves the piece from e2 to e5 with the keyboard
-      Then Alice sees the White pawn remaining on e2
+      Then Alice cannot move White's pawn from e2 to the illegal destination e5
+      And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves

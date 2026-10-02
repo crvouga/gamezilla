@@ -2,7 +2,8 @@
 // Alice's activity chooses coordinates, destination marks, last move marks,
 // colors and width. Markings and colors preserve pieces and unfinished choices.
 // Broad space has room to move; narrow space is a preview. A fixed width wins
-// over available space. A changed width abandons a held piece; a preview also
+// over available space. Broad available space and a chosen broad width are
+// distinct supported widths. A changed width abandons a held piece; a preview also
 // abandons selection and promotion, and returning to enough room starts fresh.
 // The activity can disable input at any width. Prepared positions represent
 // the opening pawn move, a pawn ready to promote, and an unrelated replacement.
@@ -20,7 +21,7 @@ module board_options {
   pure def _sized(s: OptionsBoard, available: str, fixed: bool, chosen: str): OptionsBoard = {
     val room = _room(available, fixed, chosen)
     val width = _width(available, fixed, chosen)
-    { ...s, availableSpace: available, fixedWidth: fixed, chosenSpace: chosen,
+    { ...s, availableSpace: available, fixedWidth: fixed, chosenSpace: if (fixed) chosen else "none",
       width: width, roomToMove: room, selected: s.selected and room,
       held: s.held and room and width == s.width,
       pendingPromotion: s.pendingPromotion and room }
@@ -28,14 +29,16 @@ module board_options {
   pure def _canMove(s: OptionsBoard): bool = s.interactive and s.roomToMove
   action init = optionsBoard' = {position: "opening", selected: false, held: false,
     pendingPromotion: false, interactive: true, roomToMove: true,
-    availableSpace: "broad", fixedWidth: false, chosenSpace: "broad", width: "broad",
+    availableSpace: "broad", fixedWidth: false, chosenSpace: "none", width: "broad",
     coordinates: true, legalMarks: true, lastMoveMarks: true, colors: "brown and cream"}
 
   /// Alice chooses the prepared piece only when the board offers moves.
-  action selectOptionsPiece = optionsBoard' =
-    if (_canMove(optionsBoard) and Set("opening", "promotion").contains(optionsBoard.position)
+  action selectOptionsPiece = all {
+    not(optionsBoard.held),
+    optionsBoard' = if (_canMove(optionsBoard) and Set("opening", "promotion").contains(optionsBoard.position)
       and not(optionsBoard.pendingPromotion))
-      { ...optionsBoard, selected: true, held: false } else optionsBoard
+      { ...optionsBoard, selected: not(optionsBoard.selected) } else optionsBoard,
+  }
   /// Alice holds the prepared piece only when the board offers moves.
   action beginOptionsDrag = optionsBoard' =
     if (_canMove(optionsBoard) and Set("opening", "promotion").contains(optionsBoard.position)
@@ -107,7 +110,8 @@ module board_options {
       Set("opening", "promotion").contains(optionsBoard.position))
   /// The fixed width owns both the footprint and whether that width permits moves.
   val invOptionsWidth = Set("broad", "narrow").contains(optionsBoard.availableSpace) and
-    Set("broad", "narrow").contains(optionsBoard.chosenSpace) and
+    ((optionsBoard.fixedWidth and Set("broad", "narrow").contains(optionsBoard.chosenSpace)) or
+      (not(optionsBoard.fixedWidth) and optionsBoard.chosenSpace == "none")) and
     optionsBoard.width == _width(optionsBoard.availableSpace, optionsBoard.fixedWidth, optionsBoard.chosenSpace) and
     optionsBoard.roomToMove == _room(optionsBoard.availableSpace, optionsBoard.fixedWidth, optionsBoard.chosenSpace)
   /// Appearance changes retain a prepared position and the chosen colors.

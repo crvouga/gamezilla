@@ -59,7 +59,7 @@ Feature: Complete special chess moves
       Then Alice sees White castled kingside with the king on g1 and rook on f1
       And Alice hears no chessboard sounds
 
-  Rule: En passant removes the passed pawn and marks the capture destination
+  Rule: En passant removes the passed pawn and marks the completed move's source and destination
 
     Scenario: An en passant capture removes the pawn from its own square
       Given Alice has a chessboard ready for White to capture en passant from e5 to d6
@@ -138,6 +138,14 @@ Feature: Complete special chess moves
       Then Alice is offered queen, rook, bishop and knight as the promotion choice
       And Alice sees the White pawn remaining on a7
       And Alice's activity receives no moves
+
+    Scenario: Another piece can move before promotion has been requested
+      Given Alice has a chessboard ready for White's promotion from a7 to a8
+      When Alice moves the piece from h1 to h2
+      Then Alice sees a White rook on h2
+      And Alice sees the White pawn remaining on a7
+      And Alice is not offered a promotion choice
+      And Alice's activity receives one move
 
     Scenario: Another piece cannot move while the promotion choice waits
       Given Alice has a pending White promotion from a7 to a8
