@@ -58,6 +58,7 @@ variable "auth_relay" {
 
 variable "global_imports" {
   type = object({
+    aws_depot_oidc_provider  = optional(string)
     infisical_environments   = optional(map(string), {})
     github_repository        = optional(string)
     github_branch_protection = optional(string)

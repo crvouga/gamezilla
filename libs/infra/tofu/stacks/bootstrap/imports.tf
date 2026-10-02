@@ -2,6 +2,12 @@
 # `global_imports`); entries are deleted once in state.
 
 import {
+  for_each = var.global_imports.aws_depot_oidc_provider == null ? toset([]) : toset([var.global_imports.aws_depot_oidc_provider])
+  to       = module.aws_ci.aws_iam_openid_connect_provider.depot
+  id       = each.value
+}
+
+import {
   for_each = var.global_imports.github_repository == null ? toset([]) : toset([var.global_imports.github_repository])
   to       = module.repository.github_repository.this
   id       = each.value
