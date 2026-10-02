@@ -42,9 +42,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/setup
+      - uses: ./.depot/actions/setup
 
-      - uses: ./.github/actions/secrets-auth
+      - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}

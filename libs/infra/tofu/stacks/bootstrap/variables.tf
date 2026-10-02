@@ -43,6 +43,10 @@ variable "github" {
   })
 }
 
+variable "depot" {
+  type = object({ org_id = string })
+}
+
 variable "auth_relay" {
   type        = any
   description = "Read by the fleet stack and TypeScript (apps/auth-relay)."

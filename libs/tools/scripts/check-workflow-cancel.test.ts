@@ -5,7 +5,7 @@ import { join } from 'node:path';
 
 const WORKFLOW = join(
   import.meta.dirname,
-  '../../../.github/workflows/check.yml'
+  '../../../.depot/workflows/check.yml'
 );
 
 /** Cleanup steps must not hold a cancelled run's concurrency group. */

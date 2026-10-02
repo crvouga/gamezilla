@@ -41,7 +41,7 @@ runs:
           apps/*/node_modules
           libs/*/node_modules
           pkgs/*/node_modules
-        key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml') }}
+        key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml', '.depot/actions/setup/action.yml') }}
 
     - name: Cache Bun install store
       if: steps.node-modules.outputs.cache-hit != 'true'

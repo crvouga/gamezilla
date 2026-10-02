@@ -22,7 +22,7 @@ const AWS_CI = join(
 const BOOTSTRAP = join(import.meta.dirname, '../tofu/stacks/bootstrap/main.tf');
 const HEALTH_WORKFLOW = join(
   import.meta.dirname,
-  '../../../.github/workflows/health.yml'
+  '../../../.depot/workflows/health.yml'
 );
 
 describe('foundation bootstrap', () => {

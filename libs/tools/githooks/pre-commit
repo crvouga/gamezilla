@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Repo-wide lint + typecheck before a commit. Opt-in, because the repo's checks
-# belong to the Check workflow (`.github/workflows/check.yml`, what `bun check`
+# belong to the Check workflow (`.depot/workflows/check.yml`, what `bun check`
 # runs on GitHub; `bun check:local` is the local opt-in), and `--affected` spans every
 # package whenever a global dependency (turbo.json, tsconfig.base.json) is in
 # the working tree — a commit-blocking, multi-minute run with no CI signal

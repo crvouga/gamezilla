@@ -614,7 +614,7 @@
       "inputs": [
         "scripts/check-actionlint.ts",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/.github/workflows/**"
+        "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -719,7 +719,7 @@
         "$TURBO_ROOT$/turbo.json",
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/biome.json",
-        "$TURBO_ROOT$/.github/workflows/**"
+        "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -758,7 +758,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/.github/workflows/**"
+        "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",

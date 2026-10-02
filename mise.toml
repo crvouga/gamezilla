@@ -1,5 +1,5 @@
 # Every system tool the repo shells out to, pinned. `mise install` puts these
-# exact versions on a laptop; `jdx/mise-action` (`.github/actions/setup`) does
+# exact versions on a laptop; `jdx/mise-action` (`.depot/actions/setup`) does
 # the same on CI. npm tooling (turbo, wrangler, biome, …) is not here — it is a
 # devDependency in `package.json` and arrives with `bun install`.
 #

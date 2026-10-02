@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
@@ -8,7 +8,7 @@ import { join } from 'node:path';
  * (`<workflow>:<env>` for a job with an env matrix), so
  * the Actions run list and the PR checks box read the same everywhere.
  */
-const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
+const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.depot/workflows');
 const SEPARATOR = ' · ';
 
 /** The `<trigger>` label each event renders as. */
@@ -43,7 +43,7 @@ const workflows = readdirSync(WORKFLOWS_DIR)
 
 // regression: depot-native-workflows-missing-auth
 // regression: depot-migration-workflow-on-feature-branch
-test('Check, Deploy and Health have one workflow source with GitHub auth', () => {
+test('Check, Deploy and Health have one native workflow source', () => {
   expect(workflows.map(({ file }) => file)).not.toContain(
     'migrate-secrets-to-depot-ci-1790912980154.yml'
   );
@@ -52,11 +52,6 @@ test('Check, Deploy and Health have one workflow source with GitHub auth', () =>
     'deploy.yml',
     'health.yml',
   ]);
-  const nativeDir = join(import.meta.dirname, '../../../.depot/workflows');
-  const nativeWorkflows = existsSync(nativeDir)
-    ? readdirSync(nativeDir).filter((file) => /\.ya?ml$/u.test(file))
-    : [];
-  expect(nativeWorkflows).toEqual([]);
 });
 
 describe.each(workflows)('$file', ({ file, workflow }) => {

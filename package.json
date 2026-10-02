@@ -38,7 +38,7 @@
     "fc": "clear && bun run fmt && bun run check",
     "feedback": "bun run pkgs/feedback/scripts/report.ts",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run libs/tools/scripts/remove-empty-dirs.ts & wait",
-    "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/check.yml",
+    "gh": "bun x open https://depot.dev/orgs/mk7ncjwh4n/ci",
     "git-sync": "bun run libs/tools/scripts/git-sync.ts",
     "health": "bun run libs/tools/scripts/workflow-remote.ts health",
     "health:local": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts health",

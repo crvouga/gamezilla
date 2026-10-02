@@ -633,5 +633,20 @@
     "id": "db-schema-quint-entry-missing",
     "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
     "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
+  },
+  {
+    "id": "depot-native-ci-runner-routing",
+    "summary": "A native Depot CI migration left Check under .github/workflows requesting Depot managed GitHub runners, so no native workflow owned its trigger. Keep Check, Deploy and Health only under .depot/workflows and dispatch native runs.",
+    "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+  },
+  {
+    "id": "depot-native-ci-missing-local-action",
+    "summary": "Native Check requested .depot/actions/setup after checkout but the manifest was absent from that revision. Verify the complete local-action reference graph, including nested manifests.",
+    "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+  },
+  {
+    "id": "depot-native-ci-commit-classification",
+    "summary": "The native CI migration changed the workflow path to .depot/workflows/check.yml, but git-sync classified it as chore instead of ci. Classify both CI providers' configuration paths as ci changes.",
+    "regressionTest": "libs/tools/scripts/git-sync.test.ts"
   }
 ]
