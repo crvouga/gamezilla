@@ -1,0 +1,50 @@
+context: Automatic database indexing
+purpose: >-
+  Safely maintain access paths for declared supported workloads without changing
+  domain data, modifying protected objects or retiring indexes on stale evidence.
+
+terms:
+  - term: consuming application
+    definition: A caller using automatic index reconciliation, rather than the consumer product's app.
+    forms: [application, applications]
+  - term: deployment
+    definition: A running edition of a consuming application whose workload remains supported.
+    forms: [deployments]
+  - term: workload
+    definition: The complete supported statements whose required access paths must be considered together.
+    forms: [declared workload, workload demand, supported workload]
+    model: [changeDemand]
+  - term: owned index
+    definition: An ordinary index with proven complete identity eligible for automatic management.
+    forms: [index, indexes, autoidx index, ordinary index]
+  - term: protected object
+    definition: A manually managed or constraint-backed object that automatic indexing cannot modify.
+    forms: [protected index, protected indexes]
+  - term: reconciliation
+    definition: Safely compare the workload with the durable index catalog and perform eligible changes.
+    forms: [reconciled, reconciler, reconciliation state]
+    model: [State, s]
+  - term: index build
+    definition: Create and validate a required ordinary index; incomplete or invalid artifacts are not usable coverage.
+    forms: [replacement build, invalid build, replacement coverage]
+    model: [startBuild, finishBuild, failBuild]
+  - term: retirement
+    definition: Retain an unwanted owned index until a full quiet window and current trustworthy evidence permit removal.
+    forms: [retiring, retirement window, quiet window]
+    model: [beginRetirement, cancelRetirement, tick, eligible, planDrop, executeDrop]
+  - term: observed usage
+    definition: Trustworthy evidence that an index has been used since its retirement baseline.
+    forms: [usage, usage counter, retirement evidence]
+    model: [useOld, refreshWindow, loseEvidence, restoreEvidence]
+  - term: interruption
+    definition: Reconciliation stops at a durable boundary; a fresh run retains durable state and discards stale plans.
+    forms: [interrupted, fresh instance, fresh run]
+    model: [crash, restart]
+  - term: budget
+    definition: A finite configured limit on lock waiting, in-flight execution or total reconciliation work.
+    forms: [deadline, reconciliation deadline, configured limits]
+    model: [exhaustBudget]
+  - term: successful convergence
+    definition: Verified completion of all required index coverage, with no invalid required build counted as usable.
+    forms: [success, successful, full convergence]
+    model: [reportSuccess]

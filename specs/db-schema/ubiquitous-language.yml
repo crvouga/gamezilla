@@ -1,0 +1,92 @@
+context: Database schema reconciliation
+purpose: >-
+  Preserve acknowledged data and supported earlier declarations while bringing
+  a database into agreement with its declared schema, including interruption
+  recovery and safe refusal of incompatible changes.
+
+terms:
+  - term: consuming application
+    definition: A caller using the schema reconciliation contract, rather than the consumer product's app.
+    forms: [application, applications]
+  - term: deployment
+    definition: A running edition of a consuming application whose declared schema must remain supported.
+    forms: [deployments]
+  - term: reconciliation instance
+    definition: One invocation of the reconciler, including a fresh invocation following interruption.
+    forms: [instance, instances, fresh instance]
+  - term: retains
+    definition: Keeps an authoritative object or value unchanged across reconciliation.
+    forms: [leaves]
+  - term: schema declaration
+    definition: The required tables, columns, types, indexes and permanent retirement records.
+    forms: [declaration, declared schema, declarations]
+  - term: reconciliation
+    definition: Safely compare a declaration with the current catalog and apply permitted changes.
+    forms: [reconciled, reconciler, reconciliation state]
+    model: [State, s]
+  - term: catalog
+    definition: The actual objects and definitions currently present in the database.
+  - term: server database
+    definition: The authoritative shared database that preserves earlier declarations and retired values.
+    forms: [server, shared copy]
+    model: [shared]
+  - term: local database
+    definition: A device's database containing its saved values and durable queued writes.
+    forms: [local, device copy]
+    model: [device]
+  - term: connection
+    from: kernel
+    model: [online, goOffline, goOnline]
+  - term: column
+    definition: A named typed detail stored for each row; retirement freezes its historical type.
+    forms: [columns, retired column, retirement entry, frozen type]
+    model: [addColumn, retireColumn, retype, dropColumn, forgetTombstone, changeFrozenType, renameInPlace]
+  - term: row
+    definition: An identified saved record whose exact values must survive permitted reconciliation.
+    forms: [rows, row identifier, row identifiers]
+  - term: backfill
+    definition: Fill only NULL destinations from a declared source without rewriting already filled values.
+    forms: [backfilled, backfills]
+    model: [backfill, copyIntoNew, stageBackfill]
+  - term: schema lock
+    definition: Exclusive ownership coordinating schema transactions against a fresh catalog.
+    forms: [lock, reconciliation lock]
+    model: [acquire, refuseContender]
+  - term: staged schema change
+    definition: A permitted change inside a transaction that has not yet been published.
+    forms: [staged edit, staging]
+    model: [stageAdd, stageRetire]
+  - term: commit
+    definition: Atomically publish a transaction's permitted catalog and value changes.
+    forms: [committed, schema transaction]
+    model: [commit]
+  - term: abort
+    definition: Discard uncommitted changes while preserving the authoritative catalog and values.
+    forms: [aborted, failing schema transaction]
+    model: [abort]
+  - term: application write
+    definition: A consuming application's saved change; acknowledgement means it is durably retained.
+    forms: [acknowledged write, pending application write]
+    model: [applicationWrite]
+  - term: unsafe declaration
+    definition: A declaration whose compatibility or preservation obligations cannot be proven before changes.
+    forms: [unsafe drift, incompatible drift]
+    model: [refuseUnsafe]
+  - term: local rebuild
+    definition: Replace a local table only after preserving and validating its acknowledged rows and retained values.
+    forms: [rebuild, row-preserving rebuild, replacement, authoritative copy]
+    model: [stage, createReplacement, copyRow, validate, publish, cleanup, failCopy]
+  - term: interrupted rebuild
+    definition: A rebuild stopped at a durable boundary, requiring fresh recovery before the database is ready.
+    forms: [interrupted, interruption, recovery]
+    model: [crash, recover]
+  - term: ambiguous recovery
+    definition: Conflicting durable copies whose authoritative values cannot be identified safely; both are retained.
+    forms: [ambiguous recovery state, conflicting copy]
+    model: [conflictingCopy, refuseAmbiguous]
+  - term: declared index
+    definition: An access path or uniqueness constraint required by the schema declaration.
+    forms: [index, indexes, unique index, required index]
+  - term: budget
+    definition: A finite configured limit on lock waiting, execution, batch size or total work.
+    forms: [lock budget, work budget, availability budget]

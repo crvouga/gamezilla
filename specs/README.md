@@ -964,6 +964,11 @@ specs/<domain>/<structure>.als             Alloy: which stored worlds are legal
 specs/<domain>/<objective>.openslo.yaml    OpenSLO: how well, measured over time
 ```
 
+All Gherkin and Quint specifications live exclusively in
+`specs/<bounded-context>/`, including framework and package safety contracts.
+Package directories hold runners, bindings and fixtures, never a second
+location for specification definitions.
+
 One directory per domain, no subdirectories, every feature tagged with its
 directory's `@domain`. Nothing else lives in `specs/`: a grammar (`.ebnf`) or
 a public format (`.schema.json`) is refused until a runner checks it, since an
@@ -1044,6 +1049,8 @@ terms:
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
+| Database schema reconciliation | `db-schema` | safe declared schema evolution, preservation of acknowledged data, transactional reconciliation and local rebuild recovery | supporting |
+| Automatic database indexing | `db-indexes` | safe owned-index reconciliation for supported workloads, trustworthy retirement evidence and bounded index work | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
@@ -1273,9 +1280,14 @@ carry no host tags (B15, D1).
 
 ### A. Language — the ubiquitous language is law
 
-**A0 · A business person understands every line.** *Blocking. Hard rule: no
-exceptions, no glossary override.*
-Hand the feature, the context's glossary and the model's header comment to a
+**A0 · The bounded context's intended readers understand every line.** *Blocking.*
+Application-product contexts are written for business readers; the rules below
+apply without a glossary override. Framework-contract contexts are written
+for consuming developers and may use their own public technical vocabulary.
+Their Gherkin and Quint definitions still follow the exclusive specs layout;
+implementation code, runners and bindings stay in packages.
+
+For application-product contexts, hand the feature, the context's glossary and the model's header comment to a
 product owner who has never seen the code or studied software. They must
 understand every line, with nothing to look up, and recognise every scenario
 as something a person does with the product or sees in it. The test is about
@@ -1292,10 +1304,10 @@ failed".
 When the rule behind a technical case is something people see, state that
 rule and let the Quint model or a code test carry the technical cases (a
 fault an operator injects is a `_`-prefixed model helper, never glossary
-vocabulary). When a context's whole subject is technical, it has no specs:
-its guards are property, model-based and contract tests in its package (P4).
-A glossary term is held to A0 too; defining a technical word does not make
-it plain.
+vocabulary). A framework context owns its public safety contract in its own
+bounded context; technical subject matter never creates a package-local spec
+location. A business-facing glossary term is held to A0 too; defining a
+technical word does not make it plain.
 *Why: the spec is the one description of the product the business can read
 and sign off; a line they cannot read is a line nobody outside engineering
 agreed to.*
@@ -1351,8 +1363,10 @@ appears in the coverage map (C5) under its upstream event. `specs/journeys/`
 is the one context whose whole job is crossing contexts; it borrows like any
 other.
 
-**A5 · No technical vocabulary.** *Blocking.*
-No storage (database, table, row, column, record, cache, schema, migration),
+**A5 · No technical vocabulary in application-product contexts.** *Blocking.*
+Framework-contract contexts use their own public domain language under A0;
+code paths and implementation dependencies remain prohibited by D1.
+For application-product contexts, no storage (database, table, row, column, record, cache, schema, migration),
 transport (API, endpoint, route, request/response, HTTP, status code, JSON,
 payload, header, cookie, token, WebSocket, URL, redirect, callback, OAuth),
 identifiers (ID, UUID, key, hash), code (class, method, function, module,
