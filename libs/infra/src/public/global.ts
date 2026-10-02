@@ -49,7 +49,15 @@ export const globalFileSchema = z
       })
       .strict(),
     github: z
-      .object({ owner: id, repo: id, required_checks: z.array(id).min(1) })
+      .object({
+        owner: id,
+        repo: id,
+        /** Exact prefix from GitHub's Actions OIDC customization endpoint. */
+        oidc_subject_prefix: z
+          .string()
+          .regex(/^repo:[^:@/]+@[0-9]+\/[^:@/]+@[0-9]+$/),
+        required_checks: z.array(id).min(1),
+      })
       .strict(),
     /**
      * The Worker at `hostname` owning the one OAuth callback registered with

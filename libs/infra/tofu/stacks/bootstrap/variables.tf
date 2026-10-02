@@ -37,9 +37,10 @@ variable "aws" {
 
 variable "github" {
   type = object({
-    owner           = string
-    repo            = string
-    required_checks = list(string)
+    owner               = string
+    repo                = string
+    oidc_subject_prefix = string
+    required_checks     = list(string)
   })
 }
 

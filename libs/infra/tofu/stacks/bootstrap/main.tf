@@ -78,18 +78,18 @@ module "trace_stack" {
 }
 
 module "ci_identity" {
-  source            = "../../modules/ci-identity"
-  org_id            = var.infisical.org_id
-  project_id        = var.infisical.project_id
-  name              = "${var.project}-github-actions"
-  github_owner      = var.github.owner
-  github_repository = "${var.github.owner}/${var.github.repo}"
+  source                = "../../modules/ci-identity"
+  org_id                = var.infisical.org_id
+  project_id            = var.infisical.project_id
+  name                  = "${var.project}-github-actions"
+  github_owner          = var.github.owner
+  github_subject_prefix = var.github.oidc_subject_prefix
 }
 
 module "aws_ci" {
-  source            = "../../modules/aws-ci-identity"
-  project           = var.project
-  github_repository = "${var.github.owner}/${var.github.repo}"
+  source                = "../../modules/aws-ci-identity"
+  project               = var.project
+  github_subject_prefix = var.github.oidc_subject_prefix
 }
 
 module "repository" {

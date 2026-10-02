@@ -68,7 +68,7 @@ describe('foundation bootstrap', () => {
     const bootstrap = readFileSync(BOOTSTRAP, 'utf8');
     const health = readFileSync(HEALTH_WORKFLOW, 'utf8');
 
-    expect(awsCi).toContain('"repo:${var.github_repository}:ref:refs/heads/*"');
+    expect(awsCi).toContain('"${var.github_subject_prefix}:ref:refs/heads/*"');
     expect(awsCi).toContain('resource "aws_iam_role_policy" "health"');
     expect(awsCi).not.toMatch(
       /resource "aws_iam_role_policy" "health"[\s\S]*?Action = \[[\s\S]*?"(?:iot|lambda|logs|acm|iam):(Create|Delete|Update|Put|Tag|Untag|Attach|Detach|Add|Remove|Request)/
