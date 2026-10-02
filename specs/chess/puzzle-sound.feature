@@ -22,6 +22,7 @@ Feature: Respect the app's sounds while solving and reviewing
       Then Alice cannot hear puzzle sounds while the app's sounds are off
       And Alice is solving the puzzle at move 3 of the line
 
+    @regression:chess-puzzle-duplicate-rating-feedback
     Scenario: Enabled sounds accompany the puzzle's capture
       Given Alice is signed in
       And Alice has turned sounds on
