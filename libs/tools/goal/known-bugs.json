@@ -608,5 +608,10 @@
     "id": "conformance-evidence-map-missing-promises",
     "summary": "The evidence map omitted five declared device environments and the privacy and developer-tools public contracts, leaving the conformance manifest without proof mappings.",
     "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
+  },
+  {
+    "id": "deleted-profile-display",
+    "summary": "Profile card and display reads returned a retained soft-deleted profile. All display reads now exclude tombstones while sync snapshots still carry them.",
+    "regressionTest": "libs/profile/tests/deleted-profile-read.test.ts"
   }
 ]

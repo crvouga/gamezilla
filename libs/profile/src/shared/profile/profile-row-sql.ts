@@ -13,6 +13,6 @@ export function profileRowByIdSql(profileId: string): Sql<ProfileRow> {
   return sql<ProfileRow>`
     SELECT id, created_at, username, username_changed_at, avatar_config
     FROM profile
-    WHERE id = ${profileId}
+    WHERE id = ${profileId} AND deleted_at IS NULL
   `;
 }
