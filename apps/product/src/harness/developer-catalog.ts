@@ -1,7 +1,6 @@
 import { pollUntil, scenarioAction } from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { createReportsApp } from '@libs/server-app/reports/route';
-import { testReportKey } from '@pkgs/harness';
 import {
   closeCommit,
   openCommit,
@@ -16,9 +15,8 @@ import {
   testCatalogEntity,
 } from '@pkgs/harness-report/viewer';
 import { createHonoHttpClient } from '@pkgs/http-client';
-import { writeUtf8 } from '@pkgs/object-store/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { recordedReport, reportMeta } from './developer-report';
+import { catalogSource } from './developer-catalog-source';
+import { reportMeta } from './developer-report';
 import { tools } from './developer-tools-state';
 
 const EARLIER = '1111111111111111111111111111111111111111';
@@ -34,33 +32,18 @@ export const provideCatalog = scenarioAction({
       startedAtMs: 0,
       frameCss: '',
     });
-    const local = new ObjectStoreImplInMemory();
-    const report = recordedReport('current').report;
-    await writeUtf8(
-      local,
-      testReportKey('latest', 'completed'),
-      JSON.stringify({
-        ...report,
-        meta: {
-          ...reportMeta(
-            'Alice accepts a friend request',
-            kind === 'failures' ? 'failed' : 'passed'
-          ),
-          testId: 'completed',
-        },
-      }),
-      'application/json'
-    );
-    if (kind === 'failures')
-      await writeUtf8(
-        local,
-        testReportKey('latest', 'passing'),
-        JSON.stringify({
-          ...report,
-          meta: { ...reportMeta('Bob opens a space'), testId: 'passing' },
-        }),
-        'application/json'
-      );
+    const local = await catalogSource([
+      {
+        ...reportMeta(
+          'Alice accepts a friend request',
+          kind === 'failures' ? 'failed' : 'passed'
+        ),
+        testId: 'completed',
+      },
+      ...(kind === 'failures'
+        ? [{ ...reportMeta('Bob opens a space'), testId: 'passing' }]
+        : []),
+    ]);
     await publishSource(store, {
       sha: EARLIER,
       packageDir: 'investigation',
@@ -76,16 +59,9 @@ export const provideCatalog = scenarioAction({
         startedAtMs: 400,
         frameCss: '',
       });
-      const later = new ObjectStoreImplInMemory();
-      await writeUtf8(
-        later,
-        testReportKey('latest', 'later'),
-        JSON.stringify({
-          ...report,
-          meta: { ...reportMeta('Later edition only'), testId: 'later' },
-        }),
-        'application/json'
-      );
+      const later = await catalogSource([
+        { ...reportMeta('Later edition only'), testId: 'later' },
+      ]);
       await publishSource(store, {
         sha: LATER,
         packageDir: 'investigation',

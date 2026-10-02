@@ -1,5 +1,10 @@
 [
   {
+    "id": "report-catalog-fixture-missing-snapshots",
+    "summary": "Report catalog setup published metadata referencing frames/alice-2.html without writing the recorded snapshot blobs. Write every report and its snapshots together for completed, passing and later-edition catalog sources.",
+    "regressionTest": "apps/product/tests/developer-catalog-source.test.ts"
+  },
+  {
     "id": "friends-spec-task-budget",
     "summary": "The friends spec part 7 passed its assertions but took 627 seconds against the existing 600-second task cap. Split the same friends and spaces coverage into sixteen parts, and declare and gate every added part with a separate report cache. The time cap and every scenario and model trace remain unchanged.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
