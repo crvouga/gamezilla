@@ -31,6 +31,18 @@ async function listDirectory(
   bucket: string,
   prefix: string
 ): Promise<Directory> {
+  // Most snapshot subtrees fit in one page. Read them without walking every
+  // per-step directory; split only the subtrees that actually need pagination.
+  const first = await client.send(
+    new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix })
+  );
+  if (!first.IsTruncated)
+    return {
+      keys: (first.Contents ?? []).flatMap((object) =>
+        object.Key ? [object.Key] : []
+      ),
+      prefixes: [],
+    };
   const keys: string[] = [];
   const prefixes: string[] = [];
   let token: string | undefined;

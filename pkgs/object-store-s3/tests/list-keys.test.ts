@@ -5,6 +5,7 @@ import { assertProperty, fc } from '@pkgs/property';
 function listingStore(keys: readonly string[]) {
   let active = 0;
   let peak = 0;
+  let requests = 0;
   const wireKeys = keys.map((key) => `reports/${key}`).sort();
   const store = createS3ObjectStore({
     bucket: 'reports',
@@ -15,6 +16,7 @@ function listingStore(keys: readonly string[]) {
     secretAccessKey: 'secret',
     http: {
       async fetch(input) {
+        requests += 1;
         active += 1;
         peak = Math.max(peak, active);
         await Promise.resolve();
@@ -51,7 +53,7 @@ function listingStore(keys: readonly string[]) {
       },
     },
   });
-  return { store, peak: () => peak };
+  return { store, peak: () => peak, requests: () => requests };
 }
 
 // regression: check-report-cleanup-serial-commit-listing
@@ -65,6 +67,17 @@ test('lists a 56,999-object commit through its child directories concurrently', 
   expect(await fixture.store.listKeys('commits/0')).toEqual(keys.sort());
   expect(fixture.peak()).toBeGreaterThan(1);
   expect(fixture.peak()).toBeLessThanOrEqual(16);
+});
+
+// regression: check-report-cleanup-serial-commit-listing
+test('reads a small snapshot subtree in one page regardless of its folder depth', async () => {
+  const keys = Array.from(
+    { length: 128 },
+    (_, n) => `tests/source/scenario/step-${n}/actors/actor/frame.html`
+  );
+  const fixture = listingStore(keys);
+  expect(await fixture.store.listKeys('tests/')).toEqual(keys.sort());
+  expect(fixture.requests()).toBe(1);
 });
 
 test('directory traversal preserves every matching key and paginates flat directories', async () => {
