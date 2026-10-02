@@ -14,6 +14,7 @@ test('the transferred repository supplies its current OIDC subject and audience'
 });
 
 // regression: ci-immutable-oidc-subject
+// regression: ci-identity-regression-stale-interface
 test('CI trusts the literal immutable subject returned after the repository transfer', () => {
   const github = GLOBAL.github;
   expect(
@@ -24,14 +25,17 @@ test('CI trusts the literal immutable subject returned after the repository tran
     join(tofu, 'stacks/bootstrap/main.tf'),
     'utf8'
   );
-  expect(
-    bootstrap.match(/github_subject_prefix\s*= local\.github_subject_prefix/g)
-  ).toHaveLength(2);
+  expect(bootstrap).toMatch(
+    /github_subject_prefix\s*= local\.github_subject_prefix/
+  );
+  expect(bootstrap).toMatch(
+    /oidc_subject\s*= "\$\{local\.github_subject_prefix\}:\*"/
+  );
   const infisical = readFileSync(
     join(tofu, 'modules/ci-identity/main.tf'),
     'utf8'
   );
-  expect(infisical).toContain('"${var.github_subject_prefix}:*"');
+  expect(infisical).toMatch(/bound_subject\s*= var\.oidc_subject/);
   const aws = readFileSync(
     join(tofu, 'modules/aws-ci-identity/main.tf'),
     'utf8'
@@ -51,11 +55,9 @@ test('bootstrap updates the existing CI auth and retires old resources without d
     'utf8'
   );
   // Move the existing binding in state so recovery updates it in place.
-  expect(infisical).toContain('from = infisical_identity_oidc_auth.ci');
-  expect(infisical).toContain('to   = infisical_identity_oidc_auth.github');
-  expect(infisical).toContain(
-    'resource "infisical_identity_oidc_auth" "github"'
-  );
+  expect(infisical).toContain('from = infisical_identity_oidc_auth.github');
+  expect(infisical).toContain('to   = infisical_identity_oidc_auth.ci');
+  expect(infisical).toContain('resource "infisical_identity_oidc_auth" "ci"');
   const imports = readFileSync(
     join(tofu, 'stacks/bootstrap/imports.tf'),
     'utf8'

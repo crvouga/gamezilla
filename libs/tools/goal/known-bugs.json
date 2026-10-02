@@ -1,5 +1,10 @@
 [
   {
+    "id": "ci-identity-regression-stale-interface",
+    "summary": "Check on 263be4043 failed because GitHub transfer regression assertions still expected two github_subject_prefix inputs and a ci-to-github resource move after the shared CI identity module adopted oidc_subject and moved github-to-ci. Verify the immutable subject through the caller and bound_subject input and preserve the exact state move and non-destructive retirement checks.",
+    "regressionTest": "libs/infra/tests/github-transfer.test.ts"
+  },
+  {
     "id": "report-catalog-fixture-missing-snapshots",
     "summary": "Report catalog setup published metadata referencing frames/alice-2.html without writing the recorded snapshot blobs. Write every report and its snapshots together for completed, passing and later-edition catalog sources.",
     "regressionTest": "apps/product/tests/developer-catalog-source.test.ts"
