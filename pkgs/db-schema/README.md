@@ -170,3 +170,7 @@ outside `@pkgs/db-schema` emit.
 ## Tests
 
 Layers, invariants and backends: [`docs/TESTING.md`](docs/TESTING.md).
+
+Gherkin contracts and Quint models in their bounded contexts, coverage and
+outstanding implementation obligations:
+[`docs/SAFETY_CONTRACT.md`](docs/SAFETY_CONTRACT.md).

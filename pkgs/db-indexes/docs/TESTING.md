@@ -6,12 +6,13 @@
 | --- | --- | --- |
 | Unit / contract / property | `tests/*.test.ts` | `bun run test` |
 | Model-based (index tuning) | `tests/index-tuning.property.test.ts` | `bun run test` |
+| Gherkin syntax and bounded Quint reference validity, without adapter replay | `tests/quint/index-contracts.test.ts` | `bun test pkgs/db-indexes/tests/quint/index-contracts.test.ts` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
-Index tuning is technical, so it has no specs in `specs/`
-([`specs/README.md`](../../../specs/README.md) A0): its guards are
-code tests here. The tuning harness — one reconciler over `HarnessDb` on a
+Index tuning specifications live in
+[`specs/db-indexes/`](../../../specs/db-indexes/). Test runners and bindings
+live in this package. The tuning harness — one reconciler over `HarnessDb` on a
 virtual clock, with the standing `tuningInvariantsHold` property — is
 `indexTuningSystem`, exported from `@pkgs/db-indexes/harness`.
 `tests/index-tuning.property.test.ts` generates sequences of declaring
@@ -43,6 +44,9 @@ a fresh harness ends in the same state. It runs on the pinned seed
 | I4 indexable workload | `assertIndexableWorkload` (CI on APP_QUERIES) | n/a (authoring) | `indexability` |
 
 ## Adding a regression
+
+New normative contracts and outstanding adapter coverage:
+[SAFETY_CONTRACT.md](../../db-schema/docs/SAFETY_CONTRACT.md).
 
 1. Extend `tests/generators/statement-ast.ts` render helpers if SQL shape differs.
 2. Pin an example test under `tests/` marked `// regression: <bug-id>`, with

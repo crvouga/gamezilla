@@ -40,10 +40,13 @@ See [`TESTING.md`](./docs/TESTING.md) for the property layers, the
 model-based index-tuning test (`tests/index-tuning.property.test.ts`: the
 tuning harness against a reference model of declaring, tuning, retiring and
 the team's own indexes, plus same-sequence replay), and the invariant →
-assert / harness / property map. Index tuning is technical, so it has no
-specs in `specs/`; every guard is a code test in this package.
+assert / harness / property map. Index tuning contracts live in `specs/db-indexes/`;
+this package contains their test runners and implementation checks.
 
 ## Ownership
+
+Bounded-context Gherkin/Quint safety requirements and their outstanding adapter
+coverage: [SAFETY_CONTRACT.md](../db-schema/docs/SAFETY_CONTRACT.md).
 
 Only indexes named `autoidx_<table>_<hash8>` are created or dropped. Never
 touches `ix_` / `ux_` (db-schema), PK, unique, or exclusion indexes.

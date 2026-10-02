@@ -13,7 +13,8 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "mutants": "bun tests/mutants/scripted-mutants.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -23,10 +24,15 @@
     "node-sql-parser": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "specDomains": [
+    "db-indexes"
+  ]
 }
