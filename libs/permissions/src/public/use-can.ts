@@ -22,13 +22,14 @@ export function useDecision(
 ): Accessor<Decision> {
   const policy = usePermissionPolicy();
   const subject = usePermissionSubject(scope);
-  const privacyDecision = usePrivacyDecision();
+  const privacyDecision =
+    key === PERMISSION.profileDeleteAccount ||
+    key === PERMISSION.profileExportData
+      ? usePrivacyDecision()
+      : null;
   return () => {
     const decision = decide(policy(), subject(), key);
-    return key === PERMISSION.profileDeleteAccount ||
-      key === PERMISSION.profileExportData
-      ? privacyDecision(key, decision)
-      : decision;
+    return privacyDecision === null ? decision : privacyDecision(key, decision);
   };
 }
 
