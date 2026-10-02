@@ -3,6 +3,7 @@ import type {
   NarrateLink,
   NarrateSpan,
 } from '@pkgs/observability/core';
+import { normalizeId } from './normalize-id';
 
 type UnknownMap = Record<string, unknown>;
 type Attributes = NarrateSpan['attributes'];
@@ -98,16 +99,16 @@ function event(value: unknown): NarrateEvent | undefined {
 
 function link(value: unknown): NarrateLink | undefined {
   const item = object(value);
-  const traceId = string(item?.['traceId']);
-  const spanId = string(item?.['spanId']);
+  const traceId = normalizeId(item?.['traceId'], 16);
+  const spanId = normalizeId(item?.['spanId'], 8);
   if (traceId === undefined || spanId === undefined) return undefined;
   return { traceId, spanId, attributes: attributes(item?.['attributes']) };
 }
 
 export function normalizeSpan(value: unknown): NarrateSpan | undefined {
   const item = object(value);
-  const traceId = string(item?.['traceId']);
-  const spanId = string(item?.['spanId']);
+  const traceId = normalizeId(item?.['traceId'], 16);
+  const spanId = normalizeId(item?.['spanId'], 8);
   const name = string(item?.['name']);
   const startTimeMs = otlpTimeMs(
     item?.['startTimeUnixNano'] ?? item?.['startTimeMs'] ?? item?.['timestamp']
@@ -131,7 +132,7 @@ export function normalizeSpan(value: unknown): NarrateSpan | undefined {
   const rawEvents = Array.isArray(item?.['events']) ? item['events'] : [];
   const rawLinks = Array.isArray(item?.['links']) ? item['links'] : [];
   const spanStatus = item?.['status'];
-  const parentSpanId = string(item?.['parentSpanId']);
+  const parentSpanId = normalizeId(item?.['parentSpanId'], 8);
   const statusMessage = string(
     object(spanStatus)?.['message'] ?? item?.['statusMessage']
   );
@@ -158,7 +159,7 @@ export function spansFromDocument(value: unknown): NarrateSpan[] {
   const direct = normalizeSpan(value);
   if (direct !== undefined) return [direct];
   const root = object(value);
-  const resourceSpans = root?.['resourceSpans'];
+  const resourceSpans = root?.['resourceSpans'] ?? root?.['batches'];
   if (!Array.isArray(resourceSpans)) return [];
   const spans: NarrateSpan[] = [];
   for (const resource of resourceSpans) {

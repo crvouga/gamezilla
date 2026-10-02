@@ -25,10 +25,12 @@ type World = {
   confirm: boolean;
   dismiss: boolean;
   created: boolean;
+  overflow: boolean;
+  endInOverflow: boolean;
   readonly taps: string[];
 };
 
-function visible(world: World, id: string): boolean {
+function tabVisible(world: World, id: string): boolean | undefined {
   const onTabs = world.screen === 'spaces' || world.screen === 'profile';
   // The shell header stays up on pushed screens, including Join and Ended.
   if (id === Handles.statusCurrentUser) return true;
@@ -44,8 +46,18 @@ function visible(world: World, id: string): boolean {
     return world.screen === 'spaces' && world.listReady && world.spacesLeft > 0;
   }
   if (id === Handles.profileDisplayUsername) return world.screen === 'profile';
+  return undefined;
+}
+
+function visible(world: World, id: string): boolean {
+  const tab = tabVisible(world, id);
+  if (tab !== undefined) return tab;
   if (id === Handles.spaceJoin) return world.screen === 'join';
-  if (id === Handles.spaceEnd) return world.screen === 'in-space';
+  if (id === Handles.spaceChromeOverflow) return world.screen === 'in-space';
+  if (id === Handles.spaceEnd)
+    return (
+      world.screen === 'in-space' && (!world.endInOverflow || world.overflow)
+    );
   if (id === Handles.spaceEndConfirm) return world.confirm;
   if (id === Handles.spaceMutationDismiss) return world.dismiss;
   if (id === Handles.spaceEnded) return world.screen === 'ended';
@@ -68,8 +80,11 @@ function applyTap(world: World, id: string): void {
     world.confirm = false;
   } else if (id === Handles.spaceCard(HOST)) world.screen = 'join';
   else if (id === Handles.spaceJoin) world.screen = 'in-space';
-  else if (id === Handles.spaceEnd) world.confirm = true;
-  else if (id === Handles.spaceEndConfirm) {
+  else if (id === Handles.spaceChromeOverflow) world.overflow = !world.overflow;
+  else if (id === Handles.spaceEnd) {
+    world.confirm = true;
+    world.overflow = false;
+  } else if (id === Handles.spaceEndConfirm) {
     world.confirm = false;
     world.dismiss = true;
   } else if (id === Handles.spaceMutationDismiss) {
@@ -132,7 +147,8 @@ function node(world: World, id: string): DriverNode {
 
 function driver(
   spacesLeft: number,
-  listReady = true
+  listReady = true,
+  endInOverflow = false
 ): {
   readonly ui: Driver;
   readonly world: World;
@@ -144,6 +160,8 @@ function driver(
     confirm: false,
     dismiss: false,
     created: false,
+    overflow: false,
+    endInOverflow,
     taps: [],
   };
   const ui: Driver = {
@@ -181,6 +199,15 @@ function expectJoinedThenEnded(
 }
 
 describe('hostSpace', () => {
+  // regression: journey-end-space-in-overflow
+  test('ends a leftover through the overflow menu before hosting', async () => {
+    const { ui, world } = driver(1, true, true);
+    await hostSpace(ui);
+    expectJoinedThenEnded(world.taps, 1);
+    expect(world.taps).toContain(Handles.spaceChromeOverflow);
+    expect(world.created).toBe(true);
+  });
+
   // regression: journey-host-blocked-by-leftover-spaces
   // regression: journey-leftover-opens-on-join
   test('ends leftover live spaces before opening a new one', async () => {
