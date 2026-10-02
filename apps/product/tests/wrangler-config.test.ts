@@ -31,6 +31,7 @@ import {
   readDeploymentProtection,
 } from '@libs/server-app/config/env';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse/server';
+import { assertProperty, fc } from '@pkgs/property';
 import { workerSecretPayload } from '../scripts/worker-secrets';
 
 const base = Bun.TOML.parse(
@@ -38,6 +39,36 @@ const base = Bun.TOML.parse(
 ) as WranglerConfig;
 
 describe('wrangler.toml', () => {
+  test('replica endpoints follow its declared hosts regardless of copied vars', () => {
+    assertProperty(
+      'replica endpoint bindings follow the declared hosts',
+      fc.property(fc.stringMatching(/^[a-z][a-z0-9]{0,12}$/), (label) => {
+        const env = parseEnvFile(
+          {
+            ...ENV_FILES['dev'],
+            hosts: {
+              apex: `${label}.example.test`,
+              web: `web-${label}.example.test`,
+              api: `api-${label}.example.test`,
+              broker: `broker-${label}.example.test`,
+            },
+          },
+          'replica endpoint property'
+        );
+        const vars = renderWranglerConfig(
+          { ...base, vars: { API_URL: 'https://dev-api.gamezilla.app' } },
+          env
+        )['vars'] as Record<string, string>;
+        expect(vars['API_URL']).toBe(`https://api-${label}.example.test`);
+        expect(vars['WEB_CLIENT_ORIGIN']).toBe(
+          `https://web-${label}.example.test`
+        );
+        expect(vars['EMQX_WSS_URL']).toBe(
+          `wss://broker-${label}.example.test/mqtt`
+        );
+      })
+    );
+  });
   // regression: dev-client-stale-api-config
   test('copied endpoint settings cannot override the environment endpoints', () => {
     const copied = Object.fromEntries(

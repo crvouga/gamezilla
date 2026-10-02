@@ -89,4 +89,5 @@ import {
   provideWorldDevices,
 } from '@apps/product/harness/developer-world-views';
 
+import '@libs/runtime/steps/journeys.steps';
 import './live-index';
