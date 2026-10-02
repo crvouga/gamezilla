@@ -11,6 +11,38 @@ const reply = (result: unknown): Response =>
   Response.json({ success: true, result });
 
 describe('Cloudflare Worker inventory', () => {
+  test('only an explicit missing-script response confirms Worker absence', async () => {
+    const state = (response: Response): WorkerState =>
+      new WorkerState({ fetch: async () => response }, 'account', 'token');
+    expect(
+      await state(reply({ bindings: [] })).scriptExists('old-worker')
+    ).toBe(true);
+    expect(
+      await state(
+        Response.json(
+          { success: false, errors: [{ code: 10007 }] },
+          {
+            status: 404,
+          }
+        )
+      ).scriptExists('old-worker')
+    ).toBe(false);
+    for (const response of [
+      Response.json(
+        { success: false, errors: [{ code: 10000 }] },
+        { status: 401 }
+      ),
+      Response.json(
+        { success: false, errors: [{ code: 10000 }] },
+        { status: 404 }
+      ),
+      reply(null),
+      reply({}),
+    ])
+      await expect(
+        state(response).scriptExists('old-worker')
+      ).rejects.toThrow();
+  });
   test('reads every namespace page through the injected HTTP port', async () => {
     const requests: string[] = [];
     const http: HttpClient = {

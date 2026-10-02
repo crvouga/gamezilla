@@ -13,6 +13,11 @@ const bindingSchema = z.object({
   type: z.string(),
   namespace_id: z.string().optional(),
 });
+const MISSING_WORKER = Symbol('missing-worker');
+const missingWorkerSchema = z.object({
+  success: z.literal(false),
+  errors: z.array(z.object({ code: z.number() })),
+});
 
 /** Read-only account inventory, injected so migration checks run offline. */
 export class WorkerState {
@@ -22,11 +27,19 @@ export class WorkerState {
     private readonly token: string
   ) {}
 
-  private async read(path: string): Promise<unknown> {
+  private async read(path: string, allowMissing = false): Promise<unknown> {
     const response = await this.http.fetch(
       `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/${path}`,
       { headers: { Authorization: `Bearer ${this.token}` } }
     );
+    if (allowMissing && response.status === 404) {
+      const error = missingWorkerSchema.safeParse(await response.json());
+      if (
+        error.success &&
+        error.data.errors.some((item) => item.code === 10007)
+      )
+        return MISSING_WORKER;
+    }
     if (!response.ok)
       throw new Error(`Cloudflare inventory ${path}: HTTP ${response.status}`);
     const envelope = z
@@ -52,6 +65,16 @@ export class WorkerState {
 
   async domains(): Promise<readonly WorkerDomain[]> {
     return z.array(domainSchema).parse(await this.read('workers/domains'));
+  }
+
+  async scriptExists(script: string): Promise<boolean> {
+    const settings = await this.read(
+      `workers/scripts/${script}/settings`,
+      true
+    );
+    if (settings === MISSING_WORKER) return false;
+    z.object({ bindings: z.array(bindingSchema) }).parse(settings);
+    return true;
   }
 
   async roomNamespaceId(script: string): Promise<string> {

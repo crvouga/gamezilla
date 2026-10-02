@@ -5,6 +5,10 @@ import {
   assertWorkersRetirable,
   ROOM_CLASS,
 } from '@libs/infra/public/worker-lifecycle';
+import {
+  type RetirementResult,
+  retireWorker,
+} from '@libs/infra/public/worker-retirement';
 import { workerState } from './worker-state';
 
 const env = envFile(process.env['SECRETS_ENV'] ?? '');
@@ -27,7 +31,7 @@ if (
     'Application ROOM binding does not point at its owned namespace'
   );
 
-for (const name of env.worker.retire) {
+function removeWorker(name: string): RetirementResult {
   const result = Bun.spawnSync(
     ['wrangler', 'delete', '--name', name, '--force'],
     {
@@ -40,12 +44,15 @@ for (const name of env.worker.retire) {
       stderr: 'pipe',
     }
   );
-  if (result.exitCode === 0) {
-    process.stdout.write(result.stdout);
-    continue;
-  }
-  const stderr = result.stderr.toString();
-  if (/\[code: 10007\]/.test(stderr)) continue;
-  process.stderr.write(stderr);
-  throw new Error(`Retirement of ${name} failed; rerun deploy to resume`);
+  return {
+    exitCode: result.exitCode,
+    stdout: result.stdout.toString(),
+    stderr: result.stderr.toString(),
+  };
+}
+
+for (const name of env.worker.retire) {
+  const result = await retireWorker(name, removeWorker, state);
+  if (result.exitCode === 0) process.stdout.write(result.stdout);
+  else console.log(`Worker ${name} is absent; retirement is complete`);
 }
