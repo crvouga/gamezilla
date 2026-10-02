@@ -1008,19 +1008,30 @@ with `spec: '<stem>'`, imported from that folder's `index.ts`), and
 the steps are listed in generated `STEPS_CATALOG.md` files
 ([index](../docs/STEPS_CATALOG.md)).
 
-`specs/` contains no TypeScript, JavaScript or implementation-side
-interpretation. Step definitions, model bindings, adapters and runners live
+`specs/` contains no TypeScript or JavaScript.
+Step definitions, model bindings, adapters and runners live
 outside this tree and point to the canonical specs.
 
 Canonical product Gherkin and Quint specifications exist only in this tree. A
 `.feature` never lives beside application code. A `.qnt` may remain under a
 package's `tests/` only when it is not a product specification:
 `// @spec-meta` marks a fixture that tests verification or implementation
-machinery, while
-`// @spec-interpretation` marks an implementation-side interpretation and is
-followed by `// Sources: specs/<domain>[, specs/<domain>...]`. The sources are
-the authority; the interpretation may translate or compose them but may not
-silently become another definition of the product.
+machinery. Product interpretations and their shared model helpers live in
+`specs/system/`, alongside the other product specifications.
+`// @spec-interpretation` identifies a composition of the domain rules and is
+followed by `// Sources: specs/<domain>[, specs/<domain>...]`. The sources remain
+the authority; a composition may not silently become another product definition.
+Its `@spec-meta` modules supply finite bounds or diagnostic checks.
+
+A package registers these composed models through `quintCampaignDomains`.
+Its `test` and `test:contract` Check leaves run the campaign and hash both
+the campaign directory and every declared source domain. Campaigns check all
+modules through their import roots, exercise safety and temporal obligations,
+and test fault sensitivity; they do not require aggregate replay bindings or
+redeclare the source domains' vocabulary. The location gate permits marked
+campaign modules only in a registered, singly owned campaign domain, validates
+every source domain, and continues to refuse product interpretations outside
+`specs/`. Framework fixtures remain in their package's `tests/`.
 
 ### Bounded contexts
 
@@ -1742,12 +1753,12 @@ checks the rest. It fails on:
   in `@pkgs/gherkin`), or a narrator ("I", "my", "the user")
 - a scenario with no `Then`, or a `Given` after it has acted
 - a file in `specs/` of a kind nothing runs, a nested folder, or a spec file
-  without exactly one binding (`libs/tools/scripts/spec-packages.ts`)
-- a `.feature` outside `specs/`, or a `.qnt` outside `specs/` that is not
-  test-only machinery marked `@spec-meta` or a traceable
-  `@spec-interpretation`
+  without exactly one binding or a registered Quint campaign runner
+  (`libs/tools/scripts/spec-packages.ts`)
+- a `.feature` or product Quint interpretation outside `specs/`, or a `.qnt`
+  outside `specs/` that is not test-only machinery marked `@spec-meta`
 - TypeScript, JavaScript, or a Quint model marked `@spec-meta` or
-  `@spec-interpretation` inside `specs/`
+  `@spec-interpretation` inside an unregistered campaign domain in `specs/`
 - code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`; every file but
   this rulebook): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag
