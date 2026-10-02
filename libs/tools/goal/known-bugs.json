@@ -693,5 +693,10 @@
     "id": "workflow-oidc-test-stdout-socket",
     "summary": "The OIDC action regression redirected GITHUB_ENV to /dev/stdout, which cannot be opened when the Linux test runner captures stdout with a socket. Execute the action with a real temporary environment file and read it through stdout instead.",
     "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
+  },
+  {
+    "id": "report-uncached-task-hash",
+    "summary": "A full Check with cache reads disabled ran all 489 tasks successfully but failed report publication. The stream verified task hashes only for Turbo's cache hit and miss messages, ignoring cache bypass, force executing. Recognize bypass messages while preserving exact planned-hash verification and waiting for completion before uploading.",
+    "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
   }
 ]

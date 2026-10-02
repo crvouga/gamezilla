@@ -71,7 +71,7 @@ export function createReportPublisher(
       const event = readEvent(value);
       // Turbo emits its cache-hit status after restoring the outputs, before
       // replaying logs. This also handles caches written before the marker existed.
-      const cache = /^cache (hit|miss).* ([0-9a-f]{16,64})$/.exec(
+      const cache = /^cache (hit|miss|bypass).* ([0-9a-f]{16,64})$/.exec(
         event.text.trim()
       );
       if (cache !== null && expected.has(event.source)) {

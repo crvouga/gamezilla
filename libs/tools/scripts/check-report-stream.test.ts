@@ -77,6 +77,26 @@ describe('overlapping report uploads', () => {
     expect(published).toEqual([A]);
   });
 
+  // regression: report-uncached-task-hash
+  test('a cache-bypassed task publishes after its planned hash and completion marker', async () => {
+    const taskId = '@libs/billing#test:spec:1';
+    const hash = '51927efb85a413d9';
+    const published: string[] = [];
+    const publisher = createReportPublisher([{ taskId, hash }], {
+      async publish(id) {
+        published.push(id);
+      },
+      log() {},
+    });
+    publisher.line(
+      event(taskId, 'cache bypass, force executing 51927efb85a413d9')
+    );
+    expect(published).toEqual([]);
+    publisher.line(event(taskId));
+    await publisher.finish();
+    expect(published).toEqual([taskId]);
+  });
+
   test('a red check still publishes its completed report', async () => {
     const published: string[] = [];
     const publisher = createReportPublisher(tasks(A), {
@@ -124,19 +144,22 @@ describe('overlapping report uploads', () => {
   });
 
   // regression: report-plan-hash-drift
-  test('a changed execution hash cannot publish evidence under the planned hash', async () => {
-    const published: string[] = [];
-    const publisher = createReportPublisher(tasks(A), {
-      async publish(id) {
-        published.push(id);
-      },
-      log() {},
-    });
-    publisher.line(event(A, 'cache miss, executing fedcba9876543210'));
-    publisher.line(event(A));
-    await expect(publisher.finish()).rejects.toThrow(
-      'Report publication failed'
-    );
-    expect(published).toEqual([]);
-  });
+  test.each(['cache miss, executing', 'cache bypass, force executing'])(
+    'a changed execution hash cannot publish evidence under the planned hash (%s)',
+    async (prefix) => {
+      const published: string[] = [];
+      const publisher = createReportPublisher(tasks(A), {
+        async publish(id) {
+          published.push(id);
+        },
+        log() {},
+      });
+      publisher.line(event(A, `${prefix} fedcba9876543210`));
+      publisher.line(event(A));
+      await expect(publisher.finish()).rejects.toThrow(
+        'Report publication failed'
+      );
+      expect(published).toEqual([]);
+    }
+  );
 });
