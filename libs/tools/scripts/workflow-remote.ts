@@ -1,8 +1,9 @@
 #!/usr/bin/env bun
 // @io-wall-ok — gh CLI entry
 /**
- * `bun check`, `bun health`, and `bun deploy`: dispatch the matching
- * workflow on GitHub and block until it finishes. The exit code is the
+ * `bun check`, `bun health`, and `bun deploy`: run the matching
+ * workflow on GitHub and block until it finishes. Check observes an open
+ * PR's automatic run; otherwise it dispatches. The exit code is the
  * run's verdict. While the watch runs, keystroke echo is off, so a
  * scroll wheel's arrow keys stay out of the transcript. Ctrl-C still
  * cancels (SIGTERM / SIGHUP do too). SIGKILL cannot be caught — cancel
@@ -26,13 +27,13 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
 import {
   type GitSyncOptions,
   gitSync,
   parseGitSyncArgs,
   SyncError,
 } from './git-sync';
+import { CheckRunError, pullRequestCheckRun } from './workflow-check-run';
 
 const DEV_ENV_FILE = join(
   import.meta.dirname,
@@ -366,11 +367,18 @@ async function runWorkflow(
   };
   cancelOnSignals(state);
 
-  must(['gh', 'workflow', 'run', workflow, '--ref', branch]);
-  console.log(
-    `${label}: dispatched ${workflow} on ${branch} @ ${sha.slice(0, 9)}`
-  );
-  state.runId = await waitForRun(workflow, branch, sha, knownIds);
+  state.runId =
+    workflow === 'check.yml'
+      ? await pullRequestCheckRun(branch, sha, { run: must, sleep: Bun.sleep })
+      : null;
+  if (state.runId === null) {
+    must(['gh', 'workflow', 'run', workflow, '--ref', branch]);
+    console.log(
+      `${label}: dispatched ${workflow} on ${branch} @ ${sha.slice(0, 9)}`
+    );
+    state.runId = await waitForRun(workflow, branch, sha, knownIds);
+  }
+  console.log(`${label}: using run ${state.runId}`);
   state.tty = holdTTY();
   try {
     return await watchCurrentRun(state, options);
@@ -476,7 +484,13 @@ if (import.meta.main) {
   try {
     process.exit(await runCommand(process.argv.slice(2)));
   } catch (error) {
-    if (!(error instanceof WorkflowRemoteError || error instanceof SyncError)) {
+    if (
+      !(
+        error instanceof WorkflowRemoteError ||
+        error instanceof SyncError ||
+        error instanceof CheckRunError
+      )
+    ) {
       throw error;
     }
     console.error(`${label}: ${error.message}`);
