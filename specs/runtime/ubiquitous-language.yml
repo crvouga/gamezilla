@@ -143,7 +143,8 @@ terms:
       Use the app by hearing it read aloud instead of seeing it, as people who
       cannot see it do. They hear what every control does and what every
       picture that means something shows.
-    forms: [is listening to the app, listening to the app, listens to the app, hears, hear]
+    forms: [is listening to the app, listening to the app, listens to the app]
+    published: true
     avoid: [screen reader, assistive technology, accessible name, alt text, label]
 
   - term: keyboard

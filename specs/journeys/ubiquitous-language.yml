@@ -73,3 +73,6 @@ terms:
     from: billing
   - term: billing plans
     from: billing
+
+  - term: Custom Game
+    from: chess
