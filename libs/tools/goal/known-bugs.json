@@ -648,5 +648,15 @@
     "id": "request-finally-swallowed-route-error",
     "summary": "The harness request database middleware returned from finally, suppressing route exceptions and returning empty HTTP 200 bodies.",
     "regressionTest": "libs/server-app/tests/request-db-error.test.ts"
+  },
+  {
+    "id": "gherkin-outline-name-collision",
+    "summary": "Expanded examples of a Scenario Outline with a constant title were mistaken for duplicate declarations. Duplicate checks now use the source declaration while preserving each example line.",
+    "regressionTest": "pkgs/gherkin/tests/outline-names.test.ts"
+  },
+  {
+    "id": "gherkin-mixed-host-world",
+    "summary": "Registering the developer-tools harness replaced the live health host in the same entry. World lifecycles can now select their scenarios and an unmatched scenario keeps the default live host.",
+    "regressionTest": "pkgs/gherkin/tests/scoped-world.test.ts"
   }
 ]

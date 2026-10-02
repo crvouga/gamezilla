@@ -31,6 +31,8 @@ export type SpecStep = {
 };
 
 export type SpecScenario = {
+  /** Source declaration, shared by every expanded row of one outline. */
+  readonly declarationLine: number;
   readonly name: string;
   readonly line: number;
   /** Feature tags folded in, as Gherkin does (`@domain:x`, `@regression:bug-1`). */
@@ -94,6 +96,7 @@ function toScenario(
   const lastNode = pickle.astNodeIds[pickle.astNodeIds.length - 1] ?? '';
   return {
     name: pickle.name,
+    declarationLine: lines.get(pickle.astNodeIds[0] ?? '') ?? 0,
     line: lines.get(lastNode) ?? 0,
     tags: pickle.tags.map((tag) => tag.name),
     steps: pickle.steps.map((step) => {

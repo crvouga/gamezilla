@@ -244,13 +244,16 @@ function checkScenarioTags(
   feature: SpecFeature,
   errors: string[]
 ): void {
-  const names = new Set<string>();
+  const names = new Map<string, number>();
   for (const scenario of feature.scenarios) {
     const where = `${feature.uri}:${String(scenario.line)}`;
-    if (names.has(scenario.name)) {
+    if (
+      names.has(scenario.name) &&
+      names.get(scenario.name) !== scenario.declarationLine
+    ) {
       errors.push(`${where}: duplicate scenario name "${scenario.name}"`);
     }
-    names.add(scenario.name);
+    names.set(scenario.name, scenario.declarationLine);
     const domain = domainOf(scenario.tags);
     const allowed = allowedDomains(pkg, feature.uri);
     if (domain === null) {

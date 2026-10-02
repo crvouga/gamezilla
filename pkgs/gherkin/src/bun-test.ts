@@ -102,7 +102,6 @@ type ScenarioRun = {
 /** Runs the scenario; false when a host limit ended it undecided. */
 async function runScenario(run: ScenarioRun): Promise<boolean> {
   const { options, scenario } = run;
-  const lifecycle = worldLifecycle();
   const ctx: ScenarioContext = {
     packageName: options.packageName,
     featureUri: options.featureUri,
@@ -112,6 +111,7 @@ async function runScenario(run: ScenarioRun): Promise<boolean> {
     tags: scenario.tags,
     testId: `${slug(options.featureUri.replace(/^.*\//, '').replace(/\.feature$/, ''))}.${slug(scenario.name)}`,
   };
+  const lifecycle = worldLifecycle(ctx);
   const world = await lifecycle.create(ctx);
   const outcomes: StepOutcome[] = [];
   try {
