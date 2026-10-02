@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
-import { MAX_SPEC_PARTS } from './spec-packages';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
+import { MAX_SPEC_PARTS } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');

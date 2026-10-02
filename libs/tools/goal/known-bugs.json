@@ -635,9 +635,9 @@
     "regressionTest": "pkgs/db-indexes/tests/join-column-ownership.test.ts"
   },
   {
-    "id": "sqlite-reconcile-foreign-index",
-    "summary": "Reconciling framework tables dropped unique indexes owned by domain tables. The SQLite planner now removes stale indexes only for the slice it owns.",
-    "regressionTest": "pkgs/db-schema-sqlite/tests/declared-index-ownership.test.ts"
+    "id": "install-header-impersonated-account",
+    "summary": "An install header without a verified bearer could authenticate its signed-in account owner.",
+    "regressionTest": "libs/auth/tests/session-device-proof.test.ts"
   },
   {
     "id": "outbox-worker-claimed-foreign-delivery",
@@ -650,6 +650,16 @@
     "regressionTest": "libs/server-app/tests/request-db-error.test.ts"
   },
   {
+    "id": "deleted-device-bearer-rebound",
+    "summary": "A revoked token from a deleted account fell back to a new anonymous owner on mutation replay; deletion history is checked after fresh bearer verification and before anonymous mutation fallback.",
+    "regressionTest": "libs/auth/tests/deleted-device-bearer.test.ts"
+  },
+  {
+    "id": "deleted-membership-callback-race",
+    "summary": "A membership callback awaiting the provider recreated membership after deletion; projection is guarded by the live closure journal and callbacks recheck withdrawal before recording payments.",
+    "regressionTest": "libs/billing/tests/deleted-callback-race.test.ts"
+  },
+  {
     "id": "gherkin-outline-name-collision",
     "summary": "Expanded examples of a Scenario Outline with a constant title were mistaken for duplicate declarations. Duplicate checks now use the source declaration while preserving each example line.",
     "regressionTest": "pkgs/gherkin/tests/outline-names.test.ts"
@@ -660,19 +670,9 @@
     "regressionTest": "pkgs/gherkin/tests/scoped-world.test.ts"
   },
   {
-    "id": "install-header-impersonated-account",
-    "summary": "An install header without a verified bearer could authenticate its signed-in account owner.",
-    "regressionTest": "libs/auth/tests/session-device-proof.test.ts"
-  },
-  {
-    "id": "deleted-device-bearer-rebound",
-    "summary": "A revoked token from a deleted account fell back to a new anonymous owner on mutation replay; deletion history is checked after fresh bearer verification and before anonymous mutation fallback.",
-    "regressionTest": "libs/auth/tests/deleted-device-bearer.test.ts"
-  },
-  {
-    "id": "deleted-membership-callback-race",
-    "summary": "A membership callback awaiting the provider recreated membership after deletion; projection is guarded by the live closure journal and callbacks recheck withdrawal before recording payments.",
-    "regressionTest": "libs/billing/tests/deleted-callback-race.test.ts"
+    "id": "sqlite-reconcile-foreign-index",
+    "summary": "Reconciling framework tables dropped unique indexes owned by domain tables. The SQLite planner now removes stale indexes only for the slice it owns.",
+    "regressionTest": "pkgs/db-schema-sqlite/tests/declared-index-ownership.test.ts"
   },
   {
     "id": "deleted-payment-refund-incomplete",

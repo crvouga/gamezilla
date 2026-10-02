@@ -47,6 +47,8 @@
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:quint-system": "bun test tests/quint/system/simulation.test.ts tests/quint/system/effectiveness.test.ts",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
     "test:stack": "bun run scripts/test-stack.ts"
   },
   "dependencies": {
@@ -79,6 +81,7 @@
     "@pkgs/billing-providers": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/conformance": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
@@ -119,6 +122,7 @@
     "@clack/prompts": "catalog:",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
@@ -140,5 +144,9 @@
   ],
   "quintCampaignDomains": [
     "system"
-  ]
+  ],
+  "specDomains": [
+    "developer-tools"
+  ],
+  "specParts": 1
 }

@@ -262,6 +262,7 @@ describe('decideVerdict', () => {
       l.id === 'synthetics' ? { ...l, status: 'fail' as const } : l
     );
     const verdict = decideVerdict({
+      edition: 'current',
       lines: releaseFails,
       require: ['production-safe synthetics', 'completeness'],
       readiness: EVIDENCE_MAP['production readiness'],
@@ -276,25 +277,38 @@ describe('decideVerdict', () => {
 
   test('a requirement nothing maps fails, and so does a manifest that did not parse', () => {
     expect(
-      decideVerdict({ lines: allPass, require: ['security'], readiness: {} })
-        .requirements[0]
+      decideVerdict({
+        edition: 'current',
+        lines: allPass,
+        require: ['security'],
+        readiness: {},
+      }).requirements[0]
     ).toMatchObject({
       status: 'fail',
       problems: ['missing automation — no report line decides it'],
     });
     expect(
-      decideVerdict({ lines: allPass, require: null, readiness: {} })
-        .productionReadiness
+      decideVerdict({
+        edition: 'current',
+        lines: allPass,
+        require: null,
+        readiness: {},
+      }).productionReadiness
     ).toBe('fail');
     expect(
-      decideVerdict({ lines: allPass, require: [], readiness: {} })
-        .productionReadiness
+      decideVerdict({
+        edition: 'current',
+        lines: allPass,
+        require: [],
+        readiness: {},
+      }).productionReadiness
     ).toBe('pass');
   });
 
   test('renders the pipeline sections and both verdicts', () => {
     const text = renderVerdict(
       decideVerdict({
+        edition: 'current',
         lines,
         require: ['completeness'],
         readiness: EVIDENCE_MAP['production readiness'],

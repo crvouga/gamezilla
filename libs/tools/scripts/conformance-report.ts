@@ -162,7 +162,9 @@ const input: ReportInput = {
   gates: await gateVerdicts(RELEASE_GATE_TASKS),
 };
 
+const edition = git(['rev-parse', 'HEAD']);
 const verdict = decideVerdict({
+  edition,
   lines: evaluateLines(input),
   require: manifest?.['production readiness'].require ?? null,
   readiness: EVIDENCE_MAP['production readiness'],
@@ -172,7 +174,7 @@ const report: ConformanceReport = {
   ...verdict,
   specRevision: specRevision(specTreeFiles(), sha256),
   artifact: {
-    commit: git(['rev-parse', 'HEAD']),
+    commit: edition,
     dirty: git(['status', '--porcelain']) !== '',
   },
   environment: {

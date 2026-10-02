@@ -40,6 +40,9 @@
       ],
       "outputs": [".cache/harness-report/models/**"],
       "outputLogs": "errors-only"
+    },
+    "test:spec:0": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/developer-tools/**"]
     }
   }
 }

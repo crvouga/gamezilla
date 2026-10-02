@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
-    "./remote/publish": "./src/remote/publish.ts"
+    "./remote/publish": "./src/remote/publish.ts",
+    "./viewer": "./src/viewer.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
