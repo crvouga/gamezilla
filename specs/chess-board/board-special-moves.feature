@@ -53,9 +53,9 @@ Feature: Complete special chess moves
       When Alice moves the piece from e5 to d6
       Then Alice sees a White pawn on d6
       And Alice sees no Black pawn on d5
-      And Alice sees d6 marked as the capture destination
+      And Alice sees e5 and d6 marked as the last move
       And Alice hears one capture sound
-      And Alice's activity receives one move
+      And Alice's activity receives one capture move
 
     Scenario: An expired en passant opportunity cannot remove either pawn
       Given Alice has a chessboard where White's en passant opportunity from e5 to d6 has expired

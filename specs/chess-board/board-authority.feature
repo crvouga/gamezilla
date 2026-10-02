@@ -25,6 +25,19 @@ Feature: Change chessboard settings safely
       Then Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
+    Scenario: Disabling interactivity abandons a pending promotion choice
+      Given Alice has a pending White promotion from a7 to a8
+      When Alice's board settings disable interactivity
+      Then Alice sees the White pawn remaining on a7
+      And Alice is not offered a promotion choice
+      And Alice's activity receives no moves
+
+    Scenario: Re-enabling interactivity allows a future promotion request
+      Given Alice has a chessboard ready for White's promotion from a7 to a8 with interactivity disabled
+      When Alice's board settings enable interactivity
+      Then Alice can request promotion from a7 to a8
+      And Alice sees the White pawn remaining on a7
+
   Rule: A replacement position cancels an unfinished gesture
     No counter-example: replacing a position always abandons the old gesture.
 
@@ -41,6 +54,21 @@ Feature: Change chessboard settings safely
       When Alice's activity supplies the same position again
       Then Alice still has e2 selected
       And Alice's activity receives no moves
+
+    Scenario: A replacement position abandons a pending promotion choice
+      Given Alice has a pending White promotion from a7 to a8
+      When Alice's activity replaces the position
+      Then Alice sees the replacement position
+      And Alice is not offered a promotion choice
+      And Alice's activity receives no moves
+
+    Scenario: An unrelated position clears the old move and selection
+      Given Alice has a chessboard after White's move from e2 to e4 with e7 selected
+      When Alice's activity replaces the position
+      Then Alice sees the replacement position
+      And Alice sees no selection or legal destinations
+      And Alice sees no last move marked
+      And Alice hears no chessboard sounds
 
   Rule: Changing orientation cancels a drag without changing the position
     No counter-example: orientation never changes a chess position.
@@ -90,4 +118,59 @@ Feature: Change chessboard settings safely
       Given Alice has an interactive chessboard
       When Alice cancels the drag
       Then Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves
+
+  Rule: The activity may confirm or refuse an offered move
+
+    Scenario: Confirmation preserves the offered move without offering it twice
+      Given Alice has a chessboard after offering White's move from e2 to e4
+      When Alice's activity confirms the offered position
+      Then Alice sees a White pawn on e4
+      And Alice sees e2 and e4 marked as the last move
+      And Alice hears no chessboard sounds
+      And Alice's activity receives no moves
+
+    Scenario: Refusal restores the earlier position without sound
+      Given Alice has a chessboard after offering White's move from e2 to e4
+      When Alice's activity refuses the offered move
+      Then Alice sees White's offered move refused
+      And Alice sees the White pawn remaining on e2
+      And Alice hears no chessboard sounds
+      And Alice's activity receives no moves
+
+  Rule: Only usable supplied positions become the chessboard's position
+
+    Scenario: An immediate opponent reply has one move highlight and sound
+      Given Alice has a chessboard after offering White's move from e2 to e4
+      When Alice's activity supplies Black's reply from e7 to e5
+      Then Alice sees a Black pawn on e5
+      And Alice sees e7 and e5 marked as the last move
+      And Alice hears one move sound
+
+    Scenario: An unusable supplied position keeps the last good position
+      Given Alice has an interactive chessboard
+      When Alice's activity supplies an unusable position
+      Then Alice still sees the position before White's first move
+      And Alice hears no chessboard sounds
+      And Alice's activity receives no moves
+
+    Scenario: An unusable initial position starts normal chess
+      Given Alice's activity has no chessboard yet
+      When Alice's activity starts a chessboard with an unusable position
+      Then Alice sees the position before White's first move
+      And Alice sees White to move
+
+  Rule: Automatic queen promotion changes apply to the next request
+
+    Scenario: A newly enabled automatic queen choice applies to a new request
+      Given Alice has a chessboard ready for White's promotion from a7 to a8 with automatic queen promotion enabled
+      When Alice moves the piece from a7 to a8
+      Then Alice sees a White queen on a8
+      And Alice's activity receives one move promoting to a queen
+
+    Scenario: Enabling automatic queen promotion preserves a pending explicit choice
+      Given Alice has a pending White promotion from a7 to a8
+      When Alice's board settings enable automatic queen promotion
+      Then Alice is still offered queen, rook, bishop and knight as the promotion choice
+      And Alice cannot complete the move until the pending promotion choice is decided
       And Alice's activity receives no moves
