@@ -9,19 +9,26 @@
 | Gherkin maintenance specifications | `specs/db-indexes/*.feature`, `tests/steps/` | `bun run test:spec` |
 | Quint implementation replay | `specs/db-indexes/*.qnt`, `tests/quint/` | `bun run test:spec` |
 | Bounded exhaustive model checks | `specs/db-indexes/*.qnt` | `bun run check:models` |
+| Documentation syntax and bounded Quint reference validity, without adapter replay | `tests/quint/index-contracts.test.ts` | `bun test pkgs/db-indexes/tests/quint/index-contracts.test.ts` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
-All executable specifications live in the isolated
+Executable maintenance specifications live in the isolated
 [Database indexing context](../../../specs/db-indexes/), registered to this
 package. The shared runners generate conformance evidence from the root specs.
-Pure computations, port contracts and supplementary generated agreement checks
-remain package tests.
+Supplemental index reconciliation reference models and their runners live in
+`tests/quint/`; their contract examples live in
+[AUTOMATIC_INDEXES.md](AUTOMATIC_INDEXES.md). Pure computations, port contracts
+and supplementary generated agreement checks remain package tests.
 
 The technical contract, bounds, coverage and outstanding safety evidence are in
 [SAFETY_CONTRACT.md](./SAFETY_CONTRACT.md). Its runners use public exports and
 virtual clocks; the bundled CLI and pinned checker are documented in
 [@pkgs/quint](../../quint/README.md).
+
+The tuning harness — one reconciler over `HarnessDb` on a virtual clock, with
+the standing `tuningInvariantsHold` property — is `indexTuningSystem`, exported
+from `@pkgs/db-indexes/harness`.
 `tests/index-tuning.property.test.ts` generates sequences of declaring
 lookups, tuning, uses, days passing and the team adding its own index, and
 runs each against the harness and a reference model of the tuning rules:
@@ -51,6 +58,9 @@ a fresh harness ends in the same state. It runs on the pinned seed
 | I4 indexable workload | `assertIndexableWorkload` (CI on APP_QUERIES) | n/a (authoring) | `indexability` |
 
 ## Adding a regression
+
+New normative contracts and outstanding adapter coverage:
+[SAFETY_CONTRACT.md](../../db-schema/docs/SAFETY_CONTRACT.md).
 
 1. Extend `tests/generators/statement-ast.ts` render helpers if SQL shape differs.
 2. Pin an example test under `tests/` marked `// regression: <bug-id>`, with

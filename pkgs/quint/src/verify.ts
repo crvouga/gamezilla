@@ -19,7 +19,8 @@
  */
 
 import { spawn } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import {
   APALACHE_VERSION,
@@ -42,6 +43,8 @@ export type VerifyOptions = {
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */
   readonly timeoutMs: number;
+  /** Opt into array-encoded maps for models supported by that encoding. */
+  readonly encoding?: 'fun-arrays';
 };
 
 export type VerifyResult =
@@ -61,6 +64,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
+  const configPath = encodingConfig(options);
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
@@ -68,7 +72,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   const port = await freePort();
   const elapsed = wallStopwatch();
   const run = await runQuint({
-    args: verifyArgs(options, port),
+    args: verifyArgs(options, port, configPath),
     cwd: options.outDir,
     env,
     timeoutMs: options.timeoutMs,
@@ -93,7 +97,11 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   return { ok: true, durationMs };
 }
 
-function verifyArgs(options: VerifyOptions, port: number): string[] {
+function verifyArgs(
+  options: VerifyOptions,
+  port: number,
+  configPath: string | null
+): string[] {
   return [
     QUINT_CLI,
     'verify',
@@ -104,11 +112,29 @@ function verifyArgs(options: VerifyOptions, port: number): string[] {
     String(options.maxSteps),
     '--apalache-version',
     APALACHE_VERSION,
+    ...(configPath === null ? [] : ['--apalache-config', configPath]),
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
     '--invariants',
     ...options.invariants,
   ];
+}
+
+function encodingConfig(options: VerifyOptions): string | null {
+  if (options.encoding === undefined) return null;
+  // The alternative map encoding is unsuitable for some higher-order models.
+  // Callers opt in; the bound and invariant obligations stay the same.
+  const path = join(options.outDir, 'apalache-config.json');
+  writeFileSync(
+    path,
+    JSON.stringify({
+      checker: {
+        'smt-encoding': { type: options.encoding },
+        tuning: { 'search.invariant.mode': 'after' },
+      },
+    })
+  );
+  return path;
 }
 
 type QuintRun = {

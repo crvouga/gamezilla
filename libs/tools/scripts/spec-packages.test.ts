@@ -102,6 +102,25 @@ describe('specPackages', () => {
   const inDomain = (path: string, domains: readonly string[]) =>
     domains.some((domain) => path.startsWith(`specs/${domain}/`));
 
+  // regression: db-framework-contract-spec-discovery
+  test('unbound database protocols stay in package model tests', () => {
+    expect(packages.map((pkg) => pkg.name)).not.toContain('@pkgs/db-schema');
+    const models = packages.flatMap((pkg) => pkg.models);
+    expect(models).not.toContain(
+      'specs/db-schema/reconciliation-transaction.qnt'
+    );
+    expect(models).not.toContain('specs/db-schema/rebuild-recovery.qnt');
+    expect(models).not.toContain('specs/db-indexes/index-reconciliation.qnt');
+    const indexing = packages.find((pkg) => pkg.name === '@pkgs/db-indexes');
+    expect(indexing?.models).toEqual([
+      'specs/db-indexes/index-interruption.qnt',
+      'specs/db-indexes/index-retirement.qnt',
+    ]);
+    expect(indexing?.features).toHaveLength(6);
+    expect(indexing?.definitions.length).toBeGreaterThan(0);
+    expect(indexing?.problems).toEqual([]);
+  });
+
   test('decision tables and structures come from the harness domains', () => {
     for (const pkg of packages) {
       for (const path of pkg.decisions) {
