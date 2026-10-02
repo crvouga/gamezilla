@@ -368,6 +368,25 @@ function applyTarget(target: string | undefined): void {
   process.env['SECRETS_ENV'] = env;
 }
 
+/** Install the Solid/macro loader before any generated stub resolves its steps. */
+export function healthTestArgs(
+  bunArgs: readonly string[],
+  stubs: readonly string[]
+): string[] {
+  return [
+    'test',
+    '--conditions=browser',
+    '--conditions=development',
+    '--preload',
+    '@pkgs/bun-test-solid/preload',
+    '--timeout',
+    String(SCENARIO_TIMEOUT_MS),
+    '--parallel',
+    ...bunArgs,
+    ...stubs,
+  ];
+}
+
 if (import.meta.main) {
   const cli = parseCli(process.argv.slice(2));
   if (cli.synthetic && cli.objectives) {
@@ -389,21 +408,10 @@ if (import.meta.main) {
     console.error('health: nothing to run');
     process.exit(1);
   }
-  const result = spawnSync(
-    'bun',
-    [
-      'test',
-      '--timeout',
-      String(SCENARIO_TIMEOUT_MS),
-      '--parallel',
-      ...cli.bunArgs,
-      ...stubs,
-    ],
-    {
-      cwd: PACKAGE_DIR,
-      stdio: 'inherit',
-      env: { ...process.env, SPEC_TAGS: tags },
-    }
-  );
+  const result = spawnSync('bun', healthTestArgs(cli.bunArgs, stubs), {
+    cwd: PACKAGE_DIR,
+    stdio: 'inherit',
+    env: { ...process.env, SPEC_TAGS: tags },
+  });
   process.exit(result.status ?? 1);
 }

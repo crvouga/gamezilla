@@ -1263,5 +1263,10 @@
     "id": "infra-plan-credential-output",
     "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
     "regressionTest": "libs/infra/tests/redact-output.test.ts"
+  },
+  {
+    "id": "health-ui-step-loader-order",
+    "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
   }
 ]

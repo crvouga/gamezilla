@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { healthTestArgs } from '@apps/product/scripts/health';
 import { parseFeature } from '@pkgs/gherkin/parse';
 import {
   allSpecs,
@@ -164,4 +165,20 @@ describe('synthetic discovery', () => {
     });
     expect(parseCli(['--target=test']).target).toBe('test');
   });
+});
+
+// regression: health-ui-step-loader-order
+test('live health installs the browser macro loader before loading generated steps', () => {
+  const stub = '.cache/spec-live/runtime-declared-environment.feature.test.ts';
+  const args = healthTestArgs(
+    ['--test-name-pattern', 'Nobody has changed the environment by hand'],
+    [stub]
+  );
+  const loader = args.indexOf('@pkgs/bun-test-solid/preload');
+  expect(loader).toBeGreaterThan(0);
+  expect(args[loader - 1]).toBe('--preload');
+  expect(loader).toBeLessThan(args.indexOf(stub));
+  expect(args).toContain('--conditions=browser');
+  expect(args).toContain('--conditions=development');
+  expect(args).toContain('Nobody has changed the environment by hand');
 });
