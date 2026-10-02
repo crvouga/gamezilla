@@ -376,7 +376,10 @@ finishReport(result.status ?? 1);
 process.exit(result.status ?? 1);
 
 function finishReport(status: number): void {
-  writeFileSync(join(REPORT_DIR, REPORT_COMPLETION), JSON.stringify({ status }));
+  writeFileSync(
+    join(REPORT_DIR, REPORT_COMPLETION),
+    JSON.stringify({ status })
+  );
   console.log(REPORT_READY);
 }
 

@@ -189,6 +189,7 @@ async function main(argv: readonly string[]): Promise<void> {
   }
   const store = reportsStore();
   const sha = headSha();
+  const publicationRun = `${process.env['GITHUB_RUN_ID'] ?? 'local'}:${process.env['GITHUB_RUN_ATTEMPT'] ?? '1'}`;
   if (command === 'open') {
     const commit = await openCommit(store, {
       sha,
@@ -205,7 +206,7 @@ async function main(argv: readonly string[]): Promise<void> {
       store,
       repoRoot: REPO_ROOT,
       sha,
-      runId: process.env['GITHUB_RUN_ID'] ?? 'local',
+      runId: publicationRun,
       taskId: arg,
     });
     return;
@@ -217,7 +218,7 @@ async function main(argv: readonly string[]): Promise<void> {
     await verifyPublications({
       store,
       sha,
-      runId: process.env['GITHUB_RUN_ID'] ?? 'local',
+      runId: publicationRun,
       taskIds: (JSON.parse(assignment) as string[][]).flat(),
     });
     const commit = await closeCommit(store, {

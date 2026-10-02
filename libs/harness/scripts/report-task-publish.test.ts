@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -23,6 +23,16 @@ describe('report completion receipts', () => {
       mkdirSync(join(repoRoot, 'libs/example/.cache/harness-report/part-0'), {
         recursive: true,
       });
+      await expect(
+        publishReportTask({ ...args, repoRoot, taskId })
+      ).rejects.toThrow('Missing report output');
+      writeFileSync(
+        join(
+          repoRoot,
+          'libs/example/.cache/harness-report/part-0/complete.json'
+        ),
+        '{"status":0}'
+      );
       await publishReportTask({ ...args, repoRoot, taskId });
       await verifyPublications(args);
       await expect(

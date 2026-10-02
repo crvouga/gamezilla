@@ -43,12 +43,14 @@
  *   finishes. Both live in `check-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
- * - `--restore-outputs` (the Check workflow's `check:publish` jobs): leave every
- *   task's cached outputs on disk. A plain run skips turbo when everything
+ * - `--restore-outputs`: leave every task's cached outputs on disk. A plain run skips turbo when everything
  *   hit, which is right for a verdict but restores nothing; this mode
  *   prefetches every remote hit, runs turbo over the whole set (hits restore
  *   their outputs, misses run) and `--continue`s past a failing task so every
  *   suite reports.
+ * - `--publish-reports`: restore assigned cached spec parts and publish each
+ *   completed part from Turbo's structured stream. Uploads have their own
+ *   bounded pool, overlap checks, and must finish before the shard passes.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -517,8 +519,8 @@ const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
 
 /**
  * `--plan-shards`: split the misses across CI runners (`check-shards.ts`) and
- * hand the split to the workflow instead of running anything. Without a plan
- * (the dry run failed) one shard runs the whole requested set unplanned.
+ * hand the split to the workflow instead of running anything. Cache hits
+ * with report outputs also receive an owner. A missing plan fails closed.
  */
 function writeShardPlanAndExit(plan: RunPlan | null): never {
   if (plan === null)
@@ -711,8 +713,13 @@ function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
  * with it; the price is that the terminal's Ctrl-C no longer reaches it, so
  * SIGINT / SIGTERM are forwarded here instead.
  */
-function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
+function armDeadline(
+  child: ChildProcess,
+  deadlineSeconds: number,
+  stopReports: () => void
+): () => void {
   const forward = (signal: NodeJS.Signals) => () => {
+    stopReports();
     killTree(child, signal);
   };
   const onInt = forward('SIGINT');
@@ -735,6 +742,7 @@ function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
         'libs/tools/scripts/check-budget.ts with the measurement.'
     );
     killTree(child, 'SIGKILL');
+    stopReports();
   }, deadlineSeconds * 1000);
   return () => {
     clearTimeout(timer);
@@ -756,11 +764,14 @@ function runTurbo(
     env,
     detached: true,
   });
-  const disarm = armDeadline(child, options.deadlineSeconds);
+  const uploads = new AbortController();
+  const disarm = armDeadline(child, options.deadlineSeconds, () =>
+    uploads.abort()
+  );
   const reports =
     reportTasks === undefined
       ? Promise.resolve()
-      : observeReportOutput(child, reportTasks, env);
+      : observeReportOutput(child, reportTasks, env, uploads.signal);
   // Observe upload errors immediately; return a failed verdict after every upload settles.
   const publication = reports.then(
     () => true,

@@ -7,7 +7,13 @@ import { createReportPublisher } from './check-report-stream';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
-function publish(taskId: string, env: NodeJS.ProcessEnv): Promise<void> {
+function publish(
+  taskId: string,
+  env: NodeJS.ProcessEnv,
+  signal: AbortSignal
+): Promise<void> {
+  if (signal.aborted)
+    return Promise.reject(new Error('Report publication cancelled'));
   return new Promise((resolve, reject) => {
     const started = process.hrtime.bigint();
     const child = spawn(
@@ -17,6 +23,7 @@ function publish(taskId: string, env: NodeJS.ProcessEnv): Promise<void> {
         cwd: REPO_ROOT,
         env,
         stdio: 'inherit',
+        signal,
       }
     );
     child.on('error', reject);
@@ -26,8 +33,12 @@ function publish(taskId: string, env: NodeJS.ProcessEnv): Promise<void> {
         return;
       }
       const seconds = Number(process.hrtime.bigint() - started) / 1e9;
-      writeUploadSummary(taskId, seconds);
-      resolve();
+      try {
+        writeUploadSummary(taskId, seconds);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
     });
   });
 }
@@ -54,10 +65,11 @@ function writeUploadSummary(taskId: string, seconds: number): void {
 export function observeReportOutput(
   child: ChildProcess,
   taskIds: readonly string[],
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  signal: AbortSignal
 ): Promise<void> {
   const publisher = createReportPublisher(taskIds, {
-    publish: (taskId) => publish(taskId, env),
+    publish: (taskId) => publish(taskId, env, signal),
     log: (line) => console.log(line),
   });
   if (child.stdout === null) throw new Error('Turbo report stream is missing');

@@ -7,7 +7,11 @@ import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { REPORT_COMPLETION, type ReportTask, reportTask } from '../src/ci/report-ready';
+import {
+  REPORT_COMPLETION,
+  type ReportTask,
+  reportTask,
+} from '../src/ci/report-ready';
 
 function receiptKey(sha: string, task: ReportTask): string {
   return `commits/${sha}/publications/${sourceId(task.packageDir, task.bucket)}.json`;
@@ -29,9 +33,12 @@ export async function publishReportTask(args: {
     task.bucket
   );
   if (!existsSync(join(rootDir, REPORT_COMPLETION)))
-      throw new Error(`Missing report output: ${args.taskId}`);
-  const completion = JSON.parse(readFileSync(join(rootDir, REPORT_COMPLETION), 'utf8')) as { status: number };
-  if (!Number.isInteger(completion.status) || completion.status < 0) throw new Error(`Invalid report completion: ${args.taskId}`);
+    throw new Error(`Missing report output: ${args.taskId}`);
+  const completion = JSON.parse(
+    readFileSync(join(rootDir, REPORT_COMPLETION), 'utf8')
+  ) as { status: number };
+  if (!Number.isInteger(completion.status) || completion.status < 0)
+    throw new Error(`Invalid report completion: ${args.taskId}`);
   const local = createNodeFsObjectStore({
     rootDir,
     fs: wallNodeFs(),
