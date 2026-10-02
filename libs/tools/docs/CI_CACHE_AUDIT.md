@@ -18,7 +18,7 @@ Release/check policy: [repository briefing](../../../README.md#correctness-machi
   advisory audit always executes, even if an older cache artifact exists.
 - Build hashes now cover toolchain pins, public Vite environment values,
   `ANALYZE`, client dotenv files, translation catalogs, module configs, and
-  shared Lingui configs. Vite embeds the whole public environment object;
+  shared Lingui configs and the root catalog compilation command. Vite embeds the whole public environment object;
   its commit metadata and dates genuinely change bundle bytes. Other tasks
   do not hash those values. Offline-shell verification relies on its build
   dependency's hash instead of hashing generated `dist` before restoration.
@@ -135,6 +135,24 @@ but its diagnostic scan required at least 400 archives and rejected its
 archives against 29 credential variables, including raw, URL-encoded, base64,
 and SHA-256 forms, with zero matches. That diagnostic is not a permanent gate.
 API runs no longer emit the dependency cache event/ref validation warnings.
+
+After isolating all contract sidecars, commit
+`eb1fff113d57dde50a14d87e78170ff5f5517105` passed another complete cold/warm
+pair at 12 slots:
+
+| Run | Turbo tasks | Check step | Job | Cache hits / executed |
+| --- | --- | --- | --- | --- |
+| [Cold](https://depot.dev/orgs/mk7ncjwh4n/workflows/383nbp9hcc) | 246.078s | 256.5s | 275.817s | 0 / 489 |
+| [Same-commit warm](https://depot.dev/orgs/mk7ncjwh4n/workflows/vh9dp69wv1) | Advisory audit only | 12.5s | 24.198s | 488 / 1 |
+
+Both passed. Cold peak memory was 38.5%; its 488 archives had zero matches
+against 40 environment variables selected for credential/config scanning,
+including database URLs and common encodings. No API ref-validation warning
+appeared. Global file/lock inputs matched between summaries; run-specific
+pass-through metadata differed as expected, and the warm audit task's hash
+matched the cold summary. The later root `package.json` build-input guard
+adds invalidation for changes to the catalog compilation command; it changes
+cache keys without changing task output or coverage.
 
 ## Critical path and retained coverage
 

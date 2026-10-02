@@ -43,7 +43,11 @@ test('build hashes its toolchain, shared compiler configs and output-affecting e
   for (const name of ['VITE_*', 'ANALYZE']) {
     expect(turbo.tasks.build.env).toContain(name);
   }
-  for (const file of ['lingui.config.ts', 'lingui.solid.config.ts']) {
+  for (const file of [
+    'package.json',
+    'lingui.config.ts',
+    'lingui.solid.config.ts',
+  ]) {
     expect(turbo.tasks.build.inputs).toContain(`$TURBO_ROOT$/${file}`);
   }
   for (const input of ['**/*.po', '**/*.mts', '.env.local']) {

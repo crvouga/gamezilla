@@ -402,6 +402,7 @@
         ".env.local",
         ".env.production",
         ".env.production.local",
+        "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/lingui.solid.config.ts"
       ],
