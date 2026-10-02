@@ -6,6 +6,9 @@
 | --- | --- | --- |
 | Unit / contract / property | `tests/*.test.ts` | `bun run test` |
 | Model-based (index tuning) | `tests/index-tuning.property.test.ts` | `bun run test` |
+| Technical Gherkin contracts | `tests/contracts/*.feature`, `tests/safety-contract.test.ts` | `bun run test` |
+| Quint implementation replay | `tests/contracts/*.qnt`, `tests/safety-models.test.ts` | `bun run test` |
+| Bounded exhaustive model checks | `tests/safety-verification.test.ts` | `bun run test` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
@@ -14,6 +17,10 @@ Index tuning is technical, so it has no specs in `specs/`
 code tests here. The tuning harness — one reconciler over `HarnessDb` on a
 virtual clock, with the standing `tuningInvariantsHold` property — is
 `indexTuningSystem`, exported from `@pkgs/db-indexes/harness`.
+The technical contract, bounds, coverage and outstanding safety evidence are in
+[SAFETY_CONTRACT.md](./SAFETY_CONTRACT.md). Its runners use public exports and
+virtual clocks; the bundled CLI and pinned checker are documented in
+[@pkgs/quint](../../quint/README.md).
 `tests/index-tuning.property.test.ts` generates sequences of declaring
 lookups, tuning, uses, days passing and the team adding its own index, and
 runs each against the harness and a reference model of the tuning rules:
@@ -38,7 +45,7 @@ a fresh harness ends in the same state. It runs on the pinned seed
 | Invariant | Prod assert | Harness check | Property / model |
 | --- | --- | --- | --- |
 | I1 owned-only DDL | `diffOwnedIndexes` + `reconcile` execute | `tuningInvariantsHold` | `ownership`, `index-tuning.property` (team's own index) |
-| I2 crash-converge | n/a (executor returns crashed) | n/a | not modeled |
+| I2 crash-converge | n/a (executor returns crashed) | `indexSafetySystem` | `execution.feature`, `persisted-interruption.feature`, `index-interruption.qnt` (limits in the safety contract) |
 | I3 usage-hold drop | `pushDeprecateDropActions` | `tuningInvariantsHold` (`I3_usage_hold`) | `index-tuning.property` (uses, retiring) |
 | I4 indexable workload | `assertIndexableWorkload` (CI on APP_QUERIES) | n/a (authoring) | `indexability` |
 

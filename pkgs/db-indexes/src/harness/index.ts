@@ -8,6 +8,19 @@ export {
   type HarnessIndexSeed,
   type HarnessTableSeed,
 } from './db';
+export { SAFETY_INDEX } from './index-safety-fixtures';
+export {
+  type IndexSafety,
+  indexSafetySystem,
+  resumeSafetyReconcile,
+  runSafetyPlan,
+  runSafetyReconcile,
+  safetySnapshot,
+  selectSafetyFixture,
+  setRetirementAge,
+  setRunBudget,
+  setWriteInterruption,
+} from './index-safety-system';
 export {
   daysPass,
   declare,

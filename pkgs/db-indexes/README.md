@@ -42,6 +42,8 @@ tuning harness against a reference model of declaring, tuning, retiring and
 the team's own indexes, plus same-sequence replay), and the invariant →
 assert / harness / property map. Index tuning is technical, so it has no
 specs in `specs/`; every guard is a code test in this package.
+Its executable Gherkin and Quint technical contract, model bounds, coverage and
+outstanding safety evidence are in [`SAFETY_CONTRACT.md`](./docs/SAFETY_CONTRACT.md).
 
 ## Ownership
 
