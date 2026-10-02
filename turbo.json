@@ -5,6 +5,7 @@
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],
   "globalPassThroughEnv": [
     "GITHUB_*",
+    "BUN_CHROME_PATH",
     "DEPOT_*",
     "FEEDBACK_*",
     "POST_DEPLOY_*",
@@ -729,6 +730,7 @@
         "test:spec:62",
         "test:spec:63",
         "check:models",
+        "@apps/product#check:ui-quality",
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
         "@apps/product#check:worker-bundle",

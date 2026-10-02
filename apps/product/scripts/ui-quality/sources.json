@@ -1,0 +1,8 @@
+[
+  { "package": "@apps/product", "directory": "apps/product", "parts": 1 },
+  { "package": "@libs/billing", "directory": "libs/billing", "parts": 3 },
+  { "package": "@libs/chess", "directory": "libs/chess", "parts": 8 },
+  { "package": "@libs/friends", "directory": "libs/friends", "parts": 64 },
+  { "package": "@libs/profile", "directory": "libs/profile", "parts": 2 },
+  { "package": "@libs/runtime", "directory": "libs/runtime", "parts": 2 }
+]

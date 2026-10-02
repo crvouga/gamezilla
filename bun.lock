@@ -172,6 +172,7 @@
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
         "typescript": "catalog:",
+        "ui-quality-check": "workspace:*",
         "vite": "catalog:",
         "vite-plugin-solid": "catalog:",
         "workbox-build": "catalog:",

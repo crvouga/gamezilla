@@ -108,6 +108,7 @@ const CHECK_LEAVES = [
   'test:contract',
   ...SPEC_PART_TASKS,
   'check:models',
+  '@apps/product#check:ui-quality',
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',

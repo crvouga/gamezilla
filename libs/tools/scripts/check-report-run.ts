@@ -49,7 +49,9 @@ function publish(
 function writeUploadSummary(taskId: string, seconds: number): void {
   const dir = join(REPO_ROOT, '.turbo/report-runs');
   mkdirSync(dir, { recursive: true });
-  const id = taskId.replace('#test:spec:', '#publish:spec:');
+  const id = taskId
+    .replace('#test:spec:', '#publish:spec:')
+    .replace('#check:ui-quality', '#publish:ui-quality');
   writeFileSync(
     join(dir, `publish-${id.replace(/[^a-z0-9-]/g, '-')}.json`),
     JSON.stringify({

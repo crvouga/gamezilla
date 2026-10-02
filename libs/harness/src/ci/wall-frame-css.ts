@@ -1,0 +1,74 @@
+// @io-wall-ok — local report asset compiler used by artifact production, never a gate leaf.
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { run } from '@pkgs/os';
+
+function uiCss(repoRoot: string): readonly string[] {
+  return [
+    join(repoRoot, 'pkgs/ui/src/theme/tokens.css'),
+    join(repoRoot, 'pkgs/ui/src/components/skin.css'),
+    join(repoRoot, 'pkgs/ui/src/components/hosts.css'),
+  ];
+}
+
+function listModuleCss(dir: string, out: string[]): void {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'node_modules') listModuleCss(path, out);
+    } else if (entry.name.endsWith('.module.css')) {
+      out.push(path);
+    }
+  }
+}
+
+/**
+ * Stylesheet the phone snapshots share: Tailwind, tokens, skin, hosts, and
+ * every `pkgs/` CSS module. bun's harness Babel plugin exports unhashed local
+ * class names, so the raw module CSS applies. `hosts.css` `@import`s skin,
+ * which a sheet concatenated after Tailwind drops, so skin is inlined above.
+ */
+export function compileFrameCss(repoRoot: string): string {
+  const tmp = mkdtempSync(join(tmpdir(), 'harness-report-css-'));
+  try {
+    const out = join(tmp, 'tailwind.css');
+    run(
+      'bunx',
+      [
+        '--no-install',
+        '@tailwindcss/cli',
+        '-i',
+        join(join(repoRoot, 'pkgs/tailwind'), 'src/tailwind.css'),
+        '-o',
+        out,
+      ],
+      { cwd: join(repoRoot, 'pkgs/tailwind') }
+    );
+    const modules: string[] = [];
+    for (const name of readdirSync(join(repoRoot, 'pkgs')).sort()) {
+      const src = join(repoRoot, 'pkgs', name, 'src');
+      if (existsSync(src)) listModuleCss(src, modules);
+    }
+    return [
+      readFileSync(out, 'utf8'),
+      // `hosts.css` `@import`s skin. A sheet concatenated after Tailwind
+      // drops `@import`, so skin is inlined and those lines are removed.
+      ...uiCss(repoRoot).map((p) =>
+        readFileSync(p, 'utf8').replace(/@import\s+[^;]+;/g, '')
+      ),
+      ...modules.map(
+        (p) =>
+          `/* ${p.slice(repoRoot.length + 1)} */\n${readFileSync(p, 'utf8')}`
+      ),
+    ].join('\n');
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}

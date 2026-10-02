@@ -198,6 +198,8 @@ jobs:
 
       - id: setup
         uses: ./.depot/actions/setup
+        with:
+          ui-quality: 'true'
 
       - uses: ./.depot/actions/secrets-auth
         with:
@@ -205,9 +207,22 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
 
+      - name: Prepare cached visual model
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs @apps/product#prepare:ui-quality-model
+
       - name: deploy:${{ matrix.env }}
         id: deploy
         run: bun run deploy:local
+
+      - name: Upload visual quality evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-quality-${{ github.run_id }}-${{ matrix.env }}
+          path: apps/product/.cache/ui-quality/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
 
       # Same evidence as production: dev is the job that fails first, and
       # without the page the next fix is guessing.
@@ -260,6 +275,8 @@ jobs:
 
       - id: setup
         uses: ./.depot/actions/setup
+        with:
+          ui-quality: 'true'
 
       - uses: ./.depot/actions/secrets-auth
         with:
@@ -267,9 +284,22 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
 
+      - name: Prepare cached visual model
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs @apps/product#prepare:ui-quality-model
+
       - name: deploy:${{ matrix.env }}
         id: deploy
         run: bun run deploy:local
+
+      - name: Upload visual quality evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-quality-${{ github.run_id }}-${{ matrix.env }}
+          path: apps/product/.cache/ui-quality/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
 
       # The deploy ends with `@apps/product#health`, the critical journeys too.
       - name: Upload critical journey evidence

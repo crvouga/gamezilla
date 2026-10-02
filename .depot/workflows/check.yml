@@ -43,6 +43,8 @@ jobs:
           fetch-depth: 0
 
       - uses: ./.depot/actions/setup
+        with:
+          ui-quality: 'true'
 
       - uses: ./.depot/actions/secrets-auth
         with:
@@ -53,6 +55,11 @@ jobs:
       - name: Runner resources
         run: |
           bun -e 'console.log(JSON.stringify({ cpus: require("node:os").availableParallelism(), memoryBytes: require("node:os").totalmem(), arch: process.arch }))'
+
+      # Model setup may download only on a cache miss. Restore its pinned
+      # output explicitly; the following Check gate remains offline.
+      - name: Prepare cached visual model
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs @apps/product#prepare:ui-quality-model
 
       - name: check
         id: check
@@ -82,6 +89,16 @@ jobs:
           path: |
             .turbo/runs/*.json
             .turbo/report-runs/*.json
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Upload visual quality evidence
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-quality-${{ github.run_id }}
+          path: apps/product/.cache/ui-quality/
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7

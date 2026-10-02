@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Offline visual quality scoring for screenshots and automated test videos",
   "license": "MIT",
-  "type": "module",
   "sideEffects": false,
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -27,17 +27,15 @@
     "fixtures/model-parity.json",
     "LICENSE"
   ],
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
+    "benchmark": "bun run src/cli/index.ts benchmark",
     "build": "bun run scripts/build.ts",
-    "prepack": "bun run build",
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit -p tsconfig.tc.json",
-    "test": "bun test",
     "evaluate": "bun run scripts/evaluate.ts",
-    "benchmark": "bun run src/cli/index.ts benchmark"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "prepack": "bun run build",
+    "setup": "bun run src/cli/index.ts setup",
+    "tc": "tsc --noEmit -p tsconfig.tc.json",
+    "test": "bun test"
   },
   "dependencies": {
     "ffmpeg-static": "5.3.0",
@@ -56,5 +54,8 @@
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
     "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

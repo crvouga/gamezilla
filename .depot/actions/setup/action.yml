@@ -3,6 +3,10 @@ name: Setup repo (mise tools + deps)
 description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
 
 inputs:
+  ui-quality:
+    description: Install the pinned Chrome renderer for local visual quality inference
+    required: false
+    default: 'false'
   tools:
     description: Pinned mise tools to install; empty installs the full check toolchain
     required: false
@@ -33,4 +37,21 @@ runs:
     # frozen installs need neither a synthetic ref nor dependency restore keys.
     - name: Install dependencies
       shell: bash
+      env:
+        ONNXRUNTIME_NODE_INSTALL: skip
       run: bun install --frozen-lockfile
+
+    - name: Install pinned visual renderer
+      if: inputs.ui-quality == 'true'
+      id: chrome
+      uses: browser-actions/setup-chrome@v2
+      with:
+        chrome-version: '154.0.8037.92'
+        install-dependencies: true
+
+    - name: Select visual renderer
+      if: inputs.ui-quality == 'true'
+      shell: bash
+      env:
+        CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      run: echo "BUN_CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"

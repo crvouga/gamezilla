@@ -1288,5 +1288,10 @@
     "id": "ui-quality-cuda-not-bundled",
     "summary": "ONNX Runtime reports its registered CUDA backend with bundled:false because its provider library is separately installed. Filtering that flag prevented automatic GPU selection on Linux even after installation. Try all supported acceleration candidates and validate each with real inference before falling back.",
     "regressionTest": "pkgs/ui-quality-check/tests/providers.test.ts"
+  },
+  {
+    "id": "ui-quality-replay-viewport",
+    "summary": "Chrome clamps a requested 390 pixel window to 500 pixels, adding unrecorded whitespace to replay screenshots. Pin CDP device metrics and capture an explicit 390 by 844 clip; the native regression asserts the literal dimensions and painted corner pixel.",
+    "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
   }
 ]
