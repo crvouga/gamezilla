@@ -18,6 +18,8 @@ export function taskStream(
     }
     const task = byId.get(event.source);
     if (!task) {
+      if (event.text.includes('command finished with error, but continuing'))
+        return;
       log(event.text);
       return;
     }
@@ -29,7 +31,9 @@ export function taskStream(
     );
     if (
       event.level === 'error' ||
-      /command finished with error|command .*exited/.test(event.text)
+      /command finished with error|command .*exited|error: script .*exited with code [1-9]|^\(fail\)/.test(
+        event.text
+      )
     ) {
       const milliseconds =
         Number(

@@ -1,22 +1,29 @@
 // @io-wall-ok — isolated CI shard process composition root.
 import { spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
+import { reportTask } from '@libs/harness/ci/report-ready';
 import {
   findBudgetOverruns,
   formatBudgetOverruns,
   readLatestRunSummary,
 } from './check-budget';
+import { redactSecrets, taskStream } from './check-shard-stream';
 import {
+  type CheckPlan,
   validatePlan,
   validateShardResult,
-  type CheckPlan,
 } from './check-shards';
-import { redactSecrets, taskStream } from './check-shard-stream';
+import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { turboChildEnv, writePlatformCacheKey } from './turbo-ci-run';
 import { prefetchRemoteHits } from './turbo-preflight';
-import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');
@@ -65,14 +72,73 @@ export async function runShard(index: number): Promise<number> {
     : 0;
   const executionMs = Number(process.hrtime.bigint() - executionStart) / 1e6;
   const summary = misses.length ? readLatestRunSummary(ROOT) : null;
-  type Result = {
-    taskId: string;
-    hash: string;
-    passed: boolean;
-    cache: string;
-    milliseconds: number;
-    exitCode: number;
+  const { results, verdict } = collectResults({
+    plan,
+    shard,
+    summary,
+    needed,
+    status,
+    env,
+  });
+  const actualMs = Number(process.hrtime.bigint() - start) / 1e6;
+  mkdirSync(join(DIRECTORY, 'results'), { recursive: true });
+  const result = {
+    index,
+    taskCount: shard.tasks.length,
+    estimatedSeconds: shard.seconds,
+    actualMs,
+    prefetchMs,
+    executionMs,
+    verdict,
+    hits: results.filter((task) => task.cache === 'HIT').length,
+    tasks: results,
   };
+  writeFileSync(
+    join(DIRECTORY, 'results', `shard-${index}.json`),
+    JSON.stringify(result)
+  );
+  preserveFailedReports(results);
+  console.log(
+    `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${result.hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
+  );
+  return verdict;
+}
+
+function preserveFailedReports(results: readonly Result[]): void {
+  for (const result of results.filter((task) => !task.passed)) {
+    const report = reportTask(result.taskId);
+    if (!report) continue;
+    const relative = join(
+      report.packageDir,
+      '.cache/harness-report',
+      report.bucket
+    );
+    if (existsSync(join(ROOT, relative)))
+      cpSync(
+        join(ROOT, relative),
+        join(DIRECTORY, 'failed-reports', relative),
+        { recursive: true }
+      );
+  }
+}
+
+type Result = {
+  taskId: string;
+  hash: string;
+  passed: boolean;
+  cache: string;
+  milliseconds: number;
+  exitCode: number;
+};
+function collectResults(args: {
+  plan: CheckPlan;
+  shard: CheckPlan['shards'][number];
+  summary: ReturnType<typeof readLatestRunSummary>;
+  needed: ReadonlySet<string>;
+  status: number;
+  env: NodeJS.ProcessEnv;
+}): { results: Result[]; verdict: number } {
+  const { plan, shard, summary, needed, status, env } = args;
   const results: Result[] = shard.tasks
     .filter((task) => task.hit && !needed.has(task.taskId))
     .map((task) => ({
@@ -131,27 +197,7 @@ export async function runShard(index: number): Promise<number> {
       verdict = 1;
     }
   }
-  const actualMs = Number(process.hrtime.bigint() - start) / 1e6;
-  mkdirSync(join(DIRECTORY, 'results'), { recursive: true });
-  const result = {
-    index,
-    taskCount: shard.tasks.length,
-    estimatedSeconds: shard.seconds,
-    actualMs,
-    prefetchMs,
-    executionMs,
-    verdict,
-    hits: results.filter((task) => task.cache === 'HIT').length,
-    tasks: results,
-  };
-  writeFileSync(
-    join(DIRECTORY, 'results', `shard-${index}.json`),
-    JSON.stringify(result)
-  );
-  console.log(
-    `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${result.hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
-  );
-  return verdict;
+  return { results, verdict };
 }
 
 function execute(
@@ -165,9 +211,10 @@ function execute(
       'run',
       ...ids,
       '--framework-inference=false',
-      '--cache=local:rw,remote:rw',
+      env['CHECK_CACHE_MODE'] === 'cold'
+        ? '--cache=local:w,remote:w'
+        : '--cache=local:rw,remote:rw',
       `--concurrency=${env['TURBO_CONCURRENCY'] ?? '16'}`,
-      ...(env['CHECK_CACHE_MODE'] === 'cold' ? ['--force'] : []),
       '--cache-workers=32',
       '--summarize',
       '--json',

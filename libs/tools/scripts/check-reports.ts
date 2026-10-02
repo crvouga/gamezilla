@@ -1,6 +1,6 @@
 // @io-wall-ok — separate, nonessential aggregation/publication job.
 import { spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { restoreReportOutputs } from './check-report-restore';
 import { type CheckPlan, imbalance } from './check-shards';
@@ -27,6 +27,9 @@ function command(args: string[]): void {
 }
 
 if (import.meta.main) {
+  const failedReports = join(DIRECTORY, 'failed-reports');
+  if (existsSync(failedReports))
+    cpSync(failedReports, ROOT, { recursive: true });
   const results = plan.shards.flatMap((shard) => {
     try {
       return [
@@ -63,6 +66,11 @@ if (import.meta.main) {
     results.some((result) => result.verdict !== 0);
   try {
     await restoreReportOutputs(missing, plan, ROOT, env);
+  } catch (error) {
+    failed = true;
+    console.error(error);
+  }
+  try {
     command(['batch']);
   } catch (error) {
     failed = true;
