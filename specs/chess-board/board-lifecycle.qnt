@@ -4,7 +4,10 @@
 // Positions stand for a capture opportunity, its capture result, an unrelated
 // replacement, Black's legal reply to that capture, and the normal opening.
 // Their chess legality is already decided. This behavior is identical offline.
-// One current arrival and the most recently abandoned arrival bound this model.
+// The capture and its immediate knight reply may arrive together while both
+// pieces still belong to the current position. These requests precede any
+// completed arrival; finishing current motion settles both prepared pieces.
+// Those two current arrivals and the most recently abandoned arrival bound this model.
 // The earlier completion is a retained, real arrival belonging to its own piece;
 // completing it cannot finish a newer arrival, even at the same position.
 // A closed board has no displayed pieces or position. Starting with an unusable
@@ -61,8 +64,8 @@ module board_lifecycle {
   action receiveReply = all {
     board.present, board.position == 1,
     board' = { ...board, position: 3, displayedPosition: 3, selected: false,
-      dragging: false, transition: _canArrive(board), captureRemnant: false },
-    _earlierCompletion' = (_earlierCompletion or board.transition),
+      dragging: false, transition: _canArrive(board), captureRemnant: board.captureRemnant },
+    _earlierCompletion' = _earlierCompletion,
   }
   /// Equivalent supplied positions preserve the current arrival and remnant.
   /// A different activity position abandons that arrival and every old gesture.
@@ -139,8 +142,11 @@ module board_lifecycle {
   /// The latest position owns displayed pieces, even when older motion finishes.
   val invDisplayedPosition = board.displayedPosition == board.position and
     (if (board.present) Set(0, 1, 2, 3, 4).contains(board.position) else board.position == -1)
-  /// One capture remnant belongs only to its current arriving capture.
-  val invCaptureRemnant = board.captureRemnant == (board.transition and board.position == 1)
+  /// One capture remnant belongs only to its valid arriving pawn, including
+  /// during an immediate reply that preserves that pawn in the latest position.
+  val invCaptureRemnant = (board.captureRemnant implies
+    (board.transition and Set(1, 3).contains(board.position))) and
+    ((board.transition and board.position == 1) implies board.captureRemnant)
   /// Disabling input puts every piece down and clears selection.
   val invDisabled = not(board.interactive) implies not(board.selected or board.dragging)
   /// Reduced motion never waits for a moving piece or captured remnant.

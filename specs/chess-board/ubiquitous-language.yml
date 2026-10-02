@@ -7,14 +7,14 @@ terms:
     definition: The use presenting the chessboard and supplying its position and choices.
   - term: chessboard
     definition: A square chess board with eight files and eight ranks, usable on its own or within another activity.
-    forms: [chessboards, board, closes the chessboard]
-    model: [LifecycleBoard, board, closeBoard, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard]
+    forms: [chessboards, board, closes the chessboard, first chessboard, second chessboard, first board, second board]
+    model: [LifecycleBoard, board, closeBoard, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard, KeyboardBoard, keyboardBoard, SeparateBoard, BoardPair, chessboards, closeSeparateBoard]
   - term: chess
     from: chess
   - term: position
     definition: Where each chess piece stands and whose turn it is.
     forms: [displayed position, unusable position, starts a chessboard with an unusable position]
-    model: [replacePosition, supplyUnusablePosition, startBoardWithUnusablePosition, replacePromotionPosition, replacePremovePosition, replaceAnnotationPosition, replaceOptionsPosition]
+    model: [replacePosition, supplyUnusablePosition, startBoardWithUnusablePosition, replacePromotionPosition, replacePremovePosition, replaceAnnotationPosition, replaceOptionsPosition, replaceSeparatePosition]
   - term: piece
     definition: A chess king, queen, rook, bishop, knight or pawn, belonging to White or Black.
   - term: king
@@ -34,31 +34,32 @@ terms:
   - term: selection
     definition: The piece chosen to move and its permitted destinations.
     forms: [selected, selects, select, deselects, deselected]
-    model: [selectPiece, selectOptionsPiece, selectPremoveSource, clearPersonalAnnotations]
+    model: [selectPiece, selectOptionsPiece, selectPremoveSource, clearPersonalAnnotations, tapKeyboardSquare, selectSeparatePiece]
   - term: move
     definition: A legal chess move, offered once to the activity using the chessboard.
     forms: [moves, moved, moving]
-    model: [movePiece, moveOptionsPiece, tryOtherPromotionMove, requestPromotion, requestOptionsPromotion]
+    model: [movePiece, moveOptionsPiece, tryOtherPromotionMove, requestPromotion, requestOptionsPromotion, moveSeparatePiece]
   - term: capture
     definition: A move that removes an opposing piece, including en passant.
     forms: [captures, captured, capturing]
   - term: drag
     definition: Holding a piece and carrying it towards a destination; cancelling returns it without a move.
     forms: [drags, dragging, dragged, drops, dropping, dropped, cancels the drag, begins dragging, switches away from the chessboard's activity]
-    model: [beginDrag, cancelDrag, switchAway, beginOptionsDrag]
+    model: [beginDrag, cancelDrag, switchAway, beginOptionsDrag, beginSeparateDrag, cancelSeparateDrag]
   - term: board settings
     definition: Choices supplied by the activity embedding the chessboard; changes take effect at once.
     model: [configureBoard]
   - term: sound
     definition: Chessboard feedback heard for moves when enabled; disabling prevents delayed feedback too.
     forms: [sounds, silent, silence]
+    model: [configureSeparateSound, heardBoardSounds]
   - term: orientation
     definition: Which side faces the person; changing it never changes the position.
     model: [flipBoard, flipAnnotationBoard]
   - term: interactivity
     definition: Whether pieces may be moved; disabling cancels selection, dragging and promotion choices.
     forms: [interactive]
-    model: [configurePromotionInput, configureOptionsInput]
+    model: [configurePromotionInput, configureOptionsInput, configureSeparateInput]
   - term: animation
     definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
     forms: [animations, animating, animated, capture remnant, arrival, arrivals, interrupted arrival]
@@ -78,6 +79,12 @@ terms:
     model: [resizeBoard, resizeAvailableSpace]
   - term: keyboard
     from: runtime
+    forms: [arrow keys, keyboard's square, moves the keyboard one square]
+    model: [moveKeyboard]
+  - term: Space key
+    definition: The keyboard key that chooses its current chessboard square, selecting, deselecting or completing a move.
+    forms: [Space, chooses the keyboard's square with Space]
+    model: [chooseKeyboardSquare]
   - term: legal destination
     definition: A square a selected piece may move to under the rules of chess, keeping its own king safe.
   - term: last move
@@ -101,6 +108,9 @@ terms:
   - term: stalemate
     source: FIDE Laws of Chess, Article 5.2.1
     forms: [stalemated]
+  - term: dead position
+    source: FIDE Laws of Chess, Article 5.2.2 (neither side can reach checkmate by any legal sequence)
+    forms: [dead, drawn, draw, dead-position draw]
   - term: castling
     source: FIDE Laws of Chess, Article 3.8.2
     forms: [castle, castles, castled, kingside, queenside, kingside castling, queenside castling]

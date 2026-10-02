@@ -36,12 +36,21 @@ Feature: Keep moving pieces coherent
   Rule: Newer positions own displayed pieces despite an earlier interrupted arrival
     No counter-example: an interrupted arrival never owns a newer position.
 
-    Scenario: An opponent reply owns the board before the capture finishes
+    Scenario: An opponent reply preserves a capture still arriving at its valid destination
       Given Alice's capture from e4 to d5 is animating
       When Alice's activity supplies Black's reply from g8 to f6
       Then Alice sees a Black knight on f6
       And Alice sees the White pawn remaining on d5
+      And Alice sees the current capture still animating
+      And Alice sees its capture remnant
+
+    Scenario: A rapid legal capture sequence settles at its final position without losing move order
+      Given Alice has played e2-e4, d7-d5, e4-d5, d8-d5 and b1-c3 without waiting for their arrivals
+      When Alice moves the piece from d5 to a5
+      Then Alice sees the completed position after those six moves
       And Alice sees no capture remnant
+      And Alice sees no unfinished animation
+      And Alice's activity receives those six moves exactly once each in order
 
     Scenario: An old arrival cannot restore pieces after turning and replacement
       Given Alice's capture from e4 to d5 was interrupted by turning the chessboard

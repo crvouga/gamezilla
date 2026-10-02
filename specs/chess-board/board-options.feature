@@ -177,6 +177,16 @@ Feature: Choose the chessboard's appearance
       And Alice sees no selection or legal destinations
       And Alice sees the White pawn remaining on e2
 
+    @regression:chessboard-fixed-width-promotion
+    Scenario: Removing a fixed width preserves promotion when the available space is now playable
+      Given Alice has a pending White promotion from a7 to a8 at a fixed width of 512 pixels with 195 pixels available
+      And Alice's activity now has 320 pixels available
+      When Alice's activity removes the fixed width
+      Then Alice sees a square chessboard 320 pixels wide
+      And Alice is still offered queen, rook, bishop and knight as the promotion choice
+      And Alice sees the White pawn remaining on a7
+      And Alice's activity receives no moves
+
   Rule: Coordinate visibility follows the activity's choice in either orientation
 
     Scenario: Shown coordinates name all eight files and ranks

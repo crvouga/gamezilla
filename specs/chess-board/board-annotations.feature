@@ -59,13 +59,21 @@ Feature: Explain positions with chessboard annotations
       And Alice's activity receives exactly one empty set of personal arrows
       And Alice's activity receives no moves
 
-    @regression:chessboard-disabled-annotation-clear
+    @regression:chessboard-keyboard-annotation-clear
     Scenario: Keyboard selection clears completed personal marks after drawing is disabled
       Given Alice has personal arrows and circles alongside activity annotations
       And Alice has personal annotations disabled
       When Alice selects the piece on e2 with the keyboard
       Then Alice sees no personal annotations
       And Alice sees the activity's arrows and square annotations
+      And Alice's activity receives exactly one empty set of personal arrows
+      And Alice's activity receives no moves
+
+    @regression:chessboard-empty-annotation-clear
+    Scenario: Choosing a piece announces empty personal arrows when there are no personal marks
+      Given Alice has an interactive chessboard
+      When Alice selects the piece on e2
+      Then Alice sees no personal annotations
       And Alice's activity receives exactly one empty set of personal arrows
       And Alice's activity receives no moves
 
@@ -97,14 +105,14 @@ Feature: Explain positions with chessboard annotations
       Given Alice has a personal arrow from e2 to e4
       When Alice draws a personal arrow from e2 to e4
       Then Alice sees no personal arrow from e2 to e4
-      And Alice's activity receives an empty set of personal arrows
+      And Alice's activity receives exactly one empty set of personal arrows
       And Alice's activity receives no moves
 
     Scenario: Marking a square adds a personal circle
       Given Alice has a chessboard with personal annotations enabled
       When Alice marks e4 with a personal circle
       Then Alice sees a personal circle on e4
-      And Alice's activity receives an empty set of personal arrows
+      And Alice's activity receives exactly one empty set of personal arrows
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
@@ -112,7 +120,7 @@ Feature: Explain positions with chessboard annotations
       Given Alice has a personal circle on e4
       When Alice marks e4 with a personal circle
       Then Alice sees no personal circle on e4
-      And Alice's activity receives an empty set of personal arrows
+      And Alice's activity receives exactly one empty set of personal arrows
       And Alice's activity receives no moves
 
     Scenario: A circle change announces existing arrows without circle endpoints
