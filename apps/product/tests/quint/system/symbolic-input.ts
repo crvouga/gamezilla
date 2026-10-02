@@ -3,11 +3,13 @@ import {
   cpSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { cacheValueParameters } from '@pkgs/quint/cache-value-parameters';
 import { MODEL_DIR, modelPath, REPORT_DIR } from './campaign-config';
 import { sourceDigest } from './source-digest';
 
@@ -35,8 +37,12 @@ export async function withSymbolicInput<T>(
     if (source.split(original).length !== 2)
       throw new Error('Unexpected device universe.');
     writeFileSync(path, source.replace(original, 'Set(0, 1, 2)'));
+    for (const file of readdirSync(dir).filter((file) => file.endsWith('.qnt'))) {
+      const input = join(dir, file);
+      writeFileSync(input, cacheValueParameters(readFileSync(input, 'utf8')));
+    }
     const sha = sourceDigest(dir);
-    const bound = `Three symbolic clients: two for actor zero, one for actor one; any can sign into actor two. All three actors, two spaces, three puzzles and all transitions remain. Symbolic source-set SHA256: ${sha}.`;
+    const bound = `Three symbolic clients: two for actor zero, one for actor one; any can sign into actor two. All three actors, two spaces, three puzzles and all transitions remain. Value parameters use equivalent cached LET bindings. Symbolic source-set SHA256: ${sha}.`;
     writeFileSync(
       join(REPORT_DIR, `${name}.symbolic-bound.json`),
       `${JSON.stringify({ model: name, sourceSetSha256: sourceDigest(), symbolicSourceSetSha256: sha, bound }, null, 2)}\n`
