@@ -16,6 +16,34 @@ function dryRun(tasks: readonly unknown[]): string {
 }
 
 describe('planFromDryRun', () => {
+  // regression: turbo-preflight-uncacheable-hit
+  test('never reuses a local or remote artifact for a non-cacheable task', async () => {
+    const plan = planFromDryRun(
+      dryRun([
+        {
+          taskId: '//#ci:audit',
+          hash: 'old-pass',
+          command: 'bun audit',
+          resolvedTaskDefinition: { cache: false },
+          cache: { status: 'HIT', source: 'LOCAL' },
+        },
+      ])
+    );
+    const lookedUp: string[] = [];
+    const remote = await resolveRemoteHits(
+      plan,
+      async (hash) => {
+        lookedUp.push(hash);
+        return true;
+      },
+      2
+    );
+    expect(remote.toExecute.map((task) => task.taskId)).toEqual([
+      '//#ci:audit',
+    ]);
+    expect(lookedUp).toEqual([]);
+    expect(remote.tasks[0]?.hit).toBe(false);
+  });
   test('prefetches only remote hits the misses depend on', () => {
     const plan = planFromDryRun(
       dryRun([

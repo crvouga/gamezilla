@@ -328,13 +328,10 @@ const scope = [
   ...cli.testPaths,
 ];
 if (scope.length === 0) {
-  if (cli.part !== undefined) {
-    // More parts than specs: this part has nothing, which is a pass.
-    console.log(`test-spec: part ${BUCKET} of ${TEST_PACKAGE_NAME} is empty`);
-    finishReport(0);
-    process.exit(0);
-  }
-  console.error('test-spec: nothing to run');
+  console.error(
+    `test-spec: nothing to run in ${TEST_PACKAGE_NAME}/${BUCKET}; remove the empty part or fix its spec scope`
+  );
+  finishReport(1);
   process.exit(1);
 }
 

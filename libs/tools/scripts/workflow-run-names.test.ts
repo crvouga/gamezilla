@@ -8,7 +8,7 @@ import { join } from 'node:path';
  * (`<workflow>:<env>` for a job with an env matrix), so
  * the Actions run list and the PR checks box read the same everywhere.
  */
-const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
+const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.depot/workflows');
 const SEPARATOR = ' · ';
 
 /** The `<trigger>` label each event renders as. */
@@ -40,6 +40,19 @@ const workflows = readdirSync(WORKFLOWS_DIR)
       readFileSync(join(WORKFLOWS_DIR, file), 'utf8')
     ) as Workflow,
   }));
+
+// regression: depot-native-workflows-missing-auth
+// regression: depot-migration-workflow-on-feature-branch
+test('Check, Deploy and Health have one native workflow source', () => {
+  expect(workflows.map(({ file }) => file)).not.toContain(
+    'migrate-secrets-to-depot-ci-1790912980154.yml'
+  );
+  expect(workflows.map(({ file }) => file).sort()).toEqual([
+    'check.yml',
+    'deploy.yml',
+    'health.yml',
+  ]);
+});
 
 describe.each(workflows)('$file', ({ file, workflow }) => {
   test('workflow name is the capitalized file stem', () => {

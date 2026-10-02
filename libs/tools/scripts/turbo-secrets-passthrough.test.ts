@@ -47,6 +47,16 @@ describe('turbo globalPassThroughEnv', () => {
     ).toEqual([]);
   });
 
+  // regression: turbo-strips-depot-context
+  test('passes native CI tokens, organization and attempt links to tasks', () => {
+    const patterns = loadPassThroughEnv();
+    expect(
+      ['DEPOT_TOKEN', 'DEPOT_ORG_ID', 'DEPOT_JOB_URL'].filter(
+        (name) => !passesThrough(name, patterns)
+      )
+    ).toEqual([]);
+  });
+
   test('passes every registry secret through', () => {
     const patterns = loadPassThroughEnv();
     expect(

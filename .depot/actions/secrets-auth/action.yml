@@ -21,7 +21,7 @@ runs:
   using: composite
   steps:
     - name: Inject secrets
-      uses: ./.github/actions/secrets-auth/impl-infisical
+      uses: ./.depot/actions/secrets-auth/impl-infisical
       with:
         identity-id: ${{ inputs.identity-id }}
         project-id: ${{ inputs.project-id }}

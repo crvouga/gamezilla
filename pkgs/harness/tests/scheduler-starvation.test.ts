@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { virtualTimeRuntime } from '@pkgs/harness';
+import { createScheduler, createVirtualClock } from '@pkgs/harness/internals';
 
 /**
  * A wait must measure simulated progress, not the host's spare capacity.
@@ -12,6 +13,24 @@ import { virtualTimeRuntime } from '@pkgs/harness';
  * way does not spend their budget.
  */
 describe('starved advances are visible to waiters', () => {
+  // regression: scheduler-overdue-task-rewind
+  test('an overdue task arriving while sleep drains fires without rewinding time', async () => {
+    const start = 1718409935000;
+    const clock = createVirtualClock(start);
+    const scheduler = createScheduler(clock);
+    const firedAt: number[] = [];
+    const sleeping = scheduler.sleep(3_600_000);
+    queueMicrotask(() => {
+      scheduler.scheduleAt(1718409601001, () => {
+        firedAt.push(clock.now());
+      });
+    });
+    await sleeping;
+    expect(firedAt).toEqual([start]);
+    expect(clock.now()).toBe(start + 3_600_000);
+    expect(scheduler.pendingTaskCount()).toBe(0);
+  });
+
   test('a quiet simulation never reports a starved advance', async () => {
     const session = await virtualTimeRuntime().open(1);
     try {
