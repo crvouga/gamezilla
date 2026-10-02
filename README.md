@@ -231,7 +231,7 @@ A person applies this. CI does not.
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
-| R2 bucket `gamezilla-reports`, objects expire after 30 days | `bun check` publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
+| R2 bucket `gamezilla-reports`, latest report per existing branch | `bun check` publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
 
 ### Each environment (foundation, then edge)
 
@@ -345,7 +345,7 @@ Three workflows, dispatched from the laptop and blocked on the verdict:
 
 Exactly three workflows, on `ubuntu-latest`. Check runs on PRs (`//#check`, `SECRETS_ENV=dev`, sharded with report uploads overlapping completed spec parts). Deploy (`.github/workflows/deploy.yml`) runs on `main` after a merged PR, standard envs in parallel, then production, and re-runs the gate first. Health (`.github/workflows/health.yml`) runs hourly, deploys nothing, and probes every env file. `bun health` git-syncs, including `main`, and dispatches Health. `bun deploy` does not commit: it fast-forwards local `main` and dispatches Deploy on `origin/main`. Cancelling Deploy does not roll back an apply that already started. A new check is a package task under `//#check`, never a fourth workflow or a new job. Required GitHub check is `check` only (`global.tfvars.json` `github.required_checks`). Merge commits only. `pre-push` refuses `main`.
 
-The spec report is part of Check. Check is red if it did not publish. One private R2 bucket (`reports` in `global.tfvars.json`) holds `commits/<sha>/`. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step. A red suite still publishes. `bun check:local` does not.
+The spec report is part of Check. Check is red if it did not publish. One private R2 bucket (`reports` in `global.tfvars.json`) holds `commits/<sha>/`. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks in a commit are reused on reruns. Check keeps only the latest report per branch; Deploy and hourly Health remove unused branches and their reports. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. `bun check:local` does not.
 
 Standing live checks are Gherkin features tagged exactly `@synthetic` on the feature line, after `@domain:`, in the context that owns the promise. The environment is where the runner points. A `.feature` has no schedule. The harness does not run `@synthetic`. `specs/journeys/` stays untagged: those journeys run on the harness in `bun check` and live on Health. Tagging them `@synthetic` would take them out of the harness.
 

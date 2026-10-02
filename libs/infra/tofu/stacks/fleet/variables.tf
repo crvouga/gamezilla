@@ -47,9 +47,8 @@ variable "auth_relay" {
 
 variable "reports" {
   type = object({
-    account_id     = string
-    bucket         = string
-    retention_days = number
+    account_id = string
+    bucket     = string
   })
   description = "The private bucket every environment's API reads the per-commit spec reports from."
 }
