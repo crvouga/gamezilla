@@ -8,12 +8,12 @@ terms:
   - term: chessboard
     definition: A square chess board with eight files and eight ranks, usable on its own or within another activity.
     forms: [chessboards, board]
-    model: [board]
+    model: [board, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard]
   - term: chess
     from: chess
   - term: position
     definition: Where each chess piece stands and whose turn it is.
-    model: [replacePosition]
+    model: [replacePosition, replacePromotionPosition, replacePremovePosition, replaceAnnotationPosition, replaceOptionsPosition]
   - term: piece
     definition: A chess king, queen, rook, bishop, knight or pawn, belonging to White or Black.
   - term: king
@@ -33,18 +33,18 @@ terms:
   - term: selection
     definition: The piece chosen to move and its permitted destinations.
     forms: [selected, selects, select, deselects, deselected]
-    model: [selectPiece]
+    model: [selectPiece, selectOptionsPiece, selectPremoveSource, clearPersonalAnnotations]
   - term: move
     definition: A legal chess move, offered once to the activity using the chessboard.
     forms: [moves, moved, moving]
-    model: [movePiece]
+    model: [movePiece, moveOptionsPiece, tryOtherPromotionMove]
   - term: capture
     definition: A move that removes an opposing piece, including en passant.
     forms: [captures, captured, capturing]
   - term: drag
     definition: Holding a piece and carrying it towards a destination; cancelling returns it without a move.
     forms: [drags, dragging, dragged, drops, dropping, dropped, cancels the drag]
-    model: [beginDrag, cancelDrag]
+    model: [beginDrag, cancelDrag, beginOptionsDrag]
   - term: board settings
     definition: Choices supplied by the activity embedding the chessboard; changes take effect at once.
     model: [configureBoard]
@@ -53,10 +53,11 @@ terms:
     forms: [sounds, silent, silence]
   - term: orientation
     definition: Which side faces the person; changing it never changes the position.
-    model: [flipBoard]
+    model: [flipBoard, flipAnnotationBoard]
   - term: interactivity
     definition: Whether pieces may be moved; disabling cancels selection, dragging and promotion choices.
     forms: [interactive]
+    model: [configurePromotionInput, configureOptionsInput]
   - term: animation
     definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
     forms: [animations, animating, animated]
@@ -71,9 +72,9 @@ terms:
     definition: A pawn reaching the last rank waits for a queen, rook, bishop or knight choice unless automatic queen promotion is enabled.
     forms: [promotes, promoted, promoting]
   - term: resize
-    definition: A change in space for the chessboard; idle selection is retained but an active drag is cancelled.
-    forms: [resizes, resized]
-    model: [resizeBoard]
+    definition: A change in space for the chessboard; a held piece is put down when width changes, and becoming a preview abandons selection and promotion too.
+    forms: [resizes, resized, narrows the available space, narrows the chessboard, widens the chessboard]
+    model: [resizeBoard, resizeAvailableSpace]
   - term: keyboard
     from: runtime
   - term: legal destination
@@ -81,7 +82,7 @@ terms:
   - term: last move
     definition: The source and destination squares marked for the latest completed move.
   - term: capture destination
-    definition: The marked square where a capturing piece arrives, including when the captured pawn stood elsewhere in en passant.
+    definition: A selected piece's legal capture square, offered with a ring before the move, including an en passant square where the captured pawn does not stand.
   - term: to move
     source: FIDE Laws of Chess, Article 1.1 (having the move)
   - term: illegal move
@@ -109,10 +110,76 @@ terms:
   - term: promotion choice
     definition: The queen, rook, bishop or knight chosen to replace a pawn at the last rank; until decided or cancelled, no other piece can move.
     forms: [pending promotion, pending promotion choice, chooses the promotion]
+    model: [requestPromotion, requestOptionsPromotion, choosePromotion]
   - term: cancel promotion
     definition: Abandon an unfinished promotion, keeping the pawn on its source square and offering no move to the activity.
     forms: [cancels the promotion, cancelled promotion, cancels the promotion with Escape]
+    model: [cancelPromotion]
   - term: automatic queen promotion
-    definition: A board setting that replaces a last-rank pawn with a queen immediately, without asking for a promotion choice.
+    definition: A board setting that replaces future last-rank pawn requests with a queen immediately; changing it preserves an already pending explicit choice.
+    model: [configureAutomaticQueen]
   - term: end sound
     definition: The sound announcing that the chessboard has reached a position with no further moves, including checkmate and stalemate.
+  - term: fixed width
+    definition: The exact board width chosen by the activity, taking precedence over its available space.
+    model: [configureFixedWidth]
+  - term: available space
+    definition: The width offered by the activity for a board without a fixed width.
+    forms: [available width, narrows the available space]
+  - term: pixel
+    definition: A unit of displayed width, measured independently of the screen's sharpness.
+    forms: [pixels]
+  - term: supported width
+    definition: Any board width from 196 through 16384 pixels, including fractional widths; the activity may still disable moves.
+  - term: preview
+    definition: A chessboard retaining its position and square meanings while offering no moves because its width is outside the supported range; unusable space offers no input either.
+    forms: [previews, room to move]
+  - term: coordinates
+    definition: The eight file names and eight rank names identifying the chessboard's squares; hiding them never changes a position.
+    forms: [coordinate]
+    model: [configureCoordinates]
+  - term: legal destination marks
+    definition: Dots for legal quiet destinations and rings for legal capture destinations; hiding them preserves selection and legal meaning.
+    forms: [quiet destination dot, capture ring, legal marking, legal marks]
+    model: [configureLegalMarks]
+  - term: last move marks
+    definition: Optional markings of the latest completed move's source and destination; hiding them never changes its position.
+    model: [configureLastMoveMarks]
+  - term: board colors
+    definition: The activity's chosen colors for the chessboard's squares, preserving pieces and unfinished choices.
+    forms: [green and cream board colors, square colors]
+    model: [configureBoardColors]
+  - term: move announcement
+    definition: The current move's spoken description, including check or a finished game; an unrelated replacement position clears the earlier announcement.
+  - term: activity annotations
+    definition: Arrows, colored square fills, rings and named badges supplied by the activity; personal annotation changes never remove them.
+    forms: [activity annotation, square annotations, square marks, supplies colored arrows, supplies square annotations, removes its annotations]
+    model: [setActivityArrows, setActivitySquareMarks, clearActivityAnnotations]
+  - term: personal annotations
+    definition: Arrows and circles Alice adds without moving pieces; choosing a piece removes these marks while preserving the activity's annotations.
+    forms: [personal annotation, personal marks, personal arrows and circles]
+    model: [configurePersonalAnnotations]
+  - term: personal arrow
+    definition: Alice's mark from one named square to another; drawing an existing arrow again removes it, and completed changes offer personal arrows alone to the activity.
+    forms: [personal arrows, draws a personal arrow, begins drawing a personal arrow, finishes drawing the personal arrow, unfinished personal arrow]
+    model: [beginPersonalArrow, finishPersonalArrow]
+  - term: cancel personal arrow
+    definition: Abandon unfinished drawing without adding an arrow or announcing completed annotation changes.
+    forms: [cancels the personal arrow]
+    model: [cancelPersonalArrow]
+  - term: personal circle
+    definition: Alice's ring around a named square; marking the same square again removes it, announces only the current personal arrows, and never makes a move.
+    forms: [personal circles, marks e4 with a personal circle]
+    model: [togglePersonalCircle]
+  - term: premove
+    definition: A waiting-side move queued for a future opponent reply, shown with a translucent destination preview while its real piece remains at source.
+    forms: [premoves, queues the premove, queued premoves, drags a premove, enable premoves, disable premoves]
+    model: [queuePremove, configurePremoves]
+  - term: opponent reply
+    definition: A legal move supplied by the activity that completes at most the first queued premove; an invalidated premove disappears without another move being offered.
+    forms: [reply, replies, supplies Black's reply, supplies a reply that invalidates the premove]
+    model: [receivePremoveReply, invalidatePremove]
+  - term: cancel premoves
+    definition: Abandon all queued waiting-side moves and their previews without moving their real pieces.
+    forms: [cancels premoves, cancels premoves with Escape]
+    model: [cancelPremoves]
