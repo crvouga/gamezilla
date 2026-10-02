@@ -2,8 +2,8 @@
 import {
   cpSync,
   mkdtempSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -37,7 +37,9 @@ export async function withSymbolicInput<T>(
     if (source.split(original).length !== 2)
       throw new Error('Unexpected device universe.');
     writeFileSync(path, source.replace(original, 'Set(0, 1, 2)'));
-    for (const file of readdirSync(dir).filter((file) => file.endsWith('.qnt'))) {
+    for (const file of readdirSync(dir).filter((file) =>
+      file.endsWith('.qnt')
+    )) {
       const input = join(dir, file);
       writeFileSync(input, cacheValueParameters(readFileSync(input, 'utf8')));
     }

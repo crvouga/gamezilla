@@ -44,7 +44,7 @@
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
     "synthetic": "bun run scripts/health.ts --synthetic",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-  "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts scripts/reports-dev.test.ts scripts/localhost-stack/stack-options.test.ts src/console/console-nav src/console/reports src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts tests/worker.test.ts tests/developer-catalog-source.test.ts tests/openslo tests/quint/system/simulation.test.ts tests/quint/system/effectiveness.test.ts tests/quint/system/campaign-tools.test.ts tests/live-browser.test.ts",
+    "test": "bun test scripts/sims scripts/health.test.ts scripts/sw-policy.test.ts scripts/reports-dev.test.ts scripts/localhost-stack/stack-options.test.ts src/console/console-nav src/console/reports src/console/product-harness/product-harness-snapshot-prune.test.ts src/harness/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts tests/worker.test.ts tests/developer-catalog-source.test.ts tests/openslo tests/quint/system/simulation.test.ts tests/quint/system/effectiveness.test.ts tests/quint/system/campaign-tools.test.ts tests/live-browser.test.ts",
     "test:contract": "bun test --max-concurrency 2 tests/quint/system/model-checks.test.ts",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
