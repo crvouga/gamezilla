@@ -1023,5 +1023,10 @@
     "id": "offline-lookups-pretend-answered",
     "summary": "Check run 36974271617 failed the offline people search and invite-link scenarios: HttpNetworkError resolved parameterized queries' waitForFirstSync, clearing search's pending state and marking an unanswered invite missing. Settle failed network attempts only for session startup queries; parameterized lookups remain pending until the server answers and still complete after reconnection.",
     "regressionTest": "pkgs/sync-engine/tests/offline-query-readiness.test.ts"
+  },
+  {
+    "id": "spec-task-batches-over-budget",
+    "summary": "Check run 36974271617 exceeded the 600s task cap: friends part 8 took 1,075s for two eight-trace model slices, while sync-engine part 0 took 635s for its entire suite. Split the same 64 traces per model into two-trace files, distribute friends across 64 cached parts and sync across four, and retain every trace exactly once.",
+    "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
   }
 ]

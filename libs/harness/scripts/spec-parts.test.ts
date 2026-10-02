@@ -99,14 +99,15 @@ describe('partOf', () => {
 
   test('the three friends models retain all traces in bounded batches', () => {
     // regression: spec-model-part-budget
+    // regression: spec-task-batches-over-budget
     const models = [
       'specs/friends/friendship.qnt',
       'specs/spaces/space-hosting.qnt',
       'specs/spaces/space-recovery.qnt',
     ];
-    const units = models.flatMap((path) => specUnits(path, ''));
-    const parts = Array.from({ length: 8 }, (_, index) =>
-      partOf(units, { index, count: 8 })
+    const units = models.flatMap((path) => specUnits(path, '', 64));
+    const parts = Array.from({ length: 64 }, (_, index) =>
+      partOf(units, { index, count: 64 })
     );
     const tracesOf = (unit: SpecUnit) =>
       Array.from({ length: 64 }, (_, index) => index).filter(
@@ -122,9 +123,9 @@ describe('partOf', () => {
       );
     }
     for (const part of parts) {
-      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(24);
+      expect(part.flatMap(tracesOf).length).toBeLessThanOrEqual(4);
       for (const unit of part)
-        expect(tracesOf(unit).length).toBeLessThanOrEqual(8);
+        expect(tracesOf(unit).length).toBeLessThanOrEqual(2);
     }
   });
 });

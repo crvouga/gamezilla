@@ -52,31 +52,37 @@ const SPEC_PART_TASKS = Array.from(
 );
 
 // regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
-test('friends splits into sixteen independently cached parts that all gate Check', () => {
-  const friends = JSON.parse(
-    readFileSync(join(REPO_ROOT, 'libs/friends/package.json'), 'utf8')
+test('slow spec suites split into independently cached parts that all gate Check', () => {
+  // regression: spec-task-batches-over-budget — friends 1,075s; sync 635s.
+  expectSpecParts('libs/friends', 64, ['friends', 'spaces']);
+  expectSpecParts('pkgs/sync-engine', 4, ['sync-engine']);
+});
+
+function expectSpecParts(dir: string, count: number, domains: string[]): void {
+  const manifest = JSON.parse(
+    readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
   ) as { specParts: number; scripts: Record<string, string> };
-  expect(friends.specParts).toBe(16);
-  expect(specPartProblems('libs/friends', friends)).toEqual([]);
+  expect(manifest.specParts).toBe(count);
+  expect(specPartProblems(dir, manifest)).toEqual([]);
   const tasks = loadTasks();
-  const friendsTasks = (
-    JSON.parse(
-      readFileSync(join(REPO_ROOT, 'libs/friends/turbo.json'), 'utf8')
-    ) as { tasks: Tasks }
+  const packageTasks = (
+    JSON.parse(readFileSync(join(REPO_ROOT, dir, 'turbo.json'), 'utf8')) as {
+      tasks: Tasks;
+    }
   ).tasks;
-  for (let part = 0; part < 16; part++) {
+  for (let part = 0; part < count; part++) {
     const task = `test:spec:${String(part)}`;
     expect(tasks['//#check']?.dependsOn).toContain(task);
     expect(tasks[task]?.outputs).toEqual([
       `.cache/harness-report/part-${String(part)}/**`,
     ]);
-    for (const domain of ['friends', 'spaces']) {
-      expect(friendsTasks[task]?.inputs).toContain(
+    for (const domain of domains) {
+      expect(packageTasks[task]?.inputs).toContain(
         `$TURBO_ROOT$/specs/${domain}/**`
       );
     }
   }
-});
+}
 
 /**
  * `//#check` is the whole check surface. Everything a package can check about

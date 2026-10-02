@@ -25,7 +25,7 @@ export type SpecUnit = {
 
 /** Scenarios per feature slice. */
 export const SLICE_SCENARIOS = 6;
-/** Files one Quint model's traces are spread over. */
+/** Minimum files one Quint model's traces are spread over. */
 export const MODEL_SLICES = 8;
 
 /**
@@ -67,12 +67,19 @@ export function specWeight(path: string, source: string): number {
   return Math.max(1, weight);
 }
 
-/** The test files one spec runs as, each weighed. */
-export function specUnits(path: string, source: string): readonly SpecUnit[] {
+/**
+ * The test files one spec runs as, each weighed. Large suites need smaller
+ * model files so traces can spread over the suite's independently cached parts.
+ */
+export function specUnits(
+  path: string,
+  source: string,
+  partCount = 1
+): readonly SpecUnit[] {
   const weight = specWeight(path, source);
   if (!isFeature(path) && !path.endsWith('.qnt')) return [{ path, weight }];
   const count = path.endsWith('.qnt')
-    ? MODEL_SLICES
+    ? Math.max(MODEL_SLICES, Math.ceil(partCount / 2))
     : Math.ceil(weight / SLICE_SCENARIOS);
   if (count <= 1) return [{ path, weight }];
   return Array.from({ length: count }, (_, index) => ({

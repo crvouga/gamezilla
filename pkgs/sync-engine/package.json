@@ -17,7 +17,10 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/4",
+    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/4",
+    "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/4",
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -60,5 +63,5 @@
   "specDomains": [
     "sync-engine"
   ],
-  "specParts": 1
+  "specParts": 4
 }
