@@ -1028,5 +1028,10 @@
     "id": "spec-task-batches-over-budget",
     "summary": "Check run 36974271617 exceeded the 600s task cap: friends part 8 took 1,075s for two eight-trace model slices, while sync-engine part 0 took 635s for its entire suite. Split the same 64 traces per model into two-trace files, distribute friends across 64 cached parts and sync across four, and retain every trace exactly once.",
     "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
+  },
+  {
+    "id": "product-typecheck-batch-timeout",
+    "summary": "Check run 36977052636 shard 1 exhausted a shared 120,000ms test deadline while type-checking twelve composed product roots, reporting adversarial-examples.qnt as failed without a CLI diagnostic. Give each root and its transitive imports one independent test under the same deadline, and retain the reachability check that rejects unchecked import cycles.",
+    "regressionTest": "apps/product/tests/quint/system/simulation.test.ts"
   }
 ]
