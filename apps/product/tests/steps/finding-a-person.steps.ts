@@ -3,6 +3,7 @@
 
 import { expect } from 'bun:test';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';
+import { personProbeClock } from '@libs/observability/server/person-trouble-document';
 import {
   type PersonPlant,
   type PersonProbeCredentials,
@@ -19,6 +20,7 @@ import { wallWait } from './wall-wait';
 const TOKEN_WARMUP_MS = 3 * 60 * 1000;
 const RETRY_MS = 10_000;
 const PLANT = 'person-plant';
+const REFERENCE_CLOCK = 'person-reference-clock';
 const QUESTION = 'person-question';
 
 type Question = {
@@ -45,11 +47,12 @@ function hex(bytes: number): string {
 Given(
   '{string} ran into trouble in {string} at {string}',
   async (w, name: string, place: string, at: string) => {
+    const nowMs = wallClock.now();
     const plant: PersonPlant = {
       name,
       place,
-      at,
-      nowMs: wallClock.now(),
+      at: personProbeClock(at, at, nowMs),
+      nowMs,
       userId: crypto.randomUUID(),
       crashTraceId: hex(32),
       crashSpanId: hex(16),
@@ -59,6 +62,7 @@ Given(
     const accepted = await plantPersonTrouble(w.http, credentials(), plant);
     expect(accepted, 'the trail did not accept what happened').toBe(true);
     w.memo.set(PLANT, plant);
+    w.memo.set(REFERENCE_CLOCK, at);
   }
 );
 
@@ -80,7 +84,13 @@ Then(
   'the team is told nothing happened for {string} at that time',
   async (w, name: string) => {
     const plant = plantOf(w);
-    const visible = await untilSeen(w, readFor(w, plant));
+    const visible = await untilSeen(w, {
+      name: plant.name,
+      place: plant.place,
+      at: plant.at,
+      nowMs: plant.nowMs,
+      userId: plant.userId,
+    });
     expect(visible?.sawTrouble, 'the evening trail was not readable yet').toBe(
       true
     );
@@ -109,10 +119,13 @@ function questionOf(w: LiveWorld): Question {
 
 function readFor(w: LiveWorld, question: Question): PersonRead {
   const plant = plantOf(w);
+  const referenceAt = w.memo.get(REFERENCE_CLOCK);
+  if (typeof referenceAt !== 'string')
+    throw new Error('the reference clock is missing');
   return {
     name: question.name,
     place: question.place,
-    at: question.at,
+    at: personProbeClock(question.at, referenceAt, plant.nowMs),
     nowMs: plant.nowMs,
     userId: plant.userId,
   };

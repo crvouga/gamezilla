@@ -105,3 +105,30 @@ function resourceSpan(input: ResourceSpanInput): unknown {
 function attribute(key: string, value: string): Attribute {
   return { key, value: { stringValue: value } };
 }
+
+const MINUTE_MS = 60_000;
+
+/**
+ * Live traces must arrive near their timestamp to be searchable in Tempo.
+ * Move the fixture's clock to now, keeping the zone and differences between
+ * the person's clock and the team's question.
+ */
+export function personProbeClock(
+  at: string,
+  referenceAt: string,
+  nowMs: number
+): string {
+  const reference = parseLocalClock(referenceAt, nowMs);
+  const clock = parseLocalClock(at, reference?.instantMs ?? nowMs);
+  if (reference === undefined || clock === undefined)
+    throw new Error(`The time ${JSON.stringify(at)} needs a zone`);
+  const shifted = new Date(
+    nowMs +
+      clock.instantMs -
+      reference.instantMs +
+      clock.offsetMinutes * MINUTE_MS
+  );
+  const hour = String(shifted.getUTCHours()).padStart(2, '0');
+  const minute = String(shifted.getUTCMinutes()).padStart(2, '0');
+  return `${hour}:${minute} ${clock.timeZone}`;
+}

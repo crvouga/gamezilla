@@ -8,7 +8,11 @@ import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
 import { wallClock } from '@pkgs/clock';
 import { COMMITTED_EMQX_CREDENTIALS } from '@pkgs/emqx-server/ports';
 import type { HttpClient } from '@pkgs/http-client';
-import { createIotHttpPubSub, iotEndpointHost } from '@pkgs/pubsub/iot';
+import {
+  createIotHttpPubSub,
+  iotEndpointHost,
+  probeIotDataPlane,
+} from '@pkgs/pubsub/iot';
 import { awaitApiAnswered, liveRows } from './client-config.steps';
 import { eventually, Then } from './define';
 import { liveSecret } from './live-secrets';
@@ -52,15 +56,20 @@ async function statusOf(
 /** Unsigned requests are refused, which is how the data plane shows it is there. */
 Then('what happens in a space can reach everyone in it', async (w) => {
   const host = iotEndpointHost(await liveSecret(w, Name.iotDataEndpoint));
-  let status = 0;
-  await eventually(
+  const ready = await eventually(
     async () => {
-      status = await statusOf(w.http, `https://${host}/`);
-      return status === 403;
+      try {
+        return await probeIotDataPlane({
+          endpoint: host,
+          fetchImpl: (input, init) => w.http.fetch(input, init),
+        });
+      } catch {
+        return false;
+      }
     },
     { maxWaitMs: DATA_PLANE_WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
   );
-  expect(status).toBe(403);
+  expect(ready, 'the publish authorization gate did not answer').toBe(true);
 });
 
 /** The server's publish path accepts a message. */
