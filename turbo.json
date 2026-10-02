@@ -660,6 +660,14 @@
         "test:spec:5",
         "test:spec:6",
         "test:spec:7",
+        "test:spec:8",
+        "test:spec:9",
+        "test:spec:10",
+        "test:spec:11",
+        "test:spec:12",
+        "test:spec:13",
+        "test:spec:14",
+        "test:spec:15",
         "check:models",
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
@@ -795,6 +803,118 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-7/**"]
+    },
+    "test:spec:8": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-8/**"]
+    },
+    "test:spec:9": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-9/**"]
+    },
+    "test:spec:10": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-10/**"]
+    },
+    "test:spec:11": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-11/**"]
+    },
+    "test:spec:12": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-12/**"]
+    },
+    "test:spec:13": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-13/**"]
+    },
+    "test:spec:14": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-14/**"]
+    },
+    "test:spec:15": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-15/**"]
     }
   }
 }

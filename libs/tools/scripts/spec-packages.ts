@@ -55,7 +55,7 @@ export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
  * Most parts one suite may split into: root `turbo.json` defines
  * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and `//#check` runs them.
  */
-export const MAX_SPEC_PARTS = 8;
+export const MAX_SPEC_PARTS = 16;
 
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */

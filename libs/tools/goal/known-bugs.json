@@ -1,5 +1,10 @@
 [
   {
+    "id": "friends-spec-task-budget",
+    "summary": "The friends spec part 7 passed its assertions but took 627 seconds against the existing 600-second task cap. Split the same friends and spaces coverage into sixteen parts, and declare and gate every added part with a separate report cache. The time cap and every scenario and model trace remain unchanged.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
     "id": "harness-reconnect-origin-health",
     "summary": "Puzzle recovery trace 46 at seed 0x67932 reopened Charlie offline, then failed to hydrate the recorded result after reconnection because origin health was still waiting on its 30-second backoff. Network restoration now refreshes health for each open affected actor, waking offline boot without increasing the model's convergence budget.",
     "regressionTest": "libs/harness/tests/reconnect-origin-health.test.ts"

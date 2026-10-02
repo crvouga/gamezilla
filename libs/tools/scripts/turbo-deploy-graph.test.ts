@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
-import { MAX_SPEC_PARTS } from './spec-packages';
+import { MAX_SPEC_PARTS, specPartProblems } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -50,6 +50,33 @@ const SPEC_PART_TASKS = Array.from(
   { length: MAX_SPEC_PARTS },
   (_, index) => `test:spec:${String(index)}`
 );
+
+// regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
+test('friends splits into sixteen independently cached parts that all gate Check', () => {
+  const friends = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'libs/friends/package.json'), 'utf8')
+  ) as { specParts: number; scripts: Record<string, string> };
+  expect(friends.specParts).toBe(16);
+  expect(specPartProblems('libs/friends', friends)).toEqual([]);
+  const tasks = loadTasks();
+  const friendsTasks = (
+    JSON.parse(
+      readFileSync(join(REPO_ROOT, 'libs/friends/turbo.json'), 'utf8')
+    ) as { tasks: Tasks }
+  ).tasks;
+  for (let part = 0; part < 16; part++) {
+    const task = `test:spec:${String(part)}`;
+    expect(tasks['//#check']?.dependsOn).toContain(task);
+    expect(tasks[task]?.outputs).toEqual([
+      `.cache/harness-report/part-${String(part)}/**`,
+    ]);
+    for (const domain of ['friends', 'spaces']) {
+      expect(friendsTasks[task]?.inputs).toContain(
+        `$TURBO_ROOT$/specs/${domain}/**`
+      );
+    }
+  }
+});
 
 /**
  * `//#check` is the whole check surface. Everything a package can check about
