@@ -74,6 +74,17 @@ export function puzzleFinish(text: string): PuzzleFinishName {
 
 export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
+    name: 'feedbackDetail',
+    regexp:
+      /what happened|what was expected|reproduction steps|a description|an improvement/,
+    transformer: (value: string) => value,
+  },
+  {
+    name: 'feedbackKind',
+    regexp: /a feature request|a gap|polish/,
+    transformer: (value: string) => value,
+  },
+  {
     name: 'actor',
     regexp: new RegExp(Object.keys(ACTOR_IDS).join('|')),
     transformer: (name: string) => actorId(name),

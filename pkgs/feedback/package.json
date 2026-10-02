@@ -1,0 +1,50 @@
+{
+  "name": "@pkgs/feedback",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server/index.ts",
+    "./client": "./src/client/index.ts",
+    "./harness": "./src/harness/index.ts",
+    "./vite": "./scripts/vite.ts",
+    "./browser": "./src/client/wall.ts",
+    "./context": "./src/client/context.ts"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns=tests/steps/**",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+  },
+  "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/harness": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/object-store-opfs": "workspace:*",
+    "@pkgs/tailwind": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "specDomains": [
+    "feedback"
+  ],
+  "specParts": 1
+}

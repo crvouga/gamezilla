@@ -68,7 +68,6 @@
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",

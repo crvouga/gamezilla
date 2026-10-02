@@ -120,7 +120,7 @@ export function Button(props: ButtonProps): JSX.Element {
         face: state().face,
         ...props.dataSet,
       })}
-      type={props.type}
+      type={props.type ?? 'button'}
       name={props.name}
       value={props.value}
       onClick={() => state().handleClick?.()}

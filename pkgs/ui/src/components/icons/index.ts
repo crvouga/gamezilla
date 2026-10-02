@@ -7,6 +7,7 @@ import {
   Activity,
   ArrowUpLeft,
   Bell,
+  Bold,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -28,12 +29,17 @@ import {
   FlaskConical,
   Gamepad2,
   Gauge,
+  Heading2,
   Heart,
   House,
   Info,
+  Italic,
   KeyRound,
   Lightbulb,
+  Link,
+  List,
   ListChecks,
+  ListOrdered,
   LogIn,
   LogOut,
   Mail,
@@ -42,10 +48,14 @@ import {
   MonitorPlay,
   Moon,
   Paintbrush,
+  Paperclip,
   Pause,
+  Pilcrow,
   Play,
   Plus,
+  Quote,
   Radio,
+  Redo,
   RefreshCw,
   RotateCcw,
   RotateCcwClock,
@@ -64,6 +74,7 @@ import {
   Sun,
   Terminal,
   Trash,
+  Undo,
   User,
   UserPlus,
   Users,
@@ -99,6 +110,7 @@ export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);
+export const PaperclipIcon = createIcon(Paperclip);
 export const PauseIcon = createIcon(Pause);
 export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);
@@ -146,3 +158,14 @@ export const SunIcon = createIcon(Sun);
 export const UserPlusIcon = createIcon(UserPlus);
 export const UsersIcon = createIcon(Users);
 export const WifiOffIcon = createIcon(WifiOff);
+
+export const BoldIcon = createIcon(Bold);
+export const ItalicIcon = createIcon(Italic);
+export const Heading2Icon = createIcon(Heading2);
+export const PilcrowIcon = createIcon(Pilcrow);
+export const ListIcon = createIcon(List);
+export const ListOrderedIcon = createIcon(ListOrdered);
+export const QuoteIcon = createIcon(Quote);
+export const LinkIcon = createIcon(Link);
+export const UndoIcon = createIcon(Undo);
+export const RedoIcon = createIcon(Redo);

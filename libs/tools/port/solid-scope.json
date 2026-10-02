@@ -21,7 +21,8 @@
     "pkgs/ui-devtools/tests",
     "pkgs/bun-test-solid/src",
     "apps/product/src/harness",
-    "libs/harness/src"
+    "libs/harness/src",
+    "pkgs/feedback/src"
   ],
   "files": [
     "apps/client/src/main.tsx",

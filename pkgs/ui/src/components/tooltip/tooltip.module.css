@@ -16,6 +16,16 @@
   visibility: hidden;
 }
 
+.floating {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.floating-layer {
+  z-index: 1000001;
+}
+
 .bottom {
   top: calc(100% + 6px);
 }

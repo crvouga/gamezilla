@@ -85,6 +85,7 @@
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/feedback": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/harness": "workspace:*",

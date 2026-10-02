@@ -1,6 +1,7 @@
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { registerFeedbackContext } from '@pkgs/feedback/context';
 import { useDocumentShortcuts } from '@pkgs/ui';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, onCleanup, Show } from 'solid-js';
 
 import { puzzleNavIntentFromKey } from '../../shared/puzzle-session/puzzle-nav';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
@@ -56,6 +57,20 @@ export function ChessPuzzleReviewBoard(props: {
 }): JSX.Element {
   const model = usePuzzleReviewBoard(props.fen, props.moves);
   const [config] = useChessPuzzleFeedConfig();
+  onCleanup(
+    registerFeedbackContext({
+      name: 'chess-puzzle-review',
+      collect: () => ({
+        initialFen: props.fen,
+        solutionMoves: props.moves,
+        displayFen: model.displayFen(),
+        solveIndex: model.solveIdx(),
+        orientation: model.orientation(),
+        animated: model.animated(),
+        notation: config().notation,
+      }),
+    })
+  );
 
   // §7 arrow keys / Home / End. Only the review surface binds them: the play
   // board consumes the arrows itself for square-cursor navigation.

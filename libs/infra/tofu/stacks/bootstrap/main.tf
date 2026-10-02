@@ -100,6 +100,7 @@ module "repository" {
     SECRETS_IDENTITY_ID = module.ci_identity.identity_id
     SECRETS_PROJECT_ID  = var.infisical.project_slug
     AWS_ROLE_ARN        = module.aws_ci.role_arn
+    AWS_HEALTH_ROLE_ARN = module.aws_ci.health_role_arn
   }
 }
 

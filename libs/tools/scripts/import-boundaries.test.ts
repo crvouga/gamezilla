@@ -312,7 +312,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'apps/server/src/server.ts',
+    path: 'apps/server/src/product/server.ts',
     source:
       "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle';",
     message: null,

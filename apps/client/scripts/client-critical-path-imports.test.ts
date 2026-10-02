@@ -1,16 +1,19 @@
 import { describe, expect, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import {
   collectStaticSpecifiers,
   criticalPathViolations,
   isDeniedResolvedPath,
   isDeniedSpecifier,
+  loadPathAliases,
   resolveImport,
   walkCriticalPath,
 } from './client-critical-path-imports';
+
+const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 
 describe('client-critical-path-imports', () => {
   test('collectStaticSpecifiers skips type-only and dynamic imports', () => {
@@ -78,6 +81,19 @@ describe('client-critical-path-imports', () => {
         aliases,
       })
     ).toBe(libFile);
+  });
+
+  // regression: feedback-opfs-client-path
+  test('the client resolves feedback evidence storage', () => {
+    const aliases = loadPathAliases(
+      join(REPO_ROOT, 'apps/client/tsconfig.json')
+    );
+    const target = aliases
+      .find((alias) => alias.pattern === '@pkgs/object-store-opfs/*')
+      ?.targets[0]?.replace('*', 'impl-cache-api');
+    expect(resolve(REPO_ROOT, 'apps/client', `${target}.ts`)).toBe(
+      join(REPO_ROOT, 'pkgs/object-store-opfs/src/impl-cache-api.ts')
+    );
   });
 
   test('walkCriticalPath reports denylist static imports', () => {

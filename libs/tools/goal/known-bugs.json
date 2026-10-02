@@ -31,12 +31,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -156,7 +156,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -251,7 +251,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -316,7 +316,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -451,7 +451,7 @@
   },
   {
     "id": "space-offline-presence-stale",
-    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob\u2019s connection while in Alice\u2019s space is pinned.",
+    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob’s connection while in Alice’s space is pinned.",
     "regressionTest": "specs/spaces/space-disconnect-reconnect.feature"
   },
   {
@@ -471,7 +471,7 @@
   },
   {
     "id": "space-session-identities-cross-app-roots",
-    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root\u2019s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
+    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root’s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
     "regressionTest": "libs/spaces/tests/independent-space-sessions.test.ts"
   },
   {
@@ -678,5 +678,145 @@
     "id": "deleted-payment-refund-incomplete",
     "summary": "A partial or pending provider refund was reported as completed withdrawal. Settlement now rereads payment totals and keeps withdrawal pending until every later payment is fully returned.",
     "regressionTest": "libs/billing/tests/deleted-payment-refund.test.ts"
+  },
+  {
+    "id": "health-branch-aws-oidc-read-role",
+    "summary": "A branch-dispatched Health run could obtain its OIDC token but AWS rejected AssumeRoleWithWebIdentity because the only CI role trusted main and production; widening that deploy role would have granted feature branches mutation access. Fixed with a separate read-only health role that trusts this repository's branches, published as AWS_HEALTH_ROLE_ARN and selected only by health.yml.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+  },
+  {
+    "id": "feedback-optional-context-budget",
+    "summary": "Individually bounded diagnostics could collectively exceed the reporting HTTP limit and reject the basic report. Enforce a total UTF-8 diagnostic budget and mark excess context unavailable.",
+    "regressionTest": "pkgs/feedback/tests/diagnostic-budget.test.ts"
+  },
+  {
+    "id": "feedback-http-ignores-abort",
+    "summary": "An HTTP transport or response body ignoring AbortSignal left reporting pending forever. A hard deadline now preserves the emergency recovery path.",
+    "regressionTest": "pkgs/feedback/tests/http-deadline.test.ts"
+  },
+  {
+    "id": "feedback-vite-node-import",
+    "summary": "The feedback Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
+    "regressionTest": "pkgs/feedback/tests/vite-config.contract.test.ts"
+  },
+  {
+    "id": "social-auth-popup-blocked",
+    "summary": "Social sign-in depended on window.open, which IDE integrated browsers and popup-blocking browsers refused. Navigate the current tab and complete sign-in on the callback route instead.",
+    "regressionTest": "libs/client-app/tests/shell/wall-open-auth-session.test.ts"
+  },
+  {
+    "id": "social-auth-redirect-outcome",
+    "summary": "The same-tab OAuth callback discarded provider errors and pending account-link prompts, leaving resumed sign-in without its result. Publish every callback failure to the auth session for the existing modal.",
+    "regressionTest": "pkgs/auth-inhouse/tests/hosted-auth-redirect.test.ts"
+  },
+  {
+    "id": "feedback-recording-stale-stop",
+    "summary": "A discarded recording finishing asynchronously could dispose and overwrite a newly started video session. Retire the captured session and ignore completions from an old recording generation.",
+    "regressionTest": "pkgs/feedback/tests/recording.contract.test.ts"
+  },
+  {
+    "id": "feedback-board-drag-missing",
+    "summary": "Chess square hit buttons take no pointer events and the board captures the pointer. Recording only square targets dropped real chess drags. Preserve board control identifiers and normalized pointer endpoints.",
+    "regressionTest": "pkgs/feedback/tests/interaction.contract.test.ts"
+  },
+  {
+    "id": "feedback-evidence-ignores-abort",
+    "summary": "An upload response body ignoring cancellation could keep feedback sending indefinitely after the network request completed. Bound the complete upload and receipt read with the same hard deadline.",
+    "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+  },
+  {
+    "id": "feedback-changed-evidence-reuses-id",
+    "summary": "Adding evidence after an uncertain delivery could reuse the archived report id and leave the updated recording out of the saved bundle. Preserve ids for unchanged retries and mint a new id for edited evidence.",
+    "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+  },
+  {
+    "id": "feedback-context-before-screen-permission",
+    "summary": "Initial product state could be captured before a person finished choosing the screen, while the product continued to change. Capture the starting position after the chooser resolves, and release video immediately if recording is cancelled during context collection.",
+    "regressionTest": "pkgs/feedback/tests/recording.contract.test.ts"
+  },
+  {
+    "id": "feedback-typing-steals-focus",
+    "summary": "Each feedback answer edit invalidated the dialog visibility dependency even though it stayed open, restarting focus handling and moving focus to Close. Memoize visibility independently of draft updates so typing keeps field focus.",
+    "regressionTest": "pkgs/feedback/tests/focus.contract.test.ts"
+  },
+  {
+    "id": "feedback-attachment-switches-draft",
+    "summary": "An attachment finishing after a new draft was selected could persist in the newly selected draft. Capture the initiating document and commit evidence only to that document.",
+    "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
+  },
+  {
+    "id": "feedback-reload-repeats-submission",
+    "summary": "Reopening after an uncertain submission discarded the attempted report id and could create duplicate feedback. Journal attempted reports and recover their ids for unchanged retries.",
+    "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
+  },
+  {
+    "id": "feedback-raw-transport-error",
+    "summary": "A failed feedback submission exposed the browser's raw \"Load failed\" transport error and expanded a large emergency payload, even though the draft was safely journalled. Fixed by presenting a concise recovery state, keeping the draft editable, and moving the machine-readable recovery payload behind an explicit disclosure.",
+    "regressionTest": "specs/feedback/drafts.feature"
+  },
+  {
+    "id": "feedback-opfs-client-path",
+    "summary": "The shipped client TypeScript configuration omitted the OPFS package path used by the feedback browser root, so a cold app type-check could not resolve evidence storage. Keep the concrete feedback import resolvable through the client path map.",
+    "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
+  },
+  {
+    "id": "feedback-template-submit",
+    "summary": "Buttons without an explicit type inside the feedback form inherited HTML's submit default, so choosing a template sent the draft. The shared Button now defaults to type=button and only explicit submit controls submit forms.",
+    "regressionTest": "pkgs/ui/tests/button.test.tsx"
+  },
+  {
+    "id": "feedback-widget-handle-offscreen",
+    "summary": "The feedback widget clamp assumed the widget was shorter than the viewport, so a tall resized editor forced y=0 and left its grab handle above the visible area. Fixed by allowing the bottom-anchored widget to translate downward when only its header can fit.",
+    "regressionTest": "pkgs/feedback/tests/widget-drag.contract.test.ts"
+  },
+  {
+    "id": "foundation-provider-bootstrap-cycle",
+    "summary": "The first Neki foundation plan configured the PostgreSQL provider from a role that the same plan had not created yet. OpenTofu substituted localhost and failed before it could create the database; the transition also tried to delete the retired broker's random credentials. Fixed by leaving pg_stat_statements with Neki's PlanetScale-managed default profile, removing the cyclic provider, and forgetting retired credentials without destroying them.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+  },
+  {
+    "id": "neki-aws-region-name-is-not-region-slug",
+    "summary": "The Neki branch used AWS's region name us-east-1, but PlanetScale's organization catalog names that region with the slug us-east. The API rejected the first branch with HTTP 422 after other foundation resources had already applied. Fixed by keeping AWS IoT on us-east-1 while passing PlanetScale's us-east slug to Neki.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+  },
+  {
+    "id": "deploy-migrate-stale-database-url",
+    "summary": "Foundation wrote the new Neki DATABASE_URL, but the migration task preferred the stale process value injected before foundation ran. Worker deploy refreshed its secrets and connected to the new empty database, so readiness and auth failed because client_config did not exist. Fixed by preferring the live post-foundation secret while retaining the injected URL as an offline fallback.",
+    "regressionTest": "libs/runtime/tests/migrate-database-url.test.ts"
+  },
+  {
+    "id": "neki-kv-storage-ddl-unsupported",
+    "summary": "The first schema reconcile on Neki stopped at ALTER COLUMN SET STORAGE with NK013 because Neki cannot preserve that storage setting as shards join. Catching it inside the schema transaction still left the transaction aborted, and after commit the router could briefly return 42P01 for the newly created table. Fixed by committing required schema first, then applying optional storage tuning in autocommit, where explicit unsupported errors are skipped and temporary table visibility defers tuning without hiding unrelated failures.",
+    "regressionTest": "pkgs/kv-postgres/tests/postgres-storage-knobs.test.ts"
+  },
+  {
+    "id": "feedback-widget-unbounded",
+    "summary": "The issue list grew with its content and stage changes left keyboard focus on removed controls.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-actions-hidden-menu",
+    "summary": "The issue detail hid its only two actions behind an unnecessary menu.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-icon-label-clipping",
+    "summary": "Evidence controls had pointer-only labels clipped by the editor frame.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-command-eager-expansion",
+    "summary": "Typing a complete slash command expanded it before acceptance, with no keyboard suggestions.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "crash-screen-hardcoded-theme",
+    "summary": "The root crash screen discarded the selected theme and rendered hardcoded red colors. Keep the minimal theme root mounted above recovery and render themed, responsive recovery controls with expandable diagnostics.",
+    "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  },
+  {
+    "id": "crash-copy-rejection",
+    "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
+    "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
   }
 ]

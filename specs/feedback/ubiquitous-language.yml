@@ -1,0 +1,66 @@
+context: Product feedback
+purpose: >-
+  Help people and the team describe bugs, feature requests, gaps and polish,
+  with enough context to reproduce trouble and understand the improvement.
+terms:
+  - term: feedback management
+    definition: The list of drafts and reports an author can read, change and delete.
+  - term: developer
+    definition: A member of the team who builds and improves the app.
+    forms: [developers]
+  - term: draft
+    definition: Feedback its author is still writing and has not sent.
+    forms: [drafts]
+  - term: wizard
+    definition: The single place to write, review and manage feedback.
+  - term: Markdown
+    definition: Writing that can include headings, lists, links and freely arranged text.
+  - term: template
+    definition: Optional starting text for a bug, feature request, gap or polish.
+    forms: [templates]
+  - term: command palette
+    definition: The app's searchable list of actions, including opening the feedback wizard.
+  - term: widget
+    definition: The movable feedback wizard that stays out of the way while using the app on a computer.
+  - term: feedback
+    definition: >-
+      A description of a bug, feature request, gap or polish, the intended
+      improvement and the available diagnostics, kept for the team to act on.
+    forms: [product feedback, report, reports, feedback's]
+  - term: Support
+    definition: The way a person opens feedback, even when the app is unusable.
+    forms: [support]
+  - term: bug
+    definition: Something the app does differently from what a person expects.
+    forms: [bugs, problem, problems]
+  - term: feature request
+    definition: Something a person wants to do that the app does not yet offer.
+    forms: [feature requests]
+  - term: gap
+    definition: Something missing from an existing experience.
+    forms: [gaps]
+  - term: polish
+    definition: An improvement to how an existing experience looks or feels.
+  - term: reproduce
+    definition: Do the actions that lead to the same bug again.
+    forms: [reproducing, reproduced, reproduction, reproduction steps]
+  - term: recording
+    definition: >-
+      A reviewable account of the actions a person took while reproducing
+      a bug, with video when their device can provide it.
+    forms: [recordings, record, recorded, records, recording's]
+  - term: video
+    definition: A moving picture of what the person chose to share while reproducing a bug.
+  - term: diagnostics
+    definition: Details about what happened that help the team act on feedback.
+  - term: local feedback
+    definition: >-
+      Feedback kept with the team's working repository, readable without
+      an account or a connection.
+    forms: [repository]
+  - term: run into trouble
+    from: runtime
+  - term: sign in
+    from: profile
+  - term: Settings
+    from: runtime

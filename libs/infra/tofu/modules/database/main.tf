@@ -19,7 +19,6 @@ terraform {
   required_providers {
     cloudflare  = { source = "cloudflare/cloudflare" }
     planetscale = { source = "planetscale/planetscale" }
-    postgresql  = { source = "cyrilgdn/postgresql" }
   }
 }
 
@@ -140,13 +139,6 @@ locals {
   )
 }
 
-# Slow-query statistics (`bun obs`). Neki still needs the extension created
-# in the database after the profile allows it. The default profile is
-# created with the branch; this adopts an existing extension.
-resource "postgresql_extension" "pg_stat_statements" {
-  name = "pg_stat_statements"
-}
-
 # Hyperdrive pools connections from every Worker isolate to the Neki router.
 # Query caching is off: sync hydration must read its own writes.
 # Replacing it only changes the id the next Worker deploy binds.
@@ -183,15 +175,4 @@ output "obs_readonly_database_url" {
   description = "SELECT-only URL for bun obs. Not the migrate role."
   value       = "postgresql://${urlencode(planetscale_neki_role.obs_read.username)}:${urlencode(planetscale_neki_role.obs_read.password)}@${local.obs_host}:${local.port}/${local.database}?sslmode=verify-full"
   sensitive   = true
-}
-
-output "connection" {
-  description = "Coordinates for the PostgreSQL provider (DDL, extensions)."
-  value = {
-    host     = local.migrate_host
-    user     = planetscale_neki_role.migrate.username
-    password = planetscale_neki_role.migrate.password
-    database = local.database
-  }
-  sensitive = true
 }

@@ -23,6 +23,7 @@ import IconButtonExample from '../icon-button/icon-button.example';
 import IconLinkExample from '../icon-link/icon-link.example';
 import IslandExample from '../island/island.example';
 import IslandGridExample from '../island-grid/island-grid.example';
+import MarkdownEditorExample from '../markdown-editor/markdown-editor.example';
 import MultiSelectSwatchGridExample from '../multi-select-swatch/multi-select-swatch-grid.example';
 import NumberStepperExample from '../number-stepper/number-stepper.example';
 import OverflowMenuButtonExample from '../overflow-menu-button/overflow-menu-button.example';
@@ -96,6 +97,7 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
   entry('text-input', 'TextInput', INPUTS, TextInputExample),
   entry('text-link', 'TextLink', INPUTS, TextLinkExample),
   entry('code-editor', 'CodeEditor', INPUTS, CodeEditorExample),
+  entry('markdown-editor', 'MarkdownEditor', INPUTS, MarkdownEditorExample),
   entry(
     'copy-to-clipboard-field',
     'CopyToClipboardField',

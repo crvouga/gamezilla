@@ -1102,6 +1102,7 @@ terms:
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
+| Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
 Relationships — upstream contexts publish; downstream contexts borrow their

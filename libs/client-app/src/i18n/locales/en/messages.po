@@ -1641,6 +1641,10 @@ msgid "Open current space {0}"
 msgstr "Open current space {0}"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
+msgid "Open developer feedback"
+msgstr "Open developer feedback"
+
+#: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Open Harness"
 msgstr "Open Harness"
 
