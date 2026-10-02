@@ -1,5 +1,10 @@
 [
   {
+    "id": "check-gate-waits-for-publication",
+    "summary": "The required Check command waited for nonessential report publication despite completed task verdicts. Watch the lightweight check job rather than the whole Check workflow.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+  },
+  {
     "id": "check-opaque-task-failure",
     "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
     "regressionTest": "libs/tools/scripts/check-shards.test.ts"
