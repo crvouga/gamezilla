@@ -1,5 +1,6 @@
 // @io-wall-ok — automated verification adapter; runs the pinned bundled CLI.
 import { spawnSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { decide, modelEvidence } from '@pkgs/quint/model-evidence';
 import { QUINT_CLI } from '@pkgs/quint/simulate';
@@ -64,7 +65,13 @@ export function obligation(
   });
 }
 
-export function sample(name: string, samples: number, steps: number): string {
+export function sample(
+  name: string,
+  samples: number,
+  steps: number,
+  reportDir = REPORT_DIR
+): string {
+  mkdirSync(reportDir, { recursive: true });
   const result = quint([
     'run',
     modelPath(name),
@@ -83,7 +90,7 @@ export function sample(name: string, samples: number, steps: number): string {
     '--verbosity',
     '1',
     '--out-itf',
-    join(REPORT_DIR, `${name}-last.itf.json`),
+    join(reportDir, `${name}-last.itf.json`),
   ]);
   if (result.status !== 0 || !result.output.includes('[ok]'))
     throw new Error(result.output);
