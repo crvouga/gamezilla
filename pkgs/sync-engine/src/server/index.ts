@@ -15,3 +15,4 @@ export {
   notifyChannels,
 } from './notify-channels';
 export type { SyncAppAuth } from './sync-app-auth';
+export { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';

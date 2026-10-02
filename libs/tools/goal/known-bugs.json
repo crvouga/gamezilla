@@ -613,5 +613,10 @@
     "id": "deleted-profile-display",
     "summary": "Profile card and display reads returned a retained soft-deleted profile. All display reads now exclude tombstones while sync snapshots still carry them.",
     "regressionTest": "libs/profile/tests/deleted-profile-read.test.ts"
+  },
+  {
+    "id": "upsert-managed-bindings-reordered",
+    "summary": "Adding managed INSERT timestamps appended their bindings after ON CONFLICT parameters, assigning Preparing to a timestamp and blocking server exports. Bindings now follow their SQL positions.",
+    "regressionTest": "pkgs/sync-engine/tests/upsert-managed-bindings.test.ts"
   }
 ]
