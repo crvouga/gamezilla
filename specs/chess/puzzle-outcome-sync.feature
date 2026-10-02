@@ -23,6 +23,37 @@ Feature: Puzzles finished offline count once
         | showing the solution                            | failed    | 0      | 0        |
         | skipping it                                     | abandoned | 0      | 0        |
 
+  Rule: Devices acting apart keep the result that reaches the account first
+    No counter-example: A later device cannot replace a result the account already counts.
+
+    Scenario Outline: An attempt finishing differently on two devices counts the first <outcome>
+      Given Alice is signed in
+      And Alice is also signed in on another device
+      And Alice is playing puzzles in their space
+      When Alice's attempt finishes on two devices with <first> reaching the account first
+      Then Alice's stats show 1 played, <solved> solved, and <accuracy>% accuracy
+      And Alice's other device shows 1 played, <solved> solved, and <accuracy>% accuracy
+
+      Examples:
+        | first             | outcome | solved | accuracy |
+        | clean solve       | solved  | 1      | 100      |
+        | wrong then solve  | failed  | 0      | 0        |
+
+    Scenario Outline: A later device keeps the first recorded <outcome> result
+      Given Alice is signed in
+      And Alice is also signed in on another device
+      And Alice is playing puzzles in their space
+      And Alice's <first> result reached the account before the other device's <second> result
+      When the connection comes back
+      Then Alice's game log records that puzzle as <outcome>
+      And Alice's stats show 1 played, <solved> solved, and <accuracy>% accuracy
+      And Alice's other device shows 1 played, <solved> solved, and <accuracy>% accuracy
+
+      Examples:
+        | first             | second            | outcome | solved | accuracy |
+        | clean solve       | wrong then solve  | solved  | 1      | 100      |
+        | wrong then solve  | clean solve       | failed  | 0      | 0        |
+
   Rule: Closing the app as an attempt finishes preserves the first result
     No counter-example: returning cannot refuse a decided result.
 

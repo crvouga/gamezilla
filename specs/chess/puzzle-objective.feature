@@ -8,7 +8,7 @@ Feature: Chess truth decides a solution
     Scenario Outline: Either rook delivers a valid checkmate
       Given Alice is signed in
       And Alice is solving the puzzle with more than one mate on the final move
-      When Alice plays <move>
+      When Alice plays the move <move>
       Then Alice's puzzle is solved within 20 seconds
       And Alice's game log records that puzzle as solved
       And Alice's stats show 1 played, 1 solved, and 100% accuracy
@@ -21,7 +21,7 @@ Feature: Chess truth decides a solution
     Scenario: A legal move that neither solves nor checkmates is wrong
       Given Alice is signed in
       And Alice is solving the puzzle with more than one mate on the final move
-      When Alice plays a7-a6
+      When Alice plays the move a7-a6
       Then Alice is told the move was wrong
 
     Scenario: An illegal apparent checkmate cannot solve the puzzle
@@ -42,3 +42,13 @@ Feature: Chess truth decides a solution
       Then Alice's game log records that puzzle as solved
       And Alice's stats show 1 played, 1 solved, and 100% accuracy
       And Alice's puzzle rating is above 1500
+
+    Scenario: Two devices completing through different checkmates count one solved puzzle
+      Given Alice is signed in
+      And Alice is also signed in on another device
+      And Alice is solving the puzzle with more than one mate on the final move
+      And Alice has delivered different valid checkmates on both devices offline
+      When the connection comes back
+      Then Alice's stats show 1 played, 1 solved, and 100% accuracy
+      And Alice's other device shows 1 played, 1 solved, and 100% accuracy
+      And both of Alice's devices show the same puzzle rating within 30 seconds

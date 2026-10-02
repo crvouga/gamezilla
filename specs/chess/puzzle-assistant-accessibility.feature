@@ -14,18 +14,29 @@ Feature: Puzzle Assistant without barriers
       And Alice cannot hear the assistant speaking
       And Alice can move pieces
 
+    Scenario: Unmuting speaks the current observation again
+      Given Alice is signed in
+      And Alice is playing puzzles in their space
+      And Alice has muted the Puzzle Assistant
+      When Alice unmutes the Puzzle Assistant
+      Then Alice can hear the assistant speaking
+      And Alice can read the assistant's current observation
+      And Alice can move pieces
+
     Scenario: Unavailable audio keeps the observation and play available
       Given Alice is signed in
+      And Alice is hosting a space
       And Alice's audio is unavailable
       When Alice opens puzzles in their space
-      Then Alice can read the assistant's current observation
+      Then Alice's assistant stays readable when speech cannot play
       And Alice can move pieces
 
     Scenario: Reduced motion keeps the observation and play available
       Given Alice is signed in
+      And Alice is hosting a space
       And Alice prefers reduced motion
       When Alice opens puzzles in their space
-      Then Alice can read the assistant's current observation
+      Then Alice's assistant stays readable with reduced motion
       And Alice can move pieces
 
   Rule: Speech never hides required words or delays a move
@@ -35,7 +46,7 @@ Feature: Puzzle Assistant without barriers
       Given Alice is signed in
       And Alice is solving the puzzle with more than one mate on the final move
       And Alice's assistant is speaking
-      When Alice plays a7-a8
+      When Alice plays the move a7-a8
       Then Alice's puzzle is solved within 20 seconds
       And Alice's assistant acknowledges checkmate
       And Alice can read the assistant's current observation

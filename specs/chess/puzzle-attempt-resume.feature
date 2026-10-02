@@ -51,3 +51,30 @@ Feature: A puzzle attempt survives leaving the puzzle and closing the app
       When Alice solves the puzzle
       Then Alice is on a different puzzle than the one before within 5 seconds
       And Alice's puzzle is not solved
+
+  Rule: Going back from the chess choices reaches the game choice
+    No counter-example: Going back from the chess choices always has this destination; going back from a board reaches the chess choices first.
+
+    Scenario: The solver returns from the chess choices to the game choice
+      Given Alice has left the puzzle for the chess choices
+      When Alice goes back from the chess choices to the game choice
+      Then Alice sees the space's game choice
+
+  Rule: Reopening keeps the board and its result until the solver moves on
+    No counter-example: Reopening preserves the current board; moving on is a separate choice.
+
+    Scenario Outline: Reopening a finished puzzle retains its result
+      Given Alice has finished this puzzle by <finish>
+      When Alice reopens the app on the puzzle
+      Then Alice's puzzle remains <state>
+
+      Examples:
+        | finish               | state    |
+        | solving it cleanly   | solved   |
+        | showing the solution | revealed |
+        | skipping it          | skipped  |
+
+    Scenario: Reopening a wrong move retains the chance to retry
+      Given Alice has played a wrong move
+      When Alice reopens the app on the puzzle
+      Then Alice's puzzle remains wrong

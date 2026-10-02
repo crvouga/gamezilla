@@ -8,20 +8,20 @@ Feature: A grounded Puzzle Assistant
     Scenario: A correct continuation receives encouragement
       Given Alice is signed in
       And Alice is solving the two-rook clearance puzzle
-      When Alice plays a1-a5
+      When Alice plays the move a1-a5
       Then Alice's assistant acknowledges a correct continuation
 
     Scenario: An alternate checkmate receives success commentary
       Given Alice is signed in
       And Alice is solving the puzzle with more than one mate on the final move
-      When Alice plays a7-a8
+      When Alice plays the move a7-a8
       Then Alice's assistant acknowledges checkmate
       And Alice's assistant cannot call the move wrong
 
     Scenario: A wrong move receives a diagnosis rather than praise
       Given Alice is signed in
       And Alice is solving the puzzle with more than one mate on the final move
-      When Alice plays a7-a6
+      When Alice plays the move a7-a6
       Then Alice's assistant draws attention to an available checkmate
       And Alice's assistant cannot praise a solved puzzle
 

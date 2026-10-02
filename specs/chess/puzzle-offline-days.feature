@@ -5,6 +5,7 @@ Feature: Days of puzzles without a connection
   lost or counted twice once the connection comes back.
 
   Rule: Puzzles already on the device keep the feed playing with no connection
+    No counter-example: A puzzle already available on the device needs no connection to be played.
 
     Background:
       Given Alice is signed in
@@ -13,7 +14,8 @@ Feature: Days of puzzles without a connection
       And Alice is offline
 
     Scenario: After three days offline there is still a puzzle to play
-      When Alice solves 10 puzzles a day for 3 days
+      Given Alice has solved 10 puzzles a day for 3 days
+      When Alice moves on to the next puzzle
       Then Alice has a puzzle on the board
       And Alice is not told the feed is empty
 

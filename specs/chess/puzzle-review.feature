@@ -11,6 +11,7 @@ Feature: Reviewing a puzzle's line
   of the line with move N highlighted.
 
   Rule: Review shows a played puzzle's whole line in the game log
+    No counter-example: Every played puzzle retains its complete line, including retired puzzles.
 
     Background:
       Given Alice is signed in
