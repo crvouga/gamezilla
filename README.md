@@ -109,12 +109,12 @@ device UI (Solid)
   mutate()  -> local txn + outbound queue
         |  POST /api/mutations          POST /api/query + MQTT invalidation
         v
-API Worker (Hono, production handler)
+Application Worker (Hono API, client assets and rooms)
   authn -> permission -> replay mutation in one Postgres txn
   notify channels
         |
         +--> PlanetScale Neki (Postgres) via Hyperdrive
-        +--> room Worker --> Durable Object per topic
+        +--> Durable Object per topic
         +--> R2 for uploads and the spec-report bucket
 ```
 
