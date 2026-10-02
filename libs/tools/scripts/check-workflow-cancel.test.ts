@@ -21,10 +21,39 @@ describe('Check workflow cancellation', () => {
     const holding = jobConditions(readFileSync(WORKFLOW, 'utf8')).filter(
       (condition) => condition.includes('always()')
     );
-    expect(holding).toEqual([
-      "always() && !cancelled() && needs.check-matrix.result == 'success' && needs.check-publish-open.result == 'success'",
-      "always() && !cancelled() && needs.check-publish-open.result == 'success'",
-      'always() && !cancelled()',
+    expect(holding).toEqual(['always() && !cancelled()']);
+  });
+
+  test('publishes in each shard and requires publication before the aggregate verdict', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      jobs: Record<
+        string,
+        {
+          needs?: string[];
+          steps: {
+            name?: string;
+            run?: string;
+            'continue-on-error'?: boolean;
+          }[];
+        }
+      >;
+    };
+    expect(Object.keys(workflow.jobs)).toEqual([
+      'check-plan',
+      'check-matrix',
+      'check-shard',
+      'check',
     ]);
+    const shard = workflow.jobs['check-shard'];
+    expect(shard?.steps.find((step) => step.name === 'check')?.run).toContain(
+      '--publish-reports'
+    );
+    const gate = workflow.jobs['check'];
+    expect(gate?.needs).toContain('check-shard');
+    const close = gate?.steps.find(
+      (step) => step.name === 'Complete spec report'
+    );
+    expect(close?.run).toContain('report-publish.ts close');
+    expect(close?.['continue-on-error']).toBeUndefined();
   });
 });

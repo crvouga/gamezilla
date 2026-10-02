@@ -54,6 +54,7 @@ import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
 import { parseJunit } from '@pkgs/harness';
 import { isLiveObjectiveSource } from '@pkgs/openslo/live';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
+import { REPORT_COMPLETION, REPORT_READY } from '../src/ci/report-ready';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
 import { type Part, partOf, type SpecUnit, specUnits } from './spec-parts';
@@ -327,6 +328,7 @@ if (scope.length === 0) {
   if (cli.part !== undefined) {
     // More parts than specs: this part has nothing, which is a pass.
     console.log(`test-spec: part ${BUCKET} of ${TEST_PACKAGE_NAME} is empty`);
+    finishReport(0);
     process.exit(0);
   }
   console.error('test-spec: nothing to run');
@@ -369,8 +371,14 @@ const result = spawnSync(
 );
 
 appendFailureTraces();
+finishReport(result.status ?? 1);
 
 process.exit(result.status ?? 1);
+
+function finishReport(status: number): void {
+  writeFileSync(join(REPORT_DIR, REPORT_COMPLETION), JSON.stringify({ status }));
+  console.log(REPORT_READY);
+}
 
 function appendFailureTraces(): void {
   if (!existsSync(JUNIT_PATH)) return;

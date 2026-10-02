@@ -66,9 +66,10 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
+import { planCheckShards } from './check-report-plan';
+import { observeReportOutput } from './check-report-run';
 import {
   formatShardPlan,
-  planShards,
   readTaskCosts,
   shardPlanOutputs,
 } from './check-shards';
@@ -369,44 +370,71 @@ function exitWithDurations(code: number): never {
   process.exit(code);
 }
 
-async function main(): Promise<void> {
-  const env = turboChildEnv();
-  writePlatformCacheKey();
-
-  const remote = hasRemoteCreds(env);
-  requireRemoteCredsInCi(remote);
-  warnLocalCacheOnly(remote);
-
-  const cache = resolveCacheFlag(env, remote);
-  const concurrency = resolveConcurrency();
+function turboCiFlags(
+  cache: string,
+  logOrder: string,
+  ui: string | undefined,
+  publishReports: boolean
+): string[] {
   const TURBO_OUTPUT_LOGS =
     process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
-  const TURBO_LOG_ORDER =
-    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
-  const ui = resolveUi();
-
   const TURBO_CI_FLAGS = [
-    `--concurrency=${concurrency}`,
+    `--concurrency=${resolveConcurrency()}`,
     `--cache-workers=${String(CACHE_WORKERS)}`,
     `--cache=${cache}`,
     '--framework-inference=false',
     '--summarize',
     `--output-logs=${TURBO_OUTPUT_LOGS}`,
-    `--log-order=${TURBO_LOG_ORDER}`,
+    `--log-order=${logOrder}`,
     ...(ui !== undefined ? [`--ui=${ui}`] : []),
   ] as const;
+  return publishReports
+    ? [
+        ...TURBO_CI_FLAGS.filter(
+          (arg) => !/^--(output-logs|log-order|ui)=/.test(arg)
+        ),
+        '--json',
+        '--output-logs=full',
+        '--continue=dependencies-successful',
+      ]
+    : [...TURBO_CI_FLAGS];
+}
 
-  const planShardsOnly = process.argv.includes(PLAN_SHARDS_FLAG);
-  const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
-  const rawTaskArgs = process.argv
+function cliTaskArgs(): string[] {
+  const args = process.argv
     .slice(2)
-    .filter((arg) => arg !== PLAN_SHARDS_FLAG && arg !== RESTORE_OUTPUTS_FLAG);
-  if (rawTaskArgs.length === 0) {
+    .filter(
+      (arg) =>
+        ![
+          PLAN_SHARDS_FLAG,
+          RESTORE_OUTPUTS_FLAG,
+          PUBLISH_REPORTS_FLAG,
+        ].includes(arg)
+    );
+  if (args.length === 0) {
     console.error(
       'usage: bun run libs/tools/scripts/turbo-ci-run.ts <turbo run args…>'
     );
     process.exit(1);
   }
+  return args;
+}
+
+async function main(): Promise<void> {
+  const env = turboChildEnv();
+  writePlatformCacheKey();
+  const remote = hasRemoteCreds(env);
+  requireRemoteCredsInCi(remote);
+  warnLocalCacheOnly(remote);
+  const cache = resolveCacheFlag(env, remote);
+  const TURBO_LOG_ORDER =
+    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
+  const ui = resolveUi();
+
+  const planShardsOnly = process.argv.includes(PLAN_SHARDS_FLAG);
+  const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
+  const publishReports = process.argv.includes(PUBLISH_REPORTS_FLAG);
+  const rawTaskArgs = cliTaskArgs();
 
   const mode = resolveRunMode(rawTaskArgs);
   requireRemoteCredsForDeploy(remote, mode);
@@ -420,7 +448,7 @@ async function main(): Promise<void> {
   });
 
   console.log(
-    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
+    `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
       (ui !== undefined ? ` ui=${ui}` : '') +
       (remote
         ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API})`
@@ -436,19 +464,29 @@ async function main(): Promise<void> {
   const planned = await timed('plan', () =>
     planOrNull(fullRunArgs, cache, env)
   );
-  if (planShardsOnly) writeShardPlanAndExit(planned, taskArgs);
-  const plan = restoreOutputs && planned ? restoreEveryHit(planned) : planned;
-  if (plan !== null && plan.toExecute.length === 0 && !restoreOutputs) {
+  if (planShardsOnly) writeShardPlanAndExit(planned);
+  const restore = restoreOutputs || publishReports;
+  const plan = restore && planned ? restoreEveryHit(planned) : planned;
+  if (plan !== null && plan.toExecute.length === 0 && !restore) {
     exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
   if (plan !== null && plan.remoteHits.length > 0) {
     await timed('prefetch', () => prefetchRemoteHits(plan, REPO_ROOT, env));
   }
-  const runArgs = turboRunArgs(fullRunArgs, plan, restoreOutputs);
+  const runArgs = turboRunArgs(fullRunArgs, plan, restore);
+  const flags = turboCiFlags(cache, TURBO_LOG_ORDER, ui, publishReports);
 
   const stopHeartbeat = startHeartbeat();
   const status = await timed('turbo', () =>
-    runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, { deadlineSeconds })
+    runTurbo(
+      [
+        ...runArgs.filter((arg) => !publishReports || arg !== '--continue'),
+        ...flags,
+      ],
+      env,
+      { deadlineSeconds },
+      publishReports ? taskArgs : undefined
+    )
   );
   stopHeartbeat();
 
@@ -474,6 +512,7 @@ function turboRunArgs(
 
 const PLAN_SHARDS_FLAG = '--plan-shards';
 const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
+const PUBLISH_REPORTS_FLAG = '--publish-reports';
 const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
 
 /**
@@ -481,14 +520,12 @@ const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
  * hand the split to the workflow instead of running anything. Without a plan
  * (the dry run failed) one shard runs the whole requested set unplanned.
  */
-function writeShardPlanAndExit(
-  plan: RunPlan | null,
-  taskArgs: readonly string[]
-): never {
-  const shardPlan =
-    plan === null
-      ? { shards: [[...taskArgs]], costs: [0] }
-      : planShards(plan, readTaskCosts());
+function writeShardPlanAndExit(plan: RunPlan | null): never {
+  if (plan === null)
+    throw new Error(
+      'Check planning failed; report ownership cannot be established'
+    );
+  const shardPlan = planCheckShards(plan, readTaskCosts());
   console.log(formatShardPlan(shardPlan));
   // Not `$GITHUB_OUTPUT`: this job loads every secret, the runner masks each
   // stored value (one is `1`), and it silently drops any job output holding a
@@ -710,18 +747,37 @@ function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
 function runTurbo(
   args: readonly string[],
   env: NodeJS.ProcessEnv,
-  options: RunTurboOptions
+  options: RunTurboOptions,
+  reportTasks?: readonly string[]
 ): Promise<number> {
   const child = spawn('turbo', args, {
-    stdio: 'inherit',
+    stdio:
+      reportTasks === undefined ? 'inherit' : ['inherit', 'pipe', 'inherit'],
     env,
     detached: true,
   });
   const disarm = armDeadline(child, options.deadlineSeconds);
+  const reports =
+    reportTasks === undefined
+      ? Promise.resolve()
+      : observeReportOutput(child, reportTasks, env);
+  // Observe upload errors immediately; return a failed verdict after every upload settles.
+  const publication = reports.then(
+    () => true,
+    (error: unknown) => {
+      console.error(error);
+      return false;
+    }
+  );
   return new Promise<number>((resolve) => {
-    child.on('close', (code, signal) => {
+    child.on('error', () => {
       disarm();
-      resolve(code ?? (signal === null ? 1 : 124));
+      resolve(1);
+    });
+    child.on('close', async (code, signal) => {
+      const published = await publication;
+      disarm();
+      resolve(published ? (code ?? (signal === null ? 1 : 124)) : 1);
     });
   });
 }
