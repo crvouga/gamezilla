@@ -738,5 +738,10 @@
     "id": "s3-contract-shared-namespace",
     "summary": "Concurrent Depot runs injected remote S3 credentials into a cached contract suite and reused its seeded namespace. The listKeys example saw a/x, a/y, b, k instead of a/x, a/y, b. Always run against a private local S3rver and create a fresh seeded prefix for every test.",
     "regressionTest": "pkgs/object-store-s3/src/object-store.s3.contract.test.ts"
+  },
+  {
+    "id": "cached-contract-external-credentials",
+    "summary": "Cached Postgres and EMQX contracts selected external services from unhashed injected credentials, making passes stale and writing shared infrastructure. Always use private local sidecars. Pin unreachable injected endpoints in the contract fixture isolation check.",
+    "regressionTest": "pkgs/sql-client-postgres/src/postgres.contract.test.ts"
   }
 ]
