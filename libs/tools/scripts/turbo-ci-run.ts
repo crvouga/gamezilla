@@ -70,8 +70,8 @@ import {
 } from './check-budget';
 import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
-import { killProcessTree } from './kill-process-tree';
 import type { ReportTaskIdentity } from './check-report-stream';
+import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
