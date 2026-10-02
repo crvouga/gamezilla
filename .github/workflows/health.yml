@@ -49,7 +49,7 @@ concurrency:
 jobs:
   health-matrix:
     name: health:matrix
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 10
     outputs:
       production: ${{ steps.envs.outputs.production }}
@@ -68,7 +68,7 @@ jobs:
     name: health:${{ matrix.env }}
     needs: health-matrix
     if: needs.health-matrix.outputs.all != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 30
     # No GitHub environment ('') for a standard env.
     environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
@@ -121,7 +121,7 @@ jobs:
     name: health:objectives
     needs: [health-matrix, health-env]
     if: ${{ !cancelled() && needs.health-matrix.outputs.all != '[]' }}
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read

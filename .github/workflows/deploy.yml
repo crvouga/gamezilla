@@ -60,7 +60,7 @@ concurrency:
 jobs:
   deploy-matrix:
     name: deploy:matrix
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 10
     outputs:
       standard: ${{ steps.envs.outputs.standard }}
@@ -105,7 +105,7 @@ jobs:
   deploy-fleet:
     name: deploy:fleet
     needs: deploy-matrix
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 20
     env:
       SECRETS_ENV: ${{ needs.deploy-matrix.outputs.shared }}
@@ -143,7 +143,7 @@ jobs:
     name: deploy:${{ matrix.env }}
     needs: [deploy-matrix, deploy-fleet]
     if: needs.deploy-matrix.outputs.standard != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -207,7 +207,7 @@ jobs:
       && (needs.deploy-standard.result == 'success'
         || (needs.deploy-standard.result == 'skipped'
           && needs.deploy-matrix.outputs.standard == '[]'))
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 55
     environment: production
     strategy:

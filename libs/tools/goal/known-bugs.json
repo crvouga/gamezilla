@@ -1,5 +1,10 @@
 [
   {
+    "id": "depot-native-workflows-missing-auth",
+    "summary": "Duplicated native Depot workflows read GitHub-only variables and failed with Missing identity ID for OIDC auth; their issuer also lacked the configured cloud trust. Run the three existing GitHub workflows on Depot runners, retaining their variables and OIDC issuer.",
+    "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
+  },
+  {
     "id": "health-offline-before-precache-ready",
     "summary": "The offline journey silently stopped waiting for shell installation after twenty seconds and cut the network while a fresh deployment was still precaching. Await the browser's service-worker readiness event instead; unsupported or inactive shells fail rather than proceeding offline.",
     "regressionTest": "apps/product/tests/live-browser.test.ts"

@@ -54,7 +54,7 @@ jobs:
   #   check:publish-close  mark the commit complete. Same cancel skip
   check-plan:
     name: check:plan
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 10
     env:
       SECRETS_ENV: dev
@@ -100,7 +100,7 @@ jobs:
   check-matrix:
     name: check:matrix
     needs: check-plan
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 5
     outputs:
       shards: ${{ steps.publish.outputs.shards }}
@@ -120,7 +120,7 @@ jobs:
     name: check:shard
     needs: check-matrix
     if: needs.check-matrix.outputs.shards != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     # Hard ceiling for the whole job: setup + the check step + summary. The
     # check step has its own tighter limit below.
     timeout-minutes: 30
@@ -196,7 +196,7 @@ jobs:
 
   check-publish-open:
     name: check:publish-open
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 10
     env:
       SECRETS_ENV: dev
@@ -224,7 +224,7 @@ jobs:
     # `check-<pr>` until they finish, which leaves the next commit's
     # required check queued.
     if: always() && !cancelled() && needs.check-matrix.result == 'success' && needs.check-publish-open.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 30
     strategy:
       # One red part should not hide another's report.
@@ -266,7 +266,7 @@ jobs:
     name: check:publish-close
     needs: [check-publish-open, check-publish]
     if: always() && !cancelled() && needs.check-publish-open.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 10
     env:
       SECRETS_ENV: dev
@@ -299,7 +299,7 @@ jobs:
         check-publish-close,
       ]
     if: always() && !cancelled()
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: verdict

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 /**
@@ -40,6 +40,20 @@ const workflows = readdirSync(WORKFLOWS_DIR)
       readFileSync(join(WORKFLOWS_DIR, file), 'utf8')
     ) as Workflow,
   }));
+
+// regression: depot-native-workflows-missing-auth
+test('Check, Deploy and Health have one workflow source with GitHub auth', () => {
+  expect(workflows.map(({ file }) => file).sort()).toEqual([
+    'check.yml',
+    'deploy.yml',
+    'health.yml',
+  ]);
+  const nativeDir = join(import.meta.dirname, '../../../.depot/workflows');
+  const nativeWorkflows = existsSync(nativeDir)
+    ? readdirSync(nativeDir).filter((file) => /\.ya?ml$/u.test(file))
+    : [];
+  expect(nativeWorkflows).toEqual([]);
+});
 
 describe.each(workflows)('$file', ({ file, workflow }) => {
   test('workflow name is the capitalized file stem', () => {
