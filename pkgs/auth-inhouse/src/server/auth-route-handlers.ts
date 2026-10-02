@@ -15,15 +15,18 @@ type SessionUserJson = {
 export function sessionJson(
   user: SessionUserJson,
   token: string,
-  expiresAtMs: number
+  expiresAtMs: number,
+  authenticatedAtMs: number
 ): {
   readonly token: string;
   readonly expiresAt: string;
+  readonly authenticatedAt: string;
   readonly user: SessionUserJson;
 } {
   return {
     token,
     expiresAt: new Date(expiresAtMs).toISOString(),
+    authenticatedAt: new Date(authenticatedAtMs).toISOString(),
     user,
   };
 }
@@ -77,9 +80,12 @@ export async function respondWithSession(
   if (user === null) {
     return c.json({ error: 'user_missing' }, 400);
   }
-  const session = await r.createSession(userId);
+  const session = await r.createSession(userId, deps.sessionLifetimeMs);
   c.header(AUTH_SET_TOKEN_HEADER, session.token);
-  return c.json(sessionJson(user, session.token, session.expiresAtMs), 200);
+  return c.json(
+    sessionJson(user, session.token, session.expiresAtMs, deps.clock.now()),
+    200
+  );
 }
 
 export async function handleSessionExchange(
@@ -114,6 +120,7 @@ export async function handleGetSession(
     {
       user: found.user,
       expiresAt: found.session.expires_at,
+      authenticatedAt: found.session.created_at,
     },
     200
   );

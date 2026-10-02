@@ -18,8 +18,7 @@
  * Apalache's search is symbolic (SMT), not seeded.
  */
 
-import { spawn } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -29,8 +28,10 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
+import { inductionTargets } from './induction-targets';
+import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
-import { wallDeadline, wallStopwatch } from './wall';
+import { wallStopwatch } from './wall';
 
 export type VerifyOptions = {
   /** Absolute path of the `.qnt` model. */
@@ -39,6 +40,8 @@ export type VerifyOptions = {
   readonly invariants: readonly string[];
   /** Steps after `init` the checker explores, at most. */
   readonly maxSteps: number;
+  /** Prove this candidate initially, under every step, and as implying every invariant. */
+  readonly inductiveInvariant?: string;
   /** Apalache's working directory and QUINT_HOME (emptied first). */
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */
@@ -64,7 +67,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  const configPath = encodingConfig(options);
+  const configPath = verifyConfig(options);
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
@@ -78,7 +81,11 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     timeoutMs: options.timeoutMs,
   });
   const durationMs = elapsed();
-  const header = `quint verify ${options.specPath} (invariants: ${options.invariants.join(', ')}; max steps ${String(options.maxSteps)})`;
+  const strategy =
+    options.inductiveInvariant === undefined
+      ? `max steps ${String(options.maxSteps)}`
+      : `induction: ${options.inductiveInvariant}`;
+  const header = `quint verify ${options.specPath} (invariants: ${options.invariants.join(', ')}; ${strategy})`;
   if (run.output.includes(DOWNLOADING)) {
     return {
       ok: false,
@@ -88,7 +95,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if (run.timedOut) {
     return {
       ok: false,
-      output: `${header}: no verdict within ${String(options.timeoutMs)} ms — lower verifySteps in the binding or split the model\n${tail(run.output)}`,
+      output: `${header}: no verdict within ${String(options.timeoutMs)} ms — simplify the abstraction or split the model without weakening its guarantees\n${tail(run.output)}`,
     };
   }
   if (run.code !== 0) {
@@ -100,8 +107,17 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
 function verifyArgs(
   options: VerifyOptions,
   port: number,
-  configPath: string | null
+  configPath: string
 ): string[] {
+  const invariants =
+    options.inductiveInvariant === undefined
+      ? options.invariants
+      : inductionTargets({
+          source: readFileSync(options.specPath, 'utf8'),
+          module: quintModuleName(options.specPath),
+          candidate: options.inductiveInvariant,
+          invariants: options.invariants,
+        });
   return [
     QUINT_CLI,
     'verify',
@@ -110,123 +126,33 @@ function verifyArgs(
     quintModuleName(options.specPath),
     '--max-steps',
     String(options.maxSteps),
+    '--apalache-config',
+    configPath,
     '--apalache-version',
     APALACHE_VERSION,
-    ...(configPath === null ? [] : ['--apalache-config', configPath]),
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
-    '--invariants',
-    ...options.invariants,
+    ...(invariants.length === 0 ? [] : ['--invariants', ...invariants]),
+    ...(options.inductiveInvariant === undefined
+      ? []
+      : ['--inductive-invariant', options.inductiveInvariant]),
   ];
 }
 
-function encodingConfig(options: VerifyOptions): string | null {
-  // Check every invariant after translating the complete transition choice.
-  // This preserves all reachable states with fewer SMT queries.
-  // The alternative map encoding is unsuitable for some higher-order models.
-  // Callers opt in; the bound and invariant obligations stay the same.
+function verifyConfig(options: VerifyOptions): string {
   const path = join(options.outDir, 'apalache-config.json');
-  writeFileSync(
-    path,
-    JSON.stringify({
-      checker: {
-        ...(options.encoding === undefined
-          ? {}
-          : { 'smt-encoding': { type: options.encoding } }),
-        tuning: { 'search.invariant.mode': 'after' },
-      },
-    })
-  );
+  const checker = {
+    ...(options.encoding === undefined
+      ? {}
+      : { 'smt-encoding': { type: options.encoding } }),
+    tuning: {
+      'search.invariant.mode':
+        options.inductiveInvariant === undefined ? 'after' : 'before',
+    },
+  };
+  writeFileSync(path, JSON.stringify({ checker }));
   return path;
 }
-
-type QuintRun = {
-  readonly code: number | null;
-  readonly timedOut: boolean;
-  readonly output: string;
-};
-
-/** Kill a process group, if any of it is left. */
-function killGroup(pid: number | undefined): void {
-  if (pid === undefined) return;
-  try {
-    process.kill(-pid, 'SIGKILL');
-  } catch {
-    // Already gone.
-  }
-}
-
-const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
-
-/**
- * Kill the group if this process exits, or is interrupted, first: a detached
- * group gets no Ctrl-C of its own. The signal is re-raised once the group is
- * gone, so the process still ends as it would have. Returns the release.
- */
-function guardGroup(pid: number | undefined): () => void {
-  const onExit = () => killGroup(pid);
-  const onSignal = (signal: NodeJS.Signals) => {
-    killGroup(pid);
-    release();
-    process.kill(process.pid, signal);
-  };
-  const release = () => {
-    process.removeListener('exit', onExit);
-    for (const signal of SIGNALS) process.removeListener(signal, onSignal);
-  };
-  process.once('exit', onExit);
-  for (const signal of SIGNALS) process.once(signal, onSignal);
-  return release;
-}
-
-async function runQuint(input: {
-  readonly args: readonly string[];
-  readonly cwd: string;
-  readonly env: Record<string, string>;
-  readonly timeoutMs: number;
-}): Promise<QuintRun> {
-  // Its own process group: Quint and the Apalache server it starts die
-  // together, whatever state either is in.
-  const child = spawn(process.execPath, input.args, {
-    cwd: input.cwd,
-    env: input.env,
-    detached: true,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  const chunks: string[] = [];
-  child.stdout.on('data', (chunk: Buffer) => chunks.push(chunk.toString()));
-  child.stderr.on('data', (chunk: Buffer) => chunks.push(chunk.toString()));
-  const release = guardGroup(child.pid);
-  let timedOut = false;
-  const cancel = wallDeadline(input.timeoutMs, () => {
-    timedOut = true;
-    killGroup(child.pid);
-  });
-  try {
-    const code = await new Promise<number | null>((resolve) => {
-      child.once('error', (error) => {
-        chunks.push(String(error));
-        resolve(null);
-      });
-      // Quint's exit ends the check; its server shares the output pipes, so
-      // the group goes before waiting for them to close.
-      child.once('exit', (exitCode) => {
-        killGroup(child.pid);
-        resolve(exitCode);
-      });
-    });
-    await new Promise<void>((resolve) => {
-      if (child.stdout.closed && child.stderr.closed) resolve();
-      else child.once('close', () => resolve());
-    });
-    return { code, timedOut, output: chunks.join('') };
-  } finally {
-    cancel();
-    killGroup(child.pid);
-    release();
-  }
-}
-
 /**
  * Lines that say nothing about the model: the Apalache server's log
  * (`… I@09:12:03.123`), its banner and a protobuf warning of its own.

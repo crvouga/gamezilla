@@ -52,6 +52,7 @@
     "test:spec:14": "bun run ../../libs/harness/scripts/test-spec.ts --part 14/15"
   },
   "dependencies": {
+    "@libs/account-privacy": "workspace:*",
     "@libs/auth": "workspace:*",
     "@libs/billing": "workspace:*",
     "@libs/chess": "workspace:*",
@@ -82,6 +83,7 @@
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
@@ -91,7 +93,8 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/ui-testing": "workspace:*"
+    "@pkgs/ui-testing": "workspace:*",
+    "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
     "@libs/test-ids": "workspace:*",

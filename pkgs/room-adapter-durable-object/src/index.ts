@@ -16,5 +16,6 @@ export type {
   DurableObjectInstance,
   DurableObjectInstanceState,
   DurableObjectKvStorage,
+  DurableObjectKvTransaction,
   DurableObjectTelemetry,
 } from './types';

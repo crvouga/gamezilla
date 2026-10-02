@@ -95,23 +95,24 @@ export class InMemoryRoomStorage implements RoomStorage {
     return s.entries[s.entries.length - 1]!.seq;
   }
 
-  async appendCommittedEntries(
+  async commitCommand(
     topic: string,
+    commandId: string,
     newEntries: LogEntry[]
   ): Promise<void> {
     if (newEntries.length === 0) return;
     const s = this.getOrCreate(topic);
+    if (s.dedup.has(commandId)) return;
     const last = s.entries[s.entries.length - 1]?.seq ?? 0;
     let expect = last + 1;
     for (const e of newEntries) {
       if (e.seq !== expect) {
-        throw new Error(
-          `appendCommittedEntries: seq gap expect ${expect} got ${e.seq}`
-        );
+        throw new Error(`commitCommand: seq gap expect ${expect} got ${e.seq}`);
       }
       expect++;
     }
     s.entries.push(...newEntries);
+    s.dedup.set(commandId, { kind: 'committed', entries: [...newEntries] });
   }
 
   async getDedupOutcome(
@@ -126,9 +127,9 @@ export class InMemoryRoomStorage implements RoomStorage {
   async putDedupOutcome(
     topic: string,
     commandId: string,
-    outcome: CommandDedupOutcome
+    outcome: Extract<CommandDedupOutcome, { kind: 'rejected' }>
   ): Promise<void> {
     const s = this.getOrCreate(topic);
-    s.dedup.set(commandId, outcome);
+    if (!s.dedup.has(commandId)) s.dedup.set(commandId, outcome);
   }
 }

@@ -1,3 +1,4 @@
+import { registerAccountDeletionConsumers } from '@libs/auth/public/account-deletion-consumers';
 import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
@@ -369,6 +370,7 @@ function createServerRouter(args: {
     .use(
       '*',
       createRequestDbMiddleware(secrets, {
+        objectStore: env.blob,
         authServer: auth.server,
         apiUrlOverride: env.serverUrl,
         protection,
@@ -399,6 +401,7 @@ function createServerRouter(args: {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
       await drainAndNotifyOutbox({
+        objectStore: env.blob,
         db: store.sqlClient,
         clock: store.clock,
         createId: store.createId,
@@ -485,6 +488,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     createSyncAppMount(env, args.app),
   ]);
 
+  registerAccountDeletionConsumers(args.servers.outboxConsumers, auth.server);
   const desiredClientConfig = await buildDesiredClientConfig({
     secretStore: env.secrets,
     auth,

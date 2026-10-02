@@ -11,7 +11,7 @@
 import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing';
 import type { Logger } from '@pkgs/logger';
 
-import { PADDLE_MEMBERSHIP_CALLBACK_EVENTS } from './callback-events';
+import { PADDLE_CALLBACK_EVENTS } from './callback-events';
 import { PADDLE_CURRENCY_COUNTRIES } from './currency-countries';
 import type { PaddleApi } from './paddle-api';
 import {
@@ -234,7 +234,7 @@ async function reconcileNotificationSetting(args: {
   readonly log: Logger;
 }): Promise<{ readonly id: string; readonly secret: string | null }> {
   const { api, log } = args;
-  const wantedEvents = Object.keys(PADDLE_MEMBERSHIP_CALLBACK_EVENTS).sort();
+  const wantedEvents = [...PADDLE_CALLBACK_EVENTS].sort();
   const settings = await api.data<readonly PaddleNotificationSetting[]>(
     'GET',
     '/notification-settings'

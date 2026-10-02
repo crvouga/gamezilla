@@ -20,6 +20,7 @@ export type QueryCtx = {
     readonly accountId: string | null;
     readonly isAnon: boolean;
     readonly now: () => Date;
+    readonly authenticatedAtMs?: number;
   };
 };
 

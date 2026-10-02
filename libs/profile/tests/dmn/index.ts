@@ -1,0 +1,1 @@
+import './privacy-access.binding';

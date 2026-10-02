@@ -144,6 +144,48 @@ function toMembership(
  * status name, event name or price lookup key.
  */
 export class StripeMembershipBilling implements MembershipBilling {
+  async cancelMembership(subscriptionId: string): Promise<void> {
+    const subscription = await this.current(subscriptionId);
+    if (
+      subscription === null ||
+      readString(subscription, 'status') === 'canceled'
+    )
+      return;
+    await this.stripe.subscriptions.cancel(subscriptionId, {
+      invoice_now: false,
+      prorate: false,
+    });
+  }
+
+  async readPayments(customerId: string) {
+    const payments = [];
+    for await (const charge of this.stripe.charges.list({
+      customer: customerId,
+      limit: 100,
+    })) {
+      if (!charge.paid || !charge.captured) continue;
+      payments.push({
+        id: charge.id,
+        paidAtMs: charge.created * 1_000,
+        amountMinor: charge.amount_captured,
+        currency: charge.currency,
+        refundedMinor: charge.amount_refunded,
+      });
+    }
+    return payments;
+  }
+
+  async refundPayment(paymentId: string): Promise<void> {
+    const charge = await this.stripe.charges.retrieve(paymentId);
+    if (charge.amount_refunded >= charge.amount_captured) return;
+    await this.stripe.refunds.create(
+      {
+        charge: paymentId,
+        amount: charge.amount_captured - charge.amount_refunded,
+      },
+      { idempotencyKey: `account-deletion:${paymentId}` }
+    );
+  }
   private readonly stripe: Stripe;
   private readonly offer: PlusMembershipOffer;
   private readonly webhookSecret: string | null;
@@ -357,6 +399,13 @@ export class StripeMembershipBilling implements MembershipBilling {
 
     if (STRIPE_MEMBERSHIP_CALLBACK_EVENTS[event.type] !== true) {
       return { kind: 'ignored' };
+    }
+    if (event.type === 'charge.succeeded') {
+      const charge = asRecord(event.data.object);
+      const customerId = charge === null ? null : readId(charge, 'customer');
+      return customerId === null
+        ? { kind: 'ignored' }
+        : { kind: 'payments', provider: this.provider, customerId };
     }
     const id = await this.subscriptionIdOf(event);
     if (id === null) return { kind: 'ignored' };

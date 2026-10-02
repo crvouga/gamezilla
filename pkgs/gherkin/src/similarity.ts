@@ -73,6 +73,7 @@ const NEGATION = new Set([
 ]);
 
 function stem(token: string): string {
+  if (token.startsWith('parameter_')) return token;
   if (token.length <= 3) return token;
   return token
     .replace(/ies$/, 'y')
@@ -80,11 +81,20 @@ function stem(token: string): string {
     .replace(/s$/, '');
 }
 
-/** Parameters collapse to one token, plurals and possessives fold. */
+/** Typed parameters stay distinct; plurals and possessives fold. */
 export function normalizeStepText(text: string): readonly string[] {
   return text
     .toLowerCase()
-    .replace(/\{[^}]*\}/g, ' _ ')
+    .replace(
+      /\{([^}]*)\}/g,
+      (_match, type: string) => ` parameter_${type || 'any'} `
+    )
+    .replace(/\bat once\b/g, ' immediately ')
+    .replace(
+      /\b(?:is|are)\s+(?:(?:not|still|already|now|yet|currently)\s+)*[a-z]+?(ing|ed)\b/g,
+      (phrase, aspect: string) =>
+        `${phrase} aspect_${aspect === 'ing' ? 'pending' : 'complete'}`
+    )
     .replace(/'s\b/g, '')
     .replace(/[^a-z0-9_ ]+/g, ' ')
     .split(/\s+/)
@@ -112,7 +122,7 @@ function negated(tokens: readonly string[]): boolean {
 
 /**
  * Whether two wordings say the same thing: same negation, same number of
- * parameters, and everything that differs between them is filler.
+ * typed parameters, and everything that differs between them is filler.
  */
 export function sameBehavior(
   a: readonly string[],
@@ -120,7 +130,7 @@ export function sameBehavior(
 ): boolean {
   if (negated(a) !== negated(b)) return false;
   const arity = (tokens: readonly string[]) =>
-    tokens.filter((t) => t === '_').length;
+    tokens.filter((t) => t === '_' || t.startsWith('parameter_')).length;
   if (arity(a) !== arity(b)) return false;
   const diff = multisetDifference(a, b);
   return diff.every((token) => FILLER.has(token));

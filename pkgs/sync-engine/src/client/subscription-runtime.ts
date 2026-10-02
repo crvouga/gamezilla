@@ -25,6 +25,8 @@ export type QueryRequest = QueryRequestItem;
 export type QuerySubscriptionSpec = {
   readonly name: string;
   readonly params: Readonly<Record<string, unknown>>;
+  /** Session startup can paint its cache after a failed network attempt. */
+  readonly settleOnNetworkError?: boolean;
 };
 
 export type QuerySubscription = {

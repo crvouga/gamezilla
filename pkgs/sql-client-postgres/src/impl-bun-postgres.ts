@@ -191,6 +191,7 @@ function createClient(sql: BunSql, options: BunClientOptions): SqlClient {
     transaction: async (fn) =>
       sql.begin(async (tx) => {
         const conn = tx as unknown as BunSql;
+        await conn.unsafe('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
         if (options.pinSearchPathEachQuery) {
           await conn.unsafe(
             `SET LOCAL search_path TO ${quotePgIdent(options.dbScope.schema)}`

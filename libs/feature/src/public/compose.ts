@@ -15,6 +15,7 @@ import {
   type Schema,
   type TableDef,
 } from '@pkgs/db-schema';
+import type { MutationAuthorize } from '@pkgs/sync-engine/shared';
 import {
   defineTopicMap,
   type Mutation,
@@ -26,7 +27,7 @@ import {
   type TopicMap,
   type TopicMapEntry,
 } from '@pkgs/sync-engine/shared';
-
+import type { AccountPrivacyContribution } from './account-privacy';
 import type { FeatureManifest } from './manifest';
 
 export type ComposedFeatures = {
@@ -47,6 +48,8 @@ export type ComposedFeatures = {
   readonly topicMap: TopicMap;
   /** Memoized: the mutation thunks run once per composition. */
   readonly mutations: () => Promise<MutationRegistry>;
+  readonly accountPrivacy: readonly AccountPrivacyContribution[];
+  readonly authorizeMutation: MutationAuthorize;
 };
 
 function collectTables(features: readonly FeatureManifest[]): {
@@ -141,8 +144,20 @@ export function composeFeatures(
   const { tables, ownerOfTable } = collectTables(features);
   const schema = registerTables(tables);
   let pending: Promise<MutationRegistry> | null = null;
+  const accountPrivacy = features.flatMap((f) =>
+    f.accountPrivacy === undefined ? [] : [f.accountPrivacy]
+  );
+  const guards = features.flatMap((f) =>
+    f.accountPrivacyGuard === undefined
+      ? []
+      : [f.accountPrivacyGuard(accountPrivacy)]
+  );
   return {
     featureNames: features.map((f) => f.name),
+    accountPrivacy,
+    authorizeMutation: async (ctx) => {
+      for (const guard of guards) await guard(ctx);
+    },
     tables,
     tableNames: Object.keys(schema.snapshot().tables).sort(),
     domains: domainsFromTables(tables),

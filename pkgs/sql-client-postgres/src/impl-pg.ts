@@ -82,7 +82,7 @@ export class SqlClientImplPg implements PostgresSqlClient {
   async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
     const client = await this.pool.connect();
     try {
-      await client.query('BEGIN');
+      await client.query('BEGIN ISOLATION LEVEL SERIALIZABLE');
       if (this.pinSearchPathEachQuery) {
         await setPgSessionSchema(client, this.dbScope);
       }

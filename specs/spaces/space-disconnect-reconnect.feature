@@ -40,3 +40,11 @@ Feature: Losing the connection in a space
       When the connection comes back
       Then Bob sees the space has ended within 20 seconds
       And Bob is not offered to join
+
+  Rule: Presence is unavailable to someone without a connection
+    No counter-example: the return scenarios cover presence becoming available again.
+
+    @regression:space-offline-presence-stale
+    Scenario: Someone away does not see old presence as current
+      When Bob loses the connection
+      Then Bob sees 0 people in the space within 20 seconds

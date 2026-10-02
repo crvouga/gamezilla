@@ -158,12 +158,28 @@ export async function fireDueSchedules(args: {
   readonly ctx: RoomEffectContext;
 }): Promise<void> {
   const due = args.runtime.takeDue(args.ctx.now);
-  for (const entry of due) {
-    await args.ctx.injectCommand({
-      id: args.createId(),
-      payload: entry.payload,
-      identity: ROOM_SCHEDULER_IDENTITY,
-    });
+  let index = 0;
+  try {
+    // The old wake has fired. Rearm before an injected command can restore
+    // the same deadline, so its replacement does not reuse a consumed wake.
+    await args.runtime.rearm();
+    for (; index < due.length; index++) {
+      const entry = due[index]!;
+      await args.ctx.injectCommand({
+        id: args.createId(),
+        payload: entry.payload,
+        identity: ROOM_SCHEDULER_IDENTITY,
+      });
+    }
+  } catch (error) {
+    for (; index < due.length; index++) {
+      const entry = due[index]!;
+      // Recovery may already have replaced this deadline from current state.
+      if (args.runtime.get(entry.id) === undefined)
+        await args.runtime.upsert(entry);
+    }
+    throw error;
+  } finally {
+    await args.runtime.rearm();
   }
-  await args.runtime.rearm();
 }

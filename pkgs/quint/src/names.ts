@@ -16,6 +16,7 @@ export type QuintDeclarationKind =
   | 'const'
   | 'val'
   | 'def'
+  | 'temporal'
   | 'action';
 
 export type QuintDeclaration = {
@@ -51,7 +52,7 @@ function blankNoise(source: string): string {
 const MODULE = /^module\s+([A-Za-z_]\w*)/m;
 const IMPORT = /^\s*import\s+([\w.*]+)(?:\s+as\s+\w+)?\s+from\s+"([^"]+)"/;
 const DECLARATION =
-  /^ {2}(?:pure\s+)?(type|var|const|val|def|action)\s+([A-Za-z_]\w*)/;
+  /^ {2}(?:pure\s+)?(type|var|const|val|def|action|temporal)\s+([A-Za-z_]\w*)/;
 /** A line that ends a type's right-hand side: the next declaration or the module's `}`. */
 const TOP_LEVEL = /^ {0,2}\S/;
 

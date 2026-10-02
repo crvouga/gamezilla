@@ -6,8 +6,9 @@
 
 import './account-sign-in.binding';
 import './username-changes.binding';
+import './account-privacy.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
-import { openHarness } from '../harness/open-profile-harness';
+import { openQuintHarness } from '../harness/open-profile-harness';
 
-useQuintHarness(openHarness);
+useQuintHarness(openQuintHarness);

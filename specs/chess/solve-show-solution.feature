@@ -4,24 +4,26 @@ Feature: Showing the solution
   out, so they learn it. Showing the solution plays out the rest of the line,
   stops play, and counts as a fail.
 
-  Background:
-    Given Alice is signed in
-    And Alice is solving the hook-mate puzzle
+  Rule: Showing the solution plays the line and keeps the attempt failed
 
-  Scenario: The rest of the line plays out to checkmate
-    When Alice shows the solution
-    Then Alice's board reaches checkmate at move 4 of the line within 20 seconds
+    Background:
+      Given Alice is signed in
+      And Alice is solving the hook-mate puzzle
 
-  Scenario: Showing the solution stops play
-    When Alice shows the solution
-    Then Alice's puzzle shows the revealed solution within 20 seconds
-    And Alice cannot move pieces
+    Scenario: The rest of the line plays out to checkmate
+      When Alice shows the solution
+      Then Alice's board reaches checkmate at move 4 of the line within 20 seconds
 
-  Scenario: Showing the solution counts as a fail
-    When Alice shows the solution
-    Then Alice's game log records that puzzle as failed
-    And Alice's stats show 1 played, 0 solved, and 0% accuracy
+    Scenario: Showing the solution stops play
+      When Alice shows the solution
+      Then Alice's puzzle shows the revealed solution within 20 seconds
+      And Alice cannot move pieces
 
-  Scenario: Showing the solution drops the rating
-    When Alice shows the solution
-    Then Alice's puzzle rating is below 1500
+    Scenario: Showing the solution counts as a fail
+      When Alice shows the solution
+      Then Alice's game log records that puzzle as failed
+      And Alice's stats show 1 played, 0 solved, and 0% accuracy
+
+    Scenario: Showing the solution drops the rating
+      When Alice shows the solution
+      Then Alice's puzzle rating is below 1500

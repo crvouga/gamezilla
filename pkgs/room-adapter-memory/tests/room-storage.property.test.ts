@@ -48,30 +48,23 @@ async function expectAgrees(m: Model, r: Real, topic: string): Promise<void> {
 
 const arbTopic = fc.constantFrom('t1', 't2', 't3');
 const arbCommandId = fc.constantFrom('c1', 'c2', 'c3');
-const arbOutcome: fc.Arbitrary<CommandDedupOutcome> = fc.oneof(
-  fc.nat({ max: 3 }).map(
-    (n): CommandDedupOutcome => ({
-      kind: 'committed',
-      entries: [entry(n + 1)],
-    })
-  ),
-  fc.constant<CommandDedupOutcome>({
-    kind: 'rejected',
-    error: { type: ROOM_ERROR_TYPE.conflict, reason: 'x' },
-  })
-);
+type Rejection = Extract<CommandDedupOutcome, { kind: 'rejected' }>;
+const arbOutcome = fc.constant<Rejection>({
+  kind: 'rejected',
+  error: { type: ROOM_ERROR_TYPE.conflict, reason: 'x' },
+});
 
-function append(topic: string, count: number, skew: number): Cmd {
+function append(topic: string, id: string, count: number, skew: number): Cmd {
   return {
     check: (): boolean => true,
     async run(m: Model, r: Real): Promise<void> {
       const start = lastSeqOf(m, topic) + 1 + skew;
       const batch = Array.from({ length: count }, (_, i) => entry(start + i));
-      const outcome = await r.appendCommittedEntries(topic, batch).then(
+      const outcome = await r.commitCommand(topic, id, batch).then(
         () => 'ok',
         () => 'rejected'
       );
-      if (count === 0) {
+      if (m.get(topic)?.dedup.has(id) || count === 0) {
         expect(outcome).toBe('ok');
       } else if (skew !== 0) {
         expect(outcome).toBe('rejected');
@@ -79,13 +72,15 @@ function append(topic: string, count: number, skew: number): Cmd {
         touch(m, topic);
       } else {
         expect(outcome).toBe('ok');
-        touch(m, topic).entries.push(...batch);
+        const state = touch(m, topic);
+        state.entries.push(...batch);
+        state.dedup.set(id, { kind: 'committed', entries: [...batch] });
       }
       // Callers may reuse their batch array; storage must not alias it.
       batch.length = 0;
       await expectAgrees(m, r, topic);
     },
-    toString: (): string => `append(${topic},${count},${skew})`,
+    toString: (): string => `commit(${topic},${id},${count},${skew})`,
   };
 }
 
@@ -103,16 +98,13 @@ function loadAfter(topic: string, after: number): Cmd {
   };
 }
 
-function putDedup(
-  topic: string,
-  id: string,
-  outcome: CommandDedupOutcome
-): Cmd {
+function putDedup(topic: string, id: string, outcome: Rejection): Cmd {
   return {
     check: (): boolean => true,
     async run(m: Model, r: Real): Promise<void> {
       await r.putDedupOutcome(topic, id, outcome);
-      touch(m, topic).dedup.set(id, outcome);
+      const state = touch(m, topic);
+      if (!state.dedup.has(id)) state.dedup.set(id, outcome);
       await expectAgrees(m, r, topic);
     },
     toString: (): string => `putDedup(${topic},${id})`,
@@ -172,13 +164,14 @@ const arbCommand: fc.Arbitrary<Cmd> = fc.oneof(
     arbitrary: fc
       .tuple(
         arbTopic,
+        arbCommandId,
         fc.nat({ max: 3 }),
         fc.oneof(
           { arbitrary: fc.constant(0), weight: 3 },
           { arbitrary: fc.integer({ min: -2, max: 2 }), weight: 1 }
         )
       )
-      .map(([t, c, s]): Cmd => append(t, c, s)),
+      .map(([t, id, c, s]): Cmd => append(t, id, c, s)),
     weight: 4,
   },
   {

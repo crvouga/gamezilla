@@ -13,15 +13,18 @@ import { ensureProfileMutation } from '../shared/ensure-profile-mutation';
  * Upload via `/api/mutations` enforces global uniqueness on Postgres.
  */
 export class ProfileEnsurer {
-  constructor(private readonly mutationClient: MutationClient) {}
+  constructor(
+    private readonly mutationClient: MutationClient,
+    private readonly authClient: object
+  ) {}
 
-  async ensure(): Promise<void> {
-    const username = peekPendingSignupUsername();
+  async ensure(externalUserId: string | null): Promise<void> {
+    const username = peekPendingSignupUsername(this.authClient, externalUserId);
     const result = await this.mutationClient.mutate(
       ensureProfileMutation,
       username === null ? {} : { username }
     );
     if (!result.ok) throw new Error(result.failures[0]?.message);
-    if (username !== null) takePendingSignupUsername();
+    if (username !== null) takePendingSignupUsername(this.authClient);
   }
 }

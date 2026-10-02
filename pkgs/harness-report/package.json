@@ -7,8 +7,9 @@
     ".": "./src/index.ts",
     "./client": "./src/client.ts",
     "./remote/bundle": "./src/remote/bundle.ts",
+    "./remote/publish": "./src/remote/publish.ts",
     "./remote/retention": "./src/remote/retention.ts",
-    "./remote/publish": "./src/remote/publish.ts"
+    "./viewer": "./src/viewer.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",

@@ -60,6 +60,9 @@
     "@pkgs/property": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*"
   }
 }

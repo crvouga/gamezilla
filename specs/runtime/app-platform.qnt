@@ -53,9 +53,9 @@ module app_platform {
 
   // Bookkeeping, not shown to anyone.
   /// The tab a person left for Settings.
-  var lastTab: Person -> str
+  var _lastTab: Person -> str
   /// The name each person on people search typed.
-  var searchedFor: Person -> Person
+  var _searchedFor: Person -> Person
   /// Who is hosting a live space.
   var hosting: Set[Person]
   /// Whose device is cut off.
@@ -63,13 +63,13 @@ module app_platform {
 
   pure def _looking(
     place: Person -> Place,
-    searchedFor: Person -> Person,
+    _searchedFor: Person -> Person,
     signedIn: Set[Person],
   ): Person -> Lookup =
     place.keys().filter(p => place.get(p) == Search).mapBy(p =>
       if (not(signedIn.contains(p))) Denied
-      else if (searchedFor.get(p) == p or not(signedIn.contains(searchedFor.get(p)))) Nobody
-      else Shows(searchedFor.get(p))
+      else if (_searchedFor.get(p) == p or not(signedIn.contains(_searchedFor.get(p)))) Nobody
+      else Shows(_searchedFor.get(p))
     )
 
   action _moveTo(
@@ -87,15 +87,15 @@ module app_platform {
     signedIn' = newSignedIn,
     lookup' = _looking(newPlace, newSearchedFor, newSignedIn),
     _capacity' = newCapacity,
-    lastTab' = newLastTab,
-    searchedFor' = newSearchedFor,
+    _lastTab' = newLastTab,
+    _searchedFor' = newSearchedFor,
     hosting' = newHosting,
     offline' = newOffline,
   }
 
   /// A person's place in the app changes; nothing else does.
   action _show(person: Person, s: Place): bool =
-    _moveTo(opened, place.set(person, s), signedIn, _capacity, lastTab, searchedFor, hosting, offline)
+    _moveTo(opened, place.set(person, s), signedIn, _capacity, _lastTab, _searchedFor, hosting, offline)
 
   /// Alice has signed in on her device and Bob is using the app as a guest;
   /// the team runs the app on one machine.
@@ -129,7 +129,7 @@ module app_platform {
     _moveTo(
       opened.union(Set(person)),
       place.put(person, OnTab("spaces")),
-      signedIn, _capacity, lastTab, searchedFor, hosting, offline,
+      signedIn, _capacity, _lastTab, _searchedFor, hosting, offline,
     ),
   }
 
@@ -145,7 +145,7 @@ module app_platform {
     _onTab(place.get(person)),
     _moveTo(
       opened, place.set(person, Settings), signedIn, _capacity,
-      lastTab.put(person, _tabOf(place.get(person))), searchedFor, hosting, offline,
+      _lastTab.put(person, _tabOf(place.get(person))), _searchedFor, hosting, offline,
     ),
   }
 
@@ -153,7 +153,7 @@ module app_platform {
   action leaveSettings(person: Person): bool = all {
     opened.contains(person),
     place.get(person) == Settings,
-    _show(person, OnTab(lastTab.get(person))),
+    _show(person, OnTab(_lastTab.get(person))),
   }
 
   /// A guest signs in with Google from the tabs, and comes back to them.
@@ -162,9 +162,9 @@ module app_platform {
     not(signedIn.contains(person)),
     _onTab(place.get(person)),
     // Search results are what the search found when it ran.
-    place.keys().forall(p => place.get(p) == Search implies searchedFor.get(p) != person),
+    place.keys().forall(p => place.get(p) == Search implies _searchedFor.get(p) != person),
     _moveTo(
-      opened, place, signedIn.union(Set(person)), _capacity, lastTab, searchedFor,
+      opened, place, signedIn.union(Set(person)), _capacity, _lastTab, _searchedFor,
       hosting, offline,
     ),
   }
@@ -174,8 +174,8 @@ module app_platform {
     _online(person),
     _onTab(place.get(person)) or place.get(person) == Search,
     _moveTo(
-      opened, place.set(person, Search), signedIn, _capacity, lastTab,
-      searchedFor.put(person, other), hosting, offline,
+      opened, place.set(person, Search), signedIn, _capacity, _lastTab,
+      _searchedFor.put(person, other), hosting, offline,
     ),
   }
 
@@ -185,7 +185,7 @@ module app_platform {
     not(hosting.contains(person)),
     place.get(person) != InSpace,
     _moveTo(
-      opened, place.set(person, InSpace), signedIn, _capacity, lastTab, searchedFor,
+      opened, place.set(person, InSpace), signedIn, _capacity, _lastTab, _searchedFor,
       hosting.union(Set(person)), offline,
     ),
   }
@@ -195,7 +195,7 @@ module app_platform {
     _online(person),
     place.get(person) == InSpace,
     _moveTo(
-      opened, place.set(person, Ended), signedIn, _capacity, lastTab, searchedFor,
+      opened, place.set(person, Ended), signedIn, _capacity, _lastTab, _searchedFor,
       hosting.exclude(Set(person)), offline,
     ),
   }
@@ -204,7 +204,7 @@ module app_platform {
   action cutOff(person: Person): bool = all {
     _online(person),
     _moveTo(
-      opened, place, signedIn, _capacity, lastTab, searchedFor, hosting,
+      opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting,
       offline.union(Set(person)),
     ),
   }
@@ -215,7 +215,7 @@ module app_platform {
   action _cutOffOnTheWay(person: Person): bool = all {
     _online(person),
     _moveTo(
-      opened, place, signedIn, _capacity, lastTab, searchedFor, hosting,
+      opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting,
       offline.union(Set(person)),
     ),
   }
@@ -223,14 +223,14 @@ module app_platform {
   /// Every connection comes back.
   action reconnect: bool = all {
     offline != Set(),
-    _moveTo(opened, place, signedIn, _capacity, lastTab, searchedFor, hosting, Set()),
+    _moveTo(opened, place, signedIn, _capacity, _lastTab, _searchedFor, hosting, Set()),
   }
 
   /// Checking machinery: the team starts the app on one more machine. Nobody
   /// using the app notices.
   action _gainCapacity: bool = all {
     _capacity < MAX_CAPACITY,
-    _moveTo(opened, place, signedIn, _capacity + 1, lastTab, searchedFor, hosting, offline),
+    _moveTo(opened, place, signedIn, _capacity + 1, _lastTab, _searchedFor, hosting, offline),
   }
 
   /// Checking machinery: the `part`-th machine the app runs on stops; never
@@ -238,7 +238,7 @@ module app_platform {
   action _loseCapacity(part: int): bool = all {
     _capacity > 1,
     part < _capacity,
-    _moveTo(opened, place, signedIn, _capacity - 1, lastTab, searchedFor, hosting, offline),
+    _moveTo(opened, place, signedIn, _capacity - 1, _lastTab, _searchedFor, hosting, offline),
   }
 
   /// What a person does on their device.
@@ -302,12 +302,12 @@ module app_platform {
   /// Settings remembers a tab the person actually moves between.
   val invSettingsRemembersTheTab = opened.forall(p =>
     place.get(p) == Settings implies
-      lastTab.keys().contains(p) and TABS.contains(lastTab.get(p))
+      _lastTab.keys().contains(p) and TABS.contains(_lastTab.get(p))
   )
 
   /// A search remembers whose name was typed.
   val invSearchRemembersWho = opened.forall(p =>
-    place.get(p) == Search implies searchedFor.keys().contains(p)
+    place.get(p) == Search implies _searchedFor.keys().contains(p)
   )
 
   /// A device is cut off only after the person has opened the app.

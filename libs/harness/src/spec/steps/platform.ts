@@ -48,6 +48,8 @@ export async function cutConnection(
     throw hostLimit('this host cannot cut the connection');
   }
   await w.s.apply(partition, actor);
+  // Let the disconnected transport publish its status before the next choice.
+  await w.s.advanceTime(1_000);
 }
 
 async function signIn(w: HarnessWorld, actor: Actor): Promise<void> {

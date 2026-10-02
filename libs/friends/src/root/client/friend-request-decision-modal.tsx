@@ -87,6 +87,7 @@ function AcceptButton(props: {
   return (
     <Button
       {...mutation.buttonProps}
+      errorLabel={mutation.error()?.message ?? t`Couldn't accept`}
       intent="primary"
       size="md"
       {...(username().length > 0

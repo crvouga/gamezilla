@@ -80,6 +80,13 @@ terms:
       and reaches everyone once they are back online.
     forms: [changes, changed]
 
+  - term: available
+    definition: >-
+      People with a connection can use the room and hear that their changes
+      counted. If the room becomes unavailable, their changes wait and reach
+      everyone once it is available again.
+    forms: [unavailable, availability]
+
   # --- Owning the room ----------------------------------------------------------
 
   - term: owner

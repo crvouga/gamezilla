@@ -13,10 +13,7 @@ export {
   type HarnessRoomNode,
   noRoomNode,
 } from './composition';
-export {
-  bumpHarnessClientEpoch,
-  harnessClientNamespace,
-} from './fabric/client-namespace';
+export { createHarnessClientNamespaces } from './fabric/client-namespace';
 export {
   type CreateHarnessOptions,
   createHarness,

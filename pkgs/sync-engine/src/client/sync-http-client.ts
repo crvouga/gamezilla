@@ -32,8 +32,11 @@ export type SyncClientAuth = {
 
 export class SyncApiAuthError extends Error {
   readonly reason: 'expired' | 'revoked' | 'upgrade_required';
-  constructor(reason: 'expired' | 'revoked' | 'upgrade_required') {
-    super(`auth:${reason}`);
+  constructor(
+    reason: 'expired' | 'revoked' | 'upgrade_required',
+    message?: string
+  ) {
+    super(message ?? `auth:${reason}`);
     this.reason = reason;
   }
 }
@@ -244,12 +247,14 @@ async function postAuthedJson(
     // Malformed 401 bodies still map to auth errors (operating, not programmer).
     const json = (await response.json().catch(() => ({}))) as {
       readonly reason?: unknown;
+      readonly message?: unknown;
     };
     if (json.reason === 'upgrade_required') {
       throw new SyncApiAuthError('upgrade_required');
     }
     throw new SyncApiAuthError(
-      json.reason === 'revoked' ? 'revoked' : 'expired'
+      json.reason === 'revoked' ? 'revoked' : 'expired',
+      typeof json.message === 'string' ? json.message : undefined
     );
   }
   if (response.status === 429) {

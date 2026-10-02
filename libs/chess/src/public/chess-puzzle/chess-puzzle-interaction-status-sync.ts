@@ -1,7 +1,6 @@
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionKind,
-  type ChessPuzzleOutcomeKind,
 } from '../chess-puzzle-interaction-entities';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -27,38 +26,7 @@ type SyncCtx = {
   prevSolveIdx: number | null;
   lastUci: string | null;
   appendInteraction: AppendInteraction;
-  /** Records the play's rated outcome; the caller makes it at-most-once. */
-  recordOutcome: (kind: ChessPuzzleOutcomeKind) => void;
 };
-
-/**
- * Outcome a status transition decides (§5 / §6), or null. The first of
- * these per play is the rated one: a wrong move or the solution shown before
- * resolution is recorded as failed; scoring distinguishes the wrong move
- * (half credit) from showing the solution (zero). A skip is an abandon.
- */
-export function outcomeForTransition(
-  prev: RoomStatus | null,
-  status: RoomStatus
-): ChessPuzzleOutcomeKind | null {
-  // Only a live attempt decides an outcome; a first read after mount or
-  // reload (`null` / `loading` → anything) is a restore, never a transition.
-  const live =
-    prev === CHESS_PUZZLE_PLAY_STATUS.solving ||
-    prev === CHESS_PUZZLE_PLAY_STATUS.wrong;
-  if (!live || prev === status) return null;
-  switch (status) {
-    case CHESS_PUZZLE_PLAY_STATUS.wrong:
-    case CHESS_PUZZLE_PLAY_STATUS.revealed:
-      return CHESS_PUZZLE_INTERACTION_KIND.failed;
-    case CHESS_PUZZLE_PLAY_STATUS.solved:
-      return CHESS_PUZZLE_INTERACTION_KIND.solved;
-    case CHESS_PUZZLE_PLAY_STATUS.skipped:
-      return CHESS_PUZZLE_INTERACTION_KIND.abandoned;
-    default:
-      return null;
-  }
-}
 
 function appendMoveIfNeeded(ctx: SyncCtx): void {
   const { prev, status, solveIdx, prevSolveIdx, lastUci } = ctx;
@@ -84,12 +52,10 @@ function appendMoveIfNeeded(ctx: SyncCtx): void {
 
 /**
  * Mirrors one room status transition into the append-only interaction log:
- * the solver's move (right or wrong), then the outcome it decides. The
- * `started` row is written separately, once per room attempt.
+ * the solver's move (right or wrong). Starts and decided results are
+ * recorded separately, so results survive navigation and restoration.
  */
 export function syncInteractionForRoomStatus(args: SyncCtx): void {
   if (args.myId.length === 0 || args.status === 'loading') return;
   appendMoveIfNeeded(args);
-  const outcome = outcomeForTransition(args.prev, args.status);
-  if (outcome !== null) args.recordOutcome(outcome);
 }

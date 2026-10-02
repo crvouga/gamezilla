@@ -7,6 +7,7 @@ import './room.steps';
 import './tally.steps';
 import './ownership.steps';
 import './match-clock.steps';
+import './match-recovery.steps';
 
 import { useRoomWorld } from './world';
 

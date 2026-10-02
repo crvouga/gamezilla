@@ -14,12 +14,17 @@ export class CountingRoomStorage implements RoomStorage {
     this.lastSeqReads += 1;
     return this.entries.at(-1)?.seq ?? 0;
   }
-  async appendCommittedEntries(_t: string, batch: LogEntry[]): Promise<void> {
+  async commitCommand(
+    _t: string,
+    id: string,
+    batch: LogEntry[]
+  ): Promise<void> {
     let expect = (this.entries.at(-1)?.seq ?? 0) + 1;
     for (const e of batch) {
       if (e.seq !== expect++) throw new Error(`seq gap at ${String(e.seq)}`);
-      this.entries.push(e);
     }
+    this.entries.push(...batch);
+    this.dedup.set(id, { kind: 'committed', entries: [...batch] });
   }
   async getDedupOutcome(
     _t: string,
@@ -30,7 +35,7 @@ export class CountingRoomStorage implements RoomStorage {
   async putDedupOutcome(
     _t: string,
     id: string,
-    o: CommandDedupOutcome
+    o: Extract<CommandDedupOutcome, { kind: 'rejected' }>
   ): Promise<void> {
     this.dedup.set(id, o);
   }

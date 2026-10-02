@@ -4,19 +4,21 @@ Feature: Days of puzzles without a connection
   want to keep playing, so there are no errors, nothing blocked, and nothing
   lost or counted twice once the connection comes back.
 
-  Background:
-    Given Alice is signed in
-    And Alice is also signed in on another device
-    And Alice is playing puzzles in their space
-    And Alice is offline
+  Rule: Puzzles already on the device keep the feed playing with no connection
 
-  Scenario: After three days offline there is still a puzzle to play
-    When Alice solves 10 puzzles a day for 3 days
-    Then Alice has a puzzle on the board
-    And Alice is not told the feed is empty
+    Background:
+      Given Alice is signed in
+      And Alice is also signed in on another device
+      And Alice is playing puzzles in their space
+      And Alice is offline
 
-  Scenario: Three days of offline play all count once the connection comes back
-    Given Alice has solved 10 puzzles a day for 3 days
-    When the connection comes back
-    Then Alice's stats show 30 played, 30 solved, and 100% accuracy
-    And Alice's other device shows 30 played, 30 solved, and 100% accuracy
+    Scenario: After three days offline there is still a puzzle to play
+      When Alice solves 10 puzzles a day for 3 days
+      Then Alice has a puzzle on the board
+      And Alice is not told the feed is empty
+
+    Scenario: Three days of offline play all count once the connection comes back
+      Given Alice has solved 10 puzzles a day for 3 days
+      When the connection comes back
+      Then Alice's stats show 30 played, 30 solved, and 100% accuracy
+      And Alice's other device shows 30 played, 30 solved, and 100% accuracy

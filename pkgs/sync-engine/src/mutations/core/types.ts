@@ -15,6 +15,8 @@ export type MutationEnv = {
   readonly createId: () => string;
   /** Server wall clock; present only on replay (staleness checks). */
   readonly serverNow?: () => Date;
+  /** Authentication evidence supplied by the host, never mutation args. */
+  readonly authenticatedAtMs?: number;
 };
 
 export type MutationCtx = {

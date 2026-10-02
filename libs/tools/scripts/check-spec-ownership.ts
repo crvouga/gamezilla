@@ -7,7 +7,7 @@
  * `specs/README.md`) and any `.feature` file anywhere — belongs to the spec
  * writer. An implementer never edits a spec, so a commit that touches one is a spec commit and nothing else: its
  * subject starts with `spec:` (or `spec(scope):`) or the Conventional Commit
- * equivalent `docs(specs):`, and it changes only specs,
+ * equivalent `docs(specs):` (except the rulebook, which requires `spec:`), and it changes only specs,
  * catalogs (`STEPS_CATALOG.md`) and docs (`docs/*.md`). A commit that mixes a spec change with
  * code is refused — the roles cannot be told apart in it.
  *
@@ -47,6 +47,9 @@ export function ownershipViolations(
       (f) => !isSpecFile(f) && !isSpecSideFile(f)
     );
     const label = `${commit.sha.slice(0, 10)} "${commit.subject}"`;
+    const rulebookUsesDocsSubject =
+      commit.files.includes('specs/README.md') &&
+      commit.subject.startsWith('docs(specs)');
     if (specs.length === 0) {
       if (SPEC_SUBJECT.test(commit.subject)) {
         out.push(
@@ -55,7 +58,7 @@ export function ownershipViolations(
       }
       continue;
     }
-    if (!SPEC_SUBJECT.test(commit.subject)) {
+    if (!SPEC_SUBJECT.test(commit.subject) || rulebookUsesDocsSubject) {
       out.push(
         `${label}: changes ${specs.join(', ')} but is not a spec commit — specs/** is the spec writer's; commit spec changes separately with a "spec:" or "docs(specs):" subject`
       );

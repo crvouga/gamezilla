@@ -232,6 +232,230 @@
         "$TURBO_ROOT$/specs/friends/**",
         "$TURBO_ROOT$/specs/spaces/**"
       ]
+    },
+    "test:spec:32": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:33": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:34": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:35": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:36": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:37": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:38": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:39": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:40": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:41": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:42": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:43": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:44": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:45": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:46": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:47": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:48": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:49": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:50": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:51": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:52": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:53": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:54": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:55": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:56": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:57": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:58": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:59": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:60": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:61": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:62": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
+    },
+    "test:spec:63": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/specs/friends/**",
+        "$TURBO_ROOT$/specs/spaces/**"
+      ]
     }
   }
 }

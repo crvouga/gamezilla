@@ -1,3 +1,4 @@
+import '@libs/account-privacy/steps/privacy.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs
  * (`specDomains`): registers the world (billing on the
@@ -11,8 +12,37 @@ import './membership.steps';
 import './plans.steps';
 import './provider-switch.steps';
 import './time.steps';
+import './account-privacy.steps';
 
+import { privacyTimePasses } from '@libs/account-privacy/harness/privacy-actions';
+import {
+  makeMembershipPayment,
+  pauseCancellation,
+} from '@libs/billing/harness/account-privacy';
+import {
+  openBilling,
+  subscribeToPlus,
+} from '@libs/billing/harness/billing-actions';
+import { signInWithGoogle } from '@libs/harness';
+import type { Actor } from '@libs/harness/spec/define';
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-billing-harness';
 
-useHarnessWorld(openHarness);
+useHarnessWorld(openHarness, (w) => ({
+  beforeAccountDeletion: async (
+    actor: Actor,
+    completion: 'confirmed' | 'completed'
+  ) => {
+    await w.s.apply(signInWithGoogle, actor);
+    await w.s.apply(openBilling, actor);
+    await w.s.apply(subscribeToPlus, actor);
+    await w.s.apply(privacyTimePasses, 7 * 86_400_000 + 1_000);
+    await w.s.apply(
+      makeMembershipPayment,
+      String(await w.s.read(signedInAccountOf, actor))
+    );
+    if (completion === 'confirmed') await w.s.apply(pauseCancellation);
+  },
+}));
+
+import { signedInAccountOf } from '@libs/harness';

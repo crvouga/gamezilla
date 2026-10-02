@@ -24,7 +24,8 @@ import { reconcileIdpPostgres } from './reconcile-idp-postgres';
 const AUTH_PATH_PREFIX = '/auth';
 
 async function createInhouseAuthProvider(
-  env: AuthProviderEnv
+  env: AuthProviderEnv,
+  sessionLifetimeMs?: number
 ): Promise<AuthProvider> {
   const config = await readInhouseAuthConfig(env);
   const app = createAuthApp({
@@ -33,6 +34,7 @@ async function createInhouseAuthProvider(
     createId: env.createId,
     http: env.http,
     secret: config.secret,
+    ...(sessionLifetimeMs === undefined ? {} : { sessionLifetimeMs }),
     baseURL: env.apiOrigin,
     publicPathPrefix: env.apiPathPrefix,
     trustedOrigins: buildAuthTrustedOrigins({
@@ -70,7 +72,7 @@ async function createInhouseAuthProvider(
 
 export const INHOUSE_AUTH_PROVIDER: AuthProviderModule = {
   provider: IDP_PROVIDER_LABEL,
-  create: createInhouseAuthProvider,
+  create: (env) => createInhouseAuthProvider(env),
   reconcilePostgres: ({ sqlClient, dbScope }) =>
     reconcileIdpPostgres(sqlClient, {
       dbScope,
@@ -78,3 +80,13 @@ export const INHOUSE_AUTH_PROVIDER: AuthProviderModule = {
       alreadyInTransaction: false,
     }),
 };
+
+/** Deployments can choose a session lifetime independently of proof freshness. */
+export function inhouseAuthProvider(
+  sessionLifetimeMs: number
+): AuthProviderModule {
+  return {
+    ...INHOUSE_AUTH_PROVIDER,
+    create: (env) => createInhouseAuthProvider(env, sessionLifetimeMs),
+  };
+}

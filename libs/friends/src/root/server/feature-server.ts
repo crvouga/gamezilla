@@ -44,6 +44,7 @@ function registerFriendsInboxActions(): void {
       requestId,
     });
     await drainAndNotifyOutbox({
+      objectStore: store.objectStore,
       db: store.sqlClient,
       clock: store.clock,
       createId: store.createId,

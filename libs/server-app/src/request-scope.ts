@@ -3,6 +3,7 @@ import { assert } from '@pkgs/assert';
 import { AsyncLocalStorage } from '@pkgs/async-local';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -12,6 +13,7 @@ import type { CreateId } from '@pkgs/uuid';
  */
 export type ApiRequestAsyncStore = {
   readonly sqlClient: SqlClient;
+  readonly objectStore: ObjectStore;
   readonly sessionAuth: SessionAuth;
   readonly kv: Kv;
   readonly secretStore: SecretStore;

@@ -24,7 +24,7 @@
  * Static: it parses features and reads `tests/steps/**` as text, so it runs
  * in well under a second and needs no harness.
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SPEC_PARAMETER_TYPES } from '@libs/harness/spec/parameter-types';
 import { checkSpecs } from '@pkgs/gherkin/check';
@@ -33,9 +33,11 @@ import { nearDuplicates } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
+import { campaignProblems, specCampaigns } from './spec-campaigns';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
 import { languageProblems, maintenanceVocabulary } from './spec-glossary';
+import { specLocationProblems } from './spec-location';
 import {
   externalSteps,
   REPO_ROOT,
@@ -65,10 +67,45 @@ const SMELLS = {
 const parameterTypes = parameterTypeRegistryFrom(SPEC_PARAMETER_TYPES);
 
 const packages = specPackages();
+const campaigns = specCampaigns(REPO_ROOT);
+const campaignDomains = new Set(campaigns.map((campaign) => campaign.domain));
 const shared = sharedSteps();
 const external = externalSteps(packages);
+const specFiles = [
+  ...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) }),
+]
+  .sort()
+  .map((file) => ({
+    path: `${SPECS_DIR}/${file}`,
+    text: readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8'),
+  }));
+const outsideSpecFiles = ['apps', 'libs', 'pkgs'].flatMap((tier) =>
+  [
+    ...new Bun.Glob('**/*.{feature,qnt}').scanSync({
+      cwd: join(REPO_ROOT, tier),
+    }),
+  ]
+    .filter(
+      (file) => !file.includes('/node_modules/') && !file.includes('/.cache/')
+    )
+    .map((file) => ({
+      path: `${tier}/${file}`,
+      text: readFileSync(join(REPO_ROOT, tier, file), 'utf8'),
+    }))
+);
+const specDomains = new Set(
+  readdirSync(join(REPO_ROOT, SPECS_DIR), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `${SPECS_DIR}/${entry.name}`)
+);
 
 const errors: string[] = [
+  ...specLocationProblems(
+    [...specFiles, ...outsideSpecFiles],
+    specDomains,
+    campaignDomains
+  ),
+  ...campaignProblems(REPO_ROOT, campaigns),
   ...specsLayoutProblems(packages),
   ...shared.problems,
   ...packages.flatMap((pkg) => pkg.problems),
@@ -81,8 +118,8 @@ const errors: string[] = [
     allowedImplementationWords: maintenanceVocabulary(),
   }),
   ...catalogDrift(packages, shared.steps),
-  ...languageProblems(),
-  ...modelShapeProblems(),
+  ...languageProblems(campaignDomains),
+  ...modelShapeProblems(campaignDomains),
   ...randomWalkViolations(
     packages.flatMap((pkg) =>
       ['src', 'tests'].flatMap((root) =>
@@ -97,14 +134,7 @@ const errors: string[] = [
       )
     )
   ),
-  ...decouplingProblems(
-    [...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) })]
-      .sort()
-      .map((file) => ({
-        path: `${SPECS_DIR}/${file}`,
-        text: readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8'),
-      }))
-  ),
+  ...decouplingProblems(specFiles),
 ];
 
 const allDefinitions = [

@@ -4,6 +4,7 @@
  */
 
 export { pruneMutationArtifacts } from '../mutations/server/prune-mutation-artifacts';
+export { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 export { syncEngineServerSchema } from '../shared/schema/tables';
 export { isAuthErrorBody } from './auth-error';
 export {

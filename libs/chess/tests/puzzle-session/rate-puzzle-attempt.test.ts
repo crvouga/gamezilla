@@ -11,10 +11,7 @@ import {
   PUZZLE_SCORE_PERMILLE,
 } from '@libs/chess/public/chess-puzzle-rating';
 import { CHESS_TABLES } from '@libs/chess/public/schema';
-import {
-  ratePuzzleAttemptMutation,
-  upsertPuzzleProfileMutation,
-} from '@libs/chess/root/mutations';
+import { ratePuzzleAttemptMutation } from '@libs/chess/root/mutations';
 import { uniqueTables } from '@libs/permissions/root/conformance/world';
 import { registerTables } from '@pkgs/db-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
@@ -54,6 +51,7 @@ async function openDb(): Promise<SqlClient> {
 }
 
 type Attempt = {
+  readonly attemptKey: string;
   readonly puzzleId: string;
   readonly puzzleRating: number;
   readonly outcome: 'solved' | 'failed' | 'abandoned';
@@ -63,6 +61,8 @@ type Attempt = {
 
 async function rate(db: SqlClient, attempt: Attempt): Promise<void> {
   const args = {
+    attemptKey: attempt.attemptKey,
+    solveIdx: 3,
     ownerId: OWNER,
     puzzleId: attempt.puzzleId,
     puzzleRating: attempt.puzzleRating,
@@ -108,6 +108,7 @@ function readEvents(db: SqlClient) {
 }
 
 const SOLVED_P1: Attempt = {
+  attemptKey: 'first-p1',
   puzzleId: 'p1',
   puzzleRating: 1500,
   outcome: 'solved',
@@ -160,6 +161,7 @@ describe('§8 ratePuzzleAttempt', () => {
     const afterFirst = await readProfile(db);
     await rate(db, {
       ...SOLVED_P1,
+      attemptKey: 'second-p1',
       outcome: 'failed',
       scorePermille: PUZZLE_SCORE_PERMILLE.loss,
       atMs: SOLVED_P1.atMs + 86_400_000,
@@ -177,6 +179,7 @@ describe('§8 ratePuzzleAttempt', () => {
     const batch: readonly Attempt[] = [
       SOLVED_P1,
       {
+        attemptKey: 'first-p2',
         puzzleId: 'p2',
         puzzleRating: 1600,
         outcome: 'failed',
@@ -184,6 +187,7 @@ describe('§8 ratePuzzleAttempt', () => {
         atMs: SOLVED_P1.atMs + 1000,
       },
       {
+        attemptKey: 'first-p3',
         puzzleId: 'p3',
         puzzleRating: 1400,
         outcome: 'solved',
@@ -214,6 +218,8 @@ describe('§8 ratePuzzleAttempt', () => {
           env: { ...env(SOLVED_P1.atMs), actorId: 'someone_else' },
         },
         {
+          attemptKey: 'first-p1',
+          solveIdx: 3,
           ownerId: OWNER,
           puzzleId: 'p1',
           puzzleRating: 1500,
@@ -224,64 +230,39 @@ describe('§8 ratePuzzleAttempt', () => {
       )
     ).rejects.toThrow(/only update your own/);
   });
-});
 
-/**
- * The pre-§8 wire name stays registered so an old client's queued write is not
- * dropped (contract names are append-only), but it can no longer set a rating.
- */
-describe('upsertPuzzleProfile (frozen wire name)', () => {
-  async function legacyUpsert(
-    db: SqlClient,
-    args: {
-      ownerId: string;
-      rating: number;
-      ratingDeviation: number;
-      lastInteractionAt?: string;
-    }
-  ): Promise<void> {
-    const parsed =
-      await upsertPuzzleProfileMutation.args['~standard'].validate(args);
-    if (parsed.issues !== undefined) {
-      throw new Error(`invalid args: ${JSON.stringify(parsed.issues)}`);
-    }
-    await upsertPuzzleProfileMutation.run(
-      { tx: db, env: env(1_700_000_000_000) },
-      parsed.value
-    );
-  }
-
-  test('records activity and ignores the rating the client sent', async () => {
+  test('a contradictory result cannot award credit its outcome excludes', async () => {
+    // regression: puzzle-inconsistent-result-score
     const db = await openDb();
-    await rate(db, SOLVED_P1);
-    const before = (await readProfile(db))[0];
-    await legacyUpsert(db, {
-      ownerId: OWNER,
-      rating: 2800,
-      ratingDeviation: 10,
-      lastInteractionAt: '2026-09-19T00:00:00.000Z',
-    });
-    const after = (await readProfile(db))[0];
-    expect(after?.rating).toBe(before?.rating as number);
-    expect(after?.rating_deviation).toBe(before?.rating_deviation as number);
-    const activity = await db.query(sql<{
-      readonly last_interaction_at: string;
-    }>`
-      SELECT last_interaction_at FROM chess_puzzle_profiles
-      WHERE owner_id = ${OWNER}
-    `);
-    expect(activity[0]?.last_interaction_at).toBe('2026-09-19T00:00:00.000Z');
-  });
-
-  test('refuses to write another owner', async () => {
-    const db = await openDb();
-    await rate(db, SOLVED_P1);
-    await expect(
-      legacyUpsert(db, {
-        ownerId: 'someone_else',
-        rating: 1600,
-        ratingDeviation: 100,
-      })
-    ).rejects.toThrow(/only update your own/i);
+    try {
+      for (const result of [
+        { outcome: 'failed', scorePermille: 1000 },
+        { outcome: 'solved', scorePermille: 0 },
+        { outcome: 'abandoned', scorePermille: 500 },
+      ] as const) {
+        await expect(
+          ratePuzzleAttemptMutation.run(
+            { tx: db, env: env(SOLVED_P1.atMs) },
+            {
+              attemptKey: 'first-p1',
+              solveIdx: 3,
+              ownerId: OWNER,
+              puzzleId: 'p1',
+              puzzleRating: 1500,
+              puzzleRatingDeviation: 80,
+              ...result,
+            }
+          )
+        ).rejects.toThrow('A puzzle attempt scores');
+      }
+      expect(await readEvents(db)).toEqual([]);
+      expect(
+        await db.query(
+          sql<{ id: string }>`SELECT id FROM chess_puzzle_interactions`
+        )
+      ).toEqual([]);
+    } finally {
+      await db.disconnect();
+    }
   });
 });

@@ -15,6 +15,8 @@ import {
 } from '@pkgs/room/harness';
 import {
   addClient,
+  connect,
+  disconnect,
   dispatch,
   exampleSystem,
   expectInSync,
@@ -30,8 +32,8 @@ function pick(picks: Picks, name: string): string {
 
 bindQuintModel<RoomTraceWorld>({
   model: 'ownership',
-  traces: 16,
-  maxSteps: 10,
+  traces: 64,
+  maxSteps: 24,
   actions: {
     init: async (w) => {
       w.patient = true;
@@ -59,8 +61,11 @@ bindQuintModel<RoomTraceWorld>({
         payload: AddOne({}),
       });
     },
-    _loseConnection: () => Promise.resolve(),
-    _connectionReturns: () => Promise.resolve(),
+    _loseConnection: (w, picks) =>
+      traceRoom(w).apply(disconnect, pick(picks, 'person')),
+    _connectionReturns: async (w) => {
+      for (const person of PEOPLE) await traceRoom(w).apply(connect, person);
+    },
   },
   observe: async (w) => {
     const room = await readServer(traceRoom(w));

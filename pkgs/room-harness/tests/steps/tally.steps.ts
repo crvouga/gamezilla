@@ -8,9 +8,14 @@ import { AddOne, readTally, TakeOne } from '@pkgs/room/harness';
 import {
   disconnect,
   dispatch,
+  holdRoomChanges,
+  pendingRoomChangeIds,
   type RoomHarness,
   readClient,
   readServer,
+  resumeNetwork,
+  serverRestart,
+  stopAsRoomChangeCounts,
 } from '@pkgs/room-harness';
 import { everyone, SECOND_MS, settleEveryone } from './room.steps';
 import { Given, type RoomWorld, room, Then, When } from './world';
@@ -57,6 +62,31 @@ Given(
     await addOne(w, id);
   }
 );
+
+Given(
+  '{actor} has added one while the room became unavailable',
+  async (w, id: string) => {
+    const s = room(w);
+    await s.apply(holdRoomChanges, await everyone(s));
+    await addOne(w, id);
+    const commandId = (await s.read(pendingRoomChangeIds, id)).at(-1);
+    if (commandId === undefined) throw new Error('Chosen change was not kept');
+    await s.apply(stopAsRoomChangeCounts, {
+      person: id,
+      id: commandId,
+      payload: AddOne({}),
+    });
+  }
+);
+
+async function availableAgain(w: RoomWorld): Promise<void> {
+  const s = room(w);
+  await s.apply(serverRestart);
+  for (const id of await everyone(s)) await s.apply(resumeNetwork, id);
+  await settleEveryone(s);
+}
+
+When('the room is available again', availableAgain);
 
 // The person's app shows `n` now and keeps showing it for a while.
 Then(

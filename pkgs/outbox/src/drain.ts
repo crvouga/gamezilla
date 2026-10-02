@@ -1,6 +1,7 @@
 import type { Clock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger/logger';
-import { sql } from '@pkgs/sql';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { join, sql } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -29,6 +30,11 @@ export type DrainOutboxDeps = {
   readonly createId: CreateId;
   readonly registry: OutboxConsumerRegistry;
   readonly limit?: number;
+  /** Optional queue partition selected by the worker. */
+  readonly eventIds?: readonly string[];
+  /** Host capture / managed-row wrapper for consumer domain writes. */
+  readonly wrapConsumerTx?: (tx: SqlTx) => SqlTx;
+  readonly objectStore?: ObjectStore;
 };
 
 export type DrainOutboxResult = {
@@ -52,43 +58,57 @@ export async function drainOutbox(
 
   const processed = await deps.db.transaction(async (tx) => {
     await ensureDeliveries(tx, deps.registry, deps.clock);
-    const claims = await claimDueDeliveries(tx, deps.clock, limit);
-    let count = 0;
-    for (const claim of claims) {
-      const consumer = deps.registry.get(claim.consumer_id);
-      if (consumer === undefined) {
-        log.warn('missing consumer for delivery', {
-          consumerId: claim.consumer_id,
-          eventId: claim.event_id,
-        });
-        continue;
-      }
-      const event = await loadEvent(tx, claim.event_id);
-      if (event === null) {
-        await markProcessed(tx, claim, deps.clock);
-        count += 1;
-        continue;
-      }
-      const result = await runDelivery({
-        tx,
-        clock: deps.clock,
-        createId: deps.createId,
-        consumer,
-        event,
-        claim,
-        log,
-      });
-      if (result.ok) {
-        count += 1;
-        for (const id of result.notifyUserIds) {
-          if (id.length > 0) notifyUserIds.add(id);
-        }
-      }
-    }
-    return count;
+    const claims = await claimDueDeliveries(tx, { ...deps, limit });
+    return processClaims({ deps, tx, claims, log, notifyUserIds });
   });
 
   return { processed, notifyUserIds: [...notifyUserIds].sort() };
+}
+
+async function processClaims(args: {
+  deps: DrainOutboxDeps;
+  tx: SqlTx;
+  claims: readonly ClaimRow[];
+  log: ReturnType<typeof createLogger>;
+  notifyUserIds: Set<string>;
+}): Promise<number> {
+  const { deps, tx, claims, log, notifyUserIds } = args;
+  let count = 0;
+  for (const claim of claims) {
+    const consumer = deps.registry.get(claim.consumer_id);
+    if (consumer === undefined) {
+      log.warn('missing consumer for delivery', {
+        consumerId: claim.consumer_id,
+        eventId: claim.event_id,
+      });
+      continue;
+    }
+    const event = await loadEvent(tx, claim.event_id);
+    if (event === null) {
+      await markProcessed(tx, claim, deps.clock);
+      count += 1;
+      continue;
+    }
+    const result = await runDelivery({
+      tx: deps.wrapConsumerTx?.(tx) ?? tx,
+      clock: deps.clock,
+      createId: deps.createId,
+      ...(deps.objectStore === undefined
+        ? {}
+        : { objectStore: deps.objectStore }),
+      consumer,
+      event,
+      claim,
+      log,
+    });
+    if (result.ok) {
+      count += 1;
+      for (const id of result.notifyUserIds) {
+        if (id.length > 0) notifyUserIds.add(id);
+      }
+    }
+  }
+  return count;
 }
 
 async function ensureDeliveries(
@@ -98,8 +118,11 @@ async function ensureDeliveries(
 ): Promise<void> {
   const nowIso = new Date(clock.now()).toISOString();
   for (const consumer of registry.all()) {
-    const missing = await tx.query(sql<{ id: string }>`
-      SELECT e.id
+    const missing = await tx.query(sql<{
+      id: string;
+      available_at: string | Date | null;
+    }>`
+      SELECT e.id, e.available_at
         FROM outbox_events e
        WHERE e.type = ${consumer.on.type}
          AND e.deleted_at IS NULL
@@ -120,7 +143,7 @@ async function ensureDeliveries(
           last_error, created_at, updated_at, deleted_at
         )
         VALUES (
-          ${deliveryId}, ${row.id}, ${consumer.id}, ${0}, ${nowIso}, ${null},
+          ${deliveryId}, ${row.id}, ${consumer.id}, ${0}, ${row.available_at ?? nowIso}, ${null},
           ${null}, ${nowIso}, ${nowIso}, ${null}
         )
         ON CONFLICT (event_id, consumer_id) DO NOTHING
@@ -131,10 +154,12 @@ async function ensureDeliveries(
 
 async function claimDueDeliveries(
   tx: SqlTx,
-  clock: Clock,
-  limit: number
+  options: DrainOutboxDeps & { limit: number }
 ): Promise<readonly ClaimRow[]> {
+  const { clock, limit, registry, eventIds } = options;
   const nowIso = new Date(clock.now()).toISOString();
+  const consumers = registry.all().map((consumer) => consumer.id);
+  if (consumers.length === 0 || eventIds?.length === 0) return [];
   // Portable claim: select then bump attempts in the same tx (single Worker drain).
   const rows = await tx.query(sql<ClaimRow>`
     SELECT event_id, consumer_id, attempts
@@ -142,6 +167,8 @@ async function claimDueDeliveries(
      WHERE processed_at IS NULL
        AND deleted_at IS NULL
        AND available_at <= ${nowIso}
+       AND consumer_id IN (${join(consumers)})
+       ${eventIds === undefined ? sql`` : sql`AND event_id IN (${join(eventIds)})`}
      ORDER BY available_at ASC
      LIMIT ${limit}
   `);
@@ -166,6 +193,7 @@ async function runDelivery(args: {
   readonly tx: SqlTx;
   readonly clock: Clock;
   readonly createId: CreateId;
+  readonly objectStore?: ObjectStore;
   readonly consumer: OutboxConsumerDef;
   readonly event: PendingEventRow;
   readonly claim: ClaimRow;
@@ -208,7 +236,17 @@ async function runDelivery(args: {
   }
 
   try {
-    const result = await consumer.handler({ tx, clock, createId }, payload);
+    const result = await consumer.handler(
+      {
+        tx,
+        clock,
+        createId,
+        ...(args.objectStore === undefined
+          ? {}
+          : { objectStore: args.objectStore }),
+      },
+      payload
+    );
     await markProcessed(tx, claim, clock);
     return {
       ok: true,

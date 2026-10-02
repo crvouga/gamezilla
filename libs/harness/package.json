@@ -76,6 +76,8 @@
     "stripe": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/harness-report": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store-s3": "workspace:*",

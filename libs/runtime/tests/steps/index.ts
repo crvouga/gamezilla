@@ -1,3 +1,4 @@
+import '@libs/account-privacy/steps/privacy.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs
  * (`specDomains`): registers the world (the full app
@@ -13,6 +14,8 @@ import './app-lifecycle.steps';
 import './app-shell.steps';
 import './journeys.steps';
 import './settings.steps';
+import './device-layout.steps';
+import './privacy-retention.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-app-harness';

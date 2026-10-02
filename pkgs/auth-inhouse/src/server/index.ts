@@ -22,7 +22,10 @@ export {
   googleEndpointsFor,
   INHOUSE_AUTH_SECRET,
 } from './inhouse-auth-config';
-export { INHOUSE_AUTH_PROVIDER } from './inhouse-auth-provider';
+export {
+  INHOUSE_AUTH_PROVIDER,
+  inhouseAuthProvider,
+} from './inhouse-auth-provider';
 export {
   createOauthCallbackRelayApp,
   type OauthCallbackRelay,

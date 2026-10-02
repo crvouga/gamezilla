@@ -37,6 +37,8 @@ export type DenialReason =
   | 'quota_exhausted'
   | 'limit_reached'
   | 'requires_account'
+  | 'requires_connection'
+  | 'requires_recent_proof'
   | 'restricted';
 
 /** Config the denial surface resolves an `unlockRef` to. Copy is by key. */

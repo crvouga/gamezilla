@@ -46,6 +46,8 @@ test('the synced puzzle profile carries rating, deviation and volatility', async
     }
   );
   const parsed = await ratePuzzleAttemptMutation.args['~standard'].validate({
+    attemptKey: 'first-p1',
+    solveIdx: 3,
     ownerId: OWNER,
     puzzleId: 'p1',
     puzzleRating: PUZZLE_RATING,

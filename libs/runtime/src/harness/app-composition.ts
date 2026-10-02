@@ -1,3 +1,11 @@
+import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy/harness/account-privacy-harness-slice';
+import { changeAvailableSpace, saveLayoutPreferences } from './device-layout';
+import {
+  followTrail,
+  prepareRecoveryCopy,
+  recordTrail,
+  recoverApp,
+} from './privacy-retention';
 /**
  * The full composition: every feature the product ships, folded exactly as
  * production folds them. The product harness and the full-composition
@@ -43,6 +51,13 @@ export const APP_COMPOSITION: HarnessComposition = {
   billingOffer: PLUS_MEMBERSHIP_OFFER,
   properties: [searchDoesNotHang, nextPuzzleDifferent],
   actions: [
+    prepareRecoveryCopy,
+    recoverApp,
+    recordTrail,
+    followTrail,
+    changeAvailableSpace,
+    saveLayoutPreferences,
+    ...(ACCOUNT_PRIVACY_HARNESS_SLICE.actions ?? []),
     ...SPACES_HARNESS_ACTIONS,
     ...CHESS_HARNESS_ACTIONS,
     ...PROFILE_HARNESS_ACTIONS,

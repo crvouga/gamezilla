@@ -14,6 +14,7 @@ product:
     - billing
     - feedback
     - chess
+    - developer-tools
     - db-indexes
     - friends
     - journeys
@@ -33,6 +34,8 @@ product:
   # Everything a person may or may not be allowed to do. Each is answered by
   # exactly one decision table, named by its decision.
   capabilities:
+    - { id: delete their account, context: profile, decided by: privacy-access }
+    - { id: take a personal-data export, context: profile, decided by: privacy-access }
     - { id: keep a friends list, context: friends, decided by: access }
     - { id: use people search, context: friends, decided by: access }
     - { id: get notifications, context: friends, decided by: access }
@@ -42,7 +45,7 @@ product:
     - { id: wait for a match, context: matchmaking, decided by: access }
     - { id: play puzzles, context: chess, decided by: access }
     - { id: customize the puzzle feed, context: chess, decided by: access }
-    - { id: solve a rated puzzle, context: chess, decided by: daily-puzzle-limit }
+    - { id: start a rated puzzle, context: chess, decided by: daily-puzzle-limit }
     - { id: create a space, context: spaces, decided by: access }
     - { id: join a space, context: spaces, decided by: access }
     - { id: host another open space, context: spaces, decided by: hosting-limit }
@@ -54,6 +57,11 @@ product:
 
   # Promises made to people outside the product that a rewrite must keep.
   public contracts:
+    - id: account privacy
+      context: profile
+      promise: >-
+        A person can permanently delete their account and take a private
+        copy of their personal data, with explicit retention and deadlines.
     - id: space links
       context: spaces
       promise: A space link keeps taking whoever opens it to that space.
@@ -70,6 +78,26 @@ product:
     - id: health report
       context: runtime
       promise: The team can always ask a live environment whether it is well.
+    - id: test worlds and checkpoints
+      context: developer-tools
+      promise: >-
+        The team can investigate named people's devices and restore a
+        compatible checkpoint of a saved test world.
+    - id: data notebooks
+      context: developer-tools
+      promise: >-
+        The team can keep questions for a selected test world's device and
+        see their answers or the reason a question failed.
+    - id: automated test reports
+      context: developer-tools
+      promise: >-
+        Every test report belongs to the edition its test run checked;
+        recorded moments show captured evidence without inventing missing pictures.
+    - id: release checks
+      context: developer-tools
+      promise: >-
+        An edition passes only with a current automated pass for every
+        required obligation; incomplete evidence fails the release check.
 
 conformance:
   # Every kind of specification is required: each must have at least one
@@ -85,7 +113,28 @@ conformance:
 # the product's promise, rather than untested.
 environments:
   - id: a phone's web browser
-    promise: The app on a phone, in Chrome, the primary way people use it.
+    promise: >-
+      The complete app on iOS phones in Safari, Chrome, Firefox and Edge,
+      and Android phones in Chrome, Firefox, Edge and Samsung Internet.
+      The current and previous major edition of each offered browser are supported.
+  - id: a tablet's web browser
+    promise: >-
+      The complete app on iPadOS tablets in Safari, Chrome, Firefox and Edge,
+      and Android tablets in Chrome, Firefox, Edge and Samsung Internet.
+      The current and previous major edition of each offered browser are supported.
+  - id: a computer's web browser
+    promise: >-
+      The complete app on Windows, macOS and Linux in Chrome, Firefox and
+      Edge, and on macOS in Safari. The current and previous major edition
+      of each offered browser are supported.
+  - id: touch and pointer
+    promise: Every capability is usable with touch on phones and tablets and with a pointer on computers.
+  - id: portrait and landscape
+    promise: >-
+      People can turn their phone or tablet without losing progress or
+      access to a control; computer windows can be narrowed or widened.
+  - id: keyboard and listening
+    promise: Every capability is usable with the keyboard alone and by listening to the app.
   - id: online
     promise: A device that can reach everyone else.
   - id: offline

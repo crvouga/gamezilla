@@ -66,7 +66,9 @@ function filesOf(domain: string, suffix: string): readonly string[] {
 }
 
 /** Every way the specs step outside their bounded context's language. */
-export function languageProblems(): readonly string[] {
+export function languageProblems(
+  campaignDomains: ReadonlySet<string> = new Set()
+): readonly string[] {
   const problems: string[] = [];
   const kernel = readGlossary(KERNEL_GLOSSARY, null, problems);
   const glossaries = new Map<string, Glossary>();
@@ -85,6 +87,8 @@ export function languageProblems(): readonly string[] {
       });
     }
     for (const uri of filesOf(domain, '.qnt')) {
+      // Interpretations derive domain meaning from their declared canonical sources.
+      if (campaignDomains.has(domain)) continue;
       quint.push({
         uri,
         domain,

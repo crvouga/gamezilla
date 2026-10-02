@@ -195,16 +195,21 @@ bindQuintModel<SignInTraceWorld>({
     }
     const signedInto = new Map<QuintValue, QuintValue>();
     const askedToConfirm = new Set<QuintValue>();
+    const offline = new Set<QuintValue>();
     for (const [name, id] of Object.entries(DEVICES)) {
       const user = await s.read(signedInUser, id);
       if (user !== null) signedInto.set(name, accountNumber(w, user));
       if (await s.read(awaitingProof, id)) askedToConfirm.add(name);
+      if (!(await s.read((surface) => surface.clients.get(id)?.online))) {
+        offline.add(name);
+      }
     }
     return {
       signedInto,
       signInMethods,
       accountCount: accounts.length,
       askedToConfirm,
+      offline,
     };
   },
 });

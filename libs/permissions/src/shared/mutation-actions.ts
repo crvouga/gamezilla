@@ -26,10 +26,11 @@ export const MUTATION_ACTIONS: Readonly<
   applyEnsuredUsername: 'public',
   claimUsername: 'public',
   patchAvatar: 'public',
+  confirmAccountDeletion: PERMISSION.profileDeleteAccount,
+  requestPersonalDataExport: PERMISSION.profileExportData,
   // chess
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
   ratePuzzleAttempt: PERMISSION.puzzlesPlay,
-  upsertPuzzleProfile: PERMISSION.puzzlesPlay,
   savePuzzleFeedSettings: PERMISSION.puzzlesCustomizeFeed,
   // spaces (host / member decisions run in the bodies with presence scope)
   createSpace: PERMISSION.spacesCreate,

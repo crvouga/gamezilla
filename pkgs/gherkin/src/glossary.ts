@@ -434,6 +434,7 @@ function exemptName(name: string, kind: string): boolean {
   if (name === 'init' || name === 'step') return true;
   if (name.startsWith('_')) return true;
   if (kind === 'val' && /^inv[A-Z]/.test(name)) return true;
+  if (kind === 'temporal' && /^live[A-Z]/.test(name)) return true;
   return /^[A-Z][A-Z0-9_]*$/.test(name);
 }
 

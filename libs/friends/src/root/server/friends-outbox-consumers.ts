@@ -80,6 +80,12 @@ export const friendRequestSentNotifyConsumer = defineOutboxConsumer({
   id: 'friends.notify.request-sent',
   on: FriendRequestSent,
   async handler({ tx, clock, createId }, payload) {
+    // Independent outbox deliveries may close a request before its sent event.
+    const pending = await new FriendRequestRepository(tx).findPendingBetween(
+      payload.fromUserId,
+      payload.toUserId
+    );
+    if (pending?.id !== payload.requestId) return;
     const fromProfile = await loadActorProfile(tx, payload.fromUserId);
     const notifications = new Notifications({ tx, clock, createId });
     await notifications.send({

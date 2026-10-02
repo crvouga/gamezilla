@@ -1,28 +1,29 @@
-/**
- * One-shot handoff from email create-account to profile bootstrap.
- * `@libs/auth` cannot import `@libs/profile`; ProfileEnsurer takes this.
- */
+/** One-shot signup handle, scoped to the owning auth client. */
+const pendingUsernames = new WeakMap<object, string>();
 
-let pendingSignupUsername: string | null = null;
-
-export function setPendingSignupUsername(username: string): void {
+export function setPendingSignupUsername(
+  owner: object,
+  username: string
+): void {
   const next = username.trim();
-  pendingSignupUsername = next.length === 0 ? null : next;
+  if (next.length === 0) pendingUsernames.delete(owner);
+  else pendingUsernames.set(owner, next);
 }
 
-export function peekPendingSignupUsername(): string | null {
-  if (pendingSignupUsername === null || pendingSignupUsername.length === 0) {
-    return null;
-  }
-  return pendingSignupUsername;
+export function peekPendingSignupUsername(
+  owner: object,
+  externalUserId: string | null
+): string | null {
+  if (externalUserId === null || externalUserId.length === 0) return null;
+  return pendingUsernames.get(owner) ?? null;
 }
 
-export function takePendingSignupUsername(): string | null {
-  const value = peekPendingSignupUsername();
-  pendingSignupUsername = null;
+export function takePendingSignupUsername(owner: object): string | null {
+  const value = pendingUsernames.get(owner) ?? null;
+  pendingUsernames.delete(owner);
   return value;
 }
 
-export function clearPendingSignupUsername(): void {
-  pendingSignupUsername = null;
+export function clearPendingSignupUsername(owner: object): void {
+  pendingUsernames.delete(owner);
 }

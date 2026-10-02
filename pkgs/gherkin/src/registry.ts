@@ -47,6 +47,8 @@ export type ScenarioContext = {
 };
 
 export type WorldLifecycle<W> = {
+  /** Select a dedicated host for these scenarios; unmatched scenarios use the default host. */
+  readonly matches?: (ctx: ScenarioContext) => boolean;
   readonly create: (ctx: ScenarioContext) => Promise<W>;
   readonly dispose: (world: W) => Promise<void>;
   /** Calls the world made so far (e.g. harness calls), newest last — for reports. */
@@ -81,6 +83,7 @@ type Registry = {
   readonly parameterSpecs: ParameterTypeSpec[];
   readonly definitions: StepDefinition[];
   world: WorldLifecycle<unknown> | null;
+  readonly scopedWorlds: WorldLifecycle<unknown>[];
 };
 
 const REGISTRY_KEY = Symbol.for('gherkin.registry');
@@ -92,6 +95,7 @@ function registry(): Registry {
     parameterSpecs: [],
     definitions: [],
     world: null,
+    scopedWorlds: [],
   };
   return host[REGISTRY_KEY];
 }
@@ -216,11 +220,18 @@ export function stepsFor<W>(): StepDefiners<W> {
 }
 
 export function setWorld<W>(lifecycle: WorldLifecycle<W>): void {
-  registry().world = lifecycle as WorldLifecycle<unknown>;
+  const next = lifecycle as WorldLifecycle<unknown>;
+  if (lifecycle.matches === undefined) registry().world = next;
+  else registry().scopedWorlds.push(next);
 }
 
-export function worldLifecycle(): WorldLifecycle<unknown> {
-  const world = registry().world;
+export function worldLifecycle(ctx: ScenarioContext): WorldLifecycle<unknown> {
+  const scoped = registry().scopedWorlds.filter((world) =>
+    world.matches?.(ctx)
+  );
+  if (scoped.length > 1)
+    throw new Error(`gherkin: ambiguous world for ${ctx.featureUri}`);
+  const world = scoped[0] ?? registry().world;
   if (world === null) {
     throw new Error(
       'gherkin: no world — the steps entry must call setWorld() (or the harness useHarnessWorld())'

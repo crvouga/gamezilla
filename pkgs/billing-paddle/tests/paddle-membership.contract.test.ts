@@ -106,7 +106,7 @@ const EVENT_TYPE: Readonly<Record<ContractCallbackKind, string>> = {
   subscription_ended: 'subscription.canceled',
   subscription_paused: 'subscription.paused',
   subscription_resumed: 'subscription.resumed',
-  unrelated: 'transaction.completed',
+  unrelated: 'customer.updated',
 };
 
 function openPaddleHarness(): Promise<MembershipBillingContractHarness> {

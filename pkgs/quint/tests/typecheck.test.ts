@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { typecheck } from '@pkgs/quint/typecheck';
 
@@ -19,11 +20,16 @@ describe('typecheck', () => {
   test(
     'a model with a type error fails, naming the line',
     () => {
-      const result = typecheck(join(FIXTURES, 'door-mistyped.qnt'));
+      const file = join(FIXTURES, 'door-mistyped.qnt');
+      const result = typecheck(file);
       expect(result.ok).toBe(false);
       if (result.ok) return;
       expect(result.output).toContain("Couldn't unify str and int");
-      expect(result.output).toContain('door-mistyped.qnt:6');
+      const line =
+        readFileSync(file, 'utf8')
+          .split('\n')
+          .findIndex((source) => source.includes('action step')) + 1;
+      expect(result.output).toContain(`door-mistyped.qnt:${String(line)}`);
     },
     CLI_TIMEOUT_MS
   );

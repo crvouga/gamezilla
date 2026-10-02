@@ -71,6 +71,7 @@ import {
 import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
 import type { ReportTaskIdentity } from './check-report-stream';
+import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
@@ -717,19 +718,10 @@ type RunTurboOptions = {
   readonly deadlineSeconds: number;
 };
 
-/** SIGKILL the turbo process group; a wedged task rarely dies with turbo. */
+/** Stop detached task groups and workers as well as turbo itself. */
 function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
   const pid = child.pid;
-  if (pid === undefined) return;
-  try {
-    process.kill(-pid, signal);
-  } catch {
-    try {
-      child.kill(signal);
-    } catch {
-      // already exited
-    }
-  }
+  if (pid !== undefined) killProcessTree(pid, signal);
 }
 
 /**

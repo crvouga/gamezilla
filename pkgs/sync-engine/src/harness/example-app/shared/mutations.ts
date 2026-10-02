@@ -152,9 +152,6 @@ export const pendingNote = defineMutation({
   }),
   pendingUx: 'pending',
   async run({ tx, env }, { id, body, title }) {
-    if (env.serverNow !== undefined && body === 'refused') {
-      throw new MutationError('REFUSED', 'The server refuses this body.');
-    }
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
       VALUES (${id}, ${null}, ${title ?? ''}, ${body}, ${env.actorId})
@@ -164,6 +161,10 @@ export const pendingNote = defineMutation({
         owner_id = excluded.owner_id,
         deleted_at = NULL
     `);
+    // A later check must undo all earlier work, including in a mixed batch.
+    if (env.serverNow !== undefined && body === 'refused') {
+      throw new MutationError('REFUSED', 'The server refuses this body.');
+    }
   },
 });
 

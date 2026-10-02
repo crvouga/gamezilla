@@ -14,6 +14,7 @@ import type {
 } from '../queries/core/types';
 import { runQuery } from '../queries/server/run-query';
 import { allocateTopicPushSeqs } from '../server/allocate-topic-push-seq';
+import { mutationSavepointClient } from '../server/mutation-savepoint-client';
 import { publishPushMessages } from '../server/notify-channels';
 import { partitionFanoutRowsByTopic } from '../shared/partition-fanout-rows';
 import {
@@ -35,17 +36,6 @@ export type HarnessServerAuth = {
   readonly accountId: string | null;
   readonly isAnon: boolean;
 };
-
-function asNestedTxClient(tx: SqlClient): SqlClient {
-  return {
-    connect: () => tx.connect(),
-    disconnect: () => Promise.resolve(),
-    query: (q) => tx.query(q),
-    run: (q) => tx.run(q),
-    transaction: async (fn) => fn(tx),
-    prepare: (q) => tx.prepare(q),
-  };
-}
 
 function mergeCaptures(
   captures: readonly WriteCaptureSnapshot[]
@@ -216,13 +206,12 @@ export function createHandleMutations(
     const failAfter = opts?.failInsideTxnAfter;
     const result = await ctx.db.transaction(async (tx) =>
       processMutationsBatch({
-        serverDb: asNestedTxClient(tx),
+        serverDb: mutationSavepointClient(tx),
         registry: ctx.mutations,
         auth: stickyAuth,
         mutations: mutationRows,
         now: ctx.now,
         createId: ctx.createId,
-        serverNow: () => new Date(ctx.now()),
         ...(failAfter !== undefined
           ? {
               onAfterMutation: (index) => {

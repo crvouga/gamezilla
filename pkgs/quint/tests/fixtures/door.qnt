@@ -1,4 +1,4 @@
-// A door two people use: the smallest model with state, arguments and an
+// @spec-meta — Quint runner fixture: a door two people use, the smallest model with state, arguments and an
 // invariant, for the Quint bridge's own tests. With no connection, that
 // person cannot open, close, lock or unlock it; the other person still can.
 module door {

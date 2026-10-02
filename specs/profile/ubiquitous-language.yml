@@ -9,6 +9,56 @@ purpose: >-
   with Google or Apple, and never lose their way back into.
 
 terms:
+  - term: personal data
+    definition: >-
+      Information about an identifiable person that the app keeps: their
+      profile and sign-in methods, devices, preferences, friendships,
+      requests and blocks, spaces, puzzle attempts and progress, inbox
+      items, and membership and payment history. It includes information
+      observed from their use of the app as well as what they supplied.
+    forms: [personal data's]
+    published: true
+    model: [retained, invRetentionDeadline]
+
+  - term: account deletion
+    definition: >-
+      A person permanently giving up their account after proving it is theirs
+      and confirming the consequences. The account cannot be used again;
+      their ordinary personal data is erased within 30 days. A later sign-in
+      starts afresh instead of recovering the deleted account.
+    forms: [delete their account, deletes their account, deleted account, deleted accounts, confirms account deletion, account deletion has been confirmed, confirmed deletion]
+    published: true
+    model: [AccountDeletion, Active, Deleting, Deleted, deletion, profilesShown, confirmDeletion, AccountDeletionConfirmed, invDeletedProfileHidden, invDeletedAccessEnds]
+
+  - term: personal-data export
+    definition: >-
+      A private copy of the person's personal data, ready within 24 hours
+      after they ask. It includes a readable summary and reusable detail,
+      and is available to that recently proven account for 7 days after it
+      becomes ready. It never contains another person's private data.
+    forms: [personal-data exports, export, exports, export's]
+    published: true
+    model: [PersonalDataExport, NoExport, Preparing, Ready, Expired, ExportFailed, exports, requestExport, exportReady, exportFails, downloadExport, invDeletedExportUnavailable, invExportLifetime]
+
+  - term: retention
+    definition: >-
+      How long personal data is kept and why. Ordinary account data lasts
+      while the person keeps the account and is erased within 30 days of
+      deletion; exports last 7 days after becoming ready. Minimum payment
+      records and a specific legal preservation obligation are exceptions
+      disclosed to the person, with their purpose and end condition.
+    forms: [retention period, retention periods]
+    published: true
+
+  - term: recently proven account
+    definition: >-
+      An account whose person completed signing in with a connected sign-in
+      method within the last 10 minutes. Deletion and export require this
+      proof again when those 10 minutes are over.
+    forms: [recently proven accounts]
+    published: true
+    model: [proveAccount]
+
   # Published language
 
   - term: guest
@@ -312,7 +362,18 @@ terms:
     avoid: [IP address, geolocation, VPN, geo]
 
   # Borrowed from App.
+  - term: address
+    from: runtime
   - term: trail
     from: runtime
   - term: run into trouble
     from: runtime
+
+  - term: space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: end a space
+    from: spaces
+  - term: payment record
+    from: billing
