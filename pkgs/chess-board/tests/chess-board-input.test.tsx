@@ -109,7 +109,8 @@ describe('hot paths stay out of the framework', () => {
         )
         .map((r) => r.target)
     );
-    expect([...restyledPieces]).toEqual([knight]);
+    expect(restyledPieces.size).toBe(1);
+    expect(restyledPieces.has(knight)).toBe(true);
     expect(board.piece('f3')).toBe(knight);
   });
 });

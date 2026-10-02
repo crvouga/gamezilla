@@ -48,7 +48,7 @@ export type ChessBoardProps = {
   fenSyncKey?: number | undefined;
   onMove?: ((m: Move) => void) | undefined;
   orientation?: BoardOrientation | undefined;
-  /** Fixed side in px. Omit to fill the parent width (square via `aspect-ratio`). */
+  /** Fixed width in px; omit to fill parent. Outside 196..16384 is a preview. */
   size?: number | undefined;
   interactive?: boolean | undefined;
   /** Parent-owned board audio (default on). Disabling cancels pending playback. */

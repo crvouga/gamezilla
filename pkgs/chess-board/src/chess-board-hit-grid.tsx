@@ -13,6 +13,7 @@ import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
+  CellFeedback,
   FileChar,
   PieceType,
   Position,
@@ -46,6 +47,9 @@ export type ChessBoardHitGridProps = {
   readonly position: Accessor<Position>;
   readonly selected: Accessor<Square | null>;
   readonly legalTargets: Accessor<readonly Square[]>;
+  readonly cellFeedback: Accessor<
+    Partial<Record<Square, CellFeedback>> | undefined
+  >;
 };
 
 const PIECE_NAMES: Readonly<Record<PieceType, string>> = {
@@ -78,7 +82,11 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
     >
       <For each={SQUARES_A8_TO_H1}>
         {(square) => {
-          const label = createMemo(() => squareName(square, props.position()));
+          const label = createMemo(() => {
+            const name = squareName(square, props.position());
+            const feedback = props.cellFeedback()?.[square]?.label;
+            return feedback === undefined ? name : `${name}, ${feedback}`;
+          });
           const legal = createMemo(() => targets().has(square));
           return (
             <button

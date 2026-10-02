@@ -734,7 +734,8 @@
         "@apps/product#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:actionlint",
-        "@libs/tools#check:secrets"
+        "@libs/tools#check:secrets",
+        "@libs/chess#check:board-contract"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -1898,6 +1899,11 @@
       ],
       "outputLogs": "errors-only",
       "outputs": []
+    },
+    "check:board-contract": {
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "outputs": [],
+      "outputLogs": "errors-only"
     }
   }
 }

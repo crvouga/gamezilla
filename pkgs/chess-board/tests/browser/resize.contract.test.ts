@@ -78,7 +78,7 @@ test('generated fractional resize sequences preserve square tiling, centered pie
         { minLength: 3, maxLength: 6 }
       ),
       fc.constantFrom('white', 'black'),
-      fc.constantFrom(0.5, 1, 1.25, 2, 3),
+      fc.constantFrom(0.5, 1, 1.25, 2, 3, 4),
       async (widths, orientation, scale) => {
         await browser.view.evaluate(
           `window.boardExample.reset({size:undefined, interactive:false, orientation:"${orientation}"})`

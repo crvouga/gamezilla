@@ -25,6 +25,7 @@ export function speakMove(args: {
   readonly inCheck: boolean;
   readonly isCheckmate: boolean;
   readonly isStalemate: boolean;
+  readonly isGameOver: boolean;
 }): string {
   const name = args.piece !== null ? pieceName(args.piece.type) : 'Piece';
   const capture =
@@ -43,6 +44,7 @@ export function speakMove(args: {
   }
   if (args.isCheckmate) return `${s}, checkmate`;
   if (args.isStalemate) return `${s}, stalemate`;
+  if (args.isGameOver) return `${s}, draw`;
   if (args.inCheck) return `${s}, check`;
   return s;
 }

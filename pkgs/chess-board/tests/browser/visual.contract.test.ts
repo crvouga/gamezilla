@@ -6,6 +6,7 @@ import {
 } from '@pkgs/chess-board/harness/positions';
 import { openBrowserExample } from './browser-fixture';
 import { type Frame, frameRead } from './frame-read';
+import { observeFrameWork } from './frame-work';
 import { type BoardGeometry, geometryRead } from './geometry-read';
 
 let browser: Awaited<ReturnType<typeof openBrowserExample>>;
@@ -20,8 +21,9 @@ async function act(script: string) {
   );
 }
 async function image() {
+  await act('document.querySelector("[data-testid=browser-board]").focus()');
   return new Bun.Image(await browser.view.screenshot())
-    .png({ compressionLevel: 9 })
+    .png({ compressionLevel: 0 })
     .buffer();
 }
 
@@ -29,11 +31,27 @@ test('equivalent parent updates and orientation round trips preserve the raster'
   await act('window.boardExample.reset({size: 319.5, showCoordinates: false})');
   const original = await image();
   await act('window.boardExample.configure({sound: false})');
-  expect(await image()).toEqual(original);
+  expect((await image()).equals(original)).toBe(true);
   await act('window.boardExample.configure({orientation: "black"})');
-  expect(await image()).not.toEqual(original);
+  expect((await image()).equals(original)).toBe(false);
   await act('window.boardExample.configure({orientation: "white"})');
-  expect(await image()).toEqual(original);
+  expect((await image()).equals(original)).toBe(true);
+});
+
+test('a raster reference uses freshly mounted piece nodes', async () => {
+  // regression: chessboard-raster-reference
+  await act('window.boardExample.reset({size:320})');
+  const reference = await browser.view.evaluate<{
+    oldConnected: boolean;
+    reused: boolean;
+  }>(`(() => {
+    const original = document.querySelector('[data-piece-square="d2"]');
+    window.boardExample.reset({size:320});
+    return {oldConnected:original.isConnected,
+      reused:document.querySelector('[data-piece-square="d2"]')===original};
+  })()`);
+  expect(reference.oldConnected).toBe(false);
+  expect(reference.reused).toBe(false);
 });
 
 test('real layout, piece centers and pointer targets agree after embedding and zoom', async () => {
@@ -85,14 +103,9 @@ test('capture frames remain coherent and require no DOM work between arrivals', 
   );
   let previous: Frame | undefined;
   for (const ms of [0, 37.5, 75, 112.5, 150]) {
-    const work = await browser.view.evaluate<number>(`(async () => {
-      let writes = 0;
-      const observer = new MutationObserver(records => { writes += records.length; });
-      observer.observe(document.querySelector('[data-testid="browser-board"]'), {subtree:true, attributes:true, childList:true, characterData:true});
-      window.boardExample.freeze(${ms});
-      await window.boardExample.paint();
-      writes += observer.takeRecords().length; observer.disconnect(); return writes;
-    })()`);
+    const work = await browser.view.evaluate<number>(
+      observeFrameWork(`window.boardExample.freeze(${ms})`)
+    );
     expect(work).toBe(0);
     const frame = await browser.view.evaluate<Frame>(frameRead);
     expect(frame.ghosts).toHaveLength(1);
@@ -121,7 +134,19 @@ test('capture frames remain coherent and require no DOM work between arrivals', 
   await act(
     `window.boardExample.reset({fen: ${JSON.stringify(CAPTURED)}, size:320, showCoordinates:false, animations:false})`
   );
-  expect(await image()).toEqual(completed);
+  expect((await image()).equals(completed)).toBe(true);
+});
+
+test('the frame work recorder detects a mutation delivered before the paint callback', async () => {
+  // regression: chessboard-frame-work-observation
+  await act('window.boardExample.reset({size:320})');
+  expect(
+    await browser.view.evaluate<number>(
+      observeFrameWork(
+        `document.querySelector('[data-testid="browser-board"]').setAttribute('data-injected-frame-work','1')`
+      )
+    )
+  ).toBe(1);
 });
 
 test('interrupted capture raster equals a fresh authoritative position without flashback', async () => {
@@ -133,11 +158,11 @@ test('interrupted capture raster equals a fresh authoritative position without f
   );
   const interrupted = await image();
   await act('window.boardExample.advance(1000)');
-  expect(await image()).toEqual(interrupted);
+  expect((await image()).equals(interrupted)).toBe(true);
   await act(
     `window.boardExample.reset({fen:${JSON.stringify(REPLACEMENT)}, size:320, showCoordinates:false, animations:false})`
   );
-  expect(await image()).toEqual(interrupted);
+  expect((await image()).equals(interrupted)).toBe(true);
 });
 
 test('a resized capture reaches the resized destination', async () => {

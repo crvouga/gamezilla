@@ -21,6 +21,8 @@ import type { Square } from './types';
 
 export type Destination = {
   readonly to: Square;
+  /** Includes en passant even though its destination is empty. */
+  readonly capture: boolean;
   /** A pawn reaching the last rank (the four promotions collapse to one). */
   readonly promotion: boolean;
   /** Castling: `k` kingside, `q` queenside. */
@@ -41,6 +43,7 @@ type InternalGenerator = (options: {
 
 // chess.js `BITS`.
 const PROMOTION = 16;
+const CAPTURE = 2 | 8;
 const KSIDE_CASTLE = 32;
 const QSIDE_CASTLE = 64;
 
@@ -75,9 +78,7 @@ export function hasFastDestinations(chess: Chess): boolean {
   return internalGenerator(chess) !== null;
 }
 
-function collapse(
-  moves: Iterable<{ to: Square; promotion: boolean; castle: 'k' | 'q' | null }>
-): readonly Destination[] {
+function collapse(moves: Iterable<Destination>): readonly Destination[] {
   const out: Destination[] = [];
   const seen = new Set<Square>();
   for (const m of moves) {
@@ -98,6 +99,7 @@ export function destinationsFromInternals(
   return collapse(
     generate({ square: from, legal: true }).map((m) => ({
       to: algebraic(m.to),
+      capture: (m.flags & CAPTURE) !== 0,
       promotion: (m.flags & PROMOTION) !== 0,
       castle: castleOf(m.flags),
     }))
@@ -112,6 +114,7 @@ export function destinationsFromPublicApi(
   return collapse(
     chess.moves({ square: from, verbose: true }).map((m) => ({
       to: m.to as Square,
+      capture: m.isCapture() || m.isEnPassant(),
       promotion: m.promotion !== undefined,
       castle: m.isKingsideCastle() ? 'k' : m.isQueensideCastle() ? 'q' : null,
     }))
@@ -138,12 +141,14 @@ export function allDestinationsFrom(
       ? generate({ legal: true }).map((m) => ({
           from: algebraic(m.from),
           to: algebraic(m.to),
+          capture: (m.flags & CAPTURE) !== 0,
           promotion: (m.flags & PROMOTION) !== 0,
           castle: castleOf(m.flags),
         }))
       : chess.moves({ verbose: true }).map((m) => ({
           from: m.from as Square,
           to: m.to as Square,
+          capture: m.isCapture() || m.isEnPassant(),
           promotion: m.promotion !== undefined,
           castle: m.isKingsideCastle()
             ? ('k' as const)
@@ -157,6 +162,7 @@ export function allDestinationsFrom(
     if (!group.some((d) => d.to === move.to))
       group.push({
         to: move.to,
+        capture: move.capture,
         promotion: move.promotion,
         castle: move.castle,
       });

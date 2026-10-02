@@ -17,6 +17,21 @@ type InputTiming = {
   readonly fen: string;
 };
 
+test('the public benchmark can scrub 200 plies and mount twenty boards without emitting audio', async () => {
+  // regression: chessboard-benchmark-sound
+  const sounds = await browser.view.evaluate<readonly string[]>(`(async () => {
+    const api=window.boardExample;
+    api.benchmark();
+    await api.paint();
+    [...document.querySelectorAll('button')].find(el=>el.textContent==='Scrub 200 plies').click();
+    api.advance(0);
+    [...document.querySelectorAll('button')].find(el=>el.textContent==='Mount 20 boards').click();
+    await api.paint();
+    return api.sounds();
+  })()`);
+  expect(sounds).toEqual([]);
+});
+
 test('capture input and its first visible response meet the existing 50ms budget', async () => {
   const expected = new Chess(CAPTURE);
   expected.move({ from: 'e4', to: 'd5' });
@@ -79,4 +94,44 @@ test('sustained legal positions, flips and resizes keep each work slice below 50
   })()`);
   expect(slices).toHaveLength(216);
   expect(Math.max(...slices)).toBeLessThan(BOARD_PERF_BUDGETS.longTaskMs);
+});
+
+test('live capture frames progress monotonically without a 50ms frame gap', async () => {
+  const frames = await browser.view.evaluate<
+    readonly {
+      gap: number;
+      distance: number;
+      pieces: number;
+    }[]
+  >(`(async () => {
+    const api=window.boardExample;
+    api.reset({fen:${JSON.stringify(CAPTURE)},size:319.5,showCoordinates:false});
+    api.move('e4','d5');
+    api.play();
+    const center=el=>{const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2};};
+    const target=center(document.querySelector('[data-square="d5"]'));
+    const frames=[];
+    let previous=api.now();
+    for (let i=0;i<14;i++) {
+      await api.paint();
+      const now=api.now();
+      const attacker=center(document.querySelector('[data-piece-square="d5"]'));
+      frames.push({gap:now-previous,distance:Math.hypot(attacker.x-target.x,attacker.y-target.y),
+        pieces:document.querySelectorAll('[data-piece-square]').length});
+      previous=now;
+    }
+    api.advance(150);
+    return frames;
+  })()`);
+  expect(frames).toHaveLength(14);
+  expect(frames[0]?.distance).toBeGreaterThan(0);
+  expect(frames.at(-1)?.distance).toBeLessThanOrEqual(1 / 32);
+  for (const [index, frame] of frames.entries()) {
+    expect(frame.pieces).toBe(31);
+    expect(frame.gap).toBeLessThan(BOARD_PERF_BUDGETS.longTaskMs);
+    if (index > 0)
+      expect(frame.distance).toBeLessThanOrEqual(
+        (frames[index - 1]?.distance ?? 0) + 1 / 32
+      );
+  }
 });

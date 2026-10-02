@@ -55,6 +55,8 @@ export type BoardController = {
   readonly onKeyDown: (event: KeyboardEvent) => void;
   /** A hit-grid square button took focus: the cursor follows it. */
   readonly onSquareFocus: (square: Square) => void;
+  /** Return keyboard ownership from the promotion picker to a square. */
+  readonly focusSquare: (square: Square) => void;
 };
 
 /** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
@@ -75,12 +77,15 @@ function useBoardPx(
 ): Accessor<number> {
   const [measured, setMeasured] = createSignal(0);
   createEffect(() => {
-    if (sizeProp() !== undefined) return;
+    const fixed = sizeProp();
+    if (fixed !== undefined) {
+      setMeasured(normalizeBoardSize(fixed));
+      return;
+    }
     const node = el();
     if (node === undefined) return;
     const apply = (width: number): void => {
-      const snapped = normalizeBoardSize(width);
-      if (snapped > 0) setMeasured(snapped);
+      setMeasured(normalizeBoardSize(width));
     };
     const ro = new ResizeObserver((entries) => {
       const entry = entries[0];
@@ -150,17 +155,22 @@ function createMotion(props: ChessBoardProps) {
   return { motion, animator, hidden: env.hidden };
 }
 
-function createModel(
-  props: ChessBoardProps,
-  motion: Accessor<MotionPolicy>,
-  timers: Timers,
-  onIllegal: () => void
-): ChessBoardModel {
+function createModel(args: {
+  props: ChessBoardProps;
+  motion: Accessor<MotionPolicy>;
+  timers: Timers;
+  boardPx: Accessor<number>;
+  onIllegal: () => void;
+}): ChessBoardModel {
+  const { props, motion, timers, onIllegal } = args;
   return createChessBoardModel({
     game: untrack(() => new ChessGame(props.fen)),
     fen: () => props.fen,
     fenSyncKey: () => props.fenSyncKey,
-    interactive: () => props.interactive !== false,
+    interactive: () =>
+      props.interactive !== false &&
+      args.boardPx() >= 196 &&
+      args.boardPx() <= 16384,
     animated: () => motion().slides,
     moveDurationMs: () => motion().durationMs,
     onMove: (m) => props.onMove?.(m),
@@ -241,6 +251,7 @@ function createInput(args: {
     session: parts.session,
     cursor,
     setCursor,
+    clearAnnotations: parts.userShapes.clear,
     cancel: () => {
       pointer.cancelPress();
       parts.userShapes.abort();
@@ -262,8 +273,14 @@ export function createBoardController(args: {
   const { motion, animator, hidden } = createMotion(props);
   const haptics = createBoardHaptics(() => true);
   let touch = false;
-  const model = createModel(props, motion, args.timers, () => {
-    if (touch) haptics.illegal();
+  const model = createModel({
+    props,
+    motion,
+    timers: args.timers,
+    boardPx,
+    onIllegal: () => {
+      if (touch) haptics.illegal();
+    },
   });
   const session = createPointerSession(model.actions);
   const userShapes = createUserShapesFor(props);
@@ -307,5 +324,9 @@ export function createBoardController(args: {
     arrows,
     onKeyDown: input.onKeyDown,
     onSquareFocus: input.setCursor,
+    focusSquare: (square) => {
+      input.setCursor(square);
+      host()?.querySelector<HTMLElement>(`[data-square="${square}"]`)?.focus();
+    },
   };
 }

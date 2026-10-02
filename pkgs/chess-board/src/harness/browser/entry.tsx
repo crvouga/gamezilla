@@ -8,12 +8,14 @@ import { createHarnessClock } from '@pkgs/clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
 import { ThemeProvider } from '@pkgs/ui';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, Show } from 'solid-js';
 import { render } from 'solid-js/web';
+import { ChessBoardBenchPage } from '../../bench/chess-board-bench-page';
 import { ChessBoard } from '../../chess-board';
 import type { ChessBoardProps } from '../../chess-board-types';
 import { INITIAL } from '../positions';
 import { createRecordingAudio } from '../recording-audio';
+import { installMotionPreference } from './motion-preference';
 
 const [config, setConfig] = createRoot(() =>
   createSignal<ChessBoardProps>({
@@ -28,20 +30,34 @@ const audio = createRecordingAudio();
 const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
 const root = document.getElementById('example');
 if (root === null) throw new Error('Missing example host');
-render(
-  () => (
-    <I18nProvider i18n={i18n}>
-      <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider colorScheme="light">
-          <AudioPlaybackProvider value={audio.port}>
-            <ChessBoard {...config()} dataSet={{ testid: 'browser-board' }} />
-          </AudioPlaybackProvider>
-        </ThemeProvider>
-      </ClockProvider>
-    </I18nProvider>
-  ),
-  root
-);
+const reducedMotion = installMotionPreference();
+function mount(container: HTMLElement, benchmark = false) {
+  return render(
+    () => (
+      <I18nProvider i18n={i18n}>
+        <ClockProvider clock={clock} timers={timers}>
+          <ThemeProvider colorScheme="light">
+            <AudioPlaybackProvider value={audio.port}>
+              <Show
+                when={benchmark}
+                fallback={
+                  <ChessBoard
+                    {...config()}
+                    dataSet={{ testid: 'browser-board' }}
+                  />
+                }
+              >
+                <ChessBoardBenchPage />
+              </Show>
+            </AudioPlaybackProvider>
+          </ThemeProvider>
+        </ClockProvider>
+      </I18nProvider>
+    ),
+    container
+  );
+}
+let dispose = mount(root);
 
 function host(): HTMLElement {
   const board = document.querySelector<HTMLElement>(
@@ -76,11 +92,19 @@ function freeze(ms: number): void {
   }
 }
 const api = {
+  benchmark() {
+    dispose();
+    clock.advance(1000);
+    audio.clear();
+    dispose = mount(root, true);
+  },
+  sounds: audio.played,
   configure(patch: ChessBoardProps) {
     setConfig((prev) => ({ ...prev, ...patch }));
   },
   reset(next: ChessBoardProps) {
-    document.getAnimations().forEach((animation) => animation.cancel());
+    dispose();
+    reducedMotion(false);
     setConfig({
       fen: INITIAL,
       size: 320,
@@ -90,6 +114,7 @@ const api = {
       fenSyncKey: (config().fenSyncKey ?? 0) + 1,
     });
     clock.advance(1000);
+    dispose = mount(root);
     host().focus();
   },
   tap,
@@ -97,9 +122,15 @@ const api = {
     tap(from);
     tap(to);
     freeze(0);
-    host().focus();
   },
   freeze,
+  reducedMotion,
+  play() {
+    for (const animation of document.getAnimations()) {
+      animation.currentTime = 0;
+      animation.play();
+    }
+  },
   advance: (ms: number) => clock.advance(ms),
   parent(width: number, scale = 1) {
     root.style.width = `${width}px`;

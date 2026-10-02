@@ -79,8 +79,16 @@ export function ChessBoardOverlays(args: {
             to={p().to}
             orientation={args.ctrl.orientation()}
             theme={args.ctrl.theme()}
-            onPick={(promo) => args.ctrl.model.actions.pickPromotion(promo)}
-            onCancel={() => args.ctrl.model.actions.cancelPromotion()}
+            onPick={(promo) => {
+              const square = p().to;
+              args.ctrl.model.actions.pickPromotion(promo);
+              args.ctrl.focusSquare(square);
+            }}
+            onCancel={() => {
+              const square = p().from;
+              args.ctrl.model.actions.cancelPromotion();
+              args.ctrl.focusSquare(square);
+            }}
           />
         )}
       </Show>

@@ -392,6 +392,7 @@
         "@pkgs/glicko2": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/http-client": "workspace:*",
+        "@pkgs/kv": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/message": "workspace:*",
         "@pkgs/object-store": "workspace:*",

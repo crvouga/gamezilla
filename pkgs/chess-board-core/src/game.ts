@@ -158,6 +158,13 @@ export class ChessGame {
     return this.destinations.get(from) ?? [];
   }
 
+  /** Canonical capture destinations, including an empty en passant square. */
+  legalCapturesFrom(from: Square): readonly Square[] {
+    return this.destinationsOf(from)
+      .filter((d) => d.capture)
+      .map((d) => d.to);
+  }
+
   /**
    * Distinct destination squares reachable from `from` (promotions deduped).
    * A king also lists its own rook's square for every legal castle, so a tap

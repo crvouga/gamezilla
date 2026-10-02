@@ -61,6 +61,7 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
             inCheck: g.inCheck,
             isCheckmate: g.isCheckmate,
             isStalemate: g.isStalemate,
+            isGameOver: g.isGameOver,
           })
         );
       }
@@ -125,6 +126,7 @@ function BoardBody(args: {
         position={() => game().position}
         washes={useWashes(args.props, args.ctrl)}
         legalTargets={() => ix().legalTargets}
+        captureTargets={args.ctrl.model.captureTargets}
         cellHighlights={() => args.props.cellHighlights}
         showCoordinates={() => args.props.showCoordinates !== false}
         highlightLegalMoves={() => args.props.highlightLegalMoves !== false}
@@ -162,6 +164,7 @@ function BoardBody(args: {
         position={() => game().position}
         selected={() => ix().selected ?? ix().dragFrom}
         legalTargets={() => ix().legalTargets}
+        cellFeedback={() => args.props.cellFeedback}
       />
       <ChessBoardOverlays
         ctrl={args.ctrl}

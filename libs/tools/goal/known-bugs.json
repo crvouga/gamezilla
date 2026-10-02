@@ -1,5 +1,40 @@
 [
   {
+    "id": "chessboard-disabled-annotation-clear",
+    "summary": "Disabling new personal annotations also prevents choosing a piece from clearing completed personal marks.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-preview-input",
+    "summary": "Widths outside the playable range accept moves and retain selection or promotion after shrinking.",
+    "regressionTest": "specs/chess-board/board-options.feature"
+  },
+  {
+    "id": "chessboard-en-passant-hint",
+    "summary": "An empty en passant destination is painted as a quiet move rather than a capture.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-named-feedback",
+    "summary": "Activity-supplied feedback text is ignored in the visible badge.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-promotion-focus",
+    "summary": "Promotion choices expose abbreviations and cancellation leaves keyboard focus at the destination.",
+    "regressionTest": "specs/chess-board/board-promotion.feature"
+  },
+  {
+    "id": "chessboard-duplicate-premove",
+    "summary": "Repeated input queues the same waiting move twice and duplicates its visual preview.",
+    "regressionTest": "specs/chess-board/board-premoves.feature"
+  },
+  {
+    "id": "quint-itf-list-values",
+    "summary": "ITF decoding rejects ordered lists emitted by Quint, preventing promotion and premove trace replay.",
+    "regressionTest": "pkgs/quint/tests/itf-list.test.ts"
+  },
+  {
     "id": "chessboard-nonfinite-hit",
     "summary": "Non-finite dimensions and pointer coordinates can manufacture invalid algebraic squares.",
     "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
@@ -1383,5 +1418,50 @@
     "id": "chessboard-fractional-cell-step",
     "summary": "Percentage translations accumulate rounded cell widths, leaving fractional square edges misaligned with the board content width.",
     "regressionTest": "pkgs/chess-board/tests/browser/resize.contract.test.ts"
+  },
+  {
+    "id": "chessboard-frame-work-observation",
+    "summary": "A native frame gate discarded delivered MutationObserver records, allowing per-frame DOM work to pass as zero.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-raster-reference",
+    "summary": "A fresh-position raster reference reused the board model and piece nodes, allowing the same stale rendered state on both sides of a comparison.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-benchmark-sound",
+    "summary": "The public performance benchmark scrubs 200 authoritative positions with default board sound enabled and emits a move sound despite being a measurement-only preview. Benchmark boards are explicitly silent.",
+    "regressionTest": "pkgs/chess-board/tests/browser/performance.contract.test.ts"
+  },
+  {
+    "id": "chessboard-empty-annotation-clear",
+    "summary": "Clearing personal marks with an ordinary primary input while the mark set was already empty emitted no empty arrow update, so the activity could not observe the clear request.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-keyboard-annotation-clear",
+    "summary": "Enter or Space selection left completed personal arrows and circles on the board after drawing was disabled, while equivalent pointer selection cleared them.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-fixed-width-promotion",
+    "summary": "After fluid width195 then fixed512, removing the fixed width at available320 briefly exposed a stale195 measurement and dismissed a still-valid promotion chooser.",
+    "regressionTest": "specs/chess-board/board-options.feature"
+  },
+  {
+    "id": "chessboard-overlapping-capture-remnant",
+    "summary": "A canonical g8-f6 opponent reply cleared the captured Black pawn remnant while the earlier White e4-d5 attacker was still sliding to its unchanged valid square. Keep the remnant until that arrival finishes.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chess-puzzle-muted-feedback",
+    "summary": "Puzzle correct-move, solved and rating feedback played while the app sounds preference was muted. Honor the preference and cancel delayed seek-to-play starts.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chessboard-draw-announcement",
+    "summary": "Black a2-b1 capture promotion to bishop or knight leaves dead material but announces only the move, omitting the drawn result for silent and assistive users. Announce every canonical drawn result.",
+    "regressionTest": "specs/chess-board/board-black-promotion.feature"
   }
 ]

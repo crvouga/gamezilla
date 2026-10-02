@@ -59,6 +59,7 @@ export type ChessBoardSquaresProps = {
   readonly position: Accessor<Position>;
   readonly washes: Accessor<readonly string[]>;
   readonly legalTargets: Accessor<readonly Square[]>;
+  readonly captureTargets: Accessor<readonly Square[]>;
   readonly cellHighlights: Accessor<
     Partial<Record<Square, CellHighlight>> | undefined
   >;
@@ -193,7 +194,8 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
     return props
       .legalTargets()
       .map((square) =>
-        position[indexFromSquare(square)] === null
+        position[indexFromSquare(square)] === null &&
+        !props.captureTargets().includes(square)
           ? `dot@${square}`
           : `ring@${square}`
       );

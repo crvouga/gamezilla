@@ -150,7 +150,7 @@ export class BoardPointer {
   private downPrimary(e: PointerEvent): void {
     const touch = e.pointerType === 'touch';
     this.args.setTouch(touch);
-    if (this.args.enableUserArrows()) this.args.userShapes.clear();
+    this.args.userShapes.clear();
     this.startPress(e, { pointerId: e.pointerId, button: 'primary', touch });
     const square = this.squareOf(e);
     // One reactive flush: a pick-up publishes the interaction state more

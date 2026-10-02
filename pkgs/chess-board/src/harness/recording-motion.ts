@@ -51,12 +51,22 @@ function paintedAt(run: Running, now: number): string {
   return `translate(${x}cqw, ${y}cqw)`;
 }
 
+/** One actual retired handle survives remounting; no position is remembered. */
+export type EarlierCompletionSlot = {
+  callback: (() => void) | undefined;
+};
+
 export type RecordingMotion = {
   readonly env: BoardMotionEnvironment;
   readonly slides: Accessor<readonly string[]>;
   readonly active: () => number;
+  readonly activePieces: () => readonly { piece: string; square: string }[];
   readonly setReducedMotion: (on: boolean) => void;
   readonly setHidden: (hidden: boolean) => void;
+  /** Deliver the most recent cancelled animation's real registered callback. */
+  readonly finishEarlier: () => boolean;
+  readonly hasEarlierCompletion: () => boolean;
+  readonly earlierCompletion: EarlierCompletionSlot;
 };
 
 export function createRecordingMotion(args: {
@@ -66,11 +76,13 @@ export function createRecordingMotion(args: {
   readonly reducedMotion: boolean;
   readonly lowEnd: boolean;
   readonly webAnimations: boolean;
+  readonly earlierCompletion?: EarlierCompletionSlot;
 }): RecordingMotion {
   const [slides, setSlides] = createSignal<readonly string[]>([]);
   const [reduced, setReduced] = createSignal(args.reducedMotion);
   const [hidden, setHidden] = createSignal(false);
   const running = new Map<HTMLElement, Running>();
+  const earlierCompletion = args.earlierCompletion ?? { callback: undefined };
   const animate: AnimateTransform = (element, from, to, durationMs) => {
     const o = args.orientation();
     const piece = element.dataset['piece'] ?? '?';
@@ -87,6 +99,7 @@ export function createRecordingMotion(args: {
       cancel: () => {
         args.timers.clearTimeout(handle);
         if (running.get(element) === run) running.delete(element);
+        if (onFinish !== undefined) earlierCompletion.callback = onFinish;
       },
       onFinish: (callback) => {
         onFinish = callback;
@@ -108,7 +121,20 @@ export function createRecordingMotion(args: {
     },
     slides,
     active: () => running.size,
+    activePieces: () =>
+      [...running.keys()].map((element) => ({
+        piece: element.dataset['piece'] ?? '',
+        square: element.dataset['pieceSquare'] ?? '',
+      })),
     setReducedMotion: setReduced,
     setHidden,
+    finishEarlier: () => {
+      const callback = earlierCompletion.callback;
+      earlierCompletion.callback = undefined;
+      callback?.();
+      return callback !== undefined;
+    },
+    hasEarlierCompletion: () => earlierCompletion.callback !== undefined,
+    earlierCompletion,
   };
 }

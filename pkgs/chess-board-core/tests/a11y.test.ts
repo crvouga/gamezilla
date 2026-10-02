@@ -14,6 +14,7 @@ describe('speakMove', () => {
         inCheck: false,
         isCheckmate: false,
         isStalemate: false,
+        isGameOver: false,
       })
     ).toBe('Pawn to e4');
     expect(
@@ -23,6 +24,7 @@ describe('speakMove', () => {
         inCheck: true,
         isCheckmate: false,
         isStalemate: false,
+        isGameOver: false,
       })
     ).toBe('Pawn takes d5, check');
     expect(
@@ -36,6 +38,7 @@ describe('speakMove', () => {
         inCheck: false,
         isCheckmate: false,
         isStalemate: false,
+        isGameOver: false,
       })
     ).toBe('King castles kingside');
   });

@@ -7,7 +7,7 @@ import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
 import { SpeakingAvatar, SpectatorIndicator, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
-
+import { PUZZLE_PIECE_MOVE_MS } from '../../shared/chess/chess-puzzle-opponent-stage';
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
@@ -71,6 +71,7 @@ function PuzzleBoardSlot(props: {
         fen={props.displayFen() ?? ''}
         fenSyncKey={props.layoutKey() + props.recommendBump()}
         orientation={props.orientation()}
+        animationDurationMs={PUZZLE_PIECE_MOVE_MS}
         interactive={
           props.status() === 'solving' &&
           props.atFrontier() &&

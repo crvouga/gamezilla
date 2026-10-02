@@ -32,7 +32,8 @@
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts",
     "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/8",
     "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/8",
-    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8"
+    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8",
+    "check:board-contract": "bun run scripts/check-board-contract.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -85,7 +86,8 @@
     "fzstd": "catalog:",
     "pg": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@pkgs/kv": "workspace:*"
   },
   "devDependencies": {
     "@libs/account-privacy": "workspace:*",

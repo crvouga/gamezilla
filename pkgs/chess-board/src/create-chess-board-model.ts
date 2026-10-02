@@ -11,6 +11,7 @@ import {
   captureGhostForTransition,
 } from '@pkgs/chess-board-core/capture-ghost';
 import type { ChessGame, ChessGameSnapshot } from '@pkgs/chess-board-core/game';
+import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import {
   BoardInteraction,
   type BoardInteractionSnapshot,
@@ -20,6 +21,7 @@ import {
   createMoveSoundScheduler,
   type PostMoveAudio,
 } from '@pkgs/chess-board-core/move-sound';
+import { pieceCode } from '@pkgs/chess-board-core/piece-code';
 import {
   type ChessPieceRow,
   createPieceRowsTracker,
@@ -29,6 +31,7 @@ import type {
   Move,
   PieceColor,
   Position,
+  Square,
 } from '@pkgs/chess-board-core/types';
 import type { Timers } from '@pkgs/clock/types';
 import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
@@ -69,6 +72,7 @@ export type ChessBoardModel = {
   readonly actions: BoardInteraction;
   readonly rows: Accessor<readonly ChessPieceRow[]>;
   readonly captureGhost: Accessor<CaptureGhost | null>;
+  readonly captureTargets: Accessor<readonly Square[]>;
 };
 
 function createExternalFenSync(
@@ -107,6 +111,25 @@ function createExternalFenSync(
   );
 }
 
+type CaptureOwner = { square: Square; code: string };
+function captureOwner(
+  position: Position,
+  move: Move | null
+): CaptureOwner | undefined {
+  if (move === null) return undefined;
+  const piece = position[indexFromSquare(move.to)];
+  if (piece === undefined || piece === null) return undefined;
+  return { square: move.to, code: pieceCode(piece.color, piece.type) ?? '' };
+}
+function ownerRemains(owner: CaptureOwner | undefined, position: Position) {
+  if (owner === undefined) return false;
+  const piece = position[indexFromSquare(owner.square)];
+  return (
+    piece !== undefined &&
+    piece !== null &&
+    pieceCode(piece.color, piece.type) === owner.code
+  );
+}
 function createCaptureGhost(
   args: ChessBoardModelArgs,
   game: Accessor<ChessGameSnapshot>
@@ -116,6 +139,7 @@ function createCaptureGhost(
   let orientation: BoardOrientation | undefined;
   let animated: boolean | undefined;
   let handle: unknown;
+  let owner: CaptureOwner | undefined;
   const clear = (): void => {
     if (handle !== undefined) args.timers.clearTimeout(handle);
     handle = undefined;
@@ -134,12 +158,22 @@ function createCaptureGhost(
           animations:
             slides && (orientation === undefined || facing === orientation),
         });
+        const retained =
+          next === null &&
+          ghost() !== null &&
+          slides &&
+          facing === orientation &&
+          game().lastMove !== null &&
+          ownerRemains(owner, position);
         prev = position;
         animated = slides;
         orientation = facing;
+        if (retained) return;
         clear();
         setGhost(next);
+        owner = undefined;
         if (next === null) return;
+        owner = captureOwner(position, game().lastMove);
         handle = args.timers.setTimeout(() => {
           handle = undefined;
           setGhost(null);
@@ -214,11 +248,20 @@ export function createChessBoardModel(
     return tracker.next(snapshot.position, snapshot.lastMove);
   });
 
+  const captureTargets = createMemo(() => {
+    const current = game();
+    const ix = interaction();
+    const from = ix.selected ?? ix.dragFrom;
+    return from === null || current.isGameOver
+      ? []
+      : args.game.legalCapturesFrom(from);
+  });
   return {
     game,
     interaction,
     actions,
     rows,
     captureGhost: createCaptureGhost(args, game),
+    captureTargets,
   };
 }
