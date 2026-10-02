@@ -18,6 +18,7 @@ function steps(): Step[] {
 }
 
 // regression: depot-action-oidc-missing-audience
+// regression: workflow-oidc-test-stdout-socket
 test.each([
   'https://example.test/token',
   'https://example.test/token?job=check',
@@ -31,14 +32,27 @@ test.each([
     .slice(0, fetchIndex)
     .find((step) => step.run?.includes('ACTIONS_ID_TOKEN_REQUEST_URL'));
   expect(preparation).toBeDefined();
-  const result = spawnSync('bash', ['-c', preparation!.run!], {
-    encoding: 'utf8',
-    env: {
-      PATH: process.env['PATH'],
-      ACTIONS_ID_TOKEN_REQUEST_URL: requestUrl,
-      GITHUB_ENV: '/dev/stdout',
-    },
-  });
+  const result = spawnSync(
+    'bash',
+    [
+      '-c',
+      `
+    set -euo pipefail
+    auth_env_file="$(mktemp)"
+    trap 'rm -f "$auth_env_file"' EXIT
+    export GITHUB_ENV="$auth_env_file"
+    ${preparation!.run!}
+    cat "$auth_env_file"
+  `,
+    ],
+    {
+      encoding: 'utf8',
+      env: {
+        PATH: process.env['PATH'],
+        ACTIONS_ID_TOKEN_REQUEST_URL: requestUrl,
+      },
+    }
+  );
   expect(result.status, result.stderr).toBe(0);
   const normalized =
     result.stdout.trim().replace(/^ACTIONS_ID_TOKEN_REQUEST_URL=/, '') ||

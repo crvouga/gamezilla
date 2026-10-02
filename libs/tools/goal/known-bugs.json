@@ -688,5 +688,10 @@
     "id": "depot-action-oidc-missing-audience",
     "summary": "Native Check failed before running checks because the Infisical action omitted the required OIDC audience. Its bundled client also appends &audience to Depot's queryless token URL. Supply the repository-owner audience matching the declared trust and start the query before invoking the action.",
     "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
+  },
+  {
+    "id": "workflow-oidc-test-stdout-socket",
+    "summary": "The OIDC action regression redirected GITHUB_ENV to /dev/stdout, which cannot be opened when the Linux test runner captures stdout with a socket. Execute the action with a real temporary environment file and read it through stdout instead.",
+    "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
   }
 ]
