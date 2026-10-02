@@ -18,7 +18,7 @@
  * Apalache's search is symbolic (SMT), not seeded.
  */
 
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -28,6 +28,7 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
+import { inductionTargets } from './induction-targets';
 import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
 import { wallStopwatch } from './wall';
@@ -64,12 +65,18 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  // Check after the symbolic choice: every enabled transition is retained,
-  // with fewer repeated solver queries than checking each branch separately.
+  // Induction starts from arbitrary candidate states. Check each transition
+  // separately to avoid a large combined solver formula; all are retained.
+  // Bounded exploration keeps the combined choice to share solver queries.
   writeFileSync(
     join(options.outDir, 'apalache-config.json'),
     JSON.stringify({
-      checker: { tuning: { 'search.invariant.mode': 'after' } },
+      checker: {
+        tuning: {
+          'search.invariant.mode':
+            options.inductiveInvariant === undefined ? 'after' : 'before',
+        },
+      },
     })
   );
   const env = verifyEnv({
@@ -109,6 +116,15 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
 }
 
 function verifyArgs(options: VerifyOptions, port: number): string[] {
+  const invariants =
+    options.inductiveInvariant === undefined
+      ? options.invariants
+      : inductionTargets({
+          source: readFileSync(options.specPath, 'utf8'),
+          module: quintModuleName(options.specPath),
+          candidate: options.inductiveInvariant,
+          invariants: options.invariants,
+        });
   return [
     QUINT_CLI,
     'verify',
@@ -123,8 +139,7 @@ function verifyArgs(options: VerifyOptions, port: number): string[] {
     APALACHE_VERSION,
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
-    '--invariants',
-    ...options.invariants,
+    ...(invariants.length === 0 ? [] : ['--invariants', ...invariants]),
     ...(options.inductiveInvariant === undefined
       ? []
       : ['--inductive-invariant', options.inductiveInvariant]),

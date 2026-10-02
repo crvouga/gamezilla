@@ -121,6 +121,30 @@ describe('verify', () => {
   );
 
   test(
+    'a safety target checked as the candidate still rejects its failing transition',
+    async () => {
+      // regression: quint-induction-expanded-transitions
+      const outDir = join(OUT, 'covered-broken-induction');
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-broken.qnt'),
+        invariants: ['invNeverOpen'],
+        inductiveInvariant: 'invNeverOpen',
+        maxSteps: 4,
+        outDir,
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.output).toContain('invNeverOpen');
+      expect(
+        JSON.parse(readFileSync(join(outDir, 'apalache-config.json'), 'utf8'))
+      ).toEqual({
+        checker: { tuning: { 'search.invariant.mode': 'before' } },
+      });
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test(
     'a preserved candidate proves the requested invariants by induction',
     async () => {
       const result = await verify({

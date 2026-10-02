@@ -24,7 +24,6 @@ import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,
 } from './client-durable';
-import { harnessClientNamespace } from './client-namespace';
 import type { Harness } from './create-harness';
 import {
   awaitProductHarnessMutationDrain,
@@ -118,7 +117,9 @@ export async function captureSystemSnapshot(
     const handle = await ensureClientSqlHandle(ctx, clientId);
     clients[clientId] = {
       tables: await dumpData(handle.sqlClient),
-      kv: dumpProductHarnessClientDurable(harnessClientNamespace(clientId)),
+      kv: dumpProductHarnessClientDurable(
+        ctx.harness.clientNamespace(clientId)
+      ),
     };
   }
 
@@ -196,7 +197,7 @@ export async function restoreSystemSnapshot(
   for (const clientId of snapshot.clientIds) {
     const slice = snapshot.clients[clientId];
     if (slice === undefined) continue;
-    restoreProductHarnessClientDurable(harnessClientNamespace(clientId), {
+    restoreProductHarnessClientDurable(ctx.harness.clientNamespace(clientId), {
       ...slice.kv,
     });
     const handle = await ensureClientSqlHandle(ctx, clientId);

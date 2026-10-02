@@ -32,7 +32,6 @@ import {
 import { appBuildFetch, type HarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
 import { createHarnessBrowser, type HarnessBrowser } from './browser';
-import { harnessClientNamespace } from './client-namespace';
 import { type HarnessIdps, harnessBrowserFetch } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
 import type { HarnessNet } from './net';
@@ -121,11 +120,12 @@ export function makeHarnessClientEnv(
   args: {
     readonly id: string;
     readonly clientSql: Map<string, HarnessSql>;
+    readonly namespace: string;
   }
 ): { readonly env: ClientEnv; readonly browser: HarnessBrowser } {
   const { session, seed, timers, net, roomNode } = deps;
   const { id, clientSql } = args;
-  const ns = harnessClientNamespace(id);
+  const ns = args.namespace;
   const serverFetch = clientServerFetch(deps, id);
   const browserFetch = harnessBrowserFetch({
     idps: deps.idps,
@@ -140,7 +140,7 @@ export function makeHarnessClientEnv(
     appOrigin: () =>
       'location' in globalThis ? globalThis.location.origin : null,
     // The actor id doubles as the harness username (client-a / client-b).
-    onAuthSuccess: () => setPendingSignupUsername(id),
+    onAuthSuccess: () => setPendingSignupUsername(env.createAuthClient(), id),
   });
   const events = clientEvents(deps, id);
   let authClient: ReturnType<typeof createInhouseAuthClient> | undefined;

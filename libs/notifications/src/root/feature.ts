@@ -8,8 +8,8 @@ import { defineFeature } from '@libs/feature/public/manifest';
 
 import { NOTIFICATIONS_TABLES } from '../public/schema';
 import { NOTIFICATIONS_TOPIC_MAP } from '../public/topic-map';
-import { NOTIFICATIONS_QUERIES } from './queries';
 import { NOTIFICATIONS_PRIVACY } from '../shared/notifications/account-privacy';
+import { NOTIFICATIONS_QUERIES } from './queries';
 
 export const NOTIFICATIONS_FEATURE = defineFeature({
   name: 'notifications',

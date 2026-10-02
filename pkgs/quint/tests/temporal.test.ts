@@ -21,6 +21,28 @@ test('only declared public temporal properties become release obligations', () =
 });
 
 test(
+  'concurrent temporal checks own independent checker servers',
+  async () => {
+    // regression: quint-temporal-shared-port
+    const results = await Promise.all(
+      ['first', 'second'].map((name) =>
+        verifyTemporal({
+          specPath: join(FIXTURES, 'progress.qnt'),
+          properties: ['liveCompletion'],
+          outDir: join(OUT, `concurrent-${name}`),
+          timeoutMs: TIMEOUT_MS,
+        })
+      )
+    );
+    for (const result of results) {
+      expect(result).toMatchObject({ ok: true });
+      if (result.ok) expect(result.statesExplored).toBeGreaterThan(0);
+    }
+  },
+  TIMEOUT_MS
+);
+
+test(
   'fair completion holds across the entire finite state graph',
   async () => {
     const result = await verifyTemporal({

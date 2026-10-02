@@ -5,6 +5,7 @@ import { decide, modelEvidence } from '@pkgs/quint/model-evidence';
 import { QUINT_CLI } from '@pkgs/quint/simulate';
 import { quintSeed } from '@pkgs/quint/wall';
 import { CLI_TIMEOUT_MS, modelPath, REPORT_DIR } from './campaign-config';
+import { campaignImports } from './campaign-imports';
 import { sourceDigest } from './source-digest';
 
 export function quint(
@@ -33,13 +34,23 @@ export function obligation(
   body: () => string | Promise<string>
 ) {
   const digest = sourceDigest();
-  return decide({
+  const records = campaignImports(name).map((module) => ({
+    module,
     record: modelEvidence({
       packageName: '@apps/product',
-      specPath: modelPath(name),
-      specUri: `specs/system/${name}.qnt`,
+      specPath: modelPath(module),
+      specUri: `specs/system/${module}.qnt`,
       reportDir: REPORT_DIR,
     }),
+  }));
+  return decide({
+    record: (result) => {
+      for (const target of records)
+        target.record({
+          ...result,
+          id: target.module === name ? result.id : `${result.id}:${name}`,
+        });
+    },
     id,
     layer: 'specification',
     body: async () => {

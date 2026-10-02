@@ -80,16 +80,18 @@ async function handleBillingCallback(
     // Provider identity never linked to an account: nothing to project.
     return c.json({ received: true }, 200);
   }
-  const payments = await provider.readPayments(result.customerId);
-  if (await settleIfClosed(sql, deps, result.customerId))
+  if (result.kind === 'payments') {
+    const payments = await provider.readPayments(result.customerId);
+    if (await settleIfClosed(sql, deps, result.customerId))
+      return c.json({ received: true }, 200);
+    await sql.transaction((tx) =>
+      recordPaymentEvidence(tx, accountId, provider.provider, {
+        payments,
+        nowMs: deps.clock.now(),
+      })
+    );
     return c.json({ received: true }, 200);
-  await sql.transaction((tx) =>
-    recordPaymentEvidence(tx, accountId, provider.provider, {
-      payments,
-      nowMs: deps.clock.now(),
-    })
-  );
-  if (result.kind === 'payments') return c.json({ received: true }, 200);
+  }
   const applied = await applyMembershipChange({
     sql,
     clock: deps.clock,

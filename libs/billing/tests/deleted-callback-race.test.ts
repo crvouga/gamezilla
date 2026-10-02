@@ -10,10 +10,11 @@ import { registerTables } from '@pkgs/db-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';
 import { sql } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createHarnessAdapters } from '@pkgs/uuid';
 
-test('deletion committed while a callback awaits the provider prevents revival', async () => {
+test('deletion committed after a callback reads the account prevents revival', async () => {
   // regression: deleted-membership-callback-race
   const db = SqlClientImplBunSqlite.open(':memory:');
   await db.connect();
@@ -29,6 +30,22 @@ test('deletion committed while a callback awaits the provider prevents revival',
       sql`INSERT INTO auth_external_accounts (id, user_id, provider, external_id) VALUES (${'customer-link'}, ${account}, ${'billing:stub'}, ${'cus_alice'})`
     );
     let closed = false;
+    const callbackDb = new Proxy(db, {
+      get(target, key) {
+        if (key === 'transaction')
+          return async <T>(body: (tx: SqlClient) => Promise<T>) => {
+            if (!closed) {
+              closed = true;
+              await db.run(
+                sql`INSERT INTO billing_account_closures (id, account_id, provider, subscription_id, customer_id, confirmed_at, cancellation_status) VALUES (${'stub:sub_original'}, ${account}, ${'stub'}, ${'sub_original'}, ${'cus_alice'}, ${confirmed}, ${'complete'})`
+              );
+            }
+            return db.transaction(body);
+          };
+        const value = Reflect.get(target, key, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
     const provider: MembershipBilling = {
       provider: 'stub',
       startCheckout: async () => ({
@@ -50,19 +67,11 @@ test('deletion committed while a callback awaits the provider prevents revival',
           endsAtPeriodEnd: false,
         },
       }),
-      readPayments: async () => {
-        if (!closed) {
-          closed = true;
-          await db.run(
-            sql`INSERT INTO billing_account_closures (id, account_id, provider, subscription_id, customer_id, confirmed_at, cancellation_status) VALUES (${'stub:sub_original'}, ${account}, ${'stub'}, ${'sub_original'}, ${'cus_alice'}, ${confirmed}, ${'complete'})`
-          );
-        }
-        return [];
-      },
+      readPayments: async () => [],
     };
     const notified: string[] = [];
     const app = new BillingApp({
-      getSqlClient: () => db,
+      getSqlClient: () => callbackDb,
       clock: ports.clock,
       createId: ports.createId,
       requireAuth: async () => ({ accountId: account, deviceId: 'unused' }),

@@ -8,8 +8,8 @@ import { defineFeature } from '@libs/feature/public/manifest';
 
 import { CHESS_TABLES } from '../public/schema';
 import { CHESS_TOPIC_MAP } from '../public/topic-map';
-import { CHESS_QUERIES } from './queries';
 import { CHESS_PRIVACY } from '../shared/puzzles/account-privacy';
+import { CHESS_QUERIES } from './queries';
 
 export const CHESS_FEATURE = defineFeature({
   name: 'chess',

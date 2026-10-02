@@ -12,7 +12,7 @@ import { REPO_ROOT, SPECS_DIR } from './spec-packages';
 
 /** One printable line per shape problem, repo-relative. */
 export function modelShapeProblems(
-  campaignDomains: ReadonlySet<string> = new Set()
+  campaignDomains: ReadonlySet<string>
 ): readonly string[] {
   const files = [
     ...new Bun.Glob('**/*.qnt').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) }),

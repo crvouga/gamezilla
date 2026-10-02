@@ -36,17 +36,21 @@ for (const model of MODELS) {
 test(
   'fair recovery: complete finite temporal verification',
   async () => {
-    await obligation('fair-recovery', 'campaign-temporal', async () => {
-      const result = await verifyTemporal({
-        specPath: modelPath('fair-recovery'),
-        properties: ['eventualConvergence'],
-        invariants: ['invSafety'],
-        outDir: join(REPORT_DIR, 'fair-recovery-temporal'),
-        timeoutMs: CLI_TIMEOUT_MS,
-      });
-      if (!result.ok) throw new Error(result.output);
-      return `TLC complete finite graph: ${result.statesExplored} distinct states; weakly fair recovery after quiescence.`;
-    });
+    await obligation(
+      'fair-recovery',
+      'temporal:eventualConvergence',
+      async () => {
+        const result = await verifyTemporal({
+          specPath: modelPath('fair-recovery'),
+          properties: ['eventualConvergence'],
+          invariants: ['invSafety'],
+          outDir: join(REPORT_DIR, 'fair-recovery-temporal'),
+          timeoutMs: CLI_TIMEOUT_MS,
+        });
+        if (!result.ok) throw new Error(result.output);
+        return `TLC complete finite graph: ${result.statesExplored} distinct states; weakly fair recovery after quiescence.`;
+      }
+    );
   },
   CLI_TIMEOUT_MS + 5_000
 );

@@ -1,4 +1,6 @@
 import { expect, test } from 'bun:test';
+import { closureProblems } from '@pkgs/conformance/closure';
+import { campaignBindings } from '../conformance/campaigns';
 import { EVIDENCE_MAP } from '../conformance/evidence-map';
 import { readConformanceWorld } from '../conformance/world';
 
@@ -12,4 +14,26 @@ test('every declared environment and public contract has evidence mappings', () 
   expect(Object.keys(EVIDENCE_MAP['public contracts']).sort()).toEqual(
     manifest.product['public contracts'].map((contract) => contract.id).sort()
   );
+});
+
+test('whole-product campaign modules retain gated specification coverage', () => {
+  // regression: conformance-campaign-coverage
+  const { world, specs, problems } = readConformanceWorld();
+  if (world === null) throw new Error('conformance manifest did not parse');
+  expect(problems).toEqual([]);
+  expect(closureProblems(world)).toEqual([]);
+  expect(world.specDirectories).not.toContain('system');
+  expect(
+    specs.find((spec) => spec.path === 'specs/system/access-sync.qnt')
+  ).toMatchObject({
+    kind: 'dynamics',
+    bound: true,
+    harness: false,
+    live: false,
+  });
+  const ungated = campaignBindings(new Set());
+  expect(ungated.problems).toContain(
+    'specs/system/: the release gate does not run @apps/product#test:contract'
+  );
+  expect(ungated.specs.every((spec) => !spec.bound)).toBe(true);
 });

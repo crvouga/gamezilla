@@ -127,7 +127,11 @@ function failure(path: string, obligation: Obligation): string {
 function selects(rule: EvidenceRule, spec: ReportSpec): boolean {
   if (spec.kind !== rule.kind) return false;
   const runs =
-    rule.runs === 'any' ? spec.harness || spec.live : spec[rule.runs];
+    spec.kind === 'dynamics' && rule.layer === 'specification'
+      ? spec.bound
+      : rule.runs === 'any'
+        ? spec.harness || spec.live
+        : spec[rule.runs];
   if (!runs) return false;
   if (rule.subset === 'accessibility') return spec.accessibility;
   if (rule.subset === 'journeys') return spec.context === 'journeys';
@@ -277,7 +281,10 @@ function gatesLine(input: ReportInput): Tally {
 }
 
 function checksLine(input: ReportInput, index: Index): Tally {
-  const run = input.specs.filter((spec) => spec.harness || spec.live);
+  const run = input.specs.filter(
+    (spec) =>
+      spec.harness || spec.live || (spec.kind === 'dynamics' && spec.bound)
+  );
   const result = tally(
     run.map((spec) => {
       const evidence = index.get(spec.path);

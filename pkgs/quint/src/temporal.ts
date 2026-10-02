@@ -5,6 +5,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   APALACHE_VERSION,
+  freePort,
   linkQuintHome,
   resolveApalache,
   verifyEnv,
@@ -64,8 +65,9 @@ export async function verifyTemporal(
     JSON.stringify({ maxHeap: '-Xmx512m', stackSize: '-Xss8m', workers: 1 })
   );
   const elapsed = wallStopwatch();
+  const port = await freePort();
   const run = await runQuint({
-    args: temporalArgs(options, config),
+    args: temporalArgs(options, config, port),
     cwd: options.outDir,
     env: verifyEnv({
       env: process.env,
@@ -96,7 +98,11 @@ export async function verifyTemporal(
   };
 }
 
-function temporalArgs(options: TemporalOptions, config: string): string[] {
+function temporalArgs(
+  options: TemporalOptions,
+  config: string,
+  port: number
+): string[] {
   return [
     QUINT_CLI,
     'verify',
@@ -107,6 +113,8 @@ function temporalArgs(options: TemporalOptions, config: string): string[] {
     'tlc',
     '--apalache-version',
     APALACHE_VERSION,
+    '--server-endpoint',
+    `127.0.0.1:${String(port)}`,
     '--temporal',
     options.properties.join(','),
     '--tlc-config',

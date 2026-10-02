@@ -31,12 +31,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -156,7 +156,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -251,7 +251,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -316,7 +316,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -451,7 +451,7 @@
   },
   {
     "id": "space-offline-presence-stale",
-    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob’s connection while in Alice’s space is pinned.",
+    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob\u2019s connection while in Alice\u2019s space is pinned.",
     "regressionTest": "specs/spaces/space-disconnect-reconnect.feature"
   },
   {
@@ -471,7 +471,7 @@
   },
   {
     "id": "space-session-identities-cross-app-roots",
-    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root’s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
+    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root\u2019s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
     "regressionTest": "libs/spaces/tests/independent-space-sessions.test.ts"
   },
   {
@@ -656,7 +656,7 @@
   },
   {
     "id": "deleted-membership-callback-race",
-    "summary": "A membership callback awaiting the provider recreated membership after deletion; projection is guarded by the live closure journal and callbacks recheck withdrawal before recording payments.",
+    "summary": "A provider callback could revive a subscription if deletion committed after the callback read the linked account. Guard the projection with the durable closure journal in the INSERT statement; closed accounts settle payments without projecting membership.",
     "regressionTest": "libs/billing/tests/deleted-callback-race.test.ts"
   },
   {
@@ -828,5 +828,70 @@
     "id": "model-shape-campaign-discovery",
     "summary": "The repository model-shape test omitted the registered system campaign and treated every imported helper as a standalone aggregate. Require explicit campaign discovery at every call; unregistered modules still fail aggregate checks, while campaign checks remain separately required.",
     "regressionTest": "libs/tools/scripts/model-shape.test.ts"
+  },
+  {
+    "id": "conformance-campaign-coverage",
+    "summary": "Moving composed Quint models under specs/system broke the closed-world adapter, which demanded standalone product contexts and bindings. Registered campaigns now retain gated specification-only coverage, including transitive imported-module evidence, without claiming a product trace adapter. Ungated campaigns and missing evidence still fail.",
+    "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
+  },
+  {
+    "id": "membership-callback-payment-read",
+    "summary": "Subscription callbacks fetched unrelated payment history, so a valid provider-switch callback could fail before projecting membership. Payment notifications fetch payment evidence; membership notifications only project guarded membership changes.",
+    "regressionTest": "libs/billing/tests/multi-provider.test.ts"
+  },
+  {
+    "id": "paddle-completed-payment-ignored",
+    "summary": "Signed Paddle transaction.completed events were ignored, preventing payment evidence and post-deletion refund processing. Subscribe to the documented event and route its customer to the shared payment handler.",
+    "regressionTest": "pkgs/billing-paddle/tests/payment-callback.test.ts"
+  },
+  {
+    "id": "username-model-dom-setup",
+    "summary": "Moving the username initialization regression into the regular test leaf exposed that the leaf loaded Solid but not the product harness host. Load the harness preload so named account initialization runs against its required in-process session.",
+    "regressionTest": "libs/profile/tests/username-model-initialization.test.ts"
+  },
+  {
+    "id": "quint-induction-redundant-implication",
+    "summary": "Induction spent its time limit expanding an implication already proven by named conjuncts in the candidate. Use Quint AST conjunction elimination for those exact properties; still prove the full candidate initially and under every step, and retain solver implications for every other requested property.",
+    "regressionTest": "pkgs/quint/tests/induction-targets.test.ts"
+  },
+  {
+    "id": "quint-temporal-shared-port",
+    "summary": "Concurrent TLC checks started their Apalache compiler servers on the shared default port 8822 and failed to bind. Give every temporal check its own free port and process group, matching symbolic checks.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+  },
+  {
+    "id": "signup-username-cross-device",
+    "summary": "Concurrent devices shared a process-global signup handle, causing one profile bootstrap to consume another device\u2019s chosen name. Scope pending handles to the owning auth client.",
+    "regressionTest": "libs/auth/src/public/pending-signup-username.test.ts"
+  },
+  {
+    "id": "signup-username-provider-subject",
+    "summary": "Profile bootstrap replaced the chosen signup username with an OAuth subject such as bob-gmail-com. Provider identifiers are not usernames: retain the account\u2019s validated choice and deny anonymous or unknown account bootstrap claims.",
+    "regressionTest": "libs/auth/tests/replay-signup-username.test.ts"
+  },
+  {
+    "id": "concurrent-harness-client-epoch",
+    "summary": "Opening or restoring a concurrent harness changed the global epoch used by an existing harness, recreating its client environment and auth port under a foreign durable namespace. Allocate unique epochs globally but keep each current epoch owned by its harness; checkpoint capture and restore use that same owner.",
+    "regressionTest": "libs/harness/tests/client-namespace.test.ts"
+  },
+  {
+    "id": "signup-username-before-account-ready",
+    "summary": "Profile bootstrap could consume the pending signup handle while the device was still bound to its anonymous identity, leaving the new account with a generated name. Keep the handoff pending until the auth bridge has persisted the verified external identity after account readiness.",
+    "regressionTest": "libs/auth/src/public/pending-signup-username.test.ts"
+  },
+  {
+    "id": "named-friend-offline-profile-read",
+    "summary": "Preparing a named friend read the profile handle while the spaces tab was open, mistook the absent control for an unset username, and attempted a forbidden rename of an offline recipient. Read the existing name from the profile tab before deciding whether setup needs a rename.",
+    "regressionTest": "libs/friends/tests/named-friend-preparation.test.ts"
+  },
+  {
+    "id": "paddle-partial-refund-blocks-settlement",
+    "summary": "An approved 200 minor-unit refund of a 700 minor-unit membership item blocked the remaining 500 and the untouched 300 minor-unit item forever. Return each remaining tax-inclusive balance; pending approval still prevents a duplicate adjustment.",
+    "regressionTest": "pkgs/billing-paddle/tests/refund-plan.test.ts"
+  },
+  {
+    "id": "quint-induction-expanded-transitions",
+    "summary": "The unchanged specs/friends/friendship.qnt induction proof exceeded its 240-second deadline when its twelve transitions were combined into one solver formula during the full Check. Check every transition separately and discharge direct named conjuncts structurally while retaining candidate initialization and preservation; a closed-to-open counterexample guards the covered-target path.",
+    "regressionTest": "pkgs/quint/tests/verify.test.ts"
   }
 ]

@@ -42,7 +42,6 @@ import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
 import { harnessActorApp } from '@libs/harness/actors/solid-actor-root';
 import type { HarnessBrowser } from '@libs/harness/fabric/browser';
 import { clearProductHarnessClientDurable } from '@libs/harness/fabric/client-durable';
-import { harnessClientNamespace } from '@libs/harness/fabric/client-namespace';
 import type { Harness } from '@libs/harness/fabric/create-harness';
 import {
   nextHarnessNodeId,
@@ -298,9 +297,12 @@ type SessionApiAttachArgs = {
   readonly disposed: () => boolean;
 };
 
-function clearLiveClientDurables(clientIds: Iterable<string>): void {
+function clearLiveClientDurables(
+  harness: Harness,
+  clientIds: Iterable<string>
+): void {
   for (const id of clientIds) {
-    clearProductHarnessClientDurable(harnessClientNamespace(id));
+    clearProductHarnessClientDurable(harness.clientNamespace(id));
   }
 }
 
@@ -368,7 +370,7 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductHarnessSession {
       if (disposed()) return;
       api.stopAutosave();
       const clientIds = [...maps.clients.keys()];
-      clearLiveClientDurables(clientIds);
+      clearLiveClientDurables(buildArgs.harness, clientIds);
       await deleteStickySnapshot(buildArgs.snapshotStore);
       await wipeSession(buildArgs, maps, api.markDisposed);
     },

@@ -86,6 +86,26 @@ function line(report: ReportInput, id: LineId) {
 }
 
 describe('evaluateLines', () => {
+  test('pure campaign evidence is required without claiming implementation conformance', () => {
+    // regression: conformance-campaign-coverage
+    const model: ReportSpec = {
+      ...FEATURE,
+      path: 'specs/system/access-sync.qnt',
+      context: 'system',
+      kind: 'dynamics',
+      harness: false,
+      scenarios: [],
+    };
+    const missing = input({ specs: [model], records: [] });
+    expect(line(missing, 'model-checking').status).toBe('fail');
+    expect(line(missing, 'trace-conformance').total).toBe(0);
+    const checked = input({
+      specs: [model],
+      records: [record(model, [pass('campaign-symbolic', 'specification')])],
+    });
+    expect(line(checked, 'model-checking').status).toBe('pass');
+    expect(line(checked, 'conformance-checks').status).toBe('pass');
+  });
   test('a safety verdict cannot stand in for a declared progress obligation', () => {
     // regression: quint-temporal-obligations-unchecked
     const model: ReportSpec = {

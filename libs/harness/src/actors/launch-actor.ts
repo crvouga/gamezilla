@@ -16,7 +16,6 @@ import {
 } from '@pkgs/ui-testing-solid-dom';
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
 import type { Harness, HarnessActor, ProductUi } from '..';
-import { harnessClientNamespace } from '..';
 import { createHarnessWaitPump } from '../setup/wait-pump';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
@@ -150,7 +149,7 @@ export async function launchActor(args: {
         view,
         actorId: args.id,
         snapshot: args.snapshot,
-        namespace: harnessClientNamespace(args.id),
+        namespace: args.harness.clientNamespace(args.id),
         origin: webOrigin,
       });
     }

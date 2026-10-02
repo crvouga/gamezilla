@@ -18,7 +18,6 @@ import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,
 } from './client-durable';
-import { harnessClientNamespace } from './client-namespace';
 import type { Harness } from './create-harness';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import { reconcileServerProfilesFromClients } from './snapshot-sync';
@@ -94,7 +93,7 @@ export async function collectSqlAndKv(
       clientSql[clientId] = await handle.exportBytes();
     }
     clientKv[clientId] = dumpProductHarnessClientDurable(
-      harnessClientNamespace(clientId)
+      ctx.harness.clientNamespace(clientId)
     );
   }
   return {
@@ -192,11 +191,16 @@ export async function restoreCheckpointServers(
   ctx.refreshServers();
 }
 
-export function restoreCheckpointKv(checkpoint: HarnessCheckpoint): void {
+export function restoreCheckpointKv(
+  ctx: CheckpointSessionCtx,
+  checkpoint: HarnessCheckpoint
+): void {
   for (const id of checkpoint.clientIds) {
     const kv = checkpoint.clientKv[id];
     if (kv === undefined) continue;
-    restoreProductHarnessClientDurable(harnessClientNamespace(id), { ...kv });
+    restoreProductHarnessClientDurable(ctx.harness.clientNamespace(id), {
+      ...kv,
+    });
   }
 }
 

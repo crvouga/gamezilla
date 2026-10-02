@@ -19,6 +19,7 @@ import type {
 
 import {
   PADDLE_MEMBERSHIP_CALLBACK_EVENTS,
+  PADDLE_PAYMENT_CALLBACK_EVENT,
   PADDLE_SUBSCRIPTION_ENDED_EVENT,
 } from './callback-events';
 import { membershipStatusOf } from './membership-status';
@@ -28,6 +29,11 @@ import {
   paddleOriginForApiKey,
 } from './paddle-api';
 import { PaddleApiError } from './paddle-api-error';
+import {
+  planPaddleRefund,
+  type RefundAdjustment,
+  type RefundLineItem,
+} from './refund-plan';
 import { verifyPaddleSignature } from './signature';
 import {
   PADDLE_CUSTOM_DATA,
@@ -157,22 +163,34 @@ export class PaddleMembershipBilling implements MembershipBilling {
   }
 
   async refundPayment(paymentId: string): Promise<void> {
-    const adjustments = await this.api.list<{ action: string; status: string }>(
+    const adjustments = await this.api.list<RefundAdjustment>(
       `/adjustments?transaction_id=${encodeURIComponent(paymentId)}&per_page=200`
     );
     if (
       adjustments.some(
         (adjustment) =>
           adjustment.action === 'refund' &&
-          (adjustment.status === 'approved' ||
-            adjustment.status === 'pending_approval')
+          adjustment.status === 'pending_approval'
       )
     )
       return;
+    const hasApproved = adjustments.some(
+      (entry) => entry.action === 'refund' && entry.status === 'approved'
+    );
+    const transaction = hasApproved
+      ? await this.api.data<{
+          details: { line_items: readonly RefundLineItem[] };
+        }>('GET', `/transactions/${encodeURIComponent(paymentId)}`)
+      : null;
+    const plan = planPaddleRefund(
+      adjustments,
+      transaction?.details.line_items ?? []
+    );
+    if (plan === null) return;
     await this.api.data('POST', '/adjustments', {
       action: 'refund',
       transaction_id: paymentId,
-      type: 'full',
+      ...plan,
       reason: 'Membership payment after confirmed account deletion',
     });
   }
@@ -334,6 +352,16 @@ export class PaddleMembershipBilling implements MembershipBilling {
   async readCallback(input: ReadCallbackInput): Promise<CallbackResult> {
     const event = this.verified(input);
     if (event === null) return { kind: 'unverified' };
+    if (event.event_type === PADDLE_PAYMENT_CALLBACK_EVENT) {
+      const customerId = readString(event.data['customer_id']);
+      return customerId === null
+        ? { kind: 'ignored' }
+        : {
+            kind: 'payments',
+            provider: this.provider,
+            customerId,
+          };
+    }
     if (PADDLE_MEMBERSHIP_CALLBACK_EVENTS[event.event_type] !== true) {
       return { kind: 'ignored' };
     }
