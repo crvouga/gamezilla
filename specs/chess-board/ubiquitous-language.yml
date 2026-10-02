@@ -16,11 +16,23 @@ terms:
     model: [replacePosition]
   - term: piece
     definition: A chess king, queen, rook, bishop, knight or pawn, belonging to White or Black.
+  - term: king
+    source: FIDE Laws of Chess, Article 3.8
+  - term: queen
+    source: FIDE Laws of Chess, Article 3.4
+  - term: rook
+    source: FIDE Laws of Chess, Article 3.3
+  - term: bishop
+    source: FIDE Laws of Chess, Article 3.2
+  - term: knight
+    source: FIDE Laws of Chess, Article 3.6
+  - term: pawn
+    source: FIDE Laws of Chess, Article 3.7
   - term: square
     definition: One of the chessboard's sixty-four places, named by file and rank.
   - term: selection
     definition: The piece chosen to move and its permitted destinations.
-    forms: [selected, selects, select, deselects]
+    forms: [selected, selects, select, deselects, deselected]
     model: [selectPiece]
   - term: move
     definition: A legal chess move, offered once to the activity using the chessboard.
@@ -31,7 +43,7 @@ terms:
     forms: [captures, captured, capturing]
   - term: drag
     definition: Holding a piece and carrying it towards a destination; cancelling returns it without a move.
-    forms: [drags, dragging, dragged, cancels the drag]
+    forms: [drags, dragging, dragged, drops, dropping, dropped, cancels the drag]
     model: [beginDrag, cancelDrag]
   - term: board settings
     definition: Choices supplied by the activity embedding the chessboard; changes take effect at once.
@@ -44,10 +56,11 @@ terms:
     model: [flipBoard]
   - term: interactivity
     definition: Whether pieces may be moved; disabling cancels selection, dragging and promotion choices.
+    forms: [interactive]
   - term: animation
     definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
     forms: [animations, animating, animated]
-    model: [finishAnimation]
+    model: [finishAnimation, liveAnimationFinishes]
   - term: reduced motion
     definition: A choice to place pieces at their destinations immediately, without slides or capture remnants.
   - term: visibility
@@ -56,9 +69,50 @@ terms:
     model: [setVisibility]
   - term: promotion
     definition: A pawn reaching the last rank waits for a queen, rook, bishop or knight choice unless automatic queen promotion is enabled.
+    forms: [promotes, promoted, promoting]
   - term: resize
     definition: A change in space for the chessboard; idle selection is retained but an active drag is cancelled.
     forms: [resizes, resized]
     model: [resizeBoard]
   - term: keyboard
     from: runtime
+  - term: legal destination
+    definition: A square a selected piece may move to under the rules of chess, keeping its own king safe.
+  - term: last move
+    definition: The source and destination squares marked for the latest completed move.
+  - term: capture destination
+    definition: The marked square where a capturing piece arrives, including when the captured pawn stood elsewhere in en passant.
+  - term: to move
+    source: FIDE Laws of Chess, Article 1.1 (having the move)
+  - term: illegal move
+    source: FIDE Laws of Chess, Article 3.10
+  - term: illegal destination
+    definition: A square that is not a legal destination for the chosen piece.
+  - term: pinned piece
+    definition: A piece protecting its own king from an opposing piece; it may move only while that king remains safe.
+    forms: [pinned]
+  - term: check
+    source: FIDE Laws of Chess, Article 3.9
+  - term: checkmate
+    source: FIDE Laws of Chess, Article 5.1.1
+    forms: [checkmated]
+  - term: stalemate
+    source: FIDE Laws of Chess, Article 5.2.1
+    forms: [stalemated]
+  - term: castling
+    source: FIDE Laws of Chess, Article 3.8.2
+    forms: [castle, castles, castled, kingside, queenside, kingside castling, queenside castling]
+  - term: en passant
+    source: FIDE Laws of Chess, Article 3.7.3.1
+  - term: capture-promotion
+    source: FIDE Laws of Chess, Articles 3.7.5.1 and 3.1
+  - term: promotion choice
+    definition: The queen, rook, bishop or knight chosen to replace a pawn at the last rank; until decided or cancelled, no other piece can move.
+    forms: [pending promotion, pending promotion choice, chooses the promotion]
+  - term: cancel promotion
+    definition: Abandon an unfinished promotion, keeping the pawn on its source square and offering no move to the activity.
+    forms: [cancels the promotion, cancelled promotion, cancels the promotion with Escape]
+  - term: automatic queen promotion
+    definition: A board setting that replaces a last-rank pawn with a queen immediately, without asking for a promotion choice.
+  - term: end sound
+    definition: The sound announcing that the chessboard has reached a position with no further moves, including checkmate and stalemate.
