@@ -89,8 +89,7 @@ const RELEASE_GATES: ProofTable = {
   ],
   'release artifact limits': [
     { task: '@apps/auth-relay#check:worker-bundle' },
-    { task: '@apps/room-server#check:worker-bundle' },
-    { task: '@apps/server#check:worker-bundle' },
+    { task: '@apps/product#check:worker-bundle' },
   ],
   'offline start': [{ task: '@apps/product#check:offline-shell' }],
   'database evolution': [{ task: '@libs/runtime#check:schema-evolution' }],

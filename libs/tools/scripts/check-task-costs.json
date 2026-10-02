@@ -9,11 +9,7 @@
   "@apps/product#lint": 22,
   "@apps/product#tc": 21,
   "@apps/product#test": 1,
-  "@apps/room-server#check:worker-bundle": 6,
-  "@apps/room-server#lint": 18,
-  "@apps/room-server#tc": 2,
   "@apps/server#build": 1,
-  "@apps/server#check:worker-bundle": 8,
   "@apps/server#lint": 16,
   "@apps/server#tc": 4,
   "@apps/server#test": 1,
@@ -472,5 +468,6 @@
   "//#ci:spec-ownership": 1,
   "//#ci:specs": 4,
   "//#ci:syncpack": 1,
-  "//#lint:root": 2
+  "//#lint:root": 2,
+  "@apps/product#check:worker-bundle": 8
 }

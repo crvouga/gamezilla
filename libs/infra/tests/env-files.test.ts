@@ -84,14 +84,13 @@ describe('environment files', () => {
   });
 
   // regression: legacy prd names — the cutover must adopt, never rename
-  test('prd keeps the names production already runs under', () => {
+  test('prd preserves its data resources and adopts the existing room storage', () => {
     const prd = ENV_FILES['prd'];
     expect(prd).toBeDefined();
     if (prd === undefined) return;
     const names = envResourceNames(prd);
-    expect(names.api_worker).toBe('gamezilla-api-production');
-    expect(names.room_worker).toBe('gamezilla-room-production');
-    expect(names.web_worker).toBe('gamezilla-client-production');
+    expect(names.worker).toBe('gamezilla-prod');
+    expect(prd.worker.transfer_rooms_from).toBe('gamezilla-room-production');
     expect(names.bucket).toBe('gamezilla-production');
   });
 

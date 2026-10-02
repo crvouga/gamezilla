@@ -98,6 +98,14 @@ variable "display_name" {
   type = string
 }
 
+variable "worker" {
+  type = object({
+    name                = string
+    transfer_rooms_from = optional(string)
+    retire              = optional(list(string), [])
+  })
+}
+
 variable "protection" {
   type        = string
   description = "`production` enables the stricter plan policy (mass-delete brake)."

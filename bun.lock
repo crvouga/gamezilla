@@ -175,23 +175,6 @@
         "wrangler": "catalog:",
       },
     },
-    "apps/room-server": {
-      "name": "@apps/room-server",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/infra": "workspace:*",
-        "@libs/room-app": "workspace:*",
-        "@libs/secrets": "workspace:*",
-        "@pkgs/clock": "workspace:*",
-        "@pkgs/observability": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-        "wrangler": "catalog:",
-      },
-    },
     "apps/server": {
       "name": "@apps/server",
       "version": "1.0.0",
@@ -204,6 +187,7 @@
         "@libs/feature": "workspace:*",
         "@libs/infra": "workspace:*",
         "@libs/permissions": "workspace:*",
+        "@libs/room-app": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/secrets": "workspace:*",
         "@libs/server-app": "workspace:*",
@@ -211,7 +195,6 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/async-local": "workspace:*",
         "@pkgs/auth": "workspace:*",
-        "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -691,6 +674,7 @@
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/os": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
@@ -3281,8 +3265,6 @@
     "@apps/client": ["@apps/client@workspace:apps/client"],
 
     "@apps/product": ["@apps/product@workspace:apps/product"],
-
-    "@apps/room-server": ["@apps/room-server@workspace:apps/room-server"],
 
     "@apps/server": ["@apps/server@workspace:apps/server"],
 

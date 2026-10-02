@@ -93,10 +93,3 @@ export const RoomServerDurableObject = createRoomServerDurableObject(
   env,
   ensureWorkerTelemetry
 );
-
-/** Minimal fetch so the Worker script boots; clients reach rooms via API gateway. */
-export default {
-  async fetch(): Promise<Response> {
-    return new Response('room server worker', { status: 200 });
-  },
-};
