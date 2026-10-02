@@ -109,7 +109,7 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
  * (a bare `turbo run`) hashes differently, which costs a cache miss, never
  * correctness.
  */
-function writePlatformCacheKey(): void {
+export function writePlatformCacheKey(): void {
   const key = {
     platform: process.platform,
     arch: process.arch,
