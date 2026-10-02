@@ -11,6 +11,15 @@ export {
 export type { RoomHarnessClient } from './api';
 export type { LoopbackRoomSystem } from './boot-loopback';
 export { openLoopbackRoom } from './boot-loopback';
+export {
+  deliverQueuedRoomChange,
+  hearRoomChangeCounted,
+  holdRoomChanges,
+  pendingRoomChangeIds,
+  type QueuedRoomChange,
+  roomChangeReceipts,
+  stopAsRoomChangeCounts,
+} from './commit-recovery';
 export { exampleApp, exampleSystem } from './example-app';
 export { expectInSync } from './expect-in-sync';
 export {

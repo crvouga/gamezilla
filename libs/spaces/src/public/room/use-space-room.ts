@@ -16,7 +16,7 @@ import { RoomMetaAttr } from '@pkgs/room';
 import { createRoomSnapshot } from '@pkgs/room/solid';
 import { useCreateId } from '@pkgs/uuid/solid';
 import { type Accessor, createMemo } from 'solid-js';
-import { SpaceOpenSessionStore } from './space-open-session-store';
+import { useSpaceOpenRooms } from './space-open-rooms-store';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpaceRoomConnection } from './use-space-room-connection';
@@ -51,11 +51,12 @@ export function useSpaceRoom(
   const sessionToken = useFreshAuthToken();
   const getFreshToken = useGetFreshAuthToken();
   const createId = useCreateId();
+  const rooms = useSpaceOpenRooms();
   const clientId = createMemo(() => {
     const id = resolveId(spaceId);
     const device = deviceId();
     return id.length > 0 && device.length > 0
-      ? new SpaceOpenSessionStore(createId).getOrCreate(id, device)
+      ? rooms.clientId(id, device, createId)
       : '';
   });
 

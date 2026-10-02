@@ -8,6 +8,21 @@ purpose: >-
   membership without ever asking the team.
 
 terms:
+  - term: payment record
+    definition: >-
+      The minimum evidence of a payment or refund needed for accounting and
+      disputes: its date, amount, currency and payment reference, and only
+      the identifying details required for that purpose. It is kept for
+      7 years after the payment, apart from a specifically recorded legal
+      preservation obligation. It never keeps a usable account or a
+      person's puzzle history and is not used to promote the product.
+    forms: [payment records, payment record's]
+    published: true
+
+  - term: account deletion
+    from: profile
+  - term: recently proven account
+    from: profile
   # --- Published language -------------------------------------------------
 
   - term: Plus
@@ -318,4 +333,7 @@ terms:
     from: profile
 
   - term: Google
+    from: profile
+
+  - term: retention
     from: profile

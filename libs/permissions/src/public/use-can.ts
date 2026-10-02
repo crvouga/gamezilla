@@ -2,11 +2,13 @@ import { type Decision, decide } from '@pkgs/permissions';
 import { type Accessor, createMemo } from 'solid-js';
 
 import type { AppGrantKey } from '../shared/permission-catalog';
+import { PERMISSION } from '../shared/permission-catalog';
 import { usePermissionPolicy } from '../use-cases/decide-access/client/use-permission-policy';
 import {
   type AccessScopeAccessor,
   usePermissionSubject,
 } from '../use-cases/decide-access/client/use-permission-subject';
+import { usePrivacyDecision } from '../use-cases/decide-access/client/use-privacy-decision';
 
 export type { AccessScopeAccessor };
 
@@ -20,7 +22,15 @@ export function useDecision(
 ): Accessor<Decision> {
   const policy = usePermissionPolicy();
   const subject = usePermissionSubject(scope);
-  return createMemo(() => decide(policy(), subject(), key));
+  const privacyDecision =
+    key === PERMISSION.profileDeleteAccount ||
+    key === PERMISSION.profileExportData
+      ? usePrivacyDecision()
+      : null;
+  return () => {
+    const decision = decide(policy(), subject(), key);
+    return privacyDecision === null ? decision : privacyDecision(key, decision);
+  };
 }
 
 /** Whether the caller may `key` right now. */

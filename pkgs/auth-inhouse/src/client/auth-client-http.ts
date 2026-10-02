@@ -10,6 +10,7 @@ export const AUTH_NETWORK_ERROR = 'Network error during sign-in.';
 export type SessionBody = {
   readonly token?: string;
   readonly expiresAt?: string;
+  readonly authenticatedAt?: string;
   readonly user?: {
     readonly id: string;
     readonly email: string | null;
@@ -23,6 +24,10 @@ export function toVerified(body: SessionBody): VerifiedSession | null {
     externalUserId: body.user.id,
     accountId: null,
     email: body.user.email ?? null,
+    authenticatedAt:
+      typeof body.authenticatedAt === 'string'
+        ? new Date(body.authenticatedAt)
+        : null,
     expiresAt:
       typeof body.expiresAt === 'string' ? new Date(body.expiresAt) : null,
   };

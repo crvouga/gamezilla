@@ -26,6 +26,7 @@ import {
   extractSteps,
 } from '@pkgs/gherkin/extract';
 import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
+import { campaignOwnershipProblems, specCampaigns } from './spec-campaigns';
 import {
   BINDING_KINDS,
   type BindingKind,
@@ -54,7 +55,7 @@ export const MODELS_RUNNER = 'bun run ../../libs/tools/scripts/check-models.ts';
  * Most parts one suite may split into: root `turbo.json` defines
  * `test:spec:0` … `test:spec:<MAX_SPEC_PARTS - 1>` and `//#check` runs them.
  */
-export const MAX_SPEC_PARTS = 6;
+export const MAX_SPEC_PARTS = 64;
 
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */
@@ -252,8 +253,8 @@ function modelProblems(
     }
   }
   for (const [model, files] of bindings) {
-    // A package-local model (internal invariants, run from the package's own
-    // `test` via `runQuintModel`) sits beside its binding in `tests/quint/`.
+    // A package-local `@spec-meta` model is test machinery rather than a
+    // product specification. The location gate checks that distinction.
     if (existsSync(join(REPO_ROOT, quintDir, `${model}.qnt`))) continue;
     if (!stems.has(model)) {
       problems.push(
@@ -480,6 +481,14 @@ export function specsLayoutProblems(
   const out: string[] = [];
   const root = join(REPO_ROOT, SPECS_DIR);
   const runners = runnersBy(packages, (pkg) => pkg.domains);
+  const campaigns = specCampaigns(REPO_ROOT);
+  for (const campaign of campaigns) {
+    runners.set(campaign.domain, [
+      ...(runners.get(campaign.domain) ?? []),
+      campaign.dir,
+    ]);
+  }
+  out.push(...campaignOwnershipProblems(campaigns, runners));
   const harnessRunners = runnersBy(packages, (pkg) => pkg.specDomains);
   const liveRunners = runnersBy(packages, (pkg) => pkg.liveDomains);
   const present = existsSync(root)

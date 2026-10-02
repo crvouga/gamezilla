@@ -91,8 +91,17 @@ export class AnonUserService {
   ): Promise<string> {
     if (proposed === undefined) return createId();
     assertUuid(proposed, 'userId must be UUID');
-    const anon = await this.readUserIsAnon(proposed);
-    if (anon === false) return createId();
+    const rows = await this.tx.query(sql<
+      UserAnonRow & { deleted_at: string | null }
+    >`
+      SELECT id, is_anon, deleted_at FROM auth_users WHERE id = ${proposed} LIMIT 1
+    `);
+    const existing = rows[0];
+    if (
+      existing !== undefined &&
+      (existing.deleted_at !== null || !isAnonFlag(existing.is_anon))
+    )
+      return createId();
     return proposed;
   }
 
@@ -126,7 +135,7 @@ export class AnonUserService {
     const rows = await this.tx.query(sql<DeviceUserRow>`
       SELECT user_id
       FROM auth_devices
-      WHERE id = ${deviceId}
+      WHERE id = ${deviceId} AND deleted_at IS NULL
       LIMIT 1
     `);
     const userId = rows[0]?.user_id;
@@ -137,7 +146,7 @@ export class AnonUserService {
     const rows = await this.tx.query(sql<UserAnonRow>`
       SELECT id, is_anon
       FROM auth_users
-      WHERE id = ${userId}
+      WHERE id = ${userId} AND deleted_at IS NULL
       LIMIT 1
     `);
     const row = rows[0];
@@ -223,6 +232,7 @@ export class AnonUserService {
     await this.tx.run(sql<void>`
       UPDATE auth_devices
       SET user_id = ${userId},
+          deleted_at = NULL,
           last_seen_at = ${nowIso},
           updated_at = ${nowIso}
       WHERE id = ${deviceId}

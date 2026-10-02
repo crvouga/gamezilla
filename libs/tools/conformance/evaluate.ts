@@ -36,6 +36,8 @@ export type ReportSpec = {
   readonly accessibility: boolean;
   /** Behavior: the scenario names of the current text. */
   readonly scenarios: readonly string[];
+  /** Dynamics: every public temporal property in the current model text. */
+  readonly temporalProperties: readonly string[];
 };
 
 export type TaskVerdict = {
@@ -125,7 +127,11 @@ function failure(path: string, obligation: Obligation): string {
 function selects(rule: EvidenceRule, spec: ReportSpec): boolean {
   if (spec.kind !== rule.kind) return false;
   const runs =
-    rule.runs === 'any' ? spec.harness || spec.live : spec[rule.runs];
+    spec.kind === 'dynamics' && rule.layer === 'specification'
+      ? spec.bound
+      : rule.runs === 'any'
+        ? spec.harness || spec.live
+        : spec[rule.runs];
   if (!runs) return false;
   if (rule.subset === 'accessibility') return spec.accessibility;
   if (rule.subset === 'journeys') return spec.context === 'journeys';
@@ -159,6 +165,15 @@ function specProblems(
       if (!fresh.has(key(rule.layer, `scenario:${name}`))) {
         out.push(
           `${spec.path}: not run — scenario "${name}" has no ${rule.layer} verdict`
+        );
+      }
+    }
+  }
+  if (spec.kind === 'dynamics' && rule.layer === 'specification') {
+    for (const property of spec.temporalProperties) {
+      if (!fresh.has(key('specification', `temporal:${property}`))) {
+        out.push(
+          `${spec.path}: not run — temporal property "${property}" has no specification verdict`
         );
       }
     }
@@ -266,7 +281,10 @@ function gatesLine(input: ReportInput): Tally {
 }
 
 function checksLine(input: ReportInput, index: Index): Tally {
-  const run = input.specs.filter((spec) => spec.harness || spec.live);
+  const run = input.specs.filter(
+    (spec) =>
+      spec.harness || spec.live || (spec.kind === 'dynamics' && spec.bound)
+  );
   const result = tally(
     run.map((spec) => {
       const evidence = index.get(spec.path);

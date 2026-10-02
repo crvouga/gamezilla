@@ -102,7 +102,11 @@ export async function ownSpaceCard(
   const cards = [
     ...(html ?? '').matchAll(/data-testid="(space-card-[^"]+)"/g),
   ].map((match) => match[1] ?? '');
-  return cards.length === 1 ? (cards[0] ?? null) : null;
+  if (cards.length === 1) return cards[0] ?? null;
+  const saved = [
+    ...(html ?? '').matchAll(/data-testid="(space-miniplayer-open-[^"]+)"/g),
+  ].map((match) => match[1] ?? '');
+  return saved.length === 1 ? (saved[0] ?? null) : null;
 }
 
 /**
@@ -221,7 +225,18 @@ export async function tapChromeOrOverflow(
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.spaceClose).expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await ui
+    .get(Handles.spaceClose)
+    .expect.visible({ timeoutMs: SPACE_WAIT_MS })
+    .catch(async (error) => {
+      const live = await s.harness.spawnClient(actorId);
+      const engine = live.syncEnginePool.peekReady(
+        live.env.resolveDatabaseName({ userId: '' })
+      );
+      throw new Error(
+        `${String(error)}; sync=${JSON.stringify(engine?.status.getSnapshot())}`
+      );
+    });
   if (!(await ui.get(handle).isVisible())) {
     await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs: SPACE_WAIT_MS });
   }

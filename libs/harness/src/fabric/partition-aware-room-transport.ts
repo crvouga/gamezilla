@@ -16,6 +16,18 @@ import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room';
 /** How often a live connection notices the network is gone (a keepalive). */
 export const ROOM_HEARTBEAT_MS = 1_000;
 
+async function connectOrDiscard(
+  transport: ClientTransport,
+  discard: (transport: ClientTransport) => void
+): Promise<void> {
+  try {
+    await Promise.resolve(transport.connect());
+  } catch (cause) {
+    discard(transport);
+    throw cause;
+  }
+}
+
 export function partitionAwareRoomTransport(args: {
   /** A fresh connection to the room host. */
   readonly open: () => ClientTransport;
@@ -60,6 +72,12 @@ export function partitionAwareRoomTransport(args: {
     relay.onClose?.();
   };
 
+  const discardFailed = (next: ClientTransport): void => {
+    if (inner !== next) return;
+    inner = null;
+    next.destroy();
+  };
+
   const tick = (): void => {
     if (destroyed || !wanted) return;
     if (!args.reachable()) {
@@ -71,10 +89,7 @@ export function partitionAwareRoomTransport(args: {
     // A reconnect that fails leaves no connection behind, so the next
     // heartbeat tries again — the actor is not stranded offline.
     Promise.resolve(next.connect()).catch(() => {
-      if (inner === next) {
-        inner = null;
-        next.destroy();
-      }
+      discardFailed(next);
     });
   };
 
@@ -88,7 +103,8 @@ export function partitionAwareRoomTransport(args: {
       if (!args.reachable()) {
         throw new Error('harness room: server unreachable');
       }
-      await Promise.resolve((inner ?? attach()).connect());
+      const next = inner ?? attach();
+      await connectOrDiscard(next, discardFailed);
     },
     sendJson(payload) {
       // A frame sent into a dead connection is lost, not queued.

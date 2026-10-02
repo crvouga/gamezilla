@@ -7,6 +7,15 @@
     },
     "check:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/*.qnt"]
+    },
+    "test:spec:1": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
+    },
+    "test:spec:2": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
+    },
+    "test:spec:3": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
     }
   }
 }

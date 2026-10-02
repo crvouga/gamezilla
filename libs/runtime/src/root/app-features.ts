@@ -8,6 +8,7 @@
  * cannot drift.
  */
 
+import { ACCOUNT_PRIVACY_FEATURE } from '@libs/account-privacy/root/feature';
 import { AUTH_FEATURE } from '@libs/auth/root/feature';
 import { BILLING_FEATURE } from '@libs/billing/root/feature';
 import { CHESS_FEATURE } from '@libs/chess/root/feature';
@@ -23,6 +24,7 @@ import { SPACES_FEATURE } from '@libs/spaces/root/feature';
 /** Every bounded context the product ships. */
 export const APP_FEATURES: readonly FeatureManifest[] = [
   AUTH_FEATURE,
+  ACCOUNT_PRIVACY_FEATURE,
   PROFILE_FEATURE,
   CLIENT_CONFIG_FEATURE,
   SPACES_FEATURE,

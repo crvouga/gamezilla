@@ -58,10 +58,14 @@ async function loadSessionState(args: {
     const body = (await res.json()) as {
       readonly user?: SessionBody['user'];
       readonly expiresAt?: string;
+      readonly authenticatedAt?: string;
     };
     const sessionBody: SessionBody = {
       ...(body.user !== undefined ? { user: body.user } : {}),
       ...(body.expiresAt !== undefined ? { expiresAt: body.expiresAt } : {}),
+      ...(body.authenticatedAt !== undefined
+        ? { authenticatedAt: body.authenticatedAt }
+        : {}),
     };
     return { session: toVerified(sessionBody), isHydrated: true, error: null };
   } catch (err) {

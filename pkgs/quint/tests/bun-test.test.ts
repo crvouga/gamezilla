@@ -177,6 +177,33 @@ describe('a product that disagrees with the model', () => {
     ).rejects.toThrow('no binding for Quint action "lock"');
   });
 
+  test('a correct observed field cannot conceal an unread public promise', async () => {
+    // regression: quint-public-state-not-observed
+    if (withLock === undefined) throw new Error('no lock trace');
+    await expect(
+      replayTrace({
+        ctx: {
+          packageName: '@pkgs/quint',
+          specUri: 'door.qnt',
+          model: 'door',
+          trace: 1,
+          seed: '0x2a',
+          testId: 'door.partial',
+          title: 'door partial',
+        },
+        trace: withLock,
+        world: {
+          create: async () => ({ state: 'closed', lastBy: '', steps: [] }),
+          dispose: async () => {},
+        },
+        binding: {
+          ...binding,
+          observe: async (d: Door) => ({ state: d.state }),
+        } as QuintBinding<unknown>,
+      })
+    ).rejects.toThrow('observe did not read public variables: lastBy');
+  });
+
   test('a world whose end state depends on more than the trace fails the replay-twice check', async () => {
     if (withLock === undefined) return;
     let opened = 0;

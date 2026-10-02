@@ -81,6 +81,12 @@ function textProblems(path: string, lines: readonly string[]): string[] {
   const out: string[] = [];
   for (const [index, line] of lines.entries()) {
     const seen = new Set<string>();
+    // Composition provenance names specifications, never implementation files.
+    if (
+      path.endsWith('.qnt') &&
+      /^\/\/ Sources: specs\/[a-z0-9-]+(?:, specs\/[a-z0-9-]+)*$/.test(line)
+    )
+      continue;
     for (const rule of RULES) {
       for (const match of line.matchAll(rule.pattern)) {
         const found = match[0].replace(/\.+$/, '');

@@ -1,3 +1,4 @@
+// @spec-meta — package reference protocol fixture
 // Package contract: schema transactions are serialized and publish atomically.
 // Two reconcilers contend for one lock. A crash at any staged edit discards
 // only uncommitted work. Concrete values distinguish NULL from an empty string.

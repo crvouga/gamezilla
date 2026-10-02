@@ -6,6 +6,7 @@ import {
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock } from '@pkgs/clock';
+import { sql as querySql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { assertDeviceId } from '../shared/auth/device-id';
@@ -29,7 +30,7 @@ async function buildAnonAppAuthContext(
   const userId = await anonUsers.findUserIdByDeviceId(deviceId);
   if (userId === null) return null;
   const state = await anonUsers.readUserAnonState(userId);
-  if (!state.exists) return null;
+  if (!state.exists || !state.isAnon) return null;
   return buildAppAuthContext({
     deviceId,
     accountId: userId,
@@ -85,6 +86,18 @@ export class SessionAuth {
       this.time
     ).buildAppAuthContext(token, anonRaw);
     if (ctx !== null) return ctx;
+    if (
+      request.method === 'POST' &&
+      new URL(request.url).pathname.endsWith('/mutations')
+    ) {
+      assertDeviceId(anonRaw);
+      const deleted = await sql.query(
+        querySql<{
+          id: string;
+        }>`SELECT u.id FROM auth_account_devices d JOIN auth_users u ON u.id = d.user_id WHERE d.device_id = ${anonRaw} AND u.deleted_at IS NOT NULL LIMIT 1`
+      );
+      if (deleted.length > 0) return { accountDeleted: true };
+    }
     // Invalid/expired bearer must not block a bound anon device — otherwise
     // stale IdP tokens poison sync and client_config (sign-in methods) never
     // hydrates (chicken/egg: cannot sign in without methods from config).

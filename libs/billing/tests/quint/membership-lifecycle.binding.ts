@@ -17,6 +17,7 @@ import {
   billingStimulus,
   settleBilling,
 } from '@libs/billing/harness/billing-lifecycle-stimuli';
+import { paymentFacts } from '@libs/billing/harness/billing-payment-facts';
 import {
   billingTier,
   deviceMemberships,
@@ -147,6 +148,7 @@ bindQuintModel<QuintHarnessWorld>({
       accessOn.set(device, await w.quiet.read(accessShownOn, device));
     }
     return {
+      ...(await w.quiet.read(paymentFacts, accountId)),
       memberships: modelled(server),
       membershipsOnPhone: modelled(inServerOrder(phone, server)),
       _phoneOnline: await w.quiet.read(phoneOnline),

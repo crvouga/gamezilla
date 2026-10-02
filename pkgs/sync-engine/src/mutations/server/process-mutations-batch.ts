@@ -43,7 +43,6 @@ export type ProcessMutationsBatchDeps = {
   readonly mutations: readonly MutationRow[];
   readonly now: () => number;
   readonly createId: CreateId;
-  readonly serverNow?: () => Date;
   readonly authorize?: MutationAuthorize;
   /**
    * Called after each mutation attempt (applied/rejected/duplicate).
@@ -77,7 +76,6 @@ export async function processMutationsBatch(
         auth: deps.auth,
         now: deps.now,
         createId: deps.createId,
-        ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
         ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
       },
       row

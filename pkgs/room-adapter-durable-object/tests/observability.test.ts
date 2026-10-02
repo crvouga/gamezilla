@@ -10,50 +10,11 @@ import { gameRoomModule } from '@pkgs/room/harness';
 import {
   createDurableObjectAdapter,
   type DurableObjectInstanceState,
-  type DurableObjectKvStorage,
 } from '@pkgs/room-adapter-durable-object';
+import { MemoryKv } from './helpers/memory-kv';
 
 const CONNECTION_TRACE_ID = '11111111111111111111111111111111';
 const UPGRADE_TRACE_ID = '22222222222222222222222222222222';
-
-class MemoryStorage implements DurableObjectKvStorage {
-  private readonly values = new Map<string, unknown>();
-
-  async get<T>(key: string): Promise<T | undefined> {
-    return this.values.get(key) as T | undefined;
-  }
-
-  async put(key: string, value: unknown): Promise<void>;
-  async put(entries: Record<string, unknown>): Promise<void>;
-  async put(
-    keyOrEntries: string | Record<string, unknown>,
-    value?: unknown
-  ): Promise<void> {
-    if (typeof keyOrEntries === 'string') {
-      this.values.set(keyOrEntries, value);
-      return;
-    }
-    for (const [key, entry] of Object.entries(keyOrEntries)) {
-      this.values.set(key, entry);
-    }
-  }
-
-  async delete(key: string): Promise<boolean> {
-    return this.values.delete(key);
-  }
-
-  async list<T>(options?: {
-    readonly prefix?: string;
-  }): Promise<Map<string, T>> {
-    const output = new Map<string, T>();
-    for (const [key, value] of this.values) {
-      if (options?.prefix === undefined || key.startsWith(options.prefix)) {
-        output.set(key, value as T);
-      }
-    }
-    return output;
-  }
-}
 
 function createTestState(sockets: WebSocket[]): {
   readonly state: DurableObjectInstanceState;
@@ -63,7 +24,7 @@ function createTestState(sockets: WebSocket[]): {
   const scheduled: Promise<unknown>[] = [];
   return {
     state: {
-      storage: new MemoryStorage(),
+      storage: new MemoryKv(),
       acceptWebSocket: () => undefined,
       getWebSockets: () => sockets,
       blockConcurrencyWhile: (fn) => fn(),

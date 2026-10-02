@@ -12,6 +12,7 @@ export type SweepEntry = {
   readonly spec: {
     readonly name: string;
     readonly params: Readonly<Record<string, unknown>>;
+    readonly settleOnNetworkError?: boolean;
   };
   readonly scope: string;
   firstSync: Promise<void>;
@@ -55,6 +56,7 @@ export function markFirstOnNetworkError(
   ctx: Pick<SubscriptionSweepContext, 'isRunning'>
 ): void {
   for (const entry of active) {
+    if (entry.spec.settleOnNetworkError !== true) continue;
     if (gens.get(entry.scope) !== entry.generation) continue;
     if (!ctx.isRunning() || entry.stopped) continue;
     markSweepFirst(entry);

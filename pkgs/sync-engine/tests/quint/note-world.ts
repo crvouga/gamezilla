@@ -14,6 +14,11 @@ export type NoteWorld = {
   readonly owed: Map<string, string>;
   /** People with a second window of the app open on their device. */
   readonly windows: Set<string>;
+  /** Recovery traces keep each device's connection and first acceptance independent. */
+  readonly recovery: {
+    readonly offline: Set<string>;
+    readonly accepted: Set<string>;
+  };
 };
 
 /** How long the product may take to reach the model's state after a step. */
@@ -29,6 +34,7 @@ export function useNoteWorld(): void {
       }),
       owed: new Map(),
       windows: new Set(),
+      recovery: { offline: new Set(), accepted: new Set() },
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),
     record: (w, meta, fn) =>

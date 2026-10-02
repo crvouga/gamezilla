@@ -119,6 +119,8 @@ export function createSpaceModule(
   return {
     name,
     initialState: (): RoomState => buildInitialState(games),
+    recoverEffects: (state) =>
+      games.flatMap((game) => [...game.recoverEffects(state)]),
 
     handle(
       state: RoomState,
@@ -134,7 +136,7 @@ export function createSpaceModule(
       }
       return commandRouter.dispatch(
         state,
-        { identity, ts: command.ts },
+        { identity, ts: command.ts, commandId: command.id },
         msg,
         (_s, _c, m) =>
           reject({

@@ -4,10 +4,10 @@ import {
 } from '@libs/auth/public/auth-context';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock } from '@pkgs/clock';
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { assertDeviceId, assertUuid } from '../shared/auth/device-id';
-
 import { AnonUserService } from './anon-user-service';
 import { EnsureInternalAccountUseCase } from './ensure-internal-account-use-case';
 
@@ -73,7 +73,14 @@ export class BearerAuthResolver {
 
     const cacheKey = accountCacheKey(deviceId, session.externalUserId);
     const cached = readCachedAccountId(cacheKey, this.time.clock.now);
-    if (cached !== null) return cached;
+    if (cached !== null) {
+      const live = await this.sql.query(
+        sql<
+          Record<string, unknown>
+        >`SELECT id FROM auth_users WHERE id = ${cached} AND deleted_at IS NULL`
+      );
+      return live.length > 0 ? cached : null;
+    }
 
     const upgradeUserId = await new AnonUserService(
       this.sql,
@@ -89,6 +96,12 @@ export class BearerAuthResolver {
       upgradeUserId,
     });
     if (accountId !== null) {
+      const live = await this.sql.query(
+        sql<
+          Record<string, unknown>
+        >`SELECT id FROM auth_users WHERE id = ${accountId} AND deleted_at IS NULL`
+      );
+      if (live.length === 0) return null;
       writeCachedAccountId(cacheKey, accountId, this.time.clock.now);
     }
     return accountId;
@@ -100,12 +113,19 @@ export class BearerAuthResolver {
   ): Promise<AppAuthContext | null> {
     const accountId = await this.resolveAccountId(bearerToken, deviceId);
     if (accountId === null) return null;
+    const session = await this.authServer.verifySessionToken(
+      bearerToken.trim()
+    );
+    if (session === null) return null;
     assertDeviceId(deviceId);
     return buildAppAuthContext({
       deviceId,
       accountId,
       myId: accountId,
       isAnon: false,
+      ...(session.authenticatedAt === null
+        ? {}
+        : { authenticatedAtMs: session.authenticatedAt.getTime() }),
     });
   }
 }

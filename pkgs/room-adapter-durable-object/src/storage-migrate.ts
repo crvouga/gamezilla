@@ -8,7 +8,10 @@ import {
   eventKey,
   type RoomDoKeyNs,
 } from './storage-keys';
-import type { DurableObjectKvStorage } from './types';
+import type {
+  DurableObjectKvStorage,
+  DurableObjectKvTransaction,
+} from './types';
 
 type KeyNs = RoomDoKeyNs;
 
@@ -63,7 +66,7 @@ export function parseLegacyPersistedBlob(raw: unknown): LegacyPersisted {
 
 /** Write entries as successive DO multi-puts (≤ 128 keys each). */
 export async function putEntriesBatched(
-  kv: DurableObjectKvStorage,
+  kv: DurableObjectKvTransaction,
   entries: Record<string, unknown>
 ): Promise<void> {
   const keys = Object.keys(entries);
@@ -100,6 +103,8 @@ export async function migrateLegacyBlobToV3(
   const lastSeq =
     legacy.events.length > 0 ? legacy.events[legacy.events.length - 1]!.seq : 0;
   entries[ns.meta] = { lastSeq } satisfies RoomDoMeta;
-  await putEntriesBatched(kv, entries);
-  await kv.delete(ns.legacyBlob);
+  await kv.transaction(async (tx) => {
+    await putEntriesBatched(tx, entries);
+    await tx.delete(ns.legacyBlob);
+  });
 }

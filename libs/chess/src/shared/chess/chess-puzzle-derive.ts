@@ -1,6 +1,7 @@
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
   type ChessPuzzleInteractionRow,
+  type ChessPuzzleOutcomeKind,
   isOutcomeKind,
 } from './chess-puzzle-interaction-entities';
 import { compareCodeUnit } from './code-unit-compare';
@@ -49,8 +50,18 @@ export function deriveCurrentPlayCounts(
 /** The play's rated outcome row: its first solved / failed / abandoned row. */
 export function playOutcome(
   play: readonly ChessPuzzleInteractionRow[]
-): ChessPuzzleInteractionRow | null {
-  return play.find((r) => isOutcomeKind(r.kind)) ?? null;
+):
+  | (ChessPuzzleInteractionRow & { readonly kind: ChessPuzzleOutcomeKind })
+  | null {
+  return (
+    play.find(
+      (
+        r
+      ): r is ChessPuzzleInteractionRow & {
+        readonly kind: ChessPuzzleOutcomeKind;
+      } => isOutcomeKind(r.kind)
+    ) ?? null
+  );
 }
 
 /**

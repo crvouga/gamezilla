@@ -46,3 +46,17 @@ Feature: The shared tally
       And Alice's app has closed unexpectedly
       When Alice reopens the app
       Then everyone sees a tally of 1
+
+  Rule: An interrupted change counts once when the room is available again
+    No counter-example: interruption cannot turn one chosen change into two or lose it.
+
+    Scenario: A change whose maker did not hear back counts once
+      Given Alice has added one while the room became unavailable
+      When the room is available again
+      Then everyone sees a tally of 1
+
+    Scenario: A later change keeps an interrupted earlier change
+      Given Alice has added one while the room became unavailable
+      And the room is available again
+      When Bob adds one to the tally
+      Then everyone sees a tally of 2

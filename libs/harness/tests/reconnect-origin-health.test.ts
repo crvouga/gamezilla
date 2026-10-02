@@ -1,0 +1,77 @@
+import { expect, test } from 'bun:test';
+import type { ClientEnv } from '@libs/client-app/shell/client-env';
+import { setOriginAvailability } from '@libs/client-app/shell/origin-availability-for-env';
+import { harnessClientServerFetch } from '@libs/harness/fabric/client-server-fetch';
+import { harnessPartitionedError } from '@libs/harness/fabric/net';
+import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness/fabric/server-nodes';
+import {
+  restoreActorConnection,
+  restoreNetwork,
+} from '@libs/harness/system/actions';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { createHarnessClock } from '@pkgs/clock';
+
+async function flush(): Promise<void> {
+  for (let turn = 0; turn < 20; turn++) await Promise.resolve();
+}
+
+// regression: harness-reconnect-origin-health — puzzle trace 46, seed 0x67932.
+test.each(['one', 'all'] as const)(
+  'reconnecting %s wakes an offline boot before its backed-off probe',
+  async (scope) => {
+    const { clock, timers } = createHarnessClock({ startMs: 12_400 });
+    let reachable = false;
+    const server = harnessClientServerFetch({
+      serverUrl: 'https://api.test',
+      clock,
+      timers,
+      fetch: async () => {
+        if (!reachable)
+          throw harnessPartitionedError('charlie', HARNESS_PRIMARY_SERVER_ID);
+        return Response.json({ status: 'ok' });
+      },
+    });
+    const env = {} as ClientEnv;
+    setOriginAvailability(env, server.availability);
+    const s = {
+      actors: new Map([['charlie', {}]]),
+      harness: { client: async () => env },
+      session: {
+        network: {
+          heal: (serverId: string, actor: string) => {
+            expect([serverId, actor]).toEqual([
+              HARNESS_PRIMARY_SERVER_ID,
+              'charlie',
+            ]);
+            reachable = true;
+          },
+          healAll: () => {
+            reachable = true;
+          },
+        },
+      },
+    } as unknown as ProductHarness;
+    server.availability.start();
+    try {
+      await flush();
+      for (const delay of [1_000, 2_000, 4_000, 8_000, 16_000]) {
+        clock.advance(delay);
+        await flush();
+      }
+      expect(clock.nextDueAt()! - clock.now()).toBe(30_000);
+      let resumed = false;
+      const recovery = server.availability.waitUntilAvailable().then(() => {
+        resumed = true;
+      });
+      if (scope === 'one')
+        await Promise.resolve(restoreActorConnection.act(s, 'charlie'));
+      else await Promise.resolve(restoreNetwork.act(s));
+      expect(server.availability.getSnapshot().phase).toBe('available');
+      await recovery;
+      expect(resumed).toBe(true);
+    } finally {
+      server.availability.stop();
+    }
+    expect(clock.nextDueAt()).toBeNull();
+  }
+);

@@ -17,6 +17,15 @@ import { BillingCallbackRoutes } from './billing-callback-route';
 const NOW = 1_700_000_000_000;
 
 class StubBilling implements MembershipBilling {
+  cancelMembership(): Promise<void> {
+    return Promise.reject(new Error('cancellation is outside this fixture'));
+  }
+  readPayments() {
+    return Promise.resolve([]);
+  }
+  refundPayment(): Promise<void> {
+    return Promise.reject(new Error('refund is outside this fixture'));
+  }
   readonly provider = 'stub';
   constructor(private readonly result: CallbackResult) {}
 

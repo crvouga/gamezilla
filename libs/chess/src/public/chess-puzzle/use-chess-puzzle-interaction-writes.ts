@@ -5,7 +5,6 @@ import type { Accessor } from 'solid-js';
 
 import type {
   ChessPuzzleInteractionKind,
-  ChessPuzzleInteractionRow,
   ChessPuzzleOutcomeKind,
 } from '../chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
@@ -21,7 +20,7 @@ export function useChessPuzzleInteractionWrites(args: {
   puzzleRating: Accessor<number>;
   puzzleRatingDeviation: Accessor<number>;
   solveIdx: Accessor<number>;
-  interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  attemptKey: Accessor<string | null>;
 }): {
   appendInteraction: (
     kind: ChessPuzzleInteractionKind,
@@ -29,7 +28,7 @@ export function useChessPuzzleInteractionWrites(args: {
   ) => Promise<void>;
   finalizePlay: (
     terminalKind: ChessPuzzleOutcomeKind,
-    wrongMove: boolean
+    scorePermille: 0 | 500 | 1000
   ) => Promise<void>;
 } {
   const myId = useMyId();
@@ -55,18 +54,20 @@ export function useChessPuzzleInteractionWrites(args: {
 
   const finalizePlay = async (
     terminalKind: ChessPuzzleOutcomeKind,
-    wrongMove: boolean
+    scorePermille: 0 | 500 | 1000
   ): Promise<void> => {
     if (myId().length === 0) return;
+    const attemptKey = args.attemptKey();
+    if (attemptKey === null) return;
     await interactionDb.finalizeRatedAttempt({
+      attemptKey,
       ownerId: myId(),
       puzzleId: args.puzzleId(),
       puzzleRating: args.puzzleRating(),
       puzzleRatingDeviation: args.puzzleRatingDeviation(),
       solveIdx: args.solveIdx(),
-      interactions: args.interactions(),
       terminalKind,
-      wrongMove,
+      scorePermille,
     });
   };
 

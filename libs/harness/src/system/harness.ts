@@ -17,6 +17,11 @@ export type HarnessActor = {
   readonly openLink: (path: string) => Promise<void>;
   /** The app route the actor is on — what "Copy link" would hand out. */
   readonly currentPath: () => Promise<string>;
+  /** Change the injected viewport without restarting the app. */
+  readonly setViewport: (size: {
+    width: number;
+    height: number;
+  }) => Promise<void>;
 };
 
 export type ProductRuntime = {
@@ -33,6 +38,10 @@ export type ProductRuntime = {
  */
 export type ProductProbes = {
   snapshot: HarnessSystemSnapshot | null;
+  investigationTrail?: unknown;
+  recoveryAccountId?: string | null;
+  tools?: unknown;
+  deletedDeviceReply?: { status: number; body: unknown };
 };
 
 export type ProductHarness = {

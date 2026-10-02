@@ -134,7 +134,12 @@ function injectInsert(
   const colSuffix = `, ${extraCols.join(', ')}`;
   const valSuffix = `, ${extraCols.map(() => '?').join(', ')}`;
   const nextText = `${head}${colSuffix}${mid}${valSuffix}${tail}`;
-  return sqlWithValues(nextText, [...query.values, ...extraValues]);
+  const insertionIndex = text.slice(0, valuesClose).split('?').length - 1;
+  return sqlWithValues(nextText, [
+    ...query.values.slice(0, insertionIndex),
+    ...extraValues,
+    ...query.values.slice(insertionIndex),
+  ]);
 }
 
 function injectUpdate(

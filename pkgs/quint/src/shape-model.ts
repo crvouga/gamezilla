@@ -15,6 +15,7 @@ export type ModelShapeCode =
   | 'trivial-invariant'
   | 'invariant-ignores-state'
   | 'action-next'
+  | 'compound-assignment'
   | 'unreachable-action'
   | 'var-uninitialized'
   | 'var-unconstrained'

@@ -8,6 +8,7 @@ import { APP_VERSION } from '@libs/client-app/config/app-metadata';
 import {
   actorHtml,
   actorUi,
+  backToTabs,
   nodeText,
   openSettings,
   type ProductHarness,
@@ -24,6 +25,12 @@ export const APP_VERSION_INSTALLED = APP_VERSION;
 export const chooseTheme = scenarioAction({
   name: 'chooseTheme',
   act: async (s, actorId: string, scheme: 'light' | 'dark') => {
+    const handle = s.actors.get(actorId);
+    if (
+      handle !== undefined &&
+      (await handle.currentPath()).startsWith('/more')
+    )
+      await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsTheme).tap({ timeoutMs: WAIT_MS });
@@ -36,6 +43,12 @@ export const chooseTheme = scenarioAction({
 export const turnSoundsOff = scenarioAction({
   name: 'turnSoundsOff',
   act: async (s, actorId: string) => {
+    const handle = s.actors.get(actorId);
+    if (
+      handle !== undefined &&
+      (await handle.currentPath()).startsWith('/more')
+    )
+      await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsSound).tap({ timeoutMs: WAIT_MS });
@@ -48,6 +61,12 @@ export const turnSoundsOff = scenarioAction({
 export const openAbout = scenarioAction({
   name: 'openAbout',
   act: async (s, actorId: string) => {
+    const handle = s.actors.get(actorId);
+    if (
+      handle !== undefined &&
+      (await handle.currentPath()).startsWith('/more')
+    )
+      await Promise.resolve(backToTabs.act(s, actorId));
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsAbout).tap({ timeoutMs: WAIT_MS });

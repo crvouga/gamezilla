@@ -1,4 +1,4 @@
-// A door counter that keeps the range up to a bound it draws: fine for the
+// @spec-meta — Quint runner fixture: a door counter that keeps the range up to a bound it draws, fine for the
 // simulator, outside what Apalache can encode (a range needs constant ends).
 module door_unbounded {
   var count: int

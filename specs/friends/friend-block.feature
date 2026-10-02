@@ -7,6 +7,19 @@ Feature: Block and unblock
 
   Rule: Blocking ends the friendship and hides the blocker
 
+    @regression:friend-block-non-friend-route
+    Scenario: Blocking someone clears a friend request the blocker sent
+      Given Alice and Bob are signed in
+      And Alice has sent Bob a friend request
+      When Alice blocks Bob
+      Then Bob's inbox stops showing the friend request from Alice within 5 seconds
+
+    @regression:friend-block-non-friend-route
+    Scenario: Blocking a stranger hides the blocker without a friendship first
+      Given Alice and Bob are signed in
+      When Alice blocks Bob
+      Then Bob's search for "alice" shows nobody within 15 seconds
+
     Scenario: Blocking a friend ends the friendship for both
       Given Alice and Bob are friends
       When Alice blocks Bob
@@ -18,6 +31,14 @@ Feature: Block and unblock
       And Alice has blocked Bob
       When Bob searches for "alice"
       Then Bob's search does not show Alice
+
+    @regression:friend-block-missed-while-offline
+    Scenario: A block made while the other person is away still hides the blocker
+      Given Alice and Bob are signed in
+      And Bob is offline
+      And Alice has blocked Bob
+      When the connection comes back
+      Then Bob's search for "alice" shows nobody within 15 seconds
 
     Scenario: Blocking someone from their request clears the request
       Given Alice and Bob are signed in
@@ -33,6 +54,15 @@ Feature: Block and unblock
       And Bob's search for "alice" shows nobody within 15 seconds
 
   Rule: The blocker can undo a block
+
+    @regression:friend-block-missed-while-offline
+    Scenario: Unblocking while the other person is away lets them find the blocker again
+      Given Alice and Bob are friends
+      And Alice has blocked Bob
+      And Bob is offline
+      And Alice has unblocked Bob
+      When the connection comes back
+      Then Bob's search offers to ask Alice again within 15 seconds
 
     Scenario: The blocker can still find the person they blocked
       Given Alice and Bob are friends

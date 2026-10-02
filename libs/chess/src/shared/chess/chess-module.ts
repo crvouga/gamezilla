@@ -49,6 +49,7 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
  */
 export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
   name: assertRoomModuleName('chess'),
+  recoverEffects: (state) => chessGameShared.recoverEffects(state),
   initialState(): RoomState {
     if (chessGameShared.initialState === undefined) return {};
     return chessGameShared.initialState();
@@ -64,7 +65,7 @@ export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
     }
     return commandRouter.dispatch(
       state,
-      { identity, ts: command.ts },
+      { identity, ts: command.ts, commandId: command.id },
       msg,
       (_s, _c, m) =>
         reject({

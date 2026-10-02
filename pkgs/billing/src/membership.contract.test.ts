@@ -101,6 +101,17 @@ function openOtherProvider(): OtherProvider {
 
 class OtherProviderBilling implements MembershipBilling {
   readonly provider = 'other';
+  async cancelMembership(id: string): Promise<void> {
+    const plan = this.world.plans.get(id);
+    if (plan !== undefined)
+      this.world.plans.set(id, { ...plan, phase: 'over' });
+  }
+  async readPayments() {
+    return [];
+  }
+  async refundPayment(): Promise<void> {
+    throw new Error('This contract fixture has no payments');
+  }
 
   constructor(private readonly world: OtherProvider) {}
 

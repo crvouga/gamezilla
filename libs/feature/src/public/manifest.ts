@@ -16,6 +16,10 @@ import type {
   QueryDef,
   TopicMapEntry,
 } from '@pkgs/sync-engine/shared';
+import type {
+  AccountPrivacyContribution,
+  AccountPrivacyGuard,
+} from './account-privacy';
 
 /** The literal names of the tables a feature declared. */
 export type TableNamesOf<Tables extends readonly TableDef[]> =
@@ -73,6 +77,8 @@ export type FeatureManifest<
    * features under test declared.
    */
   readonly mutations: LoadMutations;
+  readonly accountPrivacy?: AccountPrivacyContribution;
+  readonly accountPrivacyGuard?: AccountPrivacyGuard;
 };
 
 /**

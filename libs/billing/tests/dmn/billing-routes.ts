@@ -48,6 +48,11 @@ const REFUSED = new Set([401, 404, 409, 503]);
 
 const stubProvider: MembershipBilling = {
   provider: PROVIDER,
+  cancelMembership: () =>
+    Promise.reject(new Error('cancellation is outside this fixture')),
+  readPayments: () => Promise.resolve([]),
+  refundPayment: () =>
+    Promise.reject(new Error('refund is outside this fixture')),
   startCheckout: (input) =>
     Promise.resolve({
       customerId: input.customerId ?? 'customer-new',

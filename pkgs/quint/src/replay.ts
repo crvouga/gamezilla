@@ -33,6 +33,14 @@ function mismatches(
   expected: Readonly<Record<string, QuintValue>>,
   observed: Readonly<Record<string, QuintValue>>
 ): readonly Mismatch[] {
+  const missing = Object.keys(expected).filter(
+    (name) => !name.startsWith('_') && !Object.hasOwn(observed, name)
+  );
+  if (missing.length > 0) {
+    throw new Error(
+      `observe did not read public variables: ${missing.join(', ')}`
+    );
+  }
   const out: Mismatch[] = [];
   for (const [name, value] of Object.entries(observed)) {
     const want = expected[name];

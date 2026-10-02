@@ -13,6 +13,7 @@
  * aggregate, so it has nothing to check here.
  */
 
+import { assignmentShapeIssues } from './shape-assignment';
 import { offlineShapeIssues } from './shape-connectivity';
 import {
   byKind,
@@ -224,6 +225,7 @@ export function modelShapeIssues(
   return [
     ...structureIssues(model, base),
     ...profileIssues,
+    ...assignmentShapeIssues(model),
     ...(profile === 'maintenance' ? [] : offlineShapeIssues(model)),
   ].sort((a, b) => a.line - b.line || a.code.localeCompare(b.code));
 }

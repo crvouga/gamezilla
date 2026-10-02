@@ -9,6 +9,7 @@ import './devices.steps';
 import './spaces.steps';
 import './notices.steps';
 import './checked-notes.steps';
+import './note-confirmation.steps';
 import './many-notes.steps';
 import './app-updates.steps';
 

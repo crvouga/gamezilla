@@ -102,6 +102,7 @@ export type MutationBatchResponse = {
 export type AuthErrorBody = {
   readonly error: 'auth';
   readonly reason: 'expired' | 'revoked' | 'upgrade_required';
+  readonly message?: string;
 };
 
 /**

@@ -29,7 +29,7 @@ export class ProfileReadRepository {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, username, avatar_config
       FROM profile
-      WHERE id = ${profileId}
+      WHERE id = ${profileId} AND deleted_at IS NULL
       LIMIT 1
     `);
     const row = rows[0];
@@ -44,7 +44,7 @@ export class ProfileReadRepository {
     const rows = await this.tx.query(sql<Record<string, unknown>>`
       SELECT id, username, avatar_config
       FROM profile
-      WHERE id IN (${join([...profileIds])})
+      WHERE id IN (${join([...profileIds])}) AND deleted_at IS NULL
     `);
     return rows
       .map((row) => readProfileCard(row))

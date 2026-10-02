@@ -7,9 +7,15 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { AddOne, readTally } from '@pkgs/room/harness';
+import {
+  AddOne,
+  readMatchStatus,
+  readTally,
+  StartMatch,
+} from '@pkgs/room/harness';
 import {
   addClient,
+  crash,
   dispatch,
   exampleSystem,
   expectInSync,
@@ -21,6 +27,22 @@ import {
 } from '@pkgs/room-harness';
 
 describe('room restart fault', () => {
+  test('a stopped room cannot run its match timer while every app is closed', async () => {
+    // regression: room-harness-stopped-server-kept-timer
+    await using s = await exampleSystem.run({ seed: 'stopped-match-timer' });
+    for (const id of ['white', 'black'])
+      await s.apply(addClient, { id, identity: id });
+    await s.apply(dispatch, {
+      clientId: 'white',
+      payload: StartMatch({ whiteMs: 4000, blackMs: 4000 }),
+    });
+    await expectInSync(s);
+    for (const id of ['white', 'black']) await s.apply(crash, id);
+    await s.apply(serverCrash);
+    await s.advanceTime(4000);
+    expect(readMatchStatus(await readServer(s))).toBe('playing');
+  });
+
   test('a crashed room is down until it restarts, then has its tally', async () => {
     await using s = await exampleSystem.run({ seed: 'room-restart' });
     for (const id of ['alice', 'bob']) {

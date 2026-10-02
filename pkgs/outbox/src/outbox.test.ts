@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
+import { sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createHarnessAdapters } from '@pkgs/uuid';
 
@@ -22,6 +23,41 @@ function isPing(p: unknown): p is PingPayload {
 const Ping = ns('ping', isPing);
 
 describe('outbox', () => {
+  // regression: outbox-event-availability-ignored
+  test('a future event cannot be delivered before its availability time', async () => {
+    const db = SqlClientImplBunSqlite.open(':memory:');
+    await db.connect();
+    await reconcileOutbox(db);
+    let now = Date.parse('2026-10-01T00:00:00.000Z');
+    const clock = { now: () => now };
+    const createId = () => 'scheduled-event';
+    const registry = new OutboxConsumerRegistry();
+    const seen: number[] = [];
+    registry.register({
+      id: 'scheduled',
+      on: Ping,
+      handler: async (_ctx, payload) => {
+        seen.push(payload.n);
+      },
+    });
+    await new Outbox({
+      tx: db,
+      env: { now: () => new Date(now), createId },
+    }).send({ id: 'scheduled-event', message: Ping({ n: 7 }) });
+    await db.run(
+      sql`UPDATE outbox_events SET available_at = ${'2026-10-31T00:00:00.000Z'} WHERE id = ${'scheduled-event'}`
+    );
+    expect(
+      (await drainOutbox({ db, clock, createId, registry })).processed
+    ).toBe(0);
+    expect(seen).toEqual([]);
+    now = Date.parse('2026-10-31T00:00:00.000Z');
+    expect(
+      (await drainOutbox({ db, clock, createId, registry })).processed
+    ).toBe(1);
+    expect(seen).toEqual([7]);
+    await db.disconnect();
+  });
   test('send is idempotent by id; drain runs consumer once', async () => {
     const db = SqlClientImplBunSqlite.open(':memory:');
     await db.connect();

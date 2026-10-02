@@ -26,6 +26,7 @@ export {
 } from './in-memory-sync-engine';
 export type { SeededRng } from './rng';
 export type { SyncApp, SyncArgs, SyncHarness } from './scenario';
+export { deviceCanSynchronize, deviceOnlineSignal } from './scenario';
 export type { HarnessClock } from './types';
 export type {
   NeverOptions,

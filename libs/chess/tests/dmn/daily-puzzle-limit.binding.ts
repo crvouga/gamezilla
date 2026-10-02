@@ -5,7 +5,7 @@
  *   person (facts from the product's resolver), counting the case's solved
  *   puzzles through the product's window and ledger arithmetic;
  * - server enforcement — the rated-puzzle consume replayed against a server
- *   database holding the person's solved puzzles on the UTC day boundary
+ *   database holding the person's started puzzles on the UTC day boundary
  *   (today's at midnight, earlier ones a millisecond before): allowed adds
  *   one ledger row, refused adds none and says why;
  * - server enforcement of the rated result — the same server, a rated puzzle
@@ -15,7 +15,7 @@
  *   result (nor anything else) stored, so a result recorded past the limit
  *   fails the case;
  * - client gating — what the device answers when a rated puzzle is about to
- *   start (`usePermissions().can`), the same solved puzzles in its synced
+ *   start (`usePermissions().can`), the same started puzzles in its synced
  *   ledger.
  */
 
@@ -31,8 +31,8 @@ import {
   personOf,
 } from '@libs/permissions/root/conformance/people';
 import {
-  insertSolved,
-  solvedEntries,
+  insertStarted,
+  startedEntries,
 } from '@libs/permissions/root/conformance/puzzle-ledger';
 import { DAILY_PUZZLE_LIMIT_REASONS } from '@libs/permissions/root/conformance/reasons';
 import {
@@ -55,6 +55,8 @@ function ratedResultServerLayer(): DecisionLayer {
     idempotencyKey: ratedStartKey(ATTEMPTED_PUZZLE, c.nowMs),
   }));
   const result = replayOperation(ratePuzzleAttemptMutation, (c) => ({
+    attemptKey: 'attempted-start',
+    solveIdx: 3,
     ownerId: c.env.actorId,
     puzzleId: ATTEMPTED_PUZZLE,
     puzzleRating: 1500,
@@ -66,9 +68,9 @@ function ratedResultServerLayer(): DecisionLayer {
     tables: [...BILLING_TABLES, ...CHESS_TABLES],
     reasons: DAILY_PUZZLE_LIMIT_REASONS,
     seed: (c) =>
-      insertSolved(c.db, {
+      insertStarted(c.db, {
         ownerId: identityFor(personOf(c.input)).actorId,
-        entries: solvedEntries(c.input, c.nowMs),
+        entries: startedEntries(c.input, c.nowMs),
       }),
     operationFor: () => allOperations([start, result]),
   });

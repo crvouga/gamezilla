@@ -36,7 +36,7 @@ export const friendships = defineQuery({
     // Always emit the profile query — one SQL shape per defineQuery (workload extract).
     const idsForIn = peerIds.length > 0 ? peerIds : [PROFILE_IN_SENTINEL];
     const profiles = await ctx.db.query(sql`
-      SELECT id, created_at, username, avatar_config, username_changed_at, deleted_at
+      SELECT id, created_at, username, username_norm, avatar_config, username_changed_at, deleted_at
       FROM profile
       WHERE id IN (${join(idsForIn)})
 `);

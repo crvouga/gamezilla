@@ -45,11 +45,12 @@ export function harnessActorApp(args: {
 export function solidActorRoot(
   live: Client,
   browser: HarnessBrowser,
-  history: MemoryHistory
+  history: MemoryHistory,
+  viewport = ACTOR_VIEWPORT as { width: number; height: number }
 ): () => JSX.Element {
   const App = harnessActorApp({ live, browser, isolateStyles: false });
   return () => (
-    <TestViewportProvider value={ACTOR_VIEWPORT}>
+    <TestViewportProvider value={viewport}>
       <App embedded history={history} />
     </TestViewportProvider>
   );

@@ -9,6 +9,7 @@ import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { ATTR, activeSpan, withSpan } from '@pkgs/observability/core';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -52,6 +53,7 @@ async function ensureNonProductionDatabasePolicy(
 }
 
 export type RequestDbMiddlewareOptions = {
+  readonly objectStore: ObjectStore;
   readonly authServer: AuthServerPort;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
@@ -132,6 +134,7 @@ async function attachRequestDatabase(
     createId,
   });
   const store = {
+    objectStore: options.objectStore,
     sqlClient,
     sessionAuth,
     kv,
@@ -152,16 +155,17 @@ async function attachRequestDatabase(
       );
       return await next();
     } finally {
-      if (options.skipDatabaseUrlPolicy === true) return;
-      try {
-        await sqlClient.disconnect();
-      } catch (error: unknown) {
-        await withSpan('db.disconnect', () => Promise.reject(error), {
-          [ATTR.DB_SYSTEM_NAME]: 'postgresql',
-          [ATTR.CODE_FILE_PATH]:
-            'libs/server-app/src/app/request-db-middleware.ts',
-          [ATTR.CODE_FUNCTION_NAME]: 'disconnect',
-        }).catch(() => undefined);
+      if (options.skipDatabaseUrlPolicy !== true) {
+        try {
+          await sqlClient.disconnect();
+        } catch (error: unknown) {
+          await withSpan('db.disconnect', () => Promise.reject(error), {
+            [ATTR.DB_SYSTEM_NAME]: 'postgresql',
+            [ATTR.CODE_FILE_PATH]:
+              'libs/server-app/src/app/request-db-middleware.ts',
+            [ATTR.CODE_FUNCTION_NAME]: 'disconnect',
+          }).catch(() => undefined);
+        }
       }
     }
   });

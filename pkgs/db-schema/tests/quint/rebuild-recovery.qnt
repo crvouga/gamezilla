@@ -1,3 +1,4 @@
+// @spec-meta — package reference protocol fixture
 // Package contract: every acknowledged cell has an authoritative durable copy.
 // A rebuild stages, copies, validates, publishes, and only then removes staging.
 // Crashes can happen between every pair of actions, including during recovery.

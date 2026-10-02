@@ -295,6 +295,7 @@ function planIndexOps(
   }
 
   for (const ix of catalog.indexes) {
+    if (!declaredNames.has(ix.table)) continue;
     const branded = asPackageIndexName(ix.name);
     if (!branded || desiredIndexNames.has(branded)) continue;
     ops.push({ kind: 'drop_index', name: branded });

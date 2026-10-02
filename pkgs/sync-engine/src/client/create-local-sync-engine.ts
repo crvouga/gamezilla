@@ -272,7 +272,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       }),
   });
   const sessionHandles = options.sessionQueries.map((spec) =>
-    runtime.subscribe(spec)
+    runtime.subscribe({ ...spec, settleOnNetworkError: true })
   );
   const uploadQueue = createUploadQueue(options, bus, stateRef);
   bus.subscribe((tables) => {
@@ -327,10 +327,12 @@ function detachPush(state: LocalEngineState): void {
 
 function notifyLocalMutation(
   state: LocalEngineState,
-  _mutation: Mutation<unknown>,
+  mutation: Mutation<unknown>,
   _args: unknown,
   capture: WriteCaptureSnapshot
 ): void {
+  // A checked write belongs only to its author until the server accepts it.
+  if (mutation.pendingUx === 'pending') return;
   const push = state.options.push;
   if (push === undefined || push.rowImageFanout !== true) return;
   const topicMap = withFrameworkTopicMap(push.topicMap);

@@ -24,6 +24,12 @@ export function ProfileEditScreen(): JSX.Element {
       content={({ bodyClass }) => (
         <MenuList class={bodyClass}>
           <MenuRow
+            title={t`Account privacy`}
+            caption={t`Take an export or permanently delete your account`}
+            onClick={() => router.push('/profile/privacy')}
+            dataSet={{ testid: 'profile-privacy' }}
+          />
+          <MenuRow
             title={t`Username`}
             caption={t`Unique handle for search and invites`}
             onClick={() => router.push('/profile/handle')}

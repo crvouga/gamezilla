@@ -3,4 +3,5 @@ export type SyncAppAuth = {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly isAnon: boolean;
+  readonly authenticatedAtMs?: number;
 };

@@ -8,10 +8,12 @@ import { defineFeature } from '@libs/feature/public/manifest';
 
 import { PERMISSIONS_TABLES } from '../public/schema';
 import { PERMISSIONS_TOPIC_MAP } from '../public/topic-map';
+import { PERMISSIONS_PRIVACY } from '../shared/account-privacy';
 import { PERMISSIONS_QUERIES } from './queries';
 
 export const PERMISSIONS_FEATURE = defineFeature({
   name: 'permissions',
+  accountPrivacy: PERMISSIONS_PRIVACY,
   tables: PERMISSIONS_TABLES,
   topicMap: PERMISSIONS_TOPIC_MAP,
   // Held open for the whole session: what keeps this feature's slice

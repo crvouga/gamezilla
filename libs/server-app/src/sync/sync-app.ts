@@ -58,7 +58,10 @@ export async function createSyncApp(deps: {
     getSql: openRequestSqlClient,
     queries: deps.app.queries,
     mutations,
-    authorizeMutation: authorizeAppMutation,
+    authorizeMutation: async (ctx) => {
+      await authorizeAppMutation(ctx);
+      await deps.app.authorizeMutation(ctx);
+    },
     now: deps.now,
     createId: deps.createId,
     pubsub: createRequestScopedPubSub(),

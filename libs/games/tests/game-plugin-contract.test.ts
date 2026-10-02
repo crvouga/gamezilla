@@ -9,7 +9,7 @@ import {
 
 /** A game with no routers: the thinnest definition the registry accepts. */
 function dummyGame(id: string): GameDefinition {
-  return { id, commandRouters: [], eventRouters: [] };
+  return { id, commandRouters: [], eventRouters: [], recoverEffects: () => [] };
 }
 
 describe('game plugin contract', () => {

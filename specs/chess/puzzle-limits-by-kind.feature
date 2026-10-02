@@ -6,35 +6,37 @@ Feature: The puzzle limit holds everywhere, and only for guests
   Puzzles played offline count, the answer does not change when the
   connection does, and a new day brings a fresh allowance.
 
-  Scenario Outline: Someone who <kind> and is past twenty puzzles in a day is never shown a limit
-    Given Alice <kind>
-    And Alice has played 25 puzzles today
-    When Alice moves on to the next puzzle
-    Then Alice has a puzzle on the board
-    And Alice is not shown the puzzle limit
+  Rule: The daily puzzle limit counts a guest's puzzle starts online and offline and starts again each day
 
-    Examples:
-      | kind                   |
-      | is signed in           |
-      | has subscribed to Plus |
+    Scenario Outline: Someone who <kind> and is past twenty puzzles in a day is never shown a limit
+      Given Alice <kind>
+      And Alice has played 25 puzzles today
+      When Alice moves on to the next puzzle
+      Then Alice has a puzzle on the board
+      And Alice is not shown the puzzle limit
 
-  Scenario: A guest at the limit still gets no new puzzle while offline
-    Given Alice is a guest who has finished today's last allowed puzzle
-    And Alice is offline
-    When Alice asks for another puzzle
-    Then Alice is shown the puzzle limit within 15 seconds
-    And Alice has no puzzle on the board
+      Examples:
+        | kind                   |
+        | is signed in           |
+        | has subscribed to Plus |
 
-  Scenario: Puzzles a guest plays offline count toward the day's limit
-    Given Alice is a guest who has played 19 puzzles today
-    And Alice is offline
-    And Alice has solved the twentieth puzzle of the day
-    When Alice asks for another puzzle
-    Then Alice is shown the puzzle limit within 15 seconds
+    Scenario: A guest at the limit still gets no new puzzle while offline
+      Given Alice is a guest who has finished today's last allowed puzzle
+      And Alice is offline
+      When Alice asks for another puzzle
+      Then Alice is shown the puzzle limit within 15 seconds
+      And Alice has no puzzle on the board
 
-  Scenario: A new day brings a guest a fresh allowance
-    Given Alice is a guest who has been shown today's puzzle limit
-    When the next day begins
-    And Alice goes back to the puzzles
-    Then Alice has a puzzle on the board within 30 seconds
-    And Alice is not shown the puzzle limit
+    Scenario: Puzzles a guest plays offline count toward the day's limit
+      Given Alice is a guest who has played 19 puzzles today
+      And Alice is offline
+      And Alice has solved the twentieth puzzle of the day
+      When Alice asks for another puzzle
+      Then Alice is shown the puzzle limit within 15 seconds
+
+    Scenario: A new day brings a guest a fresh allowance
+      Given Alice is a guest who has been shown today's puzzle limit
+      When the next day begins
+      And Alice goes back to the puzzles
+      Then Alice has a puzzle on the board within 30 seconds
+      And Alice is not shown the puzzle limit

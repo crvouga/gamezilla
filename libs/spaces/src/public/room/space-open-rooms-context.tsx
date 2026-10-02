@@ -6,15 +6,16 @@ import {
   For,
   type JSX,
   onCleanup,
+  Show,
 } from 'solid-js';
 
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import {
   SpaceOpenRoomsStoreProvider,
+  useSpaceOpenRooms,
   useSpaceOpenRoomsPendingClear,
   useSpaceOpenRoomsRegistry,
 } from './space-open-rooms-store';
-import { clearSpaceOpenSession } from './space-open-session-store';
 import { type SpaceRoomUiState, useSpaceRoom } from './use-space-room';
 
 export type {
@@ -30,9 +31,7 @@ export {
 
 function SpaceOpenRoomSlot(props: { readonly spaceId: string }): null {
   const setEntry = useSpaceOpenRoomsRegistry();
-  const clearPending = useSpaceOpenRoomsPendingClear();
   const state: SpaceRoomUiState = useSpaceRoom(props.spaceId);
-  const deviceId = useMyDeviceId();
 
   createEffect(() => {
     const room = state.room;
@@ -46,17 +45,15 @@ function SpaceOpenRoomSlot(props: { readonly spaceId: string }): null {
 
   onCleanup(() => {
     setEntry(props.spaceId, null);
-    clearPending?.(props.spaceId);
-    clearSpaceOpenSession(props.spaceId, deviceId());
   });
 
   return null;
 }
 
 /**
- * Keeps one room WebSocket alive per locally-open space (Meet-style).
- * Close/minimize does not tear down; leave/end deletes the
- * `spaces_open_sessions` row and unmounts that slot.
+ * A person is present in the space they are viewing. Stepping out suspends
+ * its connection but keeps membership, saved commands and the open-session
+ * identity, so returning catches up without joining twice.
  */
 export function SpaceOpenRoomsProvider(props: {
   readonly children: JSX.Element;
@@ -79,10 +76,35 @@ export function SpaceOpenRoomsProvider(props: {
 
   return (
     <SpaceOpenRoomsStoreProvider>
-      <For each={mountedIds()}>
-        {(spaceId) => <SpaceOpenRoomSlot spaceId={spaceId} />}
-      </For>
+      <SpaceOpenRoomSlots spaceIds={mountedIds()} />
       {props.children}
     </SpaceOpenRoomsStoreProvider>
+  );
+}
+
+function SpaceOpenRoomSlots(props: {
+  readonly spaceIds: readonly string[];
+}): JSX.Element {
+  const rooms = useSpaceOpenRooms();
+  const clearPending = useSpaceOpenRoomsPendingClear();
+  const deviceId = useMyDeviceId();
+  let previousIds = new Set<string>();
+  createEffect(() => {
+    const currentIds = new Set(props.spaceIds);
+    for (const spaceId of previousIds) {
+      if (currentIds.has(spaceId)) continue;
+      clearPending?.(spaceId);
+      rooms.clearClientId(spaceId, deviceId());
+    }
+    previousIds = currentIds;
+  });
+  return (
+    <For each={props.spaceIds}>
+      {(spaceId) => (
+        <Show when={rooms.viewingIds().has(spaceId)}>
+          <SpaceOpenRoomSlot spaceId={spaceId} />
+        </Show>
+      )}
+    </For>
   );
 }

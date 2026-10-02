@@ -5,12 +5,11 @@ import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
-import { useNamedRoomRoster } from '@pkgs/room/solid';
 import { Badge, ResponsiveSurface, ScrollView } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
-import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
+import { useConnectedSpaceRoster } from '../../../public/room/use-connected-space-roster';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
 import { useMemberRole } from './use-member-role';
 
@@ -30,7 +29,7 @@ export function SpaceMembersListModal(
 ): JSX.Element {
   const { t } = useLingui();
   const myId = useMyId();
-  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
+  const roster = useConnectedSpaceRoster();
   const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
 

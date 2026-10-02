@@ -31,6 +31,11 @@ import {
   awaitSignedOutScreen,
   showAccountScreen,
 } from '@libs/harness/system/sign-in-method-actions';
+import {
+  deviceShowsSignedIn,
+  outsideIdentityAccount,
+  registeredAccounts,
+} from '@libs/harness/system/sign-in-state-reads';
 import type { QuintValue } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 
@@ -216,6 +221,38 @@ bindQuintModel<QuintHarnessWorld>({
         new Set<QuintValue>(await w.quiet.read(serverSignInMethodsOf, id))
       );
     }
-    return { account, signInMethods, signInMethodsShown };
+    const signsInto = new Map<QuintValue, QuintValue>();
+    for (const identity of ['google', 'appleShared', 'appleHidden'] as const) {
+      const address =
+        identity === 'google'
+          ? await w.quiet.read(actorEmail, PERSON)
+          : await w.quiet.read(
+              actorAppleEmail,
+              PERSON,
+              identity === 'appleShared' ? 'gmail' : 'icloud'
+            );
+      const id = await w.quiet.read(
+        outsideIdentityAccount,
+        signInMethodOf(identity),
+        address
+      );
+      signsInto.set(identity, id === null ? 0 : accountName(w, id));
+    }
+    const offline = new Set<QuintValue>();
+    const showsSignedIn = new Set<QuintValue>();
+    for (const device of DEVICES) {
+      if (await w.quiet.read(isOffline, device)) offline.add(device);
+      if (await w.quiet.read(deviceShowsSignedIn, device))
+        showsSignedIn.add(device);
+    }
+    return {
+      account,
+      signInMethods,
+      signInMethodsShown,
+      signsInto,
+      accountCount: (await w.quiet.read(registeredAccounts)).length,
+      offline,
+      showsSignedIn,
+    };
   },
 });

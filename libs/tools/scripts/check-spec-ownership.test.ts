@@ -8,6 +8,19 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
+  test('rulebook changes require spec subjects even when labeled documentation', () => {
+    // regression: spec-rulebook-commit-subject
+    expect(
+      ownershipViolations([
+        {
+          sha: '5b99004138',
+          subject: 'docs(specs): define canonical spec locations',
+          files: ['specs/README.md'],
+        },
+      ])
+    ).toHaveLength(1);
+  });
+
   // regression: conventional-spec-commit-rejected
   test('recognizes the Conventional Commit used for database safety contracts', () => {
     expect(

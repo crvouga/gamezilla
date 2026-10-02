@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="privacy-access-decisions" name="Private account choices" namespace="https://gamezilla.dev/decisions">
+  <decision id="privacy-access" name="May this person delete the account or take an export?">
+    <description>Account deletion and personal-data exports need an account, a connection, and proof of the account less than 10 minutes old. An offline choice never happens later on its own.</description>
+    <decisionTable id="privacy-access-table" hitPolicy="UNIQUE">
+      <input id="who" label="who is asking">
+        <inputExpression id="who-expression" typeRef="string">
+          <text>who is asking</text>
+        </inputExpression>
+        <inputValues id="who-values">
+          <text>"guest","free account","Plus member"</text>
+        </inputValues>
+      </input>
+      <input id="choice" label="what they want to do">
+        <inputExpression id="choice-expression" typeRef="string">
+          <text>what they want to do</text>
+        </inputExpression>
+        <inputValues id="choice-values">
+          <text>"delete their account","take a personal-data export"</text>
+        </inputValues>
+      </input>
+      <input id="connected" label="has a connection">
+        <inputExpression id="connected-expression" typeRef="string">
+          <text>has a connection</text>
+        </inputExpression>
+        <inputValues id="connected-values">
+          <text>"yes","no"</text>
+        </inputValues>
+      </input>
+      <input id="proven" label="account proof is less than 10 minutes old">
+        <inputExpression id="proven-expression" typeRef="string">
+          <text>account proof is less than 10 minutes old</text>
+        </inputExpression>
+        <inputValues id="proven-values">
+          <text>"yes","no"</text>
+        </inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values">
+          <text>"yes","no"</text>
+        </outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values">
+          <text>"none","needs an account","needs a connection","prove the account again"</text>
+        </outputValues>
+      </output>
+      <rule id="guest">
+        <description>A guest has no account to delete or export.</description>
+        <inputEntry id="guest-in-1">
+          <text>"guest"</text>
+        </inputEntry>
+        <inputEntry id="guest-in-2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="guest-in-3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="guest-in-4">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="guest-out-1">
+          <text>"no"</text>
+        </outputEntry>
+        <outputEntry id="guest-out-2">
+          <text>"needs an account"</text>
+        </outputEntry>
+      </rule>
+      <rule id="offline">
+        <description>An offline account choice requires a connection.</description>
+        <inputEntry id="offline-in-1">
+          <text>"free account","Plus member"</text>
+        </inputEntry>
+        <inputEntry id="offline-in-2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="offline-in-3">
+          <text>"no"</text>
+        </inputEntry>
+        <inputEntry id="offline-in-4">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="offline-out-1">
+          <text>"no"</text>
+        </outputEntry>
+        <outputEntry id="offline-out-2">
+          <text>"needs a connection"</text>
+        </outputEntry>
+      </rule>
+      <rule id="old-proof">
+        <description>A connected account with old proof must sign in again.</description>
+        <inputEntry id="old-proof-in-1">
+          <text>"free account","Plus member"</text>
+        </inputEntry>
+        <inputEntry id="old-proof-in-2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="old-proof-in-3">
+          <text>"yes"</text>
+        </inputEntry>
+        <inputEntry id="old-proof-in-4">
+          <text>"no"</text>
+        </inputEntry>
+        <outputEntry id="old-proof-out-1">
+          <text>"no"</text>
+        </outputEntry>
+        <outputEntry id="old-proof-out-2">
+          <text>"prove the account again"</text>
+        </outputEntry>
+      </rule>
+      <rule id="permitted">
+        <description>A connected, recently proven account may make either choice.</description>
+        <inputEntry id="permitted-in-1">
+          <text>"free account","Plus member"</text>
+        </inputEntry>
+        <inputEntry id="permitted-in-2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="permitted-in-3">
+          <text>"yes"</text>
+        </inputEntry>
+        <inputEntry id="permitted-in-4">
+          <text>"yes"</text>
+        </inputEntry>
+        <outputEntry id="permitted-out-1">
+          <text>"yes"</text>
+        </outputEntry>
+        <outputEntry id="permitted-out-2">
+          <text>"none"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

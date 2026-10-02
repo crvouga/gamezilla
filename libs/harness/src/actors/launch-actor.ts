@@ -1,3 +1,5 @@
+import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
+import { createSignal } from 'solid-js';
 /**
  * Per-actor UI launch / teardown for the product system runtime.
  */
@@ -14,7 +16,6 @@ import {
 } from '@pkgs/ui-testing-solid-dom';
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
 import type { Harness, HarnessActor, ProductUi } from '..';
-import { harnessClientNamespace } from '..';
 import { createHarnessWaitPump } from '../setup/wait-pump';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
@@ -37,6 +38,7 @@ async function createSolidDomClientDriver(args: {
   readonly session: MultiAppSolidDomSession;
   readonly runFor: (durationMs: number) => Promise<void>;
   readonly history: MemoryHistory;
+  readonly viewport: { width: number; height: number };
 }): Promise<Driver> {
   const live = await args.harness.spawnClient(args.id);
   const pump = createHarnessWaitPump({
@@ -50,13 +52,56 @@ async function createSolidDomClientDriver(args: {
       mount: async () => {
         const app = args.session.mountActor(
           args.id,
-          solidActorRoot(live, args.harness.browser(args.id), args.history)
+          solidActorRoot(
+            live,
+            args.harness.browser(args.id),
+            args.history,
+            args.viewport
+          )
         );
         await args.runFor(0);
         return app;
       },
     },
   });
+}
+
+async function actorDataStore(id: string) {
+  const { mkdtemp, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const directory = await mkdtemp(join(tmpdir(), `harness-webview-${id}-`));
+  return {
+    dataStore: { directory },
+    cleanup: () => rm(directory, { recursive: true, force: true }),
+  };
+}
+
+async function actorHistory(
+  harness: Harness,
+  id: string
+): Promise<MemoryHistory> {
+  const history = createMemoryHistory();
+  const savedHref = await readEmbeddedHref((await harness.client(id)).kv);
+  if (savedHref !== null) history.set({ value: savedHref, replace: true });
+  return history;
+}
+
+function reactiveViewport(runFor: (ms: number) => Promise<void>) {
+  const [size, updateSize] = createSignal({ width: 390, height: 844 });
+  const viewport = {
+    get width() {
+      return size().width;
+    },
+    get height() {
+      return size().height;
+    },
+  };
+  const changeViewport = async (next: { width: number; height: number }) => {
+    updateSize(next);
+    await runFor(0);
+  };
+  return { viewport, changeViewport };
 }
 
 export async function launchActor(args: {
@@ -73,18 +118,13 @@ export async function launchActor(args: {
   let closeResources: () => Promise<void> = () => Promise.resolve();
   let openLink: (path: string) => Promise<void>;
   let currentPath: () => Promise<string>;
+  let setViewport: (size: { width: number; height: number }) => Promise<void>;
   if (args.ui.kind === 'bun-webview') {
     const webOrigin = args.ui.webOrigin;
     // Each actor is its own device: its own on-disk storage (cookies, OPFS
     // for the app's SQLite), shared with the popups it opens. No URL here:
     // the driver's `launch` navigates and awaits the load.
-    const { mkdtemp, rm } = await import('node:fs/promises');
-    const { tmpdir } = await import('node:os');
-    const { join } = await import('node:path');
-    const directory = await mkdtemp(
-      join(tmpdir(), `harness-webview-${args.id}-`)
-    );
-    const dataStore = { directory };
+    const { dataStore, cleanup } = await actorDataStore(args.id);
     const view = new Bun.WebView({ width: 390, height: 844, dataStore });
     raw = new BunWebviewDriver({
       view,
@@ -97,18 +137,19 @@ export async function launchActor(args: {
     localSql = () => pageSql;
     closeResources = async () => {
       view.close();
-      await rm(directory, { recursive: true, force: true });
+      await cleanup();
     };
     openLink = (path) => view.navigate(`${webOrigin}${path}`);
     currentPath = async () =>
       String(await view.evaluate('location.pathname + location.search'));
+    setViewport = (size) => view.resize(size.width, size.height);
     await raw.launch();
     if (args.snapshot !== undefined) {
       await injectWebViewSnapshotAuth({
         view,
         actorId: args.id,
         snapshot: args.snapshot,
-        namespace: harnessClientNamespace(args.id),
+        namespace: args.harness.clientNamespace(args.id),
         origin: webOrigin,
       });
     }
@@ -119,14 +160,17 @@ export async function launchActor(args: {
         'launchActor: solid-dom host requires a MultiAppSolidDomSession (in-process tests)'
       );
     }
-    const history = createMemoryHistory();
     const runFor = args.ui.runFor;
+    const history = await actorHistory(args.harness, args.id);
+    const { viewport, changeViewport } = reactiveViewport(runFor);
+    setViewport = changeViewport;
     raw = await createSolidDomClientDriver({
       harness: args.harness,
       id: args.id,
       session,
       runFor,
       history,
+      viewport,
     });
     openLink = async (path) => {
       history.set({ value: path });
@@ -140,7 +184,7 @@ export async function launchActor(args: {
       ? recordingDriver(raw, { recorder: args.recorder, actorId: args.id })
       : raw;
   return {
-    handle: { id: args.id, ui, localSql, openLink, currentPath },
+    handle: { id: args.id, ui, localSql, openLink, currentPath, setViewport },
     raw,
     closeResources,
   };

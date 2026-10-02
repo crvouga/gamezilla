@@ -443,6 +443,11 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
   );
   try {
     const processed = await drainAndNotifyOutbox({
+      objectStore: await createApiObjectStore(secretStore, {
+        secretsEnv,
+        now: wallClock.now,
+        http: { fetch: (input, init) => globalThis.fetch(input, init) },
+      }),
       db: wrapSqlClientForObservability(opened.sqlClient),
       clock: wallClock,
       createId: () => crypto.randomUUID(),

@@ -27,6 +27,7 @@ import {
 import type { WriteCaptureSnapshot } from '../sql-ast';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
+import { mutationSavepointClient } from './mutation-savepoint-client';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
 import {
@@ -36,16 +37,6 @@ import {
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 
-function asNestedTxClient(tx: SqlClient): SqlClient {
-  return {
-    connect: () => tx.connect(),
-    disconnect: () => Promise.resolve(),
-    query: (q) => tx.query(q),
-    run: (q) => tx.run(q),
-    transaction: async (fn) => fn(tx),
-    prepare: (q) => tx.prepare(q),
-  };
-}
 function mergeCaptures(
   captures: readonly WriteCaptureSnapshot[]
 ): WriteCaptureSnapshot {
@@ -143,7 +134,7 @@ async function prepareMutationNotify(
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
   return db.transaction(async (tx) => {
-    const nested = asNestedTxClient(tx);
+    const nested = mutationSavepointClient(tx);
     const result = await processMutationsBatch({
       serverDb: nested,
       registry: deps.mutations,

@@ -77,7 +77,7 @@ terms:
       the other's profile. It needs a connection. It waits in the inbox of
       the person asked until they accept or decline it, or the asker cancels
       it. "Request" for short.
-    forms: [friend requests]
+    forms: [friend requests, Request, request, requests]
     avoid: [invite, invitation, friend invite]
     model: [ask, friendRequests, RequestSent, RequestReceived]
 
@@ -161,7 +161,7 @@ terms:
       any letter case. It never shows the person searching, nor a blocker,
       and it gives an answer ("nobody" at worst) rather than searching
       forever. "Search" for short. It needs an account and a connection.
-    forms: [people searches]
+    forms: [people searches, Search, search]
     avoid: [user search, user lookup, directory]
     published: true
 
@@ -188,6 +188,10 @@ terms:
     avoid: [notification, alert]
 
   # --- Borrowed -------------------------------------------------------------
+  - term: account deletion
+    from: profile
+  - term: recently proven account
+    from: profile
 
   - term: guest
     from: profile

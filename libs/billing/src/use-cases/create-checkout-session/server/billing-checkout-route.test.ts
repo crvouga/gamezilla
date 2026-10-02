@@ -20,6 +20,15 @@ type FakeRow = Record<string, unknown>;
 
 /** Minimal second provider; asserts the port is all the route depends on. */
 class StubBilling implements MembershipBilling {
+  cancelMembership(): Promise<void> {
+    return Promise.reject(new Error('cancellation is outside this fixture'));
+  }
+  readPayments() {
+    return Promise.resolve([]);
+  }
+  refundPayment(): Promise<void> {
+    return Promise.reject(new Error('refund is outside this fixture'));
+  }
   readonly provider = 'stub';
   readonly calls: StartCheckoutInput[] = [];
 

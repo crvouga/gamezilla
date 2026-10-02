@@ -1,14 +1,43 @@
 import type { MembershipBilling } from '@pkgs/billing';
 import type { Logger } from '@pkgs/logger';
+import { sql as statement } from '@pkgs/sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-
 import { CustomerLinks } from '../../../shared/memberships/customer-links';
+import { recordPaymentEvidence } from '../../../shared/memberships/payment-evidence';
 import {
   type BillingRouteDeps,
   billingNotConfigured,
 } from '../../../shared/routes/billing-route-deps';
 import { applyMembershipChange } from './apply-membership-change';
+import { settleDeletedAccountPayments } from './settle-deleted-payments';
+
+async function settleIfClosed(
+  sql: SqlClient,
+  deps: BillingRouteDeps & { readonly provider: MembershipBilling },
+  customerId: string
+): Promise<boolean> {
+  const closures = await sql.query(
+    statement<{
+      account_id: string;
+      confirmed_at: string;
+    }>`SELECT account_id, confirmed_at FROM billing_account_closures WHERE provider = ${deps.provider.provider} AND customer_id = ${customerId} LIMIT 1`
+  );
+  const closure = closures[0];
+  if (closure === undefined) return false;
+  await sql.transaction((tx) =>
+    settleDeletedAccountPayments({
+      tx,
+      provider: deps.provider,
+      customerId,
+      accountId: closure.account_id,
+      confirmedAtMs: Date.parse(closure.confirmed_at),
+      nowMs: deps.clock.now(),
+    })
+  );
+  return true;
+}
 
 /**
  * One provider's callback. The path names the provider, so a delivery is
@@ -45,19 +74,35 @@ async function handleBillingCallback(
     result.provider,
     result.customerId
   );
+  if (await settleIfClosed(sql, deps, result.customerId))
+    return c.json({ received: true }, 200);
   if (accountId === null) {
     // Provider identity never linked to an account: nothing to project.
     return c.json({ received: true }, 200);
   }
-  await applyMembershipChange({
+  if (result.kind === 'payments') {
+    const payments = await provider.readPayments(result.customerId);
+    if (await settleIfClosed(sql, deps, result.customerId))
+      return c.json({ received: true }, 200);
+    await sql.transaction((tx) =>
+      recordPaymentEvidence(tx, accountId, provider.provider, {
+        payments,
+        nowMs: deps.clock.now(),
+      })
+    );
+    return c.json({ received: true }, 200);
+  }
+  const applied = await applyMembershipChange({
     sql,
     clock: deps.clock,
     accountId,
     change: result,
   });
-  await deps.notifyUser(accountId, 'billing:membership', [
-    'billing_subscriptions',
-  ]);
+  if (applied)
+    await deps.notifyUser(accountId, 'billing:membership', [
+      'billing_subscriptions',
+    ]);
+  else await settleIfClosed(sql, deps, result.customerId);
   return c.json({ received: true }, 200);
 }
 

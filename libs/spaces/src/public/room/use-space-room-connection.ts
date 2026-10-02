@@ -2,6 +2,8 @@ import type { ConfigService } from '@libs/auth/public/config-service-types';
 import type { Clock, Timers } from '@pkgs/clock';
 import { useClock, useTimers } from '@pkgs/clock/solid';
 import type { Kv } from '@pkgs/kv/interface';
+import type { Logger } from '@pkgs/logger';
+import { useLogger } from '@pkgs/logger/solid';
 import type {
   ClientTransport,
   RoomClient,
@@ -94,6 +96,7 @@ type OpenSpaceRoomArgs = {
   createTransport: ReturnType<typeof useCreateRoomTransport>;
   clock: Clock;
   timers: Timers;
+  logger: Logger;
   createId: CreateId;
   random: Random;
   refs: RoomRefs;
@@ -150,7 +153,8 @@ function openSpaceRoom(args: OpenSpaceRoomArgs): () => void {
         getSessionToken: args.getSessionToken,
         createTransport: args.createTransport,
       });
-    } catch {
+    } catch (cause) {
+      args.logger.error('Could not reopen saved space state', { cause });
       // RoomClient.open is hardened to avoid this; if it still throws, clear
       // the latch so a later bootstrap key change / remount can retry.
       clearOpeningKey(args);
@@ -236,6 +240,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const module = useSpaceModule();
   const createTransport = useCreateRoomTransport();
   const clock = useClock();
+  const logger = useLogger('space-room');
   const timers = useTimers();
   const createId = useCreateId();
   const random = useRandom();
@@ -298,6 +303,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
       createTransport,
       clock,
       timers,
+      logger,
       createId,
       random,
       refs,

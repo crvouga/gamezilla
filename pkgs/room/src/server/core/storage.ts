@@ -14,7 +14,12 @@ export type CommandDedupOutcome =
 export interface RoomStorage {
   loadEventsAfter(topic: string, afterSeq: number): Promise<LogEntry[]>;
   getLastSeq(topic: string): Promise<number>;
-  appendCommittedEntries(topic: string, entries: LogEntry[]): Promise<void>;
+  /** The log and its retry verdict must persist atomically, including multi-event commands. */
+  commitCommand(
+    topic: string,
+    commandId: string,
+    entries: LogEntry[]
+  ): Promise<void>;
   getDedupOutcome(
     topic: string,
     commandId: string
@@ -22,6 +27,6 @@ export interface RoomStorage {
   putDedupOutcome(
     topic: string,
     commandId: string,
-    outcome: CommandDedupOutcome
+    outcome: Extract<CommandDedupOutcome, { kind: 'rejected' }>
   ): Promise<void>;
 }

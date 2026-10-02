@@ -13,6 +13,10 @@
  */
 
 import {
+  type AuthClientPort,
+  AuthClientProvider,
+} from '@libs/auth/public/auth-client-provider';
+import {
   DEVICE_ID_KEY,
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
@@ -189,7 +193,12 @@ function mount(
                       ids: { clientId: 'conformance-client' },
                       createId: ids.createId,
                       get children() {
-                        return createComponent(probe, {});
+                        return createComponent(AuthClientProvider, {
+                          port: caseAuthClient(c),
+                          get children() {
+                            return createComponent(probe, {});
+                          },
+                        });
                       },
                     });
                   },
@@ -243,5 +252,40 @@ export function clientGatingLayer(options: ClientLayerOptions): DecisionLayer {
   return {
     observes: options.observes ?? ['answer'],
     decide: (input) => answerCase(options, input),
+  };
+}
+
+function caseAuthClient(c: ServerCase): AuthClientPort {
+  const outsideFixture = () =>
+    Promise.reject(new Error('Auth flows are outside this decision fixture'));
+  const snapshot = {
+    isHydrated: true,
+    error: null,
+    session: c.env.isAnon
+      ? null
+      : {
+          externalUserId: c.env.actorId,
+          accountId: c.env.accountId,
+          email: null,
+          expiresAt: null,
+          authenticatedAt: new Date(c.nowMs),
+        },
+  };
+  return {
+    provider: 'conformance',
+    session: {
+      getSnapshot: () => snapshot,
+      subscribe: () => () => {},
+      refresh: outsideFixture,
+    },
+    signIn: outsideFixture,
+    signOut: outsideFixture,
+    signOutEverywhere: outsideFixture,
+    listIdentities: outsideFixture,
+    prepareLink: outsideFixture,
+    linkProvider: outsideFixture,
+    unlinkProvider: outsideFixture,
+    createSeparateAccount: outsideFixture,
+    getFreshToken: outsideFixture,
   };
 }

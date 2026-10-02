@@ -22,7 +22,7 @@ export type DurableObjectKvListOptions = {
  * KV-style persistence available on every Durable Object instance.
  * Mirrors the async `ctx.storage` surface used by {@link DurableObjectRoomStorage}.
  */
-export interface DurableObjectKvStorage {
+export interface DurableObjectKvTransaction {
   get<T = unknown>(key: string): Promise<T | undefined>;
   put(key: string, value: unknown): Promise<void>;
   put(entries: Record<string, unknown>): Promise<void>;
@@ -30,6 +30,12 @@ export interface DurableObjectKvStorage {
   list<T = unknown>(
     options?: DurableObjectKvListOptions
   ): Promise<Map<string, T>>;
+}
+
+export interface DurableObjectKvStorage extends DurableObjectKvTransaction {
+  transaction<T>(
+    body: (tx: DurableObjectKvTransaction) => Promise<T>
+  ): Promise<T>;
   /** DO alarm APIs (optional on unit fakes that do not model alarms). */
   setAlarm?(ms: number): Promise<void>;
   getAlarm?(): Promise<number | null>;

@@ -11,4 +11,5 @@ export const STRIPE_MEMBERSHIP_CALLBACK_EVENTS: Readonly<Record<string, true>> =
     'customer.subscription.paused': true,
     'customer.subscription.resumed': true,
     'charge.refunded': true,
+    'charge.succeeded': true,
   };

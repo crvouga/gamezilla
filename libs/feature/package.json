@@ -17,6 +17,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/message": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

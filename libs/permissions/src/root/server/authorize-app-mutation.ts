@@ -2,9 +2,10 @@ import {
   type MutationAuthorize,
   MutationError,
 } from '@pkgs/sync-engine/shared';
-
+import { decidePrivacyAccess } from '../../public/privacy-permission';
 import { decideForActor } from '../../shared/decide-for-actor';
 import { MUTATION_ACTIONS } from '../../shared/mutation-actions';
+import { PERMISSION } from '../../shared/permission-catalog';
 import {
   applyConsume,
   consumeQuotaArgs,
@@ -67,12 +68,21 @@ export const authorizeAppMutation: MutationAuthorize = async ({
     await consumeWithServerClock({ name, args, tx, env, nowMs, clientAtMs });
     return;
   }
-  const decision = await decideForActor(tx, {
+  const accountDecision = await decideForActor(tx, {
     identity: env,
     key: declared,
     nowMs,
     clientAtMs,
   });
+  const decision =
+    declared === PERMISSION.profileDeleteAccount ||
+    declared === PERMISSION.profileExportData
+      ? decidePrivacyAccess(accountDecision, {
+          connected: true,
+          authenticatedAtMs: env.authenticatedAtMs ?? null,
+          nowMs,
+        })
+      : accountDecision;
   if (!decision.allowed) {
     throw new MutationError(
       decision.reason ?? 'not_granted',

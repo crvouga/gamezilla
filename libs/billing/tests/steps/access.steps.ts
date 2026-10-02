@@ -75,6 +75,7 @@ When(
 );
 
 Then('{actor} has free access', async (w, actor: Actor) => {
+  await w.s.apply(openBilling, actor);
   await expectTier(w, actor, 'free');
 });
 

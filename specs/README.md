@@ -25,6 +25,37 @@ verdict is produced automatically with zero manual testing.
 
 ## 1. Governing Goals
 
+### Product contract inventory
+
+The inventory includes what people do in the app and what the team does
+with its developer tools. Developer workflows describe choices and visible
+outcomes; their implementation belongs in the repository and package
+briefings. An entry without a complete executable contract remains a
+release gap under Goal 1. Listing an entry does not prove it.
+
+| Surface | Contract home | Completeness work still required |
+| --- | --- | --- |
+| Accounts, profiles and sign-in methods | [`profile/`](profile/), [`auth/`](auth/) | Bind deletion, export, retention and their reactions across contexts; verify production sign-in methods match their promise |
+| Memberships, payments and paid access | [`billing/`](billing/) | Model grace expiration and refunds; prove deletion stops future charges and payment retention expires |
+| Spaces and their people | [`spaces/`](spaces/) | Define and model adding and removing people, including self-removal, removal while offline, and whether someone removed may rejoin |
+| Friendships, requests and blocking | [`friends/`](friends/) | Model the end of a declined request's waiting period and deletion; verify every friendship-status transition |
+| Inbox choices and outcomes | [`friends/`](friends/) | Define reading, marking all read, archiving, dismissing, filtering, expiry and failed actions |
+| Chess puzzles, progress and watching | [`chess/`](chess/) | Complete rating and feed decisions, assistant encouragement and speech, and progress erasure |
+| App navigation, preferences and accessibility | [`runtime/`](runtime/) | Prove every capability across the supported device and input matrix, including interrupted forms and failure recovery |
+| Shared notes, rooms and matchmaking examples | [`sync-engine/`](sync-engine/), [`room/`](room/), [`matchmaking/`](matchmaking/) | Demote implementation-only examples without losing their guards; complete observable model coverage |
+| Test-world views and checkpoints | [`developer-tools/test-world-views.feature`](developer-tools/test-world-views.feature), [`developer-tools/checkpoints.feature`](developer-tools/checkpoints.feature) | Add model and runner coverage; define incomplete saves, failed restores, automatic recovery and isolation |
+| Data notebooks | [`developer-tools/data-notebook.feature`](developer-tools/data-notebook.feature) | Add model and runner coverage; define editing data, answer limits, reordering and automatic answers |
+| Test reports and recorded moments | [`developer-tools/report-catalog.feature`](developer-tools/report-catalog.feature), [`developer-tools/recorded-moments.feature`](developer-tools/recorded-moments.feature), [`developer-tools/report-navigation.feature`](developer-tools/report-navigation.feature) | Add model and runner coverage; define grouping, ordering, playback, access and unavailable reports |
+| Release checks | [`developer-tools/release-check.feature`](developer-tools/release-check.feature), [`conformance.yaml`](conformance.yaml) | Bind every obligation to current evidence; define a quantitative capacity target and prove it |
+| Investigation trails and recovery | [`runtime/request-records.feature`](runtime/request-records.feature), [`profile/finding-a-person.feature`](profile/finding-a-person.feature), [`runtime/privacy-retention.feature`](runtime/privacy-retention.feature) | Define all investigation choices, failures and privacy boundaries; prove recovery cannot revive deleted data |
+| Building, changing and releasing an environment | [`runtime/declared-environment.feature`](runtime/declared-environment.feature), [`runtime/connected-services.feature`](runtime/connected-services.feature) | Define development preparation, automated check and release workflows, cancellation and their failures |
+| Component exploration and team authoring tools | No complete contract yet | Define their observable workflows and connect automated evidence |
+
+The outstanding column records incomplete coverage; it is not permission
+to treat a missing obligation as passing. The audit must replace each gap
+with a verified contract or an explicit product decision before a release
+can claim completeness.
+
 These are the non-negotiable goals of the specification system. Every
 design decision in this strategy is subordinate to them.
 
@@ -977,6 +1008,31 @@ with `spec: '<stem>'`, imported from that folder's `index.ts`), and
 the steps are listed in generated `STEPS_CATALOG.md` files
 ([index](../docs/STEPS_CATALOG.md)).
 
+`specs/` contains no TypeScript or JavaScript.
+Step definitions, model bindings, adapters and runners live
+outside this tree and point to the canonical specs.
+
+Canonical product Gherkin and Quint specifications exist only in this tree. A
+`.feature` never lives beside application code. A `.qnt` may remain under a
+package's `tests/` only when it is not a product specification:
+`// @spec-meta` marks a fixture that tests verification or implementation
+machinery. Product interpretations and their shared model helpers live in
+`specs/system/`, alongside the other product specifications.
+`// @spec-interpretation` identifies a composition of the domain rules and is
+followed by `// Sources: specs/<domain>[, specs/<domain>...]`. The sources remain
+the authority; a composition may not silently become another product definition.
+Its `@spec-meta` modules supply finite bounds or diagnostic checks.
+
+A package registers these composed models through `quintCampaignDomains`.
+Its `test` and `test:contract` Check leaves run the campaign and hash both
+the campaign directory and every declared source domain. Campaigns check all
+modules through their import roots, exercise safety and temporal obligations,
+and test fault sensitivity; they do not require aggregate replay bindings or
+redeclare the source domains' vocabulary. The location gate permits marked
+campaign modules only in a registered, singly owned campaign domain, validates
+every source domain, and continues to refuse product interpretations outside
+`specs/`. Framework fixtures remain in their package's `tests/`.
+
 ### Bounded contexts
 
 Every `specs/<domain>/` is a bounded context with its own ubiquitous
@@ -1035,7 +1091,7 @@ terms:
 
 | Context | `specs/` | Owns | Kind |
 | --- | --- | --- | --- |
-| Identity | `profile` | who a person is to the product: guests, accounts, signing in and out, sign-in methods, usernames, avatars, profiles, the devices on an account | supporting |
+| Identity | `profile` | who a person is to the product: guests, accounts, signing in and out, sign-in methods, usernames, avatars, profiles, the devices on an account, account deletion, personal-data exports and retention | supporting |
 | Billing | `billing` | Plus: memberships, trials, renewals, paid access, grace, refunds, the billing portal | generic (the provider does the paying) |
 | Spaces | `spaces` | live spaces: hosting, joining, leaving, ending, links, the lobby, presence, the hosting limit | core |
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
@@ -1046,6 +1102,7 @@ terms:
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
 | Database indexing | `db-indexes` | automatic index ownership, planning, retirement, interrupted maintenance and recovery | technical maintenance |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
+| Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
 | Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
 | Journeys | `journeys` | the critical journeys across every context | — |
 
@@ -1054,10 +1111,14 @@ terms and import only their `events.qnt`:
 
 ```text
 Identity ──► Billing, Spaces, Friends, Chess, App, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
+Identity ──► Billing, Spaces, Friends, Chess, App (account deletion, personal data, retention, recently proven account)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
 App      ──► Identity (trail, run into trouble), Journeys (tabs)
+App      ──► Developer tools (address, version of the app, keyboard, control, place in the app)
+Developer tools ──► App (the testing tool)
+Friends, Spaces ──► Developer tools (friend, space)
 Chess    ──► Journeys (a game of chess, a puzzle)
 Room, Sync engine, Matchmaking: stand alone (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
@@ -1067,12 +1128,13 @@ Published language:
 
 | Context | Published terms | `events.qnt` |
 | --- | --- | --- |
-| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged` |
-| Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
+| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
+| Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve | — |
-| App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble | — |
+| App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
+| Developer tools (`developer-tools`) | the testing tool | — |
 | Auth, Room, Matchmaking, Sync engine, Journeys | — | — |
 
 - Publish product concepts, not common words: "open space", never "open".
@@ -1712,7 +1774,12 @@ checks the rest. It fails on:
   in `@pkgs/gherkin`), or a narrator ("I", "my", "the user")
 - a scenario with no `Then`, or a `Given` after it has acted
 - a file in `specs/` of a kind nothing runs, a nested folder, or a spec file
-  without exactly one binding (`libs/tools/scripts/spec-packages.ts`)
+  without exactly one binding or a registered Quint campaign runner
+  (`libs/tools/scripts/spec-packages.ts`)
+- a `.feature` or product Quint interpretation outside `specs/`, or a `.qnt`
+  outside `specs/` that is not test-only machinery marked `@spec-meta`
+- TypeScript, JavaScript, or a Quint model marked `@spec-meta` or
+  `@spec-interpretation` inside an unregistered campaign domain in `specs/`
 - code in a spec (D1, `libs/tools/scripts/spec-decoupling.ts`; every file but
   this rulebook): a
   `@pkgs/`/`@libs/`/`@apps/` name, a repo path, a source file name, or a tag

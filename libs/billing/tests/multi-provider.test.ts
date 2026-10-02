@@ -271,6 +271,7 @@ describe('checkout across providers', () => {
   });
 
   test('a person checking out again at a provider is the same customer there', async () => {
+    // regression: membership-callback-payment-read
     const two = await openTwoProviders();
     await two.checkout('ada');
     const atStripe = await two.customerOf('ada', 'stripe');

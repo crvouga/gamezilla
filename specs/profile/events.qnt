@@ -21,4 +21,6 @@ module events {
     | SignedOut({ person: Person, device: Device })
     // The person renamed themselves; everyone now sees this username.
     | UsernameChanged({ person: Person, username: Username })
+    // Account deletion was confirmed; other people must no longer see or use it.
+    | AccountDeletionConfirmed(Person)
 }
