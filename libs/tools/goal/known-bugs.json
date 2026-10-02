@@ -602,7 +602,7 @@
   {
     "id": "username-model-initial-name",
     "summary": "The username model binding signed in Alice and Bob but left their generated names in place, diverging at init from the model's named accounts. Setup now saves the required names through the profile UI before recording any model action.",
-    "regressionTest": "libs/profile/tests/harness/username-model-initialization.test.ts"
+    "regressionTest": "libs/profile/tests/username-model-initialization.test.ts"
   },
   {
     "id": "conformance-evidence-map-missing-promises",
@@ -658,5 +658,25 @@
     "id": "gherkin-mixed-host-world",
     "summary": "Registering the developer-tools harness replaced the live health host in the same entry. World lifecycles can now select their scenarios and an unmatched scenario keeps the default live host.",
     "regressionTest": "pkgs/gherkin/tests/scoped-world.test.ts"
+  },
+  {
+    "id": "install-header-impersonated-account",
+    "summary": "An install header without a verified bearer could authenticate its signed-in account owner.",
+    "regressionTest": "libs/auth/tests/session-device-proof.test.ts"
+  },
+  {
+    "id": "deleted-device-bearer-rebound",
+    "summary": "A revoked token from a deleted account fell back to a new anonymous owner on mutation replay; deletion history is checked after fresh bearer verification and before anonymous mutation fallback.",
+    "regressionTest": "libs/auth/tests/deleted-device-bearer.test.ts"
+  },
+  {
+    "id": "deleted-membership-callback-race",
+    "summary": "A membership callback awaiting the provider recreated membership after deletion; projection is guarded by the live closure journal and callbacks recheck withdrawal before recording payments.",
+    "regressionTest": "libs/billing/tests/deleted-callback-race.test.ts"
+  },
+  {
+    "id": "deleted-payment-refund-incomplete",
+    "summary": "A partial or pending provider refund was reported as completed withdrawal. Settlement now rereads payment totals and keeps withdrawal pending until every later payment is fully returned.",
+    "regressionTest": "libs/billing/tests/deleted-payment-refund.test.ts"
   }
 ]

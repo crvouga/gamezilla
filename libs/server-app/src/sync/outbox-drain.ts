@@ -1,11 +1,12 @@
+import { accountMutationEnv } from '@libs/auth/public/account-mutation-env';
 import { userTopic } from '@libs/feature/public/sync';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
-import { drainOutbox, type OutboxConsumerRegistry } from '@pkgs/outbox';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { PubSub } from '@pkgs/pubsub/interface';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import { drainOutbox, type OutboxConsumerRegistry } from '@pkgs/outbox';
+import type { PubSub } from '@pkgs/pubsub/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { notifyChannels, wrapMutationDb } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -40,23 +41,19 @@ export async function drainAndNotifyOutbox(args: {
   readonly createId: CreateId;
   readonly pubsub?: PubSub | null;
   readonly objectStore: ObjectStore;
+  readonly consumerRegistry?: OutboxConsumerRegistry;
+  readonly eventIds?: readonly string[];
 }): Promise<number> {
   const captures: ReturnType<typeof wrapMutationDb>[] = [];
   const result = await drainOutbox({
     db: args.db,
     clock: args.clock,
     createId: args.createId,
-    registry: getOutboxConsumerRegistry(),
+    registry: args.consumerRegistry ?? getOutboxConsumerRegistry(),
     objectStore: args.objectStore,
+    ...(args.eventIds === undefined ? {} : { eventIds: args.eventIds }),
     wrapConsumerTx: (tx) => {
-      const wrapped = wrapMutationDb(tx, {
-        actorId: '',
-        deviceId: '',
-        accountId: null,
-        isAnon: false,
-        now: () => new Date(args.clock.now()),
-        createId: args.createId,
-      });
+      const wrapped = wrapMutationDb(tx, accountMutationEnv('', args));
       captures.push(wrapped);
       return wrapped.tx;
     },

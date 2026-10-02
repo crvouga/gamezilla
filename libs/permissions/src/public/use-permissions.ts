@@ -22,6 +22,7 @@ import {
   type AppPolicyKey,
   type AppQuota,
   isQuotaAction,
+  PERMISSION,
 } from '../shared/permission-catalog';
 import type { QuotaDenialMeta } from '../use-cases/consume-quota/shared/consume-quota-mutation';
 import { consumeQuotaMutation } from '../use-cases/consume-quota/shared/consume-quota-mutation';
@@ -29,7 +30,6 @@ import { evaluateQuota } from '../use-cases/consume-quota/shared/evaluate-quota'
 import { usePermissionPolicy } from '../use-cases/decide-access/client/use-permission-policy';
 import { usePermissionSubject } from '../use-cases/decide-access/client/use-permission-subject';
 import { usePrivacyDecision } from '../use-cases/decide-access/client/use-privacy-decision';
-import { PERMISSION } from '../shared/permission-catalog';
 
 /** The single client permission API (§22.5). Reads are reactive. */
 export type Permissions = {
@@ -103,7 +103,10 @@ export function usePermissions(): Permissions {
   const can = (action: AppPolicyKey): Decision => {
     if (isQuotaAction(action)) return quotaDecision(action, 1);
     const decision = decide(policy(), subject(), action);
-    return action === PERMISSION.profileDeleteAccount || action === PERMISSION.profileExportData ? privacyDecision(action, decision) : decision;
+    return action === PERMISSION.profileDeleteAccount ||
+      action === PERMISSION.profileExportData
+      ? privacyDecision(action, decision)
+      : decision;
   };
 
   const consume = async (

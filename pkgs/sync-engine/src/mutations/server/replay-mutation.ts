@@ -147,7 +147,9 @@ async function applyReplayMutationInTxn(args: {
     now: () => new Date(m.createdAt),
     createId: deps.createId,
     serverNow: () => new Date(deps.now()),
-    ...(deps.auth.authenticatedAtMs === undefined ? {} : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
+    ...(deps.auth.authenticatedAtMs === undefined
+      ? {}
+      : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
   };
 
   const wrapped = wrapMutationDb(txc, env);

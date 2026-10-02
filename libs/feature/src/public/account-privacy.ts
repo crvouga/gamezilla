@@ -1,4 +1,15 @@
-import type { MutationCtx, MutationAuthorize } from '@pkgs/sync-engine/shared';
+import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
+import type { MutationAuthorize, MutationCtx } from '@pkgs/sync-engine/shared';
+
+export type AccountWithdrawal = { readonly accountId: string };
+export const accountWithdrawalChanged = createMessageNamespace(
+  'account',
+  'privacy'
+)(
+  'withdrawal-changed',
+  (value): value is AccountWithdrawal =>
+    isPlainRecord(value) && typeof value['accountId'] === 'string'
+);
 
 /** Each context owns the personal rows it exports, withdraws and erases. */
 export type AccountPrivacyContribution = {
@@ -6,6 +17,9 @@ export type AccountPrivacyContribution = {
   readonly snapshot: (ctx: MutationCtx) => Promise<unknown>;
   readonly withdraw: (ctx: MutationCtx) => Promise<void>;
   readonly erase: (ctx: MutationCtx) => Promise<void>;
+  readonly withdrawalStatus?: (
+    ctx: MutationCtx
+  ) => Promise<'pending' | 'complete'>;
 };
 
 export type AccountPrivacyGuard = (

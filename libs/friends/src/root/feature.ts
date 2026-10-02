@@ -8,8 +8,8 @@ import { defineFeature } from '@libs/feature/public/manifest';
 
 import { FRIENDS_TABLES } from '../public/schema';
 import { FRIENDS_TOPIC_MAP } from '../public/topic-map';
-import { FRIENDS_QUERIES } from './queries';
 import { FRIENDS_PRIVACY } from '../shared/friendship/account-privacy';
+import { FRIENDS_QUERIES } from './queries';
 
 export const FRIENDS_FEATURE = defineFeature({
   name: 'friends',

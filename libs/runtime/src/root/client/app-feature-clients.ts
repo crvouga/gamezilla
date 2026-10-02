@@ -9,12 +9,12 @@
  * renders.
  */
 
+import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy/root/client/feature-client';
 import { BILLING_CLIENT } from '@libs/billing/root/client/feature-client';
 import type { FeatureClient } from '@libs/feature/public/client';
 import { FRIENDS_CLIENT } from '@libs/friends/root/client/feature-client';
 import { NOTIFICATIONS_CLIENT } from '@libs/notifications/root/client/feature-client';
 import { PROFILE_CLIENT } from '@libs/profile/root/client/feature-client';
-import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy/root/client/feature-client';
 import { SEARCH_CLIENT } from '@libs/search/root/client/feature-client';
 import { createSpacesClient } from '@libs/spaces/root/client/feature-client';
 

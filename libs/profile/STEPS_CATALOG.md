@@ -8,19 +8,25 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are on fresh devices | {actor}, {actor} | profile |
+| Given | {actor} confirmed account deletion 29 days ago | {actor} | profile |
 | Given | {actor} has abandoned signing in with {provider} | {actor}, {provider} | profile |
 | Given | {actor} has an account they sign into with Google at an unverified address | {actor} | profile |
+| Given | {actor} has an account with personal data and has not asked for account deletion | {actor} | profile |
 | Given | {actor} has connected Apple to their account | {actor} | profile |
+| Given | {actor} has not used the app for 2 years | {actor} | profile |
 | Given | {actor} has saved an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
 | Given | {actor} has signed out on their other device | {actor} | profile |
 | Given | {actor} has stopped using Sign in with Apple for the app | {actor} | profile |
 | Given | {actor} is being asked to prove an unverified address match | {actor} | profile |
 | Given | {actor} is signed in with Apple | {actor} | profile |
 | Given | {actor}'s Apple account already signs into a separate account | {actor} | profile |
+| Given | {actor}'s deleted account has personal data retained for a specific legal preservation obligation | {actor} | profile |
 | Given | {actor}'s username is {username} | {actor}, {username} | profile |
 | Given | signing in takes {int} seconds to finish on {actor}'s other device | {int}, {actor} | profile |
 | Then | {actor} already has an avatar | {actor} | profile |
 | Then | {actor} and {actor} have different usernames | {actor}, {actor} | profile |
+| Then | {actor} cannot find the deleted profile because {actor} deleted the account | {actor}, {actor} | profile |
+| Then | {actor} has the same account and retained personal data | {actor} | profile |
 | Then | {actor} is (still )signed into the same account | {actor} | profile |
 | Then | {actor} is asked to prove the account match | {actor} | profile |
 | Then | {actor} is signed into a different account | {actor} | profile |
@@ -39,6 +45,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s sign-in methods are (still ){methods} | {actor}, {methods} | profile |
 | Then | {actor}'s sign-in methods are {methods} within {int} seconds | {actor}, {methods}, {int} | profile |
 | Then | {actor}'s username change is refused with {string} | {actor}, {string} | profile |
+| Then | only disclosed retention exceptions can remain | — | profile |
+| Then | the team cannot use it to restore a profile or promote the product to {actor} | {actor} | profile |
+| Then | the team has erased {actor}'s ordinary personal data | {actor} | profile |
 | When | {actor} abandons signing in with {provider} | {actor}, {provider} | profile |
 | When | {actor} and {actor} open the app | {actor}, {actor} | profile |
 | When | {actor} changes the avatar seed to {string} and leaves without saving | {actor}, {string} | profile |
@@ -46,6 +55,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} connects Apple | {actor} | profile |
 | When | {actor} deletes their Apple account | {actor} | profile |
 | When | {actor} keeps the accounts separate | {actor} | profile |
+| When | {actor} looks for {actor}'s profile | {actor}, {actor} | profile |
 | When | {actor} opens their devices | {actor} | profile |
 | When | {actor} removes Apple from their account | {actor} | profile |
 | When | {actor} renames themselves to {username} | {actor}, {username} | profile |
@@ -63,6 +73,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} tries to remove Google | {actor} | profile |
 | When | {actor} tries to use username {string} | {actor}, {string} | profile |
 | When | {actor}'s account opens on another device | {actor} | profile |
+| When | 1 day passes | — | profile |
+| When | the team reviews that retained personal data | — | profile |
 
 ## Shared steps (every package that registers them)
 

@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { quintBinding, quintWorld } from '@pkgs/quint/registry';
-import '../quint/index';
+import './quint/index';
 
 test('username binding establishes the named initial accounts', async () => {
   // regression: username-model-initial-name

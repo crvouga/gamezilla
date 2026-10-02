@@ -59,11 +59,16 @@ async function blockedEitherDirection(
 
 export const acceptFriendRequestMutation = defineMutation({
   name: 'acceptFriendRequest',
+  pendingUx: 'pending',
   args: z.object({ requestId: z.string().min(1) }),
   async run({ tx, env }, { requestId }) {
     const actor = await friendsActor(tx, env);
     const request = await findRequest(tx, requestId);
-    if (request.status === 'account_deleted') throw new MutationError('account_deleted', 'This request is no longer available because the account was deleted.');
+    if (request.status === 'account_deleted')
+      throw new MutationError(
+        'account_deleted',
+        'This request is no longer available because the account was deleted.'
+      );
     if (request.to_user_id !== actor) {
       throw new MutationError(FRIENDS_FORBIDDEN, 'Cannot accept this request.');
     }

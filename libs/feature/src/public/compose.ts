@@ -15,6 +15,7 @@ import {
   type Schema,
   type TableDef,
 } from '@pkgs/db-schema';
+import type { MutationAuthorize } from '@pkgs/sync-engine/shared';
 import {
   defineTopicMap,
   type Mutation,
@@ -26,10 +27,8 @@ import {
   type TopicMap,
   type TopicMapEntry,
 } from '@pkgs/sync-engine/shared';
-
-import type { FeatureManifest } from './manifest';
 import type { AccountPrivacyContribution } from './account-privacy';
-import type { MutationAuthorize } from '@pkgs/sync-engine/shared';
+import type { FeatureManifest } from './manifest';
 
 export type ComposedFeatures = {
   /** Feature names, in declaration order. */
@@ -145,8 +144,14 @@ export function composeFeatures(
   const { tables, ownerOfTable } = collectTables(features);
   const schema = registerTables(tables);
   let pending: Promise<MutationRegistry> | null = null;
-  const accountPrivacy = features.flatMap((f) => f.accountPrivacy === undefined ? [] : [f.accountPrivacy]);
-  const guards = features.flatMap((f) => f.accountPrivacyGuard === undefined ? [] : [f.accountPrivacyGuard(accountPrivacy)]);
+  const accountPrivacy = features.flatMap((f) =>
+    f.accountPrivacy === undefined ? [] : [f.accountPrivacy]
+  );
+  const guards = features.flatMap((f) =>
+    f.accountPrivacyGuard === undefined
+      ? []
+      : [f.accountPrivacyGuard(accountPrivacy)]
+  );
   return {
     featureNames: features.map((f) => f.name),
     accountPrivacy,

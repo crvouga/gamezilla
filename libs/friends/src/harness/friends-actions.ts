@@ -14,6 +14,16 @@ export const acceptFriendRequest = scenarioAction({
   name: 'acceptFriendRequest',
   act: async (s, actorId: string, fromUsername: string) => {
     const ui = await actorUi(s, actorId);
+    await ui.get(Handles.statusCurrentUser).expect.visible();
+    const shownAccept = ui.get(
+      Handles.notificationsFriendRequestAccept(fromUsername)
+    );
+    if (await shownAccept.isVisible()) {
+      s.harness.heal(`${actorId}:events`, 'server-a');
+      await shownAccept.tap();
+      await s.session.waitForIdle();
+      return;
+    }
     await ui.get(Handles.tabNotifications).tap();
     const card = Handles.notificationsFriendRequestCard(fromUsername);
     await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });

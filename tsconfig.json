@@ -260,9 +260,5 @@
     "libs/account-privacy/src/**/*.ts",
     "libs/account-privacy/src/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "web-build"
-  ]
+  "exclude": ["node_modules", "dist", "web-build"]
 }

@@ -31,6 +31,8 @@
     "@pkgs/device": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -43,9 +45,7 @@
     "hono": "catalog:",
     "jose": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:",
-    "@pkgs/message": "workspace:*",
-    "@pkgs/outbox": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

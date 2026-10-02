@@ -28,7 +28,7 @@ import { spacesHarnessSlice } from '@libs/spaces/harness/spaces-harness-slice';
  */
 const FRIENDS_SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [
-      ACCOUNT_PRIVACY_HARNESS_SLICE,
+    ACCOUNT_PRIVACY_HARNESS_SLICE,
     PROFILE_HARNESS_SLICE,
     spacesHarnessSlice({ games: [], clients: [] }),
     FRIENDS_HARNESS_SLICE,

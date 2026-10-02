@@ -1,5 +1,5 @@
-import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { requireInMutation } from '@libs/permissions/public/mutation-permission';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { Outbox } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/shared';
@@ -20,7 +20,12 @@ export const requestPersonalDataExportMutation = defineMutation({
       ON CONFLICT (owner_id) DO UPDATE SET export_status = ${'Preparing'}, requested_at = ${now}, ready_at = ${null}, export_detail = ${null}, export_summary = ${null}
     `);
     const eventId = ctx.env.createId();
-    await new Outbox(ctx).send({ id: eventId, message: prepareExport({ accountId: ctx.env.actorId }) });
-    await ctx.tx.run(sql`UPDATE outbox_events SET available_at = ${new Date((ctx.env.serverNow ?? ctx.env.now)().getTime() + 1_000).toISOString()} WHERE id = ${eventId}`);
+    await new Outbox(ctx).send({
+      id: eventId,
+      message: prepareExport({ accountId: ctx.env.actorId }),
+    });
+    await ctx.tx.run(
+      sql`UPDATE outbox_events SET available_at = ${new Date((ctx.env.serverNow ?? ctx.env.now)().getTime() + 1_000).toISOString()} WHERE id = ${eventId}`
+    );
   },
 });

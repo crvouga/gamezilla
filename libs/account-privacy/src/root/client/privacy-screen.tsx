@@ -1,8 +1,8 @@
-import { DenialSurface } from '@libs/permissions/public/denial-surface';
-import { useParams } from '@solidjs/router';
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button, MutationModal, ScreenBase } from '@pkgs/ui';
+import { useParams } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
 import { useAccountDeletion } from '../../use-cases/confirm-account-deletion/client/use-account-deletion';
 import { ExportDownload } from '../../use-cases/download-personal-data-export/client/export-download';
@@ -20,7 +20,10 @@ export function PrivacyScreen(): JSX.Element {
     <ScreenBase
       screenId="account-privacy"
       scroll
-      breadcrumbs={[{ name: <Trans>Account privacy</Trans> }]}
+      breadcrumbs={[
+        { name: <Trans>Profile</Trans>, href: '/' },
+        { name: <Trans>Account privacy</Trans> },
+      ]}
       content={() => (
         <div class="box gap-4">
           <PrivacyExplanation />
@@ -52,6 +55,20 @@ export function PrivacyScreen(): JSX.Element {
                 personal-data erasure will complete by
               </Trans>{' '}
               {deletion.receipt()}
+            </p>
+          </Show>
+          <Show when={deletion.receipt()}>
+            <p class="text" data-testid="privacy-cancellation-outcome">
+              <Show
+                when={deletion.cancellationStatus() === 'complete'}
+                fallback={
+                  <Trans>
+                    Membership cancellation is still being completed.
+                  </Trans>
+                }
+              >
+                <Trans>Membership cancellation has completed.</Trans>
+              </Show>
             </p>
           </Show>
           <MutationModal

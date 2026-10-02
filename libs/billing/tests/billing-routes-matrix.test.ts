@@ -103,6 +103,11 @@ function stubBilling(
       : Promise.resolve(value);
   return {
     provider: 'stub',
+    cancelMembership: () =>
+      Promise.reject(new Error('cancellation is outside this fixture')),
+    readPayments: () => Promise.resolve([]),
+    refundPayment: () =>
+      Promise.reject(new Error('refund is outside this fixture')),
     startCheckout: (input) => {
       world.providerCalls.push(`checkout:${String(input.customerId)}`);
       return answer({

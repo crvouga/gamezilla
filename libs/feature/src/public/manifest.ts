@@ -11,12 +11,15 @@
  */
 
 import type { TableDef } from '@pkgs/db-schema';
-import type { AccountPrivacyContribution, AccountPrivacyGuard } from './account-privacy';
 import type {
   Mutation,
   QueryDef,
   TopicMapEntry,
 } from '@pkgs/sync-engine/shared';
+import type {
+  AccountPrivacyContribution,
+  AccountPrivacyGuard,
+} from './account-privacy';
 
 /** The literal names of the tables a feature declared. */
 export type TableNamesOf<Tables extends readonly TableDef[]> =

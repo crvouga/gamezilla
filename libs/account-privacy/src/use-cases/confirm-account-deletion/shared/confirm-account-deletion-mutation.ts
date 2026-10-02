@@ -1,5 +1,5 @@
-import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { requireInMutation } from '@libs/permissions/public/mutation-permission';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { Outbox } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
 import { defineMutation } from '@pkgs/sync-engine/shared';

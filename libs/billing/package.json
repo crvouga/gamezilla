@@ -48,7 +48,9 @@
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/message": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
@@ -63,6 +65,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/account-privacy": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/billing-paddle": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
@@ -75,8 +78,7 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@libs/account-privacy": "workspace:*"
+    "typescript": "catalog:"
   },
   "specDomains": [
     "billing"

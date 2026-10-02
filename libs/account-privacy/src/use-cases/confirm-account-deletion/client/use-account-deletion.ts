@@ -2,8 +2,8 @@ import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useSignOut } from '@libs/auth/public/use-sign-out';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import {
-  usePermissions,
   type Decision,
+  usePermissions,
 } from '@libs/permissions/public/use-permissions';
 import { sql } from '@pkgs/sql';
 import { createQuery } from '@pkgs/sync-engine/solid';
@@ -18,7 +18,8 @@ export function useAccountDeletion() {
     () =>
       sql<{
         erase_by: string;
-      }>`SELECT erase_by FROM profile_deletion_receipts ORDER BY confirmed_at DESC LIMIT 1`
+        cancellation_status: string | null;
+      }>`SELECT erase_by, cancellation_status FROM profile_deletion_receipts ORDER BY confirmed_at DESC LIMIT 1`
   );
   const receipt = createMemo(() => receipts.rows()[0]?.erase_by ?? null);
   const [confirming, setConfirming] = createSignal(false);
@@ -29,6 +30,8 @@ export function useAccountDeletion() {
     return decision.allowed;
   };
   return {
+    cancellationStatus: () =>
+      receipts.rows()[0]?.cancellation_status ?? 'pending',
     receipt,
     confirming,
     denial,

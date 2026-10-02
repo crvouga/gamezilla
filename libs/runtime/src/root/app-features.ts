@@ -8,8 +8,8 @@
  * cannot drift.
  */
 
-import { AUTH_FEATURE } from '@libs/auth/root/feature';
 import { ACCOUNT_PRIVACY_FEATURE } from '@libs/account-privacy/root/feature';
+import { AUTH_FEATURE } from '@libs/auth/root/feature';
 import { BILLING_FEATURE } from '@libs/billing/root/feature';
 import { CHESS_FEATURE } from '@libs/chess/root/feature';
 import { CLIENT_CONFIG_FEATURE } from '@libs/client-config/root/feature';

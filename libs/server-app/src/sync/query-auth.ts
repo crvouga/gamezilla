@@ -27,6 +27,12 @@ export async function resolveSessionReplayAuth(
       requestStore.sqlClient,
       request
     );
+    if (ctx['accountDeleted'] === true)
+      return {
+        error: 'auth',
+        reason: 'revoked',
+        message: 'Sign in again because this account was deleted.',
+      };
     const auth = appAuth(ctx);
     if (auth === null || auth.deviceId === '' || auth.myId.length === 0) {
       return { error: 'auth', reason: 'expired' };

@@ -61,7 +61,10 @@ const SIGN_UP_UNLOCK = {
 } as const;
 const PRIVACY_UNLOCK = {
   ...SIGN_UP_UNLOCK,
-  requires_recent_proof: { titleKey: 'unlock.privacy.proof.title', ctaTarget: 'signup' },
+  requires_recent_proof: {
+    titleKey: 'unlock.privacy.proof.title',
+    ctaTarget: 'signup',
+  },
 } as const;
 
 const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [

@@ -13,10 +13,10 @@ export async function applyMembershipChange(args: {
   readonly clock: Clock;
   readonly accountId: string;
   readonly change: MembershipChange;
-}): Promise<void> {
+}): Promise<boolean> {
   const { change } = args;
-  await args.sql.transaction(async (tx) => {
-    await new BillingSubscriptionRepository(tx, args.clock).upsert({
+  return args.sql.transaction(async (tx) => {
+    return new BillingSubscriptionRepository(tx, args.clock).upsert({
       provider: change.provider,
       accountId: args.accountId,
       subscriptionId: change.subscriptionId,

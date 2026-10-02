@@ -1,4 +1,5 @@
 import { createLogger } from '@pkgs/logger';
+import { MutationError } from '@pkgs/sync-engine/shared';
 import { Hono, type MiddlewareHandler } from 'hono';
 
 import { NotificationsError } from '../../shared/notifications/notifications-errors';
@@ -15,6 +16,8 @@ function mapNotificationsError(error: unknown): {
   status: number;
   body: unknown;
 } {
+  if (error instanceof MutationError)
+    return { status: 400, body: { error: error.message, code: error.code } };
   if (error instanceof NotificationsError) {
     switch (error.code) {
       case 'NOTIFICATIONS_NOT_FOUND':

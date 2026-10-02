@@ -4,6 +4,7 @@
  */
 
 export { pruneMutationArtifacts } from '../mutations/server/prune-mutation-artifacts';
+export { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 export { syncEngineServerSchema } from '../shared/schema/tables';
 export { isAuthErrorBody } from './auth-error';
 export {
@@ -15,4 +16,3 @@ export {
   notifyChannels,
 } from './notify-channels';
 export type { SyncAppAuth } from './sync-app-auth';
-export { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';

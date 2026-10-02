@@ -84,6 +84,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/account-privacy": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/search": "workspace:*",
@@ -98,8 +99,7 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@libs/account-privacy": "workspace:*"
+    "typescript": "catalog:"
   },
   "specDomains": [
     "chess"

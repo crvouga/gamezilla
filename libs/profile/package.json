@@ -33,12 +33,15 @@
     "@libs/client-app": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/harness": "workspace:*",
+    "@libs/permissions": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/dmn": "workspace:*",
+    "@pkgs/permissions": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -47,21 +50,17 @@
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@pkgs/word-filter": "workspace:*",
+    "hono": "catalog:",
     "solid-js": "catalog:",
     "unique-names-generator": "catalog:",
-    "zod": "catalog:",
-    "@libs/permissions": "workspace:*",
-    "@libs/server-app": "workspace:*",
-    "@pkgs/message": "workspace:*",
-    "@pkgs/outbox": "workspace:*",
-    "@pkgs/permissions": "workspace:*",
-    "@pkgs/dmn": "workspace:*",
-    "hono": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/account-privacy": "workspace:*",
     "@libs/billing": "workspace:*",
     "@pkgs/a11y": "workspace:*",
     "@pkgs/alloy": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/property": "workspace:*",
@@ -71,8 +70,7 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@libs/account-privacy": "workspace:*"
+    "typescript": "catalog:"
   },
   "specDomains": [
     "profile"

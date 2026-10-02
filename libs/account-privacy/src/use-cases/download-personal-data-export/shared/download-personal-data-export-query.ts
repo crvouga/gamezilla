@@ -1,9 +1,9 @@
-import { decideInQuery } from '@libs/permissions/public/query-permission';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import {
   decidePrivacyAccess,
   decidePrivacyExportOwner,
 } from '@libs/permissions/public/privacy-permission';
+import { decideInQuery } from '@libs/permissions/public/query-permission';
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';

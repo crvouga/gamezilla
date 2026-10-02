@@ -7,6 +7,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} had a settled puzzle rating on the deleted account | {actor} | chess |
 | Given | {actor} has changed the feed history to {string} and saved the feed settings | {actor}, {string} | chess |
 | Given | {actor} has finished the puzzle by {finish} as the app closes | {actor}, {finish} | chess |
 | Given | {actor} has finished the puzzle offline by {finish} | {actor}, {finish} | chess |
@@ -55,6 +56,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is viewing their puzzle stats offline | {actor} | chess |
 | Given | {actor} is watching {actor}'s puzzle | {actor}, {actor} | chess |
 | Given | {actor} went offline before any puzzles reached their device | {actor} | chess |
+| Given | {actor}'s deleted account had solved puzzles in its game log | {actor} | chess |
 | Given | {actor}'s feed has come round to a puzzle they already played | {actor} | chess |
 | Given | {actor}'s puzzle rating has settled at {int} | {actor}, {int} | chess |
 | Given | {actor}'s puzzle rating is one rated puzzle from settling | {actor} | chess |
@@ -111,6 +113,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s feed settings show a pool of at least one matching puzzle | {actor} | chess |
 | Then | {actor}'s feed targets {int} automatically | {actor}, {int} | chess |
 | Then | {actor}'s feed targets a custom {int} | {actor}, {int} | chess |
+| Then | {actor}'s game log cannot show the deleted account's attempts | {actor} | chess |
 | Then | {actor}'s game log is empty within {int} seconds | {actor}, {int} | chess |
 | Then | {actor}'s game log records that puzzle as {word} | {actor}, {word} | chess |
 | Then | {actor}'s hint highlights the piece to move | {actor} | chess |
@@ -125,6 +128,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s puzzle is solved | {actor} | chess |
 | Then | {actor}'s puzzle is solved within {int} seconds | {actor}, {int} | chess |
 | Then | {actor}'s puzzle rating is {int} | {actor}, {int} | chess |
+| Then | {actor}'s puzzle rating is 1500 and has not settled | {actor} | chess |
 | Then | {actor}'s puzzle rating is above {int} | {actor}, {int} | chess |
 | Then | {actor}'s puzzle rating is below {int} | {actor}, {int} | chess |
 | Then | {actor}'s puzzle rating is the same as {actor}'s | {actor}, {actor} | chess |
@@ -134,6 +138,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s review is at move {int} of {int}, reached without animation | {actor}, {int}, {int} | chess |
 | Then | {actor}'s review lists the moves {string} | {actor}, {string} | chess |
 | Then | {actor}'s stats show {int} played, {int} solved, and {int}% accuracy | {actor}, {int}, {int}, {int} | chess |
+| Then | {actor}'s stats show 0 played and 0 solved | {actor} | chess |
 | Then | {actor}'s stats show a rating of {string} | {actor}, {string} | chess |
 | Then | {actor}'s stats show their rating after each of those {int} puzzles | {actor}, {int} | chess |
 | Then | {actor}'s stats show their rating without the {string} | {actor}, {string} | chess |

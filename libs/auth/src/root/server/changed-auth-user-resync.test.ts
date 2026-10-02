@@ -62,7 +62,8 @@ function authServerListing(
   };
   return {
     provider: 'idp',
-    deleteUser: () => Promise.reject(new Error('deleteUser is outside this fixture')),
+    deleteUser: () =>
+      Promise.reject(new Error('deleteUser is outside this fixture')),
     verifySessionToken: async () => null,
     getUser: async () => user,
   };

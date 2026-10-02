@@ -16,7 +16,10 @@ import { defineProductSystem } from '@libs/harness/system/define-product-system'
  * billing for its own spec, and a change anywhere else leaves this cached.
  */
 const BILLING_SYSTEM = defineProductSystem(
-  composeHarnessSlices('billing', [ACCOUNT_PRIVACY_HARNESS_SLICE, BILLING_HARNESS_SLICE])
+  composeHarnessSlices('billing', [
+    ACCOUNT_PRIVACY_HARNESS_SLICE,
+    BILLING_HARNESS_SLICE,
+  ])
 );
 
 export function openHarness(

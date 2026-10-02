@@ -1,27 +1,27 @@
 import { expect } from 'bun:test';
-import { signedInAccountOf } from '@libs/harness';
-import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
 import {
-  signedInAccountKey,
-  recall,
-  remember,
-  type HarnessWorld,
-} from '@libs/harness/spec/world';
-import { otherDevice, cutConnection } from '@libs/harness/spec/steps/platform';
-import { restoreActorConnection } from '@libs/harness/system/actions';
-import {
+  askForExport,
+  cancelDeletion,
   confirmDeletion,
   openPrivacy,
+  privacyTimePasses,
   proveAccount,
   reviewDeletion,
-  cancelDeletion,
-  askForExport,
-  privacyTimePasses,
 } from '@libs/account-privacy/harness/privacy-actions';
 import {
-  privacyText,
   privacyStatus,
+  privacyText,
 } from '@libs/account-privacy/harness/privacy-reads';
+import { signedInAccountOf } from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
+import { cutConnection, otherDevice } from '@libs/harness/spec/steps/platform';
+import {
+  type HarnessWorld,
+  recall,
+  remember,
+  signedInAccountKey,
+} from '@libs/harness/spec/world';
+import { restoreActorConnection } from '@libs/harness/system/actions';
 
 async function recentAccount(w: HarnessWorld, actor: Actor) {
   await w.s.apply(proveAccount, actor);
@@ -30,6 +30,23 @@ async function recentAccount(w: HarnessWorld, actor: Actor) {
     signedInAccountKey(actor),
     await w.s.read(signedInAccountOf, actor)
   );
+}
+
+export type PrivacySetupWorld = HarnessWorld & {
+  readonly beforeAccountDeletion?: (
+    actor: Actor,
+    completion: 'confirmed' | 'completed'
+  ) => Promise<void>;
+};
+
+async function confirmedAccount(
+  w: PrivacySetupWorld,
+  actor: Actor,
+  completion: 'confirmed' | 'completed' = 'confirmed'
+) {
+  await w.beforeAccountDeletion?.(actor, completion);
+  await recentAccount(w, actor);
+  await w.s.apply(confirmDeletion, actor);
 }
 
 async function reviewed(w: HarnessWorld, actor: Actor) {
@@ -210,14 +227,10 @@ Then(
 
 Given(
   "{actor}'s account deletion has been confirmed",
-  async (w, actor: Actor) => {
-    await recentAccount(w, actor);
-    await w.s.apply(confirmDeletion, actor);
-  }
+  async (w, actor: Actor) => confirmedAccount(w, actor)
 );
 Given("{actor}'s account deletion has completed", async (w, actor: Actor) => {
-  await recentAccount(w, actor);
-  await w.s.apply(confirmDeletion, actor);
+  await confirmedAccount(w, actor, 'completed');
   await w.s.apply(privacyTimePasses, 30 * 86_400_000);
 });
 Given(

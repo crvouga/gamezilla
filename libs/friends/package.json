@@ -59,6 +59,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/account-privacy": "workspace:*",
     "@libs/billing": "workspace:*",
     "@pkgs/alloy": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
@@ -70,8 +71,7 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@libs/account-privacy": "workspace:*"
+    "typescript": "catalog:"
   },
   "specDomains": [
     "friends",

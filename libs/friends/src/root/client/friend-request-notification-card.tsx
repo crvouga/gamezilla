@@ -5,7 +5,7 @@ import type {
 import { NotificationCardDefault } from '@libs/notifications/public';
 import { Handles } from '@libs/test-ids';
 import type { JSX } from 'solid-js';
-import { createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { FriendProfileAvatar } from '../../public/friend-profile-avatar';
 import { useFriendRequestDecisionOptional } from '../../public/friend-request-decision-state';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';
@@ -34,7 +34,7 @@ export function FriendRequestNotificationCard(
       : localOpen();
   const setOpen = (open: boolean): void => {
     if (decision !== null) {
-      if (open) decision.open(props.interaction.id);
+      if (open) decision.open(props.interaction, props.actions);
       else decision.close();
       return;
     }
@@ -71,12 +71,14 @@ export function FriendRequestNotificationCard(
             }
           : {})}
       />
-      <FriendRequestDecisionModal
-        visible={isOpen()}
-        interaction={props.interaction}
-        actions={props.actions}
-        onClose={onClose}
-      />
+      <Show when={decision === null}>
+        <FriendRequestDecisionModal
+          visible={isOpen()}
+          interaction={props.interaction}
+          actions={props.actions}
+          onClose={onClose}
+        />
+      </Show>
     </>
   );
 }

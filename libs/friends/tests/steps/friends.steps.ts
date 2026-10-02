@@ -8,7 +8,6 @@ import { expect } from 'bun:test';
 
 import {
   acceptFriendRequest,
-  addFriend,
   cancelFriendRequest,
   declineFriendRequest,
   openFriendLiveSpace,
@@ -45,7 +44,7 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from '@libs/friends/harness/person-actions';
-import { pendingRequestStored } from '@libs/friends/harness/relationship-reads';
+import { setupFriendRequest } from '@libs/friends/harness/setup-friend-request';
 import { setupFriendsPair } from '@libs/friends/harness/setup-friends-pair';
 import { backToTabs, focusActor, returnToTabs } from '@libs/harness';
 import {
@@ -94,9 +93,7 @@ Given('{actor} and {actor} are friends', async (w, a: Actor, b: Actor) => {
 Given(
   '{actor} has sent {actor} a friend request',
   async (w, from: Actor, to: Actor) => {
-    await w.s.apply(searchUsername, from, to);
-    await w.s.apply(addFriend, from, to);
-    await w.s.until((surf) => pendingRequestStored(surf, from, to));
+    await setupFriendRequest(w.s, from, to);
   }
 );
 
@@ -113,7 +110,6 @@ Given(
 Given(
   "{actor} has accepted {actor}'s friend request",
   async (w, actor: Actor, from: Actor) => {
-    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from));
     await w.s.apply(acceptFriendRequest, actor, from);
   }
 );
@@ -138,7 +134,6 @@ When(
 When(
   "{actor} accepts {actor}'s friend request",
   async (w, actor: Actor, from: Actor) => {
-    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from));
     await w.s.apply(acceptFriendRequest, actor, from);
   }
 );

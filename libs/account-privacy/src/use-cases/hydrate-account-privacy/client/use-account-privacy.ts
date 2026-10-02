@@ -19,6 +19,9 @@ export type AccountPrivacyRow = {
 
 export function useAccountPrivacy() {
   const myId = useMyId();
-  const query = createQuery(() => sql<AccountPrivacyRow>`SELECT * FROM profile_account_privacy WHERE owner_id = ${myId()} AND deleted_at IS NULL`);
+  const query = createQuery(
+    () =>
+      sql<AccountPrivacyRow>`SELECT * FROM profile_account_privacy WHERE owner_id = ${myId()} AND deleted_at IS NULL`
+  );
   return createMemo(() => query.rows()[0] ?? null);
 }

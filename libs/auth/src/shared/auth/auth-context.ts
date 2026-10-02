@@ -35,7 +35,9 @@ export const AuthClaimAttr = {
   myId: authNs.text('my-id', readNonEmptyString),
   /** True when `users.is_anon` for the resolved account. */
   isAnon: authNs.boolean('is-anon', readBool),
-  authenticatedAtMs: authNs.numberOrNull('authenticated-at-ms', (v) => typeof v === 'number' && Number.isFinite(v) ? v : null),
+  authenticatedAtMs: authNs.numberOrNull('authenticated-at-ms', (v) =>
+    typeof v === 'number' && Number.isFinite(v) ? v : null
+  ),
 } as const;
 
 /**
@@ -95,7 +97,9 @@ export function syncActorOf(auth: AppAuth): SyncActor {
     deviceId: auth.deviceId,
     accountId: auth.accountId,
     isAnon: auth.isAnon,
-    ...(auth.authenticatedAtMs === null ? {} : { authenticatedAtMs: auth.authenticatedAtMs }),
+    ...(auth.authenticatedAtMs === null
+      ? {}
+      : { authenticatedAtMs: auth.authenticatedAtMs }),
   };
 }
 

@@ -78,9 +78,23 @@ export type ReadCallbackInput = {
   readonly rawBody: string;
 };
 
+/** Minimum evidence of a settled payment; never card or contact details. */
+export type MembershipPayment = {
+  readonly id: string;
+  readonly paidAtMs: number;
+  readonly amountMinor: number;
+  readonly currency: string;
+  readonly refundedMinor: number;
+};
+
 export type CallbackResult =
   | { readonly kind: 'unverified' }
   | { readonly kind: 'ignored' }
+  | {
+      readonly kind: 'payments';
+      readonly provider: string;
+      readonly customerId: string;
+    }
   | ({ readonly kind: 'membership' } & MembershipChange);
 
 /**
@@ -100,6 +114,9 @@ export interface MembershipBilling {
    * it as an opaque key and never compares it to a vendor name.
    */
   readonly provider: string;
+  cancelMembership(subscriptionId: string): Promise<void>;
+  readPayments(customerId: string): Promise<readonly MembershipPayment[]>;
+  refundPayment(paymentId: string): Promise<void>;
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult>;
   openPortal(input: OpenPortalInput): Promise<{ readonly url: string }>;
   /**

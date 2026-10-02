@@ -27,11 +27,25 @@ export const profileDeletionReceipts = defineTable({
     owner_id: 'text',
     confirmed_at: 'timestamp',
     erase_by: 'timestamp',
+    cancellation_status: 'text',
   },
   uniqueIndexes: ['owner_id'],
+});
+
+export const profileLegalPreservations = defineTable({
+  domain: 'profile',
+  name: 'profile_legal_preservations',
+  columns: {
+    owner_id: 'text',
+    purpose: 'text',
+    end_condition: 'text',
+    category: 'text',
+    preserved_data: 'text',
+  },
 });
 
 export const ACCOUNT_PRIVACY_TABLES = [
   profileAccountPrivacy,
   profileDeletionReceipts,
+  profileLegalPreservations,
 ] as const;

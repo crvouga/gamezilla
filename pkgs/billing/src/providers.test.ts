@@ -8,6 +8,11 @@ function adapter(provider: string): MembershipBilling {
   const unused = () => Promise.reject(new Error('unused'));
   return {
     provider,
+    cancelMembership: () =>
+      Promise.reject(new Error('cancellation is outside this fixture')),
+    readPayments: () => Promise.resolve([]),
+    refundPayment: () =>
+      Promise.reject(new Error('refund is outside this fixture')),
     startCheckout: unused,
     openPortal: unused,
     readCallback: unused,

@@ -225,7 +225,18 @@ export async function tapChromeOrOverflow(
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.spaceClose).expect.visible({ timeoutMs: SPACE_WAIT_MS });
+  await ui
+    .get(Handles.spaceClose)
+    .expect.visible({ timeoutMs: SPACE_WAIT_MS })
+    .catch(async (error) => {
+      const live = await s.harness.spawnClient(actorId);
+      const engine = live.syncEnginePool.peekReady(
+        live.env.resolveDatabaseName({ userId: '' })
+      );
+      throw new Error(
+        `${String(error)}; sync=${JSON.stringify(engine?.status.getSnapshot())}`
+      );
+    });
   if (!(await ui.get(handle).isVisible())) {
     await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs: SPACE_WAIT_MS });
   }

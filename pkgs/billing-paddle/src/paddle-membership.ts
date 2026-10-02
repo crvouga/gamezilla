@@ -104,6 +104,78 @@ function toMembership(
 }
 
 export class PaddleMembershipBilling implements MembershipBilling {
+  async cancelMembership(subscriptionId: string): Promise<void> {
+    const subscription = await this.current(subscriptionId);
+    if (subscription === null || subscription.status === 'canceled') return;
+    await this.api.data(
+      'POST',
+      `/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`,
+      { effective_from: 'immediately' }
+    );
+  }
+
+  async readPayments(customerId: string) {
+    const transactions = await this.api.list<{
+      id: string;
+      updated_at: string;
+      currency_code: string;
+      details: { totals: { grand_total: string } };
+      payments: readonly { captured_at: string | null; status: string }[];
+    }>(
+      `/transactions?customer_id=${encodeURIComponent(customerId)}&status=completed&per_page=200`
+    );
+    return Promise.all(
+      transactions.map(async (transaction) => {
+        const adjustments = await this.api.list<{
+          action: string;
+          status: string;
+          totals: { total: string };
+        }>(
+          `/adjustments?transaction_id=${encodeURIComponent(transaction.id)}&per_page=200`
+        );
+        const paid = transaction.payments
+          .filter((payment) => payment.status === 'captured')
+          .map((payment) => Date.parse(payment.captured_at ?? ''));
+        return {
+          id: transaction.id,
+          paidAtMs: Math.max(...paid),
+          amountMinor: Number(transaction.details.totals.grand_total),
+          currency: transaction.currency_code,
+          refundedMinor: adjustments
+            .filter(
+              (adjustment) =>
+                adjustment.action === 'refund' &&
+                adjustment.status === 'approved'
+            )
+            .reduce(
+              (sum, adjustment) => sum + Number(adjustment.totals.total),
+              0
+            ),
+        };
+      })
+    );
+  }
+
+  async refundPayment(paymentId: string): Promise<void> {
+    const adjustments = await this.api.list<{ action: string; status: string }>(
+      `/adjustments?transaction_id=${encodeURIComponent(paymentId)}&per_page=200`
+    );
+    if (
+      adjustments.some(
+        (adjustment) =>
+          adjustment.action === 'refund' &&
+          (adjustment.status === 'approved' ||
+            adjustment.status === 'pending_approval')
+      )
+    )
+      return;
+    await this.api.data('POST', '/adjustments', {
+      action: 'refund',
+      transaction_id: paymentId,
+      type: 'full',
+      reason: 'Membership payment after confirmed account deletion',
+    });
+  }
   readonly provider = PADDLE_PROVIDER;
   private readonly api: PaddleApi;
 

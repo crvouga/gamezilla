@@ -34,12 +34,15 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is viewing their empty friends list | {actor} | friends, spaces |
 | Given | {actor} is viewing their friends list with {person} in it | {actor}, {person} | friends, spaces |
 | Given | {actor} is viewing their inbox | {actor} | friends, spaces |
+| Given | {actor}'s account deletion has ended {actor}'s space | {actor}, {actor} | friends, spaces |
 | Given | {actor}'s friends list shows {actor} as live | {actor}, {actor} | friends, spaces |
 | Then | {actor} can ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor} can cancel the request to {actor} | {actor}, {actor} | friends, spaces |
 | Then | {actor} can rename the space | {actor} | friends, spaces |
 | Then | {actor} can search for people | {actor} | friends, spaces |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends, spaces |
+| Then | {actor} cannot join because the space has ended | {actor} | friends, spaces |
+| Then | {actor} cannot open the deleted profile because the account was deleted | {actor} | friends, spaces |
 | Then | {actor} cannot rename the space | {actor} | friends, spaces |
 | Then | {actor} hosts {int} space(s) | {actor}, {int} | friends, spaces |
 | Then | {actor} is in the space | {actor} | friends, spaces |
@@ -56,11 +59,14 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is told search needs a connection within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} is told search needs an account | {actor} | friends, spaces |
 | Then | {actor} is told spaces need a connection within {int} seconds | {actor}, {int} | friends, spaces |
+| Then | {actor} is told the request is no longer available because the account was deleted | {actor} | friends, spaces |
 | Then | {actor} is told the space cannot be found within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} is told they have no friends yet within {int} seconds | {actor}, {int} | friends, spaces |
+| Then | {actor} is told to sign in again because the account was deleted | {actor} | friends, spaces |
 | Then | {actor} sees {actor} as a friend | {actor}, {actor} | friends, spaces |
 | Then | {actor} sees {int} people/person in the space within {int} seconds | {actor}, {int}, {int} | friends, spaces |
 | Then | {actor} sees {person} appear in their friends list within {int} seconds | {actor}, {person}, {int} | friends, spaces |
+| Then | {actor} sees only {actor} in the space within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor} sees the space has ended within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} sees the space is called {string} within {int} seconds | {actor}, {string}, {int} | friends, spaces |
 | Then | {actor}'s friend count is {int} | {actor}, {int} | friends, spaces |
@@ -83,6 +89,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s search offers to ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor}'s search shows {person} | {actor}, {person} | friends, spaces |
 | Then | {actor}'s search shows nobody | {actor} | friends, spaces |
+| Then | {actor}'s space has not ended | {actor} | friends, spaces |
 | Then | {person} is gone from {actor}'s open friends list | {person}, {actor} | friends, spaces |
 | When | {actor} accepts {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | When | {actor} accepts {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends, spaces |
@@ -103,6 +110,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} joins the space from the link | {actor} | friends, spaces |
 | When | {actor} leaves the space | {actor} | friends, spaces |
 | When | {actor} looks up {actor} | {actor}, {actor} | friends, spaces |
+| When | {actor} opens {actor}'s space link | {actor}, {actor} | friends, spaces |
 | When | {actor} opens a link to a space that does not exist | {actor} | friends, spaces |
 | When | {actor} opens the notice that {actor} accepted | {actor}, {actor} | friends, spaces |
 | When | {actor} opens the space link again | {actor} | friends, spaces |
@@ -116,6 +124,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} starts removing {actor} but keeps them | {actor}, {actor} | friends, spaces |
 | When | {actor} unblocks {actor} | {actor}, {actor} | friends, spaces |
 | When | {actor} views {actor}'s request | {actor}, {actor} | friends, spaces |
+| When | {actor}'s other device attempts to join {actor}'s open space as the deleted account | {actor}, {actor} | friends, spaces |
 
 ## Shared steps (every package that registers them)
 

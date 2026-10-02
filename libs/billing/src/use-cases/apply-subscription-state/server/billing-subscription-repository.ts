@@ -29,19 +29,19 @@ export class BillingSubscriptionRepository {
    * Upserts the provider's view of a membership. Rows for provider identities
    * that are not linked to an account are never passed here.
    */
-  async upsert(projection: MembershipProjection): Promise<void> {
+  async upsert(projection: MembershipProjection): Promise<boolean> {
     const nowIso = new Date(this.clock.now()).toISOString();
     const periodEnd =
       projection.periodEndMs === null
         ? null
         : new Date(projection.periodEndMs).toISOString();
-    await this.tx.run(sql<void>`
+    const result = await this.tx.run(sql<void>`
       INSERT INTO billing_subscriptions (
         id, created_at, updated_at, deleted_at,
         account_id, provider, provider_subscription_id, price_key,
         status, current_period_end, cancel_at_period_end, credit_cents
       )
-      VALUES (
+      SELECT
         ${`${projection.provider}:${projection.subscriptionId}`},
         ${nowIso}, ${nowIso}, ${null},
         ${projection.accountId},
@@ -52,10 +52,12 @@ export class BillingSubscriptionRepository {
         ${periodEnd},
         ${projection.endsAtPeriodEnd ? 1 : 0},
         ${projection.creditCents}
+      WHERE NOT EXISTS (
+        SELECT 1 FROM billing_account_closures
+        WHERE account_id = ${projection.accountId}
       )
       ON CONFLICT (id) DO UPDATE SET
         updated_at = EXCLUDED.updated_at,
-        deleted_at = NULL,
         account_id = EXCLUDED.account_id,
         provider = EXCLUDED.provider,
         price_key = EXCLUDED.price_key,
@@ -63,6 +65,8 @@ export class BillingSubscriptionRepository {
         current_period_end = EXCLUDED.current_period_end,
         cancel_at_period_end = EXCLUDED.cancel_at_period_end,
         credit_cents = COALESCE(EXCLUDED.credit_cents, billing_subscriptions.credit_cents)
+      WHERE billing_subscriptions.deleted_at IS NULL
     `);
+    return result.changes > 0;
   }
 }

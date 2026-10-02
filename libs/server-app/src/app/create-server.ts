@@ -1,3 +1,4 @@
+import { registerAccountDeletionConsumers } from '@libs/auth/public/account-deletion-consumers';
 import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
@@ -46,7 +47,6 @@ import {
 } from '../sync/outbox-drain';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
-import { registerAccountDeletionConsumers } from '@libs/auth/public/account-deletion-consumers';
 import type { ApiHonoEnv } from './api-hono-types';
 import { apiCors } from './cors';
 import { createRequestDbMiddleware } from './request-db-middleware';

@@ -27,7 +27,8 @@ function makeFakeAuthServer(args: {
   const user = args.user ?? null;
   return {
     provider,
-    deleteUser: () => Promise.reject(new Error('deleteUser is outside this fixture')),
+    deleteUser: () =>
+      Promise.reject(new Error('deleteUser is outside this fixture')),
     verifySessionToken: async () => {
       if (args.verifyThrows === true) {
         throw new Error('boom');

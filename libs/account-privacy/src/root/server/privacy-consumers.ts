@@ -1,16 +1,20 @@
-import type { AccountPrivacyContribution } from '@libs/feature/public/account-privacy';
+import { accountMutationEnv } from '@libs/auth/public/account-mutation-env';
+import {
+  type AccountPrivacyContribution,
+  accountWithdrawalChanged,
+} from '@libs/feature/public/account-privacy';
 import {
   Outbox,
-  type OutboxConsumerRegistry,
   type OutboxConsumerCtx,
+  type OutboxConsumerRegistry,
 } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
 import type { MutationCtx } from '@pkgs/sync-engine/shared';
 import {
   eraseAccount,
+  expireExport,
   prepareExport,
   withdrawAccount,
-  expireExport,
 } from '../../shared/privacy/messages';
 
 function accountContext(
@@ -19,15 +23,29 @@ function accountContext(
 ): MutationCtx {
   return {
     tx: ctx.tx,
-    env: {
-      actorId: accountId,
-      accountId,
-      deviceId: '',
-      isAnon: false,
-      now: () => new Date(ctx.clock.now()),
-      createId: ctx.createId,
-    },
+    env: accountMutationEnv(accountId, ctx),
   };
+}
+
+async function updateWithdrawalStatus(
+  ctx: OutboxConsumerCtx,
+  accountId: string,
+  contributions: readonly AccountPrivacyContribution[]
+) {
+  const context = accountContext(ctx, accountId);
+  const states = await Promise.all(
+    contributions.map(
+      (contribution) => contribution.withdrawalStatus?.(context) ?? 'complete'
+    )
+  );
+  const status = states.includes('pending') ? 'pending' : 'complete';
+  await ctx.tx.run(
+    sql`UPDATE profile_account_privacy SET cancellation_status = ${status} WHERE owner_id = ${accountId}`
+  );
+  await ctx.tx.run(
+    sql`UPDATE profile_deletion_receipts SET cancellation_status = ${status} WHERE owner_id = ${accountId}`
+  );
+  return { notifyUserIds: [accountId] };
 }
 
 async function generateExport(
@@ -82,8 +100,15 @@ async function generateExport(
 
 export function registerPrivacyConsumers(
   registry: OutboxConsumerRegistry,
-  contributions: readonly AccountPrivacyContribution[]
+  contributions: readonly AccountPrivacyContribution[],
+  exportPreparation: 'automatic' | 'on-demand' = 'automatic'
 ): void {
+  registry.register({
+    id: 'profile-withdrawal-status',
+    on: accountWithdrawalChanged,
+    handler: (ctx, payload) =>
+      updateWithdrawalStatus(ctx, payload.accountId, contributions),
+  });
   registry.register({
     id: 'profile-expire-export',
     on: expireExport,
@@ -94,25 +119,22 @@ export function registerPrivacyConsumers(
           ready_at: string | null;
         }>`SELECT ready_at FROM profile_account_privacy WHERE owner_id = ${payload.accountId}`
       );
-      if (rows[0]?.ready_at == null || String(rows[0].ready_at) > cutoff)
+      if (
+        rows[0]?.ready_at == null ||
+        Date.parse(String(rows[0].ready_at)) > Date.parse(cutoff)
+      )
         return;
-      await ctx.objectStore?.delete(
-        `privacy/exports/${payload.accountId}.json`
-      );
+      if (ctx.objectStore === undefined)
+        throw new Error('Privacy storage port missing');
+      await ctx.objectStore.delete(`privacy/exports/${payload.accountId}.json`);
       await ctx.tx.run(
         sql`UPDATE profile_account_privacy SET export_status = ${'Expired'}, export_detail = ${null}, export_summary = ${null} WHERE owner_id = ${payload.accountId}`
       );
       return { notifyUserIds: [payload.accountId] };
     },
   });
-  registry.register({
-    id: 'profile-prepare-export',
-    on: prepareExport,
-    handler: async (ctx, payload) => {
-      await generateExport(ctx, payload.accountId, contributions);
-      return { notifyUserIds: [payload.accountId] };
-    },
-  });
+  if (exportPreparation === 'automatic')
+    registry.register(exportPreparationConsumer(contributions));
   registry.register({
     id: 'profile-erase-account',
     on: eraseAccount,
@@ -128,12 +150,26 @@ export function registerPrivacyConsumers(
     id: 'profile-withdraw-account',
     on: withdrawAccount,
     handler: async (ctx, payload) => {
-      await ctx.objectStore?.delete(
-        `privacy/exports/${payload.accountId}.json`
-      );
-      await ctx.tx.run(
-        sql`UPDATE profile_account_privacy SET cancellation_status = ${'complete'} WHERE owner_id = ${payload.accountId} AND cancellation_status <> ${'waiting_for_provider'}`
-      );
+      if (ctx.objectStore === undefined)
+        throw new Error('Privacy storage port missing');
+      await ctx.objectStore.delete(`privacy/exports/${payload.accountId}.json`);
+      return updateWithdrawalStatus(ctx, payload.accountId, contributions);
     },
   });
+}
+
+export function exportPreparationConsumer(
+  contributions: readonly AccountPrivacyContribution[]
+) {
+  return {
+    id: 'profile-prepare-export',
+    on: prepareExport,
+    handler: async (
+      ctx: OutboxConsumerCtx,
+      payload: { readonly accountId: string }
+    ) => {
+      await generateExport(ctx, payload.accountId, contributions);
+      return { notifyUserIds: [payload.accountId] };
+    },
+  };
 }

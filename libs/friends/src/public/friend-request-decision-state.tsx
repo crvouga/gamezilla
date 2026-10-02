@@ -1,5 +1,18 @@
 /** @jsxImportSource solid-js */
-import { createContext, createSignal, type JSX, useContext } from 'solid-js';
+
+import type {
+  Notification,
+  NotificationCardActions,
+} from '@libs/notifications/public';
+import {
+  createContext,
+  createMemo,
+  createSignal,
+  type JSX,
+  Show,
+  useContext,
+} from 'solid-js';
+import { FriendRequestDecisionModal } from '../root/client/friend-request-decision-modal';
 
 /**
  * Which friend-request decision modal is open (by notification id), held
@@ -10,7 +23,10 @@ import { createContext, createSignal, type JSX, useContext } from 'solid-js';
  */
 export type FriendRequestDecision = {
   readonly openId: () => string | null;
-  readonly open: (interactionId: string) => void;
+  readonly open: (
+    interaction: Notification,
+    actions: NotificationCardActions
+  ) => void;
   readonly close: () => void;
 };
 
@@ -20,15 +36,29 @@ const FriendRequestDecisionContext =
 export function FriendRequestDecisionProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
-  const [openId, setOpenId] = createSignal<string | null>(null);
+  const [shown, setShown] = createSignal<{
+    interaction: Notification;
+    actions: NotificationCardActions;
+  } | null>(null);
+  const openId = createMemo(() => shown()?.interaction.id ?? null);
   const value: FriendRequestDecision = {
     openId,
-    open: (interactionId: string) => setOpenId(interactionId),
-    close: () => setOpenId(null),
+    open: (interaction, actions) => setShown({ interaction, actions }),
+    close: () => setShown(null),
   };
   return (
     <FriendRequestDecisionContext.Provider value={value}>
       {props.children}
+      <Show when={shown()} keyed>
+        {(snapshot) => (
+          <FriendRequestDecisionModal
+            visible
+            interaction={snapshot.interaction}
+            actions={snapshot.actions}
+            onClose={value.close}
+          />
+        )}
+      </Show>
     </FriendRequestDecisionContext.Provider>
   );
 }

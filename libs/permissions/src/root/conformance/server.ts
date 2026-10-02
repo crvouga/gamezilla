@@ -252,6 +252,7 @@ export function routeGuardOperation(
     await requirePermission({
       db: c.db,
       auth: {
+        authenticatedAtMs: null,
         deviceId: c.env.deviceId,
         accountId: c.env.accountId,
         myId: c.env.actorId,

@@ -1,10 +1,10 @@
 import { defineFeature } from '@libs/feature/public/manifest';
 import { ACCOUNT_PRIVACY_TABLES } from '../public/schema';
-import { ownAccountPrivacy } from '../use-cases/hydrate-account-privacy/shared/account-privacy-query';
-import { downloadPersonalDataExport } from '../use-cases/download-personal-data-export/shared/download-personal-data-export-query';
-import { accountPrivacyGuard } from './account-privacy-guard';
 import { ACCOUNT_PRIVACY_TOPIC_MAP } from '../public/topic-map';
+import { downloadPersonalDataExport } from '../use-cases/download-personal-data-export/shared/download-personal-data-export-query';
+import { ownAccountPrivacy } from '../use-cases/hydrate-account-privacy/shared/account-privacy-query';
 import { deletionReceipts } from '../use-cases/hydrate-account-privacy/shared/deletion-receipts-query';
+import { accountPrivacyGuard } from './account-privacy-guard';
 
 export const ACCOUNT_PRIVACY_FEATURE = defineFeature({
   name: 'account-privacy',
@@ -14,5 +14,6 @@ export const ACCOUNT_PRIVACY_FEATURE = defineFeature({
   readsForeign: ['auth_account_devices'],
   queries: [ownAccountPrivacy, downloadPersonalDataExport, deletionReceipts],
   sessionQueries: ['ownAccountPrivacy', 'deletionReceipts'],
-  mutations: async () => (await import('./mutations')).ACCOUNT_PRIVACY_MUTATIONS,
+  mutations: async () =>
+    (await import('./mutations')).ACCOUNT_PRIVACY_MUTATIONS,
 });
