@@ -25,6 +25,10 @@ export async function runShard(index: number): Promise<number> {
   writePlatformCacheKey();
   const misses = shard.tasks.filter((task) => !task.hit);
   const needed = new Set(misses.flatMap((task) => task.dependencies));
+  for (const id of needed) {
+    const task = shard.tasks.find((task) => task.taskId === id);
+    for (const dep of task?.dependencies ?? []) needed.add(dep);
+  }
   const restore = shard.tasks.filter((task) => task.hit && needed.has(task.taskId));
   const prefetchStart = process.hrtime.bigint();
   await prefetchRemoteHits({ tasks: shard.tasks, toExecute: misses,

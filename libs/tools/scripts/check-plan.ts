@@ -1,6 +1,6 @@
 // @io-wall-ok — CI planning entry; artifacts contain identities, never environment values.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { balanceShards, imbalance, type CheckTask } from './check-shards';
 import { readTaskCosts } from './check-task-costs';
