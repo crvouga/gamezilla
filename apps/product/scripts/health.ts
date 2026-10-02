@@ -50,7 +50,7 @@ import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PACKAGE_DIR, '../..');
-const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
+const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/live-index.ts');
 const SLO_ENTRY = join(PACKAGE_DIR, 'tests/openslo/index.ts');
 const FEATURE_SUFFIX = '.feature';
 const SLO_SUFFIX = '.openslo.yaml';
@@ -103,6 +103,18 @@ export function parseCli(argv: readonly string[]): Cli {
     else bunArgs.push(arg);
   }
   return { specPaths, tags, objectives, synthetic, target, bunArgs };
+}
+
+/** Live health uses Bun’s server runtime for deployed resource adapters. */
+export function healthTestArgs(cli: Cli, stubs: readonly string[]): string[] {
+  return [
+    'test',
+    '--timeout',
+    String(SCENARIO_TIMEOUT_MS),
+    '--parallel',
+    ...cli.bunArgs,
+    ...stubs,
+  ];
 }
 
 /** `dev` and `prd` are the environments. `test` and `production` are aliases. */
@@ -389,21 +401,10 @@ if (import.meta.main) {
     console.error('health: nothing to run');
     process.exit(1);
   }
-  const result = spawnSync(
-    'bun',
-    [
-      'test',
-      '--timeout',
-      String(SCENARIO_TIMEOUT_MS),
-      '--parallel',
-      ...cli.bunArgs,
-      ...stubs,
-    ],
-    {
-      cwd: PACKAGE_DIR,
-      stdio: 'inherit',
-      env: { ...process.env, SPEC_TAGS: tags },
-    }
-  );
+  const result = spawnSync('bun', healthTestArgs(cli, stubs), {
+    cwd: PACKAGE_DIR,
+    stdio: 'inherit',
+    env: { ...process.env, SPEC_TAGS: tags },
+  });
   process.exit(result.status ?? 1);
 }
