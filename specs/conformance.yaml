@@ -14,8 +14,6 @@ product:
     - billing
     - feedback
     - chess
-    - db-indexes
-    - db-schema
     - friends
     - journeys
     - matchmaking
