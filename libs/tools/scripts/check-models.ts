@@ -37,7 +37,10 @@ import { REPO_ROOT, type SpecPackage, specPackages } from './spec-packages';
  * Independent models share a bounded pool. Each is a JVM plus an SMT solver;
  * CI runs on at least 16 cores. Override the pool for smaller local machines.
  */
-const CONCURRENCY = Math.max(1, Math.min(4, Number(process.env['MODEL_CHECK_CONCURRENCY'] ?? '4') || 4));
+const CONCURRENCY = Math.max(
+  1,
+  Math.min(4, Number(process.env['MODEL_CHECK_CONCURRENCY'] ?? '4') || 4)
+);
 /** A check is killed after this long (the binding lowers the bound instead). */
 const TIMEOUT_MS = 240_000;
 /** Package-relative; the `check:models` task's output. */

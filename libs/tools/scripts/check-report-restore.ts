@@ -2,7 +2,7 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { reportTask, REPORT_COMPLETION } from '@libs/harness/ci/report-ready';
+import { REPORT_COMPLETION, reportTask } from '@libs/harness/ci/report-ready';
 import type { CheckPlan } from './check-shards';
 import { artifactUrl } from './turbo-preflight';
 

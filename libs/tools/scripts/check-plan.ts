@@ -1,9 +1,10 @@
 // @io-wall-ok — CI planning entry; artifacts contain identities, never environment values.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { balanceShards, imbalance, type CheckTask } from './check-shards';
+import { balanceShards, type CheckTask, imbalance } from './check-shards';
 import { readTaskCosts } from './check-task-costs';
+import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   flattenCheckAggregators,
   turboChildEnv,
@@ -14,7 +15,6 @@ import {
   resolveRemoteHits,
   wallRemoteHas,
 } from './turbo-preflight';
-import { secretsScanRange, SECRETS_RANGE_ENV } from './secrets-scan-range';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');
@@ -74,18 +74,7 @@ export async function createCheckPlan(): Promise<void> {
       hits: tasks.filter((task) => task.hit).length,
     })
   );
-  for (const shard of plan.shards)
-    console.log(
-      `shard ${shard.index}: ${shard.tasks.length} tasks, estimated ${shard.seconds.toFixed(1)} task-seconds`
-    );
-  const skew = imbalance(plan.shards.map((shard) => shard.seconds));
-  if (skew > 0.1)
-    console.warn(
-      `::warning::Estimated shard imbalance ${(skew * 100).toFixed(1)}% exceeds 10%`
-    );
-  console.log(
-    `plan: ${tasks.length} exact task identities; discovery ${discoveryMs.toFixed(0)}ms; cache lookup ${lookupMs.toFixed(0)}ms`
-  );
+  printPlan(plan, discoveryMs, lookupMs);
   const output = env['GITHUB_OUTPUT'];
   if (output)
     appendFileSync(
@@ -100,3 +89,22 @@ export async function createCheckPlan(): Promise<void> {
 }
 
 if (import.meta.main) await createCheckPlan();
+
+function printPlan(
+  plan: ReturnType<typeof balanceShards>,
+  discoveryMs: number,
+  lookupMs: number
+): void {
+  for (const shard of plan.shards)
+    console.log(
+      `shard ${shard.index}: ${shard.tasks.length} tasks, estimated ${shard.seconds.toFixed(1)} task-seconds`
+    );
+  const skew = imbalance(plan.shards.map((shard) => shard.seconds));
+  if (skew > 0.1)
+    console.warn(
+      `::warning::Estimated shard imbalance ${(skew * 100).toFixed(1)}% exceeds 10%`
+    );
+  console.log(
+    `plan: ${plan.tasks.length} exact task identities; discovery ${discoveryMs.toFixed(0)}ms; cache lookup ${lookupMs.toFixed(0)}ms`
+  );
+}

@@ -36,6 +36,7 @@ import { wallClock } from '@pkgs/clock';
 import { openCommit } from '@pkgs/harness-report/remote/publish';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { run } from '@pkgs/os';
+import { publishBatch } from './report-batch';
 import {
   createReportPlan,
   finishReport,
@@ -45,7 +46,6 @@ import {
 } from './report-plan';
 import { reportsStore } from './report-store';
 import { publishReportTask } from './report-task-publish';
-import { publishBatch } from './report-batch';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 

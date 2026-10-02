@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/property';
+import { redactSecrets, taskStream } from './check-shard-stream';
 import {
   balanceShards,
+  type CheckTask,
   validatePlan,
   validateShardResult,
-  type CheckTask,
 } from './check-shards';
-import { redactSecrets, taskStream } from './check-shard-stream';
 
 function task(id: string, seconds = 1, dependencies: string[] = []): CheckTask {
   return {
