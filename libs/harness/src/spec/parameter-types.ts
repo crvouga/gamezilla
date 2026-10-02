@@ -149,4 +149,14 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     regexp: /[a-h][1-8](?:(?:, | and )[a-h][1-8])*/,
     transformer: (text: string) => text.split(/, | and /).sort(),
   },
+  {
+    name: 'chessSide',
+    regexp: /White|Black/,
+    transformer: (text: string) => text,
+  },
+  {
+    name: 'chessPiece',
+    regexp: /pawn|knight|bishop|rook|queen|king/,
+    transformer: (text: string) => text,
+  },
 ];

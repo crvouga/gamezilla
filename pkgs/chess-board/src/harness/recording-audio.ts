@@ -30,6 +30,7 @@ function soundName(source: unknown): string {
 export type RecordingAudio = {
   readonly port: AudioPlaybackPort;
   readonly played: Accessor<readonly string[]>;
+  readonly clear: () => void;
 };
 
 export function createRecordingAudio(): RecordingAudio {
@@ -70,5 +71,5 @@ export function createRecordingAudio(): RecordingAudio {
       // No audio session to configure.
     },
   };
-  return { port, played };
+  return { port, played, clear: () => setPlayed([]) };
 }
