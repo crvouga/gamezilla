@@ -35,6 +35,17 @@ export function runObjectStoreContractTests(
     store = await Promise.resolve(factory());
   });
 
+  test('bulk delete removes only the named keys and tolerates absent keys', async () => {
+    for (const key of ['bulk/a', 'bulk/b', 'bulk/keep'])
+      await store.put(key, new Uint8Array([1]), 'text/plain');
+    await store.deleteMany(['bulk/a', 'bulk/missing', 'bulk/b', 'bulk/a']);
+    expect(await store.head('bulk/a')).toBe(false);
+    expect(await store.head('bulk/b')).toBe(false);
+    expect(await store.head('bulk/keep')).toBe(true);
+    await store.deleteMany([]);
+    await store.delete('bulk/keep');
+  });
+
   test('get returns null for missing key', async () => {
     expect(await store.get('missing')).toBeNull();
   });

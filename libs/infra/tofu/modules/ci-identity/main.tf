@@ -22,7 +22,7 @@ variable "name" {
 
 variable "github_subject_prefix" {
   type        = string
-  description = "Exact GitHub OIDC repo subject prefix, including immutable owner and repository IDs."
+  description = "Immutable GitHub OIDC repo:owner@owner-id/repo@repo-id prefix."
 }
 
 variable "github_owner" {
@@ -39,7 +39,13 @@ resource "infisical_identity" "ci" {
   role   = "no-access"
 }
 
-resource "infisical_identity_oidc_auth" "ci" {
+# Adopt the existing auth binding so recovery updates it in place.
+moved {
+  from = infisical_identity_oidc_auth.ci
+  to   = infisical_identity_oidc_auth.github
+}
+
+resource "infisical_identity_oidc_auth" "github" {
   identity_id                 = infisical_identity.ci.id
   oidc_discovery_url          = local.github_issuer
   bound_issuer                = local.github_issuer

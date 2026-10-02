@@ -32,7 +32,8 @@ readFrameBody(store, { sha, source, testId, file }); // one frame file
 
 `store` is any `ObjectStore` scoped to `REPORTS_ROOT_PREFIX`; `local` is the
 bucket a `bun test` run wrote (`runs/latest/tests/<testId>/…`). A source's
-tests are written before its record, so a reader that sees the record can read
+tests and snapshots are packed into compressed chunks (at most 4 MiB before
+compression), indexed by their logical file keys, and written before its record, so a reader that sees the record can read
 every test it names. A running commit's stream re-lists its sources and sends
 each new one as it lands; a reconnect passes the sources it holds and never
 gets them again. The key layout is in `src/remote/keys.ts`.

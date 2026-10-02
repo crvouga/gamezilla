@@ -15,18 +15,17 @@ test('the transferred repository supplies its current OIDC subject and audience'
 
 // regression: ci-immutable-oidc-subject
 test('CI trusts the literal immutable subject returned after the repository transfer', () => {
-  expect(`${GLOBAL.github.oidc_subject_prefix}:pull_request`).toBe(
-    'repo:gamezilla-org@336801040/gamezilla@1165464734:pull_request'
-  );
+  const github = GLOBAL.github;
+  expect(
+    `repo:${github.owner}@${github.owner_id}/${github.repo}@${github.repo_id}:pull_request`
+  ).toBe('repo:gamezilla-org@336801040/gamezilla@1165464734:pull_request');
   const tofu = join(import.meta.dirname, '../tofu');
   const bootstrap = readFileSync(
     join(tofu, 'stacks/bootstrap/main.tf'),
     'utf8'
   );
   expect(
-    bootstrap.match(
-      /github_subject_prefix\s*= var\.github\.oidc_subject_prefix/g
-    )
+    bootstrap.match(/github_subject_prefix\s*= local\.github_subject_prefix/g)
   ).toHaveLength(2);
   const infisical = readFileSync(
     join(tofu, 'modules/ci-identity/main.tf'),
@@ -51,9 +50,10 @@ test('bootstrap updates the existing CI auth and retires old resources without d
     join(tofu, 'modules/ci-identity/main.tf'),
     'utf8'
   );
-  // Live auth e0518163-8ef1-4be9-83a7-39596ab3dc87 is at this address.
-  expect(infisical).toContain('resource "infisical_identity_oidc_auth" "ci"');
-  expect(infisical).not.toContain(
+  // Move the existing binding in state so recovery updates it in place.
+  expect(infisical).toContain('from = infisical_identity_oidc_auth.ci');
+  expect(infisical).toContain('to   = infisical_identity_oidc_auth.github');
+  expect(infisical).toContain(
     'resource "infisical_identity_oidc_auth" "github"'
   );
   const imports = readFileSync(

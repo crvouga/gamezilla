@@ -1,5 +1,6 @@
 locals {
-  state_secret_names = jsondecode(file("${path.module}/../foundation/secrets.json")).bootstrap
+  github_subject_prefix = "repo:${var.github.owner}@${var.github.owner_id}/${var.github.repo}@${var.github.repo_id}"
+  state_secret_names    = jsondecode(file("${path.module}/../foundation/secrets.json")).bootstrap
 }
 
 locals {
@@ -83,13 +84,13 @@ module "ci_identity" {
   project_id            = var.infisical.project_id
   name                  = "${var.project}-github-actions"
   github_owner          = var.github.owner
-  github_subject_prefix = var.github.oidc_subject_prefix
+  github_subject_prefix = local.github_subject_prefix
 }
 
 module "aws_ci" {
   source                = "../../modules/aws-ci-identity"
   project               = var.project
-  github_subject_prefix = var.github.oidc_subject_prefix
+  github_subject_prefix = local.github_subject_prefix
 }
 
 module "repository" {

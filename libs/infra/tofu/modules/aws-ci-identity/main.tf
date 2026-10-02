@@ -19,7 +19,7 @@ variable "project" {
 
 variable "github_subject_prefix" {
   type        = string
-  description = "Exact GitHub OIDC repo subject prefix, including immutable owner and repository IDs."
+  description = "Immutable GitHub OIDC repo:owner@owner-id/repo@repo-id prefix."
 }
 
 locals {

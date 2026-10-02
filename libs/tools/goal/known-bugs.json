@@ -11,7 +11,7 @@
   },
   {
     "id": "ci-immutable-oidc-subject",
-    "summary": "After the repository transfer, GitHub issued repo:gamezilla-org@336801040/gamezilla@1165464734:pull_request, but Infisical and AWS trust policies expected name-only subjects. Declare the exact immutable subject prefix in global OpenTofu config and wire it into both trust policies while retaining their branch and environment restrictions.",
+    "summary": "After the repository transfer, GitHub issued repo:gamezilla-org@336801040/gamezilla@1165464734:pull_request, but Infisical and AWS trust policies expected name-only subjects. Declare immutable owner and repository IDs in global OpenTofu config and derive the exact subject prefix and wire it into both trust policies while retaining their branch and environment restrictions.",
     "regressionTest": "libs/infra/tests/github-transfer.test.ts"
   },
   {
@@ -1038,5 +1038,30 @@
     "id": "product-symbolic-model-compilation-timeout",
     "summary": "Open: Check run 36977052636 shard 0 timed out symbolic identity, replication, access, multiplayer and privacy checks at 120,000ms, then reached the 1,200s shard deadline. The literal offline-replication model with its existing three-client symbolic bound and two transitions also times out in isolation: Snowcat finishes but InlinePass does not. Disabling polymorphic inference does not resolve it. Requires compiler/model optimization that preserves the declared bounds, transitions and invariants; the checks remain enabled and failing.",
     "regressionTest": "apps/product/tests/quint/system/model-checks.test.ts"
+  },
+  {
+    "id": "s3-ignores-injected-http",
+    "summary": "The S3 adapter accepted an HttpClient but used the SDK wall transport, making injected transport tests and clients ineffective. Send every S3 request through the injected handler.",
+    "regressionTest": "pkgs/object-store-s3/tests/bulk-delete.test.ts"
+  },
+  {
+    "id": "reports-class-a-snapshot-fanout",
+    "summary": "Check uploaded every individual report snapshot again, including cached suites, incurring millions of paid R2 writes. Publish compressed, bounded chunks and reuse identical chunks on reruns.",
+    "regressionTest": "pkgs/harness-report/tests/bundle.test.ts"
+  },
+  {
+    "id": "reports-retain-merged-and-superseded-commits",
+    "summary": "The reports store retained superseded commits and reports of merged or deleted branches for thirty days. Keep only one report per existing branch and garbage collect orphan uploads.",
+    "regressionTest": "pkgs/harness-report/tests/retention.test.ts"
+  },
+  {
+    "id": "check-report-cleanup-serial-commit-listing",
+    "summary": "Check run 36975436667 passed every shard but its final job exceeded 10 minutes pruning reports. Commit 075ee6c683761e1b2173d33aa0d0ccfebdb404ea alone contained 56,999 objects under one hash partition. Split large trees into concurrent child listings, but read small subtrees in one page: walking 128 individual snapshot folders otherwise took 387 requests.",
+    "regressionTest": "pkgs/object-store-s3/tests/list-keys.test.ts"
+  },
+  {
+    "id": "github-transfer-immutable-oidc-subject",
+    "summary": "Check run 36974006709 failed with Infisical HTTP 403 after the repository transfer enabled GitHub's immutable OIDC subject. Bind Infisical and AWS CI identities to repo:gamezilla-org@336801040/gamezilla@1165464734 while preserving branch and environment restrictions.",
+    "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   }
 ]

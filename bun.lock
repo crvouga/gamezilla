@@ -2265,6 +2265,7 @@
         "@xmldom/xmldom": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@pkgs/s3-server": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "@types/bun": "catalog:",

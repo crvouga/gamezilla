@@ -50,6 +50,10 @@ export class ObjectStoreWithPrefix implements ObjectStore {
     return this.inner.delete(this.scopedKey(key));
   }
 
+  deleteMany(keys: readonly string[]): Promise<void> {
+    return this.inner.deleteMany(keys.map((key) => this.scopedKey(key)));
+  }
+
   getUri(key: string): Promise<string | null> {
     return this.inner.getUri(this.scopedKey(key));
   }

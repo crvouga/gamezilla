@@ -51,11 +51,9 @@ export const globalFileSchema = z
     github: z
       .object({
         owner: id,
+        owner_id: z.string().regex(/^[1-9][0-9]*$/),
         repo: id,
-        /** Exact prefix from GitHub's Actions OIDC customization endpoint. */
-        oidc_subject_prefix: z
-          .string()
-          .regex(/^repo:[^:@/]+@[0-9]+\/[^:@/]+@[0-9]+$/),
+        repo_id: z.string().regex(/^[1-9][0-9]*$/),
         required_checks: z.array(id).min(1),
       })
       .strict(),
@@ -77,13 +75,12 @@ export const globalFileSchema = z
      * The one private bucket holding every commit's spec reports (fleet
      * stack; `bun check`): CI writes with, and each environment's
      * API reads with, that environment's own credential (foundation stack).
-     * Each report expires after `retention_days`.
+     * CI retains the latest report per existing branch.
      */
     reports: z
       .object({
         account_id: id,
         bucket: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/),
-        retention_days: z.number().int().positive(),
       })
       .strict(),
     global_imports: z

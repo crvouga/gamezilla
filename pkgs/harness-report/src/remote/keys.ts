@@ -7,8 +7,10 @@
  *   commits/<sha>/commit.json                       the commit's run record
  *   commits/<sha>/frame.css                         stylesheet for its snapshots
  *   commits/<sha>/sources/<source>.json             one source's test metas
- *   commits/<sha>/tests/<source>/<testId>/report.json
- *   commits/<sha>/tests/<source>/<testId>/<frame file>
+ *   commits/<sha>/bundles/<source>.json              logical file locations
+ *   commits/<sha>/blobs/<content hash>.gz            compressed chunks
+ *
+ * Logical test and frame keys below are entries in the bundle indexes.
  *
  * A source is one report bucket of one package (`libs-chess--part-2`).
  * Writers put a source's tests first and its `sources/` record last, so a

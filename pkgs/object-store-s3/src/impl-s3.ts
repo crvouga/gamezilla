@@ -1,8 +1,8 @@
 import {
   DeleteObjectCommand,
+  DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
-  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -10,6 +10,8 @@ import { ObjectStoreWithPrefix } from '@pkgs/object-store/impl-with-prefix';
 import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
 import { assertRemoteObjectKey } from '@pkgs/object-store/namespace-guard';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store/prefixes';
+import { createFetchRequestHandler } from './fetch-request-handler';
+import { listS3Keys } from './list-keys';
 import type { S3ObjectStoreConfig } from './s3-config';
 import { installS3DomParser } from './s3-dom-parser';
 
@@ -138,6 +140,8 @@ class ObjectStoreImplS3 implements ObjectStore {
     installS3DomParser();
     this.namespace = normalizeObjectStoreRootPrefix(config.rootPrefix);
     this.client = new S3Client({
+      requestHandler: createFetchRequestHandler(config.http),
+      maxAttempts: 1,
       region: config.region,
       endpoint: config.endpoint,
       credentials: {
@@ -233,6 +237,34 @@ class ObjectStoreImplS3 implements ObjectStore {
     }
   }
 
+  async deleteMany(keys: readonly string[]): Promise<void> {
+    for (const key of keys) this.guardKey(key);
+    for (let offset = 0; offset < keys.length; offset += 8_000) {
+      const batches = Array.from(
+        { length: Math.min(8, Math.ceil((keys.length - offset) / 1_000)) },
+        (_, n) => keys.slice(offset + n * 1_000, offset + (n + 1) * 1_000)
+      );
+      const results = await Promise.allSettled(
+        batches.map((batch) => this.deleteBatch(batch))
+      );
+      for (const result of results)
+        if (result.status === 'rejected') throw result.reason;
+    }
+  }
+
+  private async deleteBatch(keys: readonly string[]): Promise<void> {
+    const response = await this.client.send(
+      new DeleteObjectsCommand({
+        Bucket: this.bucket,
+        Delete: { Objects: keys.map((Key) => ({ Key })), Quiet: true },
+      })
+    );
+    if ((response.Errors?.length ?? 0) > 0)
+      throw new Error(
+        `ObjectStoreImplS3: bulk delete failed: ${JSON.stringify(response.Errors)}`
+      );
+  }
+
   async getUri(_key: string): Promise<string | null> {
     return null;
   }
@@ -247,25 +279,7 @@ class ObjectStoreImplS3 implements ObjectStore {
         `ObjectStoreImplS3: listKeys prefix must start with "${this.namespace}": ${listPrefix}`
       );
     }
-    const keys: string[] = [];
-    let continuationToken: string | undefined;
-    for (;;) {
-      const response = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucket,
-          Prefix: listPrefix,
-          ContinuationToken: continuationToken,
-        })
-      );
-      for (const obj of response.Contents ?? []) {
-        if (typeof obj.Key === 'string' && obj.Key.length > 0) {
-          keys.push(obj.Key);
-        }
-      }
-      if (!response.IsTruncated) break;
-      continuationToken = response.NextContinuationToken;
-    }
-    return keys.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    return listS3Keys(this.client, this.bucket, listPrefix);
   }
 
   withPrefix(_prefix: string): ObjectStore {
