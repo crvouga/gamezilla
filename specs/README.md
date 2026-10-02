@@ -1095,7 +1095,7 @@ terms:
 | Billing | `billing` | Plus: memberships, trials, renewals, paid access, grace, refunds, the billing portal | generic (the provider does the paying) |
 | Spaces | `spaces` | live spaces: hosting, joining, leaving, ending, links, the lobby, presence, the hosting limit | core |
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
-| Chess | `chess` | chess puzzles played in a space: the puzzle feed, attempts, the puzzle rating, the game log, review, watching | core |
+| Chess | `chess` | chess puzzles played in a space and private multiplayer chess: the puzzle feed, attempts, puzzle ratings, game logs, review, watching, multiplayer boards, turns and results | core |
 | Auth | `auth` | how outside accounts at Google and Apple get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google and Apple say who is signing in) |
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
@@ -1119,8 +1119,9 @@ App      ──► Identity (trail, run into trouble), Journeys (tabs)
 App      ──► Developer tools (address, version of the app, keyboard, control, place in the app)
 Developer tools ──► App (the testing tool)
 Friends, Spaces ──► Developer tools (friend, space)
-Chess    ──► Journeys (a game of chess, a puzzle)
-Room, Sync engine, Matchmaking: stand alone (Sync engine's "shared space" is not a Spaces space)
+Matchmaking ──► Chess (a complete matchmaking match)
+Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess)
+Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
 
@@ -1131,11 +1132,12 @@ Published language:
 | Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
 | Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
-| Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
-| Chess (`chess`) | game, chess, board, puzzle, solve | — |
+| Friends (`friends`) | friend, friends list, people search, block someone | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
+| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
-| Auth, Room, Matchmaking, Sync engine, Journeys | — | — |
+| Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |
+| Auth, Room, Sync engine, Journeys | — | — |
 
 - Publish product concepts, not common words: "open space", never "open".
 - The same word may mean different things in different contexts ("notice",

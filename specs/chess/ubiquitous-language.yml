@@ -9,8 +9,25 @@ purpose: >-
   puzzle played, online or offline.
 
 terms:
+  - term: pair people up
+    from: matchmaking
+  - term: matchmaking match
+    from: matchmaking
+    model: [matchFormed, MatchmakingMatch, matchedPeople, fromMatch]
+  - term: person
+    from: kernel
+    model: [PlayPerson, currentPlay]
+  - term: device
+    from: kernel
+    model: [PlayDevice]
+  - term: connection
+    from: kernel
+    model: [loseConnection, comeBackOnline]
+  - term: block someone
+    from: friends
   - term: account deletion
     from: profile
+    model: [deletePlayAccount]
   - term: recently proven account
     from: profile
   # --- Borrowed -------------------------------------------------------------
@@ -19,8 +36,24 @@ terms:
     from: profile
   - term: account
     from: profile
+  - term: sign out
+    from: profile
+  - term: username
+    from: profile
+  - term: rename themselves
+    from: profile
+  - term: friends list
+    from: friends
+  - term: leave
+    from: spaces
+  - term: end a space
+    from: spaces
   - term: sign in
     from: profile
+  - term: paid access
+    from: billing
+  - term: control
+    from: runtime
   - term: Plus
     from: billing
   - term: Plus member
@@ -500,3 +533,87 @@ terms:
 
   - term: keyboard
     from: runtime
+
+  - term: multiplayer chess
+    definition: >-
+      A private, untimed game of ordinary chess between two people with
+      accounts. It is separate from the puzzle a space is playing. Each
+      person can have one unfinished multiplayer game, across all devices.
+      White starts; the people see their side, opponent and the same board.
+      Either assignment of White and Black is allowed and remains fixed.
+    forms: [multiplayer game, multiplayer games, multiplayer board]
+    model: [PlayGame, playNumber, whiteSide, blackSide, playBoard, PlayBoard]
+    published: true
+
+  - term: find a chess opponent
+    definition: >-
+      Ask matchmaking for another person available for an untimed multiplayer
+      game. Everyone starts with a multiplayer rating of 1500, separate from
+      puzzle ratings. This game is unrated: its result never changes either
+      rating. The rating range grows as matchmaking defines it. Blocking in
+      either direction prevents a new pairing. Signing out on one device
+      leaves an accepted wait available on the person's other devices.
+    forms: [finds a chess opponent, finding a chess opponent, chess opponent search, opponent search, search]
+    model: [findOpponent, lookingForOpponent]
+
+  - term: stop finding a chess opponent
+    definition: >-
+      Stop the person's current matchmaking wait, keeping any multiplayer
+      game already formed. A person without a wait has nothing to stop.
+    forms: [stops finding a chess opponent, stopped finding a chess opponent]
+    model: [stopFindingOpponent]
+
+  - term: open multiplayer chess
+    definition: >-
+      See the person's current opponent search or most recent multiplayer
+      game. Coming back or opening it on another device never starts a
+      second game. After a result, the person may ask for a new opponent.
+    forms: [opens multiplayer chess, returns to multiplayer chess]
+    model: [openMultiplayer]
+
+  - term: multiplayer turn
+    definition: >-
+      The person whose side may move next. A legal move changes the board
+      and passes the turn exactly once. A move attempted for a different
+      board position, from another device or after the game is over never
+      moves a piece. An offline person sees the last accepted board and
+      cannot send a move or resignation for later.
+    forms: [turn, turns, plays a multiplayer move, repeats a multiplayer move, plays, repeats that multiplayer move]
+    model: [playMove, moveCount, turn]
+
+  - term: multiplayer result
+    definition: >-
+      The permanent win or draw both people see when the multiplayer game
+      is over. Checkmate wins for the mating side; resignation wins for the
+      other side. Stalemate, insufficient mating material, the same position
+      for the third time, or fifty moves by each side without a pawn move
+      or capture automatically draw this casual game. Once over, the board
+      cannot move. Disconnection alone never ends an untimed game.
+    forms: [multiplayer game is over, multiplayer draw, multiplayer win]
+    model: [PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
+    published: true
+
+  - term: resign multiplayer chess
+    definition: >-
+      Give up the unfinished multiplayer game. Either person may resign
+      regardless of turn; repeating the same resignation keeps its result.
+      Confirming account deletion gives up that person's unfinished game
+      and stops their opponent search before their account disappears.
+    forms: [resigns multiplayer chess, resigned multiplayer chess]
+    model: [resignPlay]
+
+  - term: multiplayer rating
+    definition: >-
+      The strength used to seek an ordinary chess opponent, 1500 for everyone
+      while multiplayer games are unrated. Puzzle ratings never supply it.
+
+  - term: last known multiplayer board
+    definition: >-
+      The accepted board and result shown before a device went offline.
+      They stay visible until a connection brings the accepted outcome back.
+
+  - term: unfinished multiplayer game limit
+    definition: >-
+      Every account has at most one unfinished multiplayer game. Before
+      seeking a new opponent, the person finishes that game. Free accounts
+      and Plus members have the same allowance.

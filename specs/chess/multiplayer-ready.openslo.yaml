@@ -1,0 +1,40 @@
+# Two compatible accounts should quickly be able to play the same game.
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: multiplayer-game-ready-time
+  displayName: Time until a compatible pair can play
+spec:
+  description: >-
+    The time from the second compatible person beginning to find an opponent
+    until both online people see their one multiplayer game ready to play.
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        measures: >-
+          The time, in thousandths of a second, between two compatible
+          accounts being available for a multiplayer game and both seeing
+          that game's board, sides and first turn.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: multiplayer-games-become-ready-quickly
+  displayName: Multiplayer games become ready quickly
+spec:
+  description: >-
+    At least 99 in every 100 compatible pairs of online people can play
+    their multiplayer game within five seconds, judged over four weeks.
+    The concrete journey's five-second example illustrates this promise.
+  service: chess
+  indicatorRef: multiplayer-game-ready-time
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: Nearly every compatible pair can play within five seconds
+      op: lte
+      value: 5000
+      target: 0.99
