@@ -14,16 +14,16 @@ export function reportMarkdown(report: FeedbackReport): string {
         : `- ${d.name}: unavailable (${d.reason})`
     )
     .join('\n');
-  return `# ${report.title}\n\n${report.description}\n\nKind: ${report.kind}\n\n## Expected outcome / improvement\n\n${report.expected}\n\n## Reproduction steps\n\n${report.reproductionSteps || 'Not a problem report.'}\n\n## Evidence\n\n${report.attachments.map((a) => `${a.name}: ${a.url}`).join('\n')}\n\nReported: ${report.createdAt}\nStatus: ${report.status}\nId: ${report.id}\n\n## Diagnostics\n\n${diagnostics || 'Diagnostics pending or unavailable.'}\n`;
+  return `# ${report.title}\n\n${report.body.source}\n\nKind: ${report.kind}\n\n## Evidence\n\n${report.attachments.map((a) => `${a.name}: ${a.url}`).join('\n')}\n\nReported: ${report.createdAt}\nStatus: ${report.status}\nId: ${report.id}\nSchema: ${report.schema}\n\n## Diagnostics\n\n${diagnostics || 'Diagnostics pending or unavailable.'}\n`;
 }
 
 export function agentHandoff(report: FeedbackReport): string {
   return `# Reproduce feedback ${report.id}
 
-Read report.json for the exact observed and expected outcomes. Read reproduction.json for ordered actions, stable control identifiers, initial/final product state, and elapsed times. Read diagnostics.json for device/build/page context and trace ids. Videos supplement this evidence.
+Start with report.json. It is the authoritative ${report.schema} document: body.source preserves the author's Markdown and body.sections provides the same content as named, ordered sections. Read reproduction.json for ordered actions, stable control identifiers, initial/final application state, and elapsed times. Read diagnostics.json for device/build/page context and trace ids. Videos supplement this evidence.
 
-For a problem: inspect existing specs, restore the captured starting state in the appropriate public harness, and express the expected outcome as a product scenario using spec-upsert. Use spec-implement to pin this literal input and demonstrate the failure before changing the product. Run spec-audit and the package checks. Do not claim a reproduction until the check fails for the reported reason.
+For a problem: inspect the host application's behavior contracts, restore the captured starting state through its public test surface, and pin the literal input in a failing regression before changing the application. Run the host application's required checks. Do not claim a reproduction until the check fails for the reported reason.
 
-For a feature, gap or polish: use the intended improvement to define the product behavior first.
+For a feature, gap or polish: use the intended improvement to define the application behavior first.
 `;
 }

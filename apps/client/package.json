@@ -29,7 +29,9 @@
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/feedback": "workspace:*",
     "@pkgs/git": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/observability": "workspace:*",
@@ -37,9 +39,7 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "solid-js": "catalog:",
-    "@pkgs/feedback": "workspace:*",
-    "@pkgs/http-client": "workspace:*"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",

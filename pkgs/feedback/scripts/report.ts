@@ -2,7 +2,10 @@
 import { resolve } from 'node:path';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { HttpIssueReporter } from '@pkgs/feedback/client';
-import { createFeedbackReporting } from '@pkgs/feedback/shared';
+import {
+  createFeedbackReporting,
+  readFeedbackReport,
+} from '@pkgs/feedback/shared';
 import { createGlobalHttpClient } from '@pkgs/http-client/global';
 import { readBytes } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
@@ -23,12 +26,17 @@ if (args[0] === '--list') {
     const object = await store.get(key);
     if (!object) continue;
     try {
-      const report = JSON.parse(
-        new TextDecoder().decode(await readBytes(object.body))
-      ) as { id: string; title: string; createdAt: string };
+      const report = readFeedbackReport(
+        JSON.parse(new TextDecoder().decode(await readBytes(object.body)))
+      );
       console.log(
         JSON.stringify({
-          ...report,
+          schema: report.schema,
+          id: report.id,
+          kind: report.kind,
+          title: report.title,
+          status: report.status,
+          createdAt: report.createdAt,
           path: `.feedback/${key.replace('report.json', 'report.md')}`,
         })
       );
@@ -42,7 +50,15 @@ if (args[0] === '--list') {
     throw new Error('Supply a report id from bun feedback --list');
   const report = await store.get(`feedback-${id}/report.json`);
   if (!report) throw new Error('Local feedback not found');
-  console.log(new TextDecoder().decode(await readBytes(report.body)));
+  console.log(
+    JSON.stringify(
+      readFeedbackReport(
+        JSON.parse(new TextDecoder().decode(await readBytes(report.body)))
+      ),
+      null,
+      2
+    )
+  );
 } else {
   const reporter = new HttpIssueReporter({
     endpoint:
@@ -58,9 +74,8 @@ if (args[0] === '--list') {
   }).submit({
     kind: (args[0] ??
       'problem') as import('@pkgs/feedback/shared').FeedbackKind,
-    description: args[1] ?? '',
-    expected: args[2] ?? '',
-    reproductionSteps: args[3] ?? '',
+    body: args[1] ?? '',
+    title: args[2] ?? '',
   });
   console.log(result.issue.location ?? result.issue.id);
 }

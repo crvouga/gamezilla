@@ -58,6 +58,7 @@ export * from './keyboard-shortcuts';
 export * from './list';
 export * from './loading-state';
 export * from './main-menu-screen';
+export * from './markdown-editor';
 export * from './menu-row';
 export * from './modal';
 export * from './multi-select-swatch';

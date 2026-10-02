@@ -3,6 +3,25 @@ purpose: >-
   Help people and the team describe bugs, feature requests, gaps and polish,
   with enough context to reproduce trouble and understand the improvement.
 terms:
+  - term: feedback management
+    definition: The list of drafts and reports an author can read, change and delete.
+  - term: developer
+    definition: A member of the team who builds and improves the app.
+    forms: [developers]
+  - term: draft
+    definition: Feedback its author is still writing and has not sent.
+    forms: [drafts]
+  - term: wizard
+    definition: The single place to write, review and manage feedback.
+  - term: Markdown
+    definition: Writing that can include headings, lists, links and freely arranged text.
+  - term: template
+    definition: Optional starting text for a bug, feature request, gap or polish.
+    forms: [templates]
+  - term: command palette
+    definition: The app's searchable list of actions, including opening the feedback wizard.
+  - term: widget
+    definition: The movable feedback wizard that stays out of the way while using the app on a computer.
   - term: feedback
     definition: >-
       A description of a bug, feature request, gap or polish, the intended

@@ -1,10 +1,15 @@
 import type { Session } from '@pkgs/harness';
 import { readBytes } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import { startFeedbackRuntime } from '../client/feedback-runtime';
 import { HttpIssueReporter } from '../client/http-issue-reporter';
-import { mountRootReporting } from '../client/mount-root-reporting';
-import { startRootRuntime } from '../client/root-runtime';
-// Compile the example's lazy UI before a run; production bootstrap stays lazy.
+import { mountFeedback } from '../client/mount-feedback';
+import { requestFeedback } from '../client/open-feedback';
+import type { FeedbackWorkspaceSnapshot } from '../shared/workspace';
+import { mountExampleCommands } from './example-commands';
+import { createExampleEditor } from './example-editor';
+import { createExampleNavigation } from './example-navigation';
+// Compile the example's lazy UI before a run; application bootstrap stays lazy.
 import '../client/reporting-surface';
 import { createEvidenceUploader } from '../client/upload-evidence';
 import { createFeedbackHttpApp } from '../server/feedback-http-app';
@@ -15,7 +20,7 @@ import type {
   FeedbackReport,
 } from '../shared/types';
 
-export type ProductCondition =
+export type ApplicationCondition =
   | 'working'
   | 'loading'
   | 'crashed'
@@ -25,11 +30,18 @@ export type ProductCondition =
   | 'delivery-fails';
 export type DiagnosticsCondition = 'available' | 'throws' | 'hangs';
 export function createExampleApp(session: Session) {
+  const editor = createExampleEditor(session);
+  const navigation = createExampleNavigation(session);
   const store = new ObjectStoreImplInMemory();
-  let root: ReturnType<typeof mountRootReporting> | null = null;
+  let root: ReturnType<typeof mountFeedback> | null = null;
   let host: HTMLElement | null = null;
-  let product: HTMLElement | null = null;
+  let application: HTMLElement | null = null;
   let lastReportId = '';
+  let snapshot: FeedbackWorkspaceSnapshot | null = null;
+  let width = 1200;
+  let foreignRefusal = false;
+  let commands: HTMLElement | null = null;
+  let unmountCommands: (() => void) | null = null;
   let diagnosticsCondition: DiagnosticsCondition = 'available';
   let deliveryFails = false;
   let videoAvailable = true;
@@ -58,7 +70,10 @@ export function createExampleApp(session: Session) {
   const http = {
     async fetch(input: RequestInfo | URL, init?: RequestInit) {
       const request = new Request(input, init);
-      if (new URL(request.url).pathname === '/api/feedback')
+      if (
+        new URL(request.url).pathname === '/api/feedback' &&
+        request.method === 'POST'
+      )
         lastReportId = ((await request.clone().json()) as FeedbackReport).id;
       return deliveryFails
         ? Response.json({ error: 'Unavailable' }, { status: 503 })
@@ -76,36 +91,54 @@ export function createExampleApp(session: Session) {
     await session.waitForIdle();
   }
   function element(id: string): HTMLElement {
-    const node = host?.querySelector<HTMLElement>(`[data-testid="${id}"]`);
+    const node =
+      host?.querySelector<HTMLElement>(`[data-testid="${id}"]`) ??
+      document.querySelector<HTMLElement>(`[data-testid="${id}"]`);
     if (!node) throw new Error(`Feedback control missing: ${id}`);
     return node;
   }
   function close() {
+    unmountCommands?.();
+    unmountCommands = null;
+    commands?.remove();
+    commands = null;
     root?.dispose();
     root = null;
     host = null;
-    product?.remove();
-    product = null;
+    application?.remove();
+    application = null;
   }
-  function boot(condition: ProductCondition = 'working') {
+  function bootApplication(condition: ApplicationCondition = 'working'): void {
     close();
     deliveryFails = condition === 'delivery-fails';
     host = document.createElement('aside');
     document.body.append(host);
-    product = document.createElement('button');
-    product.textContent = 'Ask for a hint';
-    product.dataset['testid'] = 'example-hint';
-    document.body.append(product);
+    application = document.createElement('button');
+    application.textContent = 'Ask for a hint';
+    application.dataset['testid'] = 'example-hint';
+    document.body.append(application);
+    commands = document.createElement('div');
+    document.body.append(commands);
+    unmountCommands = mountExampleCommands(commands, session);
     const mountedHost = host;
-    startRootRuntime({
-      installReporting(diagnostics) {
-        root = mountRootReporting({
+    startFeedbackRuntime({
+      installFeedback(diagnostics) {
+        root = mountFeedback({
           window,
           document,
           host: mountedHost,
           diagnostics,
           reporter,
           providers,
+          authorId: 'local',
+          evidence: store.withPrefix('drafts'),
+          workspace: {
+            load: () => snapshot,
+            save: (value) => {
+              snapshot = structuredClone(value);
+            },
+          },
+          layout: { width, height: 900 },
           ...session.ports,
           upload: createEvidenceUploader({
             endpoint: 'http://local/api/feedback',
@@ -132,7 +165,7 @@ export function createExampleApp(session: Session) {
           },
         });
       },
-      startProduct() {
+      startApplication() {
         if (condition === 'loading')
           return new Promise(() => {
             /* Unavailable until the diagnostic deadline. */
@@ -145,31 +178,29 @@ export function createExampleApp(session: Session) {
   }
   async function ready() {
     await root?.ready;
+    await root?.controller.ready;
     await session.waitForIdle();
   }
   async function open() {
     await ready();
-    element('feedback-open').click();
+    requestFeedback(document);
     await session.waitForIdle();
   }
   async function describe(draft: FeedbackDraft) {
     await ready();
-    if (!root?.controller.state().visible) {
-      await open();
-      element(`feedback-kind-${draft.kind}`).click();
-    } else root.controller.open(draft.kind);
-    for (const [key, id] of [
-      ['description', 'feedback-description'],
-      ['expected', 'feedback-expected'],
-      ['reproductionSteps', 'feedback-steps'],
-    ] as const) {
-      if (key === 'reproductionSteps' && draft.kind !== 'problem') continue;
-      const input = element(id).querySelector<HTMLTextAreaElement>('textarea');
+    if (!root?.controller.state().visible) await open();
+    root?.controller.setStage('write');
+    root?.controller.setDraft({ body: draft.body, kind: draft.kind });
+    for (const key of ['title'] as const) {
+      const input = element(`feedback-${key}`).querySelector<
+        HTMLInputElement | HTMLTextAreaElement
+      >('input, textarea');
       if (!input) throw new Error('Feedback field missing');
       input.value = draft[key];
       input.dispatchEvent(new Event('input', { bubbles: true }));
     }
   }
+
   async function send() {
     await ready();
     element('feedback-form').dispatchEvent(
@@ -177,23 +208,30 @@ export function createExampleApp(session: Session) {
     );
     await idle();
   }
-  function answer(field: 'description' | 'expected' | 'steps') {
-    const input = element(`feedback-${field}`).querySelector('textarea');
+  function answer(field: 'body' | 'title') {
+    if (field === 'body') return editor.field();
+    const input = element(`feedback-${field}`).querySelector<
+      HTMLInputElement | HTMLTextAreaElement
+    >('input, textarea');
     if (!input) throw new Error('Feedback field missing');
     return input;
   }
-  async function editAnswer(input: {
-    field: 'description' | 'expected' | 'steps';
-    text: string;
-  }) {
+  async function editAnswer(input: { field: 'body' | 'title'; text: string }) {
+    root?.controller.setStage('write');
+    if (input.field === 'body') {
+      for (const character of input.text) await editor.append(character);
+      return;
+    }
     const field = answer(input.field);
+    if (!(field instanceof HTMLInputElement))
+      throw new Error('Title field missing');
     field.focus();
     field.setSelectionRange(field.value.length, field.value.length);
     for (const character of input.text) {
       field.setRangeText(
         character,
-        field.selectionStart,
-        field.selectionEnd,
+        field.selectionStart ?? 0,
+        field.selectionEnd ?? 0,
         'end'
       );
       field.dispatchEvent(
@@ -202,30 +240,164 @@ export function createExampleApp(session: Session) {
       await session.waitForIdle();
     }
   }
+  async function enterTemplateCommand(command: string) {
+    root?.controller.setStage('write');
+    await editor.write(
+      `${root?.controller.state().draft.body ?? ''}\n\n${command}`.trim()
+    );
+    await editor.key('Enter');
+  }
   async function record(stop: boolean) {
     await ready();
     root?.controller.open('problem');
+    root?.controller.setStage('write');
     element('feedback-record').click();
     await idle();
-    product?.click();
-    product?.click();
+    application?.click();
+    application?.click();
     if (stop) {
       element('feedback-stop').click();
       await idle();
     }
   }
+  async function managementAction(action: {
+    type: string;
+    title?: string;
+    body?: string;
+  }) {
+    if (action.type === 'palette') {
+      element('example-commands').click();
+      await session.waitForIdle();
+      const option =
+        document.querySelector<HTMLButtonElement>('[role="option"]');
+      if (!option) throw new Error('Feedback command unavailable');
+      option.click();
+    }
+    if (action.type === 'edit') {
+      const id = root?.controller.workspace.state().activeId;
+      await root?.controller.manage();
+      element(`feedback-open-${id}`).click();
+      await session.waitForIdle();
+      element(`feedback-edit-${id}`).click();
+      await session.waitForIdle();
+      await describe({
+        title: action.title ?? '',
+        body: action.body ?? '',
+        kind: 'problem',
+      });
+      await send();
+    }
+    if (action.type === 'delete' || action.type === 'cancel-delete') {
+      const id = root?.controller.workspace.state().activeId;
+      await root?.controller.manage();
+      element(`feedback-open-${id}`).click();
+      await session.waitForIdle();
+      element(`feedback-delete-${id}`).click();
+      await session.waitForIdle();
+      if (action.type === 'delete') {
+        element('feedback-delete-confirm').click();
+        await idle();
+      } else {
+        const cancel = [
+          ...document.querySelectorAll<HTMLButtonElement>(
+            '[role="dialog"] button'
+          ),
+        ].find((button) => button.textContent.includes('Cancel'));
+        if (!cancel) throw new Error('Cancel unavailable');
+        cancel.click();
+      }
+    }
+  }
   return {
     store,
-    boot,
+    editor,
+    navigation,
+    async wizard(action: { type: string; title?: string; body?: string }) {
+      await ready();
+      if (action.type === 'close') root?.controller.close();
+      if (action.type === 'return') {
+        root?.controller.close();
+        await open();
+      }
+      if (action.type === 'reopen') {
+        bootApplication();
+        await ready();
+        await open();
+      }
+      if (action.type === 'new') await root?.controller.newDraft();
+      if (action.type === 'manage') {
+        await root?.controller.manage();
+        await open();
+      }
+      if (action.type === 'bug-template') {
+        await open();
+        await enterTemplateCommand('/bug');
+      }
+      if (action.type === 'polish-template') {
+        await open();
+        await enterTemplateCommand('/polish');
+      }
+      if (action.type === 'phone') {
+        width = 390;
+        bootApplication();
+        await ready();
+      }
+      if (action.type === 'move') {
+        element('feedback-drag').dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })
+        );
+      }
+      await managementAction(action);
+      await session.waitForIdle();
+    },
+    async foreign(title: string) {
+      const draft = {
+        kind: 'problem' as const,
+        title,
+        body: 'Private observation',
+      };
+      await server(
+        new Request('http://local/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...draft,
+            id: 'foreign-report',
+            authorId: 'another-developer',
+            recording: null,
+            attachments: [],
+            diagnostics: [],
+          }),
+        })
+      );
+    },
+    async tryForeignEdit() {
+      const response = await server(
+        new Request('http://local/api/feedback/items/foreign-report', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Feedback-Author': 'local',
+          },
+          body: JSON.stringify({ title: 'Changed', body: 'Changed' }),
+        })
+      );
+      foreignRefusal = response.status === 404;
+    },
+    foreignRefusal: () => foreignRefusal,
+    boot: bootApplication,
     ready,
     open,
     describe,
     send,
     editAnswer,
-    readAnswer(field: 'description' | 'expected' | 'steps') {
+    readAnswer(field: 'body' | 'title') {
       const input = answer(field);
       return {
-        value: input.value,
+        value:
+          field === 'body'
+            ? root?.controller.state().draft.body
+            : (input as HTMLInputElement).value,
         focused: document.activeElement === input,
       };
     },
@@ -245,12 +417,11 @@ export function createExampleApp(session: Session) {
       element('feedback-discard').click();
       await idle();
     },
-    async submit(title: string, description: string) {
+    async submit(title: string, body: string) {
       await describe({
         kind: 'problem',
-        description: `${title}\n${description}`,
-        expected: 'The app responds',
-        reproductionSteps: 'Open the app and repeat the reported action',
+        title,
+        body,
       });
       await send();
     },
@@ -262,12 +433,39 @@ export function createExampleApp(session: Session) {
           ) as FeedbackReport)
         : null;
     },
-    emergencyReport: () => root?.controller.state().attempted ?? null,
+    emergencyReport: () => root?.controller.emergencyCopy() ?? null,
     view: () => ({
       text: host?.textContent ?? '',
-      kinds: ['problem', 'feature', 'gap', 'polish'].filter((kind) =>
-        host?.querySelector(`[data-testid="feedback-kind-${kind}"]`)
-      ),
+      draft: root?.controller.state().draft ?? null,
+      wizardCount: document.querySelectorAll(
+        '[data-testid="feedback-surface"], [data-testid="feedback-widget"]'
+      ).length,
+      permanentControl:
+        document.querySelector('[data-testid="feedback-open"]') !== null,
+      sheet: (() => {
+        const surface = document.querySelector(
+          '[data-testid="feedback-surface"]'
+        );
+        return (
+          surface?.classList.contains('left-0') === true &&
+          surface.classList.contains('right-0')
+        );
+      })(),
+      position: root?.controller.workspace.state().position,
+      managementText:
+        document.querySelector('[data-testid="feedback-management"]')
+          ?.textContent ?? '',
+      stage: root?.controller.workspace.state().stage,
+      heading: host?.querySelector('h2')?.textContent ?? '',
+      hasContextScreen:
+        document.querySelector('[data-component="FeedbackContext"]') !== null,
+      hasAttachControl:
+        document.querySelector('[data-testid="feedback-attach"]') !== null,
+      hasRecordControl:
+        document.querySelector('[data-testid="feedback-record"]') !== null,
+      buttons: [...(host?.querySelectorAll('button') ?? [])]
+        .map((button) => button.textContent.trim())
+        .filter(Boolean),
       recording: root?.controller.recorder.state() ?? null,
       videoStarts,
       errors: root?.controller.state().errors ?? {},

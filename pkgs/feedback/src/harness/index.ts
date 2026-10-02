@@ -6,18 +6,18 @@ import {
   virtualTimeRuntime,
 } from '@pkgs/harness';
 import {
+  type ApplicationCondition,
   createExampleApp,
   type DiagnosticsCondition,
-  type ProductCondition,
 } from './example-app';
 
 export type FeedbackReportingWorld = {
   readonly session: Session;
   readonly app: ReturnType<typeof createExampleApp>;
 };
-export const productCondition = defineAction({
-  name: 'productCondition',
-  act: (world: FeedbackReportingWorld, condition: ProductCondition) =>
+export const applicationCondition = defineAction({
+  name: 'applicationCondition',
+  act: (world: FeedbackReportingWorld, condition: ApplicationCondition) =>
     world.app.boot(condition),
 });
 export const diagnosticsCondition = defineAction({
@@ -29,8 +29,8 @@ export const submitReport = defineAction({
   name: 'submitReport',
   act: (
     world: FeedbackReportingWorld,
-    input: { title: string; description: string }
-  ) => world.app.submit(input.title, input.description),
+    input: { title: string; body: string }
+  ) => world.app.submit(input.title, input.body),
 });
 export const feedbackAction = defineAction({
   name: 'feedbackAction',
@@ -62,6 +62,37 @@ export const feedbackAction = defineAction({
 });
 export const readFeedbackView = (world: FeedbackReportingWorld) =>
   world.app.view();
+export const editorAction = defineAction({
+  name: 'editorAction',
+  act: async (
+    world: FeedbackReportingWorld,
+    input: { type: 'write' | 'key' | 'format'; text: string }
+  ) => {
+    if (input.type === 'write') await world.app.editor.write(input.text);
+    if (input.type === 'key') await world.app.editor.key(input.text);
+    if (input.type === 'format') await world.app.editor.format(input.text);
+  },
+});
+export const readEditorView = (world: FeedbackReportingWorld) =>
+  world.app.editor.view();
+export const navigationAction = defineAction({
+  name: 'navigationAction',
+  act: async (
+    world: FeedbackReportingWorld,
+    input: { type: 'open' | 'focus' | 'key'; text: string; key?: string }
+  ) => {
+    if (input.type === 'open') await world.app.navigation.openIssue(input.text);
+    if (input.type === 'focus')
+      await world.app.navigation.focusIcon(input.text);
+    if (input.type === 'key')
+      await world.app.navigation.key({
+        label: input.text,
+        key: input.key ?? 'Escape',
+      });
+  },
+});
+export const readNavigationView = (world: FeedbackReportingWorld) =>
+  world.app.navigation.view();
 export const editFeedbackAnswer = defineAction({
   name: 'editFeedbackAnswer',
   act: (
@@ -71,15 +102,33 @@ export const editFeedbackAnswer = defineAction({
 });
 export const readFeedbackAnswer = (
   world: FeedbackReportingWorld,
-  field: 'description' | 'expected' | 'steps'
+  field: 'body' | 'title'
 ) => world.app.readAnswer(field);
-export const closeProduct = defineAction({
-  name: 'closeProduct',
+export const closeApplication = defineAction({
+  name: 'closeApplication',
   act: (world: FeedbackReportingWorld) => world.app.close(),
 });
 export const readReport = (world: FeedbackReportingWorld) => world.app.report();
 export const readEmergencyReport = (world: FeedbackReportingWorld) =>
   world.app.emergencyReport();
+export const wizardAction = defineAction({
+  name: 'wizardAction',
+  act: (
+    world: FeedbackReportingWorld,
+    input: Parameters<FeedbackReportingWorld['app']['wizard']>[0]
+  ) => world.app.wizard(input),
+});
+export const foreignFeedback = defineAction({
+  name: 'foreignFeedback',
+  act: (world: FeedbackReportingWorld, title: string) =>
+    world.app.foreign(title),
+});
+export const changeForeignFeedback = defineAction({
+  name: 'changeForeignFeedback',
+  act: (world: FeedbackReportingWorld) => world.app.tryForeignEdit(),
+});
+export const readForeignRefusal = (world: FeedbackReportingWorld) =>
+  world.app.foreignRefusal();
 export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
   name: 'feedback',
   async create(session) {
@@ -97,11 +146,16 @@ export const feedbackReportingSystem = defineSystem<FeedbackReportingWorld>({
     }),
   ],
   actions: [
-    productCondition,
+    applicationCondition,
     diagnosticsCondition,
     submitReport,
-    closeProduct,
+    closeApplication,
     feedbackAction,
     editFeedbackAnswer,
+    editorAction,
+    navigationAction,
+    wizardAction,
+    foreignFeedback,
+    changeForeignFeedback,
   ],
 });

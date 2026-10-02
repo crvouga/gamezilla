@@ -70,7 +70,7 @@ async function dispatch(
   const request = new Request(`${origin}${req.url}`, {
     method,
     headers,
-    ...(method === 'POST' ? { body } : {}),
+    ...(['POST', 'PATCH'].includes(method) ? { body } : {}),
   });
   const response = await createFeedbackHttpApp({
     ...options,

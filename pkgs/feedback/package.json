@@ -8,7 +8,7 @@
     "./client": "./src/client/index.ts",
     "./harness": "./src/harness/index.ts",
     "./vite": "./scripts/vite.ts",
-    "./browser-root": "./src/client/wall.ts",
+    "./browser": "./src/client/wall.ts",
     "./context": "./src/client/context.ts"
   },
   "scripts": {
@@ -21,13 +21,13 @@
   "dependencies": {
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
-    "@opentelemetry/api": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/object-store-opfs": "workspace:*",
     "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",

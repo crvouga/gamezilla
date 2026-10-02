@@ -1,15 +1,17 @@
 import type { FeedbackControllerOptions } from './controller';
 import { FeedbackController } from './controller';
 import { installCrashHandlers } from './crash-handlers';
+import type { FeedbackDiagnostics } from './diagnostics-buffer';
 import { installInteractionRecording } from './interaction-recording';
-import type { createRootDiagnostics } from './root-diagnostics';
+import { FEEDBACK_OPEN_EVENT } from './open-feedback';
 
-export function mountRootReporting(
+export function mountFeedback(
   options: FeedbackControllerOptions & {
     readonly window: Window;
     readonly document: Document;
     readonly host: HTMLElement;
-    readonly diagnostics: ReturnType<typeof createRootDiagnostics>;
+    readonly diagnostics: FeedbackDiagnostics;
+    readonly applicationErrorEvent?: string;
   }
 ) {
   options.host.setAttribute('data-feedback-root', '');
@@ -18,11 +20,16 @@ export function mountRootReporting(
     ...options,
     providers: [options.diagnostics.provider, ...options.providers],
   });
-  const removeCrashHandlers = installCrashHandlers(
-    options.window,
-    options.diagnostics,
-    () => controller.open()
-  );
+  const openFeedback = () => controller.open();
+  options.document.addEventListener(FEEDBACK_OPEN_EVENT, openFeedback);
+  const removeCrashHandlers = installCrashHandlers({
+    target: options.window,
+    diagnostics: options.diagnostics,
+    openFeedback: () => controller.open(),
+    ...(options.applicationErrorEvent
+      ? { applicationErrorEvent: options.applicationErrorEvent }
+      : {}),
+  });
   const removeInteractions = installInteractionRecording({
     document: options.document,
     path: () => options.window.location.pathname,
@@ -44,6 +51,7 @@ export function mountRootReporting(
     open: controller.open,
     dispose(): void {
       disposed = true;
+      options.document.removeEventListener(FEEDBACK_OPEN_EVENT, openFeedback);
       removeCrashHandlers();
       removeInteractions();
       controller.dispose();

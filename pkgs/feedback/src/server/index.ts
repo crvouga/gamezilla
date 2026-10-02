@@ -1,3 +1,4 @@
+export { ArchivedIssueReporter } from './archived-issue-reporter';
 export { createEvidenceHandler, MAX_EVIDENCE_BYTES } from './evidence-handler';
 export { FakeIssueReporter } from './fake-issue-reporter';
 export { createFeedbackHttpApp } from './feedback-http-app';
@@ -8,4 +9,4 @@ export {
   FEEDBACK_PATH,
   MAX_REPORT_BYTES,
 } from './http-handler';
-export { reportMarkdown } from './report-files';
+export { agentHandoff, reportMarkdown } from './report-files';

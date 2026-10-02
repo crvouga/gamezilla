@@ -1,22 +1,21 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock';
 import { HttpIssueReporter } from '@pkgs/feedback/client';
-import type { FeedbackReport } from '@pkgs/feedback/shared';
+import { createFeedbackBody, type FeedbackReport } from '@pkgs/feedback/shared';
 import { assertProperty, fc } from '@pkgs/property';
 
 // regression: feedback-http-ignores-abort
 const report: FeedbackReport = {
   kind: 'problem',
-  expected: 'Board responds',
-  reproductionSteps: 'Make a move',
   recording: null,
   attachments: [],
-  version: 1,
+  schema: 'feedback.report/v2',
   id: 'hung-transport',
   title: 'Board froze',
-  description: 'After a move',
+  body: createFeedbackBody('After a move'),
   createdAt: '2026-09-30T00:00:00.000Z',
   status: 'open',
+  authorId: 'local',
   diagnostics: [],
 };
 

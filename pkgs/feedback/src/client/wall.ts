@@ -1,32 +1,51 @@
-// @io-wall-ok — minimal browser composition root, before any product imports
+// @io-wall-ok — standalone browser adapter
+
 import { wallClock, wallTimers } from '@pkgs/clock';
+import { createCacheApiObjectStore } from '@pkgs/object-store-opfs/impl-cache-api';
+import { createBrowserWorkspace } from './browser-workspace';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
+import { startFeedbackRuntime } from './feedback-runtime';
 import { HttpIssueReporter } from './http-issue-reporter';
-import { mountRootReporting } from './mount-root-reporting';
-import { startRootRuntime } from './root-runtime';
+import { mountFeedback } from './mount-feedback';
 import { createEvidenceUploader } from './upload-evidence';
-import { browserEvidencePreview, browserRecordingPort } from './wall-video';
+import { browserRecordingPort } from './wall-video';
 
-/** Endpoint is platform configuration; it never depends on product bootstrap. */
-export function bootBrowserRoot(options: {
+/** Ready-to-use browser adapter; core feedback behavior remains port-driven. */
+export function bootBrowserFeedback(options: {
   readonly endpoint: string;
   readonly build?: string;
-  readonly startProduct: () => Promise<unknown>;
+  readonly startApplication: () => Promise<unknown>;
+  readonly standalonePath?: string;
+  readonly applicationErrorEvent?: string;
+  readonly storageNamespace?: string;
 }) {
   const http = { fetch: globalThis.fetch.bind(globalThis) };
+  const storageNamespace = options.storageNamespace ?? 'feedback';
   const host = document.createElement('aside');
-  host.setAttribute('data-component', 'RootFeedbackReportingHost');
+  host.setAttribute('data-component', 'FeedbackHost');
   document.body.append(host);
-  const draftKey = 'root-feedback-draft';
-  return startRootRuntime({
-    installReporting(diagnostics) {
-      const runtime = mountRootReporting({
+  const persistence = createBrowserWorkspace({
+    storage: () => localStorage,
+    createId: () => crypto.randomUUID(),
+    namespace: storageNamespace,
+  });
+  const evidence = createCacheApiObjectStore({
+    baseDir: `${storageNamespace}-evidence`,
+    caches: globalThis.caches,
+  });
+  const standalonePath = options.standalonePath ?? '/feedback';
+  return startFeedbackRuntime({
+    installFeedback(diagnostics) {
+      const runtime = mountFeedback({
         window,
         document,
         host,
         diagnostics,
+        ...(options.applicationErrorEvent
+          ? { applicationErrorEvent: options.applicationErrorEvent }
+          : {}),
         clock: wallClock,
         timers: wallTimers,
         createId: () => crypto.randomUUID(),
@@ -45,7 +64,6 @@ export function bootBrowserRoot(options: {
           },
         },
         video: browserRecordingPort(wallTimers),
-        preview: browserEvidencePreview,
         upload: createEvidenceUploader({
           endpoint: options.endpoint,
           http,
@@ -57,11 +75,8 @@ export function bootBrowserRoot(options: {
           endpoint: options.endpoint,
           timers: wallTimers,
         }),
-        draft: {
-          save: (value) => localStorage.setItem(draftKey, value),
-          load: () => localStorage.getItem(draftKey),
-          clear: () => localStorage.removeItem(draftKey),
-        },
+        ...persistence,
+        evidence,
         providers: [
           {
             name: 'page',
@@ -79,11 +94,11 @@ export function bootBrowserRoot(options: {
           },
         ],
       });
-      if (location.pathname === '/feedback') runtime.open();
+      if (location.pathname === standalonePath) runtime.open();
     },
-    startProduct: () =>
-      location.pathname === '/feedback'
+    startApplication: () =>
+      location.pathname === standalonePath
         ? Promise.resolve()
-        : options.startProduct(),
+        : options.startApplication(),
   });
 }

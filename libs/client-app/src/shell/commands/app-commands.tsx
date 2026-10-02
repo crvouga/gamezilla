@@ -10,6 +10,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import { feedbackCommand } from '@pkgs/feedback/client';
 import {
   type Command,
   GaugeIcon,
@@ -152,12 +153,24 @@ function PerformanceCommands(): JSX.Element {
   return null;
 }
 
+function FeedbackCommands(): JSX.Element {
+  const { t } = useLingui();
+  useRegisterCommands(() => [
+    feedbackCommand({
+      title: t`Open developer feedback`,
+      category: t`Developer`,
+    }),
+  ]);
+  return null;
+}
+
 export function AppCommands(): JSX.Element {
   return (
     <>
       <NavigationCommands />
       <AppearanceCommands />
       <PerformanceCommands />
+      <FeedbackCommands />
     </>
   );
 }

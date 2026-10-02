@@ -31,12 +31,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -156,7 +156,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -251,7 +251,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -316,7 +316,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -455,6 +455,36 @@
     "regressionTest": "pkgs/feedback/tests/focus.contract.test.ts"
   },
   {
+    "id": "feedback-attachment-switches-draft",
+    "summary": "An attachment finishing after a new draft was selected could persist in the newly selected draft. Capture the initiating document and commit evidence only to that document.",
+    "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
+  },
+  {
+    "id": "feedback-reload-repeats-submission",
+    "summary": "Reopening after an uncertain submission discarded the attempted report id and could create duplicate feedback. Journal attempted reports and recover their ids for unchanged retries.",
+    "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
+  },
+  {
+    "id": "feedback-raw-transport-error",
+    "summary": "A failed feedback submission exposed the browser's raw \"Load failed\" transport error and expanded a large emergency payload, even though the draft was safely journalled. Fixed by presenting a concise recovery state, keeping the draft editable, and moving the machine-readable recovery payload behind an explicit disclosure.",
+    "regressionTest": "specs/feedback/drafts.feature"
+  },
+  {
+    "id": "feedback-opfs-client-path",
+    "summary": "The shipped client TypeScript configuration omitted the OPFS package path used by the feedback browser root, so a cold app type-check could not resolve evidence storage. Keep the concrete feedback import resolvable through the client path map.",
+    "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
+  },
+  {
+    "id": "feedback-template-submit",
+    "summary": "Buttons without an explicit type inside the feedback form inherited HTML's submit default, so choosing a template sent the draft. The shared Button now defaults to type=button and only explicit submit controls submit forms.",
+    "regressionTest": "pkgs/ui/tests/button.test.tsx"
+  },
+  {
+    "id": "feedback-widget-handle-offscreen",
+    "summary": "The feedback widget clamp assumed the widget was shorter than the viewport, so a tall resized editor forced y=0 and left its grab handle above the visible area. Fixed by allowing the bottom-anchored widget to translate downward when only its header can fit.",
+    "regressionTest": "pkgs/feedback/tests/widget-drag.contract.test.ts"
+  },
+  {
     "id": "foundation-provider-bootstrap-cycle",
     "summary": "The first Neki foundation plan configured the PostgreSQL provider from a role that the same plan had not created yet. OpenTofu substituted localhost and failed before it could create the database; the transition also tried to delete the retired broker's random credentials. Fixed by leaving pg_stat_statements with Neki's PlanetScale-managed default profile, removing the cyclic provider, and forgetting retired credentials without destroying them.",
     "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
@@ -473,5 +503,35 @@
     "id": "neki-kv-storage-ddl-unsupported",
     "summary": "The first schema reconcile on Neki stopped at ALTER COLUMN SET STORAGE with NK013 because Neki cannot preserve that storage setting as shards join. Catching it inside the schema transaction still left the transaction aborted, and after commit the router could briefly return 42P01 for the newly created table. Fixed by committing required schema first, then applying optional storage tuning in autocommit, where explicit unsupported errors are skipped and temporary table visibility defers tuning without hiding unrelated failures.",
     "regressionTest": "pkgs/kv-postgres/tests/postgres-storage-knobs.test.ts"
+  },
+  {
+    "id": "feedback-widget-unbounded",
+    "summary": "The issue list grew with its content and stage changes left keyboard focus on removed controls.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-actions-hidden-menu",
+    "summary": "The issue detail hid its only two actions behind an unnecessary menu.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-icon-label-clipping",
+    "summary": "Evidence controls had pointer-only labels clipped by the editor frame.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "feedback-command-eager-expansion",
+    "summary": "Typing a complete slash command expanded it before acceptance, with no keyboard suggestions.",
+    "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  },
+  {
+    "id": "crash-screen-hardcoded-theme",
+    "summary": "The root crash screen discarded the selected theme and rendered hardcoded red colors. Keep the minimal theme root mounted above recovery and render themed, responsive recovery controls with expandable diagnostics.",
+    "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  },
+  {
+    "id": "crash-copy-rejection",
+    "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
+    "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
   }
 ]

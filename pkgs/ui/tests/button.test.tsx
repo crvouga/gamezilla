@@ -28,6 +28,20 @@ import type { JSX } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 describe('Button', () => {
+  // regression: feedback-template-submit
+  test('defaults to a non-submitting button inside forms', () => {
+    const onSubmit = mock((event: SubmitEvent) => event.preventDefault());
+    renderUi(() => (
+      <form onSubmit={onSubmit}>
+        <Button title="Bug" />
+      </form>
+    ));
+    const button = screen.getByRole('button', { name: 'Bug' });
+    expect(button.getAttribute('type')).toBe('button');
+    fireEvent.click(button);
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   test('renders a native button, fires onClick, and applies size', () => {
     const onClick = mock();
     renderUi(() => <Button title="Save" onClick={onClick} size="sm" />);

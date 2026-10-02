@@ -164,6 +164,13 @@ class ReproductionRecorder {
       recording: { ...recording, actions: [...recording.actions, captured] },
     });
   };
+  restore(
+    recording: ReproductionRecording | null,
+    video: import('../shared/types').EvidenceFile | null
+  ): void {
+    this.discard();
+    if (recording) this.publish({ ...IDLE, phase: 'ready', recording, video });
+  }
   dispose = this.discard;
 }
 export function createReproductionRecorder(options: RecordingOptions) {

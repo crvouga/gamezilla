@@ -32,12 +32,11 @@ test('large optional context cannot make a useful report exceed the HTTP limit',
     })),
   }).submit({
     kind: 'problem',
-    expected: 'Board responds',
-    reproductionSteps: 'Make a move',
-    description: '界'.repeat(32_000),
+    title: '',
+    body: '界'.repeat(32_000),
   });
   expect(submitted.issue.id).toBe('large-context');
-  expect(destination.reports.get('large-context')?.description).toHaveLength(
+  expect(destination.reports.get('large-context')?.body.source).toHaveLength(
     32_000
   );
   expect(

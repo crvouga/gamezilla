@@ -36,6 +36,7 @@
     "dev": "bun run --silent --cwd apps/product dev --",
     "dev:client": "SECRETS_ENV=dev bun run libs/secrets/src/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "fc": "clear && bun run fmt && bun run check",
+    "feedback": "bun run pkgs/feedback/scripts/report.ts",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run libs/tools/scripts/remove-empty-dirs.ts & wait",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/check.yml",
     "git-sync": "bun run libs/tools/scripts/git-sync.ts",
@@ -71,8 +72,7 @@
     "synthetic:prd": "SECRETS_ENV=prd bun run synthetic",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
     "wipe": "git clean -xfd",
-    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts",
-    "feedback": "bun run pkgs/feedback/scripts/report.ts"
+    "workspace:sync": "bun run libs/tools/scripts/sync-workspace-lifecycle.ts"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
@@ -219,7 +219,16 @@
     "workbox-build": "^7.4.1",
     "workbox-window": "^7.4.1",
     "wrangler": "^4.141.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "prosemirror-commands": "^1.7.2",
+    "prosemirror-history": "^1.5.1",
+    "prosemirror-inputrules": "^1.5.1",
+    "prosemirror-keymap": "^1.2.3",
+    "prosemirror-markdown": "^1.13.8",
+    "prosemirror-model": "^1.25.12",
+    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.42.6"
   },
   "trustedDependencies": [
     "better-sqlite3",

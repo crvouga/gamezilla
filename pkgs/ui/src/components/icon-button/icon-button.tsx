@@ -67,6 +67,8 @@ export type IconButtonProps = {
   tooltip?: IconButtonTooltipMode | undefined;
   /** Static tooltip placement. Defaults to centered `bottom`. */
   tooltipPlacement?: TooltipPlacement | undefined;
+  /** Keep the label visible outside scroll and clipping containers. */
+  tooltipFloating?: boolean | undefined;
   /** Visual disc diameter in pixels. Defaults to 40. */
   size?: number | undefined;
   /** Color token or raw color for the background. */
@@ -222,6 +224,7 @@ export function IconButton(props: IconButtonProps): JSX.Element {
         label={props.label}
         enableFocus={tooltipMode() === 'default'}
         placement={props.tooltipPlacement}
+        floating={props.tooltipFloating}
       >
         <IconButtonFace {...props} tooltipMode={tooltipMode()} />
       </Tooltip>

@@ -13,16 +13,14 @@ test('typing in feedback answers retains focus', async () => {
     type: 'describe',
     draft: {
       kind: 'problem',
-      description: '',
-      expected: '',
-      reproductionSteps: '',
+      title: '',
+      body: '',
     },
   });
   await session.apply(feedbackAction, { type: 'send' });
   for (const [field, text] of [
-    ['description', 'The board froze'],
-    ['expected', 'The move appears'],
-    ['steps', 'Drag e2 to e3'],
+    ['body', 'The board froze'],
+    ['title', 'Board movement'],
   ] as const) {
     await session.apply(editFeedbackAnswer, { field, text });
     expect(await session.read(readFeedbackAnswer, field)).toEqual({

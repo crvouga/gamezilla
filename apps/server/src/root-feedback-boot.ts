@@ -6,8 +6,8 @@ import { createApiSecretStore } from '@libs/server-app/config/secret-store';
 import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
+  ArchivedIssueReporter,
   createFeedbackHttpApp,
-  FileSystemIssueReporter,
   GitHubIssueReporter,
 } from '@pkgs/feedback/server';
 
@@ -44,45 +44,22 @@ export async function handleRootFeedbackReport(
         requireCredentials: true,
       })
     ).withPrefix('feedback');
-    const archive = new FileSystemIssueReporter(store);
     const token = env.FEEDBACK_GITHUB_TOKEN?.trim();
     const repository = env.FEEDBACK_GITHUB_REPOSITORY?.trim();
     const origin = new URL(request.url).origin;
-    const github =
-      token && repository
-        ? new GitHubIssueReporter({
-            token,
-            repository,
-            http,
-            reportBaseUrl: `${origin}/api/feedback/reports`,
-          })
-        : null;
+    if (!token || !repository)
+      throw new Error('GitHub feedback destination is not configured');
+    const github = new GitHubIssueReporter({
+      token,
+      repository,
+      http,
+      reportBaseUrl: `${origin}/api/feedback/reports`,
+    });
     return await createFeedbackHttpApp({
       store,
       clock: wallClock,
       allowedOrigin: resolveWebClientOrigin(env.API_URL?.trim() || origin),
-      reporter: {
-        async create(report) {
-          if (await store.head(`feedback-${report.id}/report.json`))
-            return {
-              id: report.id,
-              url: `${origin}/api/feedback/reports/${report.id}`,
-            };
-          await archive.create(report);
-          // The durable bundle survives a vendor outage; a saved receipt is truthful.
-          if (github) {
-            try {
-              return await github.create(report);
-            } catch {
-              /* Report is safely archived. */
-            }
-          }
-          return {
-            id: report.id,
-            url: `${origin}/api/feedback/reports/${report.id}`,
-          };
-        },
-      },
+      reporter: new ArchivedIssueReporter(store, github),
     })(request);
   } catch {
     return Response.json(

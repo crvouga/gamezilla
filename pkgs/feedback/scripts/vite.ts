@@ -10,12 +10,12 @@ type DevReportModule = {
   ) => (request: IncomingMessage, response: ServerResponse) => Promise<void>;
 };
 
-/** Mounted before Vite/product middleware; no product server, secrets or DB involved. */
+/** Mounted before host middleware; no host server, secrets or database required. */
 export function feedbackDevPlugin(options: {
   readonly repoRoot: string;
 }): Plugin {
   return {
-    name: 'root-feedback',
+    name: 'feedback',
     apply: 'serve',
     async configureServer(server) {
       // Vite resolves workspace TypeScript; Node's config loader cannot.

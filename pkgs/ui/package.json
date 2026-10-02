@@ -42,6 +42,15 @@
     "@solidjs/router": "catalog:",
     "@tanstack/solid-virtual": "catalog:",
     "lucide-solid": "catalog:",
+    "prosemirror-commands": "catalog:",
+    "prosemirror-history": "catalog:",
+    "prosemirror-inputrules": "catalog:",
+    "prosemirror-keymap": "catalog:",
+    "prosemirror-markdown": "catalog:",
+    "prosemirror-model": "catalog:",
+    "prosemirror-schema-list": "catalog:",
+    "prosemirror-state": "catalog:",
+    "prosemirror-view": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

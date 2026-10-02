@@ -1,8 +1,8 @@
-/** Root reporting must initialize even when optional platform configuration is bad. */
-export function feedbackEndpoint(base: string): string {
+/** Feedback remains reachable when optional host configuration is malformed. */
+export function feedbackEndpoint(base: string, path = '/api/feedback'): string {
   try {
-    return new URL('/api/feedback', base).href;
+    return new URL(path, base).href;
   } catch {
-    return '/api/feedback';
+    return path;
   }
 }

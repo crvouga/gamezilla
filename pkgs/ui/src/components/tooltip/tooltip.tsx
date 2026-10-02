@@ -5,7 +5,8 @@
  * Shows on pointer hover when {@link useHoverCapable} is true and on keyboard
  * focus of the wrapped control (any device). The bubble stays mounted while
  * hidden so `aria-describedby` on the control always resolves. Position is
- * static via the `placement` prop; no measurement or enter animation.
+ * static via `placement` unless `floating` portals it outside clipping hosts
+ * and positions it within the viewport.
  * Controls inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
  */
 
@@ -15,10 +16,12 @@ import {
   createUniqueId,
   type JSX,
   onCleanup,
+  Show,
   useContext,
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useHoverCapable } from '../../theme';
+import { FloatingTooltip } from './floating-tooltip';
 import styles from './tooltip.module.css';
 import {
   claimActiveTooltip,
@@ -42,6 +45,8 @@ export type TooltipProps = {
   children: JSX.Element;
   /** Static placement. Defaults to centered `bottom`. */
   placement?: TooltipPlacement | undefined;
+  /** Portal the label beyond clipping containers. */
+  floating?: boolean | undefined;
   /**
    * When true, keyboard `:focus-visible` also shows the bubble. Defaults to
    * true for standalone tooltips; IconButton hover-mode passes false.
@@ -83,11 +88,22 @@ function TooltipAnchor(props: {
   label: JSX.Element;
   dataSet: ComponentDataSet | undefined;
   children: JSX.Element;
+  floating: boolean | undefined;
 }): JSX.Element {
   const hoverCapable = useHoverCapable();
-
+  let anchor: HTMLDivElement | undefined;
+  const bubble = () => (
+    <TooltipBubble
+      controller={props.controller}
+      placement={props.placement}
+      label={props.label}
+      dataSet={props.dataSet}
+      floating={props.floating}
+    />
+  );
   return (
     <div
+      ref={anchor}
       class="box"
       classList={{ [styles['anchor'] ?? '']: true }}
       role="presentation"
@@ -109,34 +125,62 @@ function TooltipAnchor(props: {
         props.controller.hide();
       }}
       onKeyDown={(event) => {
-        if (event.key === 'Escape') props.controller.hide();
+        if (event.key === 'Escape' && props.controller.visible()) {
+          event.stopPropagation();
+          props.controller.hide();
+        }
       }}
     >
       {props.children}
-      <div
-        class="box bg-surface-elevated rounded-sm px-2 py-1 w-max"
-        classList={{
-          [styles['bubble'] ?? '']: true,
-          [styles['top'] ?? '']: tooltipSide(props.placement()) === 'top',
-          [styles['bottom'] ?? '']: tooltipSide(props.placement()) === 'bottom',
-          [styles['start'] ?? '']: tooltipAlign(props.placement()) === 'start',
-          [styles['center'] ?? '']:
-            tooltipAlign(props.placement()) === 'center',
-          [styles['end'] ?? '']: tooltipAlign(props.placement()) === 'end',
-          [styles['open'] ?? '']: props.controller.visible(),
-        }}
-        {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
-        style={{
-          'max-width': `${TOOLTIP_MAX_WIDTH}px`,
-        }}
-        id={props.controller.id}
-        role="tooltip"
-        aria-hidden={props.controller.visible() ? undefined : true}
-      >
-        <p class="text textCaption line-clamp-2 text-text text-center">
-          {props.label}
-        </p>
-      </div>
+      <Show when={props.floating} fallback={bubble()}>
+        <FloatingTooltip
+          anchor={() => anchor}
+          visible={props.controller.visible}
+          placement={props.placement}
+        >
+          {bubble()}
+        </FloatingTooltip>
+      </Show>
+    </div>
+  );
+}
+
+function TooltipBubble(props: {
+  controller: TooltipController;
+  placement: () => TooltipPlacement;
+  label: JSX.Element;
+  dataSet: ComponentDataSet | undefined;
+  floating: boolean | undefined;
+}) {
+  return (
+    <div
+      class="box bg-surface-elevated rounded-sm px-2 py-1 w-max"
+      classList={{
+        [styles['bubble'] ?? '']: !props.floating,
+        [styles['floating'] ?? '']: props.floating === true,
+        [styles['top'] ?? '']:
+          !props.floating && tooltipSide(props.placement()) === 'top',
+        [styles['bottom'] ?? '']:
+          !props.floating && tooltipSide(props.placement()) === 'bottom',
+        [styles['start'] ?? '']:
+          !props.floating && tooltipAlign(props.placement()) === 'start',
+        [styles['center'] ?? '']:
+          !props.floating && tooltipAlign(props.placement()) === 'center',
+        [styles['end'] ?? '']:
+          !props.floating && tooltipAlign(props.placement()) === 'end',
+        [styles['open'] ?? '']: props.controller.visible(),
+      }}
+      {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
+      style={{
+        'max-width': `${TOOLTIP_MAX_WIDTH}px`,
+      }}
+      id={props.controller.id}
+      role="tooltip"
+      aria-hidden={props.controller.visible() ? undefined : true}
+    >
+      <p class="text textCaption line-clamp-2 text-text text-center">
+        {props.label}
+      </p>
     </div>
   );
 }
@@ -166,6 +210,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
         placement={placement}
         label={props.label}
         dataSet={props.dataSet}
+        floating={props.floating}
       >
         {props.children}
       </TooltipAnchor>

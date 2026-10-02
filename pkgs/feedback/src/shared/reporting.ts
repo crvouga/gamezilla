@@ -1,6 +1,7 @@
 import type { Clock, Timers } from '@pkgs/clock';
 import type { CreateId } from '@pkgs/uuid';
 import { collectDiagnostics } from './diagnostics';
+import { createFeedbackBody, resolveFeedbackTitle } from './report-body';
 import type {
   CreatedIssue,
   DiagnosticProvider,
@@ -17,6 +18,7 @@ export type FeedbackReportingOptions = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
+  readonly authorId?: string;
   readonly providers?: readonly DiagnosticProvider[];
   readonly deadlineMs?: number;
 };
@@ -50,14 +52,12 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
       createdAt = 'unknown';
     }
     return {
-      version: 1,
+      schema: 'feedback.report/v2',
       id,
-      ...input,
-      title:
-        input.description.trim().split('\n').at(0)?.slice(0, 240) ?? 'Feedback',
-      description: input.description.trim(),
-      expected: input.expected.trim(),
-      reproductionSteps: input.reproductionSteps.trim(),
+      title: resolveFeedbackTitle(input),
+      kind: input.kind,
+      body: createFeedbackBody(input.body),
+      authorId: options.authorId ?? 'local',
       recording: input.recording ?? null,
       attachments: input.attachments ?? [],
       createdAt,
@@ -85,9 +85,8 @@ export function createFeedbackReporting(options: FeedbackReportingOptions) {
   return {
     async submit(input: {
       readonly kind: FeedbackDraft['kind'];
-      readonly description: string;
-      readonly expected: string;
-      readonly reproductionSteps: string;
+      readonly body: string;
+      readonly title: string;
       readonly recording?: ReproductionRecording | null;
       readonly attachments?: readonly FeedbackAttachment[];
     }): Promise<SubmittedFeedback> {
