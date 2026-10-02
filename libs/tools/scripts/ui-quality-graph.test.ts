@@ -66,3 +66,11 @@ test('explicit model setup does not submit an oversized cache artifact or downlo
     'prepare:ui-quality-model'
   );
 });
+
+// regression: ui-quality-inference-quint-contention — the two-transition safety check exceeded 120 seconds with inference running.
+test('native inference waits for the existing product symbolic and renderer contracts', () => {
+  const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
+    'apps/product/turbo.json'
+  );
+  expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain('test:contract');
+});

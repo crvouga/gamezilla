@@ -149,7 +149,12 @@
       "outputLogs": "errors-only"
     },
     "check:ui-quality": {
-      "dependsOn": ["tc", "prepare:ui-quality", "ui-quality-check#build"],
+      "dependsOn": [
+        "tc",
+        "test:contract",
+        "prepare:ui-quality",
+        "ui-quality-check#build"
+      ],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/turbo-platform-key.json"],
       "outputs": [
         ".cache/ui-quality/**",

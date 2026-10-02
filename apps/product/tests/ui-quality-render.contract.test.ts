@@ -6,6 +6,7 @@ import { createUIQualityChecker } from 'ui-quality-check';
 afterAll(() => Bun.WebView.closeAll());
 
 test('concurrent reused pages preserve every frame and metadata deduplication preserves actual pixels', async () => {
+  // regression: ui-quality-reused-document-evaluation — Bun evaluates expressions, so a statement sequence fails on the first reused document.
   const renderer = openSnapshotRenderer('html,body{margin:0}', undefined, 2);
   const html = (id: string, color: string) => {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id="${id}"><rect width="80" height="80" fill="white"/></mask><rect mask="url(#${id})" width="80" height="80" fill="${color}"/></svg>`;
@@ -72,6 +73,33 @@ test('the native renderer paints local styles at the recorded viewport without e
     }
   } finally {
     renderer.dispose();
+  }
+}, 30_000);
+
+test('head styles and body attributes are refreshed when documents cannot share their context', async () => {
+  const css = 'html,body{margin:0}.warning{background:red!important}';
+  const reused = openSnapshotRenderer(css, undefined, 1);
+  const fresh = openSnapshotRenderer(css, undefined, 1);
+  const html = (color: string, bodyClass = '') =>
+    `<html><head><style>body{background:${color}}</style></head><body class="${bodyClass}">UI</body></html>`;
+  try {
+    const green = await reused.render(html('green'));
+    const blue = await reused.render(html('blue'));
+    expect(Buffer.from(blue)).toEqual(
+      Buffer.from(await fresh.render(html('blue')))
+    );
+    expect(Buffer.from(green)).not.toEqual(Buffer.from(blue));
+    const warning = await reused.render(html('blue', 'warning'));
+    expect(Buffer.from(warning)).not.toEqual(Buffer.from(blue));
+    expect(Buffer.from(await reused.render(html('blue')))).toEqual(
+      Buffer.from(blue)
+    );
+    expect(Buffer.from(await reused.render(html('green')))).toEqual(
+      Buffer.from(green)
+    );
+  } finally {
+    reused.dispose();
+    fresh.dispose();
   }
 }, 30_000);
 

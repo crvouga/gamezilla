@@ -16,6 +16,43 @@ export function snapshotDocument(html: string, css: string): string {
   return clean.replace(/<\/head>/i, `${head}${styles}</head>`);
 }
 
+interface DocumentContext {
+  prefix?: string;
+  suffix?: string;
+}
+
+async function writeSnapshot(
+  view: Bun.WebView,
+  document: { readonly html: string; readonly frameId: string },
+  context: DocumentContext
+): Promise<void> {
+  const parts = document.html.match(
+    /^([\s\S]*?<body\b[^>]*>)([\s\S]*?)(<\/body\s*>[\s\S]*)$/i
+  );
+  const body = parts?.[2];
+  const reusable =
+    body !== undefined &&
+    !/<\/?(?:html|body|head)\b|\sautofocus(?:[\s=>])/i.test(body);
+  if (
+    reusable &&
+    context.prefix === parts![1] &&
+    context.suffix === parts![3]
+  ) {
+    await view.evaluate(
+      `(() => { document.body.innerHTML = ${JSON.stringify(body)}; return true; })()`
+    );
+  } else {
+    await view.cdp('Page.setDocumentContent', document);
+  }
+  if (reusable) {
+    context.prefix = parts![1]!;
+    context.suffix = parts![3]!;
+  } else {
+    delete context.prefix;
+    delete context.suffix;
+  }
+}
+
 export function openSnapshotRenderer(
   css: string,
   signal?: AbortSignal,
@@ -53,6 +90,7 @@ function openPage(css: string, signal?: AbortSignal): SnapshotRenderer {
   signal?.addEventListener('abort', stop, { once: true });
   let ready: Promise<string> | undefined;
   let pending: Promise<unknown> = Promise.resolve();
+  const context: DocumentContext = {};
   function initialize(): Promise<string> {
     return (ready ??= (async () => {
       await view.navigate('about:blank');
@@ -75,10 +113,14 @@ function openPage(css: string, signal?: AbortSignal): SnapshotRenderer {
   }
   async function render(html: string): Promise<Uint8Array> {
     signal?.throwIfAborted();
-    await view.cdp('Page.setDocumentContent', {
-      frameId: await initialize(),
-      html: snapshotDocument(html, css),
-    });
+    await writeSnapshot(
+      view,
+      {
+        frameId: await initialize(),
+        html: snapshotDocument(html, css),
+      },
+      context
+    );
     await view.evaluate(`(async () => {
         await document.fonts.ready;
         await Promise.all(Array.from(document.images, image => image.decode()));

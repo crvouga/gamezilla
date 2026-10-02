@@ -1308,5 +1308,15 @@
     "id": "ui-quality-ci-snapshot-volume",
     "summary": "The visual gate replayed 30,355 HTML files for 101,035 test references and hit the unchanged 20-minute CI deadline. Collapse only unreferenced metadata and embedded SVG IDs, preserve all visible changes and origins, and replay a bounded pool of reused native pages.",
     "regressionTest": "apps/product/tests/ui-quality-fingerprint.test.ts"
+  },
+  {
+    "id": "ui-quality-inference-quint-contention",
+    "summary": "The warm CI gate began eight-thread model inference before the existing whole-system symbolic check finished, causing its literal two-transition case to exceed the 120-second bound. Run visual inference after product model contracts; keep all correctness and timing budgets intact.",
+    "regressionTest": "libs/tools/scripts/ui-quality-graph.test.ts"
+  },
+  {
+    "id": "ui-quality-reused-document-evaluation",
+    "summary": "The first reused snapshot body was sent as a JavaScript statement sequence, but Bun.WebView evaluates expressions and raised Unexpected token semicolon. Use a single IIFE; native concurrent replay verifies the literal red/blue SVG frames remain correct across reuse.",
+    "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
   }
 ]
