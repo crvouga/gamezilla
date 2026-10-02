@@ -35,17 +35,31 @@ async function bytes(
     : input;
 }
 
-async function scoreImages(
+interface PreparedImages {
+  readonly artifacts: readonly VisualArtifact[];
+  readonly images: readonly Uint8Array[];
+  readonly hashes: readonly string[];
+}
+
+async function prepareImages(
   ports: GatePorts,
-  artifacts: readonly VisualArtifact[],
-  scores: Map<string, QualityResult>
-): Promise<readonly ArtifactScore[]> {
+  artifacts: readonly VisualArtifact[]
+): Promise<PreparedImages> {
   const images = await Promise.all(
     artifacts.map((artifact) => bytes(ports, artifact))
   );
   const hashes = images.map((image) =>
     createHash('sha256').update(image).digest('hex')
   );
+  return { artifacts, images, hashes };
+}
+
+async function scoreImages(
+  ports: GatePorts,
+  batch: PreparedImages,
+  scores: Map<string, QualityResult>
+): Promise<readonly ArtifactScore[]> {
+  const { artifacts, images, hashes } = batch;
   const results = await scoreUniqueImages(ports, images, hashes, scores);
   const out: ArtifactScore[] = [];
   for (const [index, artifact] of artifacts.entries()) {
@@ -84,6 +98,36 @@ async function scoreUniqueImages(
   return hashes.map((hash) => scores.get(hash)!);
 }
 
+async function scoreImageBatches(
+  ports: GatePorts,
+  images: readonly VisualArtifact[],
+  scores: Map<string, QualityResult>
+): Promise<readonly ArtifactScore[]> {
+  if (!images.length) return [];
+  const results: ArtifactScore[] = [];
+  let pending: Promise<PreparedImages> | undefined = prepareImages(
+    ports,
+    images.slice(0, ports.batchSize)
+  );
+  try {
+    for (let index = 0; index < images.length; index += ports.batchSize) {
+      const batch = await pending!;
+      const next = images.slice(
+        index + ports.batchSize,
+        index + ports.batchSize * 2
+      );
+      pending = next.length ? prepareImages(ports, next) : undefined;
+      // Handle a replay failure immediately, then propagate it at the next await.
+      pending?.catch(() => {});
+      results.push(...(await scoreImages(ports, batch, scores)));
+    }
+  } finally {
+    // A scoring error still drains the single outstanding replay batch.
+    await pending?.catch(() => {});
+  }
+  return results;
+}
+
 export async function runVisualGate(
   manifest: ArtifactManifest,
   ports: GatePorts
@@ -97,15 +141,7 @@ export async function runVisualGate(
   const results: ArtifactScore[] = [];
   const scores = new Map<string, QualityResult>();
   const images = manifest.artifacts.filter((a) => a.kind !== 'video');
-  for (let index = 0; index < images.length; index += ports.batchSize) {
-    results.push(
-      ...(await scoreImages(
-        ports,
-        images.slice(index, index + ports.batchSize),
-        scores
-      ))
-    );
-  }
+  results.push(...(await scoreImageBatches(ports, images, scores)));
   const videos = manifest.artifacts.filter((a) => a.kind === 'video');
   if (videos.length) {
     ports.signal?.throwIfAborted();

@@ -380,3 +380,105 @@ test('different recorded documents with identical rendered pixels reuse inferenc
   expect(result.results).toHaveLength(2);
   expect(result.results.flatMap((r) => r.artifact.origins)).toHaveLength(2);
 });
+
+test('one batch is replayed ahead of sequential inference without unbounded prefetch', async () => {
+  // regression: ui-quality-serial-replay-inference — replay and inference previously left each other idle between all 660 screenshot batches.
+  const input = createMemObjectStore();
+  const manifest = await collectArtifacts(
+    [await source(['frames/a.html', 'frames/b.html', 'frames/c.html'])],
+    input
+  );
+  const secondReplay = Promise.withResolvers<void>();
+  let replays = 0;
+  let batches = 0;
+  let active = 0;
+  const result = await runVisualGate(manifest, {
+    inputs: input,
+    output: createMemObjectStore(),
+    renderer: {
+      async render(html) {
+        if (++replays === 2) secondReplay.resolve();
+        return new TextEncoder().encode(html);
+      },
+      dispose() {},
+    },
+    checker: {
+      async checkImages(images) {
+        expect(++active).toBe(1);
+        if (++batches === 1) {
+          await secondReplay.promise;
+          expect(replays).toBe(2);
+        }
+        active--;
+        return {
+          schemaVersion: 1,
+          pass: true,
+          summary: '',
+          results: images.map(() => quality(true)),
+        };
+      },
+      async checkVideos() {
+        throw new Error('Unexpected video');
+      },
+    },
+    inputPath: (file) => file,
+    diagnosticKey: (file) => file,
+    threshold: 0.5,
+    batchSize: 1,
+  });
+  expect(result.inputsAnalyzed).toBe(3);
+  expect(result.uniqueImagesScored).toBe(3);
+  expect(batches).toBe(3);
+});
+
+test.each(['replay', 'inference'] as const)(
+  '%s failures drain outstanding prefetch without scoring further batches',
+  async (failure) => {
+    const input = createMemObjectStore();
+    const manifest = await collectArtifacts(
+      [await source(['frames/a.html', 'frames/b.html', 'frames/c.html'])],
+      input
+    );
+    const secondReplay = Promise.withResolvers<void>();
+    let replays = 0;
+    let scored = 0;
+    await expect(
+      runVisualGate(manifest, {
+        inputs: input,
+        output: createMemObjectStore(),
+        renderer: {
+          async render(html) {
+            if (++replays === 2) {
+              secondReplay.resolve();
+              if (failure === 'replay') throw new Error('replay failed');
+            }
+            return new TextEncoder().encode(html);
+          },
+          dispose() {},
+        },
+        checker: {
+          async checkImages(images) {
+            scored++;
+            await secondReplay.promise;
+            if (failure === 'inference') throw new Error('inference failed');
+            return {
+              schemaVersion: 1,
+              pass: true,
+              summary: '',
+              results: images.map(() => quality(true)),
+            };
+          },
+          async checkVideos() {
+            throw new Error('Unexpected video');
+          },
+        },
+        inputPath: (file) => file,
+        diagnosticKey: (file) => file,
+        threshold: 0.5,
+        batchSize: 1,
+      })
+    ).rejects.toThrow(`${failure} failed`);
+    expect(replays).toBe(2);
+    expect(scored).toBe(1);
+  }
+);
