@@ -272,7 +272,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
       }),
   });
   const sessionHandles = options.sessionQueries.map((spec) =>
-    runtime.subscribe(spec)
+    runtime.subscribe({ ...spec, settleOnNetworkError: true })
   );
   const uploadQueue = createUploadQueue(options, bus, stateRef);
   bus.subscribe((tables) => {
