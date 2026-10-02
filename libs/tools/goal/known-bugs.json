@@ -1238,5 +1238,15 @@
     "id": "depot-aws-oidc-unapplied-trust",
     "summary": "Depot Deploy workflow ng4sv2f3d0 failed at apply:foundation because the live AWS CI roles still trusted only GitHub. The Depot OIDC provider existed outside bootstrap state, so a normal apply would attempt to recreate it before updating trust. Adopt the existing provider through global_imports and apply the declared, main-restricted Depot deploy trust and branch-readable health trust.",
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
+  },
+  {
+    "id": "ui-field-visible-label-unlinked",
+    "summary": "The Custom Game move-review number input showed its label but had no associated accessible name. Link TextInput fields to their visible labels.",
+    "regressionTest": "pkgs/ui/tests/hosts.test.tsx"
+  },
+  {
+    "id": "ui-translated-icon-label-unnamed",
+    "summary": "Custom Game listening checks found four space chrome icon buttons with empty names: IconButton only recognized a string label, while Lingui Trans supplies a reactive JSX value. Resolve the label before deriving the accessible name.",
+    "regressionTest": "pkgs/ui/tests/button.test.tsx"
   }
 ]

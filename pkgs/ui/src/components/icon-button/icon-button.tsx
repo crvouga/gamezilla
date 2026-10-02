@@ -28,7 +28,7 @@
  */
 
 import { useTimers } from '@pkgs/clock/solid';
-import { type JSX, Show } from 'solid-js';
+import { children, type JSX, Show } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorProvider, resolveColor, useThemeTokens } from '../../theme';
 import { Tooltip, type TooltipPlacement, useTooltipTrigger } from '../tooltip';
@@ -89,7 +89,14 @@ function resolveAriaLabel(
   override: string | undefined
 ): string | undefined {
   if (override !== undefined) return override;
-  if (typeof label === 'string') return label;
+  if (typeof label === 'string' || typeof label === 'number')
+    return String(label);
+  if (Array.isArray(label))
+    return label
+      .map((part) => resolveAriaLabel(part, undefined) ?? '')
+      .join('');
+  if (label !== null && typeof label === 'object' && 'textContent' in label)
+    return label.textContent ?? undefined;
   return undefined;
 }
 
@@ -143,6 +150,7 @@ function IconButtonFace(
   const tokens = useThemeTokens();
   const timers = useTimers();
   const tooltip = useTooltipTrigger();
+  const label = children(() => props.label);
   const size = (): number => props.size ?? 40;
   const isAvatar = (): boolean => props.variant === 'avatar';
   const hasBackground = (): boolean => props.background !== undefined;
@@ -180,7 +188,7 @@ function IconButtonFace(
       type="button"
       onClick={handleClick}
       disabled={props.disabled === true}
-      aria-label={resolveAriaLabel(props.label, props['aria-label'])}
+      aria-label={resolveAriaLabel(label(), props['aria-label'])}
       aria-haspopup={props['aria-haspopup']}
       aria-expanded={props['aria-expanded']}
       aria-describedby={

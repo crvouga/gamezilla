@@ -7,7 +7,7 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
-import { type JSX, Show, splitProps } from 'solid-js';
+import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import {
   type ComponentDataSet,
@@ -183,6 +183,7 @@ function StartAdornment(props: { children: JSX.Element }): JSX.Element {
 }
 
 export function TextInput(props: TextInputProps): JSX.Element {
+  const labelId = `field-label-${createUniqueId()}`;
   const [local, field, rest] = splitProps(
     props,
     [
@@ -220,14 +221,21 @@ export function TextInput(props: TextInputProps): JSX.Element {
       style={local.style}
     >
       <Show when={local.label !== undefined}>
-        <label class="text textLabel">{local.label}</label>
+        <label id={labelId} class="text textLabel">
+          {local.label}
+        </label>
       </Show>
       <div class="box relative">
         <Field
           {...field}
           hasError={local.error !== undefined || local.invalid === true}
           hasAdornment={hasAdornment()}
-          rest={rest}
+          rest={{
+            ...rest,
+            'aria-labelledby':
+              rest['aria-labelledby'] ??
+              (local.label !== undefined ? labelId : undefined),
+          }}
         />
         <Show when={hasAdornment()}>
           <StartAdornment>{local.startAdornment}</StartAdornment>

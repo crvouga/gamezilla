@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
+import { Trans } from '@lingui/solid/macro';
 import { BackIconButton } from '@pkgs/ui/components/back-icon-button';
 import {
   Button,
@@ -26,6 +27,16 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './support/render';
+
+// regression: ui-translated-icon-label-unnamed
+test('translated icon labels name their button without showing the tooltip', () => {
+  renderUi(() => (
+    <IconButton label={<Trans>Close space</Trans>}>
+      <PlusIcon />
+    </IconButton>
+  ));
+  expect(screen.getByRole('button', { name: 'Close space' })).toBeEnabled();
+});
 
 describe('Button', () => {
   // regression: feedback-template-submit
