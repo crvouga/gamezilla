@@ -48,7 +48,10 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
     on(
       () => getCtrl().model.game().lastMove,
       (move) => {
-        if (move === null) return;
+        if (move === null) {
+          setLiveMessage('');
+          return;
+        }
         const g = getCtrl().model.game();
         const piece = g.position[indexFromSquare(move.to)];
         setLiveMessage(
@@ -57,6 +60,7 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
             piece: piece ?? null,
             inCheck: g.inCheck,
             isCheckmate: g.isCheckmate,
+            isStalemate: g.isStalemate,
           })
         );
       }

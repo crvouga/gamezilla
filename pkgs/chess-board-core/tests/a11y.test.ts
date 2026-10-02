@@ -13,6 +13,7 @@ describe('speakMove', () => {
         piece: { color: 'w', type: 'p' },
         inCheck: false,
         isCheckmate: false,
+        isStalemate: false,
       })
     ).toBe('Pawn to e4');
     expect(
@@ -21,6 +22,7 @@ describe('speakMove', () => {
         piece: { color: 'w', type: 'p' },
         inCheck: true,
         isCheckmate: false,
+        isStalemate: false,
       })
     ).toBe('Pawn takes d5, check');
     expect(
@@ -33,6 +35,7 @@ describe('speakMove', () => {
         piece: { color: 'w', type: 'k' },
         inCheck: false,
         isCheckmate: false,
+        isStalemate: false,
       })
     ).toBe('King castles kingside');
   });

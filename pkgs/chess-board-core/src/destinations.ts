@@ -29,12 +29,13 @@ export type Destination = {
 
 /** chess.js move-generator entry (0x88 squares, flag bits). */
 type InternalMove = {
+  readonly from: number;
   readonly to: number;
   readonly flags: number;
 };
 
 type InternalGenerator = (options: {
-  readonly square: string;
+  readonly square?: string;
   readonly legal: boolean;
 }) => readonly InternalMove[];
 
@@ -125,4 +126,41 @@ export function destinationsFrom(
     destinationsFromInternals(chess, from) ??
     destinationsFromPublicApi(chess, from)
   );
+}
+
+/** Whole-board legal destinations, generated once and reused with game status. */
+export function allDestinationsFrom(
+  chess: Chess
+): ReadonlyMap<Square, readonly Destination[]> {
+  const generate = internalGenerator(chess);
+  const moves =
+    generate !== null
+      ? generate({ legal: true }).map((m) => ({
+          from: algebraic(m.from),
+          to: algebraic(m.to),
+          promotion: (m.flags & PROMOTION) !== 0,
+          castle: castleOf(m.flags),
+        }))
+      : chess.moves({ verbose: true }).map((m) => ({
+          from: m.from as Square,
+          to: m.to as Square,
+          promotion: m.promotion !== undefined,
+          castle: m.isKingsideCastle()
+            ? ('k' as const)
+            : m.isQueensideCastle()
+              ? ('q' as const)
+              : null,
+        }));
+  const grouped = new Map<Square, Destination[]>();
+  for (const move of moves) {
+    const group = grouped.get(move.from) ?? [];
+    if (!group.some((d) => d.to === move.to))
+      group.push({
+        to: move.to,
+        promotion: move.promotion,
+        castle: move.castle,
+      });
+    grouped.set(move.from, group);
+  }
+  return grouped;
 }

@@ -169,7 +169,14 @@ describe('render budgets', () => {
       board.setOrientation('black')
     );
     expect(records.filter((r) => r.type === 'childList')).toHaveLength(0);
-    expect(records.every((r) => r.target === buttons)).toBe(true);
+    expect(records).toHaveLength(64);
+    expect(records.every((r) => r.attributeName === 'style')).toBe(true);
+    expect(new Set(records.map((r) => r.target)).size).toBe(64);
+    expect(
+      [...buttons.children].every((button) =>
+        records.some((r) => r.target === button)
+      )
+    ).toBe(true);
   });
 
   test('empty annotation layers are not rendered above the pieces', () => {
@@ -256,7 +263,7 @@ describe('pick-up', () => {
     );
     board.up({ at: { x: -150, y: BOARD_PX + 200 } });
     expect(board.moves).toEqual([]);
-    expect(board.piece('d2').style.transform).toBe('translate(300%, 600%)');
+    expect(board.piece('d2').style.transform).toBe('translate(37.5cqw, 75cqw)');
   });
 
   test('the board owns its presses: defaults prevented, a mouse press focuses its square', () => {
@@ -306,7 +313,7 @@ describe('gestures', () => {
     board.down({ square: 'e2' }); // no-op: already pressed
     board.move({ square: 'c4' });
     board.move({ square: 'c4', buttons: 3 });
-    expect(bishop.style.transform).toBe('translate(500%, 700%)');
+    expect(bishop.style.transform).toBe('translate(62.5cqw, 87.5cqw)');
     board.up({ square: 'c4' });
     expect(board.moves).toEqual([]);
   });
@@ -318,7 +325,7 @@ describe('gestures', () => {
     board.contextMenu('f3');
     board.up({ square: 'f3' });
     expect(board.moves).toEqual([]);
-    expect(board.piece('g1').style.transform).toBe('translate(600%, 700%)');
+    expect(board.piece('g1').style.transform).toBe('translate(75cqw, 87.5cqw)');
   });
 
   // regression: chess-board-windows-right-drag — Windows fires

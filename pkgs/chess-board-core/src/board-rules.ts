@@ -30,13 +30,13 @@ export function chessGameRules(game: ChessGame): BoardRulesPort {
     getTurn: () => game.getSnapshot().turn,
     getPosition: () => game.getSnapshot().position,
     ownsMovable(square) {
-      const { position, turn } = game.getSnapshot();
-      return position[indexFromSquare(square)]?.color === turn;
+      const { position, turn, isGameOver } = game.getSnapshot();
+      return !isGameOver && position[indexFromSquare(square)]?.color === turn;
     },
     isPremovable(square, player, premovesEnabled) {
       if (!premovesEnabled || player === null) return false;
       const { position, turn } = game.getSnapshot();
-      if (turn === player) return false;
+      if (game.getSnapshot().isGameOver || turn === player) return false;
       const piece = position[indexFromSquare(square)];
       return piece !== null && piece !== undefined && piece.color === player;
     },

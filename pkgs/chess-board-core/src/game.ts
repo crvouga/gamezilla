@@ -8,7 +8,11 @@
 import { castlingFromRookInput } from '@pkgs/chess-rules/moves';
 import { Chess, type Move as ChessJsMove, validateFen } from 'chess.js';
 import { moveFromChessJs } from './chess-js-move';
-import { type Destination, destinationsFrom } from './destinations';
+import {
+  allDestinationsFrom,
+  type Destination,
+  destinationsFrom,
+} from './destinations';
 import { inferLastMoveFromPositionDiff } from './infer-move';
 import { positionFromChess } from './position';
 import type { Move, PieceColor, Position, Square } from './types';
@@ -66,15 +70,14 @@ function playOnChess(chess: Chess, m: MoveInput): ChessJsMove {
 }
 
 /**
- * Game status with a single legal-move generation. Checkmate (in check) and
- * stalemate (not in check) are exclusive, so at most one of them scans
- * moves; the other draw rules are counters (`isDraw` itself would re-run
- * the stalemate scan).
+ * Game status reuses the cached legal destinations. Checkmate and stalemate
+ * come from that emptiness plus canonical check status; the other draw rules
+ * read canonical material and counters without generating moves again.
  */
-function statusOf(chess: Chess) {
+function statusOf(chess: Chess, hasLegalMoves: boolean) {
   const inCheck = chess.inCheck();
-  const isCheckmate = inCheck && chess.isCheckmate();
-  const isStalemate = !inCheck && chess.isStalemate();
+  const isCheckmate = inCheck && !hasLegalMoves;
+  const isStalemate = !inCheck && !hasLegalMoves;
   const isDraw =
     isStalemate ||
     chess.isInsufficientMaterial() ||
@@ -92,6 +95,7 @@ function statusOf(chess: Chess) {
 function snapshotOf(
   chess: Chess,
   lastMove: Move | null,
+  hasLegalMoves: boolean,
   position: Position = positionFromChess(chess)
 ): ChessGameSnapshot {
   return {
@@ -99,7 +103,7 @@ function snapshotOf(
     turn: chess.turn(),
     position,
     lastMove,
-    ...statusOf(chess),
+    ...statusOf(chess, hasLegalMoves),
   };
 }
 
@@ -115,7 +119,8 @@ export class ChessGame {
         ? initialFen
         : undefined
     );
-    this.snapshot = snapshotOf(this.chess, null);
+    this.destinations = allDestinationsFrom(this.chess);
+    this.snapshot = snapshotOf(this.chess, null, this.destinations.size > 0);
   }
 
   getSnapshot = (): ChessGameSnapshot => this.snapshot;
@@ -128,12 +133,14 @@ export class ChessGame {
   };
 
   private commit(lastMove: Move | null, position?: Position): void {
-    this.publish(snapshotOf(this.chess, lastMove, position));
+    this.destinations = allDestinationsFrom(this.chess);
+    this.publish(
+      snapshotOf(this.chess, lastMove, this.destinations.size > 0, position)
+    );
   }
 
   private publish(snapshot: ChessGameSnapshot): void {
     if (snapshot.fen !== this.snapshot.fen) {
-      this.destinations.clear();
       this.premoveTargets.clear();
     }
     this.snapshot = snapshot;
@@ -141,15 +148,14 @@ export class ChessGame {
   }
 
   /** Per-position cache: a selection re-reads its targets on every publish. */
-  private destinations = new Map<Square, readonly Destination[]>();
+  private destinations: ReadonlyMap<Square, readonly Destination[]> = new Map<
+    Square,
+    readonly Destination[]
+  >();
   private premoveTargets = new Map<Square, readonly Square[]>();
 
   private destinationsOf(from: Square): readonly Destination[] {
-    const cached = this.destinations.get(from);
-    if (cached !== undefined) return cached;
-    const fresh = destinationsFrom(this.chess, from);
-    this.destinations.set(from, fresh);
-    return fresh;
+    return this.destinations.get(from) ?? [];
   }
 
   /**
@@ -240,10 +246,24 @@ export class ChessGame {
     if (nextFen === this.snapshot.fen) return null;
     if (!validateFen(nextFen).ok) return null;
     if (new Chess(nextFen).fen() === this.snapshot.fen) return null;
-    const prev = this.snapshot.position;
+    const next = new Chess(nextFen);
+    const position = positionFromChess(next);
+    const inferred = inferLastMoveFromPositionDiff(
+      this.snapshot.position,
+      position
+    );
+    const moved =
+      inferred !== null &&
+      !this.snapshot.isGameOver &&
+      next.turn() !== this.snapshot.turn &&
+      this.destinationsOf(inferred.from).some(
+        (d) =>
+          d.to === inferred.to &&
+          d.promotion === (inferred.promotion !== undefined)
+      )
+        ? inferred
+        : null;
     this.chess.load(nextFen);
-    const position = positionFromChess(this.chess);
-    const moved = inferLastMoveFromPositionDiff(prev, position);
     this.commit(moved, position);
     return {
       moved,

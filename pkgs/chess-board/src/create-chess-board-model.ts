@@ -85,7 +85,6 @@ function createExternalFenSync(
       if (fen === undefined || fen.length === 0) return;
       if (seen && fen === prevFenProp && key === prevKey) return;
       const localFen = args.game.getSnapshot().fen;
-      const wasInSync = !seen || localFen === prevFenProp;
       seen = true;
       prevFenProp = fen;
       prevKey = key;
@@ -93,11 +92,11 @@ function createExternalFenSync(
       const result = args.game.applyExternalFen(fen);
       if (result === null) return;
       cancelSound();
-      interaction.clear({ retainPremmove: result.moved !== null && wasInSync });
-      // A single-ply external change while in sync is an opponent / canned
-      // reply: keep its last-move highlight and play SFX. Optimistic desync
-      // repairs (wrong-move revert) stay silent and unhighlighted.
-      if (result.moved !== null && wasInSync) {
+      interaction.clear({ retainPremmove: result.moved !== null });
+      // A canonical successor may include confirmation and the opponent reply
+      // in one parent update. Replacements and rejected optimistic moves
+      // have no legal inferred move, so they stay silent and unhighlighted.
+      if (result.moved !== null) {
         playMove(result.moved, result);
         interaction.flushPremmove();
         return;

@@ -2,7 +2,7 @@
 /**
  * 8×8 grid of square buttons for focus, screen readers and test ids. It is
  * static: 64 buttons created once in a8 → h1 order, never reordered (black's
- * orientation rotates the grid 180° in CSS), with one native `focusin`
+ * orientation changes only square transforms), with one native `focusin`
  * listener for all of them and a selector so moving the cursor touches only
  * the two buttons whose `tabIndex` changes. It takes no pointer events (the
  * board host handles those) and sits under the pieces, so a sliding piece
@@ -26,7 +26,7 @@ import {
   For,
   type JSX,
 } from 'solid-js';
-
+import { cellTransform } from './board-units';
 import styles from './chess-board.module.css';
 
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -71,9 +71,6 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
   return (
     <div
       class={`box absolute inset-0 ${styles['grid']}`}
-      classList={{
-        [styles['gridFlipped'] ?? '']: props.orientation === 'black',
-      }}
       on:focusin={(e) => {
         const square = (e.target as HTMLElement).dataset['square'];
         if (square !== undefined) props.onSquareFocus(square as Square);
@@ -86,7 +83,8 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
           return (
             <button
               type="button"
-              class={styles['square']}
+              class={`${styles['cell']} ${styles['square']}`}
+              style={{ transform: cellTransform(square, props.orientation) }}
               data-testid={chessBoardSquareTestId(props.boardTestId, square)}
               data-square={square}
               aria-label={`${label()}${legal() ? ', Legal destination' : ''}`}

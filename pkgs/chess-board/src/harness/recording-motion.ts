@@ -2,7 +2,7 @@
  * Motion environment for the harness: slides run on the injected virtual
  * clock and are logged as `piece:from>to@ms` so a driver can read what moved
  * and how. Squares are recovered from the one-cell transforms
- * (`translate(col·100%, row·100%)`); a pixel transform (a piece the pointer
+ * (`translate(col·12.5cqw, row·12.5cqw)`); a pixel transform (a piece the pointer
  * left somewhere) logs as `hand`, an interpolated one as `mid`.
  */
 
@@ -15,7 +15,7 @@ import type { BoardOrientation } from '@pkgs/chess-board-core/types';
 import type { Clock, Timers } from '@pkgs/clock/types';
 import { type Accessor, createSignal } from 'solid-js';
 
-const PERCENT = /^translate\((-?[\d.]+)%, (-?[\d.]+)%\)$/;
+const CELL = /^translate\((-?[\d.]+)cqw, (-?[\d.]+)cqw\)$/;
 
 type Running = {
   readonly from: string;
@@ -25,9 +25,9 @@ type Running = {
 };
 
 function cellOf(transform: string): { x: number; y: number } | null {
-  const m = PERCENT.exec(transform);
+  const m = CELL.exec(transform);
   if (m === null) return null;
-  return { x: Number(m[1]) / 100, y: Number(m[2]) / 100 };
+  return { x: Number(m[1]) / 12.5, y: Number(m[2]) / 12.5 };
 }
 
 export function squareOfTransform(
@@ -46,9 +46,9 @@ function paintedAt(run: Running, now: number): string {
   const to = cellOf(run.to);
   if (from === null || to === null) return run.to;
   const t = Math.min(1, Math.max(0, (now - run.start) / run.durationMs));
-  const x = (from.x + (to.x - from.x) * t) * 100;
-  const y = (from.y + (to.y - from.y) * t) * 100;
-  return `translate(${x}%, ${y}%)`;
+  const x = (from.x + (to.x - from.x) * t) * 12.5;
+  const y = (from.y + (to.y - from.y) * t) * 12.5;
+  return `translate(${x}cqw, ${y}cqw)`;
 }
 
 export type RecordingMotion = {

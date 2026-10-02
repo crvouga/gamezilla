@@ -12,6 +12,7 @@ import type {
   AudioPlayerHandle,
 } from '@pkgs/sounds/audio-playback/ports';
 import { chessSoundUrls } from '@pkgs/sounds/chess-sound-urls';
+import type { PlayFromStartHandle } from '@pkgs/sounds/play-from-start';
 import {
   createPlayFromStartHandles,
   useAudioPlaybackPort,
@@ -59,6 +60,19 @@ function releaseBank(port: AudioPlaybackPort, bank: Bank): void {
   }
 }
 
+function warmBank(bank: Bank, handles: readonly PlayFromStartHandle[]): void {
+  warmAudioPlayers(
+    BOARD_SOUND_KEYS.map((key) => ({
+      seekTo: (seconds: number) => bank.players[key].seekTo(seconds),
+      play: () => bank.players[key].play(),
+      pause: () => {
+        if (!bank.owners.has(key)) bank.players[key].pause();
+      },
+    })),
+    handles
+  );
+}
+
 /** Must run inside a Solid owner (component body / `createRoot`). */
 export function createChessBoardSounds(
   enabled: Accessor<boolean>
@@ -100,11 +114,7 @@ export function createChessBoardSounds(
       }
     }
   };
-  if (existing === undefined)
-    warmAudioPlayers(
-      BOARD_SOUND_KEYS.map((key) => bank.players[key]),
-      handleList
-    );
+  if (existing === undefined) warmBank(bank, handleList);
   createEffect(() => {
     if (!enabled()) cancel();
   });
