@@ -23,7 +23,7 @@ Feature: End a deleted account's place in spaces
       And Alice has a recently proven account
       When Alice confirms account deletion
       Then Bob sees only Bob in the space within 15 seconds
-      And Bob's space is open
+      And Bob's space has not ended
 
     Scenario: The deleted account cannot rejoin the open space
       Given Alice's account deletion has been confirmed

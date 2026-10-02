@@ -46,7 +46,7 @@ Feature: Keep questions about a test world
   Rule: Asking a question shows its answer or why it failed
 
     Scenario: A successful question shows an answer
-      Given the team has a data notebook question about Alice's friends
+      Given the team's data notebook has a question about Alice's friends
       When the team runs the data notebook question about Alice's friends
       Then the team sees the question's answer
 
