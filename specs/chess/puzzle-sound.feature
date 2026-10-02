@@ -13,12 +13,13 @@ Feature: Respect the app's sounds while solving and reviewing
       Then Alice hears the puzzle's move sounds
       And Alice is solving the puzzle at move 3 of the line
 
+    @regression:chess-puzzle-muted-feedback
     Scenario: Disabled sounds keep a puzzle move and its opponent reply silent
       Given Alice is signed in
       And Alice has turned sounds off
       And Alice is solving the two-rook clearance puzzle
       When Alice plays a1-a5
-      Then Alice cannot hear puzzle board sounds while the app's sounds are off
+      Then Alice cannot hear puzzle sounds while the app's sounds are off
       And Alice is solving the puzzle at move 3 of the line
 
     Scenario: Enabled sounds accompany the puzzle's capture
@@ -29,13 +30,31 @@ Feature: Respect the app's sounds while solving and reviewing
       Then Alice hears the puzzle's capture sound
       And Alice's puzzle is solved within 20 seconds
 
+    @regression:chess-puzzle-muted-feedback
     Scenario: Disabled sounds keep the puzzle's capture silent
       Given Alice is signed in
       And Alice has turned sounds off
       And Alice is solving the en passant puzzle
       When Alice plays e5-d6
-      Then Alice cannot hear puzzle board sounds while the app's sounds are off
+      Then Alice cannot hear puzzle sounds while the app's sounds are off
       And Alice's puzzle is solved within 20 seconds
+
+    Scenario: Enabled sounds accompany a wrong puzzle move
+      Given Alice is signed in
+      And Alice has turned sounds on
+      And Alice is solving the castling puzzle
+      When Alice plays a wrong move
+      Then Alice is told the move was wrong
+      And Alice hears the puzzle's wrong-move feedback
+
+    @regression:chess-puzzle-muted-feedback
+    Scenario: Disabled sounds keep wrong-move feedback silent
+      Given Alice is signed in
+      And Alice has turned sounds off
+      And Alice is solving the castling puzzle
+      When Alice plays a wrong move
+      Then Alice is told the move was wrong
+      And Alice cannot hear puzzle sounds while the app's sounds are off
 
   Rule: Sound changes preserve the puzzle and apply to its next move
 
@@ -52,7 +71,7 @@ Feature: Respect the app's sounds while solving and reviewing
       And Alice is solving the two-rook clearance puzzle
       And Alice has since turned sounds off and returned to that unfinished puzzle
       When Alice plays a1-a5
-      Then Alice cannot hear puzzle board sounds while the app's sounds are off
+      Then Alice cannot hear puzzle sounds while the app's sounds are off
       And Alice is solving the puzzle at move 3 of the line
 
     Scenario: Turning sounds on preserves the unfinished puzzle
@@ -66,15 +85,17 @@ Feature: Respect the app's sounds while solving and reviewing
   Rule: A review's forward move follows the same app sounds preference
 
     Scenario: An enabled review sounds its next move
-      Given Alice has turned sounds on
+      Given Alice is signed in
+      And Alice has turned sounds on
       And Alice is reviewing the solved puzzle at move 3
       When Alice steps forward one move in the review
       Then Alice hears the review's move sound
       And Alice's review is at move 4 of 4, reached with animation
 
     Scenario: A muted review remains silent while its position changes
-      Given Alice has turned sounds off
+      Given Alice is signed in
+      And Alice has turned sounds off
       And Alice is reviewing the solved puzzle at move 3
       When Alice steps forward one move in the review
-      Then Alice cannot hear puzzle board sounds while the app's sounds are off
+      Then Alice cannot hear puzzle sounds while the app's sounds are off
       And Alice's review is at move 4 of 4, reached with animation

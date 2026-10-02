@@ -19,13 +19,13 @@ module puzzle_sound {
   action playQuietPuzzleMove = all {
     puzzleSound.kind == "quiet puzzle", puzzleSound.move == 1,
     puzzleSound' = { ...puzzleSound, move: 3,
-      heard: if (puzzleSound.soundsOn) Set("move") else Set() },
+      heard: if (puzzleSound.soundsOn) Set("move", "correct move") else Set() },
   }
   /// Alice's prepared capture honors the preference and solves its puzzle.
   action playCapturePuzzleMove = all {
     puzzleSound.kind == "capture puzzle", puzzleSound.move == 1,
     puzzleSound' = { ...puzzleSound, move: 2,
-      heard: if (puzzleSound.soundsOn) Set("capture") else Set() },
+      heard: if (puzzleSound.soundsOn) Set("capture", "solved", "rating gain") else Set() },
   }
   /// Stepping the prepared review forward plays its legal mate with the chosen sound.
   action stepPuzzleSoundReview = all {
@@ -46,9 +46,9 @@ module puzzle_sound {
   /// The prepared puzzle or review keeps its legal progress and feedback meanings.
   val invPuzzleSoundPosition =
     (puzzleSound.kind == "quiet puzzle" and Set(1, 3).contains(puzzleSound.move) and
-      puzzleSound.heard.subseteq(Set("move"))) or
+      puzzleSound.heard.subseteq(Set("move", "correct move"))) or
     (puzzleSound.kind == "capture puzzle" and Set(1, 2).contains(puzzleSound.move) and
-      puzzleSound.heard.subseteq(Set("capture"))) or
+      puzzleSound.heard.subseteq(Set("capture", "solved", "rating gain"))) or
     (puzzleSound.kind == "review" and Set(3, 4).contains(puzzleSound.move) and
       puzzleSound.heard.subseteq(Set("move", "check", "end")))
 }

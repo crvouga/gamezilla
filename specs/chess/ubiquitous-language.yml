@@ -270,7 +270,7 @@ terms:
 
   - term: solution move
     definition: The next move of the solution, from where the board stands.
-    forms: [asks to see the solution move, asked to see the solution move]
+    forms: [asks to see the solution move, asked to see the solution move, correct move]
 
   - term: solve
     definition: >-
@@ -399,7 +399,7 @@ terms:
       A solver's running rating, moved by every rated attempt, online or
       offline. Every device shows the same one. A new solver starts at the
       seed rating, provisional.
-    forms: [rating]
+    forms: [rating, rating gain]
     avoid: [score, elo]
     model: [ratedResult]
 
