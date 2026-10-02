@@ -253,7 +253,9 @@ export async function runForDuration(
       ctx.clock.set(end);
       return;
     }
-    ctx.clock.set(ctx.heap[0]!.at);
+    // A callback can enqueue an overdue task while fireDueTasks yields.
+    // Fire it at the current time rather than moving the clock backwards.
+    advanceToNextDue(ctx.heap, ctx.clock);
   }
 }
 

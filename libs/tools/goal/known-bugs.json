@@ -698,5 +698,10 @@
     "id": "report-uncached-task-hash",
     "summary": "A full Check with cache reads disabled ran all 489 tasks successfully but failed report publication. The stream verified task hashes only for Turbo's cache hit and miss messages, ignoring cache bypass, force executing. Recognize bypass messages while preserving exact planned-hash verification and waiting for completion before uploading.",
     "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
+  },
+  {
+    "id": "scheduler-overdue-task-rewind",
+    "summary": "The eight-day billing grace scenario failed when a callback enqueued a task due at 1718409601001 while the duration drain yielded at virtual time 1718409935000. The drain tried to rewind the clock to the overdue deadline. Fire overdue work at the current time and advance only to future deadlines.",
+    "regressionTest": "pkgs/harness/tests/scheduler-starvation.test.ts"
   }
 ]
