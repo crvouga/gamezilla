@@ -10,7 +10,7 @@ import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   assertRoomNamespacePreserved,
-  roomMigration,
+  roomMigrations,
 } from '@libs/infra/public/worker-lifecycle';
 import { activeEnvFile, deployWorker } from '@libs/infra/scripts/worker-deploy';
 import { workerState } from '@libs/infra/scripts/worker-state';
@@ -121,11 +121,11 @@ try {
   const secrets = { ...(await workerSecrets()), BUILD_SHA: commitHash };
   const state = workerState(env);
   const before = await state.namespaces();
-  const migration = roomMigration(env, before);
+  const migration = roomMigrations(env, before);
   deployWorker({
     appDir: productDir,
     secrets,
-    resources: { hyperdriveId: hyperdriveId(), roomMigration: migration },
+    resources: { hyperdriveId: hyperdriveId(), roomMigrations: migration },
   });
   assertRoomNamespacePreserved(env, before, await state.namespaces());
 } finally {

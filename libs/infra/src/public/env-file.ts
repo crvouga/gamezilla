@@ -23,6 +23,10 @@ export const envFileSchema = z
       .object({
         name: slug,
         transfer_rooms_from: slug.optional(),
+        room_namespace_resolution: z
+          .object({ source_id: id, target_id: id })
+          .strict()
+          .optional(),
         retire: z.array(slug).default([]),
       })
       .strict(),
