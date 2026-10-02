@@ -74,6 +74,8 @@ export type QuintBinding<W> = {
   readonly verifySteps?: number;
   /** Candidate proved by induction, instead of stopping at a sequence bound. */
   readonly inductiveInvariant?: string;
+  /** Opt into Apalache's array encoding without changing proof obligations. */
+  readonly encoding?: 'fun-arrays';
   /** Per-trace test timeout. Default: the runner's. */
   readonly timeoutMs?: number;
   /**
