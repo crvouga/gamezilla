@@ -1,5 +1,20 @@
 [
   {
+    "id": "room-archive-migration-history",
+    "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
+    "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
+  },
+  {
+    "id": "trunk-sync-incoming-spec-ownership",
+    "summary": "Syncing the namespace fix with main 59cbccb32 staged already-committed incoming specs alongside product code, so the pre-commit ownership guard rejected the merge. During a merge, enforce ownership on staged changes that differ from the incoming parent; unchanged upstream specs keep their original ownership. Mixed spec conflict resolutions still fail.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "deploy-dev-duplicate-room-namespaces",
+    "summary": "Deploy run 36989073308 stopped because gamezilla-dev already owned namespace 76e8864ea97c4d329171afb8778fb729 while the still-routed legacy room Worker owned ab56d7be4eac481e81df42eac8c99aac. Explicitly pin both IDs, retain the destination under a read-only archive class, then transfer the legacy namespace into the active room class. Unknown conflicts still fail closed and deployment verifies both IDs survive.",
+    "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
+  },
+  {
     "id": "ci-identity-regression-stale-interface",
     "summary": "Check on 263be4043 failed because GitHub transfer regression assertions still expected two github_subject_prefix inputs and a ci-to-github resource move after the shared CI identity module adopted oidc_subject and moved github-to-ci. Verify the immutable subject through the caller and bound_subject input and preserve the exact state move and non-destructive retirement checks.",
     "regressionTest": "libs/infra/tests/github-transfer.test.ts"
@@ -1318,5 +1333,15 @@
     "id": "spec-ownership-resolved-merge",
     "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
     "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "health-solid-preload-order",
+    "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun’s server runtime, while local spec suites retain their Solid preloads.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "dev-client-stale-api-config",
+    "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
+    "regressionTest": "apps/product/tests/wrangler-config.test.ts"
   }
 ]

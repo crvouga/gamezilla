@@ -6,6 +6,7 @@ import type {
 } from '@libs/server-app/config/worker-handler';
 
 export { RoomServerDurableObject } from '@apps/server/room';
+export { RoomStorageArchive } from './room-storage-archive';
 
 export type AppWorkerEnv = ApiWorkerEnv & {
   readonly ASSETS: { fetch(request: Request): Promise<Response> };

@@ -3,6 +3,7 @@ import { assertProperty, fc } from '@pkgs/property';
 
 import {
   isSpecFile,
+  mergeStagedViolations,
   ownershipViolations,
   stagedViolations,
 } from './check-spec-ownership';
@@ -11,7 +12,7 @@ describe('spec ownership', () => {
   test('merging committed specs does not count them as newly authored changes', () => {
     // regression: spec-ownership-resolved-merge
     expect(
-      stagedViolations(
+      mergeStagedViolations(
         [
           'specs/profile/account-deletion.feature',
           'libs/tools/scripts/check-plan.ts',
@@ -35,14 +36,52 @@ describe('spec ownership', () => {
         ),
         (spec, implementation) => {
           expect(
-            stagedViolations([spec, implementation], [spec, implementation])
+            mergeStagedViolations(
+              [spec, implementation],
+              [spec, implementation]
+            )
           ).toHaveLength(1);
-          expect(stagedViolations([spec], [spec])).toEqual([]);
+          expect(mergeStagedViolations([spec], [spec])).toEqual([]);
         }
       )
     );
   });
 
+  // regression: trunk-sync-incoming-spec-ownership
+  test('trunk sync accepts unchanged incoming specs but rejects mixed spec resolutions', () => {
+    const staged = [
+      'specs/README.md',
+      'specs/spaces/space-create.feature',
+      'libs/tools/goal/known-bugs.json',
+    ];
+    expect(
+      mergeStagedViolations(staged, ['libs/tools/goal/known-bugs.json'])
+    ).toEqual([]);
+    expect(
+      mergeStagedViolations(staged, [
+        'specs/spaces/space-create.feature',
+        'libs/tools/goal/known-bugs.json',
+      ])
+    ).toHaveLength(1);
+    expect(mergeStagedViolations(staged, ['specs/README.md'])).toEqual([]);
+  });
+
+  test('merging never hides spec edits introduced by conflict resolution', () => {
+    assertProperty(
+      'resolved spec edits retain the ownership guard',
+      fc.property(
+        fc.constantFrom('specs/README.md', 'specs/spaces/space-create.feature'),
+        (spec) => {
+          expect(
+            mergeStagedViolations(
+              [spec, 'libs/tools/goal/known-bugs.json'],
+              [spec, 'libs/tools/goal/known-bugs.json']
+            )
+          ).toHaveLength(1);
+        }
+      )
+    );
+  });
   test('rulebook changes require spec subjects even when labeled documentation', () => {
     // regression: spec-rulebook-commit-subject
     expect(
