@@ -5,6 +5,7 @@ Feature: Decide promotion with the keyboard
 
   Rule: A promotion request names all four choices and gives the queen the keyboard
 
+    @regression:chessboard-promotion-focus
     Scenario: A requested promotion names each piece and gives the queen the keyboard
       Given Alice has a chessboard ready for White's promotion from a7 to a8
       When Alice moves the piece from a7 to a8
@@ -22,6 +23,7 @@ Feature: Decide promotion with the keyboard
 
   Rule: Deciding or cancelling promotion gives the keyboard back to the board
 
+    @regression:chessboard-promotion-focus
     Scenario: A chosen promotion gives its destination the keyboard
       Given Alice has a pending White promotion from a7 to a8
       When Alice chooses the promotion to a queen
@@ -29,6 +31,7 @@ Feature: Decide promotion with the keyboard
       And Alice sees a White queen on a8
       And Alice's activity receives one move promoting to a queen
 
+    @regression:chessboard-promotion-focus
     Scenario: A cancelled promotion gives its source the keyboard
       Given Alice has a pending White promotion from a7 to a8
       When Alice cancels the promotion

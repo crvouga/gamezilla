@@ -56,6 +56,7 @@ Feature: Choose the chessboard's appearance
       Then Alice sees a White pawn on e4
       And Alice's activity receives one move
 
+    @regression:chessboard-preview-input
     Scenario: A narrow preview refuses a move while retaining the position
       Given Alice has a chessboard 195 pixels wide
       When Alice moves the piece from e2 to e4
@@ -63,6 +64,7 @@ Feature: Choose the chessboard's appearance
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
+    @regression:chessboard-preview-input
     Scenario: A narrow preview also refuses keyboard moves
       Given Alice has a chessboard 195 pixels wide
       When Alice moves the piece from e2 to e4 with the keyboard
@@ -105,15 +107,17 @@ Feature: Choose the chessboard's appearance
       And Alice sees no held piece
       And Alice's activity receives no moves
 
+    @regression:chessboard-preview-input
     Scenario: A preview cannot begin a promotion choice
       Given Alice has a chessboard ready for White's promotion from a7 to a8
-      And Alice's chessboard is 195 pixels wide
+      And Alice has a chessboard 195 pixels wide
       When Alice moves the piece from a7 to a8
       Then Alice cannot move a piece while the chessboard is a preview
       And Alice is not offered a promotion choice
       And Alice sees the White pawn remaining on a7
       And Alice's activity receives no moves
 
+    @regression:chessboard-preview-input
     Scenario: A width beyond the supported range remains a preview
       Given Alice has a chessboard 16385 pixels wide
       When Alice moves the piece from e2 to e4
@@ -143,6 +147,7 @@ Feature: Choose the chessboard's appearance
       And Alice sees the White pawn remaining on a7
       And Alice's activity receives no moves
 
+    @regression:chessboard-preview-input
     Scenario: Resizing into a preview abandons selection
       Given Alice has selected the piece on e2
       When Alice's activity narrows the chessboard to 195 pixels wide
@@ -157,6 +162,7 @@ Feature: Choose the chessboard's appearance
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
+    @regression:chessboard-preview-input
     Scenario: Resizing into a preview abandons a pending promotion
       Given Alice has a pending White promotion from a7 to a8
       When Alice's activity narrows the chessboard to 195 pixels wide

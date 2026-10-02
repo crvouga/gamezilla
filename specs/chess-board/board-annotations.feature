@@ -11,6 +11,7 @@ Feature: Explain positions with chessboard annotations
       Then Alice sees a capture ring on d5
       And Alice sees a quiet destination dot on e5
 
+    @regression:chessboard-en-passant-hint
     Scenario: An en passant destination offers a capture ring before the move
       Given Alice has a chessboard ready for White to capture en passant from e5 to d6
       When Alice selects the piece on e5
@@ -33,6 +34,7 @@ Feature: Explain positions with chessboard annotations
       And Alice sees a blue dashed arrow from a1 to a8
       And Alice's activity receives no moves
 
+    @regression:chessboard-named-feedback
     Scenario: Activity square marks stay on their assigned squares
       Given Alice has an interactive chessboard
       When Alice's activity supplies square annotations
