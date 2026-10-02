@@ -89,6 +89,10 @@ export class ObjectStoreImplCacheApi implements ObjectStore {
     await cache.delete(this.request(key));
   }
 
+  async deleteMany(keys: readonly string[]): Promise<void> {
+    for (const key of keys) await this.delete(key);
+  }
+
   async getUri(key: string): Promise<string | null> {
     const stored = await this.get(key);
     if (stored === null) return null;
