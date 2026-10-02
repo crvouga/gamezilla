@@ -12,21 +12,16 @@ import type {
   SnapshotMedia,
 } from '@pkgs/harness';
 import { readUtf8 } from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-import {
-  type BundleEntry,
-  bundleIndexKey,
-  createBundleReader,
-  readBundleIndex,
-} from './bundle';
+import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
+
+import type { BundleEntry } from './bundle';
 import { inCompletionOrder } from './completion-order';
 import {
   COMMITS_INDEX_PREFIX,
   commitKey,
-  remoteTestFileKey,
-  remoteTestReportKey,
+  frameCssKey,
+  isFramePath,
   shaOfIndexKey,
-  sourceKey,
   sourceOfKey,
   sourcesPrefix,
 } from './keys';
@@ -37,6 +32,10 @@ import type {
   SourceRecord,
   TestEvent,
 } from './protocol';
+import { reportStore } from './publication';
+import { readBundledSnapshot, readBundledSnapshots } from './snapshot-bundle';
+import { readStoredSource, sourceTestPrefix } from './source-content';
+import { sourceReader } from './source-reader';
 
 /** Parallel object reads per stream. */
 const READ_WIDTH = 16;
@@ -52,11 +51,18 @@ async function readJson<T>(store: ObjectStore, key: string): Promise<T | null> {
   }
 }
 
-export function readCommit(
+export async function readCommit(
   store: ObjectStore,
   sha: string
 ): Promise<CommitRecord | null> {
-  return readJson<CommitRecord>(store, commitKey(sha));
+  return readJson<CommitRecord>(await reportStore(store, sha), commitKey(sha));
+}
+
+export async function readFrameCss(
+  store: ObjectStore,
+  sha: string
+): Promise<StoredObject | null> {
+  return (await reportStore(store, sha)).get(frameCssKey(sha));
 }
 
 /**
@@ -109,12 +115,13 @@ async function* newSources(
   sha: string,
   sent: Set<string>
 ): AsyncGenerator<SourceRecord> {
+  store = await reportStore(store, sha);
   const fresh = (await store.listKeys(sourcesPrefix(sha)))
     .map((key) => sourceOfKey(sha, key))
     .filter((s): s is string => s !== null && !sent.has(s));
   for (const s of fresh) sent.add(s);
   const reads = fresh.map(
-    (s) => () => readJson<SourceRecord>(store, sourceKey(sha, s))
+    (s) => async () => (await readStoredSource(store, sha, s))?.record ?? null
   );
   for await (const record of inCompletionOrder(reads, READ_WIDTH)) {
     if (record !== null) yield record;
@@ -192,28 +199,6 @@ function frameBlob(obj: BundleEntry, media: SnapshotMedia): HtmlReportBlob {
     : { contentType: obj.contentType, base64: bytesToBase64(obj.bytes) };
 }
 
-async function sourceReader(
-  store: ObjectStore,
-  args: { sha: string; source: string }
-) {
-  const index = await readBundleIndex(
-    store,
-    bundleIndexKey(args.sha, args.source)
-  );
-  if (Object.keys(index).length > 0) return createBundleReader(store, index);
-  // Existing stored reports remain readable while writers use bundles.
-  return async (key: string): Promise<BundleEntry | null> => {
-    const obj = await store.get(key);
-    return obj === null
-      ? null
-      : {
-          key,
-          contentType: obj.contentType,
-          bytes: new Uint8Array(await new Response(obj.body).arrayBuffer()),
-        };
-  };
-}
-
 /** One test's timeline, without its frame files. */
 export async function readTestReport(
   store: ObjectStore,
@@ -223,10 +208,13 @@ export async function readTestReport(
     readonly testId: string;
   }
 ): Promise<RunReport | null> {
+  store = await reportStore(store, args.sha);
+  const prefix = await sourceTestPrefix(store, args);
+  if (prefix === null) return null;
+  if (prefix.startsWith('content/'))
+    return readJson<RunReport>(store, `${prefix}report.json`);
   const read = await sourceReader(store, args);
-  const obj = await read(
-    remoteTestReportKey(args.sha, args.source, args.testId)
-  );
+  const obj = await read(`${prefix}report.json`);
   return obj === null
     ? null
     : (JSON.parse(new TextDecoder().decode(obj.bytes)) as RunReport);
@@ -247,7 +235,13 @@ export async function readFrameBody(
     readonly file: string;
   }
 ): Promise<FrameBody | null> {
-  const key = remoteTestFileKey(args.sha, args.source, args.testId, args.file);
+  store = await reportStore(store, args.sha);
+  if (!isFramePath(args.file)) throw new Error('Invalid report frame');
+  const prefix = await sourceTestPrefix(store, args);
+  if (prefix === null) return null;
+  const key = `${prefix}${args.file}`;
+  if (prefix.startsWith('content/'))
+    return readBundledSnapshot(store, prefix, args.file);
   const read = await sourceReader(store, args);
   const obj = await read(key);
   return obj === null
@@ -276,14 +270,9 @@ export async function* testEvents(
     readonly testId: string;
   }
 ): AsyncGenerator<TestEvent> {
-  const read = await sourceReader(store, args);
-  const obj = await read(
-    remoteTestReportKey(args.sha, args.source, args.testId)
-  );
-  const report =
-    obj === null
-      ? null
-      : (JSON.parse(new TextDecoder().decode(obj.bytes)) as RunReport);
+  store = await reportStore(store, args.sha);
+  const prefix = await sourceTestPrefix(store, args);
+  const report = await readTestReport(store, args);
   if (report === null) {
     yield { type: 'end', found: false };
     return;
@@ -291,9 +280,29 @@ export async function* testEvents(
   yield { type: 'report', report };
   const files = new Map<string, SnapshotMedia>();
   collectFrameFiles(report.steps, files);
+  if (prefix?.startsWith('content/')) {
+    for await (const frame of readBundledSnapshots(
+      store,
+      prefix,
+      new Set(files.keys())
+    )) {
+      const blob = TEXT_MEDIA.has(files.get(frame.file) ?? '')
+        ? {
+            contentType: frame.contentType,
+            text: new TextDecoder().decode(frame.bytes),
+          }
+        : {
+            contentType: frame.contentType,
+            base64: bytesToBase64(frame.bytes),
+          };
+      yield { type: 'blob', file: frame.file, blob };
+    }
+    yield { type: 'end', found: true };
+    return;
+  }
+  const readFile = await sourceReader(store, args);
   const reads = [...files].map(([file, media]) => async () => {
-    const key = remoteTestFileKey(args.sha, args.source, args.testId, file);
-    const obj = await read(key);
+    const obj = await readFile(`${prefix}${file}`);
     return { file, blob: obj === null ? null : frameBlob(obj, media) };
   });
   for await (const read of inCompletionOrder(reads, READ_WIDTH)) {

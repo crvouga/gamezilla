@@ -166,12 +166,12 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('every task `bun check` can run is cached', () => {
+  test('only the live advisory check bypasses the Check cache', () => {
     const tasks = loadTasks();
     const uncached = [...reachableFromCheck(tasks)].filter(
       (task) => configFor(tasks, task)?.cache === false
     );
-    expect(uncached).toEqual([]);
+    expect(uncached).toEqual(['//#ci:audit']);
   });
 
   test('package check tasks hash every file in the package', () => {

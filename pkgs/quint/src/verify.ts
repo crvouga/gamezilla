@@ -121,7 +121,8 @@ function verifyArgs(
 }
 
 function encodingConfig(options: VerifyOptions): string | null {
-  if (options.encoding === undefined) return null;
+  // Check every invariant after translating the complete transition choice.
+  // This preserves all reachable states with fewer SMT queries.
   // The alternative map encoding is unsuitable for some higher-order models.
   // Callers opt in; the bound and invariant obligations stay the same.
   const path = join(options.outDir, 'apalache-config.json');
@@ -129,7 +130,9 @@ function encodingConfig(options: VerifyOptions): string | null {
     path,
     JSON.stringify({
       checker: {
-        'smt-encoding': { type: options.encoding },
+        ...(options.encoding === undefined
+          ? {}
+          : { 'smt-encoding': { type: options.encoding } }),
         tuning: { 'search.invariant.mode': 'after' },
       },
     })

@@ -23,7 +23,7 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 #                  real environment first. `health` checks Workers, DNS/TLS,
 #                  Postgres, R2, EMQX, Grafana Cloud, vendor credentials and
 #                  OpenTofu drift; the Health workflow
-#                  (.github/workflows/health.yml) runs the same probes hourly.
+#                  (.depot/workflows/health.yml) runs the same probes hourly.
 #
 # Infrastructure changes only through libs/infra/scripts/tofu.ts: plan to a
 # file, refuse it if libs/infra/policy/stateful.rego denies it (deleting or
@@ -35,7 +35,7 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # This never runs on a pull request or any ref other than `main`: each environment is a shared singleton,
 # so concurrent PRs would clobber each other's infrastructure, migrations and
 # secrets. PRs get `bun run check` in the Check workflow
-# (.github/workflows/check.yml) instead.
+# (.depot/workflows/check.yml) instead.
 
 permissions:
   contents: read
@@ -61,7 +61,7 @@ jobs:
   deploy-cleanup:
     name: deploy:cleanup
     needs: deploy-matrix
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
@@ -81,10 +81,10 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
+      - uses: ./.depot/actions/setup
         with:
           tools: bun gh
-      - uses: ./.github/actions/secrets-auth
+      - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -94,7 +94,7 @@ jobs:
 
   deploy-matrix:
     name: deploy:matrix
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 10
     outputs:
       standard: ${{ steps.envs.outputs.standard }}
@@ -125,7 +125,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - uses: ./.github/actions/setup
+      - uses: ./.depot/actions/setup
 
       - name: envs
         id: envs
@@ -139,7 +139,7 @@ jobs:
   deploy-fleet:
     name: deploy:fleet
     needs: deploy-matrix
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 20
     env:
       SECRETS_ENV: ${{ needs.deploy-matrix.outputs.shared }}
@@ -148,9 +148,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - uses: ./.github/actions/setup
+      - uses: ./.depot/actions/setup
 
-      - uses: ./.github/actions/secrets-auth
+      - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -177,7 +177,7 @@ jobs:
     name: deploy:${{ matrix.env }}
     needs: [deploy-matrix, deploy-fleet]
     if: needs.deploy-matrix.outputs.standard != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -197,9 +197,9 @@ jobs:
           fetch-depth: 0
 
       - id: setup
-        uses: ./.github/actions/setup
+        uses: ./.depot/actions/setup
 
-      - uses: ./.github/actions/secrets-auth
+      - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -241,7 +241,7 @@ jobs:
       && (needs.deploy-standard.result == 'success'
         || (needs.deploy-standard.result == 'skipped'
           && needs.deploy-matrix.outputs.standard == '[]'))
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 55
     environment: production
     strategy:
@@ -259,9 +259,9 @@ jobs:
           fetch-depth: 0
 
       - id: setup
-        uses: ./.github/actions/setup
+        uses: ./.depot/actions/setup
 
-      - uses: ./.github/actions/secrets-auth
+      - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}

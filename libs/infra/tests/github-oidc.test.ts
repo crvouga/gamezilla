@@ -20,22 +20,24 @@ test('CI trust matches the transferred repository immutable OIDC subject', () =>
   expect(bootstrap).toContain(
     'github_subject_prefix = "repo:${var.github.owner}@${var.github.owner_id}/${var.github.repo}@${var.github.repo_id}"'
   );
-  expect(
-    bootstrap.match(/github_subject_prefix\s*= local.github_subject_prefix/g)
-  ).toHaveLength(2);
+  expect(bootstrap).toMatch(
+    /github_subject_prefix\s*= local.github_subject_prefix/
+  );
+  expect(bootstrap).toMatch(
+    /oidc_subject\s*= "\$\{local.github_subject_prefix\}:\*"/
+  );
+  expect(bootstrap).toMatch(
+    /oidc_audience\s*= "https:\/\/github.com\/\$\{var.github.owner\}"/
+  );
   const variables = read('stacks/bootstrap/variables.tf');
   expect(variables).toMatch(/owner_id\s*= string/);
   expect(variables).toMatch(/repo_id\s*= string/);
 
   const infisical = read('modules/ci-identity/main.tf');
-  expect(infisical).toContain('from = infisical_identity_oidc_auth.ci');
-  expect(infisical).toContain('to   = infisical_identity_oidc_auth.github');
-  expect(infisical).toMatch(
-    /bound_subject\s*= "\$\{var.github_subject_prefix\}:\*"/
-  );
-  expect(infisical).toMatch(
-    /bound_audiences\s*= \["https:\/\/github.com\/\$\{var.github_owner\}"\]/
-  );
+  expect(infisical).toContain('from = infisical_identity_oidc_auth.github');
+  expect(infisical).toContain('to   = infisical_identity_oidc_auth.ci');
+  expect(infisical).toMatch(/bound_subject\s*= var.oidc_subject/);
+  expect(infisical).toMatch(/bound_audiences\s*= \[var.oidc_audience\]/);
 
   const aws = read('modules/aws-ci-identity/main.tf');
   expect(aws).toContain('"${var.github_subject_prefix}:ref:refs/heads/main"');

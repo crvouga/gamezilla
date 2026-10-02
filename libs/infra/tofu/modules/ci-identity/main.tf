@@ -1,4 +1,4 @@
-# The machine identity GitHub Actions uses to read and write Infisical: OIDC
+# The machine identity a CI provider uses to read and write Infisical: OIDC
 # only (no stored credential), bound to this repository, admin on the project
 # (deploys write secrets in every environment).
 
@@ -20,17 +20,16 @@ variable "name" {
   type = string
 }
 
-variable "github_subject_prefix" {
-  type        = string
-  description = "Immutable GitHub OIDC repo:owner@owner-id/repo@repo-id prefix."
-}
-
-variable "github_owner" {
+variable "oidc_issuer" {
   type = string
 }
 
-locals {
-  github_issuer = "https://token.actions.githubusercontent.com"
+variable "oidc_subject" {
+  type = string
+}
+
+variable "oidc_audience" {
+  type = string
 }
 
 resource "infisical_identity" "ci" {
@@ -39,21 +38,20 @@ resource "infisical_identity" "ci" {
   role   = "no-access"
 }
 
-# Adopt the existing auth binding so recovery updates it in place.
-moved {
-  from = infisical_identity_oidc_auth.ci
-  to   = infisical_identity_oidc_auth.github
-}
-
-resource "infisical_identity_oidc_auth" "github" {
+resource "infisical_identity_oidc_auth" "ci" {
   identity_id                 = infisical_identity.ci.id
-  oidc_discovery_url          = local.github_issuer
-  bound_issuer                = local.github_issuer
-  bound_subject               = "${var.github_subject_prefix}:*"
-  bound_audiences             = ["https://github.com/${var.github_owner}"]
+  oidc_discovery_url          = var.oidc_issuer
+  bound_issuer                = var.oidc_issuer
+  bound_subject               = var.oidc_subject
+  bound_audiences             = [var.oidc_audience]
   access_token_ttl            = 600
   access_token_max_ttl        = 600
   access_token_num_uses_limit = 0
+}
+
+moved {
+  from = infisical_identity_oidc_auth.github
+  to   = infisical_identity_oidc_auth.ci
 }
 
 resource "infisical_project_identity" "ci" {

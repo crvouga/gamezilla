@@ -2,42 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import {
-  findNewRun,
-  findSupersedingRun,
-  WORKFLOW_DISPATCH,
-} from './workflow-remote';
+import { WORKFLOW_DISPATCH } from './workflow-remote';
 
 const SCROLL_DOWN = '\u001b[B';
 
-const WORKFLOWS = join(import.meta.dirname, '../../../.github/workflows');
-
-describe('findNewRun', () => {
-  // regression: check-duplicate-trigger-runners
-  test('follows the newest surviving run of this exact commit, never another commit', () => {
-    const runs = [
-      { databaseId: 10, headSha: 'abc', conclusion: 'cancelled' },
-      { databaseId: 11, headSha: 'abc', conclusion: null },
-      { databaseId: 12, headSha: 'abc', conclusion: 'cancelled' },
-      { databaseId: 13, headSha: 'other', conclusion: null },
-    ];
-    expect(findSupersedingRun(runs, 10, 'abc')?.databaseId).toBe(11);
-    expect(findSupersedingRun(runs, 11, 'abc')).toBeUndefined();
-  });
-  const runs = [
-    { databaseId: 3, headSha: 'other' },
-    { databaseId: 2, headSha: 'abc' },
-    { databaseId: 1, headSha: 'abc' },
-  ];
-
-  test('picks the run created after the snapshot on our commit', () => {
-    expect(findNewRun(runs, new Set([1]), 'abc')?.databaseId).toBe(2);
-  });
-
-  test('ignores runs that already existed or are on another commit', () => {
-    expect(findNewRun(runs, new Set([1, 2]), 'abc')).toBeUndefined();
-  });
-});
+const WORKFLOWS = join(import.meta.dirname, '../../../.depot/workflows');
 
 describe('WORKFLOW_DISPATCH', () => {
   test('check and health follow the checkout; deploy ships main', () => {

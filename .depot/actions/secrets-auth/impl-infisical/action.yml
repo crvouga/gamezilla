@@ -20,10 +20,21 @@ inputs:
 runs:
   using: composite
   steps:
+    # The action's bundled OIDC client appends &audience; Depot supplies a
+    # queryless URL. Start the query before handing it to that client.
+    - name: Prepare OIDC request URL
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ "$ACTIONS_ID_TOKEN_REQUEST_URL" != *\?* ]]; then
+          printf 'ACTIONS_ID_TOKEN_REQUEST_URL=%s?\n' "$ACTIONS_ID_TOKEN_REQUEST_URL" >> "$GITHUB_ENV"
+        fi
+
     - name: Fetch secrets from Infisical
       uses: Infisical/secrets-action@v1.0.16
       with:
         method: oidc
+        oidc-audience: https://github.com/${{ github.repository_owner }}
         identity-id: ${{ inputs.identity-id }}
         project-slug: ${{ inputs.project-id }}
         env-slug: ${{ inputs.environment }}

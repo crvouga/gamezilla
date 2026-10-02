@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Setup repo (mise tools + deps)
+description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
+
+inputs:
+  tools:
+    description: Pinned mise tools to install; empty installs the full check toolchain
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    # Every system tool — Bun, Node, gh, gitleaks, actionlint, the secrets
+    # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the
+    # same file a laptop runs `mise install` against. Installs are cached on
+    # a key over mise.toml; the action puts the tools on PATH for later steps.
+    # Later steps (check:actionlint, check:secrets) `mise exec` against the
+    # same file, so trust the checkout for the whole job.
+    - name: Trust mise.toml
+      shell: bash
+      run: echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
+
+    - name: Install pinned tools (mise.toml)
+      uses: jdx/mise-action@v4
+      with:
+        version: 2026.9.13
+        install_args: ${{ inputs.tools }}
+
+    # A cold install took 1.62s on Depot. Extracting dependency trees costs
+    # more, and actions/cache rejects API events without GITHUB_REF. Keep
+    # mise's platform/tool-version cache and Turbo's content-addressed cache;
+    # frozen installs need neither a synthetic ref nor dependency restore keys.
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile

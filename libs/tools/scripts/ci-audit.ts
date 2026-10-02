@@ -1,8 +1,9 @@
 /**
  * Runs `bun audit --audit-level high` (local and CI).
  *
- * Always dials the registry so local and CI share one Turbo remote-cache
- * hash for `//#ci:audit`. Any non-zero exit still fails the check/deploy.
+ * Always dials the registry. This task is not cached: new advisories can
+ * invalidate a pass without a lockfile change. Any non-zero exit still fails
+ * the check/deploy.
  *
  * Ignored CVEs must stay empty unless there is no published patched release
  * (`first_patched_version: null`). Revisit when image-size ships a fix past

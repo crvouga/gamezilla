@@ -5,12 +5,12 @@ import { join } from 'node:path';
 
 const WORKFLOW = join(
   import.meta.dirname,
-  '../../../.github/workflows/check.yml'
+  '../../../.depot/workflows/check.yml'
 );
 
-/** Job-level `if:` lines (4-space indent). Step conditions sit deeper. */
-function jobConditions(workflow: string): readonly string[] {
-  return [...workflow.matchAll(/^ {4}if: (.+)$/gm)].map(
+/** Cleanup steps must not hold a cancelled run's concurrency group. */
+function alwaysConditions(workflow: string): readonly string[] {
+  return [...workflow.matchAll(/^\s+if: (.+)$/gm)].map(
     (match) => match[1] ?? ''
   );
 }
@@ -27,18 +27,22 @@ describe('Check workflow cancellation', () => {
   });
   // regression: check-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
-    const holding = jobConditions(readFileSync(WORKFLOW, 'utf8')).filter(
+    const holding = alwaysConditions(readFileSync(WORKFLOW, 'utf8')).filter(
       (condition) => condition.includes('always()')
     );
-    expect(holding).toEqual(['always() && !cancelled()']);
+    expect(holding.length).toBeGreaterThan(0);
+    expect(
+      holding.every((condition) => condition === 'always() && !cancelled()')
+    ).toBe(true);
   });
 
-  test('publishes in each shard and requires publication before the aggregate verdict', () => {
+  test('one Depot job includes publication in its required verdict', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       jobs: Record<
         string,
         {
           needs?: string[];
+          'runs-on': string;
           steps: {
             name?: string;
             run?: string;
@@ -47,22 +51,13 @@ describe('Check workflow cancellation', () => {
         }
       >;
     };
-    expect(Object.keys(workflow.jobs)).toEqual([
-      'check-plan',
-      'check-matrix',
-      'check-shard',
-      'check',
-    ]);
-    const shard = workflow.jobs['check-shard'];
-    expect(shard?.steps.find((step) => step.name === 'check')?.run).toContain(
-      '--publish-reports'
-    );
+    expect(Object.keys(workflow.jobs)).toEqual(['check']);
     const gate = workflow.jobs['check'];
-    expect(gate?.needs).toContain('check-shard');
-    const close = gate?.steps.find(
-      (step) => step.name === 'Complete spec report'
-    );
-    expect(close?.run).toContain('report-publish.ts close');
-    expect(close?.['continue-on-error']).toBeUndefined();
+    expect(gate?.['runs-on']).toBe('depot-ubuntu-24.04-16');
+    const check = gate?.steps.find((step) => step.name === 'check');
+    expect(check?.run).toContain('--publish-reports');
+    expect(check?.run).toContain('check');
+    expect(check?.['continue-on-error']).toBeUndefined();
+    expect(gate?.needs).toBeUndefined();
   });
 });

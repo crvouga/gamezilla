@@ -1,12 +1,5 @@
-// @io-wall-ok — composition root: the wall clock, the real HTTP client, GitHub credentials from the process env.
-/**
- * `specs/runtime/availability.openslo.yaml`, measured for the environment
- * the run targets (`SECRETS_ENV`, as the live world reads it): the Health
- * workflow's `health:<env>` jobs over the objective's window, read from the
- * GitHub REST API (`health-job-results.ts`). Needs `GITHUB_TOKEN` with
- * `actions: read`; `GITHUB_REPOSITORY` and `GITHUB_API_URL` come with every
- * Actions job.
- */
+// @io-wall-ok — composition root: the wall clock, the real HTTP client, Depot credentials from the process env.
+/** Availability is measured from native Depot Health job attempts. */
 
 import { envFile } from '@libs/infra/public/envs';
 import { wallClock } from '@pkgs/clock';
@@ -18,7 +11,7 @@ function required(name: string): string {
   const value = process.env[name]?.trim() ?? '';
   if (value.length === 0) {
     throw new Error(
-      `${name} is not set — the team's checks are read from GitHub Actions`
+      `${name} is not set — the team's checks are read from Depot CI`
     );
   }
   return value;
@@ -33,9 +26,10 @@ bindObjectives({
         {
           http: createGlobalHttpClient(),
           apiUrl:
-            process.env['GITHUB_API_URL']?.trim() || 'https://api.github.com',
+            process.env['DEPOT_API_URL']?.trim() || 'https://api.depot.dev',
           repository: required('GITHUB_REPOSITORY'),
-          token: required('GITHUB_TOKEN'),
+          token: required('DEPOT_TOKEN'),
+          orgId: required('DEPOT_ORG_ID'),
         },
         {
           env: envFile(process.env['SECRETS_ENV']?.trim() || 'dev').env,

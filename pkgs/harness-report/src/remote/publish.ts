@@ -10,6 +10,7 @@ import {
   type HtmlReportTest,
   parseJunit,
   type ReportStep,
+  type ReportTestStatus,
   type RunReport,
   suiteStatus,
   testFrameKey,
@@ -19,23 +20,42 @@ import {
 import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-import { type BundleEntry, bundleIndexKey, publishBundle } from './bundle';
+import { bundleIndexKey, publishBundle } from './bundle';
+import { eachLimited } from './completion-order';
 import {
   commitIndexKey,
   commitKey,
   frameCssKey,
-  remoteTestFileKey,
-  remoteTestReportKey,
   sourceId,
   sourceKey,
   sourceOfKey,
   sourcesPrefix,
 } from './keys';
 import type { CommitRecord, SourceRecord } from './protocol';
+import { publicationStore } from './publication';
 import { readCommit } from './read';
+import { publishSnapshotBundle } from './snapshot-bundle';
+import {
+  attachSource,
+  readStoredSource,
+  type SourceIdentity,
+  sourceContentPrefix,
+} from './source-content';
+import { sourceEntries } from './source-entries';
+
+export { publicationStore } from './publication';
+
+export {
+  reportGeneration,
+  reuseSource,
+  type SourceIdentity,
+  sourceContentPrefix,
+} from './source-content';
 
 /** The run id every spec suite writes its bucket under. */
 export const SPEC_RUN_ID = 'latest';
+/** Parallel uploads per source. */
+const WRITE_WIDTH = 32;
 const JSON_TYPE = 'application/json; charset=utf-8';
 
 export type OpenCommitArgs = {
@@ -45,6 +65,8 @@ export type OpenCommitArgs = {
   readonly startedAtMs: number;
   /** Stylesheet the commit's HTML snapshots render with. */
   readonly frameCss: string;
+  /** Concurrent CI attempts own independent commit-local files. */
+  readonly publicationId?: string;
 };
 
 /**
@@ -55,9 +77,13 @@ export async function openCommit(
   store: ObjectStore,
   args: OpenCommitArgs
 ): Promise<CommitRecord> {
-  const { frameCss, ...fields } = args;
+  const { frameCss, publicationId, ...fields } = args;
+  const target =
+    publicationId === undefined
+      ? store
+      : publicationStore(store, publicationId);
   await writeUtf8(
-    store,
+    target,
     frameCssKey(args.sha),
     frameCss,
     'text/css; charset=utf-8'
@@ -69,7 +95,7 @@ export async function openCommit(
     status: null,
   };
   await writeUtf8(
-    store,
+    target,
     commitKey(args.sha),
     JSON.stringify(commit),
     JSON_TYPE
@@ -80,6 +106,13 @@ export async function openCommit(
     JSON.stringify({ sha: args.sha }),
     JSON_TYPE
   );
+  if (publicationId !== undefined)
+    await writeUtf8(
+      store,
+      commitKey(args.sha),
+      JSON.stringify({ publicationId }),
+      JSON_TYPE
+    );
   return commit;
 }
 
@@ -131,7 +164,30 @@ export type PublishSourceArgs = {
   /** The package's local report bucket (`.cache/harness-report/<bucket>`). */
   readonly local: ObjectStore;
   readonly runId?: string;
+  /** Only a passing execution is reusable under its exact task hash. */
+  readonly identity?: SourceIdentity;
+  readonly status?: ReportTestStatus;
 };
+
+async function publishSnapshots(
+  store: ObjectStore,
+  args: PublishSourceArgs,
+  tests: readonly HtmlReportTest[],
+  contentPrefix: string
+): Promise<void> {
+  const runId = args.runId ?? SPEC_RUN_ID;
+  await eachLimited(tests, 8, async ({ report }) => {
+    const files = new Set<string>();
+    frameFiles(report.steps, files);
+    await publishSnapshotBundle({
+      local: args.local,
+      remote: store,
+      localPrefix: testFrameKey(runId, report.meta.testId, ''),
+      remotePrefix: `${contentPrefix}${report.meta.testId}/`,
+      files: [...files],
+    });
+  });
+}
 
 /**
  * Copy one package bucket into the store: every test (runner outcomes
@@ -146,64 +202,69 @@ export async function publishSource(
   const runId = args.runId ?? SPEC_RUN_ID;
   const source = sourceId(args.packageDir, args.bucket);
   const tests = await readTests(args.local, runId);
-  if (tests.length === 0) return null;
-  await publishBundle(
-    store,
-    bundleIndexKey(args.sha, source),
-    sourceEntries(args, source, tests, runId)
-  );
+  if (
+    tests.length === 0 &&
+    args.identity === undefined &&
+    args.status === undefined
+  )
+    return null;
   const metas = tests
     .map((t) => t.report.meta)
     .sort((a, b) => (a.testId < b.testId ? -1 : a.testId > b.testId ? 1 : 0));
+  const status = args.status === 'failed' ? 'failed' : suiteStatus(metas);
+  const contentPrefix =
+    args.identity !== undefined && status === 'passed'
+      ? sourceContentPrefix(args.identity, source)
+      : null;
+  if (contentPrefix === null) {
+    await publishBundle(
+      store,
+      bundleIndexKey(args.sha, source),
+      sourceEntries(args, source, tests, runId)
+    );
+  } else {
+    await publishSnapshots(store, args, tests, contentPrefix);
+    await eachLimited(tests, WRITE_WIDTH, async ({ report }) => {
+      await writeUtf8(
+        store,
+        `${contentPrefix}${report.meta.testId}/report.json`,
+        JSON.stringify(report),
+        JSON_TYPE
+      );
+    });
+  }
   const record: SourceRecord = {
     source,
     packageDir: args.packageDir,
     bucket: args.bucket,
-    status: suiteStatus(metas),
+    status,
     updatedAtMs: Math.max(0, ...metas.map((m) => m.endedAtMs)),
     tests: metas,
   };
-  await writeUtf8(
-    store,
-    sourceKey(args.sha, source),
-    JSON.stringify(record),
-    JSON_TYPE
-  );
-  return record;
-}
-
-async function* sourceEntries(
-  args: PublishSourceArgs,
-  source: string,
-  tests: readonly HtmlReportTest[],
-  runId: string
-): AsyncGenerator<BundleEntry> {
-  for (const { report } of [...tests].sort((a, b) =>
-    a.report.meta.testId < b.report.meta.testId ? -1 : 1
-  )) {
-    const { testId } = report.meta;
-    yield {
-      key: remoteTestReportKey(args.sha, source, testId),
-      bytes: new TextEncoder().encode(JSON.stringify(report)),
-      contentType: JSON_TYPE,
-    };
-    const files = new Set<string>();
-    frameFiles(report.steps, files);
-    for (const file of [...files].sort()) {
-      const obj = await args.local.get(testFrameKey(runId, testId, file));
-      if (obj === null) throw new Error(`Missing report snapshot: ${file}`);
-      yield {
-        key: remoteTestFileKey(args.sha, source, testId, file),
-        bytes: new Uint8Array(await new Response(obj.body).arrayBuffer()),
-        contentType: obj.contentType,
-      };
-    }
+  if (contentPrefix !== null) {
+    await writeUtf8(
+      store,
+      `${contentPrefix}complete.json`,
+      JSON.stringify(record),
+      JSON_TYPE
+    );
+    await attachSource(store, { sha: args.sha, record, contentPrefix });
+  } else {
+    await writeUtf8(
+      store,
+      sourceKey(args.sha, source),
+      JSON.stringify(record),
+      JSON_TYPE
+    );
   }
+  return record;
 }
 
 export type CloseCommitArgs = {
   readonly sha: string;
   readonly endedAtMs: number;
+  readonly publicationId?: string;
+  readonly status?: ReportTestStatus;
 };
 
 /** Mark a commit's run complete, with the worst status of its sources. */
@@ -211,6 +272,8 @@ export async function closeCommit(
   store: ObjectStore,
   args: CloseCommitArgs
 ): Promise<CommitRecord> {
+  if (args.publicationId !== undefined)
+    store = publicationStore(store, args.publicationId);
   const open = await readCommit(store, args.sha);
   if (open === null) {
     throw new Error(`no open report for ${args.sha}; openCommit runs first`);
@@ -220,14 +283,14 @@ export async function closeCommit(
     .filter((s): s is string => s !== null);
   const statuses: SourceRecord[] = [];
   for (const s of sources) {
-    const text = await readUtf8(store, sourceKey(args.sha, s));
-    if (text !== null) statuses.push(JSON.parse(text) as SourceRecord);
+    const stored = await readStoredSource(store, args.sha, s);
+    if (stored !== null) statuses.push(stored.record);
   }
   const closed: CommitRecord = {
     ...open,
     state: 'complete',
     endedAtMs: args.endedAtMs,
-    status: suiteStatus(statuses),
+    status: args.status === 'failed' ? 'failed' : suiteStatus(statuses),
   };
   await writeUtf8(
     store,

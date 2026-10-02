@@ -1,53 +1,28 @@
 [
   {
-    "id": "wrangler-retirement-kv-cleanup-auth",
-    "summary": "Wrangler deleted a retired Worker successfully, then exited with authentication error 10000 while listing legacy Workers Sites KV assets. Retirement now checks the exact Worker absence through authenticated inventory rather than treating an optional cleanup failure as a failed deletion. A present Worker or unreadable inventory still fails closed.",
-    "regressionTest": "libs/infra/tests/worker-retirement.test.ts"
+    "id": "depot-migration-workflow-on-feature-branch",
+    "summary": "Merging migrate-secrets-to-depot-ci-1790912980154.yml onto ci/speed-up-check-workflow triggered run 36967300871 on every push: variable import failed with Invalid token, and cleanup refused to delete the feature branch. Remove the one-time migration workflow; Check, Deploy and Health already read GitHub variables and authenticate with GitHub OIDC.",
+    "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
   },
   {
-    "id": "consolidated-deploy-check-aggregator",
-    "summary": "The consolidated application deployment depended directly on the root Check aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Check in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
-    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+    "id": "depot-native-workflows-missing-auth",
+    "summary": "Duplicated native Depot workflows read GitHub-only variables and failed with Missing identity ID for OIDC auth; their issuer also lacked the configured cloud trust. Run the three existing GitHub workflows on Depot runners, retaining their variables and OIDC issuer.",
+    "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
   },
   {
-    "id": "s3-ignores-injected-http",
-    "summary": "The S3 adapter accepted an HttpClient but used the SDK wall transport, making injected transport tests and clients ineffective. Send every S3 request through the injected handler.",
-    "regressionTest": "pkgs/object-store-s3/tests/bulk-delete.test.ts"
+    "id": "check-manual-cancels-required-pr",
+    "summary": "On PR #107 at 2a2bda778fd0e66af2a74c7e02ecea6fb80c8956, bun check's manual dispatch cancelled the required PR Check run 36959395506, leaving the PR red despite a successful manual run. Check now observes the automatic PR run and resumes cancelled runs instead of dispatching over them.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
   },
   {
-    "id": "reports-class-a-snapshot-fanout",
-    "summary": "Check uploaded every individual report snapshot again, including cached suites, incurring millions of paid R2 writes. Publish compressed, bounded chunks and reuse identical chunks on reruns.",
-    "regressionTest": "pkgs/harness-report/tests/bundle.test.ts"
+    "id": "check-report-concurrent-run-receipt",
+    "summary": "PR and manual Check runs for the same commit overwrote each other's publication receipts, so finalization could reject a fully published report. Receipts now belong to the workflow run and attempt.",
+    "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
   },
   {
-    "id": "reports-retain-merged-and-superseded-commits",
-    "summary": "The reports store retained superseded commits and reports of merged or deleted branches for thirty days. Keep only one report per existing branch and garbage collect orphan uploads.",
-    "regressionTest": "pkgs/harness-report/tests/retention.test.ts"
-  },
-  {
-    "id": "db-framework-contract-spec-discovery",
-    "summary": "Technical database protocol fixtures were registered as product specs without implementation bindings, failing spec, conformance and offline model shape gates. Preserve unbound reference verification in package tests and document unimplemented adapter obligations outside product specs; the separately bound indexing maintenance specifications remain registered.",
-    "regressionTest": "libs/tools/scripts/spec-packages.test.ts"
-  },
-  {
-    "id": "model-array-encoding-default",
-    "summary": "Making Apalache's array map encoding the default caused assertion failures in the outside-accounts, membership-lifecycle and note-replication models. Keep the established default settings and make the alternative encoding an explicit opt-in for supported database contract models.",
-    "regressionTest": "pkgs/auth-harness/tests/default-model-encoding.test.ts"
-  },
-  {
-    "id": "rebuild-model-verification-timeout",
-    "summary": "Apalache's default map encoding and per-transition invariant checks exceeded the rebuild model's existing 120-second CI budget at ten steps. The database contract runners opt into SMT arrays and invariant checks after the full transition choice, preserving every invariant and the same exhaustive bound while reducing solver work. Other models retain the default encoding because arrays do not support all higher-order models.",
-    "regressionTest": "pkgs/db-schema/tests/quint/reconciliation-contracts.test.ts"
-  },
-  {
-    "id": "conventional-spec-commit-rejected",
-    "summary": "The spec ownership gate rejected the isolated database safety contract commit because it used the required Conventional Commit docs(specs) form. Recognize that form as a spec commit while continuing to require spec changes and reject mixed implementation files.",
-    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
-  },
-  {
-    "id": "db-schema-quint-entry-missing",
-    "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
-    "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
+    "id": "check-duplicate-trigger-runners",
+    "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
   },
   {
     "id": "health-offline-before-precache-ready",
@@ -615,6 +590,186 @@
     "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
   },
   {
+    "id": "report-missing-snapshot-published-complete",
+    "summary": "The report publisher silently skipped a missing referenced snapshot and still published its source as complete. Fail publication before writing any completion marker when the literal referenced snapshot is absent.",
+    "regressionTest": "pkgs/harness-report/tests/reusable-source.test.ts"
+  },
+  {
+    "id": "report-concurrent-attempt-overwrite",
+    "summary": "Two Check runs of the same SHA wrote the same report source and completion record, so a late failed earlier attempt could overwrite the currently displayed result. Scope commit records, stylesheet, sources and receipts by run/attempt while sharing only immutable successful content.",
+    "regressionTest": "pkgs/harness-report/tests/publication-attempt.test.ts"
+  },
+  {
+    "id": "report-rerun-immutable-cache",
+    "summary": "Completed commit URLs cached a prior attempt forever, even after a newer run replaced the selected report. Resolve the selected attempt on every request to these mutable URLs.",
+    "regressionTest": "libs/server-app/tests/reports-route.test.ts"
+  },
+  {
+    "id": "report-plan-hash-drift",
+    "summary": "A task could execute under a different hash from the preflight plan and publish its evidence under the earlier hash. Verify Turbo's execution or restoration hash before publishing the completed source.",
+    "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
+  },
+  {
+    "id": "db-framework-contract-spec-discovery",
+    "summary": "Technical database protocol fixtures were registered as product specs without implementation bindings, failing spec, conformance and offline model shape gates. Preserve unbound reference verification in package tests and document unimplemented adapter obligations outside product specs; the separately bound indexing maintenance specifications remain registered.",
+    "regressionTest": "libs/tools/scripts/spec-packages.test.ts"
+  },
+  {
+    "id": "model-array-encoding-default",
+    "summary": "Making Apalache's array map encoding the default caused assertion failures in the outside-accounts, membership-lifecycle and note-replication models. Keep the established default settings and make the alternative encoding an explicit opt-in for supported database contract models.",
+    "regressionTest": "pkgs/auth-harness/tests/default-model-encoding.test.ts"
+  },
+  {
+    "id": "rebuild-model-verification-timeout",
+    "summary": "Apalache's default map encoding and per-transition invariant checks exceeded the rebuild model's existing 120-second CI budget at ten steps. The database contract runners opt into SMT arrays and invariant checks after the full transition choice, preserving every invariant and the same exhaustive bound while reducing solver work. Other models retain the default encoding because arrays do not support all higher-order models.",
+    "regressionTest": "pkgs/db-schema/tests/quint/reconciliation-contracts.test.ts"
+  },
+  {
+    "id": "conventional-spec-commit-rejected",
+    "summary": "The spec ownership gate rejected the isolated database safety contract commit because it used the required Conventional Commit docs(specs) form. Recognize that form as a spec commit while continuing to require spec changes and reject mixed implementation files.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "db-schema-quint-entry-missing",
+    "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
+    "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
+  },
+  {
+    "id": "depot-native-ci-runner-routing",
+    "summary": "A native Depot CI migration left Check under .github/workflows requesting Depot managed GitHub runners, so no native workflow owned its trigger. Keep Check, Deploy and Health only under .depot/workflows and dispatch native runs.",
+    "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+  },
+  {
+    "id": "depot-native-ci-missing-local-action",
+    "summary": "Native Check requested .depot/actions/setup after checkout but the manifest was absent from that revision. Verify the complete local-action reference graph, including nested manifests.",
+    "regressionTest": "libs/tools/scripts/workflow-native.test.ts"
+  },
+  {
+    "id": "depot-native-ci-commit-classification",
+    "summary": "The native CI migration changed the workflow path to .depot/workflows/check.yml, but git-sync classified it as chore instead of ci. Classify both CI providers' configuration paths as ci changes.",
+    "regressionTest": "libs/tools/scripts/git-sync.test.ts"
+  },
+  {
+    "id": "depot-native-oidc-queryless-url",
+    "summary": "The Infisical token refresh appended &audience to an OIDC request URL without a query, treating the audience as part of the path. Set the URL search parameter and derive the audience from the new repository owner.",
+    "regressionTest": "pkgs/secret-provider/tests/oidc-access-token.test.ts"
+  },
+  {
+    "id": "depot-native-health-history",
+    "summary": "The availability objective kept reading GitHub Actions history after native Depot migration, losing the new Health checks. Read every native run page and every job attempt, including failed originals and successful reruns.",
+    "regressionTest": "apps/product/tests/openslo/health-job-results.test.ts"
+  },
+  {
+    "id": "transferred-repo-protection-import",
+    "summary": "The transferred repository has no main branch protection rule, but bootstrap kept the old gamezilla:main adoption ID and failed to plan. Remove the completed import so the declared rule is created for the new owner.",
+    "regressionTest": "libs/infra/tests/global-file.test.ts"
+  },
+  {
+    "id": "turbo-strips-depot-context",
+    "summary": "Turbo strict environment mode dropped native Depot context, including report attempt URLs and the token needed for CI history. Pass Depot variables to tasks without changing task hashes.",
+    "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
+  },
+  {
+    "id": "index-contract-model-verification-timeout",
+    "summary": "The default map encoding exceeded the existing 120-second budget for index-reconciliation.qnt at ten steps. Opt this supported reference model into array-encoded maps, preserving every invariant and the full bound.",
+    "regressionTest": "pkgs/db-indexes/tests/quint/index-contracts.test.ts"
+  },
+  {
+    "id": "depot-variable-creation-race",
+    "summary": "Bootstrap created four Depot variables concurrently for gamezilla-org/gamezilla. One succeeded and three failed to create their variants. Provision all four coordinates sequentially in one declared resource.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+  },
+  {
+    "id": "sync-model-invariant-query-timeout",
+    "summary": "At its existing one-step bound, note-replication.qnt exhausted 240 seconds checking every invariant independently for each transition. Check invariants after the complete transition choice, preserving every reachable state and retaining default map encoding for higher-order models.",
+    "regressionTest": "pkgs/sync-engine/tests/default-model-search.test.ts"
+  },
+  {
+    "id": "depot-action-oidc-missing-audience",
+    "summary": "Native Check failed before running checks because the Infisical action omitted the required OIDC audience. Its bundled client also appends &audience to Depot's queryless token URL. Supply the repository-owner audience matching the declared trust and start the query before invoking the action.",
+    "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
+  },
+  {
+    "id": "workflow-oidc-test-stdout-socket",
+    "summary": "The OIDC action regression redirected GITHUB_ENV to /dev/stdout, which cannot be opened when the Linux test runner captures stdout with a socket. Execute the action with a real temporary environment file and read it through stdout instead.",
+    "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
+  },
+  {
+    "id": "report-uncached-task-hash",
+    "summary": "A full Check with cache reads disabled ran all 489 tasks successfully but failed report publication. The stream verified task hashes only for Turbo's cache hit and miss messages, ignoring cache bypass, force executing. Recognize bypass messages while preserving exact planned-hash verification and waiting for completion before uploading.",
+    "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
+  },
+  {
+    "id": "scheduler-overdue-task-rewind",
+    "summary": "The eight-day billing grace scenario failed when a callback enqueued a task due at 1718409601001 while the duration drain yielded at virtual time 1718409935000. The drain tried to rewind the clock to the overdue deadline. Fire overdue work at the current time and advance only to future deadlines.",
+    "regressionTest": "pkgs/harness/tests/scheduler-starvation.test.ts"
+  },
+  {
+    "id": "check-cache-write-only-override",
+    "summary": "A diagnostic Check override used local:w,remote:w, which disables cache reads. Enforce local:rw,remote:rw after secrets injection for normal checks and verify actual Turbo remote restoration and write-only bypass.",
+    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
+  },
+  {
+    "id": "depot-api-dependency-cache-ref",
+    "summary": "actions/cache rejects Depot API events without GITHUB_REF. Remove redundant dependency-tree and install-store actions; cold frozen installs took 1.62 seconds.",
+    "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
+  },
+  {
+    "id": "turbo-preflight-uncacheable-hit",
+    "summary": "The preflight remote HEAD lookup could turn a non-cacheable task into a hit. Honor resolvedTaskDefinition.cache so live advisory data is checked on every run.",
+    "regressionTest": "libs/tools/scripts/turbo-preflight.test.ts"
+  },
+  {
+    "id": "turbo-build-unhashed-inputs",
+    "summary": "Builds omitted baked-in commit hash/date, ANALYZE, toolchain pins and shared Lingui config from hashes. Offline-shell verification also hashed generated dist before its build dependency restored it. Hash source inputs and rely on the build dependency for generated output identity.",
+    "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
+  },
+  {
+    "id": "report-timeline-count-mislabeled-tests",
+    "summary": "Report publication labeled captured timeline count as test count. Six passing framework spec suites with no timelines appeared to execute zero tests. Label timelines accurately and preserve their tests.",
+    "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
+  },
+  {
+    "id": "empty-spec-part-passes",
+    "summary": "An over-sharded or misconfigured empty spec part exited successfully and published a passing completion. Fail with a configuration error so the empty task is removed or its scope repaired.",
+    "regressionTest": "libs/harness/scripts/test-spec-empty.test.ts"
+  },
+  {
+    "id": "s3-contract-shared-namespace",
+    "summary": "Concurrent Depot runs injected remote S3 credentials into a cached contract suite and reused its seeded namespace. The listKeys example saw a/x, a/y, b, k instead of a/x, a/y, b. Always run against a private local S3rver and create a fresh seeded prefix for every test.",
+    "regressionTest": "pkgs/object-store-s3/src/object-store.s3.contract.test.ts"
+  },
+  {
+    "id": "cached-contract-external-credentials",
+    "summary": "Cached Postgres and EMQX contracts selected external services from unhashed injected credentials, making passes stale and writing shared infrastructure. Always use private local sidecars. Pin unreachable injected endpoints in the contract fixture isolation check.",
+    "regressionTest": "pkgs/sql-client-postgres/src/postgres.contract.test.ts"
+  },
+  {
+    "id": "wrangler-retirement-kv-cleanup-auth",
+    "summary": "Wrangler deleted a retired Worker successfully, then exited with authentication error 10000 while listing legacy Workers Sites KV assets. Retirement now checks the exact Worker absence through authenticated inventory rather than treating an optional cleanup failure as a failed deletion. A present Worker or unreadable inventory still fails closed.",
+    "regressionTest": "libs/infra/tests/worker-retirement.test.ts"
+  },
+  {
+    "id": "consolidated-deploy-check-aggregator",
+    "summary": "The consolidated application deployment depended directly on the root Check aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Check in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "s3-ignores-injected-http",
+    "summary": "The S3 adapter accepted an HttpClient but used the SDK wall transport, making injected transport tests and clients ineffective. Send every S3 request through the injected handler.",
+    "regressionTest": "pkgs/object-store-s3/tests/bulk-delete.test.ts"
+  },
+  {
+    "id": "reports-class-a-snapshot-fanout",
+    "summary": "Check uploaded every individual report snapshot again, including cached suites, incurring millions of paid R2 writes. Publish compressed, bounded chunks and reuse identical chunks on reruns.",
+    "regressionTest": "pkgs/harness-report/tests/bundle.test.ts"
+  },
+  {
+    "id": "reports-retain-merged-and-superseded-commits",
+    "summary": "The reports store retained superseded commits and reports of merged or deleted branches for thirty days. Keep only one report per existing branch and garbage collect orphan uploads.",
+    "regressionTest": "pkgs/harness-report/tests/retention.test.ts"
+  },
+  {
     "id": "check-report-cleanup-serial-commit-listing",
     "summary": "Check run 36975436667 passed every shard but its final job exceeded 10 minutes pruning reports. Commit 075ee6c683761e1b2173d33aa0d0ccfebdb404ea alone contained 56,999 objects under one hash partition. Split large trees into concurrent child listings, but read small subtrees in one page: walking 128 individual snapshot folders otherwise took 387 requests.",
     "regressionTest": "pkgs/object-store-s3/tests/list-keys.test.ts"
@@ -625,23 +780,13 @@
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
-    "id": "check-manual-cancels-required-pr",
-    "summary": "On PR #107 at 2a2bda778fd0e66af2a74c7e02ecea6fb80c8956, bun check's manual dispatch cancelled the required PR Check run 36959395506, leaving the PR red despite a successful manual run. Check now observes the automatic PR run and resumes cancelled runs instead of dispatching over them.",
-    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
-  },
-  {
-    "id": "check-report-concurrent-run-receipt",
-    "summary": "PR and manual Check runs for the same commit overwrote each other's publication receipts, so finalization could reject a fully published report. Receipts now belong to the workflow run and attempt.",
-    "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
-  },
-  {
-    "id": "check-duplicate-trigger-runners",
-    "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
-    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
-  },
-  {
     "id": "worker-retirement-health-dependency",
     "summary": "The final development rehearsal resolved retirement's bare health dependency to a nonexistent @libs/infra#health task, so retirement ran alongside @apps/product#health instead of waiting for its verdict. Depend on the explicit application health task and verify the resolved Turbo graph contains that executable dependency.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "reports-cleanup-attempt-shared-content",
+    "summary": "Branch cleanup only listed commit-local files after reports gained attempt isolation and shared content. Preserve the selected attempt and its referenced snapshots, remove superseded attempts and orphan content, and defer shared-content cleanup while a publisher is still running.",
+    "regressionTest": "pkgs/harness-report/tests/retention-attempt.test.ts"
   }
 ]

@@ -87,7 +87,7 @@ describe('resolveRunDeadlineSeconds', () => {
   ])('the CI deadline fires before the %s step timeout', (file, name) => {
     // Otherwise GitHub kills the job first and nobody learns which task hung.
     const workflow = readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows', file),
+      join(import.meta.dirname, '../../../.depot/workflows', file),
       'utf8'
     );
     // Only the step's own keys: stop at the next step (`- …`).

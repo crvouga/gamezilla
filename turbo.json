@@ -2,9 +2,10 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "50%",
-  "globalDependencies": ["tsconfig.base.json"],
+  "globalDependencies": ["tsconfig.base.json", "mise.toml"],
   "globalPassThroughEnv": [
     "GITHUB_*",
+    "DEPOT_*",
     "FEEDBACK_*",
     "POST_DEPLOY_*",
     "VITE_*",
@@ -339,7 +340,12 @@
     },
     "test:spec:5": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -368,15 +374,15 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": [
-        "VITE_API_URL",
-        "VITE_TEST_HOOKS",
-        "VITE_ALLOW_PRODUCTION_API_URL"
-      ],
+      "env": ["VITE_*", "ANALYZE"],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
+        "**/*.mts",
+        "**/*.cjs",
+        "**/*.mjs",
         "**/*.css",
+        "**/*.po",
         "**/*.json",
         "**/*.html",
         "vite.config.mts",
@@ -390,7 +396,14 @@
         "!**/*.test.tsx",
         "tsconfig.json",
         "tsconfig.tc.json",
-        "babel.config.js"
+        "babel.config.js",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/lingui.config.ts",
+        "$TURBO_ROOT$/lingui.solid.config.ts"
       ],
       "outputLogs": "errors-only",
       "outputs": ["dist/**"]
@@ -419,6 +432,7 @@
       "outputLogs": "errors-only"
     },
     "//#ci:audit": {
+      "cache": false,
       "inputs": ["bun.lock", "libs/tools/scripts/ci-audit.ts", "package.json"],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -588,8 +602,6 @@
     "@apps/product#check:offline-shell": {
       "dependsOn": ["@apps/product#build"],
       "inputs": [
-        "dist/**",
-        "!dist/**/*.map",
         "scripts/check-offline-shell.ts",
         "scripts/dist-graph.ts",
         "scripts/sw-policy.ts"
@@ -608,7 +620,7 @@
       "inputs": [
         "scripts/check-actionlint.ts",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/.github/workflows/**"
+        "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -709,7 +721,7 @@
         "$TURBO_ROOT$/turbo.json",
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/biome.json",
-        "$TURBO_ROOT$/.github/workflows/**"
+        "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -748,7 +760,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/.github/workflows/**"
+        "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",

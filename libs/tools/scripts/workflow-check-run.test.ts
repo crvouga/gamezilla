@@ -1,14 +1,41 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty, fc } from '@pkgs/property';
+import {
+  type DepotTarget,
+  type DepotWorkflow,
+  selectWorkflow,
+  startWorkflow,
+  watchWorkflow,
+} from './workflow-depot';
 
-import { CheckRunError, pullRequestCheckRun } from './workflow-check-run';
-
-const BRANCH = 'test/auto-indexing-safety-spec';
 const SHA = '2a2bda778fd0e66af2a74c7e02ecea6fb80c8956';
-const RUN_ID = 36959395506;
-
-function fixture(prs: unknown, runLists: readonly unknown[]) {
+const TARGET: DepotTarget = {
+  repository: 'gamezilla-org/gamezilla',
+  org: 'mk7ncjwh4n',
+  workflow: 'check.yml',
+  branch: 'ci/speed-up-check-workflow',
+  sha: SHA,
+  automatic: false,
+};
+function workflow(status = 'running', id = 'native-check'): DepotWorkflow {
+  return {
+    workflow_id: id,
+    run_id: 'native-run',
+    workflow_path: 'check.yml',
+    name: 'Check',
+    head_sha: SHA,
+    sha: 'merge',
+    status,
+    created_at: '2026-10-02T05:06:11Z',
+  };
+}
+function fixture(
+  lists: readonly (readonly DepotWorkflow[])[],
+  states: readonly string[] = []
+) {
   const commands: (readonly string[])[] = [];
   let listIndex = 0;
+  let statusIndex = 0;
   let sleeps = 0;
   return {
     commands,
@@ -16,78 +43,152 @@ function fixture(prs: unknown, runLists: readonly unknown[]) {
     ports: {
       run(command: readonly string[]): string {
         commands.push(command);
-        if (command[1] === 'pr') return JSON.stringify(prs);
-        if (command[2] === 'rerun') return '';
-        if (command[2] === 'list') {
-          expect(command).toContain('pull_request');
-          return JSON.stringify(runLists[listIndex++] ?? []);
-        }
-        throw new Error(`Unexpected command: ${command.join(' ')}`);
+        if (command[2] === 'workflow')
+          return JSON.stringify(lists[listIndex++] ?? []);
+        if (command[2] === 'status')
+          return JSON.stringify({
+            status: states[statusIndex],
+            workflows: [
+              {
+                workflow_id: 'native-check',
+                status: states[statusIndex++],
+                jobs: [],
+              },
+            ],
+          });
+        return '';
       },
       sleep: async () => {
         sleeps += 1;
       },
+      log() {},
+      onWorkflow() {},
     },
   };
 }
 
-describe('pullRequestCheckRun', () => {
+describe('native Check run ownership', () => {
   // regression: check-manual-cancels-required-pr
-  test('resumes PR #107 cancelled by the manual Check of the same commit', async () => {
-    const f = fixture(
-      [{ headRefOid: SHA }],
-      [[{ databaseId: RUN_ID, headSha: SHA, conclusion: 'cancelled' }]]
-    );
-    expect(await pullRequestCheckRun(BRANCH, SHA, f.ports)).toBe(RUN_ID);
-    expect(f.commands.at(-1)).toEqual(['gh', 'run', 'rerun', String(RUN_ID)]);
-    expect(f.commands.some((command) => command[1] === 'workflow')).toBe(false);
+  test('resumes the cancelled PR verdict without dispatching a competing Check', async () => {
+    const f = fixture([[workflow('cancelled')]]);
+    expect(await startWorkflow(TARGET, f.ports)).toEqual(workflow('cancelled'));
+    expect(f.commands.at(-1)).toEqual([
+      'depot',
+      'ci',
+      'rerun',
+      'native-run',
+      '--workflow',
+      'native-check',
+      '--org',
+      TARGET.org,
+    ]);
+    expect(f.commands.some((command) => command[2] === 'run')).toBe(false);
   });
 
-  test('waits for the pushed commit instead of dispatching a competing run', async () => {
-    const f = fixture(
-      [{ headRefOid: SHA }],
-      [
-        [{ databaseId: 1, headSha: 'old', conclusion: 'success' }],
-        [{ databaseId: RUN_ID, headSha: SHA, conclusion: null }],
-      ]
-    );
-    expect(await pullRequestCheckRun(BRANCH, SHA, f.ports)).toBe(RUN_ID);
+  test('waits for the automatic run of the pushed commit', async () => {
+    const f = fixture([[], [workflow()]]);
+    expect(
+      await startWorkflow({ ...TARGET, automatic: true }, f.ports)
+    ).toEqual(workflow());
     expect(f.sleeps()).toBe(1);
-    expect(f.commands.every((command) => command[2] === 'list')).toBe(true);
+    expect(f.commands.every((command) => command[2] === 'workflow')).toBe(true);
   });
 
-  test.each(['success', 'failure'])(
-    'observes an existing %s verdict without rerunning it',
-    async (conclusion) => {
-      const f = fixture(
-        [{ headRefOid: SHA }],
-        [
-          [
-            { databaseId: RUN_ID, headSha: SHA, conclusion },
-            { databaseId: RUN_ID - 1, headSha: SHA, conclusion: 'cancelled' },
-          ],
-        ]
-      );
-      expect(await pullRequestCheckRun(BRANCH, SHA, f.ports)).toBe(RUN_ID);
-      expect(f.commands).toHaveLength(2);
-    }
-  );
-
-  test.each([{ prs: [] }, { prs: [{ headRefOid: 'other' }] }])(
-    'allows dispatch when no matching open PR exists: %j',
-    async ({ prs }) => {
-      const f = fixture(prs, []);
-      expect(await pullRequestCheckRun(BRANCH, SHA, f.ports)).toBeNull();
+  test.each(['finished', 'failed'])(
+    'observes the existing %s verdict without rerunning it',
+    async (status) => {
+      const f = fixture([[workflow(status)]]);
+      await startWorkflow(TARGET, f.ports);
       expect(f.commands).toHaveLength(1);
     }
   );
 
-  test('reports a missing automatic run without dispatching over the PR', async () => {
-    const f = fixture([{ headRefOid: SHA }], []);
-    await expect(
-      pullRequestCheckRun(BRANCH, SHA, f.ports)
-    ).rejects.toBeInstanceOf(CheckRunError);
-    expect(f.sleeps()).toBe(30);
-    expect(f.commands.every((command) => command[2] === 'list')).toBe(true);
+  test('can execute the branch YAML before native triggers merge', async () => {
+    const manual = { ...workflow(), head_sha: '', sha: SHA };
+    const f = fixture([[], [manual]]);
+    await startWorkflow(TARGET, f.ports);
+    expect(f.commands[1]).toEqual([
+      'depot',
+      'ci',
+      'run',
+      '--org',
+      TARGET.org,
+      '--repo',
+      TARGET.repository,
+      '--workflow',
+      '.depot/workflows/check.yml',
+    ]);
   });
+
+  test('missing automatic evidence fails without competing dispatch', async () => {
+    const f = fixture([]);
+    await expect(
+      startWorkflow({ ...TARGET, automatic: true }, f.ports)
+    ).rejects.toThrow('No PR Check run');
+    expect(f.sleeps()).toBe(30);
+    expect(f.commands.every((command) => command[2] === 'workflow')).toBe(true);
+  });
+
+  test('Deploy dispatches main rather than executing a feature branch locally', async () => {
+    const w = { ...workflow(), workflow_path: 'deploy.yml', name: 'Deploy' };
+    const f = fixture([[], [w]]);
+    await startWorkflow(
+      { ...TARGET, workflow: 'deploy.yml', branch: 'main' },
+      f.ports
+    );
+    expect(f.commands[1]).toEqual([
+      'depot',
+      'ci',
+      'dispatch',
+      '--org',
+      TARGET.org,
+      '--repo',
+      TARGET.repository,
+      '--workflow',
+      'deploy.yml',
+      '--ref',
+      'main',
+    ]);
+  });
+});
+
+// regression: check-duplicate-trigger-runners
+test('selects the latest exact-commit native workflow regardless of list order', () => {
+  assertProperty(
+    'native-workflow-selection',
+    fc.property(
+      fc.array(
+        fc.record({
+          seconds: fc.integer({ min: 0, max: 100000 }),
+          matching: fc.boolean(),
+        }),
+        { minLength: 1 }
+      ),
+      (items) => {
+        const runs = items.map((item, index) => ({
+          ...workflow(),
+          workflow_id: String(index),
+          head_sha: item.matching ? SHA : 'other',
+          created_at: new Date(item.seconds * 1000).toISOString(),
+        }));
+        const selected = selectWorkflow(runs, 'check.yml', SHA);
+        const eligible = items.filter((item) => item.matching);
+        expect(selected === undefined).toBe(eligible.length === 0);
+        if (selected !== undefined)
+          expect(Date.parse(selected.created_at)).toBe(
+            Math.max(...eligible.map((item) => item.seconds * 1000))
+          );
+      }
+    )
+  );
+});
+
+test.each([
+  ['finished', 0],
+  ['failed', 1],
+  ['cancelled', 1],
+] as const)('native %s maps to exit %i', async (status, exit) => {
+  const f = fixture([], ['running', status]);
+  expect(await watchWorkflow(workflow(), TARGET, f.ports)).toBe(exit);
+  expect(f.sleeps()).toBe(1);
 });

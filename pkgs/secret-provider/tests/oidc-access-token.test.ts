@@ -14,6 +14,9 @@ import {
 
 const ENV_KEYS = [
   'GITHUB_ACTIONS',
+  'GITHUB_REPOSITORY',
+  'INFISICAL_OIDC_AUDIENCE',
+  'SECRETS_OIDC_AUDIENCE',
   'ACTIONS_ID_TOKEN_REQUEST_URL',
   'ACTIONS_ID_TOKEN_REQUEST_TOKEN',
   'SECRETS_IDENTITY_ID',
@@ -69,6 +72,11 @@ beforeEach(() => {
     fetch(req) {
       const url = new URL(req.url);
       if (url.pathname === '/github-oidc') {
+        if (
+          url.searchParams.get('audience') !==
+          'https://github.com/gamezilla-org'
+        )
+          return new Response('wrong audience', { status: 400 });
         return Response.json({ value: 'github-jwt' });
       }
       if (url.pathname === '/api/v1/auth/oidc-auth/login') {
@@ -95,10 +103,18 @@ afterEach(() => {
 describe('in GitHub Actions', () => {
   beforeEach(() => {
     process.env['GITHUB_ACTIONS'] = 'true';
+    process.env['GITHUB_REPOSITORY'] = 'gamezilla-org/gamezilla';
     process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] =
       `http://127.0.0.1:${server.port}/github-oidc?x=1`;
     process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'] = 'request-token';
     process.env['SECRETS_IDENTITY_ID'] = 'identity-1';
+  });
+
+  // regression: depot-native-oidc-queryless-url
+  test('requests the repository audience when the native OIDC URL has no query', async () => {
+    process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] =
+      `http://127.0.0.1:${server.port}/github-oidc`;
+    expect(await resolve()).toBe('minted-1');
   });
 
   test('mints a token and publishes it for the CLI and tooling', async () => {
