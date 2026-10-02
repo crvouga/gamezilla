@@ -384,7 +384,6 @@ export class Matchmaker {
       partitionSignature,
       groupSize: resolvedGroupSize,
       maxPairsPerPass: this.maxPairsPerPass,
-      bucketWidth: this.bucketWidth,
       radius: this.radius,
       claimTtlMs: this.claimTtlMs,
       nowMs: this.now(),

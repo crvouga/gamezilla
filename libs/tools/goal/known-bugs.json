@@ -1,5 +1,20 @@
 [
   {
+    "id": "matchmaking-incomplete-greedy-group",
+    "summary": "The literal Bob 1050/range200, Alice 1000/range50, Carol1100/range200, Dave1150/range200 group-of-three input remained waiting because choosing Alice first hid the complete Bob/Carol/Dave group. Search complete compatible groups before moving to a later opportunity.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/complete-group-regression.test.ts"
+  },
+  {
+    "id": "matchmaking-formula-radius-pruned",
+    "summary": "The example rating-indexed queue refused Alice1000 and Bob1199 despite both accepting200 points: global radius50 bucket pruning discarded their legal per-formula range. Storage indexes cannot add another acceptance rule.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/complete-group-regression.test.ts"
+  },
+  {
+    "id": "quint-long-trace-output-buffer",
+    "summary": "A correct 256-trace, 300-step multiplayer model run generated its ITF evidence but failed after rendered stdout exceeded the child-process 1 MiB buffer. Keep full trace evidence in ITF files and suppress redundant console rendering. The literal 1024-step, 1024-character trace fixture pins the output boundary.",
+    "regressionTest": "pkgs/quint/tests/simulate.test.ts"
+  },
+  {
     "id": "room-archive-migration-history",
     "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
     "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
