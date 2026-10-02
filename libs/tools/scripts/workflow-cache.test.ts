@@ -11,7 +11,7 @@ test('Check enforces read/write after secrets injection', () => {
     'utf8'
   );
   expect(workflow).toContain(
-    'secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw bun run'
+    'secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY=12 bun run'
   );
 });
 
