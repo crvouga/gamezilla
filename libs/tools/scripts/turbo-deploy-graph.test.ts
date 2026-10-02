@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -265,11 +266,29 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps).toContain('@libs/tools#install:cli');
   });
 
-  test('one application deployment follows migration and all release checks', () => {
+  // regression: consolidated-deploy-check-aggregator — a package dependency
+  // on //#check bypassed the runner's flattening and scheduled missing root
+  // lint/test tasks, so even the deployment dry run failed.
+  test('the retirement dependency chain is a runnable Turbo graph', () => {
+    const result = spawnSync(
+      join(REPO_ROOT, 'node_modules/.bin/turbo'),
+      [
+        'run',
+        '@libs/infra#retire:workers',
+        '--dry=json',
+        '--cache=local:r',
+        '--framework-inference=false',
+      ],
+      { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.status, result.stderr).toBe(0);
+  });
+
+  test('one application deployment follows migration and the API check', () => {
     const tasks = loadTasks();
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
       '@libs/runtime#migrate',
-      '//#check',
       '@apps/server#check:api',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');

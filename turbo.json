@@ -675,11 +675,7 @@
     },
     "@apps/product#deploy": {
       "cache": false,
-      "dependsOn": [
-        "@libs/runtime#migrate",
-        "//#check",
-        "@apps/server#check:api"
-      ]
+      "dependsOn": ["@libs/runtime#migrate", "@apps/server#check:api"]
     },
     "@libs/infra#apply:edge": {
       "cache": false,

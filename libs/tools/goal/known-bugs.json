@@ -1,5 +1,10 @@
 [
   {
+    "id": "consolidated-deploy-check-aggregator",
+    "summary": "The consolidated application deployment depended directly on the root Check aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Check in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
     "id": "db-framework-contract-spec-discovery",
     "summary": "Technical database protocol fixtures were registered as product specs without implementation bindings, failing spec, conformance and offline model shape gates. Preserve unbound reference verification in package tests and document unimplemented adapter obligations outside product specs; the separately bound indexing maintenance specifications remain registered.",
     "regressionTest": "libs/tools/scripts/spec-packages.test.ts"
