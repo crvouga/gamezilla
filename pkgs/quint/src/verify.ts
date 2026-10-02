@@ -43,6 +43,8 @@ export type VerifyOptions = {
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */
   readonly timeoutMs: number;
+  /** Opt into array-encoded maps for models supported by that encoding. */
+  readonly encoding?: 'fun-arrays';
 };
 
 export type VerifyResult =
@@ -62,18 +64,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  // Encode maps with SMT arrays and check each invariant once per state after
-  // translating all transitions. The bound and invariant obligations stay the same.
-  const configPath = join(options.outDir, 'apalache-config.json');
-  writeFileSync(
-    configPath,
-    JSON.stringify({
-      checker: {
-        'smt-encoding': { type: 'fun-arrays' },
-        tuning: { 'search.invariant.mode': 'after' },
-      },
-    })
-  );
+  const configPath = encodingConfig(options);
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
@@ -109,7 +100,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
 function verifyArgs(
   options: VerifyOptions,
   port: number,
-  configPath: string
+  configPath: string | null
 ): string[] {
   return [
     QUINT_CLI,
@@ -121,13 +112,29 @@ function verifyArgs(
     String(options.maxSteps),
     '--apalache-version',
     APALACHE_VERSION,
-    '--apalache-config',
-    configPath,
+    ...(configPath === null ? [] : ['--apalache-config', configPath]),
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
     '--invariants',
     ...options.invariants,
   ];
+}
+
+function encodingConfig(options: VerifyOptions): string | null {
+  if (options.encoding === undefined) return null;
+  // The alternative map encoding is unsuitable for some higher-order models.
+  // Callers opt in; the bound and invariant obligations stay the same.
+  const path = join(options.outDir, 'apalache-config.json');
+  writeFileSync(
+    path,
+    JSON.stringify({
+      checker: {
+        'smt-encoding': { type: options.encoding },
+        tuning: { 'search.invariant.mode': 'after' },
+      },
+    })
+  );
+  return path;
 }
 
 type QuintRun = {

@@ -9,9 +9,10 @@ obligation a run decides is recorded as evidence (`@pkgs/conformance`). Product 
 ([`specs/README.md`](../../specs/README.md));
 this package knows nothing about the product.
 
-Verification uses Apalache's `fun-arrays` map encoding and checks invariants
-after translating each state's full transition choice. This reduces repeated
-solver work without changing the explored bound or the invariant obligations.
+Verification may opt into `encoding: 'fun-arrays'` for models supported by
+Apalache's array map encoding. It checks invariants after translating each
+state's full transition choice to reduce solver work, preserving the bound and
+invariant obligations. Other models retain Apalache's default settings.
 
 | Module | What it does |
 | --- | --- |

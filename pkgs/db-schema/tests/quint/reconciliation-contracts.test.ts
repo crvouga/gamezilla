@@ -108,6 +108,7 @@ for (const name of MODELS) {
           maxSteps: 10,
           outDir: join(reportDir, 'verify'),
           timeoutMs: MODEL_TIMEOUT_MS,
+          encoding: 'fun-arrays',
         });
         expect(result).toMatchObject({ ok: true });
       },
