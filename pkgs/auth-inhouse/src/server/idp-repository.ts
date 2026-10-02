@@ -98,12 +98,17 @@ export class IdpRepository {
     `);
   }
 
-  async createSession(userId: string): Promise<{
+  async createSession(
+    userId: string,
+    lifetimeMs: number = AUTH_SESSION_TTL_MS
+  ): Promise<{
     readonly token: string;
     readonly expiresAtMs: number;
   }> {
+    if (!Number.isFinite(lifetimeMs) || lifetimeMs <= 0)
+      throw new Error('Session lifetime must be positive');
     const token = this.createId();
-    const expiresAtMs = this.clock.now() + AUTH_SESSION_TTL_MS;
+    const expiresAtMs = this.clock.now() + lifetimeMs;
     const now = this.nowIso();
     const tokenHash = hashAuthSecret(this.secret, token);
     await this.db.run(sql`

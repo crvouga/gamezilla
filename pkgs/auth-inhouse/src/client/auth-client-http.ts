@@ -24,7 +24,10 @@ export function toVerified(body: SessionBody): VerifiedSession | null {
     externalUserId: body.user.id,
     accountId: null,
     email: body.user.email ?? null,
-    authenticatedAt: typeof body.authenticatedAt === 'string' ? new Date(body.authenticatedAt) : null,
+    authenticatedAt:
+      typeof body.authenticatedAt === 'string'
+        ? new Date(body.authenticatedAt)
+        : null,
     expiresAt:
       typeof body.expiresAt === 'string' ? new Date(body.expiresAt) : null,
   };

@@ -129,7 +129,9 @@ export function composeHarnessSlices(
   const seeds = ordered.flatMap((s) =>
     s.seedServer === undefined ? [] : [s.seedServer]
   );
-  const app = composeFeatures(ordered.flatMap((s) => s.feature === undefined ? [] : [s.feature]));
+  const app = composeFeatures(
+    ordered.flatMap((s) => (s.feature === undefined ? [] : [s.feature]))
+  );
   return {
     name,
     app,
@@ -137,7 +139,9 @@ export function composeHarnessSlices(
       ordered.flatMap((s) => (s.client === undefined ? [] : [s.client]))
     ),
     servers: (deps) =>
-      ordered.flatMap((s) => (s.server === undefined ? [] : [s.server({ ...deps, app })])),
+      ordered.flatMap((s) =>
+        s.server === undefined ? [] : [s.server({ ...deps, app })]
+      ),
     ...(roomNode === undefined ? {} : { roomNode }),
     ...(billingOffer === undefined ? {} : { billingOffer }),
     seedServer: async (sqlClient) => {

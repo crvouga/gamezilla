@@ -80,9 +80,12 @@ export async function respondWithSession(
   if (user === null) {
     return c.json({ error: 'user_missing' }, 400);
   }
-  const session = await r.createSession(userId);
+  const session = await r.createSession(userId, deps.sessionLifetimeMs);
   c.header(AUTH_SET_TOKEN_HEADER, session.token);
-  return c.json(sessionJson(user, session.token, session.expiresAtMs, deps.clock.now()), 200);
+  return c.json(
+    sessionJson(user, session.token, session.expiresAtMs, deps.clock.now()),
+    200
+  );
 }
 
 export async function handleSessionExchange(

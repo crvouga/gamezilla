@@ -102,7 +102,9 @@ function clientEvents(deps: HarnessClientEnvDeps, id: string) {
         bus: deps.pubSubBus,
         logger: pubsubLogger,
       }),
-      reachable: () => deps.net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),
+      reachable: () =>
+        deps.net.isReachable(id, HARNESS_PRIMARY_SERVER_ID) &&
+        deps.net.isReachable(`${id}:events`, HARNESS_PRIMARY_SERVER_ID),
       timers: deps.timers,
     });
   let liveEvents: ReturnType<typeof createInMemoryPubSub> = openEvents();
@@ -141,6 +143,7 @@ export function makeHarnessClientEnv(
     onAuthSuccess: () => setPendingSignupUsername(id),
   });
   const events = clientEvents(deps, id);
+  let authClient: ReturnType<typeof createInhouseAuthClient> | undefined;
   const env: ClientEnv = {
     clock: session.ports.clock,
     timers,
@@ -178,7 +181,7 @@ export function makeHarnessClientEnv(
     serverUrl: HARNESS_SERVER_URL,
     // The in-house IdP on the API origin, its window in the actor's browser.
     createAuthClient: () =>
-      createInhouseAuthClient({
+      (authClient ??= createInhouseAuthClient({
         baseURL: HARNESS_SERVER_URL,
         clock: session.ports.clock,
         timers,
@@ -186,7 +189,7 @@ export function makeHarnessClientEnv(
         storage: createNamespacedAuthClientStorage(ns),
         openAuthSession: browser.openAuthSession,
         callbackUrl: `${HARNESS_SERVER_URL}/sso-callback`,
-      }),
+      })),
     openExternalUrl: browser.openExternalUrl,
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 900,

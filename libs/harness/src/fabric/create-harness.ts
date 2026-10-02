@@ -43,7 +43,10 @@ import {
 } from './billing';
 import type { HarnessBrowser } from './browser';
 import { makeHarnessClientEnv } from './client-env';
-import { bumpHarnessClientEpoch } from './client-namespace';
+import {
+  bumpHarnessClientEpoch,
+  harnessClientNamespace,
+} from './client-namespace';
 import {
   type AppleClientKeys,
   addHarnessIdpAccounts,
@@ -177,7 +180,8 @@ type SharedServerServices = {
 
 function buildSharedServerServices(
   serverSql: HarnessSql,
-  appleKeys: AppleClientKeys
+  appleKeys: AppleClientKeys,
+  auth: ServerEnv['auth']
 ): SharedServerServices {
   const secrets = createRecordSecretStore({
     DATABASE_URL: HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL,
@@ -191,7 +195,7 @@ function buildSharedServerServices(
     llm: new InMemoryLlmProvider(),
     secrets,
     // The simulated deployment signs in through the in-house IdP.
-    auth: INHOUSE_AUTH_PROVIDER,
+    auth,
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
 }
@@ -321,7 +325,11 @@ async function bootHarnessKernel(
     toApi: () => loadBalancer.fetchFrom(HARNESS_APPLE_IDP_ID),
   });
   const serverSql = await openServerSql(session, opts);
-  const shared = buildSharedServerServices(serverSql, appleKeys);
+  const shared = buildSharedServerServices(
+    serverSql,
+    appleKeys,
+    composition.authProvider ?? INHOUSE_AUTH_PROVIDER
+  );
   const billing = await openHarnessBillingProviders({
     offer: composition.billingOffer,
     clock: session.ports.clock,
@@ -414,13 +422,14 @@ function createClientEnvs(
 ): (id: string) => Promise<ClientEnv> {
   const clientEnvs = new Map<string, ClientEnv>();
   return (id) => {
-    const cached = clientEnvs.get(id);
+    const namespace = harnessClientNamespace(id);
+    const cached = clientEnvs.get(namespace);
     if (cached !== undefined) return Promise.resolve(cached);
     // The person behind this actor holds accounts at both providers.
     addHarnessIdpAccounts(kernel.idps, id);
     const built = makeHarnessClientEnv(kernel, { id, clientSql });
     browsers.set(id, built.browser);
-    clientEnvs.set(id, built.env);
+    clientEnvs.set(namespace, built.env);
     return Promise.resolve(built.env);
   };
 }
