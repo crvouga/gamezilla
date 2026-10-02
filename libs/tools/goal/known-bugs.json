@@ -1253,5 +1253,15 @@
     "id": "depot-aws-oidc-unapplied-trust",
     "summary": "Depot Deploy workflow ng4sv2f3d0 failed at apply:foundation because the live AWS CI roles still trusted only GitHub. The Depot OIDC provider existed outside bootstrap state, so a normal apply would attempt to recreate it before updating trust. Adopt the existing provider through global_imports and apply the declared, main-restricted Depot deploy trust and branch-readable health trust.",
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
+  },
+  {
+    "id": "health-solid-preload-order",
+    "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun’s server runtime, while local spec suites retain their Solid preloads.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "dev-client-stale-api-config",
+    "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
+    "regressionTest": "apps/product/tests/wrangler-config.test.ts"
   }
 ]

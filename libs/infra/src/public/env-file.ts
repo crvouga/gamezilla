@@ -178,6 +178,8 @@ export function authRelayTargets(
  */
 export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
   return {
+    API_URL: envOrigins(env).api,
+    EMQX_WSS_URL: `wss://${env.hosts.broker}/mqtt`,
     WEB_CLIENT_ORIGIN: envOrigins(env).web,
     OAUTH_CALLBACK_ORIGIN: authRelayOrigin(),
     OAUTH_STATE_TAG: env.env,

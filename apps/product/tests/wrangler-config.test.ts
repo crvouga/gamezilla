@@ -23,6 +23,7 @@ import {
   type WranglerConfig,
   workerName,
 } from '@libs/infra/public/wrangler';
+import { getApiWorkerSecrets } from '@libs/secrets/shared/secrets/secrets';
 import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/server-app/config/auth-provider';
 import {
   BILLING_PROVIDER_BINDING,
@@ -30,12 +31,42 @@ import {
   readDeploymentProtection,
 } from '@libs/server-app/config/env';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse/server';
+import { workerSecretPayload } from '../scripts/worker-secrets';
 
 const base = Bun.TOML.parse(
   readFileSync(join(import.meta.dirname, '../wrangler.toml'), 'utf8')
 ) as WranglerConfig;
 
 describe('wrangler.toml', () => {
+  // regression: dev-client-stale-api-config
+  test('copied endpoint settings cannot override the environment endpoints', () => {
+    const copied = Object.fromEntries(
+      getApiWorkerSecrets().map((entry) => [entry.name, 'fixture-value'])
+    );
+    copied['API_URL'] = 'https://dev-api.gamezilla.app';
+    copied['EMQX_WSS_URL'] = 'wss://obsolete-broker.gamezilla.app/mqtt';
+    const stale = {
+      ...base,
+      vars: {
+        API_URL: copied['API_URL'],
+        EMQX_WSS_URL: copied['EMQX_WSS_URL'],
+        WEB_CLIENT_ORIGIN: 'https://obsolete-client.gamezilla.app',
+      },
+    };
+    for (const env of Object.values(ENV_FILES)) {
+      const secrets = workerSecretPayload(env, copied);
+      const vars = renderWranglerConfig(stale, env)['vars'] as Record<
+        string,
+        string
+      >;
+      expect(vars['API_URL']).toBe(envOrigins(env).api);
+      expect(vars['EMQX_WSS_URL']).toBe(`wss://${env.hosts.broker}/mqtt`);
+      expect(vars['WEB_CLIENT_ORIGIN']).toBe(envOrigins(env).web);
+      expect(secrets['API_URL']).toBeUndefined();
+      expect(secrets['EMQX_WSS_URL']).toBeUndefined();
+      expect(secrets['SECRETS_ENV']).toBe(env.env);
+    }
+  });
   // regression: deploy-dev-duplicate-room-namespaces
   test('renders the ordered retention and transfer steps for the pinned dev conflict', () => {
     const dev = ENV_FILES['dev'];
