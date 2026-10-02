@@ -6,11 +6,13 @@ export const deletionReceipts = defineQuery({
   name: 'deletionReceipts',
   allowAnon: true,
   async run(ctx) {
-    return { profile_account_privacy: await ctx.db.query(sql`
-      SELECT p.id, p.owner_id, p.created_at, p.updated_at, p.deleted_at, p.deletion_at, p.erase_by, p.erased_at, p.export_status, p.cancellation_status
-      FROM profile_account_privacy p
+    return {
+      profile_deletion_receipts: await ctx.db.query(sql`
+      SELECT p.*
+      FROM profile_deletion_receipts p
       JOIN auth_account_devices d ON d.user_id = p.owner_id
-      WHERE d.device_id = ${ctx.env.deviceId} AND p.deletion_at IS NOT NULL
-    `) };
+      WHERE d.device_id = ${ctx.env.deviceId}
+    `),
+    };
   },
 });

@@ -23,6 +23,7 @@
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

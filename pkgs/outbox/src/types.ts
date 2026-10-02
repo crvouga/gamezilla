@@ -2,6 +2,7 @@ import type { Clock } from '@pkgs/clock';
 import type { Message, MessageTag } from '@pkgs/message';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 
 /** Minimal mutation-shaped context for isomorphic Outbox.send. */
 export type OutboxSendCtx = {
@@ -16,6 +17,7 @@ export type OutboxConsumerCtx = {
   readonly tx: SqlTx;
   readonly clock: Clock;
   readonly createId: CreateId;
+  readonly objectStore?: ObjectStore;
 };
 
 export type OutboxRetryPolicy = {

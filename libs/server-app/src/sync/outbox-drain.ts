@@ -4,7 +4,9 @@ import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { drainOutbox, type OutboxConsumerRegistry } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { notifyChannels } from '@pkgs/sync-engine/server';
+import type { PubSub } from '@pkgs/pubsub/interface';
+import type { ObjectStore } from '@pkgs/object-store/interface';
+import { notifyChannels, wrapMutationDb } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 
@@ -36,36 +38,56 @@ export async function drainAndNotifyOutbox(args: {
   readonly db: SqlClient;
   readonly clock: Clock;
   readonly createId: CreateId;
+  readonly pubsub?: PubSub | null;
+  readonly objectStore: ObjectStore;
 }): Promise<number> {
+  const captures: ReturnType<typeof wrapMutationDb>[] = [];
   const result = await drainOutbox({
     db: args.db,
     clock: args.clock,
     createId: args.createId,
     registry: getOutboxConsumerRegistry(),
+    objectStore: args.objectStore,
+    wrapConsumerTx: (tx) => {
+      const wrapped = wrapMutationDb(tx, {
+        actorId: '',
+        deviceId: '',
+        accountId: null,
+        isAnon: false,
+        now: () => new Date(args.clock.now()),
+        createId: args.createId,
+      });
+      captures.push(wrapped);
+      return wrapped.tx;
+    },
   });
   if (result.notifyUserIds.length === 0) return result.processed;
 
   const store = apiRequestAsyncLocalStorage.getStore();
-  if (store === undefined) {
-    return result.processed;
-  }
   const topics = result.notifyUserIds
     .filter((id) => id.length > 0)
     .map((id) => userTopic(id));
   if (topics.length === 0) return result.processed;
-  const pubsub = await new HttpPubSubFromSecretStore(store.secretStore, () =>
-    store.clock.now()
-  ).get();
-  if (pubsub === undefined) {
+  const pubsub =
+    args.pubsub ??
+    (store === undefined
+      ? undefined
+      : await new HttpPubSubFromSecretStore(
+          store.secretStore,
+          args.clock.now
+        ).get());
+  if (pubsub == null) {
     return result.processed;
   }
   await notifyChannels({
     pubsub,
-    sql: store.sqlClient,
+    sql: args.db,
     topics,
-    tables: ['notifications'],
+    tables: [
+      ...new Set(captures.flatMap((capture) => capture.getCapture().tables)),
+    ].sort(),
     label: 'outbox-drain',
-    now: () => store.clock.now(),
+    now: args.clock.now,
   });
   return result.processed;
 }

@@ -13,6 +13,7 @@ import { ATTR, activeSpan, withSpan } from '@pkgs/observability/core';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { MiddlewareHandler } from 'hono';
 import type { DeploymentProtection } from '../config/env';
 import { ApiSecretName } from '../config/secret-names';
@@ -52,6 +53,7 @@ async function ensureNonProductionDatabasePolicy(
 }
 
 export type RequestDbMiddlewareOptions = {
+  readonly objectStore: ObjectStore;
   readonly authServer: AuthServerPort;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
@@ -132,6 +134,7 @@ async function attachRequestDatabase(
     createId,
   });
   const store = {
+    objectStore: options.objectStore,
     sqlClient,
     sessionAuth,
     kv,

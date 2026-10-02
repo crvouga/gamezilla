@@ -20,4 +20,18 @@ export const profileAccountPrivacy = defineTable({
   uniqueIndexes: ['owner_id'],
 });
 
-export const ACCOUNT_PRIVACY_TABLES = [profileAccountPrivacy] as const;
+export const profileDeletionReceipts = defineTable({
+  domain: 'profile',
+  name: 'profile_deletion_receipts',
+  columns: {
+    owner_id: 'text',
+    confirmed_at: 'timestamp',
+    erase_by: 'timestamp',
+  },
+  uniqueIndexes: ['owner_id'],
+});
+
+export const ACCOUNT_PRIVACY_TABLES = [
+  profileAccountPrivacy,
+  profileDeletionReceipts,
+] as const;

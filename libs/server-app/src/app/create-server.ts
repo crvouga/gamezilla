@@ -370,6 +370,7 @@ function createServerRouter(args: {
     .use(
       '*',
       createRequestDbMiddleware(secrets, {
+        objectStore: env.blob,
         authServer: auth.server,
         apiUrlOverride: env.serverUrl,
         protection,
@@ -400,6 +401,7 @@ function createServerRouter(args: {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
       await drainAndNotifyOutbox({
+        objectStore: env.blob,
         db: store.sqlClient,
         clock: store.clock,
         createId: store.createId,
