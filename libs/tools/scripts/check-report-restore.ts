@@ -7,7 +7,10 @@ import type { CheckPlan } from './check-shards';
 import { artifactUrl } from './turbo-preflight';
 
 export async function restoreReportOutputs(
-  ids: readonly string[], plan: CheckPlan, root: string, env: NodeJS.ProcessEnv
+  ids: readonly string[],
+  plan: CheckPlan,
+  root: string,
+  env: NodeJS.ProcessEnv
 ): Promise<void> {
   let next = 0;
   async function worker(): Promise<void> {
@@ -15,15 +18,35 @@ export async function restoreReportOutputs(
       const id = ids[index]!;
       const task = plan.tasks.find((task) => task.taskId === id)!;
       const report = reportTask(id)!;
-      if (existsSync(join(root, report.packageDir, '.cache/harness-report', report.bucket, REPORT_COMPLETION))) continue;
-      const response = await fetch(artifactUrl(env['TURBO_API']!, env['TURBO_TEAM']!, task.hash), {
-        headers: { Authorization: `Bearer ${env['TURBO_TOKEN']!}` },
-        signal: AbortSignal.timeout(30_000),
+      if (
+        existsSync(
+          join(
+            root,
+            report.packageDir,
+            '.cache/harness-report',
+            report.bucket,
+            REPORT_COMPLETION
+          )
+        )
+      )
+        continue;
+      const response = await fetch(
+        artifactUrl(env['TURBO_API']!, env['TURBO_TEAM']!, task.hash),
+        {
+          headers: { Authorization: `Bearer ${env['TURBO_TOKEN']!}` },
+          signal: AbortSignal.timeout(30_000),
+        }
+      );
+      if (!response.ok)
+        throw new Error(`Report cache restore ${id}: HTTP ${response.status}`);
+      const tar = Bun.zstdDecompressSync(
+        new Uint8Array(await response.arrayBuffer())
+      );
+      const restored = spawnSync('tar', ['-xf', '-', '-C', root], {
+        input: tar,
       });
-      if (!response.ok) throw new Error(`Report cache restore ${id}: HTTP ${response.status}`);
-      const tar = Bun.zstdDecompressSync(new Uint8Array(await response.arrayBuffer()));
-      const restored = spawnSync('tar', ['-xf', '-', '-C', root], { input: tar });
-      if (restored.status !== 0) throw new Error(`Report cache extraction failed: ${id}`);
+      if (restored.status !== 0)
+        throw new Error(`Report cache extraction failed: ${id}`);
     }
   }
   await Promise.all(Array.from({ length: Math.min(16, ids.length) }, worker));

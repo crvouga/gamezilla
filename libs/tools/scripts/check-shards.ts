@@ -45,19 +45,26 @@ function groups(tasks: readonly CheckTask[]): CheckTask[][] {
 }
 
 /** LPT over measured seconds; ties use task ID, then the lowest shard index. */
-export function balanceShards(tasks: readonly CheckTask[], count: number): CheckPlan {
+export function balanceShards(
+  tasks: readonly CheckTask[],
+  count: number
+): CheckPlan {
   if (!Number.isSafeInteger(count) || count < 1 || count > 64)
     throw new Error('CHECK_SHARDS must be an integer in 1..64');
   const bins = Array.from({ length: count }, (_, index) => ({
-    index, seconds: 0, tasks: [] as CheckTask[],
+    index,
+    seconds: 0,
+    tasks: [] as CheckTask[],
   }));
   const cost = (group: readonly CheckTask[]) =>
     group.reduce((sum, task) => sum + task.seconds, 0);
-  const ordered = groups([...tasks].sort((a, b) => compare(a.taskId, b.taskId)))
-    .sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
+  const ordered = groups(
+    [...tasks].sort((a, b) => compare(a.taskId, b.taskId))
+  ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
   for (const group of ordered) {
     const bin = bins.reduce((best, candidate) =>
-      candidate.seconds < best.seconds ? candidate : best);
+      candidate.seconds < best.seconds ? candidate : best
+    );
     bin.tasks.push(...group);
     bin.seconds += cost(group);
   }
@@ -68,9 +75,11 @@ export function balanceShards(tasks: readonly CheckTask[], count: number): Check
 
 /** Exact set equality and dependency ownership, never a hard-coded task count. */
 export function validatePlan(plan: CheckPlan): void {
-  if (plan.version !== 1 || plan.shards.length < 1) throw new Error('Invalid Check plan');
+  if (plan.version !== 1 || plan.shards.length < 1)
+    throw new Error('Invalid Check plan');
   const expected = new Map(plan.tasks.map((task) => [task.taskId, task.hash]));
-  if (expected.size !== plan.tasks.length) throw new Error('Duplicate discovered task');
+  if (expected.size !== plan.tasks.length)
+    throw new Error('Duplicate discovered task');
   const owners = new Map<string, number>();
   for (const [index, shard] of plan.shards.entries()) {
     if (shard.index !== index) throw new Error('Invalid shard index');
@@ -95,12 +104,20 @@ export function imbalance(values: readonly number[]): number {
 
 export function validateShardResult(
   shard: CheckShard,
-  results: readonly { readonly taskId: string; readonly hash: string; readonly passed: boolean }[]
+  results: readonly {
+    readonly taskId: string;
+    readonly hash: string;
+    readonly passed: boolean;
+  }[]
 ): void {
   const expected = new Map(shard.tasks.map((task) => [task.taskId, task.hash]));
   const seen = new Set<string>();
   for (const task of results) {
-    if (seen.has(task.taskId) || expected.get(task.taskId) !== task.hash || !task.passed)
+    if (
+      seen.has(task.taskId) ||
+      expected.get(task.taskId) !== task.hash ||
+      !task.passed
+    )
       throw new Error(`Failed, duplicated or changed task: ${task.taskId}`);
     seen.add(task.taskId);
   }

@@ -2,10 +2,7 @@
   "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "100%",
-  "globalDependencies": [
-    "tsconfig.base.json",
-    "mise.toml"
-  ],
+  "globalDependencies": ["tsconfig.base.json", "mise.toml"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "DEPOT_*",
@@ -60,16 +57,11 @@
     },
     "setup": {
       "cache": false,
-      "inputs": [
-        "scripts/setup-*.ts"
-      ],
+      "inputs": ["scripts/setup-*.ts"],
       "outputs": []
     },
     "dev": {
-      "dependsOn": [
-        "kill",
-        "install:deps"
-      ],
+      "dependsOn": ["kill", "install:deps"],
       "persistent": true,
       "cache": false
     },
@@ -77,9 +69,7 @@
       "cache": false
     },
     "src": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -91,9 +81,7 @@
       "outputs": []
     },
     "tc": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -213,9 +201,7 @@
       ]
     },
     "lint": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/biome.json",
@@ -242,44 +228,25 @@
       "outputs": []
     },
     "test": {
-      "dependsOn": [
-        "^src"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.md"
-      ],
-      "env": [
-        "HARNESS_FIDELITY",
-        "PBT_NUM_RUNS",
-        "PBT_RANDOM",
-        "FC_SEED"
-      ],
+      "dependsOn": ["^src"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
     "test:contract": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": [
-        "HARNESS_FIDELITY",
-        "PBT_NUM_RUNS",
-        "PBT_RANDOM",
-        "FC_SEED"
-      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
     "test:spec:0": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -295,14 +262,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-0/**"
-      ]
+      "outputs": [".cache/harness-report/part-0/**"]
     },
     "test:spec:1": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -318,14 +281,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-1/**"
-      ]
+      "outputs": [".cache/harness-report/part-1/**"]
     },
     "test:spec:2": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -341,14 +300,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-2/**"
-      ]
+      "outputs": [".cache/harness-report/part-2/**"]
     },
     "test:spec:3": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -364,14 +319,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-3/**"
-      ]
+      "outputs": [".cache/harness-report/part-3/**"]
     },
     "test:spec:4": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -387,14 +338,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-4/**"
-      ]
+      "outputs": [".cache/harness-report/part-4/**"]
     },
     "test:spec:5": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -410,9 +357,7 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-5/**"
-      ]
+      "outputs": [".cache/harness-report/part-5/**"]
     },
     "check:models": {
       "inputs": [
@@ -426,19 +371,12 @@
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts"
       ],
-      "outputs": [
-        ".cache/harness-report/models/**"
-      ],
+      "outputs": [".cache/harness-report/models/**"],
       "outputLogs": "errors-only"
     },
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "env": [
-        "VITE_*",
-        "ANALYZE"
-      ],
+      "dependsOn": ["^build"],
+      "env": ["VITE_*", "ANALYZE"],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
@@ -470,30 +408,16 @@
         "$TURBO_ROOT$/lingui.solid.config.ts"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        "dist/**"
-      ]
+      "outputs": ["dist/**"]
     },
     "preview": {
-      "dependsOn": [
-        "kill",
-        "setup",
-        "^build",
-        "build"
-      ],
+      "dependsOn": ["kill", "setup", "^build", "build"],
       "persistent": true,
       "cache": false
     },
     "//#lint:root": {
-      "dependsOn": [
-        "@libs/tools#src"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!apps/**",
-        "!libs/**",
-        "!pkgs/**"
-      ],
+      "dependsOn": ["@libs/tools#src"],
+      "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -511,11 +435,7 @@
     },
     "//#ci:audit": {
       "cache": false,
-      "inputs": [
-        "bun.lock",
-        "libs/tools/scripts/ci-audit.ts",
-        "package.json"
-      ],
+      "inputs": ["bun.lock", "libs/tools/scripts/ci-audit.ts", "package.json"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -572,24 +492,13 @@
       "outputLogs": "errors-only"
     },
     "//#ci:goals": {
-      "dependsOn": [
-        "@libs/tools#src"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!apps/**",
-        "!libs/**",
-        "!pkgs/**"
-      ],
+      "dependsOn": ["@libs/tools#src"],
+      "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
     "//#ci:specs": {
-      "dependsOn": [
-        "@libs/tools#src",
-        "@pkgs/gherkin#src",
-        "@pkgs/quint#src"
-      ],
+      "dependsOn": ["@libs/tools#src", "@pkgs/gherkin#src", "@pkgs/quint#src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!apps/**",
@@ -636,10 +545,7 @@
       "outputLogs": "errors-only"
     },
     "//#ci:conformance": {
-      "dependsOn": [
-        "@libs/tools#src",
-        "@pkgs/conformance#src"
-      ],
+      "dependsOn": ["@libs/tools#src", "@pkgs/conformance#src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!apps/**",
@@ -679,20 +585,13 @@
       "outputLogs": "errors-only"
     },
     "//#ci:spec-ownership": {
-      "env": [
-        "PR_BASE",
-        "PR_HEAD"
-      ],
-      "inputs": [
-        "libs/tools/scripts/check-spec-ownership.ts"
-      ],
+      "env": ["PR_BASE", "PR_HEAD"],
+      "inputs": ["libs/tools/scripts/check-spec-ownership.ts"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
     "check:worker-bundle": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -703,9 +602,7 @@
       "outputs": []
     },
     "@apps/product#check:offline-shell": {
-      "dependsOn": [
-        "@apps/product#build"
-      ],
+      "dependsOn": ["@apps/product#build"],
       "inputs": [
         "scripts/check-offline-shell.ts",
         "scripts/dist-graph.ts",
@@ -715,16 +612,9 @@
       "outputLogs": "errors-only"
     },
     "@libs/runtime#check:schema-evolution": {
-      "dependsOn": [
-        "^src"
-      ],
-      "env": [
-        "PR_BASE"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.md"
-      ],
+      "dependsOn": ["^src"],
+      "env": ["PR_BASE"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -738,9 +628,7 @@
       "outputLogs": "errors-only"
     },
     "@libs/tools#check:secrets": {
-      "env": [
-        "CHECK_SECRETS_RANGE"
-      ],
+      "env": ["CHECK_SECRETS_RANGE"],
       "inputs": [
         "scripts/check-secrets.ts",
         "scripts/secrets-scan-range.ts",
@@ -819,41 +707,27 @@
     },
     "@libs/infra#apply:foundation": {
       "cache": false,
-      "dependsOn": [
-        "@libs/tools#install:cli"
-      ]
+      "dependsOn": ["@libs/tools#install:cli"]
     },
     "@libs/runtime#migrate": {
       "cache": false,
-      "dependsOn": [
-        "@libs/infra#apply:foundation"
-      ]
+      "dependsOn": ["@libs/infra#apply:foundation"]
     },
     "@apps/product#deploy": {
       "cache": false,
-      "dependsOn": [
-        "@libs/runtime#migrate",
-        "@apps/server#check:api"
-      ]
+      "dependsOn": ["@libs/runtime#migrate", "@apps/server#check:api"]
     },
     "@libs/infra#apply:edge": {
       "cache": false,
-      "dependsOn": [
-        "@apps/product#deploy"
-      ]
+      "dependsOn": ["@apps/product#deploy"]
     },
     "@libs/billing#billing:sync": {
       "cache": false,
-      "dependsOn": [
-        "@libs/infra#apply:edge"
-      ]
+      "dependsOn": ["@libs/infra#apply:edge"]
     },
     "health": {
       "cache": false,
-      "dependsOn": [
-        "@libs/infra#apply:edge",
-        "@libs/billing#billing:sync"
-      ],
+      "dependsOn": ["@libs/infra#apply:edge", "@libs/billing#billing:sync"],
       "outputLogs": "errors-only"
     },
     "//#deploy": {
@@ -868,9 +742,7 @@
       "outputLogs": "errors-only"
     },
     "@libs/tools#test": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -883,9 +755,7 @@
       "outputs": []
     },
     "@libs/infra#lint": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -913,35 +783,23 @@
       "outputs": []
     },
     "@libs/infra#test": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/.depot/workflows/**"
       ],
-      "env": [
-        "HARNESS_FIDELITY",
-        "PBT_NUM_RUNS",
-        "PBT_RANDOM",
-        "FC_SEED"
-      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
     "@libs/infra#retire:workers": {
       "cache": false,
-      "dependsOn": [
-        "@apps/product#health"
-      ]
+      "dependsOn": ["@apps/product#health"]
     },
     "@apps/product#check:worker-bundle": {
-      "dependsOn": [
-        "^src",
-        "build"
-      ],
+      "dependsOn": ["^src", "build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -952,9 +810,7 @@
       "outputs": []
     },
     "test:spec:6": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -970,14 +826,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-6/**"
-      ]
+      "outputs": [".cache/harness-report/part-6/**"]
     },
     "test:spec:7": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -993,14 +845,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-7/**"
-      ]
+      "outputs": [".cache/harness-report/part-7/**"]
     },
     "test:spec:8": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1016,14 +864,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-8/**"
-      ]
+      "outputs": [".cache/harness-report/part-8/**"]
     },
     "test:spec:9": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1039,14 +883,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-9/**"
-      ]
+      "outputs": [".cache/harness-report/part-9/**"]
     },
     "test:spec:10": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1062,14 +902,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-10/**"
-      ]
+      "outputs": [".cache/harness-report/part-10/**"]
     },
     "test:spec:11": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1085,14 +921,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-11/**"
-      ]
+      "outputs": [".cache/harness-report/part-11/**"]
     },
     "test:spec:12": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1108,14 +940,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-12/**"
-      ]
+      "outputs": [".cache/harness-report/part-12/**"]
     },
     "test:spec:13": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1131,14 +959,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-13/**"
-      ]
+      "outputs": [".cache/harness-report/part-13/**"]
     },
     "test:spec:14": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1154,14 +978,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-14/**"
-      ]
+      "outputs": [".cache/harness-report/part-14/**"]
     },
     "test:spec:15": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1177,14 +997,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-15/**"
-      ]
+      "outputs": [".cache/harness-report/part-15/**"]
     },
     "test:spec:16": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1200,14 +1016,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-16/**"
-      ]
+      "outputs": [".cache/harness-report/part-16/**"]
     },
     "test:spec:17": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1223,14 +1035,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-17/**"
-      ]
+      "outputs": [".cache/harness-report/part-17/**"]
     },
     "test:spec:18": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1246,14 +1054,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-18/**"
-      ]
+      "outputs": [".cache/harness-report/part-18/**"]
     },
     "test:spec:19": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1269,14 +1073,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-19/**"
-      ]
+      "outputs": [".cache/harness-report/part-19/**"]
     },
     "test:spec:20": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1292,14 +1092,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-20/**"
-      ]
+      "outputs": [".cache/harness-report/part-20/**"]
     },
     "test:spec:21": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1315,14 +1111,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-21/**"
-      ]
+      "outputs": [".cache/harness-report/part-21/**"]
     },
     "test:spec:22": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1338,14 +1130,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-22/**"
-      ]
+      "outputs": [".cache/harness-report/part-22/**"]
     },
     "test:spec:23": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1361,14 +1149,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-23/**"
-      ]
+      "outputs": [".cache/harness-report/part-23/**"]
     },
     "test:spec:24": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1384,14 +1168,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-24/**"
-      ]
+      "outputs": [".cache/harness-report/part-24/**"]
     },
     "test:spec:25": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1407,14 +1187,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-25/**"
-      ]
+      "outputs": [".cache/harness-report/part-25/**"]
     },
     "test:spec:26": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1430,14 +1206,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-26/**"
-      ]
+      "outputs": [".cache/harness-report/part-26/**"]
     },
     "test:spec:27": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1453,14 +1225,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-27/**"
-      ]
+      "outputs": [".cache/harness-report/part-27/**"]
     },
     "test:spec:28": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1476,14 +1244,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-28/**"
-      ]
+      "outputs": [".cache/harness-report/part-28/**"]
     },
     "test:spec:29": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1499,14 +1263,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-29/**"
-      ]
+      "outputs": [".cache/harness-report/part-29/**"]
     },
     "test:spec:30": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1522,14 +1282,10 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-30/**"
-      ]
+      "outputs": [".cache/harness-report/part-30/**"]
     },
     "test:spec:31": {
-      "dependsOn": [
-        "^src"
-      ],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1545,9 +1301,7 @@
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [
-        ".cache/harness-report/part-31/**"
-      ]
+      "outputs": [".cache/harness-report/part-31/**"]
     }
   }
 }
