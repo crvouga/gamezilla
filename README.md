@@ -223,7 +223,8 @@ A person applies this. CI does not.
 | Grafana Cloud stack | One stack (the free plan allows one). Trace history for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
 | Infisical OIDC identity for this repository | Depot CI reads and writes secrets with its OIDC job token. |
 | AWS IAM OIDC provider and deploy role | Depot CI assumes AWS for IoT and the authorizer. The role ARN is the Depot variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
-| GitHub repository settings, `main` protection, Actions variables | `main` moves through a PR whose required check (`check`) is green. Force-push and deletion stay off. Workflows read `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, and `AWS_ROLE_ARN`. The repository is `prevent_destroy`. |
+| GitHub repository settings and `main` protection | `main` moves through a PR whose required check (`Check / check`) is green. Force-push and deletion stay off. The private organization needs GitHub Team for protection. The repository is `prevent_destroy`. |
+| Depot CI variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` sequentially. The Depot org comes from `global.tfvars.json` `depot.org_id`; Code Access must connect the repository to that same org. |
 
 ### Fleet (every deploy)
 
