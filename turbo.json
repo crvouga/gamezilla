@@ -49,7 +49,9 @@
     "SYNTHETIC_MONITOR_TOKEN",
     "TMPDIR",
     "RAYON_NUM_THREADS",
-    "MODEL_CHECK_CONCURRENCY"
+    "MODEL_CHECK_CONCURRENCY",
+    "CHECK_LINT_THREADS",
+    "GOMAXPROCS"
   ],
   "tasks": {
     "install:deps": {
