@@ -403,6 +403,7 @@
       "inputs": [
         "lingui.config.ts",
         "lingui.solid.config.ts",
+        "libs/account-privacy/src/**/*.{ts,tsx}",
         "libs/auth/src/**/*.{ts,tsx}",
         "libs/billing/src/**/*.{ts,tsx}",
         "libs/chess/src/**/*.{ts,tsx}",
