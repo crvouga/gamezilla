@@ -93,6 +93,10 @@ export class ObjectStoreImplInMemory implements ObjectStore {
    * playable URL on those runtimes should fall back to {@link get} + manual
    * conversion.
    */
+  async deleteMany(keys: readonly string[]): Promise<void> {
+    for (const key of keys) await this.delete(key);
+  }
+
   async getUri(key: string): Promise<string | null> {
     this.maybeThrow();
     const entry = this.store.get(key);

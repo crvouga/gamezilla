@@ -58,7 +58,7 @@ module "auth_relay_edge" {
 # environment's API reads it with its own credential (the foundation stack's
 # `report_access`) and streams it to `/reports/<sha>`. Private: no public
 # hostname, nothing reads it but those credentials. Reports are build output,
-# not user data: immutable per commit, and they expire.
+# not user data. CI keeps only the latest report of each existing branch.
 resource "cloudflare_r2_bucket" "reports" {
   account_id = var.reports.account_id
   name       = var.reports.bucket
@@ -68,19 +68,9 @@ resource "cloudflare_r2_bucket_lifecycle" "reports" {
   account_id  = var.reports.account_id
   bucket_name = cloudflare_r2_bucket.reports.name
 
-  rules = [{
-    id      = "expire-reports"
-    enabled = true
-    conditions = {
-      prefix = ""
-    }
-    delete_objects_transition = {
-      condition = {
-        type    = "Age"
-        max_age = var.reports.retention_days * 86400
-      }
-    }
-  }]
+  # Age-based expiry can delete a branch's current report. Cleanup is driven
+  # by GitHub branch state in Check, Deploy and scheduled Health instead.
+  rules = []
 }
 
 

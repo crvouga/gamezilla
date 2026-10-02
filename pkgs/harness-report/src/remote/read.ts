@@ -11,9 +11,14 @@ import type {
   RunReport,
   SnapshotMedia,
 } from '@pkgs/harness';
-import { readObjectBytes, readUtf8 } from '@pkgs/object-store/helpers';
+import { readUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-
+import {
+  type BundleEntry,
+  bundleIndexKey,
+  createBundleReader,
+  readBundleIndex,
+} from './bundle';
 import { inCompletionOrder } from './completion-order';
 import {
   COMMITS_INDEX_PREFIX,
@@ -178,22 +183,39 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-async function readFrame(
-  store: ObjectStore,
-  key: string,
-  media: SnapshotMedia
-): Promise<HtmlReportBlob | null> {
-  const obj = await store.get(key);
-  if (obj === null) return null;
-  const bytes = await readObjectBytes(store, key);
-  if (bytes === null) return null;
+function frameBlob(obj: BundleEntry, media: SnapshotMedia): HtmlReportBlob {
   return TEXT_MEDIA.has(media)
-    ? { contentType: obj.contentType, text: new TextDecoder().decode(bytes) }
-    : { contentType: obj.contentType, base64: bytesToBase64(bytes) };
+    ? {
+        contentType: obj.contentType,
+        text: new TextDecoder().decode(obj.bytes),
+      }
+    : { contentType: obj.contentType, base64: bytesToBase64(obj.bytes) };
+}
+
+async function sourceReader(
+  store: ObjectStore,
+  args: { sha: string; source: string }
+) {
+  const index = await readBundleIndex(
+    store,
+    bundleIndexKey(args.sha, args.source)
+  );
+  if (Object.keys(index).length > 0) return createBundleReader(store, index);
+  // Existing stored reports remain readable while writers use bundles.
+  return async (key: string): Promise<BundleEntry | null> => {
+    const obj = await store.get(key);
+    return obj === null
+      ? null
+      : {
+          key,
+          contentType: obj.contentType,
+          bytes: new Uint8Array(await new Response(obj.body).arrayBuffer()),
+        };
+  };
 }
 
 /** One test's timeline, without its frame files. */
-export function readTestReport(
+export async function readTestReport(
   store: ObjectStore,
   args: {
     readonly sha: string;
@@ -201,10 +223,13 @@ export function readTestReport(
     readonly testId: string;
   }
 ): Promise<RunReport | null> {
-  return readJson<RunReport>(
-    store,
+  const read = await sourceReader(store, args);
+  const obj = await read(
     remoteTestReportKey(args.sha, args.source, args.testId)
   );
+  return obj === null
+    ? null
+    : (JSON.parse(new TextDecoder().decode(obj.bytes)) as RunReport);
 }
 
 export type FrameBody = {
@@ -223,11 +248,11 @@ export async function readFrameBody(
   }
 ): Promise<FrameBody | null> {
   const key = remoteTestFileKey(args.sha, args.source, args.testId, args.file);
-  const obj = await store.get(key);
-  if (obj === null) return null;
-  const bytes = await readObjectBytes(store, key);
-  if (bytes === null) return null;
-  return { bytes, contentType: obj.contentType };
+  const read = await sourceReader(store, args);
+  const obj = await read(key);
+  return obj === null
+    ? null
+    : { bytes: obj.bytes, contentType: obj.contentType };
 }
 
 /** Every source record of a commit, in the order each read finishes. */
@@ -251,10 +276,14 @@ export async function* testEvents(
     readonly testId: string;
   }
 ): AsyncGenerator<TestEvent> {
-  const report = await readJson<RunReport>(
-    store,
+  const read = await sourceReader(store, args);
+  const obj = await read(
     remoteTestReportKey(args.sha, args.source, args.testId)
   );
+  const report =
+    obj === null
+      ? null
+      : (JSON.parse(new TextDecoder().decode(obj.bytes)) as RunReport);
   if (report === null) {
     yield { type: 'end', found: false };
     return;
@@ -264,7 +293,8 @@ export async function* testEvents(
   collectFrameFiles(report.steps, files);
   const reads = [...files].map(([file, media]) => async () => {
     const key = remoteTestFileKey(args.sha, args.source, args.testId, file);
-    return { file, blob: await readFrame(store, key, media) };
+    const obj = await read(key);
+    return { file, blob: obj === null ? null : frameBlob(obj, media) };
   });
   for await (const read of inCompletionOrder(reads, READ_WIDTH)) {
     if (read.blob !== null) {

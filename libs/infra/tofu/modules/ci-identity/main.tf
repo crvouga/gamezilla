@@ -20,9 +20,9 @@ variable "name" {
   type = string
 }
 
-variable "github_repository" {
+variable "github_subject_prefix" {
   type        = string
-  description = "owner/repo whose workflows may authenticate."
+  description = "Immutable GitHub OIDC repo:owner@owner-id/repo@repo-id prefix."
 }
 
 variable "github_owner" {
@@ -39,11 +39,17 @@ resource "infisical_identity" "ci" {
   role   = "no-access"
 }
 
+# Adopt the existing auth binding so recovery updates it in place.
+moved {
+  from = infisical_identity_oidc_auth.ci
+  to   = infisical_identity_oidc_auth.github
+}
+
 resource "infisical_identity_oidc_auth" "github" {
   identity_id                 = infisical_identity.ci.id
   oidc_discovery_url          = local.github_issuer
   bound_issuer                = local.github_issuer
-  bound_subject               = "repo:${var.github_repository}:*"
+  bound_subject               = "${var.github_subject_prefix}:*"
   bound_audiences             = ["https://github.com/${var.github_owner}"]
   access_token_ttl            = 600
   access_token_max_ttl        = 600
