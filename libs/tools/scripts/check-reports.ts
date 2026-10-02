@@ -1,6 +1,12 @@
 // @io-wall-ok — separate, nonessential aggregation/publication job.
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { restoreReportOutputs } from './check-report-restore';
 import { type CheckPlan, imbalance } from './check-shards';
@@ -27,6 +33,13 @@ function command(args: string[]): void {
 }
 
 if (import.meta.main) {
+  const transfers = join(DIRECTORY, 'transfers');
+  for (const name of readdirSync(transfers).filter((name) =>
+    /^evidence-\d+\.tar$/.test(name)
+  )) {
+    const result = spawnSync('tar', ['-xf', join(transfers, name), '-C', ROOT]);
+    if (result.status !== 0) throw new Error('Cannot extract shard evidence');
+  }
   const failedReports = join(DIRECTORY, 'failed-reports');
   if (existsSync(failedReports))
     cpSync(failedReports, ROOT, { recursive: true });

@@ -1,5 +1,6 @@
 // @io-wall-ok — isolated CI shard process composition root.
-import { spawn } from 'node:child_process';
+
+import { spawnSync } from 'node:child_process';
 import {
   cpSync,
   existsSync,
@@ -8,14 +9,14 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { createInterface } from 'node:readline';
 import { reportTask } from '@libs/harness/ci/report-ready';
 import {
   findBudgetOverruns,
   formatBudgetOverruns,
   readLatestRunSummary,
 } from './check-budget';
-import { redactSecrets, taskStream } from './check-shard-stream';
+import { executeShard } from './check-shard-process';
+import { redactSecrets } from './check-shard-stream';
 import {
   type CheckPlan,
   validatePlan,
@@ -64,7 +65,7 @@ export async function runShard(index: number): Promise<number> {
   const prefetchMs = Number(process.hrtime.bigint() - prefetchStart) / 1e6;
   const executionStart = process.hrtime.bigint();
   const status = misses.length
-    ? await execute(
+    ? await executeShard(
         misses.map((task) => task.taskId),
         env,
         shard.tasks
@@ -98,10 +99,25 @@ export async function runShard(index: number): Promise<number> {
     JSON.stringify(result)
   );
   preserveFailedReports(results);
+  packEvidence(index);
   console.log(
     `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${result.hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
   );
   return verdict;
+}
+
+function packEvidence(index: number): void {
+  const paths = [`.cache/check-ci/results/shard-${index}.json`];
+  if (existsSync(join(DIRECTORY, 'failed-reports')))
+    paths.push('.cache/check-ci/failed-reports');
+  const packed = spawnSync('tar', [
+    '-cf',
+    join(DIRECTORY, `evidence-${index}.tar`),
+    '-C',
+    ROOT,
+    ...paths,
+  ]);
+  if (packed.status !== 0) throw new Error('Cannot transfer shard evidence');
 }
 
 function preserveFailedReports(results: readonly Result[]): void {
@@ -198,61 +214,6 @@ function collectResults(args: {
     }
   }
   return { results, verdict };
-}
-
-function execute(
-  ids: readonly string[],
-  env: NodeJS.ProcessEnv,
-  tasks: CheckPlan['tasks']
-): Promise<number> {
-  const child = spawn(
-    'turbo',
-    [
-      'run',
-      ...ids,
-      '--framework-inference=false',
-      env['CHECK_CACHE_MODE'] === 'cold'
-        ? '--cache=local:w,remote:w'
-        : '--cache=local:rw,remote:rw',
-      `--concurrency=${env['TURBO_CONCURRENCY'] ?? '16'}`,
-      '--cache-workers=32',
-      '--summarize',
-      '--json',
-      '--output-logs=full',
-      '--continue=dependencies-successful',
-    ],
-    { cwd: ROOT, env, detached: true, stdio: ['ignore', 'pipe', 'pipe'] }
-  );
-  const output = taskStream(tasks, (line) =>
-    console.log(redactSecrets(line, env))
-  );
-  createInterface({ input: child.stdout! }).on('line', output);
-  createInterface({ input: child.stderr! }).on('line', (line) =>
-    console.error(redactSecrets(line, env))
-  );
-  const stop = () => {
-    try {
-      process.kill(-child.pid!, 'SIGTERM');
-    } catch {}
-  };
-  process.once('SIGINT', stop);
-  process.once('SIGTERM', stop);
-  const timer = setTimeout(() => {
-    console.error('Check shard deadline exceeded (1200s)');
-    stop();
-  }, 1_200_000);
-  return new Promise((resolve) => {
-    child.on('error', (error) => {
-      console.error(error);
-      resolve(1);
-    });
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      process.off('SIGINT', stop);
-      process.off('SIGTERM', stop);
-      resolve(code ?? 1);
-    });
-  });
 }
 
 if (import.meta.main) process.exit(await runShard(Number(process.argv[2])));

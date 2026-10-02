@@ -97,7 +97,7 @@ jobs:
         timeout-minutes: 25
         env:
           CHECK_SHARD: ${{ matrix.shard }}
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" RAYON_NUM_THREADS=1 MODEL_CHECK_CONCURRENCY=4 bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" RAYON_NUM_THREADS=1 CHECK_LINT_THREADS=1 GOMAXPROCS=1 MODEL_CHECK_CONCURRENCY=4 bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
       # Successful raw reports already upload as Turbo outputs. Transfer only
       # verdicts and failed reports (failed checks never enter Turbo cache).
       - name: Transfer raw evidence
@@ -105,9 +105,8 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: check-evidence-${{ matrix.shard }}
-          path: |
-            .cache/check-ci/results/*.json
-            .cache/check-ci/failed-reports/**
+          path: .cache/check-ci/evidence-${{ matrix.shard }}.tar
+          overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
           compression-level: 0
@@ -150,7 +149,7 @@ jobs:
         with:
           pattern: check-evidence-*
           merge-multiple: true
-          path: .
+          path: .cache/check-ci/transfers
       - name: Aggregate and publish one batch
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
       - name: Prune stale spec reports
