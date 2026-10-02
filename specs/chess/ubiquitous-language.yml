@@ -119,7 +119,8 @@ terms:
 
   - term: puzzle
     definition: >-
-      A chess position with one line to find, played on the board. Each
+      A chess position whose objective is to find the solution or deliver
+      checkmate, played on the board. Each
       puzzle has a rating of its own, which is how hard it is.
     avoid: [problem, exercise]
     model: [puzzle]
@@ -270,7 +271,7 @@ terms:
 
   - term: solve
     definition: >-
-      Finish a puzzle's line with the solution. A solved puzzle is over, and
+      Finish a puzzle with the solution or any legal checkmate. A solved puzzle is over, and
       its pieces can no longer be moved.
     forms: [solves, solved, solving]
     model: [solve, CleanSolve]
@@ -500,3 +501,43 @@ terms:
 
   - term: keyboard
     from: runtime
+
+  - term: Puzzle Assistant
+    definition: >-
+      The talking character beside the board. Its observation explains the
+      current puzzle without claiming a chess fact it cannot establish.
+      Its words remain available without sound or movement.
+    forms: [assistant, assistant's, commentary]
+    model: [commentary, commentaryPuzzle]
+
+  - term: observation
+    definition: >-
+      One useful, justified explanation of the board or a proposed move.
+      A wrong move is described as a possibility because the board keeps
+      the position before it. Puzzle labels alone never justify a claim.
+    forms: [observations]
+
+  - term: hanging piece
+    definition: >-
+      A piece the opponent can legally capture without a legal recapture
+      of that attacker. The assistant names the piece and its square.
+    forms: [hanging knight, hanging rook, hanging bishop, hanging queen, hanging pawn]
+
+  - term: fork
+    definition: >-
+      One piece attacks at least two opposing pieces at once. The assistant
+      describes a knight fork only when two of its targets are kings,
+      queens or rooks, and a pinned knight cannot make the claimed captures.
+    forms: [forked]
+
+  - term: mute
+    definition: Stop the assistant's voice while keeping its words available.
+    forms: [muted, mutes, unmute, unmutes]
+    model: [muteAssistant, assistantMuted]
+
+  - term: reduced motion
+    definition: A person's choice to avoid decorative movement in the app.
+
+  - term: speech
+    definition: The assistant's observation spoken aloud; it never delays play.
+    forms: [speaking, speaks, spoken]

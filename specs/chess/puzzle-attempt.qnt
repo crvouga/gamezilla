@@ -66,6 +66,15 @@ module puzzle_attempt {
   /// Puzzle starts each person's device has used today.
   var puzzleStarts: Person -> int
 
+  /// The assistant's current purpose: ready, wrong, solved, revealed,
+  /// skipped, or none away from the board. A diagnosis refines wrong but
+  /// never changes its meaning.
+  var commentary: Person -> str
+  /// The puzzle the assistant describes, or -1 away from the board.
+  var commentaryPuzzle: Person -> int
+  /// Whether each person has muted the assistant's speech.
+  var assistantMuted: Person -> bool
+
   /// Bookkeeping: what Alice has in view.
   var _at: View
   /// Bookkeeping: the state of Alice's current attempt, on or off the board.
@@ -104,7 +113,17 @@ module puzzle_attempt {
     cutOffView: View,
     cutOffState: str,
     cutOffPuzzle: int,
+    muted: Person -> bool,
   ): bool = all {
+    assistantMuted' = muted,
+    commentary' = PEOPLE.mapBy(p => {
+      val at = if (p == HOST) newAt else watcherView
+      val result = if (p == HOST) newAttempt else watcherState
+      if (at != Board) "none" else if (result == "solving") "ready" else result
+    }),
+    commentaryPuzzle' = PEOPLE.mapBy(p =>
+      if (p == HOST) _hostPuzzle(newAt, newServed) else watcherPuzzle
+    ),
     _at' = newAt,
     _attempt' = newAttempt,
     _served' = newServed,
@@ -133,18 +152,21 @@ module puzzle_attempt {
         newAt, newAttempt, newServed, _offline,
         newAt, _hostState(newAt, newAttempt), _hostPuzzle(newAt, newServed),
         newAt, _hostState(newAt, newAttempt), _hostPuzzle(newAt, newServed),
+        assistantMuted,
       )
     else
       _show(
         newAt, newAttempt, newServed, _offline,
         view.get(WATCHER), puzzleState.get(WATCHER), puzzle.get(WATCHER),
         _watcherViewAtCutOff, _watcherStateAtCutOff, _watcherPuzzleAtCutOff,
+        assistantMuted,
       )
 
   action init = _show(
     GameChoice, "none", 0, Set(),
     GameChoice, "none", -1,
     GameChoice, "none", -1,
+    PEOPLE.mapBy(_ => false),
   )
 
   /// Onto the board: back to the unfinished puzzle, else a fresh one.
@@ -245,6 +267,7 @@ module puzzle_attempt {
       if (_offline == Set()) view.get(WATCHER) else _watcherViewAtCutOff,
       if (_offline == Set()) puzzleState.get(WATCHER) else _watcherStateAtCutOff,
       if (_offline == Set()) puzzle.get(WATCHER) else _watcherPuzzleAtCutOff,
+      assistantMuted,
     ),
   }
 
@@ -255,7 +278,18 @@ module puzzle_attempt {
       _at, _attempt, _served, Set(),
       _at, _hostState(_at, _attempt), _hostPuzzle(_at, _served),
       _at, _hostState(_at, _attempt), _hostPuzzle(_at, _served),
+      assistantMuted,
     ),
+  }
+
+  /// Muting stops speech without removing the current observation or board.
+  action muteAssistant(person: Person): bool = all {
+    view.get(person) == Board,
+    not(assistantMuted.get(person)),
+    _show(_at, _attempt, _served, _offline,
+      view.get(WATCHER), puzzleState.get(WATCHER), puzzle.get(WATCHER),
+      _watcherViewAtCutOff, _watcherStateAtCutOff, _watcherPuzzleAtCutOff,
+      assistantMuted.set(person, true)),
   }
 
   action step = {
@@ -273,9 +307,23 @@ module puzzle_attempt {
       moveOn,
       moveOnTwiceAtOnce,
       reopenApp,
+      muteAssistant(person),
       any { _loseConnection(person), _connectionReturns },
     }
   }
+
+  /// The assistant always belongs to the puzzle visible on that device.
+  val invCommentaryBelongsToCurrentPuzzle = PEOPLE.forall(p =>
+    commentaryPuzzle.get(p) == puzzle.get(p))
+
+  /// The assistant cannot contradict the board's outcome, including offline.
+  val invCommentaryAgreesWithBoard = PEOPLE.forall(p =>
+    commentary.get(p) == (if (view.get(p) != Board) "none"
+      else if (puzzleState.get(p) == "solving") "ready" else puzzleState.get(p)))
+
+  /// Muting keeps the same observation whenever the board is present.
+  val invMutedObservationRemains = PEOPLE.forall(p =>
+    (assistantMuted.get(p) and view.get(p) == Board) implies commentary.get(p) != "none")
 
   /// A guest here never uses more than the daily allowance.
   val invStartsWithinAllowance = PEOPLE.forall(p => puzzleStarts.get(p) <= GUEST_DAILY_STARTS)
