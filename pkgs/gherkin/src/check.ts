@@ -248,12 +248,14 @@ function checkScenarioTags(
   for (const scenario of feature.scenarios) {
     const where = `${feature.uri}:${String(scenario.line)}`;
     if (
-      names.has(scenario.name) &&
-      names.get(scenario.name) !== scenario.declarationLine
+      names.has(scenario.declarationName) &&
+      names.get(scenario.declarationName) !== scenario.declarationLine
     ) {
-      errors.push(`${where}: duplicate scenario name "${scenario.name}"`);
+      errors.push(
+        `${where}: duplicate scenario name "${scenario.declarationName}"`
+      );
     }
-    names.set(scenario.name, scenario.declarationLine);
+    names.set(scenario.declarationName, scenario.declarationLine);
     const domain = domainOf(scenario.tags);
     const allowed = allowedDomains(pkg, feature.uri);
     if (domain === null) {

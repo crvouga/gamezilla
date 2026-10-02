@@ -43,6 +43,14 @@ Then('release fails', () => undefined);
 test('expanded rows of one unnamed outline are not duplicate declarations', () => {
   // regression: gherkin-outline-name-collision
   expect(errors(SOURCE)).toEqual([]);
+  expect(
+    parseFeature(SOURCE, 'specs/release/release.feature').scenarios.map(
+      (scenario) => scenario.name
+    )
+  ).toEqual([
+    'Unproven obligations cannot approve a release [missing]',
+    'Unproven obligations cannot approve a release [stale]',
+  ]);
 });
 test('two declarations with the same name still fail', () => {
   expect(

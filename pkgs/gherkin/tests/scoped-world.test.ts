@@ -14,7 +14,7 @@ const context = (uri: string): ScenarioContext => ({
   tags: [],
   testId: 'open',
 });
-test('a scoped harness world and a default live world keep their own lifecycle', async () => {
+test('two scoped worlds keep their own lifecycle', async () => {
   // regression: gherkin-mixed-host-world
   const disposed: string[] = [];
   setWorld({
@@ -25,6 +25,7 @@ test('a scoped harness world and a default live world keep their own lifecycle',
     },
   });
   setWorld({
+    matches: (ctx) => ctx.featureUri.startsWith('world-selection/live/'),
     create: async () => 'live',
     dispose: async (world) => {
       disposed.push(world);
