@@ -58,6 +58,62 @@ function codes(source: string, fileName = 'tally-shape.qnt'): ModelShapeCode[] {
 }
 
 describe('modelShapeIssues', () => {
+  test('maintenance profiles retain structural checks without app connectivity', () => {
+    const source = `// @model-profile: maintenance
+module maintenance {
+  var indexed: int
+  action init = indexed' = 0
+  action build = indexed' = indexed + 1
+  action step = any { build, init }
+  val invKnownState = indexed >= 0
+}`;
+    expect(modelShapeIssues(source, 'maintenance.qnt')).toEqual([]);
+    expect(
+      codes(
+        source.replace('// @model-profile: maintenance', ''),
+        'maintenance.qnt'
+      )
+    ).toContain('no-connectivity');
+    expect(
+      codes(source.replace('indexed >= 0', 'true'), 'maintenance.qnt')
+    ).toEqual(
+      expect.arrayContaining(['trivial-invariant', 'var-unconstrained'])
+    );
+    expect(
+      codes(
+        source.replace("action init = indexed' = 0", 'action init = true'),
+        'maintenance.qnt'
+      )
+    ).toContain('var-uninitialized');
+    expect(
+      codes(
+        source.replace('any { build, init }', 'any { init }'),
+        'maintenance.qnt'
+      )
+    ).toContain('unreachable-action');
+    expect(
+      codes(source.replace('any { build, init }', 'build'), 'maintenance.qnt')
+    ).toContain('step-has-no-choice');
+    expect(
+      codes(
+        source.replace('val invKnownState = indexed >= 0', ''),
+        'maintenance.qnt'
+      )
+    ).toContain('no-invariant');
+    expect(
+      codes(
+        source.replace(
+          '@model-profile: maintenance',
+          '@model-profile: unknown'
+        ),
+        'maintenance.qnt'
+      )
+    ).toContain('model-profile');
+    expect(
+      codes('// @model-profile: maintenance\n' + source, 'maintenance.qnt')
+    ).toContain('model-profile');
+  });
+
   test('a model that loses and regains one device at a time passes', () => {
     expect(modelShapeIssues(SOUND, 'tally-shape.qnt')).toEqual([]);
   });

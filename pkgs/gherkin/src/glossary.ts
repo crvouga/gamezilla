@@ -41,6 +41,8 @@ export type GlossaryTerm = {
 };
 
 export type Glossary = {
+  /** App contexts are business-facing; maintenance contexts use operator terms. */
+  readonly profile?: 'app' | 'maintenance';
   readonly uri: string;
   /** The `specs/<domain>/` it belongs to; null for the shared kernel. */
   readonly domain: string | null;
@@ -190,12 +192,16 @@ export function parseGlossary(
   }
   const context = text(data['context']);
   const purpose = text(data['purpose']);
+  const profile = data['profile'] ?? 'app';
+  if (profile !== 'app' && profile !== 'maintenance') {
+    problems.push(`${uri}: profile must be app or maintenance`);
+  }
   if (context === null) problems.push(`${uri}: missing "context" (its name)`);
   if (purpose === null) {
     problems.push(`${uri}: missing "purpose" (why this context exists)`);
   }
   for (const key of Object.keys(data)) {
-    if (!['context', 'purpose', 'terms'].includes(key)) {
+    if (!['context', 'purpose', 'terms', 'profile'].includes(key)) {
       problems.push(`${uri}: unknown key "${key}"`);
     }
   }
@@ -225,6 +231,7 @@ export function parseGlossary(
     glossary: {
       uri,
       domain,
+      profile: profile === 'maintenance' ? 'maintenance' : 'app',
       context: context ?? '',
       purpose: purpose ?? '',
       terms,

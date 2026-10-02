@@ -1,0 +1,83 @@
+context: Database indexing
+profile: maintenance
+purpose: >-
+  A database operator can automatically maintain ordinary indexes without
+  changing protected indexes, prematurely retiring an index, or claiming
+  interrupted work completed. Planning is read-only and work is admitted
+  within configured budgets. This is a standalone technical maintenance
+  context; its bounded core evidence does not prove production durability
+  or availability across all adapter failures and concurrent workloads.
+
+terms:
+  - term: database operator
+    definition: The person responsible for configuring and supervising index maintenance.
+  - term: database
+    definition: The stored workload data and its index catalog as exposed to maintenance.
+  - term: migration
+    definition: Initial schema reconciliation that provides declared indexes even on empty tables.
+  - term: workload
+    definition: The set of declared lookup paths whose indexes maintenance should provide.
+    forms: [workloads, lookup, lookups, lookup path, lookup paths]
+    model: [declared, declare]
+  - term: owned index
+    definition: An ordinary automatic index eligible for maintenance within its ownership namespace.
+    forms: [owned indexes, automatic index, automatic indexes, indexed]
+    model: [indexed]
+  - term: retirement
+    definition: The observation window before an obsolete owned index may be removed.
+    forms: [retiring, obsolete, retire, retires, retired]
+    model: [retiring, windowStart, baseline]
+  - term: observed usage
+    definition: The measured use count compared with the count at the start of retirement.
+    forms: [usage, use, uses, usage counter, usage counters]
+    model: [uses, use]
+  - term: maintenance day
+    definition: A whole day on the injected maintenance clock, used to measure retirement age.
+    forms: [days, day, retirement age]
+    model: [day, daysPass]
+  - term: operator index
+    definition: An index owned by the database operator, outside automatic maintenance authority.
+    forms: [operator indexes, operator's index, team's index]
+    model: [teamIndex, keepOwnIndex]
+  - term: reconciler
+    definition: A maintenance run that derives a fresh index plan and applies admissible work.
+    forms: [reconciliation, reconcile, tuning, tuned, tuner]
+    model: [tune]
+  - term: build state
+    definition: Whether the desired index is absent, invalid, or valid after a creation attempt.
+    forms: [absent, invalid, valid, partial build]
+    model: [state, attempt]
+  - term: unfinished work
+    definition: Work requiring a fresh reconciliation after an interrupted or unacknowledged build.
+    forms: [unfinished, interruption, interrupted, crash, commit ambiguity]
+    model: [unfinished]
+  - term: deferred work
+    definition: Work yielded because the database cannot safely admit the operation now.
+    forms: [deferred, deferral, contention]
+    model: [deferred]
+  - term: failed work
+    definition: Work the database rejected, without a successful completion report.
+    forms: [failed, failure, rejection]
+    model: [failed]
+  - term: completed work
+    definition: A report with a valid desired index and no unfinished, deferred, or failed work.
+    forms: [completed, completion, successful, success]
+    model: [completed]
+  - term: protected index
+    definition: An operator-owned or constraint-protecting index that automatic maintenance must preserve.
+    forms: [protected indexes, primary key, uniqueness rule, unique index]
+    model: [protectedIndex]
+  - term: recovery
+    definition: Fresh reconciliation after faults end, with a stable workload and sufficient budget.
+    forms: [recover, resumes, resume, fresh reconciler]
+    model: [recover]
+  - term: repetition
+    definition: Another run for a completed stable workload, without further index changes.
+    forms: [repeat, repeats, idempotence, idempotent]
+    model: [repeat]
+  - term: budget
+    definition: Configured admission limits on estimated time or the number of builds in one run.
+    forms: [budgets, deadline, build limit, milliseconds]
+  - term: indexing fixture
+    definition: A configured database and workload state at the start of an executable example.
+    forms: [fixture, fixtures]

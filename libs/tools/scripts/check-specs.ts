@@ -35,7 +35,7 @@ import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
-import { languageProblems } from './spec-glossary';
+import { languageProblems, maintenanceVocabulary } from './spec-glossary';
 import {
   externalSteps,
   REPO_ROOT,
@@ -78,6 +78,7 @@ const errors: string[] = [
     external: external.steps,
     shared: shared.steps,
     parameterTypes,
+    allowedImplementationWords: maintenanceVocabulary(),
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(),
