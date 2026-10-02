@@ -978,5 +978,10 @@
     "id": "check-duplicate-trigger-runners",
     "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
     "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-spec-part-order",
+    "summary": "A merge appended test:spec:6 and test:spec:7 after the package checks instead of beside the other six spec parts, breaking the exact Check and Deploy graph contracts. Keep all eight spec leaves together without removing any task.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
   }
 ]

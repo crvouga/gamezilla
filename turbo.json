@@ -658,6 +658,8 @@
         "test:spec:3",
         "test:spec:4",
         "test:spec:5",
+        "test:spec:6",
+        "test:spec:7",
         "check:models",
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
@@ -665,9 +667,7 @@
         "@apps/server#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:actionlint",
-        "@libs/tools#check:secrets",
-        "test:spec:6",
-        "test:spec:7"
+        "@libs/tools#check:secrets"
       ],
       "outputs": [],
       "outputLogs": "errors-only"

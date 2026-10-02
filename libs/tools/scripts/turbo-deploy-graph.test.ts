@@ -154,6 +154,7 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   test('//#check is exactly the check surface', () => {
+    // regression: check-spec-part-order
     expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
   });
 
