@@ -1,5 +1,10 @@
 [
   {
+    "id": "db-schema-quint-entry-missing",
+    "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
+    "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
+  },
+  {
     "id": "health-branch-aws-oidc-read-role",
     "summary": "A branch-dispatched Health run could obtain its OIDC token but AWS rejected AssumeRoleWithWebIdentity because the only CI role trusted main and production; widening that deploy role would have granted feature branches mutation access. Fixed with a separate read-only health role that trusts this repository's branches, published as AWS_HEALTH_ROLE_ARN and selected only by health.yml.",
     "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
