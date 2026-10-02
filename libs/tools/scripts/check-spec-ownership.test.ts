@@ -8,6 +8,41 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
+  test('merging committed specs does not count them as newly authored changes', () => {
+    // regression: spec-ownership-resolved-merge
+    expect(
+      stagedViolations(
+        [
+          'specs/profile/account-deletion.feature',
+          'libs/tools/scripts/check-plan.ts',
+        ],
+        ['libs/tools/scripts/check-plan.ts']
+      )
+    ).toEqual([]);
+  });
+
+  test('merge resolutions still reject newly changed specs mixed with code', () => {
+    assertProperty(
+      'merge resolutions preserve spec ownership',
+      fc.property(
+        fc.constantFrom(
+          'specs/README.md',
+          'specs/profile/account-deletion.feature'
+        ),
+        fc.constantFrom(
+          'libs/tools/scripts/check-plan.ts',
+          'pkgs/quint/src/verify.ts'
+        ),
+        (spec, implementation) => {
+          expect(
+            stagedViolations([spec, implementation], [spec, implementation])
+          ).toHaveLength(1);
+          expect(stagedViolations([spec], [spec])).toEqual([]);
+        }
+      )
+    );
+  });
+
   test('rulebook changes require spec subjects even when labeled documentation', () => {
     // regression: spec-rulebook-commit-subject
     expect(

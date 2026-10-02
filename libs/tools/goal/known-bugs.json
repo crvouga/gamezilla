@@ -1248,5 +1248,10 @@
     "id": "check-opaque-task-failure",
     "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
     "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+  },
+  {
+    "id": "spec-ownership-resolved-merge",
+    "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
   }
 ]

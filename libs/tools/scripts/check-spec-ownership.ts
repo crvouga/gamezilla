@@ -72,9 +72,16 @@ export function ownershipViolations(
   return out;
 }
 
-/** The index as one pseudo-commit: mixing is refused before it is committed. */
-export function stagedViolations(files: readonly string[]): readonly string[] {
-  const specs = files.filter(isSpecFile);
+/** Inherited merge specs retain their original commits' ownership. */
+export function stagedViolations(
+  files: readonly string[],
+  mergeParentChanges?: readonly string[]
+): readonly string[] {
+  const specs = files.filter(
+    (file) =>
+      isSpecFile(file) &&
+      (mergeParentChanges === undefined || mergeParentChanges.includes(file))
+  );
   const other = files.filter((f) => !isSpecFile(f) && !isSpecSideFile(f));
   if (specs.length > 0 && other.length > 0) {
     return [
@@ -126,12 +133,29 @@ function resolveRange(): string {
   return 'origin/main..HEAD';
 }
 
+function mergeParentChanges(): readonly string[] | undefined {
+  const parent = spawnSync(
+    'git',
+    ['rev-parse', '--verify', '-q', 'MERGE_HEAD'],
+    {
+      encoding: 'utf8',
+    }
+  );
+  if (parent.status === 1) return undefined;
+  if (parent.status !== 0)
+    throw new Error(`Cannot read merge parent: ${parent.stderr}`);
+  return git(['diff', '--cached', '--name-only', parent.stdout.trim()])
+    .split('\n')
+    .filter((file) => file.length > 0);
+}
+
 if (import.meta.main) {
   const violations = process.argv.includes('--staged')
     ? stagedViolations(
         git(['diff', '--cached', '--name-only'])
           .split('\n')
-          .filter((f) => f.length > 0)
+          .filter((f) => f.length > 0),
+        mergeParentChanges()
       )
     : ownershipViolations(commitsInRange(resolveRange()));
   if (violations.length > 0) {
