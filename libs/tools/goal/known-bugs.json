@@ -988,5 +988,10 @@
     "id": "harness-offline-account-recovery",
     "summary": "Account sign-in trace 8 at seed 0x67932 signed Alice out offline and then timed out waiting for auth-method-google after reconnection: the harness threw HarnessPartitionedError and exposed an always-available origin, so anonymous account recovery stopped. Classify simulated HTTP failures and provide the same health-based recovery port used by the production auth bridge.",
     "regressionTest": "libs/harness/tests/client-server-fetch.test.ts"
+  },
+  {
+    "id": "ci-repository-transfer-oidc-subject",
+    "summary": "Check run 36969157332 for e483164a3 failed with Infisical Access denied: OIDC subject not allowed after the repository moved to gamezilla-org/gamezilla. The global bootstrap inputs still declared crvouga/gamezilla, producing the former subject and audience. Declare gamezilla-org so the human bootstrap apply updates Infisical and AWS trust to the transferred repository.",
+    "regressionTest": "libs/infra/tests/github-transfer.test.ts"
   }
 ]
