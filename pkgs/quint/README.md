@@ -9,6 +9,10 @@ obligation a run decides is recorded as evidence (`@pkgs/conformance`). Product 
 ([`specs/README.md`](../../specs/README.md));
 this package knows nothing about the product.
 
+Verification uses Apalache's `fun-arrays` map encoding and checks invariants
+after translating each state's full transition choice. This reduces repeated
+solver work without changing the explored bound or the invariant obligations.
+
 | Module | What it does |
 | --- | --- |
 | `shape` | Static shape of an aggregate, before any trace or Apalache run: an invariant that can fail and names some state, every action reached from `init` or `step`, every variable set in `init`, every observable variable named by an invariant, and an offline-first connection (one device starts connected, can lose the connection and get it back, and some invariant says what that changes). `events.qnt` is not an aggregate. |

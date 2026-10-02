@@ -98,6 +98,7 @@ for (const name of MODELS) {
       MODEL_TIMEOUT_MS
     );
 
+    // regression: rebuild-model-verification-timeout
     test(
       'all interleavings through ten steps preserve every declared invariant',
       async () => {

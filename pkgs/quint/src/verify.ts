@@ -19,7 +19,8 @@
  */
 
 import { spawn } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import {
   APALACHE_VERSION,
@@ -61,6 +62,18 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
+  // Encode maps with SMT arrays and check each invariant once per state after
+  // translating all transitions. The bound and invariant obligations stay the same.
+  const configPath = join(options.outDir, 'apalache-config.json');
+  writeFileSync(
+    configPath,
+    JSON.stringify({
+      checker: {
+        'smt-encoding': { type: 'fun-arrays' },
+        tuning: { 'search.invariant.mode': 'after' },
+      },
+    })
+  );
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
@@ -68,7 +81,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   const port = await freePort();
   const elapsed = wallStopwatch();
   const run = await runQuint({
-    args: verifyArgs(options, port),
+    args: verifyArgs(options, port, configPath),
     cwd: options.outDir,
     env,
     timeoutMs: options.timeoutMs,
@@ -93,7 +106,11 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   return { ok: true, durationMs };
 }
 
-function verifyArgs(options: VerifyOptions, port: number): string[] {
+function verifyArgs(
+  options: VerifyOptions,
+  port: number,
+  configPath: string
+): string[] {
   return [
     QUINT_CLI,
     'verify',
@@ -104,6 +121,8 @@ function verifyArgs(options: VerifyOptions, port: number): string[] {
     String(options.maxSteps),
     '--apalache-version',
     APALACHE_VERSION,
+    '--apalache-config',
+    configPath,
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
     '--invariants',

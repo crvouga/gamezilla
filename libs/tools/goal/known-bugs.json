@@ -1,5 +1,10 @@
 [
   {
+    "id": "rebuild-model-verification-timeout",
+    "summary": "Apalache's default map encoding and per-transition invariant checks exceeded the rebuild model's existing 120-second CI budget at ten steps. Encode maps as SMT arrays and check invariants after the full transition choice, preserving every invariant and the same exhaustive bound while reducing solver work.",
+    "regressionTest": "pkgs/db-schema/tests/quint/reconciliation-contracts.test.ts"
+  },
+  {
     "id": "conventional-spec-commit-rejected",
     "summary": "The spec ownership gate rejected the isolated database safety contract commit because it used the required Conventional Commit docs(specs) form. Recognize that form as a spec commit while continuing to require spec changes and reject mixed implementation files.",
     "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
