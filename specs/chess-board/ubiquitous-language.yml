@@ -1,0 +1,60 @@
+context: Chessboard
+purpose: >-
+  A reusable chessboard whose position and settings belong to the person
+  embedding it. Pieces, selection and feedback stay coherent as those change.
+terms:
+  - term: activity
+    definition: The game, puzzle, review or other use embedding the chessboard and supplying its position and choices.
+  - term: chessboard
+    definition: A square chess board with eight files and eight ranks, usable on its own or within another activity.
+    forms: [chessboards, board]
+    model: [board]
+  - term: chess
+    from: chess
+  - term: position
+    definition: Where each chess piece stands and whose turn it is.
+    model: [replacePosition]
+  - term: piece
+    definition: A chess king, queen, rook, bishop, knight or pawn, belonging to White or Black.
+  - term: square
+    definition: One of the chessboard's sixty-four places, named by file and rank.
+  - term: selection
+    definition: The piece chosen to move and its permitted destinations.
+    forms: [selected, selects, select, deselects]
+    model: [selectPiece]
+  - term: move
+    definition: A legal chess move, offered once to the activity using the chessboard.
+    forms: [moves, moved, moving]
+    model: [movePiece]
+  - term: capture
+    definition: A move that removes an opposing piece, including en passant.
+    forms: [captures, captured, capturing]
+  - term: drag
+    definition: Holding a piece and carrying it towards a destination; cancelling returns it without a move.
+    forms: [drags, dragging, dragged, cancels the drag]
+    model: [beginDrag, cancelDrag]
+  - term: board settings
+    definition: Choices supplied by the activity embedding the chessboard; changes take effect at once.
+    model: [configureBoard]
+  - term: sound
+    definition: Chessboard feedback heard for moves when enabled; disabling prevents delayed feedback too.
+    forms: [sounds, silent, silence]
+  - term: orientation
+    definition: Which side faces the person; changing it never changes the position.
+    model: [flipBoard]
+  - term: interactivity
+    definition: Whether pieces may be moved; disabling cancels selection, dragging and promotion choices.
+  - term: animation
+    definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
+    forms: [animations, animating, animated]
+    model: [finishAnimation]
+  - term: reduced motion
+    definition: A choice to place pieces at their destinations immediately, without slides or capture remnants.
+  - term: promotion
+    definition: A pawn reaching the last rank waits for a queen, rook, bishop or knight choice unless automatic queen promotion is enabled.
+  - term: resize
+    definition: A change in space for the chessboard; idle selection is retained but an active drag is cancelled.
+    forms: [resizes, resized]
+    model: [resizeBoard]
+  - term: keyboard
+    from: runtime
