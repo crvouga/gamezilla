@@ -11,9 +11,10 @@ import type {
   RunReport,
   SnapshotMedia,
 } from '@pkgs/harness';
-import { readBytes, readUtf8 } from '@pkgs/object-store/helpers';
+import { readUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
 
+import type { BundleEntry } from './bundle';
 import { inCompletionOrder } from './completion-order';
 import {
   COMMITS_INDEX_PREFIX,
@@ -34,6 +35,7 @@ import type {
 import { reportStore } from './publication';
 import { readBundledSnapshot, readBundledSnapshots } from './snapshot-bundle';
 import { readStoredSource, sourceTestPrefix } from './source-content';
+import { sourceReader } from './source-reader';
 
 /** Parallel object reads per stream. */
 const READ_WIDTH = 16;
@@ -188,17 +190,13 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-async function readFrame(
-  store: ObjectStore,
-  key: string,
-  media: SnapshotMedia
-): Promise<HtmlReportBlob | null> {
-  const obj = await store.get(key);
-  if (obj === null) return null;
-  const bytes = await readBytes(obj.body);
+function frameBlob(obj: BundleEntry, media: SnapshotMedia): HtmlReportBlob {
   return TEXT_MEDIA.has(media)
-    ? { contentType: obj.contentType, text: new TextDecoder().decode(bytes) }
-    : { contentType: obj.contentType, base64: bytesToBase64(bytes) };
+    ? {
+        contentType: obj.contentType,
+        text: new TextDecoder().decode(obj.bytes),
+      }
+    : { contentType: obj.contentType, base64: bytesToBase64(obj.bytes) };
 }
 
 /** One test's timeline, without its frame files. */
@@ -212,9 +210,14 @@ export async function readTestReport(
 ): Promise<RunReport | null> {
   store = await reportStore(store, args.sha);
   const prefix = await sourceTestPrefix(store, args);
-  return prefix === null
+  if (prefix === null) return null;
+  if (prefix.startsWith('content/'))
+    return readJson<RunReport>(store, `${prefix}report.json`);
+  const read = await sourceReader(store, args);
+  const obj = await read(`${prefix}report.json`);
+  return obj === null
     ? null
-    : readJson<RunReport>(store, `${prefix}report.json`);
+    : (JSON.parse(new TextDecoder().decode(obj.bytes)) as RunReport);
 }
 
 export type FrameBody = {
@@ -239,10 +242,11 @@ export async function readFrameBody(
   const key = `${prefix}${args.file}`;
   if (prefix.startsWith('content/'))
     return readBundledSnapshot(store, prefix, args.file);
-  const obj = await store.get(key);
-  if (obj === null) return null;
-  const bytes = await readBytes(obj.body);
-  return { bytes, contentType: obj.contentType };
+  const read = await sourceReader(store, args);
+  const obj = await read(key);
+  return obj === null
+    ? null
+    : { bytes: obj.bytes, contentType: obj.contentType };
 }
 
 /** Every source record of a commit, in the order each read finishes. */
@@ -268,10 +272,7 @@ export async function* testEvents(
 ): AsyncGenerator<TestEvent> {
   store = await reportStore(store, args.sha);
   const prefix = await sourceTestPrefix(store, args);
-  const report =
-    prefix === null
-      ? null
-      : await readJson<RunReport>(store, `${prefix}report.json`);
+  const report = await readTestReport(store, args);
   if (report === null) {
     yield { type: 'end', found: false };
     return;
@@ -299,9 +300,10 @@ export async function* testEvents(
     yield { type: 'end', found: true };
     return;
   }
+  const readFile = await sourceReader(store, args);
   const reads = [...files].map(([file, media]) => async () => {
-    const key = `${prefix}${file}`;
-    return { file, blob: await readFrame(store, key, media) };
+    const obj = await readFile(`${prefix}${file}`);
+    return { file, blob: obj === null ? null : frameBlob(obj, media) };
   });
   for await (const read of inCompletionOrder(reads, READ_WIDTH)) {
     if (read.blob !== null) {

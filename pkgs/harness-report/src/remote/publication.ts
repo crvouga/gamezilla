@@ -24,6 +24,7 @@ export function publicationStore(
     head: (key) => store.head(keyOf(key)),
     put: (key, bytes, type) => store.put(keyOf(key), bytes, type),
     delete: (key) => store.delete(keyOf(key)),
+    deleteMany: (keys) => store.deleteMany(keys.map(keyOf)),
     getUri: (key) => store.getUri(keyOf(key)),
     async listKeys(prefix = '') {
       const keys = await store.listKeys(keyOf(prefix));

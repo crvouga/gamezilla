@@ -57,6 +57,14 @@ variable "suffix" {
   type = string
 }
 
+variable "worker" {
+  type = object({
+    name                = string
+    transfer_rooms_from = optional(string)
+    retire              = optional(list(string), [])
+  })
+}
+
 variable "secrets" {
   type    = any
   default = {}

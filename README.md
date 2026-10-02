@@ -109,12 +109,12 @@ device UI (Solid)
   mutate()  -> local txn + outbound queue
         |  POST /api/mutations          POST /api/query + MQTT invalidation
         v
-API Worker (Hono, production handler)
+Application Worker (Hono API, client assets and rooms)
   authn -> permission -> replay mutation in one Postgres txn
   notify channels
         |
         +--> PlanetScale Neki (Postgres) via Hyperdrive
-        +--> room Worker --> Durable Object per topic
+        +--> Durable Object per topic
         +--> R2 for uploads and the spec-report bucket
 ```
 
@@ -131,9 +131,8 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | App | Role |
 | --- | --- |
 | `@apps/client` | Vite shell: `index.html`, service worker, PWA, bundle budget. `bun run dev:client` runs it alone. |
-| `@apps/server` | API Worker. Source is isomorphic; `pg` and `node:*` only behind ports in modules marked `@api-wall-ok`. |
-| `@apps/room-server` | Room Worker and Durable Object. |
-| `@apps/product` | Super-app the laptop runs: web app, harness, simulator, localhost stack. |
+| `@apps/server` | API and room modules, plus local API preview. Source is isomorphic; `pg` and `node:*` only behind ports in modules marked `@api-wall-ok`. |
+| `@apps/product` | Application Worker (client assets, API, schedules and rooms); web app, harness, simulator and localhost stack. |
 | `@apps/auth-relay` | Global OAuth callback Worker at `auth.<zone>`. |
 
 | Platform lib | Role |
@@ -232,7 +231,7 @@ A person applies this. CI does not.
 | --- | --- |
 | Infisical environment per env file, plus a live import of `shared` | That environment's secrets, with the shared ones visible through the import. A local copy of a shared name would shadow the import. |
 | Custom domain `auth.gamezilla.app` on Worker `gamezilla-auth-relay` | One OAuth callback for every environment. The relay reads the OAuth state tag and forwards the callback home. |
-| R2 bucket `gamezilla-reports`, commit reports expire after 30 days; reusable content after 61 days | `bun check` publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
+| R2 bucket `gamezilla-reports`, latest report per existing branch | `bun check` publishes `commits/<sha>/`. Every environment's API streams `/reports/<sha>`. Reports are build output. |
 
 ### Each environment (foundation, then edge)
 
@@ -260,7 +259,7 @@ Production is `gamezilla-production`. Dev is `gamezilla-development`.
 
 | Thing | Why it is not a resource here |
 | --- | --- |
-| API Worker `gamezilla-api-<suffix>`, room Worker `gamezilla-room-<suffix>` and its Durable Object classes, web Worker `gamezilla-client-<suffix>`, auth-relay Worker `gamezilla-auth-relay` | `wrangler deploy`. Names come from `@libs/infra`. The Cloudflare provider does not apply Durable Object migrations reliably. Hostnames stay on the edge stack. One Durable Object is one live topic; Cloudflare places it. |
+| Application Worker (env-file `worker.name`: `gamezilla-dev`, `gamezilla-prod`), auth-relay Worker `gamezilla-auth-relay` | `wrangler deploy`. One application version carries client assets, API, schedules and the room Durable Object class; API paths run the Worker first, static assets bypass compute. Existing room namespaces transfer before superseded Workers retire, after edge cutover and green health. Worker retirement refuses scripts still owning storage or hostnames. Hostnames stay on the edge stack. One Durable Object is one live topic; Cloudflare places it. |
 | Postgres schema | `@libs/runtime#migrate` reconciles it. A new database starts empty. |
 | Billing catalog (products, prices, webhook endpoints) | `@libs/billing#billing:sync`. The offer is product data the code reads. Paddle has no OpenTofu provider. |
 
@@ -283,14 +282,14 @@ An environment rebuilds from its env file. `prevent_destroy` covers the state bu
 bun run infra:destroy -- --env <env> --confirm <env>
 ```
 
-That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the api, web, and room Workers, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
+That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the application Worker and any superseded scripts, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
 A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse with `bun run deploy:dev` before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands.
 
 ```text
 deploy:fleet   auth-relay Worker, then the fleet stack
-deploy:<env>   foundation -> migrate -> room-server -> server -> product
-               -> edge -> billing:sync -> health
+deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
+               -> edge -> billing:sync -> health -> retire superseded Workers
 ```
 
 `bun deploy` ships `main` only. Do not `tofu apply` from a laptop against production. Non-deploy commands cannot reach production Postgres (`@libs/db/public/database-url-policy`). `bun run db:wipe:dev` refuses `ALLOW_PRODUCTION_DATABASE_URL=1`.
@@ -346,7 +345,7 @@ Three workflows, dispatched from the laptop and blocked on the verdict:
 
 Exactly three native Depot CI workflows. Check runs on PRs (`//#check`, `SECRETS_ENV=dev`) in one 16-CPU runner; report uploads overlap completed spec parts, and exact task hashes reuse already-published successful sources. Deploy (`.depot/workflows/deploy.yml`) runs on `main` after a merged PR, standard envs in parallel, then production, and re-runs the gate first. Health (`.depot/workflows/health.yml`) runs hourly, deploys nothing, and probes every env file. `bun health` git-syncs, including `main`, and dispatches Health. `bun deploy` does not commit: it fast-forwards local `main` and dispatches Deploy on `origin/main`. Cancelling Deploy does not roll back an apply that already started. A new check is a package task under `//#check`, never a fourth workflow or a new job. Required GitHub check is `Check / check` only (`global.tfvars.json` `github.required_checks`). Merge commits only. `pre-push` refuses `main`.
 
-The spec report is part of Check. Check is red if it did not publish. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and retention generation. Content survives every referencing commit's retention period. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step. A red suite still publishes. `bun check:local` does not.
+The spec report is part of Check. Check is red if it did not publish. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and cache generation. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks in a commit are reused on reruns; successful sources are reused across commits with identical task inputs. Check keeps only the latest report per branch and preserves its referenced shared content; Deploy and hourly Health remove unused branches and their reports. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. `bun check:local` does not.
 
 Standing live checks are Gherkin features tagged exactly `@synthetic` on the feature line, after `@domain:`, in the context that owns the promise. The environment is where the runner points. A `.feature` has no schedule. The harness does not run `@synthetic`. `specs/journeys/` stays untagged: those journeys run on the harness in `bun check` and live on Health. Tagging them `@synthetic` would take them out of the harness.
 

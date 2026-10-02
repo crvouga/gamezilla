@@ -19,6 +19,13 @@ export const envFileSchema = z
     env: slug,
     display_name: z.string().min(1),
     suffix: slug,
+    worker: z
+      .object({
+        name: slug,
+        transfer_rooms_from: slug.optional(),
+        retire: z.array(slug).default([]),
+      })
+      .strict(),
     protection: z.enum(['production', 'standard']),
     cloudflare: z.object({ account_id: id, zone_name: hostname }).strict(),
     hosts: z
@@ -96,6 +103,7 @@ export function statefulIdentities(
   const identities: Record<string, string> = {
     env: env.env,
     suffix: env.suffix,
+    worker: env.worker.name,
   };
   for (const host of envHostnames(env)) identities[`host:${host}`] = host;
   return identities;

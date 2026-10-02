@@ -1,13 +1,4 @@
-#!/usr/bin/env bun
-// @io-wall-ok — deploy CLI entry.
-/**
- * Ships the API Worker's code to the environment in `SECRETS_ENV`. The
- * infrastructure it runs on (secrets, bucket, broker, Hyperdrive, hostname) is
- * `libs/infra/tofu`, applied before and after this step by the deploy chain.
- */
-import { join } from 'node:path';
-import { deployWorker } from '@libs/infra/scripts/worker-deploy';
-import { ok } from '@libs/secrets/shared/fmt';
+// @io-wall-ok — application deployment secrets composition root.
 import {
   activeEnvFile,
   getApiWorkerSecrets,
@@ -17,7 +8,7 @@ import { assert } from '@pkgs/assert';
 
 const WORKER_EXTRA_ENV_KEYS = ['OBSERVABILITY_ENABLED'] as const;
 
-async function workerSecrets(): Promise<Record<string, string>> {
+export async function workerSecrets(): Promise<Record<string, string>> {
   await refreshSecretsIntoEnv();
   const scope = activeEnvFile().env;
   const payload: Record<string, string> = { SECRETS_ENV: scope };
@@ -39,7 +30,7 @@ async function workerSecrets(): Promise<Record<string, string>> {
 }
 
 /** OpenTofu's Hyperdrive config for this env (foundation writes the id). */
-function hyperdriveId(): string {
+export function hyperdriveId(): string {
   const id = (process.env['HYPERDRIVE_ID'] ?? '').trim();
   assert.nonEmptyString(
     id,
@@ -47,15 +38,3 @@ function hyperdriveId(): string {
   );
   return id;
 }
-
-const secrets = await workerSecrets();
-deployWorker({
-  appDir: join(import.meta.dirname, '..'),
-  role: 'api',
-  secrets,
-  resources: { hyperdriveId: hyperdriveId() },
-});
-ok(
-  'API Worker',
-  `deployed to ${activeEnvFile().env} with ${String(Object.keys(secrets).length)} secrets`
-);

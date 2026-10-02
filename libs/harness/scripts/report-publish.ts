@@ -33,11 +33,8 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
-import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report';
 import { openCommit } from '@pkgs/harness-report/remote/publish';
-import { createGlobalHttpClient } from '@pkgs/http-client/global';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
 import { run } from '@pkgs/os';
 import {
   createReportPlan,
@@ -46,6 +43,7 @@ import {
   reusePlannedReports,
   taskIdentity,
 } from './report-plan';
+import { reportsStore } from './report-store';
 import { publishReportTask } from './report-task-publish';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
@@ -132,27 +130,6 @@ export function reportsStoreUnconfigured(
   return REPORTS_ENV.every((name) => (env[name]?.trim() ?? '') === '');
 }
 
-function required(name: string): string {
-  const value = process.env[name]?.trim() ?? '';
-  if (value === '') {
-    console.error(`report-publish: ${name} is not set (run under secrets-run)`);
-    process.exit(1);
-  }
-  return value;
-}
-
-function reportsStore(): ObjectStore {
-  return createS3ObjectStore({
-    bucket: required('REPORTS_BUCKET'),
-    endpoint: required('REPORTS_ENDPOINT'),
-    accessKeyId: required('REPORTS_WRITE_ACCESS_KEY_ID'),
-    secretAccessKey: required('REPORTS_WRITE_SECRET_ACCESS_KEY'),
-    region: 'auto',
-    rootPrefix: REPORTS_ROOT_PREFIX,
-    http: createGlobalHttpClient(),
-  });
-}
-
 function git(args: readonly string[]): string {
   const result = Bun.spawnSync(['git', ...args], { cwd: REPO_ROOT });
   return result.stdout.toString().trim();
@@ -186,15 +163,8 @@ async function prepareReport(args: {
   readonly planPath: string;
   readonly plan: ReturnType<typeof readReportPlan>;
 }): Promise<void> {
-  const config = JSON.parse(
-    readFileSync(join(REPO_ROOT, 'libs/infra/tofu/global.tfvars.json'), 'utf8')
-  ) as { reports: { retention_days: number } };
   const startedAtMs = wallClock.now();
-  const prepared = createReportPlan(
-    args.plan.tasks,
-    startedAtMs,
-    config.reports.retention_days
-  );
+  const prepared = createReportPlan(args.plan.tasks, startedAtMs, 30);
   writeFileSync(args.planPath, JSON.stringify(prepared));
   const commit = await openCommit(args.store, {
     sha: args.sha,

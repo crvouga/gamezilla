@@ -60,6 +60,7 @@
     "naming:fix": "bun run libs/tools/scripts/fix-naming.ts",
     "obs": "bun run libs/secrets/src/scripts/obs.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
+    "reports:cleanup": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts",
     "secrets:pull": "bun run libs/secrets/src/scripts/secrets-pull.ts",
     "secrets:seed": "bun run libs/secrets/src/scripts/secrets-seed.ts",
     "sims:open": "bun run apps/product/scripts/sims/open-sims.ts",

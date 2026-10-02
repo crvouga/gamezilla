@@ -17,16 +17,15 @@ import {
   testPrefix,
   testReportKey,
 } from '@pkgs/harness';
-import { readBytes, readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
+import { bundleIndexKey, publishBundle } from './bundle';
 import { eachLimited } from './completion-order';
 import {
   commitIndexKey,
   commitKey,
   frameCssKey,
-  remoteTestFileKey,
-  remoteTestReportKey,
   sourceId,
   sourceKey,
   sourceOfKey,
@@ -42,6 +41,7 @@ import {
   type SourceIdentity,
   sourceContentPrefix,
 } from './source-content';
+import { sourceEntries } from './source-entries';
 
 export { publicationStore } from './publication';
 
@@ -173,36 +173,19 @@ async function publishSnapshots(
   store: ObjectStore,
   args: PublishSourceArgs,
   tests: readonly HtmlReportTest[],
-  contentPrefix: string | null
+  contentPrefix: string
 ): Promise<void> {
   const runId = args.runId ?? SPEC_RUN_ID;
-  const source = sourceId(args.packageDir, args.bucket);
-  if (contentPrefix !== null) {
-    await eachLimited(tests, 8, async ({ report }) => {
-      const files = new Set<string>();
-      frameFiles(report.steps, files);
-      await publishSnapshotBundle({
-        local: args.local,
-        remote: store,
-        localPrefix: testFrameKey(runId, report.meta.testId, ''),
-        remotePrefix: `${contentPrefix}${report.meta.testId}/`,
-        files: [...files],
-      });
-    });
-    return;
-  }
-  const copies = tests.flatMap(({ report }) => {
+  await eachLimited(tests, 8, async ({ report }) => {
     const files = new Set<string>();
     frameFiles(report.steps, files);
-    return [...files].map((file) => ({
-      from: testFrameKey(runId, report.meta.testId, file),
-      to: remoteTestFileKey(args.sha, source, report.meta.testId, file),
-    }));
-  });
-  await eachLimited(copies, WRITE_WIDTH, async ({ from, to }) => {
-    const obj = await args.local.get(from);
-    if (obj === null) throw new Error(`Missing report snapshot: ${from}`);
-    await store.put(to, await readBytes(obj.body), obj.contentType);
+    await publishSnapshotBundle({
+      local: args.local,
+      remote: store,
+      localPrefix: testFrameKey(runId, report.meta.testId, ''),
+      remotePrefix: `${contentPrefix}${report.meta.testId}/`,
+      files: [...files],
+    });
   });
 }
 
@@ -233,14 +216,23 @@ export async function publishSource(
     args.identity !== undefined && status === 'passed'
       ? sourceContentPrefix(args.identity, source)
       : null;
-  await publishSnapshots(store, args, tests, contentPrefix);
-  await eachLimited(tests, WRITE_WIDTH, async ({ report }) => {
-    const key =
-      contentPrefix === null
-        ? remoteTestReportKey(args.sha, source, report.meta.testId)
-        : `${contentPrefix}${report.meta.testId}/report.json`;
-    await writeUtf8(store, key, JSON.stringify(report), JSON_TYPE);
-  });
+  if (contentPrefix === null) {
+    await publishBundle(
+      store,
+      bundleIndexKey(args.sha, source),
+      sourceEntries(args, source, tests, runId)
+    );
+  } else {
+    await publishSnapshots(store, args, tests, contentPrefix);
+    await eachLimited(tests, WRITE_WIDTH, async ({ report }) => {
+      await writeUtf8(
+        store,
+        `${contentPrefix}${report.meta.testId}/report.json`,
+        JSON.stringify(report),
+        JSON_TYPE
+      );
+    });
+  }
   const record: SourceRecord = {
     source,
     packageDir: args.packageDir,

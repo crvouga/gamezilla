@@ -46,7 +46,6 @@
     "OBS_*",
     "TURBO_*",
     "TOFU_*",
-
     "SYNTHETIC_MONITOR_TOKEN",
     "TMPDIR"
   ],
@@ -666,8 +665,7 @@
         "check:models",
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
-        "@apps/room-server#check:worker-bundle",
-        "@apps/server#check:worker-bundle",
+        "@apps/product#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:actionlint",
         "@libs/tools#check:secrets"
@@ -687,17 +685,9 @@
       "cache": false,
       "dependsOn": ["@libs/infra#apply:foundation"]
     },
-    "@apps/room-server#deploy": {
-      "cache": false,
-      "dependsOn": ["@libs/runtime#migrate"]
-    },
-    "@apps/server#deploy": {
-      "cache": false,
-      "dependsOn": ["@apps/room-server#deploy"]
-    },
     "@apps/product#deploy": {
       "cache": false,
-      "dependsOn": ["@apps/server#deploy"]
+      "dependsOn": ["@libs/runtime#migrate", "@apps/server#check:api"]
     },
     "@libs/infra#apply:edge": {
       "cache": false,
@@ -714,7 +704,12 @@
     },
     "//#deploy": {
       "cache": false,
-      "dependsOn": ["//#check", "@apps/server#check:api", "health"],
+      "dependsOn": [
+        "//#check",
+        "@apps/server#check:api",
+        "health",
+        "@libs/infra#retire:workers"
+      ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -768,6 +763,21 @@
         "$TURBO_ROOT$/.depot/workflows/**"
       ],
       "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@libs/infra#retire:workers": {
+      "cache": false,
+      "dependsOn": ["@apps/product#health"]
+    },
+    "@apps/product#check:worker-bundle": {
+      "dependsOn": ["tc", "build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/tools/scripts/check-worker-bundle.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/worker-compat-date.ts"
+      ],
       "outputLogs": "errors-only",
       "outputs": []
     }

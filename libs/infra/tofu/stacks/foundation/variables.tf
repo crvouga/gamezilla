@@ -71,9 +71,8 @@ variable "aws_session_token" {
 
 variable "reports" {
   type = object({
-    account_id     = string
-    bucket         = string
-    retention_days = number
+    account_id = string
+    bucket     = string
   })
   description = "The one spec reports bucket every environment shares (owned by the fleet stack); each environment gets its own read and write credentials for it."
 }
@@ -97,6 +96,14 @@ variable "suffix" {
 
 variable "display_name" {
   type = string
+}
+
+variable "worker" {
+  type = object({
+    name                = string
+    transfer_rooms_from = optional(string)
+    retire              = optional(list(string), [])
+  })
 }
 
 variable "protection" {

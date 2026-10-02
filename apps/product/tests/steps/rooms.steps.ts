@@ -36,7 +36,7 @@ async function scriptBindings(
 }
 
 Then('spaces can open in this environment', async (w) => {
-  const bindings = await scriptBindings(w.http, workerName(w.env, 'room'));
+  const bindings = await scriptBindings(w.http, workerName(w.env));
   expect(bindings).toContainEqual(
     expect.objectContaining({
       type: 'durable_object_namespace',
@@ -47,13 +47,12 @@ Then('spaces can open in this environment', async (w) => {
 });
 
 Then('the app can take people into a space', async (w) => {
-  const bindings = await scriptBindings(w.http, workerName(w.env, 'api'));
+  const bindings = await scriptBindings(w.http, workerName(w.env));
   expect(bindings).toContainEqual(
     expect.objectContaining({
       type: 'durable_object_namespace',
       name: 'ROOM',
       class_name: ROOM_CLASS,
-      script_name: workerName(w.env, 'room'),
     })
   );
 });

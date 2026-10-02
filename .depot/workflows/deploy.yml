@@ -58,6 +58,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  deploy-cleanup:
+    name: deploy:cleanup
+    needs: deploy-matrix
+    runs-on: depot-ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: read
+      id-token: write
+    concurrency:
+      group: reports-cleanup
+      cancel-in-progress: false
+    strategy:
+      matrix:
+        include:
+          - env: ${{ fromJSON(needs.deploy-matrix.outputs.standard)[0] || fromJSON(needs.deploy-matrix.outputs.production)[0] }}
+    environment: ${{ contains(fromJSON(needs.deploy-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    env:
+      SECRETS_ENV: ${{ matrix.env }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.depot/actions/setup
+        with:
+          tools: bun gh
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: ${{ matrix.env }}
+      - name: Remove unused branches and stale reports
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
+
   deploy-matrix:
     name: deploy:matrix
     runs-on: depot-ubuntu-latest

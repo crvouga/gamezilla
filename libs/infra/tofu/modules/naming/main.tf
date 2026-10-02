@@ -23,18 +23,6 @@ locals {
   }
 }
 
-output "api_worker" {
-  value = local.names.api_worker
-}
-
-output "room_worker" {
-  value = local.names.room_worker
-}
-
-output "web_worker" {
-  value = local.names.web_worker
-}
-
 output "bucket" {
   value = local.names.bucket
 }

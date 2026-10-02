@@ -92,3 +92,9 @@ jobs:
           WORKFLOW_JOB: check
           WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
+
+      - name: Prune stale spec reports
+        if: always() && !cancelled()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply

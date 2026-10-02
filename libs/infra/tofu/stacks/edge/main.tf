@@ -2,12 +2,6 @@
 # the Worker deploys (`@libs/infra#apply:edge`) because a custom domain needs
 # its script to exist.
 
-module "names" {
-  source  = "../../modules/naming"
-  project = var.project
-  suffix  = var.suffix
-}
-
 data "cloudflare_zone" "this" {
   filter = {
     name    = var.cloudflare.zone_name
@@ -20,9 +14,9 @@ module "edge" {
   account_id = var.cloudflare.account_id
   zone_id    = data.cloudflare_zone.this.zone_id
   domains = {
-    api  = { hostname = var.hosts.api, service = module.names.api_worker }
-    web  = { hostname = var.hosts.web, service = module.names.web_worker }
-    apex = { hostname = var.hosts.apex, service = module.names.web_worker }
+    api  = { hostname = var.hosts.api, service = var.worker.name }
+    web  = { hostname = var.hosts.web, service = var.worker.name }
+    apex = { hostname = var.hosts.apex, service = var.worker.name }
   }
 }
 

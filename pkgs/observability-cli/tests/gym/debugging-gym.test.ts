@@ -37,6 +37,7 @@ async function fixtureStore(
         return values.has(key);
       },
       async delete() {},
+      async deleteMany() {},
       async getUri() {
         return null;
       },

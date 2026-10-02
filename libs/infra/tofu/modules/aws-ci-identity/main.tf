@@ -17,9 +17,13 @@ variable "project" {
   type = string
 }
 
-variable "github_repository" {
+variable "github_subject_prefix" {
   type        = string
-  description = "owner/repo whose workflows may assume the CI roles."
+  description = "Immutable GitHub OIDC repo:owner@owner-id/repo@repo-id prefix."
+}
+
+variable "github_repository" {
+  type = string
 }
 
 variable "depot_org_id" {
@@ -33,14 +37,14 @@ locals {
   # Deploy on main has no GitHub environment (subject is the ref). Production
   # jobs set environment: production, which replaces the ref in the subject.
   deploy_subjects = [
-    "repo:${var.github_repository}:ref:refs/heads/main",
-    "repo:${var.github_repository}:environment:production",
+    "${var.github_subject_prefix}:ref:refs/heads/main",
+    "${var.github_subject_prefix}:environment:production",
   ]
   # Health is branch-addressable, so every branch in this repository may
   # inspect the AWS resources. The role below has no mutation actions.
   health_subjects = [
-    "repo:${var.github_repository}:ref:refs/heads/*",
-    "repo:${var.github_repository}:environment:production",
+    "${var.github_subject_prefix}:ref:refs/heads/*",
+    "${var.github_subject_prefix}:environment:production",
   ]
 }
 
