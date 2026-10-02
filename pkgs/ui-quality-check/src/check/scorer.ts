@@ -18,7 +18,7 @@ export class Scorer {
   private async run(images: readonly RgbImage[]): Promise<readonly Omit<FrameQuality, 'timestampMs'>[]> {
     this.signal?.throwIfAborted();
     const start = this.clock.now();
-    const scores = [];
+    const scores: FrameQuality['detectorScores'][] = [];
     for (const detector of this.detectors) {
       const values = await detector.score(images, this.signal);
       if (values.length !== images.length || values.some((s) => !Number.isFinite(s.quality) || s.quality < 0 || s.quality > 1)) throw new Error(`Detector ${detector.info.id} must return one finite [0,1] score per image.`);

@@ -1,4 +1,5 @@
 import * as ort from 'onnxruntime-node';
+import type { Clock } from '@pkgs/clock';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import type { Files } from '../files';
@@ -27,9 +28,11 @@ function quality(embedding: Float64Array): number {
 export class UIClipDetector implements QualityDetector {
   private session: ort.InferenceSession | undefined;
   private selected = 'uninitialized';
+  private inferenceMs = 0;
+  private windowsProcessed = 0;
   readonly info: DetectorInfo;
 
-  constructor(private readonly files: Files, private readonly modelDir: string, private readonly options: CheckerOptions) {
+  constructor(private readonly files: Files, private readonly modelDir: string, private readonly options: CheckerOptions, private readonly clock: Clock) {
     const self = this;
     this.info = { id: manifest.model, version: manifest.modelVersion, get executionProvider() { return self.selected; } };
   }
@@ -81,7 +84,9 @@ export class UIClipDetector implements QualityDetector {
   private async infer(windows: readonly { image: number; tensor: Float32Array }[], sums: Float64Array[], counts: number[]): Promise<void> {
     const data = new Float32Array(windows.length * 3 * 224 * 224);
     windows.forEach((window, i) => data.set(window.tensor, i * 3 * 224 * 224));
+    const start = this.clock.now();
     const result = await this.session?.run({ pixel_values: new ort.Tensor('float32', data, [windows.length, 3, 224, 224]) });
+    this.inferenceMs += this.clock.now() - start; this.windowsProcessed += windows.length;
     const embeddings = result?.['image_embeds']?.data;
     if (!(embeddings instanceof Float32Array) || embeddings.length !== windows.length * 512) throw new Error('Model returned an unexpected image embedding shape.');
     windows.forEach((window, i) => {
@@ -96,4 +101,5 @@ export class UIClipDetector implements QualityDetector {
     const session = this.session; this.session = undefined;
     if (session) await session.release();
   }
+  metrics() { return { inferenceMs: this.inferenceMs, windowsProcessed: this.windowsProcessed }; }
 }

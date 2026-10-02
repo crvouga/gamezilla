@@ -16,6 +16,7 @@ import type { Scorer } from './scorer';
 
 export class ArtifactChecker implements UIQualityChecker {
   readonly config;
+  startupMs = 0;
   private closing = false;
   private readonly active = new Set<Promise<unknown>>();
   private decoderVersion: Promise<string> | undefined;
@@ -23,6 +24,11 @@ export class ArtifactChecker implements UIQualityChecker {
     this.config = resolveOptions(options);
   }
   get detectors() { return this.scorer.detectors.map((d) => ({ ...d.info })); }
+  metrics() {
+    const detectorMetrics = this.scorer.detectors.map((d) => d.metrics?.());
+    return { startupMs: this.startupMs, scoringMs: this.scorer.scoringMs, batches: this.scorer.batches,
+      inferenceMs: detectorMetrics.reduce((n, m) => n + (m?.inferenceMs ?? 0), 0), windowsProcessed: detectorMetrics.reduce((n, m) => n + (m?.windowsProcessed ?? 0), 0) };
+  }
 
   private operation<T>(run: () => Promise<T>): Promise<T> {
     if (this.closing) return Promise.reject(new Error('Checker has been disposed. Create a new checker.'));

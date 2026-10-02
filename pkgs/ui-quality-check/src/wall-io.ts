@@ -2,7 +2,7 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { basename, dirname, join, relative, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { wallClock } from '@pkgs/clock';
@@ -26,7 +26,7 @@ function streamStore(directory: string): ObjectStore {
     try {
       const info = await stat(path);
       if (!info.isFile()) throw new Error(`Expected a file: ${path}`);
-      return { body: Readable.toWeb(createReadStream(path)) as ReadableStream<Uint8Array>, contentType: 'application/octet-stream', size: info.size };
+      return { body: Readable.toWeb(createReadStream(path)) as unknown as ReadableStream<Uint8Array>, contentType: 'application/octet-stream', size: info.size };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
       throw error;
@@ -69,8 +69,4 @@ export function decoderPath(override?: string): string {
 
 export function runtimeMetrics() {
   return { cpu: process.cpuUsage(), memory: process.memoryUsage(), resource: process.resourceUsage() };
-}
-
-export function inputName(input: string): string {
-  return basename(input, join(dirname(input), ''));
 }

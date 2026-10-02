@@ -14,15 +14,18 @@ export async function setup(options: SetupOptions = {}) {
 }
 
 export async function createUIQualityChecker(options: CheckerOptions = {}): Promise<UIQualityChecker> {
+  const start = localClock.now();
   resolveOptions(options);
   options.signal?.throwIfAborted();
-  const detectors: readonly QualityDetector[] = options.detectors ?? [new UIClipDetector(localFiles, options.modelDir ?? defaultModelDirectory, options)];
+  const detectors: readonly QualityDetector[] = options.detectors ?? [new UIClipDetector(localFiles, options.modelDir ?? defaultModelDirectory, options, localClock)];
   if (!detectors.length || new Set(detectors.map((d) => d.info.id)).size !== detectors.length) throw new Error('Provide at least one detector, with unique nonempty detector ids.');
   if (detectors.some((d) => !d.info.id || !d.info.version || !d.info.executionProvider)) throw new Error('Each detector requires a nonempty id, version and executionProvider.');
   try {
     for (const detector of detectors) await detector.initialize();
     options.signal?.throwIfAborted();
-    return new ArtifactChecker({ ...options, ffmpegPath: decoderPath(options.ffmpegPath) }, localFiles, localProcess, new Scorer(detectors, localClock, options.signal));
+    const checker = new ArtifactChecker({ ...options, ffmpegPath: decoderPath(options.ffmpegPath) }, localFiles, localProcess, new Scorer(detectors, localClock, options.signal));
+    checker.startupMs = localClock.now() - start;
+    return checker;
   } catch (error) {
     await Promise.allSettled(detectors.map((d) => d.dispose()));
     throw error;

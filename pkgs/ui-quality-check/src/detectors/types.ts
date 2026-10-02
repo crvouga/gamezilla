@@ -25,6 +25,7 @@ export interface QualityDetector {
   initialize(): Promise<void>;
   score(images: readonly RgbImage[], signal?: AbortSignal): Promise<readonly QualityScore[]>;
   dispose(): Promise<void>;
+  metrics?(): { inferenceMs: number; windowsProcessed: number };
 }
 
 /** Future temporal detectors can keep bounded state per video via this seam. */

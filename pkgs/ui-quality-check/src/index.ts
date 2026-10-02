@@ -3,3 +3,8 @@ export { UIQualityError } from './errors';
 export type { SetupOptions } from './model/setup';
 export type { ImageInput, RgbImage, DetectorInfo, QualityScore, QualityDetector, SequenceDetector } from './detectors/types';
 export type { CheckerOptions, UIQualityChecker, QualityResult, FrameQuality, FrameQualityFailure, DetectorResult, BatchQualityResult } from './types';
+export { calibrate } from './calibration/calibrate';
+export { calibrationStatistics, confusion } from './calibration/statistics';
+export type { ConfusionMatrix } from './calibration/statistics';
+export type { CalibrationOptions } from './calibration/calibrate';
+export { benchmark } from './benchmark';

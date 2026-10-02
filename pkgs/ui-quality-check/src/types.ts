@@ -73,6 +73,7 @@ export interface BatchQualityResult {
 
 export interface UIQualityChecker {
   readonly detectors: readonly DetectorInfo[];
+  metrics(): { startupMs: number; scoringMs: number; batches: number; inferenceMs: number; windowsProcessed: number };
   checkImage(input: ImageInput): Promise<QualityResult>;
   checkImages(inputs: readonly ImageInput[]): Promise<BatchQualityResult>;
   checkVideo(input: string): Promise<QualityResult>;

@@ -2,7 +2,7 @@ import { basename, extname, join } from 'node:path';
 import sharp from 'sharp';
 import type { Files } from '../files';
 import { hashBytes, writeBytes, writeJson } from '../files';
-import type { QualityResult } from '../types';
+import type { QualityResult, FrameQualityFailure } from '../types';
 import type { RgbImage } from '../detectors/types';
 import { captureProcess, type ProcessStarter } from '../video/process';
 
@@ -10,8 +10,8 @@ export async function emitArtifacts(args: { files: Files; result: QualityResult;
   const { result, files } = args;
   const name = basename(result.input, extname(result.input)).replace(/[^a-zA-Z0-9_-]/g, '-');
   const directory = join(args.directory, `${name}-${hashBytes(result.input).slice(0, 12)}`);
-  const worstFrames = [];
-  for (const frame of result.worstFrames) {
+  const worstFrames: FrameQualityFailure[] = [];
+  for (const frame of result.pass ? [] : result.worstFrames) {
     args.signal?.throwIfAborted();
     const artifact = join(directory, `worst-${(frame.timestampMs / 1000).toFixed(3)}.png`);
     let bytes: Uint8Array;
