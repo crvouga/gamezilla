@@ -36,28 +36,27 @@ describe('Check workflow cancellation', () => {
     ).toBe(true);
   });
 
-  test('one Depot job includes publication in its required verdict', () => {
+  test('the required gate verifies all independent shards and never waits for publication', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       jobs: Record<
         string,
         {
-          needs?: string[];
-          'runs-on': string;
-          steps: {
-            name?: string;
-            run?: string;
-            'continue-on-error'?: boolean;
-          }[];
+          needs?: string[] | string;
+          name: string;
+          strategy?: { 'fail-fast': boolean };
+          steps: { run?: string }[];
         }
       >;
     };
-    expect(Object.keys(workflow.jobs)).toEqual(['check']);
-    const gate = workflow.jobs['check'];
-    expect(gate?.['runs-on']).toBe('depot-ubuntu-24.04-16');
-    const check = gate?.steps.find((step) => step.name === 'check');
-    expect(check?.run).toContain('--publish-reports');
-    expect(check?.run).toContain('check');
-    expect(check?.['continue-on-error']).toBeUndefined();
-    expect(gate?.needs).toBeUndefined();
+    const gate = workflow.jobs['check']!;
+    expect(gate.needs).toEqual(['check-plan', 'check-shards']);
+    expect(gate.steps[0]!.run).toContain('test "$PLAN_RESULT" = success');
+    expect(gate.steps[0]!.run).toContain('test "$SHARD_RESULT" = success');
+    expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
+    expect(workflow.jobs['check-reports']!.needs).toEqual([
+      'check-plan',
+      'check-shards',
+    ]);
+    expect(gate.needs).not.toContain('check-reports');
   });
 });

@@ -1,5 +1,10 @@
 [
   {
+    "id": "check-opaque-task-failure",
+    "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
+    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+  },
+  {
     "id": "depot-migration-workflow-on-feature-branch",
     "summary": "Merging migrate-secrets-to-depot-ci-1790912980154.yml onto ci/speed-up-check-workflow triggered run 36967300871 on every push: variable import failed with Invalid token, and cleanup refused to delete the feature branch. Remove the one-time migration workflow; Check, Deploy and Health already read GitHub variables and authenticate with GitHub OIDC.",
     "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
