@@ -193,6 +193,7 @@ export class BoardPointer {
     host.addEventListener('pointerup', this.onUp);
     host.addEventListener('pointercancel', this.onLost);
     host.addEventListener('lostpointercapture', this.onLost);
+    host.ownerDocument.defaultView?.addEventListener('blur', this.onBlur);
   }
 
   private endPress(): void {
@@ -205,6 +206,7 @@ export class BoardPointer {
     host.removeEventListener('pointerup', this.onUp);
     host.removeEventListener('pointercancel', this.onLost);
     host.removeEventListener('lostpointercapture', this.onLost);
+    host.ownerDocument.defaultView?.removeEventListener('blur', this.onBlur);
     if (pointerId !== undefined) {
       try {
         host.releasePointerCapture(pointerId);
@@ -258,6 +260,8 @@ export class BoardPointer {
     if (this.press === null || e.pointerId !== this.press.pointerId) return;
     this.cancelPress();
   };
+
+  private readonly onBlur = (): void => this.cancelPress();
 
   private readonly onContextMenu = (e: MouseEvent): void => {
     // The board owns the right button (shapes / cancel), never the menu.

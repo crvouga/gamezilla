@@ -68,6 +68,30 @@ export const closeBoard = defineAction({
   name: 'closeBoard',
   act: (w: BoardWorld) => w.app.close(),
 });
+export const setVisibility = defineAction({
+  name: 'setVisibility',
+  act: (w: BoardWorld, visible: boolean) => w.app.motion.setHidden(!visible),
+});
+export const leaveActivity = defineAction({
+  name: 'leaveActivity',
+  act: (_w: BoardWorld) => {
+    window.dispatchEvent(new Event('blur'));
+  },
+});
+export const replacePosition = defineAction({
+  name: 'replacePosition',
+  act: (w: BoardWorld, fen: string) =>
+    w.app.configure({ fen, fenSyncKey: (w.app.config().fenSyncKey ?? 0) + 1 }),
+});
+export const resizeBoard = defineAction({
+  name: 'resizeBoard',
+  act: (w: BoardWorld) =>
+    w.app.configure({ size: w.app.config().size === 512 ? 320 : 512 }),
+});
+export const finishAnimation = defineAction({
+  name: 'finishAnimation',
+  act: (w: BoardWorld) => w.session.advanceTime(1000),
+});
 export const readBoard = (w: BoardWorld) => w.app.view();
 export const readProbe = (w: BoardWorld) => w.app.probe();
 export const readSquare = (w: BoardWorld, square: Square) =>
@@ -75,7 +99,7 @@ export const readSquare = (w: BoardWorld, square: Square) =>
 export const boardSystem = defineSystem<BoardWorld>({
   name: 'chess-board',
   create(session) {
-    return { session, app: createExampleApp(session), audited:false };
+    return { session, app: createExampleApp(session), audited: false };
   },
   runtimes: [
     defineRuntime({
@@ -102,7 +126,8 @@ export const boardSystem = defineSystem<BoardWorld>({
         )
           throw new Error('Duplicate visual square');
         if (!w.audited) {
-          if (auditTree(w.app.host).length > 0) throw new Error('Chessboard accessibility audit failed');
+          if (auditTree(w.app.host).length > 0)
+            throw new Error('Chessboard accessibility audit failed');
           w.audited = true;
         }
       },
@@ -117,23 +142,14 @@ export const boardSystem = defineSystem<BoardWorld>({
     cancelDrag,
     reduceMotion,
     closeBoard,
+    setVisibility,
+    leaveActivity,
+    replacePosition,
+    resizeBoard,
+    finishAnimation,
   ],
 });
-export const replacePosition = defineAction({
-  name: 'replacePosition',
-  act: (w: BoardWorld, fen: string) =>
-    w.app.configure({ fen, fenSyncKey: (w.app.config().fenSyncKey ?? 0) + 1 }),
-});
-export const resizeBoard = defineAction({
-  name: 'resizeBoard',
-  act: (w: BoardWorld) =>
-    w.app.configure({ size: w.app.config().size === 512 ? 320 : 512 }),
-});
 export const readSlides = (w: BoardWorld) => w.app.motion.slides();
-export const finishAnimation = defineAction({
-  name: 'finishAnimation',
-  act: (w: BoardWorld) => w.session.advanceTime(1000),
-});
 export const readLifecycle = (w: BoardWorld) => {
   const probe = w.app.probe();
   const fen = probe.fen.split(' ').slice(0, 2).join(' ');
@@ -150,6 +166,7 @@ export const readLifecycle = (w: BoardWorld) => {
       reducedMotion: w.app.motion.env.prefersReducedMotion(),
       orientation: probe.orientation,
       transition: w.app.motion.active() > 0,
+      visible: !w.app.motion.env.hidden(),
     },
   };
 };

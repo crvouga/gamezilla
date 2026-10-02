@@ -3,9 +3,12 @@ import {
   type BoardWorld,
   beginDrag,
   CAPTURE,
+  cancelDrag,
   closeBoard,
   configureBoard,
+  finishAnimation,
   INITIAL,
+  leaveActivity,
   movePiece,
   REPLACEMENT,
   readBoard,
@@ -15,6 +18,7 @@ import {
   reduceMotion,
   selectSquare,
   setupBoard,
+  setVisibility,
 } from '@pkgs/chess-board/harness';
 import type { Square } from '@pkgs/chess-board-core/types';
 import { stepsFor } from '@pkgs/gherkin/registry';
@@ -50,6 +54,14 @@ Given("Alice's move from g1 to f3 is animating", async (w) => {
   await w.apply(setupBoard, {});
   await w.apply(movePiece, 'g1', 'f3');
 });
+Given(
+  'Alice has a hidden chessboard after capturing from e4 to d5',
+  async (w) => {
+    await w.apply(setupBoard, { fen: CAPTURE });
+    await w.apply(movePiece, 'e4', 'd5');
+    await w.apply(setVisibility, false);
+  }
+);
 Given("Alice's board settings enable sound", (w) =>
   w.apply(configureBoard, { sound: true })
 );
@@ -86,6 +98,15 @@ When('Alice resizes the chessboard', (w) =>
   w.apply(configureBoard, { size: 512 })
 );
 When('Alice closes the chessboard', (w) => w.apply(closeBoard));
+When('Alice cancels the drag', (w) => w.apply(cancelDrag));
+When("Alice switches away from the chessboard's activity", (w) =>
+  w.apply(leaveActivity)
+);
+When("Alice's chessboard becomes hidden", (w) => w.apply(setVisibility, false));
+When("Alice's chessboard becomes visible", (w) => w.apply(setVisibility, true));
+When('Alice waits for the animation to finish', (w) =>
+  w.apply(finishAnimation)
+);
 Then('Alice sees a White pawn on {word}', async (w, square: Square) =>
   expect((await w.read(readBoard)).pieces).toContain(`wp@${square}`)
 );

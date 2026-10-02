@@ -1318,5 +1318,25 @@
     "id": "dev-client-stale-api-config",
     "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
     "regressionTest": "apps/product/tests/wrangler-config.test.ts"
+  },
+  {
+    "id": "chessboard-disabled-sound-request",
+    "summary": "A board sound requested while disabled could play after re-enabling if its seek had not completed. Guard both request and playback against parent sound authority.",
+    "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-disposed-sound-request",
+    "summary": "A retained sound handle could start playback after its board scope was disposed. Disposed handles remain inert.",
+    "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-hidden-motion",
+    "summary": "Hiding a page did not cancel already-running piece motion or a capture remnant, allowing old transitions to resume when shown. Hidden motion settles immediately.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-focus-interruption",
+    "summary": "Switching away during a held pointer gesture left its avatar and pointer session alive. Activity focus loss cancels and releases the gesture without a move.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
   }
 ]

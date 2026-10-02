@@ -72,6 +72,25 @@ test('unmount cancels a blocked seek before it can play', async () => {
   await audio.release();
   expect(audio.played).toEqual([]);
 });
+test('a sound requested while disabled cannot play after re-enabling', async () => {
+  // regression: chessboard-disabled-sound-request
+  const audio = deferredAudio();
+  const board = scope(audio.port, false);
+  board.player.playMove();
+  board.setEnabled(true);
+  await audio.release();
+  expect(audio.played).toEqual([]);
+  board.close();
+});
+test('a disposed board sound handle stays inert', async () => {
+  // regression: chessboard-disposed-sound-request
+  const audio = deferredAudio();
+  const board = scope(audio.port);
+  board.close();
+  board.player.playMove();
+  await audio.release();
+  expect(audio.played).toEqual([]);
+});
 test('muting or closing one board cannot trigger or cancel the other board', async () => {
   const audio = deferredAudio();
   const a = scope(audio.port);

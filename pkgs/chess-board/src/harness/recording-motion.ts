@@ -56,6 +56,7 @@ export type RecordingMotion = {
   readonly slides: Accessor<readonly string[]>;
   readonly active: () => number;
   readonly setReducedMotion: (on: boolean) => void;
+  readonly setHidden: (hidden: boolean) => void;
 };
 
 export function createRecordingMotion(args: {
@@ -68,6 +69,7 @@ export function createRecordingMotion(args: {
 }): RecordingMotion {
   const [slides, setSlides] = createSignal<readonly string[]>([]);
   const [reduced, setReduced] = createSignal(args.reducedMotion);
+  const [hidden, setHidden] = createSignal(false);
   const running = new Map<HTMLElement, Running>();
   const animate: AnimateTransform = (element, from, to, durationMs) => {
     const o = args.orientation();
@@ -96,7 +98,7 @@ export function createRecordingMotion(args: {
       animate: args.webAnimations ? animate : null,
       prefersReducedMotion: reduced,
       lowEnd: args.lowEnd,
-      hidden: () => false,
+      hidden,
       paintedTransform: (element) => {
         const run = running.get(element);
         return run === undefined
@@ -107,5 +109,6 @@ export function createRecordingMotion(args: {
     slides,
     active: () => running.size,
     setReducedMotion: setReduced,
+    setHidden,
   };
 }

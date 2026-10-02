@@ -68,6 +68,7 @@ export function createChessBoardSounds(
   const bank = existing ?? createBank(port);
   if (existing === undefined) banks.set(port, bank);
   bank.boards += 1;
+  let closed = false;
   const owner = Symbol('board-audio');
   const players = Object.fromEntries(
     BOARD_SOUND_KEYS.map((key) => [
@@ -78,7 +79,7 @@ export function createChessBoardSounds(
           if (bank.owners.get(key) === owner) bank.players[key].pause();
         },
         play: () => {
-          if (!enabled()) return;
+          if (closed || !enabled()) return;
           bank.owners.set(key, owner);
           void bank.players[key].play();
         },
@@ -107,16 +108,22 @@ export function createChessBoardSounds(
   createEffect(() => {
     if (!enabled()) cancel();
   });
-  onCleanup(cancel);
-  onCleanup(() => releaseBank(port, bank));
+  onCleanup(() => {
+    closed = true;
+    cancel();
+    releaseBank(port, bank);
+  });
+  const play = (key: BoardSoundKey): void => {
+    if (!closed && enabled()) handles[key].play();
+  };
   return {
     cancel,
-    playMove: () => handles.move.play(),
-    playCapture: () => handles.capture.play(),
-    playCheck: () => handles.check.play(),
-    playCastle: () => handles.castle.play(),
-    playPromote: () => handles.promote.play(),
-    playIllegal: () => handles.illegal.play(),
-    playGameEnd: () => handles.gameEnd.play(),
+    playMove: () => play('move'),
+    playCapture: () => play('capture'),
+    playCheck: () => play('check'),
+    playCastle: () => play('castle'),
+    playPromote: () => play('promote'),
+    playIllegal: () => play('illegal'),
+    playGameEnd: () => play('gameEnd'),
   };
 }

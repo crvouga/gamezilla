@@ -12,6 +12,7 @@ import {
   replacePosition,
   resizeBoard,
   selectSquare,
+  setVisibility,
 } from '@pkgs/chess-board/harness';
 import type { Run } from '@pkgs/harness';
 import { bindQuintModel } from '@pkgs/quint/registry';
@@ -46,6 +47,7 @@ bindQuintModel<Run<BoardWorld>>({
     },
     resizeBoard: (w) => w.apply(resizeBoard),
     finishAnimation: (w) => w.apply(finishAnimation),
+    setVisibility: (w, p) => w.apply(setVisibility, p['visible'] as boolean),
   },
   observe: (w) => w.read(readLifecycle),
   fingerprint: async (w) => JSON.stringify(await w.read(readLifecycle)),

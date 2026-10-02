@@ -136,7 +136,7 @@ function createMotion(props: ChessBoardProps) {
       durationMs: props.animationDurationMs,
       prefersReducedMotion: env.prefersReducedMotion(),
       lowEnd: env.lowEnd,
-      canAnimate: env.animate !== null,
+      canAnimate: env.animate !== null && !env.hidden(),
     })
   );
   const animator = createPieceAnimator({
@@ -147,7 +147,7 @@ function createMotion(props: ChessBoardProps) {
     if (!motion().slides) animator.dispose();
   });
   onCleanup(animator.dispose);
-  return { motion, animator };
+  return { motion, animator, hidden: env.hidden };
 }
 
 function createModel(
@@ -197,6 +197,7 @@ function createInput(args: {
   > & {
     readonly userShapes: UserShapes;
     readonly setTouch: (t: boolean) => void;
+    readonly hidden: Accessor<boolean>;
   };
   readonly haptics: ReturnType<typeof createBoardHaptics>;
 }): Input {
@@ -258,7 +259,7 @@ export function createBoardController(args: {
   const [host, setHost] = createSignal<HTMLElement | undefined>();
   const boardPx = useBoardPx(host, () => props.size);
   const orientation = () => props.orientation ?? 'white';
-  const { motion, animator } = createMotion(props);
+  const { motion, animator, hidden } = createMotion(props);
   const haptics = createBoardHaptics(() => true);
   let touch = false;
   const model = createModel(props, motion, args.timers, () => {
@@ -277,6 +278,7 @@ export function createBoardController(args: {
       boardPx,
       orientation,
       motion,
+      hidden,
       userShapes,
       setTouch: (next) => {
         touch = next;

@@ -1,11 +1,13 @@
-import { createEffect, on } from 'solid-js';
+import { type Accessor, createEffect, on } from 'solid-js';
 import type { BoardController } from './chess-board-controller';
 import type { BoardPointer } from './chess-board-pointer';
 import type { ChessBoardProps } from './chess-board-types';
 /** A gesture belongs to the position, orientation and geometry it started on. */
 export function watchBoardInput(
   props: ChessBoardProps,
-  parts: Pick<BoardController, 'model' | 'orientation' | 'boardPx'>,
+  parts: Pick<BoardController, 'model' | 'orientation' | 'boardPx'> & {
+    readonly hidden: Accessor<boolean>;
+  },
   pointer: BoardPointer
 ): void {
   createEffect(
@@ -16,6 +18,7 @@ export function watchBoardInput(
         parts.orientation,
         parts.boardPx,
         () => props.enableUserArrows === true,
+        parts.hidden,
       ],
       (current, prev) => {
         if (
