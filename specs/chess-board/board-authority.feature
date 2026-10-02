@@ -70,6 +70,7 @@ Feature: Change chessboard settings safely
       And Alice sees no last move marked
       And Alice hears no chessboard sounds
 
+    @regression:chessboard-stale-announcement
     Scenario: An unrelated position clears the earlier move announcement
       Given Alice has a chessboard after White checkmated Black by moving the queen from g6 to g7
       When Alice's activity replaces the position
@@ -146,6 +147,7 @@ Feature: Change chessboard settings safely
 
   Rule: Only usable supplied positions become the chessboard's position
 
+    @regression:chessboard-combined-confirmation-reply
     Scenario: An immediate opponent reply has one move highlight and sound
       Given Alice has a chessboard after offering White's move from e2 to e4
       When Alice's activity supplies Black's reply from e7 to e5

@@ -240,6 +240,7 @@ Feature: Choose and complete chess moves
       Then Alice is told Black is checkmated
       And Alice hears no chessboard sounds
 
+    @regression:chessboard-stalemate-announcement
     Scenario: Stalemate announces its result without check feedback
       Given Alice has a chessboard ready for White to stalemate Black by moving the queen from f5 to g6
       When Alice moves the piece from f5 to g6
@@ -247,12 +248,14 @@ Feature: Choose and complete chess moves
       And Alice sees neither king marked as in check
       And Alice hears one move sound followed by one end sound with no check sound
 
+    @regression:chessboard-stalemate-announcement
     Scenario: Silent stalemate preserves its result without any sound
       Given Alice has a silent chessboard ready for White to stalemate Black by moving the queen from f5 to g6
       When Alice moves the piece from f5 to g6
       Then Alice is told Black is stalemated
       And Alice hears no chessboard sounds
 
+    @regression:chessboard-terminal-selection
     Scenario: A checkmated chessboard refuses another move
       Given Alice has a chessboard with Black checkmated
       When Alice selects the piece on h8
@@ -260,6 +263,7 @@ Feature: Choose and complete chess moves
       And Alice sees no selection or legal destinations
       And Alice's activity receives no moves
 
+    @regression:chessboard-terminal-selection
     Scenario: A stalemated chessboard refuses another move
       Given Alice has a chessboard with Black stalemated
       When Alice selects the piece on h8
