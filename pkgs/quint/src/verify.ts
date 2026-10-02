@@ -46,6 +46,8 @@ export type VerifyOptions = {
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */
   readonly timeoutMs: number;
+  /** Opt into array-encoded maps for models supported by that encoding. */
+  readonly encoding?: 'fun-arrays';
 };
 
 export type VerifyResult =
@@ -65,20 +67,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  // Induction starts from arbitrary candidate states. Check each transition
-  // separately to avoid a large combined solver formula; all are retained.
-  // Bounded exploration keeps the combined choice to share solver queries.
-  writeFileSync(
-    join(options.outDir, 'apalache-config.json'),
-    JSON.stringify({
-      checker: {
-        tuning: {
-          'search.invariant.mode':
-            options.inductiveInvariant === undefined ? 'after' : 'before',
-        },
-      },
-    })
-  );
+  const configPath = verifyConfig(options);
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
@@ -86,7 +75,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   const port = await freePort();
   const elapsed = wallStopwatch();
   const run = await runQuint({
-    args: verifyArgs(options, port),
+    args: verifyArgs(options, port, configPath),
     cwd: options.outDir,
     env,
     timeoutMs: options.timeoutMs,
@@ -115,7 +104,11 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   return { ok: true, durationMs };
 }
 
-function verifyArgs(options: VerifyOptions, port: number): string[] {
+function verifyArgs(
+  options: VerifyOptions,
+  port: number,
+  configPath: string
+): string[] {
   const invariants =
     options.inductiveInvariant === undefined
       ? options.invariants
@@ -134,7 +127,7 @@ function verifyArgs(options: VerifyOptions, port: number): string[] {
     '--max-steps',
     String(options.maxSteps),
     '--apalache-config',
-    join(options.outDir, 'apalache-config.json'),
+    configPath,
     '--apalache-version',
     APALACHE_VERSION,
     '--server-endpoint',
@@ -146,6 +139,20 @@ function verifyArgs(options: VerifyOptions, port: number): string[] {
   ];
 }
 
+function verifyConfig(options: VerifyOptions): string {
+  const path = join(options.outDir, 'apalache-config.json');
+  const checker = {
+    ...(options.encoding === undefined
+      ? {}
+      : { 'smt-encoding': { type: options.encoding } }),
+    tuning: {
+      'search.invariant.mode':
+        options.inductiveInvariant === undefined ? 'after' : 'before',
+    },
+  };
+  writeFileSync(path, JSON.stringify({ checker }));
+  return path;
+}
 /**
  * Lines that say nothing about the model: the Apalache server's log
  * (`… I@09:12:03.123`), its banner and a protobuf warning of its own.

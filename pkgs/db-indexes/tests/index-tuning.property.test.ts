@@ -12,8 +12,8 @@
  * replayed on a fresh harness ends in the same state (indexes, retirement
  * bookkeeping, use counts and the last tuning report).
  *
- * This replaces the former `index-tuning` spec context: index tuning is
- * technical, so its guards are code tests in this package.
+ * Complementary generated reference-model agreement checks. The executable
+ * specification lives in specs/db-indexes and is replayed by tests/quint.
  *
  * The rules the model states:
  * - every declared lookup gets a tuned index when tuning runs;
