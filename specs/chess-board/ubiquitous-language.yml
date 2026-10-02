@@ -50,6 +50,10 @@ terms:
     model: [finishAnimation]
   - term: reduced motion
     definition: A choice to place pieces at their destinations immediately, without slides or capture remnants.
+  - term: visibility
+    definition: Whether the chessboard's activity is visible; hidden chessboards settle without replaying old motion when shown again.
+    forms: [visible, hidden, becomes visible, becomes hidden]
+    model: [setVisibility]
   - term: promotion
     definition: A pawn reaching the last rank waits for a queen, rook, bishop or knight choice unless automatic queen promotion is enabled.
   - term: resize

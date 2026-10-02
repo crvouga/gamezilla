@@ -67,3 +67,27 @@ Feature: Change chessboard settings safely
       Then Alice no longer holds a piece
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
+
+  Rule: Abandoning a drag never moves a piece
+    No counter-example: cancelling a gesture never offers a move to the activity.
+
+    Scenario: Cancelling a held piece returns it to its square
+      Given Alice is dragging the piece on e2
+      When Alice cancels the drag
+      Then Alice no longer holds a piece
+      And Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves
+
+    @regression:chessboard-focus-interruption
+    Scenario: Switching away from the activity cancels a held piece
+      Given Alice is dragging the piece on e2
+      When Alice switches away from the chessboard's activity
+      Then Alice no longer holds a piece
+      And Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves
+
+    Scenario: Cancelling without a held piece preserves the position
+      Given Alice has an interactive chessboard
+      When Alice cancels the drag
+      Then Alice sees the White pawn remaining on e2
+      And Alice's activity receives no moves

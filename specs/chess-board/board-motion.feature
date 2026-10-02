@@ -19,6 +19,13 @@ Feature: Keep moving pieces coherent
       Then Alice sees no capture remnant
       And Alice sees the replacement position
 
+    Scenario: A completed capture keeps its destination and removes its remnant
+      Given Alice's capture from e4 to d5 is animating
+      When Alice waits for the animation to finish
+      Then Alice sees no unfinished animation
+      And Alice sees no capture remnant
+      And Alice sees the White pawn remaining on d5
+
   Rule: Reduced motion places pieces immediately
 
     Scenario: A move animates when motion is enabled
@@ -37,4 +44,22 @@ Feature: Keep moving pieces coherent
       Given Alice's capture from e4 to d5 is animating
       When Alice's board settings enable reduced motion
       Then Alice sees no capture remnant
+      And Alice sees the White pawn remaining on d5
+
+  Rule: A hidden chessboard settles without replaying old motion
+    No counter-example: motion in an unseen chessboard always finishes at its current position.
+
+    @regression:chessboard-hidden-motion
+    Scenario: Hiding a capturing chessboard settles its transition
+      Given Alice's capture from e4 to d5 is animating
+      When Alice's chessboard becomes hidden
+      Then Alice sees no unfinished animation
+      And Alice sees no capture remnant
+      And Alice sees the White pawn remaining on d5
+
+    Scenario: Showing a chessboard does not replay a completed move
+      Given Alice has a hidden chessboard after capturing from e4 to d5
+      When Alice's chessboard becomes visible
+      Then Alice sees no unfinished animation
+      And Alice sees no capture remnant
       And Alice sees the White pawn remaining on d5
