@@ -1463,5 +1463,20 @@
     "id": "chessboard-draw-announcement",
     "summary": "Black a2-b1 capture promotion to bishop or knight leaves dead material but announces only the move, omitting the drawn result for silent and assistive users. Announce every canonical drawn result.",
     "regressionTest": "specs/chess-board/board-black-promotion.feature"
+  },
+  {
+    "id": "chess-puzzle-replayed-feedback",
+    "summary": "Returning from Sound settings repeats the already reached opponent opening move or a hydrated solved-puzzle cue.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chess-puzzle-rating-feedback-late",
+    "summary": "Resuming an unfinished puzzle freezes completion feedback at the preliminary unrated result and omits the gain cue when its rating ledger arrives.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chess-puzzle-duplicate-rating-feedback",
+    "summary": "Equivalent completion updates repeat the rating-gain cue because the reactive trigger returns a fresh tuple for unchanged result values.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
   }
 ]

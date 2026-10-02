@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import ts from 'typescript';
+import { boardSoundIssues } from './board-sound-contract';
 
 const ROOT = resolve(import.meta.dirname, '../src');
 const PUBLIC_BOARD = new Set([
@@ -69,7 +70,7 @@ function inspect(path: string) {
     true,
     ts.ScriptKind.TSX
   );
-  const issues: string[] = [];
+  const issues = boardSoundIssues(file, path);
   function visit(node: ts.Node): void {
     const imported = importedModule(node);
     if (
