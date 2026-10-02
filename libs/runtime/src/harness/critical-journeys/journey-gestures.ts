@@ -64,6 +64,11 @@ const ENTER_SETTLE_MS = 5_000;
 
 async function endIsUp(ui: Driver): Promise<boolean> {
   try {
+    if (!(await ui.get(Handles.spaceEnd).isVisible())) {
+      if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
+        await tap(ui, Handles.spaceChromeOverflow);
+      }
+    }
     await ui
       .get(Handles.spaceEnd)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
@@ -86,6 +91,9 @@ async function enterHostedSpace(ui: Driver): Promise<void> {
   const join = ui.get(Handles.spaceJoin);
   for (let attempt = 0; attempt < ENTER_POLLS; attempt += 1) {
     if (await end.isVisible()) return;
+    if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
+      if (await endIsUp(ui)) return;
+    }
     if (!(await join.isVisible())) {
       try {
         await join.expect.visible({ timeoutMs: ENTER_SETTLE_MS });
