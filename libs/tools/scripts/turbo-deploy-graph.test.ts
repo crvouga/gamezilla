@@ -313,7 +313,7 @@ describe('turbo check/deploy graph invariants', () => {
       '@apps/product#health',
     ]);
     expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([
-      'tc',
+      '^src',
       'build',
     ]);
   });
