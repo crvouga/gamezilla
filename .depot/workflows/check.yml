@@ -98,7 +98,8 @@ jobs:
         env:
           CHECK_SHARD: ${{ matrix.shard }}
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" RAYON_NUM_THREADS=1 MODEL_CHECK_CONCURRENCY=4 bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
-      # One uncompressed transfer; remote hits need no report download here.
+      # Successful raw reports already upload as Turbo outputs. Transfer only
+      # verdicts and failed reports (failed checks never enter Turbo cache).
       - name: Transfer raw evidence
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -106,9 +107,7 @@ jobs:
           name: check-evidence-${{ matrix.shard }}
           path: |
             .cache/check-ci/results/*.json
-            apps/*/.cache/harness-report/**
-            libs/*/.cache/harness-report/**
-            pkgs/*/.cache/harness-report/**
+            .cache/check-ci/failed-reports/**
           include-hidden-files: true
           if-no-files-found: ignore
           compression-level: 0
