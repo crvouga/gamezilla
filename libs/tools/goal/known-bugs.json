@@ -5,14 +5,24 @@
     "regressionTest": "libs/infra/tests/worker-retirement.test.ts"
   },
   {
-    "id": "github-transfer-immutable-oidc-subject",
-    "summary": "Check failed in secrets-auth with OIDC subject not allowed after the repository transfer. GitHub now issues repo:gamezilla-org@336801040/gamezilla@1165464734 subjects, while Infisical and AWS trusted name-only subjects. Declare the current owner and immutable IDs and share the exact prefix across both trust policies.",
-    "regressionTest": "libs/infra/tests/github-oidc.test.ts"
-  },
-  {
     "id": "consolidated-deploy-check-aggregator",
     "summary": "The consolidated application deployment depended directly on the root Check aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Check in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "s3-ignores-injected-http",
+    "summary": "The S3 adapter accepted an HttpClient but used the SDK wall transport, making injected transport tests and clients ineffective. Send every S3 request through the injected handler.",
+    "regressionTest": "pkgs/object-store-s3/tests/bulk-delete.test.ts"
+  },
+  {
+    "id": "reports-class-a-snapshot-fanout",
+    "summary": "Check uploaded every individual report snapshot again, including cached suites, incurring millions of paid R2 writes. Publish compressed, bounded chunks and reuse identical chunks on reruns.",
+    "regressionTest": "pkgs/harness-report/tests/bundle.test.ts"
+  },
+  {
+    "id": "reports-retain-merged-and-superseded-commits",
+    "summary": "The reports store retained superseded commits and reports of merged or deleted branches for thirty days. Keep only one report per existing branch and garbage collect orphan uploads.",
+    "regressionTest": "pkgs/harness-report/tests/retention.test.ts"
   },
   {
     "id": "db-framework-contract-spec-discovery",
@@ -603,6 +613,16 @@
     "id": "crash-copy-rejection",
     "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
     "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  },
+  {
+    "id": "check-report-cleanup-serial-commit-listing",
+    "summary": "Check run 36975436667 passed every shard but its final job exceeded 10 minutes pruning reports. Commit 075ee6c683761e1b2173d33aa0d0ccfebdb404ea alone contained 56,999 objects under one hash partition. Split large trees into concurrent child listings, but read small subtrees in one page: walking 128 individual snapshot folders otherwise took 387 requests.",
+    "regressionTest": "pkgs/object-store-s3/tests/list-keys.test.ts"
+  },
+  {
+    "id": "github-transfer-immutable-oidc-subject",
+    "summary": "Check run 36974006709 failed with Infisical HTTP 403 after the repository transfer enabled GitHub's immutable OIDC subject. Bind Infisical and AWS CI identities to repo:gamezilla-org@336801040/gamezilla@1165464734 while preserving branch and environment restrictions.",
+    "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
     "id": "check-manual-cancels-required-pr",

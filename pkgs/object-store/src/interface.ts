@@ -51,6 +51,9 @@ export interface ObjectStore {
   /** Removes the value at `key` if present. No-op when missing. */
   delete(key: string): Promise<void>;
 
+  /** Remove every key, idempotently. Errors (including partial failure) throw. */
+  deleteMany(keys: readonly string[]): Promise<void>;
+
   /**
    * Returns a URL that the host runtime can load directly without reading bytes
    * through {@link ObjectStore.get} again. Returns `null` for missing keys, and

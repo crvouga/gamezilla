@@ -29,6 +29,9 @@ function memoryStore(files: Readonly<Record<string, string>>): ObjectStore {
     async delete(key) {
       values.delete(key);
     },
+    async deleteMany(keys) {
+      for (const key of keys) values.delete(key);
+    },
     async getUri() {
       return null;
     },

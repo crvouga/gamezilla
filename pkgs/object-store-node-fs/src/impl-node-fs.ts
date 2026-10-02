@@ -183,6 +183,10 @@ export class ObjectStoreImplNodeFs implements ObjectStore {
     }
   }
 
+  async deleteMany(keys: readonly string[]): Promise<void> {
+    for (const key of keys) await this.delete(key);
+  }
+
   async getUri(key: string): Promise<string | null> {
     if (!(await this.head(key))) return null;
     return pathToFileURL(this.resolveDataPath(key)).href;

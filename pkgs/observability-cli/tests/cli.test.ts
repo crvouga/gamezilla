@@ -26,6 +26,7 @@ function storeWith(line?: string): NdjsonTraceStore {
         return bytes !== undefined;
       },
       async delete() {},
+      async deleteMany() {},
       async getUri() {
         return null;
       },
@@ -102,6 +103,7 @@ function manifestStore(files: Readonly<Record<string, string>>): ObjectStore {
       return files[key] !== undefined;
     },
     async delete() {},
+    async deleteMany() {},
     async getUri() {
       return null;
     },

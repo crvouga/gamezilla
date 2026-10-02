@@ -16,14 +16,10 @@ import {
   testPrefix,
   testReportKey,
 } from '@pkgs/harness';
-import {
-  readObjectBytes,
-  readUtf8,
-  writeUtf8,
-} from '@pkgs/object-store/helpers';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-import { eachLimited } from './completion-order';
+import { type BundleEntry, bundleIndexKey, publishBundle } from './bundle';
 import {
   commitIndexKey,
   commitKey,
@@ -40,8 +36,6 @@ import { readCommit } from './read';
 
 /** The run id every spec suite writes its bucket under. */
 export const SPEC_RUN_ID = 'latest';
-/** Parallel uploads per source. */
-const WRITE_WIDTH = 32;
 const JSON_TYPE = 'application/json; charset=utf-8';
 
 export type OpenCommitArgs = {
@@ -153,29 +147,11 @@ export async function publishSource(
   const source = sourceId(args.packageDir, args.bucket);
   const tests = await readTests(args.local, runId);
   if (tests.length === 0) return null;
-  const copies: { from: string; to: string }[] = [];
-  for (const { report } of tests) {
-    const { testId } = report.meta;
-    const files = new Set<string>();
-    frameFiles(report.steps, files);
-    for (const file of files) {
-      copies.push({
-        from: testFrameKey(runId, testId, file),
-        to: remoteTestFileKey(args.sha, source, testId, file),
-      });
-    }
-  }
-  await eachLimited(copies, WRITE_WIDTH, async ({ from, to }) => {
-    const obj = await args.local.get(from);
-    const bytes = obj === null ? null : await readObjectBytes(args.local, from);
-    if (obj !== null && bytes !== null) {
-      await store.put(to, bytes, obj.contentType);
-    }
-  });
-  await eachLimited(tests, WRITE_WIDTH, async ({ report }) => {
-    const key = remoteTestReportKey(args.sha, source, report.meta.testId);
-    await writeUtf8(store, key, JSON.stringify(report), JSON_TYPE);
-  });
+  await publishBundle(
+    store,
+    bundleIndexKey(args.sha, source),
+    sourceEntries(args, source, tests, runId)
+  );
   const metas = tests
     .map((t) => t.report.meta)
     .sort((a, b) => (a.testId < b.testId ? -1 : a.testId > b.testId ? 1 : 0));
@@ -194,6 +170,35 @@ export async function publishSource(
     JSON_TYPE
   );
   return record;
+}
+
+async function* sourceEntries(
+  args: PublishSourceArgs,
+  source: string,
+  tests: readonly HtmlReportTest[],
+  runId: string
+): AsyncGenerator<BundleEntry> {
+  for (const { report } of [...tests].sort((a, b) =>
+    a.report.meta.testId < b.report.meta.testId ? -1 : 1
+  )) {
+    const { testId } = report.meta;
+    yield {
+      key: remoteTestReportKey(args.sha, source, testId),
+      bytes: new TextEncoder().encode(JSON.stringify(report)),
+      contentType: JSON_TYPE,
+    };
+    const files = new Set<string>();
+    frameFiles(report.steps, files);
+    for (const file of [...files].sort()) {
+      const obj = await args.local.get(testFrameKey(runId, testId, file));
+      if (obj === null) throw new Error(`Missing report snapshot: ${file}`);
+      yield {
+        key: remoteTestFileKey(args.sha, source, testId, file),
+        bytes: new Uint8Array(await new Response(obj.body).arrayBuffer()),
+        contentType: obj.contentType,
+      };
+    }
+  }
 }
 
 export type CloseCommitArgs = {

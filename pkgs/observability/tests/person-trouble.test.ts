@@ -96,6 +96,7 @@ function storeOf(lines: readonly string[]): NdjsonTraceStore {
       return true;
     },
     async delete() {},
+    async deleteMany() {},
     async getUri() {
       return null;
     },

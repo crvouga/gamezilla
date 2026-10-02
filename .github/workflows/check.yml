@@ -173,6 +173,9 @@ jobs:
 
   check:
     name: check
+    concurrency:
+      group: reports-cleanup
+      cancel-in-progress: false
     needs: [check-plan, check-matrix, check-shard]
     if: always() && !cancelled()
     runs-on: ubuntu-latest
@@ -199,6 +202,12 @@ jobs:
       - name: Complete spec report
         if: needs.check-plan.result == 'success' && needs.check-matrix.result == 'success'
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts close
+
+      - name: Prune stale spec reports
+        if: always() && !cancelled()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply
 
       - name: verdict
         if: always() && !cancelled()
