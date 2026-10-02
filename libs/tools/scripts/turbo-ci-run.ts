@@ -9,7 +9,7 @@
  * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
  *   login/network fallback) use `local:rw` so `bun check` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
- *   `globalEnv` enter the hash (avoids `VITE_*` skew).
+ *   `globalEnv` enter the hash. Builds explicitly hash public `VITE_*` inputs.
  * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
  *   remote creds are present but the secret is unset).
  * - No affected-package filter: every gate task is cached per package, so an

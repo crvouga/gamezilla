@@ -39,11 +39,15 @@ test('build hashes its toolchain, shared compiler configs and output-affecting e
     };
   };
   expect(turbo.globalDependencies).toContain('mise.toml');
-  for (const name of ['VITE_COMMIT_HASH', 'VITE_COMMIT_DATE', 'ANALYZE']) {
+  // Vite embeds the entire public env object for import.meta.env reads.
+  for (const name of ['VITE_*', 'ANALYZE']) {
     expect(turbo.tasks.build.env).toContain(name);
   }
   for (const file of ['lingui.config.ts', 'lingui.solid.config.ts']) {
     expect(turbo.tasks.build.inputs).toContain(`$TURBO_ROOT$/${file}`);
+  }
+  for (const input of ['**/*.po', '**/*.mts', '.env.local']) {
+    expect(turbo.tasks.build.inputs).toContain(input);
   }
   expect(turbo.tasks['@apps/product#check:offline-shell'].dependsOn).toContain(
     '@apps/product#build'

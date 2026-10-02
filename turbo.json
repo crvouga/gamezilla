@@ -375,18 +375,15 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": [
-        "VITE_API_URL",
-        "VITE_TEST_HOOKS",
-        "VITE_ALLOW_PRODUCTION_API_URL",
-        "VITE_COMMIT_HASH",
-        "VITE_COMMIT_DATE",
-        "ANALYZE"
-      ],
+      "env": ["VITE_*", "ANALYZE"],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
+        "**/*.mts",
+        "**/*.cjs",
+        "**/*.mjs",
         "**/*.css",
+        "**/*.po",
         "**/*.json",
         "**/*.html",
         "vite.config.mts",
@@ -401,6 +398,10 @@
         "tsconfig.json",
         "tsconfig.tc.json",
         "babel.config.js",
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".env.production.local",
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/lingui.solid.config.ts"
       ],
