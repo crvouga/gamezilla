@@ -13,12 +13,11 @@ export async function planReportRetention(
   store: ObjectStore,
   branches: ReadonlyMap<string, string>
 ): Promise<ReportRetentionPlan> {
-  // Partition the commit namespace so a large backlog does not require one
-  // serial, bucket-wide listing. Never enumerate unrelated bucket content.
-  const pages = await Promise.all(
-    [...'0123456789abcdef'].map((prefix) => store.listKeys(`commits/${prefix}`))
-  );
-  const keys = [...(await store.listKeys('index/')), ...pages.flat()];
+  const keys = (
+    await Promise.all(
+      ['index/', 'commits/'].map((prefix) => store.listKeys(prefix))
+    )
+  ).flat();
   const shas = new Set<string>();
   for (const key of keys) {
     const sha = /^commits\/([0-9a-f]{40})\//.exec(key)?.[1];

@@ -3,7 +3,6 @@ import {
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
-  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -12,6 +11,7 @@ import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
 import { assertRemoteObjectKey } from '@pkgs/object-store/namespace-guard';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store/prefixes';
 import { createFetchRequestHandler } from './fetch-request-handler';
+import { listS3Keys } from './list-keys';
 import type { S3ObjectStoreConfig } from './s3-config';
 import { installS3DomParser } from './s3-dom-parser';
 
@@ -279,25 +279,7 @@ class ObjectStoreImplS3 implements ObjectStore {
         `ObjectStoreImplS3: listKeys prefix must start with "${this.namespace}": ${listPrefix}`
       );
     }
-    const keys: string[] = [];
-    let continuationToken: string | undefined;
-    for (;;) {
-      const response = await this.client.send(
-        new ListObjectsV2Command({
-          Bucket: this.bucket,
-          Prefix: listPrefix,
-          ContinuationToken: continuationToken,
-        })
-      );
-      for (const obj of response.Contents ?? []) {
-        if (typeof obj.Key === 'string' && obj.Key.length > 0) {
-          keys.push(obj.Key);
-        }
-      }
-      if (!response.IsTruncated) break;
-      continuationToken = response.NextContinuationToken;
-    }
-    return keys.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    return listS3Keys(this.client, this.bucket, listPrefix);
   }
 
   withPrefix(_prefix: string): ObjectStore {

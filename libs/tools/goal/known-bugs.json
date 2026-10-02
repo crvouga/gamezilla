@@ -605,6 +605,11 @@
     "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
   },
   {
+    "id": "check-report-cleanup-serial-commit-listing",
+    "summary": "Check run 36975436667 passed every shard but its final job exceeded 10 minutes pruning reports. Commit 075ee6c683761e1b2173d33aa0d0ccfebdb404ea alone contained 56,999 objects under one hash partition. List child directories concurrently in bounded batches rather than paging the entire commit tree serially.",
+    "regressionTest": "pkgs/object-store-s3/tests/list-keys.test.ts"
+  },
+  {
     "id": "github-transfer-immutable-oidc-subject",
     "summary": "Check run 36974006709 failed with Infisical HTTP 403 after the repository transfer enabled GitHub's immutable OIDC subject. Bind Infisical and AWS CI identities to repo:gamezilla-org@336801040/gamezilla@1165464734 while preserving branch and environment restrictions.",
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
