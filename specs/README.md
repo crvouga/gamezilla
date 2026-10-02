@@ -1100,6 +1100,7 @@ terms:
 | Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
 | Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
 | Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
+| Database indexing | `db-indexes` | automatic index ownership, planning, retirement, interrupted maintenance and recovery | technical maintenance |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting, and the promises a live environment keeps about reaching and answering people | generic |
 | Developer tools | `developer-tools` | the team's testing tool, test worlds, checkpoints, data notebooks, test runs, test reports, recorded moments, and release checks | supporting |
 | Product feedback | `feedback` | bugs, feature requests, gaps and polish, with recordings and diagnostics that help the team reproduce trouble | supporting |
@@ -1120,6 +1121,7 @@ Developer tools ──► App (the testing tool)
 Friends, Spaces ──► Developer tools (friend, space)
 Chess    ──► Journeys (a game of chess, a puzzle)
 Room, Sync engine, Matchmaking: stand alone (Sync engine's "shared space" is not a Spaces space)
+Database indexing: stands alone; publishes no product terms or events
 ```
 
 Published language:
@@ -1142,6 +1144,16 @@ Published language:
   (`PaidAccessEnded`), never requests.
 
 ### What belongs in a spec
+
+All executable specifications live in `specs/`, each in its own bounded
+context. Technical maintenance contracts belong here too: `db-indexes`
+defines the database operator's observable contract in its own language,
+separate from app behavior. Its glossary owns that language; it neither
+borrows nor publishes app concepts. Package tests retain pure computations
+and low-level adapter contracts, not a second location for specifications.
+The glossary declares `profile: maintenance`; app is the default. Only
+technical words explicitly declared by a maintenance glossary are admitted
+by the wording gate, and its model headers must use the matching profile.
 
 A scenario earns its place when a person, or the team running the product,
 could observe the outcome from outside (A0). Every behavior test is a spec: a
@@ -1185,12 +1197,19 @@ A model is an aggregate: a module named after its file in snake_case
   `nondet` arguments named for the action's arguments;
 - invariants as `val inv<Name>`.
 
-The product is offline-first, so every aggregate (not a context's `events.qnt`)
+The product is offline-first, so every app aggregate (not a context's `events.qnt`)
 says in its header what a person sees with no connection, starts connected,
 lets one device lose that connection and get it back, and has an invariant
 for what stays true while the connection is gone. A variable a person can
 observe has to be named by some invariant. An invariant that is literally
 `true` or `false`, or that names no state, proves nothing.
+
+A technical maintenance model declares `// @model-profile: maintenance`
+in its header. It models operator actions and database states rather than
+app devices. All structural checks, nontrivial invariants, initialization,
+action reachability, trace replay and bounded verification still apply;
+device connectivity checks apply to the default offline-first app profile.
+Unknown or duplicate profiles fail the shape check.
 
 Quint reads `x' = a and b` as `(x' = a) and b`: bracket an assignment's
 right-hand side. An `init` that can never hold draws empty traces, which the
@@ -1335,8 +1354,9 @@ carry no host tags (B15, D1).
 
 ### A. Language — the ubiquitous language is law
 
-**A0 · A business person understands every line.** *Blocking. Hard rule: no
-exceptions, no glossary override.*
+**A0 · A business person understands every line of an app spec.** *Blocking.
+No glossary override for app concepts.* Technical maintenance contexts use
+the operator's language under [What belongs in a spec](#what-belongs-in-a-spec).
 Hand the feature, the context's glossary and the model's header comment to a
 product owner who has never seen the code or studied software. They must
 understand every line, with nothing to look up, and recognise every scenario
@@ -1354,8 +1374,8 @@ failed".
 When the rule behind a technical case is something people see, state that
 rule and let the Quint model or a code test carry the technical cases (a
 fault an operator injects is a `_`-prefixed model helper, never glossary
-vocabulary). When a context's whole subject is technical, it has no specs:
-its guards are property, model-based and contract tests in its package (P4).
+vocabulary). A technical maintenance context keeps its specifications in its
+own folder under `specs/`, with operator vocabulary isolated from app specs.
 A glossary term is held to A0 too; defining a technical word does not make
 it plain.
 *Why: the spec is the one description of the product the business can read
@@ -1413,7 +1433,7 @@ appears in the coverage map (C5) under its upstream event. `specs/journeys/`
 is the one context whose whole job is crossing contexts; it borrows like any
 other.
 
-**A5 · No technical vocabulary.** *Blocking.*
+**A5 · No technical vocabulary in app specs.** *Blocking.*
 No storage (database, table, row, column, record, cache, schema, migration),
 transport (API, endpoint, route, request/response, HTTP, status code, JSON,
 payload, header, cookie, token, WebSocket, URL, redirect, callback, OAuth),

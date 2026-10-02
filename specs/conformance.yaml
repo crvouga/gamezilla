@@ -15,6 +15,7 @@ product:
     - feedback
     - chess
     - developer-tools
+    - db-indexes
     - friends
     - journeys
     - matchmaking
