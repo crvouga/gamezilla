@@ -1,5 +1,10 @@
 [
   {
+    "id": "conventional-spec-commit-rejected",
+    "summary": "The spec ownership gate rejected the isolated database safety contract commit because it used the required Conventional Commit docs(specs) form. Recognize that form as a spec commit while continuing to require spec changes and reject mixed implementation files.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
     "id": "db-schema-quint-entry-missing",
     "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
     "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
