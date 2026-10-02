@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { healthTestArgs } from '@apps/product/scripts/health';
 import { parseFeature } from '@pkgs/gherkin/parse';
 import {
   allSpecs,
@@ -185,17 +184,20 @@ describe('synthetic discovery', () => {
 });
 
 // regression: health-ui-step-loader-order
-test('live health installs the browser macro loader before loading generated steps', () => {
-  const stub = '.cache/spec-live/runtime-declared-environment.feature.test.ts';
-  const args = healthTestArgs(
-    ['--test-name-pattern', 'Nobody has changed the environment by hand'],
-    [stub]
+test('live health avoids local UI steps while local specs preload the macro loader', () => {
+  const local = readFileSync(
+    join(import.meta.dir, '../tests/steps/index.ts'),
+    'utf8'
   );
-  const loader = args.indexOf('@pkgs/bun-test-solid/preload');
-  expect(loader).toBeGreaterThan(0);
-  expect(args[loader - 1]).toBe('--preload');
-  expect(loader).toBeLessThan(args.indexOf(stub));
-  expect(args).toContain('--conditions=browser');
-  expect(args).toContain('--conditions=development');
-  expect(args).toContain('Nobody has changed the environment by hand');
+  const live = readFileSync(
+    join(import.meta.dir, '../tests/steps/live-index.ts'),
+    'utf8'
+  );
+  expect(local.indexOf("import '@pkgs/bun-test-solid/preload'")).toBeLessThan(
+    local.indexOf('import { openHarness }')
+  );
+  expect(local).toContain("import './live-index'");
+  expect(live).toContain('useLiveWorld()');
+  expect(live).not.toContain('@pkgs/bun-test-solid/preload');
+  expect(live).not.toContain('@libs/harness/');
 });
