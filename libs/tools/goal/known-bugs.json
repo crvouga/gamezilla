@@ -1,5 +1,15 @@
 [
   {
+    "id": "room-overlapping-command-results",
+    "summary": "Custom Game confirmation watched the shared room error, so a refused command could reject another overlapping accepted command. Expose command-correlated server results and confirm each choice from its own rejection or committed event.",
+    "regressionTest": "pkgs/room/tests/room-command-results.test.ts"
+  },
+  {
+    "id": "room-command-client-time",
+    "summary": "The room server passed the client timestamp into authorization and module handlers. A modified client could send ts=7 while the server clock was 1000, miscounting active clocks. Stamp every received command with the injected server clock before authorization and handling.",
+    "regressionTest": "pkgs/room/tests/room-server-clock.test.ts"
+  },
+  {
     "id": "ci-identity-regression-stale-interface",
     "summary": "Check on 263be4043 failed because GitHub transfer regression assertions still expected two github_subject_prefix inputs and a ci-to-github resource move after the shared CI identity module adopted oidc_subject and moved github-to-ci. Verify the immutable subject through the caller and bound_subject input and preserve the exact state move and non-destructive retirement checks.",
     "regressionTest": "libs/infra/tests/github-transfer.test.ts"

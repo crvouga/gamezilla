@@ -71,6 +71,14 @@ export type RoomClientConfig<
 
 const EMPTY_ROSTER: readonly RoomActor[] = Object.freeze([]);
 
+export type RoomCommandResult =
+  | { readonly commandId: string; readonly ok: true }
+  | {
+      readonly commandId: string;
+      readonly ok: false;
+      readonly error: RoomError;
+    };
+
 /** Local cache must be a contiguous log from seq 1; anything else is corrupt. */
 function assertHydratable(entries: readonly LogEntry[]): void {
   for (let i = 0; i < entries.length; i++) {
@@ -165,6 +173,9 @@ export class RoomClient<
   private readonly createId: CreateId;
   private readonly snapshot: SnapshotCache<S>;
   private readonly subscribers = new Set<() => void>();
+  private readonly commandSubscribers = new Set<
+    (result: RoomCommandResult) => void
+  >();
 
   private roster: readonly RoomActor[] = EMPTY_ROSTER;
   private lastError: RoomError | Error | null = null;
@@ -334,9 +345,16 @@ export class RoomClient<
         return;
       case ROOM_WIRE_KIND.committed:
         applyCommitted(this.env, msg);
+        if (msg.commandId !== undefined)
+          this.notifyCommand({ commandId: msg.commandId, ok: true });
         return;
       case ROOM_WIRE_KIND.rejected:
         applyRejected(this.env, msg);
+        this.notifyCommand({
+          commandId: msg.commandId,
+          ok: false,
+          error: msg.error,
+        });
         return;
       default:
         return;
@@ -347,12 +365,12 @@ export class RoomClient<
    * Hot path: one `handle`, O(events) reduces, one notify, one send. The
    * durable queue snapshot is persisted write-behind.
    */
-  dispatch(payload: C): void {
-    if (this.destroyed) return;
+  dispatch(payload: C): string | null {
+    if (this.destroyed) return null;
     if (this.core.queue.length >= MAX_PENDING_OUTBOUND_COMMANDS) {
       this.reportError({ type: ROOM_ERROR_TYPE.rateLimited });
       this.notify();
-      return;
+      return null;
     }
     const cmd: RoomCommand<C> = {
       id: newCommandId(this.createId),
@@ -363,13 +381,14 @@ export class RoomClient<
     if (!res.ok) {
       this.reportError(res.error);
       this.notify();
-      return;
+      return null;
     }
     this.persist.queueChanged();
     this.notify();
     if (this.transport.isConnected && this.core.synced) {
       this.transport.sendJson(commandFrame(cmd));
     }
+    return cmd.id;
   }
 
   subscribe(listener: () => void): () => void {
@@ -377,6 +396,20 @@ export class RoomClient<
     return () => {
       this.subscribers.delete(listener);
     };
+  }
+
+  /** Server results identify their command, even when other choices overlap. */
+  subscribeCommandResult(
+    listener: (result: RoomCommandResult) => void
+  ): () => void {
+    this.commandSubscribers.add(listener);
+    return () => {
+      this.commandSubscribers.delete(listener);
+    };
+  }
+
+  private notifyCommand(result: RoomCommandResult): void {
+    for (const listener of this.commandSubscribers) listener(result);
   }
 
   /** Display state (committed ⊕ optimistic) plus `room/*` meta; stable ref while unchanged. */
@@ -403,6 +436,7 @@ export class RoomClient<
     this.unsubHandlers?.();
     this.unsubHandlers = null;
     this.subscribers.clear();
+    this.commandSubscribers.clear();
     this.transport.destroy();
   }
 }

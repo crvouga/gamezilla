@@ -1,5 +1,6 @@
 import type { LogEntry, RoomModuleName } from '@pkgs/room';
 import type { CommandDedupOutcome, RoomStorage } from '@pkgs/room/server';
+import { eraseRoomIdentity, type RoomIdentityErasure } from '@pkgs/room/server';
 import {
   dedupKey,
   eventKey,
@@ -59,6 +60,41 @@ export class DurableObjectRoomStorage implements RoomStorage {
       startAfter: eventKey(this.ns, afterSeq),
     });
     return [...listed.values()];
+  }
+
+  async eraseIdentity(
+    _topic: string,
+    erasure: RoomIdentityErasure,
+    invalidation: { commandId: string; entry: LogEntry }
+  ): Promise<void> {
+    await this.ensureV3();
+    await this.kv.transaction(async (tx) => {
+      if (
+        (await tx.get(dedupKey(this.ns, invalidation.commandId))) !== undefined
+      )
+        return;
+      for (const prefix of [this.ns.eventPrefix, this.ns.dedupPrefix]) {
+        const entries = await tx.list({ prefix });
+        const batch: Record<string, unknown> = {};
+        for (const [key, value] of entries) {
+          const nextKey = eraseRoomIdentity(key, erasure);
+          if (nextKey !== key) await tx.delete(key);
+          batch[nextKey] = eraseRoomIdentity(value, erasure);
+        }
+        await putEntriesBatched(tx, batch);
+      }
+      await tx.put({
+        [eventKey(this.ns, invalidation.entry.seq)]: invalidation.entry,
+        [dedupKey(this.ns, invalidation.commandId)]: {
+          kind: 'committed',
+          entries: [invalidation.entry],
+        } satisfies CommandDedupOutcome,
+        [this.ns.meta]: {
+          lastSeq: invalidation.entry.seq,
+        } satisfies RoomDoMeta,
+      });
+    });
+    this.lastSeq = null;
   }
 
   async getLastSeq(_topic: string): Promise<number> {

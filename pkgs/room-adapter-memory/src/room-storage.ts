@@ -1,5 +1,6 @@
 import type { LogEntry } from '@pkgs/room';
 import type { CommandDedupOutcome, RoomStorage } from '@pkgs/room/server';
+import { eraseRoomIdentity, type RoomIdentityErasure } from '@pkgs/room/server';
 
 type TopicState = {
   entries: LogEntry[];
@@ -25,6 +26,34 @@ export type RoomStorageTopicReplace = {
  */
 export class InMemoryRoomStorage implements RoomStorage {
   private readonly topics = new Map<string, TopicState>();
+
+  async eraseIdentity(
+    topic: string,
+    erasure: RoomIdentityErasure,
+    invalidation: { commandId: string; entry: LogEntry }
+  ): Promise<void> {
+    const current: RoomStorageTopicSnapshot = this.exportTopic(topic) ?? {
+      lastSeq: 0,
+      dedupSize: 0,
+      entries: [],
+      dedup: {},
+    };
+    if (current.dedup?.[invalidation.commandId] !== undefined) return;
+    const next = eraseRoomIdentity(
+      {
+        entries: [...current.entries, invalidation.entry],
+        dedup: {
+          ...current.dedup,
+          [invalidation.commandId]: {
+            kind: 'committed' as const,
+            entries: [invalidation.entry],
+          },
+        },
+      },
+      erasure
+    );
+    this.replaceTopic(topic, next);
+  }
 
   private getOrCreate(topic: string): TopicState {
     let s = this.topics.get(topic);

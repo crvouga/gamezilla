@@ -44,4 +44,13 @@ export type {
 } from './server/core/room-server';
 export { RoomServer } from './server/core/room-server';
 export type { CommandDedupOutcome, RoomStorage } from './server/core/storage';
+export {
+  ROOM_SERVICE_GRANT,
+  ROOM_SERVICE_IDENTITY,
+  eraseRoomIdentity,
+} from './server/core/room-service';
+export type {
+  RoomServicePort,
+  RoomIdentityErasure,
+} from './server/core/room-service';
 export type { LogEntry, RoomActor, RoomEffect } from './types';

@@ -3,6 +3,7 @@ import { hotAssert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
 
 import { plainDeepEqual } from '../../plain-deep-equal';
+import { RoomCacheInvalidated } from '../../cache-invalidation';
 import type {
   HandleResult,
   LogEntry,
@@ -142,7 +143,8 @@ export function appendCommitted<
       'log entries must extend lastSeq contiguously',
       { lastSeq, got: e.seq }
     );
-    state = core.module.reduce(state, e.event);
+    if (!RoomCacheInvalidated.is(e.event))
+      state = core.module.reduce(state, e.event);
     core.entries.push(e);
     lastSeq = e.seq;
   }

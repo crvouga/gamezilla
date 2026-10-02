@@ -1,3 +1,9 @@
+import { RoomCacheInvalidated } from '../../cache-invalidation';
+import {
+  ROOM_SERVICE_GRANT,
+  ROOM_SERVICE_IDENTITY,
+  type RoomIdentityErasure,
+} from './room-service';
 import { Assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { isMessageEnvelope } from '@pkgs/message';
@@ -8,7 +14,6 @@ import {
   type RoomEffectHandler,
 } from '../../effects/handler';
 import {
-  type ClientToServerWire,
   parseClientToServerWire,
   ROOM_WIRE_KIND,
   WIRE_VERSION,
@@ -30,75 +35,21 @@ import type { CommandDedupOutcome, RoomStorage } from './storage';
 
 const crash: Assert = Assert.crash();
 
-export type RoomServerConfig<
-  S extends RoomState,
-  C extends RoomCommandPayload,
-  E extends RoomEvent,
-  Identity,
-> = {
-  topic: string;
-  module: RoomModule<S, C, E, Identity>;
-  storage: RoomStorage;
-  /**
-   * Per-command gate, run before `handle` (injected commands included).
-   * `grants` are the opaque grants the sender's connection was admitted with
-   * ({@link RoomConnectionOptions.grants}) — whatever the host in front of
-   * the room decided at upgrade; a socket-less (injected) command has none.
-   * A refusal rejects the command as `unauthorized`, never logged.
-   */
-  authorize?: (
-    identity: Identity,
-    topic: string,
-    command: RoomCommand<C>,
-    grants: readonly string[]
-  ) => Promise<{ ok: true } | { ok: false; reason: string }>;
-  clock: Clock;
-  effectHandlers?: readonly RoomEffectHandler[];
-};
-
-type Sender = (payload: unknown) => void;
-
-export type RoomConnection = {
-  readonly id: string;
-  readonly send: Sender;
-  readonly actor: RoomActor;
-  /** Opaque grants the connection was admitted with (never broadcast). */
-  readonly grants: readonly string[];
-};
-
-export type RoomConnectionOptions = {
-  /** Skip the roster broadcast (bulk re-attach after hibernation). */
-  readonly silent?: boolean;
-  /**
-   * Opaque grants decided by the host in front of the room when it admitted
-   * the connection (e.g. an API gateway); handed to `authorize` with every
-   * command the connection sends. Default: none.
-   */
-  readonly grants?: readonly string[];
-};
-
-const NO_GRANTS: readonly string[] = Object.freeze([]);
-
-type CommandFrame = Extract<
-  ClientToServerWire,
-  { kind: typeof ROOM_WIRE_KIND.command }
->;
-
-type CommitArgs<E extends RoomEvent> = {
-  readonly actor: RoomActor;
-  readonly commandId: string;
-  readonly events: E[];
-  readonly effects: readonly RoomEffect[];
-};
-
-const PONG_FRAME = Object.freeze({
-  v: WIRE_VERSION,
-  kind: ROOM_WIRE_KIND.pong,
-});
-
-function rejectedFrame(commandId: string, error: RoomError): unknown {
-  return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.rejected, commandId, error };
-}
+import {
+  type RoomServerConfig,
+  type RoomConnection,
+  type RoomConnectionOptions,
+  type CommandFrame,
+  type CommitArgs,
+  NO_GRANTS,
+  PONG_FRAME,
+  rejectedFrame,
+} from './room-server-types';
+export type {
+  RoomServerConfig,
+  RoomConnection,
+  RoomConnectionOptions,
+} from './room-server-types';
 
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
@@ -141,6 +92,42 @@ export class RoomServer<
     return this.committedState;
   }
 
+  async readCommittedState(): Promise<S> {
+    let state = this.committedState;
+    await this.enqueue(async () => {
+      state = structuredClone(this.committedState);
+    });
+    return state;
+  }
+
+  eraseIdentity(erasure: RoomIdentityErasure): Promise<void> {
+    return this.enqueue(async () => {
+      const commandId = `erasure:${erasure.replacement}`;
+      if ((await this.storage.getDedupOutcome(this.topic, commandId)) !== null)
+        return;
+      const entry: LogEntry = {
+        seq: (await this.tip()) + 1,
+        event: RoomCacheInvalidated({}),
+        ts: this.clock.now(),
+        actor: { id: ROOM_SERVICE_IDENTITY, clientId: 'service' },
+      };
+      await this.storage.eraseIdentity(this.topic, erasure, {
+        commandId,
+        entry,
+      });
+      await this.hydrateFromStorage();
+      this.broadcast({
+        v: WIRE_VERSION,
+        kind: ROOM_WIRE_KIND.committed,
+        entries: [entry],
+      });
+      for (const conn of this.connections.values())
+        if (conn.actor.id === erasure.identity)
+          this.connections.delete(conn.id);
+      this.broadcastRoster();
+    });
+  }
+
   async hydrateFromStorage(): Promise<void> {
     const entries = await this.storage.loadEventsAfter(this.topic, 0);
     let state = this.module.initialState();
@@ -150,7 +137,8 @@ export class RoomServer<
         'Tiger: stored room events must be Message envelopes with wire-valid type',
         { event: e.event }
       );
-      state = this.module.reduce(state, e.event as E);
+      if (!RoomCacheInvalidated.is(e.event))
+        state = this.module.reduce(state, e.event as E);
     }
     this.committedState = state;
     this.lastSeq =
@@ -163,7 +151,7 @@ export class RoomServer<
 
   registerConnection(
     id: string,
-    send: Sender,
+    send: RoomConnection['send'],
     actor: RoomActor,
     options?: RoomConnectionOptions
   ): void {
@@ -204,6 +192,13 @@ export class RoomServer<
 
   unregisterConnection(id: string): void {
     if (!this.connections.delete(id)) return;
+    this.broadcastRoster();
+  }
+
+  disconnectActor(identity: string | null): void {
+    for (const conn of this.connections.values())
+      if (identity === null || conn.actor.id === identity)
+        this.connections.delete(conn.id);
     this.broadcastRoster();
   }
 
@@ -258,7 +253,7 @@ export class RoomServer<
   }
 
   private sendDedupReplay(
-    send: Sender,
+    send: RoomConnection['send'],
     commandId: string,
     prior: CommandDedupOutcome
   ): void {
@@ -277,7 +272,7 @@ export class RoomServer<
   private async reject(
     commandId: string,
     error: RoomError,
-    send: Sender | null
+    send: RoomConnection['send'] | null
   ): Promise<void> {
     await this.storage.putDedupOutcome(this.topic, commandId, {
       kind: 'rejected',
@@ -319,7 +314,8 @@ export class RoomServer<
     }
     let state = this.committedState;
     for (let i = 0; i < entries.length; i++) {
-      state = this.module.reduce(state, entries[i]!.event);
+      if (!RoomCacheInvalidated.is(entries[i]!.event))
+        state = this.module.reduce(state, entries[i]!.event);
     }
     try {
       await this.storage.commitCommand(this.topic, args.commandId, entries);
@@ -368,14 +364,26 @@ export class RoomServer<
     readonly payload: C;
     readonly identity: Identity;
   }): Promise<void> {
-    return this.enqueue(() => this.injectSerial(args));
+    return this.enqueue(() => this.injectSerial(args, NO_GRANTS));
   }
 
-  private async injectSerial(args: {
+  /** Only a host service port calls this; socket commands never receive its grant. */
+  injectServiceCommand(args: {
     readonly id: string;
     readonly payload: C;
     readonly identity: Identity;
   }): Promise<void> {
+    return this.enqueue(() => this.injectSerial(args, [ROOM_SERVICE_GRANT]));
+  }
+
+  private async injectSerial(
+    args: {
+      readonly id: string;
+      readonly payload: C;
+      readonly identity: Identity;
+    },
+    grants: readonly string[]
+  ): Promise<void> {
     const commandId = args.id;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) return;
@@ -385,11 +393,7 @@ export class RoomServer<
       ts: this.clock.now(),
       payload: args.payload,
     };
-    const denied = await this.authorizeOrNull(
-      args.identity,
-      command,
-      NO_GRANTS
-    );
+    const denied = await this.authorizeOrNull(args.identity, command, grants);
     if (denied !== null) {
       await this.reject(commandId, denied, null);
       return;
@@ -438,7 +442,7 @@ export class RoomServer<
     }
     const command: RoomCommand<C> = {
       id: commandId,
-      ts: parsed.ts,
+      ts: this.clock.now(),
       payload: parsed.payload as C,
     };
     const denied = await this.authorizeOrNull(identity, command, conn.grants);
