@@ -45,6 +45,7 @@ import {
 } from './report-plan';
 import { reportsStore } from './report-store';
 import { publishReportTask } from './report-task-publish';
+import { publishBatch } from './report-batch';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 
@@ -219,6 +220,10 @@ async function main(argv: readonly string[]): Promise<void> {
       taskId: arg,
       identity: taskIdentity(plan, arg),
     });
+    return;
+  }
+  if (command === 'batch') {
+    await publishBatch({ store, repoRoot: REPO_ROOT, sha, runId: publicationRun, planPath });
     return;
   }
   if (command === 'close') {
