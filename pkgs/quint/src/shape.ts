@@ -1,12 +1,14 @@
 /**
  * Static shape of a Quint aggregate, before any trace is drawn or Apalache
- * runs. The product is offline-first: a device with no connection is a state
+ * runs. The default profile is offline-first: a device with no connection is a state
  * the model has to be able to reach and leave, and losing it has to change
  * what that device's own actions do. The same pass refuses a model that
  * cannot be checked — no invariant, an invariant that is literally `true`,
  * an invariant that names no state, an action `step` never calls, a variable
  * `init` never sets, a variable a person can observe that no invariant mentions.
  *
+ * Operator state machines explicitly declare the maintenance profile and
+ * retain the structural obligations without app-device connectivity.
  * `events.qnt` is a context's published language (types only), not an
  * aggregate, so it has nothing to check here.
  */
@@ -69,7 +71,7 @@ function structureIssues(model: ParsedModel, base: string): ModelShapeIssue[] {
       issue(
         'step-has-no-choice',
         step.line,
-        'step must choose among actions, so a device can lose its connection between them'
+        'step must choose among actions to explore their interleavings'
       )
     );
   }
@@ -204,9 +206,26 @@ export function modelShapeIssues(
   const base = fileName.split('/').pop() ?? fileName;
   if (base === 'events.qnt') return [];
   const model = parseModel(source);
+  // Operator-maintenance models have no app devices. They still satisfy every
+  // structural obligation; ordinary product aggregates default to offline-first.
+  const profiles = [
+    ...model.header.matchAll(/^\/\/ @model-profile: (\S+)\s*$/gm),
+  ];
+  const profile = profiles[0]?.[1] ?? 'offline-first';
+  const profileIssues =
+    profiles.length > 1 || !['offline-first', 'maintenance'].includes(profile)
+      ? [
+          issue(
+            'model-profile',
+            1,
+            'declare at most one profile: offline-first or maintenance'
+          ),
+        ]
+      : [];
   return [
     ...structureIssues(model, base),
+    ...profileIssues,
     ...assignmentShapeIssues(model),
-    ...offlineShapeIssues(model),
+    ...(profile === 'maintenance' ? [] : offlineShapeIssues(model)),
   ].sort((a, b) => a.line - b.line || a.code.localeCompare(b.code));
 }

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty, fc } from '@pkgs/property';
 
 import {
   isSpecFile,
@@ -18,6 +19,78 @@ describe('spec ownership', () => {
         },
       ])
     ).toHaveLength(1);
+  });
+
+  // regression: conventional-spec-commit-rejected
+  test('recognizes the Conventional Commit used for database safety contracts', () => {
+    expect(
+      ownershipViolations([
+        {
+          sha: '3ad37c5344',
+          subject: 'docs(specs): add database safety contracts',
+          files: ['specs/db-schema/server-reconciliation.feature'],
+        },
+      ])
+    ).toEqual([]);
+  });
+
+  test('both spec commit forms require specs and forbid implementation files', () => {
+    assertProperty(
+      'spec commit ownership remains isolated',
+      fc.property(
+        fc.constantFrom('spec:', 'spec(db):', 'docs(specs):', 'docs(specs)!:'),
+        fc.constantFrom('libs/db/src/index.ts', 'pkgs/db-schema/package.json'),
+        (prefix, implementation) => {
+          const commit = {
+            sha: '1234567890',
+            subject: `${prefix} add safety contracts`,
+          };
+          expect(
+            ownershipViolations([{ ...commit, files: [implementation] }])
+          ).toHaveLength(1);
+          expect(
+            ownershipViolations([
+              {
+                ...commit,
+                files: [
+                  'specs/db-schema/server-reconciliation.feature',
+                  implementation,
+                ],
+              },
+            ])
+          ).toHaveLength(1);
+          expect(
+            ownershipViolations([
+              {
+                ...commit,
+                files: [
+                  'specs/db-schema/server-reconciliation.feature',
+                  'docs/STEPS_CATALOG.md',
+                ],
+              },
+            ])
+          ).toEqual([]);
+        }
+      )
+    );
+  });
+
+  test('ordinary docs commits cannot change specs', () => {
+    for (const subject of [
+      'docs: add contracts',
+      'docs(db): add contracts',
+      'docs(specs-extra): add contracts',
+    ]) {
+      expect(
+        ownershipViolations([
+          {
+            sha: '1234567890',
+            subject,
+            files: ['specs/db-schema/server-reconciliation.feature'],
+          },
+        ])
+      ).toHaveLength(1);
+    }
   });
 
   test('recognizes every Gherkin file, wherever it is, and every file under specs/', () => {

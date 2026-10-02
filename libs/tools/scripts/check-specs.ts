@@ -36,7 +36,7 @@ import { modelShapeProblems } from './model-shape';
 import { campaignProblems, specCampaigns } from './spec-campaigns';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
-import { languageProblems } from './spec-glossary';
+import { languageProblems, maintenanceVocabulary } from './spec-glossary';
 import { specLocationProblems } from './spec-location';
 import {
   externalSteps,
@@ -115,6 +115,7 @@ const errors: string[] = [
     external: external.steps,
     shared: shared.steps,
     parameterTypes,
+    allowedImplementationWords: maintenanceVocabulary(),
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(campaignDomains),

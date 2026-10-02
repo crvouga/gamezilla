@@ -110,3 +110,24 @@ export function languageProblems(
     ...checkLanguage({ kernel, glossaries, features, quint }),
   ];
 }
+
+/** Technical words are admitted only when a maintenance context declares them. */
+export function maintenanceVocabulary(): ReadonlyMap<
+  string,
+  readonly string[]
+> {
+  const out = new Map<string, readonly string[]>();
+  for (const domain of domains()) {
+    const glossary = readGlossary(
+      `${SPECS_DIR}/${domain}/${GLOSSARY_FILE}`,
+      domain,
+      []
+    );
+    if (glossary.profile !== 'maintenance') continue;
+    out.set(
+      domain,
+      glossary.terms.flatMap((term) => [term.term, ...term.forms])
+    );
+  }
+  return out;
+}

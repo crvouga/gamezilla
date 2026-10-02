@@ -38,6 +38,8 @@ export type PackageSpecs = {
 };
 
 export type SpecCheckInput = {
+  /** Operator terms explicitly declared by maintenance contexts, keyed by domain. */
+  readonly allowedImplementationWords?: ReadonlyMap<string, readonly string[]>;
   readonly packages: readonly PackageSpecs[];
   /** The shared harness definitions, seen by packages that register them. */
   readonly shared: readonly ExtractedStep[];
@@ -288,7 +290,12 @@ function checkScenarioShape(feature: SpecFeature, errors: string[]): void {
   }
 }
 
-function checkStepWording(feature: SpecFeature, errors: string[]): void {
+function checkStepWording(
+  feature: SpecFeature,
+  errors: string[],
+  allowedWords: readonly string[]
+): void {
+  const allowed = new Set(allowedWords.map((word) => word.toLowerCase()));
   for (const scenario of feature.scenarios) {
     for (const step of scenario.steps) {
       const narrator = NARRATOR.exec(step.text);
@@ -303,8 +310,10 @@ function checkStepWording(feature: SpecFeature, errors: string[]): void {
           `${feature.uri}:${String(step.line)}: step "${step.text}" describes UI mechanics ("${hit[1] ?? ''}"); say the intent instead`
         );
       }
-      const leak = IMPLEMENTATION.exec(step.text);
-      if (leak !== null) {
+      const leak = [
+        ...step.text.matchAll(new RegExp(IMPLEMENTATION, 'gi')),
+      ].find((match) => !allowed.has(match[1]!.toLowerCase()));
+      if (leak !== undefined) {
         errors.push(
           `${feature.uri}:${String(step.line)}: step "${step.text}" names implementation ("${leak[1] ?? ''}"); say the product behavior instead`
         );
@@ -336,7 +345,13 @@ export function checkSpecs(input: SpecCheckInput): readonly string[] {
     for (const feature of pkg.features) {
       checkScenarioSteps({ compiled, errors, feature, pkg, used });
       checkScenarioTags(pkg, feature, errors);
-      checkStepWording(feature, errors);
+      checkStepWording(
+        feature,
+        errors,
+        input.allowedImplementationWords?.get(
+          allowedDomains(pkg, feature.uri)[0] ?? ''
+        ) ?? []
+      );
       checkScenarioShape(feature, errors);
     }
   }

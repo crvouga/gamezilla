@@ -6,7 +6,8 @@
  * conformance manifest `specs/conformance.yaml` and the rulebook
  * `specs/README.md`) and any `.feature` file anywhere — belongs to the spec
  * writer. An implementer never edits a spec, so a commit that touches one is a spec commit and nothing else: its
- * subject starts with `spec:` (or `spec(scope):`) and it changes only specs,
+ * subject starts with `spec:` (or `spec(scope):`) or the Conventional Commit
+ * equivalent `docs(specs):` (except the rulebook, which requires `spec:`), and it changes only specs,
  * catalogs (`STEPS_CATALOG.md`) and docs (`docs/*.md`). A commit that mixes a spec change with
  * code is refused — the roles cannot be told apart in it.
  *
@@ -23,7 +24,7 @@ export type Commit = {
 };
 
 const SPEC_FILE = /\.feature$|^specs\//;
-const SPEC_SUBJECT = /^spec(\([^)]*\))?!?:/;
+const SPEC_SUBJECT = /^(?:spec(\([^)]*\))?|docs\(specs\))!?:/;
 /** What a spec commit may touch besides specs. */
 const SPEC_SIDE_FILES = [/(^|\/)STEPS_CATALOG\.md$/, /^docs\/.*\.md$/];
 
@@ -46,17 +47,20 @@ export function ownershipViolations(
       (f) => !isSpecFile(f) && !isSpecSideFile(f)
     );
     const label = `${commit.sha.slice(0, 10)} "${commit.subject}"`;
+    const rulebookUsesDocsSubject =
+      commit.files.includes('specs/README.md') &&
+      commit.subject.startsWith('docs(specs)');
     if (specs.length === 0) {
       if (SPEC_SUBJECT.test(commit.subject)) {
         out.push(
-          `${label}: a spec: commit must change a spec (a .feature or a file under specs/)`
+          `${label}: a spec commit must change a spec (a .feature or a file under specs/)`
         );
       }
       continue;
     }
-    if (!SPEC_SUBJECT.test(commit.subject)) {
+    if (!SPEC_SUBJECT.test(commit.subject) || rulebookUsesDocsSubject) {
       out.push(
-        `${label}: changes ${specs.join(', ')} but is not a spec commit — specs/** is the spec writer's; commit spec changes separately with a "spec:" subject`
+        `${label}: changes ${specs.join(', ')} but is not a spec commit — specs/** is the spec writer's; commit spec changes separately with a "spec:" or "docs(specs):" subject`
       );
     }
     if (other.length > 0) {
@@ -74,7 +78,7 @@ export function stagedViolations(files: readonly string[]): readonly string[] {
   const other = files.filter((f) => !isSpecFile(f) && !isSpecSideFile(f));
   if (specs.length > 0 && other.length > 0) {
     return [
-      `staged specs (${specs.join(', ')}) together with ${other.join(', ')} — commit the spec change on its own with a "spec:" subject`,
+      `staged specs (${specs.join(', ')}) together with ${other.join(', ')} — commit the spec change on its own with a "spec:" or "docs(specs):" subject`,
     ];
   }
   return [];
