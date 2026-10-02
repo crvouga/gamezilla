@@ -22,6 +22,11 @@ verdict; the complete gate is `bun check`.
 | Freeze final placement in old pixel coordinates | `visual.contract.test.ts`, resized capture | The attacker ended at 160.21875 instead of the resized center 280.03125. |
 | Let an abandoned completion write its destination | `piece-animator.test.ts`, cancelled completion | The older destination replaced the newer destination. |
 | Import an internal renderer from a consumer | `@libs/chess` `check:board-contract` | The gate reported an undocumented `chess-board-pieces` import. |
+| Omit the example board's sound choice | `@libs/chess` `check:board-contract` | The gate required an explicit app preference or silence. |
+| Always enable the example board's sound | `@libs/chess` `check:board-contract` | A constant-on choice failed the same policy check. |
+| Always enable the public sound helper | `@libs/chess` `check:board-contract` | The gate rejected the helper's constant-on accessor. |
+| Shift capture hints away from their target | `marking-geometry.contract.test.ts`, occupied capture rings | The ring differed by 20 pixels at half scale against a 0.015625-pixel tolerance. |
+| Put file labels on the opposite edge | `marking-geometry.contract.test.ts`, viewer-edge labels | The label escaped its expected cell by 75.161 pixels and failed the edge-half check. |
 
 Native raster references mount fresh model and piece nodes. Frame-work recording
 counts both delivered observer records and records awaiting delivery. Literal

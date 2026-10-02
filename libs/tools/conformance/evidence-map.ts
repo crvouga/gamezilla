@@ -77,6 +77,8 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/chess-board/board-sound.feature' },
     { spec: 'specs/chess-board/board-motion.feature' },
     { spec: 'specs/chess-board/board-accessibility.feature' },
+    { spec: 'specs/chess-board/board-opening.feature' },
+    { spec: 'specs/chess-board/board-feedback.feature' },
     { spec: 'specs/chess-board/board-lifecycle.qnt' },
     { spec: 'specs/chess-board/board-interaction.feature' },
     { spec: 'specs/chess-board/board-special-moves.feature' },

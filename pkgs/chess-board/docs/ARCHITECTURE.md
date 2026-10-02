@@ -122,12 +122,15 @@ environment that logs every slide.
 
 `bun check` is the proof; nothing here is verified by hand.
 
-- `tests/ui` — the page-object suite (happy-dom): gestures, rules, premoves,
-  promotion, keyboard, shapes, parent sync, seeded model-based games, and
-  **motion** (`scenarios/motion.ts`): which slides run, from where, how long,
-  and that reduced motion / no Web Animations / a flip run none.
-- `tests/chess-board-input.test.tsx` — single events the page object cannot
-  express, with DOM write budgets: idle hover writes nothing; each drag move is
+- `tests/steps` and `tests/quint` bind the business scenarios and temporal
+  models in `specs/chess-board` through the public example app. Canonical
+  move matrices independently check complete positions and callback payloads;
+  `motion-adapter.contract.test.tsx` checks compositor requests and cancellation.
+- `tests/browser` exercises the compiled public board in a native browser:
+  real frame geometry, fresh reference rasters, accessibility and measured
+  input/frame budgets. [CONFORMANCE.md](CONFORMANCE.md) maps these checks.
+- `tests/chess-board-input.test.tsx` — input and DOM write contracts:
+  idle hover writes nothing; each drag move is
   exactly one style write *on the whole page* (the avatar); a move restyles
   only the moved piece; the press itself picks the piece up; the avatar lives
   outside the board and follows off it. Regression pins for bugs found.

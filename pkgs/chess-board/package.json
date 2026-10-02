@@ -43,7 +43,6 @@
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@pkgs/tailwind": "workspace:*",
-    "@pkgs/ui-testing": "workspace:*",
     "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@pkgs/vite-workspace-resolver": "workspace:*",
     "@solidjs/testing-library": "catalog:",

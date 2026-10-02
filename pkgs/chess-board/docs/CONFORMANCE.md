@@ -20,8 +20,8 @@ fingerprints.
 | Sound | Sound scenarios/lifecycle model; delayed-playback contract; recorded consumer playback |
 | Accessibility | Standing accessibility property; native names/focus/zoom; keyboard scenarios |
 | Performance | Existing 50ms budgets; affected-piece and pointer DOM work budgets; native input and live frame cadence |
-| Consumer boundaries | Package-owned Chess import gate; puzzle sound integration; silent public benchmark |
-| Adversarial quality | [Fifteen source mutations](MUTATION_RESULTS.md) rejected by intended verifiers |
+| Consumer boundaries | Package-owned Chess import and explicit sound-choice gate; puzzle sound integration; silent public benchmark |
+| Adversarial quality | [Required source mutations and three consumer sound mutations](MUTATION_RESULTS.md) rejected by intended verifiers |
 
 The production consumers are the puzzle player, puzzle review and developer board
 example in `@libs/chess`. Its wrong-move feedback uses the public sound helper.
