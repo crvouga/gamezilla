@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 // @io-wall-ok — process entry for one API instance of the localhost stack.
 
 /**
@@ -16,6 +17,7 @@
 
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import type { ApiWorkerEnv, RoomNamespace } from '@libs/server-app/config/env';
+import type { ExecutionContext } from '@libs/server-app/config/worker-handler';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
 import { authorizeSpaceRoomCommand } from '@libs/spaces/public/space-room-authorize';
 import { wallClock, wallTimers } from '@pkgs/clock';

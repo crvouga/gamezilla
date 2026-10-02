@@ -9,10 +9,7 @@ import {
   sharedIdentities,
 } from '@libs/infra/public/env-file';
 import { ENV_FILES, PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
-import {
-  renderWranglerConfig,
-  type WorkerRole,
-} from '@libs/infra/public/wrangler';
+import { renderWranglerConfig } from '@libs/infra/public/wrangler';
 
 /**
  * A third environment nobody wrote code for: only its env file. Everything
@@ -27,6 +24,7 @@ function syntheticEnv(
       env: name,
       display_name: `Synthetic ${name}`,
       suffix: `${name}-synthetic`,
+      worker: { name: `app-${name}` },
       protection,
       cloudflare: { account_id: 'acct', zone_name: 'example.test' },
       hosts: {
@@ -40,8 +38,6 @@ function syntheticEnv(
     `synthetic ${name}.tfvars.json`
   );
 }
-
-const ROLES: readonly WorkerRole[] = ['api', 'room', 'web'];
 
 describe('environment protection', () => {
   const staging = syntheticEnv('staging', 'standard');
@@ -73,29 +69,24 @@ describe('environment protection', () => {
 
   test('every rendered Worker carries its env file protection', () => {
     for (const env of envs) {
-      for (const role of ROLES) {
-        const vars = renderWranglerConfig({ main: 'src/index.ts' }, env, role)[
-          'vars'
-        ] as Record<string, string>;
-        expect({
-          env: env.env,
-          role,
-          protection: vars['DEPLOYMENT_PROTECTION'],
-        }).toEqual({
-          env: env.env,
-          role,
-          protection: env.protection,
-        });
-        expect(vars['DEPLOYMENT_ENVIRONMENT']).toBe(env.env);
-      }
+      const vars = renderWranglerConfig({ main: 'src/index.ts' }, env)[
+        'vars'
+      ] as Record<string, string>;
+      expect({
+        env: env.env,
+        protection: vars['DEPLOYMENT_PROTECTION'],
+      }).toEqual({
+        env: env.env,
+        protection: env.protection,
+      });
+      expect(vars['DEPLOYMENT_ENVIRONMENT']).toBe(env.env);
     }
   });
 
   test('the committed config cannot override the rendered protection', () => {
     const vars = renderWranglerConfig(
       { vars: { DEPLOYMENT_PROTECTION: 'production' } },
-      staging,
-      'room'
+      staging
     )['vars'] as Record<string, string>;
     expect(vars['DEPLOYMENT_PROTECTION']).toBe('standard');
   });

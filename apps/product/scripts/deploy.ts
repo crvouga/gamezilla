@@ -3,18 +3,24 @@
 /**
  * Super-app deploy for the environment in `SECRETS_ENV`: Vite build of
  * `@apps/product` (App at `/`, Harness at `/harness`) against that
- * environment's API, then the assets-only Worker. Its hostnames are bound by
+ * environment's API, then one version with assets, API and rooms. Hostnames are bound by
  * the OpenTofu edge stack afterwards; `health` checks they serve.
  */
 import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import {
+  assertRoomNamespacePreserved,
+  roomMigration,
+} from '@libs/infra/public/worker-lifecycle';
 import { activeEnvFile, deployWorker } from '@libs/infra/scripts/worker-deploy';
+import { workerState } from '@libs/infra/scripts/worker-state';
 import { ok } from '@libs/secrets/shared/fmt';
 import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/node-options';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
 import { assert } from '@pkgs/assert';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
+import { hyperdriveId, workerSecrets } from './worker-secrets';
 
 const productDir = join(import.meta.dirname, '..');
 
@@ -111,11 +117,21 @@ async function buildProductWeb(
 const commitHash = resolveCommitHash();
 await buildProductWeb(commitHash, resolveCommitDate());
 try {
-  deployWorker({ appDir: productDir, role: 'web', secrets: {} });
+  const env = activeEnvFile();
+  const secrets = { ...(await workerSecrets()), BUILD_SHA: commitHash };
+  const state = workerState(env);
+  const before = await state.namespaces();
+  const migration = roomMigration(env, before);
+  deployWorker({
+    appDir: productDir,
+    secrets,
+    resources: { hyperdriveId: hyperdriveId(), roomMigration: migration },
+  });
+  assertRoomNamespacePreserved(env, before, await state.namespaces());
 } finally {
   cleanupProductDist();
 }
 ok(
-  'Super-app Worker',
+  'Application Worker',
   `deployed to ${activeEnvFile().env} (${commitHash.slice(0, 12)})`
 );

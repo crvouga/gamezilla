@@ -15,6 +15,10 @@ export type HyperdriveBinding = {
   readonly connectionString: string;
 };
 
+export type WorkerAssets = {
+  readonly fetch: (request: Request) => Promise<Response>;
+};
+
 export type ApiWorkerEnv = {
   /** The secrets environment's name (`dev`, `prd`, …) — a label only. */
   SECRETS_ENV?: string;
@@ -64,7 +68,13 @@ export type ApiWorkerEnv = {
    * `wrangler dev` and the localhost stack, which connect directly.
    */
   HYPERDRIVE?: HyperdriveBinding;
-  [key: string]: string | RoomNamespace | HyperdriveBinding | undefined;
+  ASSETS?: WorkerAssets;
+  [key: string]:
+    | string
+    | RoomNamespace
+    | HyperdriveBinding
+    | WorkerAssets
+    | undefined;
 };
 
 export class ConfigurationError extends Error {

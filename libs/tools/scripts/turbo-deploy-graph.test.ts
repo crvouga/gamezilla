@@ -70,15 +70,18 @@ const CHECK_LEAVES = [
   'check:models',
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
-  '@apps/room-server#check:worker-bundle',
-  '@apps/server#check:worker-bundle',
+  '@apps/product#check:worker-bundle',
   '@libs/runtime#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
-const DEPLOY_ONLY = ['@apps/server#check:api', 'health'] as const;
+const DEPLOY_ONLY = [
+  '@apps/server#check:api',
+  'health',
+  '@libs/infra#retire:workers',
+] as const;
 
 /** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
 function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
@@ -262,20 +265,22 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps).toContain('@libs/tools#install:cli');
   });
 
-  test('deploy order: foundation → migrate → room → api → web → edge', () => {
+  test('one application deployment follows migration and all release checks', () => {
     const tasks = loadTasks();
-    const edges: readonly (readonly [string, string])[] = [
-      ['@libs/runtime#migrate', '@libs/infra#apply:foundation'],
-      ['@apps/room-server#deploy', '@libs/runtime#migrate'],
-      ['@apps/server#deploy', '@apps/room-server#deploy'],
-      ['@apps/product#deploy', '@apps/server#deploy'],
-      ['@libs/infra#apply:edge', '@apps/product#deploy'],
-    ];
-    for (const [task, after] of edges) {
-      expect({ task, dependsOn: tasks[task]?.dependsOn }).toEqual({
-        task,
-        dependsOn: [after],
-      });
-    }
+    expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
+      '@libs/runtime#migrate',
+      '//#check',
+      '@apps/server#check:api',
+    ]);
+    expect(tasks).not.toHaveProperty('@apps/server#deploy');
+    expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
+    expect(tasks['@libs/infra#apply:edge']?.dependsOn).toEqual([
+      '@apps/product#deploy',
+    ]);
+    expect(tasks['@libs/infra#retire:workers']?.dependsOn).toEqual(['health']);
+    expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([
+      'tc',
+      'build',
+    ]);
   });
 });

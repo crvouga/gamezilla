@@ -27,8 +27,7 @@
     "noUnusedParameters": true,
     "paths": {
       "@apps/client/*": ["./apps/client/src/*"],
-      "@apps/room-server": ["./apps/room-server/src/room.ts"],
-      "@apps/room-server/*": ["./apps/room-server/src/*"],
+      "@apps/server/worker": ["./apps/server/src/server.ts"],
       "@apps/server/*": ["./apps/server/src/*"],
       "@apps/server/scripts/*": ["./apps/server/scripts/*.ts"],
       "@libs/auth/*": ["./libs/auth/src/*"],
@@ -268,6 +267,7 @@
       "@pkgs/ui/*": ["./pkgs/ui/src/*", "./pkgs/ui/src/*/index.ts"],
       "@pkgs/uuid": ["./pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["./pkgs/uuid/src/*"],
+      "@apps/product/worker": ["./apps/product/src/worker.ts"],
       "@apps/product": ["./apps/product/src/harness/index.ts"],
       "@apps/product/harness": ["./apps/product/src/harness/index.ts"],
       "@apps/product/harness/*": ["./apps/product/src/harness/*"],

@@ -2,8 +2,7 @@
  * Env-agnostic `wrangler.toml` + one environment → the config wrangler
  * deploys with. The committed TOML holds only code config (entry point,
  * compatibility, Durable Object classes and migrations, crons); the Worker's
- * name and the cross-script Durable Object `script_name` come from the
- * environment's naming patterns, and public hostnames belong to the OpenTofu
+ * name comes from the environment file, and public hostnames belong to the OpenTofu
  * edge stack — never to wrangler.
  *
  * The rendered file is written to `<app>/.cache/`, one directory below the
@@ -12,9 +11,7 @@
 import { apiWorkerVars, authRelayTargets, type EnvFile } from './env-file';
 import { ENV_FILES } from './envs';
 import { GLOBAL } from './global';
-import { envResourceNames } from './naming';
-
-export type WorkerRole = 'api' | 'room' | 'web';
+import type { RoomMigration } from './worker-lifecycle';
 
 export type WranglerConfig = Record<string, unknown>;
 
@@ -25,29 +22,19 @@ export type WranglerConfig = Record<string, unknown>;
 export type WorkerResources = {
   /** The API Worker's Postgres connection (`modules/database` Hyperdrive). */
   readonly hyperdriveId?: string;
+  readonly roomMigration?: RoomMigration;
 };
 
 /** The API Worker's binding name for Hyperdrive (`ApiWorkerEnv.HYPERDRIVE`). */
 export const HYPERDRIVE_BINDING = 'HYPERDRIVE';
-
-type DurableObjectBinding = {
-  readonly name: string;
-  readonly class_name: string;
-  readonly script_name?: string;
-};
 
 type Migration = {
   readonly tag: string;
   readonly deleted_classes?: readonly string[];
 };
 
-const ROOM_CLASS = 'RoomServerDurableObject';
-
-export function workerName(env: EnvFile, role: WorkerRole): string {
-  const names = envResourceNames(env);
-  if (role === 'api') return names.api_worker;
-  if (role === 'room') return names.room_worker;
-  return names.web_worker;
+export function workerName(env: EnvFile): string {
+  return env.worker.name;
 }
 
 function reroot(path: string): string {
@@ -61,23 +48,6 @@ function rerootedAssets(assets: unknown): unknown {
   return typeof directory === 'string'
     ? { ...record, directory: reroot(directory) }
     : record;
-}
-
-function boundDurableObjects(
-  base: WranglerConfig,
-  env: EnvFile,
-  role: WorkerRole
-): unknown {
-  const durable = base['durable_objects'] as
-    | { bindings?: readonly DurableObjectBinding[] }
-    | undefined;
-  if (durable?.bindings === undefined) return durable;
-  const bindings = durable.bindings.map((binding) =>
-    role !== 'room' && binding.class_name === ROOM_CLASS
-      ? { ...binding, script_name: workerName(env, 'room') }
-      : binding
-  );
-  return { ...durable, bindings };
 }
 
 /**
@@ -108,13 +78,12 @@ function assertEnvAgnostic(base: WranglerConfig): void {
 export function renderWranglerConfig(
   base: WranglerConfig,
   env: EnvFile,
-  role: WorkerRole,
   resources: WorkerResources = {}
 ): WranglerConfig {
   assertEnvAgnostic(base);
   const rendered: WranglerConfig = {
     ...base,
-    name: workerName(env, role),
+    name: workerName(env),
     // Absent in local `wrangler dev`: tells deployed telemetry which
     // environment it is (every environment shares one trace stack), and the
     // runtime whether it is production — read from the env file's
@@ -124,18 +93,27 @@ export function renderWranglerConfig(
       ...((base['vars'] as Record<string, string> | undefined) ?? {}),
       DEPLOYMENT_ENVIRONMENT: env.env,
       DEPLOYMENT_PROTECTION: env.protection,
-      ...(role === 'api' ? apiWorkerVars(env) : {}),
+      ...apiWorkerVars(env),
     },
   };
-  if (role === 'api' && resources.hyperdriveId !== undefined) {
+  if (resources.hyperdriveId !== undefined) {
     rendered['hyperdrive'] = [
       { binding: HYPERDRIVE_BINDING, id: resources.hyperdriveId },
     ];
   }
   if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);
   if ('assets' in base) rendered['assets'] = rerootedAssets(base['assets']);
-  if ('durable_objects' in base) {
-    rendered['durable_objects'] = boundDurableObjects(base, env, role);
+  if (resources.roomMigration !== undefined) {
+    const migrations = (base['migrations'] ?? []) as readonly Migration[];
+    const initial = resources.roomMigration;
+    if (!migrations.some((migration) => migration.tag === initial.tag)) {
+      throw new Error(
+        `Room migration ${initial.tag} is missing from the committed config`
+      );
+    }
+    rendered['migrations'] = migrations.map((migration) =>
+      migration.tag === initial.tag ? initial : migration
+    );
   }
   return rendered;
 }
