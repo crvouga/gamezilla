@@ -26,6 +26,7 @@ import {
   extractSteps,
 } from '@pkgs/gherkin/extract';
 import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
+import { campaignOwnershipProblems, specCampaigns } from './spec-campaigns';
 import {
   BINDING_KINDS,
   type BindingKind,
@@ -480,6 +481,14 @@ export function specsLayoutProblems(
   const out: string[] = [];
   const root = join(REPO_ROOT, SPECS_DIR);
   const runners = runnersBy(packages, (pkg) => pkg.domains);
+  const campaigns = specCampaigns(REPO_ROOT);
+  for (const campaign of campaigns) {
+    runners.set(campaign.domain, [
+      ...(runners.get(campaign.domain) ?? []),
+      campaign.dir,
+    ]);
+  }
+  out.push(...campaignOwnershipProblems(campaigns, runners));
   const harnessRunners = runnersBy(packages, (pkg) => pkg.specDomains);
   const liveRunners = runnersBy(packages, (pkg) => pkg.liveDomains);
   const present = existsSync(root)

@@ -33,6 +33,7 @@ import { nearDuplicates } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
+import { campaignProblems, specCampaigns } from './spec-campaigns';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
 import { languageProblems } from './spec-glossary';
@@ -66,6 +67,8 @@ const SMELLS = {
 const parameterTypes = parameterTypeRegistryFrom(SPEC_PARAMETER_TYPES);
 
 const packages = specPackages();
+const campaigns = specCampaigns(REPO_ROOT);
+const campaignDomains = new Set(campaigns.map((campaign) => campaign.domain));
 const shared = sharedSteps();
 const external = externalSteps(packages);
 const specFiles = [
@@ -97,7 +100,12 @@ const specDomains = new Set(
 );
 
 const errors: string[] = [
-  ...specLocationProblems([...specFiles, ...outsideSpecFiles], specDomains),
+  ...specLocationProblems(
+    [...specFiles, ...outsideSpecFiles],
+    specDomains,
+    campaignDomains
+  ),
+  ...campaignProblems(REPO_ROOT, campaigns),
   ...specsLayoutProblems(packages),
   ...shared.problems,
   ...packages.flatMap((pkg) => pkg.problems),
@@ -109,8 +117,8 @@ const errors: string[] = [
     parameterTypes,
   }),
   ...catalogDrift(packages, shared.steps),
-  ...languageProblems(),
-  ...modelShapeProblems(),
+  ...languageProblems(campaignDomains),
+  ...modelShapeProblems(campaignDomains),
   ...randomWalkViolations(
     packages.flatMap((pkg) =>
       ['src', 'tests'].flatMap((root) =>

@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 
-export const MODEL_DIR = import.meta.dir;
-export const REPO_ROOT = join(MODEL_DIR, '../../../../..');
+export const REPO_ROOT = join(import.meta.dir, '../../../../..');
+export const MODEL_DIR = join(REPO_ROOT, 'specs/system');
 export const REPORT_DIR = join(
-  MODEL_DIR,
-  '../../../.cache/harness-report/models'
+  REPO_ROOT,
+  'apps/product/.cache/harness-report/models'
 );
 export const CLI_TIMEOUT_MS = 120_000;
 

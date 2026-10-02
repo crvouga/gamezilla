@@ -14,7 +14,8 @@
         "$TURBO_ROOT$/specs/profile/**",
         "$TURBO_ROOT$/specs/room/**",
         "$TURBO_ROOT$/specs/spaces/**",
-        "$TURBO_ROOT$/specs/sync-engine/**"
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
       ]
     },
     "health:objectives": {
@@ -34,7 +35,8 @@
         "$TURBO_ROOT$/specs/profile/**",
         "$TURBO_ROOT$/specs/room/**",
         "$TURBO_ROOT$/specs/spaces/**",
-        "$TURBO_ROOT$/specs/sync-engine/**"
+        "$TURBO_ROOT$/specs/sync-engine/**",
+        "$TURBO_ROOT$/specs/system/**"
       ],
       "outputs": [".cache/harness-report/models/**"],
       "outputLogs": "errors-only"

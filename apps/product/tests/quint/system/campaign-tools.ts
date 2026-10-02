@@ -37,7 +37,7 @@ export function obligation(
     record: modelEvidence({
       packageName: '@apps/product',
       specPath: modelPath(name),
-      specUri: `apps/product/tests/quint/system/${name}.qnt`,
+      specUri: `specs/system/${name}.qnt`,
       reportDir: REPORT_DIR,
     }),
     id,

@@ -26,14 +26,14 @@ describe('specLocationProblems', () => {
         .slice(0, 8)
         .map(
           (file) =>
-            `${file.path}: specs/ contains no implementation code — bindings, runners and interpretation live outside specs/`
+            `${file.path}: specs/ contains no implementation code — bindings and runners live outside specs/`
         ),
-      'specs/friends/interpreted.qnt: test machinery and spec interpretations live outside specs/',
-      'specs/friends/fixture.qnt: test machinery and spec interpretations live outside specs/',
+      'specs/friends/interpreted.qnt: marked Quint modules require a registered spec campaign domain',
+      'specs/friends/fixture.qnt: marked Quint modules require a registered spec campaign domain',
     ]);
   });
 
-  test('accepts canonical specs and marked test-only Quint models', () => {
+  test('accepts canonical specs and marked test-only Quint fixtures', () => {
     expect(
       specLocationProblems(
         [
@@ -45,14 +45,40 @@ describe('specLocationProblems', () => {
             path: 'pkgs/quint/tests/fixtures/door.qnt',
             text: '// @spec-meta — parser fixture\nmodule door {}',
           },
-          {
-            path: 'apps/product/tests/quint/whole-system.qnt',
-            text: '// @spec-interpretation\n// Sources: specs/friends, specs/profile\nmodule whole_system {}',
-          },
         ],
         domains
       )
     ).toEqual([]);
+  });
+
+  test('keeps composed product models and their helpers in a registered spec campaign', () => {
+    const files = [
+      {
+        path: 'specs/system/whole-system.qnt',
+        text: '// @spec-interpretation\n// Sources: specs/friends, specs/profile\nmodule whole_system {}',
+      },
+      {
+        path: 'specs/system/universe.qnt',
+        text: '// @spec-meta — finite model bounds\nmodule universe {}',
+      },
+    ];
+    expect(specLocationProblems(files, domains, new Set(['system']))).toEqual(
+      []
+    );
+    expect(specLocationProblems(files, domains)).toHaveLength(2);
+    expect(
+      specLocationProblems(
+        [
+          {
+            ...files[0]!,
+            path: 'apps/product/tests/quint/system/whole-system.qnt',
+          },
+        ],
+        domains
+      )
+    ).toEqual([
+      'apps/product/tests/quint/system/whole-system.qnt: product Quint interpretations live in specs/<domain>/',
+    ]);
   });
 
   test('rejects product specs and ambiguous exceptions outside specs', () => {
@@ -88,19 +114,20 @@ describe('specLocationProblems', () => {
       specLocationProblems(
         [
           {
-            path: 'apps/product/tests/quint/missing.qnt',
+            path: 'specs/system/missing.qnt',
             text: '// @spec-interpretation\nmodule missing {}',
           },
           {
-            path: 'apps/product/tests/quint/foreign.qnt',
+            path: 'specs/system/foreign.qnt',
             text: '// @spec-interpretation\n// Sources: specs/friends, specs/missing\nmodule foreign {}',
           },
         ],
-        domains
+        domains,
+        new Set(['system'])
       )
     ).toEqual([
-      'apps/product/tests/quint/missing.qnt: a spec interpretation must declare "// Sources: specs/<domain>[, specs/<domain>...]"',
-      'apps/product/tests/quint/foreign.qnt: interpretation source specs/missing/ does not exist',
+      'specs/system/missing.qnt: a spec interpretation must declare "// Sources: specs/<domain>[, specs/<domain>...]"',
+      'specs/system/foreign.qnt: interpretation source specs/missing/ does not exist',
     ]);
   });
 });

@@ -1,11 +1,12 @@
 # Whole-system verification campaign
 
-These are implementation-side interpretations and technical verification
-fixtures, not a second product specification. Product semantics remain in
+The Quint modules live in [specs/system](../../../../../specs/system/).
+They compose the domain specifications; the runners and verification adapters
+remain in this directory. Product semantics remain in
 [specs](../../../../../specs/README.md), and every interpretation declares the
 canonical spec domains it translates. Test-meta models carry `@spec-meta`.
-Repository mechanisms remain in [README](../../../../../README.md). No business
-specification was changed by this campaign.
+Repository mechanisms remain in [README](../../../../../README.md). Moving
+the modules does not change their modeled behavior.
 
 The campaign is repeatable. `test:quint-system` checks type correctness, seeded
 traces, literal adversarial paths and fault sensitivity. `test:contract` checks
