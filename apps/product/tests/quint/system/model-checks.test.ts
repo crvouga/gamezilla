@@ -11,6 +11,7 @@ import {
 import { obligation } from './campaign-tools';
 import { withSymbolicInput } from './symbolic-input';
 
+// regression: product-symbolic-model-compilation-timeout
 for (const model of MODELS) {
   test.concurrent(
     `${model.name}: exhaustive symbolic safety through ${model.verifySteps} transitions`,
