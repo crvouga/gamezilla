@@ -141,66 +141,6 @@
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/specs/profile/**"
       ]
-    },
-    "test:spec:22": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:23": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:24": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:25": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:26": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:27": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:28": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:29": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:30": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
-    },
-    "test:spec:31": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/profile/**"
-      ]
     }
   }
 }

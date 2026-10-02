@@ -153,54 +153,6 @@
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/specs/billing/**"
       ]
-    },
-    "test:spec:24": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:25": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:26": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:27": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:28": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:29": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:30": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
-    },
-    "test:spec:31": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/billing/**"
-      ]
     }
   }
 }
