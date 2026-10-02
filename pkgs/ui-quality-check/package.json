@@ -1,0 +1,55 @@
+{
+  "name": "ui-quality-check",
+  "version": "0.1.0",
+  "description": "Offline visual quality scoring for screenshots and automated test videos",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "ui-quality-check": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "prepack": "bun run build",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit -p tsconfig.tc.json",
+    "test": "bun test --conditions=development",
+    "evaluate": "bun run scripts/evaluate.ts",
+    "benchmark": "bun run src/cli/index.ts benchmark"
+  },
+  "dependencies": {
+    "ffmpeg-static": "5.3.0",
+    "onnxruntime-node": "1.30.0",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "esbuild": "catalog:",
+    "typescript": "catalog:",
+    "dts-bundle-generator": "9.5.1"
+  }
+}
