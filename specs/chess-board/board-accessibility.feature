@@ -88,19 +88,29 @@ Feature: Understand the chessboard without sound
         | h4     | left      |
         | a4     | right     |
 
-  Rule: Space chooses the keyboard's square using the same selection and move rules
+  Rule: Space and Enter choose the keyboard's square using the same selection and move rules
 
-    Scenario: Space selects a movable piece
+    Scenario Outline: Either choice key selects a movable piece
       Given Alice has a chessboard facing White with the keyboard on e2
-      When Alice chooses the keyboard's square with Space
+      When Alice chooses the keyboard's square with <key>
       Then Alice has e2 selected
       And Alice's activity receives no moves
 
-    Scenario: Space on the selected source deselects it
+      Examples:
+        | key   |
+        | Space |
+        | Enter |
+
+    Scenario Outline: Either choice key on the selected source deselects it
       Given Alice has e2 selected with the keyboard on e2
-      When Alice chooses the keyboard's square with Space
+      When Alice chooses the keyboard's square with <key>
       Then Alice sees no selection or legal destinations
       And Alice's activity receives no moves
+
+      Examples:
+        | key   |
+        | Space |
+        | Enter |
 
     Scenario: Space on a legal destination completes the selected move
       Given Alice has e2 selected with the keyboard on e4
@@ -109,12 +119,29 @@ Feature: Understand the chessboard without sound
       And Alice sees no selection or legal destinations
       And Alice's activity receives one move
 
-    Scenario: Disabled interactivity refuses Space selection
+    Scenario Outline: Disabled interactivity refuses either choice key
       Given Alice has a chessboard with interactivity disabled and the keyboard on e2
-      When Alice chooses the keyboard's square with Space
+      When Alice chooses the keyboard's square with <key>
       Then Alice cannot select a piece while interactivity is disabled
       And Alice sees no selection or legal destinations
       And Alice's activity receives no moves
+
+      Examples:
+        | key   |
+        | Space |
+        | Enter |
+
+    Scenario Outline: Enter completes a knight move in either orientation
+      Given Alice has g1 selected with the keyboard on f3 on a chessboard facing <side>
+      When Alice chooses the keyboard's square with Enter
+      Then Alice sees a White knight on f3
+      And Alice sees no selection or legal destinations
+      And Alice's activity receives one move
+
+      Examples:
+        | side  |
+        | White |
+        | Black |
 
   Rule: Choosing a square gives that square the keyboard
     No counter-example: an available chosen square always has a keyboard identity.

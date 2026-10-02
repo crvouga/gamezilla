@@ -36,6 +36,7 @@ Feature: Keep moving pieces coherent
   Rule: Newer positions own displayed pieces despite an earlier interrupted arrival
     No counter-example: an interrupted arrival never owns a newer position.
 
+    @regression:chessboard-overlapping-capture-remnant
     Scenario: An opponent reply preserves a capture still arriving at its valid destination
       Given Alice's capture from e4 to d5 is animating
       When Alice's activity supplies Black's reply from g8 to f6

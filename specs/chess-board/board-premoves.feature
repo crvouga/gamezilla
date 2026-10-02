@@ -108,11 +108,20 @@ Feature: Queue moves while waiting for the other side
       And Alice sees the White pawn remaining on d2
       And Alice's activity receives no moves
 
-    Scenario: Escape clears the queued premove
-      Given Alice has the premove from d2 to d4 queued while waiting for Black
+    Scenario: Escape clears two queued premoves and the waiting selection
+      Given Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black with d2 selected
       When Alice cancels premoves with Escape
       Then Alice sees no queued premoves
-      And Alice sees the White pawn remaining on d2
+      And Alice sees no selection or legal destinations
+      And Alice sees the White pawn on d2 and knight on g1 without destination previews
+      And Alice's activity receives no moves
+
+    Scenario: A later opponent reply cannot execute cancelled premoves
+      Given Alice has cancelled two queued premoves and her d2 selection with Escape while waiting for Black
+      When Alice's activity supplies Black's reply from e7 to e5
+      Then Alice sees a Black pawn on e5
+      And Alice sees the White pawn on d2 and knight on g1 without destination previews
+      And Alice sees no queued premoves
       And Alice's activity receives no moves
 
     Scenario: A personal circle choice clears the queued premove
@@ -122,13 +131,13 @@ Feature: Queue moves while waiting for the other side
       And Alice sees the White pawn remaining on d2
       And Alice's activity receives no moves
 
-    Scenario: A refused personal circle still clears the queued premove
-      Given Alice has the premove from d2 to d4 queued while waiting for Black
+    Scenario: A refused personal circle clears every queued premove and preview
+      Given Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black
       And Alice has personal annotations disabled
-      When Alice marks e4 with a personal circle
+      When Alice marks h6 with a personal circle
       Then Alice cannot add a personal annotation while they are disabled
       And Alice sees no queued premoves
-      And Alice sees the White pawn remaining on d2
+      And Alice sees the White pawn on d2 and knight on g1 without destination previews
       And Alice's activity receives no moves
 
     Scenario: Choosing the now empty source clears the next queued premove

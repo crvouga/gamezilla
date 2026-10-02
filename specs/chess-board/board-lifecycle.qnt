@@ -127,6 +127,11 @@ module board_lifecycle {
   action startBoardWithUnusablePosition = all {
     not(board.present), board' = _open(4), _earlierCompletion' = _earlierCompletion,
   }
+  /// Opening a new board without a supplied position starts normal chess in the chosen orientation.
+  action startBoard(orientation: str): bool = all {
+    not(board.present), Set("white", "black").contains(orientation),
+    board' = { ..._open(4), orientation: orientation }, _earlierCompletion' = _earlierCompletion,
+  }
 
   action step = {
     nondet target = Set(0, 1, 2, 3, 4).oneOf()
@@ -134,10 +139,11 @@ module board_lifecycle {
     nondet sound = Set(false, true).oneOf()
     nondet reduced = Set(false, true).oneOf()
     nondet visible = Set(false, true).oneOf()
+    nondet orientation = Set("white", "black").oneOf()
     any { selectPiece, beginDrag, cancelDrag, switchAway, movePiece, receiveReply,
       replacePosition(target), supplyUnusablePosition, configureBoard(canMove, sound, reduced),
       flipBoard, resizeBoard, finishAnimation, finishEarlierAnimation,
-      setVisibility(visible), closeBoard, startBoardWithUnusablePosition }
+      setVisibility(visible), closeBoard, startBoardWithUnusablePosition, startBoard(orientation) }
   }
   /// The latest position owns displayed pieces, even when older motion finishes.
   val invDisplayedPosition = board.displayedPosition == board.position and

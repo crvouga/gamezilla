@@ -41,6 +41,7 @@ Feature: Explain positions with chessboard annotations
       Then Alice sees a blue fill on d5
       And Alice sees a gold ring on e4
       And Alice sees the badge named "Plan" on f3
+      And Alice sees "Plan" in place of the usual badge symbol on f3
 
     Scenario: Choosing a piece removes personal marks while preserving activity marks
       Given Alice has personal arrows and circles alongside activity annotations
@@ -99,6 +100,7 @@ Feature: Explain positions with chessboard annotations
       Then Alice sees a personal arrow from e2 to e4
       And Alice's activity receives the personal arrow from e2 to e4 without square annotations
       And Alice sees the White pawn remaining on e2
+      And Alice sees no selection or legal destinations
       And Alice's activity receives no moves
 
     Scenario: Drawing an existing personal arrow removes it
@@ -108,12 +110,19 @@ Feature: Explain positions with chessboard annotations
       And Alice's activity receives exactly one empty set of personal arrows
       And Alice's activity receives no moves
 
+    Scenario: A second personal arrow preserves the first arrow's identity and color
+      Given Alice has a personal arrow from e2 to e4
+      When Alice draws a personal arrow from g1 to f3
+      Then Alice's activity identifies the same primary green arrow from e2 to e4 alongside the new primary green arrow from g1 to f3
+      And Alice's activity receives no moves
+
     Scenario: Marking a square adds a personal circle
       Given Alice has a chessboard with personal annotations enabled
       When Alice marks e4 with a personal circle
       Then Alice sees a personal circle on e4
       And Alice's activity receives exactly one empty set of personal arrows
       And Alice sees the White pawn remaining on e2
+      And Alice sees no selection or legal destinations
       And Alice's activity receives no moves
 
     Scenario: Marking an existing personal circle removes it

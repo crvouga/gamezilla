@@ -7,8 +7,8 @@ terms:
     definition: The use presenting the chessboard and supplying its position and choices.
   - term: chessboard
     definition: A square chess board with eight files and eight ranks, usable on its own or within another activity.
-    forms: [chessboards, board, closes the chessboard, first chessboard, second chessboard, first board, second board]
-    model: [LifecycleBoard, board, closeBoard, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard, KeyboardBoard, keyboardBoard, SeparateBoard, BoardPair, chessboards, closeSeparateBoard]
+    forms: [chessboards, board, closes the chessboard, first chessboard, second chessboard, first board, second board, starts a chessboard]
+    model: [LifecycleBoard, board, closeBoard, startBoard, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard, KeyboardBoard, keyboardBoard, SeparateBoard, BoardPair, chessboards, closeSeparateBoard]
   - term: chess
     from: chess
   - term: position
@@ -85,6 +85,12 @@ terms:
     definition: The keyboard key that chooses its current chessboard square, selecting, deselecting or completing a move.
     forms: [Space, chooses the keyboard's square with Space]
     model: [chooseKeyboardSquare]
+  - term: Enter key
+    definition: Another keyboard key that chooses its current chessboard square, selecting, deselecting or completing a move.
+    forms: [Enter, chooses the keyboard's square with Enter]
+    model: [chooseKeyboardSquare]
+  - term: control
+    from: runtime
   - term: legal destination
     definition: A square a selected piece may move to under the rules of chess, keeping its own king safe.
   - term: last move
@@ -165,7 +171,17 @@ terms:
   - term: activity annotations
     definition: Arrows, colored square fills, rings and named badges supplied by the activity; personal annotation changes never remove them.
     forms: [activity annotation, square annotations, square marks, supplies colored arrows, supplies square annotations, removes its annotations, fill, fills, ring, rings, badge, badges, line styles]
-    model: [setActivityArrows, setActivitySquareMarks, clearActivityAnnotations]
+    model: [setActivityArrows, setActivitySquareMarks, clearActivityAnnotations, chooseActivityArrow, supplyFeedbackMarks]
+  - term: primary color
+    definition: The activity's usual green for an arrow without a chosen color and for every personal arrow.
+    forms: [primary green, default appearance]
+  - term: danger color
+    definition: The red appearance the activity can choose for an arrow.
+    forms: [danger]
+  - term: feedback badge
+    definition: An activity's tick, cross or two exclamation marks on a square; usual appearances are green, red and blue respectively, at the upper-right unless another placement, color or a name is chosen.
+    forms: [feedback badges, feedback mark, feedback marks, tick, cross, exclamation marks, upper-right, centered tick, usual feedback badges, gold tick]
+    model: [supplyFeedbackMarks]
   - term: personal annotations
     definition: Arrows and circles Alice adds without moving pieces; choosing any square removes these marks while preserving the activity's annotations, even when new drawing is disabled.
     forms: [personal annotation, personal marks, personal arrows and circles]
@@ -181,7 +197,7 @@ terms:
   - term: personal circle
     definition: Alice's ring around a named square; marking the same square again removes it, announces only the current personal arrows, and never makes a move.
     forms: [personal circles, marks e4 with a personal circle]
-    model: [togglePersonalCircle]
+    model: [togglePersonalCircle, cancelPremoves]
   - term: premove
     definition: A waiting-side move queued for a future opponent reply, shown with a translucent destination preview while its real piece remains at source.
     forms: [premoves, queues the premove, queued premoves, drags a premove, enable premoves, disable premoves]

@@ -195,6 +195,13 @@ Feature: Choose the chessboard's appearance
       Then Alice sees coordinates for all eight files and all eight ranks
       And Alice sees the White pawn remaining on e2
 
+    Scenario: A Black-facing chessboard shows all eight files and ranks
+      Given Alice has a chessboard facing Black with coordinates hidden
+      When Alice's board settings show coordinates
+      Then Alice sees coordinates for all eight files and all eight ranks
+      And Alice's chessboard faces Black
+      And Alice sees the White pawn remaining on e2
+
     Scenario: Hidden coordinates stay hidden when orientation changes
       Given Alice has a chessboard with coordinates hidden
       When Alice changes the orientation

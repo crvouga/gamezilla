@@ -99,6 +99,7 @@ Feature: Complete Black's promotion in either orientation
 
   Rule: A promotion reaching a dead position announces the draw with one end sound
 
+    @regression:chessboard-draw-announcement
     Scenario Outline: Capturing the last opposing piece into dead material announces a draw
       Given Alice has a chessboard facing Black with Black's capture-promotion from a2 to b1 pending against White's knight
       When Alice chooses the promotion to a <piece>

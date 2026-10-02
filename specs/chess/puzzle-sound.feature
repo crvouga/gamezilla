@@ -82,6 +82,24 @@ Feature: Respect the app's sounds while solving and reviewing
       Then Alice's sounds are on
       And Alice is solving the puzzle at move 1 of the line
 
+    @regression:chess-puzzle-replayed-feedback
+    Scenario: Enabling sounds preserves the reached opening without repeating its setup sound
+      Given Alice is signed in
+      And Alice has turned sounds off
+      And Alice is solving the en passant puzzle
+      When Alice turns sounds on
+      Then Alice hears no new puzzle feedback
+      And Alice is solving the puzzle at move 1 of the line
+
+    @regression:chess-puzzle-replayed-feedback
+    Scenario: Enabling sounds after a silent solve does not repeat solved feedback
+      Given Alice is signed in
+      And Alice has turned sounds off
+      And Alice has solved the en passant puzzle
+      When Alice turns sounds on
+      Then Alice hears no new puzzle feedback
+      And Alice's puzzle is solved
+
   Rule: A review's forward move follows the same app sounds preference
 
     Scenario: An enabled review sounds its next move

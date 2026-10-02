@@ -48,3 +48,8 @@ Feature: Respect the activity's chessboard sound choice
       Given Alice's capture from e4 to d5 is animating
       When Alice closes the chessboard
       Then Alice hears no chessboard sounds
+
+    Scenario: Closing after a checking move preserves its move sound and prevents the later check sound
+      Given Alice has just checkmated Black by moving the queen from g6 to g7 while the piece is arriving
+      When Alice closes the chessboard
+      Then Alice has heard one move sound and cannot hear its delayed check sound

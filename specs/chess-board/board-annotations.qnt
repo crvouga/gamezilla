@@ -8,6 +8,9 @@
 // squares when orientation changes. The two prepared positions and marked
 // squares bound these examples; behavior is identical offline. The arrows
 // currently announced to the activity describe personal arrows alone.
+// Each personal arrow has the activity's primary green color. Chosen activity
+// appearances are a single prepared arrow or the three usual feedback badges;
+// a tick may instead be centered or gold. Square marks share one supplied set.
 module board_annotations {
   type AnnotationBoard = {position: str, orientation: str, enabled: bool,
     personalArrows: Set[str], personalCircles: Set[str], pendingArrow: str,
@@ -18,6 +21,15 @@ module board_annotations {
   pure val PERSONAL_CIRCLES = Set("e4", "d5")
   pure val ACTIVITY_ARROWS = Set("green solid e2 to e4", "blue dashed a1 to a8")
   pure val ACTIVITY_SQUARES = Set("blue fill d5", "gold ring e4", "Plan badge f3")
+  pure val ARROW_APPEARANCES = Set("default", "danger", "bright green", "bright green dashed")
+  pure val FEEDBACK_APPEARANCES = Set("usual", "centered", "gold")
+  pure val FEEDBACK_SQUARES = Set("green tick upper-right e4", "red cross upper-right d5",
+    "blue exclamations upper-right f3", "green tick center e4", "gold tick upper-right e4")
+  pure def _arrowAppearance(appearance: str): str =
+    if (appearance == "default") "green solid e2 to e4"
+    else if (appearance == "danger") "red solid e2 to e4"
+    else if (appearance == "bright green") "bright green solid e2 to e4"
+    else "bright green dashed e2 to e4"
   pure def _toggle(marks: Set[str], mark: str): Set[str] =
     if (marks.contains(mark)) marks.exclude(Set(mark)) else marks.union(Set(mark))
   pure def _quiet(s: AnnotationBoard): AnnotationBoard = { ...s, arrowOffers: 0 }
@@ -67,6 +79,18 @@ module board_annotations {
   action setActivitySquareMarks(show: bool): bool = annotationBoard' = {
     ..._quiet(annotationBoard), activitySquares: if (show) ACTIVITY_SQUARES else Set(),
   }
+  /// The activity supplies an arrow with its default or deliberately chosen appearance.
+  action chooseActivityArrow(appearance: str): bool = all {
+    ARROW_APPEARANCES.contains(appearance),
+    annotationBoard' = { ..._quiet(annotationBoard), activityArrows: Set(_arrowAppearance(appearance)) },
+  }
+  /// The activity supplies usual feedback symbols or changes the tick's position or color.
+  action supplyFeedbackMarks(appearance: str): bool = all {
+    FEEDBACK_APPEARANCES.contains(appearance),
+    annotationBoard' = { ..._quiet(annotationBoard), activitySquares:
+      if (appearance == "usual") Set("green tick upper-right e4", "red cross upper-right d5", "blue exclamations upper-right f3")
+      else if (appearance == "centered") Set("green tick center e4") else Set("gold tick upper-right e4") },
+  }
   /// The activity removes its annotations without removing personal marks.
   action clearActivityAnnotations = annotationBoard' = {
     ..._quiet(annotationBoard), activityArrows: Set(), activitySquares: Set(),
@@ -93,19 +117,22 @@ module board_annotations {
     nondet show = Set(false, true).oneOf()
     nondet canAnnotate = Set(false, true).oneOf()
     nondet target = Set("opening", "replacement").oneOf()
+    nondet arrowAppearance = ARROW_APPEARANCES.oneOf()
+    nondet feedbackAppearance = FEEDBACK_APPEARANCES.oneOf()
     any { beginPersonalArrow(arrow), finishPersonalArrow, cancelPersonalArrow,
       togglePersonalCircle(square), clearPersonalAnnotations, setActivityArrows(show),
       setActivitySquareMarks(show), clearActivityAnnotations,
       configurePersonalAnnotations(canAnnotate), flipAnnotationBoard,
-      replaceAnnotationPosition(target) }
+      replaceAnnotationPosition(target), chooseActivityArrow(arrowAppearance), supplyFeedbackMarks(feedbackAppearance) }
   }
   /// Personal marks and pending drawing use only the prepared logical squares.
   val invPersonalSquares = annotationBoard.personalArrows.subseteq(PERSONAL_ARROWS) and
     annotationBoard.personalCircles.subseteq(PERSONAL_CIRCLES) and
     (annotationBoard.pendingArrow == "none" or PERSONAL_ARROWS.contains(annotationBoard.pendingArrow))
   /// Activity marks retain their chosen styles and assigned squares.
-  val invActivitySquares = annotationBoard.activityArrows.subseteq(ACTIVITY_ARROWS) and
-    annotationBoard.activitySquares.subseteq(ACTIVITY_SQUARES)
+  val invActivitySquares = annotationBoard.activityArrows.subseteq(
+    ACTIVITY_ARROWS.union(ARROW_APPEARANCES.map(_arrowAppearance))) and
+    annotationBoard.activitySquares.subseteq(ACTIVITY_SQUARES.union(FEEDBACK_SQUARES))
   /// Disabled personal drawing cannot keep an unfinished arrow.
   val invDisabledAnnotations = not(annotationBoard.enabled) implies annotationBoard.pendingArrow == "none"
   /// An offered arrow set contains personal arrows only, never square marks.
