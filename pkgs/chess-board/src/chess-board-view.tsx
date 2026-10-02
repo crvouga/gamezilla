@@ -134,6 +134,7 @@ function BoardBody(args: {
         premoveGhosts={usePremoveGhosts(args.ctrl)}
         animator={args.ctrl.animator}
         motion={args.ctrl.motion}
+        canSlide={() => game().lastMove !== null}
       />
       <ChessBoardShapes
         boardTestId={args.boardTestId()}
@@ -154,6 +155,9 @@ function BoardBody(args: {
         orientation={args.ctrl.orientation()}
         onSquareFocus={(square) => args.ctrl.onSquareFocus(square)}
         cursor={args.ctrl.cursor()}
+        position={() => game().position}
+        selected={() => ix().selected ?? ix().dragFrom}
+        legalTargets={() => ix().legalTargets}
       />
       <ChessBoardOverlays
         ctrl={args.ctrl}
@@ -225,7 +229,7 @@ export function ChessBoardView(args: {
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       role="application"
-      aria-label="Chess board"
+      aria-label={`Chess board, ${args.ctrl.orientation()} facing you`}
     >
       <BoardBody
         props={args.props}

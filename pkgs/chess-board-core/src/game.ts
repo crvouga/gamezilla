@@ -239,6 +239,7 @@ export class ChessGame {
   applyExternalFen(nextFen: string): ApplyExternalFenResult | null {
     if (nextFen === this.snapshot.fen) return null;
     if (!validateFen(nextFen).ok) return null;
+    if (new Chess(nextFen).fen() === this.snapshot.fen) return null;
     const prev = this.snapshot.position;
     this.chess.load(nextFen);
     const position = positionFromChess(this.chess);

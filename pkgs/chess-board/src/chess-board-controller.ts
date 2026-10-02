@@ -15,6 +15,7 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
+import { watchBoardInput } from './board-input-lifecycle';
 import { type MotionPolicy, resolveMotionPolicy } from './board-motion';
 import { useBoardMotionEnvironment } from './board-motion-context';
 import {
@@ -59,11 +60,9 @@ export type BoardController = {
 /** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
 const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
 
-/** Snap CSS px so the board spans a multiple of 8 device pixels. */
-export function snapBoardPx(width: number): number {
-  if (!(width > 0)) return 0;
-  const dpr = window.devicePixelRatio || 1;
-  return (Math.floor((width * dpr) / 8) * 8) / dpr;
+/** Preserve the parent dimension; percentages tile fractional cells exactly. */
+export function normalizeBoardSize(width: number): number {
+  return Number.isFinite(width) && width > 0 ? width : 0;
 }
 
 /**
@@ -80,16 +79,20 @@ function useBoardPx(
     const node = el();
     if (node === undefined) return;
     const apply = (width: number): void => {
-      const snapped = snapBoardPx(width);
+      const snapped = normalizeBoardSize(width);
       if (snapped > 0) setMeasured(snapped);
     };
     const ro = new ResizeObserver((entries) => {
-      apply(entries[0]?.contentRect.width ?? 0);
+      const entry = entries[0];
+      apply(
+        entry?.borderBoxSize[0]?.inlineSize ??
+          (entry?.contentRect.width ?? 0) + 2 * node.clientLeft
+      );
     });
     ro.observe(node);
-    apply(node.getBoundingClientRect().width);
+    apply(node.offsetWidth || node.getBoundingClientRect().width);
     const onLayout = (): void => {
-      apply(node.getBoundingClientRect().width);
+      apply(node.offsetWidth || node.getBoundingClientRect().width);
     };
     node.addEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
     onCleanup(() => {
@@ -99,7 +102,7 @@ function useBoardPx(
   });
   return () => {
     const fixed = sizeProp();
-    if (fixed !== undefined) return snapBoardPx(fixed);
+    if (fixed !== undefined) return normalizeBoardSize(fixed);
     return measured();
   };
 }
@@ -140,6 +143,9 @@ function createMotion(props: ChessBoardProps) {
     animate: () => (env.hidden() ? null : env.animate),
     paintedTransform: env.paintedTransform,
   });
+  createEffect(() => {
+    if (!motion().slides) animator.dispose();
+  });
   onCleanup(animator.dispose);
   return { motion, animator };
 }
@@ -159,7 +165,9 @@ function createModel(
     moveDurationMs: () => motion().durationMs,
     onMove: (m) => props.onMove?.(m),
     onIllegal,
-    sounds: createChessBoardSounds(),
+    sounds: createChessBoardSounds(() => props.sound !== false),
+    soundEnabled: () => props.sound !== false,
+    orientation: () => props.orientation ?? 'white',
     timers,
     premoves: () => props.premoves === true,
     autoPromoteQueen: () => props.autoPromoteQueen === true,
@@ -220,6 +228,7 @@ function createInput(args: {
     dragActiveClass: styles['dragActive'] ?? '',
     setTouch: parts.setTouch,
   });
+  watchBoardInput(props, parts, pointer);
   createEffect(() => {
     const node = args.host();
     if (node === undefined) return;

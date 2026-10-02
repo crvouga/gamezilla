@@ -196,6 +196,7 @@ export class BoardPointer {
   }
 
   private endPress(): void {
+    const pointerId = this.press?.pointerId;
     this.press = null;
     this.boxes.clear();
     const host = this.host;
@@ -204,6 +205,13 @@ export class BoardPointer {
     host.removeEventListener('pointerup', this.onUp);
     host.removeEventListener('pointercancel', this.onLost);
     host.removeEventListener('lostpointercapture', this.onLost);
+    if (pointerId !== undefined) {
+      try {
+        host.releasePointerCapture(pointerId);
+      } catch {
+        /* Already lost. */
+      }
+    }
   }
 
   private readonly onMove = (e: PointerEvent): void => {

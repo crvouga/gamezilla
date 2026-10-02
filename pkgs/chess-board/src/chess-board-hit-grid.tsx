@@ -9,14 +9,23 @@
  * never has a layer above it to composite.
  */
 
+import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   FileChar,
+  PieceType,
+  Position,
   RankChar,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { createSelector, For, type JSX } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  createSelector,
+  For,
+  type JSX,
+} from 'solid-js';
 
 import styles from './chess-board.module.css';
 
@@ -34,10 +43,31 @@ export type ChessBoardHitGridProps = {
   /** A square button took focus (tab, screen reader, roving focus). */
   readonly onSquareFocus: (square: Square) => void;
   readonly cursor: Square;
+  readonly position: Accessor<Position>;
+  readonly selected: Accessor<Square | null>;
+  readonly legalTargets: Accessor<readonly Square[]>;
 };
+
+const PIECE_NAMES: Readonly<Record<PieceType, string>> = {
+  p: 'pawn',
+  n: 'knight',
+  b: 'bishop',
+  r: 'rook',
+  q: 'queen',
+  k: 'king',
+};
+
+function squareName(square: Square, position: Position): string {
+  const piece = position[indexFromSquare(square)];
+  return piece === null || piece === undefined
+    ? `${square}, empty`
+    : `${square}, ${piece.color === 'w' ? 'White' : 'Black'} ${PIECE_NAMES[piece.type]}`;
+}
 
 export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
   const isCursor = createSelector(() => props.cursor);
+  const isSelected = createSelector(() => props.selected());
+  const targets = createMemo(() => new Set(props.legalTargets()));
   return (
     <div
       class={`box absolute inset-0 ${styles['grid']}`}
@@ -50,16 +80,21 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
       }}
     >
       <For each={SQUARES_A8_TO_H1}>
-        {(square) => (
-          <button
-            type="button"
-            class={styles['square']}
-            data-testid={chessBoardSquareTestId(props.boardTestId, square)}
-            data-square={square}
-            aria-label={square}
-            tabIndex={isCursor(square) ? 0 : -1}
-          />
-        )}
+        {(square) => {
+          const label = createMemo(() => squareName(square, props.position()));
+          const legal = createMemo(() => targets().has(square));
+          return (
+            <button
+              type="button"
+              class={styles['square']}
+              data-testid={chessBoardSquareTestId(props.boardTestId, square)}
+              data-square={square}
+              aria-label={`${label()}${legal() ? ', Legal destination' : ''}`}
+              aria-pressed={isSelected(square)}
+              tabIndex={isCursor(square) ? 0 : -1}
+            />
+          );
+        }}
       </For>
     </div>
   );

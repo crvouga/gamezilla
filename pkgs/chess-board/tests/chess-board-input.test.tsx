@@ -132,7 +132,7 @@ describe('render budgets', () => {
     expect(board.layer('squares')).toEqual(['dot@e3', 'dot@e4', 'selected@e2']);
   });
 
-  test('a move touches no hit-grid button but the two that trade focus', () => {
+  test('a move updates only changed square meanings and two focus stops', () => {
     const board = open();
     expect(board.host.dataset['grab']).toBe('w');
     board.down({ square: 'g1' });
@@ -144,8 +144,19 @@ describe('render budgets', () => {
       board.up({ square: 'f3' });
     });
     expect(board.moves).toEqual(['g1f3']);
-    expect(records.every((r) => r.attributeName === 'tabindex')).toBe(true);
-    expect(new Set(records.map((r) => r.target)).size).toBeLessThanOrEqual(2);
+    expect(
+      records.every((r) =>
+        ['tabindex', 'aria-label', 'aria-pressed'].includes(
+          r.attributeName ?? ''
+        )
+      )
+    ).toBe(true);
+    const focus = records.filter((r) => r.attributeName === 'tabindex');
+    expect(new Set(focus.map((r) => r.target)).size).toBeLessThanOrEqual(2);
+    const meanings = records.filter((r) => r.attributeName !== 'tabindex');
+    expect(
+      new Set(meanings.map((r) => (r.target as HTMLElement).dataset['square']))
+    ).toEqual(new Set(['g1', 'f3', 'h3']));
     // Whose pieces show the grab cursor: one host attribute.
     expect(board.host.dataset['grab']).toBe('b');
   });

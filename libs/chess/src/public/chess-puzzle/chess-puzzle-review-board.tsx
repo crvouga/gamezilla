@@ -1,5 +1,6 @@
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { registerFeedbackContext } from '@pkgs/feedback/context';
+import { useSoundsPreference } from '@pkgs/sounds/solid';
 import { useDocumentShortcuts } from '@pkgs/ui';
 import { type JSX, onCleanup, Show } from 'solid-js';
 
@@ -18,6 +19,7 @@ import {
 function ReviewBoardSurface(props: {
   model: PuzzleReviewBoardModel;
 }): JSX.Element {
+  const sounds = useSoundsPreference();
   const model = props.model;
   const swipe = puzzleSwipeHandlers(model.onNavigate);
   return (
@@ -34,6 +36,7 @@ function ReviewBoardSurface(props: {
             fallback={<ChessPuzzleBoardLoadingState size={size} />}
           >
             <ChessBoard
+              sound={!sounds.muted()}
               dataSet={{ testid: 'chess-puzzle-review-board' }}
               size={size}
               fen={model.displayFen()}

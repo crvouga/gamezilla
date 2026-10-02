@@ -51,6 +51,8 @@ export type ChessBoardProps = {
   /** Fixed side in px. Omit to fill the parent width (square via `aspect-ratio`). */
   size?: number | undefined;
   interactive?: boolean | undefined;
+  /** Parent-owned board audio (default on). Disabling cancels pending playback. */
+  sound?: boolean | undefined;
   showCoordinates?: boolean | undefined;
   highlightLastMove?: boolean | undefined;
   highlightLegalMoves?: boolean | undefined;

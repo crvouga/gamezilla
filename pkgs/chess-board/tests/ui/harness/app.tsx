@@ -12,6 +12,8 @@ import { I18nProvider } from '@lingui/solid';
 import { BoardMotionProvider } from '@pkgs/chess-board/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import type { BoardArrow, Move } from '@pkgs/chess-board/chess-board-types';
+import { createRecordingAudio } from '@pkgs/chess-board/harness/recording-audio';
+import { createRecordingMotion } from '@pkgs/chess-board/harness/recording-motion';
 import { ClockProvider, useClock, useTimers } from '@pkgs/clock/solid';
 import type { Clock, Timers } from '@pkgs/clock/types';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
@@ -25,15 +27,12 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-
 import {
   HARNESS_BOARD_TEST_ID,
   type HarnessConfig,
   HarnessIds,
   type HarnessToggle,
 } from './config';
-import { createRecordingAudio } from './recording-audio';
-import { createRecordingMotion } from './recording-motion';
 
 const FRAME_WIDTH_PX = 360;
 const DEFAULT_SIZE_PX = 320;

@@ -54,6 +54,7 @@ function paintedAt(run: Running, now: number): string {
 export type RecordingMotion = {
   readonly env: BoardMotionEnvironment;
   readonly slides: Accessor<readonly string[]>;
+  readonly active: () => number;
   readonly setReducedMotion: (on: boolean) => void;
 };
 
@@ -104,6 +105,7 @@ export function createRecordingMotion(args: {
       },
     },
     slides,
+    active: () => running.size,
     setReducedMotion: setReduced,
   };
 }

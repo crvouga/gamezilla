@@ -16,7 +16,10 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -27,7 +30,9 @@
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/harness": "workspace:*",
+    "@pkgs/a11y": "workspace:*"
   },
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",
@@ -35,13 +40,19 @@
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
-    "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "chess.js": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
-  }
+    "vite": "catalog:",
+    "@pkgs/gherkin": "workspace:*",
+    "@pkgs/quint": "workspace:*",
+    "@pkgs/ui-testing-solid-dom": "workspace:*"
+  },
+  "specDomains": [
+    "chess-board"
+  ],
+  "specParts": 1
 }

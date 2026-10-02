@@ -58,6 +58,26 @@ function codes(source: string, fileName = 'tally-shape.qnt'): ModelShapeCode[] {
 }
 
 describe('modelShapeIssues', () => {
+  test('local surfaces retain structural guards without inventing connectivity', () => {
+    // regression: chessboard-local-model-profile
+    const source = `// @model-profile: local
+// A board works identically offline.
+module local_board {
+  var selected: bool
+  action init = selected' = false
+  action select = selected' = not(selected)
+  action step = any { select, init }
+  val invSelection = Set(false, true).contains(selected)
+}`;
+    expect(modelShapeIssues(source, 'local-board.qnt')).toEqual([]);
+    expect(
+      codes(
+        source.replace('Set(false, true).contains(selected)', 'true'),
+        'local-board.qnt'
+      )
+    ).toContain('trivial-invariant');
+  });
+
   test('maintenance profiles retain structural checks without app connectivity', () => {
     const source = `// @model-profile: maintenance
 module maintenance {

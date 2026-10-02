@@ -17,7 +17,7 @@ import {
   useAudioPlaybackPort,
   warmAudioPlayers,
 } from '@pkgs/sounds/solid';
-import { onCleanup } from 'solid-js';
+import { type Accessor, createEffect, onCleanup } from 'solid-js';
 
 const BOARD_SOUND_KEYS = [
   'move',
@@ -34,6 +34,7 @@ type BoardSoundKey = (typeof BOARD_SOUND_KEYS)[number];
 type Bank = {
   readonly players: Readonly<Record<BoardSoundKey, AudioPlayerHandle>>;
   boards: number;
+  readonly owners: Map<BoardSoundKey, symbol>;
 };
 
 const banks = new WeakMap<AudioPlaybackPort, Bank>();
@@ -42,7 +43,7 @@ function createBank(port: AudioPlaybackPort): Bank {
   const players = Object.fromEntries(
     BOARD_SOUND_KEYS.map((key) => [key, port.createPlayer(chessSoundUrls[key])])
   ) as Record<BoardSoundKey, AudioPlayerHandle>;
-  return { players, boards: 0 };
+  return { players, boards: 0, owners: new Map() };
 }
 
 function releaseBank(port: AudioPlaybackPort, bank: Bank): void {
@@ -59,27 +60,57 @@ function releaseBank(port: AudioPlaybackPort, bank: Bank): void {
 }
 
 /** Must run inside a Solid owner (component body / `createRoot`). */
-export function createChessBoardSounds(): ChessMoveSoundPlayer {
+export function createChessBoardSounds(
+  enabled: Accessor<boolean>
+): ChessMoveSoundPlayer & { readonly cancel: () => void } {
   const port = useAudioPlaybackPort();
   const existing = banks.get(port);
   const bank = existing ?? createBank(port);
   if (existing === undefined) banks.set(port, bank);
   bank.boards += 1;
-  const handles = createPlayFromStartHandles(bank.players);
+  const owner = Symbol('board-audio');
+  const players = Object.fromEntries(
+    BOARD_SOUND_KEYS.map((key) => [
+      key,
+      {
+        seekTo: (seconds: number) => bank.players[key].seekTo(seconds),
+        pause: () => {
+          if (bank.owners.get(key) === owner) bank.players[key].pause();
+        },
+        play: () => {
+          if (!enabled()) return;
+          bank.owners.set(key, owner);
+          void bank.players[key].play();
+        },
+      },
+    ])
+  ) as Record<BoardSoundKey, AudioPlayerHandle>;
+  const handles = createPlayFromStartHandles(players);
   const handleList = BOARD_SOUND_KEYS.map((key) => handles[key]);
-  if (existing === undefined) {
-    // Warms once per bank; also cancels this board's handles on cleanup.
+  const cancel = (): void => {
+    for (const key of BOARD_SOUND_KEYS) {
+      handles[key].cancel();
+      if (bank.owners.get(key) !== owner) continue;
+      bank.owners.delete(key);
+      try {
+        bank.players[key].pause();
+      } catch {
+        /* A player may already be released. */
+      }
+    }
+  };
+  if (existing === undefined)
     warmAudioPlayers(
       BOARD_SOUND_KEYS.map((key) => bank.players[key]),
       handleList
     );
-  } else {
-    onCleanup(() => {
-      for (const handle of handleList) handle.cancel();
-    });
-  }
+  createEffect(() => {
+    if (!enabled()) cancel();
+  });
+  onCleanup(cancel);
   onCleanup(() => releaseBank(port, bank));
   return {
+    cancel,
     playMove: () => handles.move.play(),
     playCapture: () => handles.capture.play(),
     playCheck: () => handles.check.play(),

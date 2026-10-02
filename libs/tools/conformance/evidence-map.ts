@@ -72,6 +72,13 @@ const ENVIRONMENTS: ProofTable = {
 
 /** Promises to people outside the product, and the specs that keep them. */
 const PUBLIC_CONTRACTS: ProofTable = {
+  'reusable chessboard': [
+    { spec: 'specs/chess-board/board-authority.feature' },
+    { spec: 'specs/chess-board/board-sound.feature' },
+    { spec: 'specs/chess-board/board-motion.feature' },
+    { spec: 'specs/chess-board/board-accessibility.feature' },
+    { spec: 'specs/chess-board/board-lifecycle.qnt' },
+  ],
   'account privacy': [
     { spec: 'specs/profile/account-deletion.feature' },
     { spec: 'specs/profile/personal-data-export.feature' },

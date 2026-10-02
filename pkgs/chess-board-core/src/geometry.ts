@@ -51,7 +51,8 @@ export function xyToSquare(
   boardPx: number,
   orientation: BoardOrientation
 ): Square | null {
-  if (boardPx <= 0) return null;
+  if (!Number.isFinite(boardPx) || boardPx <= 0) return null;
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
   if (x < 0 || y < 0 || x >= boardPx || y >= boardPx) return null;
   const cell = boardPx / 8;
   const col = clamp(Math.floor(x / cell), 0, 7);

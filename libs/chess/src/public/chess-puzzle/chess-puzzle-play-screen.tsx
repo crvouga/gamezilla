@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { useSoundsPreference } from '@pkgs/sounds/solid';
 import { SpeakingAvatar, SpectatorIndicator, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
@@ -57,12 +58,14 @@ function PuzzleBoardSlot(props: {
   arrows: PuzzlePlayerChromeModel['arrows'];
   recommendationArrows: PuzzlePlayerChromeModel['recommendationArrows'];
 }): JSX.Element {
+  const sounds = useSoundsPreference();
   return (
     <Show
       when={props.displayFen() !== null && props.displayFen()!.length > 0}
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
       <ChessBoard
+        sound={!sounds.muted()}
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}

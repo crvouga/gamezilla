@@ -60,7 +60,7 @@ export function defineMotionScenarios(host: ChessBoardHost): void {
       ]);
     });
 
-    test('a reset landing mid-slide retargets from where the piece is', async () => {
+    test('a replacement landing mid-slide settles at the authoritative position', async () => {
       const board = await openBoard(host, {
         fen: FEN.start,
         parent: 'ignore',
@@ -68,7 +68,7 @@ export function defineMotionScenarios(host: ChessBoardHost): void {
       await board.clickMove('g1', 'f3');
       await board.settle(75);
       await board.reject();
-      expect(await board.slides()).toEqual(['wn:g1>f3@150', 'wn:mid>g1@150']);
+      expect(await board.slides()).toEqual(['wn:g1>f3@150']);
       await board.expectFen(FEN.start);
       await board.expectConsistent();
     });
