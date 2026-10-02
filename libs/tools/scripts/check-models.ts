@@ -34,11 +34,10 @@ import { verify } from '@pkgs/quint/verify';
 import { REPO_ROOT, type SpecPackage, specPackages } from './spec-packages';
 
 /**
- * One model at a time. Each check is a JVM plus an SMT solver, and the
- * Check runner has two cores. Friendship and space hosting both ran out
- * the 240s bound at step 4 when they solved together.
+ * Independent models share a bounded pool. Each is a JVM plus an SMT solver;
+ * CI runs on at least 16 cores. Override the pool for smaller local machines.
  */
-const CONCURRENCY = 1;
+const CONCURRENCY = Math.max(1, Math.min(4, Number(process.env['MODEL_CHECK_CONCURRENCY'] ?? '4') || 4));
 /** A check is killed after this long (the binding lowers the bound instead). */
 const TIMEOUT_MS = 240_000;
 /** Package-relative; the `check:models` task's output. */
