@@ -1,5 +1,15 @@
 [
   {
+    "id": "check-report-concurrent-run-receipt",
+    "summary": "PR and manual Check runs for the same commit overwrote each other's publication receipts, so finalization could reject a fully published report. Receipts now belong to the workflow run and attempt.",
+    "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
+  },
+  {
+    "id": "check-duplicate-trigger-runners",
+    "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
     "id": "health-branch-aws-oidc-read-role",
     "summary": "A branch-dispatched Health run could obtain its OIDC token but AWS rejected AssumeRoleWithWebIdentity because the only CI role trusted main and production; widening that deploy role would have granted feature branches mutation access. Fixed with a separate read-only health role that trusts this repository's branches, published as AWS_HEALTH_ROLE_ARN and selected only by health.yml.",
     "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"

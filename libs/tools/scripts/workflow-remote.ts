@@ -186,7 +186,29 @@ export function findNewRun(
   );
 }
 
-function listDispatchRuns(workflow: string, branch: string): ListedRun[] {
+type WorkflowRun = ListedRun & { readonly conclusion: string | null };
+
+/** Follow a newer run of the same commit when trigger deduplication cancels ours. */
+export function findSupersedingRun(
+  runs: readonly WorkflowRun[],
+  runId: number,
+  sha: string
+): ListedRun | undefined {
+  return runs
+    .filter(
+      (candidate) =>
+        candidate.databaseId > runId &&
+        candidate.headSha === sha &&
+        candidate.conclusion !== 'cancelled'
+    )
+    .sort((a, b) => b.databaseId - a.databaseId)[0];
+}
+
+function listRuns(
+  workflow: string,
+  branch: string,
+  allTriggers = false
+): WorkflowRun[] {
   const out = must([
     'gh',
     'run',
@@ -195,14 +217,13 @@ function listDispatchRuns(workflow: string, branch: string): ListedRun[] {
     workflow,
     '--branch',
     branch,
-    '--event',
-    'workflow_dispatch',
+    ...(allTriggers ? [] : ['--event', 'workflow_dispatch']),
     '--limit',
     '20',
     '--json',
-    'databaseId,headSha',
+    'databaseId,headSha,conclusion',
   ]);
-  return JSON.parse(out) as ListedRun[];
+  return JSON.parse(out) as WorkflowRun[];
 }
 
 type PreparedRun = {
@@ -259,7 +280,7 @@ async function waitForRun(
   knownIds: ReadonlySet<number>
 ): Promise<number> {
   for (let attempt = 0; attempt < FIND_RUN_ATTEMPTS; attempt += 1) {
-    const found = findNewRun(listDispatchRuns(workflow, branch), knownIds, sha);
+    const found = findNewRun(listRuns(workflow, branch), knownIds, sha);
     if (found !== undefined) return found.databaseId;
     await Bun.sleep(FIND_RUN_INTERVAL_MS);
   }
@@ -333,7 +354,7 @@ async function runWorkflow(
 ): Promise<{ readonly code: number; readonly url: string }> {
   const { workflow, label, branch, sha } = options;
   const knownIds = new Set(
-    listDispatchRuns(workflow, branch).map((listed) => listed.databaseId)
+    listRuns(workflow, branch).map((listed) => listed.databaseId)
   );
   const state: WatchState = {
     label,
@@ -341,8 +362,7 @@ async function runWorkflow(
     watcher: null,
     tty: null,
     lookup: () =>
-      findNewRun(listDispatchRuns(workflow, branch), knownIds, sha)
-        ?.databaseId ?? null,
+      findNewRun(listRuns(workflow, branch), knownIds, sha)?.databaseId ?? null,
   };
   cancelOnSignals(state);
 
@@ -351,37 +371,73 @@ async function runWorkflow(
     `${label}: dispatched ${workflow} on ${branch} @ ${sha.slice(0, 9)}`
   );
   state.runId = await waitForRun(workflow, branch, sha, knownIds);
-  const url = must([
+  state.tty = holdTTY();
+  try {
+    return await watchCurrentRun(state, options);
+  } finally {
+    state.tty.release();
+  }
+}
+
+function workflowField(runId: number, field: 'url' | 'conclusion'): string {
+  return must([
     'gh',
     'run',
     'view',
-    String(state.runId),
+    String(runId),
     '--json',
-    'url',
+    field,
     '--jq',
-    '.url',
+    `.${field}`,
   ]);
-  console.log(`${label}: ${url}`);
+}
 
-  // Own process group: the terminal's Ctrl-C reaches only this script, which
-  // cancels the run before the watcher goes away. stdin stays here so a
-  // scroll's arrow keys can be discarded instead of echoed.
-  state.tty = holdTTY();
-  try {
+async function watchCurrentRun(
+  state: WatchState,
+  options: RunWorkflowOptions
+): Promise<{ readonly code: number; readonly url: string }> {
+  for (;;) {
+    const runId = state.runId;
+    if (runId === null)
+      throw new WorkflowRemoteError('No workflow run to watch');
+    const url = workflowField(runId, 'url');
+    console.log(`${options.label}: ${url}`);
+    // Signals cancel the currently watched run; no additional work is dispatched.
     const watcher = spawn(
       'gh',
-      ['run', 'watch', String(state.runId), '--exit-status', '--interval', '3'],
-      { stdio: ['ignore', 'inherit', 'inherit'], detached: true }
+      ['run', 'watch', String(runId), '--exit-status', '--interval', '3'],
+      {
+        stdio: ['ignore', 'inherit', 'inherit'],
+        detached: true,
+      }
     );
     state.watcher = watcher;
-    const code = await new Promise<number>((resolve) => {
-      watcher.on('close', (exitCode) => resolve(exitCode ?? 1));
-    });
-    if (code !== 0) printFailedLog(label, state.runId);
-    console.log(`${label}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+    const code = await new Promise<number>((resolve) =>
+      watcher.on('close', (exitCode) => resolve(exitCode ?? 1))
+    );
+    if (code !== 0 && options.workflow === 'check.yml') {
+      const conclusion = workflowField(runId, 'conclusion');
+      const next =
+        conclusion === 'cancelled'
+          ? findSupersedingRun(
+              listRuns(options.workflow, options.branch, true),
+              runId,
+              options.sha
+            )
+          : undefined;
+      if (next !== undefined) {
+        console.log(
+          `${options.label}: following superseding run ${next.databaseId} of the same commit`
+        );
+        state.runId = next.databaseId;
+        continue;
+      }
+    }
+    if (code !== 0) printFailedLog(options.label, runId);
+    console.log(
+      `${options.label}: ${code === 0 ? 'passed' : 'failed'} — ${url}`
+    );
     return { code, url };
-  } finally {
-    state.tty.release();
   }
 }
 

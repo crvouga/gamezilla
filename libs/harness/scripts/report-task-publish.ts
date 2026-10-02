@@ -13,8 +13,8 @@ import {
   reportTask,
 } from '../src/ci/report-ready';
 
-function receiptKey(sha: string, task: ReportTask): string {
-  return `commits/${sha}/publications/${sourceId(task.packageDir, task.bucket)}.json`;
+function receiptKey(sha: string, runId: string, task: ReportTask): string {
+  return `commits/${sha}/publications/${encodeURIComponent(runId)}/${sourceId(task.packageDir, task.bucket)}.json`;
 }
 
 export async function publishReportTask(args: {
@@ -53,7 +53,7 @@ export async function publishReportTask(args: {
   // The run id prevents an earlier attempt's receipt satisfying this run.
   await writeUtf8(
     args.store,
-    receiptKey(args.sha, task),
+    receiptKey(args.sha, args.runId, task),
     JSON.stringify({
       taskId: args.taskId,
       runId: args.runId,
@@ -74,7 +74,10 @@ export async function verifyPublications(args: {
   const reports = args.taskIds.flatMap((id) => reportTask(id) ?? []);
   await Promise.all(
     reports.map(async (task) => {
-      const value = await readUtf8(args.store, receiptKey(args.sha, task));
+      const value = await readUtf8(
+        args.store,
+        receiptKey(args.sha, args.runId, task)
+      );
       const receipt =
         value === null
           ? null

@@ -9,6 +9,7 @@ const taskId = '@libs/example#test:spec:0';
 const sha = 'commit';
 
 describe('report completion receipts', () => {
+  // regression: check-report-concurrent-run-receipt
   test('accepts an explicitly completed empty part and rejects missing or stale publications', async () => {
     const repoRoot = mkdtempSync(join(tmpdir(), 'report-publication-'));
     const store = new ObjectStoreImplInMemory();
@@ -38,6 +39,14 @@ describe('report completion receipts', () => {
       await expect(
         verifyPublications({ ...args, runId: 'next' })
       ).rejects.toThrow('Report not published');
+      await publishReportTask({
+        ...args,
+        runId: 'concurrent',
+        repoRoot,
+        taskId,
+      });
+      await verifyPublications(args);
+      await verifyPublications({ ...args, runId: 'concurrent' });
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });
     }

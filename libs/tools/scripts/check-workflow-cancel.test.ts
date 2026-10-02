@@ -16,6 +16,15 @@ function jobConditions(workflow: string): readonly string[] {
 }
 
 describe('Check workflow cancellation', () => {
+  // regression: check-duplicate-trigger-runners
+  test('PR and manual triggers share the branch concurrency group', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      concurrency: { group: string };
+    };
+    expect(workflow.concurrency.group).toBe(
+      'check-${{ github.event.pull_request.head.ref || github.ref_name }}'
+    );
+  });
   // regression: check-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {
     const holding = jobConditions(readFileSync(WORKFLOW, 'utf8')).filter(
