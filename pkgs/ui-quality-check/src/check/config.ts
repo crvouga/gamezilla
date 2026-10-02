@@ -13,22 +13,50 @@ export function resolveOptions(options: CheckerOptions) {
     ignoreEmptyFrames: options.ignoreEmptyFrames ?? true,
     ignoreRegions: options.ignoreRegions ?? [],
     failureClipMs: options.failureClipMs ?? 0,
-    thresholdSource: options.threshold === undefined ? 'experimental' as const : 'explicit' as const,
+    thresholdSource:
+      options.threshold === undefined
+        ? ('experimental' as const)
+        : ('explicit' as const),
   };
-  for (const key of ['threshold', 'dedupeThreshold'] as const) {
-    if (!Number.isFinite(config[key]) || config[key] < 0 || config[key] > 1) throw new Error(`${key} must be between 0 and 1.`);
-  }
-  for (const key of ['batchSize', 'concurrency', 'maxWorstFrames'] as const) {
-    if (!Number.isInteger(config[key]) || config[key] < 1 || config[key] > 128) throw new Error(`${key} must be an integer between 1 and 128.`);
-  }
-  if (!Number.isFinite(config.samplingFps) || config.samplingFps <= 0 || config.samplingFps > 60) throw new Error('samplingFps must be greater than 0 and at most 60.');
-  for (const key of ['confirmationWindowMs', 'failureClipMs'] as const) {
-    if (!Number.isFinite(config[key]) || config[key] < 0) throw new Error(`${key} must be nonnegative.`);
-  }
-  for (const region of config.ignoreRegions) {
-    if (!Number.isFinite(region.startMs) || !Number.isFinite(region.endMs) || region.startMs < 0 || region.endMs <= region.startMs) throw new Error('Ignore regions require 0 <= startMs < endMs.');
-  }
+  validateNumbers(config);
+  validateRegions(config.ignoreRegions);
+  if (!['minimum', 'confirmed'].includes(config.aggregation))
+    throw new Error('Aggregation must be minimum or confirmed.');
+  if (typeof config.ignoreEmptyFrames !== 'boolean')
+    throw new Error('ignoreEmptyFrames must be a boolean.');
+  if (
+    options.provider &&
+    !['auto', 'cpu', 'webgpu', 'coreml', 'cuda', 'dml'].includes(
+      options.provider
+    )
+  )
+    throw new Error('Invalid local execution provider.');
   return config;
 }
 
 export type ResolvedOptions = ReturnType<typeof resolveOptions>;
+
+function range(value: number, name: string, min: number, max: number): void {
+  if (!Number.isFinite(value) || value < min || value > max)
+    throw new Error(`${name} must be between ${min} and ${max}.`);
+}
+function validateNumbers(config: ResolvedOptions): void {
+  range(config.threshold, 'threshold', 0, 1);
+  range(config.dedupeThreshold, 'dedupeThreshold', 0, 1);
+  range(config.samplingFps, 'samplingFps', Number.MIN_VALUE, 60);
+  for (const key of ['batchSize', 'concurrency', 'maxWorstFrames'] as const) {
+    range(config[key], key, 1, 128);
+    if (!Number.isInteger(config[key]))
+      throw new Error(`${key} must be an integer.`);
+  }
+  for (const key of ['confirmationWindowMs', 'failureClipMs'] as const)
+    range(config[key], key, 0, Number.MAX_SAFE_INTEGER);
+}
+function validateRegions(regions: ResolvedOptions['ignoreRegions']): void {
+  for (const region of regions) {
+    range(region.startMs, 'startMs', 0, Number.MAX_SAFE_INTEGER);
+    range(region.endMs, 'endMs', 0, Number.MAX_SAFE_INTEGER);
+    if (region.endMs <= region.startMs)
+      throw new Error('Ignore regions require startMs < endMs.');
+  }
+}

@@ -1,9 +1,19 @@
 // @io-wall-ok — build entrypoint; published output has no workspace dependencies.
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { build } from 'esbuild';
-import { generateDtsBundle } from 'dts-bundle-generator';
+import { publicDeclarations } from './declarations';
 
+await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
-await build({ entryPoints: { index: 'src/index.ts', cli: 'src/cli/index.ts' }, outdir: 'dist', platform: 'node', target: 'node22', format: 'esm', bundle: true, splitting: true, external: ['sharp', 'ffmpeg-static', 'onnxruntime-node'], sourcemap: true });
-const declarations = generateDtsBundle([{ filePath: 'src/index.ts', output: { noBanner: true } }], { preferredConfigPath: 'tsconfig.tc.json' });
-await writeFile('dist/index.d.ts', declarations[0] ?? '');
+await build({
+  entryPoints: { index: 'src/index.ts', cli: 'src/cli/index.ts' },
+  outdir: 'dist',
+  platform: 'node',
+  target: 'node22',
+  format: 'esm',
+  bundle: true,
+  splitting: true,
+  external: ['sharp', 'ffmpeg-static', 'onnxruntime-node'],
+  sourcemap: true,
+});
+await writeFile('dist/index.d.ts', publicDeclarations('src/index.ts'));

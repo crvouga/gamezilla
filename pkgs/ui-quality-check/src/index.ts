@@ -1,10 +1,40 @@
-export { setup, createUIQualityChecker, check, checkImage, checkImages, checkVideo, checkVideos, assertImageQuality, assertImagesQuality, assertVideoQuality, assertVideosQuality, disposeDefaultChecker } from './api';
+export {
+  assertImageQuality,
+  assertImagesQuality,
+  assertVideoQuality,
+  assertVideosQuality,
+  check,
+  checkImage,
+  checkImages,
+  checkVideo,
+  checkVideos,
+  createUIQualityChecker,
+  disposeDefaultChecker,
+  setup,
+} from './api';
+export { benchmark } from './benchmark';
+export type { CalibrationOptions } from './calibration/calibrate';
+export { calibrate } from './calibration/calibrate';
+export type { ConfusionMatrix } from './calibration/statistics';
+export { calibrationStatistics, confusion } from './calibration/statistics';
+export { executionProviderCandidates } from './detectors/providers';
+export type {
+  DetectorInfo,
+  ImageInput,
+  QualityDetector,
+  QualityScore,
+  RgbImage,
+  SequenceDetector,
+} from './detectors/types';
 export { UIQualityError } from './errors';
 export type { SetupOptions } from './model/setup';
-export type { ImageInput, RgbImage, DetectorInfo, QualityScore, QualityDetector, SequenceDetector } from './detectors/types';
-export type { CheckerOptions, UIQualityChecker, QualityResult, FrameQuality, FrameQualityFailure, DetectorResult, BatchQualityResult } from './types';
-export { calibrate } from './calibration/calibrate';
-export { calibrationStatistics, confusion } from './calibration/statistics';
-export type { ConfusionMatrix } from './calibration/statistics';
-export type { CalibrationOptions } from './calibration/calibrate';
-export { benchmark } from './benchmark';
+export type {
+  BatchQualityResult,
+  CheckerOptions,
+  DetectorResult,
+  FrameQuality,
+  FrameQualityFailure,
+  QualityResult,
+  UIQualityChecker,
+} from './types';
+export type { DecodedFrame, VideoDecoder } from './video/types';

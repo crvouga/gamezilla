@@ -23,7 +23,10 @@ export interface QualityScore {
 export interface QualityDetector {
   readonly info: DetectorInfo;
   initialize(): Promise<void>;
-  score(images: readonly RgbImage[], signal?: AbortSignal): Promise<readonly QualityScore[]>;
+  score(
+    images: readonly RgbImage[],
+    signal?: AbortSignal
+  ): Promise<readonly QualityScore[]>;
   dispose(): Promise<void>;
   metrics?(): { inferenceMs: number; windowsProcessed: number };
 }
@@ -33,6 +36,8 @@ export interface SequenceDetector {
   readonly info: DetectorInfo;
   initialize(): Promise<void>;
   observe(image: RgbImage, timestampMs: number): Promise<void>;
-  finish(): Promise<readonly { timestampMs: number; quality: number; evidence: string }[]>;
+  finish(): Promise<
+    readonly { timestampMs: number; quality: number; evidence: string }[]
+  >;
   dispose(): Promise<void>;
 }

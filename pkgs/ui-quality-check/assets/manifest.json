@@ -1,6 +1,6 @@
 {
   "model": "UIClip",
-  "modelVersion": "505d4731b09263c07437a9022d23c800274da56b-vision-v1",
+  "modelVersion": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
   "sourceUrl": "https://huggingface.co/biglab/uiclip_jitteredwebsites-2-224-paraphrased_webpairs_humanpairs/resolve/505d4731b09263c07437a9022d23c800274da56b/model.safetensors",
   "sourceSha256": "cf8bcb4f3605ab11a64f9ed515ef96c65618071c67e4756921db66a7aebd1820",
   "sourceBytes": 605156676,

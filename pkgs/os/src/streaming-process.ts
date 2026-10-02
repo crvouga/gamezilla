@@ -21,7 +21,9 @@ export function startProcess(request: ProcessRequest): StreamingProcess {
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
   });
-  const stop = () => { child.kill('SIGKILL'); };
+  const stop = () => {
+    child.kill('SIGKILL');
+  };
   request.signal?.addEventListener('abort', stop, { once: true });
   const completed = new Promise<number | null>((resolve, reject) => {
     child.once('error', reject);

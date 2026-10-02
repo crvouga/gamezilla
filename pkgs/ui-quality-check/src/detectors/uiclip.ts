@@ -1,70 +1,116 @@
-import * as ort from 'onnxruntime-node';
-import type { Clock } from '@pkgs/clock';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
-import type { Files } from '../files';
-import type { CheckerOptions } from '../types';
-import { verifyModel } from '../model/setup';
+import type { Clock } from '@pkgs/clock';
+import type * as Runtime from 'onnxruntime-node';
 import manifest from '../../assets/manifest.json';
 import prompts from '../../assets/prompts.json';
+import type { Files } from '../files';
+import { verifyModel } from '../model/setup';
+import type { CheckerOptions } from '../types';
 import { imageWindows } from './preprocess';
-import type { DetectorInfo, QualityDetector, QualityScore, RgbImage } from './types';
-
-function providerOrder(provider: CheckerOptions['provider']): string[] {
-  if (provider && provider !== 'auto') return [provider];
-  const bundled = new Set(ort.listSupportedBackends().filter((p) => p.bundled).map((p) => p.name));
-  // WebGPU was substantially faster and more accurate than Core ML for this graph.
-  return ['cuda', 'webgpu', 'dml', 'cpu'].filter((p) => bundled.has(p));
-}
+import { executionProviderCandidates } from './providers';
+import type {
+  DetectorInfo,
+  QualityDetector,
+  QualityScore,
+  RgbImage,
+} from './types';
 
 function quality(embedding: Float64Array): number {
-  const norm = Math.sqrt(embedding.reduce((sum, value) => sum + value * value, 0));
-  if (!Number.isFinite(norm) || norm === 0) throw new Error('Model returned an invalid image embedding.');
-  const logits = prompts.embeddings.map((text) => embedding.reduce((sum, value, i) => sum + value / norm * (text[i] ?? 0), 0) * 100);
+  const norm = Math.sqrt(
+    embedding.reduce((sum, value) => sum + value * value, 0)
+  );
+  if (!Number.isFinite(norm) || norm === 0)
+    throw new Error('Model returned an invalid image embedding.');
+  const logits = prompts.embeddings.map(
+    (text) =>
+      embedding.reduce(
+        (sum, value, i) => sum + (value / norm) * (text[i] ?? 0),
+        0
+      ) * 100
+  );
   const score = 1 / (1 + Math.exp((logits[1] ?? 0) - (logits[0] ?? 0)));
   return Math.round(score * 1_000_000) / 1_000_000;
 }
 
 export class UIClipDetector implements QualityDetector {
-  private session: ort.InferenceSession | undefined;
+  private session: Runtime.InferenceSession | undefined;
+  private runtime: typeof Runtime | undefined;
   private selected = 'uninitialized';
   private inferenceMs = 0;
   private windowsProcessed = 0;
   readonly info: DetectorInfo;
 
-  constructor(private readonly files: Files, private readonly modelDir: string, private readonly options: CheckerOptions, private readonly clock: Clock) {
+  constructor(
+    private readonly files: Files,
+    private readonly modelDir: string,
+    private readonly options: CheckerOptions,
+    private readonly clock: Clock
+  ) {
     const self = this;
-    this.info = { id: manifest.model, version: manifest.modelVersion, get executionProvider() { return self.selected; } };
+    this.info = {
+      id: manifest.model,
+      version: manifest.modelVersion,
+      get executionProvider() {
+        return self.selected;
+      },
+    };
   }
 
   async initialize(): Promise<void> {
     if (this.session) return;
     await verifyModel(this.files, this.modelDir, this.options.signal);
+    const ort = await import('onnxruntime-node');
+    this.runtime = ort;
     const errors: string[] = [];
-    for (const provider of providerOrder(this.options.provider)) {
-      let candidate: ort.InferenceSession | undefined;
+    for (const provider of executionProviderCandidates(
+      ort.listSupportedBackends(),
+      this.options.provider
+    )) {
+      let candidate: Runtime.InferenceSession | undefined;
       try {
-        candidate = await ort.InferenceSession.create(join(this.modelDir, 'vision.onnx'), {
-          executionProviders: [provider], intraOpNumThreads: Math.min(8, availableParallelism()), interOpNumThreads: 1,
-          graphOptimizationLevel: 'all', executionMode: 'sequential', logSeverityLevel: 3,
-        });
+        candidate = await ort.InferenceSession.create(
+          join(this.modelDir, 'vision.onnx'),
+          {
+            executionProviders: [provider],
+            intraOpNumThreads: Math.min(8, availableParallelism()),
+            interOpNumThreads: 1,
+            graphOptimizationLevel: 'all',
+            executionMode: 'sequential',
+            logSeverityLevel: 3,
+          }
+        );
         // Availability is insufficient: run a batched smoke check before selecting an EP.
-        await candidate.run({ pixel_values: new ort.Tensor('float32', new Float32Array(2 * 3 * 224 * 224), [2, 3, 224, 224]) });
+        await candidate.run({
+          pixel_values: new ort.Tensor(
+            'float32',
+            new Float32Array(2 * 3 * 224 * 224),
+            [2, 3, 224, 224]
+          ),
+        });
         this.options.signal?.throwIfAborted();
-        this.session = candidate; this.selected = provider; return;
+        this.session = candidate;
+        this.selected = provider;
+        return;
       } catch (error) {
         if (candidate) await candidate.release();
         this.options.signal?.throwIfAborted();
-        errors.push(`${provider}: ${error instanceof Error ? error.message : String(error)}`);
+        errors.push(
+          `${provider}: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
     }
-    throw new Error(`No local inference provider could initialize. ${errors.join('; ')}`);
+    throw new Error(
+      `No local inference provider could initialize. ${errors.join('; ')}`
+    );
   }
 
-  async score(images: readonly RgbImage[], signal?: AbortSignal): Promise<readonly QualityScore[]> {
+  async score(
+    images: readonly RgbImage[],
+    signal?: AbortSignal
+  ): Promise<readonly QualityScore[]> {
     if (!this.session) throw new Error('Detector is not initialized.');
     const sums = images.map(() => new Float64Array(512));
-    const counts = images.map(() => 0);
     const windows: { image: number; tensor: Float32Array }[] = [];
     const limit = this.options.batchSize ?? (this.selected === 'cpu' ? 16 : 32);
     for (let i = 0; i < images.length; i++) {
@@ -73,33 +119,56 @@ export class UIClipDetector implements QualityDetector {
       if (!image) continue;
       for (const tensor of await imageWindows(image)) {
         windows.push({ image: i, tensor });
-        if (windows.length >= limit) await this.infer(windows.splice(0), sums, counts);
+        if (windows.length >= limit) await this.infer(windows.splice(0), sums);
       }
     }
-    if (windows.length) await this.infer(windows, sums, counts);
+    if (windows.length) await this.infer(windows, sums);
     signal?.throwIfAborted();
     return sums.map((sum) => ({ quality: quality(sum) }));
   }
 
-  private async infer(windows: readonly { image: number; tensor: Float32Array }[], sums: Float64Array[], counts: number[]): Promise<void> {
+  private async infer(
+    windows: readonly { image: number; tensor: Float32Array }[],
+    sums: Float64Array[]
+  ): Promise<void> {
+    const ort = this.runtime;
+    if (!ort) throw new Error('Detector runtime is not initialized.');
     const data = new Float32Array(windows.length * 3 * 224 * 224);
     windows.forEach((window, i) => data.set(window.tensor, i * 3 * 224 * 224));
     const start = this.clock.now();
-    const result = await this.session?.run({ pixel_values: new ort.Tensor('float32', data, [windows.length, 3, 224, 224]) });
-    this.inferenceMs += this.clock.now() - start; this.windowsProcessed += windows.length;
+    const result = await this.session?.run({
+      pixel_values: new ort.Tensor('float32', data, [
+        windows.length,
+        3,
+        224,
+        224,
+      ]),
+    });
+    this.inferenceMs += this.clock.now() - start;
+    this.windowsProcessed += windows.length;
     const embeddings = result?.['image_embeds']?.data;
-    if (!(embeddings instanceof Float32Array) || embeddings.length !== windows.length * 512) throw new Error('Model returned an unexpected image embedding shape.');
+    if (
+      !(embeddings instanceof Float32Array) ||
+      embeddings.length !== windows.length * 512
+    )
+      throw new Error('Model returned an unexpected image embedding shape.');
     windows.forEach((window, i) => {
       const sum = sums[window.image];
       if (!sum) return;
-      for (let d = 0; d < 512; d++) sum[d] = (sum[d] ?? 0) + (embeddings[i * 512 + d] ?? 0);
-      counts[window.image] = (counts[window.image] ?? 0) + 1;
+      for (let d = 0; d < 512; d++)
+        sum[d] = (sum[d] ?? 0) + (embeddings[i * 512 + d] ?? 0);
     });
   }
 
   async dispose(): Promise<void> {
-    const session = this.session; this.session = undefined;
+    const session = this.session;
+    this.session = undefined;
     if (session) await session.release();
   }
-  metrics() { return { inferenceMs: this.inferenceMs, windowsProcessed: this.windowsProcessed }; }
+  metrics() {
+    return {
+      inferenceMs: this.inferenceMs,
+      windowsProcessed: this.windowsProcessed,
+    };
+  }
 }

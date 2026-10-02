@@ -1,5 +1,5 @@
-import { basename, dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { basename, dirname, resolve } from 'node:path';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
 export interface Files {
@@ -7,19 +7,33 @@ export interface Files {
   list(input: string): Promise<readonly string[]>;
 }
 
-export async function readBytes(files: Files, path: string): Promise<Uint8Array> {
+export async function readBytes(
+  files: Files,
+  path: string
+): Promise<Uint8Array> {
   const absolute = resolve(path);
   const value = await files.store(dirname(absolute)).get(basename(absolute));
   if (!value) throw new Error(`File does not exist: ${path}`);
   return new Uint8Array(await new Response(value.body).arrayBuffer());
 }
 
-export async function writeBytes(files: Files, path: string, data: Uint8Array, contentType = 'application/octet-stream'): Promise<void> {
+export async function writeBytes(
+  files: Files,
+  path: string,
+  data: Uint8Array,
+  contentType = 'application/octet-stream'
+): Promise<void> {
   const absolute = resolve(path);
-  await files.store(dirname(absolute)).put(basename(absolute), data, contentType);
+  await files
+    .store(dirname(absolute))
+    .put(basename(absolute), data, contentType);
 }
 
-export async function hashFile(files: Files, path: string, signal?: AbortSignal): Promise<string> {
+export async function hashFile(
+  files: Files,
+  path: string,
+  signal?: AbortSignal
+): Promise<string> {
   const absolute = resolve(path);
   const value = await files.store(dirname(absolute)).get(basename(absolute));
   if (!value) throw new Error(`File does not exist: ${path}`);
@@ -44,9 +58,20 @@ export function hashBytes(bytes: Uint8Array | string): string {
 }
 
 export async function readJson<T>(files: Files, path: string): Promise<T> {
-  return JSON.parse(new TextDecoder().decode(await readBytes(files, path))) as T;
+  return JSON.parse(
+    new TextDecoder().decode(await readBytes(files, path))
+  ) as T;
 }
 
-export async function writeJson(files: Files, path: string, value: unknown): Promise<void> {
-  await writeBytes(files, path, new TextEncoder().encode(`${JSON.stringify(value, null, 2)}\n`), 'application/json');
+export async function writeJson(
+  files: Files,
+  path: string,
+  value: unknown
+): Promise<void> {
+  await writeBytes(
+    files,
+    path,
+    new TextEncoder().encode(`${JSON.stringify(value, null, 2)}\n`),
+    'application/json'
+  );
 }

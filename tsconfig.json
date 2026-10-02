@@ -263,9 +263,5 @@
     "pkgs/ui-quality-check/src/**/*.ts",
     "pkgs/ui-quality-check/scripts/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "web-build"
-  ]
+  "exclude": ["node_modules", "dist", "web-build"]
 }

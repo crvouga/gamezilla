@@ -1,0 +1,3162 @@
+{
+  "schemaVersion": 1,
+  "detectors": [
+    {
+      "id": "UIClip",
+      "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+      "executionProvider": "webgpu"
+    }
+  ],
+  "knownGoodCount": 16,
+  "knownBadCount": 192,
+  "calibration": {
+    "good": {
+      "count": 8,
+      "min": 0.535014,
+      "p05": 0.535014,
+      "p25": 0.591295,
+      "median": 0.630076,
+      "p75": 0.687865,
+      "p95": 0.698787,
+      "max": 0.708144,
+      "mean": 0.640869
+    },
+    "bad": {
+      "count": 96,
+      "min": 0.287082,
+      "p05": 0.305481,
+      "p25": 0.478125,
+      "median": 0.545112,
+      "p75": 0.613471,
+      "p95": 0.7161,
+      "max": 0.781771,
+      "mean": 0.5406685520833331
+    },
+    "maxFalsePositiveRate": 0.05,
+    "recommended": {
+      "threshold": 0.534143,
+      "truePositives": 45,
+      "falsePositives": 0,
+      "trueNegatives": 8,
+      "falseNegatives": 51,
+      "precision": 1,
+      "recall": 0.46875,
+      "falsePositiveRate": 0,
+      "falseNegativeRate": 0.53125
+    },
+    "candidates": [
+      {
+        "threshold": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 96,
+        "precision": 0,
+        "recall": 0,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 1
+      },
+      {
+        "threshold": 0.288885,
+        "truePositives": 1,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 95,
+        "precision": 1,
+        "recall": 0.010416666666666666,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9895833333333334
+      },
+      {
+        "threshold": 0.292302,
+        "truePositives": 2,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 94,
+        "precision": 1,
+        "recall": 0.020833333333333332,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9791666666666666
+      },
+      {
+        "threshold": 0.2962,
+        "truePositives": 3,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 93,
+        "precision": 1,
+        "recall": 0.03125,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.96875
+      },
+      {
+        "threshold": 0.30198250000000004,
+        "truePositives": 4,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 92,
+        "precision": 1,
+        "recall": 0.041666666666666664,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9583333333333334
+      },
+      {
+        "threshold": 0.3154655,
+        "truePositives": 5,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 91,
+        "precision": 1,
+        "recall": 0.052083333333333336,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9479166666666666
+      },
+      {
+        "threshold": 0.33707750000000003,
+        "truePositives": 6,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 90,
+        "precision": 1,
+        "recall": 0.0625,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9375
+      },
+      {
+        "threshold": 0.34887999999999997,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 89,
+        "precision": 1,
+        "recall": 0.07291666666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9270833333333334
+      },
+      {
+        "threshold": 0.3624445,
+        "truePositives": 8,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 88,
+        "precision": 1,
+        "recall": 0.08333333333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.9166666666666666
+      },
+      {
+        "threshold": 0.38002199999999997,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 87,
+        "precision": 1,
+        "recall": 0.09375,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.90625
+      },
+      {
+        "threshold": 0.38722449999999997,
+        "truePositives": 10,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 86,
+        "precision": 1,
+        "recall": 0.10416666666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8958333333333334
+      },
+      {
+        "threshold": 0.3933105,
+        "truePositives": 11,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 85,
+        "precision": 1,
+        "recall": 0.11458333333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8854166666666666
+      },
+      {
+        "threshold": 0.405488,
+        "truePositives": 12,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 84,
+        "precision": 1,
+        "recall": 0.125,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.875
+      },
+      {
+        "threshold": 0.42739550000000004,
+        "truePositives": 13,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 83,
+        "precision": 1,
+        "recall": 0.13541666666666666,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8645833333333334
+      },
+      {
+        "threshold": 0.440969,
+        "truePositives": 14,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 82,
+        "precision": 1,
+        "recall": 0.14583333333333334,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8541666666666666
+      },
+      {
+        "threshold": 0.443085,
+        "truePositives": 15,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 81,
+        "precision": 1,
+        "recall": 0.15625,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.84375
+      },
+      {
+        "threshold": 0.4453935,
+        "truePositives": 16,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 80,
+        "precision": 1,
+        "recall": 0.16666666666666666,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8333333333333334
+      },
+      {
+        "threshold": 0.447145,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 79,
+        "precision": 1,
+        "recall": 0.17708333333333334,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8229166666666666
+      },
+      {
+        "threshold": 0.4492665,
+        "truePositives": 18,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 78,
+        "precision": 1,
+        "recall": 0.1875,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8125
+      },
+      {
+        "threshold": 0.45110799999999995,
+        "truePositives": 19,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 77,
+        "precision": 1,
+        "recall": 0.19791666666666666,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.8020833333333334
+      },
+      {
+        "threshold": 0.454486,
+        "truePositives": 20,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 76,
+        "precision": 1,
+        "recall": 0.20833333333333334,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.7916666666666666
+      },
+      {
+        "threshold": 0.4644385,
+        "truePositives": 21,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 75,
+        "precision": 1,
+        "recall": 0.21875,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.78125
+      },
+      {
+        "threshold": 0.47243250000000003,
+        "truePositives": 22,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 74,
+        "precision": 1,
+        "recall": 0.22916666666666666,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.7708333333333334
+      },
+      {
+        "threshold": 0.475735,
+        "truePositives": 23,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 73,
+        "precision": 1,
+        "recall": 0.23958333333333334,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.7604166666666666
+      },
+      {
+        "threshold": 0.478413,
+        "truePositives": 24,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 72,
+        "precision": 1,
+        "recall": 0.25,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.75
+      },
+      {
+        "threshold": 0.4790265,
+        "truePositives": 25,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 71,
+        "precision": 1,
+        "recall": 0.2604166666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.7395833333333334
+      },
+      {
+        "threshold": 0.47941849999999997,
+        "truePositives": 26,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 70,
+        "precision": 1,
+        "recall": 0.2708333333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.7291666666666666
+      },
+      {
+        "threshold": 0.47956299999999996,
+        "truePositives": 27,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 69,
+        "precision": 1,
+        "recall": 0.28125,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.71875
+      },
+      {
+        "threshold": 0.479965,
+        "truePositives": 28,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 68,
+        "precision": 1,
+        "recall": 0.2916666666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.7083333333333334
+      },
+      {
+        "threshold": 0.48203,
+        "truePositives": 29,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 67,
+        "precision": 1,
+        "recall": 0.3020833333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6979166666666666
+      },
+      {
+        "threshold": 0.4880415,
+        "truePositives": 30,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 66,
+        "precision": 1,
+        "recall": 0.3125,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6875
+      },
+      {
+        "threshold": 0.49527600000000005,
+        "truePositives": 31,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 65,
+        "precision": 1,
+        "recall": 0.3229166666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6770833333333334
+      },
+      {
+        "threshold": 0.49881,
+        "truePositives": 32,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 64,
+        "precision": 1,
+        "recall": 0.3333333333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6666666666666666
+      },
+      {
+        "threshold": 0.5020105,
+        "truePositives": 33,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 63,
+        "precision": 1,
+        "recall": 0.34375,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.65625
+      },
+      {
+        "threshold": 0.5077885,
+        "truePositives": 34,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 62,
+        "precision": 1,
+        "recall": 0.3541666666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6458333333333334
+      },
+      {
+        "threshold": 0.511948,
+        "truePositives": 35,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 61,
+        "precision": 1,
+        "recall": 0.3645833333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6354166666666666
+      },
+      {
+        "threshold": 0.516311,
+        "truePositives": 36,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 60,
+        "precision": 1,
+        "recall": 0.375,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.625
+      },
+      {
+        "threshold": 0.520527,
+        "truePositives": 37,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 59,
+        "precision": 1,
+        "recall": 0.3854166666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6145833333333334
+      },
+      {
+        "threshold": 0.5230115,
+        "truePositives": 38,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 58,
+        "precision": 1,
+        "recall": 0.3958333333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.6041666666666666
+      },
+      {
+        "threshold": 0.5258365,
+        "truePositives": 39,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 57,
+        "precision": 1,
+        "recall": 0.40625,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.59375
+      },
+      {
+        "threshold": 0.5271935,
+        "truePositives": 40,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 56,
+        "precision": 1,
+        "recall": 0.4166666666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.5833333333333334
+      },
+      {
+        "threshold": 0.5282884999999999,
+        "truePositives": 41,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 55,
+        "precision": 1,
+        "recall": 0.4270833333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.5729166666666666
+      },
+      {
+        "threshold": 0.529312,
+        "truePositives": 42,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 54,
+        "precision": 1,
+        "recall": 0.4375,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.5625
+      },
+      {
+        "threshold": 0.529891,
+        "truePositives": 43,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 53,
+        "precision": 1,
+        "recall": 0.4479166666666667,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.5520833333333334
+      },
+      {
+        "threshold": 0.5318309999999999,
+        "truePositives": 44,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 52,
+        "precision": 1,
+        "recall": 0.4583333333333333,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.5416666666666666
+      },
+      {
+        "threshold": 0.534143,
+        "truePositives": 45,
+        "falsePositives": 0,
+        "trueNegatives": 8,
+        "falseNegatives": 51,
+        "precision": 1,
+        "recall": 0.46875,
+        "falsePositiveRate": 0,
+        "falseNegativeRate": 0.53125
+      },
+      {
+        "threshold": 0.5373185,
+        "truePositives": 45,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 51,
+        "precision": 0.9782608695652174,
+        "recall": 0.46875,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.53125
+      },
+      {
+        "threshold": 0.5404344999999999,
+        "truePositives": 46,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 50,
+        "precision": 0.9787234042553191,
+        "recall": 0.4791666666666667,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.5208333333333334
+      },
+      {
+        "threshold": 0.5431790000000001,
+        "truePositives": 47,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 49,
+        "precision": 0.9791666666666666,
+        "recall": 0.4895833333333333,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.5104166666666666
+      },
+      {
+        "threshold": 0.5451755,
+        "truePositives": 48,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 48,
+        "precision": 0.9795918367346939,
+        "recall": 0.5,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.5
+      },
+      {
+        "threshold": 0.546091,
+        "truePositives": 49,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 47,
+        "precision": 0.98,
+        "recall": 0.5104166666666666,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4895833333333333
+      },
+      {
+        "threshold": 0.547755,
+        "truePositives": 50,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 46,
+        "precision": 0.9803921568627451,
+        "recall": 0.5208333333333334,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4791666666666667
+      },
+      {
+        "threshold": 0.5496810000000001,
+        "truePositives": 51,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 45,
+        "precision": 0.9807692307692307,
+        "recall": 0.53125,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.46875
+      },
+      {
+        "threshold": 0.5548815,
+        "truePositives": 52,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 44,
+        "precision": 0.9811320754716981,
+        "recall": 0.5416666666666666,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4583333333333333
+      },
+      {
+        "threshold": 0.5593925,
+        "truePositives": 53,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 43,
+        "precision": 0.9814814814814815,
+        "recall": 0.5520833333333334,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4479166666666667
+      },
+      {
+        "threshold": 0.5606405,
+        "truePositives": 54,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 42,
+        "precision": 0.9818181818181818,
+        "recall": 0.5625,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4375
+      },
+      {
+        "threshold": 0.562759,
+        "truePositives": 55,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 41,
+        "precision": 0.9821428571428571,
+        "recall": 0.5729166666666666,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4270833333333333
+      },
+      {
+        "threshold": 0.564074,
+        "truePositives": 56,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 40,
+        "precision": 0.9824561403508771,
+        "recall": 0.5833333333333334,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.4166666666666667
+      },
+      {
+        "threshold": 0.5645169999999999,
+        "truePositives": 57,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 39,
+        "precision": 0.9827586206896551,
+        "recall": 0.59375,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.40625
+      },
+      {
+        "threshold": 0.565503,
+        "truePositives": 58,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 38,
+        "precision": 0.9830508474576272,
+        "recall": 0.6041666666666666,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.3958333333333333
+      },
+      {
+        "threshold": 0.567807,
+        "truePositives": 59,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 37,
+        "precision": 0.9833333333333333,
+        "recall": 0.6145833333333334,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.3854166666666667
+      },
+      {
+        "threshold": 0.5704215,
+        "truePositives": 60,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 36,
+        "precision": 0.9836065573770492,
+        "recall": 0.625,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.375
+      },
+      {
+        "threshold": 0.5788165000000001,
+        "truePositives": 61,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 35,
+        "precision": 0.9838709677419355,
+        "recall": 0.6354166666666666,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.3645833333333333
+      },
+      {
+        "threshold": 0.5888165000000001,
+        "truePositives": 62,
+        "falsePositives": 1,
+        "trueNegatives": 7,
+        "falseNegatives": 34,
+        "precision": 0.9841269841269841,
+        "recall": 0.6458333333333334,
+        "falsePositiveRate": 0.125,
+        "falseNegativeRate": 0.3541666666666667
+      },
+      {
+        "threshold": 0.591953,
+        "truePositives": 62,
+        "falsePositives": 2,
+        "trueNegatives": 6,
+        "falseNegatives": 34,
+        "precision": 0.96875,
+        "recall": 0.6458333333333334,
+        "falsePositiveRate": 0.25,
+        "falseNegativeRate": 0.3541666666666667
+      },
+      {
+        "threshold": 0.592657,
+        "truePositives": 63,
+        "falsePositives": 2,
+        "trueNegatives": 6,
+        "falseNegatives": 33,
+        "precision": 0.9692307692307692,
+        "recall": 0.65625,
+        "falsePositiveRate": 0.25,
+        "falseNegativeRate": 0.34375
+      },
+      {
+        "threshold": 0.5939479999999999,
+        "truePositives": 64,
+        "falsePositives": 2,
+        "trueNegatives": 6,
+        "falseNegatives": 32,
+        "precision": 0.9696969696969697,
+        "recall": 0.6666666666666666,
+        "falsePositiveRate": 0.25,
+        "falseNegativeRate": 0.3333333333333333
+      },
+      {
+        "threshold": 0.5969795,
+        "truePositives": 65,
+        "falsePositives": 2,
+        "trueNegatives": 6,
+        "falseNegatives": 31,
+        "precision": 0.9701492537313433,
+        "recall": 0.6770833333333334,
+        "falsePositiveRate": 0.25,
+        "falseNegativeRate": 0.3229166666666667
+      },
+      {
+        "threshold": 0.599502,
+        "truePositives": 65,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 31,
+        "precision": 0.9558823529411765,
+        "recall": 0.6770833333333334,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.3229166666666667
+      },
+      {
+        "threshold": 0.6003065000000001,
+        "truePositives": 66,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 30,
+        "precision": 0.9565217391304348,
+        "recall": 0.6875,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.3125
+      },
+      {
+        "threshold": 0.600749,
+        "truePositives": 67,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 29,
+        "precision": 0.9571428571428572,
+        "recall": 0.6979166666666666,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.3020833333333333
+      },
+      {
+        "threshold": 0.603099,
+        "truePositives": 68,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 28,
+        "precision": 0.9577464788732394,
+        "recall": 0.7083333333333334,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.2916666666666667
+      },
+      {
+        "threshold": 0.6060719999999999,
+        "truePositives": 69,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 27,
+        "precision": 0.9583333333333334,
+        "recall": 0.71875,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.28125
+      },
+      {
+        "threshold": 0.6092744999999999,
+        "truePositives": 70,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 26,
+        "precision": 0.958904109589041,
+        "recall": 0.7291666666666666,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.2708333333333333
+      },
+      {
+        "threshold": 0.6124755,
+        "truePositives": 71,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 25,
+        "precision": 0.9594594594594594,
+        "recall": 0.7395833333333334,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.2604166666666667
+      },
+      {
+        "threshold": 0.6139985,
+        "truePositives": 72,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 24,
+        "precision": 0.96,
+        "recall": 0.75,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.25
+      },
+      {
+        "threshold": 0.616536,
+        "truePositives": 73,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 23,
+        "precision": 0.9605263157894737,
+        "recall": 0.7604166666666666,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.23958333333333334
+      },
+      {
+        "threshold": 0.621095,
+        "truePositives": 74,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 22,
+        "precision": 0.961038961038961,
+        "recall": 0.7708333333333334,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.22916666666666666
+      },
+      {
+        "threshold": 0.6247605,
+        "truePositives": 75,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 21,
+        "precision": 0.9615384615384616,
+        "recall": 0.78125,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.21875
+      },
+      {
+        "threshold": 0.6273415,
+        "truePositives": 76,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 20,
+        "precision": 0.9620253164556962,
+        "recall": 0.7916666666666666,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.20833333333333334
+      },
+      {
+        "threshold": 0.6294409999999999,
+        "truePositives": 77,
+        "falsePositives": 3,
+        "trueNegatives": 5,
+        "falseNegatives": 19,
+        "precision": 0.9625,
+        "recall": 0.8020833333333334,
+        "falsePositiveRate": 0.375,
+        "falseNegativeRate": 0.19791666666666666
+      },
+      {
+        "threshold": 0.6302574999999999,
+        "truePositives": 77,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 19,
+        "precision": 0.9506172839506173,
+        "recall": 0.8020833333333334,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.19791666666666666
+      },
+      {
+        "threshold": 0.6309644999999999,
+        "truePositives": 78,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 18,
+        "precision": 0.9512195121951219,
+        "recall": 0.8125,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.1875
+      },
+      {
+        "threshold": 0.633086,
+        "truePositives": 79,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 17,
+        "precision": 0.9518072289156626,
+        "recall": 0.8229166666666666,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.17708333333333334
+      },
+      {
+        "threshold": 0.6409,
+        "truePositives": 80,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 16,
+        "precision": 0.9523809523809523,
+        "recall": 0.8333333333333334,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.16666666666666666
+      },
+      {
+        "threshold": 0.6486734999999999,
+        "truePositives": 81,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 15,
+        "precision": 0.9529411764705882,
+        "recall": 0.84375,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.15625
+      },
+      {
+        "threshold": 0.6532469999999999,
+        "truePositives": 82,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 14,
+        "precision": 0.9534883720930233,
+        "recall": 0.8541666666666666,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.14583333333333334
+      },
+      {
+        "threshold": 0.66455,
+        "truePositives": 83,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 13,
+        "precision": 0.9540229885057471,
+        "recall": 0.8645833333333334,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.13541666666666666
+      },
+      {
+        "threshold": 0.6740415,
+        "truePositives": 84,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 12,
+        "precision": 0.9545454545454546,
+        "recall": 0.875,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.125
+      },
+      {
+        "threshold": 0.6761265,
+        "truePositives": 85,
+        "falsePositives": 4,
+        "trueNegatives": 4,
+        "falseNegatives": 11,
+        "precision": 0.9550561797752809,
+        "recall": 0.8854166666666666,
+        "falsePositiveRate": 0.5,
+        "falseNegativeRate": 0.11458333333333333
+      },
+      {
+        "threshold": 0.6795665,
+        "truePositives": 85,
+        "falsePositives": 5,
+        "trueNegatives": 3,
+        "falseNegatives": 11,
+        "precision": 0.9444444444444444,
+        "recall": 0.8854166666666666,
+        "falsePositiveRate": 0.625,
+        "falseNegativeRate": 0.11458333333333333
+      },
+      {
+        "threshold": 0.6849965,
+        "truePositives": 86,
+        "falsePositives": 5,
+        "trueNegatives": 3,
+        "falseNegatives": 10,
+        "precision": 0.945054945054945,
+        "recall": 0.8958333333333334,
+        "falsePositiveRate": 0.625,
+        "falseNegativeRate": 0.10416666666666667
+      },
+      {
+        "threshold": 0.6930769999999999,
+        "truePositives": 86,
+        "falsePositives": 6,
+        "trueNegatives": 2,
+        "falseNegatives": 10,
+        "precision": 0.9347826086956522,
+        "recall": 0.8958333333333334,
+        "falsePositiveRate": 0.75,
+        "falseNegativeRate": 0.10416666666666667
+      },
+      {
+        "threshold": 0.6985380000000001,
+        "truePositives": 87,
+        "falsePositives": 6,
+        "trueNegatives": 2,
+        "falseNegatives": 9,
+        "precision": 0.9354838709677419,
+        "recall": 0.90625,
+        "falsePositiveRate": 0.75,
+        "falseNegativeRate": 0.09375
+      },
+      {
+        "threshold": 0.6995290000000001,
+        "truePositives": 87,
+        "falsePositives": 7,
+        "trueNegatives": 1,
+        "falseNegatives": 9,
+        "precision": 0.925531914893617,
+        "recall": 0.90625,
+        "falsePositiveRate": 0.875,
+        "falseNegativeRate": 0.09375
+      },
+      {
+        "threshold": 0.7030915,
+        "truePositives": 88,
+        "falsePositives": 7,
+        "trueNegatives": 1,
+        "falseNegatives": 8,
+        "precision": 0.9263157894736842,
+        "recall": 0.9166666666666666,
+        "falsePositiveRate": 0.875,
+        "falseNegativeRate": 0.08333333333333333
+      },
+      {
+        "threshold": 0.707028,
+        "truePositives": 89,
+        "falsePositives": 7,
+        "trueNegatives": 1,
+        "falseNegatives": 7,
+        "precision": 0.9270833333333334,
+        "recall": 0.9270833333333334,
+        "falsePositiveRate": 0.875,
+        "falseNegativeRate": 0.07291666666666667
+      },
+      {
+        "threshold": 0.7101995,
+        "truePositives": 89,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 7,
+        "precision": 0.9175257731958762,
+        "recall": 0.9270833333333334,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.07291666666666667
+      },
+      {
+        "threshold": 0.7141774999999999,
+        "truePositives": 90,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 6,
+        "precision": 0.9183673469387755,
+        "recall": 0.9375,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.0625
+      },
+      {
+        "threshold": 0.7265935,
+        "truePositives": 91,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 5,
+        "precision": 0.9191919191919192,
+        "recall": 0.9479166666666666,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.052083333333333336
+      },
+      {
+        "threshold": 0.7421185,
+        "truePositives": 92,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 4,
+        "precision": 0.92,
+        "recall": 0.9583333333333334,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.041666666666666664
+      },
+      {
+        "threshold": 0.747196,
+        "truePositives": 93,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 3,
+        "precision": 0.9207920792079208,
+        "recall": 0.96875,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.03125
+      },
+      {
+        "threshold": 0.7523299999999999,
+        "truePositives": 94,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 2,
+        "precision": 0.9215686274509803,
+        "recall": 0.9791666666666666,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.020833333333333332
+      },
+      {
+        "threshold": 0.7695945,
+        "truePositives": 95,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 1,
+        "precision": 0.9223300970873787,
+        "recall": 0.9895833333333334,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0.010416666666666666
+      },
+      {
+        "threshold": 0.781772,
+        "truePositives": 96,
+        "falsePositives": 8,
+        "trueNegatives": 0,
+        "falseNegatives": 0,
+        "precision": 0.9230769230769231,
+        "recall": 1,
+        "falsePositiveRate": 1,
+        "falseNegativeRate": 0
+      }
+    ]
+  },
+  "evaluation": {
+    "threshold": 0.534143,
+    "truePositives": 42,
+    "falsePositives": 1,
+    "trueNegatives": 7,
+    "falseNegatives": 54,
+    "precision": 0.9767441860465116,
+    "recall": 0.4375,
+    "falsePositiveRate": 0.125,
+    "falseNegativeRate": 0.5625
+  },
+  "threshold": 0.534143,
+  "pairedRankingAccuracy": 0.8697916666666666,
+  "perDefect": [
+    {
+      "defect": "overlap",
+      "count": 8,
+      "detected": 4
+    },
+    {
+      "defect": "clipping",
+      "count": 8,
+      "detected": 2
+    },
+    {
+      "defect": "broken-wrapping",
+      "count": 8,
+      "detected": 6
+    },
+    {
+      "defect": "crowding",
+      "count": 8,
+      "detected": 4
+    },
+    {
+      "defect": "spacing",
+      "count": 8,
+      "detected": 1
+    },
+    {
+      "defect": "offscreen-dialog",
+      "count": 8,
+      "detected": 2
+    },
+    {
+      "defect": "cut-controls",
+      "count": 8,
+      "detected": 2
+    },
+    {
+      "defect": "giant-text",
+      "count": 8,
+      "detected": 4
+    },
+    {
+      "defect": "responsive",
+      "count": 8,
+      "detected": 2
+    },
+    {
+      "defect": "duplicate",
+      "count": 8,
+      "detected": 8
+    },
+    {
+      "defect": "empty-region",
+      "count": 8,
+      "detected": 2
+    },
+    {
+      "defect": "alignment",
+      "count": 8,
+      "detected": 5
+    }
+  ],
+  "metrics": {
+    "startupMs": 627,
+    "scoringMs": 2252,
+    "batches": 7,
+    "inferenceMs": 1959,
+    "windowsProcessed": 520
+  },
+  "samples": [
+    {
+      "path": "fixtures/calibration/good/desktop.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "desktop",
+      "defect": null,
+      "sha256": "30e8e0211a84853f2199a019c4ece0b63e3ace8c77a1587b61417eb73d8430ce",
+      "score": 0.708144
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "overlap",
+      "sha256": "ea28bed8bf92cb08d1b30a92b13bdb35e544bace57d51dc3d728de54fcb7e533",
+      "score": 0.545112
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "clipping",
+      "sha256": "4d604869ec99a5f2c64e0f9eae0fcf7923b22f8ee0f1e497ba8dd786825a3d46",
+      "score": 0.647118
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "broken-wrapping",
+      "sha256": "00854d44c0f6c13619d5c3d83941df4051b53892386cebde54e8ed46d4fbc959",
+      "score": 0.390239
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "crowding",
+      "sha256": "53c2d8a47bd758bbf153e26d4bfce2de7ad6bbdddbfb05c4f1ee5285a00450bd",
+      "score": 0.478701
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "spacing",
+      "sha256": "bc0848e338e61d9670dace9e3ec7017e50678c96821e932e017bd4a295dca27c",
+      "score": 0.74715
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "offscreen-dialog",
+      "sha256": "265afb5fe613a634c57661948d37cbc7cb44178b5ce8733432558fdea00725f1",
+      "score": 0.747242
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "cut-controls",
+      "sha256": "1bc0984650238381654d1f0bc02174ee78b72a16715bf3d2a832deb894307275",
+      "score": 0.682128
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "giant-text",
+      "sha256": "79fd97079fa3bd4c02d788a46c9e213246f53bb8ed424cb2e29c8b39050dc392",
+      "score": 0.533272
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "responsive",
+      "sha256": "f52a4386303d59f93ad90e287fc62bb644e0dc64bc26cd7de85864fd494643af",
+      "score": 0.700271
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "duplicate",
+      "sha256": "6de0e62946d637ca80fb0016948486aa5b362c4c83407914235f6580b6e634b7",
+      "score": 0.451615
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "empty-region",
+      "sha256": "3e683d7cf681fe5dcbf4bf2d7d46557810f39218f682733732be6f6d5c11a072",
+      "score": 0.672835
+    },
+    {
+      "path": "fixtures/calibration/bad/desktop-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "alignment",
+      "sha256": "570ae202dd29a64341890ac6ae25e0cd225d65f2fb254602e2e9fad812402a81",
+      "score": 0.592611
+    },
+    {
+      "path": "fixtures/calibration/good/mobile.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "mobile",
+      "defect": null,
+      "sha256": "d7e90d794631100618d44542567fbe8372ea7718e099fd1b7ca0e5653e43cdcf",
+      "score": 0.598766
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "overlap",
+      "sha256": "655a3df303f474e76a53ba823b446d267e22a101d6376f2ac99a793914d45909",
+      "score": 0.521392
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "clipping",
+      "sha256": "2c5de1bc21ea5f38b986350ba103e90112622877f59034b88f54c6caf508e405",
+      "score": 0.586338
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "broken-wrapping",
+      "sha256": "db365996f1a944af66dcc5f9c0d0109afad3bb907f42ae95b8e869db5e936d3b",
+      "score": 0.446358
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "crowding",
+      "sha256": "d8c41e32bcbe35aed2a76546dad9d227b9d8a95d1c73e91f8c3d95666d39641e",
+      "score": 0.545239
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "spacing",
+      "sha256": "a5743a03fb3c9dfd477c85345156dd38db614582aaff9ef6ae0ed83e49b8771a",
+      "score": 0.630439
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "offscreen-dialog",
+      "sha256": "ecba5f383920442111e40b6cdc76349792f72e31469384e9db0f3b872fc5fcb4",
+      "score": 0.625877
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "cut-controls",
+      "sha256": "b8463f19d62286c8eb35fddbdec442a6494d6018432c9bdf4efdf2e1e9d31da8",
+      "score": 0.548567
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "giant-text",
+      "sha256": "e649b3379152069111af94ffa8ec7051bd7ece4f4f15f5d3d6761edaf3093c13",
+      "score": 0.457357
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "responsive",
+      "sha256": "6a05c9a7358bfbc3bcfc1836065934152b1573401417def2e5b76342d04941e2",
+      "score": 0.601123
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "duplicate",
+      "sha256": "69d139f9e847d5d28922d0230039f63551b9ff1b61b4764e6ac52ea82b6ad477",
+      "score": 0.298484
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "empty-region",
+      "sha256": "9010339cad303c879a4b894bdbfbe460d49dfc686a8654add02f834dac4a8234",
+      "score": 0.618546
+    },
+    {
+      "path": "fixtures/calibration/bad/mobile-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "alignment",
+      "sha256": "52dc9ba9ae70afda10e5452493b1d77236c9700419aa209284c5fcbdf653297a",
+      "score": 0.349055
+    },
+    {
+      "path": "fixtures/calibration/good/dialog.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "dialog",
+      "defect": null,
+      "sha256": "2309f97de8f7ab7ac579852d65bd766af0d3fb61ef6f0eb2f798350a52bde650",
+      "score": 0.535014
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "overlap",
+      "sha256": "e0afc215239f3e17546f5dfd56dfa8d2b11e19cba3685613ecaac1c30be6ea38",
+      "score": 0.49938
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "clipping",
+      "sha256": "5e8cc50bd1fb163fddb7becdd6b665092832c7f328b4a1c0aaa2a0f4ce7d749f",
+      "score": 0.529232
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "broken-wrapping",
+      "sha256": "096dbe5f773f4f9641e8a25c37eef1d530a4babeae8fc384c0de71dcefc859f8",
+      "score": 0.293916
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "crowding",
+      "sha256": "ed5e453fc2036b0354d834da07fbeb78f83dcf078187b548dda63e38a95ec97e",
+      "score": 0.480289
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "spacing",
+      "sha256": "27aa6f4931e01d2136cbd462aa18978ca327466a366ab951b2b96cc6a5ba9687",
+      "score": 0.414594
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "offscreen-dialog",
+      "sha256": "23461ef61441cbd9d4cd0c57022e24232b130b24f5c2cc128ce04f6b9541f5fe",
+      "score": 0.519662
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "cut-controls",
+      "sha256": "b7a6dd9935a57063e0b627bb3e318a6d1787c50a3a659c6460b7ee56294ba749",
+      "score": 0.479641
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "giant-text",
+      "sha256": "2b59037a7a469531b63227f1b3134719e9faa10742cb04a708832a82531fe0c8",
+      "score": 0.396382
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "responsive",
+      "sha256": "45d5255f11fffa4d6c649fd285feda127dd87c5a21612c3d7cd11c14429c0305",
+      "score": 0.447932
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "duplicate",
+      "sha256": "a240e6ca7bff9146b65afea2f0b973abeec19706c03ccf13f815e685a92baff0",
+      "score": 0.348705
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "empty-region",
+      "sha256": "26ba0409c06a09b362c04171c0059d18f732573a70c2eaa0c063b35ea2dc218b",
+      "score": 0.527345
+    },
+    {
+      "path": "fixtures/calibration/bad/dialog-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "alignment",
+      "sha256": "4eea4fc41a25cfe44f1b0bea3ea862aa771e2b1649d5e082483a814fb9b5cb39",
+      "score": 0.305481
+    },
+    {
+      "path": "fixtures/calibration/good/chessboard.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "chessboard",
+      "defect": null,
+      "sha256": "9698638305ef72a7c35319b0db3b1c95a7475b6efe8958dcacdc673e3e1d9710",
+      "score": 0.677005
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "overlap",
+      "sha256": "e34a0b2d107b4c33b8a7819da323bee0f8774a74405f5f0e094ff712b6918415",
+      "score": 0.478125
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "clipping",
+      "sha256": "640f2364a0e831bae202182256e6adc67e6b39f6c4d29366327fc7dfa6884c07",
+      "score": 0.51296
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "broken-wrapping",
+      "sha256": "fd1400ebf57d385f63f80bff59978108235aa86e8ea739be7473d3c2c25c865e",
+      "score": 0.38421
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "crowding",
+      "sha256": "03d34420f3fb14cd5598862965ac38b700ce906c4589fda7710f0171bff438ec",
+      "score": 0.47152
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "spacing",
+      "sha256": "29404a64fe56f36b245062b97a63d85b1231302f4a9a8851fc96176603f0b706",
+      "score": 0.634682
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "offscreen-dialog",
+      "sha256": "0693b9b57aacc2b73598438652feab0518019e701567ea34e5ded83043faf3aa",
+      "score": 0.607069
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "cut-controls",
+      "sha256": "66abb39507287954b5fe5fba7b862b3a54cc84ec6c08548a66ace471ae87433b",
+      "score": 0.656265
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "giant-text",
+      "sha256": "53f878572bf2629ec85d4ff073f66da2565f787f9cb9b84ed6cd20583e8a48c7",
+      "score": 0.441741
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "responsive",
+      "sha256": "795d4c889adcd15494668ad7b3eb1c386cc2761855d03f016135e856ae241ffa",
+      "score": 0.705912
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "duplicate",
+      "sha256": "d0ddef83fa8cc19fd1eb25fc3a6506ebc8496e62fcfca28f5d2294675cf57b10",
+      "score": 0.440197
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "empty-region",
+      "sha256": "78b4fbd3200dda65032aa4660d92f9810bff6b962ebde5c22eb07e710dc4f912",
+      "score": 0.450601
+    },
+    {
+      "path": "fixtures/calibration/bad/chessboard-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "alignment",
+      "sha256": "d945681ae44acfd8fea56c664b86ae3e55cb97cf86756ffc015db19bfeb431ac",
+      "score": 0.566066
+    },
+    {
+      "path": "fixtures/calibration/good/dense.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "dense",
+      "defect": null,
+      "sha256": "82dc31e7664df62492ca24c11d61b1657b21a06f5017b12e41637698903a83c0",
+      "score": 0.698787
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "overlap",
+      "sha256": "90fdda577182beac988f5b604d7043f47a6a1d386d2bb8d50398ab93df0f79d9",
+      "score": 0.592703
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "clipping",
+      "sha256": "d9ae5f51244740404dd622ef51a0bb5509425568c4fd33d0151487e68df9e037",
+      "score": 0.698289
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "broken-wrapping",
+      "sha256": "01df0efcafd151ca2d12adf412f7ae82ebd27319cbb8bd1f058d44e4cd395d73",
+      "score": 0.479352
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "crowding",
+      "sha256": "45767f0066209f165b5b9bf18b9a5b7d747a21ba452627cefe104cb69b5351b4",
+      "score": 0.550795
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "spacing",
+      "sha256": "5e8a9573f262c3dff6c61681377177efccfbb9d009950b4415fbcab6efb2ef14",
+      "score": 0.781771
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "offscreen-dialog",
+      "sha256": "3198bc91c9657f8211d4eb308a26ebc74ec27b5b44e9537e4e6f21baf1ed64d6",
+      "score": 0.737087
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "cut-controls",
+      "sha256": "66b311aba12956eb8f3894fd3fd6ccb7739a4e930172ff30dcfc07553fc03052",
+      "score": 0.675248
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "giant-text",
+      "sha256": "39225d259e15663f4a1adaf0dab9bb20ed3efb69d5751ee93adcac9730b2543b",
+      "score": 0.63149
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "responsive",
+      "sha256": "f673a171d1edc7f94b5c66a9461da213004a0cbc176f9ed49b8d24b4b5d0e3a3",
+      "score": 0.712255
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "duplicate",
+      "sha256": "5ec3fc7d7cca27916310679a4eaa0c3ba5ae76f872756ff7e562be946fdacd76",
+      "score": 0.479485
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "empty-region",
+      "sha256": "2a8acc83edaef4b1cdc0b0a80e0f40c0b13c47996d69d4db23392a69dfeb7861",
+      "score": 0.757418
+    },
+    {
+      "path": "fixtures/calibration/bad/dense-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "dense",
+      "defect": "alignment",
+      "sha256": "fe50aeaec787c8e4a17210b9d9f3a5855c53bdc61e0791c1a4495ea76b96796a",
+      "score": 0.600238
+    },
+    {
+      "path": "fixtures/calibration/good/loading.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "loading",
+      "defect": null,
+      "sha256": "76a3ecb3416e1412923e075d4befe5a35080f0adf382559c1f740eb2e556d397",
+      "score": 0.687865
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "overlap",
+      "sha256": "f1ff3735f390c23c3216c5ad7ff5fd2f21965992d063a41347b79193a9497f99",
+      "score": 0.504641
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "clipping",
+      "sha256": "4cb4f8e4b736c48a4b96deec57bdaa04eea0b6f7bd1752a94a0d4feddd6294ce",
+      "score": 0.650229
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "broken-wrapping",
+      "sha256": "22e5a2f8fb0845d991d2d683063eb6b6942efff53072abbac2708fbf709dc734",
+      "score": 0.483771
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "crowding",
+      "sha256": "2da520db7757982fc71185deadcbcf211a67a96781ccdd68d7d07b37f7e51c69",
+      "score": 0.524631
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "spacing",
+      "sha256": "c995d8c944d8a4d8009bfeb8ebe2a1959a7bad49af623fa4d17d0ce680bd0d35",
+      "score": 0.7161
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "offscreen-dialog",
+      "sha256": "94ee1460561e7702347a65c210a85dabfa3de390a954d3370289efeeb9a95ccb",
+      "score": 0.613471
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "cut-controls",
+      "sha256": "5752c8848ce54782bc9a8527d758181f1fd3ae80f3c7d899840ecf01c4b559ae",
+      "score": 0.614526
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "giant-text",
+      "sha256": "a3e6dc98675f4a8026f89c90f18c75362f0ee5f410246ab45605c557a8537741",
+      "score": 0.558968
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "responsive",
+      "sha256": "1235f6d113263b00c33d2b5e31307b7fabd3901c81dc26cf69b7f04e9777fdd8",
+      "score": 0.600375
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "duplicate",
+      "sha256": "810675dad414025d777eedcc3e5b74f06b78aa40e8279a731dc0e978b0c70ca8",
+      "score": 0.444429
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "empty-region",
+      "sha256": "553685481ad69c912dde4b9cb12296c2d24bdb764bad370fa69b155f3752c2f2",
+      "score": 0.541246
+    },
+    {
+      "path": "fixtures/calibration/bad/loading-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "loading",
+      "defect": "alignment",
+      "sha256": "b15b12e5ce3b10b8f03ca55f9bea511c387c37340bfecadf6208a2d76899ad41",
+      "score": 0.473345
+    },
+    {
+      "path": "fixtures/calibration/good/wrapped-text.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "wrapped-text",
+      "defect": null,
+      "sha256": "76d4d1a1898cb42986a0b445fb20f8d5023ba2c94edb0d7c70366e3757679a46",
+      "score": 0.591295
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "overlap",
+      "sha256": "20781660962bcbb477fa489376fadb20c0b6ac773a397f7b5263d8cefcd7a480",
+      "score": 0.492312
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "clipping",
+      "sha256": "688b3b8ac29c9fe8b04aee21ebf6a1c8c74a74f5bbcc41243fb4fdf5d47653c4",
+      "score": 0.564094
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "broken-wrapping",
+      "sha256": "d62fd4bee4d72018d6981180077ebd2f95d7c29ef98dccbd0d7df7630856ef31",
+      "score": 0.571295
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "crowding",
+      "sha256": "107b8400740d663ef313584770f5aa239d651a90d463a7752c78f1a3efe3e8d2",
+      "score": 0.564054
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "spacing",
+      "sha256": "26ce8890e7df66d85143fbddd3f0eacdc4f6f15b6f6c7ce89d49b65d31a92d9c",
+      "score": 0.527042
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "offscreen-dialog",
+      "sha256": "344c37bb4d42aa3e50cd6a1ca73b98b96618627adb22e2357c8f74d54d0bf28e",
+      "score": 0.529392
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "cut-controls",
+      "sha256": "a3292dc7de3d6bd3c8893183e212f992fd64f72e72da63f63b38a5ffacbdbb57",
+      "score": 0.510936
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "giant-text",
+      "sha256": "62efd9bc0d04d054e56e8ca0b0562e55bfa7ef4ad1cff2c00ce21d40cc03aa4e",
+      "score": 0.53039
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "responsive",
+      "sha256": "45ab164b172b7d3b30ef1731d60452aaea0791ee85c8a9d6e540971ca05e8502",
+      "score": 0.539623
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "duplicate",
+      "sha256": "05118a78f00232a35fd018ed6b38dd03daa69fd0f1ad09a5e76c352b43b1d9d7",
+      "score": 0.290688
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "empty-region",
+      "sha256": "37560aec8760fab411fe56991785df1334f013250c6dcbc984a370396065bcc6",
+      "score": 0.628806
+    },
+    {
+      "path": "fixtures/calibration/bad/wrapped-text-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "alignment",
+      "sha256": "4610b3ef8ef0808f11f8355fc87a1241a098dedb1c6b5d617e087bce93fbb766",
+      "score": 0.287082
+    },
+    {
+      "path": "fixtures/calibration/good/compact.png",
+      "split": "calibration",
+      "label": "good",
+      "family": "compact",
+      "defect": null,
+      "sha256": "47655242d5fcfd4b72686f759859dc9ca8beabdd1416c8f82368d580f19a23bf",
+      "score": 0.630076
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-overlap.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "overlap",
+      "sha256": "137f1da9f555b179e0df6a6dfa71d4edb22a100b330c68095c6686ba08a5ee71",
+      "score": 0.561464
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-clipping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "clipping",
+      "sha256": "54bdbc665a6fcab5f37051931dc17971465f7d52982bff73b845d306ab3388c3",
+      "score": 0.605075
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-broken-wrapping.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "broken-wrapping",
+      "sha256": "2bf0652a304da7f0c4c73a5ff2c0dfbb6b7f7350d61532ea316e63ed152537ac",
+      "score": 0.569548
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-crowding.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "crowding",
+      "sha256": "b90ed56867efab6b8126649948d13b3f8719bdf6dae6cdbe0fb16ad955cf0e19",
+      "score": 0.546943
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-spacing.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "spacing",
+      "sha256": "c8c5ec884c3f5c4e77d8ebb6f4f5edf6b4ec3f218c6dcd8e2539696052825cb0",
+      "score": 0.56494
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-offscreen-dialog.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "offscreen-dialog",
+      "sha256": "3edd0c904bcf764be8bd03975d607c65dd6f0504be92f415b522191239868468",
+      "score": 0.623644
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-cut-controls.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "cut-controls",
+      "sha256": "cff3727d49675842f64643600c917f2e5a334eaadc70cd5df70f8a63e7b7f2ec",
+      "score": 0.595193
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-giant-text.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "giant-text",
+      "sha256": "b92ebf282e1ecd8a78fffc8c9fabfcd4a04238bd28a0141fc910821662aa0798",
+      "score": 0.49824
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-responsive.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "responsive",
+      "sha256": "be61a678aedf570c28ec0eb011b65c62fd39b8deab24bb5791aa11eab64b656a",
+      "score": 0.559817
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-duplicate.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "duplicate",
+      "sha256": "90a9ed9f21c0cb14ebd34f939883df6d1ccaa49b881a7db187d52350894406e1",
+      "score": 0.32545
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-empty-region.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "empty-region",
+      "sha256": "0cb08e8352745fffb80c1a66885254e2e0751e553c71be7df7533f51afb4c587",
+      "score": 0.61148
+    },
+    {
+      "path": "fixtures/calibration/bad/compact-alignment.png",
+      "split": "calibration",
+      "label": "bad",
+      "family": "compact",
+      "defect": "alignment",
+      "sha256": "81f72775cec2b18b8b3feb84b3943a03db5e69fc14ee0aeb42a05390efbdd7d2",
+      "score": 0.375834
+    },
+    {
+      "path": "fixtures/evaluation/good/desktop.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "desktop",
+      "defect": null,
+      "sha256": "0ab3345611b6b8a66bb20830a19ad50983af9ed948806fa237cea45af25aa015",
+      "score": 0.739996
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "overlap",
+      "sha256": "cd8780ebd7b98039630794873c187516c6f414173adc2483410e4e38f4803144",
+      "score": 0.564637
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "clipping",
+      "sha256": "1cf21676ff8ba1286cc86273731cb34fa45dc4fc8d5aa65b62208d458542d76d",
+      "score": 0.665438
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "broken-wrapping",
+      "sha256": "ed7c7321baa10b3b819a128a2aab965ecc59c35a0191f63d35ed6fb4555a4ff7",
+      "score": 0.403585
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "crowding",
+      "sha256": "4038b44e268496f038cc282fed147ec95df9c4345a440572384e5e3d76a33850",
+      "score": 0.508523
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "spacing",
+      "sha256": "cd8fb3b6c27c08fe56a2dc2aad25b8cc7f820dbf2e6f19b7f9b809a3855d66db",
+      "score": 0.767373
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "offscreen-dialog",
+      "sha256": "0c50ebc2c7d460ce15354825060a76f391b4293dee6873a766298213d598ac5a",
+      "score": 0.747512
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "cut-controls",
+      "sha256": "b2cf7567483cf485fafe8f6193678b630bac4b15f35ae20b9182b94a950158e0",
+      "score": 0.715244
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "giant-text",
+      "sha256": "19f848b8e6a167d62e98dbb19f8a13590ca6f1b25ae3dfde7b2db9177de93cc4",
+      "score": 0.554318
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "responsive",
+      "sha256": "d277290ee6ca27b17c5df1ac8424354a6c6875312c57d968f98a47389b2d73a0",
+      "score": 0.68951
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "duplicate",
+      "sha256": "ea01bdb57759ec7a73f623fae2dc88a363c8bfc3f429e2094b578455db1799da",
+      "score": 0.452609
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "empty-region",
+      "sha256": "841bdee645e6fc77eceb00d47afd07627a40184e6cd476634f82bc9d160bc899",
+      "score": 0.642132
+    },
+    {
+      "path": "fixtures/evaluation/bad/desktop-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "desktop",
+      "defect": "alignment",
+      "sha256": "29de373ec0cf595673c8d04abc825ba865d44e12bce04376248fcedc60e77494",
+      "score": 0.597211
+    },
+    {
+      "path": "fixtures/evaluation/good/mobile.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "mobile",
+      "defect": null,
+      "sha256": "909dc2d717f19c75713768f1c12291beaaedcfafd60e79bf0380ee9bc5ccde38",
+      "score": 0.613499
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "overlap",
+      "sha256": "bef13ff100d7d1a2cdb08b048f920d5ed8a1359588475e2ef8c0bb3632194936",
+      "score": 0.545355
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "clipping",
+      "sha256": "858c7e6ff4a48a31750944526c86304968f297812b43dee341b521689ece65bc",
+      "score": 0.601925
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "broken-wrapping",
+      "sha256": "8060062159ec64e096207ba5a757c9f373424cf424f2a3c00710cc7a7e39ee2f",
+      "score": 0.459433
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "crowding",
+      "sha256": "890bbbbf97932f9da6809035523b78fc2a5cba647a960816d9e2e7121fbbfe54",
+      "score": 0.552357
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "spacing",
+      "sha256": "9bb1bdae815b98df05b3db6ef6dfe94a090a464a3d81a03b9a801cab7b0be06e",
+      "score": 0.629543
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "offscreen-dialog",
+      "sha256": "620dcc27eebc87aa3e2606d705c51ec94b5ad139a4a9cce50641c30cf11c4a4d",
+      "score": 0.634507
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "cut-controls",
+      "sha256": "db6c1d15c5f90676678491ba89f1ca366f0d7729130e2b850bedcb8051b57577",
+      "score": 0.562605
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "giant-text",
+      "sha256": "ebbfaeba4522172e607d44d5dd7455bad5eee2e54de487c27a63b2e3cb2af143",
+      "score": 0.47807
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "responsive",
+      "sha256": "6d6c386123a7b4d9d1ed4eb9a4b2c606a177b2ed7841aa68a2b689351081d1b5",
+      "score": 0.592626
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "duplicate",
+      "sha256": "fe771266ed823cfba10c6ea135ed78192265649f6666698ebef359a15df6885c",
+      "score": 0.296664
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "empty-region",
+      "sha256": "53ab2becf9a4f9acc6a5918a2b45d997d614582f9b2be8ad57a4cc3faa670931",
+      "score": 0.618467
+    },
+    {
+      "path": "fixtures/evaluation/bad/mobile-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "mobile",
+      "defect": "alignment",
+      "sha256": "9c1b9865bc8ed400b3fa8c148b29d51fe34b8bd552df61d63a8ba04b25068c0a",
+      "score": 0.358434
+    },
+    {
+      "path": "fixtures/evaluation/good/dialog.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "dialog",
+      "defect": null,
+      "sha256": "d921ad5e6c66290de329ba5131624dfc35a32556b7fd668039cb2685ab25b253",
+      "score": 0.532185
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "overlap",
+      "sha256": "0f943447bb6d6d5472116fcc56c1997dcdf3f8c3b5b5ea2654305cf7120640c3",
+      "score": 0.496694
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "clipping",
+      "sha256": "5eacdf6b8428ae756202562350f15003bfec49ead50aa98c2f7404e7db14ae3b",
+      "score": 0.522407
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "broken-wrapping",
+      "sha256": "aeabe86dc0c98feafedf0b597817cdef08a58caa31a25e2aafa7ae6fbbc4d3bb",
+      "score": 0.28747
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "crowding",
+      "sha256": "0a33ba17ebb7557e583c3e1c16231a4aebe6bd43b6a7f09267d644fc9a2569f1",
+      "score": 0.469936
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "spacing",
+      "sha256": "c56434d4c89b33a651d07ddf48c63d0b7d4a30c6179409cbc67483990d5cca84",
+      "score": 0.409439
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "offscreen-dialog",
+      "sha256": "7afbc910e72bdaccb621df093f44fc0ae4b5dfbf52dd8e748e921d94f1124edb",
+      "score": 0.520707
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "cut-controls",
+      "sha256": "c117489c6cd69db73c18072abb713919200d4591a1a727228a80f1fb3112be79",
+      "score": 0.475683
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "giant-text",
+      "sha256": "8c5c2a1bd8bff1f86552cff7c1dd5ccad769294d6b18837df2871860ba043053",
+      "score": 0.394315
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "responsive",
+      "sha256": "19e216f1f706c3c625218473ba20f6baa3ff1a43566898f96e5666a5b0494bf6",
+      "score": 0.432603
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "duplicate",
+      "sha256": "7884da78802c723f2128fa324b8fa12845b06907b5f2b7cf0f2d2f16fba39cd5",
+      "score": 0.342056
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "empty-region",
+      "sha256": "66b25575b4c610eae614b5d04a186411b519f94c00d0d6bfd1d6af57148c9271",
+      "score": 0.539197
+    },
+    {
+      "path": "fixtures/evaluation/bad/dialog-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dialog",
+      "defect": "alignment",
+      "sha256": "bfb2853f77c28452cd8669b8e84b96d0a9ff4192a15e643ce331b1b9838f58f4",
+      "score": 0.302241
+    },
+    {
+      "path": "fixtures/evaluation/good/chessboard.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "chessboard",
+      "defect": null,
+      "sha256": "d5b0f3d86e199b3cfee89d6f63a28cfe37a0540c96fdbfdd8f82aae42bdf712a",
+      "score": 0.672146
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "overlap",
+      "sha256": "e9bf816328f4c8fe3c968916d7db6a263aa5df452bf9ae838998b3d1b3aa9164",
+      "score": 0.466516
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "clipping",
+      "sha256": "f5390c6651c99fed21562b17c02c89779e72b0427c3b5010b7daf76db648262a",
+      "score": 0.497118
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "broken-wrapping",
+      "sha256": "04ae24229555d431aeed1a129de85c7265f7039c34818d69747e5f8cd2be84aa",
+      "score": 0.369649
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "crowding",
+      "sha256": "aca0db7cbc726e419ea995f258fcadc489dc82271cd353eb7c50a952af0dfaa7",
+      "score": 0.469169
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "spacing",
+      "sha256": "9000839f75753fdf5513f17e81dc131cc21e4f62cf31dc357dbb437cbe14b343",
+      "score": 0.633938
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "offscreen-dialog",
+      "sha256": "69c9e1a0364b3c195b9edcdd7755793e4c8730805d4ef9d003f23843ae8307c2",
+      "score": 0.607357
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "cut-controls",
+      "sha256": "74e0b58a04b385ea71dc46b1a03ded87daa24c1800de4d74e875d1152170910f",
+      "score": 0.653966
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "giant-text",
+      "sha256": "d7d70f9fbe3b5df997b69e3ebbf4e6fe9f95e69188446c122657ba7620251338",
+      "score": 0.455318
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "responsive",
+      "sha256": "badbf5a433b4395a1bbb050ebcc1f71427a83b90d028a5cff645616bf99b9316",
+      "score": 0.64692
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "duplicate",
+      "sha256": "b5a4a8bd24ad1391c0dd539bb535786e0a0c13a329964c477df22e93fa06acec",
+      "score": 0.436855
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "empty-region",
+      "sha256": "3e460bf3731dee3d3b72a07e51c10294c88a21671703b7d73f320451d97a99fc",
+      "score": 0.429492
+    },
+    {
+      "path": "fixtures/evaluation/bad/chessboard-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "chessboard",
+      "defect": "alignment",
+      "sha256": "0d74dad74edc1c562c090b4672738b2c98012d762d444cd90bd6eba4a80a0a33",
+      "score": 0.547976
+    },
+    {
+      "path": "fixtures/evaluation/good/dense.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "dense",
+      "defect": null,
+      "sha256": "75e9981e3d03b5a6348d280e9258d56f4e17aeea3acddd4ff1cfa6803aff790d",
+      "score": 0.719889
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "overlap",
+      "sha256": "8474fa182d34438f71ae63aa49780f119ccffe1fc0d72bcf89463f5586a3aed4",
+      "score": 0.605985
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "clipping",
+      "sha256": "0734734b0593d9d05cf64a24b790ebf2cccc2409db68d210cc66037288866d17",
+      "score": 0.707046
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "broken-wrapping",
+      "sha256": "d1185ef86834f59a968282066f732a8b11905c12be13c6fdf8bb90dcf87b1e9e",
+      "score": 0.502202
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "crowding",
+      "sha256": "1b45e3658e2d498d334959d7a5f09b34479ce5077740476b61f3963e265ef763",
+      "score": 0.580479
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "spacing",
+      "sha256": "33361ba583926a3a36f40b1e59e883fe5fc0e59d1609db28fde5f47e08ff4df0",
+      "score": 0.797149
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "offscreen-dialog",
+      "sha256": "05d9973ee5bbe0e16f23ffa100a203cc31d432c9bd720cd20720875286a2d8ea",
+      "score": 0.74324
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "cut-controls",
+      "sha256": "3674590802bd7920dfe8fd253a515f7a1df592ecd30689be21d87eef7bbd085c",
+      "score": 0.700414
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "giant-text",
+      "sha256": "7b775a84616d4a5059ebf1dfe7d938c536623a9eb884530c1637979ea75c1c8f",
+      "score": 0.653576
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "responsive",
+      "sha256": "80f797432b6a59ca2d62240303f1be72c2456745a55b4f248e25bf9c89b243b2",
+      "score": 0.697294
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "duplicate",
+      "sha256": "bccd41542fb7579f44b752b266614d249ab08ad78f8878b8e2f7403849f985b6",
+      "score": 0.490777
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "empty-region",
+      "sha256": "49d05641bf4234a8bbc08496ff874370fb5fb542691f48b34ebd6a8763b4f2eb",
+      "score": 0.732794
+    },
+    {
+      "path": "fixtures/evaluation/bad/dense-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "dense",
+      "defect": "alignment",
+      "sha256": "5ec33d84ee088f70435114e2090aa2beba3c138e2fab2bf4f09225cad0e1c126",
+      "score": 0.615693
+    },
+    {
+      "path": "fixtures/evaluation/good/loading.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "loading",
+      "defect": null,
+      "sha256": "eda250987ad4ac20dc49f7341463febbe47483c889307d07c85552a8f7db4a67",
+      "score": 0.696348
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "overlap",
+      "sha256": "aa6e840d10af3f3b4e978945d08d6631d8721f51b49f6644338b1eef01e31fbc",
+      "score": 0.498895
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "clipping",
+      "sha256": "cd29bd21be174f324d0b59e86d8712a279bdef2b11694af849ed9dd7cc73fd43",
+      "score": 0.648473
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "broken-wrapping",
+      "sha256": "2e42b6cc1ebb741031dd0cfa9cbbef220e6511b2a708c516587a15f1615ad194",
+      "score": 0.492673
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "crowding",
+      "sha256": "1ab110c20354a36da0d6b7010d26571077b8ae59f8ffe4b7b883aff3d39d43f8",
+      "score": 0.532205
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "spacing",
+      "sha256": "365ad9ef6a8765ea40f3cf37374f364ca3afbb124c4c95f13a3b6a3e1a88c655",
+      "score": 0.717568
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "offscreen-dialog",
+      "sha256": "e50dd04e6cf0ae2a44bebbfb6bf9b95df170f16a9c5437a10f01f3a2482b036b",
+      "score": 0.604378
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "cut-controls",
+      "sha256": "d777d11e1ef525ffc5dbb7d3f63729ccc08920a56e0a131c0080745333361aaa",
+      "score": 0.625281
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "giant-text",
+      "sha256": "a2ef61cff77cc29b748cc6fa00fc018c4e222963df9bc6b37b9035fb5c105464",
+      "score": 0.58908
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "responsive",
+      "sha256": "c27b9b4b5b3d0667c76eecd8077c63ec82eda9fbde947cf22a9197feec98ac24",
+      "score": 0.555616
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "duplicate",
+      "sha256": "9ee2f6f2a0926980204d8c7fefa03dcd90b725d46cb35add74e38be2e02abaf6",
+      "score": 0.450725
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "empty-region",
+      "sha256": "ad7bc22852a62ecd813d43c2be3da83954067da247afab7ed78a86018846f194",
+      "score": 0.516447
+    },
+    {
+      "path": "fixtures/evaluation/bad/loading-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "loading",
+      "defect": "alignment",
+      "sha256": "e13fb3aa6dbff9ad8f799270675ec2a64ef6f2e5ae9b82bca3ed997dfc81d59b",
+      "score": 0.474315
+    },
+    {
+      "path": "fixtures/evaluation/good/wrapped-text.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "wrapped-text",
+      "defect": null,
+      "sha256": "ea257d7ca79c70bfd81c06ac775cae42e0accf3591b71190bde8e30a1947beb8",
+      "score": 0.590146
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "overlap",
+      "sha256": "a4cdbb2f957fae901854e92fbe08d45914ac196f6997b8e1ff40adca6018ac8b",
+      "score": 0.497982
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "clipping",
+      "sha256": "9e120eb810c1268894c58a010ac90e7565f1417b0a0656db6811914e8388b234",
+      "score": 0.571131
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "broken-wrapping",
+      "sha256": "0c96909b7e8e10d1008b73fd399ea77a46144a369439884f0da45d754913f50f",
+      "score": 0.576349
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "crowding",
+      "sha256": "3635609170e238bfccf6ae6e892d75a1515d8da6220f58ee87619ff9428d290f",
+      "score": 0.565316
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "spacing",
+      "sha256": "e1ea5013e05d8784e3c8f33e31a4b956a7180bd2eaf395ac415d64d2ba8616b3",
+      "score": 0.53541
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "offscreen-dialog",
+      "sha256": "94a5f36c8622f243e8a7a8677d7edf495267ef9a7bb18664184ede213c559138",
+      "score": 0.523268
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "cut-controls",
+      "sha256": "09e211ec557228e6ab0563e5552566b7132cafe10e0dadd7dc38c95b30187340",
+      "score": 0.513708
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "giant-text",
+      "sha256": "5a5a5165b84e1a885d1fc13dc6645248b2bf0e01bbd854adab1dc06f3d04379f",
+      "score": 0.545378
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "responsive",
+      "sha256": "1a7fb6167c73f4e853ec50ace7148502f6eed590ebe9341c67825aff068b9e7f",
+      "score": 0.530211
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "duplicate",
+      "sha256": "a1178a992750be60552ad39ecf8f8f3ffe965c66bbd65376cb210bfaaa405c1a",
+      "score": 0.285684
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "empty-region",
+      "sha256": "e1ce02d2e202e19f7d0ef7ba614c8454b4817ba5ae5b92145ad4739bbb3138ff",
+      "score": 0.625028
+    },
+    {
+      "path": "fixtures/evaluation/bad/wrapped-text-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "wrapped-text",
+      "defect": "alignment",
+      "sha256": "ad7085a65d7ebb15007dc311b512b7857d8160ae08a560d0b1c73c4c029ab6b2",
+      "score": 0.300417
+    },
+    {
+      "path": "fixtures/evaluation/good/compact.png",
+      "split": "evaluation",
+      "label": "good",
+      "family": "compact",
+      "defect": null,
+      "sha256": "4bb785b7a6efef636bcc0edd2719e9fdfe226769c83adfa8765a04ccf4adb414",
+      "score": 0.631969
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-overlap.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "overlap",
+      "sha256": "96af8da108aa3913325912a7b1432ad255af9c481e8abb557762fa8cb8ecb636",
+      "score": 0.573063
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-clipping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "clipping",
+      "sha256": "0295678513a876c78f18f467517137cf9f932d6c20a3ad9ba5b558b6521d98fe",
+      "score": 0.612216
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-broken-wrapping.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "broken-wrapping",
+      "sha256": "402b2e4b1773c9cec7fd753a46985e5525592eb4a9954992264fab09c79ae546",
+      "score": 0.563797
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-crowding.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "crowding",
+      "sha256": "df208bf184b237bf1b9b31b3591d4d016b5398bc5227c603a059cd452ff9ac74",
+      "score": 0.54039
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-spacing.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "spacing",
+      "sha256": "ffb0a20d1fff7d5a1c4fde7d4e4d8309ae696e6d345fcbeeac3205285a8897dd",
+      "score": 0.565476
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-offscreen-dialog.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "offscreen-dialog",
+      "sha256": "bb8adbfd77a8c52cb9b627eac13c44f9f7631303eac0b854b78b6bb61703a75b",
+      "score": 0.622982
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-cut-controls.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "cut-controls",
+      "sha256": "fa513ac9ce646cbb7457f57268d8c65431ec9ea0e9223a7dbcd8d9c743f35d08",
+      "score": 0.596916
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-giant-text.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "giant-text",
+      "sha256": "15457f80006788d89c14546daaff437e20748118a2282afc191cc75b22223291",
+      "score": 0.497123
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-responsive.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "responsive",
+      "sha256": "137803e542ed76a57b5880e3dddc5cae1c4311093c6b1c1b0cb27dcc257404f9",
+      "score": 0.549626
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-duplicate.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "duplicate",
+      "sha256": "ca805be37141a6e3fbcaa9fba41d9c3bd4f97fb280fa2eaabd4ab92fbc8cdd90",
+      "score": 0.319431
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-empty-region.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "empty-region",
+      "sha256": "230d5b019a07a944fd8404c91ee8e42f0a6b24f705399b95b50ddc5e159e4c43",
+      "score": 0.632865
+    },
+    {
+      "path": "fixtures/evaluation/bad/compact-alignment.png",
+      "split": "evaluation",
+      "label": "bad",
+      "family": "compact",
+      "defect": "alignment",
+      "sha256": "b553b522e78e5162c7925fc0b6817ff129bd4cc2c3485c3c386b42fbf58ccf11",
+      "score": 0.394704
+    }
+  ],
+  "limitations": "Small controlled synthetic corpus. Evaluation changes chrome/background, retaining layout families; it is not an independent real-world holdout. No claim of universal detection or CI-safe threshold for another project."
+}

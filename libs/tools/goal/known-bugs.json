@@ -1263,5 +1263,30 @@
     "id": "dev-client-stale-api-config",
     "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
     "regressionTest": "apps/product/tests/wrangler-config.test.ts"
+  },
+  {
+    "id": "ui-quality-dispose-active-check",
+    "summary": "Disposing a visual checker during directory discovery rejected already-started image work, and repeated disposal could resolve before cleanup. Await existing checks and share the cleanup promise.",
+    "regressionTest": "pkgs/ui-quality-check/tests/lifecycle.test.ts"
+  },
+  {
+    "id": "ui-quality-fixed-fps-drift",
+    "summary": "Sampling a literal 30 FPS, 50 second recording at 4 FPS yielded 188 frames because spacing each candidate from the previous selected timestamp accumulated rounding drift. Select by a fixed timestamp grid and retain original source timestamps; the automated native contract requires exactly 200 candidates.",
+    "regressionTest": "pkgs/ui-quality-check/tests/native-decoder.test.ts"
+  },
+  {
+    "id": "ui-quality-artifact-rounded-timestamp",
+    "summary": "The inspected black frame in a literal 60 FPS MP4 had PTS 16.666… ms, reported as 17 ms. Extracting at 17 ms skipped it and emitted the following white frame. Seek before the half-millisecond rounding boundary so diagnostics retain the inspected source frame.",
+    "regressionTest": "pkgs/ui-quality-check/tests/native-decoder.test.ts"
+  },
+  {
+    "id": "ui-quality-setup-corrupt-repair",
+    "summary": "Explicit model setup found existing corrupt graph and weight files and refused with a rerun-setup error, making the suggested repair impossible. Retry preparation on explicit setup while ordinary checks continue to fail closed without downloading; an invalid local checkpoint must still be rejected before overwriting files.",
+    "regressionTest": "pkgs/ui-quality-check/tests/setup.test.ts"
+  },
+  {
+    "id": "ui-quality-cuda-not-bundled",
+    "summary": "ONNX Runtime reports its registered CUDA backend with bundled:false because its provider library is separately installed. Filtering that flag prevented automatic GPU selection on Linux even after installation. Try all supported acceleration candidates and validate each with real inference before falling back.",
+    "regressionTest": "pkgs/ui-quality-check/tests/providers.test.ts"
   }
 ]

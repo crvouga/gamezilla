@@ -1,4 +1,9 @@
-import type { DetectorInfo, ImageInput, QualityDetector } from './detectors/types';
+import type {
+  DetectorInfo,
+  ImageInput,
+  QualityDetector,
+} from './detectors/types';
+import type { VideoDecoder } from './video/types';
 
 export interface CheckerOptions {
   readonly threshold?: number;
@@ -15,11 +20,14 @@ export interface CheckerOptions {
   readonly modelDir?: string;
   readonly provider?: 'auto' | 'cpu' | 'webgpu' | 'coreml' | 'cuda' | 'dml';
   readonly detectors?: readonly QualityDetector[];
+  readonly detectorVersions?: readonly DetectorInfo[];
   readonly cacheDir?: string;
   readonly artifactsDir?: string;
   readonly failureClipMs?: number;
   readonly ffmpegPath?: string;
   readonly signal?: AbortSignal;
+  readonly clock?: { readonly now: () => number };
+  readonly decoder?: VideoDecoder;
 }
 
 export interface FrameQuality {
@@ -27,7 +35,11 @@ export interface FrameQuality {
   readonly quality: number;
   /** The frame reused an earlier near-identical frame's score. */
   readonly reused?: true;
-  readonly detectorScores: readonly { detector: string; quality: number; evidence?: string }[];
+  readonly detectorScores: readonly {
+    detector: string;
+    quality: number;
+    evidence?: string;
+  }[];
 }
 
 export interface FrameQualityFailure extends FrameQuality {
@@ -73,7 +85,13 @@ export interface BatchQualityResult {
 
 export interface UIQualityChecker {
   readonly detectors: readonly DetectorInfo[];
-  metrics(): { startupMs: number; scoringMs: number; batches: number; inferenceMs: number; windowsProcessed: number };
+  metrics(): {
+    startupMs: number;
+    scoringMs: number;
+    batches: number;
+    inferenceMs: number;
+    windowsProcessed: number;
+  };
   checkImage(input: ImageInput): Promise<QualityResult>;
   checkImages(inputs: readonly ImageInput[]): Promise<BatchQualityResult>;
   checkVideo(input: string): Promise<QualityResult>;

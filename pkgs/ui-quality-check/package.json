@@ -7,7 +7,6 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
@@ -19,6 +18,13 @@
     "dist",
     "assets",
     "README.md",
+    "BENCHMARKS.md",
+    "EVALUATION.md",
+    "MODEL.md",
+    "NOTICE.md",
+    "fixtures/evaluation.json",
+    "fixtures/benchmark.json",
+    "fixtures/model-parity.json",
     "LICENSE"
   ],
   "engines": {
@@ -29,7 +35,7 @@
     "prepack": "bun run build",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit -p tsconfig.tc.json",
-    "test": "bun test --conditions=development",
+    "test": "bun test",
     "evaluate": "bun run scripts/evaluate.ts",
     "benchmark": "bun run src/cli/index.ts benchmark"
   },
@@ -49,7 +55,6 @@
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
-    "typescript": "catalog:",
-    "dts-bundle-generator": "9.5.1"
+    "typescript": "catalog:"
   }
 }

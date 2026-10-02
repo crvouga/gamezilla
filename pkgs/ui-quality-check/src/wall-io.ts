@@ -5,28 +5,39 @@ import { homedir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
-import { wallClock } from '@pkgs/clock';
+import { wallClock } from '@pkgs/clock/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client/global';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+import { whichPath } from '@pkgs/os/command';
 import { startProcess } from '@pkgs/os/streaming-process';
-import { whichPath } from '@pkgs/os';
 import ffmpeg from 'ffmpeg-static';
-import type { Files } from './files';
 import manifest from '../assets/manifest.json';
+import type { Files } from './files';
 
 function streamStore(directory: string): ObjectStore {
   const root = resolve(directory);
-  const base = createNodeFsObjectStore({ rootDir: root, fs: wallNodeFs(), layout: 'tree' });
+  const base = createNodeFsObjectStore({
+    rootDir: root,
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
   const get: ObjectStore['get'] = async (key) => {
     const path = resolve(root, key);
     const rel = relative(root, path);
-    if (rel.startsWith('..') || resolve(root, rel) !== path || path === root) throw new Error(`Invalid object key: ${key}`);
+    if (rel.startsWith('..') || resolve(root, rel) !== path || path === root)
+      throw new Error(`Invalid object key: ${key}`);
     try {
       const info = await stat(path);
       if (!info.isFile()) throw new Error(`Expected a file: ${path}`);
-      return { body: Readable.toWeb(createReadStream(path)) as unknown as ReadableStream<Uint8Array>, contentType: 'application/octet-stream', size: info.size };
+      return {
+        body: Readable.toWeb(
+          createReadStream(path)
+        ) as unknown as ReadableStream<Uint8Array>,
+        contentType: 'application/octet-stream',
+        size: info.size,
+      };
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
       throw error;
@@ -50,7 +61,8 @@ export const localFiles: Files = {
     const path = resolve(input);
     const info = await stat(path);
     if (info.isFile()) return [path];
-    if (!info.isDirectory()) throw new Error(`Expected a file or directory: ${input}`);
+    if (!info.isDirectory())
+      throw new Error(`Expected a file or directory: ${input}`);
     return (await streamStore(path).listKeys()).map((key) => join(path, key));
   },
 };
@@ -58,15 +70,29 @@ export const localFiles: Files = {
 export const localClock = wallClock;
 export const localHttp = createGlobalHttpClient();
 export const localProcess = startProcess;
-export const assetDirectory = fileURLToPath(new URL('../assets/', import.meta.url));
-export const defaultModelDirectory = join(homedir(), '.cache', 'ui-quality-check', manifest.modelVersion);
+export const assetDirectory = fileURLToPath(
+  new URL('../assets/', import.meta.url)
+);
+export const defaultModelDirectory = join(
+  homedir(),
+  '.cache',
+  'ui-quality-check',
+  manifest.modelVersion
+);
 
 export function decoderPath(override?: string): string {
   const candidate = override ?? ffmpeg ?? whichPath('ffmpeg');
-  if (!candidate) throw new Error('FFmpeg is unavailable. Reinstall ffmpeg-static with install scripts enabled, or supply ffmpegPath.');
+  if (!candidate)
+    throw new Error(
+      'FFmpeg is unavailable. Reinstall ffmpeg-static with install scripts enabled, or supply ffmpegPath.'
+    );
   return candidate;
 }
 
 export function runtimeMetrics() {
-  return { cpu: process.cpuUsage(), memory: process.memoryUsage(), resource: process.resourceUsage() };
+  return {
+    cpu: process.cpuUsage(),
+    memory: process.memoryUsage(),
+    resource: process.resourceUsage(),
+  };
 }
