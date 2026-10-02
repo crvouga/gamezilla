@@ -1,5 +1,10 @@
 [
   {
+    "id": "depot-migration-workflow-on-feature-branch",
+    "summary": "Merging migrate-secrets-to-depot-ci-1790912980154.yml onto ci/speed-up-check-workflow triggered run 36967300871 on every push: variable import failed with Invalid token, and cleanup refused to delete the feature branch. Remove the one-time migration workflow; Check, Deploy and Health already read GitHub variables and authenticate with GitHub OIDC.",
+    "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"
+  },
+  {
     "id": "depot-native-workflows-missing-auth",
     "summary": "Duplicated native Depot workflows read GitHub-only variables and failed with Missing identity ID for OIDC auth; their issuer also lacked the configured cloud trust. Run the three existing GitHub workflows on Depot runners, retaining their variables and OIDC issuer.",
     "regressionTest": "libs/tools/scripts/workflow-run-names.test.ts"

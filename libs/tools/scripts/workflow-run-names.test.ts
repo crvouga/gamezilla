@@ -42,7 +42,11 @@ const workflows = readdirSync(WORKFLOWS_DIR)
   }));
 
 // regression: depot-native-workflows-missing-auth
+// regression: depot-migration-workflow-on-feature-branch
 test('Check, Deploy and Health have one workflow source with GitHub auth', () => {
+  expect(workflows.map(({ file }) => file)).not.toContain(
+    'migrate-secrets-to-depot-ci-1790912980154.yml'
+  );
   expect(workflows.map(({ file }) => file).sort()).toEqual([
     'check.yml',
     'deploy.yml',
