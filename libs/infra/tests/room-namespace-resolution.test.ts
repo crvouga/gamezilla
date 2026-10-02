@@ -13,6 +13,7 @@ import {
   type WorkerNamespace,
 } from '@libs/infra/public/worker-lifecycle';
 import { assertProperty, fc } from '@pkgs/property';
+import { unstable_getDurableObjectClassNameToUseSQLiteMap } from 'wrangler';
 
 const dev = envFile('dev');
 
@@ -32,8 +33,11 @@ const active = { ...source, script: target.script };
 
 function applyMigration(
   migration: RoomMigration,
-  inventory: readonly WorkerNamespace[]
+  inventory: readonly WorkerNamespace[],
+  applied: Set<string>
 ): readonly WorkerNamespace[] {
+  if (applied.has(migration.tag)) return inventory;
+  applied.add(migration.tag);
   let result = inventory;
   for (const rename of migration.renamed_classes ?? []) {
     result = result.map((ns) =>
@@ -53,10 +57,50 @@ function applyMigration(
 }
 
 describe('explicit room namespace resolution', () => {
+  // regression: room-archive-migration-history
+  test('Wrangler validates retention history before upload and on redeployment', () => {
+    const incomplete = [
+      { tag: ROOM_MIGRATION_TAG },
+      {
+        tag: ROOM_ARCHIVE_TAG,
+        renamed_classes: [{ from: ROOM_CLASS, to: ROOM_ARCHIVE_CLASS }],
+      },
+      {
+        tag: ROOM_TRANSFER_TAG,
+        transferred_classes: [
+          { from: ROOM_CLASS, from_script: source.script, to: ROOM_CLASS },
+        ],
+      },
+    ];
+    expect(() =>
+      unstable_getDurableObjectClassNameToUseSQLiteMap(incomplete)
+    ).toThrow(
+      'Cannot apply renamed_classes migration to non-existent class RoomServerDurableObject'
+    );
+    for (const inventory of [
+      [source, target],
+      [source, archive],
+      [active, archive],
+    ]) {
+      const migrations = roomMigrations(dev, inventory).map((step) => ({
+        ...step,
+        new_sqlite_classes: step.new_sqlite_classes?.slice(),
+        renamed_classes: step.renamed_classes?.map((item) => ({ ...item })),
+        transferred_classes: step.transferred_classes?.map((item) => ({
+          ...item,
+        })),
+      }));
+      expect(
+        unstable_getDurableObjectClassNameToUseSQLiteMap(migrations).get(
+          ROOM_ARCHIVE_CLASS
+        )
+      ).toBe(true);
+    }
+  });
   // regression: deploy-dev-duplicate-room-namespaces
   test('retains the destination before transferring the still-active legacy rooms', () => {
     expect(roomMigrations(dev, [target, source])).toEqual([
-      { tag: ROOM_MIGRATION_TAG },
+      { tag: ROOM_MIGRATION_TAG, new_sqlite_classes: [ROOM_CLASS] },
       {
         tag: ROOM_ARCHIVE_TAG,
         renamed_classes: [{ from: ROOM_CLASS, to: ROOM_ARCHIVE_CLASS }],
@@ -75,17 +119,10 @@ describe('explicit room namespace resolution', () => {
     assertWorkersRetirable(dev, [archive, active], domains);
   });
 
-  test('resumes after retention and becomes a no-op after transfer', () => {
-    const resumed = roomMigrations(dev, [source, archive]);
-    expect(resumed[1]).toEqual({ tag: ROOM_ARCHIVE_TAG });
-    expect(resumed[2]?.transferred_classes?.[0]?.from_script).toBe(
-      source.script
-    );
-    expect(roomMigrations(dev, [active, archive])).toEqual([
-      { tag: ROOM_MIGRATION_TAG },
-      { tag: ROOM_ARCHIVE_TAG },
-      { tag: ROOM_TRANSFER_TAG },
-    ]);
+  test('retains committed history after retention and transfer', () => {
+    const initial = roomMigrations(dev, [source, target]);
+    expect(roomMigrations(dev, [source, archive])).toEqual(initial);
+    expect(roomMigrations(dev, [active, archive])).toEqual(initial);
     assertRoomNamespacePreserved(dev, [source, archive], [active, archive]);
     assertRoomNamespacePreserved(dev, [active, archive], [archive, active]);
   });
@@ -155,12 +192,15 @@ describe('explicit room namespace resolution', () => {
             { ...target, id: targetId },
           ];
           let inventory: readonly WorkerNamespace[] = before;
+          const applied = new Set([ROOM_MIGRATION_TAG]);
           const plan = roomMigrations(env, inventory);
           for (const step of plan) {
-            inventory = applyMigration(step, inventory);
+            inventory = applyMigration(step, inventory, applied);
             // A restart after any committed step must converge to the same storage.
+            const resumedTags = new Set(applied);
             const resumed = roomMigrations(env, inventory).reduce(
-              (state, migration) => applyMigration(migration, state),
+              (state, migration) =>
+                applyMigration(migration, state, resumedTags),
               inventory
             );
             assertRoomNamespacePreserved(env, before, resumed);
@@ -169,7 +209,7 @@ describe('explicit room namespace resolution', () => {
           assertRoomNamespacePreserved(env, before, inventory);
           expect(
             roomMigrations(env, inventory).reduce(
-              (state, migration) => applyMigration(migration, state),
+              (state, migration) => applyMigration(migration, state, applied),
               inventory
             )
           ).toEqual(inventory);

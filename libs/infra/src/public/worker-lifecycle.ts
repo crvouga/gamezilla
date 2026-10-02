@@ -89,9 +89,11 @@ function resolvedRoomMigrations(
       'Both room namespaces exist: refusing to abandon either one'
     );
   }
+  const fromScript = env.worker.transfer_rooms_from;
   const active = source ?? target;
   const retained = archive ?? target;
   if (
+    fromScript === undefined ||
     resolution.source_id === resolution.target_id ||
     active?.id !== resolution.source_id ||
     retained?.id !== resolution.target_id ||
@@ -101,25 +103,19 @@ function resolvedRoomMigrations(
       'Room namespace resolution does not match the live namespace IDs'
     );
   }
+  // Wrangler validates the entire history locally. Cloudflare applies only
+  // steps after its committed tag, so retain history even after adoption.
   return [
-    { tag: ROOM_MIGRATION_TAG },
+    { tag: ROOM_MIGRATION_TAG, new_sqlite_classes: [ROOM_CLASS] },
     {
       tag: ROOM_ARCHIVE_TAG,
-      ...(archive === undefined
-        ? {
-            renamed_classes: [{ from: ROOM_CLASS, to: ROOM_ARCHIVE_CLASS }],
-          }
-        : {}),
+      renamed_classes: [{ from: ROOM_CLASS, to: ROOM_ARCHIVE_CLASS }],
     },
     {
       tag: ROOM_TRANSFER_TAG,
-      ...(source !== undefined
-        ? {
-            transferred_classes: [
-              { from: ROOM_CLASS, from_script: source.script, to: ROOM_CLASS },
-            ],
-          }
-        : {}),
+      transferred_classes: [
+        { from: ROOM_CLASS, from_script: fromScript, to: ROOM_CLASS },
+      ],
     },
   ];
 }
