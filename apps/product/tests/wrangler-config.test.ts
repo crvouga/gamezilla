@@ -9,9 +9,12 @@ import {
 } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import {
+  ROOM_ARCHIVE_CLASS,
+  ROOM_ARCHIVE_TAG,
   ROOM_CLASS,
   ROOM_MIGRATION_TAG,
-  roomMigration,
+  ROOM_TRANSFER_TAG,
+  roomMigrations,
 } from '@libs/infra/public/worker-lifecycle';
 import {
   deletedDurableObjectClasses,
@@ -33,12 +36,44 @@ const base = Bun.TOML.parse(
 ) as WranglerConfig;
 
 describe('wrangler.toml', () => {
+  // regression: deploy-dev-duplicate-room-namespaces
+  test('renders the ordered retention and transfer steps for the pinned dev conflict', () => {
+    const dev = ENV_FILES['dev'];
+    if (dev === undefined) throw new Error('Development environment missing');
+    const resolution = dev.worker.room_namespace_resolution;
+    if (resolution === undefined) throw new Error('Resolution missing');
+    const migrations = roomMigrations(dev, [
+      { id: resolution.target_id, script: dev.worker.name, class: ROOM_CLASS },
+      {
+        id: resolution.source_id,
+        script: dev.worker.transfer_rooms_from ?? '',
+        class: ROOM_CLASS,
+      },
+    ]);
+    const rendered = renderWranglerConfig(base, dev, {
+      roomMigrations: migrations,
+    });
+    expect(rendered['migrations']).toEqual(migrations);
+    expect(migrations[1]).toEqual({
+      tag: ROOM_ARCHIVE_TAG,
+      renamed_classes: [{ from: ROOM_CLASS, to: ROOM_ARCHIVE_CLASS }],
+    });
+    expect(migrations[2]?.tag).toBe(ROOM_TRANSFER_TAG);
+    expect(deletedDurableObjectClasses(rendered)).toEqual([]);
+    expect(() =>
+      renderWranglerConfig(
+        { ...base, migrations: [{ tag: ROOM_MIGRATION_TAG }] },
+        dev,
+        { roomMigrations: migrations }
+      )
+    ).toThrow('missing from the committed config');
+  });
   test('adopts existing room storage and retains subsequent migration history', () => {
     for (const env of Object.values(ENV_FILES)) {
       const source = env.worker.transfer_rooms_from;
       if (source === undefined)
         throw new Error('Expected existing environment room Worker');
-      const migration = roomMigration(env, [
+      const migration = roomMigrations(env, [
         { id: 'existing-data', script: source, class: ROOM_CLASS },
       ]);
       const later = { tag: 'v2-other-room', new_sqlite_classes: ['OtherRoom'] };
@@ -48,15 +83,21 @@ describe('wrangler.toml', () => {
           migrations: [...(base['migrations'] as readonly unknown[]), later],
         },
         env,
-        { roomMigration: migration }
+        { roomMigrations: migration }
       );
-      expect(rendered['migrations']).toEqual([migration, later]);
-      expect(migration).toEqual({
-        tag: ROOM_MIGRATION_TAG,
-        transferred_classes: [
-          { from: ROOM_CLASS, from_script: source, to: ROOM_CLASS },
-        ],
-      });
+      expect(rendered['migrations']).toEqual([
+        ...migration,
+        ...(base['migrations'] as readonly { tag: string }[]).slice(1),
+        later,
+      ]);
+      expect(migration).toEqual([
+        {
+          tag: ROOM_MIGRATION_TAG,
+          transferred_classes: [
+            { from: ROOM_CLASS, from_script: source, to: ROOM_CLASS },
+          ],
+        },
+      ]);
     }
   });
   test('never deletes a Durable Object class', () => {
