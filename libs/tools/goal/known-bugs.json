@@ -1,5 +1,10 @@
 [
   {
+    "id": "health-macos-offline-network",
+    "summary": "Live journeys chose WebKit on macOS, which could not cut the network for the offline scenario. Use Chrome explicitly for the live device and its popups, with the same storage isolation and CDP network controls on every host.",
+    "regressionTest": "apps/product/tests/live-browser.test.ts"
+  },
+  {
     "id": "tempo-protobuf-traces-discarded",
     "summary": "Tempo returned a successful protobuf JSON trace under batches with base64 span ids, but the reader only accepted OTLP resourceSpans and silently discarded every span. Accept both document shapes and normalize protobuf ids to hex for lookup and narration.",
     "regressionTest": "pkgs/observability/tests/tempo-protobuf.test.ts"

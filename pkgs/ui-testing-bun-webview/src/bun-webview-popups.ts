@@ -48,6 +48,7 @@ async function within<T>(
 /** Options every popup window is created with (its opener's data store). */
 export type PopupViewOptions = {
   readonly dataStore?: 'ephemeral' | { readonly directory: string };
+  readonly backend?: Bun.WebView.Backend;
 };
 
 /** Installed into every document the opener loads (idempotent). */
