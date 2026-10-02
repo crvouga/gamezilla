@@ -618,5 +618,10 @@
     "id": "upsert-managed-bindings-reordered",
     "summary": "Adding managed INSERT timestamps appended their bindings after ON CONFLICT parameters, assigning Preparing to a timestamp and blocking server exports. Bindings now follow their SQL positions.",
     "regressionTest": "pkgs/sync-engine/tests/upsert-managed-bindings.test.ts"
+  },
+  {
+    "id": "deleted-account-anon-id-reuse",
+    "summary": "Anonymous session recovery reused a proposed deleted account ID and repeatedly failed authentication. Deleted account IDs now mint a fresh anonymous identity.",
+    "regressionTest": "libs/auth/src/root/server/anon-user-service.test.ts"
   }
 ]
