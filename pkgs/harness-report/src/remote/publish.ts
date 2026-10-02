@@ -10,17 +10,14 @@ import {
   type HtmlReportTest,
   parseJunit,
   type ReportStep,
+  type ReportTestStatus,
   type RunReport,
   suiteStatus,
   testFrameKey,
   testPrefix,
   testReportKey,
 } from '@pkgs/harness';
-import {
-  readObjectBytes,
-  readUtf8,
-  writeUtf8,
-} from '@pkgs/object-store/helpers';
+import { readBytes, readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
 import { eachLimited } from './completion-order';
@@ -37,6 +34,19 @@ import {
 } from './keys';
 import type { CommitRecord, SourceRecord } from './protocol';
 import { readCommit } from './read';
+import {
+  attachSource,
+  readStoredSource,
+  type SourceIdentity,
+  sourceContentPrefix,
+} from './source-content';
+
+export {
+  reportGeneration,
+  reuseSource,
+  type SourceIdentity,
+  sourceContentPrefix,
+} from './source-content';
 
 /** The run id every spec suite writes its bucket under. */
 export const SPEC_RUN_ID = 'latest';
@@ -137,6 +147,9 @@ export type PublishSourceArgs = {
   /** The package's local report bucket (`.cache/harness-report/<bucket>`). */
   readonly local: ObjectStore;
   readonly runId?: string;
+  /** Only a passing execution is reusable under its exact task hash. */
+  readonly identity?: SourceIdentity;
+  readonly status?: ReportTestStatus;
 };
 
 /**
@@ -152,7 +165,20 @@ export async function publishSource(
   const runId = args.runId ?? SPEC_RUN_ID;
   const source = sourceId(args.packageDir, args.bucket);
   const tests = await readTests(args.local, runId);
-  if (tests.length === 0) return null;
+  if (
+    tests.length === 0 &&
+    args.identity === undefined &&
+    args.status === undefined
+  )
+    return null;
+  const metas = tests
+    .map((t) => t.report.meta)
+    .sort((a, b) => (a.testId < b.testId ? -1 : a.testId > b.testId ? 1 : 0));
+  const status = args.status === 'failed' ? 'failed' : suiteStatus(metas);
+  const contentPrefix =
+    args.identity !== undefined && status === 'passed'
+      ? sourceContentPrefix(args.identity, source)
+      : null;
   const copies: { from: string; to: string }[] = [];
   for (const { report } of tests) {
     const { testId } = report.meta;
@@ -161,38 +187,49 @@ export async function publishSource(
     for (const file of files) {
       copies.push({
         from: testFrameKey(runId, testId, file),
-        to: remoteTestFileKey(args.sha, source, testId, file),
+        to:
+          contentPrefix === null
+            ? remoteTestFileKey(args.sha, source, testId, file)
+            : `${contentPrefix}${testId}/${file}`,
       });
     }
   }
   await eachLimited(copies, WRITE_WIDTH, async ({ from, to }) => {
     const obj = await args.local.get(from);
-    const bytes = obj === null ? null : await readObjectBytes(args.local, from);
-    if (obj !== null && bytes !== null) {
-      await store.put(to, bytes, obj.contentType);
-    }
+    if (obj === null) throw new Error(`Missing report snapshot: ${from}`);
+    await store.put(to, await readBytes(obj.body), obj.contentType);
   });
   await eachLimited(tests, WRITE_WIDTH, async ({ report }) => {
-    const key = remoteTestReportKey(args.sha, source, report.meta.testId);
+    const key =
+      contentPrefix === null
+        ? remoteTestReportKey(args.sha, source, report.meta.testId)
+        : `${contentPrefix}${report.meta.testId}/report.json`;
     await writeUtf8(store, key, JSON.stringify(report), JSON_TYPE);
   });
-  const metas = tests
-    .map((t) => t.report.meta)
-    .sort((a, b) => (a.testId < b.testId ? -1 : a.testId > b.testId ? 1 : 0));
   const record: SourceRecord = {
     source,
     packageDir: args.packageDir,
     bucket: args.bucket,
-    status: suiteStatus(metas),
+    status,
     updatedAtMs: Math.max(0, ...metas.map((m) => m.endedAtMs)),
     tests: metas,
   };
-  await writeUtf8(
-    store,
-    sourceKey(args.sha, source),
-    JSON.stringify(record),
-    JSON_TYPE
-  );
+  if (contentPrefix !== null) {
+    await writeUtf8(
+      store,
+      `${contentPrefix}complete.json`,
+      JSON.stringify(record),
+      JSON_TYPE
+    );
+    await attachSource(store, { sha: args.sha, record, contentPrefix });
+  } else {
+    await writeUtf8(
+      store,
+      sourceKey(args.sha, source),
+      JSON.stringify(record),
+      JSON_TYPE
+    );
+  }
   return record;
 }
 
@@ -215,8 +252,8 @@ export async function closeCommit(
     .filter((s): s is string => s !== null);
   const statuses: SourceRecord[] = [];
   for (const s of sources) {
-    const text = await readUtf8(store, sourceKey(args.sha, s));
-    if (text !== null) statuses.push(JSON.parse(text) as SourceRecord);
+    const stored = await readStoredSource(store, args.sha, s);
+    if (stored !== null) statuses.push(stored.record);
   }
   const closed: CommitRecord = {
     ...open,

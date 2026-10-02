@@ -18,10 +18,8 @@ import { inCompletionOrder } from './completion-order';
 import {
   COMMITS_INDEX_PREFIX,
   commitKey,
-  remoteTestFileKey,
-  remoteTestReportKey,
+  isFramePath,
   shaOfIndexKey,
-  sourceKey,
   sourceOfKey,
   sourcesPrefix,
 } from './keys';
@@ -32,6 +30,7 @@ import type {
   SourceRecord,
   TestEvent,
 } from './protocol';
+import { readStoredSource, sourceTestPrefix } from './source-content';
 
 /** Parallel object reads per stream. */
 const READ_WIDTH = 16;
@@ -109,7 +108,7 @@ async function* newSources(
     .filter((s): s is string => s !== null && !sent.has(s));
   for (const s of fresh) sent.add(s);
   const reads = fresh.map(
-    (s) => () => readJson<SourceRecord>(store, sourceKey(sha, s))
+    (s) => async () => (await readStoredSource(store, sha, s))?.record ?? null
   );
   for await (const record of inCompletionOrder(reads, READ_WIDTH)) {
     if (record !== null) yield record;
@@ -193,7 +192,7 @@ async function readFrame(
 }
 
 /** One test's timeline, without its frame files. */
-export function readTestReport(
+export async function readTestReport(
   store: ObjectStore,
   args: {
     readonly sha: string;
@@ -201,10 +200,10 @@ export function readTestReport(
     readonly testId: string;
   }
 ): Promise<RunReport | null> {
-  return readJson<RunReport>(
-    store,
-    remoteTestReportKey(args.sha, args.source, args.testId)
-  );
+  const prefix = await sourceTestPrefix(store, args);
+  return prefix === null
+    ? null
+    : readJson<RunReport>(store, `${prefix}report.json`);
 }
 
 export type FrameBody = {
@@ -222,7 +221,10 @@ export async function readFrameBody(
     readonly file: string;
   }
 ): Promise<FrameBody | null> {
-  const key = remoteTestFileKey(args.sha, args.source, args.testId, args.file);
+  if (!isFramePath(args.file)) throw new Error('Invalid report frame');
+  const prefix = await sourceTestPrefix(store, args);
+  if (prefix === null) return null;
+  const key = `${prefix}${args.file}`;
   const obj = await store.get(key);
   if (obj === null) return null;
   const bytes = await readObjectBytes(store, key);
@@ -251,10 +253,11 @@ export async function* testEvents(
     readonly testId: string;
   }
 ): AsyncGenerator<TestEvent> {
-  const report = await readJson<RunReport>(
-    store,
-    remoteTestReportKey(args.sha, args.source, args.testId)
-  );
+  const prefix = await sourceTestPrefix(store, args);
+  const report =
+    prefix === null
+      ? null
+      : await readJson<RunReport>(store, `${prefix}report.json`);
   if (report === null) {
     yield { type: 'end', found: false };
     return;
@@ -263,7 +266,7 @@ export async function* testEvents(
   const files = new Map<string, SnapshotMedia>();
   collectFrameFiles(report.steps, files);
   const reads = [...files].map(([file, media]) => async () => {
-    const key = remoteTestFileKey(args.sha, args.source, args.testId, file);
+    const key = `${prefix}${file}`;
     return { file, blob: await readFrame(store, key, media) };
   });
   for await (const read of inCompletionOrder(reads, READ_WIDTH)) {
