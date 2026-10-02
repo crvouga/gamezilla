@@ -1,8 +1,36 @@
 import { afterAll, expect, test } from 'bun:test';
+import { snapshotFingerprint } from '@apps/product/ui-quality/fingerprint';
 import { openSnapshotRenderer } from '@apps/product/ui-quality/render';
 import { createUIQualityChecker } from 'ui-quality-check';
 
 afterAll(() => Bun.WebView.closeAll());
+
+test('concurrent reused pages preserve every frame and metadata deduplication preserves actual pixels', async () => {
+  const renderer = openSnapshotRenderer('html,body{margin:0}', undefined, 2);
+  const html = (id: string, color: string) => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id="${id}"><rect width="80" height="80" fill="white"/></mask><rect mask="url(#${id})" width="80" height="80" fill="${color}"/></svg>`;
+    return `<html><head></head><body><p id="title-${id}" data-testid="${id}">UI</p><img src="data:image/svg+xml;utf8,${encodeURIComponent(svg)}"></body></html>`;
+  };
+  try {
+    const redA = html('a', 'red');
+    const redB = html('b', 'red');
+    expect(await snapshotFingerprint(redA, '')).toBe(
+      await snapshotFingerprint(redB, '')
+    );
+    const frames = await Promise.all(
+      [redA, html('c', 'blue'), redB, html('d', 'blue'), redA, redB].map(
+        (frame) => renderer.render(frame)
+      )
+    );
+    expect(Buffer.from(frames[0]!)).toEqual(Buffer.from(frames[2]!));
+    expect(Buffer.from(frames[1]!)).toEqual(Buffer.from(frames[3]!));
+    expect(Buffer.from(frames[0]!)).toEqual(Buffer.from(frames[4]!));
+    expect(Buffer.from(frames[0]!)).toEqual(Buffer.from(frames[5]!));
+    expect(Buffer.from(frames[0]!)).not.toEqual(Buffer.from(frames[1]!));
+  } finally {
+    renderer.dispose();
+  }
+}, 30_000);
 
 test('the native renderer paints local styles at the recorded viewport without executing snapshot scripts', async () => {
   // regression: ui-quality-replay-viewport — Chrome clamps a requested 390px window to 500px.

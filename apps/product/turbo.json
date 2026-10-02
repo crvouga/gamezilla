@@ -49,8 +49,9 @@
     },
     "prepare:ui-quality-model": {
       "dependsOn": ["ui-quality-check#build"],
+      "cache": false,
       "inputs": ["scripts/ui-quality/prepare-model.ts"],
-      "outputs": ["$TURBO_ROOT$/.cache/ui-quality-model/**"],
+      "outputs": [],
       "outputLogs": "errors-only"
     },
     "prepare:ui-quality": {

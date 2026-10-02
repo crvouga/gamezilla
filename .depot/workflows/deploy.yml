@@ -207,8 +207,8 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
 
-      - name: Prepare cached visual model
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs @apps/product#prepare:ui-quality-model
+      - name: Prepare visual model
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
 
       - name: deploy:${{ matrix.env }}
         id: deploy
@@ -284,8 +284,8 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
 
-      - name: Prepare cached visual model
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs @apps/product#prepare:ui-quality-model
+      - name: Prepare visual model
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
 
       - name: deploy:${{ matrix.env }}
         id: deploy

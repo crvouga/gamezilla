@@ -40,8 +40,9 @@ async function scoreImages(
   artifacts: readonly VisualArtifact[],
   scores: Map<string, QualityResult>
 ): Promise<readonly ArtifactScore[]> {
-  const images: Uint8Array[] = [];
-  for (const artifact of artifacts) images.push(await bytes(ports, artifact));
+  const images = await Promise.all(
+    artifacts.map((artifact) => bytes(ports, artifact))
+  );
   const hashes = images.map((image) =>
     createHash('sha256').update(image).digest('hex')
   );

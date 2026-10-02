@@ -46,3 +46,23 @@ test('the visual gate consumes every product spec part and caches both verdict a
     '.cache/harness-report/ui-quality/**'
   );
 });
+
+// regression: ui-quality-model-cache-payload-limit — the 351 MB model upload returned HTTP 413.
+test('explicit model setup does not submit an oversized cache artifact or download inside the offline gate', () => {
+  const turbo = readJson<{
+    tasks: Record<
+      string,
+      {
+        cache?: boolean;
+        outputs?: readonly string[];
+        dependsOn?: readonly string[];
+      }
+    >;
+  }>('apps/product/turbo.json');
+  const setup = turbo.tasks['prepare:ui-quality-model']!;
+  expect(setup.cache).toBe(false);
+  expect(setup.outputs).toEqual([]);
+  expect(turbo.tasks['check:ui-quality']!.dependsOn).not.toContain(
+    'prepare:ui-quality-model'
+  );
+});

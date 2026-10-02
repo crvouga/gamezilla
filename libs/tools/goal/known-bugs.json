@@ -1293,5 +1293,20 @@
     "id": "ui-quality-replay-viewport",
     "summary": "Chrome clamps a requested 390 pixel window to 500 pixels, adding unrecorded whitespace to replay screenshots. Pin CDP device metrics and capture an explicit 390 by 844 clip; the native regression asserts the literal dimensions and painted corner pixel.",
     "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
+  },
+  {
+    "id": "ui-quality-model-cache-payload-limit",
+    "summary": "The shared Turbo cache rejects the prepared 351 MB model artifact with HTTP 413. Keep explicit model setup outside the offline quality gate and exclude its oversized output from result caching.",
+    "regressionTest": "libs/tools/scripts/ui-quality-graph.test.ts"
+  },
+  {
+    "id": "ui-quality-reported-video-timestamp",
+    "summary": "Video CLI diagnostics must print the decoder timestamp of the worst inspected frame, not the original scenario reference timestamp. Pin a 7433 ms failure from an artifact with a 0 ms origin.",
+    "regressionTest": "apps/product/tests/ui-quality.test.ts"
+  },
+  {
+    "id": "ui-quality-ci-snapshot-volume",
+    "summary": "The visual gate replayed 30,355 HTML files for 101,035 test references and hit the unchanged 20-minute CI deadline. Collapse only unreferenced metadata and embedded SVG IDs, preserve all visible changes and origins, and replay a bounded pool of reused native pages.",
+    "regressionTest": "apps/product/tests/ui-quality-fingerprint.test.ts"
   }
 ]

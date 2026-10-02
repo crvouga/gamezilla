@@ -6,6 +6,7 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { collectArtifacts } from './collect';
+import { snapshotFingerprint } from './fingerprint';
 import sources from './sources.json';
 
 const ROOT = resolve(import.meta.dir, '../../../..');
@@ -18,6 +19,7 @@ function store(rootDir: string) {
 export async function prepareInputs(): Promise<void> {
   const output = store(OUTPUT);
   await output.deleteMany(await output.listKeys());
+  const stylesheet = compileFrameCss(ROOT);
   const manifest = await collectArtifacts(
     sources.flatMap((source) =>
       Array.from({ length: source.parts }, (_, part) => ({
@@ -28,7 +30,8 @@ export async function prepareInputs(): Promise<void> {
         ),
       }))
     ),
-    output
+    output,
+    (html) => snapshotFingerprint(html, stylesheet)
   );
   const font = await readFile(
     join(ROOT, 'pkgs/ui/src/theme/nunito-latin.woff2')
@@ -39,12 +42,7 @@ export async function prepareInputs(): Promise<void> {
     './nunito-latin.woff2',
     `data:font/woff2;base64,${font.toString('base64')}`
   );
-  await writeUtf8(
-    output,
-    'frame.css',
-    `${fontCss}\n${compileFrameCss(ROOT)}`,
-    'text/css'
-  );
+  await writeUtf8(output, 'frame.css', `${fontCss}\n${stylesheet}`, 'text/css');
   console.log(
     `[ui-quality] ${manifest.reports} report(s), ${manifest.references} references, ${manifest.artifacts.length} unique visual inputs.`
   );

@@ -1,4 +1,4 @@
-// @io-wall-ok — explicit, cacheable model setup; never runs inside the offline gate.
+// @io-wall-ok — explicit model setup; never runs inside the offline gate.
 import { resolve } from 'node:path';
 import { setup } from 'ui-quality-check';
 

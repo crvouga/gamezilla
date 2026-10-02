@@ -11,7 +11,11 @@ import config from './config.json';
 import { runVisualGate } from './gate';
 import type { SnapshotRenderer } from './render';
 import { openSnapshotRenderer } from './render';
-import { writeQualityReports, writeToolingFailure } from './report';
+import {
+  failureSummary,
+  writeQualityReports,
+  writeToolingFailure,
+} from './report';
 import type { ArtifactManifest } from './types';
 
 const ROOT = resolve(import.meta.dir, '../..');
@@ -70,17 +74,29 @@ export async function checkRecordedUI(signal?: AbortSignal): Promise<number> {
         ...(signal ? { signal } : {}),
       }
     );
-    const failures = result.results.filter((r) => !r.result.pass);
+    const failures = result.results
+      .filter((r) => !r.result.pass)
+      .sort((a, b) => a.result.score - b.result.score);
     await writeQualityReports(result, output, reports);
+    await writeUtf8(
+      output,
+      'metrics.json',
+      JSON.stringify({
+        schemaVersion: 1,
+        elapsedMs: wallClock.now() - started,
+        inputsAnalyzed: result.inputsAnalyzed,
+        uniqueImagesScored: result.uniqueImagesScored,
+        snapshotConcurrency: 4,
+        peakRssBytes: process.resourceUsage().maxRSS * 1024,
+        model: checker.metrics(),
+      }),
+      'application/json'
+    );
     console.log(
       `[ui-quality] ${result.pass ? 'PASS' : 'FAIL'}: ${result.inputsAnalyzed} inputs, ${result.uniqueImagesScored} unique screenshots from ${result.reports} reports; threshold ${result.threshold} (experimental), ${(wallClock.now() - started) / 1000}s.`
     );
-    for (const failure of failures.slice(0, 20)) {
-      const origin = failure.artifact.origins[0]!;
-      console.error(
-        `${origin.source ?? origin.package}: ${origin.title}\n  ${origin.step} @ ${origin.timestampMs}ms; ${failure.result.score.toFixed(6)} < ${result.threshold}\n  ${failure.failureImage ?? failure.result.worstFrames[0]?.artifact ?? failure.artifact.file}`
-      );
-    }
+    for (const failure of failures.slice(0, 20))
+      console.error(failureSummary(failure, result.threshold));
     return result.pass ? 0 : 1;
   } finally {
     try {

@@ -131,6 +131,7 @@ async function appendArtifact(args: {
   readonly files: Map<string, string>;
   readonly output: ObjectStore;
   readonly artifacts: Map<string, MutableArtifact>;
+  readonly htmlKey?: (html: string) => Promise<string>;
 }): Promise<void> {
   const origin = args.origin;
   const known = args.files.get(origin.file);
@@ -145,7 +146,11 @@ async function appendArtifact(args: {
     );
   const kind = kindOf(origin.file);
   if (kind === null) throw new Error(`Unsupported UI artifact: ${origin.file}`);
-  const hash = createHash('sha256').update(kind).update(bytes).digest('hex');
+  const content =
+    kind === 'html' && args.htmlKey
+      ? await args.htmlKey(new TextDecoder().decode(bytes))
+      : bytes;
+  const hash = createHash('sha256').update(kind).update(content).digest('hex');
   args.files.set(origin.file, hash);
   const previous = args.artifacts.get(hash);
   if (previous) {
@@ -163,7 +168,8 @@ async function appendArtifact(args: {
 
 export async function collectArtifacts(
   sources: readonly ReportSource[],
-  output: ObjectStore
+  output: ObjectStore,
+  htmlKey?: (html: string) => Promise<string>
 ): Promise<ArtifactManifest> {
   const artifacts = new Map<string, MutableArtifact>();
   let reports = 0;
@@ -174,7 +180,14 @@ export async function collectArtifacts(
     count += collected.origins.length;
     const files = new Map<string, string>();
     for (const origin of collected.origins)
-      await appendArtifact({ source, origin, files, output, artifacts });
+      await appendArtifact({
+        source,
+        origin,
+        files,
+        output,
+        artifacts,
+        ...(htmlKey ? { htmlKey } : {}),
+      });
   }
   if (!artifacts.size)
     throw new Error(

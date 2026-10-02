@@ -3,6 +3,7 @@ import { collectArtifacts } from '@apps/product/ui-quality/collect';
 import { runVisualGate } from '@apps/product/ui-quality/gate';
 import { snapshotDocument } from '@apps/product/ui-quality/render';
 import {
+  failureSummary,
   writeQualityReports,
   writeToolingFailure,
 } from '@apps/product/ui-quality/report';
@@ -274,6 +275,7 @@ test('tooling failures are visible in the same report viewer as visual failures'
 });
 
 test('video failures preserve the decoder timestamp and extracted PNG in the shared report', async () => {
+  // regression: ui-quality-reported-video-timestamp — original scenario reference is 0, inspected frame is 7433.
   const inputs = createMemObjectStore();
   const s = await source([]);
   await s.store.put('recording.webm', new Uint8Array([1]), 'video/webm');
@@ -326,6 +328,9 @@ test('video failures preserve the decoder timestamp and extracted PNG in the sha
     k.endsWith('/report.json')
   )!;
   expect(await readUtf8(reports, key)).toContain('7433');
+  expect(failureSummary(result.results[0]!, result.threshold)).toContain(
+    '@ 7433ms'
+  );
   expect(
     await readObjectBytes(
       reports,

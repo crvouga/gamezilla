@@ -18,9 +18,28 @@ export function snapshotDocument(html: string, css: string): string {
 
 export function openSnapshotRenderer(
   css: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  concurrency = 4
 ): SnapshotRenderer {
   signal?.throwIfAborted();
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8)
+    throw new Error('Snapshot concurrency must be an integer from 1 to 8.');
+  const pages = Array.from({ length: concurrency }, () =>
+    openPage(css, signal)
+  );
+  let next = 0;
+  return {
+    render(html) {
+      const page = pages[next++ % pages.length]!;
+      return page.render(html);
+    },
+    dispose() {
+      for (const page of pages) page.dispose();
+    },
+  };
+}
+
+function openPage(css: string, signal?: AbortSignal): SnapshotRenderer {
   const view = new Bun.WebView({
     width: 390,
     height: 844,
@@ -32,9 +51,10 @@ export function openSnapshotRenderer(
   });
   const stop = () => view.close();
   signal?.addEventListener('abort', stop, { once: true });
-  return {
-    async render(html) {
-      signal?.throwIfAborted();
+  let ready: Promise<string> | undefined;
+  let pending: Promise<unknown> = Promise.resolve();
+  function initialize(): Promise<string> {
+    return (ready ??= (async () => {
       await view.navigate('about:blank');
       // Window bounds are clamped by Chrome; emulation pins the actual viewport.
       await view.cdp('Emulation.setDeviceMetricsOverride', {
@@ -50,23 +70,33 @@ export function openSnapshotRenderer(
       const tree = (await view.cdp('Page.getFrameTree')) as {
         frameTree: { frame: { id: string } };
       };
-      await view.cdp('Page.setDocumentContent', {
-        frameId: tree.frameTree.frame.id,
-        html: snapshotDocument(html, css),
-      });
-      await view.evaluate(`(async () => {
+      return tree.frameTree.frame.id;
+    })());
+  }
+  async function render(html: string): Promise<Uint8Array> {
+    signal?.throwIfAborted();
+    await view.cdp('Page.setDocumentContent', {
+      frameId: await initialize(),
+      html: snapshotDocument(html, css),
+    });
+    await view.evaluate(`(async () => {
         await document.fonts.ready;
         await Promise.all(Array.from(document.images, image => image.decode()));
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         if (!document.body || !document.body.textContent.trim()) throw new Error('Recorded UI is blank.');
         return true;
       })()`);
-      const screenshot = (await view.cdp('Page.captureScreenshot', {
-        format: 'png',
-        captureBeyondViewport: false,
-        clip: { x: 0, y: 0, width: 390, height: 844, scale: 1 },
-      })) as { data: string };
-      return new Uint8Array(Buffer.from(screenshot.data, 'base64'));
+    const screenshot = (await view.cdp('Page.captureScreenshot', {
+      format: 'png',
+      captureBeyondViewport: false,
+      clip: { x: 0, y: 0, width: 390, height: 844, scale: 1 },
+    })) as { data: string };
+    return new Uint8Array(Buffer.from(screenshot.data, 'base64'));
+  }
+  return {
+    render(html) {
+      const result = pending.then(() => render(html));
+      pending = result.catch(() => {});
+      return result;
     },
     dispose() {
       signal?.removeEventListener('abort', stop);

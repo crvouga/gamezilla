@@ -3,6 +3,18 @@ import { readObjectBytes, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { ArtifactScore, VisualGateResult } from './types';
 
+export function failureSummary(
+  score: ArtifactScore,
+  threshold: number
+): string {
+  const origin = score.artifact.origins[0]!;
+  const timestamp =
+    score.artifact.kind === 'video'
+      ? score.result.worstFrames[0]!.timestampMs
+      : origin.timestampMs;
+  return `${origin.source ?? origin.package}: ${origin.title}\n  ${origin.step}${origin.actor ? ` [${origin.actor}]` : ''} @ ${timestamp}ms; ${score.result.score.toFixed(6)} < ${threshold}\n  ${score.failureImage ?? score.result.worstFrames[0]?.artifact ?? score.artifact.file}`;
+}
+
 function reportOf(score: ArtifactScore): RunReport {
   const origin = score.artifact.origins[0]!;
   const title = `UI quality: ${origin.title} — ${origin.step}`;

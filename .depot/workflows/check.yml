@@ -56,10 +56,10 @@ jobs:
         run: |
           bun -e 'console.log(JSON.stringify({ cpus: require("node:os").availableParallelism(), memoryBytes: require("node:os").totalmem(), arch: process.arch }))'
 
-      # Model setup may download only on a cache miss. Restore its pinned
-      # output explicitly; the following Check gate remains offline.
-      - name: Prepare cached visual model
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs @apps/product#prepare:ui-quality-model
+      # Explicit setup verifies the installed model or downloads its pinned
+      # checkpoint. The model exceeds the shared cache's artifact size limit.
+      - name: Prepare visual model
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
 
       - name: check
         id: check
