@@ -1,5 +1,10 @@
 [
   {
+    "id": "health-offline-before-precache-ready",
+    "summary": "The offline journey silently stopped waiting for shell installation after twenty seconds and cut the network while a fresh deployment was still precaching. Await the browser's service-worker readiness event instead; unsupported or inactive shells fail rather than proceeding offline.",
+    "regressionTest": "apps/product/tests/live-browser.test.ts"
+  },
+  {
     "id": "health-macos-offline-network",
     "summary": "Live journeys chose WebKit on macOS, which could not cut the network for the offline scenario. Use Chrome explicitly for the live device and its popups, with the same storage isolation and CDP network controls on every host.",
     "regressionTest": "apps/product/tests/live-browser.test.ts"

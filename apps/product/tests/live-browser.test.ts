@@ -1,5 +1,11 @@
 import { expect, test } from 'bun:test';
-import { emulateOffline, openDevice } from '@apps/product/harness/live-browser';
+import { runInNewContext } from 'node:vm';
+import {
+  emulateOffline,
+  openDevice,
+  waitForCachedShell,
+} from '@apps/product/harness/live-browser';
+import { createHarnessClock } from '@pkgs/clock';
 
 // regression: health-macos-offline-network
 test('a fresh live device can cut its network through Chrome', async () => {
@@ -11,7 +17,7 @@ test('a fresh live device can cut its network through Chrome', async () => {
       const backend = options.backend ?? 'webkit';
       return {
         navigate: async () => {},
-        evaluate: async () => 'none',
+        evaluate: async () => 'active',
         cdp: async (method: string, params: unknown) => {
           if (backend !== 'chrome') throw new Error('WebKit has no CDP');
           commands.push({ method, params });
@@ -48,4 +54,37 @@ test('a fresh live device can cut its network through Chrome', async () => {
     await device.close();
   }
   expect(closed).toBe(true);
+});
+
+// regression: health-offline-before-precache-ready
+test('a cold install taking more than twenty seconds stays online until ready', async () => {
+  const { clock, timers } = createHarnessClock();
+  const ready = new Promise((resolve) => {
+    timers.setTimeout(() => resolve({ active: {} }), 25_000);
+  });
+  const view = {
+    evaluate: (script: string) =>
+      runInNewContext(script, {
+        navigator: { serviceWorker: { ready } },
+      }),
+  } as unknown as Bun.WebView;
+  let settled = false;
+  const waiting = waitForCachedShell(view).then(() => {
+    settled = true;
+  });
+  clock.advance(20_000);
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  clock.advance(5_000);
+  await waiting;
+  expect(settled).toBe(true);
+});
+
+test('an unavailable offline shell fails the readiness check', async () => {
+  const view = {
+    evaluate: (script: string) => runInNewContext(script, { navigator: {} }),
+  } as unknown as Bun.WebView;
+  await expect(waitForCachedShell(view)).rejects.toThrow(
+    'no service worker support'
+  );
 });

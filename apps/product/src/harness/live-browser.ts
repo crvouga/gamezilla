@@ -105,36 +105,19 @@ export async function readLocation(view: Bun.WebView): Promise<string> {
   return typeof href === 'string' ? href : '';
 }
 
-/**
- * Poll until a service worker is active, so a later offline navigation can
- * still load the shell. `missing` retries; a host with no workers returns.
- */
+/** Wait for precache installation before the device loses its connection. */
 const SHELL_STATE_SCRIPT = `(function () {
   var sw = navigator.serviceWorker;
-  if (!sw) return 'none';
-  var slot = window.__gzShell;
-  if (!slot || slot.state === 'missing') {
-    window.__gzShell = { state: 'pending' };
-    sw.getRegistration().then(function (reg) {
-      window.__gzShell.state = reg && reg.active ? 'active' : 'missing';
-    }, function () {
-      window.__gzShell.state = 'error';
-    });
-    return 'pending';
-  }
-  return slot.state;
+  if (!sw) throw new Error('the browser has no service worker support');
+  return sw.ready.then(function (reg) {
+    if (!reg.active) throw new Error('the offline shell has no active worker');
+    return 'active';
+  });
 })()`;
 
-const SHELL_WAIT_MS = 20_000;
-
 export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
-  const deadline = wallClock.now() + SHELL_WAIT_MS;
-  for (;;) {
-    const state = await view.evaluate(SHELL_STATE_SCRIPT);
-    if (state === 'active' || state === 'none' || state === 'error') return;
-    if (wallClock.now() >= deadline) return;
-    await delay(NAVIGATION_POLL_MS);
-  }
+  const state = await view.evaluate(SHELL_STATE_SCRIPT);
+  if (state !== 'active') throw new Error('the offline shell is not ready');
 }
 
 /**
