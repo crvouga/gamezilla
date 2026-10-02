@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
@@ -109,15 +110,18 @@ const CHECK_LEAVES = [
   'check:models',
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
-  '@apps/room-server#check:worker-bundle',
-  '@apps/server#check:worker-bundle',
+  '@apps/product#check:worker-bundle',
   '@libs/runtime#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
-const DEPLOY_ONLY = ['@apps/server#check:api', 'health'] as const;
+const DEPLOY_ONLY = [
+  '@apps/server#check:api',
+  'health',
+  '@libs/infra#retire:workers',
+] as const;
 
 /** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
 function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
@@ -302,20 +306,55 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps).toContain('@libs/tools#install:cli');
   });
 
-  test('deploy order: foundation → migrate → room → api → web → edge', () => {
+  // regression: consolidated-deploy-check-aggregator — a package dependency
+  // on //#check bypassed the runner's flattening and scheduled missing root
+  // lint/test tasks, so even the deployment dry run failed.
+  // regression: worker-retirement-health-dependency — bare health resolved
+  // to a nonexistent infra health task and allowed retirement before health.
+  test('the retirement dependency chain is a runnable Turbo graph', () => {
+    const result = spawnSync(
+      join(REPO_ROOT, 'node_modules/.bin/turbo'),
+      [
+        'run',
+        '@libs/infra#retire:workers',
+        '--dry=json',
+        '--cache=local:r',
+        '--framework-inference=false',
+      ],
+      { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.status, result.stderr).toBe(0);
+    const graph = JSON.parse(result.stdout) as {
+      tasks: { taskId: string; dependencies: string[]; command: string }[];
+    };
+    const retirement = graph.tasks.find(
+      (task) => task.taskId === '@libs/infra#retire:workers'
+    );
+    expect(retirement?.dependencies).toEqual(['@apps/product#health']);
+    const health = graph.tasks.find(
+      (task) => task.taskId === '@apps/product#health'
+    );
+    expect(health?.command).toBe('bun run scripts/health.ts');
+  });
+
+  test('one application deployment follows migration and the API check', () => {
     const tasks = loadTasks();
-    const edges: readonly (readonly [string, string])[] = [
-      ['@libs/runtime#migrate', '@libs/infra#apply:foundation'],
-      ['@apps/room-server#deploy', '@libs/runtime#migrate'],
-      ['@apps/server#deploy', '@apps/room-server#deploy'],
-      ['@apps/product#deploy', '@apps/server#deploy'],
-      ['@libs/infra#apply:edge', '@apps/product#deploy'],
-    ];
-    for (const [task, after] of edges) {
-      expect({ task, dependsOn: tasks[task]?.dependsOn }).toEqual({
-        task,
-        dependsOn: [after],
-      });
-    }
+    expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
+      '@libs/runtime#migrate',
+      '@apps/server#check:api',
+    ]);
+    expect(tasks).not.toHaveProperty('@apps/server#deploy');
+    expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
+    expect(tasks['@libs/infra#apply:edge']?.dependsOn).toEqual([
+      '@apps/product#deploy',
+    ]);
+    expect(tasks['@libs/infra#retire:workers']?.dependsOn).toEqual([
+      '@apps/product#health',
+    ]);
+    expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([
+      'tc',
+      'build',
+    ]);
   });
 });

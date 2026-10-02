@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
+    "../../libs/server-app/src/app/cloudflare.d.ts",
     "../../pkgs/ts-reset/src/index.ts",
     "../../libs/client-app/src/vite-env.d.ts",
     "../../pkgs/ui/src/css-modules.d.ts",

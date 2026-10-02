@@ -5,7 +5,7 @@
  *   wrangler deploy --config <rendered> --secrets-file <payload>
  *
  * The config is `wrangler.toml` rendered for the environment (its name,
- * Durable Object `script_name` and the ids of resources OpenTofu made for
+ * local Durable Object binding and the ids of resources OpenTofu made for
  * it); secrets upload atomically with the version. Hostnames are not
  * wrangler's: OpenTofu binds them after the Worker exists. Nothing here ever
  * deletes a Worker — a Durable Object migration error fails the deploy.
@@ -19,7 +19,6 @@ import {
   renderAuthRelayWranglerConfig,
   renderWranglerConfig,
   type WorkerResources,
-  type WorkerRole,
   type WranglerConfig,
 } from '@libs/infra/public/wrangler';
 
@@ -50,14 +49,13 @@ function writeConfig(
 
 function writeRenderedWranglerConfig(
   appDir: string,
-  role: WorkerRole,
   resources: WorkerResources = {}
 ): string {
   const env = activeEnvFile();
   return writeConfig(
     appDir,
     env.env,
-    renderWranglerConfig(readBaseConfig(appDir), env, role, resources)
+    renderWranglerConfig(readBaseConfig(appDir), env, resources)
   );
 }
 
@@ -103,18 +101,13 @@ function runWrangler(options: {
 
 export function deployWorker(options: {
   readonly appDir: string;
-  readonly role: WorkerRole;
   readonly secrets: Readonly<Record<string, string>>;
   readonly resources?: WorkerResources;
 }): void {
   runWrangler({
     appDir: options.appDir,
-    label: options.role,
-    config: writeRenderedWranglerConfig(
-      options.appDir,
-      options.role,
-      options.resources
-    ),
+    label: 'app',
+    config: writeRenderedWranglerConfig(options.appDir, options.resources),
     accountId: activeEnvFile().cloudflare.account_id,
     secrets: options.secrets,
   });

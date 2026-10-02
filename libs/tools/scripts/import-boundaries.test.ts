@@ -126,7 +126,7 @@ const PROBES: readonly Probe[] = [
     message: 'Node observability runtime is restricted',
   },
   {
-    path: 'apps/room-server/src/room.ts',
+    path: 'apps/server/src/room.ts',
     source:
       "import { createBrowserTelemetry } from '@pkgs/observability/browser';",
     message: 'browser observability runtime is restricted',

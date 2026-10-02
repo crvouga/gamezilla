@@ -232,8 +232,6 @@
     "libs/infra/src/**/*.ts",
     "libs/infra/scripts/**/*.ts",
     "libs/secrets/src/**/*.ts",
-    "apps/room-server/src/**/*.ts",
-    "apps/room-server/scripts/**/*.ts",
     "apps/auth-relay/src/**/*.ts",
     "apps/auth-relay/scripts/**/*.ts",
     "pkgs/object-store/scripts/**/*.ts",

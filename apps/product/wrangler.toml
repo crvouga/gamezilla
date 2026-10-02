@@ -1,13 +1,37 @@
-name = "gamezilla-client"
-compatibility_date = "2025-01-01"
+name = "gamezilla"
+main = "src/worker.ts"
+compatibility_date = "2026-09-21"
+compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolution"]
 workers_dev = false
 preview_urls = false
 
-# Assets-only Worker: no `main` script → Cloudflare serves static files with
-# zero Worker compute. SPA fallback rewrites unknown paths to index.html.
-# Super-app: `/` = wall client, `/harness` = Harness.
+# One application version owns assets, API, schedules and rooms. Static
+# requests bypass compute; API navigation must never fall through to the SPA.
 # Env-agnostic: the deployed name comes from libs/infra (render-wrangler) and
 # the apex / www hostnames from the OpenTofu edge stack.
 [assets]
 directory = "./dist"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
+run_worker_first = ["/api", "/api/*"]
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "RoomServerDurableObject"
+
+# Fresh/local environments create rooms. Deploy replaces this initial
+# migration with a transfer when an existing room namespace needs adopting.
+[[migrations]]
+tag = "v1-app-room"
+new_sqlite_classes = ["RoomServerDurableObject"]
+
+[triggers]
+crons = ["*/1 * * * *"]
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+invocation_logs = true

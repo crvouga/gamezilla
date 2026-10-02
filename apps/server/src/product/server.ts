@@ -2,6 +2,11 @@
 // @api-wall-ok
 
 // Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
+import type {
+  ExecutionContext,
+  ExportedHandler,
+  ScheduledController,
+} from '@libs/server-app/config/worker-handler';
 import '../install-native-als';
 
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';

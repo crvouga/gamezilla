@@ -11,7 +11,7 @@
  * Order (each step under `secrets-run` for the right secrets environment):
  *
  *   1. edge       custom domains              tofu destroy (edge)
- *   2. Workers    api, web, room              wrangler delete
+ *   2. Workers    application              wrangler delete
  *   3. objects    the env's bucket, emptied   scripts/empty-bucket.ts
  *   4. foundation Neki database, Hyperdrive, bucket, IoT broker,
  *                 trace tokens, secrets       tofu destroy (foundation)
@@ -93,7 +93,7 @@ const missingWorker = (stderr: string): boolean =>
   /does not exist|not found|10007/i.test(stderr);
 
 step('edge: custom domains', env.env, tofuDestroy('edge'));
-for (const worker of [names.api_worker, names.web_worker, names.room_worker]) {
+for (const worker of [names.worker, ...env.worker.retire]) {
   step(
     `Worker ${worker}`,
     env.env,
