@@ -1,0 +1,152 @@
+# Depot CI Migration
+# Source: .github/workflows/health.yml
+#
+# Changes made:
+# - Rewrote .github/ path references to .depot/
+# - Changed GitHub runs-on labels to their Depot equivalents
+
+name: Health
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
+
+# Health: is the deployment good? `bun health` dispatches this workflow.
+# Each job runs `bun run health:local` (`@apps/product#health`, turbo
+# `health` with `--only`, so nothing is deployed):
+# every Gherkin scenario in specs/health/ and specs/journeys/ against
+# the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
+# vendor credentials, the Workers, DNS and TLS — plus the critical user
+# journeys, driven in a real browser (the runner's preinstalled Chrome)
+# against the production web client. The Deploy workflow runs the same
+# probes as its last step (`//#deploy` → `health`); this schedule catches drift in
+# between (expired tokens, revoked keys, a dead Railway service).
+#
+# One job per environment in libs/infra/tofu/envs/<env>.tfvars.json
+# (health:matrix reads them — libs/infra/scripts/workflow-env-matrix.ts — from
+# a job with no secrets); adding an env file needs no edit here. Envs with
+# `protection: "production"` run in the GitHub `production` environment and
+# keep their critical-journey evidence on failure. Scenarios only production
+# can run (`HOST_LIMITS` in apps/product/scripts/health.ts) skip elsewhere.
+#
+# Then health:objectives checks each environment's service level objectives
+# (specs/health/*.openslo.yaml, `health:objectives` in @apps/product), such as
+# "at least 99 in every 100 of the team's checks find the app answering":
+# measured over the last 28 days of the health:<env> jobs above, read back
+# from the Actions API (hence `actions: read`). Objectives never run inside
+# `health`, which gates every deploy: a bad month must not block a fix.
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+
+concurrency:
+  group: health
+  cancel-in-progress: false
+
+jobs:
+  health-matrix:
+    name: health:matrix
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 10
+    outputs:
+      production: ${{ steps.envs.outputs.production }}
+      all: ${{ steps.envs.outputs.all }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.depot/actions/setup
+
+      - name: envs
+        id: envs
+        run: bun run libs/infra/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+
+  health-env:
+    name: health:${{ matrix.env }}
+    needs: health-matrix
+    if: needs.health-matrix.outputs.all != '[]'
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 30
+    # No GitHub environment ('') for a standard env.
+    environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    strategy:
+      # One unhealthy environment should not cancel (and hide) another's probes.
+      fail-fast: false
+      matrix:
+        env: ${{ fromJSON(needs.health-matrix.outputs.all) }}
+    env:
+      SECRETS_ENV: ${{ matrix.env }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      # Health refreshes the declared AWS resources but must never mutate them.
+      AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - id: setup
+        uses: ./.depot/actions/setup
+
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: ${{ matrix.env }}
+
+      - name: health:${{ matrix.env }}
+        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/check-budget.ts)
+        # on purpose: turbo-ci-run hits its own deadline first and names the
+        # probe that hung, instead of GitHub cancelling the job silently.
+        timeout-minutes: 25
+        run: bun run health:local
+
+      # Critical journeys (specs/journeys/, apps/product/tests/steps/live-world.ts)
+      # save a screenshot, the page HTML and the browser console per failure.
+      - name: Upload critical journey evidence
+        if: failure() && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env)
+        uses: actions/upload-artifact@v6
+        with:
+          name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}
+          path: apps/product/.cache/critical-journeys/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+
+  # One job for every env, not a matrix: a per-env job would be named
+  # health:<env>, the very checks the availability objective counts. Runs
+  # after the checks (whatever their result) so this run's checks count too.
+  health-objectives:
+    name: health:objectives
+    needs: [health-matrix, health-env]
+    if: ${{ !cancelled() && needs.health-matrix.outputs.all != '[]' }}
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    env:
+      ENVS: ${{ needs.health-matrix.outputs.all }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.depot/actions/setup
+
+      # Every env is checked even when one misses its objectives.
+      - name: health:objectives
+        run: |
+          status=0
+          for env in $(jq -r '.[]' <<< "$ENVS"); do
+            SECRETS_ENV="$env" bun run --filter @apps/product health:objectives || status=1
+          done
+          exit "$status"

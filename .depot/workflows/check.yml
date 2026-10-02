@@ -1,0 +1,329 @@
+# Depot CI Migration
+# Source: .github/workflows/check.yml
+#
+# Changes made:
+# - Rewrote .github/ path references to .depot/
+# - Changed GitHub runs-on labels to their Depot equivalents
+
+name: Check
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Check: is the code good? One gate — the //#check leaf set `bun run check`
+  # runs — spread over several runners, because a GitHub-hosted runner has 2
+  # cores and a wide change misses ~200 tasks. New checks belong in //#check in
+  # turbo.json (or a `ci:*` root task), never in a new job here.
+  #
+  #   check:plan   dry-run the gate once; split the cache misses across shards
+  #                (libs/tools/scripts/check-shards.ts)
+  #   check:matrix publish the split as job outputs, from a job with no secrets:
+  #                the runner masks every Infisical value in a job that loads
+  #                them and drops any output containing one (`[0,1,…]` does)
+  #   check:shard  one runner per shard runs its task ids through turbo
+  #   check        the one required check: green only if the plan, every
+  #                shard and the report are green
+  #
+  # Every run also publishes the spec report (a Gherkin / Quint step timeline
+  # with UI snapshots, per package) to the shared reports store, where
+  # `/reports/<sha>` on any deployment streams it
+  # (libs/harness/scripts/report-publish.ts; docs/CI.md#the-spec-report):
+  #
+  #   check:publish-open   the commit's record and snapshot stylesheet, first
+  #   check:publish        one runner per spec part, after the shards: turbo
+  #                        restores that part's cached buckets (a suite that
+  #                        failed is not cached, so it runs again) and the
+  #                        part is published. Skipped when this run is
+  #                        cancelled: `always()` would still start it, and
+  #                        it would hold the concurrency group so the next
+  #                        commit's required check never starts
+  #   check:publish-close  mark the commit complete. Same cancel skip
+  check-plan:
+    name: check:plan
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 10
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      # libs/tools/scripts/secrets-scan-range.ts scopes the gitleaks scan
+      # (@libs/tools#check:secrets) to the commits this PR adds. The plan
+      # hashes it too, so plan and shards must see the same range.
+      GH_EVENT: ${{ github.event_name }}
+      PR_BASE: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.depot/actions/setup
+
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: plan
+        env:
+          SHARD_PLAN_PATH: ${{ runner.temp }}/shard-plan.txt
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards check
+
+      # The report's parts ride in the same file, so the matrix job can
+      # publish them without loading a secret.
+      - name: report parts
+        run: bun run libs/tools/scripts/report-matrix.ts >> "${RUNNER_TEMP}/shard-plan.txt"
+
+      - name: Upload shard plan
+        uses: actions/upload-artifact@v6
+        with:
+          name: shard-plan
+          path: ${{ runner.temp }}/shard-plan.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  check-matrix:
+    name: check:matrix
+    needs: check-plan
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 5
+    outputs:
+      shards: ${{ steps.publish.outputs.shards }}
+      assignment: ${{ steps.publish.outputs.assignment }}
+      parts: ${{ steps.publish.outputs.parts }}
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: shard-plan
+          path: ${{ runner.temp }}
+
+      - name: publish
+        id: publish
+        run: cat "${RUNNER_TEMP}/shard-plan.txt" >> "$GITHUB_OUTPUT"
+
+  check-shard:
+    name: check:shard
+    needs: check-matrix
+    if: needs.check-matrix.outputs.shards != '[]'
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    # Hard ceiling for the whole job: setup + the check step + summary. The
+    # check step has its own tighter limit below.
+    timeout-minutes: 30
+    strategy:
+      # Keep every shard running: one red shard should not hide another's.
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.check-matrix.outputs.shards) }}
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      GH_EVENT: ${{ github.event_name }}
+      PR_BASE: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+      SHARD_TASKS: ${{ join(fromJSON(needs.check-matrix.outputs.assignment)[matrix.shard], ' ') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.depot/actions/setup
+
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: check
+        id: check
+        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/check-budget.ts)
+        # on purpose: turbo-ci-run hits its own deadline first and names the
+        # task that wedged, instead of GitHub cancelling the step silently.
+        timeout-minutes: 25
+        run: |
+          # shellcheck disable=SC2086 # one word per task id
+          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts $SHARD_TASKS
+
+      - name: Upload queryable trace artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: observability-traces-${{ github.run_id }}-shard-${{ matrix.shard }}
+          # One bucket per spec part (libs/* and pkgs/* suites); keep
+          # upload-artifact out of the repository-wide ** walk (node_modules
+          # makes that path pathological).
+          path: |
+            libs/*/.cache/harness-report/*/traces/*.ndjson
+            pkgs/*/.cache/harness-report/*/traces/*.ndjson
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+      # Per-task CI seconds for check-task-costs.json
+      # (`check-shards.ts --harvest <run id>`).
+      - name: Upload turbo run summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: turbo-summary-${{ github.run_id }}-shard-${{ matrix.shard }}
+          path: .turbo/runs/*.json
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Write workflow summary
+        if: always()
+        env:
+          WORKFLOW_JOB: check:shard ${{ matrix.shard }}
+          WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
+        run: bun run libs/tools/scripts/write-workflow-summary.ts
+
+  check-publish-open:
+    name: check:publish-open
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 10
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.depot/actions/setup
+
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: open
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts open
+
+  check-publish:
+    name: check:publish
+    needs: [check-matrix, check-publish-open, check-shard]
+    # Red shards still publish. A cancelled run must not: these jobs hold
+    # `check-<pr>` until they finish, which leaves the next commit's
+    # required check queued.
+    if: always() && !cancelled() && needs.check-matrix.result == 'success' && needs.check-publish-open.result == 'success'
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 30
+    strategy:
+      # One red part should not hide another's report.
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.check-matrix.outputs.parts) }}
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+      PART: ${{ matrix.part }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.depot/actions/setup
+
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      # Leaves this part's report buckets on disk: cache hits restore theirs,
+      # a suite that failed (never cached) runs again, and the run continues
+      # past it so every suite reports.
+      - name: restore
+        timeout-minutes: 25
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs "test:spec:${PART}"
+
+      # Published even when a suite is red: the report shows what failed.
+      - name: publish
+        if: always()
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts source "part-${PART}"
+
+  check-publish-close:
+    name: check:publish-close
+    needs: [check-publish-open, check-publish]
+    if: always() && !cancelled() && needs.check-publish-open.result == 'success'
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 10
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.depot/actions/setup
+
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: close
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts close
+
+  check:
+    name: check
+    needs:
+      [
+        check-plan,
+        check-matrix,
+        check-shard,
+        check-publish-open,
+        check-publish,
+        check-publish-close,
+      ]
+    if: always() && !cancelled()
+    runs-on: depot-ubuntu-latest # was: ubuntu-latest. Mapped standard GitHub runner to Depot equivalent.
+    timeout-minutes: 5
+    steps:
+      - name: verdict
+        env:
+          PLAN: ${{ needs.check-plan.result }}
+          MATRIX: ${{ needs.check-matrix.result }}
+          SHARDS: ${{ needs.check-shard.result }}
+          SHARD_COUNT: ${{ needs.check-matrix.outputs.shards }}
+          REPORT_OPEN: ${{ needs.check-publish-open.result }}
+          REPORT: ${{ needs.check-publish.result }}
+          REPORT_CLOSE: ${{ needs.check-publish-close.result }}
+        # Skipped shards are green only when the plan found nothing to run.
+        run: |
+          echo "check:plan=$PLAN check:matrix=$MATRIX check:shard=$SHARDS shards=$SHARD_COUNT report=$REPORT_OPEN/$REPORT/$REPORT_CLOSE"
+          test "$PLAN" = success
+          test "$MATRIX" = success
+          test "$REPORT_OPEN" = success
+          test "$REPORT" = success
+          test "$REPORT_CLOSE" = success
+          test "$SHARDS" = success || { test "$SHARDS" = skipped && test "$SHARD_COUNT" = '[]'; }
