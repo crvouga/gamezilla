@@ -158,23 +158,12 @@ function applyImportedMockingbirdSqlitePragmas(
   db.prepare('PRAGMA user_version = ?').run(userVersion);
 }
 
-/** mockingbird-sqlite rejects nested BEGIN; overlap (merge + push) must serialize. */
-function createPromiseChain(): <T>(fn: () => Promise<T>) => Promise<T> {
-  let chain: Promise<unknown> = Promise.resolve();
-  return <T>(fn: () => Promise<T>): Promise<T> => {
-    const next = chain.then(fn, fn);
-    chain = next.then(
-      () => undefined,
-      () => undefined
-    );
-    return next;
-  };
-}
+import { createTransactionChain } from './transaction-chain';
 
 export class SqlClientImplMockingbirdSqlite implements SqlClient {
   private db: Database | null;
   private readonly openOptions: MockingbirdSqliteOpenOptions | undefined;
-  private readonly enqueueTxn = createPromiseChain();
+  private readonly enqueueTxn = createTransactionChain();
 
   private constructor(
     db: Database,

@@ -25,7 +25,11 @@ function toBetterSqliteBinds(values: readonly Value[]): unknown[] {
   });
 }
 
+import { createTransactionChain } from './transaction-chain';
+
 export class SqlClientImplBetterSqlite implements SqlClient {
+  private readonly enqueueTxn = createTransactionChain();
+
   constructor(private db: BetterSqlite3.Database) {}
 
   static open(databasePath: string): SqlClientImplBetterSqlite {
@@ -108,7 +112,13 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     };
   }
 
-  async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    return this.enqueueTxn(() => this.execTransaction(fn));
+  }
+
+  private async execTransaction<T>(
+    fn: (tx: SqlClient) => Promise<T>
+  ): Promise<T> {
     this.db.exec('BEGIN');
     try {
       const result = await fn(this);

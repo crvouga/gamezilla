@@ -13,9 +13,7 @@ import {
 } from './formula-wire';
 import {
   MATCHMAKING_MAX_GROUP_SIZE,
-  MATCHMAKING_MAX_PRIORITY,
   MATCHMAKING_MIN_GROUP_SIZE,
-  MATCHMAKING_MIN_PRIORITY,
   MATCHMAKING_PAYLOAD_LIMITS,
 } from './payload-limits';
 import type { DistanceFormula } from './types';
@@ -39,7 +37,6 @@ export const MAX_FORMULAS_PER_PARTICIPANT = 8;
  */
 export type InsertJoinAttrs = {
   readonly groupSize: number;
-  readonly priority: number;
   readonly metadata: Record<string, unknown> | null;
 };
 
@@ -62,28 +59,6 @@ export function resolveGroupSize(
     value >= MATCHMAKING_MIN_GROUP_SIZE && value <= MATCHMAKING_MAX_GROUP_SIZE,
     `${label}: groupSize must be between ${String(MATCHMAKING_MIN_GROUP_SIZE)} and ${String(MATCHMAKING_MAX_GROUP_SIZE)}`,
     { groupSize: value }
-  );
-  return value;
-}
-
-/**
- * Normalises and validates a caller-supplied `priority`. Returns the
- * integer to send to SQL. `undefined` becomes 0 (FIFO).
- *
- * @internal
- */
-export function resolvePriority(
-  value: number | undefined,
-  label: string
-): number {
-  if (value === undefined) return 0;
-  assert.ok(Number.isInteger(value), `${label}: priority must be an integer`, {
-    priority: value,
-  });
-  assert.ok(
-    value >= MATCHMAKING_MIN_PRIORITY && value <= MATCHMAKING_MAX_PRIORITY,
-    `${label}: priority must be between ${String(MATCHMAKING_MIN_PRIORITY)} and ${String(MATCHMAKING_MAX_PRIORITY)}`,
-    { priority: value }
   );
   return value;
 }
@@ -123,14 +98,12 @@ export function resolveMetadata(
 export function resolveJoinAttrs(
   input: {
     readonly groupSize?: number;
-    readonly priority?: number;
     readonly metadata?: Record<string, unknown> | null;
   },
   label: string
 ): InsertJoinAttrs {
   return {
     groupSize: resolveGroupSize(input.groupSize, label),
-    priority: resolvePriority(input.priority, label),
     metadata: resolveMetadata(input.metadata, label),
   };
 }

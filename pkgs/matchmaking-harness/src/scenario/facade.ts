@@ -3,15 +3,22 @@
  */
 
 import { asSeededRng, type JsonValue, type Session } from '@pkgs/harness';
+import type { MatchmakingDevice } from '@pkgs/matchmaking/client';
 import type {
+  DistanceFormula,
+  JoinInput,
+  JoinResult,
   LeaveResult,
+  SearchRequest,
   TickResult,
   UpdateFormulasResult,
 } from '@pkgs/matchmaking/interface';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { SeededRng } from '@pkgs/uuid';
 import type { Hono } from 'hono';
 import type { HarnessReplica, MatchmakingHarnessRuntime } from '../api';
 import { bootReplicaOnStore, type ReplicaBootConfig } from '../boot-replica';
+import { refreshDevices } from '../example-app/devices';
 import {
   buildHarnessReplica,
   joinOnReplica,
@@ -28,17 +35,28 @@ export type MatchmakingLastResults = {
   update: UpdateFormulasResult | null;
   http: { readonly status: number; readonly body: JsonValue } | null;
   /** How the example app answered the last person asking to wait. */
-  wait: 'waiting' | 'alreadyWaiting' | null;
+  wait: 'waiting' | 'alreadyWaiting' | 'unavailable' | null;
+  begin: JoinResult | null;
+  offline: boolean;
 };
 
 export type MatchmakingHarness = MatchmakingHarnessRuntime & {
   readonly session: Session;
+  readonly db: SqlClient;
   readonly ports: {
     readonly rng: SeededRng;
     readonly clock: Session['ports']['clock'];
   };
   /** Test-chosen alias → participantId, filled in by the `join` action. */
   readonly refs: Map<string, string>;
+  readonly owners: Map<string, string>;
+  deviceReplicaId: string | undefined;
+  readonly devices: Map<string, MatchmakingDevice>;
+  readonly begins: Map<string, JoinInput[]>;
+  readonly changes: Map<
+    string,
+    { request: SearchRequest; formulas: readonly DistanceFormula[] }[]
+  >;
   readonly last: MatchmakingLastResults;
   /** Lazily built Hono app per replica, for the `httpRequest` action. */
   readonly apps: Map<string, Hono>;
@@ -57,7 +75,10 @@ export function buildMatchmakingHarness(args: {
   }
   const firstId = boots[0]!.id;
   const replicas = new Map<string, HarnessReplica>();
+  const owners = new Map<string, string>();
   const ops: ReplicaOps = {
+    owners,
+    createId: session.ports.createId,
     getMm: (replicaId) => resolveReplica(replicas, replicaId).mm,
     defaultReplicaId: firstId,
   };
@@ -65,10 +86,16 @@ export function buildMatchmakingHarness(args: {
     replicas.set(boot.id, buildHarnessReplica(ops, boot.id, boot.mm));
   }
 
-  return {
+  const surface: MatchmakingHarness = {
     session,
+    db: store.openClient(),
     replicas,
     refs: new Map<string, string>(),
+    owners,
+    deviceReplicaId: undefined,
+    devices: new Map(),
+    begins: new Map(),
+    changes: new Map(),
     apps: new Map<string, Hono>(),
     last: {
       tick: null,
@@ -77,6 +104,8 @@ export function buildMatchmakingHarness(args: {
       update: null,
       http: null,
       wait: null,
+      begin: null,
+      offline: false,
     },
     ports: {
       rng,
@@ -103,11 +132,22 @@ export function buildMatchmakingHarness(args: {
     },
     join: (input, replicaId) =>
       joinOnReplica({ replicas, ops, firstId }, input, replicaId),
-    tick: (opts, replicaId) =>
-      resolveReplica(replicas, replicaId ?? firstId).tick(opts),
-    tickAll: (opts) =>
-      Promise.all([...replicas.values()].map((r) => r.tick(opts))),
+    tick: async (opts, replicaId) => {
+      const result = await resolveReplica(replicas, replicaId ?? firstId).tick(
+        opts
+      );
+      await refreshDevices(surface);
+      return result;
+    },
+    tickAll: async (opts) => {
+      const result = await Promise.all(
+        [...replicas.values()].map((r) => r.tick(opts))
+      );
+      await refreshDevices(surface);
+      return result;
+    },
   };
+  return surface;
 }
 
 export async function assertReplicaAgreement(
@@ -117,20 +157,27 @@ export async function assertReplicaAgreement(
   if (replicaIds.length === 0) {
     throw new Error('matchmaking.no-replicas: kit has no replicas');
   }
-  const probeId = '00000000-0000-0000-0000-000000000000';
-  let first: unknown;
-  for (let i = 0; i < replicaIds.length; i += 1) {
-    const id = replicaIds[i]!;
-    const r = surface.replicas.get(id);
-    if (r === undefined) {
-      throw new Error(`matchmaking.missing-replica: replica ${id} missing`);
+  const searches = [...surface.owners.entries()];
+  for (const [participantId, ownerId] of searches) {
+    let first: unknown;
+    for (const [index, id] of replicaIds.entries()) {
+      const st = await surface.replica(id).mm.status(ownerId, participantId);
+      if (index === 0) first = st;
+      else if (JSON.stringify(st) !== JSON.stringify(first))
+        throw new Error(
+          `matchmaking.replica-diverge: ${id} disagrees about ${participantId}`
+        );
     }
-    const st = await r.mm.status(probeId);
-    if (i === 0) first = st;
-    else if (JSON.stringify(st) !== JSON.stringify(first)) {
-      throw new Error(
-        `matchmaking.replica-diverge: replica ${id} status disagrees with ${replicaIds[0]}`
-      );
+  }
+  for (const ownerId of new Set(surface.owners.values())) {
+    let first: unknown;
+    for (const [index, id] of replicaIds.entries()) {
+      const current = await surface.replica(id).mm.current(ownerId);
+      if (index === 0) first = current;
+      else if (JSON.stringify(current) !== JSON.stringify(first))
+        throw new Error(
+          `matchmaking.replica-diverge: ${id} disagrees about ${ownerId}'s current wait`
+        );
     }
   }
 }

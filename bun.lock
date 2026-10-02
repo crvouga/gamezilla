@@ -2117,7 +2117,6 @@
       "dependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/attribute": "workspace:*",
-        "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -2139,6 +2138,8 @@
         "@pkgs/harness": "workspace:*",
         "@pkgs/matchmaking": "workspace:*",
         "@pkgs/matchmaking-sql": "workspace:*",
+        "@pkgs/postgres-embedded": "workspace:*",
+        "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -2146,6 +2147,7 @@
         "hono": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/alloy": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
         "@pkgs/quint": "workspace:*",

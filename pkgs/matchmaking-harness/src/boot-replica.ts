@@ -34,12 +34,6 @@ function tuningFromPartial(
     ...(partial.maxPairsPerPass !== undefined
       ? { maxPairsPerPass: partial.maxPairsPerPass }
       : {}),
-    ...(partial.maxWaitSeconds !== undefined
-      ? { maxWaitSeconds: partial.maxWaitSeconds }
-      : {}),
-    ...(partial.matchedRetentionSeconds !== undefined
-      ? { matchedRetentionSeconds: partial.matchedRetentionSeconds }
-      : {}),
     now,
     createId,
   };

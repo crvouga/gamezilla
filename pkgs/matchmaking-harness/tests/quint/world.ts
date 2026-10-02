@@ -20,6 +20,9 @@ export type MatchmakingTraceWorld = {
   readonly waitedBy: Map<string, string>;
   /** How many requests the trace has made (the next replica in turn). */
   requests: number;
+  readonly begun: Map<string, number>;
+  readonly waits: Map<string, string>;
+  readonly numbers: Map<string, number>;
   readonly disposeCrash: () => void;
 };
 
@@ -39,6 +42,9 @@ export function useMatchmakingTraceWorld(): void {
       harness: null,
       waitedBy: new Map(),
       requests: 0,
+      begun: new Map(),
+      waits: new Map(),
+      numbers: new Map(),
       disposeCrash: registerTestCrashHandler(),
     }),
     dispose: async (w) => {

@@ -231,3 +231,39 @@ retains trace evidence in ITF files without redundant console rendering; all
 six simulation-runner checks pass, including invalid-model and false-init
 rejections. These fixes do not complete the required owned-search API, game
 integration, bindings, conformance or release gates.
+
+## Owned-search implementation evidence
+
+The current public package enforces trusted ownership, immutable request
+receipts, exact-reference stop and range changes, availability, symmetric
+restrictions, durable terminal outcomes, and complete formation. Consumer
+restriction facts are read after owner locks; a failed transaction-scoped
+handoff rolls the match back. Per-device recovery retains an offline view and
+rejects delayed responses superseded by disconnection or a newer read.
+
+All 85 Matchmaking examples pass. The canonical 128 traces of 160 steps contain
+20,608 observed states and reach every bound action, all 12 accepted historical
+waits, and complete groups of two, three and four. The three- and four-person
+matched device observations total 11,159 and 5,222 respectively. The bindings
+observe eight real device views after every action and compare retained
+searches and current ownership across all three replicas.
+
+Alloy accepts the stored server snapshots captured after the model's actions,
+including terminal searches and historical groups. Twenty-six mechanism and
+regression checks pass, including real Postgres concurrent begins, competing
+formation, handoff rollback, and authoritative consumer restrictions. The
+Postgres run found compatibility-install concurrency, an overwritten injected
+schema, a `float8` physical-type alias, and aborted serializable transactions;
+regressions retain the literal inputs. SQLite additionally pins the paused
+handoff that exposed an uncommitted match. Package type and lint checks pass.
+
+The release verdict remains **RED**. The generic inductive proof still exceeds
+the existing checker budget; boxed proof and finite-bookkeeping experiments
+have not produced a verdict and have not changed the canonical specification.
+Private Chess integration, its bindings, permission enforcement, critical
+journeys, accessibility, and final release gates remain implementation
+obligations. The next adversarial pass must also resolve distributed schema
+bootstrap and configuration-change races, inspect the supported sixteen-person
+Alloy boundary, and check consumer formation cannot be bypassed through a
+second entry point. Passing example traces are not a substitute for those
+obligations.

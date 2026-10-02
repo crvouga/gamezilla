@@ -44,6 +44,32 @@ describe('MatchmakingImplSql - schema drift', () => {
     dispose();
   });
 
+  // regression: matchmaking-schema-change-loses-accepted-wait
+  test('a conflicting schema refuses to replace accepted waiting state', async () => {
+    const db = new Database(':memory:');
+    const sqlClient = new SqlClientImplBunSqlite(db);
+    try {
+      const original = await bootExampleApp(
+        sqlClient,
+        exampleAppSchema({ partitionBy: 'region' })
+      );
+      const result = await original.join({
+        ownerId: 'alice',
+        requestId: 'begin-1',
+        data: { ...RatingAttr(1500) },
+        formulas: [ratingWithin(50)],
+      });
+      await expect(
+        bootExampleApp(sqlClient, exampleAppSchema({ partitionBy: 'mode' }))
+      ).rejects.toBeInstanceOf(MatchmakingSchemaDriftError);
+      expect(
+        (await original.status('alice', result.participantId!))?.status
+      ).toBe('waiting');
+    } finally {
+      db.close(false);
+    }
+  });
+
   test('join throws MatchmakingSchemaDriftError after remigrate with new schema', async () => {
     const db = new Database(':memory:');
     const sqlClient = new SqlClientImplBunSqlite(db);
@@ -58,6 +84,17 @@ describe('MatchmakingImplSql - schema drift', () => {
       );
       await expect(
         byRegion.join({
+          ownerId: 'alice',
+          requestId: 'begin-1',
+          data: { ...RatingAttr(1500) },
+          formulas: [ratingWithin(50)],
+        })
+      ).rejects.toBeInstanceOf(MatchmakingSchemaDriftError);
+      // regression: matchmaking-schema-drift-second-attempt
+      await expect(
+        byRegion.join({
+          ownerId: 'alice',
+          requestId: 'begin-1',
           data: { ...RatingAttr(1500) },
           formulas: [ratingWithin(50)],
         })

@@ -12,10 +12,16 @@ import type {
   TickResult,
   UpdateFormulasResult,
 } from '@pkgs/matchmaking/interface';
-export type MatchmakingHarnessBackend = 'sqlite' | 'postgres';
+export type HarnessJoinInput = Omit<JoinInput, 'ownerId' | 'requestId'> & {
+  readonly ownerId?: string;
+  readonly requestId?: string;
+};
+
+export type MatchmakingHarnessBackend = 'sqlite' | 'postgres' | 'postgres-live';
 
 export type HarnessParticipant = {
   readonly participantId: string;
+  readonly ownerId: string;
   readonly joinedOn: string;
   readonly status: (replicaId?: string) => Promise<StatusResult | null>;
   readonly leave: (replicaId?: string) => Promise<LeaveResult>;
@@ -28,7 +34,7 @@ export type HarnessParticipant = {
 export type HarnessReplica = {
   readonly id: string;
   readonly mm: Matchmaking;
-  readonly join: (input: JoinInput) => Promise<HarnessParticipant>;
+  readonly join: (input: HarnessJoinInput) => Promise<HarnessParticipant>;
   readonly tick: (opts?: TickOptions) => Promise<TickResult>;
 };
 
@@ -40,7 +46,7 @@ export type MatchmakingHarnessRuntime = {
   /** Convenience: first replica's Matchmaking port. */
   readonly mm: Matchmaking;
   readonly join: (
-    input: JoinInput,
+    input: HarnessJoinInput,
     replicaId?: string
   ) => Promise<HarnessParticipant>;
   readonly tick: (

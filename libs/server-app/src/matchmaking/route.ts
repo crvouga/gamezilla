@@ -27,7 +27,9 @@ import { assert } from '@pkgs/assert';
 import type { Matchmaking } from '@pkgs/matchmaking/interface';
 import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
 import type { Sql } from '@pkgs/sql';
+import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
 import type {
+  PostgresSqlClient,
   PreparedStatement,
   RunResult,
   SqlClient,
@@ -44,13 +46,17 @@ import { MATCHMAKING_SCHEMA, MATCHMAKING_TUNING } from './schema';
  * `connect` / `disconnect` are intentionally no-ops — the request DB
  * middleware owns that lifecycle.
  */
-function lazyRequestSqlClient(): SqlClient {
+function lazyRequestSqlClient(): PostgresSqlClient {
   const requestSqlClient = (): SqlClient => {
     const s = apiRequestAsyncLocalStorage.getStore();
     assert.defined(s, 'matchmaking: request store missing');
     return s.sqlClient;
   };
   return {
+    get dbScope() {
+      const engine = getUnderlyingSqlClient(requestSqlClient());
+      return (engine as PostgresSqlClient).dbScope;
+    },
     connect: async () => undefined,
     disconnect: async () => undefined,
     query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {
@@ -75,9 +81,12 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   assert.defined(s, 'matchmaking auth: request store missing');
   try {
     const ctx = await s.sessionAuth.resolveAuthContext(s.sqlClient, c.req.raw);
+    const auth = appAuth(ctx);
+    assert.defined(auth, 'matchmaking: authenticated owner missing');
+    c.set('matchmakingOwnerId', auth.myId);
     await requirePermission({
       db: s.sqlClient,
-      auth: appAuth(ctx),
+      auth,
       permission: PERMISSION.matchmakingUse,
       nowMs: s.clock.now(),
     });
@@ -114,5 +123,12 @@ export function createMatchmakingSubApp(): Hono {
       },
     },
   });
-  return matchmaking.app({ requireAuth });
+  return matchmaking.app({
+    requireAuth,
+    ownerId: (c) => {
+      const owner: unknown = c.get('matchmakingOwnerId');
+      assert.nonEmptyString(owner, 'matchmaking: authenticated owner missing');
+      return owner;
+    },
+  });
 }

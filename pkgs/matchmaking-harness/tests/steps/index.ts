@@ -4,6 +4,10 @@
  */
 
 import './matchmaking.steps';
+import './groups.steps';
+import './recovery.steps';
+import './ranges.steps';
+import './restrictions.steps';
 
 import { useMatchmakingWorld } from './world';
 

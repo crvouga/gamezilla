@@ -4,6 +4,8 @@ import type { MatchmakingHarness } from './facade';
 /** Identifies a participant either by test alias or by raw id. */
 export type ParticipantTarget = {
   readonly ref?: string;
+  readonly ownerId?: string;
+  readonly requestId?: string;
   readonly participantId?: string;
   readonly replicaId?: string;
 };
@@ -27,4 +29,20 @@ export function targetId(
   if (target.participantId !== undefined) return target.participantId;
   if (target.ref !== undefined) return idOf(s, target.ref);
   throw new Error('matchmaking surface: target needs ref or participantId');
+}
+
+export function targetRequest(
+  s: MatchmakingHarness,
+  target: ParticipantTarget
+) {
+  const participantId = targetId(s, target);
+  return {
+    participantId,
+    ownerId: target.ownerId ?? s.owners.get(participantId) ?? 'unknown-owner',
+    requestId: target.requestId ?? s.session.ports.createId(),
+  };
+}
+
+export function ownerOf(s: MatchmakingHarness, participantId: string): string {
+  return s.owners.get(participantId) ?? 'unknown-owner';
 }

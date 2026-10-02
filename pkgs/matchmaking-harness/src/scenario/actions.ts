@@ -1,20 +1,17 @@
 import { defineAction } from '@pkgs/harness';
 import { gen } from '@pkgs/harness/fast-check';
-import type {
-  DistanceFormula,
-  JoinInput,
-  TickOptions,
-} from '@pkgs/matchmaking/interface';
+import type { DistanceFormula, TickOptions } from '@pkgs/matchmaking/interface';
 import fc from 'fast-check';
+import type { HarnessJoinInput } from '../api';
 import { LOBBY_ACTIONS } from '../example-app/lobby';
 import type { MatchmakingHarness } from './facade';
 import { HARNESS_AUTH_HEADERS, harnessRequireAuth } from './http';
 import { asJson, caps } from './observations';
-import { mmOf, type ParticipantTarget, targetId } from './refs';
+import { mmOf, type ParticipantTarget, targetRequest } from './refs';
 
 export type JoinSpec = {
   readonly ref: string;
-  readonly input: JoinInput;
+  readonly input: HarnessJoinInput;
   readonly replicaId?: string;
 };
 
@@ -33,7 +30,9 @@ export const leave = defineAction({
   name: 'leave',
   pool: false,
   act: async (s: MatchmakingHarness, target: ParticipantTarget) => {
-    s.last.leave = await mmOf(s, target.replicaId).leave(targetId(s, target));
+    s.last.leave = await mmOf(s, target.replicaId).leave(
+      targetRequest(s, target)
+    );
   },
 });
 
@@ -96,7 +95,7 @@ export const updateFormulas = defineAction({
   pool: false,
   act: async (s: MatchmakingHarness, on: UpdateFormulasSpec) => {
     s.last.update = await mmOf(s, on.replicaId).updateFormulas(
-      targetId(s, on),
+      targetRequest(s, on),
       on.formulas
     );
   },
@@ -148,7 +147,10 @@ function appFor(s: MatchmakingHarness, replicaId?: string) {
   const key = replicaId ?? '*';
   const cached = s.apps.get(key);
   if (cached !== undefined) return cached;
-  const app = mmOf(s, replicaId).app({ requireAuth: harnessRequireAuth });
+  const app = mmOf(s, replicaId).app({
+    requireAuth: harnessRequireAuth,
+    ownerId: (c) => c.req.header('x-test-user')!,
+  });
   s.apps.set(key, app);
   return app;
 }

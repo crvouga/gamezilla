@@ -22,6 +22,8 @@ export {
   assertWireFormula,
   serializeFormula,
 } from './formula-wire';
+export type { CurrentSearch, OwnerRequest, SearchRequest } from './identity';
+export { searchIdFor } from './identity';
 export type { InsertJoinAttrs } from './join-helpers';
 export {
   assertDistanceFormulasInput,
@@ -42,9 +44,7 @@ export type {
 } from './matchmaking';
 export {
   MATCHMAKING_MAX_GROUP_SIZE,
-  MATCHMAKING_MAX_PRIORITY,
   MATCHMAKING_MIN_GROUP_SIZE,
-  MATCHMAKING_MIN_PRIORITY,
   MATCHMAKING_PAYLOAD_LIMITS,
 } from './payload-limits';
 export type { MatchmakingSchema } from './schema';

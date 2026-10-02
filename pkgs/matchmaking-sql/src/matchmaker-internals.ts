@@ -9,16 +9,7 @@ import { asKeywordRecord } from '@pkgs/keyword';
 import type {
   FormulaWire,
   MatchedParticipant,
-  ParticipantStatus,
 } from '@pkgs/matchmaking/interface';
-export type StatusRow = {
-  readonly status: ParticipantStatus;
-  readonly data: unknown;
-  readonly metadata: unknown;
-  readonly match_id: string | null;
-  readonly joined_at: number | string;
-};
-
 export type ParticipantRow = {
   readonly id: string;
   readonly joined_at: number | string;
@@ -26,14 +17,13 @@ export type ParticipantRow = {
   readonly metadata: unknown;
 };
 
-export type ClaimedWaitingRow = {
+export type WaitingRow = {
   readonly id: string;
   readonly joined_at: number | string;
   readonly data: unknown;
   readonly formulas: unknown;
   readonly metadata: unknown;
-  readonly primary_bucket: number | string;
-  readonly priority: number | string;
+  readonly owner_id: string;
 };
 
 export type RunMatchPassesOptions = {
@@ -52,14 +42,6 @@ export type RunMatchPassesResult = {
   readonly passes: number;
 };
 
-export type SweepExpiredResult = {
-  readonly removed: number;
-};
-
-export type SweepMatchedResult = {
-  readonly removed: number;
-};
-
 export type RunMatchPassesAcrossPartitionsOptions = {
   readonly maxPartitions?: number;
   readonly maxPassesPerPartition?: number;
@@ -70,16 +52,6 @@ export type RunMatchPassesAcrossPartitionsOptions = {
 export type RunMatchPassesAcrossPartitionsResult = {
   readonly matches: number;
   readonly passes: number;
-  readonly partitions: number;
-};
-
-export type SweepExpiredAcrossPartitionsOptions = {
-  readonly maxPartitions?: number;
-  readonly concurrency?: number;
-};
-
-export type SweepExpiredAcrossPartitionsResult = {
-  readonly removed: number;
   readonly partitions: number;
 };
 
@@ -149,8 +121,6 @@ export function assertPartitionSignature(
 export function assertMatchmakerOptionInvariants(opts: {
   readonly maxPairsPerPass: number;
   readonly bucketWidth: number;
-  readonly matchedRetentionSeconds: number;
-  readonly claimTtlMs: number;
 }): void {
   assert.ok(
     Number.isFinite(opts.maxPairsPerPass) && opts.maxPairsPerPass > 0,
@@ -161,16 +131,5 @@ export function assertMatchmakerOptionInvariants(opts: {
     Number.isFinite(opts.bucketWidth) && opts.bucketWidth > 0,
     'Matchmaker: bucketWidth must be a positive finite number',
     { bucketWidth: opts.bucketWidth }
-  );
-  assert.ok(
-    Number.isFinite(opts.matchedRetentionSeconds) &&
-      opts.matchedRetentionSeconds >= 0,
-    'Matchmaker: matchedRetentionSeconds must be a non-negative finite number',
-    { matchedRetentionSeconds: opts.matchedRetentionSeconds }
-  );
-  assert.ok(
-    Number.isFinite(opts.claimTtlMs) && opts.claimTtlMs > 0,
-    'Matchmaker: claimTtlMs must be a positive finite number',
-    { claimTtlMs: opts.claimTtlMs }
   );
 }

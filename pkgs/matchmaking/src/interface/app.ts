@@ -10,23 +10,22 @@ import { Assert, ValidationError } from '@pkgs/assert';
 import type { AttributeState } from '@pkgs/attribute';
 import { assertKeywordRecord } from '@pkgs/keyword';
 import { createLogger } from '@pkgs/logger';
-import { Hono, type MiddlewareHandler } from 'hono';
+import { type Context, Hono, type MiddlewareHandler } from 'hono';
 import type {
   CategoricalTermWire,
   FormulaWire,
   NumericTermWire,
   PartitionTermWire,
+  RadiusOptionsWire,
 } from './formula-wire';
 import type { JoinInputRaw, Matchmaking } from './matchmaking';
 import {
   MATCHMAKING_MAX_GROUP_SIZE,
-  MATCHMAKING_MAX_PRIORITY,
   MATCHMAKING_MIN_GROUP_SIZE,
-  MATCHMAKING_MIN_PRIORITY,
   MATCHMAKING_PAYLOAD_LIMITS,
 } from './payload-limits';
 
-type LeaveBody = { readonly participantId: string };
+type LeaveBody = { readonly participantId: string; readonly requestId: string };
 
 const UTF8 = new TextEncoder();
 function utf8Bytes(s: string): number {
@@ -136,7 +135,38 @@ function parseFormula(v: Assert, raw: unknown, label: string): FormulaWire {
     termCount <= MATCHMAKING_PAYLOAD_LIMITS.maxTermsPerFormula,
     `${label} must contain at most ${String(MATCHMAKING_PAYLOAD_LIMITS.maxTermsPerFormula)} terms total (numeric + categorical + partition)`
   );
-  return { numeric, categorical, partition };
+  const radius = parseRadius(v, raw['radius'], label);
+  return {
+    numeric,
+    categorical,
+    partition,
+    ...(radius === undefined ? {} : { radius }),
+  };
+}
+
+function parseRadius(
+  v: Assert,
+  raw: unknown,
+  label: string
+): RadiusOptionsWire | undefined {
+  if (raw === undefined) return undefined;
+  v.record(raw, `${label}.radius must be an object`);
+  const base = raw['baseRadius'];
+  const growth = raw['radiusGrowthPerSecond'];
+  const max = raw['maxRadius'];
+  v.ok(
+    typeof base === 'number' && Number.isFinite(base) && base >= 0,
+    `${label}.radius.baseRadius must be finite and non-negative`
+  );
+  v.ok(
+    typeof growth === 'number' && Number.isFinite(growth) && growth >= 0,
+    `${label}.radius.radiusGrowthPerSecond must be finite and non-negative`
+  );
+  v.ok(
+    typeof max === 'number' && Number.isFinite(max) && max >= base,
+    `${label}.radius.maxRadius must be finite and at least baseRadius`
+  );
+  return { baseRadius: base, radiusGrowthPerSecond: growth, maxRadius: max };
 }
 
 function assertDataValueCaps(v: Assert, data: Record<string, unknown>): void {
@@ -210,7 +240,7 @@ function parseJoinFormulas(v: Assert, raw: unknown): FormulaWire[] {
   return formulas;
 }
 
-function parseJoinBody(raw: unknown): JoinInputRaw {
+function parseJoinBody(raw: unknown): Omit<JoinInputRaw, 'ownerId'> {
   const v: Assert = Assert.validation();
   v.record(raw, 'body must be a JSON object');
   const data = parseJoinData(v, raw['data']);
@@ -220,23 +250,19 @@ function parseJoinBody(raw: unknown): JoinInputRaw {
     min: MATCHMAKING_MIN_GROUP_SIZE,
     max: MATCHMAKING_MAX_GROUP_SIZE,
   });
-  const priority = parseOptionalBoundedInt(v, raw['priority'], {
-    field: 'priority',
-    min: MATCHMAKING_MIN_PRIORITY,
-    max: MATCHMAKING_MAX_PRIORITY,
-  });
   const metadata = parseOptionalMetadata(v, raw['metadata']);
   return {
+    requestId: parseRequestId(v, raw),
     data,
     formulas,
     ...(groupSize !== undefined ? { groupSize } : {}),
-    ...(priority !== undefined ? { priority } : {}),
     ...(metadata !== undefined ? { metadata } : {}),
   };
 }
 
 function parseUpdateFormulasBody(raw: unknown): {
   readonly formulas: readonly FormulaWire[];
+  readonly requestId: string;
 } {
   const v: Assert = Assert.validation();
   v.record(raw, 'body must be a JSON object');
@@ -251,7 +277,7 @@ function parseUpdateFormulasBody(raw: unknown): {
   for (let i = 0; i < formulasRaw.length; i += 1) {
     formulas.push(parseFormula(v, formulasRaw[i], `formulas[${String(i)}]`));
   }
-  return { formulas };
+  return { formulas, requestId: parseRequestId(v, raw) };
 }
 
 function parseLeaveBody(raw: unknown): LeaveBody {
@@ -259,12 +285,20 @@ function parseLeaveBody(raw: unknown): LeaveBody {
   v.record(raw, 'body must be a JSON object');
   const participantId: unknown = raw['participantId'];
   v.nonEmptyString(participantId, 'participantId must be a non-empty string');
-  return { participantId };
+  return { participantId, requestId: parseRequestId(v, raw) };
+}
+
+function parseRequestId(v: Assert, raw: Record<string, unknown>): string {
+  const requestId = raw['requestId'];
+  v.nonEmptyString(requestId, 'requestId must be a non-empty string');
+  assertStringByteCap(v, requestId, 'requestId');
+  return requestId;
 }
 
 export type CreateMatchmakingAppOptions = {
   readonly matchmaking: Matchmaking;
   readonly requireAuth: MiddlewareHandler;
+  readonly ownerId: (context: Context) => string;
   /** Epoch ms — required for error logging (no wall fallback). */
   readonly now: () => number;
 };
@@ -278,22 +312,28 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
   app.post('/join', async (c) => {
     const raw: unknown = await c.req.json();
     const body = parseJoinBody(raw);
-    const result = await matchmaking.joinRaw(body);
+    const result = await matchmaking.joinRaw({
+      ...body,
+      ownerId: opts.ownerId(c),
+    });
     return c.json(result);
   });
 
   app.post('/leave', async (c) => {
     const raw: unknown = await c.req.json();
     const body = parseLeaveBody(raw);
-    const result = await matchmaking.leave(body.participantId);
+    const result = await matchmaking.leave({
+      ...body,
+      ownerId: opts.ownerId(c),
+    });
     return c.json(result);
   });
 
   app.get('/status/:participantId', async (c) => {
     const participantId = c.req.param('participantId');
-    const result = await matchmaking.status(participantId);
+    const result = await matchmaking.status(opts.ownerId(c), participantId);
     if (result === null) return c.json({ error: 'not found' }, 404);
-    c.header('Cache-Control', 'private, max-age=1');
+    c.header('Cache-Control', 'private, no-store');
     return c.json(result);
   });
 
@@ -301,14 +341,17 @@ export function createMatchmakingApp(opts: CreateMatchmakingAppOptions): Hono {
     const participantId = c.req.param('participantId');
     const raw: unknown = await c.req.json();
     const body = parseUpdateFormulasBody(raw);
-    const result = await matchmaking.updateFormulasRaw(participantId, body);
+    const result = await matchmaking.updateFormulasRaw(
+      { ownerId: opts.ownerId(c), participantId, requestId: body.requestId },
+      body
+    );
     if (!result.updated) return c.json({ error: 'not found' }, 404);
     return c.json(result);
   });
 
   /**
    * Runtime-driven match pass + sweep. Stateless workers may call this
-   * concurrently; correctness uses transactional row claims.
+   * concurrently; correctness uses transactional pool and owner locks.
    */
   app.post('/tick', async (c) => {
     const result = await matchmaking.tick();

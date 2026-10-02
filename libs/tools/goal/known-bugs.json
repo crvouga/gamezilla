@@ -1,5 +1,70 @@
 [
   {
+    "id": "matchmaking-serialization-conflict-refuses-begin",
+    "summary": "Three simultaneous Alice phone-1/computer-1/phone-1 begins on real SERIALIZABLE Postgres exposed 40001 while locking the shared pool row, instead of resolving safe logical outcomes. Re-execute confirmed aborted transactions using the same owner/request receipt, without retrying permanent failures or an acknowledged transaction.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/concurrent-boundary.test.ts"
+  },
+  {
+    "id": "matchmaking-postgres-real-type-rejected",
+    "summary": "On the second real Postgres lobby boot, the schema reconciler rejected primary_rating because PostgreSQL reports its declared DOUBLE PRECISION as float8. Canonicalize this exact physical alias, while still rejecting lower-precision float4.",
+    "regressionTest": "pkgs/db-schema/tests/postgres-real-type-regression.test.ts"
+  },
+  {
+    "id": "matchmaking-concurrent-postgres-boot",
+    "summary": "Three real Postgres lobby replicas booted concurrently and CREATE OR REPLACE compatibility functions failed with tuple concurrently updated before any begin. Install compatibility within the serialized schema bootstrap.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/concurrent-boundary.test.ts"
+  },
+  {
+    "id": "matchmaking-postgres-scope-overwritten",
+    "summary": "Matchmaking schema reconciliation passed a hardcoded public scope, overwriting the injected Postgres schema on the underlying client. Reconcile in the injected database scope.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/concurrent-boundary.test.ts"
+  },
+  {
+    "id": "matchmaking-uncommitted-handoff-visible",
+    "summary": "While a SQLite formation transaction suspended in its consuming handoff, a current-view SELECT on the same connection exposed the uncommitted matched state even though the handoff then failed. Read standing and all peers in one serialized transaction so a failed handoff remains invisible.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/concurrent-boundary.test.ts"
+  },
+  {
+    "id": "matchmaking-delayed-view-overwrites-offline",
+    "summary": "A current-view response dispatched while connected arrived after connection loss and replaced the frozen offline view. Invalidate pending responses when connection state changes.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/device-response-regression.test.ts"
+  },
+  {
+    "id": "matchmaking-delayed-view-overwrites-newer",
+    "summary": "An earlier waiting response arrived after a newer stopped response and restored stale waiting. Accept only the most recently requested view response.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/device-response-regression.test.ts"
+  },
+  {
+    "id": "matchmaking-wire-radius-discarded",
+    "summary": "Alice1000 accepted only5 points and Bob1050 accepted200 over the real HTTP boundary, but parsing discarded the per-formula radius and matched them under the host default50. Validate and retain the entire radius override on begin and range-change bodies.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/wire-radius-regression.test.ts"
+  },
+  {
+    "id": "matchmaking-concurrent-device-reads",
+    "summary": "Opening Alice, Bob, Carol and Dave phone/computer views and then beginning Alice1000/range200/group4 refreshed eight real clients concurrently and opened overlapping BEGIN transactions on one Bun SQLite connection. Serialize connection transactions across awaits, as the simulated SQLite adapter already does, without weakening device concurrency.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/device-read-regression.test.ts"
+  },
+  {
+    "id": "matchmaking-schema-drift-second-attempt",
+    "summary": "After a conflicting configuration was installed, the old adapter rejected its first join but cached the failed fingerprint check as successful, accepting the second identical attempt. Read the authoritative fingerprint for each operation and never cache a failed check.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/schema-drift.test.ts"
+  },
+  {
+    "id": "matchmaking-schema-change-loses-accepted-wait",
+    "summary": "Booting the example app under mode partitioning after accepting a region-partitioned wait dropped and recreated its waiting tables, silently losing the accepted outcome. Reconcile declared shapes without dropping data and refuse conflicting configuration while accepted waits remain.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/schema-drift.test.ts"
+  },
+  {
+    "id": "matchmaking-port-duplicate-owner",
+    "summary": "The literal Alice phone-1/rating1000 and computer-1/rating1500 public-port begins created different waits because owner exclusivity existed only in the example lobby. Enforce the trusted owner at the shared operation boundary.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/owned-search-regressions.test.ts"
+  },
+  {
+    "id": "matchmaking-replayed-begin-revives-wait",
+    "summary": "The public-port begin-1, stop, begin-2, replay begin-1 sequence minted a new wait instead of returning the stopped original identity. Persist immutable owner/request receipts and never replay terminal searches into new searches.",
+    "regressionTest": "pkgs/matchmaking-harness/tests/owned-search-regressions.test.ts"
+  },
+  {
     "id": "matchmaking-incomplete-greedy-group",
     "summary": "The literal Bob 1050/range200, Alice 1000/range50, Carol1100/range200, Dave1150/range200 group-of-three input remained waiting because choosing Alice first hid the complete Bob/Carol/Dave group. Search complete compatible groups before moving to a later opportunity.",
     "regressionTest": "pkgs/matchmaking-harness/tests/complete-group-regression.test.ts"

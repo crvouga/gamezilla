@@ -22,9 +22,14 @@ export type MatchmakingWorld = {
   readonly ctx: ScenarioContext;
   readonly harness: Run<MatchmakingHarness>;
   readonly disposeCrash: () => void;
+  readonly firstWaits: Map<string, string>;
+  readonly firstMatches: Map<string, string>;
+  readonly awayViews: Map<string, unknown>;
+  privateStatus: unknown;
+  phase: 'Given' | 'When' | 'Then';
 };
 
-export const { Given, When, Then } = stepsFor<MatchmakingWorld>();
+export const { Given, When, Then, Step } = stepsFor<MatchmakingWorld>();
 
 /**
  * `{actor}` is a person, matching the spec gate's registry
@@ -45,7 +50,22 @@ export function useMatchmakingWorld(): void {
         seed: ctx.testId,
         args: { replicas: 3 },
       });
-      return { ctx, harness, disposeCrash };
+      return {
+        ctx,
+        harness,
+        disposeCrash,
+        firstWaits: new Map(),
+        firstMatches: new Map(),
+        awayViews: new Map(),
+        privateStatus: undefined,
+        phase: 'Given',
+      };
+    },
+    record: async (w, step, run) => {
+      const keyword = step.keyword.trim();
+      if (keyword === 'Given' || keyword === 'When' || keyword === 'Then')
+        w.phase = keyword;
+      return run();
     },
     dispose: async (w) => {
       await w.harness[Symbol.asyncDispose]();

@@ -8,6 +8,7 @@
 
 import { assert } from '@pkgs/assert';
 import {
+  type CurrentSearch,
   createMatchmakingApp,
   type DistanceFormula,
   type JoinInput,
@@ -21,20 +22,22 @@ import {
   MatchmakingSchemaDriftError,
   type MatchmakingTuning,
   type RadiusOptions,
+  type SearchRequest,
   type StatusResult,
   type TickOptions,
   type TickResult,
   type UpdateFormulasInputRaw,
   type UpdateFormulasResult,
 } from '@pkgs/matchmaking/interface';
-import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
-import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
 import { Hono } from 'hono';
+import type { FormationPorts } from './match-pass';
 import { Matchmaker, type MatchmakerOptions } from './matchmaker';
 import { migrate } from './migrate';
 
 export type MatchmakingImplSqlOptions = MatchmakingConfig & {
   readonly sqlClient: import('@pkgs/sql-client/interface').SqlClient;
+  readonly onFormed?: FormationPorts['onFormed'];
+  readonly restrictionsFor?: FormationPorts['restrictionsFor'];
 };
 
 type ResolvedOptions = {
@@ -64,8 +67,6 @@ export class MatchmakingImplSql implements Matchmaking {
     this.migrateArgs = {
       sqlClient: this.sqlClient,
       schema: this.schema,
-      ...(resolved.radius !== undefined ? { radius: resolved.radius } : {}),
-      tuning: MatchmakingImplSql.tuningForMigrate(resolved.tuning),
       now: this.now,
     };
     this.bootPromise = undefined;
@@ -85,36 +86,59 @@ export class MatchmakingImplSql implements Matchmaking {
     return this.matchmaker.joinRaw(input);
   }
 
-  async leave(participantId: string): Promise<LeaveResult> {
+  async leave(input: SearchRequest): Promise<LeaveResult> {
     await this.ensureBooted();
-    return this.matchmaker.leave(participantId);
+    return this.matchmaker.leave(input);
   }
 
-  async status(participantId: string): Promise<StatusResult | null> {
+  async status(
+    ownerId: string,
+    participantId: string
+  ): Promise<StatusResult | null> {
     await this.ensureBooted();
-    return this.matchmaker.status(participantId);
+    return this.matchmaker.status(ownerId, participantId);
   }
 
   async updateFormulas(
-    participantId: string,
+    input: SearchRequest,
     formulas: readonly DistanceFormula[]
   ): Promise<UpdateFormulasResult> {
     await this.ensureBooted();
-    return this.matchmaker.updateFormulas(participantId, formulas);
+    return this.matchmaker.updateFormulas(input, formulas);
   }
 
   async updateFormulasRaw(
-    participantId: string,
-    input: UpdateFormulasInputRaw
+    input: SearchRequest,
+    change: UpdateFormulasInputRaw
   ): Promise<UpdateFormulasResult> {
     await this.ensureBooted();
-    return this.matchmaker.updateFormulasRaw(participantId, input);
+    return this.matchmaker.updateFormulasRaw(input, change);
+  }
+
+  async current(ownerId: string): Promise<CurrentSearch | null> {
+    await this.ensureBooted();
+    return this.matchmaker.current(ownerId);
+  }
+
+  async setAvailable(ownerId: string, available: boolean): Promise<void> {
+    await this.ensureBooted();
+    return this.matchmaker.setAvailable(ownerId, available);
+  }
+
+  async setRestriction(
+    ownerA: string,
+    ownerB: string,
+    restricted: boolean
+  ): Promise<void> {
+    await this.ensureBooted();
+    return this.matchmaker.setRestriction(ownerA, ownerB, restricted);
   }
 
   app(opts: MatchmakingAppOptions): Hono {
     const inner = createMatchmakingApp({
       matchmaking: this,
       requireAuth: opts.requireAuth,
+      ownerId: opts.ownerId,
       now: this.now,
     });
     const wrapped = new Hono();
@@ -126,24 +150,21 @@ export class MatchmakingImplSql implements Matchmaking {
     return wrapped;
   }
 
+  async canPair(ownerA: string, ownerB: string): Promise<boolean> {
+    await this.ensureBooted();
+    return this.matchmaker.canPair(ownerA, ownerB);
+  }
+
   async tick(opts?: TickOptions): Promise<TickResult> {
     await this.ensureBooted();
-    // Correctness is row-claim based — concurrent ticks are safe. No
-    // process-local or advisory lock; workers stay horizontally scalable.
-    await this.matchmaker.releaseStaleClaims();
+    // Pool and owner rows coordinate concurrent replicas in the shared database.
     const drained = await this.matchmaker.runMatchPassesAcrossPartitions(
       MatchmakingImplSql.buildFanOpts(opts)
     );
-    const expired = await this.matchmaker.sweepExpiredAcrossPartitions(
-      MatchmakingImplSql.buildSweepOpts(opts)
-    );
-    const matched = await this.matchmaker.sweepMatched();
     return {
       matches: drained.matches,
       passes: drained.passes,
       partitions: drained.partitions,
-      expiredRemoved: expired.removed,
-      matchedRemoved: matched.removed,
     };
   }
 
@@ -161,10 +182,6 @@ export class MatchmakingImplSql implements Matchmaking {
   }
 
   private async boot(): Promise<void> {
-    // Compat shim DDL is vendor SQL — install on the raw engine client.
-    await installPostgresSqliteCompat({
-      sqlClient: getUnderlyingSqlClient(this.sqlClient),
-    });
     await migrate(this.migrateArgs);
   }
 
@@ -187,6 +204,10 @@ export class MatchmakingImplSql implements Matchmaking {
     const partitionKeys = opts.schema.partitionKeys ?? [];
     const matchmakerOptions: MatchmakerOptions = {
       sqlClient,
+      ...(opts.onFormed === undefined ? {} : { onFormed: opts.onFormed }),
+      ...(opts.restrictionsFor === undefined
+        ? {}
+        : { restrictionsFor: opts.restrictionsFor }),
       partitionKeys,
       schema: opts.schema,
       now: opts.tuning.now,
@@ -207,24 +228,6 @@ export class MatchmakingImplSql implements Matchmaking {
       matchmakerOptions,
       radius: opts.radius,
       tuning: opts.tuning,
-    };
-  }
-
-  private static tuningForMigrate(tuning: MatchmakingTuning): {
-    readonly maxPairsPerPass?: number;
-    readonly maxWaitSeconds?: number;
-    readonly matchedRetentionSeconds?: number;
-  } {
-    return {
-      ...(tuning.maxPairsPerPass !== undefined
-        ? { maxPairsPerPass: tuning.maxPairsPerPass }
-        : {}),
-      ...(tuning.maxWaitSeconds !== undefined
-        ? { maxWaitSeconds: tuning.maxWaitSeconds }
-        : {}),
-      ...(tuning.matchedRetentionSeconds !== undefined
-        ? { matchedRetentionSeconds: tuning.matchedRetentionSeconds }
-        : {}),
     };
   }
 
@@ -249,33 +252,12 @@ export class MatchmakingImplSql implements Matchmaking {
     };
   }
 
-  private static buildSweepOpts(opts: TickOptions | undefined): {
-    readonly maxPartitions?: number;
-    readonly concurrency?: number;
-  } {
-    if (opts === undefined) return {};
-    return {
-      ...(opts.maxPartitions !== undefined
-        ? { maxPartitions: opts.maxPartitions }
-        : {}),
-      ...(opts.concurrency !== undefined
-        ? { concurrency: opts.concurrency }
-        : {}),
-    };
-  }
-
   private static spreadTuning(
     tuning: MatchmakingTuning
   ): Partial<MatchmakerOptions> {
     return {
       ...(tuning.maxPairsPerPass !== undefined
         ? { maxPairsPerPass: tuning.maxPairsPerPass }
-        : {}),
-      ...(tuning.maxWaitSeconds !== undefined
-        ? { maxWaitSeconds: tuning.maxWaitSeconds }
-        : {}),
-      ...(tuning.matchedRetentionSeconds !== undefined
-        ? { matchedRetentionSeconds: tuning.matchedRetentionSeconds }
         : {}),
     };
   }

@@ -8,7 +8,11 @@ import type {
 } from '@pkgs/sql-client/interface';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
+import { createTransactionChain } from './transaction-chain';
+
 export class SqlClientImplBunSqlite implements SqlClient {
+  private readonly enqueueTxn = createTransactionChain();
+
   constructor(private db: Database) {}
 
   static open(databasePath: string): SqlClientImplBunSqlite {
@@ -90,7 +94,13 @@ export class SqlClientImplBunSqlite implements SqlClient {
     };
   }
 
-  async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    return this.enqueueTxn(() => this.execTransaction(fn));
+  }
+
+  private async execTransaction<T>(
+    fn: (tx: SqlClient) => Promise<T>
+  ): Promise<T> {
     this.db.run('BEGIN');
     try {
       const result = await fn(this);

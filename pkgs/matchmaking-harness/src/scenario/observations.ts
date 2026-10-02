@@ -1,6 +1,6 @@
 import { defineProperty, type JsonValue } from '@pkgs/harness';
 import { assertReplicaAgreement, type MatchmakingHarness } from './facade';
-import { mmOf } from './refs';
+import { mmOf, ownerOf } from './refs';
 
 export function asJson(value: unknown): JsonValue {
   return (
@@ -10,6 +10,30 @@ export function asJson(value: unknown): JsonValue {
 
 export function caps(s: MatchmakingHarness): string[] {
   return [...s.session.caps] as string[];
+}
+
+export function pairAllowed(
+  s: MatchmakingHarness,
+  ownerA: string,
+  ownerB: string
+): Promise<boolean> {
+  return s.mm.canPair(ownerA, ownerB);
+}
+
+export function privateStatus(
+  s: MatchmakingHarness,
+  ownerId: string,
+  participantId: string
+) {
+  return s.mm.status(ownerId, participantId);
+}
+
+export function currentOf(
+  s: MatchmakingHarness,
+  ownerId: string,
+  replicaId?: string
+) {
+  return mmOf(s, replicaId).current(ownerId);
 }
 
 export function replicaIds(s: MatchmakingHarness): string[] {
@@ -38,7 +62,9 @@ export async function statusById(
   participantId: string,
   replicaId?: string
 ): Promise<JsonValue> {
-  return asJson(await mmOf(s, replicaId).status(participantId));
+  return asJson(
+    await mmOf(s, replicaId).status(ownerOf(s, participantId), participantId)
+  );
 }
 
 /** Status of one aliased participant, read from `replicaId` (default first). */
@@ -49,7 +75,7 @@ export async function statusOf(
 ): Promise<JsonValue> {
   const id = s.refs.get(ref);
   if (id === undefined) return null;
-  return asJson(await mmOf(s, replicaId).status(id));
+  return asJson(await mmOf(s, replicaId).status(ownerOf(s, id), id));
 }
 
 /** Status of every aliased participant, keyed by alias. */
@@ -59,7 +85,7 @@ export async function statuses(
 ): Promise<Record<string, JsonValue>> {
   const out: Record<string, JsonValue> = {};
   for (const [ref, id] of s.refs) {
-    out[ref] = asJson(await mmOf(s, replicaId).status(id));
+    out[ref] = asJson(await mmOf(s, replicaId).status(ownerOf(s, id), id));
   }
   return out;
 }
@@ -71,7 +97,9 @@ export async function statusAcrossReplicas(
 ): Promise<Record<string, JsonValue>> {
   const out: Record<string, JsonValue> = {};
   for (const id of s.replicas.keys()) {
-    out[id] = asJson(await s.replica(id).mm.status(participantId));
+    out[id] = asJson(
+      await s.replica(id).mm.status(ownerOf(s, participantId), participantId)
+    );
   }
   return out;
 }
@@ -105,7 +133,7 @@ export async function matched(
   for (const ref of refs) {
     const id = s.refs.get(ref);
     if (id === undefined) continue;
-    const st = await mmOf(s, replicaId).status(id);
+    const st = await mmOf(s, replicaId).status(ownerOf(s, id), id);
     if (st?.status === 'matched') return true;
   }
   return false;
@@ -115,7 +143,7 @@ export async function matched(
 export async function matchFingerprint(s: MatchmakingHarness): Promise<string> {
   const parts: string[] = [];
   for (const id of s.refs.values()) {
-    const st = await s.mm.status(id);
+    const st = await s.mm.status(ownerOf(s, id), id);
     if (st?.status !== 'matched') {
       parts.push(`${id}:waiting`);
       continue;

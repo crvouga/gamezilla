@@ -12,33 +12,21 @@
  * (Durable Object name, room identifier, etc.) to bring the match online.
  */
 
-import type { AttributeState } from '@pkgs/attribute';
-import type { Timers } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { FormulaWire } from '../interface/formula-wire';
+import type { JoinInputRaw } from '../interface/matchmaking';
 import type {
   JoinResult,
   LeaveResult,
-  MatchedStatus,
   StatusResult,
   UpdateFormulasResult,
 } from '../interface/types';
 import { MatchmakingHttpError } from './client-error';
 
-const DEFAULT_POLL_INTERVAL_MS = 1000;
-
 export type MatchmakingClientOptions = {
   readonly baseUrl: string;
   readonly getToken: () => Promise<string>;
-  readonly pollIntervalMs?: number;
-  /** Injectable HTTP transport (required — no wall default). */
   readonly http: HttpClient;
-  /** Injectable timers for poll sleep (required — no wall default). */
-  readonly timers: Timers;
-};
-
-export type WaitForMatchOptions = {
-  readonly signal?: AbortSignal;
 };
 
 function joinUrl(baseUrl: string, path: string): string {
@@ -46,78 +34,19 @@ function joinUrl(baseUrl: string, path: string): string {
   return `${trimmed}${path}`;
 }
 
-function sleep(
-  ms: number,
-  signal: AbortSignal | undefined,
-  timers: Timers
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const timeout = timers.setTimeout(() => {
-      signal?.removeEventListener('abort', onAbort);
-      resolve();
-    }, ms);
-    function onAbort(): void {
-      timers.clearTimeout(timeout);
-      reject(new Error('waitForMatch aborted'));
-    }
-    if (signal !== undefined) {
-      if (signal.aborted) {
-        timers.clearTimeout(timeout);
-        reject(new Error('waitForMatch aborted'));
-        return;
-      }
-      signal.addEventListener('abort', onAbort, { once: true });
-    }
-  });
-}
-
 export class MatchmakingClient {
   private readonly baseUrl: string;
   private readonly getToken: () => Promise<string>;
-  private readonly pollIntervalMs: number;
   private readonly http: HttpClient;
-  private readonly timers: Timers;
 
   constructor(opts: MatchmakingClientOptions) {
     this.baseUrl = opts.baseUrl;
     this.getToken = opts.getToken;
-    this.pollIntervalMs = opts.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     this.http = opts.http;
-    this.timers = opts.timers;
   }
 
-  /**
-   * Joins the matchmaking queue.
-   *
-   * Optional knobs:
-   *   - `groupSize` (2..16, default 2): N-way matches for teams / FFA.
-   *   - `priority` (-1000..1000, default 0): queue-jump within the
-   *     same primary bucket. Higher wins; ties fall back to FIFO.
-   *   - `metadata`: free-form caller payload that round-trips through
-   *     `/status`. Capped at 1024 UTF-8 bytes of JSON.
-   *
-   * All limits are enforced server-side.
-   */
-  async join(
-    data: AttributeState,
-    formulas: readonly FormulaWire[],
-    opts?: {
-      readonly groupSize?: number;
-      readonly priority?: number;
-      readonly metadata?: Record<string, unknown> | null;
-    }
-  ): Promise<JoinResult> {
-    const body: {
-      data: AttributeState;
-      formulas: readonly FormulaWire[];
-      groupSize?: number;
-      priority?: number;
-      metadata?: Record<string, unknown> | null;
-    } = { data, formulas };
-    if (opts?.groupSize !== undefined) body.groupSize = opts.groupSize;
-    if (opts?.priority !== undefined) body.priority = opts.priority;
-    if (opts?.metadata !== undefined) body.metadata = opts.metadata;
-    return await this.request<JoinResult>('POST', '/join', body);
+  async join(input: Omit<JoinInputRaw, 'ownerId'>): Promise<JoinResult> {
+    return this.request<JoinResult>('POST', '/join', input);
   }
 
   /**
@@ -127,6 +56,7 @@ export class MatchmakingClient {
    * when they're matched, swept, or unknown.
    */
   async updateFormulas(
+    requestId: string,
     participantId: string,
     formulas: readonly FormulaWire[]
   ): Promise<UpdateFormulasResult> {
@@ -141,7 +71,7 @@ export class MatchmakingClient {
         Authorization: token,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ formulas }),
+      body: JSON.stringify({ requestId, formulas }),
     });
     if (response.status === 404) return { updated: false };
     if (!response.ok) {
@@ -153,8 +83,9 @@ export class MatchmakingClient {
     return (await response.json()) as UpdateFormulasResult;
   }
 
-  async leave(participantId: string): Promise<LeaveResult> {
+  async leave(requestId: string, participantId: string): Promise<LeaveResult> {
     return await this.request<LeaveResult>('POST', '/leave', {
+      requestId,
       participantId,
     });
   }
@@ -177,27 +108,6 @@ export class MatchmakingClient {
       );
     }
     return (await response.json()) as StatusResult;
-  }
-
-  async waitForMatch(
-    participantId: string,
-    opts?: WaitForMatchOptions
-  ): Promise<MatchedStatus> {
-    const signal = opts?.signal;
-    for (;;) {
-      if (signal?.aborted === true) throw new Error('waitForMatch aborted');
-      const current = await this.status(participantId);
-      if (current === null) {
-        throw new MatchmakingHttpError(
-          `participant ${participantId} not found`,
-          404
-        );
-      }
-      if (current.status === 'matched') {
-        return current;
-      }
-      await sleep(this.pollIntervalMs, signal, this.timers);
-    }
   }
 
   private async request<T>(
