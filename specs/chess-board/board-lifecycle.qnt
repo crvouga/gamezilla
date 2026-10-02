@@ -74,4 +74,8 @@ module board_lifecycle {
   /// Orientation and sound are choices of the activity.
   val invSettings = Set("white", "black").contains(board.orientation) and
     Set(false, true).contains(board.soundEnabled)
+  temporal _timePasses = finishAnimation.weakFair(board)
+  /// Every running arrival eventually settles when time continues to pass.
+  temporal liveAnimationFinishes = _timePasses.implies(
+    always(board.transition implies eventually(not(board.transition))))
 }
