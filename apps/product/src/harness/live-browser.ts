@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: a real browser drives the deployed web client.
 /**
- * A real browser (`Bun.WebView`: WebKit on macOS, Chrome elsewhere) against
+ * A real Chrome browser (`Bun.WebView`) against
  * a deployed web client and API — the same bundle, CDN, Worker and database
  * a person hits. One fresh device per scenario: its own storage, nothing
  * carried over.
@@ -16,7 +16,6 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
-import { resolveTestBrowser } from '@pkgs/ui-testing-bun-webview/test-browser';
 
 const NAVIGATION_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
@@ -52,12 +51,18 @@ function formatConsoleArg(arg: unknown): string {
 }
 
 /** A fresh device (not yet on the site): its own storage, console captured. */
-export async function openDevice(target: LiveTarget): Promise<Device> {
+export async function openDevice(
+  target: Pick<LiveTarget, 'webOrigin' | 'apiOrigin'>,
+  createView: (options: Bun.WebView.ConstructorOptions) => Bun.WebView = (
+    options
+  ) => new Bun.WebView(options)
+): Promise<Device> {
   const directory = await mkdtemp(join(tmpdir(), 'critical-journey-'));
   const dataStore = { directory };
   const consoleLines: string[] = [];
-  const view = new Bun.WebView({
+  const view = createView({
     ...VIEWPORT,
+    backend: 'chrome',
     dataStore,
     console: (type, ...args) => {
       consoleLines.push(`[${type}] ${args.map(formatConsoleArg).join(' ')}`);
@@ -65,19 +70,17 @@ export async function openDevice(target: LiveTarget): Promise<Device> {
   });
   // Chrome keeps one profile per process (the first view's directory), so
   // wipe both origins: every scenario starts as a device that never visited.
-  if (resolveTestBrowser().engine === 'chrome') {
-    await view.navigate('about:blank');
-    for (const origin of [target.webOrigin, target.apiOrigin]) {
-      await view.cdp('Storage.clearDataForOrigin', {
-        origin,
-        storageTypes: 'all',
-      });
-    }
+  await view.navigate('about:blank');
+  for (const origin of [target.webOrigin, target.apiOrigin]) {
+    await view.cdp('Storage.clearDataForOrigin', {
+      origin,
+      storageTypes: 'all',
+    });
   }
   const driver = new BunWebviewDriver({
     view,
     baseUrl: target.webOrigin,
-    popupOptions: { dataStore },
+    popupOptions: { dataStore, backend: 'chrome' },
     timers: wallTimers,
   });
   return {
@@ -102,36 +105,19 @@ export async function readLocation(view: Bun.WebView): Promise<string> {
   return typeof href === 'string' ? href : '';
 }
 
-/**
- * Poll until a service worker is active, so a later offline navigation can
- * still load the shell. `missing` retries; a host with no workers returns.
- */
+/** Wait for precache installation before the device loses its connection. */
 const SHELL_STATE_SCRIPT = `(function () {
   var sw = navigator.serviceWorker;
-  if (!sw) return 'none';
-  var slot = window.__gzShell;
-  if (!slot || slot.state === 'missing') {
-    window.__gzShell = { state: 'pending' };
-    sw.getRegistration().then(function (reg) {
-      window.__gzShell.state = reg && reg.active ? 'active' : 'missing';
-    }, function () {
-      window.__gzShell.state = 'error';
-    });
-    return 'pending';
-  }
-  return slot.state;
+  if (!sw) throw new Error('the browser has no service worker support');
+  return sw.ready.then(function (reg) {
+    if (!reg.active) throw new Error('the offline shell has no active worker');
+    return 'active';
+  });
 })()`;
 
-const SHELL_WAIT_MS = 20_000;
-
 export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
-  const deadline = wallClock.now() + SHELL_WAIT_MS;
-  for (;;) {
-    const state = await view.evaluate(SHELL_STATE_SCRIPT);
-    if (state === 'active' || state === 'none' || state === 'error') return;
-    if (wallClock.now() >= deadline) return;
-    await delay(NAVIGATION_POLL_MS);
-  }
+  const state = await view.evaluate(SHELL_STATE_SCRIPT);
+  if (state !== 'active') throw new Error('the offline shell is not ready');
 }
 
 /**
@@ -140,9 +126,6 @@ export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
  */
 export async function emulateOffline(view: Bun.WebView): Promise<void> {
   await waitForCachedShell(view);
-  if (resolveTestBrowser().engine !== 'chrome') {
-    throw new Error('this browser cannot cut the network');
-  }
   await view.cdp('Network.enable');
   await view.cdp('Network.emulateNetworkConditions', {
     offline: true,

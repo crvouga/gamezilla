@@ -7,6 +7,15 @@
  * run and the device closes.
  */
 
+import {
+  type Device,
+  emulateOffline,
+  journeyBrowser,
+  type LiveTarget,
+  openDevice,
+  readLocation,
+  saveEvidence,
+} from '@apps/product/harness/live-browser';
 import { prepareCriticalJourneyAccess } from '@apps/product/harness/prepare-critical-journey-access';
 import {
   authRelayOrigin,
@@ -28,15 +37,6 @@ import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
 import { wallClock } from '@pkgs/clock';
 import { type ScenarioContext, setWorld } from '@pkgs/gherkin/registry';
 import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
-import {
-  type Device,
-  emulateOffline,
-  journeyBrowser,
-  type LiveTarget,
-  openDevice,
-  readLocation,
-  saveEvidence,
-} from './live-browser';
 
 const API_PATH_PREFIX = '/api';
 /** Seeds what journeys write this run (avatar seed, search query). */
