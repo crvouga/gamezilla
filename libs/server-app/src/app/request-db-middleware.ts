@@ -9,11 +9,11 @@ import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
+import type { ObjectStore } from '@pkgs/object-store/interface';
 import { ATTR, activeSpan, withSpan } from '@pkgs/observability/core';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { MiddlewareHandler } from 'hono';
 import type { DeploymentProtection } from '../config/env';
 import { ApiSecretName } from '../config/secret-names';
@@ -155,16 +155,17 @@ async function attachRequestDatabase(
       );
       return await next();
     } finally {
-      if (options.skipDatabaseUrlPolicy === true) return;
-      try {
-        await sqlClient.disconnect();
-      } catch (error: unknown) {
-        await withSpan('db.disconnect', () => Promise.reject(error), {
-          [ATTR.DB_SYSTEM_NAME]: 'postgresql',
-          [ATTR.CODE_FILE_PATH]:
-            'libs/server-app/src/app/request-db-middleware.ts',
-          [ATTR.CODE_FUNCTION_NAME]: 'disconnect',
-        }).catch(() => undefined);
+      if (options.skipDatabaseUrlPolicy !== true) {
+        try {
+          await sqlClient.disconnect();
+        } catch (error: unknown) {
+          await withSpan('db.disconnect', () => Promise.reject(error), {
+            [ATTR.DB_SYSTEM_NAME]: 'postgresql',
+            [ATTR.CODE_FILE_PATH]:
+              'libs/server-app/src/app/request-db-middleware.ts',
+            [ATTR.CODE_FUNCTION_NAME]: 'disconnect',
+          }).catch(() => undefined);
+        }
       }
     }
   });

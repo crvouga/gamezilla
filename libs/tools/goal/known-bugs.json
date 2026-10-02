@@ -643,5 +643,10 @@
     "id": "outbox-worker-claimed-foreign-delivery",
     "summary": "A worker claimed deliveries for absent consumers and other event partitions, consuming attempts without running the owner.",
     "regressionTest": "pkgs/outbox/tests/worker-partition.test.ts"
+  },
+  {
+    "id": "request-finally-swallowed-route-error",
+    "summary": "The harness request database middleware returned from finally, suppressing route exceptions and returning empty HTTP 200 bodies.",
+    "regressionTest": "libs/server-app/tests/request-db-error.test.ts"
   }
 ]
