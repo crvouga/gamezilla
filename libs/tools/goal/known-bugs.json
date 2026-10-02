@@ -605,6 +605,11 @@
     "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
   },
   {
+    "id": "github-transfer-immutable-oidc-subject",
+    "summary": "Check run 36974006709 failed with Infisical HTTP 403 after the repository transfer enabled GitHub's immutable OIDC subject. Bind Infisical and AWS CI identities to repo:gamezilla-org@336801040/gamezilla@1165464734 while preserving branch and environment restrictions.",
+    "regressionTest": "libs/infra/tests/github-oidc.test.ts"
+  },
+  {
     "id": "check-manual-cancels-required-pr",
     "summary": "On PR #107 at 2a2bda778fd0e66af2a74c7e02ecea6fb80c8956, bun check's manual dispatch cancelled the required PR Check run 36959395506, leaving the PR red despite a successful manual run. Check now observes the automatic PR run and resumes cancelled runs instead of dispatching over them.",
     "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
