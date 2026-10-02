@@ -6,17 +6,18 @@
 | --- | --- | --- |
 | Unit / contract / property | `tests/*.test.ts` | `bun run test` |
 | Model-based (index tuning) | `tests/index-tuning.property.test.ts` | `bun run test` |
-| Technical Gherkin contracts | `tests/contracts/*.feature`, `tests/safety-contract.test.ts` | `bun run test` |
-| Quint implementation replay | `tests/contracts/*.qnt`, `tests/safety-models.test.ts` | `bun run test` |
-| Bounded exhaustive model checks | `tests/safety-verification.test.ts` | `bun run test` |
+| Gherkin maintenance specifications | `specs/db-indexes/*.feature`, `tests/steps/` | `bun run test:spec` |
+| Quint implementation replay | `specs/db-indexes/*.qnt`, `tests/quint/` | `bun run test:spec` |
+| Bounded exhaustive model checks | `specs/db-indexes/*.qnt` | `bun run check:models` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
-Index tuning is technical, so it has no specs in `specs/`
-([`specs/README.md`](../../../specs/README.md) A0): its guards are
-code tests here. The tuning harness — one reconciler over `HarnessDb` on a
-virtual clock, with the standing `tuningInvariantsHold` property — is
-`indexTuningSystem`, exported from `@pkgs/db-indexes/harness`.
+All executable specifications live in the isolated
+[Database indexing context](../../../specs/db-indexes/), registered to this
+package. The shared runners generate conformance evidence from the root specs.
+Pure computations, port contracts and supplementary generated agreement checks
+remain package tests.
+
 The technical contract, bounds, coverage and outstanding safety evidence are in
 [SAFETY_CONTRACT.md](./SAFETY_CONTRACT.md). Its runners use public exports and
 virtual clocks; the bundled CLI and pinned checker are documented in

@@ -28,6 +28,9 @@ export const retirementWorld: QuintWorld<World> = {
 
 export const retirementBinding: QuintBinding<World> = {
   model: 'index-retirement',
+  traces: 80,
+  maxSteps: 25,
+  verifySteps: 7,
   actions: {
     init: async () => {},
     declare: (world, picks) =>

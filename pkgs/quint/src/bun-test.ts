@@ -88,7 +88,7 @@ export function runQuintModel(options: RunModelOptions): void {
     );
     if (shape.length > 0) {
       if (slice.index !== 0) {
-        test('has the shape of an offline-first aggregate', () => {
+        test('has a valid aggregate shape', () => {
           throw new Error(
             shape
               .map((item) => formatModelShapeIssue(options.specPath, item))

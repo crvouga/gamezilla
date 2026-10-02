@@ -1,7 +1,7 @@
 # Automatic indexing safety contract
 
-The requested technical contract lives in [contracts](../tests/contracts/),
-outside business-facing product specs under [the repository boundary](../../../specs/README.md).
+The technical contract lives in its own [Database indexing context](../../../specs/db-indexes/)
+under [the specification rulebook](../../../specs/README.md).
 It exercises the public reconciler through an injected in-memory port. It does
 not prove production adapters cannot block traffic or corrupt data; the unproven
 obligations below must be closed before that claim. No manual testing counts.
@@ -10,16 +10,18 @@ obligations below must be closed before that claim. No manual testing counts.
 
 | Contract | Capability |
 | --- | --- |
-| [ownership.feature](../tests/contracts/ownership.feature) | Ownership, primary/unique/operator protection, read-only planning |
-| [retirement.feature](../tests/contracts/retirement.feature) | Exact expiry, use, reset/missing nonzero-baseline evidence, returning workload |
-| [execution.feature](../tests/contracts/execution.feature) | Commit ambiguity, invalid builds, deferral/failure, recovery, idempotence |
-| [budgets.feature](../tests/contracts/budgets.feature) | Deadline admission and resumable build limits |
-| [planning.feature](../tests/contracts/planning.feature) | Admission thresholds, deduplication, table cap, migration on empty tables |
-| [persisted-interruption.feature](../tests/contracts/persisted-interruption.feature) | Both sides of all five writes in a mixed create/clear/deprecate/drop/cleanup run |
-| [index-retirement.qnt](../tests/contracts/index-retirement.qnt) | Workload and retirement interleavings |
-| [index-interruption.qnt](../tests/contracts/index-interruption.qnt) | Interrupted builds and conditional recovery |
+| [ownership.feature](../../../specs/db-indexes/ownership.feature) | Ownership, primary/unique/operator protection, read-only planning |
+| [retirement.feature](../../../specs/db-indexes/retirement.feature) | Exact expiry, use, reset/missing nonzero-baseline evidence, returning workload |
+| [execution.feature](../../../specs/db-indexes/execution.feature) | Commit ambiguity, invalid builds, deferral/failure, recovery, idempotence |
+| [budgets.feature](../../../specs/db-indexes/budgets.feature) | Deadline admission and resumable build limits |
+| [planning.feature](../../../specs/db-indexes/planning.feature) | Admission thresholds, deduplication, table cap, migration on empty tables |
+| [persisted-interruption.feature](../../../specs/db-indexes/persisted-interruption.feature) | Both sides of all five writes in a mixed create/clear/deprecate/drop/cleanup run |
+| [index-retirement.qnt](../../../specs/db-indexes/index-retirement.qnt) | Workload and retirement interleavings |
+| [index-interruption.qnt](../../../specs/db-indexes/index-interruption.qnt) | Interrupted builds and conditional recovery |
 
-All run in the normal package `test`. Features are discovered automatically; a
+Features and implementation replay run in `test:spec`; exhaustive bounded
+verification runs in `check:models`. The normal package `test` also requires
+dangerous-transition coverage from the same models. Features are discovered automatically; a
 model without an implementation binding fails inventory. Missing/ambiguous steps,
 missing pinned checker, violated invariant, unexercised action, and missing
 dangerous transition coverage fail checks. Each write-prefix example proves its
@@ -89,14 +91,21 @@ A green core suite does not close these rows. The release verdict remains
 
 Every scenario binds, every public model action is exercised, dangerous
 transitions are required, and observations use public package/harness exports.
-Business-only vocabulary/glossary/offline-device rules do not apply to this
-explicitly requested technical contract. Product specs were not changed.
+The isolated technical-maintenance context follows the operator-language and
+model-profile rules in the specification rulebook. App contexts retain their
+business vocabulary and offline-device obligations.
 
-Repository `spec:check --strict-duplicates`: **INCOMPLETE** for this work because
-three existing shared/sync-engine duplicate step pairs fail outside this package.
-No global spec-audit PASS is claimed.
+The aggregate coverage maps above and package checks supply scoped evidence.
+Scoped checks passed: 54 Gherkin examples, 160 implementation traces, replay
+determinism, action and dangerous-transition coverage, and bounded verification
+of both models. Root spec registration and the non-strict spec gate pass.
+The strict audit is **INCOMPLETE**: three existing shared/sync-engine wording
+duplicates block it outside this context. The ownership gate also rejects the
+prior `65a065351` feature commit because its subject starts with `test:`.
+No local package run establishes the release verdict, and the unproven
+production obligations above remain open.
 
-The [ownership gate](../../../libs/tools/scripts/check-spec-ownership.ts) treats
-every `.feature` as spec text. Commit the six features alone with a
-`spec(db-indexes):` subject; commit package-local models, bindings, dependencies,
-harness code and package docs separately. Never stage both groups together.
+The [ownership gate](../../../libs/tools/scripts/check-spec-ownership.ts) keeps
+root specifications separate from implementation commits. Commit features,
+models, glossary and rulebook changes with a `spec(db-indexes):` subject;
+commit bindings, runners, harness code and package documentation separately.

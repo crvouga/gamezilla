@@ -25,6 +25,9 @@ export const interruptionWorld: QuintWorld<World> = {
 };
 export const interruptionBinding: QuintBinding<World> = {
   model: 'index-interruption',
+  traces: 80,
+  maxSteps: 25,
+  verifySteps: 4,
   actions: {
     init: async () => {},
     attempt: async (world, picks) => {
