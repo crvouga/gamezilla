@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
+import { sql } from '@pkgs/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createHarnessAdapters } from '@pkgs/uuid';
-import { sql } from '@pkgs/sql';
 
 import {
   defineOutboxConsumer,

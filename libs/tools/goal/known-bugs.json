@@ -638,5 +638,10 @@
     "id": "sqlite-reconcile-foreign-index",
     "summary": "Reconciling framework tables dropped unique indexes owned by domain tables. The SQLite planner now removes stale indexes only for the slice it owns.",
     "regressionTest": "pkgs/db-schema-sqlite/tests/declared-index-ownership.test.ts"
+  },
+  {
+    "id": "outbox-worker-claimed-foreign-delivery",
+    "summary": "A worker claimed deliveries for absent consumers and other event partitions, consuming attempts without running the owner.",
+    "regressionTest": "pkgs/outbox/tests/worker-partition.test.ts"
   }
 ]
