@@ -1,14 +1,14 @@
 import {
   type BoardWorld,
+  chooseKeyboardSquare,
   clearBoardEvidence,
-  focusBoardSquare,
+  enterBoardKeyboard,
   type KeyboardDirection,
   moveKeyboard,
-  pressBoardKey,
   readKeyboardModel,
   readModelFingerprint,
-  selectSquare,
   setupBoard,
+  tapKeyboardCoordinates,
 } from '@pkgs/chess-board/harness';
 import type { Run } from '@pkgs/harness';
 import { bindQuintModel } from '@pkgs/quint/registry';
@@ -29,17 +29,23 @@ bindQuintModel<Run<BoardWorld>>({
         interactive: p['canMove'] as boolean,
         animations: false,
       });
-      await w.apply(focusBoardSquare, 'e2');
+      await w.apply(enterBoardKeyboard);
     },
     moveKeyboard: (w, p) =>
       observedInput(w, () =>
         w.apply(moveKeyboard, p['direction'] as KeyboardDirection)
       ),
-    chooseKeyboardSquare: (w) =>
-      observedInput(w, () => w.apply(pressBoardKey, ' ')),
+    chooseKeyboardSquare: (w, p) =>
+      observedInput(w, () =>
+        w.apply(chooseKeyboardSquare, p['key'] as 'Space' | 'Enter')
+      ),
     tapKeyboardSquare: (w, p) =>
       observedInput(w, () =>
-        w.apply(selectSquare, p['rank'] === 1 ? 'e2' : 'e4')
+        w.apply(
+          tapKeyboardCoordinates,
+          p['file'] as number,
+          p['rank'] as number
+        )
       ),
   },
   observe: (w) => w.read(readKeyboardModel),

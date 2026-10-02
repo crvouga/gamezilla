@@ -78,6 +78,7 @@ export function createExampleApp(
     ...layout,
     userArrowChanges: () =>
       evidence.userArrowChanges.map((arrows) => [...arrows]),
+    userArrowSnapshot: evidence.userArrowSnapshot,
     beginArrowObservation: evidence.beginArrowObservation,
     arrowOffers: evidence.arrowOffers,
     keyboardInput: evidence.keyboardInput,

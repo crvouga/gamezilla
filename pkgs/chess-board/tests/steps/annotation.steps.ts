@@ -89,16 +89,6 @@ Then(
   async (w) =>
     expect((await w.read(readOptions)).marks).not.toContain('ring@e4')
 );
-Then('Alice sees a green solid arrow from e2 to e4', async (w) =>
-  expect(
-    (await w.read(readAnnotations)).arrows.find(
-      (a) => a.token === 'arrow:green@e2-e4'
-    )
-  ).toMatchObject({
-    color: 'green',
-    dashed: false,
-  })
-);
 Then('Alice sees a blue dashed arrow from a1 to a8', async (w) =>
   expect(
     (await w.read(readAnnotations)).arrows.find(

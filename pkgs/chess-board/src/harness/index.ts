@@ -8,6 +8,7 @@ import {
   virtualTimeRuntime,
 } from '@pkgs/harness';
 import { annotationActions } from './annotation-actions';
+import { appearanceActions } from './annotation-appearance';
 import { beginArrowObservation } from './annotation-model';
 import { annotationSetupActions } from './annotation-setup';
 import { authorityActions } from './authority-actions';
@@ -18,19 +19,23 @@ import { interactionActions } from './interaction-actions';
 import { keyboardActions } from './keyboard-actions';
 import { lifecycleActions } from './lifecycle-actions';
 import { prepareRapidCapture } from './motion-setup';
+import { openingActions } from './opening-actions';
 import { optionsActions } from './options-actions';
 import { pairActions } from './pair-actions';
 import { pairConformance } from './pair-conformance';
 import { premoveActions } from './premove-actions';
+import { prepareTwoPremoves } from './premove-setup';
 import { prepareFixedWidthPromotion } from './width-promotion-setup';
 
 export * from './annotation-actions';
+export * from './annotation-appearance';
 export * from './annotation-model';
 export * from './annotation-reads';
 export * from './annotation-setup';
 export * from './authority-actions';
 export * from './black-promotion-setup';
 export type { BoardWorld } from './board-world';
+export * from './feedback-dom';
 export * from './interaction-actions';
 export * from './interaction-fixtures';
 export * from './interaction-reads';
@@ -39,6 +44,7 @@ export * from './keyboard-model';
 export * from './lifecycle-actions';
 export * from './model-evidence';
 export * from './motion-setup';
+export * from './opening-actions';
 export * from './options-actions';
 export * from './options-model';
 export * from './options-reads';
@@ -48,6 +54,7 @@ export type { PairSide } from './pair-world';
 export { CAPTURE, CAPTURED, INITIAL, REPLACEMENT } from './positions';
 export * from './premove-actions';
 export * from './premove-model';
+export * from './premove-setup';
 export * from './prepared-positions';
 export * from './promotion-access';
 export * from './promotion-model';
@@ -189,14 +196,17 @@ export const boardSystem = defineSystem<BoardWorld>({
     ...lifecycleActions,
     ...authorityActions,
     ...annotationActions,
+    ...appearanceActions,
     ...annotationSetupActions,
     ...optionsActions,
+    ...openingActions,
     ...pairActions,
     ...premoveActions,
     beginArrowObservation,
     prepareBlackPromotion,
     prepareFixedWidthPromotion,
     prepareRapidCapture,
+    prepareTwoPremoves,
     setupBoard,
     configureBoard,
     selectSquare,

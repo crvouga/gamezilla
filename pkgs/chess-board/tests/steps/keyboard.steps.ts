@@ -2,13 +2,16 @@ import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import {
   type BoardWorld,
+  chooseKeyboardSquare,
   focusBoardSquare,
   type KeyboardDirection,
   moveKeyboard,
-  pressBoardKey,
+  readFocusedBoardSquare,
+  readInteraction,
   readKeyboardInput,
   type Side,
   selectSquare,
+  selectSquareWithKeyboard,
   setupBoard,
 } from '@pkgs/chess-board/harness';
 import { stepsFor } from '@pkgs/gherkin/registry';
@@ -43,8 +46,21 @@ When(
   'Alice moves the keyboard one square {word}',
   (w, direction: KeyboardDirection) => w.apply(moveKeyboard, direction)
 );
-When("Alice chooses the keyboard's square with Space", (w) =>
-  w.apply(pressBoardKey, ' ')
+Given(
+  'Alice has g1 selected with the keyboard on f3 on a chessboard facing {word}',
+  async (w, side: Side) => {
+    await w.apply(setupBoard, {
+      orientation: side === 'White' ? 'white' : 'black',
+    });
+    await w.apply(selectSquareWithKeyboard, 'g1');
+    expect((await w.read(readInteraction)).selected).toBe('g1');
+    expect(await w.read(readFocusedBoardSquare)).toBe('g1');
+    await w.apply(focusBoardSquare, 'f3');
+  }
+);
+When(
+  "Alice chooses the keyboard's square with {word}",
+  (w, key: 'Space' | 'Enter') => w.apply(chooseKeyboardSquare, key)
 );
 Then(
   "Alice cannot move the keyboard beyond the chessboard's edge",

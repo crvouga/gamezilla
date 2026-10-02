@@ -5,9 +5,11 @@ import {
   configureBoard,
   confirmOfferedPosition,
   INITIAL,
+  OPENING_BOARD,
   readActivityMoves,
   readAnnouncement,
   readInteraction,
+  readOpeningBoard,
   readPiece,
   readProbe,
   readPromotionAccess,
@@ -95,7 +97,7 @@ Then("Alice sees White's offered move refused", async (w) => {
   });
 });
 Then("Alice (still )sees the position before White's first move", async (w) =>
-  expect((await w.read(readProbe)).fen).toBe(INITIAL)
+  expect(await w.read(readOpeningBoard)).toEqual(OPENING_BOARD)
 );
 Then(
   'Alice cannot complete the move until the pending promotion choice is decided',

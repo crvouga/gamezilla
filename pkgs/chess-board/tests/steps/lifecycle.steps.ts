@@ -41,12 +41,6 @@ Given(
     expect(await w.read(readEarlierCompletion)).toBe(true);
   }
 );
-Given("Alice's capture from e4 to d5 is animating again", async (w) => {
-  await w.apply(replacePosition, CAPTURE);
-  await w.apply(movePiece, 'e4', 'd5');
-  expect((await w.read(readBoard)).active).toBeGreaterThan(0);
-  expect(await w.read(readEarlierCompletion)).toBe(true);
-});
 Given(
   "Alice's capture from e4 to d5 was interrupted by closing the chessboard",
   async (w) => {

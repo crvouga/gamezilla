@@ -69,6 +69,10 @@ bindQuintModel<Run<BoardWorld>>({
     setVisibility: (w, p) => w.apply(setVisibility, p['visible'] as boolean),
     closeBoard: (w) => w.apply(closeBoard),
     startBoardWithUnusablePosition: (w) => w.apply(startUnusableBoard),
+    startBoard: (w, p) =>
+      w.apply(setupBoard, {
+        orientation: p['orientation'] as 'white' | 'black',
+      }),
   },
   observe: (w) => w.read(readLifecycle),
   fingerprint: (w) => w.read(readModelFingerprint),

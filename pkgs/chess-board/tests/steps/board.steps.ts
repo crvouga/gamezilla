@@ -12,10 +12,12 @@ import {
   movePiece,
   REPLACEMENT,
   readBoard,
+  readEarlierCompletion,
   readProbe,
   readSlides,
   readSquare,
   reduceMotion,
+  replacePosition,
   selectSquare,
   setupBoard,
   setVisibility,
@@ -46,9 +48,12 @@ Given('Alice has selected the piece on e2', async (w) => {
   await w.apply(setupBoard, {});
   await w.apply(selectSquare, 'e2');
 });
-Given("Alice's capture from e4 to d5 is animating", async (w) => {
-  await w.apply(setupBoard, { fen: CAPTURE });
+Given("Alice's capture from e4 to d5 is animating( again)", async (w) => {
+  const retained = await w.read(readEarlierCompletion);
+  await w.apply(replacePosition, CAPTURE);
   await w.apply(movePiece, 'e4', 'd5');
+  expect((await w.read(readBoard)).active).toBeGreaterThan(0);
+  expect(await w.read(readEarlierCompletion)).toBe(retained);
 });
 Given("Alice's move from g1 to f3 is animating", async (w) => {
   await w.apply(setupBoard, {});
@@ -105,7 +110,6 @@ When('Alice cancels the drag', (w) => w.apply(cancelDrag));
 When("Alice switches away from the chessboard's activity", (w) =>
   w.apply(leaveActivity)
 );
-When("Alice's chessboard becomes hidden", (w) => w.apply(setVisibility, false));
 When("Alice's chessboard becomes visible", (w) => w.apply(setVisibility, true));
 When('Alice waits for the animation to finish', (w) =>
   w.apply(finishAnimation)

@@ -1,6 +1,8 @@
 import { defineAction } from '@pkgs/harness';
+import { readActivityArrowAppearances } from './annotation-appearance';
 import { readAnnotations } from './annotation-reads';
 import type { BoardWorld } from './board-world';
+import { readFeedbackAppearance } from './feedback-dom';
 import { INITIAL, REPLACEMENT } from './positions';
 import { identifyPreparedPosition } from './prepared-positions';
 export const beginArrowObservation = defineAction({
@@ -11,19 +13,9 @@ export const readAnnotationModel = (w: BoardWorld) => {
   const view = readAnnotations(w);
   const endpoints = (token: string) =>
     token.split('@')[1]?.replace('-', ' to ') ?? 'unrecognized';
-  const activityArrows = view.arrows
-    .filter(
-      (a) =>
-        a.token.startsWith('arrow:green@') || a.token.startsWith('arrow:blue@')
-    )
-    .map(
-      (a) =>
-        (a.color ?? 'unrecognized') +
-        ' ' +
-        (a.dashed ? 'dashed' : 'solid') +
-        ' ' +
-        endpoints(a.token)
-    );
+  const activityArrows = readActivityArrowAppearances(w).map(
+    (a) => `${a.color} ${a.line} ${a.endpoints}`
+  );
   const activitySquares = view.highlights.map((h) =>
     h.token.includes(':ring')
       ? (h.ring.split(' ').at(-1) ?? 'unrecognized') +
@@ -31,13 +23,11 @@ export const readAnnotationModel = (w: BoardWorld) => {
         (h.token.split('@')[1] ?? 'unrecognized')
       : h.color + ' fill ' + (h.token.split('@')[1] ?? 'unrecognized')
   );
-  for (const badge of view.badges)
+  for (const badge of readFeedbackAppearance(w))
     activitySquares.push(
-      (badge.name.length > 0
-        ? badge.name
-        : (badge.accessibleName ?? 'unnamed')) +
-        ' badge ' +
-        (badge.token?.split('@')[1] ?? 'unrecognized')
+      ['tick', 'cross', 'exclamations'].includes(badge.symbol)
+        ? `${badge.color} ${badge.symbol} ${badge.placement} ${badge.square}`
+        : `${badge.symbol} badge ${badge.square}`
     );
   const arrows = view.changes.at(-1) ?? [];
   return {

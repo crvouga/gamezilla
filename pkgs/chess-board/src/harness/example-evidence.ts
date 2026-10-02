@@ -6,6 +6,7 @@ export function createExampleEvidence(clock: Clock, audio: RecordingAudio) {
   const moves: string[] = [];
   const moveRecords: Move[] = [];
   const userArrowChanges: (readonly BoardArrow[])[] = [];
+  let userArrowSnapshot: readonly BoardArrow[] = [];
   let arrowObservationStart = 0;
   let keyboardInput: { key: string; before: string | null } | null = null;
   let feedbackReadyAt = clock.now();
@@ -18,6 +19,7 @@ export function createExampleEvidence(clock: Clock, audio: RecordingAudio) {
     moveRecords,
     clearMoves,
     userArrowChanges,
+    userArrowSnapshot: () => userArrowSnapshot,
     keyboardInput: () => keyboardInput,
     recordKeyboardInput(key: string, before: string | null) {
       keyboardInput = { key, before };
@@ -27,7 +29,8 @@ export function createExampleEvidence(clock: Clock, audio: RecordingAudio) {
     },
     arrowOffers: () => userArrowChanges.length - arrowObservationStart,
     onUserArrowsChange(arrows: readonly BoardArrow[]) {
-      userArrowChanges.push(arrows.map((arrow) => ({ ...arrow })));
+      userArrowSnapshot = arrows.map((arrow) => ({ ...arrow }));
+      userArrowChanges.push(userArrowSnapshot);
     },
     feedbackReadyAt: () => feedbackReadyAt,
     touched: () => {

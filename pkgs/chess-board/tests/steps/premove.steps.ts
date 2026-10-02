@@ -7,9 +7,11 @@ import {
   dragPiece,
   movePiece,
   PREMOVE_READY,
+  prepareTwoPremoves,
   pressBoardKey,
   readActivityMoves,
   readInteraction,
+  readPiece,
   readPremoves,
   readProbe,
   selectSquare,
@@ -51,16 +53,38 @@ Given(
 );
 Given(
   'Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black',
+  (w) => w.apply(prepareTwoPremoves)
+);
+Given(
+  'Alice has premoves from d2 to d4 then g1 to f3 queued while waiting for Black with d2 selected',
   async (w) => {
-    await w.apply(setupBoard, {
-      fen: PREMOVE_READY,
-      premoves: true,
-      enableUserArrows: true,
-      animations: false,
+    await w.apply(prepareTwoPremoves, true);
+    expect((await w.read(readProbe)).selected).toBe('d2');
+  }
+);
+Given(
+  'Alice has cancelled two queued premoves and her d2 selection with Escape while waiting for Black',
+  async (w) => {
+    await w.apply(prepareTwoPremoves, true, true);
+    expect(await w.read(readPremoves)).toMatchObject({
+      queued: [],
+      previews: [],
     });
-    await w.apply(movePiece, 'd2', 'd4');
-    await w.apply(movePiece, 'g1', 'f3');
-    await w.apply(clearBoardEvidence);
+    expect((await w.read(readProbe)).selected).toBeNull();
+  }
+);
+Then(
+  'Alice sees the White pawn on d2 and knight on g1 without destination previews',
+  async (w) => {
+    expect(await w.read(readPiece, 'd2')).toEqual({
+      side: 'White',
+      piece: 'pawn',
+    });
+    expect(await w.read(readPiece, 'g1')).toEqual({
+      side: 'White',
+      piece: 'knight',
+    });
+    expect((await w.read(readPremoves)).previews).toEqual([]);
   }
 );
 Given(

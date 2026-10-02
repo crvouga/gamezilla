@@ -1,11 +1,14 @@
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import {
+  type ArrowAppearance,
   type BoardWorld,
   beginArrowObservation,
   beginPersonalArrow,
   cancelPersonalArrow,
+  chooseActivityArrow,
   clearActivityAnnotations,
   configureBoard,
+  type FeedbackAppearance,
   finishPersonalArrow,
   INITIAL,
   REPLACEMENT,
@@ -16,6 +19,7 @@ import {
   setupBoard,
   supplyActivityArrows,
   supplyActivitySquares,
+  supplyFeedbackMarks,
   togglePersonalCircle,
 } from '@pkgs/chess-board/harness';
 import type { Run } from '@pkgs/harness';
@@ -54,6 +58,13 @@ bindQuintModel<Run<BoardWorld>>({
     clearPersonalAnnotations: (w) => w.apply(selectSquare, 'e2'),
     setActivityArrows: (w, p) => w.apply(supplyActivityArrows, p['show']),
     setActivitySquareMarks: (w, p) => w.apply(supplyActivitySquares, p['show']),
+    chooseActivityArrow: (w, p) =>
+      w.apply(chooseActivityArrow, p['arrowAppearance'] as ArrowAppearance),
+    supplyFeedbackMarks: (w, p) =>
+      w.apply(
+        supplyFeedbackMarks,
+        p['feedbackAppearance'] as FeedbackAppearance
+      ),
     clearActivityAnnotations: (w) => w.apply(clearActivityAnnotations),
     configurePersonalAnnotations: (w, p) =>
       w.apply(configureBoard, {

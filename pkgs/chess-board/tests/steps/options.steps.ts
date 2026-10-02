@@ -23,6 +23,9 @@ import { stepsFor } from '@pkgs/gherkin/registry';
 import type { Run } from '@pkgs/harness';
 
 const { Given, When, Then } = stepsFor<Run<BoardWorld>>();
+Given('Alice has a chessboard facing Black with coordinates hidden', (w) =>
+  w.apply(setupBoard, { orientation: 'black', showCoordinates: false })
+);
 Given('Alice has a chessboard without a fixed width', (w) =>
   w.apply(setupBoard, { size: undefined })
 );
