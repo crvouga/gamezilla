@@ -1,10 +1,10 @@
 import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
-import { useLocalSearchParams, useRouter } from '@pkgs/ui';
+import { useProfileRow } from '@libs/profile/public/use-profile-row';
+import { useSyncEngine } from '@pkgs/sync-engine/solid';
+import { useRouter } from '@pkgs/ui';
 import type { Accessor } from 'solid-js';
-import { createEffect, createMemo } from 'solid-js';
-
+import { createEffect, createMemo, onCleanup } from 'solid-js';
 import type { FriendProfile } from '../../shared/friendship/friends-types';
-import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 
 export function readRouteParam(value: string | string[] | undefined): string {
   if (typeof value === 'string') return value;
@@ -13,29 +13,28 @@ export function readRouteParam(value: string | string[] | undefined): string {
 }
 
 /**
- * Resolves another user's display profile from sync `profiles` (via the
- * friends list join) or route search-param seed for non-friends.
+ * Reads the requested profile from its live sync scope, including withdrawal.
  */
 export function useFriendUserProfile(userId: Accessor<string>): {
   readonly profile: Accessor<FriendProfile>;
   readonly refreshProfile: () => void;
+  readonly unavailable: Accessor<boolean>;
 } {
   const router = useRouter();
   const myProfileId = useMyProfileId();
-  const friendsState = useFriends();
-  const cachedFriend = createMemo(
-    () => friendsState.friends().find((f) => f.userId === userId()) ?? null
-  );
-  const params = useLocalSearchParams<{
-    username?: string;
-    avatarConfig?: string;
-  }>();
-  const seedProfile = createMemo<FriendProfile>(() => ({
+  const engine = useSyncEngine();
+  const local = useProfileRow(userId);
+  createEffect(() => {
+    const id = userId();
+    if (!id) return;
+    const subscription = engine.subscribeQuery('profilesByIds', { ids: [id] });
+    onCleanup(() => subscription.unsubscribe());
+  });
+  const profile = createMemo<FriendProfile>(() => ({
     userId: userId(),
-    username: readRouteParam(params().username),
-    avatarConfig: readRouteParam(params().avatarConfig) || null,
+    username: local.row()?.username ?? '',
+    avatarConfig: local.row()?.avatar_config ?? null,
   }));
-  const profile = createMemo(() => cachedFriend() ?? seedProfile());
 
   createEffect(() => {
     if (myProfileId() !== null && userId() === myProfileId()) {
@@ -44,11 +43,12 @@ export function useFriendUserProfile(userId: Accessor<string>): {
   });
 
   const refreshProfile = () => {
-    // Friends list / route params are already live; no-op for API compat.
+    void engine.refreshQueries();
   };
 
   return {
     profile,
+    unavailable: () => !local.isLoading() && local.row() === null,
     refreshProfile,
   };
 }

@@ -79,18 +79,21 @@ module "trace_stack" {
 }
 
 module "ci_identity" {
-  source                = "../../modules/ci-identity"
-  org_id                = var.infisical.org_id
-  project_id            = var.infisical.project_id
-  name                  = "${var.project}-github-actions"
-  github_owner          = var.github.owner
-  github_subject_prefix = local.github_subject_prefix
+  source        = "../../modules/ci-identity"
+  org_id        = var.infisical.org_id
+  project_id    = var.infisical.project_id
+  name          = "${var.project}-github-actions"
+  oidc_issuer   = "https://token.actions.githubusercontent.com"
+  oidc_subject  = "${local.github_subject_prefix}:*"
+  oidc_audience = "https://github.com/${var.github.owner}"
 }
 
 module "aws_ci" {
   source                = "../../modules/aws-ci-identity"
   project               = var.project
   github_subject_prefix = local.github_subject_prefix
+  github_repository     = "${var.github.owner}/${var.github.repo}"
+  depot_org_id          = var.depot.org_id
 }
 
 module "repository" {

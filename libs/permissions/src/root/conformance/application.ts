@@ -3,7 +3,7 @@
  * (`decide`, `decideLimit`, `decideQuota`) on the shipped policy — or a
  * changed copy, for mutation tests — for a subject resolved from the facts
  * the product's own resolver makes of the case's person. The quota layer
- * counts the case's solved puzzles through the product's own window and
+ * counts the case's started puzzles through the product's own window and
  * ledger arithmetic, exactly as the client's `usePermissions().can` does.
  *
  * For tests and spec bindings only (a `root/` export).
@@ -40,7 +40,7 @@ import {
   factsOf,
   spacePresenceOf,
 } from './people';
-import { solvedEntries } from './puzzle-ledger';
+import { startedEntries } from './puzzle-ledger';
 import {
   ACCESS_REASONS,
   answerOnly,
@@ -132,7 +132,7 @@ export function dailyPuzzleLimitApplicationLayer(
       const used =
         window === undefined
           ? 0
-          : unitsSince(solvedEntries(input, CASE_NOW_MS), window.startMs);
+          : unitsSince(startedEntries(input, CASE_NOW_MS), window.startMs);
       return tableAnswer(
         decideQuota(active, subject, quota, { used, nowMs: CASE_NOW_MS }),
         DAILY_PUZZLE_LIMIT_REASONS

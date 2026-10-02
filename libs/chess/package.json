@@ -24,12 +24,15 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/harness/**'",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/5",
-    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/5",
-    "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/5",
-    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/5",
-    "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/5",
-    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/8",
+    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/8",
+    "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/8",
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/8",
+    "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/8",
+    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts",
+    "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/8",
+    "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/8",
+    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -85,11 +88,14 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/account-privacy": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/search": "workspace:*",
+    "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/dmn": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
@@ -102,5 +108,5 @@
   "specDomains": [
     "chess"
   ],
-  "specParts": 5
+  "specParts": 8
 }

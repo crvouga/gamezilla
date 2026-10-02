@@ -72,5 +72,3 @@ resource "cloudflare_r2_bucket_lifecycle" "reports" {
   # by GitHub branch state in Check, Deploy and scheduled Health instead.
   rules = []
 }
-
-

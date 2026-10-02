@@ -17,6 +17,7 @@ export type CreateAuthAppDeps = {
   readonly createId: CreateId;
   readonly http: HttpClient;
   readonly secret: string;
+  readonly sessionLifetimeMs?: number;
   /** Origin only (no path), e.g. https://api.example.com */
   readonly baseURL: string;
   /**

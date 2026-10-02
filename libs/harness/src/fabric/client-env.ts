@@ -6,8 +6,8 @@
 import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
+import { setOriginAvailability } from '@libs/client-app/shell/origin-availability-for-env';
 import { HARNESS_SERVER_URL } from '@libs/feature/public/harness-constants';
-import { assert } from '@pkgs/assert';
 import {
   createInhouseAuthClient,
   createNamespacedAuthClientStorage,
@@ -33,17 +33,15 @@ import {
 import { appBuildFetch, type HarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
 import { createHarnessBrowser, type HarnessBrowser } from './browser';
-import { harnessClientNamespace } from './client-namespace';
+import { harnessClientServerFetch } from './client-server-fetch';
+import { harnessClientSql } from './client-sql';
 import { type HarnessIdps, harnessBrowserFetch } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
 import type { HarnessNet } from './net';
+import { partitionAwarePubSub } from './partition-aware-pubsub';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
-import {
-  type HarnessSql,
-  handleBoundSqlClient,
-  openFreshHarnessClientSql,
-} from './sql';
+import type { HarnessSql } from './sql';
 
 export type HarnessClientEnvDeps = {
   readonly session: Session;
@@ -91,17 +89,49 @@ function clientServerFetch(deps: HarnessClientEnvDeps, id: string) {
   });
 }
 
+function clientEvents(deps: HarnessClientEnvDeps, id: string) {
+  const pubsubLogger = createLogger({
+    name: `harness-${id}:pubsub`,
+    now: () => deps.session.ports.clock.now(),
+  });
+  const openEvents = (): ReturnType<typeof createInMemoryPubSub> =>
+    partitionAwarePubSub({
+      inner: createInMemoryPubSub({
+        bus: deps.pubSubBus,
+        logger: pubsubLogger,
+      }),
+      reachable: () =>
+        deps.net.isReachable(id, HARNESS_PRIMARY_SERVER_ID) &&
+        deps.net.isReachable(`${id}:events`, HARNESS_PRIMARY_SERVER_ID),
+      timers: deps.timers,
+    });
+  let liveEvents: ReturnType<typeof createInMemoryPubSub> = openEvents();
+  const recreate = (): ReturnType<typeof createInMemoryPubSub> => {
+    liveEvents.close();
+    liveEvents = openEvents();
+    return liveEvents;
+  };
+  return { current: () => liveEvents, recreate };
+}
+
 export function makeHarnessClientEnv(
   deps: HarnessClientEnvDeps,
   args: {
     readonly id: string;
     readonly clientSql: Map<string, HarnessSql>;
+    readonly namespace: string;
   }
 ): { readonly env: ClientEnv; readonly browser: HarnessBrowser } {
-  const { session, seed, timers, net, pubSubBus, roomNode } = deps;
+  const { session, seed, timers, net, roomNode } = deps;
   const { id, clientSql } = args;
-  const ns = harnessClientNamespace(id);
-  const serverFetch = clientServerFetch(deps, id);
+  const ns = args.namespace;
+  const server = harnessClientServerFetch({
+    serverUrl: HARNESS_SERVER_URL,
+    fetch: clientServerFetch(deps, id),
+    clock: session.ports.clock,
+    timers,
+  });
+  const serverFetch = server.fetch;
   const browserFetch = harnessBrowserFetch({
     idps: deps.idps,
     billing: deps.billing,
@@ -115,19 +145,11 @@ export function makeHarnessClientEnv(
     appOrigin: () =>
       'location' in globalThis ? globalThis.location.origin : null,
     // The actor id doubles as the harness username (client-a / client-b).
-    onAuthSuccess: () => setPendingSignupUsername(id),
+    onAuthSuccess: () => setPendingSignupUsername(env.createAuthClient(), id),
   });
-  const pubsubLogger = createLogger({
-    name: `harness-${id}:pubsub`,
-    now: () => session.ports.clock.now(),
-  });
-  let liveEvents: ReturnType<typeof createInMemoryPubSub> | null =
-    createInMemoryPubSub({ bus: pubSubBus, logger: pubsubLogger });
-  const createPubSub = (): ReturnType<typeof createInMemoryPubSub> => {
-    liveEvents?.close();
-    liveEvents = createInMemoryPubSub({ bus: pubSubBus, logger: pubsubLogger });
-    return liveEvents;
-  };
+  const events = clientEvents(deps, id);
+  let authClient: ReturnType<typeof createInhouseAuthClient> | undefined;
+  const secureStorage = clientSecureStorage(ns);
   const env: ClientEnv = {
     clock: session.ports.clock,
     timers,
@@ -138,25 +160,18 @@ export function makeHarnessClientEnv(
     seed,
     server: serverFetch,
     get events() {
-      assert.defined(liveEvents, 'harness client events');
-      return liveEvents;
+      return events.current();
     },
-    createPubSub,
-    openSqlClient: async () => {
-      let handle = clientSql.get(id);
-      if (handle === undefined) {
-        handle = await openFreshHarnessClientSql(
-          `harness_client_${id}`,
-          session.ports.clock
-        );
-        clientSql.set(id, handle);
-      }
-      return handleBoundSqlClient(handle);
-    },
+    createPubSub: events.recreate,
+    openSqlClient: harnessClientSql({
+      id,
+      handles: clientSql,
+      clock: session.ports.clock,
+      storage: secureStorage,
+    }),
     kv: clientKv(ns),
-    secureStorage: clientSecureStorage(ns),
+    secureStorage,
     room: (roomArgs) => {
-      net.assertReachable(id, HARNESS_PRIMARY_SERVER_ID);
       return partitionAwareRoomTransport({
         open: () => roomNode.createTransport(roomArgs),
         reachable: () => net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),
@@ -167,7 +182,7 @@ export function makeHarnessClientEnv(
     serverUrl: HARNESS_SERVER_URL,
     // The in-house IdP on the API origin, its window in the actor's browser.
     createAuthClient: () =>
-      createInhouseAuthClient({
+      (authClient ??= createInhouseAuthClient({
         baseURL: HARNESS_SERVER_URL,
         clock: session.ports.clock,
         timers,
@@ -175,10 +190,11 @@ export function makeHarnessClientEnv(
         storage: createNamespacedAuthClientStorage(ns),
         openAuthSession: browser.openAuthSession,
         callbackUrl: `${HARNESS_SERVER_URL}/sso-callback`,
-      }),
+      })),
     openExternalUrl: browser.openExternalUrl,
-    resolveDatabaseName: () => ns,
+    resolveDatabaseName: ({ userId }) => `${ns}_${userId}`,
     mutationSuccessHoldMs: 900,
   };
+  setOriginAvailability(env, server.availability);
   return { env, browser };
 }

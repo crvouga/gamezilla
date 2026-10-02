@@ -4,6 +4,13 @@ import { PLUS_MEMBERSHIP_OFFER } from '../public/offer';
 import { BILLING_CLIENT } from '../root/client/feature-client';
 import { BILLING_FEATURE } from '../root/feature';
 import { createBillingServer } from '../root/server/feature-server';
+import {
+  agePaymentRetention,
+  makeMembershipPayment,
+  pauseCancellation,
+  paymentAfterDeletion,
+  resumeCancellation,
+} from './account-privacy';
 import { BILLING_HARNESS_ACTIONS } from './billing-actions';
 
 /**
@@ -16,5 +23,12 @@ export const BILLING_HARNESS_SLICE: HarnessSlice = {
   client: BILLING_CLIENT,
   server: (deps) => createBillingServer(deps.billing),
   billingOffer: PLUS_MEMBERSHIP_OFFER,
-  actions: BILLING_HARNESS_ACTIONS,
+  actions: [
+    ...BILLING_HARNESS_ACTIONS,
+    pauseCancellation,
+    resumeCancellation,
+    paymentAfterDeletion,
+    agePaymentRetention,
+    makeMembershipPayment,
+  ],
 };

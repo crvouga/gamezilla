@@ -24,6 +24,7 @@ const FEATURE: ReportSpec = {
   live: false,
   accessibility: false,
   scenarios: ['A guest creates a space', 'A member creates a space'],
+  temporalProperties: [],
 };
 
 const DECISIONS: ReportSpec = {
@@ -36,6 +37,7 @@ const DECISIONS: ReportSpec = {
   live: false,
   accessibility: false,
   scenarios: [],
+  temporalProperties: [],
 };
 
 function record(
@@ -84,6 +86,62 @@ function line(report: ReportInput, id: LineId) {
 }
 
 describe('evaluateLines', () => {
+  test('pure campaign evidence is required without claiming implementation conformance', () => {
+    // regression: conformance-campaign-coverage
+    const model: ReportSpec = {
+      ...FEATURE,
+      path: 'specs/system/access-sync.qnt',
+      context: 'system',
+      kind: 'dynamics',
+      harness: false,
+      scenarios: [],
+    };
+    const missing = input({ specs: [model], records: [] });
+    expect(line(missing, 'model-checking').status).toBe('fail');
+    expect(line(missing, 'trace-conformance').total).toBe(0);
+    const checked = input({
+      specs: [model],
+      records: [record(model, [pass('campaign-symbolic', 'specification')])],
+    });
+    expect(line(checked, 'model-checking').status).toBe('pass');
+    expect(line(checked, 'conformance-checks').status).toBe('pass');
+  });
+  test('a safety verdict cannot stand in for a declared progress obligation', () => {
+    // regression: quint-temporal-obligations-unchecked
+    const model: ReportSpec = {
+      ...FEATURE,
+      path: 'specs/sync-engine/note-recovery.qnt',
+      kind: 'dynamics',
+      scenarios: [],
+      temporalProperties: ['liveEditsFinish', 'liveDevicesAgree'],
+    };
+    const safety = record(model, [pass('verify', 'specification')]);
+    expect(
+      line(input({ specs: [model], records: [safety] }), 'model-checking')
+        .status
+    ).toBe('fail');
+    const oneProperty = record(model, [
+      pass('temporal:liveEditsFinish', 'specification'),
+    ]);
+    expect(
+      line(
+        input({ specs: [model], records: [safety, oneProperty] }),
+        'model-checking'
+      ).status
+    ).toBe('fail');
+    const allProperties = record(model, [
+      pass('temporal:liveDevicesAgree', 'specification'),
+    ]);
+    expect(
+      line(
+        input({
+          specs: [model],
+          records: [safety, oneProperty, allProperties],
+        }),
+        'model-checking'
+      ).status
+    ).toBe('pass');
+  });
   test('missing evidence fails', () => {
     expect(line(input({}), 'acceptance')).toMatchObject({
       status: 'fail',
@@ -224,6 +282,7 @@ describe('decideVerdict', () => {
       l.id === 'synthetics' ? { ...l, status: 'fail' as const } : l
     );
     const verdict = decideVerdict({
+      edition: 'current',
       lines: releaseFails,
       require: ['production-safe synthetics', 'completeness'],
       readiness: EVIDENCE_MAP['production readiness'],
@@ -238,25 +297,38 @@ describe('decideVerdict', () => {
 
   test('a requirement nothing maps fails, and so does a manifest that did not parse', () => {
     expect(
-      decideVerdict({ lines: allPass, require: ['security'], readiness: {} })
-        .requirements[0]
+      decideVerdict({
+        edition: 'current',
+        lines: allPass,
+        require: ['security'],
+        readiness: {},
+      }).requirements[0]
     ).toMatchObject({
       status: 'fail',
       problems: ['missing automation — no report line decides it'],
     });
     expect(
-      decideVerdict({ lines: allPass, require: null, readiness: {} })
-        .productionReadiness
+      decideVerdict({
+        edition: 'current',
+        lines: allPass,
+        require: null,
+        readiness: {},
+      }).productionReadiness
     ).toBe('fail');
     expect(
-      decideVerdict({ lines: allPass, require: [], readiness: {} })
-        .productionReadiness
+      decideVerdict({
+        edition: 'current',
+        lines: allPass,
+        require: [],
+        readiness: {},
+      }).productionReadiness
     ).toBe('pass');
   });
 
   test('renders the pipeline sections and both verdicts', () => {
     const text = renderVerdict(
       decideVerdict({
+        edition: 'current',
         lines,
         require: ['completeness'],
         readiness: EVIDENCE_MAP['production readiness'],

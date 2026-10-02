@@ -2,16 +2,7 @@ import type { MutationClient } from '@pkgs/sync-engine/client';
 import type { CreateId } from '@pkgs/uuid';
 import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation';
 import { ratePuzzleAttemptMutation } from '../../use-cases/rate-puzzle-attempt/shared/rate-puzzle-attempt-mutation';
-import {
-  deriveOutcomeScore,
-  hasPlayOutcome,
-  sliceCurrentPlay,
-} from '../chess-puzzle-derive';
-import type {
-  ChessPuzzleInteractionRow,
-  ChessPuzzleOutcomeKind,
-} from '../chess-puzzle-interaction-entities';
-import { puzzleScorePermille } from '../chess-puzzle-rating';
+import type { ChessPuzzleOutcomeKind } from '../chess-puzzle-interaction-entities';
 import type { AppendPuzzleInteractionInput } from '../writes/append-puzzle-interaction-write';
 
 function mutationRejected(
@@ -28,14 +19,14 @@ function mutationRejected(
 }
 
 export type FinalizePlayInput = {
+  readonly attemptKey: string;
   readonly ownerId: string;
   readonly puzzleId: string;
   readonly puzzleRating: number;
   readonly puzzleRatingDeviation: number;
   readonly solveIdx: number;
-  readonly interactions: readonly ChessPuzzleInteractionRow[];
   readonly terminalKind: ChessPuzzleOutcomeKind;
-  readonly wrongMove: boolean;
+  readonly scorePermille: 0 | 500 | 1000;
 };
 
 export class ChessPuzzleInteractionDb {
@@ -63,6 +54,8 @@ export class ChessPuzzleInteractionDb {
    * server's authoritative one come from the same definition.
    */
   async #rateAttempt(args: {
+    attemptKey: string;
+    solveIdx: number;
     ownerId: string;
     puzzleId: string;
     puzzleRating: number;
@@ -80,43 +73,20 @@ export class ChessPuzzleInteractionDb {
   }
 
   /**
-   * Append the play's rated outcome (at most once per play), then hand the
-   * attempt to the rating mutation. A repeat attempt on an already-rated
-   * puzzle still records the outcome row; the mutation leaves the rating
-   * alone (§8 / §9 exhausted pool).
+   * Result, rating, and queued upload commit together. A repeat attempt on
+   * an already-rated puzzle still records its outcome; the mutation leaves
+   * the first rating alone (§8 / §9 exhausted pool).
    */
   async finalizeRatedAttempt(args: FinalizePlayInput): Promise<void> {
-    if (hasPlayOutcome(args.interactions, args.puzzleId)) return;
-    const terminal: ChessPuzzleInteractionRow = {
-      puzzleId: args.puzzleId,
-      kind: args.terminalKind,
-      solveIdx: args.solveIdx,
-      uci: null,
-      correct: null,
-      puzzleRating: args.puzzleRating,
-      at: '',
-    };
-    await this.appendRow({
-      ownerId: args.ownerId,
-      puzzleId: args.puzzleId,
-      puzzleRating: args.puzzleRating,
-      kind: args.terminalKind,
-      solveIdx: args.solveIdx,
-    });
     await this.#rateAttempt({
+      attemptKey: args.attemptKey,
+      solveIdx: args.solveIdx,
       ownerId: args.ownerId,
       puzzleId: args.puzzleId,
       puzzleRating: args.puzzleRating,
       puzzleRatingDeviation: args.puzzleRatingDeviation,
       outcome: args.terminalKind,
-      scorePermille: puzzleScorePermille(
-        args.wrongMove
-          ? 0.5
-          : deriveOutcomeScore([
-              ...sliceCurrentPlay(args.interactions, args.puzzleId),
-              terminal,
-            ])
-      ),
+      scorePermille: args.scorePermille,
     });
   }
 }

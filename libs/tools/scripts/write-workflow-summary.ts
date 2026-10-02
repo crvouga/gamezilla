@@ -71,10 +71,9 @@ function buildStatusMarkdown(
   }
   if (actor !== '') lines.push(`- **actor:** @${actor}`);
   if (secretsEnv !== '') lines.push(`- **SECRETS_ENV:** \`${secretsEnv}\``);
-  if (repo !== '' && runId !== '') {
-    lines.push(
-      `- **workflow run:** [view run](${server}/${repo}/actions/runs/${runId})`
-    );
+  const jobUrl = process.env['DEPOT_JOB_URL']?.trim() ?? '';
+  if (jobUrl !== '') {
+    lines.push(`- **workflow run:** [view run](${jobUrl})`);
   }
   lines.push('');
   if (outcome === 'failure' && runId !== '') {
@@ -83,7 +82,7 @@ function buildStatusMarkdown(
     else {
       lines.push('### Query traces', '', '```sh');
       lines.push(
-        `gh run download ${runId} -p 'observability-traces-${runId}-*' -D artifacts`
+        `bun run libs/tools/scripts/workflow-artifacts.ts ${runId} observability-traces- artifacts`
       );
       lines.push('bun obs last --source artifacts --errors --window 24h');
       lines.push('```', '');

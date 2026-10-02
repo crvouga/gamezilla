@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
-import { MAX_SPEC_PARTS } from './spec-packages';
+import { SECRETS_RANGE_ENV } from './secrets-scan-range';
+import { MAX_SPEC_PARTS, specPartProblems } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -13,6 +13,7 @@ type TaskConfig = {
   readonly cache?: boolean;
   readonly inputs?: readonly string[];
   readonly outputs?: readonly string[];
+  readonly env?: readonly string[];
 };
 type Tasks = Readonly<Record<string, TaskConfig>>;
 
@@ -30,6 +31,11 @@ function loadRootScripts(): Readonly<Record<string, string>> {
   return pkg.scripts;
 }
 
+test('spec ownership caches the exact commit range it checks', () => {
+  // regression: spec-rulebook-commit-subject
+  expect(loadTasks()['//#ci:spec-ownership']?.env).toContain(SECRETS_RANGE_ENV);
+});
+
 function turboCiRunTaskArgs(script: string): string[] {
   const marker = 'turbo-ci-run.ts';
   const idx = script.indexOf(marker);
@@ -45,6 +51,39 @@ const SPEC_PART_TASKS = Array.from(
   { length: MAX_SPEC_PARTS },
   (_, index) => `test:spec:${String(index)}`
 );
+
+// regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
+test('slow spec suites split into independently cached parts that all gate Check', () => {
+  // regression: spec-task-batches-over-budget — friends 1,075s; sync 635s.
+  expectSpecParts('libs/friends', 64, ['friends', 'spaces']);
+  expectSpecParts('pkgs/sync-engine', 4, ['sync-engine']);
+});
+
+function expectSpecParts(dir: string, count: number, domains: string[]): void {
+  const manifest = JSON.parse(
+    readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
+  ) as { specParts: number; scripts: Record<string, string> };
+  expect(manifest.specParts).toBe(count);
+  expect(specPartProblems(dir, manifest)).toEqual([]);
+  const tasks = loadTasks();
+  const packageTasks = (
+    JSON.parse(readFileSync(join(REPO_ROOT, dir, 'turbo.json'), 'utf8')) as {
+      tasks: Tasks;
+    }
+  ).tasks;
+  for (let part = 0; part < count; part++) {
+    const task = `test:spec:${String(part)}`;
+    expect(tasks['//#check']?.dependsOn).toContain(task);
+    expect(tasks[task]?.outputs).toEqual([
+      `.cache/harness-report/part-${String(part)}/**`,
+    ]);
+    for (const domain of domains) {
+      expect(packageTasks[task]?.inputs).toContain(
+        `$TURBO_ROOT$/specs/${domain}/**`
+      );
+    }
+  }
+}
 
 /**
  * `//#check` is the whole check surface. Everything a package can check about
@@ -152,6 +191,7 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   test('//#check is exactly the check surface', () => {
+    // regression: check-spec-part-order
     expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
   });
 
@@ -166,12 +206,12 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('every task `bun check` can run is cached', () => {
+  test('only the live advisory check bypasses the Check cache', () => {
     const tasks = loadTasks();
     const uncached = [...reachableFromCheck(tasks)].filter(
       (task) => configFor(tasks, task)?.cache === false
     );
-    expect(uncached).toEqual([]);
+    expect(uncached).toEqual(['//#ci:audit']);
   });
 
   test('package check tasks hash every file in the package', () => {

@@ -43,7 +43,7 @@ import {
 } from './billing';
 import type { HarnessBrowser } from './browser';
 import { makeHarnessClientEnv } from './client-env';
-import { bumpHarnessClientEpoch } from './client-namespace';
+import { createHarnessClientNamespaces } from './client-namespace';
 import {
   type AppleClientKeys,
   addHarnessIdpAccounts,
@@ -111,6 +111,7 @@ export type Harness = {
   readonly billing: HarnessBillingProviders | null;
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
+  clientNamespace(id: string): string;
   /** The actor's web browser (sign-in window, billing pages). */
   browser(id: string): HarnessBrowser;
   /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
@@ -177,7 +178,8 @@ type SharedServerServices = {
 
 function buildSharedServerServices(
   serverSql: HarnessSql,
-  appleKeys: AppleClientKeys
+  appleKeys: AppleClientKeys,
+  auth: ServerEnv['auth']
 ): SharedServerServices {
   const secrets = createRecordSecretStore({
     DATABASE_URL: HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL,
@@ -191,7 +193,7 @@ function buildSharedServerServices(
     llm: new InMemoryLlmProvider(),
     secrets,
     // The simulated deployment signs in through the in-house IdP.
-    auth: INHOUSE_AUTH_PROVIDER,
+    auth,
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
 }
@@ -321,7 +323,11 @@ async function bootHarnessKernel(
     toApi: () => loadBalancer.fetchFrom(HARNESS_APPLE_IDP_ID),
   });
   const serverSql = await openServerSql(session, opts);
-  const shared = buildSharedServerServices(serverSql, appleKeys);
+  const shared = buildSharedServerServices(
+    serverSql,
+    appleKeys,
+    composition.authProvider ?? INHOUSE_AUTH_PROVIDER
+  );
   const billing = await openHarnessBillingProviders({
     offer: composition.billingOffer,
     clock: session.ports.clock,
@@ -410,17 +416,19 @@ async function disposeHarness(args: {
 function createClientEnvs(
   kernel: HarnessKernel,
   clientSql: Map<string, HarnessSql>,
-  browsers: Map<string, HarnessBrowser>
+  browsers: Map<string, HarnessBrowser>,
+  clientNamespace: (id: string) => string
 ): (id: string) => Promise<ClientEnv> {
   const clientEnvs = new Map<string, ClientEnv>();
   return (id) => {
-    const cached = clientEnvs.get(id);
+    const namespace = clientNamespace(id);
+    const cached = clientEnvs.get(namespace);
     if (cached !== undefined) return Promise.resolve(cached);
     // The person behind this actor holds accounts at both providers.
     addHarnessIdpAccounts(kernel.idps, id);
-    const built = makeHarnessClientEnv(kernel, { id, clientSql });
+    const built = makeHarnessClientEnv(kernel, { id, clientSql, namespace });
     browsers.set(id, built.browser);
-    clientEnvs.set(id, built.env);
+    clientEnvs.set(namespace, built.env);
     return Promise.resolve(built.env);
   };
 }
@@ -431,9 +439,16 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
   const clientSql = new Map<string, HarnessSql>();
   const browsers = new Map<string, HarnessBrowser>();
   const liveClients = new Map<string, Client>();
-  const client = createClientEnvs(kernel, clientSql, browsers);
+  const namespaces = createHarnessClientNamespaces();
+  const client = createClientEnvs(
+    kernel,
+    clientSql,
+    browsers,
+    namespaces.namespace
+  );
   return {
     session,
+    clientNamespace: namespaces.namespace,
     composition: kernel.composition,
     server: kernel.primaryEnv,
     clock: session.ports.clock,
@@ -479,9 +494,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
       }
     },
     clientIds: () => [...liveClients.keys()],
-    bumpClientEpoch: () => {
-      bumpHarnessClientEpoch();
-    },
+    bumpClientEpoch: namespaces.bump,
     setAppBuild: (id, build) => {
       kernel.appBuilds.set(id, build);
     },
@@ -526,7 +539,6 @@ export async function createHarness(
   session: Session,
   opts: CreateHarnessOptions
 ): Promise<Harness> {
-  bumpHarnessClientEpoch();
   const kernel = await bootHarnessKernel(session, opts);
   return createHarnessHandle(kernel);
 }

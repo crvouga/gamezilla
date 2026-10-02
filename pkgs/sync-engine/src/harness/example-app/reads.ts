@@ -24,6 +24,7 @@ async function rows<T extends Record<string, JsonValue>>(
 export type LiveNoteRow = {
   readonly body: string;
   readonly title: string;
+  readonly ownerId: string;
   readonly deletedAt: string | null;
 };
 
@@ -41,7 +42,7 @@ export async function liveNote(
     'liveNote',
     nodeId,
     sql<LiveNoteRow>`
-      SELECT body, title, deleted_at AS "deletedAt"
+      SELECT body, title, owner_id AS "ownerId", deleted_at AS "deletedAt"
       FROM notes
       WHERE id = ${id}
     `

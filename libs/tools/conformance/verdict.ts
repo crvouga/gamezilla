@@ -1,3 +1,4 @@
+import { checkRelease } from '@pkgs/conformance/release-check';
 /**
  * The two verdicts of `bun run conformance` and how they are printed and
  * recorded (strategy §§ 13, 23.11, 25.3). Pure: `conformance-report.ts`
@@ -23,6 +24,7 @@ export type RequirementResult = {
 };
 
 export type Verdict = {
+  readonly edition: string;
   readonly lines: readonly LineResult[];
   readonly requirements: readonly RequirementResult[];
   readonly productConformance: 'pass' | 'fail';
@@ -62,6 +64,7 @@ function requirementResult(
 }
 
 export function decideVerdict(input: {
+  readonly edition: string;
   readonly lines: readonly LineResult[];
   /** The manifest's `production readiness.require`; null when it did not parse. */
   readonly require: readonly string[] | null;
@@ -77,9 +80,19 @@ export function decideVerdict(input: {
   const ready =
     conformance &&
     input.require !== null &&
-    lines.every((line) => line.status === 'pass') &&
+    checkRelease({
+      edition: input.edition,
+      required: lines.map((line) => line.id),
+      evidence: lines.map((line) => ({
+        obligation: line.id,
+        edition: input.edition,
+        status: line.status,
+        automated: true,
+      })),
+    }).status === 'pass' &&
     requirements.every((requirement) => requirement.status === 'pass');
   return {
+    edition: input.edition,
     lines,
     requirements,
     productConformance: conformance ? 'pass' : 'fail',

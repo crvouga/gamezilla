@@ -50,6 +50,7 @@ function validateStartedPayload(payload: unknown): payload is {
   status: ChessPuzzlePlayStatus;
   solveIdx: number;
   startedAtMs: number;
+  attemptId: string;
 } {
   if (!isPlainRecord(payload)) return false;
   return (
@@ -61,7 +62,8 @@ function validateStartedPayload(payload: unknown): payload is {
     isOrientation(payload['orientation']) &&
     isStatus(payload['status']) &&
     isNonNegativeInteger(payload['solveIdx']) &&
-    isNonNegativeInteger(payload['startedAtMs'])
+    isNonNegativeInteger(payload['startedAtMs']) &&
+    isNonEmptyString(payload['attemptId'])
   );
 }
 

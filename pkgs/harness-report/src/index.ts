@@ -14,6 +14,7 @@ export {
   listSourceRecords,
   readCommit,
   readFrameBody,
+  readFrameCss,
   readTestReport,
   testEvents,
 } from './remote/read';

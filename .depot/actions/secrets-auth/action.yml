@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Inject secrets (OIDC)
+description: Fetch secrets via the configured secrets backend and export to GITHUB_ENV
+
+inputs:
+  identity-id:
+    description: Secrets backend machine identity ID for OIDC
+    required: true
+  project-id:
+    description: Secrets project id / slug
+    required: true
+  environment:
+    description: Secrets environment slug (dev or prd)
+    required: true
+  endpoint:
+    description: Secrets API endpoint (optional; adapter default when empty)
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Inject secrets
+      uses: ./.depot/actions/secrets-auth/impl-infisical
+      with:
+        identity-id: ${{ inputs.identity-id }}
+        project-id: ${{ inputs.project-id }}
+        environment: ${{ inputs.environment }}
+        endpoint: ${{ inputs.endpoint }}

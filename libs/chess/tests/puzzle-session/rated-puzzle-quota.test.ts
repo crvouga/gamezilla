@@ -103,6 +103,8 @@ function startRated(c: ServerCase, puzzleId: string): Promise<void> {
 
 function rateSolved(c: ServerCase, puzzleId: string): Promise<void> {
   return replayOperation(ratePuzzleAttemptMutation, () => ({
+    attemptKey: `attempt-${puzzleId}`,
+    solveIdx: 3,
     ownerId: c.env.actorId,
     puzzleId,
     puzzleRating: 1500,

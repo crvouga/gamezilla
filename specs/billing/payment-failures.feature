@@ -6,21 +6,23 @@ Feature: Failed payments
   the membership ends only once the payment provider gives up on the
   payment.
 
-  Background:
-    Given Alice has subscribed to Plus
+  Rule: A failed payment keeps paid access within grace until the payment provider gives up
 
-  Scenario: A failed payment is delinquent but stays paid inside grace
-    When Alice's payment fails
-    Then Alice's membership is delinquent
-    And Alice has paid access
+    Background:
+      Given Alice has subscribed to Plus
 
-  Scenario: A recovered payment makes the membership active again
-    Given Alice's payment has failed
-    When Alice's payment recovers
-    Then Alice's membership is active
-    And Alice has paid access
+    Scenario: A failed payment is delinquent but stays paid inside grace
+      When Alice's payment fails
+      Then Alice's membership is delinquent
+      And Alice has paid access
 
-  Scenario: A payment the payment provider gives up on ends the membership
-    Given Alice's payment has failed
-    When the payment provider gives up on Alice's payment
-    Then Alice's membership has ended
+    Scenario: A recovered payment makes the membership active again
+      Given Alice's payment has failed
+      When Alice's payment recovers
+      Then Alice's membership is active
+      And Alice has paid access
+
+    Scenario: A payment the payment provider gives up on ends the membership
+      Given Alice's payment has failed
+      When the payment provider gives up on Alice's payment
+      Then Alice's membership has ended

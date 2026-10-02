@@ -21,6 +21,7 @@ import {
   createSpace,
   deleteFolder,
   deleteNote,
+  deviceCanSynchronize,
   disconnect,
   failNextOpen,
   foreground,
@@ -34,6 +35,7 @@ import {
   mutateWhileFull,
   netSet,
   nudge,
+  online,
   outcome,
   partition,
   publishFault,
@@ -302,10 +304,16 @@ bindQuintModel<NoteWorld>({
       await writeConfirmed(w, p);
     },
     goOffline: async (w, p) => {
-      for (const id of windowsOf(w, p)) await w.s.apply(disconnect, id);
+      for (const id of windowsOf(w, p)) {
+        await w.s.apply(online, id, false);
+        await w.s.apply(disconnect, id);
+      }
     },
     goOnline: async (w, p) => {
-      for (const id of windowsOf(w, p)) await w.s.apply(connect, id);
+      for (const id of windowsOf(w, p)) {
+        await w.s.apply(online, id, true);
+        await w.s.apply(connect, id);
+      }
     },
     // A stalled network carries nothing either way; the app finds out only
     // when its requests time out, and catches up on its own once it recovers.
@@ -482,6 +490,7 @@ bindQuintModel<NoteWorld>({
     const folders = new Map([[SHARED, sharedFolders.names]]);
     const refused = new Map<string, number>();
     const unsent = new Map<string, number>();
+    const online = new Map<string, boolean>();
     for (const person of PEOPLE) {
       const device = await liveNotesOf(w, person);
       const deviceFolders = await liveFoldersOf(w, person);
@@ -490,6 +499,7 @@ bindQuintModel<NoteWorld>({
       folders.set(person, deviceFolders.names);
       refused.set(person, (await w.s.read(rejections, person)).length);
       unsent.set(person, await unsentOf(w, person));
+      online.set(person, await w.s.read(deviceCanSynchronize, person));
     }
     return {
       notes,
@@ -498,6 +508,7 @@ bindQuintModel<NoteWorld>({
       members: await membersOf(w),
       rejections: refused,
       unsent,
+      online,
     };
   },
   fingerprint: async (w) => {

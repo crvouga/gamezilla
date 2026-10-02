@@ -1,5 +1,4 @@
-// Postgres live differential runs against real PG via
-// embedded postgres or externally supplied DATABASE_URL.
+// Cached index contracts use a private embedded Postgres, never an injected database.
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -18,21 +17,14 @@ import { openPgClient } from '@pkgs/sql-client-postgres/connect';
 const REMOTE_DB_TIMEOUT_MS = 30_000;
 const TEST_SCHEMA = 'db_indexes_contract';
 
-let DATABASE_URL = process.env['DATABASE_URL'] ?? '';
-let stopPg: (() => Promise<void>) | undefined;
-
-// When no DATABASE_URL is supplied, start embedded Postgres automatically.
-if (!DATABASE_URL) {
-  const pg = await startEmbeddedPostgres({
-    port: await freePostgresPort(),
-    dataDir: join(tmpdir(), `pg-idx-contract-${randomUUID()}`),
-  });
-  DATABASE_URL = pg.url;
-  stopPg = () => pg.stop();
-}
+const pg = await startEmbeddedPostgres({
+  port: await freePostgresPort(),
+  dataDir: join(tmpdir(), `pg-idx-contract-${randomUUID()}`),
+});
+const DATABASE_URL = pg.url;
 
 afterAll(async () => {
-  await stopPg?.();
+  await pg.stop();
 });
 
 function stmt(sql: string) {
@@ -45,6 +37,10 @@ function stmt(sql: string) {
 }
 
 describe('postgres port contract', () => {
+  // regression: cached-contract-external-credentials
+  test('injected DATABASE_URL cannot select an external fixture', () => {
+    expect(new URL(DATABASE_URL).hostname).toBe('127.0.0.1');
+  });
   test('createPostgresPort is exported', async () => {
     const mod = await import('@pkgs/db-indexes-postgres');
     expect(typeof mod.createPostgresPort).toBe('function');

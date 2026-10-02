@@ -31,6 +31,9 @@ export type SpecStep = {
 };
 
 export type SpecScenario = {
+  /** Source declaration, shared by every expanded row of one outline. */
+  readonly declarationLine: number;
+  readonly declarationName: string;
   readonly name: string;
   readonly line: number;
   /** Feature tags folded in, as Gherkin does (`@domain:x`, `@regression:bug-1`). */
@@ -69,19 +72,22 @@ function collectSteps(
 
 function scenarioLines(
   children: readonly FeatureChild[],
-  into: Map<string, number>
+  into: Map<string, number>,
+  names: Map<string, string>
 ): void {
   for (const child of children) {
     if (child.scenario !== undefined) {
       into.set(child.scenario.id, child.scenario.location.line);
+      names.set(child.scenario.id, child.scenario.name);
       for (const examples of child.scenario.examples) {
         for (const row of examples.tableBody) {
           into.set(row.id, row.location.line);
+          names.set(row.id, row.cells.map((cell) => cell.value).join(', '));
         }
       }
     }
     if (child.rule !== undefined) {
-      scenarioLines(child.rule.children, into);
+      scenarioLines(child.rule.children, into, names);
     }
   }
 }
@@ -89,11 +95,20 @@ function scenarioLines(
 function toScenario(
   pickle: Pickle,
   stepAst: ReadonlyMap<string, StepAst>,
-  lines: ReadonlyMap<string, number>
+  lines: ReadonlyMap<string, number>,
+  names: ReadonlyMap<string, string>
 ): SpecScenario {
+  const firstNode = pickle.astNodeIds[0] ?? '';
   const lastNode = pickle.astNodeIds[pickle.astNodeIds.length - 1] ?? '';
+  const declarationName = names.get(firstNode) ?? pickle.name;
+  const name =
+    firstNode !== lastNode && declarationName === pickle.name
+      ? `${pickle.name} [${names.get(lastNode) ?? lastNode}]`
+      : pickle.name;
   return {
-    name: pickle.name,
+    name,
+    declarationName,
+    declarationLine: lines.get(pickle.astNodeIds[0] ?? '') ?? 0,
     line: lines.get(lastNode) ?? 0,
     tags: pickle.tags.map((tag) => tag.name),
     steps: pickle.steps.map((step) => {
@@ -128,13 +143,16 @@ export function parseFeature(source: string, uri: string): SpecFeature {
   const stepAst = new Map<string, StepAst>();
   collectSteps(feature.children, stepAst);
   const lines = new Map<string, number>();
-  scenarioLines(feature.children, lines);
+  const names = new Map<string, string>();
+  scenarioLines(feature.children, lines, names);
   const pickles = compile(document, uri, newId);
   return {
     uri,
     name: feature.name,
     description: feature.description.trim(),
     tags: feature.tags.map((tag) => tag.name),
-    scenarios: pickles.map((pickle) => toScenario(pickle, stepAst, lines)),
+    scenarios: pickles.map((pickle) =>
+      toScenario(pickle, stepAst, lines, names)
+    ),
   };
 }

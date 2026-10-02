@@ -1,4 +1,4 @@
-// Postgres connection contract runs against real PG.
+// Cached Postgres contracts use a private embedded server, never an injected database.
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -22,23 +22,21 @@ const TEST_SCHEMA = 'gamezilla_test_scope';
 const REMOTE_DB_TIMEOUT_MS = 30_000;
 const dbScope = createPostgresDbScope(TEST_SCHEMA);
 
-let databaseUrl = process.env['DATABASE_URL'] ?? '';
-let stopPg: (() => Promise<void>) | undefined;
-
-if (databaseUrl.length === 0) {
-  const pg = await startEmbeddedPostgres({
-    port: await freePostgresPort(),
-    dataDir: join(tmpdir(), `pg-contract-${randomUUID()}`),
-  });
-  databaseUrl = pg.url;
-  stopPg = pg.stop;
-}
+const pg = await startEmbeddedPostgres({
+  port: await freePostgresPort(),
+  dataDir: join(tmpdir(), `pg-contract-${randomUUID()}`),
+});
+const databaseUrl = pg.url;
 
 afterAll(async () => {
-  await stopPg?.();
+  await pg.stop();
 });
 
 describe('postgres-connect (DATABASE_URL contract)', () => {
+  // regression: cached-contract-external-credentials
+  test('injected DATABASE_URL cannot select an external fixture', () => {
+    expect(isLoopbackPostgresUrl(databaseUrl)).toBe(true);
+  });
   test('DATABASE_URL is a postgres wire URL', () => {
     expect(
       databaseUrl.startsWith('postgres://') ||

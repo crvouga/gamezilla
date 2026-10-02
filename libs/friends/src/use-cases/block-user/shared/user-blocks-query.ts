@@ -9,6 +9,7 @@ export const userBlocks = defineQuery({
       SELECT id, blocker_id, blocked_id, created_at, deleted_at
       FROM friends_blocks
       WHERE blocker_id = ${ctx.env.actorId}
+        OR blocked_id = ${ctx.env.actorId}
 `);
     return { friends_blocks: rows };
   },

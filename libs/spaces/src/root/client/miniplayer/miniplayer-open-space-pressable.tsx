@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -20,6 +21,7 @@ export function MiniplayerOpenSpacePressable(
   return (
     <button
       class="clickable clickableTint flex-1 self-stretch flex-row items-center gap-2 min-w-0"
+      data-testid={Handles.spaceMiniplayerOpen(props.spaceId)}
       type="button"
       onClick={() => {
         openSpaceDetail(router, props.spaceId);

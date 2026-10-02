@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import type { PlusMembershipOffer } from '@pkgs/billing';
 import { CONTRACT_OFFER } from '@pkgs/billing/membership-billing-contract';
 import {
-  PADDLE_MEMBERSHIP_CALLBACK_EVENTS,
+  PADDLE_CALLBACK_EVENTS,
   PaddleApi,
   paddlePriceBody,
   reconcilePaddleOffer,
@@ -70,8 +70,9 @@ describe('reconcilePaddleOffer', () => {
     const [destination] = paddle.notificationSettings.values();
     expect(destination?.destination).toBe(ctx.callbackUrl);
     expect([...(destination?.subscribed_events ?? [])].sort()).toEqual(
-      Object.keys(PADDLE_MEMBERSHIP_CALLBACK_EVENTS).sort()
+      [...PADDLE_CALLBACK_EVENTS].sort()
     );
+    expect(destination?.subscribed_events).toContain('transaction.completed');
     expect(result.newWebhookSecret).toBe(
       destination?.endpoint_secret_key ?? null
     );

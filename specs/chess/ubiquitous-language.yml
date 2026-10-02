@@ -9,6 +9,10 @@ purpose: >-
   puzzle played, online or offline.
 
 terms:
+  - term: account deletion
+    from: profile
+  - term: recently proven account
+    from: profile
   # --- Borrowed -------------------------------------------------------------
 
   - term: guest
@@ -43,7 +47,7 @@ terms:
   # The shared kernel's "the app", named in this context's model.
   - term: the app
     from: kernel
-    model: [reopenApp]
+    model: [reopenApp, closeApp]
 
   # --- Where a person is in a space ------------------------------------------
 
@@ -223,6 +227,7 @@ terms:
       continues the same attempt. Leaving the puzzle or closing the app does
       not end it.
     avoid: [session]
+    model: [Result, firstResult, finish, finishAsAppCloses, Unfinished]
 
   - term: puzzle state
     definition: >-
@@ -268,7 +273,7 @@ terms:
       Finish a puzzle's line with the solution. A solved puzzle is over, and
       its pieces can no longer be moved.
     forms: [solves, solved, solving]
-    model: [solve]
+    model: [solve, CleanSolve]
     published: true
 
   - term: wrong move
@@ -278,13 +283,14 @@ terms:
       retry. It earns half credit, like a hint.
     forms: [wrong]
     avoid: [mistake, blunder]
-    model: [playWrongMove]
+    model: [playWrongMove, WrongMove]
 
   - term: hint
     definition: >-
       Help while solving: the first highlights the piece to move, the second
       shows the solution move. A puzzle solved after a hint earns half credit.
     forms: [asks for a hint, asks for another hint, asked for a hint]
+    model: [HintedSolve]
 
   - term: half credit
     definition: >-
@@ -297,7 +303,7 @@ terms:
       a shown solution. It continues the same attempt, so its outcome does not
       change.
     forms: [retries the puzzle, retried the puzzle, retrying the puzzle]
-    model: [retry]
+    model: [retry, retryAndSolve]
 
   - term: show the solution
     definition: >-
@@ -311,14 +317,14 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution]
+    model: [showSolution, ShownSolution]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping]
-    model: [skip]
+    model: [skip, Skipped]
 
   - term: failed attempt
     definition: >-
@@ -391,6 +397,7 @@ terms:
       seed rating, provisional.
     forms: [rating]
     avoid: [score, elo]
+    model: [ratedResult]
 
   - term: seed rating
     definition: The puzzle rating every solver starts at, 1500.
@@ -419,6 +426,7 @@ terms:
       the rating moved over time. They count each puzzle's rated attempt
       only.
     avoid: [statistics, scoreboard]
+    model: [readStats]
 
   - term: accuracy
     definition: The share of rated attempts solved, as a whole percentage.
@@ -428,6 +436,7 @@ terms:
       A solver's list of every puzzle they played, each recorded as solved,
       failed or abandoned, and each opening in review.
     avoid: [puzzle history]
+    model: [gameLog]
 
   - term: review
     definition: >-
@@ -488,3 +497,6 @@ terms:
     source: FIDE Laws of Chess, Articles 3.7.5.1 and 3.1 (a promotion that captures)
   - term: algebraic notation
     source: FIDE Laws of Chess, Appendix C
+
+  - term: keyboard
+    from: runtime

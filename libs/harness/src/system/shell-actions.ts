@@ -21,7 +21,7 @@ export const openSettings = scenarioAction({
     const ui = await actorUi(s, actorId);
     await openGlobalMenu(ui, Handles.globalMenuSettings, WAIT_MS);
     await ui.get(Handles.globalMenuSettings).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.tabSpaces).expect.hidden({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.settingsTheme).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 
@@ -56,6 +56,9 @@ export const backToTabs = scenarioAction({
   name: 'backToTabs',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
+    await ui
+      .get(Handles.statusCurrentUser)
+      .expect.visible({ timeoutMs: WAIT_MS });
     for (let pops = 0; pops < 4; pops++) {
       if (await ui.get(Handles.tabProfile).isVisible()) break;
       if (!(await ui.get(Handles.navBack).isVisible())) break;

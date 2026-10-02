@@ -8,9 +8,9 @@ Get all three workflows green, and do it in **one pull request** on the current 
 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
-| **Check** (`.github/workflows/check.yml`) | the code is bad | every PR — `bun check` dispatches it |
-| **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main`, and `bun deploy` dispatches it on `main` |
-| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
+| **Check** (`.depot/workflows/check.yml`) | the code is bad | every PR — `bun check` dispatches it |
+| **Deploy** (`.depot/workflows/deploy.yml`) | shipping `main` fails | push to `main`, and `bun deploy` dispatches it on `main` |
+| **Health** (`.depot/workflows/health.yml`) | the live deployment is bad | hourly, and `bun health` dispatches it |
 
 Deploy and Health only run from `main`, so a fix for them reaches CI only after a
 human merges the PR. Agents never merge. The loop therefore ends with a green Check
@@ -24,16 +24,15 @@ Run all of these every iteration. Never rely on an earlier survey.
 ```bash
 gh pr view --json number,url,headRefName,mergeStateStatus 2>/dev/null   # this branch's PR, if any
 gh pr checks 2>/dev/null                                                 # Check on the PR
-gh run list --workflow deploy.yml --branch main --limit 3 \
-  --json databaseId,conclusion,headSha,createdAt,url
-gh run list --workflow health.yml --branch main --limit 3 \
-  --json databaseId,conclusion,createdAt,url
+depot ci workflow list --org mk7ncjwh4n --repo gamezilla-org/gamezilla --name Deploy -n 3 -o json
+depot ci workflow list --org mk7ncjwh4n --repo gamezilla-org/gamezilla --name Health -n 3 -o json
 ```
 
 For every red run, read the failure itself. Do not guess from the job name.
 
 ```bash
-gh run view <run-id> --log-failed | sed 's/^[^\t]*\t[^\t]*\t//' | grep -v '^\s*$' | tail -200
+depot ci status <run-id> --org mk7ncjwh4n -o json
+depot ci logs <failed-job-id> --org mk7ncjwh4n | tail -200
 bun obs find <trace/test/mutation id from the log>    # observability comes before new logging
 bun obs test '<failing test name>' --source <downloaded-artifact>
 ```
@@ -78,7 +77,7 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the deploy part".
 
 ```bash
-bun check --message "fix(scope): …"   # git-sync, then the whole gate on GitHub
+bun check --message "fix(scope): …"   # git-sync, then the whole gate on Depot
 # bun check:local                    # the same gate on this machine, when you need it
 ```
 
@@ -106,7 +105,7 @@ it (it ships `origin/main` only). Then `bun health` runs Health without waiting 
 the hourly schedule:
 
 ```bash
-gh run watch "$(gh run list --workflow deploy.yml --branch main --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
+depot ci status <deploy-run-id> --org mk7ncjwh4n -o json
 bun health
 ```
 

@@ -1,3 +1,4 @@
+import type { AuthProviderModule } from '@pkgs/auth/server';
 /**
  * What a simulation boots: which bounded contexts, and what each of them needs
  * from the host.
@@ -71,6 +72,7 @@ export type HarnessRoomNode = {
 };
 
 export type HarnessComposition = {
+  readonly authProvider?: AuthProviderModule;
   /** Names the seed cache and the report; distinct per feature set. */
   readonly name: string;
   /** The folded features: schema, queries, topic map, mutations. */

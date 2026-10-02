@@ -6,6 +6,20 @@ function problems(path: string, text: string): readonly string[] {
 }
 
 describe('decouplingProblems (D1)', () => {
+  test('composition provenance allows only specification domains', () => {
+    expect(
+      problems(
+        'specs/system/whole-system.qnt',
+        '// Sources: specs/friends, specs/profile'
+      )
+    ).toEqual([]);
+    expect(
+      problems(
+        'specs/system/whole-system.qnt',
+        '// Sources: specs/friends, apps/product'
+      )
+    ).toHaveLength(2);
+  });
   test('product words, traceability tags, usernames and Quint imports are clean', () => {
     expect(
       problems(

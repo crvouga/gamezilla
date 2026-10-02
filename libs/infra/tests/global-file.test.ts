@@ -13,10 +13,10 @@ describe('tofu/global.tfvars.json', () => {
   test('main requires exactly the gate job of every workflow that reports on PRs', () => {
     const gates: string[] = [];
     for (const file of new Bun.Glob('*.yml').scanSync(
-      join(REPO_ROOT, '.github/workflows')
+      join(REPO_ROOT, '.depot/workflows')
     )) {
       const workflow = Bun.YAML.parse(
-        readFileSync(join(REPO_ROOT, '.github/workflows', file), 'utf8')
+        readFileSync(join(REPO_ROOT, '.depot/workflows', file), 'utf8')
       ) as {
         name?: string;
         on?: Record<string, unknown>;
@@ -26,9 +26,16 @@ describe('tofu/global.tfvars.json', () => {
         workflow.on !== undefined && 'pull_request' in workflow.on;
       const gate = workflow.name?.toLowerCase() ?? '';
       if (onPullRequest && workflow.jobs !== undefined && gate in workflow.jobs)
-        gates.push(gate);
+        gates.push(`${workflow.name} / ${gate}`);
     }
     expect([...GLOBAL.github.required_checks].sort()).toEqual(gates.sort());
+  });
+
+  // regression: transferred-repo-protection-import
+  test('creates main protection instead of adopting the retired gamezilla:main rule', () => {
+    expect(GLOBAL.global_imports?.github_branch_protection).not.toBe(
+      'gamezilla:main'
+    );
   });
 
   test('every environment has a secrets environment to adopt or create', () => {

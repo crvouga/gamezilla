@@ -21,6 +21,7 @@ export type IdpUserRow = {
 
 export type IdpSessionRow = {
   readonly id: string;
+  readonly created_at: string;
   readonly user_id: string;
   readonly token_hash: string;
   readonly expires_at: string;
@@ -97,12 +98,17 @@ export class IdpRepository {
     `);
   }
 
-  async createSession(userId: string): Promise<{
+  async createSession(
+    userId: string,
+    lifetimeMs: number = AUTH_SESSION_TTL_MS
+  ): Promise<{
     readonly token: string;
     readonly expiresAtMs: number;
   }> {
+    if (!Number.isFinite(lifetimeMs) || lifetimeMs <= 0)
+      throw new Error('Session lifetime must be positive');
     const token = this.createId();
-    const expiresAtMs = this.clock.now() + AUTH_SESSION_TTL_MS;
+    const expiresAtMs = this.clock.now() + lifetimeMs;
     const now = this.nowIso();
     const tokenHash = hashAuthSecret(this.secret, token);
     await this.db.run(sql`
@@ -123,7 +129,7 @@ export class IdpRepository {
   } | null> {
     const tokenHash = hashAuthSecret(this.secret, token);
     const rows = await this.db.query(sql<IdpSessionRow & IdpUserRow>`
-      SELECT s.id, s.user_id, s.token_hash, s.expires_at,
+      SELECT s.id, s.created_at, s.user_id, s.token_hash, s.expires_at,
              u.email, u.name, u.image
       FROM idp_sessions s
       INNER JOIN idp_users u ON u.id = s.user_id
@@ -139,6 +145,7 @@ export class IdpRepository {
     return {
       session: {
         id: row.id,
+        created_at: row.created_at,
         user_id: row.user_id,
         token_hash: row.token_hash,
         expires_at: row.expires_at,

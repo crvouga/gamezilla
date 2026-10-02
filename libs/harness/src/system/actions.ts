@@ -1,10 +1,11 @@
+import { originAvailabilityFor } from '@libs/client-app/shell/origin-availability-for-env';
 import { defineAction } from '@pkgs/harness';
 import { describeUiOp, performUiOp, type UiOp } from '@pkgs/ui-testing';
 
 import { HARNESS_PRIMARY_SERVER_ID } from '../fabric/server-nodes';
 import { ensureActor } from './actor-ui';
 import type { ProductHarness } from './harness';
-import { caps, clientIds, partitioned } from './observations';
+import { caps, partitioned } from './observations';
 
 export const spawnActor = defineAction({
   name: 'spawnActor',
@@ -34,8 +35,8 @@ export const restartApp = defineAction({
 
 export const partition = defineAction({
   name: 'partition',
-  enabled: (s: ProductHarness) =>
-    caps(s).includes('partition') && clientIds(s).length > 0,
+  // Connectivity can change while every app is closed, before a later reopen.
+  enabled: (s: ProductHarness) => caps(s).includes('partition'),
   act: (s: ProductHarness, id: string) => {
     if (id === '') return;
     s.session.network.partition(HARNESS_PRIMARY_SERVER_ID, id);
@@ -46,10 +47,29 @@ export const restoreNetwork = defineAction({
   name: 'restoreNetwork',
   enabled: (s: ProductHarness) =>
     caps(s).includes('partition') && partitioned(s).length > 0,
-  act: (s: ProductHarness) => {
+  act: async (s: ProductHarness) => {
     s.session.network.healAll();
+    for (const id of s.actors.keys()) await refreshOrigin(s, id);
   },
 });
+
+/** Restore one person's connection while others may remain away. */
+export const restoreActorConnection = defineAction({
+  name: 'restoreActorConnection',
+  enabled: (s: ProductHarness) =>
+    caps(s).includes('partition') && partitioned(s).length > 0,
+  act: async (s: ProductHarness, id: string) => {
+    s.session.network.heal(HARNESS_PRIMARY_SERVER_ID, id);
+    await refreshOrigin(s, id);
+  },
+});
+
+/** A returning connection wakes the health probe, including after offline boot. */
+async function refreshOrigin(s: ProductHarness, id: string): Promise<void> {
+  if (!s.actors.has(id)) return;
+  const env = await s.harness.client(id);
+  await originAvailabilityFor(env).refresh();
+}
 
 /** How far one jump of {@link letTimePass} moves the world. */
 const TIME_PASS_HOP_MS = 60 * 60 * 1000;

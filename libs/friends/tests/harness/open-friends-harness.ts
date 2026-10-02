@@ -1,3 +1,4 @@
+import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy/harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing/harness/billing-harness-slice';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends/harness/friends-harness-slice';
 import {
@@ -27,6 +28,7 @@ import { spacesHarnessSlice } from '@libs/spaces/harness/spaces-harness-slice';
  */
 const FRIENDS_SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [
+    ACCOUNT_PRIVACY_HARNESS_SLICE,
     PROFILE_HARNESS_SLICE,
     spacesHarnessSlice({ games: [], clients: [] }),
     FRIENDS_HARNESS_SLICE,

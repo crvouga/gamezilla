@@ -105,6 +105,7 @@ describe('createSyncApp authorizeMutation', () => {
   });
 
   test('the hook sees the client timestamp on env and the host clock as serverNow', async () => {
+    // regression: sync-server-clock-missing-from-body
     const seen: Array<{ readonly client: string; readonly server: number }> =
       [];
     const host = await openHost(async ({ env, serverNow }) => {
@@ -117,6 +118,7 @@ describe('createSyncApp authorizeMutation', () => {
     expect(seen).toEqual([{ client: CLIENT_AT, server: SERVER_NOW }]);
     // The body's env is unchanged by the hook: still pinned to the client.
     expect(host.ran[0]?.env.now().toISOString()).toBe(CLIENT_AT);
+    expect(host.ran[0]?.env.serverNow?.().getTime()).toBe(SERVER_NOW);
   });
 
   test('framework bookkeeping mutations skip the hook', async () => {

@@ -32,7 +32,12 @@ type PgConstraintInfo = {
 function readPgConstraint(e: unknown): PgConstraintInfo | undefined {
   if (e === null || typeof e !== 'object') return undefined;
   const record = e as Record<string, unknown>;
-  const code = typeof record['code'] === 'string' ? record['code'] : undefined;
+  const code =
+    typeof record['errno'] === 'string'
+      ? record['errno']
+      : typeof record['code'] === 'string'
+        ? record['code']
+        : undefined;
   if (code !== '23505') return undefined;
   const constraint =
     typeof record['constraint'] === 'string'

@@ -1,19 +1,15 @@
-/**
- * Process-wide durable epoch for harness client namespaces.
- *
- * Each `createHarness` bumps the epoch so a prior harness that signed in cannot leave
- * a `sessionToken` behind for the next boot's guest client to replay against a
- * fresh Postgres.
- */
+/** Unique durable namespaces whose epoch belongs to one harness. */
+let nextEpoch = 0;
 
-let clientDurableEpoch = 0;
-
-/** Bump the process-wide client durable epoch (namespace isolation). */
-export function bumpHarnessClientEpoch(): number {
-  clientDurableEpoch += 1;
-  return clientDurableEpoch;
-}
-
-export function harnessClientNamespace(id: string): string {
-  return `harness_client_${id}_e${clientDurableEpoch}`;
+export function createHarnessClientNamespaces(): {
+  readonly namespace: (id: string) => string;
+  readonly bump: () => void;
+} {
+  let epoch = ++nextEpoch;
+  return {
+    namespace: (id) => `harness_client_${id}_e${epoch}`,
+    bump: () => {
+      epoch = ++nextEpoch;
+    },
+  };
 }

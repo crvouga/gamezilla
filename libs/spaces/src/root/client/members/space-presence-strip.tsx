@@ -5,12 +5,11 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceStrip } from '@pkgs/collab-ui';
-import { useNamedRoomRoster } from '@pkgs/room/solid';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 
 import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
-import { SPACE_ROOM_NAME } from '../../../public/room/use-space-room-selector';
+import { useConnectedSpaceRoster } from '../../../public/room/use-connected-space-roster';
 import { useSpaceParticipantColors } from '../room/use-space-participant-colors';
 
 export type SpacePresenceStripProps = {
@@ -26,7 +25,7 @@ export type SpacePresenceStripProps = {
 export function SpacePresenceStrip(
   props: SpacePresenceStripProps
 ): JSX.Element {
-  const roster = useNamedRoomRoster(SPACE_ROOM_NAME);
+  const roster = useConnectedSpaceRoster();
   const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
 

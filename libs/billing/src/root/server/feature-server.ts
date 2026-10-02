@@ -16,7 +16,7 @@ import { assert } from '@pkgs/assert';
 import type { MembershipProviders } from '@pkgs/billing';
 import { createLogger } from '@pkgs/logger';
 import type { CreateId } from '@pkgs/uuid/create-id';
-
+import { registerBillingPrivacyConsumers } from './account-privacy-consumers';
 import { BillingApp } from './billing-app';
 
 export function createBillingSubApp(
@@ -68,6 +68,8 @@ export function createBillingSubApp(
 export function createBillingServer(billing: MembershipProviders | null) {
   return defineFeatureServer({
     name: 'billing',
+    registerOutbox: (registry) =>
+      registerBillingPrivacyConsumers(registry, billing),
     routes: (ctx) =>
       createBillingSubApp(billing, () => ctx.clock.now(), ctx.createId),
   });

@@ -1,4 +1,4 @@
-// What someone saved, and how a newer version of the app may grow it.
+// @spec-meta — implementation schema-evolution contract: what someone saved, and how a newer version of the app may grow it.
 //
 // With no connection, nothing they saved changes: it stays as it was when
 // they were cut off, and it is still there when they are back online.

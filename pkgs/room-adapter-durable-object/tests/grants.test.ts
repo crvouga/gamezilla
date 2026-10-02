@@ -4,47 +4,8 @@ import { AddOne, gameRoomModule } from '@pkgs/room/harness';
 import {
   createDurableObjectAdapter,
   type DurableObjectInstanceState,
-  type DurableObjectKvStorage,
 } from '@pkgs/room-adapter-durable-object';
-
-class MemoryStorage implements DurableObjectKvStorage {
-  private readonly values = new Map<string, unknown>();
-
-  async get<T>(key: string): Promise<T | undefined> {
-    return this.values.get(key) as T | undefined;
-  }
-
-  async put(key: string, value: unknown): Promise<void>;
-  async put(entries: Record<string, unknown>): Promise<void>;
-  async put(
-    keyOrEntries: string | Record<string, unknown>,
-    value?: unknown
-  ): Promise<void> {
-    if (typeof keyOrEntries === 'string') {
-      this.values.set(keyOrEntries, value);
-      return;
-    }
-    for (const [key, entry] of Object.entries(keyOrEntries)) {
-      this.values.set(key, entry);
-    }
-  }
-
-  async delete(key: string): Promise<boolean> {
-    return this.values.delete(key);
-  }
-
-  async list<T>(options?: {
-    readonly prefix?: string;
-  }): Promise<Map<string, T>> {
-    const output = new Map<string, T>();
-    for (const [key, value] of this.values) {
-      if (options?.prefix === undefined || key.startsWith(options.prefix)) {
-        output.set(key, value as T);
-      }
-    }
-    return output;
-  }
-}
+import { MemoryKv } from './helpers/memory-kv';
 
 type Socket = { readonly ws: WebSocket; readonly sent: unknown[] };
 
@@ -71,7 +32,7 @@ function hibernatedSocket(person: string, grants?: readonly string[]): Socket {
 
 function roomObjectOver(sockets: readonly Socket[]) {
   const state: DurableObjectInstanceState = {
-    storage: new MemoryStorage(),
+    storage: new MemoryKv(),
     acceptWebSocket: () => undefined,
     getWebSockets: () => sockets.map((s) => s.ws),
     blockConcurrencyWhile: (fn) => fn(),

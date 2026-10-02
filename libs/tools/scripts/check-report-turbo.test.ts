@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -17,11 +17,19 @@ const TASK = '@libs/example#test:spec:0';
 const TURBO = join(import.meta.dirname, '../../../node_modules/.bin/turbo');
 
 async function run(
-  root: string
+  root: string,
+  cache = 'local:rw'
 ): Promise<{ status: number; published: string[] }> {
+  const plan = JSON.parse(
+    execFileSync(TURBO, ['run', TASK, '--dry=json', `--cache=${cache}`], {
+      cwd: root,
+      encoding: 'utf8',
+      env: { ...process.env, TURBO_TOKEN: '', TURBO_TEAM: '' },
+    })
+  ) as { tasks: { taskId: string; hash: string }[] };
   const child = spawn(
     TURBO,
-    ['run', TASK, '--json', '--output-logs=full', '--cache=local:rw'],
+    ['run', TASK, '--json', '--output-logs=full', `--cache=${cache}`],
     {
       cwd: root,
       env: {
@@ -35,7 +43,7 @@ async function run(
   );
   const published: string[] = [];
   const logs: string[] = [];
-  const publisher = createReportPublisher([TASK], {
+  const publisher = createReportPublisher(plan.tasks, {
     async publish(id) {
       expect(existsSync(join(root, 'packages/example/report.ready'))).toBe(
         true
@@ -59,7 +67,8 @@ async function run(
   return { status, published };
 }
 
-test('real Turbo streams completed and restored reports exactly once, including red suites', async () => {
+// regression: report-uncached-task-hash
+test('real Turbo streams completed, restored and uncached reports exactly once, including red suites', async () => {
   const root = mkdtempSync(join(tmpdir(), 'check-report-turbo-'));
   try {
     const pkg = join(root, 'packages/example');
@@ -94,6 +103,10 @@ test('real Turbo streams completed and restored reports exactly once, including 
     expect(await run(root)).toEqual({ status: 0, published: [TASK] });
     rmSync(join(pkg, 'report.ready'));
     expect(await run(root)).toEqual({ status: 0, published: [TASK] });
+    expect(await run(root, 'local:w')).toEqual({
+      status: 0,
+      published: [TASK],
+    });
     writeFileSync(join(pkg, 'emit.ts'), `${source}process.exit(1);\n`);
     expect(await run(root)).toEqual({ status: 1, published: [TASK] });
   } finally {

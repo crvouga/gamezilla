@@ -50,6 +50,7 @@ export const Handles = {
   spaceEndConfirm: 'space-end-confirm',
   /** Bottom miniplayer bar while a space is open locally. */
   spaceMiniplayer: 'space-miniplayer',
+  spaceMiniplayerOpen: (spaceId: string) => `space-miniplayer-open-${spaceId}`,
   /** MutationModal success-state dismiss (Done) for space leave/end flows. */
   spaceMutationDismiss: 'space-mutation-dismiss',
   /** Members button in the space action bar. */

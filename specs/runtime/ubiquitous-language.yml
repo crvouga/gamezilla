@@ -7,6 +7,20 @@ purpose: >-
   through lost connections and updates.
 
 terms:
+  - term: recovery copy
+    definition: >-
+      A separate copy of what people saved that the team keeps to recover
+      from accidental loss. Ordinary personal data from a confirmed account
+      deletion is erased from these copies within 30 days and cannot return
+      to use during recovery.
+    forms: [recovery copies, recovery copy's]
+
+  - term: account deletion
+    from: profile
+  - term: personal data
+    from: profile
+  - term: retention
+    from: profile
   - term: Settings
     definition: >-
       The place a person reaches from anywhere in the app to manage their
@@ -22,7 +36,7 @@ terms:
       person lands on Spaces and moves between the tabs freely.
     forms: [tab, the tabs]
     avoid: [home screen, tab bar, navigation bar]
-    model: [OnTab, openTab, lastTab]
+    model: [OnTab, openTab, _lastTab]
     published: true
 
   - term: first opening
@@ -41,6 +55,7 @@ terms:
       moves anyone.
     avoid: [screen, page, route]
     model: [Place, place]
+    published: true
 
   - term: close and reopen the app
     definition: >-
@@ -121,6 +136,7 @@ terms:
       says what it does, to someone listening to the app too.
     forms: [controls]
     avoid: [button, widget, element, link text, field]
+    published: true
 
   - term: listen to the app
     definition: >-
@@ -139,6 +155,7 @@ terms:
       where it was.
     forms: [keyboard's, keyboard alone, the keyboard alone]
     avoid: [focus, focused, focus ring, focus trap, tab key, tabbing, tab order, keyboard navigation]
+    published: true
 
   - term: the team's plan
     definition: >-
@@ -163,11 +180,7 @@ terms:
     avoid: [deploy, deployment, rollout]
 
   - term: the testing tool
-    definition: >-
-      A tool for the team, at its own address beside the app. People who use
-      the app never need it.
-    forms: [testing tool]
-    avoid: [sim, Simulator, harness, dev tools]
+    from: developer-tools
 
   - term: reach the app securely
     definition: >-
@@ -269,7 +282,7 @@ terms:
   # Borrowed from Friends.
   - term: people search
     from: friends
-    model: [Search, Lookup, lookup, lookUp, searchedFor, Denied, Nobody, Shows]
+    model: [Search, Lookup, lookup, lookUp, _searchedFor, Denied, Nobody, Shows]
 
   # Borrowed from Billing.
   - term: Plus

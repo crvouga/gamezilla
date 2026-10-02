@@ -35,5 +35,6 @@ export function buildRulesAuth(args: {
     accountId: args.accountId,
     myId: args.myId,
     isAnon: args.isAnon ?? false,
+    authenticatedAtMs: null,
   });
 }

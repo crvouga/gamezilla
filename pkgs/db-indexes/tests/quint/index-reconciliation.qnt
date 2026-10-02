@@ -1,3 +1,4 @@
+// @spec-meta — package reference protocol fixture
 // Package contract: only proven-owned ordinary indexes may retire or disappear.
 // Retirement requires a complete quiet window, current demand, trustworthy
 // usage, and an unchanged evidence generation checked at execution time.

@@ -169,14 +169,17 @@ function harnessKeeps(path: string): boolean {
 }
 
 /** The test files of `specs` (absolute paths), long specs sliced. */
-function unitsOf(specs: readonly string[]): readonly SpecUnit[] {
-  return specs.flatMap((path) => specUnits(path, readFileSync(path, 'utf8')));
+function unitsOf(specs: readonly string[], partCount = 1): readonly SpecUnit[] {
+  return specs.flatMap((path) =>
+    specUnits(path, readFileSync(path, 'utf8'), partCount)
+  );
 }
 
 /** Test files to run: the specs named, else all (or one part's share). */
 function selectSpecs(cli: Cli): readonly SpecUnit[] {
   const all = listSpecs();
-  if (cli.part !== undefined) return partOf(unitsOf(all), cli.part);
+  if (cli.part !== undefined)
+    return partOf(unitsOf(all, cli.part.count), cli.part);
   if (cli.specPaths.length === 0) {
     return cli.testPaths.length === 0 ? unitsOf(all) : [];
   }
@@ -325,13 +328,10 @@ const scope = [
   ...cli.testPaths,
 ];
 if (scope.length === 0) {
-  if (cli.part !== undefined) {
-    // More parts than specs: this part has nothing, which is a pass.
-    console.log(`test-spec: part ${BUCKET} of ${TEST_PACKAGE_NAME} is empty`);
-    finishReport(0);
-    process.exit(0);
-  }
-  console.error('test-spec: nothing to run');
+  console.error(
+    `test-spec: nothing to run in ${TEST_PACKAGE_NAME}/${BUCKET}; remove the empty part or fix its spec scope`
+  );
+  finishReport(1);
   process.exit(1);
 }
 
@@ -350,7 +350,9 @@ const result = spawnSync(
       : ['--preload', process.env['HARNESS_PRELOAD']]),
     '--timeout',
     String(TIMEOUT_MS),
-    '--parallel',
+    // Full product worlds own DOMs, databases and recorded frames. Two
+    // workers keep those worlds moving instead of competing for memory.
+    '--parallel=2',
     '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,

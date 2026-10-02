@@ -27,6 +27,7 @@ export const CHESS_GAME_ID = 'chess';
  */
 export const chessGameShared: GameDefinition = {
   id: CHESS_GAME_ID,
+  recoverEffects: () => [],
   commandRouters: [
     { namespace: chessCmdNs, router: chessMainMenuCommandRouter },
     { namespace: chessPuzzlePlayCmdNs, router: chessPuzzlePlayCommandRouter },

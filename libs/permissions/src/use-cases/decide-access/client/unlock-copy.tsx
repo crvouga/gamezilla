@@ -7,6 +7,7 @@ import type { DenialReason } from '@pkgs/permissions';
  * messages. Unknown keys fall back to the reason's neutral copy.
  */
 const COPY: Readonly<Record<string, () => string>> = {
+  'unlock.privacy.proof.title': () => t`Prove the account again to continue`,
   'unlock.rated.limit.title': () => t`You've hit today's puzzle limit`,
   'unlock.rated.limit.body': () =>
     t`Sign in free for unlimited puzzles, or come back tomorrow.`,
@@ -45,6 +46,8 @@ const REASON_TITLE: Readonly<Record<DenialReason, () => string>> = {
   limit_reached: () => t`You've reached your limit`,
   not_granted: () => t`Not available`,
   requires_account: () => t`Sign in to continue`,
+  requires_connection: () => t`This choice needs a connection`,
+  requires_recent_proof: () => t`Prove the account again to continue`,
   restricted: () => t`Not available on this account`,
 };
 

@@ -1,5 +1,4 @@
-// PubSub contract runs against local EMQX or externally
-// supplied broker. When no broker URL is provided, starts EMQX automatically.
+// Cached PubSub contracts use a private local broker, never an injected endpoint.
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -28,30 +27,30 @@ import {
 import { getEmqxClientId } from '@pkgs/pubsub-emqx/emqx-client-id';
 import { randomClientIdSuffix } from '@pkgs/pubsub-emqx/reconnect-backoff';
 
-let WSS_URL = process.env['EMQX_TEST_URL'] ?? '';
-let API_URL = process.env['EMQX_TEST_API_URL'] ?? '';
-const API_KEY = process.env['EMQX_TEST_API_KEY'] ?? EMQX_API_KEY;
-const API_SECRET = process.env['EMQX_TEST_API_SECRET'] ?? EMQX_API_SECRET;
-const MQTT_USER = process.env['EMQX_TEST_MQTT_USER'] ?? EMQX_MQTT_USER;
-const MQTT_PASS = process.env['EMQX_TEST_MQTT_PASS'] ?? EMQX_MQTT_PASS;
-let stopEmqx: (() => void) | undefined;
+const API_KEY = EMQX_API_KEY;
+const API_SECRET = EMQX_API_SECRET;
+const MQTT_USER = EMQX_MQTT_USER;
+const MQTT_PASS = EMQX_MQTT_PASS;
 
-// When no EMQX test URL is supplied, start a broker of our own: its own
+// Start a broker of our own: its own
 // ports and node name, so it never collides with a dev stack or another
 // worktree's run. `startEmqxServer` resolves once it serves MQTT and its API.
-if (!WSS_URL || !API_URL) {
-  const dataDir = join(tmpdir(), `emqx-contract-${randomUUID()}`);
-  const broker = await startEmqxServer({
-    clock: wallClock,
-    timers: wallTimers,
-    http: createGlobalHttpClient(),
-    dataDir,
-    ...(await isolatedEmqxPorts(process.pid)),
-  });
-  WSS_URL = `mqtt://127.0.0.1:${broker.mqttPort}`;
-  API_URL = `http://127.0.0.1:${broker.dashboardPort}`;
-  stopEmqx = () => broker.stop();
-}
+const dataDir = join(tmpdir(), `emqx-contract-${randomUUID()}`);
+const broker = await startEmqxServer({
+  clock: wallClock,
+  timers: wallTimers,
+  http: createGlobalHttpClient(),
+  dataDir,
+  ...(await isolatedEmqxPorts(process.pid)),
+});
+const WSS_URL = `mqtt://127.0.0.1:${broker.mqttPort}`;
+const API_URL = `http://127.0.0.1:${broker.dashboardPort}`;
+
+// regression: cached-contract-external-credentials
+test('injected EMQX endpoints cannot select an external fixture', () => {
+  expect(new URL(WSS_URL).hostname).toBe('127.0.0.1');
+  expect(new URL(API_URL).hostname).toBe('127.0.0.1');
+});
 
 const http = createGlobalHttpClient();
 const now = wallClock.now;
@@ -328,5 +327,5 @@ describe('EMQX offline session buffer', () => {
 });
 
 afterAll(() => {
-  stopEmqx?.();
+  broker.stop();
 });

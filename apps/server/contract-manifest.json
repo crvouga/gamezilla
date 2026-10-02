@@ -8,6 +8,7 @@
     "cancelFriendRequest",
     "claimUsername",
     "closeEndedOpenSessions",
+    "confirmAccountDeletion",
     "consumeQuota",
     "createSpace",
     "declineFriendRequest",
@@ -22,10 +23,10 @@
     "removeFriend",
     "removeSpaceUser",
     "renameSpace",
+    "requestPersonalDataExport",
     "savePuzzleFeedSettings",
     "sendFriendRequest",
-    "unblockUser",
-    "upsertPuzzleProfile"
+    "unblockUser"
   ],
   "queries": [
     "chessPuzzleById",
@@ -35,6 +36,8 @@
     "chessPuzzleProfile",
     "chessPuzzleRatingEvents",
     "clientConfig",
+    "deletionReceipts",
+    "downloadPersonalDataExport",
     "friendRequests",
     "friendships",
     "mySpaceUsers",
@@ -43,6 +46,7 @@
     "notificationsActive",
     "openSpaceSessions",
     "ownAccountDevices",
+    "ownAccountPrivacy",
     "ownDevices",
     "ownExternalAccounts",
     "ownProfile",

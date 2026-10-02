@@ -3,6 +3,7 @@ export type {
   Membership,
   MembershipBilling,
   MembershipChange,
+  MembershipPayment,
   MembershipStatus,
   OpenPortalInput,
   ReadCallbackInput,

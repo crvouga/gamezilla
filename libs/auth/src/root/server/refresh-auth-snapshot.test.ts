@@ -27,6 +27,8 @@ function makeFakeAuthServer(args: {
   const user = args.user ?? null;
   return {
     provider,
+    deleteUser: () =>
+      Promise.reject(new Error('deleteUser is outside this fixture')),
     verifySessionToken: async () => {
       if (args.verifyThrows === true) {
         throw new Error('boom');
@@ -132,6 +134,7 @@ describe('AuthSnapshotRefresher', () => {
         accountId: null,
         email: 'alice@example.com',
         expiresAt: null,
+        authenticatedAt: null,
       },
       user: AUTH_USER,
     });
@@ -160,6 +163,7 @@ describe('AuthSnapshotRefresher', () => {
         accountId: null,
         email: 'alice@example.com',
         expiresAt: null,
+        authenticatedAt: null,
       },
       user: AUTH_USER,
     });
@@ -193,6 +197,7 @@ describe('AuthSnapshotRefresher', () => {
         accountId: null,
         email: null,
         expiresAt: null,
+        authenticatedAt: null,
       },
       user: AUTH_USER,
     });

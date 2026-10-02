@@ -25,6 +25,8 @@ const REASONS: ReadonlySet<string> = new Set<DenialReason>([
   'quota_exhausted',
   'limit_reached',
   'requires_account',
+  'requires_connection',
+  'requires_recent_proof',
   'restricted',
 ]);
 const TREATMENTS: ReadonlySet<string> = new Set<UiTreatment>([

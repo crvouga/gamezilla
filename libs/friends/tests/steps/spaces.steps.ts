@@ -38,6 +38,7 @@ import {
   returnToOwnSpace,
   startSpace,
 } from '@libs/spaces/harness/space-actions';
+import { spacePresenceDiagnostics } from '@libs/spaces/harness/space-screen-read';
 import {
   activeSpaceVisible,
   backToSpacesOffered,
@@ -118,10 +119,14 @@ async function untilPresence(
   maxMs: number
 ): Promise<void> {
   await w.s.apply(openSpaceMembers, actor);
-  await w.s.until((surf) => readSpacePresenceCount(surf, actor), {
-    pred: (n) => n === count,
-    maxMs,
-  });
+  try {
+    await w.s.until((surf) => readSpacePresenceCount(surf, actor), {
+      pred: (n) => n === count,
+      maxMs,
+    });
+  } catch (cause) {
+    throw new Error(await w.s.read(spacePresenceDiagnostics), { cause });
+  }
   await w.s.apply(closeSpaceMembers, actor);
 }
 
@@ -298,6 +303,10 @@ When('{actor} leaves the space', async (w, actor: Actor) => {
   await w.s.apply(leaveSpace, actor);
 });
 
+Given('{actor} has left the space', async (w, actor: Actor) => {
+  await w.s.apply(leaveSpace, actor);
+});
+
 Given(
   '{actor} has lost the connection long enough to drop out of the space',
   async (w, actor: Actor) => {
@@ -399,4 +408,8 @@ Then('{actor} cannot rename the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
   await w.s.apply(openSpaceMenu, actor);
   expect(await w.s.read(renameOffered, actor)).toBe(false);
+});
+
+Then('{actor} is offered to join', async (w, actor: Actor) => {
+  await w.s.until((s) => joinOffered(s, actor), { maxMs: PRESENCE_SETTLES_MS });
 });

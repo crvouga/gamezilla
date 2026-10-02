@@ -4,12 +4,10 @@ import { resolve } from 'node:path';
 import { APP } from '@libs/runtime/root/app-features';
 
 /**
- * Every query and mutation name ever shipped to a client is append-only.
- * Renaming or removing one makes an offline client's queued mutation resolve to
- * `UNKNOWN_MUTATION` — a permanent rejection whose queue row is then dropped.
- * Freezing the name set in a committed manifest makes that impossible to merge;
- * `tests/contract-manifest.test.ts` holds the line. Run this file to record
- * new names: `bun run --filter @apps/server contract:write`.
+ * The current query and mutation surface, recorded for review. Removed names
+ * must disappear from the manifest too; they never remain as migration shims.
+ * Unknown queued writes receive the sync engine's explicit permanent rejection.
+ * Record changes with `bun run --filter @apps/server contract:write`.
  */
 export type ContractManifest = {
   readonly mutations: readonly string[];

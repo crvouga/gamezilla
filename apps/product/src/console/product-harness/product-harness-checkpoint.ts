@@ -67,7 +67,7 @@ export async function restoreCheckpoint(
     await ctx.runQuiet(async () => {
       ctx.harness.bumpClientEpoch();
       await restoreCheckpointServers(ctx, checkpoint);
-      restoreCheckpointKv(checkpoint);
+      restoreCheckpointKv(ctx, checkpoint);
       await importCheckpointSql(ctx, checkpoint);
       await restoreCheckpointRooms(ctx, checkpoint);
       applyCheckpointFaults(ctx.harness, checkpoint);

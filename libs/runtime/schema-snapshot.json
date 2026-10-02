@@ -1,5 +1,5 @@
 {
-  "release": 7,
+  "release": 8,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -29,6 +29,26 @@
       },
       "auth_users": {
         "is_anon": "boolean"
+      },
+      "billing_account_closures": {
+        "account_id": "text",
+        "cancellation_status": "text",
+        "confirmed_at": "timestamp",
+        "customer_id": "text",
+        "provider": "text",
+        "subscription_id": "text"
+      },
+      "billing_payment_evidence": {
+        "account_id": "text",
+        "amount_minor": "integer",
+        "currency": "text",
+        "erase_by": "timestamp",
+        "legal_end_condition": "text",
+        "legal_purpose": "text",
+        "paid_at": "timestamp",
+        "payment_id": "text",
+        "provider": "text",
+        "refunded_minor": "integer"
       },
       "billing_subscriptions": {
         "account_id": "text",
@@ -148,6 +168,33 @@
         "username_changed_at": "timestamp",
         "username_norm": "text"
       },
+      "profile_account_privacy": {
+        "cancellation_status": "text",
+        "deletion_at": "timestamp",
+        "erase_by": "timestamp",
+        "erased_at": "timestamp",
+        "export_detail": "text",
+        "export_status": "text",
+        "export_summary": "text",
+        "legal_end_condition": "text",
+        "legal_purpose": "text",
+        "owner_id": "text",
+        "ready_at": "timestamp",
+        "requested_at": "timestamp"
+      },
+      "profile_deletion_receipts": {
+        "cancellation_status": "text",
+        "confirmed_at": "timestamp",
+        "erase_by": "timestamp",
+        "owner_id": "text"
+      },
+      "profile_legal_preservations": {
+        "category": "text",
+        "end_condition": "text",
+        "owner_id": "text",
+        "preserved_data": "text",
+        "purpose": "text"
+      },
       "spaces": {
         "ended_at": "timestamp",
         "host_account_id": "text",
@@ -199,6 +246,8 @@
     },
     "retiredTables": [],
     "indexes": [
+      ["billing_account_closures", "account_id"],
+      ["billing_payment_evidence", "erase_by"],
       ["billing_subscriptions", "account_id"],
       ["chess_puzzle_rating_events", "owner_id"],
       ["chess_puzzles", "popularity"],
@@ -209,6 +258,8 @@
       ["auth_account_devices", "user_id", "device_id"],
       ["auth_external_accounts", "provider", "external_id"],
       ["auth_external_accounts", "user_id", "provider"],
+      ["billing_account_closures", "provider", "subscription_id"],
+      ["billing_payment_evidence", "provider", "payment_id"],
       ["billing_subscriptions", "provider", "provider_subscription_id"],
       ["chess_puzzles", "position_key"],
       ["friends_blocks", "blocker_id", "blocked_id"],
@@ -222,6 +273,8 @@
       ],
       ["permissions_quota_ledger", "owner_id", "idempotency_key"],
       ["profile", "username_norm"],
+      ["profile_account_privacy", "owner_id"],
+      ["profile_deletion_receipts", "owner_id"],
       ["spaces_open_sessions", "device_id", "space_id"],
       ["spaces_users", "space_id", "user_id"]
     ]

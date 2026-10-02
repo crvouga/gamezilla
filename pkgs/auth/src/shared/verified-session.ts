@@ -9,4 +9,6 @@ export type VerifiedSession = {
   readonly accountId: string | null;
   readonly email: string | null;
   readonly expiresAt: Date | null;
+  /** Time the person proved this account; refreshing a token does not change it. */
+  readonly authenticatedAt: Date | null;
 };

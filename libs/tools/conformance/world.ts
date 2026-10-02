@@ -32,6 +32,7 @@ import {
   type SpecPackage,
   specPackages,
 } from '../scripts/spec-packages';
+import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
 import {
   type PackageScripts,
@@ -156,11 +157,21 @@ export function specFiles(
   tasks: TurboTasks
 ): readonly SpecFile[] {
   const liveTask = Object.hasOwn(tasks, LIVE_TASK);
-  return specDirectories().flatMap((context) =>
-    readdirSync(join(REPO_ROOT, SPECS_DIR, context))
-      .sort()
-      .flatMap((name) => specFile({ context, name, packages, liveTask }) ?? [])
+  const campaigns = campaignBindings(
+    reachableTasks(tasks, packageScripts(), GATE_ROOT)
   );
+  return [
+    ...campaigns.specs,
+    ...specDirectories()
+      .filter((context) => !campaigns.domains.has(context))
+      .flatMap((context) =>
+        readdirSync(join(REPO_ROOT, SPECS_DIR, context))
+          .sort()
+          .flatMap(
+            (name) => specFile({ context, name, packages, liveTask }) ?? []
+          )
+      ),
+  ];
 }
 
 function decisionFacts(
@@ -265,6 +276,9 @@ export function readConformanceWorld(): ConformanceWorld {
     );
   const packages = specPackages();
   const tasks = turboTasks();
+  const gatingTasks = reachableTasks(tasks, packageScripts(), GATE_ROOT);
+  const campaigns = campaignBindings(gatingTasks);
+  problems.push(...campaigns.problems);
   const specs = specFiles(packages, tasks);
   const decisions = decisionFacts(specs, problems);
   const objectives = objectiveFacts(specs, problems);
@@ -274,12 +288,14 @@ export function readConformanceWorld(): ConformanceWorld {
       ? null
       : {
           manifest,
-          specDirectories: specDirectories(),
+          specDirectories: specDirectories().filter(
+            (domain) => !campaigns.domains.has(domain)
+          ),
           specs,
           decisions,
           objectives,
           evidence: EVIDENCE_MAP,
-          gatingTasks: reachableTasks(tasks, packageScripts(), GATE_ROOT),
+          gatingTasks,
         };
   return { world, manifest, packages, specs, problems };
 }

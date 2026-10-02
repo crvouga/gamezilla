@@ -121,6 +121,25 @@ describe('AnonUserService', () => {
     expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(proposed);
   });
 
+  // regression: deleted-account-anon-id-reuse
+  test('a device cannot reuse a deleted account as its anonymous identity', async () => {
+    const deleted = '33333333-3333-4333-8333-333333333333';
+    await db.run(sql<void>`
+      INSERT INTO auth_users (id, is_anon, created_at, deleted_at)
+      VALUES (${deleted}, false, '2026-10-01T00:00:00.000Z', '2026-10-01T00:01:00.000Z')
+    `);
+    const result = await ensureAnon.execute({
+      deviceId: DEVICE_ID,
+      userId: deleted,
+    });
+    expect(result.userId).not.toBe(deleted);
+    expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(result.userId);
+    expect(await anonUsers.readUserAnonState(result.userId)).toEqual({
+      exists: true,
+      isAnon: true,
+    });
+  });
+
   test('already-bound device ignores a different proposed user id', async () => {
     const first = await ensureAnon.execute({
       deviceId: DEVICE_ID,
@@ -156,6 +175,8 @@ describe('AccountProvisioningService upgrade', () => {
     });
     const authServer: AuthServerPort = {
       provider: 'idp',
+      deleteUser: () =>
+        Promise.reject(new Error('deleteUser is outside this fixture')),
       verifySessionToken: async () => null,
       getUser: async () => null,
     };
@@ -192,6 +213,8 @@ describe('AccountProvisioningService upgrade', () => {
 
     const authServer: AuthServerPort = {
       provider: 'idp',
+      deleteUser: () =>
+        Promise.reject(new Error('deleteUser is outside this fixture')),
       verifySessionToken: async () => null,
       getUser: async () => null,
     };

@@ -1,11 +1,9 @@
-import type { HtmlReportTest } from '@pkgs/harness';
 import { createMemo } from 'solid-js';
 
 import { useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
 import { EntityBrowser } from '../components/entity-browser';
 import {
-  type CatalogEntity,
   type CatalogGroup,
   type CatalogLayout,
   type CatalogQuery,
@@ -13,7 +11,7 @@ import {
   type CatalogStatus,
   catalogParams,
 } from '../lib/catalog';
-import { fileLabel } from '../lib/format';
+import { testCatalogEntity } from '../lib/test-catalog-entity';
 
 const STATUSES = new Set<string>([
   'all',
@@ -50,45 +48,10 @@ function queryOf(params: Readonly<Record<string, string>>): CatalogQuery {
   };
 }
 
-function packageOf(testId: string): string {
-  const source = testId.split('/')[0] ?? '';
-  const cut = source.indexOf('--');
-  const name = cut < 0 ? source : source.slice(0, cut);
-  return name.length > 0 ? name : 'report';
-}
-
-function toEntity(test: HtmlReportTest): CatalogEntity {
-  const meta = test.report.meta;
-  const file = fileLabel(meta.sourceFile);
-  const packageName = packageOf(meta.testId);
-  const error = meta.error?.split('\n')[0] ?? '';
-  return {
-    id: meta.testId,
-    title: meta.title,
-    status: meta.status,
-    durationMs: meta.durationMs,
-    file,
-    packageName,
-    runtime: meta.runtime,
-    detail: error,
-    search: [
-      meta.title,
-      meta.testId,
-      meta.sourceFile ?? '',
-      file,
-      meta.system,
-      meta.runtime,
-      packageName,
-      error,
-    ].join(' '),
-    href: null,
-  };
-}
-
 export function ListView(props: { nav: ReportNav }) {
   const report = useReport();
   const query = createMemo(() => queryOf(props.nav.route().params));
-  const entities = createMemo(() => report.data.tests.map(toEntity));
+  const entities = createMemo(() => report.data.tests.map(testCatalogEntity));
   const write = (next: CatalogQuery) => {
     props.nav.navigate(
       {

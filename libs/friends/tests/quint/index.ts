@@ -6,6 +6,7 @@
 
 import './friendship.binding';
 import './space-hosting.binding';
+import './space-recovery.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
 import { openHarness } from '../harness/open-friends-harness';

@@ -1,47 +1,26 @@
 #!/usr/bin/env bun
-// @io-wall-ok — gh CLI entry
-/**
- * `bun check`, `bun health`, and `bun deploy`: run the matching
- * workflow on GitHub and block until it finishes. Check observes an open
- * PR's automatic run; otherwise it dispatches. The exit code is the
- * run's verdict. While the watch runs, keystroke echo is off, so a
- * scroll wheel's arrow keys stay out of the transcript. Ctrl-C still
- * cancels (SIGTERM / SIGHUP do too). SIGKILL cannot be caught — cancel
- * that run with `gh run cancel <id>`.
- *
- *   bun check  [--message "type(scope): summary"]  → check.yml on this branch
- *   bun health [--message "type(scope): summary"]  → health.yml on this branch
- *   bun deploy                                     → deploy.yml on main
- *
- * Check and health run `/git-sync` first, so the run checks out this
- * HEAD, current with trunk. Check refuses on `main`. Deploy does not
- * commit: it fast-forwards local `main` and dispatches `origin/main`,
- * the only ref that workflow accepts.
- *
- * Workflow jobs run the local runners (`turbo-ci-run`, `bun health:local`,
- * `bun deploy:local`), never these commands, which would dispatch again.
- * Check also prints the spec report address once the branch is synced:
- * `https://<dev apex>/reports/<sha>`.
- */
-
-import { type ChildProcess, spawn } from 'node:child_process';
+// @io-wall-ok — native Depot CI CLI and git composition root.
+/** `bun check`, `bun health`, `bun deploy`: sync, run on Depot and await the verdict. */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { type GitSyncOptions, gitSync, parseGitSyncArgs } from './git-sync';
 import {
-  type GitSyncOptions,
-  gitSync,
-  parseGitSyncArgs,
-  SyncError,
-} from './git-sync';
-import { CheckRunError, pullRequestCheckRun } from './workflow-check-run';
+  type DepotTarget,
+  type DepotWorkflow,
+  listWorkflows,
+  selectWorkflow,
+  startWorkflow,
+  watchWorkflow,
+} from './workflow-depot';
 
 const DEV_ENV_FILE = join(
   import.meta.dirname,
   '../../infra/tofu/envs/dev.tfvars.json'
 );
-const FIND_RUN_ATTEMPTS = 30;
-const FIND_RUN_INTERVAL_MS = 2000;
-const FAILED_LOG_LINES = 200;
+const GLOBAL_FILE = join(
+  import.meta.dirname,
+  '../../infra/tofu/global.tfvars.json'
+);
 const TRUNK = 'main';
 
 export type RemoteCommand = 'check' | 'health' | 'deploy';
@@ -170,63 +149,6 @@ function must(cmd: readonly string[]): string {
   return result.out;
 }
 
-export type ListedRun = {
-  readonly databaseId: number;
-  readonly headSha: string;
-};
-
-/** The run our dispatch created: new since the snapshot, on our commit. */
-export function findNewRun(
-  runs: readonly ListedRun[],
-  knownIds: ReadonlySet<number>,
-  sha: string
-): ListedRun | undefined {
-  return runs.find(
-    (candidate) =>
-      !knownIds.has(candidate.databaseId) && candidate.headSha === sha
-  );
-}
-
-type WorkflowRun = ListedRun & { readonly conclusion: string | null };
-
-/** Follow a newer run of the same commit when trigger deduplication cancels ours. */
-export function findSupersedingRun(
-  runs: readonly WorkflowRun[],
-  runId: number,
-  sha: string
-): ListedRun | undefined {
-  return runs
-    .filter(
-      (candidate) =>
-        candidate.databaseId > runId &&
-        candidate.headSha === sha &&
-        candidate.conclusion !== 'cancelled'
-    )
-    .sort((a, b) => b.databaseId - a.databaseId)[0];
-}
-
-function listRuns(
-  workflow: string,
-  branch: string,
-  allTriggers = false
-): WorkflowRun[] {
-  const out = must([
-    'gh',
-    'run',
-    'list',
-    '--workflow',
-    workflow,
-    '--branch',
-    branch,
-    ...(allTriggers ? [] : ['--event', 'workflow_dispatch']),
-    '--limit',
-    '20',
-    '--json',
-    'databaseId,headSha,conclusion',
-  ]);
-  return JSON.parse(out) as WorkflowRun[];
-}
-
 type PreparedRun = {
   readonly branch: string;
   readonly sha: string;
@@ -274,181 +196,6 @@ function prepareRun(
     : prepareBranch(target, options);
 }
 
-async function waitForRun(
-  workflow: string,
-  branch: string,
-  sha: string,
-  knownIds: ReadonlySet<number>
-): Promise<number> {
-  for (let attempt = 0; attempt < FIND_RUN_ATTEMPTS; attempt += 1) {
-    const found = findNewRun(listRuns(workflow, branch), knownIds, sha);
-    if (found !== undefined) return found.databaseId;
-    await Bun.sleep(FIND_RUN_INTERVAL_MS);
-  }
-  throw new WorkflowRemoteError(
-    `dispatched ${workflow} but no run for ${sha.slice(0, 9)} appeared; see ` +
-      `\`gh run list --workflow ${workflow} --branch ${branch}\`.`
-  );
-}
-
-function cancelRun(label: string, runId: number): void {
-  console.error(`\n${label}: cancelling run ${String(runId)} on GitHub…`);
-  const result = run(['gh', 'run', 'cancel', String(runId)]);
-  console.error(
-    result.code === 0
-      ? `${label}: cancelled.`
-      : `${label}: cancel failed: ${result.err || result.out}`
-  );
-}
-
-type WatchState = {
-  readonly label: string;
-  runId: number | null;
-  watcher: ChildProcess | null;
-  tty: TtyHold | null;
-  readonly lookup: () => number | null;
-};
-
-/**
- * Cancel on interrupt. Before the run id is known, look it up once so a
- * Ctrl-C during dispatch still cancels what was started.
- */
-function cancelOnSignals(state: WatchState): void {
-  let handled = false;
-  const onSignal = (signal: NodeJS.Signals) => {
-    if (handled) return;
-    handled = true;
-    state.tty?.release();
-    state.watcher?.kill('SIGTERM');
-    const runId = state.runId ?? state.lookup();
-    if (runId !== null) cancelRun(state.label, runId);
-    process.exit(signal === 'SIGINT' ? 130 : 143);
-  };
-  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
-    process.on(signal, onSignal);
-  }
-}
-
-function printFailedLog(label: string, runId: number): void {
-  const result = run(['gh', 'run', 'view', String(runId), '--log-failed']);
-  const lines = result.out.split('\n');
-  console.error(
-    `\n${label}: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
-  );
-  console.error(lines.slice(-FAILED_LOG_LINES).join('\n'));
-}
-
-type RunWorkflowOptions = {
-  readonly workflow: string;
-  /** Log prefix, e.g. `check`. */
-  readonly label: string;
-  readonly branch: string;
-  readonly sha: string;
-};
-
-/**
- * Dispatch `workflow` on `branch`, block until its run finishes and return the
- * run's exit code and URL. Ctrl-C / SIGTERM / SIGHUP cancel the run first.
- */
-async function runWorkflow(
-  options: RunWorkflowOptions
-): Promise<{ readonly code: number; readonly url: string }> {
-  const { workflow, label, branch, sha } = options;
-  const knownIds = new Set(
-    listRuns(workflow, branch).map((listed) => listed.databaseId)
-  );
-  const state: WatchState = {
-    label,
-    runId: null,
-    watcher: null,
-    tty: null,
-    lookup: () =>
-      findNewRun(listRuns(workflow, branch), knownIds, sha)?.databaseId ?? null,
-  };
-  cancelOnSignals(state);
-
-  state.runId =
-    workflow === 'check.yml'
-      ? await pullRequestCheckRun(branch, sha, { run: must, sleep: Bun.sleep })
-      : null;
-  if (state.runId === null) {
-    must(['gh', 'workflow', 'run', workflow, '--ref', branch]);
-    console.log(
-      `${label}: dispatched ${workflow} on ${branch} @ ${sha.slice(0, 9)}`
-    );
-    state.runId = await waitForRun(workflow, branch, sha, knownIds);
-  }
-  console.log(`${label}: using run ${state.runId}`);
-  state.tty = holdTTY();
-  try {
-    return await watchCurrentRun(state, options);
-  } finally {
-    state.tty.release();
-  }
-}
-
-function workflowField(runId: number, field: 'url' | 'conclusion'): string {
-  return must([
-    'gh',
-    'run',
-    'view',
-    String(runId),
-    '--json',
-    field,
-    '--jq',
-    `.${field}`,
-  ]);
-}
-
-async function watchCurrentRun(
-  state: WatchState,
-  options: RunWorkflowOptions
-): Promise<{ readonly code: number; readonly url: string }> {
-  for (;;) {
-    const runId = state.runId;
-    if (runId === null)
-      throw new WorkflowRemoteError('No workflow run to watch');
-    const url = workflowField(runId, 'url');
-    console.log(`${options.label}: ${url}`);
-    // Signals cancel the currently watched run; no additional work is dispatched.
-    const watcher = spawn(
-      'gh',
-      ['run', 'watch', String(runId), '--exit-status', '--interval', '3'],
-      {
-        stdio: ['ignore', 'inherit', 'inherit'],
-        detached: true,
-      }
-    );
-    state.watcher = watcher;
-    const code = await new Promise<number>((resolve) =>
-      watcher.on('close', (exitCode) => resolve(exitCode ?? 1))
-    );
-    if (code !== 0 && options.workflow === 'check.yml') {
-      const conclusion = workflowField(runId, 'conclusion');
-      const next =
-        conclusion === 'cancelled'
-          ? findSupersedingRun(
-              listRuns(options.workflow, options.branch, true),
-              runId,
-              options.sha
-            )
-          : undefined;
-      if (next !== undefined) {
-        console.log(
-          `${options.label}: following superseding run ${next.databaseId} of the same commit`
-        );
-        state.runId = next.databaseId;
-        continue;
-      }
-    }
-    if (code !== 0) printFailedLog(options.label, runId);
-    console.log(
-      `${options.label}: ${code === 0 ? 'passed' : 'failed'} — ${url}`
-    );
-    return { code, url };
-  }
-}
-
 /** Where the commit's spec report is read: the dev deployment's reports screen. */
 function reportUrl(sha: string): string {
   const env = JSON.parse(readFileSync(DEV_ENV_FILE, 'utf8')) as {
@@ -457,43 +204,104 @@ function reportUrl(sha: string): string {
   return `https://${env.hosts.apex}/reports/${sha}`;
 }
 
+function hasAutomaticCheck(branch: string, sha: string): boolean {
+  if (
+    run(['git', 'cat-file', '-e', 'origin/main:.depot/workflows/check.yml'])
+      .code !== 0
+  )
+    return false;
+  const prs = JSON.parse(
+    must([
+      'gh',
+      'pr',
+      'list',
+      '--head',
+      branch,
+      '--base',
+      'main',
+      '--state',
+      'open',
+      '--json',
+      'headRefOid',
+    ])
+  ) as readonly { headRefOid: string }[];
+  return prs.some((pr) => pr.headRefOid === sha);
+}
+
 async function runCommand(argv: readonly string[]): Promise<number> {
   const command = argv[0] ?? '';
-  if (!isRemoteCommand(command)) {
+  if (!isRemoteCommand(command))
     throw new WorkflowRemoteError(
       'usage: workflow-remote.ts <check|health|deploy> [--message "type(scope): summary"]'
     );
-  }
-  const target = WORKFLOW_DISPATCH[command];
-  const { branch, sha } = prepareRun(target, argv.slice(1));
-  if (target.printsReport) {
-    console.log(`${command}: spec report ${reportUrl(sha)}`);
-  }
-  const { code } = await runWorkflow({
-    workflow: target.workflow,
-    label: command,
+  const policy = WORKFLOW_DISPATCH[command];
+  const { branch, sha } = prepareRun(policy, argv.slice(1));
+  const config = JSON.parse(readFileSync(GLOBAL_FILE, 'utf8')) as {
+    github: { owner: string; repo: string };
+    depot: { org_id: string };
+  };
+  const target: DepotTarget = {
+    repository: `${config.github.owner}/${config.github.repo}`,
+    org: config.depot.org_id,
+    workflow: policy.workflow,
     branch,
     sha,
-  });
-  return code;
+    automatic: command === 'check' && hasAutomaticCheck(branch, sha),
+  };
+  if (policy.printsReport)
+    console.log(`${command}: spec report ${reportUrl(sha)}`);
+  const hold = holdTTY();
+  let current: DepotWorkflow | undefined;
+  const ports = {
+    run: must,
+    sleep: Bun.sleep,
+    log: (message: string) => console.log(`${command}: ${message}`),
+    onWorkflow: (workflow: DepotWorkflow) => {
+      current = workflow;
+    },
+  };
+  let interrupted = false;
+  const stop = (signal: NodeJS.Signals) => {
+    if (interrupted) return;
+    interrupted = true;
+    hold.release();
+    const workflow =
+      current ??
+      selectWorkflow(listWorkflows(target, ports), target.workflow, target.sha);
+    if (workflow !== undefined)
+      run([
+        'depot',
+        'ci',
+        'cancel',
+        workflow.run_id,
+        '--workflow',
+        workflow.workflow_id,
+        '--org',
+        target.org,
+      ]);
+    process.exit(signal === 'SIGINT' ? 130 : 143);
+  };
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const)
+    process.once(signal, stop);
+  try {
+    current = await startWorkflow(target, ports);
+    const url = `https://depot.dev/orgs/${target.org}/workflows/${current.workflow_id}`;
+    console.log(`${command}: ${url}`);
+    const code = await watchWorkflow(current, target, ports);
+    console.log(`${command}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+    return code;
+  } finally {
+    hold.release();
+    for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const)
+      process.off(signal, stop);
+  }
 }
 
 if (import.meta.main) {
-  const command = process.argv[2] ?? '';
-  const label = isRemoteCommand(command) ? command : 'workflow';
   try {
     process.exit(await runCommand(process.argv.slice(2)));
   } catch (error) {
-    if (
-      !(
-        error instanceof WorkflowRemoteError ||
-        error instanceof SyncError ||
-        error instanceof CheckRunError
-      )
-    ) {
-      throw error;
-    }
-    console.error(`${label}: ${error.message}`);
+    console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }

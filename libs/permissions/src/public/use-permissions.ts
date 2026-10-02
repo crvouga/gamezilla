@@ -22,12 +22,14 @@ import {
   type AppPolicyKey,
   type AppQuota,
   isQuotaAction,
+  PERMISSION,
 } from '../shared/permission-catalog';
 import type { QuotaDenialMeta } from '../use-cases/consume-quota/shared/consume-quota-mutation';
 import { consumeQuotaMutation } from '../use-cases/consume-quota/shared/consume-quota-mutation';
 import { evaluateQuota } from '../use-cases/consume-quota/shared/evaluate-quota';
 import { usePermissionPolicy } from '../use-cases/decide-access/client/use-permission-policy';
 import { usePermissionSubject } from '../use-cases/decide-access/client/use-permission-subject';
+import { usePrivacyDecision } from '../use-cases/decide-access/client/use-privacy-decision';
 
 /** The single client permission API (§22.5). Reads are reactive. */
 export type Permissions = {
@@ -71,6 +73,7 @@ function isDenialMeta(meta: unknown): meta is QuotaDenialMeta {
 export function usePermissions(): Permissions {
   const policy = usePermissionPolicy();
   const subject = usePermissionSubject();
+  const privacyDecision = usePrivacyDecision();
   const clock = useClock();
   const myId = useMyId();
   const signedIn = useIsSignedIn();
@@ -97,10 +100,14 @@ export function usePermissions(): Permissions {
     return decideQuota(policy(), subject(), quota, { used, nowMs, amount });
   };
 
-  const can = (action: AppPolicyKey): Decision =>
-    isQuotaAction(action)
-      ? quotaDecision(action, 1)
-      : decide(policy(), subject(), action);
+  const can = (action: AppPolicyKey): Decision => {
+    if (isQuotaAction(action)) return quotaDecision(action, 1);
+    const decision = decide(policy(), subject(), action);
+    return action === PERMISSION.profileDeleteAccount ||
+      action === PERMISSION.profileExportData
+      ? privacyDecision(action, decision)
+      : decision;
+  };
 
   const consume = async (
     quota: AppQuota,

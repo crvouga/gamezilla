@@ -27,8 +27,8 @@ export const DMN_INPUT = {
   payments: 'payments are offered',
   place: 'their place in the space',
   open: 'open spaces they host',
-  today: 'rated puzzles solved today',
-  earlier: 'rated puzzles solved before today',
+  today: 'rated puzzles started today',
+  earlier: 'rated puzzles started before today',
 } as const;
 
 /** A decision case's inputs, keyed by those names. */

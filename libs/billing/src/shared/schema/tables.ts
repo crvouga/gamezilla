@@ -22,4 +22,42 @@ export const billingSubscriptions = defineTable({
   uniqueIndexes: [['provider', 'provider_subscription_id']],
 });
 
-export const BILLING_TABLES = [billingSubscriptions] as const;
+export const billingAccountClosures = defineTable({
+  domain: 'billing',
+  name: 'billing_account_closures',
+  columns: {
+    account_id: 'text',
+    provider: 'text',
+    subscription_id: 'text',
+    customer_id: 'text',
+    confirmed_at: 'timestamp',
+    cancellation_status: 'text',
+  },
+  uniqueIndexes: [['provider', 'subscription_id']],
+  indexes: ['account_id'],
+});
+
+export const billingPaymentEvidence = defineTable({
+  domain: 'billing',
+  name: 'billing_payment_evidence',
+  columns: {
+    account_id: 'text',
+    provider: 'text',
+    payment_id: 'text',
+    paid_at: 'timestamp',
+    amount_minor: 'integer',
+    currency: 'text',
+    refunded_minor: 'integer',
+    erase_by: 'timestamp',
+    legal_purpose: 'text',
+    legal_end_condition: 'text',
+  },
+  uniqueIndexes: [['provider', 'payment_id']],
+  indexes: ['erase_by'],
+});
+
+export const BILLING_TABLES = [
+  billingSubscriptions,
+  billingAccountClosures,
+  billingPaymentEvidence,
+] as const;

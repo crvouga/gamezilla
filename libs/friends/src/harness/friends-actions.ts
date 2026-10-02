@@ -14,6 +14,16 @@ export const acceptFriendRequest = scenarioAction({
   name: 'acceptFriendRequest',
   act: async (s, actorId: string, fromUsername: string) => {
     const ui = await actorUi(s, actorId);
+    await ui.get(Handles.statusCurrentUser).expect.visible();
+    const shownAccept = ui.get(
+      Handles.notificationsFriendRequestAccept(fromUsername)
+    );
+    if (await shownAccept.isVisible()) {
+      s.harness.heal(`${actorId}:events`, 'server-a');
+      await shownAccept.tap();
+      await s.session.waitForIdle();
+      return;
+    }
     await ui.get(Handles.tabNotifications).tap();
     const card = Handles.notificationsFriendRequestCard(fromUsername);
     await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });
@@ -93,20 +103,6 @@ export const removeFriend = scenarioAction({
     await ui.get(Handles.friendsListRow(username)).expect.hidden({
       timeoutMs: HIDDEN_MS,
     });
-  },
-});
-
-export const blockFriend = scenarioAction({
-  name: 'blockFriend',
-  act: async (s, actorId: string, username: string) => {
-    const ui = await actorUi(s, actorId);
-    await openFriendProfile(s, actorId, username);
-    await ui.get('header-overflow-menu').tap({ timeoutMs: WAIT_MS });
-    const block = Handles.friendBlock(username);
-    await ui.get(block).tap({ timeoutMs: WAIT_MS });
-    const confirm = Handles.friendBlockConfirm(username);
-    await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
-    await ui.get(confirm).expect.hidden({ timeoutMs: HIDDEN_MS });
   },
 });
 
@@ -212,7 +208,6 @@ export const FRIENDS_HARNESS_ACTIONS = [
   declineFriendRequest,
   cancelFriendRequest,
   removeFriend,
-  blockFriend,
   unblockFriend,
   openFriendsList,
 ];

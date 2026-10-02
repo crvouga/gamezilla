@@ -135,6 +135,13 @@ describe('generateCommitMessage', () => {
     );
   });
 
+  // regression: depot-native-ci-commit-classification
+  test('classifies native Depot workflows as CI changes', () => {
+    expect(generateCommitMessage(['.depot/workflows/check.yml'])).toBe(
+      'ci(.depot): update check.yml'
+    );
+  });
+
   test('drops the scope when paths span packages, and stays within the limit', () => {
     expect(generateCommitMessage(['libs/a/x.ts', 'libs/b/y.ts'])).toBe(
       'chore: update 2 files'

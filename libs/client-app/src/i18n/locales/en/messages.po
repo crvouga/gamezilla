@@ -142,6 +142,10 @@ msgstr "✕"
 msgid "1 guest"
 msgstr "1 guest"
 
+#: libs/account-privacy/src/root/client/privacy-explanation.tsx
+msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
+msgstr "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
+
 #. placeholder {0}: props.puzzleRating
 #: libs/chess/src/public/chess-puzzle/chess-game-log-row.tsx
 msgid "Abandoned · {0}"
@@ -177,6 +181,14 @@ msgstr "Accepting…"
 msgid "Account"
 msgstr "Account"
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Account deletion confirmed"
+msgstr "Account deletion confirmed"
+
+#: libs/account-privacy/src/root/client/privacy-explanation.tsx
+msgid "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
+msgstr "Account deletion is permanent. Every device will be signed out, including offline devices when they reconnect. Signing in later starts a new account."
+
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "Account ID"
 msgstr "Account ID"
@@ -184,6 +196,11 @@ msgstr "Account ID"
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Account menu"
 msgstr "Account menu"
+
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+#: libs/profile/src/root/client/profile-edit-screen.tsx
+msgid "Account privacy"
+msgstr "Account privacy"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-stats-cards.tsx
 msgid "Accuracy"
@@ -500,6 +517,10 @@ msgstr "Components"
 msgid "Confirm"
 msgstr "Confirm"
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Confirm permanent deletion"
+msgstr "Confirm permanent deletion"
+
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Confirmed"
 msgstr "Confirmed"
@@ -750,6 +771,10 @@ msgstr "Decrease {0}"
 msgid "Delete"
 msgstr "Delete"
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Delete account"
+msgstr "Delete account"
+
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Deleted"
 msgstr "Deleted"
@@ -846,6 +871,14 @@ msgstr "Dismiss"
 msgid "Done"
 msgstr "Done"
 
+#: libs/account-privacy/src/use-cases/download-personal-data-export/client/export-download.tsx
+msgid "Download readable summary"
+msgstr "Download readable summary"
+
+#: libs/account-privacy/src/use-cases/download-personal-data-export/client/export-download.tsx
+msgid "Download reusable detail"
+msgstr "Download reusable detail"
+
 #: libs/client-app/src/shell/boot/boot-paint-gate.tsx
 msgid "Downloading…"
 msgstr "Downloading…"
@@ -909,8 +942,11 @@ msgstr "Every install signed into your account shows up here."
 msgid "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
 msgstr "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
 
-#: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
+msgid "Everyone can see that the space has ended."
+msgstr "Everyone can see that the space has ended."
+
+#: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
 msgstr "Everyone has been returned to the lobby."
 
@@ -925,6 +961,10 @@ msgstr "Everything in the free plan, synced across your devices"
 #: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Expand all"
 msgstr "Expand all"
+
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "Export requested"
+msgstr "Export requested"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
@@ -1114,6 +1154,10 @@ msgstr "Host"
 #: libs/billing/src/root/client/billing-offer-sections.tsx
 msgid "Host as many spaces as you like at once"
 msgstr "Host as many spaces as you like at once"
+
+#: libs/account-privacy/src/root/client/privacy-explanation.tsx
+msgid "Hosted spaces will end. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
+msgstr "Hosted spaces will end. Future membership charges will stop. If the payment provider has not confirmed cancellation yet, we will say so. Any membership payment taken after confirmed deletion will be refunded in full."
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "hud"
@@ -1322,6 +1366,14 @@ msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optiona
 #: libs/chess/src/public/chess-main-menu-view.tsx
 msgid "Matchmaking"
 msgstr "Matchmaking"
+
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Membership cancellation has completed."
+msgstr "Membership cancellation has completed."
+
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Membership cancellation is still being completed."
+msgstr "Membership cancellation is still being completed."
 
 #. placeholder {0}: date()
 #: libs/billing/src/root/client/billing-plan-card.tsx
@@ -1610,6 +1662,10 @@ msgstr "Open space {0}"
 msgid "Opening…"
 msgstr "Opening…"
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Ordinary personal data will be erased within 30 days."
+msgstr "Ordinary personal data will be erased within 30 days."
+
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "os"
 msgstr "os"
@@ -1677,6 +1733,10 @@ msgstr "Performance"
 #: libs/client-app/src/screens/more/performance-screen.tsx
 msgid "Performance monitor"
 msgstr "Performance monitor"
+
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Permanently delete account?"
+msgstr "Permanently delete account?"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Pick a fixed target rating for the puzzle feed."
@@ -1761,6 +1821,7 @@ msgstr "Private spaces only sync for people you add here."
 msgid "Production"
 msgstr "Production"
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
 #: libs/friends/src/root/client/friend-user-screen-view.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
 #: libs/friends/src/root/client/friends-permission-gate.tsx
@@ -1771,6 +1832,10 @@ msgstr "Production"
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Profile"
 msgstr "Profile"
+
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "Prove the account again to continue"
+msgstr "Prove the account again to continue"
 
 #: libs/chess/src/public/chess-main-menu-view.tsx
 msgid "Puzzle"
@@ -1838,6 +1903,10 @@ msgstr "Rating trend and game log"
 msgid "Ready"
 msgstr "Ready"
 
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "Ready by"
+msgstr "Ready by"
+
 #: libs/search/src/root/client/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
@@ -1892,9 +1961,17 @@ msgstr "Rename space"
 msgid "reports"
 msgstr "reports"
 
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "Request personal-data export"
+msgstr "Request personal-data export"
+
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Requested"
 msgstr "Requested"
+
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "Requesting…"
+msgstr "Requesting…"
 
 #: libs/notifications/src/root/client/notifications-empty-state.tsx
 msgid "Requests and invites that need a reply land here."
@@ -2446,6 +2523,10 @@ msgstr "system"
 msgid "System"
 msgstr "System"
 
+#: libs/profile/src/root/client/profile-edit-screen.tsx
+msgid "Take an export or permanently delete your account"
+msgstr "Take an export or permanently delete your account"
+
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "Tap a device for details."
 msgstr "Tap a device for details."
@@ -2496,6 +2577,18 @@ msgstr "That username is not allowed"
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
 
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "The export could not be requested."
+msgstr "The export could not be requested."
+
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "The export failed. You can ask again. No incomplete export is available."
+msgstr "The export failed. You can ask again. No incomplete export is available."
+
+#: libs/account-privacy/src/use-cases/download-personal-data-export/client/export-download.tsx
+msgid "The export has expired. Ask for a new one."
+msgstr "The export has expired. Ask for a new one."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
@@ -2521,6 +2614,10 @@ msgstr "Theme"
 msgid "Themes"
 msgstr "Themes"
 
+#: libs/account-privacy/src/root/client/privacy-explanation.tsx
+msgid "There is no legal preservation obligation on this account unless one is listed below."
+msgstr "There is no legal preservation obligation on this account unless one is listed below."
+
 #: libs/client-app/src/routes/route-stub.tsx
 msgid "There is nothing at this address."
 msgstr "There is nothing at this address."
@@ -2541,9 +2638,21 @@ msgstr "They won't be able to send you friend requests."
 msgid "This account already has a sign-in method from that provider. Remove it first to use a different one."
 msgstr "This account already has a sign-in method from that provider. Remove it first to use a different one."
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. Take an export first if you want a copy of your personal data."
+msgstr "This cannot be undone. Every device will be signed out. Your hosted spaces and future membership charges will end. Take an export first if you want a copy of your personal data."
+
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "This choice needs a connection"
+msgstr "This choice needs a connection"
+
 #: libs/auth/src/root/client/account-device/account-device-current-badge.tsx
 msgid "This device"
 msgstr "This device"
+
+#: libs/account-privacy/src/use-cases/download-personal-data-export/client/export-download.tsx
+msgid "This export belongs to another account and cannot be downloaded."
+msgstr "This export belongs to another account and cannot be downloaded."
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "This field is required"
@@ -2556,6 +2665,10 @@ msgstr "This is your only way to sign in, so it can't be removed."
 #: libs/auth/src/root/client/account-device/account-device-detail-screen.tsx
 msgid "This link is missing a device id."
 msgstr "This link is missing a device id."
+
+#: libs/friends/src/root/client/friend-user-screen-view.tsx
+msgid "This profile is no longer available because the account was deleted."
+msgstr "This profile is no longer available because the account was deleted."
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-review-screen.tsx
 msgid "This puzzle is not in your local feed yet. Try again after sync."
@@ -2594,6 +2707,7 @@ msgstr "Transparent"
 msgid "Try a different search term."
 msgstr "Try a different search term."
 
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Try again"
@@ -2689,6 +2803,10 @@ msgstr "Use light theme"
 msgid "Use system theme"
 msgstr "Use system theme"
 
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "Use the choice shown below to continue."
+msgstr "Use the choice shown below to continue."
+
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 msgid "Username"
@@ -2735,6 +2853,10 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
+#: libs/account-privacy/src/root/client/privacy-explanation.tsx
+msgid "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
+msgstr "We retain only minimum payment evidence for accounting and disputes for 7 years after payment. It cannot restore your account or membership."
+
 #. placeholder {0}: props.productName
 #: libs/billing/src/root/client/billing-offer-sections.tsx
 msgid "What {0} includes"
@@ -2766,6 +2888,10 @@ msgstr "You can host one space at a time. End it to start another, or get Plus t
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You can rejoin from the invite link if the space is still live."
 msgstr "You can rejoin from the invite link if the space is still live."
+
+#: libs/account-privacy/src/root/client/privacy-explanation.tsx
+msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
+msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
@@ -2833,6 +2959,10 @@ msgstr "You've used this for now"
 msgid "you@example.com"
 msgstr "you@example.com"
 
+#: libs/account-privacy/src/root/client/privacy-screen.tsx
+msgid "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
+msgstr "Your account deletion is confirmed. You are signed out. Ordinary personal-data erasure will complete by"
+
 #: libs/profile/src/root/client/profile-avatar-figure.tsx
 msgid "Your avatar"
 msgstr "Your avatar"
@@ -2845,6 +2975,10 @@ msgstr "Your changes are saved locally and will sync when the connection is heal
 msgid "Your checkout hasn't finished. Complete it to start your membership."
 msgstr "Your checkout hasn't finished. Complete it to start your membership."
 
+#: libs/account-privacy/src/use-cases/download-personal-data-export/client/export-download.tsx
+msgid "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
+msgstr "Your export is ready. Downloads are private to your recently proven account and expire 7 days after becoming ready."
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
@@ -2856,6 +2990,10 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 #: libs/spaces/src/root/client/miniplayer/active-spaces-sheet.tsx
 msgid "Your live spaces"
 msgstr "Your live spaces"
+
+#: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
+msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
+msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Your plan"

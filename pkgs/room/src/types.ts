@@ -130,6 +130,8 @@ export type RoomModule<
     identity: Identity
   ): HandleResult<E>;
   reduce(state: S, event: E): S;
+  /** Restore idempotent effects from committed state, preserving original deadlines. */
+  recoverEffects(state: S): readonly RoomEffect[];
   /**
    * Canonical digest of synced state for reconnect / replay / anti-cheat.
    * Must cover the full attribute map clients need to match. Prefer

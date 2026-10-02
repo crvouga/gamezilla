@@ -147,9 +147,11 @@ export type OpenPackageHarness = (
  */
 export function useHarnessWorld(
   openHarness: OpenPackageHarness,
-  extend: (world: HarnessWorld) => object = () => ({})
+  extend: (world: HarnessWorld) => object = () => ({}),
+  matches?: (ctx: ScenarioContext) => boolean
 ): void {
   setWorld<HarnessWorld>({
+    ...(matches === undefined ? {} : { matches }),
     create: async (ctx) => {
       const calls: string[] = [];
       const opened = await openHarness(ctx.testId, {

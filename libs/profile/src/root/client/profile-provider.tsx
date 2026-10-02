@@ -1,3 +1,4 @@
+import { useAuthClientPort } from '@libs/auth/public/auth-client-provider';
 import { SESSION_EXTERNAL_USER_ID_KEY } from '@libs/auth/public/auth-storage-keys';
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { useMutationClient } from '@libs/auth/public/use-mutation-client';
@@ -18,19 +19,19 @@ function ProfileEntityBootstrap(): JSX.Element {
     SESSION_EXTERNAL_USER_ID_KEY
   );
   const mutationClient = useMutationClient();
+  const authClient = useAuthClientPort();
 
   createEffect(() => {
     const id = myId();
     if (id.length === 0) return;
-    // React to the IdP session too: sign-in upgrades the anonymous user in
-    // place (same `users.id`), so `myId` alone never flips post-sign-in and
-    // the signup-username handoff would only ever be consumed by luck.
-    // Hosts without secure storage (harnesses) skip this reactivity and still
-    // work because the mutation itself handles both paths.
-    externalUserItem.value();
-    void new ProfileEnsurer(mutationClient).ensure().catch(() => {
-      // Best-effort: re-asserted on the next identity change.
-    });
+    // The bridge writes the provider identity only after the account is ready.
+    // An earlier anonymous bootstrap must leave the signup handoff pending.
+    const externalId = externalUserItem.value();
+    void new ProfileEnsurer(mutationClient, authClient)
+      .ensure(typeof externalId === 'string' ? externalId : null)
+      .catch(() => {
+        // Best-effort: re-asserted on the next identity change.
+      });
   });
 
   return null;

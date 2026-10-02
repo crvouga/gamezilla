@@ -35,6 +35,9 @@ export const AuthClaimAttr = {
   myId: authNs.text('my-id', readNonEmptyString),
   /** True when `users.is_anon` for the resolved account. */
   isAnon: authNs.boolean('is-anon', readBool),
+  authenticatedAtMs: authNs.numberOrNull('authenticated-at-ms', (v) =>
+    typeof v === 'number' && Number.isFinite(v) ? v : null
+  ),
 } as const;
 
 /**
@@ -56,6 +59,7 @@ export type AppAuth = {
   readonly accountId: string | null;
   readonly myId: string;
   readonly isAnon: boolean;
+  readonly authenticatedAtMs: number | null;
 };
 
 /** Reads {@link AuthClaimAttr} keys off a context. */
@@ -70,6 +74,7 @@ export function appAuth(
     accountId: AuthClaimAttr.accountId.from(state),
     myId: AuthClaimAttr.myId.from(state),
     isAnon: AuthClaimAttr.isAnon.from(state),
+    authenticatedAtMs: AuthClaimAttr.authenticatedAtMs.from(state),
   };
 }
 
@@ -83,6 +88,7 @@ export type SyncActor = {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly isAnon: boolean;
+  readonly authenticatedAtMs?: number;
 };
 
 export function syncActorOf(auth: AppAuth): SyncActor {
@@ -91,6 +97,9 @@ export function syncActorOf(auth: AppAuth): SyncActor {
     deviceId: auth.deviceId,
     accountId: auth.accountId,
     isAnon: auth.isAnon,
+    ...(auth.authenticatedAtMs === null
+      ? {}
+      : { authenticatedAtMs: auth.authenticatedAtMs }),
   };
 }
 
@@ -133,6 +142,7 @@ export type BuildAppAuthContextArgs = {
   readonly accountId: string | null;
   readonly myId: string;
   readonly isAnon?: boolean;
+  readonly authenticatedAtMs?: number;
 };
 
 /** Builds an {@link AppAuthContext} from convenience args. */
@@ -144,5 +154,6 @@ export function buildAppAuthContext(
     ...AuthClaimAttr.accountId(args.accountId),
     ...AuthClaimAttr.myId(args.myId),
     ...AuthClaimAttr.isAnon(args.isAnon ?? false),
+    ...AuthClaimAttr.authenticatedAtMs(args.authenticatedAtMs ?? null),
   };
 }

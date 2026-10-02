@@ -8,8 +8,8 @@ import {
 const committed = readCommittedContractManifest();
 const current = await buildContractManifest();
 
-test('no shipped query or mutation name is removed or renamed', () => {
-  // A shipped client still uses these names; add a new name instead.
+test('the manifest contains no obsolete query or mutation names', () => {
+  // Removed APIs must not survive as stale manifest entries or migration shims.
   expect(missingNames(committed, current)).toEqual([]);
 });
 

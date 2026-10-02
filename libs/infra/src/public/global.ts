@@ -57,6 +57,7 @@ export const globalFileSchema = z
         required_checks: z.array(id).min(1),
       })
       .strict(),
+    depot: z.object({ org_id: id }).strict(),
     /**
      * The Worker at `hostname` owning the one OAuth callback registered with
      * Google: every environment sends it as `redirect_uri` and it forwards
@@ -85,6 +86,7 @@ export const globalFileSchema = z
       .strict(),
     global_imports: z
       .object({
+        aws_depot_oidc_provider: id.optional(),
         infisical_environments: z.record(z.string(), id).optional(),
         github_repository: id.optional(),
         github_branch_protection: id.optional(),

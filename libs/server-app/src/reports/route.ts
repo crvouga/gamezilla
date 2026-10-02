@@ -8,7 +8,7 @@
  * - `GET /reports/:sha/events` — the commit, then each source as it is read;
  *   a running commit stays open and sends new sources as CI publishes them
  *   (`?have=a,b` skips the sources a reconnecting client holds)
- * - `GET /reports/:sha/sources` — every source record, cacheable once complete
+ * - `GET /reports/:sha/sources` — every source record of the selected attempt
  * - `GET /reports/:sha/frame.css` — the stylesheet its snapshots render with
  * - `GET /reports/:sha/tests/:source/:testId` — one test's timeline, no frames
  * - `GET /reports/:sha/tests/:source/:testId/files/*` — one frame file
@@ -25,7 +25,6 @@ import {
   commitEvents,
   EVENT_STREAM_CONTENT_TYPE,
   encodeSseEvent,
-  frameCssKey,
   isCommitSha,
   isFramePath,
   isKeySegment,
@@ -33,6 +32,7 @@ import {
   listSourceRecords,
   readCommit,
   readFrameBody,
+  readFrameCss,
   readTestReport,
   type TestEvent,
   testEvents,
@@ -57,13 +57,6 @@ export type ReportsAppDeps = {
 };
 
 const NO_STORE = { 'cache-control': 'no-store' } as const;
-const IMMUTABLE = {
-  'cache-control': 'public, max-age=31536000, immutable',
-} as const;
-
-function cacheFor(complete: boolean): Record<string, string> {
-  return complete ? IMMUTABLE : NO_STORE;
-}
 
 function eventStream(
   events: AsyncGenerator<CommitEvent | TestEvent>
@@ -164,9 +157,8 @@ function sourcesRoute(deps: ReportsAppDeps) {
     const sha = c.req.param('sha') ?? '';
     const store = storeOf(deps, sha);
     if (store instanceof Response) return store;
-    const commit = await readCommit(store, sha);
     const sources = await listSourceRecords(store, sha);
-    return c.json({ sources }, 200, cacheFor(commit?.state === 'complete'));
+    return c.json({ sources }, 200, NO_STORE);
   };
 }
 
@@ -178,8 +170,7 @@ function testRoute(deps: ReportsAppDeps) {
     if (store instanceof Response) return store;
     const report = await readTestReport(store, params);
     if (report === null) return notFound();
-    const commit = await readCommit(store, params.sha);
-    return c.json(report, 200, cacheFor(commit?.state === 'complete'));
+    return c.json(report, 200, NO_STORE);
   };
 }
 
@@ -205,10 +196,9 @@ function fileRoute(deps: ReportsAppDeps) {
     if (store instanceof Response) return store;
     const body = await readFrameBody(store, { ...params, file });
     if (body === null) return notFound();
-    const commit = await readCommit(store, params.sha);
     return bytesResponse(body.bytes, {
       'content-type': body.contentType,
-      ...cacheFor(commit?.state === 'complete'),
+      ...NO_STORE,
     });
   };
 }
@@ -260,13 +250,13 @@ export function createReportsApp(deps: ReportsAppDeps) {
       const sha = c.req.param('sha');
       if (!isCommitSha(sha)) return notFound();
       if (deps.store === null) return unavailable();
-      const css = await deps.store.get(frameCssKey(sha));
+      const css = await readFrameCss(deps.store, sha);
       if (css === null) return notFound();
       return new Response(css.body, {
         status: 200,
         headers: {
           'content-type': css.contentType,
-          'cache-control': 'public, max-age=300',
+          ...NO_STORE,
         },
       });
     })
