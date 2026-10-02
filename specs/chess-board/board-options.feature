@@ -83,7 +83,7 @@ Feature: Choose the chessboard's appearance
       Given Alice has a chessboard 195 pixels wide
       When Alice begins dragging the piece on e2
       Then Alice cannot hold a piece while the chessboard is a preview
-      And Alice sees no held piece
+      And Alice no longer holds a piece
       And Alice's activity receives no moves
 
     Scenario: Activity-disabled input still refuses a move at a supported width
@@ -104,7 +104,7 @@ Feature: Choose the chessboard's appearance
       Given Alice has a chessboard 196 pixels wide with interactivity disabled
       When Alice begins dragging the piece on e2
       Then Alice cannot hold a piece while interactivity is disabled
-      And Alice sees no held piece
+      And Alice no longer holds a piece
       And Alice's activity receives no moves
 
     @regression:chessboard-preview-input
@@ -158,7 +158,7 @@ Feature: Choose the chessboard's appearance
     Scenario: Resizing into a preview puts down a held piece
       Given Alice is dragging the piece on e2
       When Alice's activity narrows the chessboard to 195 pixels wide
-      Then Alice sees no held piece
+      Then Alice no longer holds a piece
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 

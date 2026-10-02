@@ -39,9 +39,16 @@ Feature: Decide promotion with the keyboard
       And Alice sees the White pawn remaining on a7
       And Alice's activity receives no moves
 
-    Scenario: A piece cannot be chosen without a pending promotion
+    Scenario: Choosing a pawn before its last-rank move offers no promotion choices
       Given Alice has a chessboard ready for White's promotion from a7 to a8
-      When Alice chooses the promotion to a queen
-      Then Alice cannot choose a promotion without a pending move
+      When Alice selects the piece on a7
+      Then Alice is not offered a promotion choice before requesting the last-rank move
+      And Alice sees the White pawn remaining on a7
+      And Alice's activity receives no moves
+
+    Scenario: Escape before requesting promotion keeps the pawn and offers no choice
+      Given Alice has a chessboard ready for White's promotion from a7 to a8
+      When Alice cancels the promotion with Escape
+      Then Alice is not offered a promotion choice before requesting the last-rank move
       And Alice sees the White pawn remaining on a7
       And Alice's activity receives no moves

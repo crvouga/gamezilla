@@ -12,7 +12,7 @@ module board_annotations {
   type AnnotationBoard = {position: str, orientation: str, enabled: bool,
     personalArrows: Set[str], personalCircles: Set[str], pendingArrow: str,
     activityArrows: Set[str], activitySquares: Set[str],
-    offeredArrows: Set[str]}
+    offeredArrows: Set[str], arrowOffers: int}
   var annotationBoard: AnnotationBoard
   pure val PERSONAL_ARROWS = Set("e2 to e4", "g1 to f3")
   pure val PERSONAL_CIRCLES = Set("e4", "d5")
@@ -20,71 +20,72 @@ module board_annotations {
   pure val ACTIVITY_SQUARES = Set("blue fill d5", "gold ring e4", "Plan badge f3")
   pure def _toggle(marks: Set[str], mark: str): Set[str] =
     if (marks.contains(mark)) marks.exclude(Set(mark)) else marks.union(Set(mark))
+  pure def _quiet(s: AnnotationBoard): AnnotationBoard = { ...s, arrowOffers: 0 }
   action init = annotationBoard' = {position: "opening", orientation: "White",
     enabled: true, personalArrows: Set(), personalCircles: Set(),
     pendingArrow: "none", activityArrows: Set(), activitySquares: Set(),
-    offeredArrows: Set()}
+    offeredArrows: Set(), arrowOffers: 0}
 
   /// Alice begins a personal arrow without announcing a completed mark.
   action beginPersonalArrow(arrow: str): bool = all {
     PERSONAL_ARROWS.contains(arrow), annotationBoard.pendingArrow == "none",
-    annotationBoard' = { ...annotationBoard,
+    annotationBoard' = { ..._quiet(annotationBoard),
       pendingArrow: if (annotationBoard.enabled) arrow else "none" },
   }
   /// Finishing toggles that personal arrow and offers only personal arrows.
   action finishPersonalArrow = {
-    val s = annotationBoard
+    val s = _quiet(annotationBoard)
     val arrows = _toggle(s.personalArrows, s.pendingArrow)
     annotationBoard' = if (s.enabled and PERSONAL_ARROWS.contains(s.pendingArrow))
       { ...s, personalArrows: arrows, pendingArrow: "none",
-        offeredArrows: arrows }
+        offeredArrows: arrows, arrowOffers: 1 }
       else { ...s, pendingArrow: "none" }
   }
   /// Alice abandons unfinished drawing, preserving all completed marks.
   action cancelPersonalArrow = annotationBoard' = {
-    ...annotationBoard, pendingArrow: "none",
+    ..._quiet(annotationBoard), pendingArrow: "none",
   }
   /// A personal circle toggles its square and announces the current personal arrows.
   action togglePersonalCircle(square: str): bool = all {
     PERSONAL_CIRCLES.contains(square), annotationBoard.pendingArrow == "none",
     annotationBoard' = if (annotationBoard.enabled)
-      { ...annotationBoard,
-        personalCircles: _toggle(annotationBoard.personalCircles, square) }
-      else annotationBoard,
+      { ..._quiet(annotationBoard),
+        personalCircles: _toggle(annotationBoard.personalCircles, square), arrowOffers: 1 }
+      else _quiet(annotationBoard),
   }
   /// Choosing a piece removes personal marks while preserving activity marks.
   action clearPersonalAnnotations = all {
     annotationBoard.pendingArrow == "none",
-    annotationBoard' = { ...annotationBoard, personalArrows: Set(),
-      personalCircles: Set(), offeredArrows: Set() },
+    annotationBoard' = { ..._quiet(annotationBoard), personalArrows: Set(),
+      personalCircles: Set(), offeredArrows: Set(), arrowOffers: 1 },
   }
   /// The activity supplies or removes only its own arrows.
   action setActivityArrows(show: bool): bool = annotationBoard' = {
-    ...annotationBoard, activityArrows: if (show) ACTIVITY_ARROWS else Set(),
+    ..._quiet(annotationBoard), activityArrows: if (show) ACTIVITY_ARROWS else Set(),
   }
   /// The activity supplies or removes only its own square marks.
   action setActivitySquareMarks(show: bool): bool = annotationBoard' = {
-    ...annotationBoard, activitySquares: if (show) ACTIVITY_SQUARES else Set(),
+    ..._quiet(annotationBoard), activitySquares: if (show) ACTIVITY_SQUARES else Set(),
   }
   /// The activity removes its annotations without removing personal marks.
   action clearActivityAnnotations = annotationBoard' = {
-    ...annotationBoard, activityArrows: Set(), activitySquares: Set(),
+    ..._quiet(annotationBoard), activityArrows: Set(), activitySquares: Set(),
   }
   /// Disabling drawing abandons an unfinished arrow; enabling permits another.
   action configurePersonalAnnotations(canAnnotate: bool): bool = annotationBoard' = {
-    ...annotationBoard, enabled: canAnnotate,
+    ..._quiet(annotationBoard), enabled: canAnnotate,
     pendingArrow: if (canAnnotate) annotationBoard.pendingArrow else "none",
   }
   /// Turning preserves completed logical squares and abandons unfinished drawing.
   action flipAnnotationBoard = annotationBoard' = {
-    ...annotationBoard, pendingArrow: "none",
+    ..._quiet(annotationBoard), pendingArrow: "none",
     orientation: if (annotationBoard.orientation == "White") "Black" else "White",
   }
   /// A genuinely different position abandons its unfinished drawing only.
   action replaceAnnotationPosition(target: str): bool = all {
     Set("opening", "replacement").contains(target),
-    annotationBoard' = if (target == annotationBoard.position) annotationBoard
-      else { ...annotationBoard, position: target, pendingArrow: "none" },
+    annotationBoard' = if (target == annotationBoard.position) _quiet(annotationBoard)
+      else { ..._quiet(annotationBoard), position: target, pendingArrow: "none" },
   }
   action step = {
     nondet arrow = PERSONAL_ARROWS.oneOf()
@@ -109,7 +110,8 @@ module board_annotations {
   val invDisabledAnnotations = not(annotationBoard.enabled) implies annotationBoard.pendingArrow == "none"
   /// An offered arrow set contains personal arrows only, never square marks.
   val invArrowOffer = annotationBoard.offeredArrows.subseteq(PERSONAL_ARROWS) and
-    annotationBoard.offeredArrows == annotationBoard.personalArrows
+    annotationBoard.offeredArrows == annotationBoard.personalArrows and
+    annotationBoard.arrowOffers >= 0 and annotationBoard.arrowOffers <= 1
   /// Positions and orientations remain valid regardless of completed marks.
   val invAnnotationPosition = Set("opening", "replacement").contains(annotationBoard.position) and
     Set("White", "Black").contains(annotationBoard.orientation)

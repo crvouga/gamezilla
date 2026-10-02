@@ -34,7 +34,7 @@ Feature: Respect the activity's chessboard sound choice
     Scenario: Disabling sound during a capture prevents its delayed sound
       Given Alice's capture from e4 to d5 is animating
       When Alice's board settings disable sound
-      Then Alice cannot hear delayed chessboard sounds after sound is disabled
+      Then Alice cannot hear chessboard sounds while sound is disabled
       And Alice sees a White pawn on d5
 
     @regression:chessboard-stale-sound

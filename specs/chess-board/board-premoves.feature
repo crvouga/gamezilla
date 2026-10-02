@@ -34,6 +34,20 @@ Feature: Queue moves while waiting for the other side
       Then Alice has d2 selected
       And Alice's activity receives no moves
 
+    Scenario: Choosing the same waiting source again deselects it
+      Given Alice has d2 selected while waiting for Black with premoves enabled
+      When Alice selects the piece on d2
+      Then Alice sees no selection or legal destinations
+      And Alice sees the White pawn remaining on d2
+      And Alice's activity receives no moves
+
+    Scenario: Choosing another waiting piece changes the premove source
+      Given Alice has d2 selected while waiting for Black with premoves enabled
+      When Alice selects the piece on g1
+      Then Alice has g1 selected
+      And Alice sees the White pawn remaining on d2
+      And Alice's activity receives no moves
+
     Scenario: Disabled premoves ignore waiting-side selection
       Given Alice has a chessboard waiting for Black with premoves disabled
       When Alice selects the piece on d2
@@ -106,6 +120,22 @@ Feature: Queue moves while waiting for the other side
       When Alice marks e4 with a personal circle
       Then Alice sees no queued premoves
       And Alice sees the White pawn remaining on d2
+      And Alice's activity receives no moves
+
+    Scenario: A refused personal circle still clears the queued premove
+      Given Alice has the premove from d2 to d4 queued while waiting for Black
+      And Alice has personal annotations disabled
+      When Alice marks e4 with a personal circle
+      Then Alice cannot add a personal annotation while they are disabled
+      And Alice sees no queued premoves
+      And Alice sees the White pawn remaining on d2
+      And Alice's activity receives no moves
+
+    Scenario: Choosing the now empty source clears the next queued premove
+      Given Alice has completed the premove from d2 to d4 with g1 to f3 still queued
+      When Alice selects the empty square d2
+      Then Alice sees no queued premoves
+      And Alice sees the White knight remaining on g1
       And Alice's activity receives no moves
 
     Scenario: Disabling premoves clears every waiting choice

@@ -27,20 +27,20 @@ module board_premoves {
 
   /// Waiting-side selection is available only when premoves are enabled.
   action selectPremoveSource(source: str): bool = all {
-    Set("d2", "g1", "a3").contains(source),
-    premoveBoard' = if (source == "a3")
+    Set("d2", "g1", "a3").contains(source), premoveBoard.waiting, not(premoveBoard.replacement),
+    premoveBoard' = if (source == "a3" or
+        premoveBoard.position.movedPieces.contains(if (source == "d2") "d2 to d4" else "g1 to f3") or
+        (source == "d2" and premoveBoard.position.pawnCaptured))
       { ..._quiet(premoveBoard), queued: [], selectedSource: "none" }
       else { ..._quiet(premoveBoard), selectedSource:
-        if (premoveBoard.enabled and premoveBoard.waiting and not(premoveBoard.replacement) and
-          not(premoveBoard.position.movedPieces.contains(if (source == "d2") "d2 to d4" else "g1 to f3")) and
-          not(source == "d2" and premoveBoard.position.pawnCaptured)) source else "none" },
+        if (premoveBoard.enabled and premoveBoard.selectedSource != source) source else "none" },
   }
   /// A waiting move adds one preview without moving its source piece.
   action queuePremove(move: str): bool = all {
     PREMOVES.contains(move), premoveBoard.waiting, not(premoveBoard.replacement),
-    premoveBoard' = if (premoveBoard.enabled and premoveBoard.waiting and
-        not(premoveBoard.replacement) and not(premoveBoard.position.pawnCaptured) and
-        not(premoveBoard.position.movedPieces.contains(move)) and
+    not(premoveBoard.position.movedPieces.contains(move)),
+    not(move == "d2 to d4" and premoveBoard.position.pawnCaptured),
+    premoveBoard' = if (premoveBoard.enabled and
         not(premoveBoard.queued.indices().exists(i => premoveBoard.queued.nth(i) == move)) and premoveBoard.queued.length() < 2)
       { ..._quiet(premoveBoard), queued: premoveBoard.queued.append(move), selectedSource: "none" }
       else _quiet(premoveBoard),

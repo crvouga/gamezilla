@@ -7,13 +7,14 @@ terms:
     definition: The use presenting the chessboard and supplying its position and choices.
   - term: chessboard
     definition: A square chess board with eight files and eight ranks, usable on its own or within another activity.
-    forms: [chessboards, board]
-    model: [board, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard]
+    forms: [chessboards, board, closes the chessboard]
+    model: [LifecycleBoard, board, closeBoard, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard]
   - term: chess
     from: chess
   - term: position
     definition: Where each chess piece stands and whose turn it is.
-    model: [replacePosition, replacePromotionPosition, replacePremovePosition, replaceAnnotationPosition, replaceOptionsPosition]
+    forms: [displayed position, unusable position, starts a chessboard with an unusable position]
+    model: [replacePosition, supplyUnusablePosition, startBoardWithUnusablePosition, replacePromotionPosition, replacePremovePosition, replaceAnnotationPosition, replaceOptionsPosition]
   - term: piece
     definition: A chess king, queen, rook, bishop, knight or pawn, belonging to White or Black.
   - term: king
@@ -43,8 +44,8 @@ terms:
     forms: [captures, captured, capturing]
   - term: drag
     definition: Holding a piece and carrying it towards a destination; cancelling returns it without a move.
-    forms: [drags, dragging, dragged, drops, dropping, dropped, cancels the drag, begins dragging]
-    model: [beginDrag, cancelDrag, beginOptionsDrag]
+    forms: [drags, dragging, dragged, drops, dropping, dropped, cancels the drag, begins dragging, switches away from the chessboard's activity]
+    model: [beginDrag, cancelDrag, switchAway, beginOptionsDrag]
   - term: board settings
     definition: Choices supplied by the activity embedding the chessboard; changes take effect at once.
     model: [configureBoard]
@@ -60,8 +61,8 @@ terms:
     model: [configurePromotionInput, configureOptionsInput]
   - term: animation
     definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
-    forms: [animations, animating, animated, capture remnant]
-    model: [finishAnimation, liveAnimationFinishes]
+    forms: [animations, animating, animated, capture remnant, arrival, arrivals, interrupted arrival]
+    model: [finishAnimation, finishEarlierAnimation, liveAnimationFinishes]
   - term: reduced motion
     definition: A choice to place pieces at their destinations immediately, without slides or capture remnants.
   - term: visibility
@@ -156,7 +157,7 @@ terms:
     forms: [activity annotation, square annotations, square marks, supplies colored arrows, supplies square annotations, removes its annotations, fill, fills, ring, rings, badge, badges, line styles]
     model: [setActivityArrows, setActivitySquareMarks, clearActivityAnnotations]
   - term: personal annotations
-    definition: Arrows and circles Alice adds without moving pieces; choosing a piece removes these marks while preserving the activity's annotations.
+    definition: Arrows and circles Alice adds without moving pieces; choosing any square removes these marks while preserving the activity's annotations, even when new drawing is disabled.
     forms: [personal annotation, personal marks, personal arrows and circles]
     model: [configurePersonalAnnotations]
   - term: personal arrow
@@ -178,7 +179,7 @@ terms:
   - term: opponent reply
     definition: A legal move supplied by the activity that completes at most the first queued premove; an invalidated premove disappears without another move being offered.
     forms: [reply, replies, supplies Black's reply, supplies a reply that invalidates the premove]
-    model: [receivePremoveReply, invalidatePremove]
+    model: [receiveReply, receivePremoveReply, invalidatePremove]
   - term: cancel premoves
     definition: Abandon all queued waiting-side moves and their previews without moving their real pieces.
     forms: [cancels premoves, cancels premoves with Escape]

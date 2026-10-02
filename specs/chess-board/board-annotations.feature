@@ -49,6 +49,34 @@ Feature: Explain positions with chessboard annotations
       And Alice sees the activity's arrows and square annotations
       And Alice's activity receives no moves
 
+    @regression:chessboard-disabled-annotation-clear
+    Scenario: Choosing a piece clears completed personal marks after drawing is disabled
+      Given Alice has personal arrows and circles alongside activity annotations
+      And Alice has personal annotations disabled
+      When Alice selects the piece on e2
+      Then Alice sees no personal annotations
+      And Alice sees the activity's arrows and square annotations
+      And Alice's activity receives exactly one empty set of personal arrows
+      And Alice's activity receives no moves
+
+    @regression:chessboard-disabled-annotation-clear
+    Scenario: Keyboard selection clears completed personal marks after drawing is disabled
+      Given Alice has personal arrows and circles alongside activity annotations
+      And Alice has personal annotations disabled
+      When Alice selects the piece on e2 with the keyboard
+      Then Alice sees no personal annotations
+      And Alice sees the activity's arrows and square annotations
+      And Alice's activity receives exactly one empty set of personal arrows
+      And Alice's activity receives no moves
+
+    Scenario: Choosing an empty square clears personal marks and keeps activity marks
+      Given Alice has personal arrows and circles alongside activity annotations
+      When Alice selects the empty square e3
+      Then Alice sees no personal annotations
+      And Alice sees the activity's arrows and square annotations
+      And Alice's activity receives exactly one empty set of personal arrows
+      And Alice's activity receives no moves
+
     Scenario: Removing activity annotations clears only those annotations
       Given Alice has personal arrows and circles alongside activity annotations
       When Alice's activity removes its annotations

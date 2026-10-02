@@ -22,7 +22,8 @@ Feature: Change chessboard settings safely
     Scenario: A disabled chessboard refuses a move
       Given Alice has a chessboard with interactivity disabled
       When Alice moves the piece from e2 to e4
-      Then Alice sees the White pawn remaining on e2
+      Then Alice cannot move a piece while interactivity is disabled
+      And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
     Scenario: Disabling interactivity abandons a pending promotion choice

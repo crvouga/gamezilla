@@ -34,26 +34,30 @@ module board_options {
 
   /// Alice chooses the prepared piece only when the board offers moves.
   action selectOptionsPiece = all {
-    not(optionsBoard.held),
-    optionsBoard' = if (_canMove(optionsBoard) and Set("opening", "promotion").contains(optionsBoard.position)
-      and not(optionsBoard.pendingPromotion))
+    optionsBoard.position == "opening", not(optionsBoard.held),
+    optionsBoard' = if (_canMove(optionsBoard))
       { ...optionsBoard, selected: not(optionsBoard.selected) } else optionsBoard,
   }
   /// Alice holds the prepared piece only when the board offers moves.
-  action beginOptionsDrag = optionsBoard' =
-    if (_canMove(optionsBoard) and Set("opening", "promotion").contains(optionsBoard.position)
-      and not(optionsBoard.pendingPromotion))
-      { ...optionsBoard, selected: false, held: true } else optionsBoard
+  action beginOptionsDrag = all {
+    optionsBoard.position == "opening", not(optionsBoard.held),
+    optionsBoard' = if (_canMove(optionsBoard))
+      { ...optionsBoard, selected: false, held: true } else optionsBoard,
+  }
   /// The prepared opening move completes only while input is permitted.
-  action moveOptionsPiece = optionsBoard' =
-    if (_canMove(optionsBoard) and optionsBoard.position == "opening")
+  action moveOptionsPiece = all {
+    optionsBoard.position == "opening",
+    optionsBoard' = if (_canMove(optionsBoard))
       { ...optionsBoard, position: "moved", selected: false, held: false }
-      else optionsBoard
+      else optionsBoard,
+  }
   /// A prepared last-rank move asks for a choice while leaving its pawn at source.
-  action requestOptionsPromotion = optionsBoard' =
-    if (_canMove(optionsBoard) and optionsBoard.position == "promotion")
+  action requestOptionsPromotion = all {
+    optionsBoard.position == "promotion", not(optionsBoard.pendingPromotion),
+    optionsBoard' = if (_canMove(optionsBoard))
       { ...optionsBoard, selected: false, held: false, pendingPromotion: true }
-      else optionsBoard
+      else optionsBoard,
+  }
   /// Changed available space respects a fixed width and cancels input in a preview.
   action resizeAvailableSpace(available: str): bool = all {
     Set("broad", "narrow").contains(available),

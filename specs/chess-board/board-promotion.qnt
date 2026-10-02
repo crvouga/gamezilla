@@ -29,13 +29,12 @@ module board_promotion {
   }
   /// Alice's explicit piece choice completes one previously requested move.
   action choosePromotion(piece: str): bool = all {
-    PROMOTION_PIECES.contains(piece),
-    promotionBoard' = if (promotionBoard.choice and promotionBoard.interactive)
+    PROMOTION_PIECES.contains(piece), promotionBoard.choice,
+    promotionBoard' =
       { ...promotionBoard, position: "promoted", choice: false,
-        promotedPiece: piece, offers: [piece] }
-      else _quiet(promotionBoard),
+        promotedPiece: piece, offers: [piece] },
   }
-  /// Alice abandons the choice without changing its source position.
+  /// Escape abandons a pending choice and is harmless without one, preserving position.
   action cancelPromotion = promotionBoard' = { ...promotionBoard, choice: false, offers: [] }
   /// Alice attempts the prepared rook move; a pending choice prevents it.
   action tryOtherPromotionMove = promotionBoard' =

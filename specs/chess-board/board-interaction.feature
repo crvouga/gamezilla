@@ -148,14 +148,16 @@ Feature: Choose and complete chess moves
     Scenario: A move that keeps its king in check is refused
       Given Alice has a chessboard with White's king on e1 in check from Black's rook on e8 and White's rook on a2
       When Alice moves the piece from a2 to a3
-      Then Alice sees the White rook remaining on a2
+      Then Alice cannot move the rook because its king would remain in check
+      And Alice sees the White rook remaining on a2
       And Alice sees White's king on e1 marked as in check
       And Alice's activity receives no moves
 
     Scenario: A pinned knight cannot expose its king by moving
       Given Alice has a chessboard with the White knight on e2 pinned to its king on e1 by the Black rook on e8
       When Alice moves the piece from e2 to c3
-      Then Alice sees the White knight remaining on e2
+      Then Alice cannot move the pinned knight because it would expose its king
+      And Alice sees the White knight remaining on e2
       And Alice's activity receives no moves
 
     Scenario: A permitted reply removes the king's check
