@@ -1,98 +1,159 @@
 name: Check
-
-# Run title, identical shape in every workflow (enforced by
-# libs/tools/scripts/workflow-run-names.test.ts):
-#   <Workflow> · <trigger>
 run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
-
 permissions:
   contents: read
   actions: write
   id-token: write
-
 on:
   pull_request:
     branches: [main]
     types: [opened, reopened, synchronize]
   workflow_dispatch:
+    inputs:
+      shards:
+        description: Duration-balanced shard count (1..64)
+        type: number
+        default: 16
+      concurrency:
+        description: Turbo slots per shard
+        type: number
+        default: 16
+      runner:
+        description: Depot runner label
+        type: string
+        default: depot-ubuntu-24.04-16
+      cache-mode:
+        description: normal or cold (cold forces execution without deleting remote caches)
+        type: choice
+        options: [normal, cold]
+        default: normal
 
 env:
   TURBO_UI: stream
+  SECRETS_ENV: dev
+  SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+  GH_EVENT: ${{ github.event_name }}
+  PR_BASE: ${{ github.event.pull_request.base.sha }}
+  PR_HEAD: ${{ github.event.pull_request.head.sha }}
+  CHECK_SHARDS: ${{ inputs.shards || vars.CHECK_SHARDS || '16' }}
+  CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '16' }}
+  CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
 concurrency:
   group: check-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  # One allocation and setup. Exact-input cache hits reuse their published
-  # reports; misses publish as their tasks finish. The verdict includes reports.
-  check:
-    name: check
+  check-plan:
+    name: check:plan
     runs-on: depot-ubuntu-24.04-16
-    timeout-minutes: 30
-    env:
-      SECRETS_ENV: dev
-      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      GH_EVENT: ${{ github.event_name }}
-      PR_BASE: ${{ github.event.pull_request.base.sha }}
-      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
       - uses: ./.depot/actions/setup
-
       - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
+      - name: Compute exact execution plan once
+        id: plan
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
+      - uses: actions/upload-artifact@v6
+        with:
+          name: check-plan
+          path: .cache/check-ci/*.json
+          include-hidden-files: true
+          compression-level: 0
+          retention-days: 7
 
-      - name: Runner resources
-        run: |
-          bun -e 'console.log(JSON.stringify({ cpus: require("node:os").availableParallelism(), memoryBytes: require("node:os").totalmem(), arch: process.arch }))'
-
+  check-shards:
+    name: check:shards
+    needs: check-plan
+    runs-on: ${{ inputs.runner || vars.CHECK_RUNNER || 'depot-ubuntu-24.04-16' }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.check-plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.depot/actions/setup
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - uses: actions/download-artifact@v7
+        with:
+          name: check-plan
+          path: .cache/check-ci
       - name: check
-        id: check
         timeout-minutes: 25
-        # Apply after secrets injection. On this 16-core runner, cold runs at
-        # 12 slots beat 16/20 with less memory and preserve all task coverage.
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY=12 bun run libs/tools/scripts/turbo-ci-run.ts --publish-reports check
-
-      - name: Upload queryable trace artifacts
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: observability-traces-${{ github.run_id }}
-          path: |
-            apps/*/.cache/harness-report/*/traces/*.ndjson
-            libs/*/.cache/harness-report/*/traces/*.ndjson
-            pkgs/*/.cache/harness-report/*/traces/*.ndjson
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
-
-      - name: Upload turbo run summary
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: turbo-summary-${{ github.run_id }}
-          path: |
-            .turbo/runs/*.json
-            .turbo/report-runs/*.json
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
-
-      - name: Write workflow summary
-        if: always() && !cancelled()
         env:
-          WORKFLOW_JOB: check
-          WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
-        run: bun run libs/tools/scripts/write-workflow-summary.ts
+          CHECK_SHARD: ${{ matrix.shard }}
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" RAYON_NUM_THREADS=1 MODEL_CHECK_CONCURRENCY=4 bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
+      # One uncompressed transfer; remote hits need no report download here.
+      - name: Transfer raw evidence
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@v6
+        with:
+          name: check-evidence-${{ matrix.shard }}
+          path: |
+            .cache/check-ci/results/*.json
+            apps/*/.cache/harness-report/**
+            libs/*/.cache/harness-report/**
+            pkgs/*/.cache/harness-report/**
+          include-hidden-files: true
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 7
 
+  # This is the only required status. Missing, failed, skipped and cancelled
+  # matrix members fail; reports never enter this job's dependency graph.
+  check:
+    name: check
+    needs: [check-plan, check-shards]
+    if: always() && !cancelled()
+    runs-on: depot-ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require every shard
+        env:
+          PLAN_RESULT: ${{ needs.check-plan.result }}
+          SHARD_RESULT: ${{ needs.check-shards.result }}
+        run: test "$PLAN_RESULT" = success && test "$SHARD_RESULT" = success
+
+  check-reports:
+    name: check:reports
+    needs: [check-plan, check-shards]
+    if: always() && !cancelled()
+    runs-on: depot-ubuntu-24.04-16
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.depot/actions/setup
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+      - uses: actions/download-artifact@v7
+        with:
+          name: check-plan
+          path: .cache/check-ci
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: check-evidence-*
+          merge-multiple: true
+          path: .
+      - name: Aggregate and publish one batch
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
       - name: Prune stale spec reports
         if: always() && !cancelled()
         env:
