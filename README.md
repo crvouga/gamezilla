@@ -6,7 +6,7 @@ This file is the one briefing a fresh session should load: product, stack, and h
 
 `docs/` holds one generated file, [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) (`bun run spec:catalog`). Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
 
-Private repo: `crvouga/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
+Private repo: `gamezilla-org/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
 
 ## Words
 

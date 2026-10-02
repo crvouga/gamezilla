@@ -49,7 +49,13 @@ export const globalFileSchema = z
       })
       .strict(),
     github: z
-      .object({ owner: id, repo: id, required_checks: z.array(id).min(1) })
+      .object({
+        owner: id,
+        owner_id: z.string().regex(/^[1-9][0-9]*$/),
+        repo: id,
+        repo_id: z.string().regex(/^[1-9][0-9]*$/),
+        required_checks: z.array(id).min(1),
+      })
       .strict(),
     /**
      * The Worker at `hostname` owning the one OAuth callback registered with

@@ -1,5 +1,10 @@
 [
   {
+    "id": "github-transfer-immutable-oidc-subject",
+    "summary": "Check failed in secrets-auth with OIDC subject not allowed after the repository transfer. GitHub now issues repo:gamezilla-org@336801040/gamezilla@1165464734 subjects, while Infisical and AWS trusted name-only subjects. Declare the current owner and immutable IDs and share the exact prefix across both trust policies.",
+    "regressionTest": "libs/infra/tests/github-oidc.test.ts"
+  },
+  {
     "id": "consolidated-deploy-check-aggregator",
     "summary": "The consolidated application deployment depended directly on the root Check aggregator. Turbo bypassed the runner's aggregator flattening and tried to schedule missing root lint/test tasks, failing before any deployment. Keep Check in the release runner and pin the exact retirement dependency chain as a dry-run regression.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
