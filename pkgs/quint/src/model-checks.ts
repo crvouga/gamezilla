@@ -24,7 +24,7 @@ export type ModelChecksInput = {
 
 export function registerModelChecks(input: ModelChecksInput): void {
   const { specPath, record } = input;
-  test('has the shape of an offline-first aggregate', () =>
+  test('has a valid aggregate shape', () =>
     decide({
       record,
       id: 'shape',

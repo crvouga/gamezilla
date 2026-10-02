@@ -9,6 +9,11 @@ obligation a run decides is recorded as evidence (`@pkgs/conformance`). Product 
 ([`specs/README.md`](../../specs/README.md));
 this package knows nothing about the product.
 
+Model headers may declare `// @model-profile: maintenance` for operator
+state machines without app devices. The default profile remains offline-first.
+Both profiles require initialized state, reachable actions and invariants that
+constrain every observable variable; unknown or duplicate profiles fail.
+
 | Module | What it does |
 | --- | --- |
 | `shape` | Static shape of an aggregate, before any trace or Apalache run: an invariant that can fail and names some state, every action reached from `init` or `step`, every variable set in `init`, every observable variable named by an invariant, and an offline-first connection (one device starts connected, can lose the connection and get it back, and some invariant says what that changes). `events.qnt` is not an aggregate. |

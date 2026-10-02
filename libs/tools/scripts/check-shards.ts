@@ -6,7 +6,8 @@
  * one runner. The Check workflow instead plans once and fans the misses out:
  *
  *   check:plan   `turbo run --dry=json` over the whole gate (turbo-preflight),
- *                then {@link planShards} assigns every MISS to one shard.
+ *                then `check-report-plan` assigns misses and cached reports.
+ *                {@link planShards} balances their combined execution/upload cost.
  *   check:shard  one runner per shard: `turbo run <its task ids>`, which also
  *                schedules each task's `dependsOn` closure (restored from the
  *                shared remote cache when another shard already built it).

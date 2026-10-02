@@ -140,6 +140,25 @@ function prose(uri: string, text: string) {
 }
 
 describe('glossary files', () => {
+  test('app is the default profile and maintenance is explicit and validated', () => {
+    const data = {
+      context: 'Index maintenance',
+      purpose: 'Safe indexing',
+      terms: [],
+    };
+    const parse = (profile?: string) =>
+      parseGlossary(
+        { ...data, ...(profile === undefined ? {} : { profile }) },
+        'specs/indexing/ubiquitous-language.yml',
+        'indexing'
+      );
+    expect(parse().glossary.profile).toBe('app');
+    expect(parse('maintenance').glossary.profile).toBe('maintenance');
+    expect(parse('maintenance').problems).toEqual([]);
+    expect(parse('anything').problems).toEqual([
+      'specs/indexing/ubiquitous-language.yml: profile must be app or maintenance',
+    ]);
+  });
   test('a term needs a definition, an outside source, or a lender', () => {
     const parsed = parseGlossary(
       { context: 'X', purpose: 'Y', terms: [{ term: 'widget' }] },
