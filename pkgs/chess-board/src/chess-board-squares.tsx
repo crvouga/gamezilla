@@ -161,7 +161,7 @@ function Coordinates(props: {
         {(file, col) => (
           <text
             x={col() * CELL_UNITS + CELL_UNITS - 6}
-            y={8 * CELL_UNITS - 7}
+            y={8 * CELL_UNITS - 20}
             fill={ink(col(), 7)}
             font-size="20"
             text-anchor="end"
@@ -174,7 +174,7 @@ function Coordinates(props: {
         {(rank, row) => (
           <text
             x={5}
-            y={row() * CELL_UNITS + 21}
+            y={row() * CELL_UNITS + 30}
             fill={ink(0, row())}
             font-size="20"
           >
