@@ -628,5 +628,15 @@
     "id": "upsert-managed-bindings-reordered",
     "summary": "Adding managed INSERT timestamps appended their bindings after ON CONFLICT parameters, assigning Preparing to a timestamp and blocking server exports. Bindings now follow their SQL positions.",
     "regressionTest": "pkgs/sync-engine/tests/upsert-managed-bindings.test.ts"
+  },
+  {
+    "id": "index-join-column-wrong-table",
+    "summary": "The workload index parser assigned a joined device filter to the deletion receipts table, so localhost startup failed creating an index on a nonexistent device_id column. Columns now resolve through each SELECT's table aliases, including join predicates.",
+    "regressionTest": "pkgs/db-indexes/tests/join-column-ownership.test.ts"
+  },
+  {
+    "id": "sqlite-reconcile-foreign-index",
+    "summary": "Reconciling framework tables dropped unique indexes owned by domain tables. The SQLite planner now removes stale indexes only for the slice it owns.",
+    "regressionTest": "pkgs/db-schema-sqlite/tests/declared-index-ownership.test.ts"
   }
 ]

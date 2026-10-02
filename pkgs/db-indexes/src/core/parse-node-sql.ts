@@ -2,62 +2,18 @@ import { assert } from '@pkgs/assert';
 import { Parser } from 'node-sql-parser';
 import { assertWithinLimit, LIMITS } from '../core/limits';
 import type { AccessPath, ParsedStatement } from '../core/types';
+import {
+  type AstNode,
+  asNode,
+  type ColumnScope,
+  fromRelations,
+  scopedColumn,
+} from './parse-sql-scope';
 
-type AstNode = Record<string, unknown>;
 type Dialect = 'PostgreSQL' | 'Sqlite';
 
 const parser = new Parser();
 const MAX_WALK_DEPTH = 64;
-
-function asNode(v: unknown): AstNode | undefined {
-  if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
-    return v as AstNode;
-  }
-  return undefined;
-}
-
-function tableNameFromNode(node: unknown, depth = 0): string | undefined {
-  assert.ok(depth <= MAX_WALK_DEPTH, 'table walk depth');
-  if (node === null || node === undefined) return undefined;
-  if (typeof node === 'string') return node.toLowerCase();
-  if (Array.isArray(node)) return tableNameFromNode(node[0], depth + 1);
-  const o = asNode(node);
-  if (o === undefined) return undefined;
-  const table = o['table'];
-  if (typeof table === 'string') return table.toLowerCase();
-  return undefined;
-}
-
-function collectFromTables(from: unknown, out: Set<string>): void {
-  if (!Array.isArray(from)) return;
-  for (let i = 0; i < from.length; i++) {
-    const name = tableNameFromNode(from[i]);
-    if (name !== undefined) out.add(name);
-  }
-}
-
-function columnNameValue(column: unknown): string | undefined {
-  if (typeof column === 'string') return column.toLowerCase();
-  const o = asNode(column);
-  if (o === undefined) return undefined;
-  // Postgres dialect: { expr: { type: 'default', value: 'col' } }
-  const expr = asNode(o['expr']);
-  if (expr !== undefined && typeof expr['value'] === 'string') {
-    return (expr['value'] as string).toLowerCase();
-  }
-  if (typeof o['value'] === 'string')
-    return (o['value'] as string).toLowerCase();
-  return undefined;
-}
-
-function columnRef(expr: unknown): string | undefined {
-  const o = asNode(expr);
-  if (o === undefined) return undefined;
-  if (o['type'] === 'column_ref') {
-    return columnNameValue(o['column']);
-  }
-  return columnNameValue(o['column']);
-}
 
 /** Workload SQL uses `?`; node-sql-parser Postgres dialect requires `$n`. */
 function rewritePlaceholdersForDialect(sql: string, dialect: Dialect): string {
@@ -69,7 +25,7 @@ function rewritePlaceholdersForDialect(sql: string, dialect: Dialect): string {
   });
 }
 
-function selectListColumns(columns: unknown): string[] {
+function selectListColumns(columns: unknown, scope: ColumnScope): string[] {
   if (columns === '*') return ['*'];
   if (!Array.isArray(columns)) return [];
   const names: string[] = [];
@@ -77,20 +33,19 @@ function selectListColumns(columns: unknown): string[] {
     const col = asNode(columns[i]);
     if (col === undefined) continue;
     const expr = col['expr'];
-    const name = columnRef(expr);
+    const name = scopedColumn(expr, scope);
     if (name !== undefined) names.push(name);
-    else if (asNode(expr)?.['column'] === '*') names.push('*');
   }
   return names;
 }
 
-function orderByColumns(orderby: unknown): string[] {
+function orderByColumns(orderby: unknown, scope: ColumnScope): string[] {
   if (!Array.isArray(orderby)) return [];
   const names: string[] = [];
   for (let i = 0; i < orderby.length; i++) {
     const item = asNode(orderby[i]);
     if (item === undefined) continue;
-    const name = columnRef(item['expr']);
+    const name = scopedColumn(item['expr'], scope);
     if (name !== undefined) names.push(name);
   }
   return names;
@@ -109,12 +64,16 @@ function emptyPred(): PredAccum {
 
 const RANGE_OPS = new Set(['>', '>=', '<', '<=', 'BETWEEN', 'LIKE', 'ILIKE']);
 
-function recordComparison(op: string, o: AstNode, acc: PredAccum): void {
-  const leftCol = columnRef(o['left']);
-  const rightCol = columnRef(o['right']);
+function recordComparison(
+  op: string,
+  o: AstNode,
+  acc: PredAccum,
+  scope: ColumnScope
+): void {
+  const leftCol = scopedColumn(o['left'], scope);
+  const rightCol = scopedColumn(o['right'], scope);
   if (leftCol !== undefined && (op === '=' || op === 'IN')) {
     acc.equality.push(leftCol);
-    return;
   }
   if (leftCol !== undefined && RANGE_OPS.has(op)) {
     acc.range.push(leftCol);
@@ -131,30 +90,35 @@ function recordComparison(op: string, o: AstNode, acc: PredAccum): void {
   }
 }
 
-function walkWhere(where: unknown, acc: PredAccum, depth = 0): void {
+function walkWhere(
+  where: unknown,
+  acc: PredAccum,
+  scope: ColumnScope,
+  depth = 0
+): void {
   assert.ok(depth <= MAX_WALK_DEPTH, 'where walk depth');
   const o = asNode(where);
   if (o === undefined) return;
   if (o['type'] === 'unary_expr') {
-    walkWhere(o['expr'], acc, depth + 1);
+    walkWhere(o['expr'], acc, scope, depth + 1);
     return;
   }
   if (o['type'] !== 'binary_expr') return;
   const op = String(o['operator'] ?? '').toUpperCase();
   if (op === 'AND') {
-    walkWhere(o['left'], acc, depth + 1);
-    walkWhere(o['right'], acc, depth + 1);
+    walkWhere(o['left'], acc, scope, depth + 1);
+    walkWhere(o['right'], acc, scope, depth + 1);
     return;
   }
   if (op === 'OR') {
     const left = emptyPred();
     const right = emptyPred();
-    walkWhere(o['left'], left, depth + 1);
-    walkWhere(o['right'], right, depth + 1);
+    walkWhere(o['left'], left, scope, depth + 1);
+    walkWhere(o['right'], right, scope, depth + 1);
     acc.orBranches.push(left, right);
     return;
   }
-  recordComparison(op, o, acc);
+  recordComparison(op, o, acc, scope);
 }
 
 function pathsFromPred(
@@ -219,21 +183,18 @@ function pathsFromSelectRoot(root: AstNode): {
   readonly tables: string[];
   readonly paths: AccessPath[];
 } {
-  const tables = new Set<string>();
-  collectFromTables(root['from'], tables);
-  const tableList = [...tables];
-  const selectList = selectListColumns(root['columns']);
-  const orderBy = orderByColumns(root['orderby']);
-  const pred = emptyPred();
-  walkWhere(root['where'], pred);
-  const primary = tableList[0] ?? '';
-  if (primary.length === 0) {
-    return { tables: tableList, paths: [] };
+  const relations = fromRelations(root['from']);
+  const paths: AccessPath[] = [];
+  for (const relation of relations) {
+    const scope = { relation, relations };
+    const selectList = selectListColumns(root['columns'], scope);
+    const orderBy = orderByColumns(root['orderby'], scope);
+    const pred = emptyPred();
+    walkWhere(root['where'], pred, scope);
+    for (const joined of relations) walkWhere(joined.on, pred, scope);
+    paths.push(...pathsFromPred(relation.table, pred, selectList, orderBy));
   }
-  return {
-    tables: tableList,
-    paths: pathsFromPred(primary, pred, selectList, orderBy),
-  };
+  return { tables: relations.map((relation) => relation.table), paths };
 }
 
 /**
