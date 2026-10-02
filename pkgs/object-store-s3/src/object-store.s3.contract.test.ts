@@ -1,7 +1,7 @@
-// S3-compatible object store contract runs against
-// local S3rver or externally supplied S3/R2 env vars.
+// Cached contract checks always use a private local S3rver, never credentials
+// or a shared bucket injected by the environment.
 
-import { afterAll, describe } from 'bun:test';
+import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -17,58 +17,42 @@ import {
 import { createHarnessAdapters } from '@pkgs/uuid';
 import { createS3ObjectStore } from './impl-s3';
 
-const endpoint = process.env['S3_ENDPOINT']?.trim() ?? '';
-const accessKeyId = process.env['S3_ACCESS_KEY_ID']?.trim() ?? '';
-const secretAccessKey = process.env['S3_SECRET_ACCESS_KEY']?.trim() ?? '';
-const bucket = process.env['S3_BUCKET']?.trim() ?? '';
-const region = process.env['S3_REGION']?.trim() ?? S3_REGION;
-
-let s3Config: {
-  endpoint: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  bucket: string;
-  region: string;
+const handle = await startS3Server({
+  directory: join(tmpdir(), `s3-contract-${randomUUID()}`),
+});
+const s3Config = {
+  endpoint: handle.endpoint,
+  accessKeyId: S3_ACCESS_KEY_ID,
+  secretAccessKey: S3_SECRET_ACCESS_KEY,
+  bucket: S3_BUCKET,
+  region: S3_REGION,
 };
-let stopS3: (() => Promise<void>) | undefined;
-
-// When no S3 endpoint is supplied, start local S3rver.
-if (!endpoint) {
-  const dir = join(tmpdir(), `s3-contract-${randomUUID()}`);
-  const handle = await startS3Server({ directory: dir });
-  s3Config = {
-    endpoint: handle.endpoint,
-    accessKeyId: S3_ACCESS_KEY_ID,
-    secretAccessKey: S3_SECRET_ACCESS_KEY,
-    bucket: S3_BUCKET,
-    region: S3_REGION,
-  };
-  stopS3 = () => handle.stop();
-} else {
-  s3Config = {
-    endpoint,
-    accessKeyId,
-    secretAccessKey,
-    bucket,
-    region,
-  };
-}
 
 describe('ObjectStore S3-compatible (contract)', () => {
   const adapters = createHarnessAdapters({ seed: 1 });
-  const prefix = normalizeObjectStoreRootPrefix(
-    `dst-contract/${adapters.createId()}/`
-  );
-
-  runObjectStoreContractTests(() =>
+  const createStore = () =>
     createS3ObjectStore({
       ...s3Config,
-      rootPrefix: prefix,
+      rootPrefix: normalizeObjectStoreRootPrefix(
+        `dst-contract/${adapters.createId()}/`
+      ),
       http: { fetch: (input, init) => globalThis.fetch(input, init) },
-    })
-  );
+    });
+
+  runObjectStoreContractTests(createStore);
+
+  // regression: s3-contract-shared-namespace
+  test('an earlier test or concurrent run cannot add k to a fresh listing', async () => {
+    expect(new URL(s3Config.endpoint).hostname).toBe('localhost');
+    await createStore().put('k', new Uint8Array([1]), 'text/plain');
+    const next = createStore();
+    for (const key of ['b', 'a/x', 'a/y']) {
+      await next.put(key, new Uint8Array([1]), 'text/plain');
+    }
+    expect(await next.listKeys()).toEqual(['a/x', 'a/y', 'b']);
+  });
 });
 
 afterAll(async () => {
-  await stopS3?.();
+  await handle.stop();
 });

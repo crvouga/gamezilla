@@ -733,5 +733,10 @@
     "id": "empty-spec-part-passes",
     "summary": "An over-sharded or misconfigured empty spec part exited successfully and published a passing completion. Fail with a configuration error so the empty task is removed or its scope repaired.",
     "regressionTest": "libs/harness/scripts/test-spec-empty.test.ts"
+  },
+  {
+    "id": "s3-contract-shared-namespace",
+    "summary": "Concurrent Depot runs injected remote S3 credentials into a cached contract suite and reused its seeded namespace. The listKeys example saw a/x, a/y, b, k instead of a/x, a/y, b. Always run against a private local S3rver and create a fresh seeded prefix for every test.",
+    "regressionTest": "pkgs/object-store-s3/src/object-store.s3.contract.test.ts"
   }
 ]
