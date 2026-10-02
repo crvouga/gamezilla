@@ -6,13 +6,12 @@
 | --- | --- | --- |
 | Unit / contract / property | `tests/*.test.ts` | `bun run test` |
 | Model-based (index tuning) | `tests/index-tuning.property.test.ts` | `bun run test` |
-| Gherkin syntax and bounded Quint reference validity, without adapter replay | `tests/quint/index-contracts.test.ts` | `bun test pkgs/db-indexes/tests/quint/index-contracts.test.ts` |
+| Documentation syntax and bounded Quint reference validity, without adapter replay | `tests/quint/index-contracts.test.ts` | `bun test pkgs/db-indexes/tests/quint/index-contracts.test.ts` |
 | Generators | `tests/generators` | imported by the property tests |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
-Index tuning specifications live in
-[`specs/db-indexes/`](../../../specs/db-indexes/). Test runners and bindings
-live in this package. The tuning harness — one reconciler over `HarnessDb` on a
+Index tuning reference models and their runners live in `tests/quint/`.
+Contract examples live in [AUTOMATIC_INDEXES.md](AUTOMATIC_INDEXES.md). The tuning harness — one reconciler over `HarnessDb` on a
 virtual clock, with the standing `tuningInvariantsHold` property — is
 `indexTuningSystem`, exported from `@pkgs/db-indexes/harness`.
 `tests/index-tuning.property.test.ts` generates sequences of declaring

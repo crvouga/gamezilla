@@ -12,8 +12,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test",
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts"
+    "test": "bun test"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -26,8 +25,5 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  },
-  "specDomains": [
-    "db-schema"
-  ]
+  }
 }

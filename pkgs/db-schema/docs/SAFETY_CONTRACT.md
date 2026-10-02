@@ -1,10 +1,9 @@
 # Reconciliation safety contract
 
-All Gherkin and Quint definitions live exclusively in their bounded contexts:
-[`specs/db-schema/`](../../../specs/db-schema/) and
-[`specs/db-indexes/`](../../../specs/db-indexes/). Packages contain test runners,
-bindings and implementation code, never another copy of these specs. The
-existing schema-safety model follows the same layout.
+Framework safety is technical: the examples below are package documentation,
+and the Quint files are fixtures for package model tests. They are not
+business specifications or claims of adapter conformance. Product behavior
+remains in `specs/`, as required by [the spec standard](../../../specs/README.md).
 
 These contracts define desired safety, including requirements not yet proven
 against implementation. Current dialect policy is in
@@ -14,15 +13,15 @@ against implementation. Current dialect policy is in
 
 | Subject | Examples | Reference model |
 | --- | --- | --- |
-| Server declaration, evolution, backfill, locking | [server-reconciliation.feature](../../../specs/db-schema/server-reconciliation.feature) | [reconciliation-transaction.qnt](../../../specs/db-schema/reconciliation-transaction.qnt), existing [schema-safety.qnt](../../../specs/db-schema/schema-safety.qnt) |
-| Local shared data, rebuilds, recovery, settings | [client-recovery.feature](../../../specs/db-schema/client-recovery.feature) | [rebuild-recovery.qnt](../../../specs/db-schema/rebuild-recovery.qnt) |
-| Declared indexes, invalid builds, uniqueness, budgets | [schema-indexes.feature](../../../specs/db-schema/schema-indexes.feature) | Ordinary build lifecycle abstracted by [index-reconciliation.qnt](../../../specs/db-indexes/index-reconciliation.qnt); uniqueness remains a dialect contract obligation |
-| Automatic indexes, ownership, retirement, stale evidence | [automatic-indexes.feature](../../../specs/db-indexes/automatic-indexes.feature) | [index-reconciliation.qnt](../../../specs/db-indexes/index-reconciliation.qnt) |
+| Server declaration, evolution, backfill, locking | [server reconciliation](../../../pkgs/db-schema/docs/SERVER_RECONCILIATION.md) | [reconciliation-transaction.qnt](../../../pkgs/db-schema/tests/quint/reconciliation-transaction.qnt), existing [schema-safety.qnt](../../../pkgs/db-schema/tests/quint/schema-safety.qnt) |
+| Local shared data, rebuilds, recovery, settings | [client recovery](../../../pkgs/db-schema/docs/CLIENT_RECOVERY.md) | [rebuild-recovery.qnt](../../../pkgs/db-schema/tests/quint/rebuild-recovery.qnt) |
+| Declared indexes, invalid builds, uniqueness, budgets | [declared indexes](../../../pkgs/db-schema/docs/SCHEMA_INDEXES.md) | Ordinary build lifecycle abstracted by [index-reconciliation.qnt](../../../pkgs/db-indexes/tests/quint/index-reconciliation.qnt); uniqueness remains a dialect contract obligation |
+| Automatic indexes, ownership, retirement, stale evidence | [automatic indexes](../../../pkgs/db-indexes/docs/AUTOMATIC_INDEXES.md) | [index-reconciliation.qnt](../../../pkgs/db-indexes/tests/quint/index-reconciliation.qnt) |
 
-The feature files are normative package contracts. Parsing checks syntax and
-example structure; it does **not** execute their steps against a reconciler.
-New model tests check reference protocols only. The existing schema-safety
-binding checks the evolution gate, rather than SQL execution.
+The documented examples are implementation obligations, not executed
+scenarios. Syntax checks still parse every documented example. Model tests
+check reference protocols only. The existing
+schema-safety binding checks the evolution gate, rather than SQL execution.
 
 ## Terms and fixtures
 

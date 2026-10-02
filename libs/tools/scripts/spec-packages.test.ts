@@ -102,6 +102,15 @@ describe('specPackages', () => {
   const inDomain = (path: string, domains: readonly string[]) =>
     domains.some((domain) => path.startsWith(`specs/${domain}/`));
 
+  // regression: db-framework-contract-spec-discovery
+  test('technical database protocols stay in package model tests', () => {
+    expect(
+      packages.filter((pkg) =>
+        ['@pkgs/db-schema', '@pkgs/db-indexes'].includes(pkg.name)
+      )
+    ).toEqual([]);
+  });
+
   test('decision tables and structures come from the harness domains', () => {
     for (const pkg of packages) {
       for (const path of pkg.decisions) {

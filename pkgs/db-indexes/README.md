@@ -40,12 +40,12 @@ See [`TESTING.md`](./docs/TESTING.md) for the property layers, the
 model-based index-tuning test (`tests/index-tuning.property.test.ts`: the
 tuning harness against a reference model of declaring, tuning, retiring and
 the team's own indexes, plus same-sequence replay), and the invariant →
-assert / harness / property map. Index tuning contracts live in `specs/db-indexes/`;
-this package contains their test runners and implementation checks.
+assert / harness / property map. Index tuning reference models live in `tests/quint/`;
+contract examples and outstanding adapter checks are documented below.
 
 ## Ownership
 
-Bounded-context Gherkin/Quint safety requirements and their outstanding adapter
+Framework safety requirements and their outstanding adapter
 coverage: [SAFETY_CONTRACT.md](../db-schema/docs/SAFETY_CONTRACT.md).
 
 Only indexes named `autoidx_<table>_<hash8>` are created or dropped. Never

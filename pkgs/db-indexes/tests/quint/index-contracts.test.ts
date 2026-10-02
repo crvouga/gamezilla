@@ -10,19 +10,17 @@ import { verify } from '@pkgs/quint/verify';
 
 // Specification validity only. No reconciler or database is exercised here.
 const MODEL_TIMEOUT_MS = 120_000;
-const SPEC = join(
-  import.meta.dir,
-  '../../../../specs/db-indexes/index-reconciliation.qnt'
-);
+const SPEC = join(import.meta.dir, 'index-reconciliation.qnt');
 const REPORT = join(import.meta.dir, '../../.cache/index-contracts');
 
 describe('automatic index contract validity', () => {
   test('every example parses with one action and an outcome', () => {
-    const path = join(
-      import.meta.dir,
-      '../../../../specs/db-indexes/automatic-indexes.feature'
+    const path = join(import.meta.dir, '../../docs/AUTOMATIC_INDEXES.md');
+    const feature = parseFeature(
+      readFileSync(path, 'utf8').match(/```gherkin\n([\s\S]*?)\n```/)?.[1] ??
+        '',
+      path
     );
-    const feature = parseFeature(readFileSync(path, 'utf8'), path);
     expect(feature.scenarios.length).toBeGreaterThan(0);
     for (const scenario of feature.scenarios) {
       expect(

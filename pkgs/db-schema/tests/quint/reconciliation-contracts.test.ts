@@ -11,17 +11,17 @@ import { verify } from '@pkgs/quint/verify';
 // Specification validity only. These checks never stand in for adapter conformance.
 const MODEL_TIMEOUT_MS = 120_000;
 const MODELS = ['reconciliation-transaction', 'rebuild-recovery'];
-const FEATURES = ['server-reconciliation', 'client-recovery', 'schema-indexes'];
+const FEATURES = ['SERVER_RECONCILIATION', 'CLIENT_RECOVERY', 'SCHEMA_INDEXES'];
 
 describe('reconciliation contract syntax', () => {
   for (const name of FEATURES) {
     test(name, () => {
-      const path = join(
-        import.meta.dir,
-        '../../../../specs/db-schema',
-        `${name}.feature`
+      const path = join(import.meta.dir, '../../docs', `${name}.md`);
+      const feature = parseFeature(
+        readFileSync(path, 'utf8').match(/```gherkin\n([\s\S]*?)\n```/)?.[1] ??
+          '',
+        path
       );
-      const feature = parseFeature(readFileSync(path, 'utf8'), path);
       expect(feature.scenarios.length).toBeGreaterThan(0);
       for (const scenario of feature.scenarios) {
         expect(
@@ -36,11 +36,7 @@ describe('reconciliation contract syntax', () => {
 });
 
 for (const name of MODELS) {
-  const specPath = join(
-    import.meta.dir,
-    '../../../../specs/db-schema',
-    `${name}.qnt`
-  );
+  const specPath = join(import.meta.dir, `${name}.qnt`);
   const reportDir = join(
     import.meta.dir,
     '../../.cache/reconciliation-contracts',

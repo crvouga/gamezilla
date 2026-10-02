@@ -12,11 +12,8 @@ import { verify } from '@pkgs/quint/verify';
 
 import './index';
 
-const SPEC = join(
-  import.meta.dir,
-  '../../../../specs/db-schema/schema-safety.qnt'
-);
-const SPEC_URI = 'specs/db-schema/schema-safety.qnt';
+const SPEC = join(import.meta.dir, 'schema-safety.qnt');
+const SPEC_URI = 'pkgs/db-schema/tests/quint/schema-safety.qnt';
 const REPORT = join(import.meta.dir, '../../.cache/schema-safety');
 
 runQuintModel({

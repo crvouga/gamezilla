@@ -7,7 +7,7 @@ test('the spec entry registers the schema safety world and binding', async () =>
   const binding = quintBinding('schema-safety');
   const world = await quintWorld().create({
     packageName: '@pkgs/db-schema',
-    specUri: 'specs/db-schema/schema-safety.qnt',
+    specUri: 'pkgs/db-schema/tests/quint/schema-safety.qnt',
     model: 'schema-safety',
     trace: 1,
     seed: '424242',
