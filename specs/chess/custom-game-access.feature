@@ -34,7 +34,8 @@ Feature: Custom Games follow the space's access
   Rule: Paid access changes no Custom Game choice
 
     Scenario: Free access keeps a bot game available
-      Given Alice has a configuring Custom Game
+      Given Alice is signed in
+      And Alice has a configuring Custom Game
       And Alice's paid access has ended
       When Alice assigns a bot to Black in the Custom Game
       Then Black is a bot in the Custom Game
