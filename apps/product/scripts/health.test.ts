@@ -6,6 +6,7 @@ import {
   allSpecs,
   type Environment,
   HOST_LIMITS,
+  healthTestArgs,
   hostSkips,
   parseCli,
   scopedSpecs,
@@ -23,6 +24,22 @@ const STANDARD: Environment = {
   production: false,
   observability: true,
 };
+
+// regression: health-solid-preload-order
+test('live health runs server adapters without the local DOM harness conditions', () => {
+  const stub = '.cache/spec-live/runtime-stored-files.feature.test.ts';
+  const args = healthTestArgs(parseCli(['--bail']), [stub]);
+  expect(args).toEqual([
+    'test',
+    '--timeout',
+    '900000',
+    '--parallel',
+    '--bail',
+    stub,
+  ]);
+  const health = readFileSync(join(import.meta.dir, 'health.ts'), 'utf8');
+  expect(health).toContain("'tests/steps/live-index.ts'");
+});
 
 describe('health host limits', () => {
   test('a production environment runs every scenario', () => {
