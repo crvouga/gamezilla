@@ -170,3 +170,7 @@ outside `@pkgs/db-schema` emit.
 ## Tests
 
 Layers, invariants and backends: [`docs/TESTING.md`](docs/TESTING.md).
+
+Framework contract examples, package model tests, coverage and
+outstanding implementation obligations:
+[`docs/SAFETY_CONTRACT.md`](docs/SAFETY_CONTRACT.md).

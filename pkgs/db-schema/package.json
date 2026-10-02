@@ -20,6 +20,7 @@
     "@pkgs/sql-client": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

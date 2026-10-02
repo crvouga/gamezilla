@@ -603,5 +603,30 @@
     "id": "report-plan-hash-drift",
     "summary": "A task could execute under a different hash from the preflight plan and publish its evidence under the earlier hash. Verify Turbo's execution or restoration hash before publishing the completed source.",
     "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
+  },
+  {
+    "id": "db-framework-contract-spec-discovery",
+    "summary": "Technical database protocol fixtures were registered as product specs without implementation bindings, failing spec, conformance and offline model shape gates. Preserve unbound reference verification in package tests and document unimplemented adapter obligations outside product specs; the separately bound indexing maintenance specifications remain registered.",
+    "regressionTest": "libs/tools/scripts/spec-packages.test.ts"
+  },
+  {
+    "id": "model-array-encoding-default",
+    "summary": "Making Apalache's array map encoding the default caused assertion failures in the outside-accounts, membership-lifecycle and note-replication models. Keep the established default settings and make the alternative encoding an explicit opt-in for supported database contract models.",
+    "regressionTest": "pkgs/auth-harness/tests/default-model-encoding.test.ts"
+  },
+  {
+    "id": "rebuild-model-verification-timeout",
+    "summary": "Apalache's default map encoding and per-transition invariant checks exceeded the rebuild model's existing 120-second CI budget at ten steps. The database contract runners opt into SMT arrays and invariant checks after the full transition choice, preserving every invariant and the same exhaustive bound while reducing solver work. Other models retain the default encoding because arrays do not support all higher-order models.",
+    "regressionTest": "pkgs/db-schema/tests/quint/reconciliation-contracts.test.ts"
+  },
+  {
+    "id": "conventional-spec-commit-rejected",
+    "summary": "The spec ownership gate rejected the isolated database safety contract commit because it used the required Conventional Commit docs(specs) form. Recognize that form as a spec commit while continuing to require spec changes and reject mixed implementation files.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "db-schema-quint-entry-missing",
+    "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
+    "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
   }
 ]

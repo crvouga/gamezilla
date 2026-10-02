@@ -9,6 +9,11 @@ obligation a run decides is recorded as evidence (`@pkgs/conformance`). Product 
 ([`specs/README.md`](../../specs/README.md));
 this package knows nothing about the product.
 
+Verification may opt into `encoding: 'fun-arrays'` for models supported by
+Apalache's array map encoding. It checks invariants after translating each
+state's full transition choice to reduce solver work, preserving the bound and
+invariant obligations. Other models retain Apalache's default settings.
+
 Model headers may declare `// @model-profile: maintenance` for operator
 state machines without app devices. The default profile remains offline-first.
 Both profiles require initialized state, reachable actions and invariants that
