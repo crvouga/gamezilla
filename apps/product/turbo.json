@@ -23,10 +23,11 @@
       "outputs": []
     },
     "test:contract": {
-      "dependsOn": ["tc"],
+      "dependsOn": ["@pkgs/quint#src", "@pkgs/conformance#src"],
       "inputs": [
         "tests/quint/system/**",
         "package.json",
+        "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/auth/**",
         "$TURBO_ROOT$/specs/billing/**",
         "$TURBO_ROOT$/specs/chess/**",
@@ -38,7 +39,12 @@
         "$TURBO_ROOT$/specs/sync-engine/**",
         "$TURBO_ROOT$/specs/system/**"
       ],
-      "outputs": [".cache/harness-report/models/**"],
+      "outputs": [
+        ".cache/harness-report/models/evidence/**",
+        ".cache/harness-report/models/*.json",
+        ".cache/harness-report/models/**/tlc-output.txt",
+        ".cache/harness-report/models/**/*.itf.json"
+      ],
       "outputLogs": "errors-only"
     },
     "test:spec:0": {

@@ -34,7 +34,7 @@ for (const model of MODELS) {
   );
 }
 
-test(
+test.concurrent(
   'fair recovery: complete finite temporal verification',
   async () => {
     await obligation(
@@ -57,7 +57,7 @@ test(
 );
 
 // @io-wall-ok — temporary verifier inputs exercise the temporal checker itself.
-test(
+test.concurrent(
   'temporal verification detects starvation when fairness is removed',
   async () => {
     const { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } =

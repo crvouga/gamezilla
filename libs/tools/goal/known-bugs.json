@@ -1268,5 +1268,20 @@
     "id": "health-ui-step-loader-order",
     "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
     "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "check-symbolic-report-directory",
+    "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
+    "regressionTest": "apps/product/tests/quint/system/campaign-tools.test.ts"
+  },
+  {
+    "id": "check-tlc-shared-temporary-modules",
+    "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+  },
+  {
+    "id": "check-quint-silent-exit",
+    "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
+    "regressionTest": "pkgs/quint/tests/run-quint.test.ts"
   }
 ]
