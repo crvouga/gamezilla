@@ -9,9 +9,11 @@ import { defineFeature } from '@libs/feature/public/manifest';
 import { NOTIFICATIONS_TABLES } from '../public/schema';
 import { NOTIFICATIONS_TOPIC_MAP } from '../public/topic-map';
 import { NOTIFICATIONS_QUERIES } from './queries';
+import { NOTIFICATIONS_PRIVACY } from '../shared/notifications/account-privacy';
 
 export const NOTIFICATIONS_FEATURE = defineFeature({
   name: 'notifications',
+  accountPrivacy: NOTIFICATIONS_PRIVACY,
   tables: NOTIFICATIONS_TABLES,
   topicMap: NOTIFICATIONS_TOPIC_MAP,
   // Held open for the whole session: what keeps this feature's slice

@@ -79,7 +79,8 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/ui-testing": "workspace:*"
+    "@pkgs/ui-testing": "workspace:*",
+    "@libs/account-privacy": "workspace:*"
   },
   "devDependencies": {
     "@libs/test-ids": "workspace:*",

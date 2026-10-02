@@ -43,7 +43,9 @@
     "hono": "catalog:",
     "jose": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/outbox": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

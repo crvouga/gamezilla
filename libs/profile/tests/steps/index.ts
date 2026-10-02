@@ -4,6 +4,7 @@ import '@libs/harness/spec/steps/platform';
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-profile-harness';
 import './profile.steps';
+import '@libs/account-privacy/steps/privacy.steps';
 import './auth.steps';
 import './sign-in-methods.steps';
 import './sessions.steps';

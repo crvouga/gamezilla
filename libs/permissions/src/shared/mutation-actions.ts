@@ -26,6 +26,8 @@ export const MUTATION_ACTIONS: Readonly<
   applyEnsuredUsername: 'public',
   claimUsername: 'public',
   patchAvatar: 'public',
+  confirmAccountDeletion: PERMISSION.profileDeleteAccount,
+  requestPersonalDataExport: PERMISSION.profileExportData,
   // chess
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
   ratePuzzleAttempt: PERMISSION.puzzlesPlay,

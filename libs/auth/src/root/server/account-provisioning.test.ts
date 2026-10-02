@@ -16,6 +16,7 @@ const adapters = createHarnessAdapters({ seed: 1 });
 function makeFakeAuthServer(): AuthServerPort {
   return {
     provider: PRIMARY_AUTH_PROVIDER,
+    deleteUser: () => Promise.reject(new Error('deleteUser is outside this fixture')),
     verifySessionToken: async () => null,
     getUser: async () => null,
   };

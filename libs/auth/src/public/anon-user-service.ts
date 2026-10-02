@@ -126,7 +126,7 @@ export class AnonUserService {
     const rows = await this.tx.query(sql<DeviceUserRow>`
       SELECT user_id
       FROM auth_devices
-      WHERE id = ${deviceId}
+      WHERE id = ${deviceId} AND deleted_at IS NULL
       LIMIT 1
     `);
     const userId = rows[0]?.user_id;
@@ -137,7 +137,7 @@ export class AnonUserService {
     const rows = await this.tx.query(sql<UserAnonRow>`
       SELECT id, is_anon
       FROM auth_users
-      WHERE id = ${userId}
+      WHERE id = ${userId} AND deleted_at IS NULL
       LIMIT 1
     `);
     const row = rows[0];

@@ -49,7 +49,14 @@
     "@pkgs/word-filter": "workspace:*",
     "solid-js": "catalog:",
     "unique-names-generator": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@libs/permissions": "workspace:*",
+    "@libs/server-app": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
+    "@pkgs/permissions": "workspace:*",
+    "@pkgs/dmn": "workspace:*",
+    "hono": "catalog:"
   },
   "devDependencies": {
     "@libs/billing": "workspace:*",
@@ -64,7 +71,8 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@libs/account-privacy": "workspace:*"
   },
   "specDomains": [
     "profile"

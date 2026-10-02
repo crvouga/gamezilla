@@ -26,6 +26,7 @@ export type RunQueryAuth = {
   readonly accountId: string | null;
   readonly isAnon: boolean;
   readonly now: () => Date;
+  readonly authenticatedAtMs?: number;
 };
 
 export type RunQueryDeps = {
@@ -111,6 +112,7 @@ async function runDefinedQuery(
     accountId: deps.auth.accountId,
     isAnon: deps.auth.isAnon,
     now: deps.auth.now,
+    ...(deps.auth.authenticatedAtMs === undefined ? {} : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
   };
 
   const runCtx = {

@@ -17,4 +17,6 @@ export interface AuthServerPort {
   verifySessionToken(token: string): Promise<VerifiedSession | null>;
   /** The user with every sign-in method, or `null` when unknown. */
   getUser(externalUserId: string): Promise<AuthUser | null>;
+  /** Idempotently withdraw identities, revoke sessions and erase the service's personal data. */
+  deleteUser(externalUserId: string): Promise<void>;
 }

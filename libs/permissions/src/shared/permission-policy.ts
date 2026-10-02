@@ -59,6 +59,10 @@ const BILLING_OFFER: readonly AppPermission[] = [
 const SIGN_UP_UNLOCK = {
   requires_account: { titleKey: 'unlock.account.title', ctaTarget: 'signup' },
 } as const;
+const PRIVACY_UNLOCK = {
+  ...SIGN_UP_UNLOCK,
+  requires_recent_proof: { titleKey: 'unlock.privacy.proof.title', ctaTarget: 'signup' },
+} as const;
 
 const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.friendsUse,
@@ -186,8 +190,8 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       },
     },
     [PERMISSION.billingManage]: SIGN_UP_UNLOCK,
-    [PERMISSION.profileDeleteAccount]: SIGN_UP_UNLOCK,
-    [PERMISSION.profileExportData]: SIGN_UP_UNLOCK,
+    [PERMISSION.profileDeleteAccount]: PRIVACY_UNLOCK,
+    [PERMISSION.profileExportData]: PRIVACY_UNLOCK,
     [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [LIMIT.hostedSpaces]: {

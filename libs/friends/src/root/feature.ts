@@ -9,9 +9,11 @@ import { defineFeature } from '@libs/feature/public/manifest';
 import { FRIENDS_TABLES } from '../public/schema';
 import { FRIENDS_TOPIC_MAP } from '../public/topic-map';
 import { FRIENDS_QUERIES } from './queries';
+import { FRIENDS_PRIVACY } from '../shared/friendship/account-privacy';
 
 export const FRIENDS_FEATURE = defineFeature({
   name: 'friends',
+  accountPrivacy: FRIENDS_PRIVACY,
   tables: FRIENDS_TABLES,
   topicMap: FRIENDS_TOPIC_MAP,
   // Friend rows are shown with the other person's name and avatar, so the

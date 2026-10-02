@@ -256,7 +256,13 @@
     "pkgs/solid-context/src/**/*.ts",
     "pkgs/solid-context/src/**/*.tsx",
     "pkgs/vite-workspace-resolver/src/**/*.ts",
-    "libs/test-ids/src/**/*.ts"
+    "libs/test-ids/src/**/*.ts",
+    "libs/account-privacy/src/**/*.ts",
+    "libs/account-privacy/src/**/*.tsx"
   ],
-  "exclude": ["node_modules", "dist", "web-build"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "web-build"
+  ]
 }

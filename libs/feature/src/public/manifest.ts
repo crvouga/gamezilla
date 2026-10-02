@@ -11,6 +11,7 @@
  */
 
 import type { TableDef } from '@pkgs/db-schema';
+import type { AccountPrivacyContribution, AccountPrivacyGuard } from './account-privacy';
 import type {
   Mutation,
   QueryDef,
@@ -73,6 +74,8 @@ export type FeatureManifest<
    * features under test declared.
    */
   readonly mutations: LoadMutations;
+  readonly accountPrivacy?: AccountPrivacyContribution;
+  readonly accountPrivacyGuard?: AccountPrivacyGuard;
 };
 
 /**

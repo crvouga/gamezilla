@@ -1,3 +1,4 @@
+import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy/harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing/harness/billing-harness-slice';
 import {
   type OpenHarness,
@@ -17,6 +18,7 @@ import { PROFILE_HARNESS_SLICE } from '@libs/profile/harness/profile-harness-sli
  */
 const PROFILE_SYSTEM = defineProductSystem(
   composeHarnessSlices('profile', [
+      ACCOUNT_PRIVACY_HARNESS_SLICE,
     PROFILE_HARNESS_SLICE,
     BILLING_HARNESS_SLICE,
   ])

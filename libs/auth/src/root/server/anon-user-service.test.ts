@@ -156,7 +156,8 @@ describe('AccountProvisioningService upgrade', () => {
     });
     const authServer: AuthServerPort = {
       provider: 'idp',
-      verifySessionToken: async () => null,
+      deleteUser: () => Promise.reject(new Error('deleteUser is outside this fixture')),
+    verifySessionToken: async () => null,
       getUser: async () => null,
     };
 
@@ -192,7 +193,8 @@ describe('AccountProvisioningService upgrade', () => {
 
     const authServer: AuthServerPort = {
       provider: 'idp',
-      verifySessionToken: async () => null,
+      deleteUser: () => Promise.reject(new Error('deleteUser is outside this fixture')),
+    verifySessionToken: async () => null,
       getUser: async () => null,
     };
 

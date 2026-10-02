@@ -46,6 +46,7 @@ import {
 } from '../sync/outbox-drain';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
+import { registerAccountDeletionConsumers } from '@libs/auth/public/account-deletion-consumers';
 import type { ApiHonoEnv } from './api-hono-types';
 import { apiCors } from './cors';
 import { createRequestDbMiddleware } from './request-db-middleware';
@@ -485,6 +486,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     createSyncAppMount(env, args.app),
   ]);
 
+  registerAccountDeletionConsumers(args.servers.outboxConsumers, auth.server);
   const desiredClientConfig = await buildDesiredClientConfig({
     secretStore: env.secrets,
     auth,

@@ -1,3 +1,4 @@
+import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy/harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing/harness/billing-harness-slice';
 import { seedChessPuzzlesForHarness } from '@libs/chess/harness/chess-harness-seed';
 import { CHESS_HARNESS_SLICE } from '@libs/chess/harness/chess-harness-slice';
@@ -31,6 +32,7 @@ import { spacesHarnessSlice } from '@libs/spaces/harness/spaces-harness-slice';
 function chessSystem(chess: HarnessSlice) {
   return defineProductSystem(
     composeHarnessSlices('chess', [
+      ACCOUNT_PRIVACY_HARNESS_SLICE,
       PROFILE_HARNESS_SLICE,
       spacesHarnessSlice({
         games: [chessGameShared],

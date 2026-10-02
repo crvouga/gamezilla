@@ -1,0 +1,62 @@
+{
+  "name": "@libs/account-privacy",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./public/*": [
+      "./src/public/*.ts",
+      "./src/public/*.tsx"
+    ],
+    "./root/*": [
+      "./src/root/*.ts",
+      "./src/root/*.tsx"
+    ],
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
+    ],
+    "./steps/*": "./tests/steps/*.ts"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/client-app": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/test-ids": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "solid-js": "catalog:",
+    "zod": "catalog:",
+    "@libs/permissions": "workspace:*",
+    "@libs/server-app": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
+    "@pkgs/permissions": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/a11y": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

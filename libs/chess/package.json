@@ -98,7 +98,8 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@libs/account-privacy": "workspace:*"
   },
   "specDomains": [
     "chess"

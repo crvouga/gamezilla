@@ -14,6 +14,7 @@ import type { FeatureClient } from '@libs/feature/public/client';
 import { FRIENDS_CLIENT } from '@libs/friends/root/client/feature-client';
 import { NOTIFICATIONS_CLIENT } from '@libs/notifications/root/client/feature-client';
 import { PROFILE_CLIENT } from '@libs/profile/root/client/feature-client';
+import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy/root/client/feature-client';
 import { SEARCH_CLIENT } from '@libs/search/root/client/feature-client';
 import { createSpacesClient } from '@libs/spaces/root/client/feature-client';
 
@@ -35,6 +36,7 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   // Profile is outermost: a space's room roster reads the local profile, so
   // the profile provider has to be above the room provider.
   PROFILE_CLIENT,
+  ACCOUNT_PRIVACY_CLIENT,
   SPACES_CLIENT,
   // Friends registers a notification source, so it mounts above the inbox
   // that reads it.

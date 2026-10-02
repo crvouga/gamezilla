@@ -1,3 +1,4 @@
+import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy/harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing/harness/billing-harness-slice';
 import {
   type OpenHarness,
@@ -15,7 +16,7 @@ import { defineProductSystem } from '@libs/harness/system/define-product-system'
  * billing for its own spec, and a change anywhere else leaves this cached.
  */
 const BILLING_SYSTEM = defineProductSystem(
-  composeHarnessSlices('billing', [BILLING_HARNESS_SLICE])
+  composeHarnessSlices('billing', [ACCOUNT_PRIVACY_HARNESS_SLICE, BILLING_HARNESS_SLICE])
 );
 
 export function openHarness(

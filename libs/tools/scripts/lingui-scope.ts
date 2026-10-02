@@ -9,6 +9,7 @@
  * `turbo.json`'s `//#ci:i18n` inputs are kept equal to it by a test.
  */
 export const LINGUI_CATALOG_SOURCES = [
+  'libs/account-privacy/src',
   'libs/auth/src',
   'libs/billing/src',
   'libs/chess/src',

@@ -13,6 +13,8 @@ import type { FeatureServer } from '@libs/feature/public/server';
 import { FRIENDS_SERVER } from '@libs/friends/root/server/feature-server';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications/root/server/feature-server';
 import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
+import { createAccountPrivacyServer } from '@libs/account-privacy/root/server/feature-server';
+import { APP } from '../app-features';
 import type { MembershipProviders } from '@pkgs/billing';
 
 export type AppFeatureServerDeps = {
@@ -23,6 +25,7 @@ export function appFeatureServers(
   deps: AppFeatureServerDeps
 ): readonly FeatureServer[] {
   return [
+    createAccountPrivacyServer(APP.accountPrivacy),
     SPACES_SERVER,
     // Friends registers the inbox actions its deliveries carry, so it is
     // composed before the inbox that serves them.

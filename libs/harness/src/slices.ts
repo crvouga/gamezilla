@@ -33,6 +33,7 @@ export type HarnessSlice = {
   readonly client?: FeatureClient;
   readonly server?: (deps: {
     readonly billing: MembershipProviders | null;
+    readonly app: ReturnType<typeof composeFeatures>;
   }) => FeatureServer;
   readonly roomNode?: (
     env: EnvTime,
@@ -53,6 +54,7 @@ export type HarnessSlice = {
 export const SLICE_ORDER = [
   'auth',
   'profile',
+  'account-privacy',
   'client-config',
   'spaces',
   'friends',
@@ -127,16 +129,15 @@ export function composeHarnessSlices(
   const seeds = ordered.flatMap((s) =>
     s.seedServer === undefined ? [] : [s.seedServer]
   );
+  const app = composeFeatures(ordered.flatMap((s) => s.feature === undefined ? [] : [s.feature]));
   return {
     name,
-    app: composeFeatures(
-      ordered.flatMap((s) => (s.feature === undefined ? [] : [s.feature]))
-    ),
+    app,
     clients: withHome(
       ordered.flatMap((s) => (s.client === undefined ? [] : [s.client]))
     ),
     servers: (deps) =>
-      ordered.flatMap((s) => (s.server === undefined ? [] : [s.server(deps)])),
+      ordered.flatMap((s) => (s.server === undefined ? [] : [s.server({ ...deps, app })])),
     ...(roomNode === undefined ? {} : { roomNode }),
     ...(billingOffer === undefined ? {} : { billingOffer }),
     seedServer: async (sqlClient) => {

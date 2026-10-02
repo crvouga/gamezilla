@@ -52,6 +52,7 @@ export type ReplayAuth = {
   readonly deviceId: string;
   readonly accountId: string | null;
   readonly isAnon: boolean;
+  readonly authenticatedAtMs?: number;
 };
 
 export type ReplayMutationDeps = {
@@ -146,6 +147,7 @@ async function applyReplayMutationInTxn(args: {
     now: () => new Date(m.createdAt),
     createId: deps.createId,
     serverNow: () => new Date(deps.now()),
+    ...(deps.auth.authenticatedAtMs === undefined ? {} : { authenticatedAtMs: deps.auth.authenticatedAtMs }),
   };
 
   const wrapped = wrapMutationDb(txc, env);

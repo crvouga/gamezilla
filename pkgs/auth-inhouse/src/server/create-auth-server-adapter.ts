@@ -3,6 +3,7 @@ import type { AuthUser, VerifiedSession } from '@pkgs/auth/shared';
 import type { Clock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import { sql } from '@pkgs/sql';
 
 import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
 import { identityJson } from './identity-handlers';
@@ -37,6 +38,7 @@ async function verifySessionToken(
     accountId: null,
     email: found.user.email,
     expiresAt: new Date(found.session.expires_at),
+    authenticatedAt: new Date(found.session.created_at),
   };
 }
 
@@ -68,5 +70,14 @@ export function createAuthServerAdapter(
     provider: IDP_PROVIDER_LABEL,
     verifySessionToken: (token) => verifySessionToken(deps, token),
     getUser: (externalUserId) => getUser(deps, externalUserId),
+    deleteUser: async (externalUserId) => {
+      const tx = deps.getSql();
+        await tx.run(sql`DELETE FROM idp_sessions WHERE user_id = ${externalUserId}`);
+        await tx.run(sql`DELETE FROM idp_accounts WHERE user_id = ${externalUserId}`);
+        await tx.run(sql`DELETE FROM idp_link_tickets WHERE user_id = ${externalUserId}`);
+        await tx.run(sql`DELETE FROM idp_pending_links WHERE target_user_id = ${externalUserId}`);
+        await tx.run(sql`DELETE FROM idp_oauth_states WHERE user_id = ${externalUserId} OR link_user_id = ${externalUserId}`);
+        await tx.run(sql`DELETE FROM idp_users WHERE id = ${externalUserId}`);
+    },
   };
 }
