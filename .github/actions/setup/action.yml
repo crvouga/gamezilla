@@ -2,6 +2,12 @@
 name: Setup repo (mise tools + deps)
 description: mise-pinned tools (Bun, Node, CLIs), cached node_modules, bun install (run actions/checkout first)
 
+inputs:
+  tools:
+    description: Pinned mise tools to install; empty installs the full check toolchain
+    required: false
+    default: ''
+
 runs:
   using: composite
   steps:
@@ -19,6 +25,7 @@ runs:
       uses: jdx/mise-action@v4
       with:
         version: 2026.9.13
+        install_args: ${{ inputs.tools }}
 
     # The installed trees, not just the package store: restoring the store and
     # then linking ~1GB of node_modules out of it cost ~13s a run; one extract

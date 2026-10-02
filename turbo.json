@@ -244,7 +244,12 @@
     },
     "test:spec:0": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -258,7 +263,12 @@
     },
     "test:spec:1": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -272,7 +282,12 @@
     },
     "test:spec:2": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -286,7 +301,12 @@
     },
     "test:spec:3": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
@@ -300,7 +320,12 @@
     },
     "test:spec:4": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",
