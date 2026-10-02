@@ -128,6 +128,24 @@ function planFromTasks(tasks: readonly PlannedTask[]): RunPlan {
   };
 }
 
+/** Cached report tasks run only when their published content is absent. */
+export function restoreSelectedReports(
+  plan: RunPlan,
+  taskIds: readonly string[]
+): RunPlan {
+  const selected = new Set(taskIds);
+  const roots = plan.tasks.filter(
+    (task) => !task.hit || selected.has(task.taskId)
+  );
+  const byId = new Map(plan.tasks.map((task) => [task.taskId, task]));
+  const needed = [...roots, ...dependencyClosure(roots, byId)];
+  return {
+    tasks: plan.tasks,
+    toExecute: roots,
+    remoteHits: needed.filter((task) => task.hit && task.source === 'REMOTE'),
+  };
+}
+
 /**
  * The plan for a run that must leave every task's outputs on disk
  * (`turbo-ci-run --restore-outputs`): every hit only the remote holds is

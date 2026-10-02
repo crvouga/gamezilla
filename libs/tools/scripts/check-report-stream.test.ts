@@ -5,6 +5,9 @@ import { createReportPublisher } from './check-report-stream';
 const A = '@libs/a#test:spec:0';
 const B = '@libs/b#test:spec:1';
 const C = '@pkgs/c#test:spec:0';
+const HASH = '0123456789abcdef';
+const tasks = (...ids: string[]) =>
+  ids.map((taskId) => ({ taskId, hash: HASH }));
 const event = (source: string, text = REPORT_READY) =>
   JSON.stringify({ source, text, level: 'stdout' });
 
@@ -16,12 +19,20 @@ function deferred() {
   return { promise, resolve };
 }
 
+function completed(
+  publisher: ReturnType<typeof createReportPublisher>,
+  taskId: string
+) {
+  publisher.line(event(taskId, `cache miss, executing ${HASH}`));
+  publisher.line(event(taskId));
+}
+
 describe('overlapping report uploads', () => {
   test('starts before Turbo finishes, bounds concurrency and drains every queued upload', async () => {
     const waits = new Map([A, B, C].map((id) => [id, deferred()]));
     const started: string[] = [];
     const publisher = createReportPublisher(
-      [A, B, C],
+      tasks(A, B, C),
       {
         publish: (id) => {
           started.push(id);
@@ -31,9 +42,9 @@ describe('overlapping report uploads', () => {
       },
       2
     );
-    publisher.line(event(A));
-    publisher.line(event(B));
-    publisher.line(event(C));
+    completed(publisher, A);
+    completed(publisher, B);
+    completed(publisher, C);
     publisher.line(event(A));
     publisher.line(event('@libs/unassigned#test:spec:0'));
     expect(started).toEqual([A, B]);
@@ -54,13 +65,13 @@ describe('overlapping report uploads', () => {
 
   test('cached outputs publish once without rerunning the suite or needing a new marker', async () => {
     const published: string[] = [];
-    const publisher = createReportPublisher([A], {
+    const publisher = createReportPublisher(tasks(A), {
       async publish(id) {
         published.push(id);
       },
       log() {},
     });
-    publisher.line(event(A, 'cache hit, replaying logs abc123'));
+    publisher.line(event(A, `cache hit, replaying logs ${HASH}`));
     publisher.line(event(A));
     await publisher.finish();
     expect(published).toEqual([A]);
@@ -68,14 +79,14 @@ describe('overlapping report uploads', () => {
 
   test('a red check still publishes its completed report', async () => {
     const published: string[] = [];
-    const publisher = createReportPublisher([A], {
+    const publisher = createReportPublisher(tasks(A), {
       async publish(id) {
         published.push(id);
       },
       log() {},
     });
     publisher.line(event(A, 'runner failed'));
-    publisher.line(event(A));
+    completed(publisher, A);
     await publisher.finish(true);
     expect(published).toEqual([A]);
   });
@@ -83,7 +94,7 @@ describe('overlapping report uploads', () => {
   test('upload failures fail the shard while other completed suites still publish', async () => {
     const published: string[] = [];
     const publisher = createReportPublisher(
-      [A, B],
+      tasks(A, B),
       {
         async publish(id) {
           published.push(id);
@@ -93,8 +104,8 @@ describe('overlapping report uploads', () => {
       },
       1
     );
-    publisher.line(event(A));
-    publisher.line(event(B));
+    completed(publisher, A);
+    completed(publisher, B);
     await expect(publisher.finish()).rejects.toThrow(
       'Report publication failed'
     );
@@ -102,7 +113,7 @@ describe('overlapping report uploads', () => {
   });
 
   test('a missing completion or malformed stream cannot give a green verdict', async () => {
-    const publisher = createReportPublisher([A], {
+    const publisher = createReportPublisher(tasks(A), {
       async publish() {},
       log() {},
     });
@@ -110,5 +121,22 @@ describe('overlapping report uploads', () => {
     await expect(publisher.finish()).rejects.toThrow(
       'Report publication failed'
     );
+  });
+
+  // regression: report-plan-hash-drift
+  test('a changed execution hash cannot publish evidence under the planned hash', async () => {
+    const published: string[] = [];
+    const publisher = createReportPublisher(tasks(A), {
+      async publish(id) {
+        published.push(id);
+      },
+      log() {},
+    });
+    publisher.line(event(A, 'cache miss, executing fedcba9876543210'));
+    publisher.line(event(A));
+    await expect(publisher.finish()).rejects.toThrow(
+      'Report publication failed'
+    );
+    expect(published).toEqual([]);
   });
 });

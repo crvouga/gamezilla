@@ -598,5 +598,10 @@
     "id": "report-rerun-immutable-cache",
     "summary": "Completed commit URLs cached a prior attempt forever, even after a newer run replaced the selected report. Resolve the selected attempt on every request to these mutable URLs.",
     "regressionTest": "libs/server-app/tests/reports-route.test.ts"
+  },
+  {
+    "id": "report-plan-hash-drift",
+    "summary": "A task could execute under a different hash from the preflight plan and publish its evidence under the earlier hash. Verify Turbo's execution or restoration hash before publishing the completed source.",
+    "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
   }
 ]

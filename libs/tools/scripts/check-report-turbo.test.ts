@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
@@ -19,6 +19,13 @@ const TURBO = join(import.meta.dirname, '../../../node_modules/.bin/turbo');
 async function run(
   root: string
 ): Promise<{ status: number; published: string[] }> {
+  const plan = JSON.parse(
+    execFileSync(TURBO, ['run', TASK, '--dry=json', '--cache=local:rw'], {
+      cwd: root,
+      encoding: 'utf8',
+      env: { ...process.env, TURBO_TOKEN: '', TURBO_TEAM: '' },
+    })
+  ) as { tasks: { taskId: string; hash: string }[] };
   const child = spawn(
     TURBO,
     ['run', TASK, '--json', '--output-logs=full', '--cache=local:rw'],
@@ -35,7 +42,7 @@ async function run(
   );
   const published: string[] = [];
   const logs: string[] = [];
-  const publisher = createReportPublisher([TASK], {
+  const publisher = createReportPublisher(plan.tasks, {
     async publish(id) {
       expect(existsSync(join(root, 'packages/example/report.ready'))).toBe(
         true

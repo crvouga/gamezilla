@@ -340,7 +340,12 @@
     },
     "test:spec:5": {
       "dependsOn": ["tc"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness/scripts/**",
+        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+      ],
       "env": [
         "HARNESS_MODE",
         "HARNESS_WITH_DOM",

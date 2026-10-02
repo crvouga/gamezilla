@@ -24,93 +24,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # One required verdict. Plan cache misses and every spec report together;
-  # each shard runs Turbo once, publishing completed parts concurrently.
-  # No report-only runners, cache round trip, or rerun of a failed suite.
-  check-plan:
-    name: check:plan
-    runs-on: depot-ubuntu-latest
-    timeout-minutes: 10
-    env:
-      SECRETS_ENV: dev
-      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      # libs/tools/scripts/secrets-scan-range.ts scopes the gitleaks scan
-      # (@libs/tools#check:secrets) to the commits this PR adds. The plan
-      # hashes it too, so plan and shards must see the same range.
-      GH_EVENT: ${{ github.event_name }}
-      PR_BASE: ${{ github.event.pull_request.base.sha }}
-      PR_HEAD: ${{ github.event.pull_request.head.sha }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup
-
-        with:
-          tools: bun node
-
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-
-      - name: plan
-        env:
-          SHARD_PLAN_PATH: ${{ runner.temp }}/shard-plan.txt
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards check
-
-      - name: Open spec report
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts open
-
-      - name: Upload shard plan
-        uses: actions/upload-artifact@v6
-        with:
-          name: shard-plan
-          path: ${{ runner.temp }}/shard-plan.txt
-          if-no-files-found: error
-          retention-days: 1
-
-  check-matrix:
-    name: check:matrix
-    needs: check-plan
-    runs-on: depot-ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      shards: ${{ steps.publish.outputs.shards }}
-      assignment: ${{ steps.publish.outputs.assignment }}
-    steps:
-      - uses: actions/download-artifact@v7
-        with:
-          name: shard-plan
-          path: ${{ runner.temp }}
-
-      - name: publish
-        id: publish
-        run: cat "${RUNNER_TEMP}/shard-plan.txt" >> "$GITHUB_OUTPUT"
-
-  check-shard:
-    name: check:shard
-    needs: check-matrix
-    if: needs.check-matrix.outputs.shards != '[]'
-    runs-on: depot-ubuntu-latest
-    # Hard ceiling for the whole job: setup + the check step + summary. The
-    # check step has its own tighter limit below.
+  # One allocation and setup. Exact-input cache hits reuse their published
+  # reports; misses publish as their tasks finish. The verdict includes reports.
+  check:
+    name: check
+    runs-on: depot-ubuntu-24.04-16
     timeout-minutes: 30
-    strategy:
-      # Keep every shard running: one red shard should not hide another's.
-      fail-fast: false
-      matrix:
-        shard: ${{ fromJSON(needs.check-matrix.outputs.shards) }}
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       GH_EVENT: ${{ github.event_name }}
       PR_BASE: ${{ github.event.pull_request.base.sha }}
       PR_HEAD: ${{ github.event.pull_request.head.sha }}
-      SHARD_TASKS: ${{ join(fromJSON(needs.check-matrix.outputs.assignment)[matrix.shard], ' ') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -124,39 +49,34 @@ jobs:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
+
+      - name: Runner resources
+        run: |
+          bun -e 'console.log(JSON.stringify({ cpus: require("node:os").availableParallelism(), memoryBytes: require("node:os").totalmem(), arch: process.arch }))'
 
       - name: check
         id: check
-        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/check-budget.ts)
-        # on purpose: turbo-ci-run hits its own deadline first and names the
-        # task that wedged, instead of GitHub cancelling the step silently.
         timeout-minutes: 25
-        run: |
-          # shellcheck disable=SC2086 # one word per task id
-          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --publish-reports $SHARD_TASKS
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --publish-reports check
 
       - name: Upload queryable trace artifacts
-        if: always()
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: observability-traces-${{ github.run_id }}-shard-${{ matrix.shard }}
-          # One bucket per spec part (libs/* and pkgs/* suites); keep
-          # upload-artifact out of the repository-wide ** walk (node_modules
-          # makes that path pathological).
+          name: observability-traces-${{ github.run_id }}
           path: |
+            apps/*/.cache/harness-report/*/traces/*.ndjson
             libs/*/.cache/harness-report/*/traces/*.ndjson
             pkgs/*/.cache/harness-report/*/traces/*.ndjson
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7
 
-      # Per-task CI seconds for check-task-costs.json
-      # (`check-shards.ts --harvest <run id>`).
       - name: Upload turbo run summary
-        if: always()
+        if: always() && !cancelled()
         uses: actions/upload-artifact@v6
         with:
-          name: turbo-summary-${{ github.run_id }}-shard-${{ matrix.shard }}
+          name: turbo-summary-${{ github.run_id }}
           path: |
             .turbo/runs/*.json
             .turbo/report-runs/*.json
@@ -165,51 +85,8 @@ jobs:
           retention-days: 7
 
       - name: Write workflow summary
-        if: always()
-        env:
-          WORKFLOW_JOB: check:shard ${{ matrix.shard }}
-          WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
-        run: bun run libs/tools/scripts/write-workflow-summary.ts
-
-  check:
-    name: check
-    needs: [check-plan, check-matrix, check-shard]
-    if: always() && !cancelled()
-    runs-on: depot-ubuntu-latest
-    timeout-minutes: 10
-    env:
-      SECRETS_ENV: dev
-      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      PR_HEAD: ${{ github.event.pull_request.head.sha }}
-      SHARD_ASSIGNMENT: ${{ needs.check-matrix.outputs.assignment }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - uses: ./.github/actions/setup
-        with:
-          tools: bun
-
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-
-      - name: Complete spec report
-        if: needs.check-plan.result == 'success' && needs.check-matrix.result == 'success'
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-publish.ts close
-
-      - name: verdict
         if: always() && !cancelled()
         env:
-          PLAN: ${{ needs.check-plan.result }}
-          MATRIX: ${{ needs.check-matrix.result }}
-          SHARDS: ${{ needs.check-shard.result }}
-          SHARD_COUNT: ${{ needs.check-matrix.outputs.shards }}
-        # Skipped shards are green only when the plan found nothing to run.
-        run: |
-          echo "check:plan=$PLAN check:matrix=$MATRIX check:shard=$SHARDS shards=$SHARD_COUNT"
-          test "$PLAN" = success
-          test "$MATRIX" = success
-          test "$SHARDS" = success || { test "$SHARDS" = skipped && test "$SHARD_COUNT" = '[]'; }
+          WORKFLOW_JOB: check
+          WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
+        run: bun run libs/tools/scripts/write-workflow-summary.ts

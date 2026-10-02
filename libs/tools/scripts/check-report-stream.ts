@@ -5,18 +5,39 @@ export type ReportPublisher = {
   finish(failed?: boolean): Promise<void>;
 };
 
+export type ReportTaskIdentity = {
+  readonly taskId: string;
+  readonly hash: string;
+};
+
 type PublishPorts = {
   publish(taskId: string): Promise<void>;
   log(line: string): void;
 };
 
+function readEvent(value: string) {
+  const event = JSON.parse(value) as {
+    source: string;
+    text: string;
+    level: string;
+  };
+  if (typeof event.source !== 'string' || typeof event.text !== 'string')
+    throw new Error('Invalid Turbo structured event');
+  return event;
+}
+
 /** Uploads overlap Turbo without consuming its CPU task slots. */
 export function createReportPublisher(
-  taskIds: readonly string[],
+  tasks: readonly ReportTaskIdentity[],
   ports: PublishPorts,
   width = 2
 ): ReportPublisher {
-  const expected = new Set(taskIds.filter((id) => reportTask(id) !== null));
+  const expected = new Map(
+    tasks
+      .filter((task) => reportTask(task.taskId) !== null)
+      .map((task) => [task.taskId, task.hash])
+  );
+  const verified = new Set<string>();
   const seen = new Set<string>();
   const queue: string[] = [];
   const running = new Set<Promise<void>>();
@@ -39,22 +60,27 @@ export function createReportPublisher(
   }
   function ready(taskId: string): void {
     if (!expected.has(taskId) || seen.has(taskId)) return;
+    if (!verified.has(taskId))
+      throw new Error(`Report task hash not verified: ${taskId}`);
     seen.add(taskId);
     queue.push(taskId);
     pump();
   }
   function line(value: string): void {
     try {
-      const event = JSON.parse(value) as {
-        source: string;
-        text: string;
-        level: string;
-      };
-      if (typeof event.source !== 'string' || typeof event.text !== 'string') {
-        throw new Error('Invalid Turbo structured event');
-      }
+      const event = readEvent(value);
       // Turbo emits its cache-hit status after restoring the outputs, before
       // replaying logs. This also handles caches written before the marker existed.
+      const cache = /^cache (hit|miss).* ([0-9a-f]{16,64})$/.exec(
+        event.text.trim()
+      );
+      if (cache !== null && expected.has(event.source)) {
+        if (cache[2] !== expected.get(event.source))
+          throw new Error(
+            `Report task hash changed after planning: ${event.source}`
+          );
+        verified.add(event.source);
+      }
       if (
         event.text.trim() === REPORT_READY ||
         /^cache hit[, ]/.test(event.text)
@@ -75,7 +101,7 @@ export function createReportPublisher(
   }
   async function finish(failed = false): Promise<void> {
     while (running.size > 0) await Promise.all(running);
-    const missing = [...expected].filter((id) => !seen.has(id));
+    const missing = [...expected.keys()].filter((id) => !seen.has(id));
     if (missing.length > 0)
       failures.push(
         new Error(`Reports never completed: ${missing.join(', ')}`)

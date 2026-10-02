@@ -50,10 +50,10 @@
  *   suite reports.
  * - `--publish-reports`: restore assigned cached spec parts and publish each
  *   completed part from Turbo's structured stream. Uploads have their own
- *   bounded pool, overlap checks, and must finish before the shard passes.
+ *   bounded pool, overlap checks, and must finish before the gate passes.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
-import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -68,13 +68,9 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
-import { planCheckShards } from './check-report-plan';
+import { completeReports, prepareReports } from './check-report-lifecycle';
 import { observeReportOutput } from './check-report-run';
-import {
-  formatShardPlan,
-  readTaskCosts,
-  shardPlanOutputs,
-} from './check-shards';
+import type { ReportTaskIdentity } from './check-report-stream';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
@@ -86,6 +82,7 @@ import {
   readsRemoteCache,
   resolveRemoteHits,
   restoreEveryHit,
+  restoreSelectedReports,
   wallRemoteHas,
 } from './turbo-preflight';
 
@@ -406,12 +403,7 @@ function cliTaskArgs(): string[] {
   const args = process.argv
     .slice(2)
     .filter(
-      (arg) =>
-        ![
-          PLAN_SHARDS_FLAG,
-          RESTORE_OUTPUTS_FLAG,
-          PUBLISH_REPORTS_FLAG,
-        ].includes(arg)
+      (arg) => ![RESTORE_OUTPUTS_FLAG, PUBLISH_REPORTS_FLAG].includes(arg)
     );
   if (args.length === 0) {
     console.error(
@@ -433,7 +425,6 @@ async function main(): Promise<void> {
     process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
   const ui = resolveUi();
 
-  const planShardsOnly = process.argv.includes(PLAN_SHARDS_FLAG);
   const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
   const publishReports = process.argv.includes(PUBLISH_REPORTS_FLAG);
   const rawTaskArgs = cliTaskArgs();
@@ -453,7 +444,7 @@ async function main(): Promise<void> {
     `turbo-ci-run: cache=${cache} concurrency=${resolveConcurrency()} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
       (ui !== undefined ? ` ui=${ui}` : '') +
       (remote
-        ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API})`
+        ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API}; team=${env['TURBO_TEAM'] ?? TURBO_TEAM})`
         : ' (local cache only)')
   );
 
@@ -466,10 +457,18 @@ async function main(): Promise<void> {
   const planned = await timed('plan', () =>
     planOrNull(fullRunArgs, cache, env)
   );
-  if (planShardsOnly) writeShardPlanAndExit(planned);
-  const restore = restoreOutputs || publishReports;
-  const plan = restore && planned ? restoreEveryHit(planned) : planned;
+  if (publishReports && planned === null)
+    throw new Error('Check report publication requires an exact gate plan');
+  const restore = restoreOutputs;
+  const { plan, missingReports } = await prepareRunPlan({
+    planned,
+    publishReports,
+    restore,
+    env,
+  });
   if (plan !== null && plan.toExecute.length === 0 && !restore) {
+    if (publishReports)
+      await timed('report-close', () => completeReports(0, env));
     exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
   if (plan !== null && plan.remoteHits.length > 0) {
@@ -487,14 +486,66 @@ async function main(): Promise<void> {
       ],
       env,
       { deadlineSeconds },
-      publishReports ? taskArgs : undefined
+      publishReports
+        ? plan?.tasks.filter((task) => missingReports.includes(task.taskId))
+        : undefined
     )
   );
   stopHeartbeat();
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  exitWithDurations(finalExitCode({ status, slowRunner, ran: true }));
+  exitWithDurations(
+    await finishRun({ status, slowRunner, env, publishReports })
+  );
+}
+
+async function prepareRunPlan(args: {
+  readonly planned: RunPlan | null;
+  readonly publishReports: boolean;
+  readonly restore: boolean;
+  readonly env: NodeJS.ProcessEnv;
+}): Promise<{ plan: RunPlan | null; missingReports: readonly string[] }> {
+  if (args.publishReports) {
+    if (args.planned === null)
+      throw new Error('Check report publication requires an exact gate plan');
+    const missingReports = await timed('report-prepare', () =>
+      prepareReports(args.planned!, args.env)
+    );
+    return {
+      plan: restoreSelectedReports(args.planned, missingReports),
+      missingReports,
+    };
+  }
+  return {
+    plan:
+      args.restore && args.planned
+        ? restoreEveryHit(args.planned)
+        : args.planned,
+    missingReports: [],
+  };
+}
+
+async function finishRun(args: {
+  readonly status: number;
+  readonly slowRunner: boolean;
+  readonly env: NodeJS.ProcessEnv;
+  readonly publishReports: boolean;
+}): Promise<number> {
+  let verdict = finalExitCode({
+    status: args.status,
+    slowRunner: args.slowRunner,
+    ran: true,
+  });
+  if (args.publishReports && args.status !== 124) {
+    try {
+      await timed('report-close', () => completeReports(verdict, args.env));
+    } catch (error) {
+      console.error(error);
+      verdict = 1;
+    }
+  }
+  return verdict;
 }
 
 /**
@@ -512,33 +563,8 @@ function turboRunArgs(
   return ['run', ...plan.toExecute.map((task) => task.taskId)];
 }
 
-const PLAN_SHARDS_FLAG = '--plan-shards';
 const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
 const PUBLISH_REPORTS_FLAG = '--publish-reports';
-const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
-
-/**
- * `--plan-shards`: split the misses across CI runners (`check-shards.ts`) and
- * hand the split to the workflow instead of running anything. Cache hits
- * with report outputs also receive an owner. A missing plan fails closed.
- */
-function writeShardPlanAndExit(plan: RunPlan | null): never {
-  if (plan === null)
-    throw new Error(
-      'Check planning failed; report ownership cannot be established'
-    );
-  const shardPlan = planCheckShards(plan, readTaskCosts());
-  console.log(formatShardPlan(shardPlan));
-  // Not `$GITHUB_OUTPUT`: this job loads every secret, the runner masks each
-  // stored value (one is `1`), and it silently drops any job output holding a
-  // masked value — `[0,1,…]` always does. The workflow publishes this file
-  // from a job that loads no secrets.
-  const outputPath = process.env[SHARD_PLAN_PATH_ENV];
-  if (outputPath !== undefined && outputPath !== '') {
-    appendFileSync(outputPath, shardPlanOutputs(shardPlan));
-  }
-  process.exit(0);
-}
 
 /**
  * Exclude the root workspace from package tasks so root scripts like `lint`
@@ -756,7 +782,7 @@ function runTurbo(
   args: readonly string[],
   env: NodeJS.ProcessEnv,
   options: RunTurboOptions,
-  reportTasks?: readonly string[]
+  reportTasks?: readonly ReportTaskIdentity[]
 ): Promise<number> {
   const child = spawn('turbo', args, {
     stdio:
@@ -788,7 +814,13 @@ function runTurbo(
     child.on('close', async (code, signal) => {
       const published = await publication;
       disarm();
-      resolve(published ? (code ?? (signal === null ? 1 : 124)) : 1);
+      resolve(
+        uploads.signal.aborted || signal !== null
+          ? 124
+          : published
+            ? (code ?? 1)
+            : 1
+      );
     });
   });
 }

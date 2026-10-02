@@ -6,7 +6,8 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { publishReportTask, verifyPublications } from './report-task-publish';
 
 const taskId = '@libs/example#test:spec:0';
-const sha = 'commit';
+const sha = 'a'.repeat(40);
+const identity = { taskHash: '0123456789abcdef', generation: 0 };
 
 describe('report completion receipts', () => {
   // regression: check-report-concurrent-run-receipt
@@ -14,7 +15,13 @@ describe('report completion receipts', () => {
     const repoRoot = mkdtempSync(join(tmpdir(), 'report-publication-'));
     const store = new ObjectStoreImplInMemory();
     try {
-      const args = { store, sha, runId: 'current', taskIds: [taskId] };
+      const args = {
+        store,
+        sha,
+        runId: 'current',
+        tasks: [{ taskId, hash: identity.taskHash }],
+        identity,
+      };
       await expect(verifyPublications(args)).rejects.toThrow(
         'Report not published'
       );
@@ -36,6 +43,12 @@ describe('report completion receipts', () => {
       );
       await publishReportTask({ ...args, repoRoot, taskId });
       await verifyPublications(args);
+      await expect(
+        verifyPublications({
+          ...args,
+          tasks: [{ taskId, hash: 'fedcba9876543210' }],
+        })
+      ).rejects.toThrow('Report not published');
       await expect(
         verifyPublications({ ...args, runId: 'next' })
       ).rejects.toThrow('Report not published');

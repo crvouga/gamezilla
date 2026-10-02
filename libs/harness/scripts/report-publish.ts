@@ -5,13 +5,10 @@
  * bucket every environment's API reads, keyed by commit sha; layout in
  * `@pkgs/harness-report`). The Check workflow runs it in three steps:
  *
- *   report-publish.ts open              the run starts: the commit's record,
- *                                       its index entry and the stylesheet
- *                                       its snapshots use
- *   report-publish.ts task <task-id>   in each shard, as soon as a package's
- *                                       spec part finishes or is restored
- *   report-publish.ts close             after every shard; verifies that this
- *                                       run published every assigned part
+ *   report-publish.ts prepare          open the attempt, reuse complete
+ *                                       cached sources, plan missing outputs
+ *   report-publish.ts task <task-id>    publish a completed or restored part
+ *   report-publish.ts close [failed]    verify every expected part and close
  *
  * Each source lands the moment its part is published, so the reports screen
  * (`/reports/<sha>` on any deployment) shows the run filling in. A package
@@ -31,17 +28,25 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
 import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report';
-import { closeCommit, openCommit } from '@pkgs/harness-report/remote/publish';
+import { openCommit } from '@pkgs/harness-report/remote/publish';
 import { createGlobalHttpClient } from '@pkgs/http-client/global';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
 import { run } from '@pkgs/os';
-import { publishReportTask, verifyPublications } from './report-task-publish';
+import {
+  createReportPlan,
+  finishReport,
+  readReportPlan,
+  reusePlannedReports,
+  taskIdentity,
+} from './report-plan';
+import { publishReportTask } from './report-task-publish';
 
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 
@@ -177,6 +182,46 @@ function runUrl(): string | null {
   return server && repo && id ? `${server}/${repo}/actions/runs/${id}` : null;
 }
 
+async function prepareReport(args: {
+  readonly store: ObjectStore;
+  readonly sha: string;
+  readonly runId: string;
+  readonly planPath: string;
+  readonly plan: ReturnType<typeof readReportPlan>;
+}): Promise<void> {
+  const config = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'libs/infra/tofu/global.tfvars.json'), 'utf8')
+  ) as { reports: { retention_days: number } };
+  const startedAtMs = wallClock.now();
+  const prepared = createReportPlan(
+    args.plan.tasks,
+    startedAtMs,
+    config.reports.retention_days
+  );
+  writeFileSync(args.planPath, JSON.stringify(prepared));
+  const commit = await openCommit(args.store, {
+    sha: args.sha,
+    branch: branchName(),
+    runUrl: runUrl(),
+    startedAtMs,
+    frameCss: compileFrameCss(),
+    publicationId: args.runId,
+  });
+  console.log(
+    `[report-publish] ${args.sha.slice(0, 9)} open (${commit.branch})`
+  );
+  const missing = await reusePlannedReports({
+    store: args.store,
+    sha: args.sha,
+    runId: args.runId,
+    plan: prepared,
+  });
+  writeFileSync(`${args.planPath}.missing.json`, JSON.stringify(missing));
+  console.log(
+    `[report-publish] ${String(missing.length)} source(s) need outputs; published sources reused without snapshot uploads`
+  );
+}
+
 async function main(argv: readonly string[]): Promise<void> {
   const [command, arg] = argv;
   if (reportsStoreUnconfigured(process.env)) {
@@ -190,15 +235,12 @@ async function main(argv: readonly string[]): Promise<void> {
   const store = reportsStore();
   const sha = headSha();
   const publicationRun = `${process.env['GITHUB_RUN_ID'] ?? 'local'}:${process.env['GITHUB_RUN_ATTEMPT'] ?? '1'}`;
-  if (command === 'open') {
-    const commit = await openCommit(store, {
-      sha,
-      branch: branchName(),
-      runUrl: runUrl(),
-      startedAtMs: wallClock.now(),
-      frameCss: compileFrameCss(),
-    });
-    console.log(`[report-publish] ${sha.slice(0, 9)} open (${commit.branch})`);
+  const planPath = process.env['CHECK_REPORT_PLAN_PATH'];
+  if (planPath === undefined)
+    throw new Error('CHECK_REPORT_PLAN_PATH is required');
+  const plan = readReportPlan(planPath);
+  if (command === 'prepare') {
+    await prepareReport({ store, sha, runId: publicationRun, planPath, plan });
     return;
   }
   if (command === 'task' && arg !== undefined) {
@@ -208,27 +250,25 @@ async function main(argv: readonly string[]): Promise<void> {
       sha,
       runId: publicationRun,
       taskId: arg,
+      identity: taskIdentity(plan, arg),
     });
     return;
   }
   if (command === 'close') {
-    const assignment = process.env['SHARD_ASSIGNMENT'];
-    if (assignment === undefined)
-      throw new Error('Closing a report requires SHARD_ASSIGNMENT');
-    await verifyPublications({
+    const commit = await finishReport({
       store,
       sha,
       runId: publicationRun,
-      taskIds: (JSON.parse(assignment) as string[][]).flat(),
-    });
-    const commit = await closeCommit(store, {
-      sha,
+      plan,
       endedAtMs: wallClock.now(),
+      failed: arg === 'failed',
     });
     console.log(`[report-publish] ${sha.slice(0, 9)} ${String(commit.status)}`);
     return;
   }
-  console.error('usage: report-publish.ts open | task <task-id> | close');
+  console.error(
+    'usage: report-publish.ts prepare | task <task-id> | close [failed]'
+  );
   process.exit(1);
 }
 
