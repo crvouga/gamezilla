@@ -603,5 +603,10 @@
     "id": "username-model-initial-name",
     "summary": "The username model binding signed in Alice and Bob but left their generated names in place, diverging at init from the model's named accounts. Setup now saves the required names through the profile UI before recording any model action.",
     "regressionTest": "libs/profile/tests/harness/username-model-initialization.test.ts"
+  },
+  {
+    "id": "conformance-evidence-map-missing-promises",
+    "summary": "The evidence map omitted five declared device environments and the privacy and developer-tools public contracts, leaving the conformance manifest without proof mappings.",
+    "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
   }
 ]

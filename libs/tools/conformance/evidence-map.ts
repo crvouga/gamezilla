@@ -27,6 +27,20 @@ const ENVIRONMENTS: ProofTable = {
     { spec: 'specs/journeys/critical-journeys.feature' },
     { kind: 'behavior' },
   ],
+  "a tablet's web browser": [
+    { spec: 'specs/runtime/device-layouts.feature' },
+    { kind: 'behavior' },
+  ],
+  "a computer's web browser": [
+    { spec: 'specs/runtime/device-layouts.feature' },
+    { kind: 'behavior' },
+  ],
+  'touch and pointer': [
+    { spec: 'specs/runtime/device-layouts.feature' },
+    { spec: 'specs/runtime/accessibility.feature' },
+  ],
+  'portrait and landscape': [{ spec: 'specs/runtime/device-layouts.feature' }],
+  'keyboard and listening': [{ spec: 'specs/runtime/accessibility.feature' }],
   online: [
     { spec: 'specs/sync-engine/notes-across-devices.feature' },
     { spec: 'specs/sync-engine/notes-arrive-quickly.feature' },
@@ -58,6 +72,24 @@ const ENVIRONMENTS: ProofTable = {
 
 /** Promises to people outside the product, and the specs that keep them. */
 const PUBLIC_CONTRACTS: ProofTable = {
+  'account privacy': [
+    { spec: 'specs/profile/account-deletion.feature' },
+    { spec: 'specs/profile/personal-data-export.feature' },
+    { spec: 'specs/profile/personal-data-retention.feature' },
+    { spec: 'specs/billing/deleted-account-payments.feature' },
+    { spec: 'specs/runtime/privacy-retention.feature' },
+  ],
+  'test worlds and checkpoints': [
+    { spec: 'specs/developer-tools/test-world-views.feature' },
+    { spec: 'specs/developer-tools/checkpoints.feature' },
+  ],
+  'data notebooks': [{ spec: 'specs/developer-tools/data-notebook.feature' }],
+  'automated test reports': [
+    { spec: 'specs/developer-tools/report-catalog.feature' },
+    { spec: 'specs/developer-tools/report-navigation.feature' },
+    { spec: 'specs/developer-tools/recorded-moments.feature' },
+  ],
+  'release checks': [{ spec: 'specs/developer-tools/release-check.feature' }],
   'space links': [
     { spec: 'specs/spaces/space-links.feature' },
     { spec: 'specs/spaces/space-guest-link-join.feature' },
