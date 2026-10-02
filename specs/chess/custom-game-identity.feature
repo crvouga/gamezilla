@@ -24,6 +24,6 @@ Feature: Identity follows the person playing a Custom Game
 
     Scenario: The participating person appears under their new name
       Given Alice has an active Custom Game between Alice as White and Bob as Black
-      When Alice renames themselves to "CalmRook"
-      Then White in the Custom Game is named "CalmRook"
+      When Alice renames themselves to @calm_rook
+      Then White in the Custom Game is named @calm_rook
       And White is to move in the Custom Game
