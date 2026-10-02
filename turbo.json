@@ -756,7 +756,7 @@
     },
     "@libs/infra#retire:workers": {
       "cache": false,
-      "dependsOn": ["health"]
+      "dependsOn": ["@apps/product#health"]
     },
     "@apps/product#check:worker-bundle": {
       "dependsOn": ["tc", "build"],

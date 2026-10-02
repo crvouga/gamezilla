@@ -269,6 +269,8 @@ describe('turbo check/deploy graph invariants', () => {
   // regression: consolidated-deploy-check-aggregator — a package dependency
   // on //#check bypassed the runner's flattening and scheduled missing root
   // lint/test tasks, so even the deployment dry run failed.
+  // regression: worker-retirement-health-dependency — bare health resolved
+  // to a nonexistent infra health task and allowed retirement before health.
   test('the retirement dependency chain is a runnable Turbo graph', () => {
     const result = spawnSync(
       join(REPO_ROOT, 'node_modules/.bin/turbo'),
@@ -283,6 +285,17 @@ describe('turbo check/deploy graph invariants', () => {
     );
     expect(result.error).toBeUndefined();
     expect(result.status, result.stderr).toBe(0);
+    const graph = JSON.parse(result.stdout) as {
+      tasks: { taskId: string; dependencies: string[]; command: string }[];
+    };
+    const retirement = graph.tasks.find(
+      (task) => task.taskId === '@libs/infra#retire:workers'
+    );
+    expect(retirement?.dependencies).toEqual(['@apps/product#health']);
+    const health = graph.tasks.find(
+      (task) => task.taskId === '@apps/product#health'
+    );
+    expect(health?.command).toBe('bun run scripts/health.ts');
   });
 
   test('one application deployment follows migration and the API check', () => {
@@ -296,7 +309,9 @@ describe('turbo check/deploy graph invariants', () => {
     expect(tasks['@libs/infra#apply:edge']?.dependsOn).toEqual([
       '@apps/product#deploy',
     ]);
-    expect(tasks['@libs/infra#retire:workers']?.dependsOn).toEqual(['health']);
+    expect(tasks['@libs/infra#retire:workers']?.dependsOn).toEqual([
+      '@apps/product#health',
+    ]);
     expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([
       'tc',
       'build',

@@ -618,5 +618,10 @@
     "id": "check-duplicate-trigger-runners",
     "summary": "PR pushes and manual Check dispatches used different concurrency groups and queued duplicate shard fleets for the same branch. Both triggers now share the branch concurrency group.",
     "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "worker-retirement-health-dependency",
+    "summary": "The final development rehearsal resolved retirement's bare health dependency to a nonexistent @libs/infra#health task, so retirement ran alongside @apps/product#health instead of waiting for its verdict. Depend on the explicit application health task and verify the resolved Turbo graph contains that executable dependency.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
   }
 ]
