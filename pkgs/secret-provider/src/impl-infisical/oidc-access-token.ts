@@ -26,35 +26,38 @@ function resolveOidcAudience(): string {
   }
   const identityAudience = trimEnv('SECRETS_OIDC_AUDIENCE');
   if (identityAudience.length > 0) return identityAudience;
-  return 'https://github.com/crvouga';
+  throw new SecretStoreParseError(
+    'OIDC audience needs INFISICAL_OIDC_AUDIENCE, SECRETS_OIDC_AUDIENCE or GITHUB_REPOSITORY'
+  );
 }
 
-async function fetchGithubActionsOidcJwt(audience: string): Promise<string> {
+async function fetchCiOidcJwt(audience: string): Promise<string> {
   const requestUrl = trimEnv('ACTIONS_ID_TOKEN_REQUEST_URL');
   const requestToken = trimEnv('ACTIONS_ID_TOKEN_REQUEST_TOKEN');
   if (requestUrl.length === 0 || requestToken.length === 0) {
     return '';
   }
-  const url = `${requestUrl}&audience=${encodeURIComponent(audience)}`;
-  const response = await globalHttpFetch(url, {
+  const url = new URL(requestUrl);
+  url.searchParams.set('audience', audience);
+  const response = await globalHttpFetch(url.toString(), {
     headers: { Authorization: `Bearer ${requestToken}` },
   });
   if (!response.ok) {
     throw new SecretStoreRequestError(
-      `GitHub OIDC token request failed: HTTP ${response.status}`,
+      `CI OIDC token request failed: HTTP ${response.status}`,
       response.status
     );
   }
   const json: unknown = await response.json();
   if (json === null || typeof json !== 'object' || Array.isArray(json)) {
     throw new SecretStoreParseError(
-      'GitHub OIDC token response: expected JSON object'
+      'CI OIDC token response: expected JSON object'
     );
   }
   const value = (json as Record<string, unknown>)['value'];
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new SecretStoreParseError(
-      'GitHub OIDC token response: missing value field'
+      'CI OIDC token response: missing value field'
     );
   }
   return value.trim();
@@ -161,7 +164,7 @@ export type ResolveInfisicalAccessTokenOptions = {
 
 /**
  * Resolves a bearer token for Infisical write API / CLI calls during scripts/CI.
- * Prefers explicit tokens, then GitHub Actions OIDC (CI workflows). A token
+ * Prefers explicit tokens, then CI OIDC (CI workflows). A token
  * minted here is published to the environment and minted again shortly
  * before it expires, so call this before every use rather than once.
  */
@@ -184,7 +187,7 @@ export async function resolveInfisicalAccessTokenForWrites(
   if (identityId.length === 0) return fallback;
 
   const audience = resolveOidcAudience();
-  const jwt = await fetchGithubActionsOidcJwt(audience);
+  const jwt = await fetchCiOidcJwt(audience);
   if (jwt.length === 0) return fallback;
 
   const scope = await resolveSecretsScope(

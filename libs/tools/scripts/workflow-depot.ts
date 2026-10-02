@@ -56,10 +56,8 @@ export function listWorkflows(
       target.org,
       '--repo',
       target.repository,
-      '--sha',
-      target.sha,
       '-n',
-      '50',
+      '200',
       '-o',
       'json',
     ])
@@ -133,6 +131,14 @@ export async function startWorkflow(
     }
     return existing;
   }
+  return dispatchWorkflow(target, ports, existing?.workflow_id);
+}
+
+async function dispatchWorkflow(
+  target: DepotTarget,
+  ports: DepotPorts,
+  previousId: string | undefined
+): Promise<DepotWorkflow> {
   ports.run(dispatchCommand(target));
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const found = selectWorkflow(
@@ -140,7 +146,7 @@ export async function startWorkflow(
       target.workflow,
       target.sha
     );
-    if (found !== undefined && found.workflow_id !== existing?.workflow_id) {
+    if (found !== undefined && found.workflow_id !== previousId) {
       ports.onWorkflow(found);
       return found;
     }

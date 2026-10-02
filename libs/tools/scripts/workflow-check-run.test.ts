@@ -104,7 +104,8 @@ describe('native Check run ownership', () => {
   );
 
   test('can execute the branch YAML before native triggers merge', async () => {
-    const f = fixture([[], [workflow()]]);
+    const manual = { ...workflow(), head_sha: '', sha: SHA };
+    const f = fixture([[], [manual]]);
     await startWorkflow(TARGET, f.ports);
     expect(f.commands[1]).toEqual([
       'depot',

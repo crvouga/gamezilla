@@ -81,6 +81,7 @@ describe('automatic index contract validity', () => {
     MODEL_TIMEOUT_MS
   );
 
+  // regression: index-contract-model-verification-timeout
   test(
     'all interleavings through ten steps preserve every declared invariant',
     async () => {
@@ -90,6 +91,7 @@ describe('automatic index contract validity', () => {
         maxSteps: 10,
         outDir: join(REPORT, 'verify'),
         timeoutMs: MODEL_TIMEOUT_MS,
+        encoding: 'fun-arrays',
       });
       expect(result).toMatchObject({ ok: true });
     },

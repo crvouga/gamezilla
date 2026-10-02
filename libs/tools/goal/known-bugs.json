@@ -648,5 +648,35 @@
     "id": "depot-native-ci-commit-classification",
     "summary": "The native CI migration changed the workflow path to .depot/workflows/check.yml, but git-sync classified it as chore instead of ci. Classify both CI providers' configuration paths as ci changes.",
     "regressionTest": "libs/tools/scripts/git-sync.test.ts"
+  },
+  {
+    "id": "depot-native-oidc-queryless-url",
+    "summary": "The Infisical token refresh appended &audience to an OIDC request URL without a query, treating the audience as part of the path. Set the URL search parameter and derive the audience from the new repository owner.",
+    "regressionTest": "pkgs/secret-provider/tests/oidc-access-token.test.ts"
+  },
+  {
+    "id": "depot-native-health-history",
+    "summary": "The availability objective kept reading GitHub Actions history after native Depot migration, losing the new Health checks. Read every native run page and every job attempt, including failed originals and successful reruns.",
+    "regressionTest": "apps/product/tests/openslo/health-job-results.test.ts"
+  },
+  {
+    "id": "transferred-repo-protection-import",
+    "summary": "The transferred repository has no main branch protection rule, but bootstrap kept the old gamezilla:main adoption ID and failed to plan. Remove the completed import so the declared rule is created for the new owner.",
+    "regressionTest": "libs/infra/tests/global-file.test.ts"
+  },
+  {
+    "id": "turbo-strips-depot-context",
+    "summary": "Turbo strict environment mode dropped native Depot context, including report attempt URLs and the token needed for CI history. Pass Depot variables to tasks without changing task hashes.",
+    "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
+  },
+  {
+    "id": "index-contract-model-verification-timeout",
+    "summary": "The default map encoding exceeded the existing 120-second budget for index-reconciliation.qnt at ten steps. Opt this supported reference model into array-encoded maps, preserving every invariant and the full bound.",
+    "regressionTest": "pkgs/db-indexes/tests/quint/index-contracts.test.ts"
+  },
+  {
+    "id": "depot-variable-creation-race",
+    "summary": "Bootstrap created four Depot variables concurrently for gamezilla-org/gamezilla. One succeeded and three failed to create their variants. Provision all four coordinates sequentially in one declared resource.",
+    "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
   }
 ]

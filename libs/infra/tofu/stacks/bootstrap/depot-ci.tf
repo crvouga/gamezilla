@@ -21,23 +21,27 @@ locals {
 
 # Depot has no OpenTofu provider for CI variables. Keep their desired values
 # in this stack; the pinned CLI applies only these non-secret coordinates.
-resource "terraform_data" "depot_ci_variable" {
-  for_each = local.depot_ci_variables
+resource "terraform_data" "depot_ci_variables" {
   input = {
-    name       = each.key
-    value      = each.value
+    values     = local.depot_ci_variables
     repository = "${var.github.owner}/${var.github.repo}"
     org_id     = var.depot.org_id
   }
-  triggers_replace = [each.value, var.github.owner, var.github.repo, var.depot.org_id]
+  triggers_replace = [local.depot_ci_variables, var.github.owner, var.github.repo, var.depot.org_id]
 
+  # Creating several variables concurrently races Depot's repository setup.
   provisioner "local-exec" {
-    command = "depot ci vars set \"$CI_VARIABLE_NAME\" --value \"$CI_VARIABLE_VALUE\" --repo \"$CI_REPOSITORY\" --org \"$CI_DEPOT_ORG\""
+    command = <<-EOT
+      set -eu
+      for CI_VARIABLE_NAME in AWS_ROLE_ARN AWS_HEALTH_ROLE_ARN SECRETS_IDENTITY_ID SECRETS_PROJECT_ID; do
+        CI_VARIABLE_VALUE="$(printf '%s' "$CI_VARIABLES" | jq -r --arg name "$CI_VARIABLE_NAME" '.[$name]')"
+        depot ci vars set "$CI_VARIABLE_NAME" --value "$CI_VARIABLE_VALUE" --repo "$CI_REPOSITORY" --org "$CI_DEPOT_ORG"
+      done
+    EOT
     environment = {
-      CI_VARIABLE_NAME  = self.input.name
-      CI_VARIABLE_VALUE = self.input.value
-      CI_REPOSITORY     = self.input.repository
-      CI_DEPOT_ORG      = self.input.org_id
+      CI_VARIABLES  = jsonencode(self.input.values)
+      CI_REPOSITORY = self.input.repository
+      CI_DEPOT_ORG  = self.input.org_id
     }
   }
 }

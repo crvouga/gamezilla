@@ -79,3 +79,17 @@ describe('foundation bootstrap', () => {
     expect(health).toContain('AWS_ROLE_ARN: ${{ vars.AWS_HEALTH_ROLE_ARN }}');
   });
 });
+
+// regression: depot-variable-creation-race
+test('the four native CI variables share one sequential provisioning operation', () => {
+  const native = readFileSync(
+    join(import.meta.dirname, '../tofu/stacks/bootstrap/depot-ci.tf'),
+    'utf8'
+  );
+  const provision = native.slice(native.indexOf('resource "terraform_data"'));
+  expect(provision).not.toContain('for_each');
+  expect(provision.match(/provisioner "local-exec"/g)).toHaveLength(1);
+  expect(provision).toContain(
+    'for CI_VARIABLE_NAME in AWS_ROLE_ARN AWS_HEALTH_ROLE_ARN SECRETS_IDENTITY_ID SECRETS_PROJECT_ID; do'
+  );
+});

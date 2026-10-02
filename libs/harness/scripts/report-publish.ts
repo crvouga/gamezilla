@@ -174,12 +174,9 @@ function branchName(): string {
   );
 }
 
-/** The Actions run publishing this report, when there is one. */
+/** The native job attempt publishing this report, when there is one. */
 function runUrl(): string | null {
-  const server = process.env['GITHUB_SERVER_URL']?.trim();
-  const repo = process.env['GITHUB_REPOSITORY']?.trim();
-  const id = process.env['GITHUB_RUN_ID']?.trim();
-  return server && repo && id ? `${server}/${repo}/actions/runs/${id}` : null;
+  return process.env['DEPOT_JOB_URL']?.trim() || null;
 }
 
 async function prepareReport(args: {

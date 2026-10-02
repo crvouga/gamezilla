@@ -31,6 +31,13 @@ describe('tofu/global.tfvars.json', () => {
     expect([...GLOBAL.github.required_checks].sort()).toEqual(gates.sort());
   });
 
+  // regression: transferred-repo-protection-import
+  test('creates main protection instead of adopting the retired gamezilla:main rule', () => {
+    expect(GLOBAL.global_imports?.github_branch_protection).not.toBe(
+      'gamezilla:main'
+    );
+  });
+
   test('every environment has a secrets environment to adopt or create', () => {
     for (const env of Object.keys(ENV_FILES)) {
       expect(env).toMatch(/^[a-z0-9-]+$/);

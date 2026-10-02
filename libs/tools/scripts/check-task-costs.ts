@@ -1,5 +1,4 @@
 // @io-wall-ok — reads CI summaries and writes measured task costs.
-import { spawnSync } from 'node:child_process';
 import {
   mkdtempSync,
   readdirSync,
@@ -10,6 +9,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { downloadRunArtifacts } from './workflow-artifacts';
 export const TASK_COSTS_PATH = join(
   import.meta.dirname,
   'check-task-costs.json'
@@ -76,14 +76,7 @@ function jsonFiles(dir: string): string[] {
 function downloadRunSummaries(runId: string): string[] {
   const dir = mkdtempSync(join(tmpdir(), 'check-costs-'));
   try {
-    const download = spawnSync(
-      'gh',
-      ['run', 'download', runId, '-p', `turbo-summary-${runId}*`, '-D', dir],
-      { stdio: 'inherit' }
-    );
-    if (download.status !== 0) {
-      throw new Error(`gh run download ${runId} failed`);
-    }
+    downloadRunArtifacts(runId, 'turbo-summary-', dir);
     return jsonFiles(dir).map((path) => readFileSync(path, 'utf8'));
   } finally {
     rmSync(dir, { recursive: true, force: true });

@@ -6,7 +6,7 @@ This file is the one briefing a fresh session should load: product, stack, and h
 
 `docs/` holds one generated file, [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) (`bun run spec:catalog`). Package READMEs describe that package's API (`pkgs/room`, `pkgs/harness`, `pkgs/sync-engine`, and a package's own `docs/` when it has one). They are not a second copy of this file.
 
-Private repo: `crvouga/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
+Private repo: `gamezilla-org/gamezilla`. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
 
 ## Words
 
@@ -221,8 +221,8 @@ A person applies this. CI does not.
 | R2 bucket `gamezilla-tofu-state` and its scoped token | Encrypted state for every stack, key `<stack>/<env>.tfstate`, passphrase `TOFU_STATE_PASSPHRASE`. Losing the bucket loses the record of what OpenTofu owns. `prevent_destroy`. |
 | Infisical environment `shared`, and the state-credential secrets in it | Account-wide secrets live once. Every environment imports them, so a rotation is one edit. `prevent_destroy`. |
 | Grafana Cloud stack | One stack (the free plan allows one). Trace history for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
-| Infisical OIDC identity for this repository | GitHub Actions reads and writes secrets with the job token. |
-| AWS IAM OIDC provider and deploy role | GitHub Actions assumes AWS for IoT and the authorizer. The role ARN is the Actions variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
+| Infisical OIDC identity for this repository | Depot CI reads and writes secrets with its OIDC job token. |
+| AWS IAM OIDC provider and deploy role | Depot CI assumes AWS for IoT and the authorizer. The role ARN is the Depot variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
 | GitHub repository settings, `main` protection, Actions variables | `main` moves through a PR whose required check (`check`) is green. Force-push and deletion stay off. Workflows read `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, and `AWS_ROLE_ARN`. The repository is `prevent_destroy`. |
 
 ### Fleet (every deploy)
@@ -361,7 +361,7 @@ Tagged: `specs/runtime/reaching-the-app.feature`, `serving-people.feature`, `dec
 
 `@synthetic` added no workflow. `--synthetic` and `--objectives` together are refused. `--target staging` is refused. There is no staging: `test` means `dev`, `production` means `prd`. `--target` sets `SECRETS_ENV` for the host lookup inside the product script; pick the environment with `synthetic` or `synthetic:prd` so those secrets load. A failure names the scenario, the step, and the environment. `synthetic.check` is not its own span; the evidence record already names the feature and scenario.
 
-Leave a check untagged until it can run on a dedicated synthetic identity, clean up, and leave no real side effect. That includes journeys that host, end, or join a space, solve a puzzle, or change an avatar (they already run live as journeys on the synthetic monitor account), anything that reads a real person's data, sends a real notification, or takes a real payment, and edge cases, destructive admin, and checks that are not idempotent. A synthetic check uses dedicated identities, never a real person's data. Host limits are `HOST_LIMITS` in `apps/product/scripts/health.ts`. Specs carry no host tags. Infrastructure health, runtime invariants, and OpenSLO stay their own checks. The availability objective is `# live` so `bun check` does not measure GitHub from the harness.
+Leave a check untagged until it can run on a dedicated synthetic identity, clean up, and leave no real side effect. That includes journeys that host, end, or join a space, solve a puzzle, or change an avatar (they already run live as journeys on the synthetic monitor account), anything that reads a real person's data, sends a real notification, or takes a real payment, and edge cases, destructive admin, and checks that are not idempotent. A synthetic check uses dedicated identities, never a real person's data. Host limits are `HOST_LIMITS` in `apps/product/scripts/health.ts`. Specs carry no host tags. Infrastructure health, runtime invariants, and OpenSLO stay their own checks. The availability objective is `# live` so `bun check` does not measure Depot from the harness.
 
 `specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
