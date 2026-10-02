@@ -38,6 +38,8 @@ export type PlannedTask = {
   readonly hit: boolean;
   /** Where the HIT lives; `null` for a MISS. */
   readonly source: 'LOCAL' | 'REMOTE' | null;
+  /** Live-data checks must execute even when an old artifact exists. */
+  readonly cacheable?: boolean;
   /** Direct `dependsOn` task ids (placeholders included). */
   readonly dependencies: readonly string[];
 };
@@ -58,6 +60,7 @@ type DryRunTask = {
   readonly hash?: unknown;
   readonly command?: unknown;
   readonly dependencies?: unknown;
+  readonly resolvedTaskDefinition?: { readonly cache?: boolean };
   readonly cache?: { readonly status?: unknown; readonly source?: unknown };
 };
 
@@ -68,13 +71,15 @@ function toPlannedTask(task: DryRunTask): PlannedTask | null {
   if (typeof task.taskId !== 'string' || typeof task.hash !== 'string') {
     throw new Error('turbo --dry=json: task without taskId/hash');
   }
-  const hit = task.cache?.status === 'HIT';
+  const cacheable = task.resolvedTaskDefinition?.cache !== false;
+  const hit = cacheable && task.cache?.status === 'HIT';
   const source = task.cache?.source;
   return {
     taskId: task.taskId,
     hash: task.hash,
     hit,
     source: hit && (source === 'LOCAL' || source === 'REMOTE') ? source : null,
+    cacheable,
     dependencies: Array.isArray(task.dependencies)
       ? task.dependencies.filter(
           (dep): dep is string => typeof dep === 'string'
@@ -197,6 +202,7 @@ export async function resolveRemoteHits(
     while (next < misses.length) {
       const task = misses[next] as PlannedTask;
       next += 1;
+      if (task.cacheable === false) continue;
       const has = await remoteHas(task.hash).catch(() => false);
       if (has) found.add(task.taskId);
     }

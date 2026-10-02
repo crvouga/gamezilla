@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Setup repo (mise tools + deps)
-description: mise-pinned tools (Bun, Node, CLIs), cached node_modules, bun install (run actions/checkout first)
+description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
 
 inputs:
   tools:
@@ -27,31 +27,10 @@ runs:
         version: 2026.9.13
         install_args: ${{ inputs.tools }}
 
-    # The installed trees, not just the package store: restoring the store and
-    # then linking ~1GB of node_modules out of it cost ~13s a run; one extract
-    # of the finished trees leaves `bun install` a no-op check. Exact key only
-    # (mise.toml is hashed so a Bun upgrade re-keys it); on a miss the store
-    # cache below makes the install cheap and the post step saves new trees.
-    - name: Cache node_modules
-      id: node-modules
-      uses: actions/cache@v5
-      with:
-        path: |
-          node_modules
-          apps/*/node_modules
-          libs/*/node_modules
-          pkgs/*/node_modules
-        key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml', '.depot/actions/setup/action.yml') }}
-
-    - name: Cache Bun install store
-      if: steps.node-modules.outputs.cache-hit != 'true'
-      uses: actions/cache@v5
-      with:
-        path: ~/.bun/install/cache
-        key: bun-install-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock') }}
-        restore-keys: |
-          bun-install-${{ runner.os }}-${{ runner.arch }}-
-
+    # A cold install took 1.62s on Depot. Extracting dependency trees costs
+    # more, and actions/cache rejects API events without GITHUB_REF. Keep
+    # mise's platform/tool-version cache and Turbo's content-addressed cache;
+    # frozen installs need neither a synthetic ref nor dependency restore keys.
     - name: Install dependencies
       shell: bash
       run: bun install --frozen-lockfile

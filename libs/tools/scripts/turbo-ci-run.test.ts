@@ -37,6 +37,24 @@ describe('turbo-ci-run cache flags', () => {
       'local:rw,remote:rw'
     );
   });
+
+  // regression: check-cache-write-only-override
+  test('accepts Turbo read, write, read/write and disabled modes verbatim', () => {
+    for (const local of ['', 'r', 'w', 'rw']) {
+      for (const remote of ['', 'r', 'w', 'rw']) {
+        const cache = `local:${local},remote:${remote}`;
+        expect(resolveCacheFlag({ TURBO_CACHE: cache }, true)).toBe(cache);
+      }
+    }
+    expect(
+      resolveCacheFlag({ TURBO_CACHE: ' local:rw,remote:rw ' }, true)
+    ).toBe('local:rw,remote:rw');
+    for (const invalid of ['', 'rw', 'local:wr', 'local:read', 'remote:x']) {
+      expect(resolveCacheFlag({ TURBO_CACHE: invalid }, true)).toBe(
+        'local:rw,remote:rw'
+      );
+    }
+  });
 });
 
 describe('turbo-ci-run child env', () => {

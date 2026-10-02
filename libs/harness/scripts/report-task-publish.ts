@@ -71,7 +71,7 @@ export async function publishReportTask(args: {
     'application/json'
   );
   console.log(
-    `[report-publish] ${args.taskId}: ${String(record?.tests.length ?? 0)} test(s)`
+    `[report-publish] ${args.taskId}: ${String(record?.tests.length ?? 0)} timeline(s)`
   );
 }
 

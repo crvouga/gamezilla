@@ -703,5 +703,35 @@
     "id": "scheduler-overdue-task-rewind",
     "summary": "The eight-day billing grace scenario failed when a callback enqueued a task due at 1718409601001 while the duration drain yielded at virtual time 1718409935000. The drain tried to rewind the clock to the overdue deadline. Fire overdue work at the current time and advance only to future deadlines.",
     "regressionTest": "pkgs/harness/tests/scheduler-starvation.test.ts"
+  },
+  {
+    "id": "check-cache-write-only-override",
+    "summary": "A diagnostic Check override used local:w,remote:w, which disables cache reads. Enforce local:rw,remote:rw after secrets injection for normal checks and verify actual Turbo remote restoration and write-only bypass.",
+    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
+  },
+  {
+    "id": "depot-api-dependency-cache-ref",
+    "summary": "actions/cache rejects Depot API events without GITHUB_REF. Remove redundant dependency-tree and install-store actions; cold frozen installs took 1.62 seconds.",
+    "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
+  },
+  {
+    "id": "turbo-preflight-uncacheable-hit",
+    "summary": "The preflight remote HEAD lookup could turn a non-cacheable task into a hit. Honor resolvedTaskDefinition.cache so live advisory data is checked on every run.",
+    "regressionTest": "libs/tools/scripts/turbo-preflight.test.ts"
+  },
+  {
+    "id": "turbo-build-unhashed-inputs",
+    "summary": "Builds omitted baked-in commit hash/date, ANALYZE, toolchain pins and shared Lingui config from hashes. Offline-shell verification also hashed generated dist before its build dependency restored it. Hash source inputs and rely on the build dependency for generated output identity.",
+    "regressionTest": "libs/tools/scripts/workflow-cache.test.ts"
+  },
+  {
+    "id": "report-timeline-count-mislabeled-tests",
+    "summary": "Report publication labeled captured timeline count as test count. Six passing framework spec suites with no timelines appeared to execute zero tests. Label timelines accurately and preserve their tests.",
+    "regressionTest": "libs/harness/scripts/report-task-publish.test.ts"
+  },
+  {
+    "id": "empty-spec-part-passes",
+    "summary": "An over-sharded or misconfigured empty spec part exited successfully and published a passing completion. Fail with a configuration error so the empty task is removed or its scope repaired.",
+    "regressionTest": "libs/harness/scripts/test-spec-empty.test.ts"
   }
 ]

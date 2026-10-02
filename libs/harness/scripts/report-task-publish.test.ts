@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, spyOn, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,6 +14,7 @@ describe('report completion receipts', () => {
   test('accepts an explicitly completed empty part and rejects missing or stale publications', async () => {
     const repoRoot = mkdtempSync(join(tmpdir(), 'report-publication-'));
     const store = new ObjectStoreImplInMemory();
+    const log = spyOn(console, 'log').mockImplementation(() => {});
     try {
       const args = {
         store,
@@ -42,6 +43,10 @@ describe('report completion receipts', () => {
         '{"status":0}'
       );
       await publishReportTask({ ...args, repoRoot, taskId });
+      // regression: report-timeline-count-mislabeled-tests
+      expect(log).toHaveBeenCalledWith(
+        `[report-publish] ${taskId}: 0 timeline(s)`
+      );
       await verifyPublications(args);
       await expect(
         verifyPublications({
@@ -61,6 +66,7 @@ describe('report completion receipts', () => {
       await verifyPublications(args);
       await verifyPublications({ ...args, runId: 'concurrent' });
     } finally {
+      log.mockRestore();
       rmSync(repoRoot, { recursive: true, force: true });
     }
   });

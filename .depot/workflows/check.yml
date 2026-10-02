@@ -57,7 +57,8 @@ jobs:
       - name: check
         id: check
         timeout-minutes: 25
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --publish-reports check
+        # Apply after secrets injection: normal checks always read and write.
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw bun run libs/tools/scripts/turbo-ci-run.ts --publish-reports check
 
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()

@@ -3,8 +3,8 @@
  *
  * - Cache is `local:rw,remote:rw` (self-hosted remote at
  *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` is present
- *   (`TURBO_TEAM` defaults to the constant slug; telemetry is disabled). Local disk under `.turbo` is also persisted in CI via per-job
- *   `actions/cache`. `TURBO_CACHE` may tighten local/remote modes but cannot
+ *   (`TURBO_TEAM` defaults to the constant slug; telemetry is disabled).
+ *   Local disk under `.turbo` is ephemeral in CI. `TURBO_CACHE` may tighten local/remote modes but cannot
  *   drop `remote:` when creds are present.
  * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
  *   login/network fallback) use `local:rw` so `bun check` still runs.
