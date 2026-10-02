@@ -788,5 +788,10 @@
     "id": "reports-cleanup-attempt-shared-content",
     "summary": "Branch cleanup only listed commit-local files after reports gained attempt isolation and shared content. Preserve the selected attempt and its referenced snapshots, remove superseded attempts and orphan content, and defer shared-content cleanup while a publisher is still running.",
     "regressionTest": "pkgs/harness-report/tests/retention-attempt.test.ts"
+  },
+  {
+    "id": "depot-aws-oidc-unapplied-trust",
+    "summary": "Depot Deploy workflow ng4sv2f3d0 failed at apply:foundation because the live AWS CI roles still trusted only GitHub. The Depot OIDC provider existed outside bootstrap state, so a normal apply would attempt to recreate it before updating trust. Adopt the existing provider through global_imports and apply the declared, main-restricted Depot deploy trust and branch-readable health trust.",
+    "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   }
 ]

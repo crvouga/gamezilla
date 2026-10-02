@@ -86,6 +86,7 @@ export const globalFileSchema = z
       .strict(),
     global_imports: z
       .object({
+        aws_depot_oidc_provider: id.optional(),
         infisical_environments: z.record(z.string(), id).optional(),
         github_repository: id.optional(),
         github_branch_protection: id.optional(),

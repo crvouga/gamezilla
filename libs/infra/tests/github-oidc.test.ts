@@ -49,3 +49,38 @@ test('CI trust matches the transferred repository immutable OIDC subject', () =>
     expect(policy).not.toContain('repo:${var.github_repository}');
   }
 });
+
+// regression: depot-aws-oidc-unapplied-trust
+test('bootstrap adopts the existing Depot issuer before updating CI role trust', () => {
+  // CloudTrail event 1df69389-dbb8-4f3f-b848-15c591062f0f: Depot's main
+  // token was denied by a role that still trusted only the GitHub issuer.
+  const provider = 'arn:aws:iam::169689131173:oidc-provider/identity.depot.dev';
+  expect(GLOBAL.global_imports).toHaveProperty(
+    'aws_depot_oidc_provider',
+    provider
+  );
+  const imports = read('stacks/bootstrap/imports.tf');
+  expect(imports).toContain(
+    'for_each = var.global_imports.aws_depot_oidc_provider == null ? toset([]) : toset([var.global_imports.aws_depot_oidc_provider])'
+  );
+  expect(imports).toMatch(
+    /to\s*= module\.aws_ci\.aws_iam_openid_connect_provider\.depot\s+id\s*= each\.value/
+  );
+  expect(read('stacks/bootstrap/variables.tf')).toMatch(
+    /aws_depot_oidc_provider\s*= optional\(string\)/
+  );
+
+  const aws = read('modules/aws-ci-identity/main.tf');
+  const deploy = aws.slice(
+    aws.indexOf('resource "aws_iam_role" "deploy"'),
+    aws.indexOf('resource "aws_iam_role_policy" "deploy"')
+  );
+  expect(deploy).toContain(
+    'Principal = { Federated = aws_iam_openid_connect_provider.depot.arn }'
+  );
+  expect(deploy).toContain('"identity.depot.dev:aud" = "sts.amazonaws.com"');
+  expect(deploy).toContain('[for ref in ["refs/heads/main"] :');
+  expect(deploy).toContain(
+    '"spiffe://identity.depot.dev/org/${var.depot_org_id}/ci/github/${var.github_repository}/ref/${ref}/sandbox/*"'
+  );
+});
