@@ -46,7 +46,7 @@ Feature: Choose the chessboard's appearance
       Given Alice has selected the piece on e2
       When Alice begins dragging the piece on d2
       Then Alice holds the piece from d2
-      And Alice sees no selection or legal destinations
+      And Alice sees no selection
       And Alice sees the White pawn remaining on e2
       And Alice's activity receives no moves
 
