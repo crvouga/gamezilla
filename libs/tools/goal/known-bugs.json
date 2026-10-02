@@ -1253,5 +1253,15 @@
     "id": "spec-ownership-resolved-merge",
     "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
     "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "infra-drift-operation-hang",
+    "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
+    "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
+  },
+  {
+    "id": "infra-plan-credential-output",
+    "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
+    "regressionTest": "libs/infra/tests/redact-output.test.ts"
   }
 ]

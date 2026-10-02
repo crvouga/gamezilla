@@ -4,6 +4,7 @@
  * (the machine identity the secrets-auth action configured) or an explicit
  * token, else the developer's `infisical login` session.
  */
+
 import { join } from 'node:path';
 import { wallClock } from '@pkgs/clock/wall';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
@@ -20,8 +21,12 @@ export async function resolveInfisicalToken(): Promise<string> {
   });
   if (token !== null) return token;
 
-  const session = capture('infisical', ['user', 'get', 'token', '--plain']);
-  const local = session.stdout.trim();
+  const session = capture('infisical', ['user', 'get', 'token', '--plain'], {
+    timeoutMs: 20_000,
+  });
+  const local = session.stdout?.trim() ?? '';
+  if (session.status === null)
+    throw new Error('Infisical CLI token export failed or exceeded 20000ms');
   if (session.status === 0 && local.length > 0) return local;
   throw new Error(
     'No Infisical token: in CI export SECRETS_IDENTITY_ID (OIDC); locally run `infisical login`.'
