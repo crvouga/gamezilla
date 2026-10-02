@@ -29,10 +29,10 @@
     "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/8",
     "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/8",
     "test:spec:4": "bun run ../../libs/harness/scripts/test-spec.ts --part 4/8",
-    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts",
     "test:spec:5": "bun run ../../libs/harness/scripts/test-spec.ts --part 5/8",
     "test:spec:6": "bun run ../../libs/harness/scripts/test-spec.ts --part 6/8",
-    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8"
+    "test:spec:7": "bun run ../../libs/harness/scripts/test-spec.ts --part 7/8",
+    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -92,6 +92,7 @@
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/search": "workspace:*",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/dmn": "workspace:*",

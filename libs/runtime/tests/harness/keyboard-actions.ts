@@ -25,7 +25,8 @@ import {
   keyboardPlace,
   keyboardToStart,
   pressTab,
-} from './actor-page';
+  tabTo,
+} from '@libs/harness/system/actor-page';
 import {
   recordKeyboardBeforeSettings,
   recordKeyboardVisits,
@@ -45,21 +46,6 @@ export type TabName = keyof typeof TAB_HANDLES;
 
 function on(page: HTMLElement, testId: string): boolean {
   return keyboardElement(page)?.getAttribute('data-testid') === testId;
-}
-
-/** Tab until the keyboard is on the control `testId`; at most one lap. */
-export async function tabTo(
-  s: ProductHarness,
-  actorId: string,
-  testId: string
-): Promise<void> {
-  const page = await actorPage(s, actorId);
-  const lap = sequentialFocusOrder(page).length + 1;
-  for (let press = 0; press <= lap; press += 1) {
-    if (on(page, testId)) return;
-    await pressTab(s, page);
-  }
-  throw new Error(`${actorId}'s keyboard never reached ${testId}`);
 }
 
 async function pressKey(

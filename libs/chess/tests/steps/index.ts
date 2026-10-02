@@ -10,6 +10,7 @@ import '@libs/account-privacy/steps/privacy.steps';
 
 import '@libs/harness/spec/steps/platform';
 import '@libs/profile/steps/profile.steps';
+import '@libs/profile/steps/auth.steps';
 import '@libs/billing/steps/access.steps';
 import '@libs/friends/steps/friends.steps';
 import '@libs/friends/steps/spaces.steps';
@@ -22,6 +23,16 @@ import './puzzle-allowance.steps';
 import './puzzle-spectator.steps';
 import './puzzle-recovery.steps';
 import './space-game.steps';
+import './custom-game-creation.steps';
+import './custom-game-choices.steps';
+import './custom-game-refusals.steps';
+import './custom-game-play.steps';
+import './custom-game-histories.steps';
+import './custom-game-races.steps';
+import './custom-game-recovery.steps';
+import './custom-game-access.steps';
+import './custom-game-devices.steps';
+import './custom-game-accessibility.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openSpecHarness } from '../harness/open-chess-harness';

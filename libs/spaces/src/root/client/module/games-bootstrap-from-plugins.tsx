@@ -1,4 +1,5 @@
 import { useClock } from '@pkgs/clock/solid';
+import { useRandom } from '@pkgs/uuid/solid';
 import type { JSX } from 'solid-js';
 import { untrack } from 'solid-js';
 
@@ -27,12 +28,14 @@ export function GamesBootstrapFromPlugins(
   props: GamesBootstrapFromPluginsProps
 ): JSX.Element {
   const clock = useClock();
+  const random = useRandom();
   // Composition-root configuration: read once, not tracked.
   const games = untrack(() => props.games);
   const clients = untrack(() => props.clients);
   const spaceRoomModule: SpaceRoomModule = composeSpaceRoomModule(
     games,
-    clock.now
+    clock.now,
+    random
   );
 
   return (

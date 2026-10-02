@@ -17,15 +17,15 @@ import {
   type ServerCase,
   type ServerOperation,
 } from '@libs/permissions/root/conformance/server';
-import { createInProcessRoomNode } from '@libs/spaces/harness/in-process-room-node';
-import { answerOfRoomCommand } from '@libs/spaces/harness/room-command-probe';
-import { SelectGame } from '@libs/spaces/public/games';
+import { createInProcessRoomNode } from './in-process-room-node';
+import { answerOfRoomCommand } from './room-command-probe';
+import { SelectGame } from '../public/games';
 import {
   spaceOpenSessionEntityId,
   spaceUserEntityId,
-} from '@libs/spaces/public/participation/participation-ids';
-import { SPACES_TABLES } from '@libs/spaces/public/schema';
-import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
+} from '../public/participation/participation-ids';
+import { SPACES_TABLES } from '../public/schema';
+import { spaceRoomGrants } from '../root/server/space-room-grants';
 import { createHarnessClock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 
@@ -131,7 +131,7 @@ export const chooseGame: ServerOperation = async (c) => {
   let ids = 0;
   const gateway: HarnessRoomGateway = {
     roomGrants: ({ topic, actor }) =>
-      SPACES_SERVER.roomGrants?.({ db: c.db, topic, actor, nowMs: c.nowMs }) ??
+      spaceRoomGrants({ db: c.db, topic, actor, nowMs: c.nowMs }) ??
       Promise.resolve([]),
   };
   const node = createInProcessRoomNode(
@@ -150,6 +150,7 @@ export const chooseGame: ServerOperation = async (c) => {
       identity: memberIdOf(c),
       installId: c.env.deviceId,
       payload: SelectGame({ game: null }),
+      commandId: 'choose-no-game',
       nowMs: c.nowMs,
       timers,
     });

@@ -15,6 +15,7 @@
  */
 
 import type { EnvTime } from '@libs/feature/public/sync';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import type {
   HarnessRoomGateway,
   HarnessRoomNode,
@@ -26,14 +27,14 @@ import {
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
-import { RoomServer } from '@pkgs/room/server';
+import { RoomServer, ROOM_SERVICE_IDENTITY } from '@pkgs/room/server';
 import {
   InMemoryRoomStorage,
   LoopbackRoomTransport,
 } from '@pkgs/room-adapter-memory';
 import type { GameDefinition } from '../public/game';
 import { composeSpaceRoomModule } from '../public/load-game-plugins';
-import { authorizeSpaceRoomCommand } from '../public/space-room-authorize';
+import { createSpaceRoomAuthorizer } from '../public/space-room-authorize';
 import type { CreateRoomTransport } from '../root/client/room/room-transport-factory';
 
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;
@@ -82,7 +83,8 @@ function withReadyGate(
 function createTopicEntry(
   topic: string,
   env: EnvTime,
-  module: SpaceModule
+  module: SpaceModule,
+  games: readonly GameDefinition[]
 ): TopicEntry {
   const storage = new InMemoryRoomStorage();
   const schedule = createTimerScheduleStack({
@@ -96,7 +98,7 @@ function createTopicEntry(
     module,
     storage,
     clock: env.clock,
-    authorize: authorizeSpaceRoomCommand,
+    authorize: createSpaceRoomAuthorizer(games),
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -171,6 +173,8 @@ function buildLoopbackTransport(
       topic: entry.server.topic,
       actor: actorOf(args),
     });
+    if (!grants.includes(PERMISSION.spacesLeave))
+      throw new Error('not in the space');
   });
 }
 
@@ -190,7 +194,11 @@ export function createInProcessRoomNode(
   const topics = new Map<string, TopicEntry>();
   const listeners = new Set<() => void>();
   let disposed = false;
-  const module = composeSpaceRoomModule(games, () => env.clock.now());
+  const module = composeSpaceRoomModule(
+    games,
+    () => env.clock.now(),
+    env.random
+  );
 
   const notify = () => {
     for (const listener of [...listeners]) {
@@ -205,7 +213,7 @@ export function createInProcessRoomNode(
   const getOrCreate = (topic: string): TopicEntry => {
     const existing = topics.get(topic);
     if (existing !== undefined) return existing;
-    const entry = createTopicEntry(topic, env, module);
+    const entry = createTopicEntry(topic, env, module, games);
     topics.set(topic, entry);
     notify();
     return entry;
@@ -213,6 +221,32 @@ export function createInProcessRoomNode(
 
   return {
     env,
+    services: {
+      async read(topic) {
+        const entry = getOrCreate(topic);
+        await entry.ready;
+        return entry.server.readCommittedState();
+      },
+      async send(topic, commandId, payload) {
+        const entry = getOrCreate(topic);
+        await entry.ready;
+        await entry.server.injectServiceCommand({
+          id: commandId,
+          identity: ROOM_SERVICE_IDENTITY,
+          payload,
+        });
+      },
+      async eraseIdentity(topic, identity, replacement) {
+        const entry = getOrCreate(topic);
+        await entry.ready;
+        await entry.server.eraseIdentity({ identity, replacement });
+      },
+      async disconnect(topic, identity) {
+        const entry = getOrCreate(topic);
+        await entry.ready;
+        entry.server.disconnectActor(identity);
+      },
+    },
     createTransport: (args) => {
       if (disposed) throw new Error('RoomServerApp: disposed');
       return buildLoopbackTransport(env, getOrCreate(`space:${args.spaceId}`), {

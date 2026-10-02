@@ -22,7 +22,7 @@ import {
   keyboardPlace,
   keyboardToStart,
   placeOf,
-} from './actor-page';
+} from '@libs/harness/system/actor-page';
 import { useKeyboard } from './people';
 
 /** The person opens the app and listens to it instead of looking. */

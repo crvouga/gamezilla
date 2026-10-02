@@ -771,6 +771,8 @@ export async function showChessStats(
         await openChessStats(s, actorId);
       } else if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
         await pressPuzzleBackToChessMenu(s, actorId);
+      } else if (await ui.get('chess-custom-status').isVisible()) {
+        await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
       } else if (await ui.get(Handles.gameMenuChess).isVisible()) {
         await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
       } else if (await ui.get(Handles.spaceClose).isVisible()) {

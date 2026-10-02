@@ -19,6 +19,7 @@ import { PERMISSIONS_FEATURE } from '@libs/permissions/root/feature';
 import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
 import type { CatalogAction, CatalogProperty } from '@pkgs/harness';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { withHome } from './bare-home-client';
 import type {
   HarnessComposition,
@@ -33,6 +34,7 @@ export type HarnessSlice = {
   readonly client?: FeatureClient;
   readonly server?: (deps: {
     readonly billing: MembershipProviders | null;
+    readonly rooms: RoomServicePort;
     readonly app: ReturnType<typeof composeFeatures>;
   }) => FeatureServer;
   readonly roomNode?: (

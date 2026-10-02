@@ -1,0 +1,55 @@
+import { actorUi, scenarioAction } from '@libs/harness/system/actor-ui';
+import type { CustomGameChoice } from '../public/custom-game';
+import {
+  configureCustomGame,
+  openCustomGameScreen,
+  sendCustomGameChoice,
+} from './custom-game-ui';
+import { changeThroughCustomGameControls } from './custom-game-controls';
+import { playCustomGameHistory } from './custom-game-history';
+import { raceCustomGameChoices } from './custom-game-race';
+import { reviewCustomGame } from './custom-game-review';
+import { attemptCustomGameBoundary } from './custom-game-boundary';
+import {
+  chooseCustomGameWithKeyboard,
+  listenToCustomGame,
+} from './custom-game-accessibility';
+
+export const openCustomGame = scenarioAction({
+  name: 'openCustomGame',
+  act: openCustomGameScreen,
+});
+export const changeCustomGame = scenarioAction({
+  name: 'changeCustomGame',
+  act: changeThroughCustomGameControls,
+});
+export const establishCustomGame = scenarioAction({
+  name: 'establishCustomGame',
+  act: configureCustomGame,
+});
+export const attemptCustomGameChoice = scenarioAction({
+  name: 'attemptCustomGameChoice',
+  act: (s, actor: string, choice: CustomGameChoice) =>
+    sendCustomGameChoice(s, actor, choice).then(() => undefined),
+});
+export const playCustomGamePreset = scenarioAction({
+  name: 'playCustomGamePreset',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    await ui.get('chess-custom-play-bot').tap();
+  },
+});
+
+export const CUSTOM_GAME_HARNESS_ACTIONS = [
+  openCustomGame,
+  changeCustomGame,
+  establishCustomGame,
+  attemptCustomGameChoice,
+  playCustomGamePreset,
+  playCustomGameHistory,
+  raceCustomGameChoices,
+  reviewCustomGame,
+  attemptCustomGameBoundary,
+  chooseCustomGameWithKeyboard,
+  listenToCustomGame,
+];

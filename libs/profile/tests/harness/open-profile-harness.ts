@@ -37,7 +37,11 @@ const PROFILE_QUINT_SYSTEM = defineProductSystem({
     {
       ...ACCOUNT_PRIVACY_HARNESS_SLICE,
       server: (deps) =>
-        createAccountPrivacyServer(deps.app.accountPrivacy, 'on-demand'),
+        createAccountPrivacyServer(
+          deps.app.accountPrivacy,
+          deps.rooms,
+          'on-demand'
+        ),
     },
     PROFILE_HARNESS_SLICE,
     BILLING_HARNESS_SLICE,

@@ -32,6 +32,8 @@ export async function backToProfileTab(ui: ActorUi): Promise<void> {
       await ui.get(Handles.tabProfile).tap({ timeoutMs: NAV_WAIT_MS });
     } else if (await ui.get(Handles.navBack).isVisible()) {
       await ui.get(Handles.navBack).tap({ timeoutMs: NAV_WAIT_MS });
+    } else if (await ui.get(Handles.spaceClose).isVisible()) {
+      await ui.get(Handles.spaceClose).tap({ timeoutMs: NAV_WAIT_MS });
     } else {
       // Nothing to back out of yet: wait for the tabs, as a person would.
       await ui.get(Handles.tabProfile).tap();

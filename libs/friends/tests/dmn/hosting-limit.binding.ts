@@ -28,7 +28,10 @@ import { bindDecisions } from '@pkgs/dmn/registry';
 import type { MutationRegistry } from '@pkgs/sync-engine/shared';
 import { useMutationClient } from '@pkgs/sync-engine/solid';
 
-import { SPACE_TABLES, seedOpenSpaces } from './space-world';
+import {
+  SPACE_TABLES,
+  seedOpenSpaces,
+} from '@libs/spaces/harness/space-decision-world';
 
 const ANOTHER = { spaceId: 'another-space' };
 

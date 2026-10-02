@@ -1,5 +1,7 @@
-import type { MessageNamespace, MessageRouter } from '@pkgs/message';
+import type { Message, MessageNamespace, MessageRouter } from '@pkgs/message';
 import type { HandleResult, RoomEffect, RoomState } from '@pkgs/room';
+import type { Random } from '@pkgs/uuid';
+import type { AppGrantKey } from '@libs/permissions/public/permission-catalog';
 import type { JSX } from 'solid-js';
 
 /**
@@ -21,6 +23,7 @@ export type GameCommandContext = {
   readonly ts: number;
   /** Stable command identity, retained when delivery repeats. */
   readonly commandId: string;
+  readonly random: Random;
 };
 
 /**
@@ -42,6 +45,16 @@ export type GameDefinition = {
   readonly eventRouters: readonly GameRouterEntry<void, RoomState>[];
   /** Recover idempotent effects from committed game state after a room restart. */
   readonly recoverEffects: (state: RoomState) => readonly RoomEffect[];
+  /** Domain reactions committed in the same room transaction as a space event. */
+  readonly reactToSpaceEvent?: (
+    state: RoomState,
+    ctx: GameCommandContext,
+    event: Message
+  ) => HandleResult | null;
+  /** Capability decision made for an incoming game command. */
+  readonly permissionForCommand?: (
+    command: Message
+  ) => { readonly key: AppGrantKey; readonly reason: string } | null;
   /**
    * Optional initial-state seed merged into `SpaceModule.initialState()`.
    * Use when a game's reducers expect certain attributes to be present

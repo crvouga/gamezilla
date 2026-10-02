@@ -38,18 +38,19 @@ export async function answerOfRoomCommand(
     readonly identity: string;
     readonly installId: string;
     readonly payload: Message;
+    readonly commandId: string;
     readonly nowMs: number;
     readonly timers: Timers;
   }
 ): Promise<RoomAnswer> {
-  const commandId = `${args.identity}-command`;
+  const commandId = args.commandId;
   const frames: Frame[] = [];
   const transport = node.createTransport({
     spaceId: args.spaceId,
     apiUrl: '',
     identity: args.identity,
     installId: args.installId,
-    clientId: `${args.identity}-probe`,
+    clientId: `${commandId}-probe`,
     getSessionToken: () => null,
     timers: args.timers,
     random: () => 0.5,

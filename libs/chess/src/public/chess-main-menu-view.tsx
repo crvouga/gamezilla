@@ -14,6 +14,7 @@ import {
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
 } from '../shared/chess/chess-main-menu';
+import { CustomGameScreen } from '../root/custom-game/custom-game-screen';
 import { ChessPuzzleFeedProvider } from './chess-puzzle/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';
@@ -36,6 +37,9 @@ function ChessScreenContent(props: {
     <Switch fallback={<RootMainMenu onBackToGames={props.onBackToGames} />}>
       <Match when={props.screen === CHESS_SCREEN.puzzle}>
         <PuzzlePlayScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.customGame}>
+        <CustomGameScreen />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.stats}>
         <ChessStatsScreen />
@@ -105,8 +109,10 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     {
       key: 'custom-games',
       title: <Trans>Custom Games</Trans>,
-      caption: <Trans>Coming soon</Trans>,
-      disabled: true,
+      caption: <Trans>White vs Black — play, invite or watch</Trans>,
+      dataSet: { testid: 'chess-menu-custom-game' },
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.customGame })),
     },
     {
       key: 'matchmaking',

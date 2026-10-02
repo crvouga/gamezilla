@@ -11,9 +11,14 @@
  * sequential focus order (`@pkgs/a11y`), then `keyup`.
  */
 
-import { actorUi, type ProductHarness, productExtra } from '@libs/harness';
-import { bringToFront } from '@libs/harness/system/observations';
-import { describeControl, nextInFocusOrder } from '@pkgs/a11y';
+import { actorUi } from './actor-ui';
+import { type ProductHarness, productExtra } from './harness';
+import { bringToFront } from './observations';
+import {
+  describeControl,
+  nextInFocusOrder,
+  sequentialFocusOrder,
+} from '@pkgs/a11y';
 import { hostLimit } from '@pkgs/gherkin/registry';
 
 /** The document body of `actorId`'s app, brought on screen. */
@@ -91,4 +96,19 @@ export function placeOf(element: Element): string {
   const screen =
     element.closest('[data-screen]')?.getAttribute('data-screen') ?? 'app';
   return `${screen}: ${describeControl(element)}`;
+}
+
+/** Tab through the live focus order to a control, with at most one lap. */
+export async function tabTo(
+  s: ProductHarness,
+  actorId: string,
+  testId: string
+): Promise<void> {
+  const page = await actorPage(s, actorId);
+  const lap = sequentialFocusOrder(page).length + 1;
+  for (let press = 0; press <= lap; press += 1) {
+    if (keyboardElement(page)?.getAttribute('data-testid') === testId) return;
+    await pressTab(s, page);
+  }
+  throw new Error(`${actorId}'s keyboard never reached ${testId}`);
 }

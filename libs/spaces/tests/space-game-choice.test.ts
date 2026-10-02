@@ -7,7 +7,7 @@ import { answerOfRoomCommand } from '@libs/spaces/harness/room-command-probe';
 import { SelectGame } from '@libs/spaces/public/games';
 import { spaceUserEntityId } from '@libs/spaces/public/participation/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces/public/schema';
-import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
+import { spaceRoomGrants } from '@libs/spaces/public/space-room-grants';
 import { createHarnessClock } from '@pkgs/clock';
 import type { Message } from '@pkgs/message';
 import { ROOM_ERROR_TYPE } from '@pkgs/room';
@@ -49,7 +49,7 @@ function send(db: SqlClient, person: string, payload: Message) {
   let ids = 0;
   const gateway: HarnessRoomGateway = {
     roomGrants: ({ topic, actor }) =>
-      SPACES_SERVER.roomGrants?.({ db, topic, actor, nowMs: clock.now() }) ??
+      spaceRoomGrants({ db, topic, actor, nowMs: clock.now() }) ??
       Promise.resolve([]),
   };
   const env = {
@@ -65,6 +65,7 @@ function send(db: SqlClient, person: string, payload: Message) {
     identity: person,
     installId: person,
     payload,
+    commandId: `choice-${person}`,
     nowMs: clock.now(),
     timers,
   });

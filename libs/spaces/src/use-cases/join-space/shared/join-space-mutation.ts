@@ -1,3 +1,4 @@
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { areFriends } from '../../../shared/space/friendship-sql';
@@ -62,6 +63,7 @@ export const joinSpaceMutation = defineMutation({
         WHERE id = ${spaceId}
       `);
     }
+    await changeSpaceRoomMembership({ tx, env }, spaceId, 'joined');
     await openSession(tx, env, spaceId);
   },
 });

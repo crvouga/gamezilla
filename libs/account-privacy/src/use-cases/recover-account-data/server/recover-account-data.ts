@@ -5,12 +5,14 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import { wrapMutationDb } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
+import type { RoomServicePort } from '@pkgs/room/server';
 
 /** A recovery runs with writes paused and keeps the live deletion journal. */
 export class RecoverAccountData {
   constructor(
     private readonly db: SqlClient,
     private readonly ports: {
+      readonly rooms: RoomServicePort;
       readonly clock: Clock;
       readonly createId: CreateId;
       readonly contributions: readonly AccountPrivacyContribution[];
@@ -31,7 +33,10 @@ export class RecoverAccountData {
         for (const contribution of this.ports.contributions) {
           await contribution.withdraw({ tx: managed.tx, env: context });
           if (Date.parse(String(receipt.erase_by)) <= this.ports.clock.now())
-            await contribution.erase({ tx: managed.tx, env: context });
+            await contribution.erase(
+              { tx: managed.tx, env: context },
+              this.ports.rooms
+            );
         }
       }
     });

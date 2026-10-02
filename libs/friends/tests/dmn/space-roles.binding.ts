@@ -39,7 +39,7 @@ import {
   SPACE_TABLES,
   seedPlaceInSpace,
   seedPlaceInSpaceOnDevice,
-} from './space-world';
+} from '@libs/spaces/harness/space-decision-world';
 
 const OPERATIONS: Readonly<Record<string, ServerOperation>> = {
   'leave the space': replayOperation(leaveSpaceMutation, () => ({

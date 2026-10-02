@@ -422,6 +422,7 @@
         "@libs/friends": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/dmn": "workspace:*",
@@ -657,6 +658,7 @@
         "@libs/permissions": "workspace:*",
         "@libs/server-app": "workspace:*",
         "@libs/test-ids": "workspace:*",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/alloy": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
@@ -1119,6 +1121,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@libs/billing": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/keyword": "workspace:*",
         "@pkgs/property": "workspace:*",

@@ -11,6 +11,8 @@ import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';
 import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Session } from '@pkgs/harness';
+import type { OutboxConsumerRegistry } from '@pkgs/outbox';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
@@ -120,6 +122,7 @@ export type Harness = {
   dropServer(id: string): Promise<void>;
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
+  outboxConsumers(): OutboxConsumerRegistry;
   spawnClient(id: string, env?: ClientEnv): Promise<Client>;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
@@ -335,14 +338,29 @@ async function bootHarnessKernel(
     // Webhooks go through the balancer, like any caller's.
     toApi: (node) => loadBalancer.fetchFrom(node),
   });
-  const roomNode =
+  let roomNode: HarnessRoomNode;
+  const rooms: RoomServicePort = {
+    read: (topic) => roomNode.services.read(topic),
+    send: (topic, id, payload) => roomNode.services.send(topic, id, payload),
+    eraseIdentity: (topic, identity, replacement) =>
+      roomNode.services.eraseIdentity(topic, identity, replacement),
+    disconnect: (topic, identity) =>
+      roomNode.services.disconnect(topic, identity),
+  };
+  roomNode =
     composition.roomNode?.(
       buildRoomServerEnv({ session, seed, timers }),
-      harnessRoomGateway({ composition, serverSql, clock: session.ports.clock })
+      harnessRoomGateway({
+        composition,
+        serverSql,
+        clock: session.ports.clock,
+        rooms,
+      })
     ) ?? noRoomNode(composition.name);
   const disposed = { value: false };
   const servers = createHarnessServerNodes({
     composition,
+    rooms,
     buildEnv: (id) =>
       Promise.resolve(
         buildServerEnv({
@@ -519,6 +537,11 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     },
     roomNode,
     serverSql,
+    outboxConsumers: () => {
+      const node = servers.get(HARNESS_PRIMARY_SERVER_ID);
+      if (node === undefined) throw new Error('primary server is missing');
+      return node.outboxConsumers;
+    },
     clientSql: (id) => clientSql.get(id),
   };
 }

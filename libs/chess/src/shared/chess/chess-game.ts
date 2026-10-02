@@ -25,7 +25,7 @@ export const CHESS_GAME_ID = 'chess';
  * Note: this is the *only* place chess wires itself into the spaces
  * registry. `@libs/spaces` knows nothing about chess.
  */
-export const chessGameShared: GameDefinition = {
+export const chessPuzzleGame: GameDefinition = {
   id: CHESS_GAME_ID,
   recoverEffects: () => [],
   commandRouters: [

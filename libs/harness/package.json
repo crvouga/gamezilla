@@ -26,6 +26,7 @@
     "@libs/permissions": "workspace:*",
     "@libs/server-app": "workspace:*",
     "@libs/test-ids": "workspace:*",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/alloy": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",

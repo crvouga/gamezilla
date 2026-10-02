@@ -1,3 +1,4 @@
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 import { requireLimitInMutation } from '@libs/permissions/public/mutation-permission';
 import { LIMIT } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
@@ -65,6 +66,7 @@ export const createSpaceMutation = defineMutation({
         created_at = excluded.created_at,
         created_by_account_id = excluded.created_by_account_id
     `);
+    await changeSpaceRoomMembership({ tx, env }, spaceId, 'joined');
     await openSession(tx, env, spaceId, true);
   },
 });

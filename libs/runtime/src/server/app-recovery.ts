@@ -5,6 +5,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import { ident, join, sql, type Value } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { APP } from '../root/app-features';
 
 type RecoveryCopy = Readonly<Record<string, readonly Record<string, Value>[]>>;
@@ -20,6 +21,7 @@ export class AppRecovery {
   constructor(
     private readonly db: SqlClient,
     private readonly ports: {
+      readonly rooms: RoomServicePort;
       readonly clock: Clock;
       readonly createId: CreateId;
       readonly objectStore: ObjectStore;

@@ -4,6 +4,7 @@ import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 import {
   closeSession,
   endSpace,
@@ -35,6 +36,7 @@ export const leaveSpaceMutation = defineMutation({
     }
     const now = env.now().toISOString();
     const actorMemberId = memberId(env);
+    await changeSpaceRoomMembership({ tx, env }, spaceId, 'left');
     await tx.run(sql`
       UPDATE spaces_users
       SET deleted_at = ${now}

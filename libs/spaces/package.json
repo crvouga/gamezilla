@@ -59,6 +59,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/billing": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/property": "workspace:*",

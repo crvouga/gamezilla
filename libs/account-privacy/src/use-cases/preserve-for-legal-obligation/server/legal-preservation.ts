@@ -3,6 +3,7 @@ import type { AccountPrivacyContribution } from '@libs/feature/public/account-pr
 import type { Clock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { RoomServicePort } from '@pkgs/room/server';
 
 type Preservation = {
   readonly accountId: string;
@@ -11,6 +12,7 @@ type Preservation = {
   readonly category: string;
 };
 type Ports = {
+  readonly rooms: RoomServicePort;
   readonly clock: Clock;
   readonly createId: () => string;
   readonly contributions: readonly AccountPrivacyContribution[];
@@ -37,7 +39,7 @@ export class LegalPreservation {
         tx,
         env: accountMutationEnv(input.accountId, this.ports),
       };
-      const data = await contribution.snapshot(context);
+      const data = await contribution.snapshot(context, this.ports.rooms);
       await tx.run(
         sql`INSERT INTO profile_legal_preservations (id, created_at, updated_at, owner_id, purpose, end_condition, category, preserved_data) VALUES (${this.ports.createId()}, ${now}, ${now}, ${input.accountId}, ${input.purpose}, ${input.endCondition}, ${input.category}, ${JSON.stringify(data)})`
       );

@@ -13,6 +13,7 @@ import {
   type RoomModuleName,
   type RoomState,
 } from '@pkgs/room';
+import type { Random } from '@pkgs/uuid';
 
 import {
   counterCmdNs,
@@ -21,6 +22,10 @@ import {
   counterEvtNs,
 } from './counter';
 import type { GameCommandContext, GameDefinition } from './game';
+import {
+  spaceServiceCmdNs,
+  spaceServiceCommandRouter,
+} from './space-service-command';
 import {
   createGamesCommandRouter,
   createGamesEventReducer,
@@ -36,8 +41,6 @@ import {
 import {
   createSpaceMembersEventReducer,
   SpaceMembersRoomAttr,
-  spaceMembersCmdNs,
-  spaceMembersCommandRouter,
   spaceMembersEvtNs,
 } from './space-members/space-members-messages';
 
@@ -61,8 +64,8 @@ function buildCommandRouter(games: readonly GameDefinition[]) {
     GameCommandContext,
     HandleResult
   >([
+    { namespace: spaceServiceCmdNs, router: spaceServiceCommandRouter },
     { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
-    { namespace: spaceMembersCmdNs, router: spaceMembersCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
     { namespace: gamesCmdNs, router: createGamesCommandRouter(games) },
     ...games.flatMap((game) => [...game.commandRouters]),
@@ -88,6 +91,7 @@ function buildEventReducer(
 function buildInitialState(games: readonly GameDefinition[]): RoomState {
   let state: RoomState = {
     ...SpaceMembersRoomAttr.seats({}),
+    ...SpaceMembersRoomAttr.ended(false),
   };
   for (const game of games) {
     if (game.initialState !== undefined) {
@@ -95,6 +99,34 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
     }
   }
   return state;
+}
+
+function appendGameReactions(input: {
+  readonly state: RoomState;
+  readonly result: HandleResult;
+  readonly ctx: GameCommandContext;
+  readonly games: readonly GameDefinition[];
+  readonly reduce: (state: RoomState, event: Message) => RoomState;
+}): HandleResult {
+  if (!input.result.ok) return input.result;
+  const events: Message[] = [];
+  const effects = [...(input.result.effects ?? [])];
+  let state = input.state;
+  for (const event of input.result.events) {
+    events.push(event);
+    state = input.reduce(state, event);
+    for (const game of input.games) {
+      const reaction = game.reactToSpaceEvent?.(state, input.ctx, event);
+      if (reaction === null || reaction === undefined) continue;
+      if (!reaction.ok) return reaction;
+      effects.push(...(reaction.effects ?? []));
+      for (const fact of reaction.events) {
+        events.push(fact);
+        state = input.reduce(state, fact);
+      }
+    }
+  }
+  return { ok: true, events, effects };
 }
 
 /**
@@ -110,11 +142,14 @@ function buildInitialState(games: readonly GameDefinition[]): RoomState {
 export function createSpaceModule(
   name: RoomModuleName,
   games: readonly GameDefinition[],
-  now: () => number
+  now: () => number,
+  random: Random
 ): RoomModule<RoomState, Message, Message, string> {
   assertUniqueGameIds(games);
   const commandRouter = buildCommandRouter(games);
   const eventReducer = buildEventReducer(games, now);
+  const reduce = (state: RoomState, event: Message): RoomState =>
+    eventReducer.dispatch(state, undefined, event, (s) => s);
 
   return {
     name,
@@ -134,22 +169,20 @@ export function createSpaceModule(
           reason: 'not a message envelope',
         });
       }
-      return commandRouter.dispatch(
-        state,
-        { identity, ts: command.ts, commandId: command.id },
-        msg,
-        (_s, _c, m) =>
-          reject({
-            type: ROOM_ERROR_TYPE.invalidCommand,
-            reason: String(m.type),
-          })
+      const ctx = { identity, ts: command.ts, commandId: command.id, random };
+      const result = commandRouter.dispatch(state, ctx, msg, (_s, _c, m) =>
+        reject({
+          type: ROOM_ERROR_TYPE.invalidCommand,
+          reason: String(m.type),
+        })
       );
+      return appendGameReactions({ state, result, ctx, games, reduce });
     },
 
     reduce(state: RoomState, event: Message): RoomState {
       const ev = isMessageEnvelope(event) ? event : null;
       if (ev === null) return state;
-      return eventReducer.dispatch(state, undefined, ev, (s) => s);
+      return reduce(state, ev);
     },
 
     hash(state: RoomState): string {

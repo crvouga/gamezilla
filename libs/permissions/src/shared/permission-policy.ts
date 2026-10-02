@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-01.1';
+export const PERMISSION_POLICY_VERSION = '2026-10-02.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -135,7 +135,12 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },
     [ROLE.spaceMember]: {
-      permissions: [PERMISSION.spacesLeave],
+      permissions: [
+        PERMISSION.spacesLeave,
+        PERMISSION.chessCustomJoin,
+        PERMISSION.chessCustomWatch,
+        PERMISSION.chessCustomPlay,
+      ],
     },
     [ROLE.spaceHost]: {
       grants: [ROLE.spaceMember],
@@ -144,6 +149,12 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.spacesEnd,
         PERMISSION.spacesManageMembers,
         PERMISSION.spacesSelectGame,
+        PERMISSION.chessCustomCreate,
+        PERMISSION.chessCustomConfigure,
+        PERMISSION.chessCustomInvite,
+        PERMISSION.chessCustomBot,
+        PERMISSION.chessCustomStart,
+        PERMISSION.chessCustomCancel,
       ],
     },
   },

@@ -57,7 +57,8 @@ export async function storedSpacePresence(
 ): Promise<SpacePresenceRole | null> {
   const rows = await db.query(sql<SpaceHostRow>`
     SELECT host_id, host_member_id, host_account_id
-    FROM spaces WHERE id = ${spaceId} LIMIT 1
+    FROM spaces WHERE id = ${spaceId}
+      AND deleted_at IS NULL AND ended_at IS NULL LIMIT 1
   `);
   const row = rows[0];
   if (row === undefined || (row.host_id ?? '').length === 0) return null;

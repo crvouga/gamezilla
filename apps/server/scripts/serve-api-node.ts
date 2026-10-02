@@ -19,7 +19,7 @@ import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import type { ApiWorkerEnv, RoomNamespace } from '@libs/server-app/config/env';
 import type { ExecutionContext } from '@libs/server-app/config/worker-handler';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
-import { authorizeSpaceRoomCommand } from '@libs/spaces/public/space-room-authorize';
+import { createSpaceRoomAuthorizer } from '@libs/spaces/public/space-room-authorize';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   type BunRoomSocketData,
@@ -35,8 +35,12 @@ const NODE_ID = process.env['API_NODE_ID'] ?? 'api-a';
 const UPGRADE_HEADER = 'x-bun-room-upgrade';
 
 const rooms = createBunRoomHost({
-  modules: composeRoomModules(GAME_DEFINITIONS, () => wallClock.now()),
-  authorize: authorizeSpaceRoomCommand,
+  modules: composeRoomModules(
+    GAME_DEFINITIONS,
+    () => wallClock.now(),
+    Math.random
+  ),
+  authorize: createSpaceRoomAuthorizer(GAME_DEFINITIONS),
   clock: wallClock,
   timers: wallTimers,
   createId: () => crypto.randomUUID(),
