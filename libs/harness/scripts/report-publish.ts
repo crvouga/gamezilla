@@ -223,7 +223,13 @@ async function main(argv: readonly string[]): Promise<void> {
     return;
   }
   if (command === 'batch') {
-    await publishBatch({ store, repoRoot: REPO_ROOT, sha, runId: publicationRun, planPath });
+    await publishBatch({
+      store,
+      repoRoot: REPO_ROOT,
+      sha,
+      runId: publicationRun,
+      planPath,
+    });
     return;
   }
   if (command === 'close') {
