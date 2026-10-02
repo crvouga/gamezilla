@@ -43,3 +43,32 @@ test('CI trusts the literal immutable subject returned after the repository tran
     aws.match(/"\$\{var\.github_subject_prefix\}:environment:production"/g)
   ).toHaveLength(2);
 });
+
+// regression: ci-bootstrap-trust-update-blocked
+test('bootstrap updates the existing CI auth and retires old resources without deletion', () => {
+  const tofu = join(import.meta.dirname, '../tofu');
+  const infisical = readFileSync(
+    join(tofu, 'modules/ci-identity/main.tf'),
+    'utf8'
+  );
+  // Live auth e0518163-8ef1-4be9-83a7-39596ab3dc87 is at this address.
+  expect(infisical).toContain('resource "infisical_identity_oidc_auth" "ci"');
+  expect(infisical).not.toContain(
+    'resource "infisical_identity_oidc_auth" "github"'
+  );
+  const imports = readFileSync(
+    join(tofu, 'stacks/bootstrap/imports.tf'),
+    'utf8'
+  );
+  for (const address of [
+    'module.depot_ci_identity',
+    'module.aws_ci.aws_iam_openid_connect_provider.depot',
+    'terraform_data.depot_ci_variables',
+  ]) {
+    expect(imports).toContain(
+      `from = ${address}\n  lifecycle {\n    destroy = false`
+    );
+  }
+  // The transferred repo has no existing gamezilla:main rule to import.
+  expect(GLOBAL.global_imports?.github_branch_protection).toBeUndefined();
+});

@@ -39,7 +39,7 @@ resource "infisical_identity" "ci" {
   role   = "no-access"
 }
 
-resource "infisical_identity_oidc_auth" "github" {
+resource "infisical_identity_oidc_auth" "ci" {
   identity_id                 = infisical_identity.ci.id
   oidc_discovery_url          = local.github_issuer
   bound_issuer                = local.github_issuer
