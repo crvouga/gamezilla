@@ -13,6 +13,13 @@ import {
   SseDecoder,
   sourceKey,
 } from '@pkgs/harness-report';
+import {
+  closeCommit,
+  openCommit,
+  publicationStore,
+  publishSource,
+  reuseSource,
+} from '@pkgs/harness-report/remote/publish';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 
@@ -52,6 +59,44 @@ function app(store: ObjectStoreImplInMemory | null) {
 }
 
 describe('reports API', () => {
+  // regression: report-rerun-immutable-cache
+  test('serves reused source records and the selected attempt stylesheet without caching a prior attempt', async () => {
+    const store = await seeded();
+    const identity = { taskHash: '0123456789abcdef', generation: 0 };
+    await publishSource(store, {
+      sha: SHA,
+      packageDir: SOURCE.packageDir,
+      bucket: SOURCE.bucket,
+      local: new ObjectStoreImplInMemory(),
+      identity,
+      status: 'passed',
+    });
+    await openCommit(store, {
+      ...COMMIT,
+      frameCss: 'body{color:red}',
+      publicationId: 'new:1',
+    });
+    const source = await reuseSource(publicationStore(store, 'new:1'), {
+      sha: SHA,
+      packageDir: SOURCE.packageDir,
+      bucket: SOURCE.bucket,
+      identity,
+    });
+    await closeCommit(store, {
+      sha: SHA,
+      publicationId: 'new:1',
+      endedAtMs: 3000,
+    });
+    const reports = app(store);
+    const sources = await reports.request(`/${SHA}/sources`);
+    expect(sources.headers.get('cache-control')).toBe('no-store');
+    expect(await (await reports.request(`/${SHA}/sources`)).json()).toEqual({
+      sources: [source],
+    });
+    expect(await (await reports.request(`/${SHA}/frame.css`)).text()).toBe(
+      'body{color:red}'
+    );
+  });
   test('lists commits newest first', async () => {
     const res = await app(await seeded()).request('/');
     expect(res.status).toBe(200);
@@ -97,7 +142,7 @@ describe('reports API', () => {
     expect((await reports.request(`/${SHA}/events`)).status).toBe(503);
   });
 
-  test('serves sources, one timeline and one frame, cached once complete', async () => {
+  test('serves sources, one timeline and one frame from the selected attempt', async () => {
     const store = await seeded();
     const report = {
       meta: {
@@ -129,15 +174,13 @@ describe('reports API', () => {
     const reports = app(store);
     const sources = await reports.request(`/${SHA}/sources`);
     expect(sources.status).toBe(200);
-    expect(sources.headers.get('cache-control')).toBe(
-      'public, max-age=31536000, immutable'
-    );
+    expect(sources.headers.get('cache-control')).toBe('no-store');
     expect(await sources.json()).toEqual({ sources: [SOURCE] });
 
     const timeline = await reports.request(
       `/${SHA}/tests/${SOURCE.source}/kv-put`
     );
-    expect(timeline.headers.get('cache-control')).toContain('immutable');
+    expect(timeline.headers.get('cache-control')).toBe('no-store');
     expect((await timeline.json()).meta.testId).toBe('kv-put');
 
     const file = await reports.request(
@@ -145,7 +188,7 @@ describe('reports API', () => {
     );
     expect(file.status).toBe(200);
     expect(file.headers.get('content-type')).toContain('text/html');
-    expect(file.headers.get('cache-control')).toContain('immutable');
+    expect(file.headers.get('cache-control')).toBe('no-store');
     expect(await file.text()).toBe('<html>hello</html>');
   });
 

@@ -583,5 +583,20 @@
     "id": "crash-copy-rejection",
     "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
     "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  },
+  {
+    "id": "report-missing-snapshot-published-complete",
+    "summary": "The report publisher silently skipped a missing referenced snapshot and still published its source as complete. Fail publication before writing any completion marker when the literal referenced snapshot is absent.",
+    "regressionTest": "pkgs/harness-report/tests/reusable-source.test.ts"
+  },
+  {
+    "id": "report-concurrent-attempt-overwrite",
+    "summary": "Two Check runs of the same SHA wrote the same report source and completion record, so a late failed earlier attempt could overwrite the currently displayed result. Scope commit records, stylesheet, sources and receipts by run/attempt while sharing only immutable successful content.",
+    "regressionTest": "pkgs/harness-report/tests/publication-attempt.test.ts"
+  },
+  {
+    "id": "report-rerun-immutable-cache",
+    "summary": "Completed commit URLs cached a prior attempt forever, even after a newer run replaced the selected report. Resolve the selected attempt on every request to these mutable URLs.",
+    "regressionTest": "libs/server-app/tests/reports-route.test.ts"
   }
 ]

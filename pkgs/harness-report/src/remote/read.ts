@@ -11,13 +11,14 @@ import type {
   RunReport,
   SnapshotMedia,
 } from '@pkgs/harness';
-import { readObjectBytes, readUtf8 } from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
+import { readBytes, readUtf8 } from '@pkgs/object-store/helpers';
+import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
 
 import { inCompletionOrder } from './completion-order';
 import {
   COMMITS_INDEX_PREFIX,
   commitKey,
+  frameCssKey,
   isFramePath,
   shaOfIndexKey,
   sourceOfKey,
@@ -30,6 +31,8 @@ import type {
   SourceRecord,
   TestEvent,
 } from './protocol';
+import { reportStore } from './publication';
+import { readBundledSnapshot, readBundledSnapshots } from './snapshot-bundle';
 import { readStoredSource, sourceTestPrefix } from './source-content';
 
 /** Parallel object reads per stream. */
@@ -46,11 +49,18 @@ async function readJson<T>(store: ObjectStore, key: string): Promise<T | null> {
   }
 }
 
-export function readCommit(
+export async function readCommit(
   store: ObjectStore,
   sha: string
 ): Promise<CommitRecord | null> {
-  return readJson<CommitRecord>(store, commitKey(sha));
+  return readJson<CommitRecord>(await reportStore(store, sha), commitKey(sha));
+}
+
+export async function readFrameCss(
+  store: ObjectStore,
+  sha: string
+): Promise<StoredObject | null> {
+  return (await reportStore(store, sha)).get(frameCssKey(sha));
 }
 
 /**
@@ -103,6 +113,7 @@ async function* newSources(
   sha: string,
   sent: Set<string>
 ): AsyncGenerator<SourceRecord> {
+  store = await reportStore(store, sha);
   const fresh = (await store.listKeys(sourcesPrefix(sha)))
     .map((key) => sourceOfKey(sha, key))
     .filter((s): s is string => s !== null && !sent.has(s));
@@ -184,8 +195,7 @@ async function readFrame(
 ): Promise<HtmlReportBlob | null> {
   const obj = await store.get(key);
   if (obj === null) return null;
-  const bytes = await readObjectBytes(store, key);
-  if (bytes === null) return null;
+  const bytes = await readBytes(obj.body);
   return TEXT_MEDIA.has(media)
     ? { contentType: obj.contentType, text: new TextDecoder().decode(bytes) }
     : { contentType: obj.contentType, base64: bytesToBase64(bytes) };
@@ -200,6 +210,7 @@ export async function readTestReport(
     readonly testId: string;
   }
 ): Promise<RunReport | null> {
+  store = await reportStore(store, args.sha);
   const prefix = await sourceTestPrefix(store, args);
   return prefix === null
     ? null
@@ -221,14 +232,16 @@ export async function readFrameBody(
     readonly file: string;
   }
 ): Promise<FrameBody | null> {
+  store = await reportStore(store, args.sha);
   if (!isFramePath(args.file)) throw new Error('Invalid report frame');
   const prefix = await sourceTestPrefix(store, args);
   if (prefix === null) return null;
   const key = `${prefix}${args.file}`;
+  if (prefix.startsWith('content/'))
+    return readBundledSnapshot(store, prefix, args.file);
   const obj = await store.get(key);
   if (obj === null) return null;
-  const bytes = await readObjectBytes(store, key);
-  if (bytes === null) return null;
+  const bytes = await readBytes(obj.body);
   return { bytes, contentType: obj.contentType };
 }
 
@@ -253,6 +266,7 @@ export async function* testEvents(
     readonly testId: string;
   }
 ): AsyncGenerator<TestEvent> {
+  store = await reportStore(store, args.sha);
   const prefix = await sourceTestPrefix(store, args);
   const report =
     prefix === null
@@ -265,6 +279,26 @@ export async function* testEvents(
   yield { type: 'report', report };
   const files = new Map<string, SnapshotMedia>();
   collectFrameFiles(report.steps, files);
+  if (prefix?.startsWith('content/')) {
+    for await (const frame of readBundledSnapshots(
+      store,
+      prefix,
+      new Set(files.keys())
+    )) {
+      const blob = TEXT_MEDIA.has(files.get(frame.file) ?? '')
+        ? {
+            contentType: frame.contentType,
+            text: new TextDecoder().decode(frame.bytes),
+          }
+        : {
+            contentType: frame.contentType,
+            base64: bytesToBase64(frame.bytes),
+          };
+      yield { type: 'blob', file: frame.file, blob };
+    }
+    yield { type: 'end', found: true };
+    return;
+  }
   const reads = [...files].map(([file, media]) => async () => {
     const key = `${prefix}${file}`;
     return { file, blob: await readFrame(store, key, media) };

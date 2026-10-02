@@ -33,13 +33,17 @@ import {
   sourcesPrefix,
 } from './keys';
 import type { CommitRecord, SourceRecord } from './protocol';
+import { publicationStore } from './publication';
 import { readCommit } from './read';
+import { publishSnapshotBundle } from './snapshot-bundle';
 import {
   attachSource,
   readStoredSource,
   type SourceIdentity,
   sourceContentPrefix,
 } from './source-content';
+
+export { publicationStore } from './publication';
 
 export {
   reportGeneration,
@@ -61,6 +65,8 @@ export type OpenCommitArgs = {
   readonly startedAtMs: number;
   /** Stylesheet the commit's HTML snapshots render with. */
   readonly frameCss: string;
+  /** Concurrent CI attempts own independent commit-local files. */
+  readonly publicationId?: string;
 };
 
 /**
@@ -71,9 +77,13 @@ export async function openCommit(
   store: ObjectStore,
   args: OpenCommitArgs
 ): Promise<CommitRecord> {
-  const { frameCss, ...fields } = args;
+  const { frameCss, publicationId, ...fields } = args;
+  const target =
+    publicationId === undefined
+      ? store
+      : publicationStore(store, publicationId);
   await writeUtf8(
-    store,
+    target,
     frameCssKey(args.sha),
     frameCss,
     'text/css; charset=utf-8'
@@ -85,7 +95,7 @@ export async function openCommit(
     status: null,
   };
   await writeUtf8(
-    store,
+    target,
     commitKey(args.sha),
     JSON.stringify(commit),
     JSON_TYPE
@@ -96,6 +106,13 @@ export async function openCommit(
     JSON.stringify({ sha: args.sha }),
     JSON_TYPE
   );
+  if (publicationId !== undefined)
+    await writeUtf8(
+      store,
+      commitKey(args.sha),
+      JSON.stringify({ publicationId }),
+      JSON_TYPE
+    );
   return commit;
 }
 
@@ -152,6 +169,43 @@ export type PublishSourceArgs = {
   readonly status?: ReportTestStatus;
 };
 
+async function publishSnapshots(
+  store: ObjectStore,
+  args: PublishSourceArgs,
+  tests: readonly HtmlReportTest[],
+  contentPrefix: string | null
+): Promise<void> {
+  const runId = args.runId ?? SPEC_RUN_ID;
+  const source = sourceId(args.packageDir, args.bucket);
+  if (contentPrefix !== null) {
+    await eachLimited(tests, 8, async ({ report }) => {
+      const files = new Set<string>();
+      frameFiles(report.steps, files);
+      await publishSnapshotBundle({
+        local: args.local,
+        remote: store,
+        localPrefix: testFrameKey(runId, report.meta.testId, ''),
+        remotePrefix: `${contentPrefix}${report.meta.testId}/`,
+        files: [...files],
+      });
+    });
+    return;
+  }
+  const copies = tests.flatMap(({ report }) => {
+    const files = new Set<string>();
+    frameFiles(report.steps, files);
+    return [...files].map((file) => ({
+      from: testFrameKey(runId, report.meta.testId, file),
+      to: remoteTestFileKey(args.sha, source, report.meta.testId, file),
+    }));
+  });
+  await eachLimited(copies, WRITE_WIDTH, async ({ from, to }) => {
+    const obj = await args.local.get(from);
+    if (obj === null) throw new Error(`Missing report snapshot: ${from}`);
+    await store.put(to, await readBytes(obj.body), obj.contentType);
+  });
+}
+
 /**
  * Copy one package bucket into the store: every test (runner outcomes
  * applied) and its frame files, then the source record, last, so a reader
@@ -179,26 +233,7 @@ export async function publishSource(
     args.identity !== undefined && status === 'passed'
       ? sourceContentPrefix(args.identity, source)
       : null;
-  const copies: { from: string; to: string }[] = [];
-  for (const { report } of tests) {
-    const { testId } = report.meta;
-    const files = new Set<string>();
-    frameFiles(report.steps, files);
-    for (const file of files) {
-      copies.push({
-        from: testFrameKey(runId, testId, file),
-        to:
-          contentPrefix === null
-            ? remoteTestFileKey(args.sha, source, testId, file)
-            : `${contentPrefix}${testId}/${file}`,
-      });
-    }
-  }
-  await eachLimited(copies, WRITE_WIDTH, async ({ from, to }) => {
-    const obj = await args.local.get(from);
-    if (obj === null) throw new Error(`Missing report snapshot: ${from}`);
-    await store.put(to, await readBytes(obj.body), obj.contentType);
-  });
+  await publishSnapshots(store, args, tests, contentPrefix);
   await eachLimited(tests, WRITE_WIDTH, async ({ report }) => {
     const key =
       contentPrefix === null
@@ -236,6 +271,8 @@ export async function publishSource(
 export type CloseCommitArgs = {
   readonly sha: string;
   readonly endedAtMs: number;
+  readonly publicationId?: string;
+  readonly status?: ReportTestStatus;
 };
 
 /** Mark a commit's run complete, with the worst status of its sources. */
@@ -243,6 +280,8 @@ export async function closeCommit(
   store: ObjectStore,
   args: CloseCommitArgs
 ): Promise<CommitRecord> {
+  if (args.publicationId !== undefined)
+    store = publicationStore(store, args.publicationId);
   const open = await readCommit(store, args.sha);
   if (open === null) {
     throw new Error(`no open report for ${args.sha}; openCommit runs first`);
@@ -259,7 +298,7 @@ export async function closeCommit(
     ...open,
     state: 'complete',
     endedAtMs: args.endedAtMs,
-    status: suiteStatus(statuses),
+    status: args.status === 'failed' ? 'failed' : suiteStatus(statuses),
   };
   await writeUtf8(
     store,

@@ -68,19 +68,18 @@ resource "cloudflare_r2_bucket_lifecycle" "reports" {
   account_id  = var.reports.account_id
   bucket_name = cloudflare_r2_bucket.reports.name
 
-  rules = [{
-    id      = "expire-reports"
+  rules = [for prefix in ["spec-reports/commits/", "spec-reports/index/", "spec-reports/attempts/", "spec-reports/content/"] : {
+    id      = "expire-${replace(trim(prefix, "/"), "/", "-")}"
     enabled = true
     conditions = {
-      prefix = ""
+      prefix = prefix
     }
     delete_objects_transition = {
       condition = {
         type    = "Age"
-        max_age = var.reports.retention_days * 86400
+        max_age = (prefix == "spec-reports/content/" ? 2 * var.reports.retention_days + 1 : var.reports.retention_days) * 86400
       }
     }
   }]
 }
-
 

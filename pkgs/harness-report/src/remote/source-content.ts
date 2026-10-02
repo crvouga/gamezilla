@@ -1,8 +1,9 @@
 /** A source can own commit-local files or reference a reusable complete source. */
 import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { isKeySegment, remoteTestPrefix, sourceId, sourceKey } from './keys';
+import { commitPrefix, isKeySegment, sourceId, sourceKey } from './keys';
 import type { SourceRecord } from './protocol';
+import { reportStore } from './publication';
 
 export type SourceIdentity = {
   readonly taskHash: string;
@@ -31,7 +32,7 @@ export function sourceContentPrefix(
   if (!Number.isSafeInteger(identity.generation) || identity.generation < 0)
     throw new Error('Report generation must be a nonnegative integer');
   if (!isKeySegment(source)) throw new Error('Invalid report source');
-  return `content/v1/${identity.generation}/${identity.taskHash}/${source}/`;
+  return `content/v2/${identity.generation}/${identity.taskHash}/${source}/`;
 }
 
 export async function attachSource(
@@ -80,13 +81,14 @@ export async function readStoredSource(
   sha: string,
   source: string
 ): Promise<SourceReference | null> {
+  store = await reportStore(store, sha);
   const text = await readUtf8(store, sourceKey(sha, source));
   if (text === null) return null;
   const stored = JSON.parse(text) as SourceRecord | SourceReference;
   if ('record' in stored) {
     const prefix = stored.contentPrefix;
     if (
-      !/^content\/v1\/\d+\/[0-9a-f]{16,64}\/[a-zA-Z0-9._-]+\/$/.test(prefix) ||
+      !/^content\/v2\/\d+\/[0-9a-f]{16,64}\/[a-zA-Z0-9._-]+\/$/.test(prefix) ||
       !prefix.endsWith(`/${source}/`) ||
       stored.record.source !== source
     )
@@ -95,7 +97,7 @@ export async function readStoredSource(
   }
   return {
     record: stored,
-    contentPrefix: remoteTestPrefix(sha, source, '').replace(/\/$/, ''),
+    contentPrefix: `${commitPrefix(sha)}tests/${source}/`,
   };
 }
 
