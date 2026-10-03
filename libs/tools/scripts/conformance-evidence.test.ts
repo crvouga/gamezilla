@@ -4,6 +4,22 @@ import { campaignBindings } from '../conformance/campaigns';
 import { EVIDENCE_MAP } from '../conformance/evidence-map';
 import { readConformanceWorld } from '../conformance/world';
 
+test('semantic decisions remain bound without inventing an access capability', () => {
+  // regression: conformance-semantic-decision-capability
+  const { world, specs } = readConformanceWorld();
+  if (world === null) throw new Error('conformance manifest did not parse');
+  expect(
+    world.decisions.some((decision) => decision.id === 'assistant-observation')
+  ).toBe(false);
+  expect(
+    specs.find((spec) => spec.path === 'specs/chess/assistant-observation.dmn')
+  ).toMatchObject({
+    kind: 'decisions',
+    bound: true,
+    harness: true,
+  });
+});
+
 test('every declared environment and public contract has evidence mappings', () => {
   // regression: conformance-evidence-map-missing-promises
   const { manifest } = readConformanceWorld();

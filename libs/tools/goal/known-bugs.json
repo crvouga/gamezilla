@@ -1290,6 +1290,21 @@
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
+    "id": "permission-catalog-nonaccess-decision",
+    "summary": "The capability catalog required assistant-observation, a semantic decision with no permission answer, to own an access capability. Only decisions answering access yes/no belong in that permission catalog; every semantic decision remains bound and checked by its owner.",
+    "regressionTest": "libs/permissions/tests/closed-world.test.ts"
+  },
+  {
+    "id": "conformance-semantic-decision-capability",
+    "summary": "The conformance inventory treated every DMN decision without a capability input as an access decision, so assistant observation policy required an invented permission. Classify access decisions by their declared yes/no answer; keep semantic decisions bound and checked in the inventory.",
+    "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
+  },
+  {
+    "id": "conformance-semantic-decision-server",
+    "summary": "The permission-enforcement report required a server authorization agreement from the grounded assistant semantic decision, despite its having no access capability. Require server enforcement for exactly the decision specs referenced by the capability manifest, while still checking implementation agreement for every semantic decision.",
+    "regressionTest": "libs/tools/scripts/conformance-report.test.ts"
+  },
+  {
     "id": "health-solid-preload-after-imports",
     "summary": "Health imported the assembled in-process browser product before its Solid/Lingui preload executed, so every live stub failed to load. Select the live world at the one registration entry without loading the browser composition; pin the actual live entry import in a child-process regression.",
     "regressionTest": "apps/product/scripts/health.test.ts"
@@ -1303,5 +1318,10 @@
     "id": "health-environment-name-not-forwarded",
     "summary": "Health chose dev when SECRETS_ENV was absent but did not forward that resolved name to its child process, so the infrastructure check refused to run. Pin the missing environment input and verify the actual live process receives dev.",
     "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "conformance-live-objectives-undiscovered",
+    "summary": "The conformance reporter read live feature reports but omitted the adjacent health-objectives-report bucket, losing recorded OpenSLO evidence. Discover both live report kinds while excluding ad-hoc harness runs.",
+    "regressionTest": "libs/tools/scripts/conformance-report-buckets.test.ts"
   }
 ]

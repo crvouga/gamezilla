@@ -41,6 +41,16 @@ function listedCapabilities(decision: DmnDecision): readonly string[] | null {
   return input.domain.values.map(String);
 }
 
+/** Access tables answer yes/no; other tables decide product behavior. */
+function isPermissionDecision(decision: DmnDecision): boolean {
+  return decision.outputs.some(
+    (output) =>
+      output.name === 'answer' &&
+      output.values?.includes('yes') === true &&
+      output.values.includes('no')
+  );
+}
+
 function decidedBy(
   capabilities: readonly ManifestCapability[],
   decisionId: string
@@ -115,9 +125,11 @@ describe('closed world: manifest ↔ permission catalog', () => {
     }
   });
 
-  test("every table's capabilities are declared, and decided by that table", async () => {
+  test("every permission table's capabilities are declared, and decided by that table", async () => {
+    // regression: permission-catalog-nonaccess-decision
     const capabilities = await manifestCapabilities();
     for (const decision of await allDecisions()) {
+      if (!isPermissionDecision(decision)) continue;
       const listed = listedCapabilities(decision);
       const owned = decidedBy(capabilities, decision.id);
       expect({ decision: decision.id, owned: owned.length > 0 }).toEqual({
