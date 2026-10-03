@@ -72,5 +72,5 @@ test('bootstrap updates the existing CI auth and retires old resources without d
     );
   }
   // The transferred repo has no existing gamezilla:main rule to import.
-  expect(GLOBAL.global_imports?.github_branch_protection).toBeUndefined();
+  expect(GLOBAL.global_imports).not.toHaveProperty('github_branch_protection');
 });

@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { SessionAuth } from '@libs/auth/public/session-middleware';
 import type { RoomGrantsCtx } from '@libs/feature/public/server';
 import {
   type ApiRequestAsyncStore,
@@ -9,9 +10,11 @@ import {
   ROOM_ACTOR_GRANTS_HEADER,
   ROOM_ACTOR_ID_HEADER,
 } from '@libs/server-app/room/route';
+import type { AuthServerPort } from '@pkgs/auth/server';
 
 const INSTALL_ID = '0b6f6a52-5f0e-4a39-9d1c-2f7f3f1f7a10';
 const TOPIC = 'space:the-space';
+const ACCOUNT_ID = '68148fea-7fbd-4134-ae05-4b35fbfa1bcb';
 
 /** The room host behind the gateway: records what the gateway forwarded. */
 function recordingRoomHost() {
@@ -36,13 +39,26 @@ const store = {
   createId: () => 'minted-id',
 } as unknown as ApiRequestAsyncStore;
 
+function boundDevice(anonymous: boolean): ApiRequestAsyncStore {
+  return {
+    ...store,
+    sessionAuth: new SessionAuth({} as AuthServerPort, store),
+    sqlClient: {
+      query: async () => [
+        { user_id: ACCOUNT_ID, id: ACCOUNT_ID, is_anon: anonymous },
+      ],
+    },
+  } as unknown as ApiRequestAsyncStore;
+}
+
 async function upgrade(
   grantsFor: (ctx: RoomGrantsCtx) => Promise<readonly string[]>,
-  headers: Record<string, string>
+  headers: Record<string, string>,
+  requestStore = store
 ) {
   const host = recordingRoomHost();
   const app = createRoomApp(grantsFor);
-  const response = await apiRequestAsyncLocalStorage.run(store, () =>
+  const response = await apiRequestAsyncLocalStorage.run(requestStore, () =>
     app.request(
       `/room?topic=${encodeURIComponent(TOPIC)}&anonId=${INSTALL_ID}`,
       { headers: { upgrade: 'websocket', ...headers } },
@@ -53,6 +69,41 @@ async function upgrade(
 }
 
 describe('room gateway: the grants a connection is admitted with', () => {
+  // regression: room-guest-identity-uses-install
+  test('a guest connects as the same account that created their space', async () => {
+    const seen: RoomGrantsCtx[] = [];
+    const result = await upgrade(
+      (ctx) => {
+        seen.push(ctx);
+        return Promise.resolve(['spaces:leave', 'spaces:select-game']);
+      },
+      {},
+      boundDevice(true)
+    );
+    expect(result.response.status).toBe(200);
+    expect(result.forwarded[0]?.headers.get(ROOM_ACTOR_ID_HEADER)).toBe(
+      ACCOUNT_ID
+    );
+    expect(seen[0]?.actor).toEqual({
+      memberId: ACCOUNT_ID,
+      accountId: ACCOUNT_ID,
+      deviceId: INSTALL_ID,
+    });
+  });
+
+  test('an unauthenticated device cannot claim its bound signed-in account', async () => {
+    const result = await upgrade(
+      (ctx) =>
+        Promise.resolve(
+          ctx.actor.accountId === ACCOUNT_ID ? ['spaces:leave'] : []
+        ),
+      {},
+      boundDevice(false)
+    );
+    expect(result.response.status).toBe(403);
+    expect(result.forwarded).toEqual([]);
+  });
+
   // regression: space-game-choice-unguarded
   test('a client cannot forge grants: its own value is replaced', async () => {
     const result = await upgrade(() => Promise.resolve([]), {

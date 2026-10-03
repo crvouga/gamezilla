@@ -71,6 +71,9 @@ export async function openDevice(
   // Chrome keeps one profile per process (the first view's directory), so
   // wipe both origins: every scenario starts as a device that never visited.
   await view.navigate('about:blank');
+  // Chrome associates socket throttling with the session when a socket opens.
+  // Enable it before the app creates rooms, not only when going offline.
+  await view.cdp('Network.enable');
   for (const origin of [target.webOrigin, target.apiOrigin]) {
     await view.cdp('Storage.clearDataForOrigin', {
       origin,
@@ -126,7 +129,6 @@ export async function waitForCachedShell(view: Bun.WebView): Promise<void> {
  */
 export async function emulateOffline(view: Bun.WebView): Promise<void> {
   await waitForCachedShell(view);
-  await view.cdp('Network.enable');
   await view.cdp('Network.emulateNetworkConditions', {
     offline: true,
     latency: 0,

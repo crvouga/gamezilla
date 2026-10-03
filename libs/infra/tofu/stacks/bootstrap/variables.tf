@@ -37,11 +37,22 @@ variable "aws" {
 
 variable "github" {
   type = object({
-    owner           = string
-    owner_id        = string
-    repo            = string
-    repo_id         = string
-    required_checks = list(string)
+    owner                = string
+    owner_id             = string
+    repo                 = string
+    repo_id              = string
+    required_checks      = list(string)
+    check_integration_id = number
+    settings = object({
+      visibility      = string
+      homepage_url    = string
+      has_issues      = bool
+      has_projects    = bool
+      has_wiki        = bool
+      has_discussions = bool
+      allow_forking   = bool
+    })
+    environments = set(string)
   })
 }
 
@@ -58,12 +69,11 @@ variable "auth_relay" {
 
 variable "global_imports" {
   type = object({
-    aws_depot_oidc_provider  = optional(string)
-    infisical_environments   = optional(map(string), {})
-    github_repository        = optional(string)
-    github_branch_protection = optional(string)
-    github_variables         = optional(list(string), [])
-    grafana_stack            = optional(string)
+    aws_depot_oidc_provider = optional(string)
+    infisical_environments  = optional(map(string), {})
+    github_repository       = optional(string)
+    github_variables        = optional(list(string), [])
+    grafana_stack           = optional(string)
   })
   default = {}
 }

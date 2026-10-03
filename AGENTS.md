@@ -120,8 +120,9 @@ check goes into the package it is about. A gate leaf verifies and never
 touches the outside world, and its verdict never depends on the machine
 (never branch on `CI`). Make a slow task faster before raising its budget.
 Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
-deploy, infra, secrets, Workers or `health` with `bun run deploy:dev` before
-merging. Details: [`README.md`](README.md#correctness-machinery).
+deploy, infra, secrets, Workers or `health` in Depot CI before merging,
+triggered and managed locally with the Depot CLI. Never execute a rehearsal
+on the developer machine. Details: [`README.md`](README.md#correctness-machinery).
 
 ## Workspaces
 

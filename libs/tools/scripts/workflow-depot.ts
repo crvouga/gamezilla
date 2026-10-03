@@ -67,7 +67,7 @@ export function listWorkflows(
 function dispatchCommand(target: DepotTarget): readonly string[] {
   const common = ['depot', 'ci'];
   const repository = ['--org', target.org, '--repo', target.repository];
-  return target.workflow === 'deploy.yml'
+  return target.workflow !== 'check.yml'
     ? [
         ...common,
         'dispatch',
@@ -86,7 +86,7 @@ function dispatchCommand(target: DepotTarget): readonly string[] {
       ];
 }
 
-/** Before native triggers merge to main, execute the branch's local YAML. */
+/** Check can use local YAML; Health and Deploy need named refs for AWS OIDC. */
 export async function startWorkflow(
   target: DepotTarget,
   ports: DepotPorts

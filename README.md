@@ -222,8 +222,57 @@ A person applies this. CI does not.
 | Grafana Cloud stack | One stack (the free plan allows one). Trace history for every environment, told apart by `deployment.environment.name`. `prevent_destroy`. |
 | Infisical OIDC identity for this repository | Depot CI reads and writes secrets with its OIDC job token. |
 | AWS IAM OIDC provider and deploy role | Depot CI assumes AWS for IoT and the authorizer. The role ARN is the Depot variable `AWS_ROLE_ARN`. The store holds no long-lived AWS account key. |
-| GitHub repository settings and `main` protection | `main` moves through a PR whose required check (`Check / check`) is green. Force-push and deletion stay off. The private organization needs GitHub Team for protection. The repository is `prevent_destroy`. |
+| GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset requires a PR, current-main `Check / check` from the Depot GitHub App, resolved conversations, and linear history. Squash is the only merge method; merged heads are deleted. No mandatory approvals or bypass actors. GitHub Team supports rulesets on this private repository. Repository and ruleset are `prevent_destroy`. |
 | Depot CI variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` sequentially. The Depot org comes from `global.tfvars.json` `depot.org_id`; Code Access must connect the repository to that same org. |
+
+GitHub policy lives in `libs/infra/tofu/modules/repository` under the bootstrap stack,
+using the locked `integrations/github` provider. `global.tfvars.json` records
+the private visibility, homepage, enabled Issues/Projects/Wiki, disabled
+Discussions/forking, the observed check App ID, and existing environment names.
+The Check workflow is `.depot/workflows/check.yml`; Deploy and Health run after
+merge and are not PR requirements. Strict status checks require updating a
+branch after main changes and rerunning Check; no merge queue is added.
+
+To review drift from the repository root:
+
+```bash
+SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra plan:bootstrap
+bun run infra:bootstrap # review and restore through the guarded apply path
+```
+
+The wrapper runs OpenTofu plan → deletion policy → encrypted state backup →
+apply. `GITHUB_ADMIN_TOKEN` comes from Infisical and becomes the provider's
+`GITHUB_TOKEN`; CI's workflow token has no repository-administration role.
+The admin token needs repository Administration, Contents, Actions, and
+Environments write access (a classic token needs `repo`); organization policy
+may further restrict changes. Neither CI nor an administrator has a ruleset
+bypass. The existing repository address and import are retained. Default-branch,
+Actions, Dependabot, all four variables, and all four environment settings are
+adopted by import blocks on apply, never recreated. The old protection state
+address is forgotten without deleting any safeguard; the inspected repository
+had no legacy branch protection or ruleset to import.
+
+Actions stay enabled with the existing action-source policy (`all`, no SHA
+pinning requirement). Workflow tokens default to read and cannot approve PRs;
+workflow/job `permissions` grant the existing artifact, OIDC, and branch-cleanup
+privileges. The inventory on 2026-10-02 contains `SECRETS_IDENTITY_ID`,
+`SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN`, and no repository
+or environment secrets or environment variables. Environment names and their
+empty approval policies are preserved; `production` is used by the workflow,
+and the other existing names retain deployment history. Admin environment
+bypass has no approval rules to bypass and confers no access around main's
+ruleset. No new approval or promotion gates are added. Dependabot alerts/security
+updates and GitHub secret scanning/push protection retain their current declared
+disabled settings; the required Check already includes secret scanning. The
+locked provider 6.13 advertises `code_security` and
+`secret_scanning_non_provider_patterns` but omits both from
+[`calculateSecurityAndAnalysis` and `flattenSecurityAndAnalysis`](https://github.com/integrations/terraform-provider-github/blob/v6.13.0/github/resource_github_repository.go).
+Those two API settings were observed disabled and cannot be managed reliably
+until that provider limitation is fixed; declaring them causes perpetual drift.
+Enable supported security features by a reviewed IaC change when desired/licensed. Runtime
+credentials remain in Infisical via OIDC. Never manage plaintext Actions secrets
+through this module: sensitive Terraform inputs can still enter state. The
+existing OpenTofu backend encrypts both state and saved plans.
 
 ### Fleet (every deploy)
 
@@ -284,7 +333,7 @@ bun run infra:destroy -- --env <env> --confirm <env>
 
 That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the application Worker and any superseded scripts, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
-A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse with `bun run deploy:dev` before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands.
+A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in Depot CI, triggered with `depot ci run --workflow <rehearsal.yml>` and managed locally with `depot ci status`, `logs`, and `artifacts`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
 
 ```text
 deploy:fleet   auth-relay Worker, then the fleet stack
@@ -366,6 +415,8 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 `specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
 While iterating, prefer `bun run --filter <pkg> tc` and `bun run --filter <pkg> test` before a full check.
+
+Health authenticates AWS with its read-only role on a named branch. Use `depot ci dispatch --workflow health.yml --repo gamezilla-org/gamezilla --ref <branch>` for infrastructure health evidence: an inline `depot ci run` uses a commit SHA as its ref, which does not match the branch trust policy. This does not grant a branch deployment access.
 
 Debug with `bun obs` before adding logs. Exit `0` found, `1` no match, `2` usage, `3` store unreachable. `--json` is for programs.
 

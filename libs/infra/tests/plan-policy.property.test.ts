@@ -48,7 +48,13 @@ const DELETABLE: ReadonlySet<string> = new Set(
  */
 const PROTECTED: ReadonlySet<string> = new Set([
   'cloudflare_r2_bucket',
-  'github_branch_protection',
+  'github_branch_default',
+  'github_repository_ruleset',
+  'github_repository_environment',
+  'github_actions_repository_permissions',
+  'github_workflow_repository_permissions',
+  'github_repository_vulnerability_alerts',
+  'github_repository_dependabot_security_updates',
   'github_repository',
   'grafana_cloud_stack',
   'infisical_identity',
