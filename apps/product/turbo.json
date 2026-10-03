@@ -23,7 +23,12 @@
       "outputs": []
     },
     "test:contract": {
-      "dependsOn": ["@pkgs/quint#src", "@pkgs/conformance#src"],
+      "dependsOn": [
+        "@pkgs/quint#src",
+        "@pkgs/conformance#src",
+        "@libs/harness#src",
+        "ui-quality-check#src"
+      ],
       "inputs": [
         "tests/quint/system/**",
         "package.json",
@@ -40,6 +45,9 @@
         "$TURBO_ROOT$/specs/system/**",
         "tests/ui-quality-render.contract.test.ts",
         "scripts/ui-quality/render.ts",
+        "$TURBO_ROOT$/pkgs/ui/src/**/*.css",
+        "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
+        "$TURBO_ROOT$/pkgs/tailwind/src/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
