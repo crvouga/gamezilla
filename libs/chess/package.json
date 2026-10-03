@@ -123,6 +123,7 @@
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/dmn": "workspace:*",
+    "@pkgs/openslo": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",

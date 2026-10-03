@@ -20,12 +20,14 @@ import {
   readSpaceLink,
 } from '@libs/spaces/harness/spaces-ui-reads';
 
-export function customHost(w: HarnessWorld): string {
+type CustomWorld = Pick<HarnessWorld, 's' | 'memo'>;
+
+export function customHost(w: CustomWorld): string {
   return String(
     w.memo.get('custom-host') ?? w.memo.get('spaceHost') ?? 'alice'
   );
 }
-export function customPeople(w: HarnessWorld): Map<string, string> {
+export function customPeople(w: CustomWorld): Map<string, string> {
   const people = w.memo.get('custom-people');
   if (people instanceof Map) return people as Map<string, string>;
   const created = new Map<string, string>();
@@ -34,7 +36,7 @@ export function customPeople(w: HarnessWorld): Map<string, string> {
 }
 
 export async function customSpace(
-  w: HarnessWorld,
+  w: CustomWorld,
   host = customHost(w),
   others: readonly string[] = []
 ): Promise<void> {
@@ -61,7 +63,7 @@ export async function customSpace(
 }
 
 export async function customFact(
-  w: HarnessWorld,
+  w: CustomWorld,
   actor: string,
   input: CustomGameInput
 ): Promise<void> {
@@ -70,7 +72,7 @@ export async function customFact(
     w.memo.set('custom-created-id', (await customGame(w)).id);
 }
 export async function customGame(
-  w: HarnessWorld,
+  w: CustomWorld,
   actor?: string
 ): Promise<CustomGame> {
   const game =
@@ -86,7 +88,7 @@ export async function customGame(
     throw new Error(`${actor} sees no game`);
   return game;
 }
-export function customPerson(w: HarnessWorld, actor: string): string {
+export function customPerson(w: CustomWorld, actor: string): string {
   const id = customPeople(w).get(actor);
   if (id === undefined)
     throw new Error(`${actor} has no recorded member identity`);
@@ -94,7 +96,7 @@ export function customPerson(w: HarnessWorld, actor: string): string {
 }
 
 export async function customScreen(
-  w: HarnessWorld,
+  w: CustomWorld,
   actor: string
 ): Promise<void> {
   if ((await w.s.read(readCustomGameProbe, actor)) !== null) return;
@@ -103,14 +105,14 @@ export async function customScreen(
 }
 
 export async function customDefault(
-  w: HarnessWorld,
+  w: CustomWorld,
   host: string
 ): Promise<void> {
   await customSpace(w, host, host === 'bob' ? ['alice'] : ['bob']);
   await customFact(w, host, { operation: 'create' });
 }
 export async function customHumans(
-  w: HarnessWorld,
+  w: CustomWorld,
   args: { host: string; white: string; black: string; active?: boolean }
 ): Promise<void> {
   const { host, white, black } = args;
@@ -132,7 +134,7 @@ export async function customHumans(
   }
   if (args.active) await customStart(w);
 }
-export async function customStart(w: HarnessWorld): Promise<void> {
+export async function customStart(w: CustomWorld): Promise<void> {
   const host = customHost(w);
   const game = await customGame(w);
   for (const side of ['white', 'black'] as const) {
