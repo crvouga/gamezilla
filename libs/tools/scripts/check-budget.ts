@@ -28,7 +28,7 @@ export const DEFAULT_TASK_BUDGET_SECONDS = 300;
  * Measured on a 12-core dev laptop; CI gets {@link SLOW_RUNNER_MULTIPLIER}.
  */
 export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
-  // Boot an embedded Postgres / S3rver sidecar before they assert.
+  // Boot an embedded Postgres / Mockingbird S3 sidecar before they assert.
   '@pkgs/sql-client-postgres#test:contract': 600,
   '@pkgs/db-schema-postgres#test:contract': 600,
   '@pkgs/db-indexes-postgres#test:contract': 600,

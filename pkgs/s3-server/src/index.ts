@@ -1,8 +1,8 @@
-/// <reference path="./s3rver.d.ts" />
-import S3rver from 's3rver';
+// @io-wall-ok — local sidecar server composition root.
+import { createServer } from '@crvouga/mockingbird-service-s3/server';
 
-export const S3_ACCESS_KEY_ID = 'S3RVER';
-export const S3_SECRET_ACCESS_KEY = 'S3RVER';
+export const S3_ACCESS_KEY_ID = 'fixture';
+export const S3_SECRET_ACCESS_KEY = 'fixture';
 export const S3_BUCKET = 'test-bucket';
 export const S3_REGION = 'us-east-1';
 
@@ -12,23 +12,20 @@ export type S3ServerHandle = {
 };
 
 export type StartS3ServerOptions = {
-  readonly directory: string;
   readonly port?: number;
 };
 
 export async function startS3Server(
-  options: StartS3ServerOptions
+  options: StartS3ServerOptions = {}
 ): Promise<S3ServerHandle> {
-  const server = new S3rver({
+  const server = await createServer({
     port: options.port ?? 0,
-    address: 'localhost',
-    silent: true,
-    directory: options.directory,
-    configureBuckets: [{ name: S3_BUCKET }],
+    host: 'localhost',
+    buckets: [S3_BUCKET],
+    credentials: { [S3_ACCESS_KEY_ID]: S3_SECRET_ACCESS_KEY },
   });
-  const { port } = await server.run();
   return {
-    endpoint: `http://localhost:${String(port)}`,
+    endpoint: server.url,
     stop: async () => {
       await server.close();
     },

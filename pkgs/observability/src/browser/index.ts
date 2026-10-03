@@ -80,7 +80,6 @@ export function createBrowserTelemetry(
                     propagateTraceHeaderCorsUrls:
                       options.propagateTraceHeaderCorsUrls,
                   }),
-              semconvStabilityOptIn: 'http',
             }),
           ],
         });
