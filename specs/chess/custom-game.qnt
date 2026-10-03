@@ -142,9 +142,9 @@ module custom_game {
   def _inherited(p: Participant): Participant =
     if (p.kind == "bot" or (p.kind == "person" and _members.contains(p.person))) p else _EMPTY
 
+  // An allowed choice changes the game after its reason has been checked.
   def _next(g: CustomGame, actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): CustomGame =
-    if (_reason(g,actor,c,side,person,minutes,increment) != "") g
-    else if (c == "create") { ..._INITIAL, status: "configuring", creator: _personOf(actor), white: {kind: "person", person: _personOf(actor)} }
+    if (c == "create") { ..._INITIAL, status: "configuring", creator: _personOf(actor), white: {kind: "person", person: _personOf(actor)} }
     else if (c == "rematch") { ...g, status: "configuring", white: _inherited(g.black), black: _inherited(g.white), ready: Set(), starts: 0, outcome: "", drawOfferedBy: "" }
     else if (c == "take") _replace(g,side,{kind: "person", person: _personOf(actor)})
     else if (c == "bot") _replace(g,side,_BOT)
@@ -210,10 +210,10 @@ module custom_game {
     _cutOffDrawofferedby' = DEVICES.mapBy(p => if (offline.contains(p) and not(_offline.contains(p))) drawOfferedByShown.get(p) else _cutOffDrawofferedby.get(p)),
   }
 
-  action _do(actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): bool = {
-    val reason = if (_offline.contains(actor)) "connection needed" else _reason(customGame,actor,c,side,person,minutes,increment)
-    val changed = if (reason != "") customGame else _next(customGame,actor,c,side,person,minutes,increment)
-    _update(changed,_offline,_members,_signedOut,refusal.set(actor,reason), changed != customGame and Set("create","rematch").contains(c))
+  // Accepted choices have already met their connection and refusal rules.
+  action _acceptChoice(actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): bool = {
+    val changed = _next(customGame,actor,c,side,person,minutes,increment)
+    _update(changed,_offline,_members,_signedOut,refusal.set(actor,""), changed != customGame and Set("create","rematch").contains(c))
   }
 
   pure val _BEGIN = {..._INITIAL, status: "configuring", creator: "alice", white: {kind: "person", person: "alice"}}
@@ -263,70 +263,70 @@ module custom_game {
   }
 
   /// A person creates a Custom Game for the same Custom Game, or hears why it is refused.
-  action createGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"create","white",actor,0,0) == "", _do(actor,"create","white",actor,0,0) }
+  action createGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"create","white",actor,0,0) == "", _acceptChoice(actor,"create","white",actor,0,0) }
 
   /// A person creates a rematch for the same Custom Game, or hears why it is refused.
-  action rematch(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"rematch","white",actor,0,0) == "", _do(actor,"rematch","white",actor,0,0) }
+  action rematch(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"rematch","white",actor,0,0) == "", _acceptChoice(actor,"rematch","white",actor,0,0) }
 
   /// A person takes a side for the same Custom Game, or hears why it is refused.
-  action takeSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"take",side,actor,0,0) == "", _do(actor,"take",side,actor,0,0) }
+  action takeSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"take",side,actor,0,0) == "", _acceptChoice(actor,"take",side,actor,0,0) }
 
   /// A person assigns a bot for the same Custom Game, or hears why it is refused.
-  action assignBot(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"bot",side,actor,0,0) == "", _do(actor,"bot",side,actor,0,0) }
+  action assignBot(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"bot",side,actor,0,0) == "", _acceptChoice(actor,"bot",side,actor,0,0) }
 
   /// A person opens a side for the same Custom Game, or hears why it is refused.
-  action openSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"open",side,actor,0,0) == "", _do(actor,"open",side,actor,0,0) }
+  action openSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"open",side,actor,0,0) == "", _acceptChoice(actor,"open",side,actor,0,0) }
 
   /// A person closes a side for the same Custom Game, or hears why it is refused.
-  action closeSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"close",side,actor,0,0) == "", _do(actor,"close",side,actor,0,0) }
+  action closeSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"close",side,actor,0,0) == "", _acceptChoice(actor,"close",side,actor,0,0) }
 
   /// A person invites another person for the same Custom Game, or hears why it is refused.
-  action invite(actor: Person, side: Side, person: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"invite",side,person,0,0) == "", _do(actor,"invite",side,person,0,0) }
+  action invite(actor: Person, side: Side, person: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"invite",side,person,0,0) == "", _acceptChoice(actor,"invite",side,person,0,0) }
 
   /// A person accepts an invitation for the same Custom Game, or hears why it is refused.
-  action acceptSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"accept",side,actor,0,0) == "", _do(actor,"accept",side,actor,0,0) }
+  action acceptSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"accept",side,actor,0,0) == "", _acceptChoice(actor,"accept",side,actor,0,0) }
 
   /// A person declines an invitation for the same Custom Game, or hears why it is refused.
-  action declineSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"decline",side,actor,0,0) == "", _do(actor,"decline",side,actor,0,0) }
+  action declineSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"decline",side,actor,0,0) == "", _acceptChoice(actor,"decline",side,actor,0,0) }
 
   /// A person revokes an invitation for the same Custom Game, or hears why it is refused.
-  action revokeSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"revoke",side,actor,0,0) == "", _do(actor,"revoke",side,actor,0,0) }
+  action revokeSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"revoke",side,actor,0,0) == "", _acceptChoice(actor,"revoke",side,actor,0,0) }
 
   /// A person claims an open place for the same Custom Game, or hears why it is refused.
-  action claimSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"claim",side,actor,0,0) == "", _do(actor,"claim",side,actor,0,0) }
+  action claimSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"claim",side,actor,0,0) == "", _acceptChoice(actor,"claim",side,actor,0,0) }
 
   /// A person releases their side for the same Custom Game, or hears why it is refused.
-  action releaseSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"release",side,actor,0,0) == "", _do(actor,"release",side,actor,0,0) }
+  action releaseSide(actor: Person, side: Side): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"release",side,actor,0,0) == "", _acceptChoice(actor,"release",side,actor,0,0) }
 
   /// A person becomes ready for the same Custom Game, or hears why it is refused.
-  action becomeReady(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"ready","white",actor,0,0) == "", _do(actor,"ready","white",actor,0,0) }
+  action becomeReady(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"ready","white",actor,0,0) == "", _acceptChoice(actor,"ready","white",actor,0,0) }
 
   /// A person withdraws readiness for the same Custom Game, or hears why it is refused.
-  action becomeUnready(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"unready","white",actor,0,0) == "", _do(actor,"unready","white",actor,0,0) }
+  action becomeUnready(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"unready","white",actor,0,0) == "", _acceptChoice(actor,"unready","white",actor,0,0) }
 
   /// A person swaps the sides for the same Custom Game, or hears why it is refused.
-  action swapSides(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"swap","white",actor,0,0) == "", _do(actor,"swap","white",actor,0,0) }
+  action swapSides(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"swap","white",actor,0,0) == "", _acceptChoice(actor,"swap","white",actor,0,0) }
 
   /// A person chooses the time for the same Custom Game, or hears why it is refused.
-  action chooseClock(actor: Person, minutes: int, increment: int): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"clock","white",actor,minutes,increment) == "", _do(actor,"clock","white",actor,minutes,increment) }
+  action chooseClock(actor: Person, minutes: int, increment: int): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"clock","white",actor,minutes,increment) == "", _acceptChoice(actor,"clock","white",actor,minutes,increment) }
 
   /// A person starts the game for the same Custom Game, or hears why it is refused.
-  action startGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"start","white",actor,0,0) == "", _do(actor,"start","white",actor,0,0) }
+  action startGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"start","white",actor,0,0) == "", _acceptChoice(actor,"start","white",actor,0,0) }
 
   /// A person cancels the game for the same Custom Game, or hears why it is refused.
-  action cancelGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"cancel","white",actor,0,0) == "", _do(actor,"cancel","white",actor,0,0) }
+  action cancelGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"cancel","white",actor,0,0) == "", _acceptChoice(actor,"cancel","white",actor,0,0) }
 
   /// A person resigns the game for the same Custom Game, or hears why it is refused.
-  action resignGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"resign","white",actor,0,0) == "", _do(actor,"resign","white",actor,0,0) }
+  action resignGame(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"resign","white",actor,0,0) == "", _acceptChoice(actor,"resign","white",actor,0,0) }
 
   /// A person offers a draw for the same Custom Game, or hears why it is refused.
-  action offerDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"offer","white",actor,0,0) == "", _do(actor,"offer","white",actor,0,0) }
+  action offerDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"offer","white",actor,0,0) == "", _acceptChoice(actor,"offer","white",actor,0,0) }
 
   /// A person accepts a draw for the same Custom Game, or hears why it is refused.
-  action acceptDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"agree","white",actor,0,0) == "", _do(actor,"agree","white",actor,0,0) }
+  action acceptDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"agree","white",actor,0,0) == "", _acceptChoice(actor,"agree","white",actor,0,0) }
 
   /// A person declines a draw for the same Custom Game, or hears why it is refused.
-  action declineDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"reject","white",actor,0,0) == "", _do(actor,"reject","white",actor,0,0) }
+  action declineDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"reject","white",actor,0,0) == "", _acceptChoice(actor,"reject","white",actor,0,0) }
 
   def _connectedPerson(person: Person): bool = _members.contains(person) and DEVICES.exists(device =>
     _personOf(device) == person and not(_offline.contains(device)) and not(_signedOut.contains(device)))
@@ -384,9 +384,12 @@ module custom_game {
   }
 
   /// Every expressible refused choice leaves the agreed game intact.
-  action _attemptChoice(actor: Person, command: str, side: Side, person: Person): bool = all {
-    _offline.contains(actor) or _reason(customGame,actor,command,side,person,1,0) != "",
-    _do(actor,command,side,person,1,0),
+  action _attemptChoice(actor: Person, command: str, side: Side, person: Person): bool = {
+    val reason = if (_offline.contains(actor)) "connection needed" else _reason(customGame,actor,command,side,person,1,0)
+    all {
+      reason != "",
+      _update(customGame,_offline,_members,_signedOut,refusal.set(actor,reason),false),
+    }
   }
 
   /// Leaving releases a waiting side; an active participant resigns.
