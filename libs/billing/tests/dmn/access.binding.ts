@@ -47,6 +47,15 @@ bindDecisions({
           PERMISSION.notificationsReceive
         ),
         'wait for a match': routeGuardOperation(PERMISSION.matchmakingUse),
+        'see their matchmaking wait': queryGuardOperation(
+          PERMISSION.matchmakingView
+        ),
+        'stop waiting for a match': routeGuardOperation(
+          PERMISSION.matchmakingStop
+        ),
+        'change their matchmaking range': routeGuardOperation(
+          PERMISSION.matchmakingChangeRange
+        ),
         'use people search': queryGuardOperation(PERMISSION.peopleSearch),
       },
       ungoverned: {

@@ -94,6 +94,11 @@ const UNGOVERNED = {
 const ROUTES = {
   'get notifications': routeGuardOperation(PERMISSION.notificationsReceive),
   'wait for a match': routeGuardOperation(PERMISSION.matchmakingUse),
+  'see their matchmaking wait': queryGuardOperation(PERMISSION.matchmakingView),
+  'stop waiting for a match': routeGuardOperation(PERMISSION.matchmakingStop),
+  'change their matchmaking range': routeGuardOperation(
+    PERMISSION.matchmakingChangeRange
+  ),
   'use people search': queryGuardOperation(PERMISSION.peopleSearch),
 };
 
@@ -142,7 +147,7 @@ describe('the shipped permission system agrees with every table', () => {
       dailyPuzzleLimitClientLayer({ tables: TABLES })
     );
     expect([access.mismatched, daily.mismatched]).toEqual([0, 0]);
-    expect([access.checked, daily.checked]).toEqual([66, 54]);
+    expect([access.checked, daily.checked]).toEqual([96, 54]);
   });
 });
 

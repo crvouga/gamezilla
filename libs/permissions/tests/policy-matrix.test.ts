@@ -65,6 +65,11 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.billingSubscribe, 'deny', 'allow', 'allow'],
   [PERMISSION.billingManage, 'deny', 'allow', 'allow'],
   [PERMISSION.matchmakingUse, 'deny', 'allow', 'allow'],
+  [PERMISSION.matchmakingView, 'deny', 'allow', 'allow'],
+  [PERMISSION.matchmakingStop, 'deny', 'allow', 'allow'],
+  [PERMISSION.matchmakingChangeRange, 'deny', 'allow', 'allow'],
+  [PERMISSION.chessMultiplayerPlay, 'deny', 'allow', 'allow'],
+  [PERMISSION.chessMultiplayerResign, 'deny', 'allow', 'allow'],
   [PERMISSION.puzzlesPlay, 'allow', 'allow', 'allow'],
   [PERMISSION.puzzlesCustomizeFeed, 'deny', 'allow', 'allow'],
   [PERMISSION.spacesCreate, 'allow', 'allow', 'allow'],
@@ -99,7 +104,15 @@ describe('shipped policy matrix', () => {
   });
 
   test('every plan × limit resolves as pinned', () => {
-    expect(Object.values(LIMIT)).toEqual([LIMIT.hostedSpaces]);
+    expect(Object.values(LIMIT)).toEqual([
+      LIMIT.hostedSpaces,
+      LIMIT.unfinishedMultiplayerGames,
+    ]);
+    expect(
+      ['guest', 'free', 'paid'].map((plan) =>
+        limitCell(plan as keyof typeof PLANS, LIMIT.unfinishedMultiplayerGames)
+      )
+    ).toEqual(['1', '1', '1']);
     expect([
       limitCell('guest', LIMIT.hostedSpaces),
       limitCell('free', LIMIT.hostedSpaces),
