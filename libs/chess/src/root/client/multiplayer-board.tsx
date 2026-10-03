@@ -1,6 +1,7 @@
 import { useProfileRow } from '@libs/profile/public/use-profile-row';
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { useSoundsPreference } from '@pkgs/sounds/solid';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { MultiplayerGame } from '../../shared/multiplayer/game';
 
@@ -12,6 +13,7 @@ export function MultiplayerBoard(props: {
   readonly syncKey: number;
   readonly onMove: (uci: string) => Promise<void>;
 }): JSX.Element {
+  const sounds = useSoundsPreference();
   const white = () => props.game.white_id === props.myId;
   const opponent = useProfileRow(() =>
     white() ? props.game.black_id : props.game.white_id
@@ -79,6 +81,7 @@ export function MultiplayerBoard(props: {
             props.game.turn === props.myId
           }
           premoves={false}
+          sound={!sounds.muted()}
           onMove={(move) => {
             void props.onMove(`${move.from}${move.to}${move.promotion ?? ''}`);
           }}

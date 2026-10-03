@@ -18,7 +18,7 @@ import {
 import { signInWithGoogle } from '@libs/harness';
 import { partition } from '@libs/harness/system/actions';
 import { partitionLoadBalancer } from '@libs/harness/system/server-actions';
-import { openHarness } from './open-chess-harness';
+import { openHarness } from './harness/open-chess-harness';
 
 // regression: chess-search-keyword-namespace
 test('a literal accepted opponent request reaches its owner through ordinary sync', async () => {

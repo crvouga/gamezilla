@@ -1,0 +1,1 @@
+import './multiplayer-ready.binding';

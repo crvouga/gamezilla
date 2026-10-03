@@ -1,5 +1,5 @@
+import { createMultiplayerChessClient } from '@libs/client-app/chrome/multiplayer-chess-client';
 import type { HarnessSlice } from '@libs/harness/slices';
-import { CHESS_CLIENT } from '../root/client/feature-client';
 import { CHESS_FEATURE } from '../root/feature';
 import { CHESS_SERVER } from '../root/server/feature-server';
 import { CHESS_HARNESS_ACTIONS } from './chess-actions';
@@ -24,7 +24,9 @@ import {
 export const CHESS_HARNESS_SLICE: HarnessSlice = {
   name: 'chess',
   feature: CHESS_FEATURE,
-  client: CHESS_CLIENT,
+  client: createMultiplayerChessClient(
+    () => import('../root/client/multiplayer-screen')
+  ),
   server: () => CHESS_SERVER,
   seedServer: seedChessPuzzlesForHarness,
   actions: [

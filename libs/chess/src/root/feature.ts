@@ -15,6 +15,7 @@ export const CHESS_FEATURE = defineFeature({
   name: 'chess',
   accountPrivacy: CHESS_PRIVACY,
   tables: CHESS_TABLES,
+  readsForeign: ['profile'],
   topicMap: CHESS_TOPIC_MAP,
   // Held open for the whole session: what keeps this feature's slice
   // of the local database warm.

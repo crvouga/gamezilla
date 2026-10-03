@@ -12,7 +12,7 @@ import {
 } from '@libs/chess/public/chess-puzzle-rating';
 import { CHESS_TABLES } from '@libs/chess/public/schema';
 import { ratePuzzleAttemptMutation } from '@libs/chess/root/mutations';
-import { CHESS_QUERIES } from '@libs/chess/root/queries';
+import { CHESS_QUERIES, chessPuzzleProfile } from '@libs/chess/root/queries';
 import { uniqueTables } from '@libs/permissions/root/conformance/world';
 import { registerTables } from '@pkgs/db-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
@@ -58,7 +58,8 @@ test('the synced puzzle profile carries rating, deviation and volatility', async
   if (parsed.issues !== undefined) throw new Error('invalid rating args');
   await ratePuzzleAttemptMutation.run({ tx: db, env }, parsed.value);
 
-  const [query] = CHESS_QUERIES;
+  const query = chessPuzzleProfile;
+  expect(CHESS_QUERIES).toContain(query);
   expect(query.name).toBe('chessPuzzleProfile');
   const tables = await query.run(
     { db: { query: (q) => db.query(q as Sql<QueryRow>) }, env },

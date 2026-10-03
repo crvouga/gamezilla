@@ -7,7 +7,7 @@ import { chessPuzzleRatingEvents } from '../use-cases/load-puzzle-rating-events/
 import { chessMultiplayerSession } from '../use-cases/open-multiplayer/shared/chess-multiplayer-session-query';
 import { chessMultiplayerGame } from '../use-cases/open-multiplayer-game/shared/chess-multiplayer-game-query';
 
-export { chessMultiplayerGame, chessMultiplayerSession };
+export { chessMultiplayerGame, chessMultiplayerSession, chessPuzzleProfile };
 
 export const CHESS_QUERIES = [
   chessMultiplayerSession,

@@ -1,5 +1,10 @@
 [
   {
+    "id": "chess-multiplayer-session-indexability",
+    "summary": "The literal chessMultiplayerSession workload joined chess_multiplayer_players without an extractable key, failing empty_key indexability, and conditionally omitted the foreign profile read. Look up games by the owned player rows and always issue a bounded profile lookup, declaring profile as a foreign read.",
+    "regressionTest": "libs/runtime/src/root/app-queries.test.ts"
+  },
+  {
     "id": "alloy-snapshot-integer-scope",
     "summary": "Snapshot predicates reverted to four-bit integers even when the canonical model explicitly used six bits. The literal three-seat snapshot failed the <=16 fact because 16 overflowed to zero. Retain the widest declared integer scope in snapshot commands.",
     "regressionTest": "pkgs/alloy/tests/integer-scope-regression.test.ts"
@@ -12,7 +17,7 @@
   {
     "id": "chess-offline-connection-state",
     "summary": "Alice's offline White device kept the last successful connection label after the real query transport became unreachable. The multiplayer screen still hid its connection refusal and left the board interactive. Use the sync engine's current online status; e2e4 is refused without changing or deferring the accepted board.",
-    "regressionTest": "libs/chess/tests/harness/multiplayer-search-regression.test.ts"
+    "regressionTest": "libs/chess/tests/multiplayer-search-regression.test.ts"
   },
   {
     "id": "sync-denied-subscription-never-recovers",
@@ -22,7 +27,7 @@
   {
     "id": "chess-search-keyword-namespace",
     "summary": "The literal Alice/request-1 begin used plain pool/rating keys, rejected by the reusable keyword record contract. The consuming game now supplies matchmaking/pool and player/rating through the real mutation boundary.",
-    "regressionTest": "libs/chess/tests/harness/multiplayer-search-regression.test.ts"
+    "regressionTest": "libs/chess/tests/multiplayer-search-regression.test.ts"
   },
   {
     "id": "sync-mutation-returning-discarded",

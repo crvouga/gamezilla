@@ -1,5 +1,5 @@
 {
-  "release": 8,
+  "release": 9,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -59,6 +59,36 @@
         "provider": "text",
         "provider_subscription_id": "text",
         "status": "text"
+      },
+      "chess_multiplayer_commands": {
+        "game_id": "text",
+        "kind": "text",
+        "owner_id": "text",
+        "request_id": "text"
+      },
+      "chess_multiplayer_games": {
+        "black_id": "text",
+        "fen": "text",
+        "match_id": "text",
+        "outcome": "text",
+        "pgn": "text",
+        "reason": "text",
+        "revision": "integer",
+        "turn": "text",
+        "white_id": "text"
+      },
+      "chess_multiplayer_players": {
+        "game_id": "text",
+        "owner_id": "text"
+      },
+      "chess_opponent_searches": {
+        "formulas": "json",
+        "joined_at_ms": "integer",
+        "match_id": "text",
+        "observed_at_ms": "integer",
+        "owner_id": "text",
+        "search_id": "text",
+        "standing": "text"
       },
       "chess_puzzle_feed_settings": {
         "config": "text",
@@ -249,6 +279,8 @@
       ["billing_account_closures", "account_id"],
       ["billing_payment_evidence", "erase_by"],
       ["billing_subscriptions", "account_id"],
+      ["chess_multiplayer_games", "black_id"],
+      ["chess_multiplayer_games", "white_id"],
       ["chess_puzzle_rating_events", "owner_id"],
       ["chess_puzzles", "popularity"],
       ["chess_puzzles", "rating"],
@@ -261,6 +293,10 @@
       ["billing_account_closures", "provider", "subscription_id"],
       ["billing_payment_evidence", "provider", "payment_id"],
       ["billing_subscriptions", "provider", "provider_subscription_id"],
+      ["chess_multiplayer_commands", "owner_id", "request_id"],
+      ["chess_multiplayer_games", "match_id"],
+      ["chess_multiplayer_players", "owner_id"],
+      ["chess_opponent_searches", "owner_id"],
       ["chess_puzzles", "position_key"],
       ["friends_blocks", "blocker_id", "blocked_id"],
       ["friends_friendships", "user_low", "user_high"],
