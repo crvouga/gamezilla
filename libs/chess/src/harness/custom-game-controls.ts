@@ -81,6 +81,25 @@ function boardAllows(probe: CustomGameProbe, input: CustomGameInput): boolean {
   );
 }
 
+function confirmUnavailable(
+  probe: CustomGameProbe,
+  input: CustomGameInput
+): boolean {
+  if (input.operation !== 'cancel' && input.operation !== 'resign')
+    return false;
+  if (!probe.connected || probe.current === null) return true;
+  if (input.operation === 'resign')
+    return (
+      probe.current.status !== 'active' ||
+      probe.mySide === null ||
+      !probe.gates['play']
+    );
+  return (
+    !['configuring', 'active'].includes(probe.current.status) ||
+    !probe.gates['cancel']
+  );
+}
+
 async function enterMove(
   s: ProductHarness,
   actor: string,
@@ -110,6 +129,9 @@ export async function changeThroughCustomGameControls(
     (probe.current === null || !customGameStartable(probe.current));
   const modified =
     input.operation === 'invite' ||
+    (input.operation === 'ready' && probe.mySide !== null && probe.current?.ready.includes(probe.mySide) === true) ||
+    (input.operation === 'unready' && (probe.mySide === null || probe.current?.ready.includes(probe.mySide) !== true)) ||
+    confirmUnavailable(probe, input) ||
     cannotStart ||
     (input.operation === 'move' && !boardAllows(probe, input));
   if (modified || !(await ui.get(target).isVisible())) {

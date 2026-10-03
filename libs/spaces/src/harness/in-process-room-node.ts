@@ -24,6 +24,7 @@ import type { Message } from '@pkgs/message';
 import {
   type ClientTransport,
   createTimerScheduleStack,
+  ROOM_SCHEDULER_IDENTITY,
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
@@ -49,6 +50,11 @@ type TopicEntry = {
 export type RoomServerApp = HarnessRoomNode & {
   readonly env: EnvTime;
   readonly createTransport: CreateRoomTransport;
+  /** Deliver a captured scheduler wake through the same server admission path. */
+  readonly dispatchScheduled: (
+    topic: string,
+    payload: Message
+  ) => Promise<void>;
 };
 
 function withReadyGate(
@@ -225,6 +231,15 @@ export function createInProcessRoomNode(
 
   return {
     env,
+    async dispatchScheduled(topic, payload) {
+      const entry = getOrCreate(topic);
+      await entry.ready;
+      await entry.server.injectCommand({
+        id: env.createId(),
+        identity: ROOM_SCHEDULER_IDENTITY,
+        payload,
+      });
+    },
     services: {
       async read(topic) {
         const entry = getOrCreate(topic);

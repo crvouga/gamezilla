@@ -1,5 +1,10 @@
 [
   {
+    "id": "custom-game-terminal-confirmation",
+    "summary": "The harness treated an unavailable cancel or resign control as usable and waited for a confirmation modal that could not open. Attempt unavailable choices through the acknowledged refusal path and use the modal only when its control is enabled.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-control.binding.ts"
+  },
+  {
     "id": "custom-game-partition-spends-time",
     "summary": "Losing a room connection reached the loopback transport only after a heartbeat; settling the offline view consumed time and let timed games or bots advance. Fabric network changes now notify live room sockets immediately.",
     "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"

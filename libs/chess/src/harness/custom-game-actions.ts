@@ -4,6 +4,8 @@ import {
   chooseCustomGameWithKeyboard,
   listenToCustomGame,
 } from './custom-game-accessibility';
+import { chooseCustomGameBotMove } from './custom-game-bot-choice';
+import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
 import { attemptCustomGameBoundary } from './custom-game-boundary';
 import { changeThroughCustomGameControls } from './custom-game-controls';
 import { playCustomGameHistory } from './custom-game-history';
@@ -50,6 +52,8 @@ export const CUSTOM_GAME_HARNESS_ACTIONS = [
   raceCustomGameChoices,
   reviewCustomGame,
   attemptCustomGameBoundary,
+  chooseCustomGameBotMove,
+  redeliverCustomGameBotWake,
   chooseCustomGameWithKeyboard,
   listenToCustomGame,
 ];
