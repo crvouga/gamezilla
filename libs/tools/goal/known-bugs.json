@@ -1288,5 +1288,20 @@
     "id": "depot-aws-oidc-unapplied-trust",
     "summary": "Depot Deploy workflow ng4sv2f3d0 failed at apply:foundation because the live AWS CI roles still trusted only GitHub. The Depot OIDC provider existed outside bootstrap state, so a normal apply would attempt to recreate it before updating trust. Adopt the existing provider through global_imports and apply the declared, main-restricted Depot deploy trust and branch-readable health trust.",
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
+  },
+  {
+    "id": "health-solid-preload-after-imports",
+    "summary": "Health imported the assembled in-process browser product before its Solid/Lingui preload executed, so every live stub failed to load. Select the live world at the one registration entry without loading the browser composition; pin the actual live entry import in a child-process regression.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "health-browser-conditions-break-s3",
+    "summary": "Applying browser resolution conditions to the live Health server process made the AWS S3 client warning export a Symbol and prevented transport construction. Select the live world using Node conditions, while in-process browser specs retain their documented Solid preload.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "health-environment-name-not-forwarded",
+    "summary": "Health chose dev when SECRETS_ENV was absent but did not forward that resolved name to its child process, so the infrastructure check refused to run. Pin the missing environment input and verify the actual live process receives dev.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
   }
 ]

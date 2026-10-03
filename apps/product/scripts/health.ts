@@ -368,6 +368,33 @@ function applyTarget(target: string | undefined): void {
   process.env['SECRETS_ENV'] = env;
 }
 
+export function healthTestArguments(
+  cli: Cli,
+  stubs: readonly string[]
+): readonly string[] {
+  return [
+    'test',
+    '--timeout',
+    String(SCENARIO_TIMEOUT_MS),
+    '--parallel',
+    ...cli.bunArgs,
+    ...stubs,
+  ];
+}
+
+export function healthTestEnvironment(input: {
+  readonly environment: string;
+  readonly tags: string;
+  readonly vars: NodeJS.ProcessEnv;
+}): NodeJS.ProcessEnv {
+  return {
+    ...input.vars,
+    SPEC_TAGS: input.tags,
+    SPEC_WORLD: 'live',
+    SECRETS_ENV: input.environment,
+  };
+}
+
 if (import.meta.main) {
   const cli = parseCli(process.argv.slice(2));
   if (cli.synthetic && cli.objectives) {
@@ -389,21 +416,10 @@ if (import.meta.main) {
     console.error('health: nothing to run');
     process.exit(1);
   }
-  const result = spawnSync(
-    'bun',
-    [
-      'test',
-      '--timeout',
-      String(SCENARIO_TIMEOUT_MS),
-      '--parallel',
-      ...cli.bunArgs,
-      ...stubs,
-    ],
-    {
-      cwd: PACKAGE_DIR,
-      stdio: 'inherit',
-      env: { ...process.env, SPEC_TAGS: tags },
-    }
-  );
+  const result = spawnSync('bun', healthTestArguments(cli, stubs), {
+    cwd: PACKAGE_DIR,
+    stdio: 'inherit',
+    env: healthTestEnvironment({ environment: name, tags, vars: process.env }),
+  });
   process.exit(result.status ?? 1);
 }
