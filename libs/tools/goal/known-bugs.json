@@ -1878,5 +1878,10 @@
     "id": "puzzle-competing-equal-rating",
     "summary": "Competing failed and hinted results had equal ratings, so rating equality completed recovery before the first result reached the returning device. Wait for the actual local result ledger to converge while retaining rendered statistics as the model observation.",
     "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+  },
+  {
+    "id": "space-lobby-ended-refusal",
+    "summary": "A stale lobby card opened the correct ended-space refusal, but joining waited only for a live space or its provisional Join prompt. Drain pending hydration, settle on the canonical space outcome, and join only when offered.",
+    "regressionTest": "specs/spaces/space-friend-join.feature"
   }
 ]
