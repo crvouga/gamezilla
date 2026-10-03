@@ -1753,5 +1753,10 @@
     "id": "deploy-grafana-archived-active-traces",
     "summary": "Deploy blocked on Grafana stack shortawning2091 status archived although its hosted tracing service remained active and authenticated Tempo search returned HTTP 200. Require active traces and a nonterminal known stack state, preserving the existing stack and trace history.",
     "regressionTest": "libs/infra/tests/observability-status.test.ts"
+  },
+  {
+    "id": "github-security-unsupported-fields",
+    "summary": "A repository import plan with code_security { status = disabled } and secret_scanning_non_provider_patterns { status = disabled } proposed both additions even though GitHub reported both disabled. integrations/github 6.13.0 advertises the blocks in its schema but calculateSecurityAndAnalysis and flattenSecurityAndAnalysis omit them, so every apply would leave perpetual drift. Omit these unsupported fields and document the limitation while managing the supported security settings.",
+    "regressionTest": "libs/infra/tests/repository-policy.test.ts"
   }
 ]

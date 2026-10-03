@@ -225,7 +225,7 @@ A person applies this. CI does not.
 | GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset requires a PR, current-main `Check / check` from the Depot GitHub App, resolved conversations, and linear history. Squash is the only merge method; merged heads are deleted. No mandatory approvals or bypass actors. GitHub Team supports rulesets on this private repository. Repository and ruleset are `prevent_destroy`. |
 | Depot CI variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` sequentially. The Depot org comes from `global.tfvars.json` `depot.org_id`; Code Access must connect the repository to that same org. |
 
-GitHub policy lives in `tofu/modules/repository` under the bootstrap stack,
+GitHub policy lives in `libs/infra/tofu/modules/repository` under the bootstrap stack,
 using the locked `integrations/github` provider. `global.tfvars.json` records
 the private visibility, homepage, enabled Issues/Projects/Wiki, disabled
 Discussions/forking, the observed check App ID, and existing environment names.
@@ -262,9 +262,14 @@ empty approval policies are preserved; `production` is used by the workflow,
 and the other existing names retain deployment history. Admin environment
 bypass has no approval rules to bypass and confers no access around main's
 ruleset. No new approval or promotion gates are added. Dependabot alerts/security
-updates and paid Code Security/secret-scanning features retain their current
-disabled settings; the required Check already includes secret scanning. Enable
-these GitHub features by a reviewed IaC change when desired/licensed. Runtime
+updates and GitHub secret scanning/push protection retain their current declared
+disabled settings; the required Check already includes secret scanning. The
+locked provider 6.13 advertises `code_security` and
+`secret_scanning_non_provider_patterns` but omits both from
+[`calculateSecurityAndAnalysis` and `flattenSecurityAndAnalysis`](https://github.com/integrations/terraform-provider-github/blob/v6.13.0/github/resource_github_repository.go).
+Those two API settings were observed disabled and cannot be managed reliably
+until that provider limitation is fixed; declaring them causes perpetual drift.
+Enable supported security features by a reviewed IaC change when desired/licensed. Runtime
 credentials remain in Infisical via OIDC. Never manage plaintext Actions secrets
 through this module: sensitive Terraform inputs can still enter state. The
 existing OpenTofu backend encrypts both state and saved plans.

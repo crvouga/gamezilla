@@ -55,6 +55,19 @@ test('only descriptive metadata may drift without a plan', () => {
   expect(GLOBAL.global_imports?.github_repository).toBe(GLOBAL.github.repo);
 });
 
+// regression: github-security-unsupported-fields
+test('security configuration excludes fields the pinned provider cannot read or write', () => {
+  // Literal failing inputs: code_security { status = "disabled" } and
+  // secret_scanning_non_provider_patterns { status = "disabled" } both
+  // planned additions forever despite the API already reporting disabled.
+  expect(repository).not.toMatch(/\bcode_security\s*\{/);
+  expect(repository).not.toMatch(
+    /\bsecret_scanning_non_provider_patterns\s*\{/
+  );
+  expect(repository).toMatch(/\bsecret_scanning\s*\{/);
+  expect(repository).toMatch(/\bsecret_scanning_push_protection\s*\{/);
+});
+
 test('Actions has read defaults, cannot approve PRs, and existing configuration is adopted', () => {
   expect(actions).toMatch(/default_workflow_permissions\s*=\s*"read"/);
   expect(actions).toMatch(/can_approve_pull_request_reviews\s*=\s*false/);

@@ -62,20 +62,15 @@ resource "github_repository" "this" {
   squash_merge_commit_message = "PR_BODY"
   web_commit_signoff_required = false
 
-  # Preserve the current private repository's unlicensed security features.
-  # Secret scanning in CI remains part of Check; enabling paid GitHub
-  # features requires a deliberate config change, not a surprise purchase.
+  # Preserve current secret-scanning settings. Version 6.13 advertises
+  # code_security and secret_scanning_non_provider_patterns but omits them
+  # from both read and write; declaring them would cause perpetual drift.
+  # See README.md#infrastructure for the provider limitation.
   security_and_analysis {
-    code_security {
-      status = "disabled"
-    }
     secret_scanning {
       status = "disabled"
     }
     secret_scanning_push_protection {
-      status = "disabled"
-    }
-    secret_scanning_non_provider_patterns {
       status = "disabled"
     }
   }
