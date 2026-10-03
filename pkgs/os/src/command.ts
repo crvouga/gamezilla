@@ -4,6 +4,7 @@ import { currentPlatform } from './platform';
 export interface RunOptions {
   readonly cwd?: string;
   readonly env?: NodeJS.ProcessEnv;
+  readonly timeoutMs?: number;
 }
 
 export interface CaptureResult {
@@ -49,6 +50,9 @@ export function run(
   const r = spawnSync(cmd, [...args], {
     stdio: 'inherit',
     env: opts.env ?? process.env,
+    ...(opts.timeoutMs === undefined
+      ? {}
+      : { timeout: opts.timeoutMs, killSignal: 'SIGKILL' }),
     ...(opts.cwd === undefined ? {} : { cwd: opts.cwd }),
   });
   if (r.status !== 0 || r.error) {
@@ -69,6 +73,9 @@ export function capture(
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       env: opts.env ?? process.env,
+      ...(opts.timeoutMs === undefined
+        ? {}
+        : { timeout: opts.timeoutMs, killSignal: 'SIGKILL' }),
       ...(opts.cwd === undefined ? {} : { cwd: opts.cwd }),
     });
     return {

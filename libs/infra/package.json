@@ -8,7 +8,8 @@
     ],
     "./scripts/worker-deploy": "./scripts/worker-deploy.ts",
     "./scripts/workflow-env-matrix": "./scripts/workflow-env-matrix.ts",
-    "./scripts/worker-state": "./scripts/worker-state.ts"
+    "./scripts/worker-state": "./scripts/worker-state.ts",
+    "./scripts/drift-check": "./scripts/drift-check.ts"
   },
   "scripts": {
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",

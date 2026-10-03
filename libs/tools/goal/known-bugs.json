@@ -1345,6 +1345,86 @@
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
+    "id": "check-gate-waits-for-publication",
+    "summary": "The required Check command waited for nonessential report publication despite completed task verdicts. Watch the lightweight check job rather than the whole Check workflow.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+  },
+  {
+    "id": "check-opaque-task-failure",
+    "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
+    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+  },
+  {
+    "id": "check-symbolic-report-directory",
+    "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
+    "regressionTest": "apps/product/tests/quint/system/campaign-tools.test.ts"
+  },
+  {
+    "id": "check-artifact-download-encoded-credentials",
+    "summary": "The artifact SDK strips URL queries, but Depot redirects encode signed storage credentials inside the proxy pathname, so an SDK info line exposes them. Capture transfer diagnostics in a child process and remove complete URLs before logging.",
+    "regressionTest": "libs/tools/scripts/check-plan-transfer.test.ts"
+  },
+  {
+    "id": "check-tlc-shared-temporary-modules",
+    "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+  },
+  {
+    "id": "check-model-cache-runtime-artifacts",
+    "summary": "Depot rejected the model task artifact with HTTP 413 when the report bucket included temporary checker data and linked tool installations. Cache the complete report interface (evidence, bounds, counterexamples and TLC output), leaving private runtime files outside cache outputs.",
+    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
+  },
+  {
+    "id": "check-tty-exit-before-output",
+    "summary": "A cold 32-vCPU run observed READY followed by a successful child exit before the PTY delivered DONE. The tty assertion raced process-exit notification and the fixture waited an arbitrary 800ms. Both ends now handshake on exact scroll input and actual READY/DONE output events, retaining all no-echo assertions.",
+    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
+  },
+  {
+    "id": "check-quint-silent-exit",
+    "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
+    "regressionTest": "pkgs/quint/tests/run-quint.test.ts"
+  },
+  {
+    "id": "check-tools-external-cache-inputs",
+    "summary": "The tooling tests read .depot/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "check-evidence-masks-required-verdict",
+    "summary": "A passing shard could become failed solely because tar packing or actions/upload-artifact failed. The required gate then depended on nonessential evidence. Preserve the validated check verdict; make only the evidence step nonessential. The injected invalid/name artifact failure exercises this separation.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-repeated-mise-cache-stall",
+    "summary": "Partial-cache run 1jzx5994v8 stalled five shards at the second mise-action Restoring mise cache step, before check execution. One full cached toolchain setup per shard removes the repeated restore. Keep frozen Bun installation and all pinned tools; validate the partial-cache path with a real source-invalidation run.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-duration-metadata-cache-input",
+    "summary": "Changing check-task-costs.json from one measured duration to another invalidated tooling source hashes and downstream check verdicts, although the checks themselves never read those observations. Exclude duration telemetry from source, type-check and test inputs; preserve JSON formatting validation in lint and always read current costs in the uncached planner.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "infra-drift-operation-hang",
+    "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
+    "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
+  },
+  {
+    "id": "health-ui-step-loader-order",
+    "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "infra-plan-credential-output",
+    "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
+    "regressionTest": "libs/infra/tests/redact-output.test.ts"
+  },
+  {
+    "id": "spec-ownership-resolved-merge",
+    "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
     "id": "health-solid-preload-order",
     "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun\u2019s server runtime, while local spec suites retain their Solid preloads.",
     "regressionTest": "apps/product/scripts/health.test.ts"

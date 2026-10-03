@@ -14,7 +14,7 @@ const OUT = join(import.meta.dir, '../.cache/test-verify');
 const CHECK_TIMEOUT_MS = 120_000;
 
 describe('verify', () => {
-  test(
+  test.concurrent(
     'a model whose invariant holds in every state within the bound passes',
     async () => {
       const outDir = join(OUT, 'door');
@@ -33,7 +33,7 @@ describe('verify', () => {
     CHECK_TIMEOUT_MS
   );
 
-  test(
+  test.concurrent(
     'an invariant the model breaks is refuted with a counterexample',
     async () => {
       const result = await verify({
@@ -52,7 +52,7 @@ describe('verify', () => {
     CHECK_TIMEOUT_MS
   );
 
-  test(
+  test.concurrent(
     'a model Apalache cannot encode fails with its reason, not its log',
     async () => {
       const result = await verify({
@@ -83,7 +83,7 @@ describe('verify', () => {
     expect(result.output).toContain('proves nothing');
   });
 
-  test(
+  test.concurrent(
     'an inductive candidate must survive every transition, even when ordinary safety holds',
     async () => {
       // regression: quint-inductive-candidate-unchecked
@@ -102,7 +102,7 @@ describe('verify', () => {
     CHECK_TIMEOUT_MS
   );
 
-  test(
+  test.concurrent(
     'a preserved candidate must imply the requested safety property',
     async () => {
       // regression: quint-inductive-candidate-unchecked
@@ -120,7 +120,7 @@ describe('verify', () => {
     CHECK_TIMEOUT_MS
   );
 
-  test(
+  test.concurrent(
     'a safety target checked as the candidate still rejects its failing transition',
     async () => {
       // regression: quint-induction-expanded-transitions
@@ -144,7 +144,7 @@ describe('verify', () => {
     CHECK_TIMEOUT_MS
   );
 
-  test(
+  test.concurrent(
     'a preserved candidate proves the requested invariants by induction',
     async () => {
       const result = await verify({

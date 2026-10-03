@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -12,6 +13,11 @@ import { resolveCacheFlag } from './turbo-ci-run';
 
 const turbo = join(import.meta.dirname, '../../../node_modules/.bin/turbo');
 const sentinel = 'fixture-secret-must-never-enter-a-cache-artifact';
+const modelOutputs = (
+  JSON.parse(
+    readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
+  ) as { tasks: Record<string, { outputs: string[] }> }
+).tasks['check:models']!.outputs;
 
 function fixture(root: string): void {
   writeFileSync(
@@ -32,8 +38,8 @@ function fixture(root: string): void {
         build: {
           dependsOn: ['^build'],
           inputs: ['source.txt', 'emit.ts'],
-          env: ['BUILD_FLAVOR'],
-          outputs: ['dist/**'],
+          env: ['BUILD_FLAVOR', 'BUILD_FAIL'],
+          outputs: ['dist/**', ...modelOutputs],
         },
       },
     })
@@ -54,7 +60,12 @@ function fixture(root: string): void {
       join(dir, 'emit.ts'),
       `
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+if (process.env.BUILD_FAIL === 'yes') process.exit(7);
 mkdirSync('dist', { recursive: true });
+mkdirSync('.cache/harness-report/models/evidence', {recursive: true});
+writeFileSync('.cache/harness-report/models/evidence/result.json', 'verified');
+mkdirSync('.cache/harness-report/models/quint-home', {recursive: true});
+writeFileSync('.cache/harness-report/models/quint-home/runtime.txt', process.env.REPORTS_TOKEN ?? '');
 writeFileSync('dist/output.txt', readFileSync('source.txt', 'utf8') + (process.env.BUILD_FLAVOR ?? '')${name === 'b' ? " + readFileSync('../a/dist/output.txt', 'utf8')" : ''});
 `
     );
@@ -64,7 +75,8 @@ writeFileSync('dist/output.txt', readFileSync('source.txt', 'utf8') + (process.e
 async function invoke(
   root: string,
   env: Record<string, string>,
-  args: string[]
+  args: string[],
+  expectedStatus = 0
 ): Promise<string> {
   const child = Bun.spawn(
     [turbo, 'run', 'build', '--framework-inference=false', ...args],
@@ -80,7 +92,7 @@ async function invoke(
     new Response(child.stderr).text(),
     child.exited,
   ]);
-  expect(status, stderr + stdout).toBe(0);
+  expect(status, stderr + stdout).toBe(expectedStatus);
   return stdout;
 }
 
@@ -100,6 +112,7 @@ async function hashes(
 }
 
 // regression: check-cache-write-only-override
+// regression: check-model-cache-runtime-artifacts
 test('real Turbo restores remote outputs and invalidates only changed inputs and dependents', async () => {
   const root = mkdtempSync(join(tmpdir(), 'turbo-cache-'));
   const artifacts = new Map<string, Uint8Array>();
@@ -121,6 +134,13 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     },
   });
   try {
+    const product = JSON.parse(
+      readFileSync(
+        join(import.meta.dirname, '../../../apps/product/turbo.json'),
+        'utf8'
+      )
+    ) as { tasks: Record<string, { outputs: string[] }> };
+    expect(product.tasks['test:contract']!.outputs).toEqual(modelOutputs);
     fixture(root);
     const env = {
       TURBO_API: server.url.origin,
@@ -136,10 +156,28 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     expect(await invoke(root, env, args)).toContain('0 cached, 3 total');
     expect(artifacts.size).toBe(3);
     const before = await hashes(root, env);
-    for (const name of ['a', 'b', 'c'])
+    for (const name of ['a', 'b', 'c']) {
       rmSync(join(root, 'packages', name, 'dist'), { recursive: true });
+      rmSync(join(root, 'packages', name, '.cache/harness-report/models'), {
+        recursive: true,
+      });
+    }
     rmSync(join(root, '.turbo/cache'), { recursive: true });
     expect(await invoke(root, env, args)).toContain('3 cached, 3 total');
+    expect(
+      readFileSync(
+        join(
+          root,
+          'packages/a/.cache/harness-report/models/evidence/result.json'
+        ),
+        'utf8'
+      )
+    ).toBe('verified');
+    expect(
+      existsSync(
+        join(root, 'packages/a/.cache/harness-report/models/quint-home')
+      )
+    ).toBe(false);
     expect(readFileSync(join(root, 'packages/b/dist/output.txt'), 'utf8')).toBe(
       'bplainaplain'
     );
@@ -165,6 +203,14 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     expect(await invoke(root, env, ['--cache=local:w,remote:w'])).toContain(
       '0 cached, 3 total'
     );
+    const successfulArtifacts = artifacts.size;
+    const failedEnv = { ...env, BUILD_FAIL: 'yes' };
+    await invoke(root, failedEnv, args, 7);
+    expect(artifacts.size).toBe(successfulArtifacts);
+    for (const hash of Object.values(await hashes(root, failedEnv)))
+      expect([...artifacts.keys()].some((path) => path.endsWith(hash))).toBe(
+        false
+      );
     for (const bytes of artifacts.values()) {
       expect(
         Buffer.from(Bun.zstdDecompressSync(bytes)).includes(
