@@ -4,6 +4,7 @@ import { openConformanceDb } from '@libs/permissions/root/conformance/world';
 import { spaceUserEntityId } from '@libs/spaces/public/participation/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces/public/schema';
 import { leaveSpaceMutation } from '@libs/spaces/root/mutations';
+import { outboxEvents } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -67,7 +68,7 @@ async function leave(db: SqlClient, env: MutationEnv): Promise<unknown> {
 describe('leaving a space', () => {
   // regression: space-leave-when-absent
   test('someone not in the space is refused, not told they left', async () => {
-    const db = await openConformanceDb(SPACES_TABLES);
+    const db = await openConformanceDb([...SPACES_TABLES, outboxEvents]);
     try {
       await seedSpace(db, null);
       const refusal = await leave(db, guestEnv('outsider-device'));
@@ -79,7 +80,7 @@ describe('leaving a space', () => {
   });
 
   test('someone who joined the space leaves it', async () => {
-    const db = await openConformanceDb(SPACES_TABLES);
+    const db = await openConformanceDb([...SPACES_TABLES, outboxEvents]);
     try {
       await seedSpace(db, 'member-device');
       expect(await leave(db, guestEnv('member-device'))).toBeNull();

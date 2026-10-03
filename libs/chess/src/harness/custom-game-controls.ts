@@ -3,15 +3,15 @@ import type { ProductHarness } from '@libs/harness/system/harness';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
 import type { Square } from '@pkgs/chess-board-core/types';
 import {
+  type CustomGameInput,
   customGameLegalMoves,
   customGameStartable,
-  type CustomGameInput,
 } from '../public/custom-game';
 import {
+  type CustomGameProbe,
   chooseCustomGame,
   readCustomGameProbe,
   waitCustomGameSettled,
-  type CustomGameProbe,
 } from './custom-game-ui';
 
 function choiceTarget(input: CustomGameInput, probe: CustomGameProbe): string {

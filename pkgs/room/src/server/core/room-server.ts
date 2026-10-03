@@ -1,14 +1,8 @@
-import { RoomCacheInvalidated } from '../../cache-invalidation';
-import {
-  ROOM_SERVICE_GRANT,
-  ROOM_SERVICE_IDENTITY,
-  type RoomIdentityErasure,
-} from './room-service';
 import { Assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import { isMessageEnvelope } from '@pkgs/message';
-
 import { MAX_ROSTER_SIZE } from '../../bounds';
+import { RoomCacheInvalidated } from '../../cache-invalidation';
 import {
   applyRoomEffects,
   type RoomEffectHandler,
@@ -18,6 +12,10 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '../../protocol/wire';
+import {
+  ROOM_SERVICE_GRANT,
+  ROOM_SERVICE_IDENTITY,
+} from '../../service-identity';
 import {
   type LogEntry,
   ROOM_ERROR_TYPE,
@@ -31,24 +29,26 @@ import {
   type RoomState,
 } from '../../types';
 import { broadcastToConnections, sendWelcomeFrame } from './room-server-fanout';
+import type { RoomIdentityErasure } from './room-service';
 import type { CommandDedupOutcome, RoomStorage } from './storage';
 
 const crash: Assert = Assert.crash();
 
 import {
-  type RoomServerConfig,
-  type RoomConnection,
-  type RoomConnectionOptions,
   type CommandFrame,
   type CommitArgs,
   NO_GRANTS,
   PONG_FRAME,
+  type RoomConnection,
+  type RoomConnectionOptions,
+  type RoomServerConfig,
   rejectedFrame,
 } from './room-server-types';
+
 export type {
-  RoomServerConfig,
   RoomConnection,
   RoomConnectionOptions,
+  RoomServerConfig,
 } from './room-server-types';
 
 /**

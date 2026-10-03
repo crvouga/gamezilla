@@ -88,6 +88,7 @@
     "@pkgs/outbox": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",

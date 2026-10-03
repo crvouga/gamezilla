@@ -1,4 +1,3 @@
-import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { areFriends } from '../../../shared/space/friendship-sql';
@@ -10,6 +9,7 @@ import {
   openSession,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,

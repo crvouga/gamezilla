@@ -9,9 +9,9 @@ import {
 } from '@libs/chess/harness/custom-game-review';
 import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
 import {
+  type CustomGame,
   customGameFenAt,
   customGameLegalMoves,
-  type CustomGame,
 } from '@libs/chess/public/custom-game';
 import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
 import { cutConnection } from '@libs/harness/spec/steps/platform';

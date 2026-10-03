@@ -1,3 +1,4 @@
+import { readCustomGameTime } from '@libs/chess/harness/custom-game-clocks';
 import {
   CUSTOM_GAME_FIFTY,
   CUSTOM_GAME_FOOLS_MATE,
@@ -6,14 +7,13 @@ import {
   CUSTOM_GAME_STALEMATE,
 } from '@libs/chess/harness/custom-game-histories';
 import { playCustomGameHistory } from '@libs/chess/harness/custom-game-history';
-import { readCustomGameTime } from '@libs/chess/harness/custom-game-clocks';
 import { customGameTimeLeft } from '@libs/chess/public/custom-game';
 import { Given, type HarnessWorld } from '@libs/harness/spec/define';
 import {
   customFact,
   customGame,
-  customPeople,
   customHumans,
+  customPeople,
   customStart,
 } from './custom-game-world';
 

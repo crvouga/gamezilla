@@ -1,10 +1,10 @@
 import type { Timers } from '@pkgs/clock';
 import {
-  RoomMetaAttr,
   type RoomClient,
   type RoomCommandPayload,
   type RoomCommandResult,
   type RoomEvent,
+  RoomMetaAttr,
   type RoomState,
 } from '@pkgs/room';
 import type { CustomGameChoice } from '../../../shared/custom-game/custom-game-choice';

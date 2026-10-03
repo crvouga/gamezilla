@@ -9,9 +9,9 @@ import {
 } from '../../../shared/custom-game/custom-game-state';
 import {
   ChangeCustomGame,
+  CustomGamesChanged,
   customGameCmdNs,
   customGameEvtNs,
-  CustomGamesChanged,
   EndCustomGameOnTime,
   PlayCustomGameBot,
 } from './custom-game-commands';

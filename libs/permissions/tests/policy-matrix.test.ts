@@ -75,6 +75,15 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.spacesEnd, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesManageMembers, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesSelectGame, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomCreate, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomConfigure, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomInvite, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomBot, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomStart, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomCancel, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomJoin, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomPlay, 'deny', 'deny', 'deny'],
+  [PERMISSION.chessCustomWatch, 'deny', 'deny', 'deny'],
   [ACTION.puzzleRatedSolve, '20/day', 'unlimited/day', 'unlimited/day'],
 ];
 

@@ -1,11 +1,11 @@
 import { accountMutationEnv } from '@libs/auth/public/account-mutation-env';
 import type { AccountPrivacyContribution } from '@libs/feature/public/account-privacy';
 import type { Clock } from '@pkgs/clock';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { sql } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import { wrapMutationDb } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
-import type { RoomServicePort } from '@pkgs/room/server';
 
 /** A recovery runs with writes paused and keeps the live deletion journal. */
 export class RecoverAccountData {

@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
-import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
 import { readCustomGameBoundary } from '@libs/chess/harness/custom-game-boundary';
-import { Then, type HarnessWorld } from '@libs/harness/spec/define';
+import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
+import { type HarnessWorld, Then } from '@libs/harness/spec/define';
 
 function refusal(reason: string) {
   return async (w: HarnessWorld, actor: string): Promise<void> => {

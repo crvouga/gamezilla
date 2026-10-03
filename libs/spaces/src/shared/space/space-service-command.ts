@@ -3,8 +3,12 @@ import {
   createMessageRouter,
   isPlainRecord,
 } from '@pkgs/message';
-import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
-import { ROOM_SERVICE_IDENTITY } from '@pkgs/room/server';
+import {
+  type HandleResult,
+  ROOM_ERROR_TYPE,
+  ROOM_SERVICE_IDENTITY,
+  type RoomState,
+} from '@pkgs/room';
 import type { GameCommandContext } from './game';
 import { MemberLeft, SpaceEnded } from './space-log/space-log-messages';
 import {

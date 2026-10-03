@@ -24,6 +24,7 @@ import {
   signInWithGoogleAsAccount,
 } from '@libs/harness/system/auth-actions';
 import { joinViaLink } from '@libs/spaces/harness/space-actions';
+import { customSide } from './custom-game-choices.steps';
 import {
   customGame,
   customHost,
@@ -31,7 +32,6 @@ import {
   customPerson,
   customScreen,
 } from './custom-game-world';
-import { customSide } from './custom-game-choices.steps';
 
 async function secondDevice(w: HarnessWorld, actor: Actor): Promise<string> {
   const device = otherDevice(actor);

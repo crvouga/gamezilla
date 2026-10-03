@@ -1,20 +1,20 @@
 import { expect } from 'bun:test';
 import {
-  attemptCustomGameBoundary,
-  readCustomGameBoundary,
-} from '@libs/chess/harness/custom-game-boundary';
-import { openCustomGame } from '@libs/chess/harness/custom-game-actions';
-import { readCustomGameIdentity } from '@libs/chess/harness/custom-game-identity';
-import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
-import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
-import { focusActor } from '@libs/harness';
-import { signInWithGoogle } from '@libs/harness/system/auth-actions';
-import {
-  openBilling,
   observeMembership,
+  openBilling,
   subscribeToPlus,
 } from '@libs/billing/harness/billing-actions';
 import { membershipShown } from '@libs/billing/harness/billing-reads';
+import { openCustomGame } from '@libs/chess/harness/custom-game-actions';
+import {
+  attemptCustomGameBoundary,
+  readCustomGameBoundary,
+} from '@libs/chess/harness/custom-game-boundary';
+import { readCustomGameIdentity } from '@libs/chess/harness/custom-game-identity';
+import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
+import { focusActor } from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
+import { signInWithGoogle } from '@libs/harness/system/auth-actions';
 import { openSpaceLink } from '@libs/spaces/harness/space-actions';
 import { customPeople, customScreen, customSpace } from './custom-game-world';
 

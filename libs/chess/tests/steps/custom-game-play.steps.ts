@@ -5,11 +5,12 @@ import {
   readCustomGameTime,
 } from '@libs/chess/harness/custom-game-clocks';
 import {
+  type CustomGame,
   customGameChess,
   customGameTimeLeft,
-  type CustomGame,
 } from '@libs/chess/public/custom-game';
 import { Given, Then, When } from '@libs/harness/spec/define';
+import { customSide } from './custom-game-choices.steps';
 import {
   customFact,
   customGame,
@@ -18,7 +19,6 @@ import {
   customPerson,
   customStart,
 } from './custom-game-world';
-import { customSide } from './custom-game-choices.steps';
 
 Given(
   '{actor} has a completed Custom Game between {actor} as White and {actor} as Black',

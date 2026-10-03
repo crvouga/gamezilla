@@ -1,9 +1,9 @@
 import { accountMutationEnv } from '@libs/auth/public/account-mutation-env';
 import type { AccountPrivacyContribution } from '@libs/feature/public/account-privacy';
 import type { Clock } from '@pkgs/clock';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { RoomServicePort } from '@pkgs/room/server';
 
 type Preservation = {
   readonly accountId: string;

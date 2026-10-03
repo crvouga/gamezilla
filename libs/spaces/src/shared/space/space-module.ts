@@ -23,10 +23,6 @@ import {
 } from './counter';
 import type { GameCommandContext, GameDefinition } from './game';
 import {
-  spaceServiceCmdNs,
-  spaceServiceCommandRouter,
-} from './space-service-command';
-import {
   createGamesCommandRouter,
   createGamesEventReducer,
   gamesCmdNs,
@@ -43,6 +39,10 @@ import {
   SpaceMembersRoomAttr,
   spaceMembersEvtNs,
 } from './space-members/space-members-messages';
+import {
+  spaceServiceCmdNs,
+  spaceServiceCommandRouter,
+} from './space-service-command';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };

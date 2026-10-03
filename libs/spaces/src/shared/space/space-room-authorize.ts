@@ -1,14 +1,14 @@
 import {
-  PERMISSION,
   type AppGrantKey,
+  PERMISSION,
 } from '@libs/permissions/public/permission-catalog';
 import { isMessageEnvelope, type Message } from '@pkgs/message';
 import type { RoomCommand } from '@pkgs/room';
-import { ROOM_SERVICE_GRANT } from '@pkgs/room/server';
-import { ApplySpaceMembership } from './space-service-command';
+import { ROOM_SERVICE_GRANT } from '@pkgs/room';
 import type { GameDefinition } from './game';
 import { SelectGame } from './games';
 import { AnnounceRenamed } from './space-log/space-log-messages';
+import { ApplySpaceMembership } from './space-service-command';
 
 /** Grants the spaces gateway decides; games contribute their own grants. */
 export const SPACE_ROOM_GRANT_KEYS = [

@@ -3,12 +3,12 @@ import {
   changeCustomGame,
   openCustomGame,
 } from '@libs/chess/harness/custom-game-actions';
+import { attemptCustomGameBoundary } from '@libs/chess/harness/custom-game-boundary';
 import { readCustomGameIdentity } from '@libs/chess/harness/custom-game-identity';
 import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
-import { attemptCustomGameBoundary } from '@libs/chess/harness/custom-game-boundary';
 import {
-  customGameStartable,
   type CustomGameSide,
+  customGameStartable,
 } from '@libs/chess/public/custom-game';
 import { Given, Then, When } from '@libs/harness/spec/define';
 import { reopenSpaceLink } from '@libs/spaces/harness/space-actions';

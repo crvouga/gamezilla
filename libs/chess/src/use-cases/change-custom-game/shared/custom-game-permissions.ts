@@ -1,6 +1,6 @@
 import {
-  PERMISSION,
   type AppGrantKey,
+  PERMISSION,
 } from '@libs/permissions/public/permission-catalog';
 import type { Message } from '@pkgs/message';
 import type { CustomGameOperation } from '../../../shared/custom-game/custom-game-choice';

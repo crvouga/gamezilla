@@ -83,6 +83,7 @@ export {
   type ServerToClientWire,
   WIRE_VERSION,
 } from './protocol/wire';
+export { ROOM_SERVICE_GRANT, ROOM_SERVICE_IDENTITY } from './service-identity';
 export {
   TIGER_INVARIANTS,
   TIGER_MID_CHAOS_INVARIANTS,

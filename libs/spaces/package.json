@@ -41,6 +41,7 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-memory": "workspace:*",

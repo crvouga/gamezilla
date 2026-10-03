@@ -23,15 +23,14 @@ import {
   replayOperation,
   serverEnforcementLayer,
 } from '@libs/permissions/root/conformance/server';
-import { createSpaceMutation } from '@libs/spaces/root/mutations';
-import { bindDecisions } from '@pkgs/dmn/registry';
-import type { MutationRegistry } from '@pkgs/sync-engine/shared';
-import { useMutationClient } from '@pkgs/sync-engine/solid';
-
 import {
   SPACE_TABLES,
   seedOpenSpaces,
 } from '@libs/spaces/harness/space-decision-world';
+import { createSpaceMutation } from '@libs/spaces/root/mutations';
+import { bindDecisions } from '@pkgs/dmn/registry';
+import type { MutationRegistry } from '@pkgs/sync-engine/shared';
+import { useMutationClient } from '@pkgs/sync-engine/solid';
 
 const ANOTHER = { spaceId: 'another-space' };
 

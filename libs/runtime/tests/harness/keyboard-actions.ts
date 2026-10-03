@@ -13,13 +13,6 @@ import {
   scenarioAction,
 } from '@libs/harness';
 import {
-  backToTabs,
-  openSettings,
-  openTab,
-} from '@libs/harness/system/shell-actions';
-import { Handles } from '@libs/test-ids';
-import { sequentialFocusOrder } from '@pkgs/a11y';
-import {
   actorPage,
   keyboardElement,
   keyboardPlace,
@@ -27,6 +20,13 @@ import {
   pressTab,
   tabTo,
 } from '@libs/harness/system/actor-page';
+import {
+  backToTabs,
+  openSettings,
+  openTab,
+} from '@libs/harness/system/shell-actions';
+import { Handles } from '@libs/test-ids';
+import { sequentialFocusOrder } from '@pkgs/a11y';
 import {
   recordKeyboardBeforeSettings,
   recordKeyboardVisits,

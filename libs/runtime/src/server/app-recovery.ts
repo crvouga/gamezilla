@@ -2,10 +2,10 @@ import { RecoverAccountData } from '@libs/account-privacy/public/recover-account
 import type { Clock } from '@pkgs/clock';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { ident, join, sql, type Value } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import type { RoomServicePort } from '@pkgs/room/server';
 import { APP } from '../root/app-features';
 
 type RecoveryCopy = Readonly<Record<string, readonly Record<string, Value>[]>>;

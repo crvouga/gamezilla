@@ -23,6 +23,13 @@ import {
   type ServerOperation,
   serverEnforcementLayer,
 } from '@libs/permissions/root/conformance/server';
+import {
+  chooseGame,
+  SPACE_ID,
+  SPACE_TABLES,
+  seedPlaceInSpace,
+  seedPlaceInSpaceOnDevice,
+} from '@libs/spaces/harness/space-decision-world';
 import { useSpaceCan } from '@libs/spaces/public/use-space-can';
 import {
   addSpaceUserMutation,
@@ -32,14 +39,6 @@ import {
   renameSpaceMutation,
 } from '@libs/spaces/root/mutations';
 import { bindDecisions } from '@pkgs/dmn/registry';
-
-import {
-  chooseGame,
-  SPACE_ID,
-  SPACE_TABLES,
-  seedPlaceInSpace,
-  seedPlaceInSpaceOnDevice,
-} from '@libs/spaces/harness/space-decision-world';
 
 const OPERATIONS: Readonly<Record<string, ServerOperation>> = {
   'leave the space': replayOperation(leaveSpaceMutation, () => ({

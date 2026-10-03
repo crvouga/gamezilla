@@ -15,8 +15,8 @@ import {
   SPACE_ID,
   seedPlaceInSpace,
 } from '@libs/spaces/harness/space-decision-world';
-import { ApplySpaceMembership } from '@libs/spaces/public/room/space-membership-service';
 import { spaceUserEntityId } from '@libs/spaces/public/participation/participation-ids';
+import { ApplySpaceMembership } from '@libs/spaces/public/room/space-membership-service';
 import { spaceRoomGrants } from '@libs/spaces/public/space-room-grants';
 import { createHarnessClock, type Timers } from '@pkgs/clock';
 import type { Message } from '@pkgs/message';
@@ -24,8 +24,8 @@ import { sql } from '@pkgs/sql';
 import { chessGameShared } from '../public/chess-game';
 import {
   ChangeCustomGame,
-  CustomGamesAttr,
   type CustomGameInput,
+  CustomGamesAttr,
 } from '../public/custom-game';
 import { CHESS_SERVER } from '../root/server/feature-server';
 

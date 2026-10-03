@@ -5,12 +5,11 @@ import {
 } from '@libs/spaces/public/room/space-members';
 import type { Message } from '@pkgs/message';
 import type { HandleResult, RoomState } from '@pkgs/room';
-import { changedCustomGames } from './custom-game-handler';
 import { replaceCustomGameSide } from '../../../shared/custom-game/custom-game-configuration';
 import {
+  customGameWinOrDraw,
   expireCustomGame,
   finishCustomGame,
-  customGameWinOrDraw,
 } from '../../../shared/custom-game/custom-game-play';
 import {
   CUSTOM_GAME_SIDES,
@@ -21,6 +20,7 @@ import {
   OPEN_CUSTOM_GAME_SIDE,
   otherCustomGameSide,
 } from '../../../shared/custom-game/custom-game-state';
+import { changedCustomGames } from './custom-game-handler';
 
 function departingCustomGame(
   game: CustomGame,

@@ -6,14 +6,14 @@ import {
   WIRE_VERSION,
 } from '../../protocol/wire';
 import type {
-  RoomState,
+  RoomActor,
+  RoomCommand,
   RoomCommandPayload,
+  RoomEffect,
+  RoomError,
   RoomEvent,
   RoomModule,
-  RoomCommand,
-  RoomEffect,
-  RoomActor,
-  RoomError,
+  RoomState,
 } from '../../types';
 import type { RoomStorage } from './storage';
 

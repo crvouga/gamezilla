@@ -1,7 +1,7 @@
+import type { AppGrantKey } from '@libs/permissions/public/permission-catalog';
 import type { Message, MessageNamespace, MessageRouter } from '@pkgs/message';
 import type { HandleResult, RoomEffect, RoomState } from '@pkgs/room';
 import type { Random } from '@pkgs/uuid';
-import type { AppGrantKey } from '@libs/permissions/public/permission-catalog';
 import type { JSX } from 'solid-js';
 
 /**

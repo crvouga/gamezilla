@@ -4,7 +4,6 @@ import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
-import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 import {
   closeSession,
   endSpace,
@@ -14,6 +13,7 @@ import {
   requireSpacePermission,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),

@@ -1,7 +1,7 @@
 import type { AccountPrivacyContribution } from '@libs/feature/public/account-privacy';
 import { defineFeatureServer } from '@libs/feature/public/server';
-import { registerPrivacyConsumers } from './privacy-consumers';
 import type { RoomServicePort } from '@pkgs/room/server';
+import { registerPrivacyConsumers } from './privacy-consumers';
 
 export function createAccountPrivacyServer(
   contributions: readonly AccountPrivacyContribution[],

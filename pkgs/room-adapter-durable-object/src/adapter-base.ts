@@ -26,12 +26,12 @@ import {
   observeRoomMessage,
   observeRoomUpgrade,
 } from './observability';
+import { handleRoomService } from './service';
 import {
   readRoomSocketAttachment,
   writeRoomSocketAttachment,
 } from './socket-attachment';
 import { roomDoKeyNs } from './storage-keys';
-import { handleRoomService } from './service';
 import {
   type DurableObjectInstance,
   type DurableObjectInstanceState,

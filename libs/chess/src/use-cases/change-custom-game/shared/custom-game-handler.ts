@@ -1,4 +1,3 @@
-import type { CustomGameChoice } from '../../../shared/custom-game/custom-game-choice';
 import type { GameCommandContext } from '@libs/spaces/public/game';
 import { spaceSeatMemberIds } from '@libs/spaces/public/room/space-members';
 import {
@@ -7,11 +6,11 @@ import {
   ROOM_SCHEDULER_IDENTITY,
   type RoomState,
 } from '@pkgs/room';
+import type { CustomGameChoice } from '../../../shared/custom-game/custom-game-choice';
 import {
   configureCustomGame,
   rematchCustomGame,
 } from '../../../shared/custom-game/custom-game-configuration';
-import { customGameEffects } from './custom-game-effects';
 import {
   expireCustomGame,
   playCustomGameChoice,
@@ -26,9 +25,10 @@ import {
   newCustomGame,
 } from '../../../shared/custom-game/custom-game-state';
 import {
-  type CustomGameWake,
   CustomGamesChanged,
+  type CustomGameWake,
 } from './custom-game-commands';
+import { customGameEffects } from './custom-game-effects';
 
 export function refuseCustomGame(reason: string): HandleResult {
   return { ok: false, error: { type: ROOM_ERROR_TYPE.conflict, reason } };

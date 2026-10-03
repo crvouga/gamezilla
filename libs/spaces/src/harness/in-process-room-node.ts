@@ -15,11 +15,11 @@
  */
 
 import type { EnvTime } from '@libs/feature/public/sync';
-import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import type {
   HarnessRoomGateway,
   HarnessRoomNode,
 } from '@libs/harness/composition';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import type { Message } from '@pkgs/message';
 import {
   type ClientTransport,
@@ -27,7 +27,7 @@ import {
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
-import { RoomServer, ROOM_SERVICE_IDENTITY } from '@pkgs/room/server';
+import { ROOM_SERVICE_IDENTITY, RoomServer } from '@pkgs/room/server';
 import {
   InMemoryRoomStorage,
   LoopbackRoomTransport,
@@ -61,7 +61,11 @@ function withReadyGate(
       return inner.isConnected;
     },
     async connect() {
-      await ready();
+      try {
+        await ready();
+      } catch (cause) {
+        if (!destroyed) throw cause;
+      }
       if (!destroyed) return inner.connect();
     },
     sendJson(payload) {

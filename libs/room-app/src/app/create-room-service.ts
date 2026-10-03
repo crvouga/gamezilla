@@ -17,15 +17,13 @@ export function createRoomService(
     const url = new URL('https://room-service/room-service');
     url.searchParams.set('topic', topic);
     url.searchParams.set('module', 'space');
-    const response = await namespace
-      .get(namespace.idFromName(topic))
-      .fetch(
-        new Request(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(input),
-        })
-      );
+    const response = await namespace.get(namespace.idFromName(topic)).fetch(
+      new Request(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+    );
     if (!response.ok)
       throw new Error(`Room service refused ${response.status}`);
     return response;

@@ -67,6 +67,37 @@ function reservedFor(game: CustomGame, person: string): boolean {
   return CUSTOM_GAME_SIDES.some((side) => game[side].person === person);
 }
 
+function claimRefusal(
+  game: CustomGame,
+  choice: CustomGameChoice,
+  actor: string
+): string {
+  if (choice.operation !== 'claim') return '';
+  const participant = game[choice.side];
+  if (participant.kind !== 'open')
+    return participant.kind === 'person' && participant.person === actor
+      ? ''
+      : 'not an open place';
+  return reservedFor(game, actor) ? 'one side per person' : '';
+}
+
+function invitationRefusal(
+  game: CustomGame,
+  choice: CustomGameChoice,
+  members: readonly string[]
+): string {
+  const participant = 'side' in choice ? game[choice.side] : null;
+  if (choice.operation === 'invite') {
+    if (!members.includes(choice.person)) return 'person not in the space';
+    if (
+      reservedFor(game, choice.person) &&
+      participant?.person !== choice.person
+    )
+      return 'one side per person';
+  }
+  return '';
+}
+
 function relationshipRefusal(
   game: CustomGame,
   choice: CustomGameChoice,
@@ -80,14 +111,8 @@ function relationshipRefusal(
     participant?.person !== actor
   )
     return 'one side per person';
-  if (choice.operation === 'invite') {
-    if (!members.includes(choice.person)) return 'person not in the space';
-    if (
-      reservedFor(game, choice.person) &&
-      participant?.person !== choice.person
-    )
-      return 'one side per person';
-  }
+  const invitation = invitationRefusal(game, choice, members);
+  if (invitation !== '') return invitation;
   if (
     (choice.operation === 'accept' || choice.operation === 'decline') &&
     (participant?.kind !== 'invitation' || participant.person !== actor)
@@ -95,13 +120,8 @@ function relationshipRefusal(
     return 'not your invitation';
   if (choice.operation === 'revoke' && participant?.kind !== 'invitation')
     return 'no invitation';
-  if (choice.operation === 'claim') {
-    if (participant?.kind !== 'open')
-      return participant?.kind === 'person' && participant.person === actor
-        ? ''
-        : 'not an open place';
-    if (reservedFor(game, actor)) return 'one side per person';
-  }
+  const claim = claimRefusal(game, choice, actor);
+  if (claim !== '') return claim;
   if (
     choice.operation === 'release' &&
     (participant?.kind !== 'person' || participant.person !== actor)
@@ -113,6 +133,17 @@ function relationshipRefusal(
   )
     return 'not a participant';
   return '';
+}
+
+function startRefusal(game: CustomGame, choice: CustomGameChoice): string {
+  if (choice.operation !== 'start' || game.status !== 'configuring') return '';
+  if (
+    !CUSTOM_GAME_SIDES.every(
+      (side) => game[side].kind === 'person' || game[side].kind === 'bot'
+    )
+  )
+    return 'both sides need participants';
+  return customGameStartable(game) ? '' : 'every person must be ready';
 }
 
 function playRefusal(
@@ -137,15 +168,8 @@ function playRefusal(
       game.drawOfferedBy === actor)
   )
     return 'not the other participant';
-  if (choice.operation === 'start' && game.status === 'configuring') {
-    if (
-      !CUSTOM_GAME_SIDES.every(
-        (side) => game[side].kind === 'person' || game[side].kind === 'bot'
-      )
-    )
-      return 'both sides need participants';
-    if (!customGameStartable(game)) return 'every person must be ready';
-  }
+  const start = startRefusal(game, choice);
+  if (start !== '') return start;
   if (choice.operation === 'move') {
     if (game[game.turn].kind !== 'person' || game[game.turn].person !== actor)
       return 'only the participant to move may play';

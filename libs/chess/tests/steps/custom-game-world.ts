@@ -2,8 +2,8 @@ import {
   establishCustomGame,
   openCustomGame,
 } from '@libs/chess/harness/custom-game-actions';
-import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
 import { readStoredCustomGames } from '@libs/chess/harness/custom-game-stored';
+import { readCustomGameProbe } from '@libs/chess/harness/custom-game-ui';
 import type {
   CustomGame,
   CustomGameInput,

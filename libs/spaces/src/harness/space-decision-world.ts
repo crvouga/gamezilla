@@ -17,8 +17,9 @@ import {
   type ServerCase,
   type ServerOperation,
 } from '@libs/permissions/root/conformance/server';
-import { createInProcessRoomNode } from './in-process-room-node';
-import { answerOfRoomCommand } from './room-command-probe';
+import { createHarnessClock } from '@pkgs/clock';
+import { outboxEvents } from '@pkgs/outbox';
+import { sql } from '@pkgs/sql';
 import { SelectGame } from '../public/games';
 import {
   spaceOpenSessionEntityId,
@@ -26,11 +27,11 @@ import {
 } from '../public/participation/participation-ids';
 import { SPACES_TABLES } from '../public/schema';
 import { spaceRoomGrants } from '../root/server/space-room-grants';
-import { createHarnessClock } from '@pkgs/clock';
-import { sql } from '@pkgs/sql';
+import { createInProcessRoomNode } from './in-process-room-node';
+import { answerOfRoomCommand } from './room-command-probe';
 
 /** Everything the spaces operations read and write, plus memberships. */
-export const SPACE_TABLES = [...BILLING_TABLES, ...SPACES_TABLES];
+export const SPACE_TABLES = [...BILLING_TABLES, ...SPACES_TABLES, outboxEvents];
 
 /** The space every space-roles case is about. */
 export const SPACE_ID = 'the-space';

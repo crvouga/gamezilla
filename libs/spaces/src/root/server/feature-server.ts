@@ -8,11 +8,10 @@
  */
 
 import { defineFeatureServer } from '@libs/feature/public/server';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { roomTopic } from '../../public/room/space-room-topic';
-
 import { MySpaceIdsLoader } from './load-my-space-ids-sql';
 import { spaceRoomGrants } from './space-room-grants';
-import type { RoomServicePort } from '@pkgs/room/server';
 import { registerSpaceWithdrawal } from './space-withdrawal-consumer';
 
 export function createSpacesServer(rooms: RoomServicePort) {

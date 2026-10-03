@@ -7,14 +7,13 @@ import { Trans } from '@lingui/solid/macro';
 import { FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
-
+import { CustomGameScreen } from '../root/custom-game/custom-game-screen';
 import {
   CHESS_SCREEN,
   type ChessMainMenuScreen,
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
 } from '../shared/chess/chess-main-menu';
-import { CustomGameScreen } from '../root/custom-game/custom-game-screen';
 import { ChessPuzzleFeedProvider } from './chess-puzzle/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';

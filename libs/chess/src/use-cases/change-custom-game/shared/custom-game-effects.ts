@@ -3,8 +3,8 @@ import {
   type RoomEffect,
   ScheduleEffect,
 } from '@pkgs/room';
-import { EndCustomGameOnTime, PlayCustomGameBot } from './custom-game-commands';
 import type { CustomGame } from '../../../shared/custom-game/custom-game-state';
+import { EndCustomGameOnTime, PlayCustomGameBot } from './custom-game-commands';
 
 const BOT_SCHEDULE = 'chess-custom:bot';
 const CLOCK_SCHEDULE = 'chess-custom:clock';

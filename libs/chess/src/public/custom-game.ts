@@ -1,10 +1,10 @@
-export * from '../shared/custom-game/custom-game-state';
 export * from '../shared/custom-game/custom-game-choice';
 export * from '../shared/custom-game/custom-game-position';
+export * from '../shared/custom-game/custom-game-state';
 export {
   ChangeCustomGame,
   CustomGamesChanged,
-  PlayCustomGameBot,
   EndCustomGameOnTime,
+  PlayCustomGameBot,
 } from '../use-cases/change-custom-game/shared/custom-game-commands';
 export { CustomGameNoticeAttr } from '../use-cases/change-custom-game/shared/custom-game-router';

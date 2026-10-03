@@ -1,4 +1,3 @@
-import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 import { requireLimitInMutation } from '@libs/permissions/public/mutation-permission';
 import { LIMIT } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
@@ -10,6 +9,7 @@ import {
   memberId,
   openSession,
 } from '../../../shared/space/space-mutation-helpers';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 
 /**
  * Open a space the actor hosts. Guests and free accounts host one live space

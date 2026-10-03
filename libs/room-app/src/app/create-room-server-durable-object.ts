@@ -1,8 +1,8 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces/public/space-room-authorize';
-import type { DurableObjectTelemetry } from '@pkgs/room-adapter-durable-object';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room/server';
+import type { DurableObjectTelemetry } from '@pkgs/room-adapter-durable-object';
 import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object';
 
 import type { RoomServerEnv } from './room-server-env';

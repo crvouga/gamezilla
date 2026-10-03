@@ -6,13 +6,13 @@ import {
   customGameEvtNs,
 } from '../use-cases/change-custom-game/shared/custom-game-commands';
 import { customGameEffects } from '../use-cases/change-custom-game/shared/custom-game-effects';
+import { customGameCommandPermission } from '../use-cases/change-custom-game/shared/custom-game-permissions';
 import {
   customGameCommandRouter,
   customGameEventReducer,
   customGameInitialAttrs,
 } from '../use-cases/change-custom-game/shared/custom-game-router';
 import { reactCustomGameToSpaceEvent } from '../use-cases/change-custom-game/shared/custom-game-space-events';
-import { customGameCommandPermission } from '../use-cases/change-custom-game/shared/custom-game-permissions';
 
 export { CHESS_GAME_ID } from '../shared/chess/chess-game';
 

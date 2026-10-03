@@ -1,19 +1,19 @@
 import { actorUi, scenarioAction } from '@libs/harness/system/actor-ui';
 import type { CustomGameChoice } from '../public/custom-game';
 import {
-  configureCustomGame,
-  openCustomGameScreen,
-  sendCustomGameChoice,
-} from './custom-game-ui';
+  chooseCustomGameWithKeyboard,
+  listenToCustomGame,
+} from './custom-game-accessibility';
+import { attemptCustomGameBoundary } from './custom-game-boundary';
 import { changeThroughCustomGameControls } from './custom-game-controls';
 import { playCustomGameHistory } from './custom-game-history';
 import { raceCustomGameChoices } from './custom-game-race';
 import { reviewCustomGame } from './custom-game-review';
-import { attemptCustomGameBoundary } from './custom-game-boundary';
 import {
-  chooseCustomGameWithKeyboard,
-  listenToCustomGame,
-} from './custom-game-accessibility';
+  configureCustomGame,
+  openCustomGameScreen,
+  sendCustomGameChoice,
+} from './custom-game-ui';
 
 export const openCustomGame = scenarioAction({
   name: 'openCustomGame',

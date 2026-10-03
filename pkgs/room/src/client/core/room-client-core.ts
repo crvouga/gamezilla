@@ -1,9 +1,8 @@
 import type { Assert } from '@pkgs/assert';
 import { hotAssert } from '@pkgs/assert';
 import { isNamespacedKeyword } from '@pkgs/keyword';
-
-import { plainDeepEqual } from '../../plain-deep-equal';
 import { RoomCacheInvalidated } from '../../cache-invalidation';
+import { plainDeepEqual } from '../../plain-deep-equal';
 import type {
   HandleResult,
   LogEntry,

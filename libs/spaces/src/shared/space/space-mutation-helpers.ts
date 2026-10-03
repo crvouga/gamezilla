@@ -12,8 +12,8 @@ import {
   spaceOpenSessionEntityId,
 } from './participation/participation-ids';
 import { isSpaceHostActor } from './participation/space-participation-policy';
-import { storedSpacePresence } from './stored-space-presence';
 import { changeSpaceRoomMembership } from './space-withdrawal';
+import { storedSpacePresence } from './stored-space-presence';
 
 type SpaceHostRow = {
   readonly host_id: string | null;

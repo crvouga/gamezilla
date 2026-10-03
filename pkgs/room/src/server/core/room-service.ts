@@ -1,10 +1,6 @@
 import type { Message } from '@pkgs/message';
 import type { RoomState } from '../../types';
 
-/** Reserved for injected work; the gateway never grants it to a connection. */
-export const ROOM_SERVICE_GRANT = 'room.service';
-export const ROOM_SERVICE_IDENTITY = 'room-service';
-
 /** An injected service binding to authoritative rooms, never a client API. */
 export type RoomServicePort = {
   read(topic: string): Promise<RoomState>;

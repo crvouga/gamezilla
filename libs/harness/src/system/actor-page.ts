@@ -11,15 +11,15 @@
  * sequential focus order (`@pkgs/a11y`), then `keyup`.
  */
 
-import { actorUi } from './actor-ui';
-import { type ProductHarness, productExtra } from './harness';
-import { bringToFront } from './observations';
 import {
   describeControl,
   nextInFocusOrder,
   sequentialFocusOrder,
 } from '@pkgs/a11y';
 import { hostLimit } from '@pkgs/gherkin/registry';
+import { actorUi } from './actor-ui';
+import { type ProductHarness, productExtra } from './harness';
+import { bringToFront } from './observations';
 
 /** The document body of `actorId`'s app, brought on screen. */
 export async function actorPage(

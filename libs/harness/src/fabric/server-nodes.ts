@@ -12,8 +12,8 @@
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import { composeFeatureServers } from '@libs/feature/public/compose-server';
 import { createServer, type ServerEnv, serveFetch } from '@libs/server-app';
-import type { RoomServicePort } from '@pkgs/room/server';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox';
+import type { RoomServicePort } from '@pkgs/room/server';
 import type { HarnessComposition } from '../composition';
 import { serializeFetch } from './fetch';
 import { nextHarnessNodeId, normalizeHarnessNodeId } from './node-name';

@@ -8,9 +8,9 @@ import {
   type OutboxConsumerCtx,
   type OutboxConsumerRegistry,
 } from '@pkgs/outbox';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { sql } from '@pkgs/sql';
 import type { MutationCtx } from '@pkgs/sync-engine/shared';
-import type { RoomServicePort } from '@pkgs/room/server';
 import {
   eraseAccount,
   expireExport,
