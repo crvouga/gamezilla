@@ -217,7 +217,7 @@ async function silent(w: HarnessWorld, actor: Actor) {
 }
 Then('{actor} cannot hear the assistant speaking', silent);
 Then("{actor} cannot hear the old puzzle's assistant speaking", silent);
-Given("{actor}'s audio is unavailable", async (w, actor: Actor) => {
+Given("{actor}'s speech is unavailable", async (w, actor: Actor) => {
   await w.s.apply(failAssistantAudio, actor);
 });
 Then(
