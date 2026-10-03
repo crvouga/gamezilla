@@ -1,4 +1,5 @@
 import { bindQuintModel } from '@pkgs/quint/registry';
+import deletionTrace from './fixtures/multiplayer-third-device-deletion.itf.json';
 import {
   askForPlay,
   connectPlay,
@@ -20,6 +21,16 @@ bindQuintModel<PlayTrace>({
   maxSteps: 300,
   timeoutMs: 180_000,
   inductiveInvariant: '_proof',
+  regressions: [
+    // regression: chess-deletion-refreshes-connected-devices
+    {
+      id: 'multiplayer-third-device-deletion',
+      title:
+        'A deletion clears connected devices and preserves the offline board',
+      seed: '0x67932',
+      itf: deletionTrace,
+    },
+  ],
   actions: {
     init: initPlay,
     openMultiplayer: showPlay,

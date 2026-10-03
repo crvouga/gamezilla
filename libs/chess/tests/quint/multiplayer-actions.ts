@@ -1,4 +1,7 @@
-import { runPrivacyJobs } from '@libs/account-privacy/harness/privacy-actions';
+import {
+  confirmDeletion,
+  runPrivacyJobs,
+} from '@libs/account-privacy/harness/privacy-actions';
 import {
   openMultiplayerChess,
   setMultiplayerConnection,
@@ -102,10 +105,7 @@ export async function deletePlayAccount(w: PlayTrace, picks: Picks) {
   // Confirmed deletion is an upstream fact, independent of these two devices.
   const proof = `${person}_privacy`;
   await w.s.apply(signInWithGoogleAsAccount, proof, person);
-  await w.s.apply(controlledMultiplayerCommand, proof, {
-    name: 'confirmAccountDeletion',
-    args: { confirmed: true },
-  });
+  await w.s.apply(confirmDeletion, proof);
   await w.s.apply(runPrivacyJobs);
 }
 
