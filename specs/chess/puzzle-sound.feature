@@ -5,6 +5,7 @@ Feature: Respect the app's sounds while solving and reviewing
 
   Rule: Puzzle moves and captures follow the app's sounds preference
 
+    @regression:merge-puzzle-move-wording
     Scenario: Enabled sounds accompany a puzzle move and its opponent reply
       Given Alice is signed in
       And Alice has turned sounds on

@@ -23,10 +23,10 @@ Feature: Puzzle Assistant without barriers
       And Alice can read the assistant's current observation
       And Alice can move pieces
 
-    Scenario: Unavailable audio keeps the observation and play available
+    Scenario: Unavailable speech keeps the observation and play available
       Given Alice is signed in
       And Alice is hosting a space
-      And Alice's audio is unavailable
+      And Alice's speech is unavailable
       When Alice opens puzzles in their space
       Then Alice's assistant stays readable when speech cannot play
       And Alice can move pieces
