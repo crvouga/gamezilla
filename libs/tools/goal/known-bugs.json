@@ -1,5 +1,20 @@
 [
   {
+    "id": "custom-game-offline-boundary",
+    "summary": "Modified-device probes bypassed the injected network fabric and reached room authority while disconnected. Route probes through the device transport and observe the product connection refusal without disclosing room state.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-idempotent-readiness",
+    "summary": "The harness clicked the readiness toggle when the requested ready or unready state was already shown, reversing an idempotent command. Send the explicit acknowledged choice when the toggle would perform the opposite operation.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-stale-cancellation",
+    "summary": "A cancellation prepared before the creator assigned Black to a bot ignored the changed choices revision and cancelled the newer configuration. Reject a stale cancellation while preserving the newer agreed game.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
     "id": "custom-game-terminal-confirmation",
     "summary": "The harness treated an unavailable cancel or resign control as usable and waited for a confirmation modal that could not open. Attempt unavailable choices through the acknowledged refusal path and use the modal only when its control is enabled.",
     "regressionTest": "libs/chess/tests/quint/custom-game-control.binding.ts"

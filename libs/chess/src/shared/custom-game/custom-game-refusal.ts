@@ -197,7 +197,8 @@ export function customGameRefusal(
   if (game === null) return '';
   if (
     (CUSTOM_GAME_SETTING_OPERATIONS.includes(choice.operation) ||
-      choice.operation === 'start') &&
+      choice.operation === 'start' ||
+      choice.operation === 'cancel') &&
     choice.revision !== game.revision
   )
     return 'choices changed';

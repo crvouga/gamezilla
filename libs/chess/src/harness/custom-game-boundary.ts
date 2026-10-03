@@ -2,7 +2,9 @@ import { DEVICE_ID_KEY } from '@libs/auth/public/auth-storage-keys';
 import { ensureActor, scenarioAction } from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { answerOfRoomCommand } from '@libs/spaces/harness/room-command-probe';
+import type { Timers } from '@pkgs/clock';
 import { ChangeCustomGame, type CustomGameChoice } from '../public/custom-game';
+import { confirmCustomGameChoice } from '../use-cases/change-custom-game/client/confirm-custom-game-choice';
 import { readCustomGameIdentity } from './custom-game-identity';
 
 type Reply = { readonly reason: string; readonly disclosed: boolean };
@@ -17,6 +19,22 @@ function rememberReply(s: ProductHarness, actor: string, reply: Reply): void {
   actors.set(actor, reply);
 }
 
+async function disconnectedReason(
+  timers: Timers,
+  choice?: CustomGameChoice
+): Promise<string> {
+  try {
+    await confirmCustomGameChoice(
+      { room: undefined, timers, pending: new Set() },
+      choice ?? { operation: 'create', gameId: null, revision: 0 }
+    );
+  } catch (failure) {
+    if (!(failure instanceof Error)) throw failure;
+    return failure.message;
+  }
+  throw new Error('A disconnected game choice was unexpectedly confirmed');
+}
+
 /** A modified device still reaches the real admission and operation boundaries. */
 export const attemptCustomGameBoundary = scenarioAction({
   name: 'attemptCustomGameBoundary',
@@ -27,13 +45,16 @@ export const attemptCustomGameBoundary = scenarioAction({
   ) => {
     await ensureActor(s, actor);
     const env = await s.harness.client(actor);
+    if (env.room === undefined)
+      throw new Error('modified device has no room transport');
+    const node = { ...s.harness.roomNode, createTransport: env.room };
     const identity = await readCustomGameIdentity(s, actor);
     const installId = env.secureStorage.getValue(DEVICE_ID_KEY);
     if (installId === null)
       throw new Error('modified device has no install identity');
     try {
       if (args.choice !== undefined) {
-        const answer = await answerOfRoomCommand(s.harness.roomNode, {
+        const answer = await answerOfRoomCommand(node, {
           spaceId: args.spaceId,
           identity,
           installId,
@@ -52,7 +73,7 @@ export const attemptCustomGameBoundary = scenarioAction({
         return;
       }
       let disclosed = false;
-      const transport = s.harness.roomNode.createTransport({
+      const transport = node.createTransport({
         spaceId: args.spaceId,
         identity,
         installId,
@@ -72,6 +93,16 @@ export const attemptCustomGameBoundary = scenarioAction({
         transport.destroy();
       }
     } catch (cause) {
+      if (
+        cause instanceof Error &&
+        cause.message === 'harness room: server unreachable'
+      ) {
+        rememberReply(s, actor, {
+          reason: await disconnectedReason(env.timers, args.choice),
+          disclosed: false,
+        });
+        return;
+      }
       if (!(cause instanceof Error) || cause.message !== 'not in the space')
         throw cause;
       rememberReply(s, actor, { reason: cause.message, disclosed: false });

@@ -129,8 +129,12 @@ export async function changeThroughCustomGameControls(
     (probe.current === null || !customGameStartable(probe.current));
   const modified =
     input.operation === 'invite' ||
-    (input.operation === 'ready' && probe.mySide !== null && probe.current?.ready.includes(probe.mySide) === true) ||
-    (input.operation === 'unready' && (probe.mySide === null || probe.current?.ready.includes(probe.mySide) !== true)) ||
+    (input.operation === 'ready' &&
+      probe.mySide !== null &&
+      probe.current?.ready.includes(probe.mySide) === true) ||
+    (input.operation === 'unready' &&
+      (probe.mySide === null ||
+        probe.current?.ready.includes(probe.mySide) !== true)) ||
     confirmUnavailable(probe, input) ||
     cannotStart ||
     (input.operation === 'move' && !boardAllows(probe, input));
