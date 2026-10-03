@@ -69,4 +69,3 @@ Feature: Choose White and Black
       And Black in the Custom Game is closed
       When Bob claims Black in the Custom Game
       Then Bob is told that side is not an open place
-

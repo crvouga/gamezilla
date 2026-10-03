@@ -90,4 +90,3 @@ Feature: Become ready and start
       And The Custom Game choices changed before Alice's start
       When Alice starts the Custom Game with the earlier choices
       Then Alice is told the Custom Game choices have changed
-
