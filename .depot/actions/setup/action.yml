@@ -43,15 +43,4 @@ runs:
 
     - name: Install pinned visual renderer
       if: inputs.ui-quality == 'true'
-      id: chrome
-      uses: browser-actions/setup-chrome@v2
-      with:
-        chrome-version: '154.0.8037.92'
-        install-dependencies: true
-
-    - name: Select visual renderer
-      if: inputs.ui-quality == 'true'
-      shell: bash
-      env:
-        CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
-      run: echo "BUN_CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+      uses: ./.depot/actions/visual-renderer

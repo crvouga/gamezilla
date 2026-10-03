@@ -2000,6 +2000,16 @@
     "regressionTest": "libs/chess/tests/puzzle-data/csv-record-security.test.ts"
   },
   {
+    "id": "check-ui-fanin-shard-collapse",
+    "summary": "The Check planner unioned all real dependency edges, binding 158 independent screenshot-producing spec leaves, builds and final UI consumers into one 168-task group (3111 seconds versus 79\u201380 on other shards). Move shared builds and fan-in consumers into ordered jobs and duration-balance independent checks from one immutable plan.",
+    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+  },
+  {
+    "id": "check-vite-generated-build-inputs",
+    "summary": "Broad build input globs included node_modules/.vite/deps/_metadata.json and package.json, hashing generated optimizer metadata with timestamps and absolute paths. Exclude dependency install trees while retaining lockfile, source, environment and dependency hashes.",
+    "regressionTest": "libs/tools/scripts/check-cache-keys.test.ts"
+  },
+  {
     "id": "check-failed-task-duration-history",
     "summary": "Raw Turbo summaries store failed exit codes inside execution; harvesting their elapsed time as successful history inflated estimates. Ignore failed raw execution and sanitized shard timings, and ignore invalid or zero elapsed samples.",
     "regressionTest": "libs/tools/scripts/check-task-costs.test.ts"

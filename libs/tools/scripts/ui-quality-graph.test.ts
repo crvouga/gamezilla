@@ -127,27 +127,25 @@ test('sharded Check prepares visual inference while deploys retain their measure
   const shard = check.jobs['check-shards']!;
   expect(shard['runs-on']).toContain('vars.CHECK_RUNNER');
   expect(
-    shard.steps.find((step) => step.uses === './.depot/actions/setup')?.with?.[
-      'ui-quality'
-    ]
-  ).toBe('true');
-  const setupIndex = shard.steps.findIndex(
-    (step) => step.name === 'Prepare visual model for its owning shard'
+    shard.steps.find(
+      (step) => step.name === 'Install renderer for browser tasks'
+    )?.uses
+  ).toBe('./.depot/actions/visual-renderer');
+  const consumers = check.jobs['check-consumers']!;
+  const setupIndex = consumers.steps.findIndex(
+    (step) => step.name === 'Prepare visual model'
   );
-  const checkIndex = shard.steps.findIndex((step) => step.name === 'check');
+  const checkIndex = consumers.steps.findIndex((step) => step.name === 'check');
   expect(setupIndex).toBeGreaterThanOrEqual(0);
   expect(setupIndex).toBeLessThan(checkIndex);
-  expect(shard.steps[setupIndex]!.run).toContain(
-    '@apps/product#check:ui-quality'
-  );
-  expect(shard.steps[setupIndex]!.run).toContain(
+  expect(consumers.steps[setupIndex]!.run).toContain(
     '@apps/product#prepare:ui-quality-model'
   );
-  const evidence = shard.steps.find(
-    (step) => step.name === 'Upload visual quality evidence'
-  );
-  expect(evidence?.with?.['name']).toContain('${{ matrix.shard }}');
-  expect(evidence?.with?.['path']).toBe('apps/product/.cache/ui-quality/');
+  expect(
+    consumers.steps.find(
+      (step) => step.name === 'Upload visual quality evidence'
+    )?.with?.['path']
+  ).toBe('apps/product/.cache/ui-quality/');
   for (const name of ['deploy-standard', 'deploy-production']) {
     expect(deploy.jobs[name]!['runs-on']).toBe('depot-ubuntu-24.04-16');
     expect(deploy.jobs[name]!.env?.['TURBO_CONCURRENCY']).toBe('12');
