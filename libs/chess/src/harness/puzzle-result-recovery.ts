@@ -1,6 +1,10 @@
 import { ensureActor, scenarioAction } from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
-import { accountIdOf } from '@libs/harness/system/identity';
+import {
+  accountIdOf,
+  actorLocalSql,
+  localAccountIdOf,
+} from '@libs/harness/system/identity';
 import { bringToFront, partitioned } from '@libs/harness/system/observations';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
@@ -88,6 +92,18 @@ export async function readRecordedPuzzleResult(
   if (owner === null) throw new Error('No solver account');
   return (await records(s.harness.serverSql.sqlClient, owner, puzzle))
     .ratedResult;
+}
+
+/** Arrival fence for competing finishes; observations still read rendered stats. */
+export async function readLocalPuzzleResult(
+  s: ProductHarness,
+  actor: string,
+  puzzle: string
+): Promise<string> {
+  const owner = await localAccountIdOf(s, actor);
+  const db = actorLocalSql(s, actor);
+  if (owner === null || db === null) throw new Error('No solver account');
+  return (await records(db, owner, puzzle)).ratedResult;
 }
 
 /** Each open app reads its own visible stats after the modeled navigation. */

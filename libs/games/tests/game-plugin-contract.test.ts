@@ -15,8 +15,16 @@ function dummyGame(id: string): GameDefinition {
 describe('game plugin contract', () => {
   test('the space module composes an additional game without product changes', () => {
     const games = [dummyGame('first'), dummyGame('second')];
-    const module = composeSpaceRoomModule(games, () => 0);
-    const again = composeSpaceRoomModule([...games], () => 0);
+    const module = composeSpaceRoomModule(
+      games,
+      () => 0,
+      () => 0
+    );
+    const again = composeSpaceRoomModule(
+      [...games],
+      () => 0,
+      () => 0
+    );
     expect(again.name).toBe(module.name);
     expect(module.initialState()).toBeDefined();
   });

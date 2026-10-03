@@ -20,6 +20,7 @@ import type { EnvTime } from '@libs/feature/public/sync';
 import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
 import type { CatalogAction, CatalogProperty } from '@pkgs/harness';
 import type { RoomActor, RoomState } from '@pkgs/room';
+import type { RoomServicePort } from '@pkgs/room/server';
 import type {
   RoomStorageTopicReplace,
   RoomStorageTopicSnapshot,
@@ -61,6 +62,7 @@ export type HarnessRoomGateway = {
 };
 
 export type HarnessRoomNode = {
+  readonly services: RoomServicePort;
   readonly createTransport: NonNullable<ClientEnv['room']>;
   listTopics(): readonly string[];
   inspect(topic: string): HarnessRoomInspect | null;
@@ -82,6 +84,7 @@ export type HarnessComposition = {
   /** Server folds for one API instance, given the host's services. */
   readonly servers: (deps: {
     readonly billing: MembershipProviders | null;
+    readonly rooms: RoomServicePort;
   }) => readonly FeatureServer[];
   /** Defaults to {@link migrateCompositionPostgres} over `app.schema`. */
   readonly migratePostgres?: MigrateHarnessPostgres;
@@ -104,7 +107,16 @@ export type HarnessComposition = {
 
 /** The room node of a composition that runs no rooms: empty, and says so. */
 export function noRoomNode(compositionName: string): HarnessRoomNode {
+  const absent = (): never => {
+    throw new Error(`harness '${compositionName}' composes no room host`);
+  };
   return {
+    services: {
+      read: absent,
+      send: absent,
+      eraseIdentity: absent,
+      disconnect: absent,
+    },
     createTransport: () => {
       throw new Error(
         `harness '${compositionName}' composes no room host; add one to its composition`

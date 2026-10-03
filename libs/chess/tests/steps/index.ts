@@ -1,4 +1,5 @@
 import '@libs/account-privacy/steps/privacy.steps';
+import '@libs/account-privacy/steps/exports.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs
  * (`specDomains`): registers the world (this package's harness
@@ -10,6 +11,7 @@ import '@libs/account-privacy/steps/privacy.steps';
 
 import '@libs/harness/spec/steps/platform';
 import '@libs/profile/steps/profile.steps';
+import '@libs/profile/steps/auth.steps';
 import '@libs/billing/steps/access.steps';
 import '@libs/friends/steps/friends.steps';
 import '@libs/friends/steps/spaces.steps';
@@ -28,6 +30,18 @@ import './puzzle-allowance.steps';
 import './puzzle-spectator.steps';
 import './puzzle-recovery.steps';
 import './space-game.steps';
+import './custom-game-creation.steps';
+import './custom-game-choices.steps';
+import './custom-game-refusals.steps';
+import './custom-game-play.steps';
+import './custom-game-histories.steps';
+import './custom-game-races.steps';
+import './custom-game-recovery.steps';
+import './custom-game-access.steps';
+import './custom-game-devices.steps';
+import './custom-game-accessibility.steps';
+import './custom-game-privacy.steps';
+import './custom-game-export.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openSpecHarness } from '../harness/open-chess-harness';
@@ -41,6 +55,7 @@ useHarnessWorld(openSpecHarness, (w) => ({
       volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
     });
     await w.s.apply(createSpace, actor);
+    const customLink = await w.s.read(readSpaceLink, actor);
     await w.s.apply(openPuzzleFromSpace, actor);
     await w.s.apply(playUntilSolved, actor);
     await w.s.apply(showChessStatsScreen, actor);
@@ -55,11 +70,18 @@ useHarnessWorld(openSpecHarness, (w) => ({
       'deleted-puzzle-solved',
       await w.s.read(readStatsSolved, actor)
     );
+    if (customLink === null) throw new Error('Deleted account has no space');
+    await w.s.apply(leaveChessStatsScreen, actor);
+    await w.s.apply(reopenSpaceLink, actor, customLink);
+    await customDefault(w, actor);
+    remember(w, 'deleted-custom-game-id', (await customGame(w)).id);
+    remember(w, 'deleted-custom-game-link', w.memo.get('custom-link'));
   },
 }));
 
 import { proveAccount } from '@libs/account-privacy/harness/privacy-actions';
 import {
+  leaveChessStatsScreen,
   openPuzzleFromSpace,
   playUntilSolved,
   showChessStatsScreen,
@@ -76,4 +98,9 @@ import {
 } from '@libs/chess/public/chess-puzzle-rating';
 import type { Actor } from '@libs/harness/spec/define';
 import { remember } from '@libs/harness/spec/world';
-import { createSpace } from '@libs/spaces/harness/space-actions';
+import {
+  createSpace,
+  reopenSpaceLink,
+} from '@libs/spaces/harness/space-actions';
+import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
+import { customDefault, customGame } from './custom-game-world';

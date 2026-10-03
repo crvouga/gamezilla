@@ -1,0 +1,7 @@
+# generated from .agents/commands by `bun run agents:sync` — do not edit
+description = "Complete a supplied goal through persistent unattended work, making routine decisions without questions and continuing implementation, verification, and repair until done. Use for unattended runs or requests to keep working autonomously until a goal is achieved."
+prompt = """
+@{.agents/commands/autopilot.md}
+
+Follow the command above exactly. Arguments: {{args}}
+"""

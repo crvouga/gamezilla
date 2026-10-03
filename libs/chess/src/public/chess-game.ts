@@ -1,1 +1,1 @@
-export * from '../shared/chess/chess-game';
+export * from '../root/chess-game';

@@ -5,8 +5,7 @@ import {
   isPlainRecord,
   type MessageRouter,
 } from '@pkgs/message';
-import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
-import type { GameCommandContext } from '../game';
+import type { RoomState } from '@pkgs/room';
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0;
@@ -40,17 +39,8 @@ const seatsNs = createAttrNamespace('space', 'members');
 /** Durable session seats in {@link RoomState} (not Postgres). */
 export const SpaceMembersRoomAttr = {
   seats: seatsNs.json('seats', parseSeats),
+  ended: seatsNs.boolean('ended', (value) => value === true),
 } as const;
-
-export const spaceMembersCmdNs = createMessageNamespace('space-members-cmd');
-export const JoinSpaceSeat = spaceMembersCmdNs(
-  'join-seat',
-  validateMemberPayload
-);
-export const LeaveSpaceSeat = spaceMembersCmdNs(
-  'leave-seat',
-  validateMemberPayload
-);
 
 export const spaceMembersEvtNs = createMessageNamespace('space-members-evt');
 export const SpaceSeatJoined = spaceMembersEvtNs(
@@ -65,44 +55,6 @@ export const SpaceSeatLeft = spaceMembersEvtNs(
 function readSeats(state: RoomState): SpaceSeatsMap {
   return SpaceMembersRoomAttr.seats.from(state);
 }
-
-export const spaceMembersCommandRouter: MessageRouter<
-  RoomState,
-  GameCommandContext,
-  HandleResult
-> = createMessageRouter<RoomState, GameCommandContext, HandleResult>(
-  spaceMembersCmdNs
-)
-  .on(JoinSpaceSeat, (_state, ctx, cmd) => {
-    if (cmd.payload.memberId !== ctx.identity) {
-      return {
-        ok: false,
-        error: {
-          type: ROOM_ERROR_TYPE.unauthorized,
-          reason: 'cannot join seat for another member',
-        },
-      };
-    }
-    return {
-      ok: true,
-      events: [SpaceSeatJoined({ memberId: cmd.payload.memberId })],
-    };
-  })
-  .on(LeaveSpaceSeat, (_state, ctx, cmd) => {
-    if (cmd.payload.memberId !== ctx.identity) {
-      return {
-        ok: false,
-        error: {
-          type: ROOM_ERROR_TYPE.unauthorized,
-          reason: 'cannot leave seat for another member',
-        },
-      };
-    }
-    return {
-      ok: true,
-      events: [SpaceSeatLeft({ memberId: cmd.payload.memberId })],
-    };
-  });
 
 export function createSpaceMembersEventReducer(
   now: () => number

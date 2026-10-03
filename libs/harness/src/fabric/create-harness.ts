@@ -4,7 +4,6 @@ import {
   createClient,
 } from '@libs/client-app/shell/create-client';
 import { HARNESS_SERVER_URL } from '@libs/feature/public/harness-constants';
-import type { EnvTime } from '@libs/feature/public/sync';
 import type { ServerEnv } from '@libs/server-app';
 import { assert } from '@pkgs/assert';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';
@@ -15,17 +14,14 @@ import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import type { OutboxConsumerRegistry } from '@pkgs/outbox';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
 } from '@pkgs/pubsub/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import {
-  type HarnessComposition,
-  type HarnessRoomNode,
-  noRoomNode,
-} from '../composition';
+import type { HarnessComposition, HarnessRoomNode } from '../composition';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
 import {
   createHarnessAccountReadyDelays,
@@ -59,7 +55,7 @@ import {
   type HarnessLoadBalancer,
 } from './load-balancer';
 import { createHarnessNet } from './net';
-import { harnessRoomGateway } from './room-gateway';
+import { createHarnessRooms } from './room-services';
 import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,
@@ -120,6 +116,7 @@ export type Harness = {
   dropServer(id: string): Promise<void>;
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
+  outboxConsumers(): OutboxConsumerRegistry;
   spawnClient(id: string, env?: ClientEnv): Promise<Client>;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
@@ -242,21 +239,6 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
   };
 }
 
-function buildRoomServerEnv(args: {
-  readonly session: Session;
-  readonly seed: bigint;
-  readonly timers: Timers;
-}): EnvTime {
-  const { session, seed, timers } = args;
-  return {
-    clock: session.ports.clock,
-    timers,
-    createId: session.ports.createId,
-    random: session.ports.random,
-    seed,
-  };
-}
-
 type HarnessKernel = {
   readonly session: Session;
   readonly composition: HarnessComposition;
@@ -335,14 +317,17 @@ async function bootHarnessKernel(
     // Webhooks go through the balancer, like any caller's.
     toApi: (node) => loadBalancer.fetchFrom(node),
   });
-  const roomNode =
-    composition.roomNode?.(
-      buildRoomServerEnv({ session, seed, timers }),
-      harnessRoomGateway({ composition, serverSql, clock: session.ports.clock })
-    ) ?? noRoomNode(composition.name);
+  const { roomNode, rooms } = createHarnessRooms({
+    session,
+    composition,
+    seed,
+    timers,
+    serverSql,
+  });
   const disposed = { value: false };
   const servers = createHarnessServerNodes({
     composition,
+    rooms,
     buildEnv: (id) =>
       Promise.resolve(
         buildServerEnv({
@@ -433,6 +418,14 @@ function createClientEnvs(
   };
 }
 
+function harnessOutboxConsumers(
+  servers: HarnessServerNodes
+): OutboxConsumerRegistry {
+  const node = servers.get(HARNESS_PRIMARY_SERVER_ID);
+  if (node === undefined) throw new Error('primary server is missing');
+  return node.outboxConsumers;
+}
+
 function createHarnessHandle(kernel: HarnessKernel): Harness {
   const { session, net, pubSubBus, serverSql, roomNode, servers, idps } =
     kernel;
@@ -495,9 +488,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     },
     clientIds: () => [...liveClients.keys()],
     bumpClientEpoch: namespaces.bump,
-    setAppBuild: (id, build) => {
-      kernel.appBuilds.set(id, build);
-    },
+    setAppBuild: (id, build) => kernel.appBuilds.set(id, build),
     setAccountReadyDelay: (id, delayMs) => {
       kernel.accountReadyDelays.set(id, delayMs);
     },
@@ -519,6 +510,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     },
     roomNode,
     serverSql,
+    outboxConsumers: () => harnessOutboxConsumers(servers),
     clientSql: (id) => clientSql.get(id),
   };
 }

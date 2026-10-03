@@ -132,6 +132,7 @@ bindQuintModel<QuintHarnessWorld>({
   timeoutMs: 180_000,
   regressions: [
     // regression: puzzle-reconnect-allowance-disappears
+    // regression: puzzle-skipped-reconnect
     {
       id: 'puzzle-skipped-reconnect',
       title: 'A returning watcher sees the skipped puzzle and commentary',

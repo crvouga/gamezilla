@@ -12,6 +12,7 @@ import {
   spaceOpenSessionEntityId,
 } from './participation/participation-ids';
 import { isSpaceHostActor } from './participation/space-participation-policy';
+import { changeSpaceRoomMembership } from './space-withdrawal';
 import { storedSpacePresence } from './stored-space-presence';
 
 type SpaceHostRow = {
@@ -147,6 +148,7 @@ export async function endSpace(
   env: MutationEnv,
   spaceId: string
 ): Promise<void> {
+  await changeSpaceRoomMembership({ tx, env }, spaceId, 'ended');
   const now = env.now().toISOString();
   await tx.run(sql`
     UPDATE spaces

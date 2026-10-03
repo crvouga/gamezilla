@@ -45,7 +45,7 @@ Feature: A grounded Puzzle Assistant
       When Alice plays the quiet wrong move
       Then Alice's assistant explains the knight fork of king and queen
 
-    Scenario: Puzzle labels cannot invent a fork
+    Scenario: A puzzle theme cannot invent a fork
       Given Alice is signed in
       And Alice is solving the castling puzzle labelled as a fork
       When Alice plays a wrong move

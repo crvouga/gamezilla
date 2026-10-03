@@ -7,6 +7,7 @@ import {
 import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
 
 import type { GameCommandContext } from '../game';
+import { SpaceMembersRoomAttr } from '../space-members/space-members-messages';
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0;
@@ -29,19 +30,10 @@ export const AnnounceMemberJoined = spaceLogCmdNs(
   'announce-member-joined',
   validateMemberPayload
 );
-export const AnnounceMemberLeft = spaceLogCmdNs(
-  'announce-member-left',
-  validateMemberPayload
-);
 export const AnnounceRenamed = spaceLogCmdNs(
   'announce-renamed',
   validateRenamedPayload
 );
-export const AnnounceEnded = spaceLogCmdNs(
-  'announce-ended',
-  validateEmptyPayload
-);
-
 export const spaceLogEvtNs = createMessageNamespace('space-log-evt');
 export const MemberJoined = spaceLogEvtNs(
   'member-joined',
@@ -80,28 +72,9 @@ export const spaceLogCommandRouter: MessageRouter<
       events: [MemberJoined({ memberId: cmd.payload.memberId })],
     };
   })
-  .on(AnnounceMemberLeft, (_state, ctx, cmd) => {
-    if (cmd.payload.memberId !== ctx.identity) {
-      return {
-        ok: false,
-        error: {
-          type: ROOM_ERROR_TYPE.unauthorized,
-          reason: 'cannot announce leave for another member',
-        },
-      };
-    }
-    return {
-      ok: true,
-      events: [MemberLeft({ memberId: cmd.payload.memberId })],
-    };
-  })
   .on(AnnounceRenamed, (_state, _identity, cmd) => ({
     ok: true,
     events: [SpaceRenamed({ title: cmd.payload.title })],
-  }))
-  .on(AnnounceEnded, () => ({
-    ok: true,
-    events: [SpaceEnded({})],
   }));
 
 /**
@@ -113,4 +86,8 @@ export const spaceLogEventReducer: MessageRouter<RoomState, void, RoomState> =
     .on(MemberJoined, (state) => state)
     .on(MemberLeft, (state) => state)
     .on(SpaceRenamed, (state) => state)
-    .on(SpaceEnded, (state) => state);
+    .on(SpaceEnded, (state) => ({
+      ...state,
+      ...SpaceMembersRoomAttr.ended(true),
+      ...SpaceMembersRoomAttr.seats({}),
+    }));

@@ -9,7 +9,9 @@ import {
   roomSystemCatalog,
 } from '@pkgs/room-harness';
 
-import { ChessModule } from '../shared/chess/chess-module';
+import { createChessModule } from '../shared/chess/chess-module';
+
+const ChessModule = createChessModule(() => 0);
 
 /**
  * Minimal RoomApp for scripted chess puzzle pins. Domain arbs are empty —

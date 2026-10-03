@@ -8,6 +8,8 @@
  * `specs/` and is not a checklist in this module.
  */
 
+import { quintRegressionProof } from './quint-regression-proof';
+
 /**
  * A bug that was found and fixed. Its guard is always an example-based
  * regression test.
@@ -17,7 +19,8 @@ export type KnownBug = {
   readonly summary: string;
   /**
    * Repo-relative test file carrying `regression: <id>` beside the test, or
-   * a `.feature` whose pinned scenario is tagged `@regression:<id>`.
+   * a `.feature` whose pinned scenario is tagged `@regression:<id>`, or a
+   * canonical Quint binding registering a marked literal ITF history.
    */
   readonly regressionTest: string;
 };
@@ -45,6 +48,7 @@ export function regressionTag(bugId: string): string {
 const TEST_FILE = /\.test\.tsx?$/;
 const PROPERTY_FILE = /\.property\.test\.tsx?$/;
 const FEATURE_FILE = /\.feature$/;
+const QUINT_BINDING = /(?:^|\/)tests\/quint\/[^/]+\.binding\.ts$/;
 
 function validateRegressionTest(
   bug: KnownBug,
@@ -54,9 +58,10 @@ function validateRegressionTest(
   const label = `known-bugs:${bug.id}`;
   const path = bug.regressionTest;
   const feature = typeof path === 'string' && FEATURE_FILE.test(path);
-  if (typeof path !== 'string' || !(feature || TEST_FILE.test(path))) {
+  const quint = typeof path === 'string' && QUINT_BINDING.test(path);
+  if (typeof path !== 'string' || !(feature || quint || TEST_FILE.test(path))) {
     errors.push(
-      `${label}: regressionTest must be a *.test.ts(x) or *.feature file`
+      `${label}: regressionTest must be a *.test.ts(x) or *.feature file, or a pinned tests/quint/*.binding.ts registration`
     );
     return;
   }
@@ -75,6 +80,10 @@ function validateRegressionTest(
   const marker = feature ? regressionTag(bug.id) : regressionMarker(bug.id);
   if (!body.includes(marker)) {
     errors.push(`${label}: ${path} does not contain marker "${marker}"`);
+  }
+  if (quint) {
+    const failure = quintRegressionProof({ body, bugId: bug.id, path, files });
+    if (failure !== null) errors.push(`${label}: ${path} ${failure}`);
   }
 }
 

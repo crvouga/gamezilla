@@ -1,103 +1,73 @@
 [
   {
-    "id": "build-glob-nested-braces",
-    "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
-    "regressionTest": "pkgs/glob-match/tests/glob-match.test.ts"
+    "id": "harness-reconnect-stale-fabric-fixture",
+    "summary": "The offline-boot recovery example omitted the fabric heal port after reconnection began restoring both networks, aborting before it could verify origin recovery. Supply that port and assert that one-device and whole-network recovery heal the matching fabric scope.",
+    "regressionTest": "libs/harness/tests/reconnect-origin-health.test.ts"
   },
   {
-    "id": "puzzle-reconnect-allowance-disappears",
-    "summary": "During network restoration the puzzle allowance disappeared between the visibility and text probes. Its missing-element error aborted convergence, leaving the watcher observed as revealed instead of skipped. Treat only that optional-label disappearance as absent and continue observing the unchanged model expectations.",
-    "regressionTest": "libs/chess/tests/puzzle-observation.test.ts"
+    "id": "custom-game-offline-boundary",
+    "summary": "Modified-device probes bypassed the injected network fabric and reached room authority while disconnected. Route probes through the device transport and observe the product connection refusal without disclosing room state.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
   },
   {
-    "id": "puzzle-assistant-opponent-king",
-    "summary": "During a correct move’s automatic reply the board temporarily shows the opponent in check. Coaching incorrectly said the solver’s king was checked and the opponent had already replied. Give neutral reply guidance until the board settles.",
-    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+    "id": "custom-game-idempotent-readiness",
+    "summary": "The harness clicked the readiness toggle when the requested ready or unready state was already shown, reversing an idempotent command. Send the explicit acknowledged choice when the toggle would perform the opposite operation.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
   },
   {
-    "id": "puzzle-assistant-history-diagnosis",
-    "summary": "Scrubbing to an earlier board retained a wrong-move diagnosis and hints belonging to the frontier. Give review guidance and replace the speech context.",
-    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+    "id": "custom-game-stale-cancellation",
+    "summary": "A cancellation prepared before the creator assigned Black to a bot ignored the changed choices revision and cancelled the newer configuration. Reject a stale cancellation while preserving the newer agreed game.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
   },
   {
-    "id": "quint-convergence-resampled",
-    "summary": "Trace conformance sampled again after observing convergence and could report a transient state during queued reconnect commands. Evaluate the same observation that established convergence; pin both long reconnect histories.",
-    "regressionTest": "pkgs/quint/tests/replay-observation.test.ts"
+    "id": "custom-game-terminal-confirmation",
+    "summary": "The harness treated an unavailable cancel or resign control as usable and waited for a confirmation modal that could not open. Attempt unavailable choices through the acknowledged refusal path and use the modal only when its control is enabled.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-control.binding.ts"
   },
   {
-    "id": "tts-old-seek-restarts-same-url",
-    "summary": "An interrupted audio seek could start a later request with the same cached URL before its own seek completed. Guard asynchronous playback by request identity, including stop and disposal.",
-    "regressionTest": "pkgs/tts/tests/tts-player-controller.test.ts"
+    "id": "custom-game-partition-spends-time",
+    "summary": "Losing a room connection reached the loopback transport only after a heartbeat; settling the offline view consumed time and let timed games or bots advance. Fabric network changes now notify live room sockets immediately.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"
   },
   {
-    "id": "room-short-partition-loses-commands",
-    "summary": "A partition healed before the heartbeat lost offline commands without notifying the room client to resynchronize. A failed send closes the transport so its durable queue is replayed after healing.",
-    "regressionTest": "libs/harness/tests/partition-aware-room-transport.test.ts"
+    "id": "custom-game-observation-spends-time",
+    "summary": "Switching Alice and Bob UI views advanced virtual time by one second per focus, causing observation of active Custom Games to expire clocks and move bots. Focus now drains only currently due work.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"
   },
   {
-    "id": "tts-identical-input-cancels-speech",
-    "summary": "An accessor returning a fresh but equivalent observation reran the speech effect, aborted its pending audio, then refused to restart the same utterance. Track text, enabled and context as scalar memos.",
-    "regressionTest": "pkgs/tts/tests/speak-context.test.tsx"
+    "id": "known-bug-gate-rejects-pinned-quint",
+    "summary": "The regression registry rejected a literal Quint history even though the standard model runner replayed it as an example test. Recognize canonical bindings only with a matching registered regression, imported literal trace and executable action history.",
+    "regressionTest": "libs/tools/scripts/quint-regression-proof.test.ts"
   },
   {
-    "id": "avatar-tts-missing-request-auth",
-    "summary": "Puzzle voice never started because the app TTS provider sent raw HTTP without account or device headers. Compose it with current request auth while preserving cancellation and caller headers.",
-    "regressionTest": "libs/client-app/tests/shell/authenticated-fetch.test.ts"
+    "id": "custom-game-personal-export-omits-games",
+    "summary": "Personal-data exports returned puzzle rows but omitted the requesting person's Custom Game choices, moves and outcome. Include retained games created or played by that person, excluding an outsider's games.",
+    "regressionTest": "specs/chess/custom-game-privacy.feature"
   },
   {
-    "id": "puzzle-stored-mate-continues",
-    "summary": "A preferred checkmate with trailing source moves was accepted as a nonterminal line match; legal checkmate must end the attempt before source-line validation.",
-    "regressionTest": "libs/chess/tests/puzzle-session/mate-objective.test.ts"
+    "id": "ci-report-restore-aborts-independent-outputs",
+    "summary": "Check report restoration rejected on the missing @libs/chess#test:spec:13 cache artifact and abandoned queued friends reports. Drain every independent restoration and aggregate failures after completion, preserving the failed verdict.",
+    "regressionTest": "libs/tools/scripts/check-report-queue.test.ts"
   },
   {
-    "id": "puzzle-assistant-theme-fiction",
-    "summary": "Theme-driven coaching called a completed non-mating castling line checkmate. Derive success commentary from the actual board.",
-    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+    "id": "chess-custom-board-sound-preference",
+    "summary": "The Custom Game board omitted an explicit sound choice, failing the public board contract and ignoring the app sound preference. Bind board sounds to the injected preference so muting applies to Custom Games.",
+    "regressionTest": "libs/chess/tests/board-contract.test.ts"
   },
   {
-    "id": "puzzle-assistant-unavailable-is-illegal",
-    "summary": "Unavailable puzzle data was described as an illegal solver move. Keep unavailable data distinct from attempted moves.",
-    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+    "id": "room-overlapping-command-results",
+    "summary": "Custom Game confirmation watched the shared room error, so a refused command could reject another overlapping accepted command. Expose command-correlated server results and confirm each choice from its own rejection or committed event.",
+    "regressionTest": "pkgs/room/tests/room-command-results.test.ts"
   },
   {
-    "id": "puzzle-assistant-defended-knight-hanging",
-    "summary": "A knight that could be recaptured after capture was treated as hanging. Require a legal capture and absence of legal recapture.",
-    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+    "id": "chess-custom-client-schedules",
+    "summary": "Creating the first Custom Game emitted authoritative schedule cancellations, but the Space Room client had no effect handler and threw before dispatch. Devices now recognize schedule effects while the server alone runs bot turns and clock deadlines. The guest creation scenario pins the literal first-create failure.",
+    "regressionTest": "specs/chess/custom-game-creation.feature"
   },
   {
-    "id": "puzzle-assistant-missed-knight-fork",
-    "summary": "A supported knight fork of the king on f1 and queen on d1 was absent from coaching. Require legal moves and legal capture targets, excluding pinned attacks.",
-    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
-  },
-  {
-    "id": "chess-tactics-opponent-already-checked",
-    "summary": "An impossible FEN with the nonmoving king already checked let the chess engine capture a king and crashed tactical analysis. Reject this position for tactical claims.",
-    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
-  },
-  {
-    "id": "tts-aborted-synthesis-plays",
-    "summary": "A synthesis response resolving after its request was aborted started old speech. Check cancellation before handing synthesized audio to playback.",
-    "regressionTest": "pkgs/tts/tests/play-synthesized.test.ts"
-  },
-  {
-    "id": "avatar-loading-hides-observation",
-    "summary": "Speech synthesis loading hid the already available observation; long messages were also clamped and their live region recreated. Keep the complete words visible in a persistent live region.",
-    "regressionTest": "pkgs/ui/tests/speaking-avatar-accessibility.test.tsx"
-  },
-  {
-    "id": "room-archive-migration-history",
-    "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
-    "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
-  },
-  {
-    "id": "trunk-sync-incoming-spec-ownership",
-    "summary": "Syncing the namespace fix with main 59cbccb32 staged already-committed incoming specs alongside product code, so the pre-commit ownership guard rejected the merge. During a merge, enforce ownership on staged changes that differ from the incoming parent; unchanged upstream specs keep their original ownership. Mixed spec conflict resolutions still fail.",
-    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
-  },
-  {
-    "id": "deploy-dev-duplicate-room-namespaces",
-    "summary": "Deploy run 36989073308 stopped because gamezilla-dev already owned namespace 76e8864ea97c4d329171afb8778fb729 while the still-routed legacy room Worker owned ab56d7be4eac481e81df42eac8c99aac. Explicitly pin both IDs, retain the destination under a read-only archive class, then transfer the legacy namespace into the active room class. Unknown conflicts still fail closed and deployment verifies both IDs survive.",
-    "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
+    "id": "room-command-client-time",
+    "summary": "The room server passed the client timestamp into authorization and module handlers. A modified client could send ts=7 while the server clock was 1000, miscounting active clocks. Stamp every received command with the injected server clock before authorization and handling.",
+    "regressionTest": "pkgs/room/tests/room-server-clock.test.ts"
   },
   {
     "id": "ci-identity-regression-stale-interface",
@@ -246,12 +216,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -371,7 +341,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -466,7 +436,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -531,7 +501,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -666,7 +636,7 @@
   },
   {
     "id": "space-offline-presence-stale",
-    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob’s connection while in Alice’s space is pinned.",
+    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob\u2019s connection while in Alice\u2019s space is pinned.",
     "regressionTest": "specs/spaces/space-disconnect-reconnect.feature"
   },
   {
@@ -686,7 +656,7 @@
   },
   {
     "id": "space-session-identities-cross-app-roots",
-    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root’s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
+    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root\u2019s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
     "regressionTest": "libs/spaces/tests/independent-space-sessions.test.ts"
   },
   {
@@ -1226,12 +1196,12 @@
   },
   {
     "id": "signup-username-cross-device",
-    "summary": "Concurrent devices shared a process-global signup handle, causing one profile bootstrap to consume another device’s chosen name. Scope pending handles to the owning auth client.",
+    "summary": "Concurrent devices shared a process-global signup handle, causing one profile bootstrap to consume another device\u2019s chosen name. Scope pending handles to the owning auth client.",
     "regressionTest": "libs/auth/src/public/pending-signup-username.test.ts"
   },
   {
     "id": "signup-username-provider-subject",
-    "summary": "Profile bootstrap replaced the chosen signup username with an OAuth subject such as bob-gmail-com. Provider identifiers are not usernames: retain the account’s validated choice and deny anonymous or unknown account bootstrap claims.",
+    "summary": "Profile bootstrap replaced the chosen signup username with an OAuth subject such as bob-gmail-com. Provider identifiers are not usernames: retain the account\u2019s validated choice and deny anonymous or unknown account bootstrap claims.",
     "regressionTest": "libs/auth/tests/replay-signup-username.test.ts"
   },
   {
@@ -1340,94 +1310,124 @@
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
-    "id": "puzzle-solved-review-resumes",
-    "summary": "Stepping back after a solve changes the displayed status to solving; leaving at that position preserved the completed puzzle and offered it again on return. Completion must survive historical viewing.",
-    "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+    "id": "ui-field-visible-label-unlinked",
+    "summary": "The Custom Game move-review number input showed its label but had no associated accessible name. Link TextInput fields to their visible labels.",
+    "regressionTest": "pkgs/ui/tests/hosts.test.tsx"
   },
   {
-    "id": "permission-catalog-nonaccess-decision",
-    "summary": "The capability catalog required assistant-observation, a semantic decision with no permission answer, to own an access capability. Only decisions answering access yes/no belong in that permission catalog; every semantic decision remains bound and checked by its owner.",
-    "regressionTest": "libs/permissions/tests/closed-world.test.ts"
+    "id": "ui-translated-icon-label-unnamed",
+    "summary": "Custom Game listening checks found four space chrome icon buttons with empty names: IconButton only recognized a string label, while Lingui Trans supplies a reactive JSX value. Resolve the label before deriving the accessible name.",
+    "regressionTest": "pkgs/ui/tests/button.test.tsx"
   },
   {
-    "id": "puzzle-solved-review-forward",
-    "summary": "Reviewing a solved puzzle preserved its completed result but offered no forward control to return to the final position. Solved and skipped boards now expose bounded position navigation.",
-    "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+    "id": "room-archive-migration-history",
+    "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
+    "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
   },
   {
-    "id": "puzzle-solution-after-hint-overclick",
-    "summary": "The real puzzle harness pressed the escalating hint control three times even when a hint had already been taken, then waited for a control removed by showing the solution. Stop pressing once the solution is revealed; the literal model history is pinned.",
-    "regressionTest": "specs/chess/puzzle-controls.feature"
+    "id": "trunk-sync-incoming-spec-ownership",
+    "summary": "Syncing the namespace fix with main 59cbccb32 staged already-committed incoming specs alongside product code, so the pre-commit ownership guard rejected the merge. During a merge, enforce ownership on staged changes that differ from the incoming parent; unchanged upstream specs keep their original ownership. Mixed spec conflict resolutions still fail.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
   },
   {
-    "id": "puzzle-feed-unsaved-choice-persists",
-    "summary": "Editing the puzzle feed wrote each preview directly to synced account settings, so closing without saving retained an unconfirmed offset. Keep a local draft and persist it only on save; pool previews use the draft.",
-    "regressionTest": "specs/chess/puzzle-feed.feature"
+    "id": "deploy-dev-duplicate-room-namespaces",
+    "summary": "Deploy run 36989073308 stopped because gamezilla-dev already owned namespace 76e8864ea97c4d329171afb8778fb729 while the still-routed legacy room Worker owned ab56d7be4eac481e81df42eac8c99aac. Explicitly pin both IDs, retain the destination under a read-only archive class, then transfer the legacy namespace into the active room class. Unknown conflicts still fail closed and deployment verifies both IDs survive.",
+    "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
   },
   {
-    "id": "puzzle-feed-draft-auto-advance",
-    "summary": "The first isolated feed draft saved only changes included in the puzzle-selection fingerprint, dropping auto-advance preferences. Persist every changed choice while selecting a different puzzle only for selection changes. The literal failing trace is pinned.",
-    "regressionTest": "specs/chess/puzzle-feed.feature"
+    "id": "check-gate-waits-for-publication",
+    "summary": "The required Check command waited for nonessential report publication despite completed task verdicts. Watch the lightweight check job rather than the whole Check workflow.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
   },
   {
-    "id": "puzzle-history-command-accepted",
-    "summary": "Submitting a move or requesting a hint while viewing an earlier position applied a move or revealed the opponent move. Only the current solving position can accept either action.",
-    "regressionTest": "specs/chess/puzzle-refusals.feature"
+    "id": "check-opaque-task-failure",
+    "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
+    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
   },
   {
-    "id": "puzzle-wrong-hint-accepted",
-    "summary": "A raw hint command after a wrong move bypassed the required retry and changed help on the wrong-state board.",
-    "regressionTest": "specs/chess/puzzle-refusals.feature"
+    "id": "check-symbolic-report-directory",
+    "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
+    "regressionTest": "apps/product/tests/quint/system/campaign-tools.test.ts"
   },
   {
-    "id": "puzzle-solution-before-hint",
-    "summary": "A raw solution-move command materialized the first hint and solution together, bypassing the declared help progression.",
-    "regressionTest": "specs/chess/puzzle-refusals.feature"
+    "id": "check-artifact-download-encoded-credentials",
+    "summary": "The artifact SDK strips URL queries, but Depot redirects encode signed storage credentials inside the proxy pathname, so an SDK info line exposes them. Capture transfer diagnostics in a child process and remove complete URLs before logging.",
+    "regressionTest": "libs/tools/scripts/check-plan-transfer.test.ts"
   },
   {
-    "id": "conformance-semantic-decision-capability",
-    "summary": "The conformance inventory treated every DMN decision without a capability input as an access decision, so assistant observation policy required an invented permission. Classify access decisions by their declared yes/no answer; keep semantic decisions bound and checked in the inventory.",
-    "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
+    "id": "check-tlc-shared-temporary-modules",
+    "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
   },
   {
-    "id": "puzzle-allowance-no-readable-count",
-    "summary": "The model could only inspect stored allowance rows because a limited solver could not read how many rated puzzles remained. Render the permission decision’s remaining allowance and bind the model to that visible count.",
-    "regressionTest": "specs/chess/puzzle-quota.feature"
+    "id": "check-model-cache-runtime-artifacts",
+    "summary": "Depot rejected the model task artifact with HTTP 413 when the report bucket included temporary checker data and linked tool installations. Cache the complete report interface (evidence, bounds, counterexamples and TLC output), leaving private runtime files outside cache outputs.",
+    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
   },
   {
-    "id": "puzzle-hint-help-regresses",
-    "summary": "Repeating the first-hint command either restarted the same help or replaced a solution arrow with a highlight. The first hint is available only before help; later help cannot be overwritten by that earlier command.",
-    "regressionTest": "specs/chess/puzzle-refusals.feature"
+    "id": "check-tty-exit-before-output",
+    "summary": "A cold 32-vCPU run observed READY followed by a successful child exit before the PTY delivered DONE. The tty assertion raced process-exit notification and the fixture waited an arbitrary 800ms. Both ends now handshake on exact scroll input and actual READY/DONE output events, retaining all no-echo assertions.",
+    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
   },
   {
-    "id": "conformance-semantic-decision-server",
-    "summary": "The permission-enforcement report required a server authorization agreement from the grounded assistant semantic decision, despite its having no access capability. Require server enforcement for exactly the decision specs referenced by the capability manifest, while still checking implementation agreement for every semantic decision.",
-    "regressionTest": "libs/tools/scripts/conformance-report.test.ts"
+    "id": "check-quint-silent-exit",
+    "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
+    "regressionTest": "pkgs/quint/tests/run-quint.test.ts"
   },
   {
-    "id": "health-solid-preload-after-imports",
-    "summary": "Health imported the assembled in-process browser product before its Solid/Lingui preload executed, so every live stub failed to load. Select the live world at the one registration entry without loading the browser composition; pin the actual live entry import in a child-process regression.",
+    "id": "check-tools-external-cache-inputs",
+    "summary": "The tooling tests read .depot/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "check-evidence-masks-required-verdict",
+    "summary": "A passing shard could become failed solely because tar packing or actions/upload-artifact failed. The required gate then depended on nonessential evidence. Preserve the validated check verdict; make only the evidence step nonessential. The injected invalid/name artifact failure exercises this separation.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-repeated-mise-cache-stall",
+    "summary": "Partial-cache run 1jzx5994v8 stalled five shards at the second mise-action Restoring mise cache step, before check execution. One full cached toolchain setup per shard removes the repeated restore. Keep frozen Bun installation and all pinned tools; validate the partial-cache path with a real source-invalidation run.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-duration-metadata-cache-input",
+    "summary": "Changing check-task-costs.json from one measured duration to another invalidated tooling source hashes and downstream check verdicts, although the checks themselves never read those observations. Exclude duration telemetry from source, type-check and test inputs; preserve JSON formatting validation in lint and always read current costs in the uncached planner.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "infra-drift-operation-hang",
+    "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
+    "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
+  },
+  {
+    "id": "health-ui-step-loader-order",
+    "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
     "regressionTest": "apps/product/scripts/health.test.ts"
   },
   {
-    "id": "health-browser-conditions-break-s3",
-    "summary": "Applying browser resolution conditions to the live Health server process made the AWS S3 client warning export a Symbol and prevented transport construction. Select the live world using Node conditions, while in-process browser specs retain their documented Solid preload.",
+    "id": "infra-plan-credential-output",
+    "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
+    "regressionTest": "libs/infra/tests/redact-output.test.ts"
+  },
+  {
+    "id": "spec-ownership-resolved-merge",
+    "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
+    "id": "health-solid-preload-order",
+    "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun\u2019s server runtime, while local spec suites retain their Solid preloads.",
     "regressionTest": "apps/product/scripts/health.test.ts"
   },
   {
-    "id": "health-environment-name-not-forwarded",
-    "summary": "Health chose dev when SECRETS_ENV was absent but did not forward that resolved name to its child process, so the infrastructure check refused to run. Pin the missing environment input and verify the actual live process receives dev.",
-    "regressionTest": "apps/product/scripts/health.test.ts"
+    "id": "dev-client-stale-api-config",
+    "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
+    "regressionTest": "apps/product/tests/wrangler-config.test.ts"
   },
   {
-    "id": "conformance-live-objectives-undiscovered",
-    "summary": "The conformance reporter read live feature reports but omitted the adjacent health-objectives-report bucket, losing recorded OpenSLO evidence. Discover both live report kinds while excluding ad-hoc harness runs.",
-    "regressionTest": "libs/tools/scripts/conformance-report-buckets.test.ts"
-  },
-  {
-    "id": "puzzle-history-solution-accepted",
-    "summary": "The full-solution room command bypassed the unavailable help control while reviewing an earlier position and finished the attempt. Require the current solving position before showing a solution; retain the literal navigation and review history that exposed the gap.",
-    "regressionTest": "specs/chess/puzzle-refusals.feature"
+    "id": "space-membership-wrong-room-topic",
+    "summary": "A createSpace delivery for f724f291-a735-477a-b014-e07c4d070f8c updated room:<id>, the pubsub topic, instead of the authoritative space:<id> room. Devices saw no seats and rejected a valid creator as not in the space. Send membership updates and disconnects to the authoritative room topic.",
+    "regressionTest": "libs/spaces/tests/space-membership-delivery.test.ts"
   },
   {
     "id": "chessboard-disabled-annotation-clear",
@@ -1518,96 +1518,6 @@
     "id": "chessboard-pointer-authority",
     "summary": "Disabling input leaves the lifted avatar and pointer session alive.",
     "regressionTest": "specs/chess-board/board-authority.feature"
-  },
-  {
-    "id": "check-gate-waits-for-publication",
-    "summary": "The required Check command waited for nonessential report publication despite completed task verdicts. Watch the lightweight check job rather than the whole Check workflow.",
-    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
-  },
-  {
-    "id": "check-opaque-task-failure",
-    "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
-    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
-  },
-  {
-    "id": "check-symbolic-report-directory",
-    "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
-    "regressionTest": "apps/product/tests/quint/system/campaign-tools.test.ts"
-  },
-  {
-    "id": "check-artifact-download-encoded-credentials",
-    "summary": "The artifact SDK strips URL queries, but Depot redirects encode signed storage credentials inside the proxy pathname, so an SDK info line exposes them. Capture transfer diagnostics in a child process and remove complete URLs before logging.",
-    "regressionTest": "libs/tools/scripts/check-plan-transfer.test.ts"
-  },
-  {
-    "id": "check-tlc-shared-temporary-modules",
-    "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
-    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
-  },
-  {
-    "id": "check-model-cache-runtime-artifacts",
-    "summary": "Depot rejected the model task artifact with HTTP 413 when the report bucket included temporary checker data and linked tool installations. Cache the complete report interface (evidence, bounds, counterexamples and TLC output), leaving private runtime files outside cache outputs.",
-    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
-  },
-  {
-    "id": "check-tty-exit-before-output",
-    "summary": "A cold 32-vCPU run observed READY followed by a successful child exit before the PTY delivered DONE. The tty assertion raced process-exit notification and the fixture waited an arbitrary 800ms. Both ends now handshake on exact scroll input and actual READY/DONE output events, retaining all no-echo assertions.",
-    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
-  },
-  {
-    "id": "check-quint-silent-exit",
-    "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
-    "regressionTest": "pkgs/quint/tests/run-quint.test.ts"
-  },
-  {
-    "id": "check-tools-external-cache-inputs",
-    "summary": "The tooling tests read .depot/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
-    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
-  },
-  {
-    "id": "check-evidence-masks-required-verdict",
-    "summary": "A passing shard could become failed solely because tar packing or actions/upload-artifact failed. The required gate then depended on nonessential evidence. Preserve the validated check verdict; make only the evidence step nonessential. The injected invalid/name artifact failure exercises this separation.",
-    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
-  },
-  {
-    "id": "check-repeated-mise-cache-stall",
-    "summary": "Partial-cache run 1jzx5994v8 stalled five shards at the second mise-action Restoring mise cache step, before check execution. One full cached toolchain setup per shard removes the repeated restore. Keep frozen Bun installation and all pinned tools; validate the partial-cache path with a real source-invalidation run.",
-    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
-  },
-  {
-    "id": "check-duration-metadata-cache-input",
-    "summary": "Changing check-task-costs.json from one measured duration to another invalidated tooling source hashes and downstream check verdicts, although the checks themselves never read those observations. Exclude duration telemetry from source, type-check and test inputs; preserve JSON formatting validation in lint and always read current costs in the uncached planner.",
-    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
-  },
-  {
-    "id": "infra-drift-operation-hang",
-    "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
-    "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
-  },
-  {
-    "id": "health-ui-step-loader-order",
-    "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
-    "regressionTest": "apps/product/scripts/health.test.ts"
-  },
-  {
-    "id": "infra-plan-credential-output",
-    "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
-    "regressionTest": "libs/infra/tests/redact-output.test.ts"
-  },
-  {
-    "id": "spec-ownership-resolved-merge",
-    "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
-    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
-  },
-  {
-    "id": "health-solid-preload-order",
-    "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun’s server runtime, while local spec suites retain their Solid preloads.",
-    "regressionTest": "apps/product/scripts/health.test.ts"
-  },
-  {
-    "id": "dev-client-stale-api-config",
-    "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
-    "regressionTest": "apps/product/tests/wrangler-config.test.ts"
   },
   {
     "id": "chessboard-disabled-sound-request",
@@ -1745,9 +1655,194 @@
     "regressionTest": "pkgs/chess-board/tests/browser/marking-geometry.contract.test.ts"
   },
   {
+    "id": "puzzle-reconnect-allowance-disappears",
+    "summary": "During network restoration the puzzle allowance disappeared between the visibility and text probes. Its missing-element error aborted convergence, leaving the watcher observed as revealed instead of skipped. Treat only that optional-label disappearance as absent and continue observing the unchanged model expectations.",
+    "regressionTest": "libs/chess/tests/puzzle-observation.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-opponent-king",
+    "summary": "During a correct move\u2019s automatic reply the board temporarily shows the opponent in check. Coaching incorrectly said the solver\u2019s king was checked and the opponent had already replied. Give neutral reply guidance until the board settles.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-history-diagnosis",
+    "summary": "Scrubbing to an earlier board retained a wrong-move diagnosis and hints belonging to the frontier. Give review guidance and replace the speech context.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "quint-convergence-resampled",
+    "summary": "Trace conformance sampled again after observing convergence and could report a transient state during queued reconnect commands. Evaluate the same observation that established convergence; pin both long reconnect histories.",
+    "regressionTest": "pkgs/quint/tests/replay-observation.test.ts"
+  },
+  {
+    "id": "tts-old-seek-restarts-same-url",
+    "summary": "An interrupted audio seek could start a later request with the same cached URL before its own seek completed. Guard asynchronous playback by request identity, including stop and disposal.",
+    "regressionTest": "pkgs/tts/tests/tts-player-controller.test.ts"
+  },
+  {
+    "id": "room-short-partition-loses-commands",
+    "summary": "A partition healed before the heartbeat lost offline commands without notifying the room client to resynchronize. A failed send closes the transport so its durable queue is replayed after healing.",
+    "regressionTest": "libs/harness/tests/partition-aware-room-transport.test.ts"
+  },
+  {
+    "id": "tts-identical-input-cancels-speech",
+    "summary": "An accessor returning a fresh but equivalent observation reran the speech effect, aborted its pending audio, then refused to restart the same utterance. Track text, enabled and context as scalar memos.",
+    "regressionTest": "pkgs/tts/tests/speak-context.test.tsx"
+  },
+  {
+    "id": "avatar-tts-missing-request-auth",
+    "summary": "Puzzle voice never started because the app TTS provider sent raw HTTP without account or device headers. Compose it with current request auth while preserving cancellation and caller headers.",
+    "regressionTest": "libs/client-app/tests/shell/authenticated-fetch.test.ts"
+  },
+  {
+    "id": "puzzle-stored-mate-continues",
+    "summary": "A preferred checkmate with trailing source moves was accepted as a nonterminal line match; legal checkmate must end the attempt before source-line validation.",
+    "regressionTest": "libs/chess/tests/puzzle-session/mate-objective.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-theme-fiction",
+    "summary": "Theme-driven coaching called a completed non-mating castling line checkmate. Derive success commentary from the actual board.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-unavailable-is-illegal",
+    "summary": "Unavailable puzzle data was described as an illegal solver move. Keep unavailable data distinct from attempted moves.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-defended-knight-hanging",
+    "summary": "A knight that could be recaptured after capture was treated as hanging. Require a legal capture and absence of legal recapture.",
+    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-missed-knight-fork",
+    "summary": "A supported knight fork of the king on f1 and queen on d1 was absent from coaching. Require legal moves and legal capture targets, excluding pinned attacks.",
+    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+  },
+  {
+    "id": "chess-tactics-opponent-already-checked",
+    "summary": "An impossible FEN with the nonmoving king already checked let the chess engine capture a king and crashed tactical analysis. Reject this position for tactical claims.",
+    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+  },
+  {
+    "id": "tts-aborted-synthesis-plays",
+    "summary": "A synthesis response resolving after its request was aborted started old speech. Check cancellation before handing synthesized audio to playback.",
+    "regressionTest": "pkgs/tts/tests/play-synthesized.test.ts"
+  },
+  {
+    "id": "avatar-loading-hides-observation",
+    "summary": "Speech synthesis loading hid the already available observation; long messages were also clamped and their live region recreated. Keep the complete words visible in a persistent live region.",
+    "regressionTest": "pkgs/ui/tests/speaking-avatar-accessibility.test.tsx"
+  },
+  {
+    "id": "puzzle-solved-review-resumes",
+    "summary": "Stepping back after a solve changes the displayed status to solving; leaving at that position preserved the completed puzzle and offered it again on return. Completion must survive historical viewing.",
+    "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+  },
+  {
+    "id": "permission-catalog-nonaccess-decision",
+    "summary": "The capability catalog required assistant-observation, a semantic decision with no permission answer, to own an access capability. Only decisions answering access yes/no belong in that permission catalog; every semantic decision remains bound and checked by its owner.",
+    "regressionTest": "libs/permissions/tests/closed-world.test.ts"
+  },
+  {
+    "id": "puzzle-solved-review-forward",
+    "summary": "Reviewing a solved puzzle preserved its completed result but offered no forward control to return to the final position. Solved and skipped boards now expose bounded position navigation.",
+    "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+  },
+  {
+    "id": "puzzle-solution-after-hint-overclick",
+    "summary": "The real puzzle harness pressed the escalating hint control three times even when a hint had already been taken, then waited for a control removed by showing the solution. Stop pressing once the solution is revealed; the literal model history is pinned.",
+    "regressionTest": "specs/chess/puzzle-controls.feature"
+  },
+  {
+    "id": "puzzle-feed-unsaved-choice-persists",
+    "summary": "Editing the puzzle feed wrote each preview directly to synced account settings, so closing without saving retained an unconfirmed offset. Keep a local draft and persist it only on save; pool previews use the draft.",
+    "regressionTest": "specs/chess/puzzle-feed.feature"
+  },
+  {
+    "id": "puzzle-feed-draft-auto-advance",
+    "summary": "The first isolated feed draft saved only changes included in the puzzle-selection fingerprint, dropping auto-advance preferences. Persist every changed choice while selecting a different puzzle only for selection changes. The literal failing trace is pinned.",
+    "regressionTest": "specs/chess/puzzle-feed.feature"
+  },
+  {
+    "id": "puzzle-history-command-accepted",
+    "summary": "Submitting a move or requesting a hint while viewing an earlier position applied a move or revealed the opponent move. Only the current solving position can accept either action.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
+    "id": "puzzle-wrong-hint-accepted",
+    "summary": "A raw hint command after a wrong move bypassed the required retry and changed help on the wrong-state board.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
+    "id": "puzzle-solution-before-hint",
+    "summary": "A raw solution-move command materialized the first hint and solution together, bypassing the declared help progression.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
+    "id": "conformance-semantic-decision-capability",
+    "summary": "The conformance inventory treated every DMN decision without a capability input as an access decision, so assistant observation policy required an invented permission. Classify access decisions by their declared yes/no answer; keep semantic decisions bound and checked in the inventory.",
+    "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
+  },
+  {
+    "id": "puzzle-allowance-no-readable-count",
+    "summary": "The model could only inspect stored allowance rows because a limited solver could not read how many rated puzzles remained. Render the permission decision\u2019s remaining allowance and bind the model to that visible count.",
+    "regressionTest": "specs/chess/puzzle-quota.feature"
+  },
+  {
+    "id": "puzzle-hint-help-regresses",
+    "summary": "Repeating the first-hint command either restarted the same help or replaced a solution arrow with a highlight. The first hint is available only before help; later help cannot be overwritten by that earlier command.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
+    "id": "conformance-semantic-decision-server",
+    "summary": "The permission-enforcement report required a server authorization agreement from the grounded assistant semantic decision, despite its having no access capability. Require server enforcement for exactly the decision specs referenced by the capability manifest, while still checking implementation agreement for every semantic decision.",
+    "regressionTest": "libs/tools/scripts/conformance-report.test.ts"
+  },
+  {
+    "id": "health-solid-preload-after-imports",
+    "summary": "Health imported the assembled in-process browser product before its Solid/Lingui preload executed, so every live stub failed to load. Select the live world at the one registration entry without loading the browser composition; pin the actual live entry import in a child-process regression.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "health-browser-conditions-break-s3",
+    "summary": "Applying browser resolution conditions to the live Health server process made the AWS S3 client warning export a Symbol and prevented transport construction. Select the live world using Node conditions, while in-process browser specs retain their documented Solid preload.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "health-environment-name-not-forwarded",
+    "summary": "Health chose dev when SECRETS_ENV was absent but did not forward that resolved name to its child process, so the infrastructure check refused to run. Pin the missing environment input and verify the actual live process receives dev.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "conformance-live-objectives-undiscovered",
+    "summary": "The conformance reporter read live feature reports but omitted the adjacent health-objectives-report bucket, losing recorded OpenSLO evidence. Discover both live report kinds while excluding ad-hoc harness runs.",
+    "regressionTest": "libs/tools/scripts/conformance-report-buckets.test.ts"
+  },
+  {
+    "id": "puzzle-history-solution-accepted",
+    "summary": "The full-solution room command bypassed the unavailable help control while reviewing an earlier position and finished the attempt. Require the current solving position before showing a solution; retain the literal navigation and review history that exposed the gap.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
     "id": "merge-puzzle-move-wording",
     "summary": "Merging puzzle sound scenarios with coaching changes leaves the literal step 'Alice plays a1-a5' undefined because the shared move binding requires 'the move'. Accept both existing phrasings through the same harness action.",
     "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "custom-game-journey-unbound",
+    "summary": "The Custom Game critical journey had no step bindings in the shared entry, so both the Check and live journey runners failed before exercising the game.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-confirm-unmounted",
+    "summary": "Resignation and cancellation unmounted their confirmation modal as soon as the game became terminal, removing the loading and success surface before it could be dismissed. Keep the modal mounted and gate only its trigger.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-journey-offline-race",
+    "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
   },
   {
     "id": "deploy-grafana-archived-active-traces",
@@ -1768,5 +1863,55 @@
     "id": "puzzle-csv-prototype-header",
     "summary": "csv-parse 6.2.1 treats the literal __proto__ CSV header as a prototype setter, losing the cell value attacker (property shrink: a) instead of preserving it as an own field. Upgrade to 7.0.3 and pin both inputs through the puzzle row iterator, with arbitrary cell coverage.",
     "regressionTest": "libs/chess/tests/puzzle-data/csv-record-security.test.ts"
+  },
+  {
+    "id": "build-glob-nested-braces",
+    "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
+    "regressionTest": "pkgs/glob-match/tests/glob-match.test.ts"
+  },
+  {
+    "id": "custom-game-host-refusal-vocabulary",
+    "summary": "The configuration binding compared the visible host-only creation denial with a different canonical model phrase. Translate the observed host-creation denial to the model's creator-authority vocabulary without changing admission.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-held-success",
+    "summary": "A repeated Custom Game choice at the same virtual instant clicked a control still displaying Confirmed, so the mutation lifecycle suppressed it and the harness never settled. Use the explicit acknowledged command while the success display holds.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "puzzle-skipped-reconnect",
+    "summary": "An origin recovery wait inside the mutation upload loop error handler rejected during disposal and escaped the owned loop. Consume intentional HTTP cancellation at that wait while preserving unrelated errors and queued mutations.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-attempt.binding.ts"
+  },
+  {
+    "id": "puzzle-recovery-watcher-not-ready",
+    "summary": "The recovery model partitioned its watcher before the current puzzle arrived, so cached stats could not be reached. Initialize the watcher with the same actual rendered puzzle before allowing connection loss.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+  },
+  {
+    "id": "puzzle-competing-equal-rating",
+    "summary": "Competing failed and hinted results had equal ratings, so rating equality completed recovery before the first result reached the returning device. Wait for the actual local result ledger to converge while retaining rendered statistics as the model observation.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+  },
+  {
+    "id": "space-lobby-ended-refusal",
+    "summary": "A stale lobby card opened the correct ended-space refusal, but joining waited only for a live space or its provisional Join prompt. Drain pending hydration, settle on the canonical space outcome, and join only when offered.",
+    "regressionTest": "specs/spaces/space-friend-join.feature"
+  },
+  {
+    "id": "space-host-leave-remount",
+    "summary": "Optimistic host leave removed the host permission while confirmation was loading, remounting a fresh idle non-host dialog and losing the mutation outcome. Retain the confirmed operation kind until dismissal, while keeping the unconfirmed choice reactive.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "room-notify-reactive-resubscribe",
+    "summary": "A room change iterated the live subscription set, so a reactive listener that unsubscribed and resubscribed was revisited indefinitely. Snapshot listeners per change and skip removed listeners, deferring new subscriptions to the next notification.",
+    "regressionTest": "pkgs/room/tests/room-client.contract.test.ts"
+  },
+  {
+    "id": "space-host-join-stale-fanout",
+    "summary": "Joining an unchanged host identity emitted a full stale space row over optimistic fanout. Reconnect repeatedly resurrected an ended space, reopened host sessions and remounted subscriptions. Write host identity only when it actually changes.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
   }
 ]

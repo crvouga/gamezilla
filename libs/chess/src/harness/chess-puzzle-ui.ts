@@ -760,6 +760,26 @@ async function enterOrStartSpace(
  * with no space (a device outside any space goes into its account's live
  * space, or opens one). Reading stats changes nothing.
  */
+async function returnFromChessScreen(
+  s: ProductHarness,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.chessMenuStats).isVisible()) {
+    await openChessStats(s, actorId);
+    return true;
+  }
+  if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
+    await pressPuzzleBackToChessMenu(s, actorId);
+    return true;
+  }
+  if (await ui.get('chess-custom-status').isVisible()) {
+    await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+    return true;
+  }
+  return false;
+}
+
 export async function showChessStats(
   s: ProductHarness,
   actorId: string
@@ -770,11 +790,8 @@ export async function showChessStats(
     s,
     async () => {
       if (await ui.get(Handles.chessStatsElo).isVisible()) return true;
-      if (await ui.get(Handles.chessMenuStats).isVisible()) {
-        await openChessStats(s, actorId);
-      } else if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
-        await pressPuzzleBackToChessMenu(s, actorId);
-      } else if (await ui.get(Handles.gameMenuChess).isVisible()) {
+      if (await returnFromChessScreen(s, actorId)) return null;
+      if (await ui.get(Handles.gameMenuChess).isVisible()) {
         await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
       } else if (await ui.get(Handles.spaceClose).isVisible()) {
         // In a space whose game is still coming up: wait for it.

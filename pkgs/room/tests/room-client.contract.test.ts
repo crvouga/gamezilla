@@ -92,6 +92,41 @@ function settled(wait: Promise<unknown>): Promise<unknown> {
   );
 }
 
+// regression: room-notify-reactive-resubscribe
+test('replacing a subscription during notification waits for the next room change', async () => {
+  const rig = await openRoom();
+  let notifications = 0;
+  let unsubscribe: (() => void) | undefined;
+  const listener = () => {
+    notifications += 1;
+    // A finite remount sequence also bounds the broken live-Set iteration.
+    if (notifications < 3) {
+      unsubscribe?.();
+      unsubscribe = rig.room.subscribe(listener);
+    }
+  };
+  unsubscribe = rig.room.subscribe(listener);
+  rig.transport.deliver(welcome([]));
+  expect(notifications).toBe(1);
+  rig.transport.deliver(committed([tallyEntry(1, 'bob', 1)]));
+  expect(notifications).toBe(2);
+  unsubscribe();
+  rig.transport.deliver(committed([tallyEntry(2, 'bob', 1)]));
+  expect(notifications).toBe(2);
+});
+
+test('a listener removed during notification does not receive that room change', async () => {
+  const rig = await openRoom();
+  let notifications = 0;
+  let unsubscribe: (() => void) | undefined;
+  rig.room.subscribe(() => unsubscribe?.());
+  unsubscribe = rig.room.subscribe(() => {
+    notifications += 1;
+  });
+  rig.transport.deliver(welcome([]));
+  expect(notifications).toBe(0);
+});
+
 describe('room client: syncs before it sends', () => {
   test('opening a room asks to sync from sequence number 0', async () => {
     const rig = await openRoom();

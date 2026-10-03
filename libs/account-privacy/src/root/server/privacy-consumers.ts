@@ -8,6 +8,7 @@ import {
   type OutboxConsumerCtx,
   type OutboxConsumerRegistry,
 } from '@pkgs/outbox';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { sql } from '@pkgs/sql';
 import type { MutationCtx } from '@pkgs/sync-engine/shared';
 import {
@@ -51,7 +52,8 @@ async function updateWithdrawalStatus(
 async function generateExport(
   ctx: OutboxConsumerCtx,
   accountId: string,
-  contributions: readonly AccountPrivacyContribution[]
+  contributions: readonly AccountPrivacyContribution[],
+  rooms: RoomServicePort
 ): Promise<void> {
   const state = await ctx.tx.query(
     sql<{
@@ -65,7 +67,8 @@ async function generateExport(
     const categories: Record<string, unknown> = {};
     for (const contribution of contributions)
       categories[contribution.name] = await contribution.snapshot(
-        accountContext(ctx, accountId)
+        accountContext(ctx, accountId),
+        rooms
       );
     const detail = JSON.stringify({ accountId, categories }, null, 2);
     if (ctx.objectStore === undefined)
@@ -101,6 +104,7 @@ async function generateExport(
 export function registerPrivacyConsumers(
   registry: OutboxConsumerRegistry,
   contributions: readonly AccountPrivacyContribution[],
+  rooms: RoomServicePort,
   exportPreparation: 'automatic' | 'on-demand' = 'automatic'
 ): void {
   registry.register({
@@ -134,13 +138,13 @@ export function registerPrivacyConsumers(
     },
   });
   if (exportPreparation === 'automatic')
-    registry.register(exportPreparationConsumer(contributions));
+    registry.register(exportPreparationConsumer(contributions, rooms));
   registry.register({
     id: 'profile-erase-account',
     on: eraseAccount,
     handler: async (ctx, payload) => {
       for (const contribution of contributions)
-        await contribution.erase(accountContext(ctx, payload.accountId));
+        await contribution.erase(accountContext(ctx, payload.accountId), rooms);
       await ctx.tx.run(
         sql`UPDATE profile_account_privacy SET erased_at = ${new Date(ctx.clock.now()).toISOString()}, export_detail = ${null}, export_summary = ${null} WHERE owner_id = ${payload.accountId}`
       );
@@ -159,7 +163,8 @@ export function registerPrivacyConsumers(
 }
 
 export function exportPreparationConsumer(
-  contributions: readonly AccountPrivacyContribution[]
+  contributions: readonly AccountPrivacyContribution[],
+  rooms: RoomServicePort
 ) {
   return {
     id: 'profile-prepare-export',
@@ -168,7 +173,7 @@ export function exportPreparationConsumer(
       ctx: OutboxConsumerCtx,
       payload: { readonly accountId: string }
     ) => {
-      await generateExport(ctx, payload.accountId, contributions);
+      await generateExport(ctx, payload.accountId, contributions, rooms);
       return { notifyUserIds: [payload.accountId] };
     },
   };

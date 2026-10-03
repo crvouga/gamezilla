@@ -1,7 +1,6 @@
 import {
   actorUi,
   ensureActor,
-  pollUntil,
   scenarioAction,
 } from '@libs/harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
@@ -86,30 +85,28 @@ export const joinFromPrompt = scenarioAction({
 });
 
 /**
- * Into a live space from its lobby card: through the join prompt the first
- * time, straight in for someone already seated.
+ * Join from a lobby card when offered, or let the space's refusal show.
+ * Someone already seated goes straight in.
  */
 export const joinFromLobby = scenarioAction({
   name: 'joinFromLobby',
   act: async (s, actorId: string, hostUsername: string) => {
     await tapLobbyCard(s, actorId, hostUsername, false);
+    await s.session.waitForIdle();
     const ui = await actorUi(s, actorId);
-    await pollUntil(
+    const outcome = await waitSpaceOutcome(
       s,
-      async () =>
-        (await ui.get(Handles.spaceJoin).isVisible()) ||
-        (await ui.get(Handles.spaceClose).isVisible())
-          ? true
-          : null,
-      {
-        maxMs: SPACE_WAIT_MS,
-        description: `${hostUsername}'s space or its join prompt`,
-      }
+      actorId,
+      `${hostUsername}'s space or why joining is unavailable`
     );
-    if (await ui.get(Handles.spaceJoin).isVisible()) {
-      await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
-    }
-    await waitActiveSpace(s, actorId);
+    if (outcome !== Handles.spaceJoin) return;
+    await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
+    await waitForOneOf(
+      s,
+      actorId,
+      [Handles.spaceClose, Handles.spaceEnded, Handles.spacesNeedConnection],
+      `joined ${hostUsername}'s space, or why not`
+    );
   },
 });
 

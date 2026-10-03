@@ -7,6 +7,13 @@
 
 import { type ProductHarness, scenarioAction } from '@libs/harness';
 import {
+  actorPage,
+  keyboardElement,
+  keyboardPlace,
+  keyboardToStart,
+  placeOf,
+} from '@libs/harness/system/actor-page';
+import {
   accessibleName,
   auditTree,
   controlsIn,
@@ -16,13 +23,6 @@ import {
   keyboardStops,
   roleOf,
 } from '@pkgs/a11y';
-import {
-  actorPage,
-  keyboardElement,
-  keyboardPlace,
-  keyboardToStart,
-  placeOf,
-} from './actor-page';
 import { useKeyboard } from './people';
 
 /** The person opens the app and listens to it instead of looking. */
