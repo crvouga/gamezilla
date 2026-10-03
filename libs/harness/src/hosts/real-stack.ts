@@ -1,5 +1,5 @@
 /**
- * `HARNESS_MODE=real` sidecars (embedded Postgres, S3rver, EMQX) are booted by the
+ * `HARNESS_MODE=real` sidecars (embedded Postgres, Mockingbird S3, EMQX) are booted by the
  * app that owns them — the harness is a shell and may not import an app. The
  * app registers its booter from a `bun test` preload; every product system's
  * `bun-webview` host calls it, so any suite runs against a live browser.

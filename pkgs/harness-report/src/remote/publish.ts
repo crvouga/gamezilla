@@ -2,7 +2,7 @@
  * Write side of the shared reports store: what CI runs after a spec suite.
  * Pure over two injected {@link ObjectStore}s — the local report bucket a
  * `bun test` run wrote (`runs/<runId>/tests/<testId>/…`) and the shared
- * store — so it runs the same against R2, S3rver or memory.
+ * store — so it runs the same against R2, Mockingbird S3 or memory.
  */
 
 import {

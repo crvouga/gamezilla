@@ -1,5 +1,10 @@
 [
   {
+    "id": "build-glob-nested-braces",
+    "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
+    "regressionTest": "pkgs/glob-match/tests/glob-match.test.ts"
+  },
+  {
     "id": "chess-replay-opaque-account-ids",
     "summary": "Multiplayer trace 1 compared raw provider account ids and their SQL sort order across fresh sign-ins. Compare named participants while retaining every game field, turn and current-game ownership.",
     "regressionTest": "libs/chess/tests/multiplayer-fingerprint.test.ts"

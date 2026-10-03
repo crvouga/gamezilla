@@ -156,7 +156,7 @@ super.engineering's app project settings.
 
 ## Local development
 
-- **`bun run dev`** — the localhost stack: embedded Postgres, S3rver, Aedes
+- **`bun run dev`** — the localhost stack: embedded Postgres, Mockingbird S3, Aedes
   MQTT, simulated Google, Apple and Stripe, and N Bun API instances running
   the production Worker handler behind a load balancer, with the product web
   app in front (`/`, `/harness`, `/simulator`). `bun run stack` is the same
