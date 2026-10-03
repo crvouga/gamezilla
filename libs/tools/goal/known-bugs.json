@@ -1,5 +1,10 @@
 [
   {
+    "id": "custom-game-journey-before-room-connected",
+    "summary": "Live Custom Game journeys clicked Create game or Play a bot while a fresh space was still connecting, then timed out after the product correctly refused the choice. Wait for the visible connection notice to clear before the first online choice; preserve the disconnected start attempt in the offline scenario.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-connection.test.ts"
+  },
+  {
     "id": "harness-reconnect-stale-fabric-fixture",
     "summary": "The offline-boot recovery example omitted the fabric heal port after reconnection began restoring both networks, aborting before it could verify origin recovery. Supply that port and assert that one-device and whole-network recovery heal the matching fabric scope.",
     "regressionTest": "libs/harness/tests/reconnect-origin-health.test.ts"
