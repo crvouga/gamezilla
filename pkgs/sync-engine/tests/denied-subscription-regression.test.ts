@@ -69,13 +69,17 @@ test('a held lookup denied before sign-in reauthorizes on reconnect without poll
     await engine.connect();
     await engine.refreshQueries();
     await engine.waitForFirstSync();
-    expect(await db.query(sql`SELECT id FROM notes`)).toEqual([]);
+    expect(await db.query(sql<{ id: string }>`SELECT id FROM notes`)).toEqual(
+      []
+    );
     allowed = true;
     await engine.connect();
     await engine.refreshQueries();
-    expect(await db.query(sql`SELECT id, title FROM notes`)).toEqual([
-      { id: 'note-1', title: 'Recovered' },
-    ]);
+    expect(
+      await db.query(
+        sql<{ id: string; title: string }>`SELECT id, title FROM notes`
+      )
+    ).toEqual([{ id: 'note-1', title: 'Recovered' }]);
   } finally {
     await engine.disconnect();
     raw.close();
