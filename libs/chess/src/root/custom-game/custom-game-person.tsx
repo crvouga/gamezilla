@@ -1,6 +1,6 @@
 import { UserUsername } from '@libs/profile/public/user-username';
 import { Trans } from '@lingui/solid/macro';
-import { Match, Switch, type JSX } from 'solid-js';
+import { type JSX, Match, Switch } from 'solid-js';
 import type { CustomGameParticipant } from '../../shared/custom-game/custom-game-state';
 
 export function CustomGamePerson(props: {

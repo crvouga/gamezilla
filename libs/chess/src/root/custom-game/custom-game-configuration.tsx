@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { Button, TextInput } from '@pkgs/ui';
-import { createSignal, Show, type JSX } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { customGameStartable } from '../../shared/custom-game/custom-game-state';
 import { CustomGameAction } from './custom-game-action';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
@@ -30,7 +30,7 @@ function CustomGameTimeChoices(props: {
         onChangeText={setIncrement}
         dataSet={{ testid: 'chess-custom-increment' }}
       />
-      <div class="box row flex-wrap gap-2">
+      <div class="box flex-row flex-wrap gap-2">
         <CustomGameAction
           title={<Trans>Use this clock</Trans>}
           testId="chess-custom-clock"
@@ -71,7 +71,7 @@ export function CustomGameConfiguration(props: {
   };
   return (
     <div class="box gap-3">
-      <p class="textBody" role="status" data-testid="chess-custom-startable">
+      <p class="text" role="status" data-testid="chess-custom-startable">
         <Show
           when={startable()}
           fallback={
@@ -81,7 +81,7 @@ export function CustomGameConfiguration(props: {
           <Trans>Ready to start.</Trans>
         </Show>
       </p>
-      <div class="box row gap-2 flex-wrap">
+      <div class="box flex-row gap-2 flex-wrap">
         <Show when={props.model.mySide() !== null && props.model.canJoin()}>
           <CustomGameAction
             title={

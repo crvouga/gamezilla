@@ -2,12 +2,12 @@ import { useProfileColumn } from '@libs/profile/public/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock/solid';
-import { createMemo, Show, type JSX } from 'solid-js';
+import { createMemo, type JSX, Show } from 'solid-js';
 import {
-  customGameStartable,
-  customGameTimeLeft,
   type CustomGame,
   type CustomGameSide,
+  customGameStartable,
+  customGameTimeLeft,
 } from '../../shared/custom-game/custom-game-state';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
@@ -114,7 +114,7 @@ export function CustomGameStatus(props: {
       </p>
       <Show when={props.model.current()} keyed>
         {(game) => (
-          <div class="box row gap-4">
+          <div class="box flex-row gap-4">
             <span>
               <Trans>White</Trans> <CustomGameClock game={game} side="white" />
             </span>

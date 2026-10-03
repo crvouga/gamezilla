@@ -1,8 +1,8 @@
-import { createSignal, Show, type JSX } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { CHESS_PUZZLE_TEST_ENABLED } from '../../public/chess-puzzle/chess-puzzle-test-enabled';
 import { customGameChoiceSchema } from '../../shared/custom-game/custom-game-choice';
-import type { CustomGameScreenModel } from './use-custom-game-screen';
 import type { CustomGameReview } from './use-custom-game-review';
+import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /** Observations of the rendered room state; omitted from end-user bundles. */
 export function CustomGameTest(props: {

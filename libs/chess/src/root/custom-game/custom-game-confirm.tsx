@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { Button, MutationModal } from '@pkgs/ui';
-import { createSignal, Show, type JSX } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 export function CustomGameConfirm(props: {

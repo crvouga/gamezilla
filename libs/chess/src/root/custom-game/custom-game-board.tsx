@@ -2,10 +2,10 @@ import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { Button, Select, TextInput } from '@pkgs/ui';
-import { createMemo, createSignal, For, Show, type JSX } from 'solid-js';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { CustomGameError } from './custom-game-error';
-import type { CustomGameScreenModel } from './use-custom-game-screen';
 import type { CustomGameReview } from './use-custom-game-review';
+import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 function CustomGameReviewControls(props: {
   model: CustomGameScreenModel;
@@ -14,12 +14,10 @@ function CustomGameReviewControls(props: {
   const [jump, setJump] = createSignal('0');
   const options = createMemo(() => [
     { value: 'live', label: <Trans>Current game</Trans> },
-    ...props.model
-      .games()
-      .history.map((game, index) => ({
-        value: game.id,
-        label: <Trans>Earlier game {index + 1}</Trans>,
-      })),
+    ...props.model.games().history.map((game, index) => ({
+      value: game.id,
+      label: <Trans>Earlier game {index + 1}</Trans>,
+    })),
   ]);
   return (
     <div class="box gap-3" data-component="CustomGameReview">
@@ -32,7 +30,7 @@ function CustomGameReviewControls(props: {
           dataSet={{ testid: 'chess-custom-history' }}
         />
       </Show>
-      <div class="box row gap-2 flex-wrap">
+      <div class="box flex-row gap-2 flex-wrap">
         <Button
           title={<Trans>Previous move</Trans>}
           variant="outline"
@@ -71,7 +69,7 @@ function CustomGameReviewControls(props: {
         dataSet={{ testid: 'chess-custom-review-seek' }}
       />
       <CustomGameError reason={props.review.error()} />
-      <ol class="box row flex-wrap gap-2" aria-label="Moves played">
+      <ol class="box flex-row flex-wrap gap-2" aria-label="Moves played">
         <For each={props.review.game()?.moves ?? []}>
           {(move, index) => (
             <li>

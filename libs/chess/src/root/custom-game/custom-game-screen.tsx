@@ -2,7 +2,7 @@ import { DenialSurface } from '@libs/permissions/public/denial-surface';
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
 import { ScreenBase } from '@pkgs/ui';
-import { Match, Show, Switch, type JSX } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGameAction } from './custom-game-action';
 import { CustomGameActive } from './custom-game-active';
 import { CustomGameBoard } from './custom-game-board';
@@ -14,8 +14,8 @@ import { CustomGameStatus } from './custom-game-status';
 import { CustomGameTest } from './custom-game-test';
 import { useCustomGameReview } from './use-custom-game-review';
 import {
-  useCustomGameScreen,
   type CustomGameScreenModel,
+  useCustomGameScreen,
 } from './use-custom-game-screen';
 
 function CustomGameStarter(props: {
@@ -23,7 +23,7 @@ function CustomGameStarter(props: {
 }): JSX.Element {
   return (
     <div class="box gap-4">
-      <p class="textBody">
+      <p class="text">
         <Trans>
           Choose who plays White and Black. Anyone in this space can watch.
         </Trans>
@@ -36,7 +36,7 @@ function CustomGameStarter(props: {
           </p>
         }
       >
-        <div class="box row gap-2 flex-wrap">
+        <div class="box flex-row gap-2 flex-wrap">
           <CustomGameAction
             title={<Trans>Create game</Trans>}
             testId="chess-custom-create"
@@ -60,7 +60,7 @@ function CustomGameLifecycle(props: {
     <Switch
       fallback={
         <Show when={props.model.canCreate()}>
-          <div class="box row gap-2 flex-wrap">
+          <div class="box flex-row gap-2 flex-wrap">
             <CustomGameAction
               title={<Trans>New game</Trans>}
               testId="chess-custom-new"

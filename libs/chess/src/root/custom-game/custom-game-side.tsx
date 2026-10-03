@@ -2,7 +2,7 @@ import { UserUsername } from '@libs/profile/public/user-username';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Button, Select } from '@pkgs/ui';
-import { createMemo, createSignal, For, Show, type JSX } from 'solid-js';
+import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import type { CustomGameSide } from '../../shared/custom-game/custom-game-state';
 import { CustomGameAction } from './custom-game-action';
 import { CustomGamePerson } from './custom-game-person';
@@ -14,7 +14,7 @@ function CustomGameInvitation(props: SideProps): JSX.Element {
   const mine = (): boolean =>
     props.model.current()?.[props.side].person === props.model.myId();
   return (
-    <div class="box row gap-2 flex-wrap">
+    <div class="box flex-row gap-2 flex-wrap">
       <Show when={mine() && props.model.canJoin()}>
         <CustomGameAction
           title={<Trans>Accept</Trans>}
@@ -57,7 +57,7 @@ function CustomGameSideChoices(props: SideProps): JSX.Element {
   );
   return (
     <div class="box gap-2">
-      <div class="box row gap-2 flex-wrap">
+      <div class="box flex-row gap-2 flex-wrap">
         <CustomGameAction
           title={<Trans>Take this side</Trans>}
           testId={`chess-custom-${props.side}-take`}
