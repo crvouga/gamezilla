@@ -1,11 +1,11 @@
 import { expect } from 'bun:test';
 import { playUntilSolved } from '@libs/chess/harness/chess-actions';
+import { NAMED_PUZZLES } from '@libs/chess/harness/puzzle-fixtures';
 import {
   configurePuzzleSounds,
   readPuzzleSoundsOn,
 } from '@libs/chess/harness/puzzle-sound-preference';
 import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
-import { NAMED_PUZZLES } from './puzzle-fixtures';
 import {
   markPuzzleSoundBoundary,
   recentPuzzleSounds,

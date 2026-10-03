@@ -74,6 +74,35 @@ export function puzzleFinish(text: string): PuzzleFinishName {
 
 export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
+    name: 'competingFinish',
+    regexp: /clean solve|wrong then solve/,
+    transformer: (text: string) =>
+      text === 'clean solve' ? 'clean' : 'wrongRetrySolve',
+  },
+  {
+    name: 'puzzleCommandAttempt',
+    regexp:
+      /tries another move after finishing|tries another move before retrying|tries to show the solution after finishing|tries to take a hint after finishing|tries to skip after finishing|tries a move from that earlier position|tries a hint from that earlier position|tries to take a hint before retrying|tries to see the solution move before a hint|tries the first hint again|tries to review an earlier puzzle position/,
+    transformer: (text: string) =>
+      text.includes('show the solution')
+        ? 'show-line'
+        : text.includes('review')
+          ? 'step'
+          : text.includes('solution')
+            ? 'solution'
+            : text.includes('hint')
+              ? 'hint'
+              : text.includes('skip')
+                ? 'skip'
+                : 'move',
+  },
+  {
+    name: 'puzzleRefusal',
+    regexp:
+      /the puzzle is over|they are reviewing an earlier position|a retry is needed|the first hint is needed|the first hint is already taken|the puzzle was skipped/,
+    transformer: (text: string) => text,
+  },
+  {
     name: 'feedbackDetail',
     regexp:
       /what happened|what was expected|reproduction steps|a description|an improvement/,

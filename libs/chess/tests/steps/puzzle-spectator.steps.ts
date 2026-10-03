@@ -27,6 +27,7 @@ import {
   readPuzzleSpectator,
   readPuzzleStatus,
 } from '@libs/chess/harness/chess-puzzle-ui';
+import { readPuzzleControlAvailability } from '@libs/chess/harness/puzzle-control-reads';
 import { joinSpaceFromLink } from '@libs/friends/steps/spaces.steps';
 import { focusActor } from '@libs/harness';
 import {
@@ -37,8 +38,6 @@ import {
   When,
 } from '@libs/harness/spec/define';
 import { accountIdOf } from '@libs/harness/system/identity';
-import { visible } from '@libs/harness/system/observations';
-import { Handles } from '@libs/test-ids';
 import {
   activePuzzle,
   rememberBoard,
@@ -234,12 +233,12 @@ When(
 
 Then('{actor} is not offered a puzzle of his own', async (w, actor: Actor) => {
   expect(await w.s.read(readActivePuzzleId, actor)).toBeNull();
-  expect(await w.s.read(visible, actor, [Handles.chessPuzzleActionNext])).toBe(
-    false
-  );
-  expect(await w.s.read(visible, actor, [Handles.chessPuzzleSummaryNext])).toBe(
-    false
-  );
+  expect(
+    (await w.s.read(readPuzzleControlAvailability, actor)).moveOnOffered
+  ).toBe(false);
+  expect(
+    (await w.s.read(readPuzzleControlAvailability, actor)).summaryMoveOnOffered
+  ).toBe(false);
   expect(await w.s.read(isEmptyPoolVisible, actor)).toBe(false);
   const pick = await w.s.read(readPuzzlePickState, actor);
   expect(pick === null || pick === 'waiting').toBe(true);

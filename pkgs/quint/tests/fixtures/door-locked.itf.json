@@ -1,0 +1,36 @@
+{
+  "vars": [
+    "state",
+    "lastBy",
+    "_offline",
+    "_stateAtCutOff",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "state": "closed",
+      "lastBy": "",
+      "_offline": { "#set": [] },
+      "_stateAtCutOff": "closed",
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {}
+    },
+    {
+      "state": "locked",
+      "lastBy": "ana",
+      "_offline": { "#set": [] },
+      "_stateAtCutOff": "locked",
+      "mbt::actionTaken": "lock",
+      "mbt::nondetPicks": { "who": { "tag": "Some", "value": "ana" } }
+    },
+    {
+      "state": "closed",
+      "lastBy": "ben",
+      "_offline": { "#set": [] },
+      "_stateAtCutOff": "closed",
+      "mbt::actionTaken": "unlock",
+      "mbt::nondetPicks": { "who": { "tag": "Some", "value": "ben" } }
+    }
+  ]
+}

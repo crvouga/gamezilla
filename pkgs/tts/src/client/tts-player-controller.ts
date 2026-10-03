@@ -44,8 +44,9 @@ class TtsPlayerControllerImpl implements TtsPlayerController {
   private status: AudioPlayerStatus | null = null;
   private currentUrl: string | null = null;
   private requestedUrl: string | null = null;
-  /** URL whose post-load seek is in flight (guards re-issuing per status tick). */
-  private seekingUrl: string | null = null;
+  private requestVersion = 0;
+  /** Request whose seek is in flight, including repeated URLs. */
+  private seekingVersion: number | null = null;
   private playingLeadIn = false;
   private snapshot: TtsPlayerSnapshot = {
     isPlaying: false,
@@ -65,11 +66,12 @@ class TtsPlayerControllerImpl implements TtsPlayerController {
   };
 
   readonly play = async (url: string): Promise<void> => {
+    const version = ++this.requestVersion;
     const target = this.ensurePlayer();
     this.requestedUrl = url;
     if (this.currentUrl === url) {
       await target.seekTo(0);
-      if (this.requestedUrl !== url) return;
+      if (this.requestVersion !== version || this.requestedUrl !== url) return;
       this.issuePlay(target);
       this.requestedUrl = null;
       return;
@@ -83,6 +85,7 @@ class TtsPlayerControllerImpl implements TtsPlayerController {
   };
 
   readonly stop = (): void => {
+    this.requestVersion += 1;
     this.requestedUrl = null;
     this.playingLeadIn = false;
     if (this.player !== null && this.currentUrl !== null) {
@@ -96,6 +99,7 @@ class TtsPlayerControllerImpl implements TtsPlayerController {
   };
 
   readonly dispose = (): void => {
+    this.requestVersion += 1;
     this.requestedUrl = null;
     this.unsubscribeStatus?.();
     this.unsubscribeStatus = null;
@@ -136,7 +140,7 @@ class TtsPlayerControllerImpl implements TtsPlayerController {
     if (
       url !== null &&
       url === this.currentUrl &&
-      this.seekingUrl !== url &&
+      this.seekingVersion !== this.requestVersion &&
       next.isLoaded &&
       this.player !== null
     ) {
@@ -146,10 +150,11 @@ class TtsPlayerControllerImpl implements TtsPlayerController {
   }
 
   private seekThenPlay(target: AudioPlayerHandle, url: string): void {
-    this.seekingUrl = url;
+    const version = this.requestVersion;
+    this.seekingVersion = version;
     void target.seekTo(0).finally(() => {
-      this.seekingUrl = null;
-      if (this.requestedUrl !== url) return;
+      if (this.seekingVersion === version) this.seekingVersion = null;
+      if (this.requestVersion !== version || this.requestedUrl !== url) return;
       this.issuePlay(target);
       this.requestedUrl = null;
     });

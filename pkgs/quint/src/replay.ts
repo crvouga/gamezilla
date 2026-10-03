@@ -144,12 +144,16 @@ async function checkState(
   step: number,
   state: ItfState
 ): Promise<readonly string[]> {
-  const matches = async () =>
-    mismatches(state.vars, await binding.observe(w)).length === 0;
-  if (world.settle !== undefined && !(await matches())) {
-    await world.settle(w, matches);
+  let observed = await binding.observe(w);
+  if (
+    world.settle !== undefined &&
+    mismatches(state.vars, observed).length > 0
+  ) {
+    await world.settle(w, async () => {
+      observed = await binding.observe(w);
+      return mismatches(state.vars, observed).length === 0;
+    });
   }
-  const observed = await binding.observe(w);
   const names = Object.keys(observed);
   if (names.length === 0) {
     throw new Error(`${binding.model}: observe returned no model variable`);

@@ -48,14 +48,13 @@ export type ChessPuzzleActionBarSlot =
  * the rest of the line out, then review).
  */
 function hintSlot(
-  status: ActionBarSolveStatus,
-  hintStage: ActionBarHintStage
+  p: ChessPuzzleActionBarPlanInput
 ): Extract<ChessPuzzleActionBarSlot, { id: 'hint' }> {
-  const baseDisabled = status !== 'solving';
+  const baseDisabled = p.status !== 'solving' || p.canGoForward;
   return {
     id: 'hint',
     type: 'action',
-    hintLabel: hintStage === 'none' ? 'hint' : 'solution',
+    hintLabel: p.hintStage === 'none' ? 'hint' : 'solution',
     disabled: baseDisabled,
   };
 }
@@ -69,7 +68,7 @@ function solvingSlots(
 ): ChessPuzzleActionBarSlot[] {
   const navDisabled = p.status === 'loading';
   return [
-    hintSlot(p.status, p.hintStage),
+    hintSlot(p),
     {
       id: 'back',
       type: 'action',
@@ -101,6 +100,7 @@ function solvedSlots(
 ): ChessPuzzleActionBarSlot[] {
   return [
     { id: 'back', type: 'action', disabled: !p.canGoBack },
+    { id: 'forward', type: 'action', disabled: !p.canGoForward },
     { id: 'next', type: 'button', intent: 'success' },
     { id: 'retry', type: 'action', disabled: false },
   ];

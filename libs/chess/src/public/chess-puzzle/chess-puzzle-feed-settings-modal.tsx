@@ -24,6 +24,7 @@ import {
   chessPuzzleFeedConfigFingerprint,
   clampPuzzleFeedAutoOffset,
   clampPuzzleFeedRating,
+  encodeChessPuzzleFeedConfig,
   PUZZLE_FEED_AUTO_OFFSET_MAX,
   PUZZLE_FEED_AUTO_OFFSET_MIN,
   PUZZLE_FEED_AUTO_OFFSET_STEP,
@@ -37,6 +38,7 @@ import {
   type ChessPuzzleTheme,
   isChessPuzzleTheme,
 } from '../chess-puzzle-themes';
+import { createFeedSettingsDraft } from './create-feed-settings-draft';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
@@ -279,10 +281,14 @@ export function ChessPuzzleFeedSettingsModal(
 ): JSX.Element {
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
-  const [config, setConfig] = useChessPuzzleFeedConfig();
+  const [saved, setSaved] = useChessPuzzleFeedConfig();
+  const [config, setConfig] = createFeedSettingsDraft(
+    saved,
+    () => props.visible
+  );
   // Customizing the feed is for accounts; a guest is invited to sign in.
   const customize = useDecision(PERMISSION.puzzlesCustomizeFeed);
-  const pool = useChessPuzzleFeedPoolStats();
+  const pool = useChessPuzzleFeedPoolStats(config);
   const profileCaption = profileRating() > 0 ? String(profileRating()) : '—';
   const targetRating = createMemo(() =>
     resolveEffectivePuzzleRating({
@@ -308,6 +314,11 @@ export function ChessPuzzleFeedSettingsModal(
   const onDone = (): void => {
     const opened = openFingerprintRef.current;
     const current = chessPuzzleFeedConfigFingerprint(config());
+    if (
+      encodeChessPuzzleFeedConfig(saved()) !==
+      encodeChessPuzzleFeedConfig(config())
+    )
+      setSaved(config());
     if (opened !== null && opened !== current) {
       props.onFeedConfigApplied?.();
     }

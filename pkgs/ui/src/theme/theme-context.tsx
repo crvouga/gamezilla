@@ -65,6 +65,8 @@ const ThemeTokensContext = createContext<ThemeTokens>();
 const ThemeLayoutContext = createContext<ThemeLayoutValue>();
 
 export type ThemeProviderProps = {
+  /** An injected device preference; browser CSS also follows the system preference. */
+  reducedMotion?: boolean;
   /**
    * `'system'` follows `prefers-color-scheme`; `'light'` / `'dark'` pin the
    * scheme. Reactive.
@@ -199,6 +201,9 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
             'bg-none': props.transparent === true,
           }}
           data-theme={colorScheme()}
+          data-reduced-motion={
+            props.reducedMotion === true ? 'true' : undefined
+          }
           data-component="ThemeProvider"
           style={fontStyle}
         >

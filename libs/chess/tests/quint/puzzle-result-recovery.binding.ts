@@ -1,15 +1,16 @@
 import {
   finishPuzzleBy,
   openPuzzleFromSpace,
-  showChessStatsScreen,
 } from '@libs/chess/harness/chess-actions';
 import { readActivePuzzleId } from '@libs/chess/harness/chess-puzzle-ui';
 import { finishPuzzleAsAppCloses } from '@libs/chess/harness/puzzle-close-during-finish';
+import { finishCompetingPuzzleResults } from '@libs/chess/harness/puzzle-competing-mates';
 import {
   closePuzzleApp,
   puzzleRecoveryState,
   reopenPuzzleApp,
   retryFinishedPuzzle,
+  viewRecoveryStats,
 } from '@libs/chess/harness/puzzle-result-recovery';
 import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint/world';
@@ -17,7 +18,6 @@ import {
   partition,
   restoreActorConnection,
 } from '@libs/harness/system/actions';
-import { focusActor } from '@libs/harness/system/shell-actions';
 import {
   createSpace,
   joinFromPrompt,
@@ -35,8 +35,8 @@ const FINISH = {
   Skipped: 'skip',
 } as const;
 
-function finish(picks: Picks) {
-  const selected = picks['result'];
+function finish(picks: Picks, key = 'result') {
+  const selected = picks[key];
   if (typeof selected !== 'object' || selected === null || !('tag' in selected))
     throw new Error('Missing finish');
   const tag = selected['tag'];
@@ -75,29 +75,59 @@ bindQuintModel<QuintHarnessWorld>({
     finish: (w, picks) => w.s.apply(finishPuzzleBy, 'alice', finish(picks)),
     finishAsAppCloses: (w, picks) =>
       w.s.apply(finishPuzzleAsAppCloses, 'alice', finish(picks)),
+    finishAlongsideOtherDevice: async (w, picks) => {
+      await w.s.apply(finishCompetingPuzzleResults, {
+        actor: 'alice',
+        other: 'charlie',
+        first: finish(picks),
+        second: finish(picks, 'otherResult'),
+        reconnectOther: true,
+      });
+      w.memo.set('recovery-other-joined', true);
+    },
     retryAndSolve: (w) => w.s.apply(retryFinishedPuzzle, 'alice'),
     readStats: async (w) => {
-      await w.s.apply(focusActor, 'alice');
-      await w.s.apply(showChessStatsScreen, 'alice');
+      await w.s.apply(
+        viewRecoveryStats,
+        w.memo.get('recovery-other-joined') === true
+      );
+      w.memo.set('recovery-reading-stats', true);
+    },
+    readStatsOnOtherDevice: async (w) => {
+      await w.s.apply(
+        openSpaceLink,
+        'charlie',
+        `/space/${rememberedId(w, 'result-space')}`
+      );
+      await w.s.apply(joinFromPrompt, 'charlie');
+      w.memo.set('recovery-other-joined', true);
+      await w.s.apply(viewRecoveryStats, true);
+      w.memo.set('recovery-reading-stats', true);
     },
     closeApp: (w, picks) => w.s.apply(closePuzzleApp, String(picks['device'])),
-    reopenApp: (w, picks) =>
-      w.s.apply(reopenPuzzleApp, String(picks['device'])),
+    reopenApp: async (w, picks) => {
+      await w.s.apply(reopenPuzzleApp, String(picks['device']));
+      if (w.memo.get('recovery-reading-stats') === true)
+        await w.s.apply(
+          viewRecoveryStats,
+          w.memo.get('recovery-other-joined') === true
+        );
+    },
     _loseConnection: (w, picks) =>
       w.s.apply(partition, String(picks['device'])),
-    _connectionReturns: (w, picks) =>
+    connectionReturns: (w, picks) =>
       w.s.apply(restoreActorConnection, String(picks['device'])),
     _wait: (w) => w.s.advanceTime(1_000),
   },
   observe: async (w) => {
     const state = await w.quiet.read(
       puzzleRecoveryState,
-      rememberedId(w, 'result-space'),
-      rememberedId(w, 'result-puzzle')
+      rememberedId(w, 'result-puzzle'),
+      w.memo.get('recovery-reading-stats') === true,
+      w.memo.get('recovery-other-joined') === true
     );
     return {
       ...state,
-      firstResult: variant(state.firstResult),
       ratedResult: new Map<QuintValue, QuintValue>(
         [...state.ratedResult].map(([device, result]) => [
           device,

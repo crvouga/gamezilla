@@ -19,6 +19,7 @@ import {
   untakenActions,
 } from '@pkgs/quint/replay';
 import { simulate } from '@pkgs/quint/simulate';
+import lockedDoorTrace from './fixtures/door-locked.itf.json';
 
 type Door = { state: string; lastBy: string; steps: string[] };
 
@@ -28,6 +29,14 @@ const binding: QuintBinding<Door> = {
   model: 'door',
   traces: 6,
   maxSteps: 8,
+  regressions: [
+    {
+      id: 'locked-door',
+      title: 'A pinned lock and unlock history agrees with the product',
+      seed: '0x2a',
+      itf: lockedDoorTrace,
+    },
+  ],
   actions: {
     init: async () => {},
     open: async (d, picks) => {
@@ -99,6 +108,7 @@ describe('evidence of the model run', () => {
       'bound-actions': 'completeness',
       determinism: 'implementation',
       'trace:n': 'implementation',
+      'regression:locked-door': 'implementation',
     });
     expect(byId.has('trace:1')).toBe(true);
     expect([...byId.values()].filter((o) => o.status !== 'pass')).toEqual([]);

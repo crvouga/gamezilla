@@ -26,7 +26,8 @@ import {
   readSelectedMoveLabel,
   waitPuzzleReviewReady,
 } from '@libs/chess/harness/chess-puzzle-review-ui';
-import { fenAtSolveIdx } from '@libs/chess/public/chess-puzzle-step';
+import { NAMED_PUZZLES } from '@libs/chess/harness/puzzle-fixtures';
+import { canonicalReviewPosition } from '@libs/chess/harness/puzzle-review-oracle';
 import {
   type Actor,
   Given,
@@ -35,7 +36,6 @@ import {
   When,
 } from '@libs/harness/spec/define';
 import { remember } from '@libs/harness/spec/world';
-import { NAMED_PUZZLES } from './puzzle-fixtures';
 import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
   currentPuzzle,
@@ -66,13 +66,6 @@ async function openReview(w: HarnessWorld, actor: Actor): Promise<void> {
 }
 
 /** The position the reviewed line reaches after `move` moves. */
-function positionAt(row: LocalPuzzleRow, move: number): string {
-  return required(
-    fenAtSolveIdx({ fen: row.fen, moves: row.moves, solveIdx: move }),
-    `the position after move ${String(move)}`
-  );
-}
-
 async function expectReviewAt(
   w: HarnessWorld,
   actor: Actor,
@@ -89,10 +82,10 @@ async function expectReviewAt(
   // One move animates; a jump snaps.
   expect(probe.animated).toBe(at.animated);
   expect(await w.s.read(readPuzzleReviewFen, actor)).toBe(
-    positionAt(row, at.move)
+    canonicalReviewPosition(row, at.move)
   );
   expect((await w.s.read(readRenderedPuzzleReviewBoard, actor)).fen).toBe(
-    positionAt(row, at.move)
+    canonicalReviewPosition(row, at.move)
   );
   // The current move is the highlighted one.
   expect(await w.s.read(readSelectedMoveLabel, actor)).toStartWith(

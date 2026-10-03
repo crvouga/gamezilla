@@ -1,11 +1,22 @@
 import type { Session } from '@pkgs/harness';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
+import type { AudioPlayerStatus } from '@pkgs/sounds/audio-playback/ports';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { Driver } from '@pkgs/ui-testing';
 import type { Harness } from '../fabric/create-harness';
 import type { ProductExtra } from '../hosts/ports';
 
+export type HarnessDevice = {
+  readonly audioState: () => Promise<
+    readonly { source: unknown; status: AudioPlayerStatus }[]
+  >;
+  readonly audioFailures: () => Promise<number>;
+  readonly failAudio: () => Promise<void>;
+  readonly setReducedMotion: (reduced: boolean) => Promise<void>;
+};
+
 export type HarnessActor = {
+  readonly device: HarnessDevice;
   readonly id: string;
   readonly ui: Driver;
   /**
