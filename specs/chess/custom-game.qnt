@@ -99,9 +99,8 @@ module custom_game {
   pure def _creatorCommand(c: str): bool = Set("take", "bot", "open", "close", "invite", "revoke", "swap", "clock", "start", "cancel", "create", "rematch").contains(c)
   pure def _settingCommand(c: str): bool = Set("take", "bot", "open", "close", "invite", "accept", "decline", "revoke", "claim", "release", "ready", "unready", "swap", "clock").contains(c)
 
-  def _reason(g: CustomGame, actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): str = {
+  def _priorityReason(g: CustomGame, actor: Person, c: str): str = {
     val sender = _personOf(actor)
-    val occupied = _side(g, side)
     if (_signedOut.contains(actor) or _spaceEnded or not(_members.contains(sender))) "not in the space"
     else if (_creatorCommand(c) and sender != "alice") "only the creator"
     else if (Set("create", "rematch").contains(c)) {
@@ -112,6 +111,14 @@ module custom_game {
     else if (g.status == "completed") "finished"
     else if (g.status == "cancelled") "cancelled"
     else if (_settingCommand(c) and g.status != "configuring") "already started"
+    else ""
+  }
+
+  def _reason(g: CustomGame, actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): str = {
+    val sender = _personOf(actor)
+    val occupied = _side(g, side)
+    val priority = _priorityReason(g,actor,c)
+    if (priority != "" or Set("create", "rematch").contains(c)) priority
     else if (c == "take" and _reserved(g, sender) and occupied.person != sender) "one side per person"
     else if (c == "invite" and not(_members.contains(person))) "person not in the space"
     else if (c == "invite" and _reserved(g, person) and occupied.person != person) "one side per person"
@@ -321,18 +328,18 @@ module custom_game {
   /// A person declines a draw for the same Custom Game, or hears why it is refused.
   action declineDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"reject","white",actor,0,0) == "", _do(actor,"reject","white",actor,0,0) }
 
+  def _connectedPerson(person: Person): bool = _members.contains(person) and DEVICES.exists(device =>
+    _personOf(device) == person and not(_offline.contains(device)) and not(_signedOut.contains(device)))
   /// A chess ending finishes an active game without changing its choices.
-  /// People playing the ending need a signed-in device with a connection;
-  /// running out of time does not wait for either person to return.
+  /// People playing the ending need a signed-in device with a connection.
+  /// White must play before Black's clock can run out from the starting board;
+  /// a running clock never waits for either person to return.
   action _finishGame(result: str): bool = all {
     customGame.status == "active",
     customGame.white.kind == "person", customGame.black.kind == "person",
     customGame.minutes > 0 or Set("white wins by checkmate", "black wins by checkmate", "draw").contains(result),
-    Set("white wins by checkmate", "black wins by checkmate", "draw").contains(result) implies SIDES.forall(side => {
-      val participant = _side(customGame,side).person
-      _members.contains(participant) and DEVICES.exists(device =>
-        _personOf(device) == participant and not(_offline.contains(device)) and not(_signedOut.contains(device)))
-    }),
+    Set("white wins by checkmate", "black wins by checkmate", "draw").contains(result) implies SIDES.forall(side => _connectedPerson(_side(customGame,side).person)),
+    result == "white wins on time" implies _connectedPerson(customGame.white.person),
     _update({...customGame, status: "completed", outcome: result, drawOfferedBy: ""}, _offline, _members,_signedOut, refusal, false),
   }
   /// A disconnected person retains their last picture, with no delayed choices.
@@ -352,13 +359,9 @@ module custom_game {
   /// Earlier choices never replace the agreed game. A person first hears
   /// why they cannot make that choice, or otherwise that the choices changed.
   action _staleChoice(actor: Person, command: str): bool = {
+    val priority = _priorityReason(customGame,actor,command)
     val reason = if (_offline.contains(actor)) "connection needed"
-      else if (_signedOut.contains(actor) or _spaceEnded or not(_members.contains(_personOf(actor)))) "not in the space"
-      else if (_creatorCommand(command) and _personOf(actor) != "alice") "only the creator"
-      else if (Set("create", "rematch").contains(command) and customGame.status != "none" and not(_terminal(customGame))) "finish or cancel first"
-      else if (customGame.status == "completed" and not(Set("create", "rematch").contains(command))) "finished"
-      else if (customGame.status == "cancelled" and not(Set("create", "rematch").contains(command))) "cancelled"
-      else if (_settingCommand(command) and customGame.status != "configuring") "already started"
+      else if (priority != "") priority
       else "choices changed"
     all {
       customGame.status != "none",
@@ -372,9 +375,9 @@ module custom_game {
   action _competingChoices(actor: Person, other: Person, command: str, otherCommand: str, side: Side, otherSide: Side, person: Person): bool = {
     val firstReason = if (_offline.contains(actor)) "connection needed" else _reason(customGame,actor,command,side,person,1,0)
     val first = if (firstReason != "") customGame else _next(customGame,actor,command,side,person,1,0)
-    val authority = if(_signedOut.contains(other) or _spaceEnded or not(_members.contains(_personOf(other)))) "not in the space" else if(_creatorCommand(otherCommand) and _personOf(other) != "alice") "only the creator" else ""
-    val choicesChanged = _config(first) != _config(customGame) or (first != customGame and Set("create","rematch").contains(command))
-    val secondReason = if (_offline.contains(other)) "connection needed" else if(authority != "") authority else if (choicesChanged) "choices changed" else _reason(first,other,otherCommand,otherSide,person,1,0)
+    val priority = _priorityReason(first,other,otherCommand)
+    val choicesChanged = (_config(first) != _config(customGame) and (_settingCommand(otherCommand) or Set("start","cancel").contains(otherCommand))) or (first != customGame and Set("create","rematch").contains(command))
+    val secondReason = if (_offline.contains(other)) "connection needed" else if(priority != "") priority else if (choicesChanged) "choices changed" else _reason(first,other,otherCommand,otherSide,person,1,0)
     val second = if (secondReason != "") first else _next(first,other,otherCommand,otherSide,person,1,0)
     val fresh = (first != customGame and Set("create","rematch").contains(command)) or (second != first and Set("create","rematch").contains(otherCommand))
     _update(second,_offline,_members,_signedOut,refusal.set(actor,firstReason).set(other,secondReason),fresh)
