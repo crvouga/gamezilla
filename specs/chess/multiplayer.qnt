@@ -158,7 +158,7 @@ module multiplayer {
     val g = _games.get(n)
     val winner = if (g.white == person) g.black else g.white
     _show(if (_unfinished(person)) _games.set(n, { ...g, outcome: WonPlay(winner) }) else _games,
-      _received, _current, _seeking.exclude(Set(person)), _accounts.exclude(Set(person)), _offline)
+      _received, _current.set(person, 0), _seeking.exclude(Set(person)), _accounts.exclude(Set(person)), _offline)
   }
 
   /// An offline device keeps its last accepted board; the untimed game stays.
@@ -233,9 +233,9 @@ module multiplayer {
     turn.get(d) == _lastTurn.get(d), playOutcome.get(d) == _lastOutcome.get(d),
     lookingForOpponent.get(d) == _lastSeeking.get(d),
   })
-  /// Deleted accounts never keep searching or retain an unfinished game.
+  /// Deleted accounts never keep searching or access a private game on return.
   val invDeletedCannotPlay = PEOPLE.forall(p => not(_accounts.contains(p)) implies and {
-    not(_seeking.contains(p)), not(_unfinished(p)),
+    not(_seeking.contains(p)), _current.get(p) == 0, not(_unfinished(p)),
   })
   /// Bookkeeping: only received games have ordinary accepted moves, bounded here to eight.
   val invAcceptedMoves = NUMBERS.forall(n => and {
