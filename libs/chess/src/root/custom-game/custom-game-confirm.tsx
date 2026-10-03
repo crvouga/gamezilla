@@ -6,6 +6,7 @@ import type { CustomGameScreenModel } from './use-custom-game-screen';
 export function CustomGameConfirm(props: {
   model: CustomGameScreenModel;
   operation: 'cancel' | 'resign';
+  available: boolean;
 }): JSX.Element {
   const [visible, setVisible] = createSignal(false);
   const title = (): JSX.Element => (
@@ -18,13 +19,15 @@ export function CustomGameConfirm(props: {
   );
   return (
     <>
-      <Button
-        title={title()}
-        intent="danger"
-        variant="outline"
-        onClick={() => setVisible(true)}
-        dataSet={{ testid: `chess-custom-${props.operation}` }}
-      />
+      <Show when={props.available}>
+        <Button
+          title={title()}
+          intent="danger"
+          variant="outline"
+          onClick={() => setVisible(true)}
+          dataSet={{ testid: `chess-custom-${props.operation}` }}
+        />
+      </Show>
       <MutationModal
         visible={visible()}
         onClose={() => setVisible(false)}

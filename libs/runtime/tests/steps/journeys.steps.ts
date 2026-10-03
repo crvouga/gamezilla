@@ -5,6 +5,8 @@
  * (`@apps/product#health` imports this file).
  */
 
+import './custom-game-journey.steps';
+
 import {
   appBooted,
   endActiveSpace,

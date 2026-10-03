@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import { CustomGameAction } from './custom-game-action';
-import { CustomGameConfirm } from './custom-game-confirm';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 export function CustomGameActive(props: {
@@ -20,7 +19,6 @@ export function CustomGameActive(props: {
       </Show>
       <Show when={props.model.mySide() !== null && props.model.canPlay()}>
         <div class="box flex-row gap-2 flex-wrap">
-          <CustomGameConfirm model={props.model} operation="resign" />
           <Show when={twoPeople() && offer() === ''}>
             <CustomGameAction
               title={<Trans>Offer draw</Trans>}

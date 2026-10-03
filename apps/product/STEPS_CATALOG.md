@@ -180,8 +180,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | the app has been opened on a fresh device | — | runtime |
 | Given | the device is offline | — | runtime |
 | Given | they are hosting a space | — | runtime |
+| Given | they have a ready Custom Game against a bot | — | runtime |
 | Given | they have started a chess puzzle in the space | — | runtime |
 | Step | a person opens the app on a fresh device | — | runtime |
+| Then | a legal bot reply returns White's turn | — | runtime |
 | Then | a puzzle board is laid out and ready to play | — | runtime |
 | Then | editing their avatar again shows the new one | — | runtime |
 | Then | Google is asked to sign them in and send them back to the app | — | runtime |
@@ -194,17 +196,25 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | the space offers games to play | — | runtime |
 | Then | the space shows it has ended | — | runtime |
 | Then | their account offers to sign in again | — | runtime |
+| Then | their Custom Game board is ready for White | — | runtime |
+| Then | their Custom Game has not started | — | runtime |
+| Then | their Custom Game is completed by resignation | — | runtime |
+| Then | they are told Custom Games need a connection | — | runtime |
 | When | a guest joins the space from the link | — | runtime |
 | When | the app reopens | — | runtime |
 | When | they end the space | — | runtime |
 | When | they host a space | — | runtime |
 | When | they look at the billing plans | — | runtime |
+| When | they play e2-e4 in the Custom Game | — | runtime |
+| When | they resign the Custom Game | — | runtime |
 | When | they save a new avatar | — | runtime |
 | When | they search for people with a name nobody has | — | runtime |
 | When | they sign out of their account | — | runtime |
 | When | they solve the puzzle | — | runtime |
 | When | they start a chess puzzle in the space | — | runtime |
+| When | they start a Custom Game against a bot | — | runtime |
 | When | they start signing in with Google | — | runtime |
+| When | they start the Custom Game | — | runtime |
 
 ## Features
 

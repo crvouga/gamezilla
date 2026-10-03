@@ -102,9 +102,20 @@ function CustomGameContent(props: {
       >
         <CustomGameSides model={props.model} />
         <CustomGameLifecycle model={props.model} />
-        <Show when={unfinished() && props.model.canCancel()}>
-          <CustomGameConfirm model={props.model} operation="cancel" />
-        </Show>
+        <CustomGameConfirm
+          model={props.model}
+          operation="cancel"
+          available={unfinished() && props.model.canCancel()}
+        />
+        <CustomGameConfirm
+          model={props.model}
+          operation="resign"
+          available={
+            props.model.current()?.status === 'active' &&
+            props.model.mySide() !== null &&
+            props.model.canPlay()
+          }
+        />
         <CustomGameBoard model={props.model} review={review} />
       </Show>
       <CustomGameTest model={props.model} review={review} />

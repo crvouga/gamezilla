@@ -962,6 +962,7 @@
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
         "@pkgs/uuid": "workspace:*",
+        "chess.js": "catalog:",
       },
       "devDependencies": {
         "@libs/test-ids": "workspace:*",

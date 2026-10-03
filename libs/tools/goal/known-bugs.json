@@ -1783,5 +1783,20 @@
     "id": "merge-puzzle-move-wording",
     "summary": "Merging puzzle sound scenarios with coaching changes leaves the literal step 'Alice plays a1-a5' undefined because the shared move binding requires 'the move'. Accept both existing phrasings through the same harness action.",
     "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "custom-game-journey-unbound",
+    "summary": "The Custom Game critical journey had no step bindings in the shared entry, so both the Check and live journey runners failed before exercising the game.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-confirm-unmounted",
+    "summary": "Resignation and cancellation unmounted their confirmation modal as soon as the game became terminal, removing the loading and success surface before it could be dismissed. Keep the modal mounted and gate only its trigger.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-journey-offline-race",
+    "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
   }
 ]

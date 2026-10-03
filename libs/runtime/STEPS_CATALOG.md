@@ -30,6 +30,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | the app has been opened on a fresh device | — | runtime, journeys |
 | Given | the device is offline | — | runtime, journeys |
 | Given | they are hosting a space | — | runtime, journeys |
+| Given | they have a ready Custom Game against a bot | — | runtime, journeys |
 | Given | they have started a chess puzzle in the space | — | runtime, journeys |
 | Step | a person opens the app on a fresh device | — | runtime, journeys |
 | Then | {actor} can reach every control offered there | {actor} | runtime, journeys |
@@ -54,6 +55,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s keyboard reaches every control on the tabs once, in the order they are shown | {actor} | runtime, journeys |
 | Then | {actor}'s ordinary personal data cannot return to use | {actor} | runtime, journeys |
 | Then | {actor}'s sounds are off | {actor} | runtime, journeys |
+| Then | a legal bot reply returns White's turn | — | runtime, journeys |
 | Then | a puzzle board is laid out and ready to play | — | runtime, journeys |
 | Then | editing their avatar again shows the new one | — | runtime, journeys |
 | Then | Google is asked to sign them in and send them back to the app | — | runtime, journeys |
@@ -68,6 +70,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | the team can read that trail | — | runtime, journeys |
 | Then | the team cannot read that trail because its retention period has expired | — | runtime, journeys |
 | Then | their account offers to sign in again | — | runtime, journeys |
+| Then | their Custom Game board is ready for White | — | runtime, journeys |
+| Then | their Custom Game has not started | — | runtime, journeys |
+| Then | their Custom Game is completed by resignation | — | runtime, journeys |
+| Then | they are told Custom Games need a connection | — | runtime, journeys |
 | When | {actor} comes back from Settings | {actor} | runtime, journeys |
 | When | {actor} moves the keyboard through the tabs | {actor} | runtime, journeys |
 | When | {actor} narrows the space available to the app | {actor} | runtime, journeys |
@@ -88,12 +94,16 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | they end the space | — | runtime, journeys |
 | When | they host a space | — | runtime, journeys |
 | When | they look at the billing plans | — | runtime, journeys |
+| When | they play e2-e4 in the Custom Game | — | runtime, journeys |
+| When | they resign the Custom Game | — | runtime, journeys |
 | When | they save a new avatar | — | runtime, journeys |
 | When | they search for people with a name nobody has | — | runtime, journeys |
 | When | they sign out of their account | — | runtime, journeys |
 | When | they solve the puzzle | — | runtime, journeys |
 | When | they start a chess puzzle in the space | — | runtime, journeys |
+| When | they start a Custom Game against a bot | — | runtime, journeys |
 | When | they start signing in with Google | — | runtime, journeys |
+| When | they start the Custom Game | — | runtime, journeys |
 
 ## Shared steps (every package that registers them)
 
