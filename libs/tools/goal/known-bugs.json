@@ -1,5 +1,10 @@
 [
   {
+    "id": "chess-replay-opaque-account-ids",
+    "summary": "Multiplayer trace 1 compared raw provider account ids and their SQL sort order across fresh sign-ins. Compare named participants while retaining every game field, turn and current-game ownership.",
+    "regressionTest": "libs/chess/tests/multiplayer-fingerprint.test.ts"
+  },
+  {
     "id": "chess-deletion-refreshes-connected-devices",
     "summary": "The multiplayer model confirmed deletion outside the normal mutation request, so the auth cleanup consumer had no request scope and connected devices kept their private boards. Confirm through the existing account deletion action and pin Dave’s third-device deletion with offline Alice.",
     "regressionTest": "libs/chess/tests/quint/multiplayer-trace-regression.test.ts"

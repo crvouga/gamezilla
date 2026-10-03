@@ -11,6 +11,7 @@ import {
   multiplayerMatchFact,
   receiveMultiplayerMatch,
 } from '@libs/chess/harness/multiplayer-events';
+import { multiplayerFingerprint } from '@libs/chess/harness/multiplayer-fingerprint';
 import {
   multiplayerView,
   storedMultiplayerSnapshot,
@@ -122,5 +123,8 @@ export async function connectPlay(
 }
 
 export async function playFingerprint(w: PlayTrace) {
-  return JSON.stringify(await w.quiet.read(storedMultiplayerSnapshot));
+  return multiplayerFingerprint(
+    await w.quiet.read(storedMultiplayerSnapshot),
+    w.memo.get('play:owners') as ReadonlyMap<string, string>
+  );
 }
