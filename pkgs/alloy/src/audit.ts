@@ -10,7 +10,7 @@
 import { join } from 'node:path';
 
 import { execAlloy, probeSigs } from './alloy-cli';
-import type { SigInfo } from './sigs';
+import { type SigInfo, stripAlloyComments } from './sigs';
 import {
   modelProblems,
   renderSnapshot,
@@ -44,6 +44,12 @@ export type AuditOptions = {
 const ILLEGAL =
   'Alloy finds no legal world equal to this snapshot: it breaks a fact or a field multiplicity of the model';
 
+/** Snapshot commands share the widest integer scope declared by the model. */
+function integerScope(source: string): number {
+  const scopes = [...stripAlloyComments(source).matchAll(/\b(\d+)\s+Int\b/g)];
+  return Math.max(4, ...scopes.map((scope) => Number(scope[1])));
+}
+
 export async function auditSnapshots(
   options: AuditOptions
 ): Promise<readonly SnapshotVerdict[]> {
@@ -68,7 +74,14 @@ export async function auditSnapshots(
   const problems = options.snapshots.map((s) => snapshotProblems(s, sigs));
   const predicates = options.snapshots.flatMap((snapshot, i) =>
     (problems[i] ?? []).length === 0
-      ? [snapshotPredicate(snapshot, sigs, i)]
+      ? [
+          snapshotPredicate(
+            snapshot,
+            sigs,
+            i,
+            integerScope(options.modelSource)
+          ),
+        ]
       : []
   );
   const solved =

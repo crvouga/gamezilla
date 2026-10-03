@@ -1,5 +1,15 @@
 [
   {
+    "id": "alloy-snapshot-integer-scope",
+    "summary": "Snapshot predicates reverted to four-bit integers even when the canonical model explicitly used six bits. The literal three-seat snapshot failed the <=16 fact because 16 overflowed to zero. Retain the widest declared integer scope in snapshot commands.",
+    "regressionTest": "pkgs/alloy/tests/integer-scope-regression.test.ts"
+  },
+  {
+    "id": "alloy-expect-zero-receipt",
+    "summary": "The actual Alloy CLI omits expects when its value is zero. The receipt adapter treated the omitted field as an undeclared expectation (-1), falsely rejecting an intentionally impossible seventeenth seat. Preserve the serialized zero expectation.",
+    "regressionTest": "pkgs/alloy/tests/integer-scope-regression.test.ts"
+  },
+  {
     "id": "matchmaking-serialization-conflict-refuses-begin",
     "summary": "Three simultaneous Alice phone-1/computer-1/phone-1 begins on real SERIALIZABLE Postgres exposed 40001 while locking the shared pool row, instead of resolving safe logical outcomes. Re-execute confirmed aborted transactions using the same owner/request receipt, without retrying permanent failures or an acknowledged transaction.",
     "regressionTest": "pkgs/matchmaking-harness/tests/concurrent-boundary.test.ts"

@@ -107,7 +107,8 @@ function quantifier(
 export function snapshotPredicate(
   snapshot: Snapshot,
   sigs: readonly SigInfo[],
-  index: number
+  index: number,
+  integerBits = 4
 ): string {
   const world = resolveWorld(snapshot, sigs);
   const problems = [...modelProblems(sigs), ...world.problems];
@@ -132,6 +133,7 @@ export function snapshotPredicate(
     .map(
       (sig) => `exactly ${String(world.members(sig.name).size)} ${sig.name}`
     );
+  if (integerBits !== 4) scopes.push(`${String(integerBits)} Int`);
   const name = `snapshot_${String(index)}`;
   const opening = quantifier(world.declaredIn, sigs);
   const body =

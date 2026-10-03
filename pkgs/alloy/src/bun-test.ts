@@ -219,7 +219,7 @@ export function runStructureSpec(options: RunStructureOptions): void {
       return result.value;
     };
     test(
-      'every check holds and every run has an instance',
+      'every declared command has its expected verdict',
       checkModel(checked, record),
       STRUCTURE_TEST_TIMEOUT_MS
     );

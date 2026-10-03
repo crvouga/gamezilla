@@ -82,6 +82,9 @@ export function parseAlloyType(type: string): readonly (readonly string[])[] {
 }
 
 function parseExpects(value: unknown): Expectation {
+  // Alloy's receipt serializer omits zero-valued fields. An undeclared
+  // expectation is written explicitly as -1; an omitted one means expect 0.
+  if (value === undefined) return 0;
   return value === 0 || value === 1 ? value : -1;
 }
 
