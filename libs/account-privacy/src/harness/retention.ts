@@ -8,6 +8,7 @@ function preservation(s: ProductHarness) {
     clock: s.harness.clock,
     createId: s.session.ports.createId,
     contributions: s.harness.composition.app.accountPrivacy,
+    rooms: s.harness.roomNode.services,
   });
 }
 

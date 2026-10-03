@@ -1,0 +1,1356 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/home/runner/work/gamezilla/gamezilla/specs/chess/custom-game.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Sat Oct 03 2026 03:00:43 GMT+0000 (Coordinated Universal Time)",
+    "timestamp": 1790996443391
+  },
+  "vars": [
+    "incrementShown",
+    "creatorShown",
+    "readyShown",
+    "startsShown",
+    "whiteShown",
+    "refusal",
+    "minutesShown",
+    "statusShown",
+    "outcomeShown",
+    "blackShown",
+    "drawOfferedByShown",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "blackShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      },
+      "creatorShown": {
+        "#map": [
+          ["alice-other", "alice"],
+          ["alice", "alice"],
+          ["bob", "alice"],
+          ["carol", ""]
+        ]
+      },
+      "drawOfferedByShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "incrementShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "beginning": {
+          "tag": "Some",
+          "value": "people"
+        },
+        "command": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "increment": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "minutes": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "other": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "otherCommand": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "otherSide": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "person": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "result": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "side": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "minutesShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "outcomeShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "readyShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "alice",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "refusal": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "startsShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "statusShown": {
+        "#map": [
+          ["alice-other", "configuring"],
+          ["alice", "configuring"],
+          ["bob", "configuring"],
+          ["carol", "none"]
+        ]
+      },
+      "whiteShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "blackShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      },
+      "creatorShown": {
+        "#map": [
+          ["alice-other", "alice"],
+          ["alice", "alice"],
+          ["bob", "alice"],
+          ["carol", ""]
+        ]
+      },
+      "drawOfferedByShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "incrementShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "_staleChoice",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "Some",
+          "value": "alice-other"
+        },
+        "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "command": {
+          "tag": "Some",
+          "value": "create"
+        },
+        "increment": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "minutes": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "other": {
+          "tag": "Some",
+          "value": "alice-other"
+        },
+        "otherCommand": {
+          "tag": "Some",
+          "value": "decline"
+        },
+        "otherSide": {
+          "tag": "Some",
+          "value": "black"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "result": {
+          "tag": "Some",
+          "value": "black wins by checkmate"
+        },
+        "side": {
+          "tag": "Some",
+          "value": "black"
+        }
+      },
+      "minutesShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "outcomeShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "readyShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "alice",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "refusal": {
+        "#map": [
+          ["alice-other", "finish or cancel first"],
+          ["alice", ""],
+          ["bob", ""],
+          ["carol", ""]
+        ]
+      },
+      "startsShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "statusShown": {
+        "#map": [
+          ["alice-other", "configuring"],
+          ["alice", "configuring"],
+          ["bob", "configuring"],
+          ["carol", "none"]
+        ]
+      },
+      "whiteShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "blackShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      },
+      "creatorShown": {
+        "#map": [
+          ["alice-other", "alice"],
+          ["alice", "alice"],
+          ["bob", "alice"],
+          ["carol", ""]
+        ]
+      },
+      "drawOfferedByShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "incrementShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "command": {
+          "tag": "Some",
+          "value": "take"
+        },
+        "increment": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "minutes": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "1"
+          }
+        },
+        "other": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "otherCommand": {
+          "tag": "Some",
+          "value": "invite"
+        },
+        "otherSide": {
+          "tag": "Some",
+          "value": "white"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "result": {
+          "tag": "Some",
+          "value": "draw"
+        },
+        "side": {
+          "tag": "Some",
+          "value": "black"
+        }
+      },
+      "minutesShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "outcomeShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "readyShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "alice",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "refusal": {
+        "#map": [
+          ["alice-other", "finish or cancel first"],
+          ["alice", ""],
+          ["bob", ""],
+          ["carol", ""]
+        ]
+      },
+      "startsShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "statusShown": {
+        "#map": [
+          ["alice-other", "configuring"],
+          ["alice", "configuring"],
+          ["bob", "configuring"],
+          ["carol", "none"]
+        ]
+      },
+      "whiteShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "blackShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      },
+      "creatorShown": {
+        "#map": [
+          ["alice-other", "alice"],
+          ["alice", "alice"],
+          ["bob", "alice"],
+          ["carol", ""]
+        ]
+      },
+      "drawOfferedByShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "incrementShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "_repeatAcknowledged",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "command": {
+          "tag": "Some",
+          "value": "clock"
+        },
+        "increment": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "minutes": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "other": {
+          "tag": "Some",
+          "value": "alice-other"
+        },
+        "otherCommand": {
+          "tag": "Some",
+          "value": "bot"
+        },
+        "otherSide": {
+          "tag": "Some",
+          "value": "black"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "alice"
+        },
+        "result": {
+          "tag": "Some",
+          "value": "black wins by checkmate"
+        },
+        "side": {
+          "tag": "Some",
+          "value": "white"
+        }
+      },
+      "minutesShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "outcomeShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "readyShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "alice",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "refusal": {
+        "#map": [
+          ["alice-other", "finish or cancel first"],
+          ["alice", ""],
+          ["bob", ""],
+          ["carol", ""]
+        ]
+      },
+      "startsShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "statusShown": {
+        "#map": [
+          ["alice-other", "configuring"],
+          ["alice", "configuring"],
+          ["bob", "configuring"],
+          ["carol", "none"]
+        ]
+      },
+      "whiteShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "blackShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "bob"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      },
+      "creatorShown": {
+        "#map": [
+          ["alice-other", ""],
+          ["alice", "alice"],
+          ["bob", ""],
+          ["carol", ""]
+        ]
+      },
+      "drawOfferedByShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "incrementShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "mbt::actionTaken": "_personLeaves",
+      "mbt::nondetPicks": {
+        "actor": {
+          "tag": "Some",
+          "value": "alice-other"
+        },
+        "beginning": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "command": {
+          "tag": "Some",
+          "value": "open"
+        },
+        "increment": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "2"
+          }
+        },
+        "minutes": {
+          "tag": "Some",
+          "value": {
+            "#bigint": "0"
+          }
+        },
+        "other": {
+          "tag": "Some",
+          "value": "carol"
+        },
+        "otherCommand": {
+          "tag": "Some",
+          "value": "take"
+        },
+        "otherSide": {
+          "tag": "Some",
+          "value": "black"
+        },
+        "person": {
+          "tag": "Some",
+          "value": "bob"
+        },
+        "result": {
+          "tag": "Some",
+          "value": "white wins by checkmate"
+        },
+        "side": {
+          "tag": "Some",
+          "value": "black"
+        }
+      },
+      "minutesShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "outcomeShown": {
+        "#map": [["alice-other", ""], ["alice", ""], ["bob", ""], ["carol", ""]]
+      },
+      "readyShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "alice",
+            {
+              "#set": ["black", "white"]
+            }
+          ],
+          [
+            "bob",
+            {
+              "#set": []
+            }
+          ],
+          [
+            "carol",
+            {
+              "#set": []
+            }
+          ]
+        ]
+      },
+      "refusal": {
+        "#map": [
+          ["alice-other", "finish or cancel first"],
+          ["alice", ""],
+          ["bob", ""],
+          ["carol", ""]
+        ]
+      },
+      "startsShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "alice",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "bob",
+            {
+              "#bigint": "0"
+            }
+          ],
+          [
+            "carol",
+            {
+              "#bigint": "0"
+            }
+          ]
+        ]
+      },
+      "statusShown": {
+        "#map": [
+          ["alice-other", "none"],
+          ["alice", "configuring"],
+          ["bob", "none"],
+          ["carol", "none"]
+        ]
+      },
+      "whiteShown": {
+        "#map": [
+          [
+            "alice-other",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ],
+          [
+            "alice",
+            {
+              "kind": "person",
+              "person": "alice"
+            }
+          ],
+          [
+            "bob",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ],
+          [
+            "carol",
+            {
+              "kind": "open",
+              "person": ""
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

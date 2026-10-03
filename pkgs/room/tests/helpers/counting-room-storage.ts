@@ -1,11 +1,30 @@
 import type { LogEntry } from '@pkgs/room';
 import type { CommandDedupOutcome, RoomStorage } from '@pkgs/room/server';
+import { eraseRoomIdentity, type RoomIdentityErasure } from '@pkgs/room/server';
 
 /** In-memory RoomStorage with op counters. */
 export class CountingRoomStorage implements RoomStorage {
   entries: LogEntry[] = [];
   dedup = new Map<string, CommandDedupOutcome>();
   lastSeqReads = 0;
+
+  async eraseIdentity(
+    _t: string,
+    erasure: RoomIdentityErasure,
+    invalidation: { commandId: string; entry: LogEntry }
+  ): Promise<void> {
+    this.entries = eraseRoomIdentity(
+      [...this.entries, invalidation.entry],
+      erasure
+    );
+    this.dedup = new Map(
+      Object.entries(eraseRoomIdentity(Object.fromEntries(this.dedup), erasure))
+    );
+    this.dedup.set(invalidation.commandId, {
+      kind: 'committed',
+      entries: [invalidation.entry],
+    });
+  }
 
   async loadEventsAfter(_t: string, afterSeq: number): Promise<LogEntry[]> {
     return this.entries.filter((e) => e.seq > afterSeq);

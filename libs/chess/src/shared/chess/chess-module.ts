@@ -14,8 +14,9 @@ import {
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
+import type { Random } from '@pkgs/uuid';
 
-import { chessGameShared } from './chess-game';
+import { chessPuzzleGame } from './chess-game';
 
 function reject(error: RoomError): HandleResult {
   return { ok: false, error };
@@ -26,14 +27,14 @@ const commandRouter = createComposedMessageRouter<
   GameCommandContext,
   HandleResult
 >(
-  chessGameShared.commandRouters.map((entry) => ({
+  chessPuzzleGame.commandRouters.map((entry) => ({
     namespace: entry.namespace,
     router: entry.router,
   }))
 );
 
 const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
-  chessGameShared.eventRouters.map((entry) => ({
+  chessPuzzleGame.eventRouters.map((entry) => ({
     namespace: entry.namespace,
     router: entry.router,
   }))
@@ -45,43 +46,47 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
  * `@libs/spaces` (which would re-introduce a chess <-> spaces cycle).
  *
  * Production traffic always goes through the composed `SpaceModule` built
- * by `createSpaceModule(name, [chessGameShared, …])` at the composition root.
+ * by `createSpaceModule(name, [chessPuzzleGame, …])` at the composition root.
  */
-export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
-  name: assertRoomModuleName('chess'),
-  recoverEffects: (state) => chessGameShared.recoverEffects(state),
-  initialState(): RoomState {
-    if (chessGameShared.initialState === undefined) return {};
-    return chessGameShared.initialState();
-  },
+export function createChessModule(
+  random: Random
+): RoomModule<RoomState, Message, Message, string> {
+  return {
+    name: assertRoomModuleName('chess'),
+    recoverEffects: (state) => chessPuzzleGame.recoverEffects(state),
+    initialState(): RoomState {
+      if (chessPuzzleGame.initialState === undefined) return {};
+      return chessPuzzleGame.initialState();
+    },
 
-  handle(state, command: RoomCommand, identity): HandleResult {
-    const msg = isMessageEnvelope(command.payload) ? command.payload : null;
-    if (msg === null) {
-      return reject({
-        type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: 'not a message envelope',
-      });
-    }
-    return commandRouter.dispatch(
-      state,
-      { identity, ts: command.ts, commandId: command.id },
-      msg,
-      (_s, _c, m) =>
-        reject({
+    handle(state, command: RoomCommand, identity): HandleResult {
+      const msg = isMessageEnvelope(command.payload) ? command.payload : null;
+      if (msg === null) {
+        return reject({
           type: ROOM_ERROR_TYPE.invalidCommand,
-          reason: String(m.type),
-        })
-    );
-  },
+          reason: 'not a message envelope',
+        });
+      }
+      return commandRouter.dispatch(
+        state,
+        { identity, ts: command.ts, commandId: command.id, random },
+        msg,
+        (_s, _c, m) =>
+          reject({
+            type: ROOM_ERROR_TYPE.invalidCommand,
+            reason: String(m.type),
+          })
+      );
+    },
 
-  reduce(state, event: Message): RoomState {
-    const ev = isMessageEnvelope(event) ? event : null;
-    if (ev === null) return state;
-    return eventReducer.dispatch(state, undefined, ev, (s) => s);
-  },
+    reduce(state, event: Message): RoomState {
+      const ev = isMessageEnvelope(event) ? event : null;
+      if (ev === null) return state;
+      return eventReducer.dispatch(state, undefined, ev, (s) => s);
+    },
 
-  hash(state): string {
-    return hashRoomState(state);
-  },
-};
+    hash(state): string {
+      return hashRoomState(state);
+    },
+  };
+}

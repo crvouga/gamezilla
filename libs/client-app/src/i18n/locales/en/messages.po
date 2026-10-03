@@ -147,6 +147,14 @@ msgstr "✕"
 msgid "1 guest"
 msgstr "1 guest"
 
+#: libs/chess/src/root/custom-game/custom-game-active.tsx
+msgid "A draw has been offered."
+msgstr "A draw has been offered."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "A person can have only one side."
+msgstr "A person can have only one side."
+
 #: libs/account-privacy/src/root/client/privacy-explanation.tsx
 msgid "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
 msgstr "A specific legal preservation obligation may retain only the information it covers until that obligation ends. Preserved information cannot restore a profile or be used to promote the product. Any applicable obligation and its end condition will be disclosed here."
@@ -165,6 +173,7 @@ msgstr "Abandoned · {puzzleRating}"
 msgid "About"
 msgstr "About"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
 #: libs/friends/src/root/client/friend-request-decision-modal.tsx
 msgid "Accept"
 msgstr "Accept"
@@ -259,6 +268,10 @@ msgstr "Adjust feed"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "After 1 s"
 msgstr "After 1 s"
+
+#: libs/chess/src/root/custom-game/custom-game-active.tsx
+msgid "Agree draw"
+msgstr "Agree draw"
 
 #: libs/notifications/src/root/client/notifications-filter-bar.tsx
 msgid "All"
@@ -373,6 +386,23 @@ msgstr "Billing"
 msgid "Bishop"
 msgstr "Bishop"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Black"
+msgstr "Black"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Black time remaining"
+msgstr "Black time remaining"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Black to move."
+msgstr "Black to move."
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Black wins."
+msgstr "Black wins."
+
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 #: libs/friends/src/root/client/use-friend-user-overflow-menu.tsx
 msgid "Block"
@@ -381,6 +411,16 @@ msgstr "Block"
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 msgid "Block this user?"
 msgstr "Block this user?"
+
+#: libs/chess/src/root/custom-game/custom-game-person.tsx
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Bot"
+msgstr "Bot"
+
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Both sides must be filled and every person ready."
+msgstr "Both sides must be filled and every person ready."
 
 #: pkgs/ui/src/components/screen-base/screen-breadcrumb-trail.tsx
 msgid "Breadcrumb"
@@ -414,6 +454,10 @@ msgstr "Build mode"
 msgid "Cancel"
 msgstr "Cancel"
 
+#: libs/chess/src/root/custom-game/custom-game-confirm.tsx
+msgid "Cancel game"
+msgstr "Cancel game"
+
 #. placeholder {0}: date()
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Canceled · access until {0}"
@@ -431,11 +475,16 @@ msgstr "Cancelling…"
 msgid "Cannot edit"
 msgstr "Cannot edit"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Change participant"
+msgstr "Change participant"
+
 #: libs/search/src/root/client/search-screen-view.tsx
 msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
 
 #: libs/chess/src/public/chess-main-menu-view.tsx
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
 #: libs/client-app/src/chrome/multiplayer-chess-client.tsx
 msgid "Chess"
 msgstr "Chess"
@@ -445,6 +494,14 @@ msgstr "Chess"
 msgid "Choose"
 msgstr "Choose"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Choose a person"
+msgstr "Choose a person"
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Choose a position from the moves actually played."
+msgstr "Choose a position from the moves actually played."
+
 #: libs/auth/src/public/sign-in-modal-body.tsx
 msgid "Choose a sign-in method"
 msgstr "Choose a sign-in method"
@@ -453,9 +510,21 @@ msgstr "Choose a sign-in method"
 msgid "Choose how you want to play."
 msgstr "Choose how you want to play."
 
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "Choose who plays White and Black. Anyone in this space can watch."
+msgstr "Choose who plays White and Black. Anyone in this space can watch."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
+msgstr "Choose whole minutes from 1 to 180 and whole added seconds from 0 to 60."
+
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "ci"
 msgstr "ci"
+
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Claim this side"
+msgstr "Claim this side"
 
 #: libs/search/src/root/client/search-recent-queries.tsx
 #: pkgs/ui/src/components/combobox/combobox-trigger.tsx
@@ -487,6 +556,15 @@ msgstr "Client SQL"
 msgid "Close"
 msgstr "Close"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Close place"
+msgstr "Close place"
+
+#: libs/chess/src/root/custom-game/custom-game-person.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Closed place"
+msgstr "Closed place"
+
 #: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Collapse all"
 msgstr "Collapse all"
@@ -495,10 +573,6 @@ msgstr "Collapse all"
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Color {0}"
 msgstr "Color {0}"
-
-#: libs/chess/src/public/chess-main-menu-view.tsx
-msgid "Coming soon"
-msgstr "Coming soon"
 
 #: pkgs/ui/src/components/command-palette/command-palette.tsx
 msgid "Command palette"
@@ -536,10 +610,12 @@ msgstr "Confirm"
 msgid "Confirm permanent deletion"
 msgstr "Confirm permanent deletion"
 
+#: libs/chess/src/root/custom-game/custom-game-action.tsx
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Confirmed"
 msgstr "Confirmed"
 
+#: libs/chess/src/root/custom-game/custom-game-action.tsx
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Confirming…"
 msgstr "Confirming…"
@@ -569,6 +645,10 @@ msgstr "Connecting…"
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Connection"
 msgstr "Connection"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Connection needed to change or play this game."
+msgstr "Connection needed to change or play this game."
 
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Connectivity"
@@ -714,6 +794,10 @@ msgstr "Couldn't sign out everywhere"
 msgid "Couldn't unblock"
 msgstr "Couldn't unblock"
 
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "Create game"
+msgstr "Create game"
+
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
 msgstr "Created"
@@ -721,6 +805,10 @@ msgstr "Created"
 #: libs/spaces/src/public/space-live-badge.tsx
 msgid "Current"
 msgstr "Current"
+
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
+msgid "Current game"
+msgstr "Current game"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-stats-cards.tsx
 msgid "Current streak"
@@ -735,6 +823,10 @@ msgstr "Custom"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 msgid "Custom · {0}"
 msgstr "Custom · {0}"
+
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "Custom Game"
+msgstr "Custom Game"
 
 #: libs/chess/src/public/chess-main-menu-view.tsx
 msgid "Custom Games"
@@ -766,9 +858,14 @@ msgstr "day"
 msgid "debug"
 msgstr "debug"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
 #: libs/friends/src/root/client/friend-request-decision-modal.tsx
 msgid "Decline"
 msgstr "Decline"
+
+#: libs/chess/src/root/custom-game/custom-game-active.tsx
+msgid "Decline draw"
+msgstr "Decline draw"
 
 #: libs/friends/src/root/client/friend-request-decision-modal.tsx
 msgid "Declined"
@@ -899,9 +996,18 @@ msgstr "Download reusable detail"
 msgid "Downloading…"
 msgstr "Downloading…"
 
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Draw agreement is available between two people."
+msgstr "Draw agreement is available between two people."
+
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "e.g. ff5733"
 msgstr "e.g. ff5733"
+
+#. placeholder {0}: index + 1
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
+msgid "Earlier game {0}"
+msgstr "Earlier game {0}"
 
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/root/client/profile-screen.tsx
@@ -952,6 +1058,10 @@ msgstr "Every device signed in to this account, including this one, will be sign
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "Every install signed into your account shows up here."
 msgstr "Every install signed into your account shows up here."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Every person must be ready before starting."
+msgstr "Every person must be ready before starting."
 
 #. placeholder {0}: props.trialDays
 #: libs/billing/src/root/client/billing-offer-sections.tsx
@@ -1009,6 +1119,10 @@ msgstr "Failed to load"
 msgid "Features"
 msgstr "Features"
 
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Fill both sides before starting."
+msgstr "Fill both sides before starting."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Filter by puzzles you have never seen, already seen, or failed."
 msgstr "Filter by puzzles you have never seen, already seen, or failed."
@@ -1041,6 +1155,10 @@ msgstr "Find people"
 #: libs/chess/src/root/client/multiplayer-controls.tsx
 msgid "Finding an opponent…"
 msgstr "Finding an opponent…"
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Finish or cancel this game before creating another."
+msgstr "Finish or cancel this game before creating another."
 
 #: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Finish your current multiplayer game first"
@@ -1107,9 +1225,33 @@ msgstr "Friends let you find each other and jump into shared spaces."
 msgid "Full commit"
 msgstr "Full commit"
 
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Game cancelled."
+msgstr "Game cancelled."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Game choices are fixed after the start."
+msgstr "Game choices are fixed after the start."
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Game drawn."
+msgstr "Game drawn."
+
+#: libs/chess/src/root/custom-game/custom-game-confirm.tsx
+msgid "Game finished"
+msgstr "Game finished"
+
 #: libs/chess/src/public/chess-puzzle/chess-stats-screen.tsx
 msgid "Game log"
 msgstr "Game log"
+
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Game options"
+msgstr "Game options"
+
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
+msgid "Game record"
+msgstr "Game record"
 
 #: libs/spaces/src/root/client/module/games-main-menu.tsx
 msgid "Games"
@@ -1203,6 +1345,10 @@ msgstr "hud"
 msgid "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 msgstr "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "I'm ready"
+msgstr "I'm ready"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Immediately"
 msgstr "Immediately"
@@ -1235,6 +1381,27 @@ msgstr "Interaction to next paint"
 #: libs/chess/src/public/chess-settings/chess-board-example.tsx
 msgid "Interactive Solid chess board."
 msgstr "Interactive Solid chess board."
+
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Invite"
+msgstr "Invite"
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Invite a person who is in this space."
+msgstr "Invite a person who is in this space."
+
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Invite a space member"
+msgstr "Invite a space member"
+
+#. placeholder {0}: name ?? t`Person`
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Invited person: {0}"
+msgstr "Invited person: {0}"
+
+#: libs/chess/src/root/custom-game/custom-game-person.tsx
+msgid "Invited:"
+msgstr "Invited:"
 
 #: pkgs/ui/src/components/catalog/catalog-detail.tsx
 msgid "Item not found"
@@ -1428,6 +1595,10 @@ msgstr "Membership ended {0}"
 msgid "Memberships aren't available right now."
 msgstr "Memberships aren't available right now."
 
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Minutes per side"
+msgstr "Minutes per side"
+
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
@@ -1440,6 +1611,10 @@ msgstr "Monthly"
 #: pkgs/ui/src/components/action-bar/action-bar-parts.tsx
 msgid "More"
 msgstr "More"
+
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
+msgid "Move number to review"
+msgstr "Move number to review"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Move on to the next puzzle by itself after a solve."
@@ -1493,6 +1668,10 @@ msgstr "Needs a connection"
 msgid "Network reachability and server health"
 msgstr "Network reachability and server health"
 
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "New game"
+msgstr "New game"
+
 #: libs/notifications/src/root/client/notifications-empty-state.tsx
 msgid "New notifications will show up here when someone reaches out."
 msgstr "New notifications will show up here when someone reaches out."
@@ -1512,6 +1691,7 @@ msgid "Next"
 msgstr "Next"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
 msgid "Next move"
 msgstr "Next move"
 
@@ -1546,6 +1726,10 @@ msgstr "No catalog entry for \"{id}\"."
 #: libs/chess/src/public/chess-settings/chess-settings-developer-ui-component-detail-screen.tsx
 msgid "No component selected"
 msgstr "No component selected"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "No Custom Game."
+msgstr "No Custom Game."
 
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "No devices yet"
@@ -1690,6 +1874,10 @@ msgstr "Notifications you archive are kept here."
 msgid "Off"
 msgstr "Off"
 
+#: libs/chess/src/root/custom-game/custom-game-active.tsx
+msgid "Offer draw"
+msgstr "Offer draw"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Offline"
@@ -1708,6 +1896,22 @@ msgstr "On"
 msgid "Online"
 msgstr "Online"
 
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Only a participant can make this choice."
+msgstr "Only a participant can make this choice."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Only the creator can make this choice."
+msgstr "Only the creator can make this choice."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Only the other participant can answer a draw offer."
+msgstr "Only the other participant can answer a draw offer."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Only the participant whose turn it is can move."
+msgstr "Only the participant whose turn it is can move."
+
 #: pkgs/ui/src/components/command-palette/command-palette-trigger.tsx
 msgid "Open command palette"
 msgstr "Open command palette"
@@ -1724,6 +1928,12 @@ msgstr "Open developer feedback"
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Open Harness"
 msgstr "Open Harness"
+
+#: libs/chess/src/root/custom-game/custom-game-person.tsx
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Open place"
+msgstr "Open place"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Open Reports"
@@ -1823,6 +2033,10 @@ msgstr "Performance monitor"
 msgid "Permanently delete account?"
 msgstr "Permanently delete account?"
 
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Person"
+msgstr "Person"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Pick a fixed target rating for the puzzle feed."
 msgstr "Pick a fixed target rating for the puzzle feed."
@@ -1860,6 +2074,10 @@ msgstr "Plan and subscription"
 msgid "Platform"
 msgstr "Platform"
 
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "Play a bot"
+msgstr "Play a bot"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Play history"
 msgstr "Play history"
@@ -1891,6 +2109,7 @@ msgid "Previous"
 msgstr "Previous"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
 msgid "Previous move"
 msgstr "Previous move"
 
@@ -1992,6 +2211,7 @@ msgstr "Rating offset"
 msgid "Rating trend and game log"
 msgstr "Rating trend and game log"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Ready"
 msgstr "Ready"
@@ -2000,9 +2220,22 @@ msgstr "Ready"
 msgid "Ready by"
 msgstr "Ready by"
 
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Ready to start."
+msgstr "Ready to start."
+
 #: libs/search/src/root/client/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Reconnect before changing or playing the game."
+msgstr "Reconnect before changing or playing the game."
+
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Release this side"
+msgstr "Release this side"
 
 #: libs/client-app/src/shell/pwa/update-prompt.tsx
 msgid "Reload"
@@ -2011,6 +2244,10 @@ msgstr "Reload"
 #: libs/client-app/src/shell/sync/boot-error-screen.tsx
 msgid "Reload app"
 msgstr "Reload app"
+
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "Rematch"
+msgstr "Rematch"
 
 #: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
 #: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
@@ -2086,6 +2323,10 @@ msgstr "Resets in {hours} h"
 msgid "Resets in {minutes} min"
 msgstr "Resets in {minutes} min"
 
+#: libs/chess/src/root/custom-game/custom-game-confirm.tsx
+msgid "Resign game"
+msgstr "Resign game"
+
 #: libs/chess/src/root/client/multiplayer-controls.tsx
 msgid "Resign multiplayer chess"
 msgstr "Resign multiplayer chess"
@@ -2102,6 +2343,18 @@ msgstr "Retry"
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Retry sync"
 msgstr "Retry sync"
+
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
+msgid "Return to current position"
+msgstr "Return to current position"
+
+#: libs/chess/src/root/custom-game/custom-game-board.tsx
+msgid "Review position"
+msgstr "Review position"
+
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Revoke invitation"
+msgstr "Revoke invitation"
 
 #: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "Rook"
@@ -2184,6 +2437,10 @@ msgstr "Search…"
 #: libs/search/src/root/client/search-screen-view.tsx
 msgid "Searching…"
 msgstr "Searching…"
+
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Seconds added after a move"
+msgstr "Seconds added after a move"
 
 #: libs/auth/src/root/client/account-screen.tsx
 msgid "Security"
@@ -2559,6 +2816,14 @@ msgstr "Start a space"
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
 
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Start game"
+msgstr "Start game"
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "Start the game before playing."
+msgstr "Start the game before playing."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Started"
 msgstr "Started"
@@ -2603,6 +2868,10 @@ msgstr "Subscribing needs a connection. Connect to the internet to start your me
 msgid "Suggested"
 msgstr "Suggested"
 
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Swap colors"
+msgstr "Swap colors"
+
 #: libs/client-app/src/screens/more/settings-screen.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Sync"
@@ -2640,6 +2909,10 @@ msgstr "System"
 msgid "Take an export or permanently delete your account"
 msgstr "Take an export or permanently delete your account"
 
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+msgid "Take this side"
+msgstr "Take this side"
+
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "Tap a device for details."
 msgstr "Tap a device for details."
@@ -2674,9 +2947,21 @@ msgstr "Text to speech"
 msgid "That account already signs in to a different account here. Sign in with it to use that account instead."
 msgstr "That account already signs in to a different account here. Sign in with it to use that account instead."
 
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "That invitation is no longer yours to accept or decline."
+msgstr "That invitation is no longer yours to accept or decline."
+
 #: libs/auth/src/public/auth-flow-messages.tsx
 msgid "That isn't the account the address matched, so nothing was connected."
 msgstr "That isn't the account the address matched, so nothing was connected."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "That move is not legal in this position."
+msgstr "That move is not legal in this position."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "That side is no longer open."
+msgstr "That side is no longer open."
 
 #: libs/auth/src/public/auth-flow-messages.tsx
 msgid "That took too long. Start again."
@@ -2690,6 +2975,14 @@ msgstr "That username is not allowed"
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
 
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "The board changed. Review the current turn."
+msgstr "The board changed. Review the current turn."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "The choice could not be confirmed. Try again."
+msgstr "The choice could not be confirmed. Try again."
+
 #: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
 msgid "The export could not be requested."
 msgstr "The export could not be requested."
@@ -2701,6 +2994,10 @@ msgstr "The export failed. You can ask again. No incomplete export is available.
 #: libs/account-privacy/src/use-cases/download-personal-data-export/client/export-download.tsx
 msgid "The export has expired. Ask for a new one."
 msgstr "The export has expired. Ask for a new one."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "The game choices changed. Review them and try again."
+msgstr "The game choices changed. Review them and try again."
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
@@ -2775,6 +3072,22 @@ msgstr "This export belongs to another account and cannot be downloaded."
 msgid "This field is required"
 msgstr "This field is required"
 
+#: libs/chess/src/root/custom-game/custom-game-confirm.tsx
+msgid "This finishes the current game. Its record remains available."
+msgstr "This finishes the current game. Its record remains available."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "This game is available to people in its space."
+msgstr "This game is available to people in its space."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "This game is cancelled."
+msgstr "This game is cancelled."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "This game is finished."
+msgstr "This game is finished."
+
 #: libs/auth/src/public/auth-flow-messages.tsx
 msgid "This is your only way to sign in, so it can't be removed."
 msgstr "This is your only way to sign in, so it can't be removed."
@@ -2826,6 +3139,7 @@ msgstr "Try a different search term."
 
 #: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
+#: libs/chess/src/root/custom-game/custom-game-action.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Try again"
 msgstr "Try again"
@@ -2900,6 +3214,11 @@ msgstr "Unrated · already played"
 msgid "Unseen"
 msgstr "Unseen"
 
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Untimed"
+msgstr "Untimed"
+
 #: libs/client-app/src/chrome/app-update-required.tsx
 msgid "Update"
 msgstr "Update"
@@ -2927,6 +3246,10 @@ msgstr "Use system theme"
 #: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
 msgid "Use the choice shown below to continue."
 msgstr "Use the choice shown below to continue."
+
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Use this clock"
+msgstr "Use this clock"
 
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
@@ -2965,6 +3288,14 @@ msgstr "Version"
 msgid "View profile"
 msgstr "View profile"
 
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "Waiting for participants and readiness."
+msgstr "Waiting for participants and readiness."
+
+#: libs/chess/src/root/custom-game/custom-game-screen.tsx
+msgid "Waiting for the creator to create a game."
+msgstr "Waiting for the creator to create a game."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Waiting for the host"
@@ -2982,6 +3313,35 @@ msgstr "We retain only minimum payment evidence for accounting and disputes for 
 #: libs/billing/src/root/client/billing-offer-sections.tsx
 msgid "What {0} includes"
 msgstr "What {0} includes"
+
+#: libs/chess/src/root/custom-game/custom-game-side.tsx
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "White"
+msgstr "White"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "White time remaining"
+msgstr "White time remaining"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "White to move."
+msgstr "White to move."
+
+#: libs/chess/src/public/chess-main-menu-view.tsx
+msgid "White vs Black — play, invite or watch"
+msgstr "White vs Black — play, invite or watch"
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "White wins."
+msgstr "White wins."
+
+#: libs/chess/src/root/custom-game/custom-game-status.tsx
+msgid "White: {white}. Black: {black}. {state}"
+msgstr "White: {white}. Black: {black}. {state}"
+
+#: libs/chess/src/root/custom-game/custom-game-configuration.tsx
+msgid "Withdraw readiness"
+msgstr "Withdraw readiness"
 
 #: libs/notifications/src/public/notification-card-default.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
@@ -3021,6 +3381,10 @@ msgstr "You can rejoin from the invite link if the space is still live."
 #: libs/account-privacy/src/root/client/privacy-explanation.tsx
 msgid "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
 msgstr "You can take a personal-data export before deleting the account. Your profile, friends, progress and preferences will be erased within 30 days."
+
+#: libs/chess/src/root/custom-game/custom-game-error.tsx
+msgid "You do not control that side."
+msgstr "You do not control that side."
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."

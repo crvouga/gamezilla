@@ -12,7 +12,7 @@ import {
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
-
+import { CustomGameScreen } from '../root/custom-game/custom-game-screen';
 import {
   CHESS_SCREEN,
   type ChessMainMenuScreen,
@@ -41,6 +41,9 @@ function ChessScreenContent(props: {
     <Switch fallback={<RootMainMenu onBackToGames={props.onBackToGames} />}>
       <Match when={props.screen === CHESS_SCREEN.puzzle}>
         <PuzzlePlayScreen />
+      </Match>
+      <Match when={props.screen === CHESS_SCREEN.customGame}>
+        <CustomGameScreen />
       </Match>
       <Match when={props.screen === CHESS_SCREEN.stats}>
         <ChessStatsScreen />
@@ -111,8 +114,10 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     {
       key: 'custom-games',
       title: <Trans>Custom Games</Trans>,
-      caption: <Trans>Coming soon</Trans>,
-      disabled: true,
+      caption: <Trans>White vs Black — play, invite or watch</Trans>,
+      dataSet: { testid: 'chess-menu-custom-game' },
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.customGame })),
     },
     {
       key: 'matchmaking',

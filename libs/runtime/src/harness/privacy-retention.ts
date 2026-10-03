@@ -20,6 +20,7 @@ const recovery = (s: ProductHarness) =>
     clock: s.harness.clock,
     createId: s.session.ports.createId,
     objectStore: s.harness.server.blob,
+    rooms: s.harness.roomNode.services,
   });
 const trails = (s: ProductHarness) =>
   new InvestigationTrails({

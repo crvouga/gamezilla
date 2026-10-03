@@ -12,6 +12,8 @@
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import { composeFeatureServers } from '@libs/feature/public/compose-server';
 import { createServer, type ServerEnv, serveFetch } from '@libs/server-app';
+import type { OutboxConsumerRegistry } from '@pkgs/outbox';
+import type { RoomServicePort } from '@pkgs/room/server';
 import type { HarnessComposition } from '../composition';
 import { serializeFetch } from './fetch';
 import { nextHarnessNodeId, normalizeHarnessNodeId } from './node-name';
@@ -24,6 +26,7 @@ export type HarnessServerNode = {
   readonly id: string;
   readonly env: ServerEnv;
   readonly app: Server;
+  readonly outboxConsumers: OutboxConsumerRegistry;
   /** Serialized so request ALS scopes never interleave within an instance. */
   readonly fetch: ServerHttp;
   readonly drain: () => Promise<void>;
@@ -48,6 +51,7 @@ function nextServerId(taken: ReadonlySet<string>): string {
 
 export function createHarnessServerNodes(args: {
   readonly composition: HarnessComposition;
+  readonly rooms: RoomServicePort;
   readonly buildEnv: (id: string) => Promise<ServerEnv>;
   /** Guard so a disposed harness cannot boot another instance. */
   readonly disposed: () => boolean;
@@ -77,11 +81,12 @@ export function createHarnessServerNodes(args: {
         throw new Error('createHarness: server disposed');
       }
       const env = await ensureEnv(instanceId);
+      const featureServers = composeFeatureServers(
+        args.composition.servers({ billing: env.billing, rooms: args.rooms })
+      );
       const app = await createServer(env, {
         app: args.composition.app,
-        servers: composeFeatureServers(
-          args.composition.servers({ billing: env.billing })
-        ),
+        servers: featureServers,
       });
       const raw = serveFetch((request) => app.fetch(request));
       const serialized = serializeFetch(async (input, init) => {
@@ -94,6 +99,7 @@ export function createHarnessServerNodes(args: {
         id: instanceId,
         env,
         app,
+        outboxConsumers: featureServers.outboxConsumers,
         fetch: serialized.fetch,
         drain: serialized.drain,
       };

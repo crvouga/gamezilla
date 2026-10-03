@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { DEFAULT_VERIFY_STEPS } from '@pkgs/quint/registry';
 
-import { modelChecks, verifyStepsOf } from './check-models';
+import { modelChecks, modelEncodingOf, verifyStepsOf } from './check-models';
 import { specPackages } from './spec-packages';
 
 describe('verifyStepsOf', () => {
@@ -16,6 +16,13 @@ describe('verifyStepsOf', () => {
 });
 
 describe('modelChecks', () => {
+  test('preserves an explicitly selected array encoding and the default otherwise', () => {
+    expect(modelEncodingOf("model: 'door', encoding: 'fun-arrays'")).toBe(
+      'fun-arrays'
+    );
+    expect(modelEncodingOf("model: 'door'")).toBeUndefined();
+    expect(modelEncodingOf(null)).toBeUndefined();
+  });
   test('lists every bound product model once, never a published language', () => {
     const uris = specPackages().flatMap((pkg) =>
       modelChecks(pkg).map((check) => check.specUri)

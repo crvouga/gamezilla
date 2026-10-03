@@ -50,6 +50,15 @@ export const CAPABILITY_KEYS = {
   'end a space': PERMISSION.spacesEnd,
   'manage who is in the space': PERMISSION.spacesManageMembers,
   'make the game choice': PERMISSION.spacesSelectGame,
+  'create a Custom Game': PERMISSION.chessCustomCreate,
+  'configure a Custom Game': PERMISSION.chessCustomConfigure,
+  'invite a Custom Game participant': PERMISSION.chessCustomInvite,
+  'configure a Custom Game bot': PERMISSION.chessCustomBot,
+  'start a Custom Game': PERMISSION.chessCustomStart,
+  'cancel a Custom Game': PERMISSION.chessCustomCancel,
+  'join a Custom Game': PERMISSION.chessCustomJoin,
+  'watch a Custom Game': PERMISSION.chessCustomWatch,
+  'play a Custom Game': PERMISSION.chessCustomPlay,
 } as const satisfies Readonly<Record<string, CatalogKey>>;
 
 export type CapabilityId = keyof typeof CAPABILITY_KEYS;

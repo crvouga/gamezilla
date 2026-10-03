@@ -1,6 +1,7 @@
 import { BearerAuthResolver } from '@libs/auth/public/bearer-resolve';
 import { ANON_ID_HEADER } from '@libs/auth/public/session-middleware';
 import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { injectRequestHeaders } from '@pkgs/observability/worker';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
@@ -84,6 +85,12 @@ export function createRoomApp(
 
     const actor = await resolveRoomActor(c);
     const grants = await decideRoomGrants(roomGrants, { topic, actor });
+    if (
+      topic.startsWith('space:') &&
+      !grants.includes(PERMISSION.spacesLeave)
+    ) {
+      return c.json({ error: 'not in the space' }, 403);
+    }
     const clientId = parseClientId(c.req.raw);
     const stub = ns.get(ns.idFromName(topic));
     const headers = new Headers(c.req.raw.headers);

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { ChessModule } from '@libs/chess/public/chess-module';
+import { createChessModule } from '@libs/chess/public/chess-module';
 import {
   ChessPuzzleResultAttr,
   ClearChessPuzzlePlay,
@@ -7,6 +7,8 @@ import {
   StartChessPuzzlePlay,
 } from '@libs/chess/public/chess-puzzle-play';
 import type { RoomCommandPayload, RoomState } from '@pkgs/room';
+
+const ChessModule = createChessModule(() => 0);
 
 function apply(
   state: RoomState,

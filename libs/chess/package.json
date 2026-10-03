@@ -123,6 +123,7 @@
     "@libs/account-privacy": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/search": "workspace:*",
+    "@pkgs/a11y": "workspace:*",
     "@pkgs/alloy": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",

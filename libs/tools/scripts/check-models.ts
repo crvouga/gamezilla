@@ -51,18 +51,28 @@ const REPORT_DIR = '.cache/harness-report/models';
 const VERIFY_STEPS = /\bverifySteps:\s*(\d+)/;
 const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/;
 const INDUCTIVE_INVARIANT = /\binductiveInvariant:\s*['"]([A-Za-z_]\w*)['"]/;
+const ENCODING = /\bencoding:\s*['"](fun-arrays)['"]/;
 
 export type ModelCheck = {
   /** Repo-relative model path (`specs/friends/friendship.qnt`). */
   readonly specUri: string;
   readonly steps: number;
   readonly inductiveInvariant: string | null;
+  readonly encoding?: 'fun-arrays';
 };
 
 /** The bound a binding's text declares, or the default. */
 export function verifyStepsOf(bindingText: string | null): number {
   const match = bindingText === null ? null : VERIFY_STEPS.exec(bindingText);
   return match?.[1] === undefined ? DEFAULT_VERIFY_STEPS : Number(match[1]);
+}
+
+export function modelEncodingOf(
+  bindingText: string | null
+): 'fun-arrays' | undefined {
+  return bindingText !== null && ENCODING.test(bindingText)
+    ? 'fun-arrays'
+    : undefined;
 }
 
 function bindingTexts(dir: string): ReadonlyMap<string, string> {
@@ -86,6 +96,7 @@ export function modelChecks(
     .map((specUri) => {
       const stem = specUri.replace(/^.*\//, '').replace(/\.qnt$/, '');
       const binding = texts.get(stem) ?? null;
+      const encoding = modelEncodingOf(binding);
       return {
         specUri,
         steps: verifyStepsOf(binding),
@@ -93,6 +104,7 @@ export function modelChecks(
           binding === null
             ? null
             : (INDUCTIVE_INVARIANT.exec(binding)?.[1] ?? null),
+        ...(encoding === undefined ? {} : { encoding }),
       };
     })
     .sort((a, b) => a.specUri.localeCompare(b.specUri));
@@ -168,6 +180,7 @@ async function checkModel(
           specPath,
           invariants,
           maxSteps: check.steps,
+          ...(check.encoding === undefined ? {} : { encoding: check.encoding }),
           ...(check.inductiveInvariant === null
             ? {}
             : { inductiveInvariant: check.inductiveInvariant }),

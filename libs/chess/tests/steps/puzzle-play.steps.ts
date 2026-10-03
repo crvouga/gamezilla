@@ -591,7 +591,7 @@ Then("{actor}'s puzzle is skipped", async (w, actor: Actor) => {
   expect(await w.s.read(readPuzzleStatusKind, actor)).toBe('skipped');
 });
 
-When('{int} seconds pass', async (w, seconds: number) => {
+When('{int} second(s) pass(es)', async (w, seconds: number) => {
   await w.s.advanceTime(seconds * SECOND_MS);
 });
 

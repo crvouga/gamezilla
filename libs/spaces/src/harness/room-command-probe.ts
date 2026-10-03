@@ -7,7 +7,12 @@
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import type { Timers } from '@pkgs/clock';
 import type { Message } from '@pkgs/message';
-import { ROOM_WIRE_KIND, type RoomError, WIRE_VERSION } from '@pkgs/room';
+import {
+  ROOM_ERROR_TYPE,
+  ROOM_WIRE_KIND,
+  type RoomError,
+  WIRE_VERSION,
+} from '@pkgs/room';
 
 export type RoomAnswer =
   | { readonly kind: 'committed' }
@@ -38,18 +43,19 @@ export async function answerOfRoomCommand(
     readonly identity: string;
     readonly installId: string;
     readonly payload: Message;
+    readonly commandId: string;
     readonly nowMs: number;
     readonly timers: Timers;
   }
 ): Promise<RoomAnswer> {
-  const commandId = `${args.identity}-command`;
+  const commandId = args.commandId;
   const frames: Frame[] = [];
   const transport = node.createTransport({
     spaceId: args.spaceId,
     apiUrl: '',
     identity: args.identity,
     installId: args.installId,
-    clientId: `${args.identity}-probe`,
+    clientId: `${commandId}-probe`,
     getSessionToken: () => null,
     timers: args.timers,
     random: () => 0.5,
@@ -58,7 +64,16 @@ export async function answerOfRoomCommand(
     frames.push((typeof raw === 'string' ? JSON.parse(raw) : raw) as Frame);
   });
   try {
-    await transport.connect();
+    try {
+      await transport.connect();
+    } catch (cause) {
+      if (!(cause instanceof Error) || cause.message !== 'not in the space')
+        throw cause;
+      return {
+        kind: 'rejected',
+        error: { type: ROOM_ERROR_TYPE.unauthorized, reason: cause.message },
+      };
+    }
     transport.sendJson({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.command,

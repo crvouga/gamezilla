@@ -89,13 +89,15 @@
     "@pkgs/outbox": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/room": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
-    "@pkgs/uuid": "workspace:*"
+    "@pkgs/uuid": "workspace:*",
+    "chess.js": "catalog:"
   },
   "devDependencies": {
     "@libs/test-ids": "workspace:*",

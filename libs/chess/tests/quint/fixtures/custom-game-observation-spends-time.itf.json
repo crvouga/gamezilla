@@ -1,0 +1,110 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-charged-dewar-f133/libs/chess/.cache/play-control/../../../../specs/chess/custom-game-play.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Fri Oct 02 2026 19:07:04 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1790993224789
+  },
+  "vars": [
+    "ply",
+    "_terminalPicture",
+    "sideToMove",
+    "_ended",
+    "_atCutOff",
+    "result",
+    "playShown",
+    "_offline",
+    "clockLeft",
+    "playStatus",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_atCutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_ended": false,
+      "_offline": { "#set": [] },
+      "_terminalPicture": {
+        "#tup": [
+          "active",
+          { "#bigint": "0" },
+          "",
+          {
+            "#map": [
+              ["black", { "#bigint": "4" }],
+              ["white", { "#bigint": "4" }]
+            ]
+          }
+        ]
+      },
+      "clockLeft": {
+        "#map": [["black", { "#bigint": "4" }], ["white", { "#bigint": "4" }]]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "None", "value": { "#tup": [] } },
+        "quarters": { "tag": "None", "value": { "#tup": [] } }
+      },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "playStatus": "active",
+      "ply": { "#bigint": "0" },
+      "result": "",
+      "sideToMove": "white"
+    },
+    {
+      "#meta": { "index": 1 },
+      "_atCutOff": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "_ended": false,
+      "_offline": { "#set": ["alice"] },
+      "_terminalPicture": {
+        "#tup": [
+          "active",
+          { "#bigint": "0" },
+          "",
+          {
+            "#map": [
+              ["black", { "#bigint": "4" }],
+              ["white", { "#bigint": "4" }]
+            ]
+          }
+        ]
+      },
+      "clockLeft": {
+        "#map": [["black", { "#bigint": "4" }], ["white", { "#bigint": "4" }]]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "actor": { "tag": "Some", "value": "alice" },
+        "quarters": { "tag": "Some", "value": { "#bigint": "1" } }
+      },
+      "playShown": {
+        "#map": [
+          ["alice", { "#tup": ["active", { "#bigint": "0" }, ""] }],
+          ["bob", { "#tup": ["active", { "#bigint": "0" }, ""] }]
+        ]
+      },
+      "playStatus": "active",
+      "ply": { "#bigint": "0" },
+      "result": "",
+      "sideToMove": "white"
+    }
+  ]
+}

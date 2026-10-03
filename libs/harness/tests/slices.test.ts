@@ -27,6 +27,17 @@ const FRIENDS: HarnessSlice = {
   server: () => server('friends'),
 };
 
+async function unexpectedRoomService(): Promise<never> {
+  throw new Error('slice composition must not call room services');
+}
+
+const rooms = {
+  read: unexpectedRoomService,
+  send: unexpectedRoomService,
+  disconnect: unexpectedRoomService,
+  eraseIdentity: unexpectedRoomService,
+};
+
 describe('composeHarnessSlices', () => {
   test('folds in production order, whatever order the suite lists', () => {
     const composition = composeHarnessSlices('probe', [
@@ -43,7 +54,7 @@ describe('composeHarnessSlices', () => {
       'notifications',
     ]);
     expect(
-      composition.servers({ billing: null }).map((s) => s.name as string)
+      composition.servers({ billing: null, rooms }).map((s) => s.name as string)
     ).toEqual(['friends', 'notifications']);
   });
 

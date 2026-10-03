@@ -90,7 +90,10 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
     },
     spaceLink: () => w.s.read(actorSpaceLink, HOST),
     openGuest: (link) => w.s.apply(openActorLink, GUEST, link),
-    offline: () => w.s.apply(partition, HOST),
+    offline: async () => {
+      await w.s.apply(partition, HOST);
+      await w.s.advanceTime(1000);
+    },
     reopen: () => w.s.apply(restartApp, HOST),
     defer: () => undefined,
     settle: () => undefined,

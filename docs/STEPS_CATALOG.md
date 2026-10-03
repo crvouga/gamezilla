@@ -5,12 +5,12 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 
 | Package | Runs | Features | Scenarios | Own steps | Catalog |
 | --- | --- | --- | --- | --- | --- |
-| @apps/product | `specs/developer-tools/`, `specs/journeys/`, `@synthetic` | 21 | 97 | 162 | [catalog](../apps/product/STEPS_CATALOG.md) |
+| @apps/product | `specs/developer-tools/`, `specs/journeys/`, `@synthetic` | 22 | 99 | 162 | [catalog](../apps/product/STEPS_CATALOG.md) |
 | @libs/billing | `specs/billing/` | 16 | 53 | 87 | [catalog](../libs/billing/STEPS_CATALOG.md) |
-| @libs/chess | `specs/chess/` | 42 | 295 | 379 | [catalog](../libs/chess/STEPS_CATALOG.md) |
+| @libs/chess | `specs/chess/` | 62 | 441 | 564 | [catalog](../libs/chess/STEPS_CATALOG.md) |
 | @libs/friends | `specs/friends/`, `specs/spaces/` | 27 | 92 | 118 | [catalog](../libs/friends/STEPS_CATALOG.md) |
 | @libs/profile | `specs/profile/` | 14 | 68 | 68 | [catalog](../libs/profile/STEPS_CATALOG.md) |
-| @libs/runtime | `specs/runtime/`, `specs/journeys/` | 12 | 44 | 87 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
+| @libs/runtime | `specs/runtime/`, `specs/journeys/` | 13 | 46 | 97 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
 | @pkgs/auth-harness | `specs/auth/` | 6 | 40 | 67 | [catalog](../pkgs/auth-harness/STEPS_CATALOG.md) |
 | @pkgs/chess-board | `specs/chess-board/` | 14 | 287 | 339 | [catalog](../pkgs/chess-board/STEPS_CATALOG.md) |
 | @pkgs/db-indexes | `specs/db-indexes/` | 6 | 54 | 32 | [catalog](../pkgs/db-indexes/STEPS_CATALOG.md) |

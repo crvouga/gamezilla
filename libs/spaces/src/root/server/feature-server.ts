@@ -8,16 +8,20 @@
  */
 
 import { defineFeatureServer } from '@libs/feature/public/server';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { roomTopic } from '../../public/room/space-room-topic';
-
 import { MySpaceIdsLoader } from './load-my-space-ids-sql';
 import { spaceRoomGrants } from './space-room-grants';
+import { registerSpaceWithdrawal } from './space-withdrawal-consumer';
 
-export const SPACES_SERVER = defineFeatureServer({
-  name: 'spaces',
-  pubsubTopics: async (ctx) => {
-    const spaceIds = await new MySpaceIdsLoader(ctx.db).load(ctx.actorId);
-    return spaceIds.map((id) => roomTopic(id));
-  },
-  roomGrants: spaceRoomGrants,
-});
+export function createSpacesServer(rooms: RoomServicePort) {
+  return defineFeatureServer({
+    name: 'spaces',
+    pubsubTopics: async (ctx) => {
+      const spaceIds = await new MySpaceIdsLoader(ctx.db).load(ctx.actorId);
+      return spaceIds.map((id) => roomTopic(id));
+    },
+    roomGrants: spaceRoomGrants,
+    registerOutbox: (registry) => registerSpaceWithdrawal(registry, rooms),
+  });
+}
