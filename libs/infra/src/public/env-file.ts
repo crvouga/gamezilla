@@ -23,6 +23,10 @@ export const envFileSchema = z
       .object({
         name: slug,
         transfer_rooms_from: slug.optional(),
+        room_namespace_resolution: z
+          .object({ source_id: id, target_id: id })
+          .strict()
+          .optional(),
         retire: z.array(slug).default([]),
       })
       .strict(),
@@ -174,6 +178,8 @@ export function authRelayTargets(
  */
 export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
   return {
+    API_URL: envOrigins(env).api,
+    EMQX_WSS_URL: `wss://${env.hosts.broker}/mqtt`,
     WEB_CLIENT_ORIGIN: envOrigins(env).web,
     OAUTH_CALLBACK_ORIGIN: authRelayOrigin(),
     OAUTH_STATE_TAG: env.env,

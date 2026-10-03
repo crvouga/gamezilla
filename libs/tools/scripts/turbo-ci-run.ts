@@ -61,6 +61,7 @@ import {
   TURBO_TEAM,
 } from '@libs/secrets/shared/secrets/turbo-token';
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+import { captureAudit } from './audit-snapshot';
 import {
   findBudgetOverruns,
   formatBudgetOverruns,
@@ -110,7 +111,7 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
  * (a bare `turbo run`) hashes differently, which costs a cache miss, never
  * correctness.
  */
-function writePlatformCacheKey(): void {
+export function writePlatformCacheKey(): void {
   const key = {
     platform: process.platform,
     arch: process.arch,
@@ -432,7 +433,7 @@ async function main(): Promise<void> {
 
   const mode = resolveRunMode(rawTaskArgs);
   requireRemoteCredsForDeploy(remote, mode);
-  const taskArgs = flattenCheckAggregators(rawTaskArgs);
+  const taskArgs = prepareTaskArgs(rawTaskArgs);
   env[SECRETS_RANGE_ENV] = secretsScanRange(env);
 
   const slowRunner = inCi();
@@ -499,6 +500,13 @@ async function main(): Promise<void> {
   exitWithDurations(
     await finishRun({ status, slowRunner, env, publishReports })
   );
+}
+
+function prepareTaskArgs(raw: readonly string[]): string[] {
+  const args = flattenCheckAggregators(raw);
+  if (args.includes('//#ci:audit') || args.includes('ci:audit'))
+    captureAudit(REPO_ROOT);
+  return args;
 }
 
 async function prepareRunPlan(args: {

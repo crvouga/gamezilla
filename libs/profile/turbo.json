@@ -10,6 +10,66 @@
     },
     "check:models": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/*.qnt"]
+    },
+    "test:spec:2": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:3": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:4": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:5": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:6": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:7": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:8": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:9": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:10": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:11": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:12": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:13": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:14": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:15": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:16": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:17": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:18": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:19": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:20": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
+    },
+    "test:spec:21": {
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
     }
   }
 }

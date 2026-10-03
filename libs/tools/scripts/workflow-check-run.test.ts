@@ -192,3 +192,30 @@ test.each([
   expect(await watchWorkflow(workflow(), TARGET, f.ports)).toBe(exit);
   expect(f.sleeps()).toBe(1);
 });
+
+// regression: check-gate-waits-for-publication
+test('Check returns its required verdict while publication is still running', async () => {
+  const f = fixture([], ['running']);
+  const ports = {
+    ...f.ports,
+    run: () =>
+      JSON.stringify({
+        workflows: [
+          {
+            workflow_id: 'native-check',
+            status: 'running',
+            jobs: [
+              { job_id: 'gate', job_display_name: 'check', status: 'finished' },
+              {
+                job_id: 'reports',
+                job_display_name: 'check:reports',
+                status: 'running',
+              },
+            ],
+          },
+        ],
+      }),
+  };
+  expect(await watchWorkflow(workflow(), TARGET, ports)).toBe(0);
+  expect(f.sleeps()).toBe(0);
+});

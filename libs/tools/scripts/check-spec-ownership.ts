@@ -84,6 +84,35 @@ export function stagedViolations(files: readonly string[]): readonly string[] {
   return [];
 }
 
+/** Incoming commits already own their specs; validate newly resolved changes. */
+export function mergeStagedViolations(
+  staged: readonly string[],
+  changedFromIncoming: readonly string[]
+): readonly string[] {
+  const changed = new Set(changedFromIncoming);
+  return stagedViolations(staged.filter((file) => changed.has(file)));
+}
+
+function checkStagedOwnership(): readonly string[] {
+  const staged = git(['diff', '--cached', '--name-only'])
+    .split('\n')
+    .filter(Boolean);
+  const merge = spawnSync(
+    'git',
+    ['rev-parse', '--verify', '--quiet', 'MERGE_HEAD'],
+    { encoding: 'utf8' }
+  );
+  if (merge.status === 1) return stagedViolations(staged);
+  if (merge.status !== 0)
+    throw new Error(`Cannot read merge parent: ${merge.stderr}`);
+  return mergeStagedViolations(
+    staged,
+    git(['diff', '--cached', '--name-only', merge.stdout.trim()])
+      .split('\n')
+      .filter(Boolean)
+  );
+}
+
 function git(args: readonly string[]): string {
   const result = spawnSync('git', [...args], { encoding: 'utf8' });
   if (result.status !== 0) {
@@ -128,11 +157,7 @@ function resolveRange(): string {
 
 if (import.meta.main) {
   const violations = process.argv.includes('--staged')
-    ? stagedViolations(
-        git(['diff', '--cached', '--name-only'])
-          .split('\n')
-          .filter((f) => f.length > 0)
-      )
+    ? checkStagedOwnership()
     : ownershipViolations(commitsInRange(resolveRange()));
   if (violations.length > 0) {
     console.error('spec ownership check failed:');

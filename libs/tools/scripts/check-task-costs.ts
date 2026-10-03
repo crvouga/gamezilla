@@ -23,8 +23,9 @@ export function readTaskCosts(): TaskCosts {
 
 type SummaryTask = {
   readonly taskId: string;
-  readonly cache?: { readonly status?: string };
+  readonly cache?: { readonly status?: string } | string;
   readonly execution?: { readonly startTime: number; readonly endTime: number };
+  readonly milliseconds?: number;
 };
 
 /** Measured seconds per executed task in a turbo `--summarize` summary. */
@@ -32,8 +33,18 @@ export function costsFromSummary(summaryJson: string): Record<string, number> {
   const summary = JSON.parse(summaryJson) as { tasks: SummaryTask[] };
   const costs: Record<string, number> = {};
   for (const task of summary.tasks) {
-    if (task.cache?.status === 'HIT' || task.execution === undefined) continue;
-    const seconds = (task.execution.endTime - task.execution.startTime) / 1000;
+    if (
+      task.cache === 'HIT' ||
+      (typeof task.cache === 'object' && task.cache.status === 'HIT')
+    )
+      continue;
+    const elapsed =
+      task.milliseconds ??
+      (task.execution
+        ? task.execution.endTime - task.execution.startTime
+        : undefined);
+    if (elapsed === undefined) continue;
+    const seconds = elapsed / 1000;
     costs[task.taskId] = Math.max(1, Math.round(seconds));
   }
   return Object.fromEntries(
@@ -43,8 +54,7 @@ export function costsFromSummary(summaryJson: string): Record<string, number> {
 
 /**
  * `previous` updated with every task measured in `summaries`. A task no
- * summary ran keeps its old cost; a task measured twice (a `tc` two shards
- * both built) keeps the larger.
+ * summary ran keeps its old cost; repeated samples keep the larger cost.
  */
 export function mergeCosts(
   previous: TaskCosts,
@@ -76,8 +86,10 @@ function jsonFiles(dir: string): string[] {
 function downloadRunSummaries(runId: string): string[] {
   const dir = mkdtempSync(join(tmpdir(), 'check-costs-'));
   try {
-    downloadRunArtifacts(runId, 'turbo-summary-', dir);
-    return jsonFiles(dir).map((path) => readFileSync(path, 'utf8'));
+    downloadRunArtifacts(runId, 'check-ci-details', dir);
+    return jsonFiles(dir)
+      .filter((path) => /shard-\d+\.json$/.test(path))
+      .map((path) => readFileSync(path, 'utf8'));
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

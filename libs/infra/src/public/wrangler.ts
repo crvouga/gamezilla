@@ -22,7 +22,7 @@ export type WranglerConfig = Record<string, unknown>;
 export type WorkerResources = {
   /** The API Worker's Postgres connection (`modules/database` Hyperdrive). */
   readonly hyperdriveId?: string;
-  readonly roomMigration?: RoomMigration;
+  readonly roomMigrations?: readonly RoomMigration[];
 };
 
 /** The API Worker's binding name for Hyperdrive (`ApiWorkerEnv.HYPERDRIVE`). */
@@ -103,16 +103,19 @@ export function renderWranglerConfig(
   }
   if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);
   if ('assets' in base) rendered['assets'] = rerootedAssets(base['assets']);
-  if (resources.roomMigration !== undefined) {
+  if (resources.roomMigrations !== undefined) {
     const migrations = (base['migrations'] ?? []) as readonly Migration[];
-    const initial = resources.roomMigration;
-    if (!migrations.some((migration) => migration.tag === initial.tag)) {
-      throw new Error(
-        `Room migration ${initial.tag} is missing from the committed config`
-      );
+    for (const replacement of resources.roomMigrations) {
+      if (!migrations.some((migration) => migration.tag === replacement.tag)) {
+        throw new Error(
+          `Room migration ${replacement.tag} is missing from the committed config`
+        );
+      }
     }
-    rendered['migrations'] = migrations.map((migration) =>
-      migration.tag === initial.tag ? initial : migration
+    rendered['migrations'] = migrations.map(
+      (migration) =>
+        resources.roomMigrations?.find((item) => item.tag === migration.tag) ??
+        migration
     );
   }
   return rendered;

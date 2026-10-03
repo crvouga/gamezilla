@@ -3,11 +3,85 @@ import { assertProperty, fc } from '@pkgs/property';
 
 import {
   isSpecFile,
+  mergeStagedViolations,
   ownershipViolations,
   stagedViolations,
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
+  test('merging committed specs does not count them as newly authored changes', () => {
+    // regression: spec-ownership-resolved-merge
+    expect(
+      mergeStagedViolations(
+        [
+          'specs/profile/account-deletion.feature',
+          'libs/tools/scripts/check-plan.ts',
+        ],
+        ['libs/tools/scripts/check-plan.ts']
+      )
+    ).toEqual([]);
+  });
+
+  test('merge resolutions still reject newly changed specs mixed with code', () => {
+    assertProperty(
+      'merge resolutions preserve spec ownership',
+      fc.property(
+        fc.constantFrom(
+          'specs/README.md',
+          'specs/profile/account-deletion.feature'
+        ),
+        fc.constantFrom(
+          'libs/tools/scripts/check-plan.ts',
+          'pkgs/quint/src/verify.ts'
+        ),
+        (spec, implementation) => {
+          expect(
+            mergeStagedViolations(
+              [spec, implementation],
+              [spec, implementation]
+            )
+          ).toHaveLength(1);
+          expect(mergeStagedViolations([spec], [spec])).toEqual([]);
+        }
+      )
+    );
+  });
+
+  // regression: trunk-sync-incoming-spec-ownership
+  test('trunk sync accepts unchanged incoming specs but rejects mixed spec resolutions', () => {
+    const staged = [
+      'specs/README.md',
+      'specs/spaces/space-create.feature',
+      'libs/tools/goal/known-bugs.json',
+    ];
+    expect(
+      mergeStagedViolations(staged, ['libs/tools/goal/known-bugs.json'])
+    ).toEqual([]);
+    expect(
+      mergeStagedViolations(staged, [
+        'specs/spaces/space-create.feature',
+        'libs/tools/goal/known-bugs.json',
+      ])
+    ).toHaveLength(1);
+    expect(mergeStagedViolations(staged, ['specs/README.md'])).toEqual([]);
+  });
+
+  test('merging never hides spec edits introduced by conflict resolution', () => {
+    assertProperty(
+      'resolved spec edits retain the ownership guard',
+      fc.property(
+        fc.constantFrom('specs/README.md', 'specs/spaces/space-create.feature'),
+        (spec) => {
+          expect(
+            mergeStagedViolations(
+              [spec, 'libs/tools/goal/known-bugs.json'],
+              [spec, 'libs/tools/goal/known-bugs.json']
+            )
+          ).toHaveLength(1);
+        }
+      )
+    );
+  });
   test('rulebook changes require spec subjects even when labeled documentation', () => {
     // regression: spec-rulebook-commit-subject
     expect(

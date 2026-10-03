@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import worker, {
   type AppWorkerEnv,
   RoomServerDurableObject,
+  RoomStorageArchive,
 } from '@apps/product/worker';
 
 const context = {
@@ -10,6 +11,12 @@ const context = {
 };
 
 describe('application Worker dispatch', () => {
+  // regression: deploy-dev-duplicate-room-namespaces
+  test('retained room storage rejects requests and finishes alarms without accessing storage', () => {
+    const archive = new RoomStorageArchive();
+    expect(archive.fetch().status).toBe(410);
+    expect(archive.alarm()).toBeUndefined();
+  });
   test('forwards client routes and missing assets to the asset binding', async () => {
     const forwarded: Request[] = [];
     const response = new Response('asset', {

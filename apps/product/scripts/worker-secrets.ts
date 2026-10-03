@@ -1,4 +1,5 @@
 // @io-wall-ok — application deployment secrets composition root.
+import { apiWorkerVars, type EnvFile } from '@libs/infra/public/env-file';
 import {
   activeEnvFile,
   getApiWorkerSecrets,
@@ -10,10 +11,20 @@ const WORKER_EXTRA_ENV_KEYS = ['OBSERVABILITY_ENABLED'] as const;
 
 export async function workerSecrets(): Promise<Record<string, string>> {
   await refreshSecretsIntoEnv();
-  const scope = activeEnvFile().env;
+  return workerSecretPayload(activeEnvFile(), process.env);
+}
+
+/** Public endpoint bindings belong to the env file, never a copied secret. */
+export function workerSecretPayload(
+  env: EnvFile,
+  values: Readonly<Record<string, string | undefined>>
+): Record<string, string> {
+  const scope = env.env;
+  const vars = apiWorkerVars(env);
   const payload: Record<string, string> = { SECRETS_ENV: scope };
   for (const entry of getApiWorkerSecrets()) {
-    const value = (process.env[entry.name] ?? '').trim();
+    if (entry.name in vars) continue;
+    const value = (values[entry.name] ?? '').trim();
     if (value.length === 0) {
       if (entry.optional) continue;
       assert.fail(
@@ -23,7 +34,7 @@ export async function workerSecrets(): Promise<Record<string, string>> {
     payload[entry.name] = value;
   }
   for (const key of WORKER_EXTRA_ENV_KEYS) {
-    const value = (process.env[key] ?? '').trim();
+    const value = (values[key] ?? '').trim();
     if (value.length > 0) payload[key] = value;
   }
   return payload;

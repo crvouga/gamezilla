@@ -102,7 +102,11 @@ variable "worker" {
   type = object({
     name                = string
     transfer_rooms_from = optional(string)
-    retire              = optional(list(string), [])
+    room_namespace_resolution = optional(object({
+      source_id = string
+      target_id = string
+    }))
+    retire = optional(list(string), [])
   })
 }
 

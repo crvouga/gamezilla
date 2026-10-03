@@ -99,7 +99,10 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     };
   }
   if (run.code !== 0) {
-    return { ok: false, output: `${header} failed:\n${verdict(run.output)}` };
+    return {
+      ok: false,
+      output: `${header} failed (exit code ${run.code ?? 'none'}, signal ${run.signal ?? 'none'}):\n${verdict(run.output)}`,
+    };
   }
   return { ok: true, durationMs };
 }
