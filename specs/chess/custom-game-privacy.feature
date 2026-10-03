@@ -18,6 +18,7 @@ Feature: Custom Games respect account deletion and personal-data export
       Then Alice cannot see the deleted account's Custom Game
 
   Rule: Deleting a participant releases a waiting side or resigns an active side
+    No counter-example: account deletion ends participation, while deleting a watcher cannot resign for either participant.
 
     Scenario: A deleted invitee no longer has a reserved side
       Given Bob has a recently proven account
@@ -46,6 +47,7 @@ Feature: Custom Games respect account deletion and personal-data export
     Scenario: An export includes the participant's choices moves and outcome
       Given Alice has a recently proven account
       And Alice has a completed Custom Game after White's e4
+      And Alice has asked for a personal-data export
       When Alice's personal-data export becomes ready
       Then Alice's personal-data export includes the Custom Game choices moves and outcome
 
@@ -53,5 +55,6 @@ Feature: Custom Games respect account deletion and personal-data export
       Given Carol has a recently proven account
       And Alice has a completed Custom Game between Alice as White and Bob as Black
       And Carol is outside Alice's space
+      And Carol has asked for a personal-data export
       When Carol's personal-data export becomes ready
       Then Carol's personal-data export cannot include Alice's Custom Game
