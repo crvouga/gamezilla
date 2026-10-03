@@ -7,24 +7,105 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} accepts {actor} and {actor} but {actor} and {actor} do not accept each other | {actor}, {actor}, {actor}, {actor}, {actor} | matchmaking |
+| Given | {actor} and {actor} are waiting but cannot be matched together | {actor}, {actor} | matchmaking |
+| Given | {actor} and {actor} are waiting for a group of {int} within each other's ranges | {actor}, {actor}, {int} | matchmaking |
+| Given | {actor} and {actor} are waiting in different matching pools within each other's ranges | {actor}, {actor} | matchmaking |
+| Given | {actor} and {actor} are waiting in the same matching pool within each other's ranges | {actor}, {actor} | matchmaking |
+| Given | {actor} and {actor} are waiting with ratings {int} points apart | {actor}, {actor}, {int} | matchmaking |
+| Given | {actor} and {actor} are waiting within each other's ranges | {actor}, {actor} | matchmaking |
+| Given | {actor} and {actor} have growing ranges and ratings {int} points apart | {actor}, {actor}, {int} | matchmaking |
+| Given | {actor} asked for a match while her/his phone was offline | {actor} | matchmaking |
+| Given | {actor} asked to stop waiting while her/his phone was offline | {actor} | matchmaking |
+| Given | {actor} has a new growing wait | {actor} | matchmaking |
 | Given | {actor} has been matched with {actor} | {actor}, {actor} | matchmaking |
 | Given | {actor} has stopped waiting | {actor} | matchmaking |
 | Given | {actor} has widened her/his range to {int} points | {actor}, {int} | matchmaking |
+| Given | {actor} is available for a match( again) | {actor} | matchmaking |
+| Given | {actor} is unavailable for a match | {actor} | matchmaking |
+| Given | {actor} is waiting again on another device | {actor} | matchmaking |
+| Given | {actor} is waiting again with a range of {int} points | {actor}, {int} | matchmaking |
+| Given | {actor} is waiting for a group of {int} | {actor}, {int} | matchmaking |
 | Given | {actor} is waiting for a match | {actor} | matchmaking |
+| Given | {actor} is waiting with a range of {int} points | {actor}, {int} | matchmaking |
+| Given | {actor} is waiting with a range of {int} points and has waited {int} seconds | {actor}, {int}, {int} | matchmaking |
+| Given | {actor} is waiting with a rating {int} points above {actor} | {actor}, {int}, {actor} | matchmaking |
 | Given | {actor} is waiting with a rating of {int}, accepting anyone within {int} points | {actor}, {int}, {int} | matchmaking |
-| Then | {actor} and {actor} are matched with each other | {actor}, {actor} | matchmaking |
+| Given | {actor} narrowed her/his range to {int} points | {actor}, {int} | matchmaking |
+| Given | {actor} stopped a growing wait after {int} seconds | {actor}, {int} | matchmaking |
+| Given | {actor} stopped her/his earlier wait | {actor} | matchmaking |
+| Given | {actor} stopped waiting while she/he and {actor} could not be matched together | {actor}, {actor} | matchmaking |
+| Given | {actor} then narrowed the same wait to {int} points | {actor}, {int} | matchmaking |
+| Given | {actor} was waiting but is unavailable for a match | {actor} | matchmaking |
+| Given | {actor} widened her/his waiting range to {int} points | {actor}, {int} | matchmaking |
+| Given | {actor}, {actor} and {actor} are waiting for a group of {int}( within each other's ranges) | {actor}, {actor}, {actor}, {int} | matchmaking |
+| Given | {actor}, {actor} and {actor} are waiting in that order within each other's ranges | {actor}, {actor}, {actor} | matchmaking |
+| Given | {actor}, {actor}, {actor} and {actor} are waiting for a group of {int} within each other's ranges | {actor}, {actor}, {actor}, {actor}, {int} | matchmaking |
+| Given | {actor}, {actor}, {actor} and {actor} are waiting in that order within each other's ranges | {actor}, {actor}, {actor}, {actor} | matchmaking |
+| Given | {actor}'s earlier wait ended when she/he became unavailable | {actor} | matchmaking |
+| Given | {actor}'s phone is offline | {actor} | matchmaking |
+| Given | {actor}'s phone was offline when she/he stopped waiting on another device | {actor} | matchmaking |
+| Given | {actor}'s phone was offline when she/he was matched with {actor} | {actor}, {actor} | matchmaking |
+| Given | both accept nobody more than {int} points away | {int} | matchmaking |
+| Given | both have been waiting for {int} seconds | {int} | matchmaking |
+| Step | {actor} and {actor} are matched with each other | {actor}, {actor} | matchmaking |
+| Step | {actor} and {actor} cannot be matched together | {actor}, {actor} | matchmaking |
+| Then | {actor} accepts anyone within {int} points | {actor}, {int} | matchmaking |
+| Then | {actor} accepts nobody more than {int} points away | {actor}, {int} | matchmaking |
+| Then | {actor} and {actor} accept each other | {actor}, {actor} | matchmaking |
+| Then | {actor} and {actor} are still waiting | {actor}, {actor} | matchmaking |
+| Then | {actor} and {actor} can be matched together | {actor}, {actor} | matchmaking |
+| Then | {actor} and {actor} keep the same match | {actor}, {actor} | matchmaking |
+| Then | {actor} can wait for a match | {actor} | matchmaking |
+| Then | {actor} cannot be matched with someone {int} points away | {actor}, {int} | matchmaking |
+| Then | {actor} has the same wait | {actor} | matchmaking |
 | Then | {actor} is (still )waiting | {actor} | matchmaking |
 | Then | {actor} is matched with {actor} | {actor}, {actor} | matchmaking |
-| Then | {actor} is not waiting for a match | {actor} | matchmaking |
+| Then | {actor} is not waiting( for a match) | {actor} | matchmaking |
 | Then | {actor} is told her/his change did not count | {actor} | matchmaking |
+| Then | {actor} is told her/his earlier wait has ended | {actor} | matchmaking |
+| Then | {actor} is told matchmaking needs a connection | {actor} | matchmaking |
+| Then | {actor} is told no wait is available to her/him | {actor} | matchmaking |
 | Then | {actor} is told she/he is already waiting | {actor} | matchmaking |
+| Then | {actor} is told she/he is unavailable for a match | {actor} | matchmaking |
+| Then | {actor} is told that earlier change already counted | {actor} | matchmaking |
 | Then | {actor} is told there was nothing to stop | {actor} | matchmaking |
+| Then | {actor} keeps her/his earlier match with {actor} | {actor}, {actor} | matchmaking |
 | Then | {actor} sees her/his change counted | {actor} | matchmaking |
 | Then | {actor} sees she/he stopped waiting | {actor} | matchmaking |
+| Then | {actor}, {actor} and {actor} are still waiting | {actor}, {actor}, {actor} | matchmaking |
+| Then | {actor}, {actor} and {actor} have the same match | {actor}, {actor}, {actor} | matchmaking |
+| Then | {actor}, {actor}, {actor} and {actor} have the same match | {actor}, {actor}, {actor}, {actor} | matchmaking |
+| Then | {actor}'s other device shows the same wait | {actor} | matchmaking |
+| Then | {actor}'s phone shows her/his last known range | {actor} | matchmaking |
+| Then | {actor}'s phone shows her/his last known wait | {actor} | matchmaking |
 | Then | {actor}'s wait shows her/his name and a rating of {int} | {actor}, {int} | matchmaking |
+| Then | one matchmaking match is formed for {actor} and {actor} | {actor}, {actor} | matchmaking |
+| When | {actor} and {actor} become unable to be matched together | {actor}, {actor} | matchmaking |
+| When | {actor} and {actor} can be matched together again | {actor}, {actor} | matchmaking |
+| When | {actor} asks to see {actor}'s wait | {actor}, {actor} | matchmaking |
+| When | {actor} becomes available for a match again | {actor} | matchmaking |
+| When | {actor} becomes unavailable for a match | {actor} | matchmaking |
+| When | {actor} changes her/his range to a growing range | {actor} | matchmaking |
+| When | {actor} narrows her/his range to {int} points | {actor}, {int} | matchmaking |
+| When | {actor} opens matchmaking on another device | {actor} | matchmaking |
+| When | {actor} repeats her/his earlier request for a match | {actor} | matchmaking |
+| When | {actor} repeats her/his earlier wide range change | {actor} | matchmaking |
+| When | {actor} repeats that range change | {actor} | matchmaking |
+| When | {actor} stops her/his earlier wait | {actor} | matchmaking |
 | When | {actor} stops waiting | {actor} | matchmaking |
+| When | {actor} stops waiting on another device | {actor} | matchmaking |
+| When | {actor} tries to stop {actor}'s wait | {actor}, {actor} | matchmaking |
+| When | {actor} tries to widen {actor}'s range to {int} points | {actor}, {actor}, {int} | matchmaking |
 | When | {actor} waits for a match with a rating of {int} | {actor}, {int} | matchmaking |
+| When | {actor} waits for a match with a rating of {int} on another device | {actor}, {int} | matchmaking |
+| When | {actor} waits with a growing range again | {actor} | matchmaking |
 | When | {actor} widens her/his range to {int} points | {actor}, {int} | matchmaking |
+| When | {actor} widens the range of her/his earlier wait to {int} points | {actor}, {int} | matchmaking |
+| When | {actor}'s phone comes back online | {actor} | matchmaking |
+| When | {actor}'s phone goes offline | {actor} | matchmaking |
+| When | {int} second(s) pass(es) | {int} | matchmaking |
+| When | a day passes | — | matchmaking |
 | When | matchmaking pairs people up | — | matchmaking |
 
 ## Features

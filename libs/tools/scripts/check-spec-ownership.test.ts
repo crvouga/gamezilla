@@ -9,6 +9,61 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
+  test('automatically combined parent specs retain their original ownership', () => {
+    // regression: spec-ownership-resolved-merge
+    const staged = [
+      'specs/README.md',
+      'specs/chess/ubiquitous-language.yml',
+      'specs/conformance.yaml',
+      'libs/chess/package.json',
+    ];
+    expect(mergeStagedViolations(staged, staged, [])).toEqual([]);
+    assertProperty(
+      'authored spec resolutions remain refused beside code',
+      fc.property(fc.constantFrom(...staged.slice(0, 3)), (spec) => {
+        expect(mergeStagedViolations(staged, staged, [spec])).toHaveLength(1);
+      })
+    );
+  });
+
+  test('merging committed specs does not count them as newly authored changes', () => {
+    // regression: spec-ownership-resolved-merge
+    expect(
+      mergeStagedViolations(
+        [
+          'specs/profile/account-deletion.feature',
+          'libs/tools/scripts/check-plan.ts',
+        ],
+        ['libs/tools/scripts/check-plan.ts']
+      )
+    ).toEqual([]);
+  });
+
+  test('merge resolutions still reject newly changed specs mixed with code', () => {
+    assertProperty(
+      'merge resolutions preserve spec ownership',
+      fc.property(
+        fc.constantFrom(
+          'specs/README.md',
+          'specs/profile/account-deletion.feature'
+        ),
+        fc.constantFrom(
+          'libs/tools/scripts/check-plan.ts',
+          'pkgs/quint/src/verify.ts'
+        ),
+        (spec, implementation) => {
+          expect(
+            mergeStagedViolations(
+              [spec, implementation],
+              [spec, implementation]
+            )
+          ).toHaveLength(1);
+          expect(mergeStagedViolations([spec], [spec])).toEqual([]);
+        }
+      )
+    );
+  });
+
   // regression: trunk-sync-incoming-spec-ownership
   test('trunk sync accepts unchanged incoming specs but rejects mixed spec resolutions', () => {
     const staged = [

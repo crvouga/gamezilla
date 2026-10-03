@@ -197,6 +197,13 @@ export async function watchWorkflow(
     const summary = `${selected.status}: ${selected.jobs.map((job) => `${job.job_display_name}=${job.status}`).join(', ')}`;
     if (summary !== previous) ports.log(summary);
     previous = summary;
+    // Check's required verdict is independent of nonessential publication.
+    const gate =
+      target.workflow === 'check.yml'
+        ? selected.jobs.find((job) => job.job_display_name === 'check')
+        : undefined;
+    if (gate?.status === 'finished') return 0;
+    if (gate?.status === 'failed' || gate?.status === 'cancelled') return 1;
     if (selected.status === 'finished') return 0;
     if (selected.status === 'cancelled') {
       const next = selectWorkflow(

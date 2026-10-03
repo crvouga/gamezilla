@@ -17,6 +17,7 @@ export type BoardKeysArgs = {
   readonly session: PointerSession;
   readonly cursor: Accessor<Square>;
   readonly setCursor: (square: Square) => void;
+  readonly clearAnnotations: () => void;
   /** Escape: abandon the press / selection / premoves. */
   readonly cancel: () => void;
 };
@@ -40,6 +41,7 @@ export function createBoardKeyHandler(
     }
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
+      args.clearAnnotations();
       // Not batched: Enter on a target plays a move, and the parent's
       // `onMove` must run with its own effects, not inside a board batch.
       args.session.down(args.cursor());

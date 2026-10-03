@@ -80,13 +80,15 @@ describe('createPointerSession', () => {
     expect(interaction.drop).toHaveBeenCalledWith('e2', 'e3');
   });
 
-  it('a drag released on its own square is a tap', () => {
+  it('a traveled drag released on its own square abandons the move', () => {
+    // regression: chessboard-abandoned-drop-selection
     const interaction = fakeInteraction();
     const session = createPointerSession(interaction as never);
     session.down('e2', 10, 10, 'mouse');
     session.move(10 + MOUSE_DRAG_THRESHOLD_PX + 1, 10);
     session.up('e2');
-    expect(interaction.tap).toHaveBeenCalledWith('e2');
+    expect(interaction.tap).not.toHaveBeenCalled();
+    expect(interaction.getSnapshot().selected).toBeNull();
     expect(session.state().kind).toBe('idle');
   });
 

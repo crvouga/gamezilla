@@ -59,6 +59,7 @@ import { createSpace } from '@libs/spaces/harness/space-actions';
 import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board-core/types';
 import { NAMED_PUZZLES } from './puzzle-fixtures';
+import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
   activePuzzle,
   boardBefore,
@@ -102,6 +103,7 @@ async function playMove(
   const uci = uciOf(move);
   await waitSolverToMove(w, actor);
   await rememberBoard(w, actor);
+  await markPuzzleSoundBoundary(w, actor);
   remember(w, moveKey(actor), uci);
   remember(w, LAST_MOVER, actor);
   await w.s.apply(playPuzzleMove, actor, uci);
@@ -259,6 +261,7 @@ Then("{actor}'s puzzle is not solved", async (w, actor: Actor) => {
 });
 
 When('{actor} plays a wrong move', async (w, actor: Actor) => {
+  await markPuzzleSoundBoundary(w, actor);
   await w.s.apply(playWrongPuzzleMove, actor);
 });
 

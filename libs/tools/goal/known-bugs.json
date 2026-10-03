@@ -110,6 +110,96 @@
     "regressionTest": "pkgs/quint/tests/simulate.test.ts"
   },
   {
+    "id": "chessboard-disabled-annotation-clear",
+    "summary": "Disabling new personal annotations also prevents choosing a piece from clearing completed personal marks.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-preview-input",
+    "summary": "Widths outside the playable range accept moves and retain selection or promotion after shrinking.",
+    "regressionTest": "specs/chess-board/board-options.feature"
+  },
+  {
+    "id": "chessboard-en-passant-hint",
+    "summary": "An empty en passant destination is painted as a quiet move rather than a capture.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-named-feedback",
+    "summary": "Activity-supplied feedback text is ignored in the visible badge.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-promotion-focus",
+    "summary": "Promotion choices expose abbreviations and cancellation leaves keyboard focus at the destination.",
+    "regressionTest": "specs/chess-board/board-promotion.feature"
+  },
+  {
+    "id": "chessboard-duplicate-premove",
+    "summary": "Repeated input queues the same waiting move twice and duplicates its visual preview.",
+    "regressionTest": "specs/chess-board/board-premoves.feature"
+  },
+  {
+    "id": "quint-itf-list-values",
+    "summary": "ITF decoding rejects ordered lists emitted by Quint, preventing promotion and premove trace replay.",
+    "regressionTest": "pkgs/quint/tests/itf-list.test.ts"
+  },
+  {
+    "id": "chessboard-nonfinite-hit",
+    "summary": "Non-finite dimensions and pointer coordinates can manufacture invalid algebraic squares.",
+    "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  },
+  {
+    "id": "chessboard-scaled-hit",
+    "summary": "Scaled boards use unscaled client dimensions for pointer hit testing, disagreeing with the painted far files.",
+    "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  },
+  {
+    "id": "chessboard-fill-size-rounding",
+    "summary": "Fill-width measurement rounds to eight device pixels while CSS keeps the full fractional parent width.",
+    "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  },
+  {
+    "id": "chessboard-local-model-profile",
+    "summary": "Local board models are rejected for having no connection dependent operation.",
+    "regressionTest": "pkgs/quint/tests/shape.test.ts"
+  },
+  {
+    "id": "chessboard-square-a11y",
+    "summary": "Square accessible names omit occupants, selection and legal targets.",
+    "regressionTest": "specs/chess-board/board-accessibility.feature"
+  },
+  {
+    "id": "chessboard-reduced-motion",
+    "summary": "Enabling reduced motion leaves an existing slide running.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-capture-interruption",
+    "summary": "A replacement position retains the prior capture ghost.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-stale-sound",
+    "summary": "Replacing a position leaves delayed capture feedback scheduled.",
+    "regressionTest": "specs/chess-board/board-sound.feature"
+  },
+  {
+    "id": "chessboard-sound-authority",
+    "summary": "A parent cannot disable board sounds.",
+    "regressionTest": "specs/chess-board/board-sound.feature"
+  },
+  {
+    "id": "chessboard-equivalent-sync",
+    "summary": "Equivalent parent updates discard a selected piece.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-pointer-authority",
+    "summary": "Disabling input leaves the lifted avatar and pointer session alive.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
     "id": "room-archive-migration-history",
     "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
     "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
@@ -1365,6 +1455,86 @@
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
+    "id": "check-gate-waits-for-publication",
+    "summary": "The required Check command waited for nonessential report publication despite completed task verdicts. Watch the lightweight check job rather than the whole Check workflow.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+  },
+  {
+    "id": "check-opaque-task-failure",
+    "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
+    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+  },
+  {
+    "id": "check-symbolic-report-directory",
+    "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
+    "regressionTest": "apps/product/tests/quint/system/campaign-tools.test.ts"
+  },
+  {
+    "id": "check-artifact-download-encoded-credentials",
+    "summary": "The artifact SDK strips URL queries, but Depot redirects encode signed storage credentials inside the proxy pathname, so an SDK info line exposes them. Capture transfer diagnostics in a child process and remove complete URLs before logging.",
+    "regressionTest": "libs/tools/scripts/check-plan-transfer.test.ts"
+  },
+  {
+    "id": "check-tlc-shared-temporary-modules",
+    "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+  },
+  {
+    "id": "check-model-cache-runtime-artifacts",
+    "summary": "Depot rejected the model task artifact with HTTP 413 when the report bucket included temporary checker data and linked tool installations. Cache the complete report interface (evidence, bounds, counterexamples and TLC output), leaving private runtime files outside cache outputs.",
+    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
+  },
+  {
+    "id": "check-tty-exit-before-output",
+    "summary": "A cold 32-vCPU run observed READY followed by a successful child exit before the PTY delivered DONE. The tty assertion raced process-exit notification and the fixture waited an arbitrary 800ms. Both ends now handshake on exact scroll input and actual READY/DONE output events, retaining all no-echo assertions.",
+    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
+  },
+  {
+    "id": "check-quint-silent-exit",
+    "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
+    "regressionTest": "pkgs/quint/tests/run-quint.test.ts"
+  },
+  {
+    "id": "check-tools-external-cache-inputs",
+    "summary": "The tooling tests read .depot/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "check-evidence-masks-required-verdict",
+    "summary": "A passing shard could become failed solely because tar packing or actions/upload-artifact failed. The required gate then depended on nonessential evidence. Preserve the validated check verdict; make only the evidence step nonessential. The injected invalid/name artifact failure exercises this separation.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-repeated-mise-cache-stall",
+    "summary": "Partial-cache run 1jzx5994v8 stalled five shards at the second mise-action Restoring mise cache step, before check execution. One full cached toolchain setup per shard removes the repeated restore. Keep frozen Bun installation and all pinned tools; validate the partial-cache path with a real source-invalidation run.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-duration-metadata-cache-input",
+    "summary": "Changing check-task-costs.json from one measured duration to another invalidated tooling source hashes and downstream check verdicts, although the checks themselves never read those observations. Exclude duration telemetry from source, type-check and test inputs; preserve JSON formatting validation in lint and always read current costs in the uncached planner.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "infra-drift-operation-hang",
+    "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
+    "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
+  },
+  {
+    "id": "health-ui-step-loader-order",
+    "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "infra-plan-credential-output",
+    "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
+    "regressionTest": "libs/infra/tests/redact-output.test.ts"
+  },
+  {
+    "id": "spec-ownership-resolved-merge",
+    "summary": "The pre-commit spec ownership gate rejected resolved merges from main because committed specs appeared beside implementation changes, including automatically combined specs/README.md, specs/chess/ubiquitous-language.yml and specs/conformance.yaml. Compare staged specs to Git's automatic merge tree when available; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+  },
+  {
     "id": "health-solid-preload-order",
     "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun\u2019s server runtime, while local spec suites retain their Solid preloads.",
     "regressionTest": "apps/product/scripts/health.test.ts"
@@ -1378,5 +1548,140 @@
     "id": "chess-model-deleted-game-access",
     "summary": "The multiplayer reference trace at seed 0x67932, step 88, kept Dave's private game after confirmed account deletion. The reduced literal history is Dave and Bob begin, match 1 with Dave White, then Dave deletes his account. Clear the deleted account's current game while keeping Bob's accepted result and offline copies until reconnect.",
     "regressionTest": "libs/chess/tests/quint/multiplayer-model-regression.test.ts"
+  },
+  {
+    "id": "chessboard-disabled-sound-request",
+    "summary": "A board sound requested while disabled could play after re-enabling if its seek had not completed. Guard both request and playback against parent sound authority.",
+    "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-disposed-sound-request",
+    "summary": "A retained sound handle could start playback after its board scope was disposed. Disposed handles remain inert.",
+    "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-hidden-motion",
+    "summary": "Hiding a page did not cancel already-running piece motion or a capture remnant, allowing old transitions to resume when shown. Hidden motion settles immediately.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-focus-interruption",
+    "summary": "Switching away during a held pointer gesture left its avatar and pointer session alive. Activity focus loss cancels and releases the gesture without a move.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-fractional-grid-drift",
+    "summary": "At 319.5 CSS pixels and half scale, grid track rounding and a rotated hit grid displaced piece centers from their square centers in White and Black orientations. Place all hit targets with the same fractional cell transforms as pieces.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-nonfinite-duration",
+    "summary": "A requested animation duration of NaN or Infinity left motion enabled without a finite completion, potentially keeping capture remnants indefinitely. Invalid durations settle immediately.",
+    "regressionTest": "pkgs/chess-board/tests/board-motion.test.ts"
+  },
+  {
+    "id": "chessboard-warmup-ownership",
+    "summary": "Closing the first board while shared audio warmup awaited a seek could pause the same sound already playing for a second board. Warmup may only pause unowned players.",
+    "regressionTest": "pkgs/chess-board/tests/sound-warmup.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-terminal-selection",
+    "summary": "A checkmated or stalemated board allowed a piece to be selected or held despite offering no further move. Finished games refuse piece input.",
+    "regressionTest": "specs/chess-board/board-interaction.feature"
+  },
+  {
+    "id": "chessboard-stalemate-announcement",
+    "summary": "A stalemating move played end feedback but its live announcement omitted stalemate, leaving silent users without the result. Announce the stalemate alongside the move.",
+    "regressionTest": "specs/chess-board/board-interaction.feature"
+  },
+  {
+    "id": "chessboard-combined-confirmation-reply",
+    "summary": "After an optimistic White e2-e4, the parent supplied the canonical Black e7-e5 successor without an intermediate confirmation. The board incorrectly treated it as desync repair and suppressed its highlight and sound. Canonical successors retain move feedback.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-abandoned-drop-selection",
+    "summary": "A genuinely traveled drag returned to e2 or dropped outside reselected the source as if it were a tap. Abandoned drags clear selection; stationary presses retain tap semantics.",
+    "regressionTest": "pkgs/chess-board/tests/pointer-session.test.ts"
+  },
+  {
+    "id": "chessboard-stale-announcement",
+    "summary": "Replacing the mating queen g6-g7 position retained the old checkmate announcement. Clear prior move speech when an unrelated authoritative position has no completed move.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-fractional-cell-step",
+    "summary": "Percentage translations accumulate rounded cell widths, leaving fractional square edges misaligned with the board content width.",
+    "regressionTest": "pkgs/chess-board/tests/browser/resize.contract.test.ts"
+  },
+  {
+    "id": "chessboard-frame-work-observation",
+    "summary": "A native frame gate discarded delivered MutationObserver records, allowing per-frame DOM work to pass as zero.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-raster-reference",
+    "summary": "A fresh-position raster reference reused the board model and piece nodes, allowing the same stale rendered state on both sides of a comparison.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-benchmark-sound",
+    "summary": "The public performance benchmark scrubs 200 authoritative positions with default board sound enabled and emits a move sound despite being a measurement-only preview. Benchmark boards are explicitly silent.",
+    "regressionTest": "pkgs/chess-board/tests/browser/performance.contract.test.ts"
+  },
+  {
+    "id": "chessboard-empty-annotation-clear",
+    "summary": "Clearing personal marks with an ordinary primary input while the mark set was already empty emitted no empty arrow update, so the activity could not observe the clear request.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-keyboard-annotation-clear",
+    "summary": "Enter or Space selection left completed personal arrows and circles on the board after drawing was disabled, while equivalent pointer selection cleared them.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-fixed-width-promotion",
+    "summary": "After fluid width195 then fixed512, removing the fixed width at available320 briefly exposed a stale195 measurement and dismissed a still-valid promotion chooser.",
+    "regressionTest": "specs/chess-board/board-options.feature"
+  },
+  {
+    "id": "chessboard-overlapping-capture-remnant",
+    "summary": "A canonical g8-f6 opponent reply cleared the captured Black pawn remnant while the earlier White e4-d5 attacker was still sliding to its unchanged valid square. Keep the remnant until that arrival finishes.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chess-puzzle-muted-feedback",
+    "summary": "Puzzle correct-move, solved and rating feedback played while the app sounds preference was muted. Honor the preference and cancel delayed seek-to-play starts.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chessboard-draw-announcement",
+    "summary": "Black a2-b1 capture promotion to bishop or knight leaves dead material but announces only the move, omitting the drawn result for silent and assistive users. Announce every canonical drawn result.",
+    "regressionTest": "specs/chess-board/board-black-promotion.feature"
+  },
+  {
+    "id": "chess-puzzle-replayed-feedback",
+    "summary": "Returning from Sound settings repeats the already reached opponent opening move or a hydrated solved-puzzle cue.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chess-puzzle-rating-feedback-late",
+    "summary": "Resuming an unfinished puzzle freezes completion feedback at the preliminary unrated result and omits the gain cue when its rating ledger arrives.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chess-puzzle-duplicate-rating-feedback",
+    "summary": "Equivalent completion updates repeat the rating-gain cue because the reactive trigger returns a fresh tuple for unchanged result values.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chessboard-consumer-gate-graph",
+    "summary": "The exact release-graph contract omits the newly required Chessboard consumer conformance gate, rejecting Check and Deploy.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "chessboard-coordinate-label-descent",
+    "summary": "Native Linux font metrics place file g outside its assigned edge square at width 196 and half scale; inset both coordinate baselines inside their squares.",
+    "regressionTest": "pkgs/chess-board/tests/browser/marking-geometry.contract.test.ts"
   }
 ]

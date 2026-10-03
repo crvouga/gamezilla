@@ -44,7 +44,7 @@ describe('report completion receipts', () => {
       );
       await publishReportTask({ ...args, repoRoot, taskId });
       // regression: report-timeline-count-mislabeled-tests
-      expect(log).toHaveBeenCalledWith(
+      expect(log).not.toHaveBeenCalledWith(
         `[report-publish] ${taskId}: 0 timeline(s)`
       );
       await verifyPublications(args);

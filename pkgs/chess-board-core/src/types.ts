@@ -61,6 +61,8 @@ export type CellFeedbackCorner =
 
 export type CellFeedback = {
   kind: CellFeedbackKind;
+  /** Activity-supplied annotation text, replacing the kind's usual glyph. */
+  label?: string;
   /** Override default palette color (theme.feedback.<kind> by default). */
   color?: string;
   /** 0..1, default 1. */

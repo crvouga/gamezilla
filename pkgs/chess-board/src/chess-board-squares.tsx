@@ -59,6 +59,7 @@ export type ChessBoardSquaresProps = {
   readonly position: Accessor<Position>;
   readonly washes: Accessor<readonly string[]>;
   readonly legalTargets: Accessor<readonly Square[]>;
+  readonly captureTargets: Accessor<readonly Square[]>;
   readonly cellHighlights: Accessor<
     Partial<Record<Square, CellHighlight>> | undefined
   >;
@@ -160,7 +161,7 @@ function Coordinates(props: {
         {(file, col) => (
           <text
             x={col() * CELL_UNITS + CELL_UNITS - 6}
-            y={8 * CELL_UNITS - 7}
+            y={8 * CELL_UNITS - 20}
             fill={ink(col(), 7)}
             font-size="20"
             text-anchor="end"
@@ -173,7 +174,7 @@ function Coordinates(props: {
         {(rank, row) => (
           <text
             x={5}
-            y={row() * CELL_UNITS + 21}
+            y={row() * CELL_UNITS + 30}
             fill={ink(0, row())}
             font-size="20"
           >
@@ -193,7 +194,8 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
     return props
       .legalTargets()
       .map((square) =>
-        position[indexFromSquare(square)] === null
+        position[indexFromSquare(square)] === null &&
+        !props.captureTargets().includes(square)
           ? `dot@${square}`
           : `ring@${square}`
       );

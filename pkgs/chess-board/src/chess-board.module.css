@@ -4,13 +4,14 @@
  * grid, the promotion picker. The dragged piece is outside the board, in the
  * page's top layer (`.avatar`).
  *
- * Everything that moves is a one-cell box placed by `transform` (percent of
- * its own size), so slides and drags are compositor work and a resize
+ * Everything that moves is a one-cell box placed by `transform` (units of
+ * the board content width), so slides and drags are compositor work and a resize
  * rewrites nothing.
  */
 
 .root {
   position: relative;
+  container-type: inline-size;
   touch-action: none;
   /* No paint containment: a dragged piece may leave the board. */
   contain: layout style;
@@ -70,8 +71,8 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 12.5%;
-  height: 12.5%;
+  width: 12.5cqw;
+  height: 12.5cqw;
   pointer-events: none;
 }
 
@@ -262,15 +263,7 @@
    under the pieces (nothing above a sliding piece to composite). */
 .grid {
   z-index: 0;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
   pointer-events: none;
-}
-
-/* Black's view: the same 64 buttons, turned around. */
-.gridFlipped {
-  transform: rotate(180deg);
 }
 
 .square {

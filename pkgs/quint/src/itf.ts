@@ -7,6 +7,7 @@
  *   true / "s" / 3              boolean / string / number
  *   {"#bigint": "123"}          number (bigint beyond the safe range)
  *   {"#tup": [a, b]}            [a, b]            (readonly array)
+ *   [a, b]                     [a, b]            (ordered list)
  *   {"#set": [a, b]}            Set
  *   {"#map": [[k, v], …]}       Map
  *   {"tag": "T", "value": v}    { tag: 'T', value: v }   (a variant)
@@ -51,9 +52,7 @@ export function decodeItfValue(value: Json): QuintValue {
   if (typeof value === 'boolean' || typeof value === 'string') return value;
   if (typeof value === 'number') return value;
   if (value === null) throw new Error('itf: null is not a Quint value');
-  if (Array.isArray(value)) {
-    throw new Error('itf: a bare list is not a Quint value');
-  }
+  if (Array.isArray(value)) return list(value, 'sequence').map(decodeItfValue);
   const obj = value as { readonly [key: string]: Json };
   if (only(obj, '#bigint')) {
     const big = BigInt(String(obj['#bigint']));

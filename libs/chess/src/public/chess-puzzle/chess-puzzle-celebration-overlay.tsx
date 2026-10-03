@@ -10,20 +10,27 @@ import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings
 import { useChessPuzzleRatingAnimation } from './use-chess-puzzle-rating-animation';
 
 function useCelebrationRatingFeedback(args: {
-  completion: PuzzleCompletion;
+  completion: Accessor<PuzzleCompletion>;
+  feedbackEnabled: Accessor<boolean>;
   onDisplayRatingChange: (rating: number) => void;
 }): { displayRating: Accessor<number> } {
   const feedback = useChessPuzzleFeedback();
-  const completionKey = `${args.completion.outcome}-${args.completion.ratingAfter}`;
-
   return useChessPuzzleRatingAnimation({
-    ratingBefore: args.completion.ratingBefore,
-    ratingAfter: args.completion.ratingAfter,
-    animationKey: completionKey,
+    get ratingBefore() {
+      return args.completion().ratingBefore;
+    },
+    get ratingAfter() {
+      return args.completion().ratingAfter;
+    },
+    get animationKey() {
+      const completion = args.completion();
+      return `${completion.outcome}-${completion.ratingBefore}-${completion.ratingAfter}-${completion.rated}`;
+    },
     enabled: true,
     onComplete: () => {
-      args.onDisplayRatingChange(args.completion.ratingAfter);
-      feedback.onRatingComplete(args.completion.delta);
+      const completion = args.completion();
+      args.onDisplayRatingChange(completion.ratingAfter);
+      if (args.feedbackEnabled()) feedback.onRatingComplete(completion.delta);
     },
   });
 }
@@ -48,6 +55,7 @@ function celebrationTitle(outcome: PuzzleCompletion['outcome']): JSX.Element {
 
 export type ChessPuzzleCelebrationOverlayProps = {
   completion: PuzzleCompletion;
+  feedbackEnabled: Accessor<boolean>;
   visible: boolean;
   onClose: () => void;
   /** §5 primary CTA: the next puzzle (large, thumb-reachable). */
@@ -61,7 +69,8 @@ export function ChessPuzzleCelebrationOverlay(
   const myId = useMyId();
   const { provisional } = useChessPuzzleProfileRatings(myId);
   const ratingAnim = useCelebrationRatingFeedback({
-    completion: props.completion,
+    completion: () => props.completion,
+    feedbackEnabled: props.feedbackEnabled,
     onDisplayRatingChange: props.onDisplayRatingChange,
   });
 

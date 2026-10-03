@@ -79,9 +79,9 @@ const FAULTS = [
 ] as const;
 
 for (const fault of FAULTS) {
-  test(
+  test.concurrent(
     `verification rejects injected ${fault.name}`,
-    () => {
+    async () => {
       const dir = mkdtempSync(join(tmpdir(), 'product-quint-mutant-'));
       try {
         cpSync(MODEL_DIR, dir, { recursive: true });
@@ -89,7 +89,7 @@ for (const fault of FAULTS) {
         const source = readFileSync(path, 'utf8');
         expect(source.split(fault.before)).toHaveLength(2);
         writeFileSync(path, source.replace(fault.before, fault.after));
-        const result = quint([
+        const result = await quint([
           'test',
           join(dir, 'adversarial-examples.qnt'),
           '--backend',

@@ -116,7 +116,14 @@ export function ChessBoardBenchPage(): JSX.Element {
       </p>
       <div class="flex flex-wrap gap-2">
         <For each={[...Array(boardCount()).keys()]}>
-          {() => <ChessBoard size={160} fen={fen()} interactive={false} />}
+          {() => (
+            <ChessBoard
+              size={160}
+              fen={fen()}
+              interactive={false}
+              sound={false}
+            />
+          )}
         </For>
       </div>
       <Show when={lines().length > 0}>

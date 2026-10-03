@@ -73,7 +73,10 @@ function input(over: Partial<OpponentStagerInput>): OpponentStagerInput {
 describe('createPuzzleOpponentStager', () => {
   test('busy status shows displayFen and never locks', () => {
     const { timers } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(input({ status: 'loading', displayFen: null }));
     expect(stager.getSnapshot()).toEqual({
       boardFen: null,
@@ -83,7 +86,10 @@ describe('createPuzzleOpponentStager', () => {
 
   test('opening: holds startFen, slides to displayFen, then unlocks', () => {
     const { timers, advance } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     const seen: string[] = [];
     stager.subscribe(() => {
       const s = stager.getSnapshot();
@@ -114,7 +120,10 @@ describe('createPuzzleOpponentStager', () => {
 
   test('canned reply animates from the human-move FEN', () => {
     const { timers, advance } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(input({}));
     advance(10_000);
 
@@ -147,7 +156,10 @@ describe('createPuzzleOpponentStager', () => {
 
   test('input stays locked for the whole opening hold and slide', () => {
     const { timers, advance } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(input({}));
     for (const step of [100, 100, 100, 100, 99]) {
       advance(step);
@@ -160,7 +172,10 @@ describe('createPuzzleOpponentStager', () => {
   // §6 "Show solution": every remaining ply plays out, then review.
   test('a shown solution plays the rest of the line ply by ply', () => {
     const { timers, advance } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(input({}));
     advance(10_000);
 
@@ -194,7 +209,10 @@ describe('createPuzzleOpponentStager', () => {
 
   test('seek / scrub snaps without animating', () => {
     const { timers, advance } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(
       input({ displayFen: fenAt(3), solveIdx: 3, furthestSolveIdx: 3 })
     );
@@ -210,7 +228,10 @@ describe('createPuzzleOpponentStager', () => {
 
   test('a new input mid-animation cancels pending timers', () => {
     const { timers, advance, pendingCount } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(input({}));
     expect(pendingCount()).toBe(2);
     stager.update(input({ status: 'loading', displayFen: null }));
@@ -221,7 +242,10 @@ describe('createPuzzleOpponentStager', () => {
 
   test('equal inputs are idempotent; dispose clears timers', () => {
     const { timers, pendingCount } = createManualTimers();
-    const stager = createPuzzleOpponentStager(timers);
+    const stager = createPuzzleOpponentStager(
+      timers,
+      input({ status: 'loading', displayFen: null })
+    );
     stager.update(input({}));
     const snap = stager.getSnapshot();
     stager.update(input({}));

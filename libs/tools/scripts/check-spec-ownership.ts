@@ -84,13 +84,42 @@ export function stagedViolations(files: readonly string[]): readonly string[] {
   return [];
 }
 
-/** Incoming commits already own their specs; validate newly resolved changes. */
+/** Parent commits own automatic spec merges; validate authored resolutions. */
 export function mergeStagedViolations(
   staged: readonly string[],
-  changedFromIncoming: readonly string[]
+  changedFromIncoming: readonly string[],
+  changedFromAutomatic?: readonly string[]
 ): readonly string[] {
   const changed = new Set(changedFromIncoming);
-  return stagedViolations(staged.filter((file) => changed.has(file)));
+  const authored = new Set(changedFromAutomatic);
+  return stagedViolations(
+    staged.filter(
+      (file) =>
+        changed.has(file) &&
+        (changedFromAutomatic === undefined ||
+          !isSpecFile(file) ||
+          authored.has(file))
+    )
+  );
+}
+
+function changedPaths(ref: string): readonly string[] {
+  return git(['diff', '--cached', '--name-only', ref])
+    .split('\n')
+    .filter(Boolean);
+}
+
+/** Older merge strategies lack AUTO_MERGE; retain the parent-only guard. */
+function automaticMergeChanges(): readonly string[] | undefined {
+  const result = spawnSync(
+    'git',
+    ['rev-parse', '--verify', '--quiet', 'AUTO_MERGE^{tree}'],
+    { encoding: 'utf8' }
+  );
+  if (result.status === 1) return undefined;
+  if (result.status !== 0)
+    throw new Error(`Cannot read automatic merge: ${result.stderr}`);
+  return changedPaths(result.stdout.trim());
 }
 
 function checkStagedOwnership(): readonly string[] {
@@ -107,9 +136,8 @@ function checkStagedOwnership(): readonly string[] {
     throw new Error(`Cannot read merge parent: ${merge.stderr}`);
   return mergeStagedViolations(
     staged,
-    git(['diff', '--cached', '--name-only', merge.stdout.trim()])
-      .split('\n')
-      .filter(Boolean)
+    changedPaths(merge.stdout.trim()),
+    automaticMergeChanges()
   );
 }
 

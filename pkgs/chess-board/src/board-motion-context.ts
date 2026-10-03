@@ -58,13 +58,25 @@ function reducedMotionSignal(): () => boolean {
   return reduced;
 }
 
+function hiddenSignal(): () => boolean {
+  const [hidden, setHidden] = createSignal(
+    document.visibilityState === 'hidden'
+  );
+  const onChange = (): void => {
+    setHidden(document.visibilityState === 'hidden');
+  };
+  document.addEventListener('visibilitychange', onChange);
+  onCleanup(() => document.removeEventListener('visibilitychange', onChange));
+  return hidden;
+}
+
 /** The running browser's motion capabilities. Call inside a Solid owner. */
 export function createWallMotionEnvironment(): BoardMotionEnvironment {
   return {
     animate: webAnimate(),
     prefersReducedMotion: reducedMotionSignal(),
     lowEnd: isLowEndDevice(globalThis.navigator),
-    hidden: () => document.visibilityState === 'hidden',
+    hidden: hiddenSignal(),
     paintedTransform: (element) =>
       element.ownerDocument.defaultView?.getComputedStyle(element).transform ??
       '',

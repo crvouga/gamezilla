@@ -141,10 +141,17 @@ function PuzzlePlayBoardWell(props: {
 
 function CelebrationLayer(props: {
   completion: Accessor<PuzzleCompletion | null>;
+  status: Accessor<SolveStatus>;
   onNext: () => void;
 }): JSX.Element {
   const [dismissedKey, setDismissedKey] = createSignal<string | null>(null);
   const completion = createMemo(() => props.completion());
+  const feedbackEnabled = createMemo((wasSolving: boolean) => {
+    const status = props.status();
+    return status === 'loading' || status === 'idle'
+      ? false
+      : status === 'solving' || wasSolving;
+  }, false);
   const visible = createMemo(() => {
     const current = completion();
     if (current === null) return false;
@@ -155,6 +162,7 @@ function CelebrationLayer(props: {
       {(current) => (
         <ChessPuzzleCelebrationOverlay
           completion={current()}
+          feedbackEnabled={feedbackEnabled}
           visible={visible()}
           onClose={() => setDismissedKey(completionKey(current()))}
           onNext={props.onNext}
@@ -214,7 +222,11 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
       <DefineBackButton onPress={props.backToRoot} />
       {props.testLoadingStatus}
       <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
-      <CelebrationLayer completion={props.completion} onNext={props.onNext} />
+      <CelebrationLayer
+        completion={props.completion}
+        status={props.status}
+        onNext={props.onNext}
+      />
       {props.testHints}
       <ChessPuzzleFeedSettingsModal
         visible={feedSettingsOpen()}

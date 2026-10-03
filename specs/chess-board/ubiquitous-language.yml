@@ -1,0 +1,218 @@
+context: Chessboard
+purpose: >-
+  A reusable chessboard whose position and settings belong to the person
+  embedding it. Pieces, selection and feedback stay coherent as those change.
+terms:
+  - term: activity
+    definition: The use presenting the chessboard and supplying its position and choices.
+  - term: chessboard
+    definition: A square chess board with eight files and eight ranks, usable on its own or within another activity.
+    forms: [chessboards, board, closes the chessboard, first chessboard, second chessboard, first board, second board, starts a chessboard]
+    model: [LifecycleBoard, board, closeBoard, startBoard, PromotionBoard, promotionBoard, PremoveBoard, premoveBoard, AnnotationBoard, annotationBoard, OptionsBoard, optionsBoard, KeyboardBoard, keyboardBoard, SeparateBoard, BoardPair, chessboards, closeSeparateBoard]
+  - term: chess
+    from: chess
+  - term: position
+    definition: Where each chess piece stands and whose turn it is.
+    forms: [displayed position, unusable position, starts a chessboard with an unusable position]
+    model: [replacePosition, supplyUnusablePosition, startBoardWithUnusablePosition, replacePromotionPosition, replacePremovePosition, replaceAnnotationPosition, replaceOptionsPosition, replaceSeparatePosition]
+  - term: piece
+    definition: A chess king, queen, rook, bishop, knight or pawn, belonging to White or Black.
+  - term: king
+    source: FIDE Laws of Chess, Article 3.8
+  - term: queen
+    source: FIDE Laws of Chess, Article 3.4
+  - term: rook
+    source: FIDE Laws of Chess, Article 3.3
+  - term: bishop
+    source: FIDE Laws of Chess, Article 3.2
+  - term: knight
+    source: FIDE Laws of Chess, Article 3.6
+  - term: pawn
+    source: FIDE Laws of Chess, Article 3.7
+  - term: square
+    definition: One of the chessboard's sixty-four places, named by file and rank.
+  - term: selection
+    definition: The piece chosen to move and its permitted destinations.
+    forms: [selected, selects, select, deselects, deselected]
+    model: [selectPiece, selectOptionsPiece, selectPremoveSource, clearPersonalAnnotations, tapKeyboardSquare, selectSeparatePiece]
+  - term: move
+    definition: A legal chess move, offered once to the activity using the chessboard.
+    forms: [moves, moved, moving]
+    model: [movePiece, moveOptionsPiece, tryOtherPromotionMove, requestPromotion, requestOptionsPromotion, moveSeparatePiece]
+  - term: capture
+    definition: A move that removes an opposing piece, including en passant.
+    forms: [captures, captured, capturing]
+  - term: drag
+    definition: Holding a piece and carrying it towards a destination; cancelling returns it without a move.
+    forms: [drags, dragging, dragged, drops, dropping, dropped, cancels the drag, begins dragging, switches away from the chessboard's activity]
+    model: [beginDrag, cancelDrag, switchAway, beginOptionsDrag, beginSeparateDrag, cancelSeparateDrag]
+  - term: board settings
+    definition: Choices supplied by the activity embedding the chessboard; changes take effect at once.
+    model: [configureBoard]
+  - term: sound
+    definition: Chessboard feedback heard for moves when enabled; disabling prevents delayed feedback too.
+    forms: [sounds, silent, silence]
+    model: [configureSeparateSound, heardBoardSounds]
+  - term: orientation
+    definition: Which side faces the person; changing it never changes the position.
+    model: [flipBoard, flipAnnotationBoard]
+  - term: interactivity
+    definition: Whether pieces may be moved; disabling cancels selection, dragging and promotion choices.
+    forms: [interactive]
+    model: [configurePromotionInput, configureOptionsInput, configureSeparateInput]
+  - term: animation
+    definition: A piece sliding to its new square, with a captured piece remaining underneath until it arrives.
+    forms: [animations, animating, animated, capture remnant, arrival, arrivals, interrupted arrival]
+    model: [finishAnimation, finishEarlierAnimation, liveAnimationFinishes]
+  - term: reduced motion
+    definition: A choice to place pieces at their destinations immediately, without slides or capture remnants.
+  - term: visibility
+    definition: Whether the chessboard's activity is visible; hidden chessboards settle without replaying old motion when shown again.
+    forms: [visible, hidden, becomes visible, becomes hidden]
+    model: [setVisibility]
+  - term: promotion
+    definition: A pawn reaching the last rank waits for a queen, rook, bishop or knight choice unless automatic queen promotion is enabled.
+    forms: [promotes, promoted, promoting]
+  - term: resize
+    definition: A change in space for the chessboard; a held piece is put down when width changes, and becoming a preview abandons selection and promotion too.
+    forms: [resizes, resized, narrows the available space, narrows the chessboard, widens the chessboard]
+    model: [resizeBoard, resizeAvailableSpace]
+  - term: keyboard
+    from: runtime
+    forms: [arrow keys, keyboard's square, moves the keyboard one square]
+    model: [moveKeyboard]
+  - term: Space key
+    definition: The keyboard key that chooses its current chessboard square, selecting, deselecting or completing a move.
+    forms: [Space, chooses the keyboard's square with Space]
+    model: [chooseKeyboardSquare]
+  - term: Enter key
+    definition: Another keyboard key that chooses its current chessboard square, selecting, deselecting or completing a move.
+    forms: [Enter, chooses the keyboard's square with Enter]
+    model: [chooseKeyboardSquare]
+  - term: control
+    from: runtime
+  - term: legal destination
+    definition: A square a selected piece may move to under the rules of chess, keeping its own king safe.
+  - term: last move
+    definition: The source and destination squares marked for the latest completed move.
+  - term: capture destination
+    definition: A selected piece's legal capture square, offered with a ring before the move, including an en passant square where the captured pawn does not stand.
+  - term: to move
+    source: FIDE Laws of Chess, Article 1.1 (having the move)
+  - term: illegal move
+    source: FIDE Laws of Chess, Article 3.10
+  - term: illegal destination
+    definition: A square that is not a legal destination for the chosen piece.
+  - term: pinned piece
+    definition: A piece protecting its own king from an opposing piece; it may move only while that king remains safe.
+    forms: [pinned]
+  - term: check
+    source: FIDE Laws of Chess, Article 3.9
+  - term: checkmate
+    source: FIDE Laws of Chess, Article 5.1.1
+    forms: [checkmated]
+  - term: stalemate
+    source: FIDE Laws of Chess, Article 5.2.1
+    forms: [stalemated]
+  - term: dead position
+    source: FIDE Laws of Chess, Article 5.2.2 (neither side can reach checkmate by any legal sequence)
+    forms: [dead, drawn, draw, dead-position draw]
+  - term: castling
+    source: FIDE Laws of Chess, Article 3.8.2
+    forms: [castle, castles, castled, kingside, queenside, kingside castling, queenside castling]
+  - term: en passant
+    source: FIDE Laws of Chess, Article 3.7.3.1
+  - term: capture-promotion
+    source: FIDE Laws of Chess, Articles 3.7.5.1 and 3.1
+  - term: promotion choice
+    definition: The queen, rook, bishop or knight chosen to replace a pawn at the last rank; until decided or cancelled, no other piece can move.
+    forms: [pending promotion, pending promotion choice, chooses the promotion]
+    model: [choosePromotion]
+  - term: cancel promotion
+    definition: Abandon an unfinished promotion, keeping the pawn on its source square and offering no move to the activity.
+    forms: [cancels the promotion, cancelled promotion, cancels the promotion with Escape]
+    model: [cancelPromotion]
+  - term: automatic queen promotion
+    definition: A board setting that replaces future last-rank pawn requests with a queen immediately; changing it preserves an already pending explicit choice.
+    model: [configureAutomaticQueen]
+  - term: end sound
+    definition: The sound announcing that the chessboard has reached a position with no further moves, including checkmate and stalemate.
+  - term: fixed width
+    definition: The exact board width chosen by the activity, taking precedence over its available space.
+    model: [configureFixedWidth]
+  - term: available space
+    definition: The width offered by the activity for a board without a fixed width.
+    forms: [available width, narrows the available space]
+  - term: pixel
+    definition: A unit of displayed width, measured independently of the screen's sharpness.
+    forms: [pixels]
+  - term: supported width
+    definition: Any board width from 196 through 16384 pixels, including fractional widths; the activity may still disable moves.
+  - term: preview
+    definition: A chessboard retaining its position and square meanings while offering no moves because its width is outside the supported range; unusable space offers no input either.
+    forms: [previews, room to move]
+  - term: coordinates
+    definition: The eight file names and eight rank names identifying the chessboard's squares; hiding them never changes a position.
+    forms: [coordinate]
+    model: [configureCoordinates]
+  - term: legal destination marks
+    definition: Dots for legal quiet destinations and rings for legal capture destinations; hiding them preserves selection and legal meaning.
+    forms: [quiet destination dot, capture ring, legal marking, legal marks]
+    model: [configureLegalMarks]
+  - term: last move marks
+    definition: Optional markings of the latest completed move's source and destination; hiding them never changes its position.
+    model: [configureLastMoveMarks]
+  - term: board colors
+    definition: The activity's chosen colors for the chessboard's squares, preserving pieces and unfinished choices.
+    forms: [green and cream board colors, square colors]
+    model: [configureBoardColors]
+  - term: move announcement
+    definition: The current move's spoken description, including check or a finished game; an unrelated replacement position clears the earlier announcement.
+  - term: activity annotations
+    definition: Arrows, colored square fills, rings and named badges supplied by the activity; personal annotation changes never remove them.
+    forms: [activity annotation, square annotations, square marks, supplies colored arrows, supplies square annotations, removes its annotations, fill, fills, ring, rings, badge, badges, line styles]
+    model: [setActivityArrows, setActivitySquareMarks, clearActivityAnnotations, chooseActivityArrow, supplyFeedbackMarks]
+  - term: primary color
+    definition: The activity's usual green for an arrow without a chosen color and for every personal arrow.
+    forms: [primary green, default appearance]
+  - term: danger color
+    definition: The red appearance the activity can choose for an arrow.
+    forms: [danger]
+  - term: feedback badge
+    definition: An activity's tick, cross or two exclamation marks on a square; usual appearances are green, red and blue respectively, at the upper-right unless another placement, color or a name is chosen.
+    forms: [feedback badges, feedback mark, feedback marks, tick, cross, exclamation marks, upper-right, centered tick, usual feedback badges, gold tick]
+    model: [supplyFeedbackMarks]
+  - term: personal annotations
+    definition: Arrows and circles Alice adds without moving pieces; choosing any square removes these marks while preserving the activity's annotations, even when new drawing is disabled.
+    forms: [personal annotation, personal marks, personal arrows and circles]
+    model: [configurePersonalAnnotations]
+  - term: personal arrow
+    definition: Alice's mark from one named square to another; drawing an existing arrow again removes it, and completed changes offer personal arrows alone to the activity.
+    forms: [personal arrows, draws a personal arrow, begins drawing a personal arrow, finishes drawing the personal arrow, unfinished personal arrow]
+    model: [beginPersonalArrow, finishPersonalArrow]
+  - term: cancel personal arrow
+    definition: Abandon unfinished drawing without adding an arrow or announcing completed annotation changes.
+    forms: [cancels the personal arrow]
+    model: [cancelPersonalArrow]
+  - term: personal circle
+    definition: Alice's ring around a named square; marking the same square again removes it, announces only the current personal arrows, and never makes a move.
+    forms: [personal circles, marks e4 with a personal circle]
+    model: [togglePersonalCircle, cancelPremoves]
+  - term: premove
+    definition: A waiting-side move queued for a future opponent reply, shown with a translucent destination preview while its real piece remains at source.
+    forms: [premoves, queues the premove, queued premoves, drags a premove, enable premoves, disable premoves]
+    model: [queuePremove, configurePremoves]
+  - term: opponent reply
+    definition: A legal move supplied by the activity that completes at most the first queued premove; an invalidated premove disappears without another move being offered.
+    forms: [reply, replies, supplies Black's reply, supplies a reply that invalidates the premove]
+    model: [receiveReply, receivePremoveReply, invalidatePremove]
+  - term: cancel premoves
+    definition: Abandon all queued waiting-side moves and their previews without moving their real pieces.
+    forms: [cancels premoves, cancels premoves with Escape]
+    model: [cancelPremoves]
+  - term: file
+    source: FIDE Laws of Chess, Article 2.4 (the eight vertical columns)
+    forms: [files]
+  - term: rank
+    source: FIDE Laws of Chess, Article 2.4 (the eight horizontal rows)
+    forms: [ranks]
