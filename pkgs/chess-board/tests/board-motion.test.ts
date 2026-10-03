@@ -20,6 +20,20 @@ const inputs = fc.record({
 });
 
 describe('resolveMotionPolicy', () => {
+  test('a non-finite requested duration settles without leaving an endless arrival', () => {
+    // regression: chessboard-nonfinite-duration
+    for (const durationMs of [NaN, Infinity, -Infinity])
+      expect(
+        resolveMotionPolicy({
+          enabled: true,
+          durationMs,
+          prefersReducedMotion: false,
+          lowEnd: false,
+          canAnimate: true,
+        })
+      ).toEqual({ slides: false, durationMs: 0, effects: false });
+  });
+
   test('reduce-motion, animations off or no Web Animations never slide', () => {
     assertProperty(
       'motion-off',

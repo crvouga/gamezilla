@@ -43,6 +43,10 @@ terms:
     from: friends
   - term: Google
     from: profile
+  - term: sounds
+    from: runtime
+    forms: [sound, silence, silent, turned sounds off, turned sounds on, turns sounds off, turns sounds on]
+    model: [configurePuzzleSounds]
 
   # The shared kernel's "the app", named in this context's model.
   - term: the app
@@ -122,7 +126,7 @@ terms:
       A chess position with one line to find, played on the board. Each
       puzzle has a rating of its own, which is how hard it is.
     avoid: [problem, exercise]
-    model: [puzzle]
+    model: [puzzle, PuzzleSound, puzzleSound]
     published: true
 
   - term: puzzle pool
@@ -266,7 +270,7 @@ terms:
 
   - term: solution move
     definition: The next move of the solution, from where the board stands.
-    forms: [asks to see the solution move, asked to see the solution move]
+    forms: [asks to see the solution move, asked to see the solution move, correct move]
 
   - term: solve
     definition: >-
@@ -395,7 +399,7 @@ terms:
       A solver's running rating, moved by every rated attempt, online or
       offline. Every device shows the same one. A new solver starts at the
       seed rating, provisional.
-    forms: [rating]
+    forms: [rating, rating gain]
     avoid: [score, elo]
     model: [ratedResult]
 
@@ -446,6 +450,7 @@ terms:
       review's move list, in algebraic notation.
     forms: [reviews, reviewing, reviewed]
     avoid: [replay, analysis]
+    model: [stepPuzzleSoundReview]
 
   # --- The daily puzzle limit --------------------------------------------------
 
@@ -468,7 +473,11 @@ terms:
 
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
-    forms: [moved, moving]
+    forms: [moves, moved, moving, plays]
+    model: [playQuietPuzzleMove, playCapturePuzzleMove]
+  - term: capture
+    source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
+    forms: [captures, captured]
   - term: piece
     source: FIDE Laws of Chess, Article 2.2
   - term: to move

@@ -3,7 +3,7 @@
  * render:
  *
  * - HTML layers (pieces, square washes, hints) are one-cell boxes anchored
- *   top-left and placed with `translate(col·100%, row·100%)`, so a resize
+ *   top-left and placed from the board content width with `translate(col·12.5cqw, row·12.5cqw)`, so a resize
  *   never rewrites a transform and every slide is a compositor animation.
  * - SVG layers (arrows, circles, badges, coordinates) draw in a fixed
  *   user-unit space (`0 0 800 800`, 100 units per cell). Arrow geometry's
@@ -42,7 +42,7 @@ export function cellTransform(
   orientation: BoardOrientation
 ): string {
   const { col, row } = displayCell(square, orientation);
-  return `translate(${col * 100}%, ${row * 100}%)`;
+  return `translate(${col * 12.5}cqw, ${row * 12.5}cqw)`;
 }
 
 export function fmtUnits(n: number): string {

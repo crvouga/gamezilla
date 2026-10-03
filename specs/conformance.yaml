@@ -14,6 +14,7 @@ product:
     - billing
     - feedback
     - chess
+    - chess-board
     - developer-tools
     - db-indexes
     - friends
@@ -57,6 +58,11 @@ product:
 
   # Promises made to people outside the product that a rewrite must keep.
   public contracts:
+    - id: reusable chessboard
+      context: chess-board
+      promise: >-
+        An activity controls its chessboard position and settings; silence,
+        interrupted gestures and motion remain correct when those change.
     - id: account privacy
       context: profile
       promise: >-

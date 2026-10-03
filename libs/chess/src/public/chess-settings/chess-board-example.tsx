@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
   createEffect,
   createSignal,
@@ -14,6 +15,7 @@ const SAMPLE_FEN =
 const MAX_BOARD_SIZE = 280;
 
 export default function ChessBoardExample(): JSX.Element {
+  const sounds = useSoundsPreference();
   const [size, setSize] = createSignal(MAX_BOARD_SIZE);
   const [hostEl, setHostEl] = createSignal<HTMLElement>();
 
@@ -43,6 +45,7 @@ export default function ChessBoardExample(): JSX.Element {
       </p>
       <Show when={size() > 0}>
         <ChessBoard
+          sound={!sounds.muted()}
           fen={SAMPLE_FEN}
           size={size()}
           interactive

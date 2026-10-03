@@ -1,5 +1,95 @@
 [
   {
+    "id": "chessboard-disabled-annotation-clear",
+    "summary": "Disabling new personal annotations also prevents choosing a piece from clearing completed personal marks.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-preview-input",
+    "summary": "Widths outside the playable range accept moves and retain selection or promotion after shrinking.",
+    "regressionTest": "specs/chess-board/board-options.feature"
+  },
+  {
+    "id": "chessboard-en-passant-hint",
+    "summary": "An empty en passant destination is painted as a quiet move rather than a capture.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-named-feedback",
+    "summary": "Activity-supplied feedback text is ignored in the visible badge.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-promotion-focus",
+    "summary": "Promotion choices expose abbreviations and cancellation leaves keyboard focus at the destination.",
+    "regressionTest": "specs/chess-board/board-promotion.feature"
+  },
+  {
+    "id": "chessboard-duplicate-premove",
+    "summary": "Repeated input queues the same waiting move twice and duplicates its visual preview.",
+    "regressionTest": "specs/chess-board/board-premoves.feature"
+  },
+  {
+    "id": "quint-itf-list-values",
+    "summary": "ITF decoding rejects ordered lists emitted by Quint, preventing promotion and premove trace replay.",
+    "regressionTest": "pkgs/quint/tests/itf-list.test.ts"
+  },
+  {
+    "id": "chessboard-nonfinite-hit",
+    "summary": "Non-finite dimensions and pointer coordinates can manufacture invalid algebraic squares.",
+    "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  },
+  {
+    "id": "chessboard-scaled-hit",
+    "summary": "Scaled boards use unscaled client dimensions for pointer hit testing, disagreeing with the painted far files.",
+    "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  },
+  {
+    "id": "chessboard-fill-size-rounding",
+    "summary": "Fill-width measurement rounds to eight device pixels while CSS keeps the full fractional parent width.",
+    "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  },
+  {
+    "id": "chessboard-local-model-profile",
+    "summary": "Local board models are rejected for having no connection dependent operation.",
+    "regressionTest": "pkgs/quint/tests/shape.test.ts"
+  },
+  {
+    "id": "chessboard-square-a11y",
+    "summary": "Square accessible names omit occupants, selection and legal targets.",
+    "regressionTest": "specs/chess-board/board-accessibility.feature"
+  },
+  {
+    "id": "chessboard-reduced-motion",
+    "summary": "Enabling reduced motion leaves an existing slide running.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-capture-interruption",
+    "summary": "A replacement position retains the prior capture ghost.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-stale-sound",
+    "summary": "Replacing a position leaves delayed capture feedback scheduled.",
+    "regressionTest": "specs/chess-board/board-sound.feature"
+  },
+  {
+    "id": "chessboard-sound-authority",
+    "summary": "A parent cannot disable board sounds.",
+    "regressionTest": "specs/chess-board/board-sound.feature"
+  },
+  {
+    "id": "chessboard-equivalent-sync",
+    "summary": "Equivalent parent updates discard a selected piece.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-pointer-authority",
+    "summary": "Disabling input leaves the lifted avatar and pointer session alive.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
     "id": "room-archive-migration-history",
     "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
     "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
@@ -1336,12 +1426,147 @@
   },
   {
     "id": "health-solid-preload-order",
-    "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun’s server runtime, while local spec suites retain their Solid preloads.",
+    "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun\u2019s server runtime, while local spec suites retain their Solid preloads.",
     "regressionTest": "apps/product/scripts/health.test.ts"
   },
   {
     "id": "dev-client-stale-api-config",
     "summary": "A client was reported fetching obsolete dev-api.gamezilla.app after the dev environment moved to api-dev.gamezilla.app. Keep deployed API and broker endpoint bindings owned by the environment file, so copied secret or Worker settings cannot override the canonical endpoints; the client build and bundle guard already use hosts.api.",
     "regressionTest": "apps/product/tests/wrangler-config.test.ts"
+  },
+  {
+    "id": "chessboard-disabled-sound-request",
+    "summary": "A board sound requested while disabled could play after re-enabling if its seek had not completed. Guard both request and playback against parent sound authority.",
+    "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-disposed-sound-request",
+    "summary": "A retained sound handle could start playback after its board scope was disposed. Disposed handles remain inert.",
+    "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-hidden-motion",
+    "summary": "Hiding a page did not cancel already-running piece motion or a capture remnant, allowing old transitions to resume when shown. Hidden motion settles immediately.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chessboard-focus-interruption",
+    "summary": "Switching away during a held pointer gesture left its avatar and pointer session alive. Activity focus loss cancels and releases the gesture without a move.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-fractional-grid-drift",
+    "summary": "At 319.5 CSS pixels and half scale, grid track rounding and a rotated hit grid displaced piece centers from their square centers in White and Black orientations. Place all hit targets with the same fractional cell transforms as pieces.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-nonfinite-duration",
+    "summary": "A requested animation duration of NaN or Infinity left motion enabled without a finite completion, potentially keeping capture remnants indefinitely. Invalid durations settle immediately.",
+    "regressionTest": "pkgs/chess-board/tests/board-motion.test.ts"
+  },
+  {
+    "id": "chessboard-warmup-ownership",
+    "summary": "Closing the first board while shared audio warmup awaited a seek could pause the same sound already playing for a second board. Warmup may only pause unowned players.",
+    "regressionTest": "pkgs/chess-board/tests/sound-warmup.contract.test.tsx"
+  },
+  {
+    "id": "chessboard-terminal-selection",
+    "summary": "A checkmated or stalemated board allowed a piece to be selected or held despite offering no further move. Finished games refuse piece input.",
+    "regressionTest": "specs/chess-board/board-interaction.feature"
+  },
+  {
+    "id": "chessboard-stalemate-announcement",
+    "summary": "A stalemating move played end feedback but its live announcement omitted stalemate, leaving silent users without the result. Announce the stalemate alongside the move.",
+    "regressionTest": "specs/chess-board/board-interaction.feature"
+  },
+  {
+    "id": "chessboard-combined-confirmation-reply",
+    "summary": "After an optimistic White e2-e4, the parent supplied the canonical Black e7-e5 successor without an intermediate confirmation. The board incorrectly treated it as desync repair and suppressed its highlight and sound. Canonical successors retain move feedback.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-abandoned-drop-selection",
+    "summary": "A genuinely traveled drag returned to e2 or dropped outside reselected the source as if it were a tap. Abandoned drags clear selection; stationary presses retain tap semantics.",
+    "regressionTest": "pkgs/chess-board/tests/pointer-session.test.ts"
+  },
+  {
+    "id": "chessboard-stale-announcement",
+    "summary": "Replacing the mating queen g6-g7 position retained the old checkmate announcement. Clear prior move speech when an unrelated authoritative position has no completed move.",
+    "regressionTest": "specs/chess-board/board-authority.feature"
+  },
+  {
+    "id": "chessboard-fractional-cell-step",
+    "summary": "Percentage translations accumulate rounded cell widths, leaving fractional square edges misaligned with the board content width.",
+    "regressionTest": "pkgs/chess-board/tests/browser/resize.contract.test.ts"
+  },
+  {
+    "id": "chessboard-frame-work-observation",
+    "summary": "A native frame gate discarded delivered MutationObserver records, allowing per-frame DOM work to pass as zero.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-raster-reference",
+    "summary": "A fresh-position raster reference reused the board model and piece nodes, allowing the same stale rendered state on both sides of a comparison.",
+    "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  },
+  {
+    "id": "chessboard-benchmark-sound",
+    "summary": "The public performance benchmark scrubs 200 authoritative positions with default board sound enabled and emits a move sound despite being a measurement-only preview. Benchmark boards are explicitly silent.",
+    "regressionTest": "pkgs/chess-board/tests/browser/performance.contract.test.ts"
+  },
+  {
+    "id": "chessboard-empty-annotation-clear",
+    "summary": "Clearing personal marks with an ordinary primary input while the mark set was already empty emitted no empty arrow update, so the activity could not observe the clear request.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-keyboard-annotation-clear",
+    "summary": "Enter or Space selection left completed personal arrows and circles on the board after drawing was disabled, while equivalent pointer selection cleared them.",
+    "regressionTest": "specs/chess-board/board-annotations.feature"
+  },
+  {
+    "id": "chessboard-fixed-width-promotion",
+    "summary": "After fluid width195 then fixed512, removing the fixed width at available320 briefly exposed a stale195 measurement and dismissed a still-valid promotion chooser.",
+    "regressionTest": "specs/chess-board/board-options.feature"
+  },
+  {
+    "id": "chessboard-overlapping-capture-remnant",
+    "summary": "A canonical g8-f6 opponent reply cleared the captured Black pawn remnant while the earlier White e4-d5 attacker was still sliding to its unchanged valid square. Keep the remnant until that arrival finishes.",
+    "regressionTest": "specs/chess-board/board-motion.feature"
+  },
+  {
+    "id": "chess-puzzle-muted-feedback",
+    "summary": "Puzzle correct-move, solved and rating feedback played while the app sounds preference was muted. Honor the preference and cancel delayed seek-to-play starts.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chessboard-draw-announcement",
+    "summary": "Black a2-b1 capture promotion to bishop or knight leaves dead material but announces only the move, omitting the drawn result for silent and assistive users. Announce every canonical drawn result.",
+    "regressionTest": "specs/chess-board/board-black-promotion.feature"
+  },
+  {
+    "id": "chess-puzzle-replayed-feedback",
+    "summary": "Returning from Sound settings repeats the already reached opponent opening move or a hydrated solved-puzzle cue.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chess-puzzle-rating-feedback-late",
+    "summary": "Resuming an unfinished puzzle freezes completion feedback at the preliminary unrated result and omits the gain cue when its rating ledger arrives.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chess-puzzle-duplicate-rating-feedback",
+    "summary": "Equivalent completion updates repeat the rating-gain cue because the reactive trigger returns a fresh tuple for unchanged result values.",
+    "regressionTest": "specs/chess/puzzle-sound.feature"
+  },
+  {
+    "id": "chessboard-consumer-gate-graph",
+    "summary": "The exact release-graph contract omits the newly required Chessboard consumer conformance gate, rejecting Check and Deploy.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "chessboard-coordinate-label-descent",
+    "summary": "Native Linux font metrics place file g outside its assigned edge square at width 196 and half scale; inset both coordinate baselines inside their squares.",
+    "regressionTest": "pkgs/chess-board/tests/browser/marking-geometry.contract.test.ts"
   }
 ]

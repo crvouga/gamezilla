@@ -213,12 +213,13 @@ export function modelShapeIssues(
   ];
   const profile = profiles[0]?.[1] ?? 'offline-first';
   const profileIssues =
-    profiles.length > 1 || !['offline-first', 'maintenance'].includes(profile)
+    profiles.length > 1 ||
+    !['offline-first', 'maintenance', 'local'].includes(profile)
       ? [
           issue(
             'model-profile',
             1,
-            'declare at most one profile: offline-first or maintenance'
+            'declare at most one profile: offline-first, maintenance or local'
           ),
         ]
       : [];
@@ -226,6 +227,6 @@ export function modelShapeIssues(
     ...structureIssues(model, base),
     ...profileIssues,
     ...assignmentShapeIssues(model),
-    ...(profile === 'maintenance' ? [] : offlineShapeIssues(model)),
+    ...(profile === 'offline-first' ? offlineShapeIssues(model) : []),
   ].sort((a, b) => a.line - b.line || a.code.localeCompare(b.code));
 }

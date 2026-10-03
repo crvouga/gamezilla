@@ -15,6 +15,7 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
+import { watchBoardInput } from './board-input-lifecycle';
 import { type MotionPolicy, resolveMotionPolicy } from './board-motion';
 import { useBoardMotionEnvironment } from './board-motion-context';
 import {
@@ -54,16 +55,16 @@ export type BoardController = {
   readonly onKeyDown: (event: KeyboardEvent) => void;
   /** A hit-grid square button took focus: the cursor follows it. */
   readonly onSquareFocus: (square: Square) => void;
+  /** Return keyboard ownership from the promotion picker to a square. */
+  readonly focusSquare: (square: Square) => void;
 };
 
 /** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
 const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
 
-/** Snap CSS px so the board spans a multiple of 8 device pixels. */
-export function snapBoardPx(width: number): number {
-  if (!(width > 0)) return 0;
-  const dpr = window.devicePixelRatio || 1;
-  return (Math.floor((width * dpr) / 8) * 8) / dpr;
+/** Preserve the parent dimension; percentages tile fractional cells exactly. */
+export function normalizeBoardSize(width: number): number {
+  return Number.isFinite(width) && width > 0 ? width : 0;
 }
 
 /**
@@ -76,20 +77,27 @@ function useBoardPx(
 ): Accessor<number> {
   const [measured, setMeasured] = createSignal(0);
   createEffect(() => {
-    if (sizeProp() !== undefined) return;
+    const fixed = sizeProp();
+    if (fixed !== undefined) {
+      setMeasured(normalizeBoardSize(fixed));
+      return;
+    }
     const node = el();
     if (node === undefined) return;
     const apply = (width: number): void => {
-      const snapped = snapBoardPx(width);
-      if (snapped > 0) setMeasured(snapped);
+      setMeasured(normalizeBoardSize(width));
     };
     const ro = new ResizeObserver((entries) => {
-      apply(entries[0]?.contentRect.width ?? 0);
+      const entry = entries[0];
+      apply(
+        entry?.borderBoxSize[0]?.inlineSize ??
+          (entry?.contentRect.width ?? 0) + 2 * node.clientLeft
+      );
     });
     ro.observe(node);
-    apply(node.getBoundingClientRect().width);
+    apply(node.offsetWidth || node.getBoundingClientRect().width);
     const onLayout = (): void => {
-      apply(node.getBoundingClientRect().width);
+      apply(node.offsetWidth || node.getBoundingClientRect().width);
     };
     node.addEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
     onCleanup(() => {
@@ -99,7 +107,7 @@ function useBoardPx(
   });
   return () => {
     const fixed = sizeProp();
-    if (fixed !== undefined) return snapBoardPx(fixed);
+    if (fixed !== undefined) return normalizeBoardSize(fixed);
     return measured();
   };
 }
@@ -133,33 +141,43 @@ function createMotion(props: ChessBoardProps) {
       durationMs: props.animationDurationMs,
       prefersReducedMotion: env.prefersReducedMotion(),
       lowEnd: env.lowEnd,
-      canAnimate: env.animate !== null,
+      canAnimate: env.animate !== null && !env.hidden(),
     })
   );
   const animator = createPieceAnimator({
     animate: () => (env.hidden() ? null : env.animate),
     paintedTransform: env.paintedTransform,
   });
+  createEffect(() => {
+    if (!motion().slides) animator.dispose();
+  });
   onCleanup(animator.dispose);
-  return { motion, animator };
+  return { motion, animator, hidden: env.hidden };
 }
 
-function createModel(
-  props: ChessBoardProps,
-  motion: Accessor<MotionPolicy>,
-  timers: Timers,
-  onIllegal: () => void
-): ChessBoardModel {
+function createModel(args: {
+  props: ChessBoardProps;
+  motion: Accessor<MotionPolicy>;
+  timers: Timers;
+  boardPx: Accessor<number>;
+  onIllegal: () => void;
+}): ChessBoardModel {
+  const { props, motion, timers, onIllegal } = args;
   return createChessBoardModel({
     game: untrack(() => new ChessGame(props.fen)),
     fen: () => props.fen,
     fenSyncKey: () => props.fenSyncKey,
-    interactive: () => props.interactive !== false,
+    interactive: () =>
+      props.interactive !== false &&
+      args.boardPx() >= 196 &&
+      args.boardPx() <= 16384,
     animated: () => motion().slides,
     moveDurationMs: () => motion().durationMs,
     onMove: (m) => props.onMove?.(m),
     onIllegal,
-    sounds: createChessBoardSounds(),
+    sounds: createChessBoardSounds(() => props.sound !== false),
+    soundEnabled: () => props.sound !== false,
+    orientation: () => props.orientation ?? 'white',
     timers,
     premoves: () => props.premoves === true,
     autoPromoteQueen: () => props.autoPromoteQueen === true,
@@ -189,6 +207,7 @@ function createInput(args: {
   > & {
     readonly userShapes: UserShapes;
     readonly setTouch: (t: boolean) => void;
+    readonly hidden: Accessor<boolean>;
   };
   readonly haptics: ReturnType<typeof createBoardHaptics>;
 }): Input {
@@ -220,6 +239,7 @@ function createInput(args: {
     dragActiveClass: styles['dragActive'] ?? '',
     setTouch: parts.setTouch,
   });
+  watchBoardInput(props, parts, pointer);
   createEffect(() => {
     const node = args.host();
     if (node === undefined) return;
@@ -231,6 +251,7 @@ function createInput(args: {
     session: parts.session,
     cursor,
     setCursor,
+    clearAnnotations: parts.userShapes.clear,
     cancel: () => {
       pointer.cancelPress();
       parts.userShapes.abort();
@@ -249,11 +270,17 @@ export function createBoardController(args: {
   const [host, setHost] = createSignal<HTMLElement | undefined>();
   const boardPx = useBoardPx(host, () => props.size);
   const orientation = () => props.orientation ?? 'white';
-  const { motion, animator } = createMotion(props);
+  const { motion, animator, hidden } = createMotion(props);
   const haptics = createBoardHaptics(() => true);
   let touch = false;
-  const model = createModel(props, motion, args.timers, () => {
-    if (touch) haptics.illegal();
+  const model = createModel({
+    props,
+    motion,
+    timers: args.timers,
+    boardPx,
+    onIllegal: () => {
+      if (touch) haptics.illegal();
+    },
   });
   const session = createPointerSession(model.actions);
   const userShapes = createUserShapesFor(props);
@@ -268,6 +295,7 @@ export function createBoardController(args: {
       boardPx,
       orientation,
       motion,
+      hidden,
       userShapes,
       setTouch: (next) => {
         touch = next;
@@ -296,5 +324,9 @@ export function createBoardController(args: {
     arrows,
     onKeyDown: input.onKeyDown,
     onSquareFocus: input.setCursor,
+    focusSquare: (square) => {
+      input.setCursor(square);
+      host()?.querySelector<HTMLElement>(`[data-square="${square}"]`)?.focus();
+    },
   };
 }

@@ -114,7 +114,6 @@ export function createUserShapes(args?: {
     },
     clear() {
       setStroke(null);
-      if (shapes().length === 0) return;
       commit([]);
     },
   };

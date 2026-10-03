@@ -48,6 +48,8 @@ export type PieceAnimator = {
   readonly release: (element: HTMLElement, options: PlaceOptions) => void;
   /** Resting transform last given to `element`, if any. */
   readonly restingOf: (element: HTMLElement) => string | undefined;
+  /** Forget a removed piece, cancelling any old completion. */
+  readonly remove: (element: HTMLElement) => void;
   /** Cancel every running slide (unmount). */
   readonly dispose: () => void;
 };
@@ -143,6 +145,11 @@ export function createPieceAnimator(args: PieceAnimatorArgs): PieceAnimator {
       moveTo(element, target, options);
     },
     restingOf: (element) => resting.get(element),
+    remove(element) {
+      stop(element);
+      grabbed.delete(element);
+      resting.delete(element);
+    },
     dispose() {
       for (const handle of running.values()) handle.cancel();
       running.clear();

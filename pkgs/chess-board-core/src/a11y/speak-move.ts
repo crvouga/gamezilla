@@ -24,6 +24,8 @@ export function speakMove(args: {
   readonly piece: Piece | null;
   readonly inCheck: boolean;
   readonly isCheckmate: boolean;
+  readonly isStalemate: boolean;
+  readonly isGameOver: boolean;
 }): string {
   const name = args.piece !== null ? pieceName(args.piece.type) : 'Piece';
   const capture =
@@ -41,6 +43,8 @@ export function speakMove(args: {
         : 'King castles queenside';
   }
   if (args.isCheckmate) return `${s}, checkmate`;
+  if (args.isStalemate) return `${s}, stalemate`;
+  if (args.isGameOver) return `${s}, draw`;
   if (args.inCheck) return `${s}, check`;
   return s;
 }
