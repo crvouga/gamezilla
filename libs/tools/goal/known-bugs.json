@@ -1798,5 +1798,10 @@
     "id": "custom-game-journey-offline-race",
     "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
     "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "deploy-grafana-archived-active-traces",
+    "summary": "Deploy blocked on Grafana stack shortawning2091 status archived although its hosted tracing service remained active and authenticated Tempo search returned HTTP 200. Require active traces and a nonterminal known stack state, preserving the existing stack and trace history.",
+    "regressionTest": "libs/infra/tests/observability-status.test.ts"
   }
 ]
