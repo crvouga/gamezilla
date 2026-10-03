@@ -51,13 +51,21 @@ export async function publishReportTask(args: {
     layout: 'tree',
   });
   const store = publicationStore(args.store, args.runId);
-  const record = await publishSource(store, {
-    ...task,
-    sha: args.sha,
-    local,
-    identity: args.identity,
-    status: completion.status === 0 ? 'passed' : 'failed',
-  });
+  const hasTimelines =
+    [
+      ...new Bun.Glob('runs/latest/tests/*/report.json').scanSync({
+        cwd: rootDir,
+      }),
+    ].length > 0;
+  const record = hasTimelines
+    ? await publishSource(store, {
+        ...task,
+        sha: args.sha,
+        local,
+        identity: args.identity,
+        status: completion.status === 0 ? 'passed' : 'failed',
+      })
+    : null;
   // Empty parts and suites without timelines still acknowledge completion.
   // The run id prevents an earlier attempt's receipt satisfying this run.
   await writeUtf8(
@@ -70,9 +78,10 @@ export async function publishReportTask(args: {
     }),
     'application/json'
   );
-  console.log(
-    `[report-publish] ${args.taskId}: ${String(record?.tests.length ?? 0)} timeline(s)`
-  );
+  if (record && record.tests.length > 0)
+    console.log(
+      `[report-publish] ${args.taskId}: ${String(record.tests.length)} timeline(s)`
+    );
 }
 
 export async function reuseReportTask(args: {

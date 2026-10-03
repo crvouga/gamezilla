@@ -31,13 +31,25 @@ describe('WORKFLOW_DISPATCH', () => {
   });
 
   // regression: watch-scroll-echo
+  // regression: check-tty-exit-before-output
   test('scroll keys are not echoed while the watch holds the tty', async () => {
     const chunks: Uint8Array[] = [];
+    let signalReady!: () => void;
+    let signalDone!: () => void;
+    const ready = new Promise<void>((resolve) => {
+      signalReady = resolve;
+    });
+    const done = new Promise<void>((resolve) => {
+      signalDone = resolve;
+    });
     const terminal = new Bun.Terminal({
       cols: 80,
       rows: 24,
       data(_term, data) {
         chunks.push(Uint8Array.from(data));
+        const text = Buffer.concat(chunks).toString('utf8');
+        if (text.includes('READY')) signalReady();
+        if (text.includes('DONE')) signalDone();
       },
     });
     const proc = Bun.spawn(
@@ -46,17 +58,10 @@ describe('WORKFLOW_DISPATCH', () => {
     );
     const shown = (): string => Buffer.concat(chunks).toString('utf8');
     try {
-      let text = '';
-      for (
-        let attempt = 0;
-        attempt < 200 && !text.includes('READY');
-        attempt += 1
-      ) {
-        await Bun.sleep(20);
-        text = shown();
-      }
-      expect(text).toContain('READY');
+      await ready;
+      expect(shown()).toContain('READY');
       terminal.write(SCROLL_DOWN + SCROLL_DOWN + SCROLL_DOWN);
+      await done;
       expect(await proc.exited).toBe(0);
       const out = shown();
       expect(out).toContain('DONE');

@@ -1,5 +1,6 @@
 import { createChessBoardSounds } from '@pkgs/chess-board/chess-board-sounds';
 import { useHaptics } from '@pkgs/device/solid';
+import { useSoundsPreference } from '@pkgs/sounds/solid';
 
 import { useChessPuzzleSounds } from './use-chess-puzzle-sounds';
 
@@ -9,7 +10,8 @@ export function useChessPuzzleFeedback(): {
   onSolved: () => void;
   onRatingComplete: (delta: number) => void;
 } {
-  const boardSounds = createChessBoardSounds();
+  const sounds = useSoundsPreference();
+  const boardSounds = createChessBoardSounds(() => !sounds.muted());
   const puzzleSounds = useChessPuzzleSounds();
   const haptics = useHaptics();
 

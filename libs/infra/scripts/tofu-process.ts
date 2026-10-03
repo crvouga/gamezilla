@@ -1,5 +1,7 @@
 // @io-wall-ok — CLI helper: spawns tofu / conftest.
+
 import type { ConftestRunner } from '@libs/infra/public/plan-policy';
+import { redactInfraOutput } from '@libs/infra/public/redact-output';
 
 export type ToolResult = {
   readonly status: number;
@@ -22,6 +24,8 @@ export function pinnedTool(bin: string): string[] {
     const which = Bun.spawnSync(['mise', 'which', bin], {
       stdout: 'pipe',
       stderr: 'ignore',
+      timeout: 20_000,
+      killSignal: 'SIGKILL',
     });
     const path = which.stdout.toString().trim();
     cmd =
@@ -38,16 +42,37 @@ export function spawnTool(
   args: readonly string[],
   options: { env: Record<string, string>; stdin?: string; capture?: boolean }
 ): ToolResult {
+  const operation = args.find((arg) => !arg.startsWith('-')) ?? bin;
+  const label = `${bin} ${operation}`;
+  const timeout = operation === 'apply' ? undefined : 180_000;
+  console.log(
+    `[infra] ${label}: started${timeout === undefined ? '' : ` (deadline ${timeout}ms)`}`
+  );
+  const env = { ...process.env, ...options.env };
   const result = Bun.spawnSync([...pinnedTool(bin), ...args], {
-    env: { ...process.env, ...options.env },
+    env,
+    ...(timeout === undefined ? {} : { timeout, killSignal: 'SIGKILL' }),
     stdin: options.stdin === undefined ? 'ignore' : Buffer.from(options.stdin),
-    stdout: options.capture === true ? 'pipe' : 'inherit',
-    stderr: options.capture === true ? 'pipe' : 'inherit',
+    stdout: 'pipe',
+    stderr: 'pipe',
   });
+  const stdout = result.stdout?.toString() ?? '';
+  const stderr = result.stderr?.toString() ?? '';
+  const safe = (text: string) => redactInfraOutput(text, env);
+  if (options.capture !== true) {
+    process.stdout.write(safe(stdout));
+    process.stderr.write(safe(stderr));
+  }
+  if (result.exitedDueToTimeout) {
+    if (operation !== 'show') process.stderr.write(safe(stdout));
+    process.stderr.write(safe(stderr));
+    throw new Error(`${label} exceeded ${timeout}ms`);
+  }
+  console.log(`[infra] ${label}: exited ${result.exitCode}`);
   return {
     status: result.exitCode,
-    stdout: result.stdout?.toString() ?? '',
-    stderr: result.stderr?.toString() ?? '',
+    stdout,
+    stderr: safe(stderr),
   };
 }
 

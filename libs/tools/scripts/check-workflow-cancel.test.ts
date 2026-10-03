@@ -16,6 +16,23 @@ function alwaysConditions(workflow: string): readonly string[] {
 }
 
 describe('Check workflow cancellation', () => {
+  test('every configurable shard count has exactly its complete matrix of owners', () => {
+    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
+      on: { workflow_dispatch: { inputs: { shards: { options: number[] } } } };
+      jobs: { 'check-shards': { strategy: { matrix: { shard: string } } } };
+    };
+    const expression = workflow.jobs['check-shards'].strategy.matrix.shard;
+    const presets = JSON.parse(
+      /fromJSON\('([^']+)'\)/.exec(expression)![1]!
+    ) as Record<string, number[]>;
+    for (const count of workflow.on.workflow_dispatch.inputs.shards.options)
+      expect(presets[String(count)]).toEqual(
+        Array.from({ length: count }, (_, index) => index)
+      );
+    expect(Object.keys(presets).map(Number)).toEqual(
+      workflow.on.workflow_dispatch.inputs.shards.options
+    );
+  });
   // regression: check-duplicate-trigger-runners
   test('PR and manual triggers share the branch concurrency group', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
@@ -36,28 +53,47 @@ describe('Check workflow cancellation', () => {
     ).toBe(true);
   });
 
-  test('one Depot job includes publication in its required verdict', () => {
+  // regression: check-evidence-masks-required-verdict (invalid/name artifact)
+  test('the required gate verifies all independent shards and never waits for publication', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       jobs: Record<
         string,
         {
-          needs?: string[];
-          'runs-on': string;
+          needs?: string[] | string;
+          name: string;
+          strategy?: { 'fail-fast': boolean };
           steps: {
             name?: string;
             run?: string;
+            uses?: string;
             'continue-on-error'?: boolean;
           }[];
         }
       >;
     };
-    expect(Object.keys(workflow.jobs)).toEqual(['check']);
-    const gate = workflow.jobs['check'];
-    expect(gate?.['runs-on']).toBe('depot-ubuntu-24.04-16');
-    const check = gate?.steps.find((step) => step.name === 'check');
-    expect(check?.run).toContain('--publish-reports');
-    expect(check?.run).toContain('check');
-    expect(check?.['continue-on-error']).toBeUndefined();
-    expect(gate?.needs).toBeUndefined();
+    const gate = workflow.jobs['check']!;
+    expect(gate.needs).toEqual(['check-shards']);
+    expect(gate.steps[0]!.run).toContain('test "$SHARD_RESULT" = success');
+    expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
+    expect(workflow.jobs['check-reports']!.needs).toEqual(['check-shards']);
+    expect(gate.needs).not.toContain('check-reports');
+    // regression: check-repeated-mise-cache-stall (1jzx5994v8)
+    expect(
+      workflow.jobs['check-shards']!.steps.filter(
+        (step) =>
+          step.uses === './.depot/actions/setup' ||
+          step.uses === 'jdx/mise-action@v4'
+      )
+    ).toHaveLength(1);
+    expect(
+      workflow.jobs['check-shards']!.steps.find(
+        (step) => step.name === 'Transfer raw evidence'
+      )?.['continue-on-error']
+    ).toBe(true);
+    expect(
+      workflow.jobs['check-shards']!.steps.find(
+        (step) => step.name === 'check'
+      )?.['continue-on-error']
+    ).toBeUndefined();
   });
 });

@@ -28,6 +28,7 @@ import { wallClock } from '@pkgs/clock';
 import { openCommit } from '@pkgs/harness-report/remote/publish';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { compileFrameCss } from '../src/ci/wall-frame-css';
+import { publishBatch } from './report-batch';
 import {
   createReportPlan,
   finishReport,
@@ -149,6 +150,16 @@ async function main(argv: readonly string[]): Promise<void> {
       runId: publicationRun,
       taskId: arg,
       identity: taskIdentity(plan, arg),
+    });
+    return;
+  }
+  if (command === 'batch') {
+    await publishBatch({
+      store,
+      repoRoot: REPO_ROOT,
+      sha,
+      runId: publicationRun,
+      planPath,
     });
     return;
   }

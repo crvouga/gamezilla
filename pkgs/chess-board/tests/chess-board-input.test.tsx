@@ -109,7 +109,8 @@ describe('hot paths stay out of the framework', () => {
         )
         .map((r) => r.target)
     );
-    expect([...restyledPieces]).toEqual([knight]);
+    expect(restyledPieces.size).toBe(1);
+    expect(restyledPieces.has(knight)).toBe(true);
     expect(board.piece('f3')).toBe(knight);
   });
 });
@@ -132,7 +133,7 @@ describe('render budgets', () => {
     expect(board.layer('squares')).toEqual(['dot@e3', 'dot@e4', 'selected@e2']);
   });
 
-  test('a move touches no hit-grid button but the two that trade focus', () => {
+  test('a move updates only changed square meanings and two focus stops', () => {
     const board = open();
     expect(board.host.dataset['grab']).toBe('w');
     board.down({ square: 'g1' });
@@ -144,8 +145,19 @@ describe('render budgets', () => {
       board.up({ square: 'f3' });
     });
     expect(board.moves).toEqual(['g1f3']);
-    expect(records.every((r) => r.attributeName === 'tabindex')).toBe(true);
-    expect(new Set(records.map((r) => r.target)).size).toBeLessThanOrEqual(2);
+    expect(
+      records.every((r) =>
+        ['tabindex', 'aria-label', 'aria-pressed'].includes(
+          r.attributeName ?? ''
+        )
+      )
+    ).toBe(true);
+    const focus = records.filter((r) => r.attributeName === 'tabindex');
+    expect(new Set(focus.map((r) => r.target)).size).toBeLessThanOrEqual(2);
+    const meanings = records.filter((r) => r.attributeName !== 'tabindex');
+    expect(
+      new Set(meanings.map((r) => (r.target as HTMLElement).dataset['square']))
+    ).toEqual(new Set(['g1', 'f3', 'h3']));
     // Whose pieces show the grab cursor: one host attribute.
     expect(board.host.dataset['grab']).toBe('b');
   });
@@ -158,7 +170,14 @@ describe('render budgets', () => {
       board.setOrientation('black')
     );
     expect(records.filter((r) => r.type === 'childList')).toHaveLength(0);
-    expect(records.every((r) => r.target === buttons)).toBe(true);
+    expect(records).toHaveLength(64);
+    expect(records.every((r) => r.attributeName === 'style')).toBe(true);
+    expect(new Set(records.map((r) => r.target)).size).toBe(64);
+    expect(
+      [...buttons.children].every((button) =>
+        records.some((r) => r.target === button)
+      )
+    ).toBe(true);
   });
 
   test('empty annotation layers are not rendered above the pieces', () => {
@@ -245,7 +264,7 @@ describe('pick-up', () => {
     );
     board.up({ at: { x: -150, y: BOARD_PX + 200 } });
     expect(board.moves).toEqual([]);
-    expect(board.piece('d2').style.transform).toBe('translate(300%, 600%)');
+    expect(board.piece('d2').style.transform).toBe('translate(37.5cqw, 75cqw)');
   });
 
   test('the board owns its presses: defaults prevented, a mouse press focuses its square', () => {
@@ -295,7 +314,7 @@ describe('gestures', () => {
     board.down({ square: 'e2' }); // no-op: already pressed
     board.move({ square: 'c4' });
     board.move({ square: 'c4', buttons: 3 });
-    expect(bishop.style.transform).toBe('translate(500%, 700%)');
+    expect(bishop.style.transform).toBe('translate(62.5cqw, 87.5cqw)');
     board.up({ square: 'c4' });
     expect(board.moves).toEqual([]);
   });
@@ -307,7 +326,7 @@ describe('gestures', () => {
     board.contextMenu('f3');
     board.up({ square: 'f3' });
     expect(board.moves).toEqual([]);
-    expect(board.piece('g1').style.transform).toBe('translate(600%, 700%)');
+    expect(board.piece('g1').style.transform).toBe('translate(75cqw, 87.5cqw)');
   });
 
   // regression: chess-board-windows-right-drag — Windows fires

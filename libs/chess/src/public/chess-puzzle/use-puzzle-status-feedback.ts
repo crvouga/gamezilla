@@ -28,7 +28,7 @@ export function usePuzzleStatusFeedback(args: {
     const prev = prevStatusRef.current;
     const status = args.status();
     prevStatusRef.current = status;
-    if (prev === status) return;
+    if (prev !== CHESS_PUZZLE_PLAY_STATUS.solving) return;
     if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
       args.feedback.onWrongMove();
     }

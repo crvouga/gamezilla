@@ -23,6 +23,7 @@ import {
   For,
   type JSX,
   on,
+  onCleanup,
   Show,
 } from 'solid-js';
 
@@ -46,6 +47,7 @@ export type ChessBoardPiecesProps = {
   readonly premoveGhosts: Accessor<readonly PremoveGhost[]>;
   readonly animator: PieceAnimator;
   readonly motion: Accessor<MotionPolicy>;
+  readonly canSlide: Accessor<boolean>;
 };
 
 const PIECE_CLASS = `${styles['cell']} ${styles['piece']}`;
@@ -56,6 +58,7 @@ function Piece(props: {
   readonly orientation: Accessor<BoardOrientation>;
   readonly animator: PieceAnimator;
   readonly motion: Accessor<MotionPolicy>;
+  readonly canSlide: Accessor<boolean>;
 }): JSX.Element {
   let el: HTMLDivElement | undefined;
   // The tracker reuses (mutates) a surviving row so `<For>` keeps its node;
@@ -76,13 +79,16 @@ function Piece(props: {
       if (node === undefined) return;
       const policy = props.motion();
       // Flipping the board re-seats every piece at once: no slide.
-      const slide = prev?.[1] === o && policy.slides;
+      const slide = prev?.[1] === o && policy.slides && props.canSlide();
       props.animator.place(node, cellTransform(sq, o), {
         slide,
         durationMs: policy.durationMs,
       });
     })
   );
+  onCleanup(() => {
+    if (el !== undefined) props.animator.remove(el);
+  });
   return (
     <div
       ref={el}
@@ -155,6 +161,7 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
             orientation={props.orientation}
             animator={props.animator}
             motion={props.motion}
+            canSlide={props.canSlide}
           />
         )}
       </For>

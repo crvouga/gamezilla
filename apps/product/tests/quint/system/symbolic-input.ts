@@ -1,6 +1,7 @@
 // @io-wall-ok — explicit bounded symbolic input; no transitions are removed.
 import {
   cpSync,
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -10,7 +11,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { cacheValueParameters } from '@pkgs/quint/cache-value-parameters';
-import { MODEL_DIR, modelPath, REPORT_DIR } from './campaign-config';
+import { MODEL_DIR, REPORT_DIR } from './campaign-config';
 import { sourceDigest } from './source-digest';
 
 const REDUCED = new Set([
@@ -24,10 +25,9 @@ const REDUCED = new Set([
 
 export async function withSymbolicInput<T>(
   name: string,
-  check: (path: string, bound: string) => Promise<T>
+  check: (path: string, bound: string) => Promise<T>,
+  reportDir = REPORT_DIR
 ): Promise<T> {
-  if (!REDUCED.has(name))
-    return check(modelPath(name), 'original actor/client bounds');
   const dir = mkdtempSync(join(tmpdir(), 'product-quint-symbolic-'));
   try {
     cpSync(MODEL_DIR, dir, { recursive: true });
@@ -36,7 +36,8 @@ export async function withSymbolicInput<T>(
     const original = 'Set(0, 1, 2, 3)';
     if (source.split(original).length !== 2)
       throw new Error('Unexpected device universe.');
-    writeFileSync(path, source.replace(original, 'Set(0, 1, 2)'));
+    if (REDUCED.has(name))
+      writeFileSync(path, source.replace(original, 'Set(0, 1, 2)'));
     for (const file of readdirSync(dir).filter((file) =>
       file.endsWith('.qnt')
     )) {
@@ -44,9 +45,13 @@ export async function withSymbolicInput<T>(
       writeFileSync(input, cacheValueParameters(readFileSync(input, 'utf8')));
     }
     const sha = sourceDigest(dir);
-    const bound = `Three symbolic clients: two for actor zero, one for actor one; any can sign into actor two. All three actors, two spaces, three puzzles and all transitions remain. Value parameters use equivalent cached LET bindings. Symbolic source-set SHA256: ${sha}.`;
+    const clients = REDUCED.has(name)
+      ? 'Three symbolic clients: two for actor zero, one for actor one; any can sign into actor two.'
+      : 'Original actor/client bounds.';
+    const bound = `${clients} All three actors, two spaces, three puzzles and all transitions remain. Value parameters use equivalent cached LET bindings. Symbolic source-set SHA256: ${sha}.`;
+    mkdirSync(reportDir, { recursive: true });
     writeFileSync(
-      join(REPORT_DIR, `${name}.symbolic-bound.json`),
+      join(reportDir, `${name}.symbolic-bound.json`),
       `${JSON.stringify({ model: name, sourceSetSha256: sourceDigest(), symbolicSourceSetSha256: sha, bound }, null, 2)}\n`
     );
     return await check(join(dir, `${name}.qnt`), bound);

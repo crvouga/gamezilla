@@ -12,7 +12,7 @@ export const PUZZLE_OPENING_PREVIEW_MS = 500;
 export const PUZZLE_REPLY_PREVIEW_MS = 400;
 /** §6 "Show solution": one ply of the remaining line every this many ms. */
 export const PUZZLE_SOLUTION_STEP_MS = 600;
-/** Keep in sync with `@pkgs/chess-board` `MOVE_DURATION_MS` (do not import it). */
+/** Parent-chosen slide duration, supplied through the public board option. */
 export const PUZZLE_PIECE_MOVE_MS = 150;
 export const PUZZLE_OPPONENT_UNLOCK_BUFFER_MS = 80;
 

@@ -55,7 +55,7 @@ describe('destinations', () => {
     );
   });
 
-  test('a pick-up costs one move generation; asking again costs none', () => {
+  test('a pick-up reuses the legal destinations already generated for status', () => {
     const game = new ChessGame(
       'r3k2r/pppqbppp/2n1bn2/3pp3/3PP3/2N1BN2/PPPQBPPP/R3K2R w KQkq - 0 1'
     );
@@ -77,9 +77,9 @@ describe('destinations', () => {
       'g1',
       'h1',
     ]);
-    expect(generations).toBe(1);
+    expect(generations).toBe(0);
     game.legalMovesFrom('e1');
     game.moveRequiresPromotion('e1', 'g1');
-    expect(generations).toBe(1);
+    expect(generations).toBe(0);
   });
 });

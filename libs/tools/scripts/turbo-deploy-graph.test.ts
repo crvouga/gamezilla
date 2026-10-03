@@ -115,6 +115,7 @@ const CHECK_LEAVES = [
   '@libs/runtime#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
+  '@libs/chess#check:board-contract',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
@@ -192,6 +193,7 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   test('//#check is exactly the check surface', () => {
+    // regression: chessboard-consumer-gate-graph
     // regression: check-spec-part-order
     expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
   });
@@ -207,12 +209,49 @@ describe('turbo check/deploy graph invariants', () => {
     }
   });
 
-  test('only the live advisory check bypasses the Check cache', () => {
+  test('all Check tasks cache against current inputs, including fresh advisory evidence', () => {
     const tasks = loadTasks();
     const uncached = [...reachableFromCheck(tasks)].filter(
       (task) => configFor(tasks, task)?.cache === false
     );
-    expect(uncached).toEqual(['//#ci:audit']);
+    expect(uncached).toEqual([]);
+    expect(tasks['//#ci:audit']?.inputs).toContain(
+      '.cache/check-ci/audit.json'
+    );
+    expect(
+      readFileSync(join(REPO_ROOT, 'libs/tools/scripts/check-plan.ts'), 'utf8')
+    ).toContain('captureAudit(ROOT)');
+  });
+
+  // regression: check-tools-external-cache-inputs
+  test('configuration readers invalidate on their literal external inputs', () => {
+    const tools = JSON.parse(
+      readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
+    ) as { tasks: { test: { inputs: string[] } } };
+    for (const input of [
+      '$TURBO_ROOT$/.depot/**',
+      '$TURBO_ROOT$/specs/**',
+      '$TURBO_ROOT$/apps/*/package.json',
+      '$TURBO_ROOT$/libs/*/turbo.json',
+    ])
+      expect(tools.tasks.test.inputs).toContain(input);
+    expect(loadTasks()['@libs/tools#check:actionlint']?.inputs).toContain(
+      '$TURBO_ROOT$/.github/actionlint.yaml'
+    );
+  });
+
+  // regression: check-duration-metadata-cache-input
+  test('changing check-task-costs.json belongs to planning and JSON lint, not code verdicts', () => {
+    const tools = JSON.parse(
+      readFileSync(join(REPO_ROOT, 'libs/tools/turbo.json'), 'utf8')
+    ) as { tasks: Record<string, { inputs: string[] }> };
+    for (const task of ['src', 'tc', 'test'])
+      expect(tools.tasks[task]!.inputs).toContain(
+        '!scripts/check-task-costs.json'
+      );
+    expect(tools.tasks['lint']!.inputs).not.toContain(
+      '!scripts/check-task-costs.json'
+    );
   });
 
   test('package check tasks hash every file in the package', () => {
@@ -355,7 +394,7 @@ describe('turbo check/deploy graph invariants', () => {
       '@apps/product#health',
     ]);
     expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([
-      'tc',
+      '^src',
       'build',
     ]);
   });

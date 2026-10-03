@@ -262,7 +262,12 @@ async function oxlintOk(
     writeFileSync(local, JSON.stringify({ extends: `./${project}` }));
   }
   try {
-    return await run('oxlint', ['--deny-warnings', ...targets]);
+    const threads = process.env['CHECK_LINT_THREADS'];
+    return await run('oxlint', [
+      '--deny-warnings',
+      ...(threads ? [`--threads=${threads}`] : []),
+      ...targets,
+    ]);
   } finally {
     if (local !== null) rmSync(local, { force: true });
   }
