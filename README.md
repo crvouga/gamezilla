@@ -333,7 +333,7 @@ bun run infra:destroy -- --env <env> --confirm <env>
 
 That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the application Worker and any superseded scripts, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
-A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse with `bun run deploy:dev` before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands.
+A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in Depot CI, triggered with `depot ci run --workflow <rehearsal.yml>` and managed locally with `depot ci status`, `logs`, and `artifacts`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
 
 ```text
 deploy:fleet   auth-relay Worker, then the fleet stack
@@ -415,6 +415,8 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 `specs/journeys/` runs in `bun check` against the full composition and, on Health, in a real browser against the deployment, one fresh device per scenario. Signed-in journeys trade `SYNTHETIC_MONITOR_TOKEN` at `POST /api/auth/synthetic-monitor/code`. A live failure saves a screenshot under `apps/product/.cache/critical-journeys/<scenario>/`. Liveness is `GET /api/health`. Readiness is `GET /api/health/ready` (`503` when `SELECT 1` fails within 3 s). UI tests in Check use happy-dom. `HARNESS_MODE=real` and `stack` use the same `Driver` on `Bun.WebView`.
 
 While iterating, prefer `bun run --filter <pkg> tc` and `bun run --filter <pkg> test` before a full check.
+
+Health authenticates AWS with its read-only role on a named branch. Use `depot ci dispatch --workflow health.yml --repo gamezilla-org/gamezilla --ref <branch>` for infrastructure health evidence: an inline `depot ci run` uses a commit SHA as its ref, which does not match the branch trust policy. This does not grant a branch deployment access.
 
 Debug with `bun obs` before adding logs. Exit `0` found, `1` no match, `2` usage, `3` store unreachable. `--json` is for programs.
 

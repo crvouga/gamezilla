@@ -8,9 +8,19 @@ import {
   tap,
 } from './critical-journeys/journey-gestures';
 
-export async function prepareCustomGame(ui: Driver): Promise<void> {
+async function openConnectedCustomGame(ui: Driver): Promise<void> {
   await tap(ui, Handles.gameMenuChess);
   await tap(ui, 'chess-menu-custom-game');
+  await expectVisible(ui, 'chess-custom-status');
+  // The menu renders from local state before the room's first sync. Wait for
+  // its connection notice to clear before submitting a server-backed choice.
+  await ui.get('chess-custom-connection-needed').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function prepareCustomGame(ui: Driver): Promise<void> {
+  await openConnectedCustomGame(ui);
   await tap(ui, 'chess-custom-create');
   await tap(ui, 'chess-custom-black-choices');
   await tap(ui, 'chess-custom-black-bot');
@@ -21,12 +31,16 @@ export async function prepareCustomGame(ui: Driver): Promise<void> {
 }
 
 export async function startCustomGame(ui: Driver): Promise<void> {
+  // This gesture belongs to the offline scenario. A network cut is silent
+  // until the room's 20s heartbeat plus 8s acknowledgement deadline expires.
+  await ui.get('chess-custom-connection-needed').expect.visible({
+    timeoutMs: 30_000,
+  });
   await tap(ui, 'chess-custom-start');
 }
 
 export async function startCustomGameAgainstBot(ui: Driver): Promise<void> {
-  await tap(ui, Handles.gameMenuChess);
-  await tap(ui, 'chess-menu-custom-game');
+  await openConnectedCustomGame(ui);
   await tap(ui, 'chess-custom-play-bot');
 }
 

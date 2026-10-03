@@ -150,6 +150,62 @@ describe('native Check run ownership', () => {
       'main',
     ]);
   });
+
+  // regression: health-inline-sha-aws-oidc
+  test('Health preserves its branch ref for read-only AWS authentication', async () => {
+    const target = {
+      ...TARGET,
+      workflow: 'health.yml',
+      branch: 'fix/deployment-workflow',
+      sha: 'b378d1f89f00cfdb5a41c08a1c6f5ffc4400526b',
+    };
+    const w = {
+      ...workflow(),
+      workflow_path: 'health.yml',
+      name: 'Health',
+      head_sha: target.sha,
+    };
+    const f = fixture([[], [w]]);
+    await startWorkflow(target, f.ports);
+    expect(f.commands[1]).toEqual([
+      'depot',
+      'ci',
+      'dispatch',
+      '--org',
+      target.org,
+      '--repo',
+      target.repository,
+      '--workflow',
+      'health.yml',
+      '--ref',
+      target.branch,
+    ]);
+  });
+});
+
+test('Health dispatch retains every requested branch', async () => {
+  await assertProperty(
+    'health-dispatch-branch-ref',
+    fc.asyncProperty(
+      fc.stringMatching(/^[a-z][a-z0-9-]{0,12}$/),
+      async (name) => {
+        const branch = `health/${name}`;
+        const w = {
+          ...workflow(),
+          workflow_path: 'health.yml',
+          name: 'Health',
+        };
+        const f = fixture([[], [w]]);
+        await startWorkflow(
+          { ...TARGET, workflow: 'health.yml', branch },
+          f.ports
+        );
+        const command = f.commands[1]!;
+        expect(command[2]).toBe('dispatch');
+        expect(command.slice(-2)).toEqual(['--ref', branch]);
+      }
+    )
+  );
 });
 
 // regression: check-duplicate-trigger-runners

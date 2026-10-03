@@ -8,6 +8,7 @@ import {
 import { createHarnessClock } from '@pkgs/clock';
 
 // regression: health-macos-offline-network
+// regression: health-offline-existing-room-socket
 test('a fresh live device can cut its network through Chrome', async () => {
   const commands: { method: string; params: unknown }[] = [];
   let closed = false;
@@ -31,6 +32,7 @@ test('a fresh live device can cut its network through Chrome', async () => {
   try {
     await emulateOffline(device.view);
     expect(commands).toEqual([
+      { method: 'Network.enable', params: undefined },
       {
         method: 'Storage.clearDataForOrigin',
         params: { origin: 'https://web.example', storageTypes: 'all' },
@@ -39,7 +41,6 @@ test('a fresh live device can cut its network through Chrome', async () => {
         method: 'Storage.clearDataForOrigin',
         params: { origin: 'https://api.example', storageTypes: 'all' },
       },
-      { method: 'Network.enable', params: undefined },
       {
         method: 'Network.emulateNetworkConditions',
         params: {
