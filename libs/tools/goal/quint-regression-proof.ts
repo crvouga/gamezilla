@@ -90,15 +90,19 @@ function importedFixture(
 }
 
 function registryImported(tokens: readonly string[]): boolean {
-  return tokens.some(
-    (token, at) =>
-      token === 'import' &&
-      tokens[at + 1] === '{' &&
-      tokens[at + 2] === 'bindQuintModel' &&
-      tokens[at + 3] === '}' &&
-      tokens[at + 4] === 'from' &&
-      quoted(tokens[at + 5]) === '@pkgs/quint/registry'
-  );
+  return tokens.some((token, at) => {
+    if (token !== 'import' || tokens[at + 1] !== '{') return false;
+    const close = tokens.indexOf('}', at + 2);
+    if (
+      close < 0 ||
+      tokens[close + 1] !== 'from' ||
+      quoted(tokens[close + 2]) !== '@pkgs/quint/registry'
+    )
+      return false;
+    return splitFields(tokens.slice(at + 2, close)).some(
+      (field) => field.length === 1 && field[0] === 'bindQuintModel'
+    );
+  });
 }
 
 function literalRegistration(tokens: readonly string[], bugId: string) {

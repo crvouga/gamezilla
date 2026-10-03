@@ -114,4 +114,28 @@ describe('canonical Quint regression proof', () => {
       gate(binding, history.replace('"_loseConnection"', '"init"'))
     ).not.toEqual([]);
   });
+  test('mixed named imports retain the unaliased runtime registration', () => {
+    // regression: known-bug-gate-rejects-pinned-quint
+    const mixed = binding.replace(
+      '{ bindQuintModel }',
+      '{ bindQuintModel, type Picks }'
+    );
+    expect(gate(mixed)).toEqual([]);
+    expect(
+      gate(
+        mixed.replace(
+          'bindQuintModel, type Picks',
+          'bindQuintModel as localBinding, type Picks'
+        )
+      )
+    ).not.toEqual([]);
+    expect(
+      gate(
+        mixed.replace(
+          'bindQuintModel, type Picks',
+          'type bindQuintModel, type Picks'
+        )
+      )
+    ).not.toEqual([]);
+  });
 });
