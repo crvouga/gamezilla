@@ -69,7 +69,8 @@ module matching {
   var _restricted: Set[Set[Person]]
   var _count: int
   def _world = { requests: _requests, current: _current, receipts: _receipts, accepted: _accepted, waiting: _waiting, stopped: _stopped, assignments: _assignments, formIds: _formIds, approved: _approved, changes: _changes, ranges: _ranges, sizes: _sizes, pools: _pools, age: _age, order: _order, available: _available, restricted: _restricted, count: _count }
-  def _matches = _formIds.map(n => WAITS.filter(a => _assignments.get(a) == n))
+  def _assigned = WAITS.filter(a => _formIds.contains(_assignments.get(a)))
+  pure def _group(w, n) = WAITS.filter(a => w.assignments.get(a) == n)
   var _offline: Set[Device]
   var _awayStanding: Device -> Standing
   var _awayNumber: Device -> int
@@ -81,16 +82,18 @@ module matching {
   pure def _range(w, a) =
     if (w.ranges.get(a) == -1) _min(50 + 10 * w.age.get(a), 400)
     else w.ranges.get(a)
-  pure def _matchOf(w, a) =
-    if (a.number == 0) Set()
-    else if (w.assignments.get(a) == 0) Set()
-    else WAITS.filter(b => w.assignments.get(b) == w.assignments.get(a))
   pure def _standing(w, p) = {
     val a = _wait(w, p)
-    val group = _matchOf(w, a)
-    if (group != Set()) Matched(group.filter(b => b != a).map(b => b.person))
-    else if (w.waiting.contains(a)) Waiting else NotWaiting
+    val waiting = if (w.waiting.contains(a)) Waiting else NotWaiting
+    if (a.number == 0) waiting
+    else if (w.assignments.get(a) == 0) waiting
+    else if (WAITS.exists(b => w.assignments.get(b) == w.assignments.get(a)))
+      Matched(WAITS.filter(b => b != a and
+        w.assignments.get(b) == w.assignments.get(a)).map(b => b.person))
+    else waiting
   }
+  pure def _standingsFor(w) = PEOPLE.mapBy(p => _standing(w, p))
+  pure def _rangesFor(w) = PEOPLE.mapBy(p => _shownRange(w, p))
   pure def _shownRange(w, p) =
     if (w.current.get(p) == 0) 5 else _range(w, _wait(w, p))
 
@@ -115,16 +118,21 @@ module matching {
     _count' = w.count,
   }
 
-  action _show(w, offline) = all {
+  action _show(w, offline) = {
+    val standings = _standingsFor(w)
+    val ranges = _rangesFor(w)
+    all {
     _put(w),
     _exampleSize' = _exampleSize,
     _offline' = offline,
-    standing' = DEVICES.mapBy(d => if (offline.contains(d)) standing.get(d) else _standing(w, d.person)),
+    standing' = DEVICES.mapBy(d => if (offline.contains(d)) standing.get(d) else standings.get(d.person)),
     waitNumber' = DEVICES.mapBy(d => if (offline.contains(d)) waitNumber.get(d) else w.current.get(d.person)),
-    ratingRange' = DEVICES.mapBy(d => if (offline.contains(d)) ratingRange.get(d) else _shownRange(w, d.person)),
+    ratingRange' = DEVICES.mapBy(d => if (offline.contains(d)) ratingRange.get(d) else ranges.get(d.person)),
     _awayStanding' = DEVICES.mapBy(d => if (offline.contains(d) and not(_offline.contains(d))) standing.get(d) else _awayStanding.get(d)),
     _awayNumber' = DEVICES.mapBy(d => if (offline.contains(d) and not(_offline.contains(d))) waitNumber.get(d) else _awayNumber.get(d)),
     _awayRange' = DEVICES.mapBy(d => if (offline.contains(d) and not(_offline.contains(d))) ratingRange.get(d) else _awayRange.get(d)),
+  }
+
   }
 
   action init = {
@@ -333,36 +341,44 @@ module matching {
   /// A person never has two waiting waits, even across devices.
   val invOneWait = PEOPLE.forall(p => _world.waiting.filter(a => a.person == p).size() <= 1)
   /// One wait appears in at most one complete match.
-  val invExactlyOneAssignment = WAITS.forall(a => _matches.filter(g => g.contains(a)).size() <= 1)
+  val invExactlyOneAssignment = WAITS.forall(a => _formIds.filter(n => _assignments.get(a) == n).size() <= 1)
   /// Every match has precisely the distinct people each wait asked for.
-  val invCompleteGroups = _matches.forall(g =>
+  val invCompleteGroups = _formIds.forall(n => {
+    val g = _group(_world, n)
     g.size() >= 2 and g.map(a => a.person).size() == g.size() and
-    g.forall(a => _world.sizes.get(a) == g.size()))
+    g.forall(a => _world.sizes.get(a) == g.size())
+  })
   /// People in a match agree on its matching pool and accept each other's ratings.
-  val invMutualRanges = _matches.forall(g => g.forall(a => g.forall(b =>
-    _world.pools.get(a) == _world.pools.get(b) and
-    _abs(RATINGS.get(a.person) - RATINGS.get(b.person)) <= _range(_world, a))))
+  val invMutualRanges = _assigned.forall(a => WAITS.forall(b =>
+    _assignments.get(a) == _assignments.get(b) implies and {
+      _world.pools.get(a) == _world.pools.get(b),
+      _abs(RATINGS.get(a.person) - RATINGS.get(b.person)) <= _range(_world, a),
+    }))
   /// Every formed match was approved by each person when it was formed.
-  val invFormationApproved = _matches.flatten().forall(a => _approved.get(a))
+  val invFormationApproved = _assigned.forall(a => _approved.get(a))
   /// Every formed match keeps its complete group; no accepted outcome disappears.
-  val invLastingAssignments = _matches.size() == _formIds.size()
+  val invLastingAssignments = _formIds.forall(n => WAITS.exists(a => _assignments.get(a) == n))
   /// Stopped and matched waits cannot be used again.
   val invTerminalWaits = and {
     _world.waiting.intersect(_world.stopped) == Set(),
-    _world.waiting.intersect(_matches.flatten()) == Set(),
-    _world.stopped.intersect(_matches.flatten()) == Set(),
+    _world.waiting.intersect(_assigned) == Set(),
+    _world.stopped.intersect(_assigned) == Set(),
   }
   /// Only accepted waits may be waiting, stopped or matched.
   val invAcknowledgedOutcomes =
-    _world.waiting.union(_world.stopped).union(_matches.flatten()) == _world.accepted
+    _world.waiting.union(_world.stopped).union(_assigned) == _world.accepted
   /// No wait remains waiting for someone who is unavailable.
   val invAvailableWaits = _world.waiting.forall(a => _world.available.contains(a.person))
   /// Online devices agree with the accepted standing, wait and range.
-  val invReturningAgrees = DEVICES.forall(d => not(_offline.contains(d)) implies and {
-    standing.get(d) == _standing(_world, d.person),
+  val invReturningAgrees = {
+    val standings = _standingsFor(_world)
+    val ranges = _rangesFor(_world)
+    DEVICES.forall(d => not(_offline.contains(d)) implies and {
+    standing.get(d) == standings.get(d.person),
     waitNumber.get(d) == _world.current.get(d.person),
-    ratingRange.get(d) == _shownRange(_world, d.person),
+    ratingRange.get(d) == ranges.get(d.person),
   })
+  }
   /// An offline device keeps its last known wait until its connection returns.
   val invOfflineKeepsKnown = DEVICES.forall(d => _offline.contains(d) implies and {
     standing.get(d) == _awayStanding.get(d),
@@ -378,7 +394,7 @@ module matching {
     _world.current.get(p) >= 0 and _world.current.get(p) <= _world.requests.get(p))
   val _wellFormed = and {
     _world.accepted.subseteq(WAITS), _world.waiting.subseteq(WAITS),
-    _world.stopped.subseteq(WAITS), _matches.flatten().subseteq(WAITS),
+    _world.stopped.subseteq(WAITS), _assigned.subseteq(WAITS),
     _world.available.subseteq(PEOPLE), _offline.subseteq(DEVICES),
     PEOPLE.forall(p => and {
       _world.current.get(p) >= 0, _world.current.get(p) <= _world.requests.get(p),
