@@ -60,7 +60,7 @@ folds in production's order. Run one package's suite with
 | Host name | Factory | UI | SQL / HTTP |
 | --- | --- | --- | --- |
 | `in-process` (default) | `inProcessRuntime({ composition })` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-harness) | Seeded mockingbird-postgres + mockingbird-sqlite; in-process Hono `fetch`; caps include `partition` |
-| `bun-webview` | `bunWebviewRuntime({ composition })` — registered on every product system | `Bun.WebView` per actor | Seed SQL + model network by default; `HARNESS_MODE=real` uses real Postgres + S3rver/EMQX (booted by the app that registers `registerRealStackBooter` — `@apps/product`'s `test:max` preload) and no `partition` cap; `HARNESS_MODE=stack` attaches to a separately booted [localhost stack](../../README.md#laptop) |
+| `bun-webview` | `bunWebviewRuntime({ composition })` — registered on every product system | `Bun.WebView` per actor | Seed SQL + model network by default; `HARNESS_MODE=real` uses real Postgres + Mockingbird S3/EMQX (booted by the app that registers `registerRealStackBooter` — `@apps/product`'s `test:max` preload) and no `partition` cap; `HARNESS_MODE=stack` attaches to a separately booted [localhost stack](../../README.md#laptop) |
 
 Open a run with `openHarness(system, testId, options)` from
 `@libs/harness/open-harness/open-harness` — `system.run({ seed, runtime })` plus
@@ -107,7 +107,7 @@ seed, `<package>/.cache/harness-seed-<composition>.pgmm.json`, fingerprinted by 
 schema and migrate; every `openHarness` clones it. The default migrate
 (`migrateCompositionPostgres`) applies the framework tables, the composition's
 domain schema and the IdP; the full composition passes the production runner.
-Fidelity-max / `HARNESS_MODE=real` uses **postgres-embedded** (+ S3rver/EMQX)
+Fidelity-max / `HARNESS_MODE=real` uses **postgres-embedded** (+ Mockingbird S3/EMQX)
 outside this fabric.
 
 Engine selection lives in the harness (`getHarnessSqlEngines` / fabric) — not in
@@ -168,7 +168,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
   `listenHarnessHttpServer` binds Hono on `127.0.0.1:8787` and enforces createHarnessNet
   crash/partition (actor id via `x-harness-actor`). Tests drive `Bun.WebView`;
   product-harness embeds the web origin URL. `HARNESS_MODE=real` boots sidecars via
-  `ensureMaxFidelityStack` (real Postgres + S3rver/EMQX), serves the web client
+  `ensureMaxFidelityStack` (real Postgres + Mockingbird S3/EMQX), serves the web client
   (`apps/product/scripts/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 

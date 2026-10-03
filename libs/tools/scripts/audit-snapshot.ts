@@ -6,11 +6,7 @@ import { redactSecrets } from './check-shard-stream';
 
 export const AUDIT_SNAPSHOT = '.cache/check-ci/audit.json';
 // Preserve the existing policy: unpatched advisories only, no new exemptions.
-const IGNORE = [
-  'GHSA-w3rx-r6r6-pgpr',
-  'GHSA-5p2g-fcmc-qvqq',
-  'GHSA-wm7h-9275-46v2',
-];
+const IGNORE = ['GHSA-w3rx-r6r6-pgpr', 'GHSA-5p2g-fcmc-qvqq'];
 export type AuditSnapshot = {
   version: 1;
   status: number;

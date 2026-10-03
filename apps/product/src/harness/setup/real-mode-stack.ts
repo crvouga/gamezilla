@@ -1,5 +1,5 @@
 /**
- * Process-wide Postgres + S3rver + EMQX for `openHarness` mode `real`, registered
+ * Process-wide Postgres + Mockingbird S3 + EMQX for `openHarness` mode `real`, registered
  * with the harness harness by `real-stack-preload.ts` (`test:max` preloads it into
  * every package's spec run). Default `test:spec` never calls this.
  */
