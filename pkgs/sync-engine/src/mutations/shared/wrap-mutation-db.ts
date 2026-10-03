@@ -51,7 +51,7 @@ export function wrapMutationDb(
     query: Sql<unknown>,
     table: string,
     op: 'insert' | 'upsert' | 'update'
-  ): Promise<void> {
+  ): Promise<QueryRow[]> {
     capture.touch(table);
     const injected = NON_DOMAIN_WRITE_TABLES.has(table)
       ? query
@@ -61,6 +61,7 @@ export function wrapMutationDb(
     if (rows.length > 0) {
       capture.addImages(table, rows as QueryRow[]);
     }
+    return rows as QueryRow[];
   }
 
   const wrapped: MutationDb = {
@@ -77,8 +78,11 @@ export function wrapMutationDb(
         return tx.query(query);
       }
       if (classified.kind === 'write') {
-        await execWrite(query, classified.table, classified.op);
-        return [] as never;
+        return (await execWrite(
+          query,
+          classified.table,
+          classified.op
+        )) as never;
       }
       return tx.query(query);
     },

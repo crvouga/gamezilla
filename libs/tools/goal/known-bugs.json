@@ -1,5 +1,15 @@
 [
   {
+    "id": "sync-denied-subscription-never-recovers",
+    "summary": "A held query denied before sign-in was marked permanently stopped. An accepted Chess search push was recorded but its private scope never reauthorized after identity became valid. Keep denied subscriptions held so reconnect and authorized change events can recheck access without polling.",
+    "regressionTest": "pkgs/sync-engine/tests/denied-subscription-regression.test.ts"
+  },
+  {
+    "id": "sync-mutation-returning-discarded",
+    "summary": "The mutation SQL wrapper executed INSERT/UPDATE RETURNING but discarded all returned rows. A real Chess opponent search failed to obtain the ownership lock result, and stop/change commands would lose their accepted effect. Return the actual database rows while retaining captured writes.",
+    "regressionTest": "pkgs/sync-engine/tests/returning-query-regression.test.ts"
+  },
+  {
     "id": "alloy-snapshot-integer-scope",
     "summary": "Snapshot predicates reverted to four-bit integers even when the canonical model explicitly used six bits. The literal three-seat snapshot failed the <=16 fact because 16 overflowed to zero. Retain the widest declared integer scope in snapshot commands.",
     "regressionTest": "pkgs/alloy/tests/integer-scope-regression.test.ts"

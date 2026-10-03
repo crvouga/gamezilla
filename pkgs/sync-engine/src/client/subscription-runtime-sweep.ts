@@ -95,7 +95,8 @@ async function handleSweepResponse(
   if (capturedGen !== entry.generation) return false;
   if (response.status === 'denied') {
     await detachScope(ctx.getMergeDeps(), entry.scope);
-    entry.stopped = true;
+    // A denial clears its cache position, not the subscription. Identity or
+    // policy may change while it is held; the next event must reauthorize it.
     markSweepFirst(entry);
     return false;
   }
