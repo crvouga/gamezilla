@@ -7,14 +7,41 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} and {actor} are in {actor}'s space | {actor}, {actor}, {actor} | chess |
+| Given | {actor} and {actor} are ready for the Custom Game | {actor}, {actor} | chess |
 | Given | {actor} had a settled puzzle rating on the deleted account | {actor} | chess |
+| Given | {actor} has (a )cancelled (the )Custom Game | {actor} | chess |
+| Given | {actor} has a cancelled Custom Game that invited {actor} to Black | {actor}, {actor} | chess |
+| Given | {actor} has a completed Custom Game after White's e4 | {actor} | chess |
+| Given | {actor} has a completed Custom Game between {actor} as White and {actor} as Black | {actor}, {actor}, {actor} | chess |
+| Given | {actor} has a configuring Custom Game | {actor} | chess |
+| Given | {actor} has a Custom Game between {actor} as White and {actor} as Black | {actor}, {actor}, {actor} | chess |
+| Given | {actor} has a Custom Game completed by Black's checkmate | {actor} | chess |
+| Given | {actor} has a Custom Game one move before fifty moves without a pawn move or capture | {actor} | chess |
+| Given | {actor} has a Custom Game one move before only the two kings remain | {actor} | chess |
+| Given | {actor} has a Custom Game one move before stalemate | {actor} | chess |
+| Given | {actor} has a Custom Game one move before the second repetition | {actor} | chess |
+| Given | {actor} has a Custom Game one move before the third repetition | {actor} | chess |
+| Given | {actor} has a Custom Game two moves before fifty moves without a pawn move or capture | {actor} | chess |
+| Given | {actor} has a timed Custom Game with a queen against {actor}'s bare king | {actor}, {actor} | chess |
+| Given | {actor} has an active Custom Game after White's e4 | {actor} | chess |
+| Given | {actor} has an active Custom Game against a bot as Black | {actor} | chess |
+| Given | {actor} has an active Custom Game between {actor} as White and {actor} as Black | {actor}, {actor}, {actor} | chess |
+| Given | {actor} has an active Custom Game one move before Black's checkmate | {actor} | chess |
+| Given | {actor} has an active Custom Game with {int} minute and {int} seconds increment | {actor}, {int}, {int} | chess |
+| Given | {actor} has an active Custom Game with a queen against {actor}'s bare king | {actor}, {actor} | chess |
 | Given | {actor} has changed the feed history to {string} and saved the feed settings | {actor}, {string} | chess |
+| Given | {actor} has claimed Black in the Custom Game | {actor} | chess |
 | Given | {actor} has finished the puzzle by {finish} as the app closes | {actor}, {finish} | chess |
 | Given | {actor} has finished the puzzle offline by {finish} | {actor}, {finish} | chess |
+| Given | {actor} has joined {actor}'s space from the link | {actor}, {actor} | chess |
 | Given | {actor} has joined the space from the link and is watching {actor}'s puzzle | {actor}, {actor} | chess |
+| Given | {actor} has left {actor}'s space | {actor}, {actor} | chess |
 | Given | {actor} has left the puzzle for the chess choices | {actor} | chess |
+| Given | {actor} has left the space after releasing Black | {actor} | chess |
 | Given | {actor} has limited the feed to the {string} theme and it is empty | {actor}, {string} | chess |
 | Given | {actor} has moved on to the next puzzle | {actor} | chess |
+| Given | {actor} has offered a draw in the Custom Game | {actor} | chess |
 | Given | {actor} has opened puzzles in their space | {actor} | chess |
 | Given | {actor} has played {int} puzzles today | {actor}, {int} | chess |
 | Given | {actor} has played a wrong move | {actor} | chess |
@@ -22,6 +49,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has played a wrong move and skipped the puzzle | {actor} | chess |
 | Given | {actor} has played the next move of the solution | {actor} | chess |
 | Given | {actor} has puzzles set to advance 1 second after a solve | {actor} | chess |
+| Given | {actor} has released Black in the Custom Game | {actor} | chess |
+| Given | {actor} has resigned the Custom Game | {actor} | chess |
+| Given | {actor} has returned online after an offline claim was refused | {actor} | chess |
 | Given | {actor} has returned to their space | {actor} | chess |
 | Given | {actor} has saved a custom feed target raised by {int} step(s) | {actor}, {int} | chess |
 | Given | {actor} has shown the solution | {actor} | chess |
@@ -33,15 +63,23 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has solved a puzzle while offline | {actor} | chess |
 | Given | {actor} has solved the puzzle | {actor} | chess |
 | Given | {actor} has solved the twentieth puzzle of the day | {actor} | chess |
+| Given | {actor} has started the Custom Game | {actor} | chess |
 | Given | {actor} has suggested a move that {actor} can see | {actor}, {actor} | chess |
 | Given | {actor} has taken a hint | {actor} | chess |
 | Given | {actor} has taken two hints | {actor} | chess |
+| Given | {actor} has the Custom Game open on another device | {actor} | chess |
+| Given | {actor} is a guest in {actor}'s space | {actor}, {actor} | chess |
 | Given | {actor} is a guest who has been shown today's puzzle limit | {actor} | chess |
 | Given | {actor} is a guest who has finished today's last allowed puzzle | {actor} | chess |
 | Given | {actor} is a guest who has played {int} puzzles today | {actor}, {int} | chess |
 | Given | {actor} is a guest who reached today's puzzle limit while solving a puzzle | {actor} | chess |
+| Given | {actor} is a Plus member in {actor}'s space | {actor}, {actor} | chess |
 | Given | {actor} is editing the feed settings | {actor} | chess |
+| Given | {actor} is in {actor}'s space | {actor}, {actor} | chess |
+| Given | {actor} is no longer ready for the Custom Game | {actor} | chess |
+| Given | {actor} is outside {actor}'s space | {actor}, {actor} | chess |
 | Given | {actor} is playing puzzles in their space | {actor} | chess |
+| Given | {actor} is ready for the Custom Game | {actor} | chess |
 | Given | {actor} is reviewing the solved puzzle at move {int} | {actor}, {int} | chess |
 | Given | {actor} is solving the capture-promotion puzzle | {actor} | chess |
 | Given | {actor} is solving the castling puzzle | {actor} | chess |
@@ -58,18 +96,40 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} went offline before any puzzles reached their device | {actor} | chess |
 | Given | {actor}'s deleted account had solved puzzles in its game log | {actor} | chess |
 | Given | {actor}'s feed has come round to a puzzle they already played | {actor} | chess |
+| Given | {actor}'s invitation to Black has been revoked | {actor} | chess |
+| Given | {actor}'s other device is offline with the Custom Game open | {actor} | chess |
+| Given | {actor}'s paid access has ended | {actor} | chess |
 | Given | {actor}'s puzzle rating has settled at {int} | {actor}, {int} | chess |
 | Given | {actor}'s puzzle rating is one rated puzzle from settling | {actor} | chess |
+| Given | {int} seconds have passed in the Custom Game | {int} | chess |
+| Given | {word} has one second left in the Custom Game | {word} | chess |
+| Given | {word} in the Custom Game is a bot | {word} | chess |
+| Given | {word} in the Custom Game is an open place | {word} | chess |
+| Given | {word} in the Custom Game is closed | {word} | chess |
+| Given | {word} in the Custom Game is reserved for {actor} | {word}, {actor} | chess |
+| Given | Black has since been replaced by a bot | — | chess |
+| Given | The Custom Game choices changed before {actor}'s start | {actor} | chess |
+| Given | The Custom Game has a timed choice | — | chess |
+| Given | The Custom Game has started | — | chess |
 | Given | the puzzle has since been retired | — | chess |
 | Given | the puzzle pool also holds: | — | chess |
 | Given | the puzzle pool holds just three puzzles | — | chess |
 | Given | the team has added seven puzzles, five of them broken | — | chess |
+| Given | White and Black in the Custom Game are bots | — | chess |
+| Given | White's time has run out in the Custom Game | — | chess |
+| Then | {actor} (still )sees the active Custom Game with White to move | {actor} | chess |
 | Then | {actor} and {actor} both see only {actor}'s suggestion | {actor}, {actor}, {actor} | chess |
 | Then | {actor} cannot move pieces | {actor} | chess |
+| Then | {actor} cannot move pieces in the Custom Game | {actor} | chess |
+| Then | {actor} cannot see the Custom Game | {actor} | chess |
 | Then | {actor} feels the {word} haptic | {actor}, {word} | chess |
+| Then | {actor} has a configuring Custom Game with no moves | {actor} | chess |
 | Then | {actor} has a puzzle on the board | {actor} | chess |
 | Then | {actor} has a puzzle on the board within {int} seconds | {actor}, {int} | chess |
 | Then | {actor} has no puzzle on the board | {actor} | chess |
+| Then | {actor} hears the Custom Game's completed outcome | {actor} | chess |
+| Then | {actor} hears whether the Custom Game can start | {actor} | chess |
+| Then | {actor} hears White is {actor} and Black is a bot | {actor}, {actor} | chess |
 | Then | {actor} is (still )asked to find the next move | {actor} | chess |
 | Then | {actor} is asked to find the next move within {int} seconds | {actor}, {int} | chess |
 | Then | {actor} is asked which piece Black promotes to | {actor} | chess |
@@ -79,8 +139,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is not offered a puzzle of his own | {actor} | chess |
 | Then | {actor} is not offered the puzzle that is over | {actor} | chess |
 | Then | {actor} is not offered to move on | {actor} | chess |
+| Then | {actor} is not ready for the Custom Game | {actor} | chess |
 | Then | {actor} is not shown the puzzle limit | {actor} | chess |
 | Then | {actor} is not told the feed is empty | {actor} | chess |
+| Then | {actor} is offered a draw in the Custom Game | {actor} | chess |
 | Then | {actor} is on a different puzzle than the one before within {int} seconds | {actor}, {int} | chess |
 | Then | {actor} is on the same puzzle as before | {actor} | chess |
 | Then | {actor} is prompted {string} | {actor}, {string} | chess |
@@ -89,16 +151,52 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is solving a puzzle rated between {int} and {int} | {actor}, {int}, {int} | chess |
 | Then | {actor} is solving the puzzle at move {int} of the line | {actor}, {int} | chess |
 | Then | {actor} is taken to chess within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} is the creator of the Custom Game | {actor} | chess |
 | Then | {actor} is the host of the puzzle and can move pieces | {actor} | chess |
+| Then | {actor} is told a person cannot take both sides | {actor} | chess |
+| Then | {actor} is told both sides need participants | {actor} | chess |
+| Then | {actor} is told Custom Games need a connection | {actor} | chess |
+| Then | {actor} is told Custom Games need a connection on the other device | {actor} | chess |
+| Then | {actor} is told draw agreement needs two people | {actor} | chess |
+| Then | {actor} is told every person must be ready | {actor} | chess |
+| Then | {actor} is told only a participant may become ready | {actor} | chess |
+| Then | {actor} is told only a participant may resign | {actor} | chess |
+| Then | {actor} is told only that participant may release the side | {actor} | chess |
+| Then | {actor} is told only the creator cancels the Custom Game | {actor} | chess |
+| Then | {actor} is told only the creator configures the Custom Game | {actor} | chess |
+| Then | {actor} is told only the creator starts the Custom Game | {actor} | chess |
+| Then | {actor} is told only the host creates a Custom Game | {actor} | chess |
+| Then | {actor} is told only the other participant may accept a draw | {actor} | chess |
+| Then | {actor} is told only the other participant may decline a draw | {actor} | chess |
+| Then | {actor} is told only the participant to move may play | {actor} | chess |
 | Then | {actor} is told puzzles need a connection within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} is told that move is not in the Custom Game | {actor} | chess |
+| Then | {actor} is told that side is not an open place | {actor} | chess |
+| Then | {actor} is told that side is not their invitation | {actor} | chess |
 | Then | {actor} is told the attempt is unrated | {actor} | chess |
+| Then | {actor} is told the Custom Game choices have changed | {actor} | chess |
+| Then | {actor} is told the Custom Game has already started | {actor} | chess |
+| Then | {actor} is told the Custom Game has finished | {actor} | chess |
+| Then | {actor} is told the Custom Game has not started | {actor} | chess |
+| Then | {actor} is told the Custom Game must finish or be cancelled first | {actor} | chess |
+| Then | {actor} is told the Custom Game was cancelled | {actor} | chess |
 | Then | {actor} is told the feed is empty within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} is told the move is illegal | {actor} | chess |
 | Then | {actor} is told the move was wrong | {actor} | chess |
 | Then | {actor} is told the move was wrong within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} is told the person must be in the space | {actor} | chess |
+| Then | {actor} is told the time choice is outside the Custom Game limits | {actor} | chess |
+| Then | {actor} is told they are not in the space | {actor} | chess |
 | Then | {actor} is watching {actor}'s puzzle within {int} seconds | {actor}, {actor}, {int} | chess |
+| Then | {actor} is watching the Custom Game | {actor} | chess |
 | Then | {actor} is watching the puzzle and cannot move pieces | {actor} | chess |
 | Then | {actor} sees no suggestions within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} sees the completed Custom Game | {actor} | chess |
+| Then | {actor} sees the Custom Game starting board | {actor} | chess |
 | Then | {actor} sees the puzzle solved within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} wins the Custom Game by checkmate | {actor} | chess |
+| Then | {actor} wins the Custom Game by resignation | {actor} | chess |
+| Then | {actor} wins the Custom Game on time | {actor} | chess |
 | Then | {actor}'s and {actor}'s boards agree | {actor}, {actor} | chess |
 | Then | {actor}'s and {actor}'s boards agree within {int} seconds | {actor}, {actor}, {int} | chess |
 | Then | {actor}'s board faces {word} | {actor}, {word} | chess |
@@ -143,32 +241,95 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s stats show their rating after each of those {int} puzzles | {actor}, {int} | chess |
 | Then | {actor}'s stats show their rating without the {string} | {actor}, {string} | chess |
 | Then | {actor}'s unsaved feed settings preview a target of {int} | {actor}, {int} | chess |
+| Then | {word} in the Custom Game is named {username} | {word}, {username} | chess |
+| Then | {word} is {actor} in the Custom Game | {word}, {actor} | chess |
+| Then | {word} is a bot in the Custom Game | {word} | chess |
+| Then | {word} is an open place in the Custom Game | {word} | chess |
+| Then | {word} is closed in the Custom Game | {word} | chess |
 | Then | {word} is in check and to move on {actor}'s board | {word}, {actor} | chess |
+| Then | {word} is reserved for {actor} in the Custom Game | {word}, {actor} | chess |
+| Then | {word} is to move in the Custom Game | {word} | chess |
+| Then | A legal Black bot move follows within {int} seconds | {int} | chess |
+| Then | Black has {int} seconds in the Custom Game | {int} | chess |
+| Then | Black has at most one participant | — | chess |
+| Then | Black is either {actor} or {actor} in the Custom Game | {actor}, {actor} | chess |
+| Then | Black is either {actor} or an open place in the Custom Game | {actor} | chess |
+| Then | Black is in check in the active Custom Game | — | chess |
+| Then | Black is to move on both of {actor}'s devices | {actor} | chess |
+| Then | Both of {actor}'s devices show {actor}'s win by resignation | {actor}, {actor} | chess |
+| Then | Both of {actor}'s devices show the Custom Game move list with e4 | {actor} | chess |
 | Then | both of {actor}'s devices show the same puzzle rating within {int} seconds | {actor}, {int} | chess |
 | Then | every good puzzle near 1500 was served before any puzzle rated 1800 to 1900 | — | chess |
 | Then | it is {word}'s move on {actor}'s board | {word}, {actor} | chess |
+| Then | Neither person has won the Custom Game | — | chess |
+| Then | Neither person is offered a draw in the Custom Game | — | chess |
+| Then | Neither person is ready for the Custom Game | — | chess |
+| Then | Neither side offers an invitation | — | chess |
 | Then | none of the broken puzzles was served to {actor} | {actor} | chess |
 | Then | none of the low-quality puzzles was served to {actor} | {actor} | chess |
+| Then | The Custom Game cannot start | — | chess |
+| Then | The Custom Game has {int} minutes with {int} seconds increment | {int}, {int} | chess |
+| Then | The Custom Game is active with White to move | — | chess |
+| Then | The Custom Game is cancelled with no winner | — | chess |
+| Then | The Custom Game is completed as a draw | — | chess |
+| Then | The Custom Game is startable | — | chess |
+| Then | The Custom Game is unrated and untimed | — | chess |
+| Then | The Custom Game keeps its completed outcome | — | chess |
+| Then | The Custom Game move list is unchanged | — | chess |
+| Then | The Custom Game move list shows {word} | {word} | chess |
+| Then | The Custom Game move list shows e4 once | — | chess |
+| Then | The Custom Game remains active | — | chess |
+| Then | The Custom Game remains active with no new game | — | chess |
+| Then | The Custom Game remains configuring | — | chess |
+| Then | The earlier Custom Game still shows e4 and its resignation outcome | — | chess |
+| Then | The new Custom Game has no moves | — | chess |
 | Then | the opponent replies {word} by itself | {word} | chess |
+| Then | White and Black are bots in the active Custom Game | — | chess |
+| Then | White has {int} seconds and Black has {int} seconds in the Custom Game | {int}, {int} | chess |
+| Then | White is {actor} and Black is {actor} in the configuring Custom Game | {actor}, {actor} | chess |
+| Then | White is {actor} and Black is {actor} in the Custom Game | {actor}, {actor} | chess |
+| Then | White is {actor} and Black is an open place in the Custom Game | {actor} | chess |
+| Then | White is an open place and Black is {actor} in the configuring Custom Game | {actor} | chess |
+| When | {actor} accepts {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} accepts Black while {actor} revokes its invitation | {actor}, {actor} | chess |
+| When | {actor} accepts the draw in the Custom Game | {actor} | chess |
+| When | {actor} and {actor} claim Black at the same time | {actor}, {actor} | chess |
 | When | {actor} asks for a hint | {actor} | chess |
 | When | {actor} asks for another hint | {actor} | chess |
 | When | {actor} asks for another puzzle | {actor} | chess |
 | When | {actor} asks for the next puzzle | {actor} | chess |
 | When | {actor} asks for the next puzzle twice in quick succession | {actor} | chess |
 | When | {actor} asks to see the solution move | {actor} | chess |
+| When | {actor} assigns a bot to {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} assigns a bot to Black in the Custom Game with the keyboard alone | {actor} | chess |
+| When | {actor} becomes ready for the Custom Game | {actor} | chess |
+| When | {actor} cancels the Custom Game | {actor} | chess |
 | When | {actor} castles by moving the king onto its own rook | {actor} | chess |
 | When | {actor} castles by moving the king two squares | {actor} | chess |
 | When | {actor} changes the feed history to {string} and saves the feed settings | {actor}, {string} | chess |
+| When | {actor} chooses {int} minutes with {int} seconds increment for the Custom Game | {actor}, {int}, {int} | chess |
+| When | {actor} chooses an untimed Custom Game | {actor} | chess |
 | When | {actor} chooses move {int} from the review's move list | {actor}, {int} | chess |
+| When | {actor} claims {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} closes {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} creates a Custom Game | {actor} | chess |
+| When | {actor} creates a rematch of the Custom Game | {actor} | chess |
+| When | {actor} declines {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} declines the draw in the Custom Game | {actor} | chess |
 | When | {actor} flicks the review {direction} one move | {actor}, {direction} | chess |
 | When | {actor} goes back to the puzzles | {actor} | chess |
 | When | {actor} includes puzzles they have already played | {actor} | chess |
+| When | {actor} invites {actor} to {word} in the Custom Game | {actor}, {actor}, {word} | chess |
 | When | {actor} jumps to the {end} of the revealed line | {actor}, {end} | chess |
 | When | {actor} jumps to the {end} of the review | {actor}, {end} | chess |
 | When | {actor} jumps to the {end} of the review with the keyboard | {actor}, {end} | chess |
 | When | {actor} leaves the puzzle for the chess choices | {actor} | chess |
 | When | {actor} limits the feed to the {string} theme | {actor}, {string} | chess |
+| When | {actor} listens to the Custom Game | {actor} | chess |
 | When | {actor} moves on to the next puzzle | {actor} | chess |
+| When | {actor} offers a draw in the Custom Game | {actor} | chess |
+| When | {actor} opens {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} opens Black using earlier Custom Game choices | {actor} | chess |
 | When | {actor} opens puzzles in their space | {actor} | chess |
 | When | {actor} opens the puzzle's review from their game log | {actor} | chess |
 | When | {actor} opens their stats | {actor} | chess |
@@ -176,28 +337,46 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} picks up the rook on {word} | {actor}, {word} | chess |
 | When | {actor} plays {word} | {actor}, {word} | chess |
 | When | {actor} plays {word} and promotes to a {word} | {actor}, {word}, {word} | chess |
+| When | {actor} plays {word} in the Custom Game | {actor}, {word} | chess |
 | When | {actor} plays a wrong move | {actor} | chess |
+| When | {actor} plays e2-e4 on both devices at the same time | {actor} | chess |
+| When | {actor} plays e2-e4 on the offline other device | {actor} | chess |
 | When | {actor} plays the next move of the solution | {actor} | chess |
 | When | {actor} plays through every puzzle the feed offers | {actor} | chess |
 | When | {actor} raises the feed rating offset by {int} step(s) | {actor}, {int} | chess |
 | When | {actor} raises the feed rating offset by {int} step(s) and saves the feed settings | {actor}, {int} | chess |
+| When | {actor} releases {word} in the Custom Game | {actor}, {word} | chess |
+| When | {actor} resigns the Custom Game | {actor} | chess |
 | When | {actor} retries the puzzle | {actor} | chess |
+| When | {actor} returns to the Custom Game on another device | {actor} | chess |
+| When | {actor} reviews move {int} of the Custom Game | {actor}, {int} | chess |
+| When | {actor} revokes {word} in the Custom Game | {actor}, {word} | chess |
 | When | {actor} shows the solution | {actor} | chess |
 | When | {actor} skips the puzzle | {actor} | chess |
 | When | {actor} solves {int} puzzles a day for {int} days | {actor}, {int}, {int} | chess |
 | When | {actor} solves {int} puzzles in a row | {actor}, {int} | chess |
 | When | {actor} solves the puzzle | {actor} | chess |
 | When | {actor} starts editing the feed settings | {actor} | chess |
+| When | {actor} starts the Custom Game | {actor} | chess |
+| When | {actor} starts the Custom Game twice at the same time | {actor} | chess |
+| When | {actor} starts the Custom Game with the earlier choices | {actor} | chess |
+| When | {actor} starts the Custom Game with the keyboard alone | {actor} | chess |
 | When | {actor} steps {direction} one move in the review | {actor}, {direction} | chess |
 | When | {actor} steps {direction} one move in the review with the keyboard | {actor}, {direction} | chess |
 | When | {actor} suggests a move that is not the solution | {actor} | chess |
+| When | {actor} swaps White and Black in the Custom Game | {actor} | chess |
 | When | {actor} switches the feed to a custom target raised by {int} step(s) and saves the feed settings | {actor}, {int} | chess |
+| When | {actor} takes {word} in the Custom Game | {actor}, {word} | chess |
 | When | {actor} tries the illegal move {word} | {actor}, {word} | chess |
 | When | {actor} tries to move on from {actor}'s puzzle | {actor}, {actor} | chess |
 | When | {actor} tries to move the opponent's piece {word} | {actor}, {word} | chess |
 | When | {actor} tries to play the next move of {actor}'s puzzle | {actor}, {actor} | chess |
 | When | {actor} tries to skip {actor}'s puzzle | {actor}, {actor} | chess |
-| When | {int} seconds pass | {int} | chess |
+| When | {actor} tries to watch the Custom Game | {actor} | chess |
+| When | {actor} watches the Custom Game | {actor} | chess |
+| When | {actor} withdraws readiness for the Custom Game | {actor} | chess |
+| When | {actor}'s other device returns online | {actor} | chess |
+| When | {int} second(s) pass(es) | {int} | chess |
 | When | the next day begins | — | chess |
 
 ## Shared steps (every package that registers them)
@@ -356,17 +535,28 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor}'s username is {username} | {actor}, {username} | profile |
 | Then | {actor} already has an avatar | {actor} | profile |
 | Then | {actor} and {actor} have different usernames | {actor}, {actor} | profile |
+| Then | {actor} is (still )signed into the same account | {actor} | profile |
+| Then | {actor} is signed into a different account | {actor} | profile |
+| Then | {actor} is signed out | {actor} | profile |
+| Then | {actor} is signed out within {int} seconds | {actor}, {int} | profile |
+| Then | {actor}'s other device is signed out within {int} seconds | {actor}, {int} | profile |
 | Then | {actor}'s other device shows {username} | {actor}, {username} | profile |
 | Then | {actor}'s profile shows {username} | {actor}, {username} | profile |
 | Then | {actor}'s profile shows {username} within {int} seconds | {actor}, {username}, {int} | profile |
 | Then | {actor}'s saved avatar has seed {string} | {actor}, {string} | profile |
 | Then | {actor}'s saved avatar uses style {string} | {actor}, {string} | profile |
+| Then | {actor}'s sign-in methods are (still ){methods} | {actor}, {methods} | profile |
+| Then | {actor}'s sign-in methods are {methods} within {int} seconds | {actor}, {methods}, {int} | profile |
 | Then | {actor}'s username change is refused with {string} | {actor}, {string} | profile |
 | When | {actor} and {actor} open the app | {actor}, {actor} | profile |
 | When | {actor} changes the avatar seed to {string} and leaves without saving | {actor}, {string} | profile |
 | When | {actor} renames themselves to {username} | {actor}, {username} | profile |
 | When | {actor} renames themselves to {username} on their other device | {actor}, {username} | profile |
 | When | {actor} saves an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
+| When | {actor} signs in with Apple | {actor} | profile |
+| When | {actor} signs in with Apple and hides their address | {actor} | profile |
+| When | {actor} signs in with Apple using the same address | {actor} | profile |
+| When | {actor} signs out | {actor} | profile |
 | When | {actor} starts renaming themselves to {username} and leaves without saving | {actor}, {username} | profile |
 | When | {actor} tries to use username {string} | {actor}, {string} | profile |
 | When | {actor}'s account opens on another device | {actor} | profile |
