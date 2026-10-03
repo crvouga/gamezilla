@@ -44,4 +44,5 @@ export type ResolvedAdapterConfig<
   /** Extra effect handlers composed after the built-in DO Schedule handler. */
   effectHandlers: readonly RoomEffectHandler[];
   telemetry: (env: Env) => DurableObjectTelemetry;
+  serviceIdentity: Identity | null;
 };

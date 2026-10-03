@@ -401,6 +401,7 @@ function createServerRouter(args: {
       const store = apiRequestAsyncLocalStorage.getStore();
       if (store === undefined) return;
       await drainAndNotifyOutbox({
+        consumerRegistry: servers.outboxConsumers,
         objectStore: env.blob,
         db: store.sqlClient,
         clock: store.clock,

@@ -26,7 +26,11 @@ import {
   observeRoomMessage,
   observeRoomUpgrade,
 } from './observability';
-import { writeRoomSocketAttachment } from './socket-attachment';
+import { handleRoomService } from './service';
+import {
+  readRoomSocketAttachment,
+  writeRoomSocketAttachment,
+} from './socket-attachment';
 import { roomDoKeyNs } from './storage-keys';
 import {
   type DurableObjectInstance,
@@ -148,6 +152,39 @@ export class RoomDurableObjectAdapterBase<
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
     try {
+      if (
+        url.pathname === '/room-service' &&
+        this.config.serviceIdentity !== null
+      ) {
+        await this.ensureRestored();
+        const name = this.parseModuleQuery(url);
+        if (name instanceof Response) return name;
+        const topic = url.searchParams.get('topic') ?? '';
+        if (topic.length === 0) return errorResponse(400, 'missing topic');
+        return await handleRoomService(
+          request,
+          await this.getOrCreateServer(topic, name),
+          {
+            identity: this.config.serviceIdentity,
+            disconnect: (identity) => {
+              for (const socket of this.ctx.getWebSockets(String(name))) {
+                const attached = readRoomSocketAttachment(socket);
+                if (identity !== null && attached?.identityRaw !== identity)
+                  continue;
+                if (attached !== null)
+                  writeRoomSocketAttachment(socket, {
+                    ...attached,
+                    identityRaw: 'withdrawn',
+                    grants: [],
+                    traceparent: null,
+                  });
+                this.wsMeta.delete(socket);
+                socket.close(4001, 'Space access ended');
+              }
+            },
+          }
+        );
+      }
       return await observeRoomUpgrade(
         request,
         {

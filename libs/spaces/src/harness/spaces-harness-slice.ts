@@ -3,7 +3,7 @@ import type { HarnessSlice } from '@libs/harness/slices';
 import type { GameClientDefinition, GameDefinition } from '../public/game';
 import { createSpacesClient } from '../root/client/feature-client';
 import { SPACES_FEATURE } from '../root/feature';
-import { SPACES_SERVER } from '../root/server/feature-server';
+import { createSpacesServer } from '../root/server/feature-server';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { SPACES_HARNESS_ACTIONS } from './space-actions';
 
@@ -26,7 +26,7 @@ export function spacesHarnessSlice(registry: {
           clients: [...registry.clients],
         }),
     }),
-    server: () => SPACES_SERVER,
+    server: (deps) => createSpacesServer(deps.rooms),
     roomNode: (env, gateway) =>
       createInProcessRoomNode(env, { games: registry.games, gateway }),
     actions: SPACES_HARNESS_ACTIONS,

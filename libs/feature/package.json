@@ -20,6 +20,7 @@
     "@pkgs/message": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/room": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",

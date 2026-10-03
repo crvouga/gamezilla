@@ -13,6 +13,7 @@ import {
   requireSpacePermission,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),
@@ -35,6 +36,7 @@ export const leaveSpaceMutation = defineMutation({
     }
     const now = env.now().toISOString();
     const actorMemberId = memberId(env);
+    await changeSpaceRoomMembership({ tx, env }, spaceId, 'left');
     await tx.run(sql`
       UPDATE spaces_users
       SET deleted_at = ${now}

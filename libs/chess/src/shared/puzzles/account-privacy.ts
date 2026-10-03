@@ -1,5 +1,6 @@
 import type { AccountPrivacyContribution } from '@libs/feature/public/account-privacy';
 import { raw, sql } from '@pkgs/sql';
+import { snapshotCustomGames } from './custom-game-export';
 
 const PERSONAL_TABLES = [
   'chess_puzzle_profiles',
@@ -10,7 +11,8 @@ const PERSONAL_TABLES = [
 
 export const CHESS_PRIVACY: AccountPrivacyContribution = {
   name: 'puzzle progress and preferences',
-  snapshot: async ({ tx, env }) => {
+  snapshot: async (ctx, rooms) => {
+    const { tx, env } = ctx;
     const rows: Record<string, unknown> = {};
     for (const table of PERSONAL_TABLES)
       rows[table] = await tx.query(
@@ -18,6 +20,7 @@ export const CHESS_PRIVACY: AccountPrivacyContribution = {
           Record<string, unknown>
         >`SELECT * FROM ${raw(table)} WHERE owner_id = ${env.actorId}`
       );
+    rows['customGames'] = await snapshotCustomGames(ctx, rooms);
     return rows;
   },
   withdraw: async ({ tx, env }) => {

@@ -22,6 +22,10 @@ export function createHarnessNet(opts?: {
 }) {
   const crashed = new Set<string>();
   const partitions = new Set<string>();
+  const listeners = new Set<() => void>();
+  const changed = (): void => {
+    for (const listener of [...listeners]) listener();
+  };
 
   function assertReachable(from: string, to: string): void {
     if (crashed.has(from)) throw harnessCrashedError(from);
@@ -46,16 +50,20 @@ export function createHarnessNet(opts?: {
   return {
     crash(id: string): void {
       crashed.add(id);
+      changed();
     },
     restart(id: string): void {
       crashed.delete(id);
+      changed();
     },
     partition(a: string, b: string): void {
       partitions.add(pairKey(a, b));
+      changed();
     },
     heal(a?: string, b?: string): void {
       if (a === undefined) {
         partitions.clear();
+        changed();
         return;
       }
       if (b === undefined) {
@@ -64,9 +72,15 @@ export function createHarnessNet(opts?: {
             partitions.delete(key);
           }
         }
+        changed();
         return;
       }
       partitions.delete(pairKey(a, b));
+      changed();
+    },
+    subscribe(listener: () => void): () => void {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
     /** Gate one directed hop (`client-a → lb`, `lb → server-b`). */
     wrapHop(fromId: string, toId: string, inner: ServerHttp): ServerHttp {

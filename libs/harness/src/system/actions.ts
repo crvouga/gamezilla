@@ -40,6 +40,7 @@ export const partition = defineAction({
   act: (s: ProductHarness, id: string) => {
     if (id === '') return;
     s.session.network.partition(HARNESS_PRIMARY_SERVER_ID, id);
+    s.harness.partition(HARNESS_PRIMARY_SERVER_ID, id);
   },
 });
 
@@ -49,6 +50,7 @@ export const restoreNetwork = defineAction({
     caps(s).includes('partition') && partitioned(s).length > 0,
   act: async (s: ProductHarness) => {
     s.session.network.healAll();
+    s.harness.heal();
     for (const id of s.actors.keys()) await refreshOrigin(s, id);
   },
 });
@@ -60,6 +62,7 @@ export const restoreActorConnection = defineAction({
     caps(s).includes('partition') && partitioned(s).length > 0,
   act: async (s: ProductHarness, id: string) => {
     s.session.network.heal(HARNESS_PRIMARY_SERVER_ID, id);
+    s.harness.heal(HARNESS_PRIMARY_SERVER_ID, id);
     await refreshOrigin(s, id);
   },
 });

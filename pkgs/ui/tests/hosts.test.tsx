@@ -106,6 +106,20 @@ describe('Checkbox', () => {
 });
 
 describe('TextInput', () => {
+  // regression: ui-field-visible-label-unlinked
+  test('the move review field is named by its visible label', () => {
+    renderUi(() => (
+      <TextInput
+        type="number"
+        label="Move number to review"
+        value="0"
+        onChangeText={() => {}}
+      />
+    ));
+    expect(
+      screen.getByRole('spinbutton', { name: 'Move number to review' })
+    ).toHaveValue(0);
+  });
   test('controlled value, label, error and submit', () => {
     const [value, setValue] = createSignal('');
     const onSubmit = mock();

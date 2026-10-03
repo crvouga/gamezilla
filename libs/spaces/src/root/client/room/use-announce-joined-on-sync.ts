@@ -7,7 +7,6 @@ import {
   useSpaceRoomSelector,
 } from '../../../public/room/use-space-room-selector';
 import { AnnounceMemberJoined } from '../../../shared/space/space-log/space-log-messages';
-import { JoinSpaceSeat } from '../../../shared/space/space-members/space-members-messages';
 import { useSpaceOpenSession } from '../../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { markSpaceJoinAnnouncedMutation } from '../../mutations';
 
@@ -15,13 +14,11 @@ function dispatchJoinAnnounce(
   dispatch: ReturnType<typeof useSpaceRoomDispatch>,
   memberId: string
 ): void {
-  dispatch(JoinSpaceSeat({ memberId }));
   dispatch(AnnounceMemberJoined({ memberId }));
 }
 
 /**
- * Once per open-space session (after the room first syncs), take a seat and
- * announce join for the collaborative event log. Hosts that created the space
+ * Once per open-space session (after the room first syncs), announce join for the collaborative event log. Hosts that created the space
  * already have join_announced=1 — only room commands run. Joiners persist the
  * flag via markSpaceJoinAnnounced first.
  */

@@ -9,6 +9,7 @@ import {
   memberId,
   openSession,
 } from '../../../shared/space/space-mutation-helpers';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 
 /**
  * Open a space the actor hosts. Guests and free accounts host one live space
@@ -65,6 +66,7 @@ export const createSpaceMutation = defineMutation({
         created_at = excluded.created_at,
         created_by_account_id = excluded.created_by_account_id
     `);
+    await changeSpaceRoomMembership({ tx, env }, spaceId, 'joined');
     await openSession(tx, env, spaceId, true);
   },
 });

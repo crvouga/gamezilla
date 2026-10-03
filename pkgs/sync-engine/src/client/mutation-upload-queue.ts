@@ -1,5 +1,5 @@
 import { assert } from '@pkgs/assert';
-import { HttpNetworkError } from '@pkgs/http-client';
+import { HttpNetworkError, isHttpAbortError } from '@pkgs/http-client';
 import {
   ATTR,
   events,
@@ -408,12 +408,23 @@ export class MutationUploadQueue {
           error instanceof HttpNetworkError &&
           this.options.waitUntilAvailable !== undefined
         ) {
-          await this.options.waitUntilAvailable(this.availabilityAbort?.signal);
+          if (!(await this.waitForOriginRecovery())) return;
           continue;
         }
         this.errorAttempts += 1;
         await this.wait(this.errorBackoffMs(error));
       }
+    }
+  }
+
+  private async waitForOriginRecovery(): Promise<boolean> {
+    try {
+      await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
+      return this.running;
+    } catch (error) {
+      // The availability owner stops before the engine drains during disposal.
+      if (isHttpAbortError(error)) return false;
+      throw error;
     }
   }
 }

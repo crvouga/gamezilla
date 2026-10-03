@@ -39,38 +39,41 @@ const store = {
 async function upgrade(
   grantsFor: (ctx: RoomGrantsCtx) => Promise<readonly string[]>,
   headers: Record<string, string>
-): Promise<Request> {
+) {
   const host = recordingRoomHost();
   const app = createRoomApp(grantsFor);
-  await apiRequestAsyncLocalStorage.run(store, () =>
+  const response = await apiRequestAsyncLocalStorage.run(store, () =>
     app.request(
       `/room?topic=${encodeURIComponent(TOPIC)}&anonId=${INSTALL_ID}`,
       { headers: { upgrade: 'websocket', ...headers } },
       { ROOM: host.ROOM }
     )
   );
-  const [request] = host.forwarded;
-  if (request === undefined) throw new Error('the gateway forwarded nothing');
-  return request;
+  return { response, forwarded: host.forwarded };
 }
 
 describe('room gateway: the grants a connection is admitted with', () => {
   // regression: space-game-choice-unguarded
   test('a client cannot forge grants: its own value is replaced', async () => {
-    const request = await upgrade(() => Promise.resolve([]), {
+    const result = await upgrade(() => Promise.resolve([]), {
       [ROOM_ACTOR_GRANTS_HEADER]: 'spaces:select-game',
     });
-    expect(request.headers.get(ROOM_ACTOR_GRANTS_HEADER)).toBe('');
+    expect(result.response.status).toBe(403);
+    expect(await result.response.json()).toEqual({ error: 'not in the space' });
+    expect(result.forwarded).toEqual([]);
   });
 
   test('forwards what the features decided for the resolved actor', async () => {
     const seen: RoomGrantsCtx[] = [];
-    const request = await upgrade((ctx) => {
+    const result = await upgrade((ctx) => {
       seen.push(ctx);
-      return Promise.resolve(['spaces:select-game']);
+      return Promise.resolve(['spaces:leave', 'spaces:select-game']);
     }, {});
+    expect(result.response.status).toBe(200);
+    expect(result.forwarded).toHaveLength(1);
+    const request = result.forwarded[0]!;
     expect(request.headers.get(ROOM_ACTOR_GRANTS_HEADER)).toBe(
-      'spaces:select-game'
+      'spaces:leave,spaces:select-game'
     );
     expect(request.headers.get(ROOM_ACTOR_ID_HEADER)).toBe(INSTALL_ID);
     expect(seen.map((ctx) => [ctx.topic, ctx.actor, ctx.nowMs])).toEqual([
@@ -82,10 +85,11 @@ describe('room gateway: the grants a connection is admitted with', () => {
     ]);
   });
 
-  test('a failed decision admits the connection with no grants', async () => {
-    const request = await upgrade(() => Promise.reject(new Error('db down')), {
+  test('a failed decision refuses the space connection', async () => {
+    const result = await upgrade(() => Promise.reject(new Error('db down')), {
       [ROOM_ACTOR_GRANTS_HEADER]: 'spaces:select-game',
     });
-    expect(request.headers.get(ROOM_ACTOR_GRANTS_HEADER)).toBe('');
+    expect(result.response.status).toBe(403);
+    expect(result.forwarded).toEqual([]);
   });
 });

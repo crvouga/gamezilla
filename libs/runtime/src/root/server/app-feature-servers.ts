@@ -10,14 +10,17 @@
 
 import { createAccountPrivacyServer } from '@libs/account-privacy/root/server/feature-server';
 import { createBillingServer } from '@libs/billing/root/server/feature-server';
+import { CHESS_SERVER } from '@libs/chess/root/server/feature-server';
 import type { FeatureServer } from '@libs/feature/public/server';
 import { FRIENDS_SERVER } from '@libs/friends/root/server/feature-server';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications/root/server/feature-server';
-import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
+import { createSpacesServer } from '@libs/spaces/root/server/feature-server';
 import type { MembershipProviders } from '@pkgs/billing';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { APP } from '../app-features';
 
 export type AppFeatureServerDeps = {
+  readonly rooms: RoomServicePort;
   readonly billing: MembershipProviders | null;
 };
 
@@ -25,8 +28,9 @@ export function appFeatureServers(
   deps: AppFeatureServerDeps
 ): readonly FeatureServer[] {
   return [
-    createAccountPrivacyServer(APP.accountPrivacy),
-    SPACES_SERVER,
+    createAccountPrivacyServer(APP.accountPrivacy, deps.rooms),
+    createSpacesServer(deps.rooms),
+    CHESS_SERVER,
     // Friends registers the inbox actions its deliveries carry, so it is
     // composed before the inbox that serves them.
     FRIENDS_SERVER,
