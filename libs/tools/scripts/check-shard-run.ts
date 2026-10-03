@@ -10,20 +10,14 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { reportTask } from '@libs/harness/ci/report-ready';
-import {
-  findBudgetOverruns,
-  formatBudgetOverruns,
-  readLatestRunSummary,
-} from './check-budget';
+import { readLatestRunSummary } from './check-budget';
+import { preserveInterruptedReports } from './check-interrupted-reports';
 import { copyModelEvidence } from './check-model-evidence';
 import { packPlan } from './check-plan-transfer';
 import { executeShard } from './check-shard-process';
+import { collectResults, type Result } from './check-shard-results';
 import { redactSecrets } from './check-shard-stream';
-import {
-  type CheckPlan,
-  validatePlan,
-  validateShardResult,
-} from './check-shards';
+import { type CheckPlan, validatePlan } from './check-shards';
 import { prepareStage, stageCachePaths } from './check-stage-cache';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { turboChildEnv, writePlatformCacheKey } from './turbo-ci-run';
@@ -92,6 +86,7 @@ function transferEvidence(
   failed: boolean
 ): void {
   try {
+    preserveInterruptedReports(ROOT, results);
     preserveFailedReports(results);
     packEvidence(index, failed);
   } catch (error) {
@@ -154,100 +149,6 @@ function preserveFailedReports(results: readonly Result[]): void {
         { recursive: true }
       );
   }
-}
-
-type Result = {
-  taskId: string;
-  hash: string;
-  passed: boolean;
-  cache: string;
-  milliseconds: number;
-  exitCode: number;
-};
-function collectResults(args: {
-  plan: CheckPlan;
-  shard: CheckPlan['shards'][number];
-  summary: ReturnType<typeof readLatestRunSummary>;
-  needed: ReadonlySet<string>;
-  status: number;
-  env: NodeJS.ProcessEnv;
-}): { results: Result[]; verdict: number } {
-  const { plan, shard, summary, needed, status, env } = args;
-  const results: Result[] = shard.tasks
-    .filter(
-      (task) =>
-        task.hit && !summary?.tasks?.some((item) => item.taskId === task.taskId)
-    )
-    .map((task) => ({
-      taskId: task.taskId,
-      hash: task.hash,
-      passed: true,
-      cache: 'HIT',
-      milliseconds: 0,
-      exitCode: 0,
-    }));
-  for (const item of summary?.tasks ?? []) {
-    const task = item as {
-      taskId: string;
-      hash: string;
-      cache: { status: string };
-      execution?: { exitCode: number; startTime: number; endTime: number };
-    };
-    const milliseconds = task.execution
-      ? task.execution.endTime - task.execution.startTime
-      : 0;
-    const passed =
-      task.cache.status === 'HIT' || task.execution?.exitCode === 0;
-    // Transit nodes have no command, output or verdict.
-    if (!shard.tasks.some((expected) => expected.taskId === task.taskId)) {
-      const external = plan.tasks.find(
-        (expected) => expected.taskId === task.taskId
-      );
-      if (
-        external &&
-        (!needed.has(task.taskId) ||
-          external.hash !== task.hash ||
-          task.cache.status !== 'HIT')
-      )
-        throw new Error(
-          `Unexpected execution or changed prerequisite: ${task.taskId}`
-        );
-      continue;
-    }
-    console.log(
-      `COMPLETE ${task.taskId}; exit: ${task.execution?.exitCode ?? (passed ? 0 : 1)}; elapsed: ${(milliseconds / 1000).toFixed(3)}s; cache: ${task.cache.status}`
-    );
-    results.push({
-      taskId: task.taskId,
-      hash: task.hash,
-      passed,
-      cache: task.cache.status,
-      milliseconds,
-      exitCode: task.execution?.exitCode ?? (passed ? 0 : 1),
-    });
-    if (!passed)
-      console.error(
-        redactSecrets(
-          `FAILED ${task.taskId}; command: ${shard.tasks.find((t) => t.taskId === task.taskId)!.command}; exit code ${task.execution?.exitCode ?? 'missing'}; elapsed ${(milliseconds / 1000).toFixed(3)}s`,
-          env
-        )
-      );
-  }
-  let verdict = status;
-  try {
-    validateShardResult(shard, results);
-  } catch (error) {
-    console.error(error);
-    verdict = 1;
-  }
-  if (summary) {
-    const overruns = findBudgetOverruns(summary, true);
-    if (overruns.length) {
-      console.error(formatBudgetOverruns(overruns));
-      verdict = 1;
-    }
-  }
-  return { results, verdict };
 }
 
 if (import.meta.main) process.exit(await runShard(Number(process.argv[2])));
