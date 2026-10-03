@@ -2043,5 +2043,10 @@
     "id": "multiplayer-journey-parameter-registration",
     "summary": "Multiplayer journey steps used the actor parameter without registering it in the live entry; CI loaded that entry before the local harness side effect and failed at import. Register the shared parameter types before declaring any journey steps.",
     "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "quint-induction-redundant-state-zero",
+    "summary": "The inductive verifier rechecked the entire candidate at state zero while assuming that candidate, exhausting the matchmaking proof budget. Check initialization separately, check every successor for preservation, and retain independent safety implications. A literal unsafe initial door state pins initialization rejection.",
+    "regressionTest": "pkgs/quint/tests/verify.test.ts"
   }
 ]

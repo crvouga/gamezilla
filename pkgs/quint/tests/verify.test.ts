@@ -84,6 +84,27 @@ describe('verify', () => {
   });
 
   test.concurrent(
+    'induction rejects an invalid initial state even when every successor is safe',
+    async () => {
+      // regression: quint-induction-redundant-state-zero
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-induction-initial.qnt'),
+        invariants: ['invNeverOpen'],
+        inductiveInvariant: 'invNeverOpen',
+        maxSteps: 4,
+        outDir: join(OUT, 'invalid-initial-induction'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.output).toContain('; initial)');
+      expect(result.output).toContain('found a counterexample');
+      expect(result.output).toContain('[State 0] { state: "open" }');
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test.concurrent(
     'an inductive candidate must survive every transition, even when ordinary safety holds',
     async () => {
       // regression: quint-inductive-candidate-unchecked

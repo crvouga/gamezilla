@@ -28,9 +28,9 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
-import { inductionTargets } from './induction-targets';
 import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
+import { type VerifyPhase, verifyPhases } from './verify-phases';
 import { wallStopwatch } from './wall';
 
 export type VerifyOptions = {
@@ -67,25 +67,41 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   if ('error' in apalache) return { ok: false, output: apalache.error };
   rmSync(options.outDir, { recursive: true, force: true });
   mkdirSync(options.outDir, { recursive: true });
-  const configPath = verifyConfig(options);
+  const phases = verifyPhases({
+    ...options,
+    source: readFileSync(options.specPath, 'utf8'),
+    module: quintModuleName(options.specPath),
+  });
   const env = verifyEnv({
     env: process.env,
     quintHome: linkQuintHome(options.outDir, apalache.home),
   });
-  const port = await freePort();
   const elapsed = wallStopwatch();
-  const run = await runQuint({
-    args: verifyArgs(options, port, configPath),
-    cwd: options.outDir,
-    env,
-    timeoutMs: options.timeoutMs,
-  });
-  const durationMs = elapsed();
+  for (const phase of phases) {
+    const configPath = verifyConfig(options, phase);
+    const port = await freePort();
+    const run = await runQuint({
+      args: verifyArgs(options, phase, port, configPath),
+      cwd: options.outDir,
+      env,
+      timeoutMs: Math.max(0, options.timeoutMs - elapsed()),
+    });
+    const failure = runFailure(options, phase, run);
+    if (failure !== undefined) return failure;
+  }
+  return { ok: true, durationMs: elapsed() };
+}
+
+function runFailure(
+  options: VerifyOptions,
+  phase: VerifyPhase,
+  run: Awaited<ReturnType<typeof runQuint>>
+): VerifyResult | undefined {
   const strategy =
     options.inductiveInvariant === undefined
       ? `max steps ${String(options.maxSteps)}`
       : `induction: ${options.inductiveInvariant}`;
-  const header = `quint verify ${options.specPath} (invariants: ${options.invariants.join(', ')}; ${strategy})`;
+  const header = `quint verify ${options.specPath} (invariants: ${options.invariants.join(', ')}; ${strategy}; ${phase.name})`;
   if (run.output.includes(DOWNLOADING)) {
     return {
       ok: false,
@@ -104,23 +120,15 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
       output: `${header} failed (exit code ${run.code ?? 'none'}, signal ${run.signal ?? 'none'}):\n${verdict(run.output)}`,
     };
   }
-  return { ok: true, durationMs };
+  return undefined;
 }
 
 function verifyArgs(
   options: VerifyOptions,
+  phase: VerifyPhase,
   port: number,
   configPath: string
 ): string[] {
-  const invariants =
-    options.inductiveInvariant === undefined
-      ? options.invariants
-      : inductionTargets({
-          source: readFileSync(options.specPath, 'utf8'),
-          module: quintModuleName(options.specPath),
-          candidate: options.inductiveInvariant,
-          invariants: options.invariants,
-        });
   return [
     QUINT_CLI,
     'verify',
@@ -128,22 +136,26 @@ function verifyArgs(
     '--main',
     quintModuleName(options.specPath),
     '--max-steps',
-    String(options.maxSteps),
+    String(phase.maxSteps),
     '--apalache-config',
     configPath,
     '--apalache-version',
     APALACHE_VERSION,
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
-    ...(invariants.length === 0 ? [] : ['--invariants', ...invariants]),
-    ...(options.inductiveInvariant === undefined
-      ? []
-      : ['--inductive-invariant', options.inductiveInvariant]),
+    '--invariants',
+    ...phase.invariants,
+    ...(phase.init === undefined ? [] : ['--init', phase.init]),
   ];
 }
 
-function verifyConfig(options: VerifyOptions): string {
-  const path = join(options.outDir, 'apalache-config.json');
+function verifyConfig(options: VerifyOptions, phase: VerifyPhase): string {
+  const path = join(
+    options.outDir,
+    phase.name === 'preservation'
+      ? 'apalache-config-preservation.json'
+      : 'apalache-config.json'
+  );
   const checker = {
     ...(options.encoding === undefined
       ? {}
@@ -151,6 +163,11 @@ function verifyConfig(options: VerifyOptions): string {
     tuning: {
       'search.invariant.mode':
         options.inductiveInvariant === undefined ? 'after' : 'before',
+      // Initialization already proved the candidate. Its reflexive check
+      // under that same assumption adds no obligation to preservation.
+      ...(phase.name === 'preservation'
+        ? { 'search.invariantFilter': '1->.*' }
+        : {}),
     },
   };
   writeFileSync(path, JSON.stringify({ checker }));
