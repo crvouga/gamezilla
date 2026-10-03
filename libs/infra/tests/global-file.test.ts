@@ -33,8 +33,8 @@ describe('tofu/global.tfvars.json', () => {
 
   // regression: transferred-repo-protection-import
   test('creates main protection instead of adopting the retired gamezilla:main rule', () => {
-    expect(GLOBAL.global_imports?.github_branch_protection).not.toBe(
-      'gamezilla:main'
+    expect(GLOBAL.global_imports).not.toHaveProperty(
+      'github_branch_protection'
     );
   });
 

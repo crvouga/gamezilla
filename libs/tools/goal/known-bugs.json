@@ -1983,5 +1983,20 @@
     "id": "ui-quality-harness-source-resolution",
     "summary": "Fresh type-check and test shards have no built harness export. Map the public ui-quality-check/harness import to package source, like the existing main export, so verification needs no local build output.",
     "regressionTest": "pkgs/ui-quality-check/tests/window-inference.test.ts"
+  },
+  {
+    "id": "github-security-unsupported-fields",
+    "summary": "A repository import plan with code_security { status = disabled } and secret_scanning_non_provider_patterns { status = disabled } proposed both additions even though GitHub reported both disabled. integrations/github 6.13.0 advertises the blocks in its schema but calculateSecurityAndAnalysis and flattenSecurityAndAnalysis omit them, so every apply would leave perpetual drift. Omit these unsupported fields and document the limitation while managing the supported security settings.",
+    "regressionTest": "libs/infra/tests/repository-policy.test.ts"
+  },
+  {
+    "id": "avatar-svg-numeric-option-injection",
+    "summary": "DiceBear initials 9.4.2 interpolates a numeric option string containing an image with an onerror handler into inline profile SVG. Upgrade the collection to 9.4.3 and pin the literal font-size/font-weight payload, with arbitrary attribute-prefix coverage.",
+    "regressionTest": "libs/profile/tests/avatar-svg-security.test.ts"
+  },
+  {
+    "id": "puzzle-csv-prototype-header",
+    "summary": "csv-parse 6.2.1 treats the literal __proto__ CSV header as a prototype setter, losing the cell value attacker (property shrink: a) instead of preserving it as an own field. Upgrade to 7.0.3 and pin both inputs through the puzzle row iterator, with arbitrary cell coverage.",
+    "regressionTest": "libs/chess/tests/puzzle-data/csv-record-security.test.ts"
   }
 ]
