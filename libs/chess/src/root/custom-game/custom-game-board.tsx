@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { useSoundsPreference } from '@pkgs/sounds/solid';
 import { Button, Select, TextInput } from '@pkgs/ui';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { CustomGameError } from './custom-game-error';
@@ -93,6 +94,7 @@ export function CustomGameBoard(props: {
   review: CustomGameReview;
 }): JSX.Element {
   const [reset, setReset] = createSignal(0);
+  const sounds = useSoundsPreference();
   const interactive = (): boolean =>
     props.review.live() &&
     props.model.current()?.status === 'active' &&
@@ -118,6 +120,7 @@ export function CustomGameBoard(props: {
           fenSyncKey={reset()}
           orientation={props.model.mySide() ?? 'white'}
           interactive={interactive()}
+          sound={!sounds.muted()}
           onMove={(choice) => {
             void move(choice);
           }}
