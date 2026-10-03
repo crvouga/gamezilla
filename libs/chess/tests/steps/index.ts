@@ -1,4 +1,5 @@
 import '@libs/account-privacy/steps/privacy.steps';
+import '@libs/account-privacy/steps/exports.steps';
 /**
  * Steps entry for the `specs/<domain>/` features this package runs
  * (`specDomains`): registers the world (this package's harness
@@ -40,6 +41,7 @@ import './custom-game-access.steps';
 import './custom-game-devices.steps';
 import './custom-game-accessibility.steps';
 import './custom-game-privacy.steps';
+import './custom-game-export.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openSpecHarness } from '../harness/open-chess-harness';
