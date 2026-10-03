@@ -1695,6 +1695,11 @@
     "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
   },
   {
+    "id": "health-inline-sha-aws-oidc",
+    "summary": "Dev health rehearsal cmdsnqktxz at b378d1f89 failed AWS STS authentication because inline Depot runs use a commit SHA ref while the read-only health role trusts refs/heads/*. Dispatch Health on the requested branch so its OIDC subject matches the existing trust policy, without granting branch deployment access.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+  },
+  {
     "id": "check-opaque-task-failure",
     "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
     "regressionTest": "libs/tools/scripts/check-shards.test.ts"
