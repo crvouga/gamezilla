@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../ts-reset/src/index.ts",
+    "./src/**/*.ts",
+    "./tests/**/*.ts",
+    "./src/**/*.js"
+  ],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true
+  }
+}

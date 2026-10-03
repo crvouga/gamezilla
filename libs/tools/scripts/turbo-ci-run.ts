@@ -107,7 +107,7 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
  * Turborepo's hash knows nothing about the platform
  * (https://turborepo.dev/docs/guides/handling-platforms), so a macOS result
  * could satisfy a Linux run. The platform-scoped `test:contract` leaves
- * (embedded Postgres / S3rver / EMQX binaries) declare this file as an input,
+ * (embedded Postgres / Mockingbird S3 / EMQX binaries) declare this file as an input,
  * so their caches are per-platform while everything portable (tc, lint, unit
  * tests) still shares one cache across machines. Written on every run: absent
  * (a bare `turbo run`) hashes differently, which costs a cache miss, never

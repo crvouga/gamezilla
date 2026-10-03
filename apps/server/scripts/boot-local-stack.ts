@@ -1,11 +1,8 @@
 // @io-wall-ok
 /**
- * Boot loopback Postgres + S3rver + EMQX for CI / fidelity-max tests.
+ * Boot loopback Postgres + Mockingbird S3 + EMQX for CI / fidelity-max tests.
  * Not used by `bun dev`.
  */
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { startEmqxServer } from '@pkgs/emqx-server';
 import { createGlobalHttpClient } from '@pkgs/http-client';
@@ -28,9 +25,7 @@ export type LocalStackHandle = {
 
 export async function bootLocalStack(): Promise<LocalStackHandle> {
   const postgres = await startEmbeddedPostgres();
-  const s3 = await startS3Server({
-    directory: mkdtempSync(join(tmpdir(), 's3-')),
-  });
+  const s3 = await startS3Server();
   const emqx = await startEmqxServer({
     clock: wallClock,
     timers: wallTimers,

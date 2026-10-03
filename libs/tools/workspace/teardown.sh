@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Release this workspace's dev listeners and sidecar state. No containers or
-# daemons to stop: the local stack (embedded Postgres, S3rver, EMQX) is spawned
+# daemons to stop: the local stack (embedded Postgres, Mockingbird S3, EMQX) is spawned
 # per-command and everything else lives inside the worktree, which the
 # orchestrator removes.
 set -euo pipefail

@@ -1,5 +1,10 @@
 [
   {
+    "id": "build-glob-nested-braces",
+    "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
+    "regressionTest": "pkgs/glob-match/tests/glob-match.test.ts"
+  },
+  {
     "id": "puzzle-reconnect-allowance-disappears",
     "summary": "During network restoration the puzzle allowance disappeared between the visibility and text probes. Its missing-element error aborted convergence, leaving the watcher observed as revealed instead of skipped. Treat only that optional-label disappearance as absent and continue observing the unchanged model expectations.",
     "regressionTest": "libs/chess/tests/puzzle-observation.test.ts"
