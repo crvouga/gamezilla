@@ -63,6 +63,7 @@ import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel } from '@pkgs/quint/registry';
 import offlineNavigationTrace from './fixtures/puzzle-offline-navigation.itf.json';
 import reviewSolutionTrace from './fixtures/puzzle-review-solution.itf.json';
+import skippedReconnectTrace from './fixtures/puzzle-skipped-reconnect.itf.json';
 import hintedSolutionTrace from './fixtures/puzzle-solution-after-hint.itf.json';
 import gameChoiceTrace from './fixtures/puzzle-watcher-game-choice.itf.json';
 import reconnectTrace from './fixtures/puzzle-watcher-reconnect.itf.json';
@@ -130,6 +131,13 @@ bindQuintModel<QuintHarnessWorld>({
   // times that beside the rest of the package's suite.
   timeoutMs: 180_000,
   regressions: [
+    // regression: puzzle-reconnect-allowance-disappears
+    {
+      id: 'puzzle-skipped-reconnect',
+      title: 'A returning watcher sees the skipped puzzle and commentary',
+      seed: '0x67932',
+      itf: skippedReconnectTrace,
+    },
     // regression: puzzle-history-solution-accepted
     {
       id: 'puzzle-review-solution',

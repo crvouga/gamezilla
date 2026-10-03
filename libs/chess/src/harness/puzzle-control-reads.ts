@@ -2,6 +2,7 @@ import { actorUi } from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { bringToFront, visible } from '@libs/harness/system/observations';
 import { Handles } from '@libs/test-ids';
+import { ElementNotFoundError } from '@pkgs/ui-testing';
 import { readPuzzleDebug } from './chess-puzzle-ui';
 import { readPuzzleAssistant } from './puzzle-assistant-ui';
 
@@ -47,7 +48,15 @@ export async function readPuzzleRemainingToday(
 ): Promise<number | null> {
   const ui = await actorUi(s, actor);
   if (!(await ui.get('chess-puzzle-remaining-today').isVisible())) return null;
-  const text = await ui.get('chess-puzzle-remaining-today').text();
+  // Reconnect can replace the allowance after the visibility probe. Its
+  // absence is a normal loading state; keep observing the room as it settles.
+  const text = await ui
+    .get('chess-puzzle-remaining-today')
+    .text()
+    .catch((error) => {
+      if (error instanceof ElementNotFoundError) return null;
+      throw error;
+    });
   const match = text?.match(/^\s*(\d+)/);
   return match === null || match === undefined ? null : Number(match[1]);
 }

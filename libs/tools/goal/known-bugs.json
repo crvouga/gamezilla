@@ -1,5 +1,10 @@
 [
   {
+    "id": "puzzle-reconnect-allowance-disappears",
+    "summary": "During network restoration the puzzle allowance disappeared between the visibility and text probes. Its missing-element error aborted convergence, leaving the watcher observed as revealed instead of skipped. Treat only that optional-label disappearance as absent and continue observing the unchanged model expectations.",
+    "regressionTest": "libs/chess/tests/puzzle-observation.test.ts"
+  },
+  {
     "id": "puzzle-assistant-opponent-king",
     "summary": "During a correct move’s automatic reply the board temporarily shows the opponent in check. Coaching incorrectly said the solver’s king was checked and the opponent had already replied. Give neutral reply guidance until the board settles.",
     "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
