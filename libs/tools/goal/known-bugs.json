@@ -161,12 +161,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -286,7 +286,7 @@
   },
   {
     "id": "sqlite-web-navigation-dead-owner",
-    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
+    "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting\u2026\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   },
   {
@@ -381,7 +381,7 @@
   },
   {
     "id": "sign-in-refresh-race",
-    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in\u2026\" until then.",
     "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   },
   {
@@ -446,7 +446,7 @@
   },
   {
     "id": "sync-hash-sqlite-stored-types",
-    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
+    "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening\u2026\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
     "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
   },
   {
@@ -581,7 +581,7 @@
   },
   {
     "id": "space-offline-presence-stale",
-    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob’s connection while in Alice’s space is pinned.",
+    "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob\u2019s connection while in Alice\u2019s space is pinned.",
     "regressionTest": "specs/spaces/space-disconnect-reconnect.feature"
   },
   {
@@ -601,7 +601,7 @@
   },
   {
     "id": "space-session-identities-cross-app-roots",
-    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root’s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
+    "summary": "Space room session identities were kept in a process-wide map, so independent app roots with the same install and space keys reused one root\u2019s room identity. The store now belongs to the app provider, preserving its own identity across detail remounts and clearing closed memberships even after stepping out. Two roots with distinct id ports and identical keys are pinned.",
     "regressionTest": "libs/spaces/tests/independent-space-sessions.test.ts"
   },
   {
@@ -1141,12 +1141,12 @@
   },
   {
     "id": "signup-username-cross-device",
-    "summary": "Concurrent devices shared a process-global signup handle, causing one profile bootstrap to consume another device’s chosen name. Scope pending handles to the owning auth client.",
+    "summary": "Concurrent devices shared a process-global signup handle, causing one profile bootstrap to consume another device\u2019s chosen name. Scope pending handles to the owning auth client.",
     "regressionTest": "libs/auth/src/public/pending-signup-username.test.ts"
   },
   {
     "id": "signup-username-provider-subject",
-    "summary": "Profile bootstrap replaced the chosen signup username with an OAuth subject such as bob-gmail-com. Provider identifiers are not usernames: retain the account’s validated choice and deny anonymous or unknown account bootstrap claims.",
+    "summary": "Profile bootstrap replaced the chosen signup username with an OAuth subject such as bob-gmail-com. Provider identifiers are not usernames: retain the account\u2019s validated choice and deny anonymous or unknown account bootstrap claims.",
     "regressionTest": "libs/auth/tests/replay-signup-username.test.ts"
   },
   {
@@ -1253,6 +1253,86 @@
     "id": "depot-aws-oidc-unapplied-trust",
     "summary": "Depot Deploy workflow ng4sv2f3d0 failed at apply:foundation because the live AWS CI roles still trusted only GitHub. The Depot OIDC provider existed outside bootstrap state, so a normal apply would attempt to recreate it before updating trust. Adopt the existing provider through global_imports and apply the declared, main-restricted Depot deploy trust and branch-readable health trust.",
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
+  },
+  {
+    "id": "check-gate-waits-for-publication",
+    "summary": "The required Check command waited for nonessential report publication despite completed task verdicts. Watch the lightweight check job rather than the whole Check workflow.",
+    "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+  },
+  {
+    "id": "check-opaque-task-failure",
+    "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
+    "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+  },
+  {
+    "id": "check-symbolic-report-directory",
+    "summary": "Cold symbolic verification of identity-machine wrote its bound receipt before the models directory existed, causing ENOENT. Create the directory explicitly; independent verifier completion never supplies setup.",
+    "regressionTest": "apps/product/tests/quint/system/campaign-tools.test.ts"
+  },
+  {
+    "id": "check-artifact-download-encoded-credentials",
+    "summary": "The artifact SDK strips URL queries, but Depot redirects encode signed storage credentials inside the proxy pathname, so an SDK info line exposes them. Capture transfer diagnostics in a child process and remove complete URLs before logging.",
+    "regressionTest": "libs/tools/scripts/check-plan-transfer.test.ts"
+  },
+  {
+    "id": "check-tlc-shared-temporary-modules",
+    "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
+    "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+  },
+  {
+    "id": "check-model-cache-runtime-artifacts",
+    "summary": "Depot rejected the model task artifact with HTTP 413 when the report bucket included temporary checker data and linked tool installations. Cache the complete report interface (evidence, bounds, counterexamples and TLC output), leaving private runtime files outside cache outputs.",
+    "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
+  },
+  {
+    "id": "check-tty-exit-before-output",
+    "summary": "A cold 32-vCPU run observed READY followed by a successful child exit before the PTY delivered DONE. The tty assertion raced process-exit notification and the fixture waited an arbitrary 800ms. Both ends now handshake on exact scroll input and actual READY/DONE output events, retaining all no-echo assertions.",
+    "regressionTest": "libs/tools/scripts/workflow-remote.test.ts"
+  },
+  {
+    "id": "check-quint-silent-exit",
+    "summary": "Run b4cx3qcgv1 failed access-sync after emitting only the JAVA_TOOL_OPTIONS notice. The checker adapter discarded the child exit signal, leaving the failure undiagnosable. Preserve the signal and include the exact process status in verification errors; the original process failure remains visible and is not retried.",
+    "regressionTest": "pkgs/quint/tests/run-quint.test.ts"
+  },
+  {
+    "id": "check-tools-external-cache-inputs",
+    "summary": "The tooling tests read .depot/workflows/check.yml, package task metadata and specification campaigns, but those files were absent from their cache inputs. The actionlint gate similarly omitted .github/actionlint.yaml. Declare the external configuration these checks actually inspect so changes cannot reuse a stale verdict.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "check-evidence-masks-required-verdict",
+    "summary": "A passing shard could become failed solely because tar packing or actions/upload-artifact failed. The required gate then depended on nonessential evidence. Preserve the validated check verdict; make only the evidence step nonessential. The injected invalid/name artifact failure exercises this separation.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-repeated-mise-cache-stall",
+    "summary": "Partial-cache run 1jzx5994v8 stalled five shards at the second mise-action Restoring mise cache step, before check execution. One full cached toolchain setup per shard removes the repeated restore. Keep frozen Bun installation and all pinned tools; validate the partial-cache path with a real source-invalidation run.",
+    "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+  },
+  {
+    "id": "check-duration-metadata-cache-input",
+    "summary": "Changing check-task-costs.json from one measured duration to another invalidated tooling source hashes and downstream check verdicts, although the checks themselves never read those observations. Exclude duration telemetry from source, type-check and test inputs; preserve JSON formatting validation in lint and always read current costs in the uncached planner.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "infra-drift-operation-hang",
+    "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
+    "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
+  },
+  {
+    "id": "health-ui-step-loader-order",
+    "summary": "Live health loaded UI-dependent steps before installing the Solid/macro loader, so a fresh Depot checkout failed resolving babel-plugin-macros instead of running its health scenarios. The health CLI now explicitly preloads the shared browser test runtime before generated stubs.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
+  },
+  {
+    "id": "infra-plan-credential-output",
+    "summary": "OpenTofu plan diagnostics printed configured report and broker access identifiers into local deployment logs. Tool and plan diagnostics now redact configured credential values and credential fields while policy evaluation still receives the complete plan.",
+    "regressionTest": "libs/infra/tests/redact-output.test.ts"
+  },
+  {
+    "id": "spec-ownership-resolved-merge",
+    "summary": "The pre-commit spec ownership gate rejected a resolved merge from main because already committed account deletion specs appeared beside implementation changes in the index. Audit only specs changed against both merge parents; inherited specs retain their original commits and newly authored mixed resolutions remain refused.",
+    "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
   },
   {
     "id": "health-solid-preload-order",

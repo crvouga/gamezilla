@@ -1,5 +1,5 @@
 // @io-wall-ok — automated verification adapter; runs the pinned bundled CLI.
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { decide, modelEvidence } from '@pkgs/quint/model-evidence';
@@ -9,24 +9,35 @@ import { CLI_TIMEOUT_MS, modelPath, REPORT_DIR } from './campaign-config';
 import { campaignImports } from './campaign-imports';
 import { sourceDigest } from './source-digest';
 
-export function quint(
+export async function quint(
   args: readonly string[],
   executable = process.execPath
-): {
-  status: number | null;
-  output: string;
-} {
-  const result = spawnSync(executable, [QUINT_CLI, ...args], {
-    encoding: 'utf8',
+): Promise<{ status: number | null; output: string }> {
+  const child = spawn(executable, [QUINT_CLI, ...args], {
     timeout: CLI_TIMEOUT_MS,
-    maxBuffer: 8 * 1024 * 1024,
+    killSignal: 'SIGKILL',
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
-  return {
-    status: result.status,
-    output: [result.stdout, result.stderr, result.error?.message]
-      .filter(Boolean)
-      .join('\n'),
+  let output = '';
+  let overflow = false;
+  const append = (chunk: unknown) => {
+    output += String(chunk);
+    if (Buffer.byteLength(output) > 8 * 1024 * 1024) {
+      overflow = true;
+      child.kill('SIGKILL');
+      output = output.slice(-65536);
+    }
   };
+  child.stdout!.on('data', append);
+  child.stderr!.on('data', append);
+  return new Promise((resolve) => {
+    child.on('error', (error) =>
+      resolve({ status: null, output: `${output}\n${error.message}` })
+    );
+    child.on('close', (status) =>
+      resolve({ status: overflow ? null : status, output })
+    );
+  });
 }
 
 export function obligation(
@@ -65,14 +76,14 @@ export function obligation(
   });
 }
 
-export function sample(
+export async function sample(
   name: string,
   samples: number,
   steps: number,
   reportDir = REPORT_DIR
-): string {
+): Promise<string> {
   mkdirSync(reportDir, { recursive: true });
-  const result = quint([
+  const result = await quint([
     'run',
     modelPath(name),
     '--backend',
@@ -97,8 +108,8 @@ export function sample(
   return `${samples} seeded traces, at most ${steps} transitions; ${result.output.trim()}`;
 }
 
-export function examples(name: string): string {
-  const result = quint([
+export async function examples(name: string): Promise<string> {
+  const result = await quint([
     'test',
     modelPath(name),
     '--backend',

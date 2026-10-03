@@ -1,0 +1,38 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "lint": {
+      "inputs": ["$TURBO_EXTENDS$", "!CHECK_BENCHMARK.md"]
+    },
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/.depot/**",
+        "$TURBO_ROOT$/.github/**",
+        "$TURBO_ROOT$/turbo.json",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/*/package.json",
+        "$TURBO_ROOT$/libs/*/package.json",
+        "$TURBO_ROOT$/pkgs/*/package.json",
+        "$TURBO_ROOT$/apps/*/turbo.json",
+        "$TURBO_ROOT$/libs/*/turbo.json",
+        "$TURBO_ROOT$/pkgs/*/turbo.json",
+        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/oxlint.config.mts",
+        "$TURBO_ROOT$/tsconfig*.json",
+        "$TURBO_ROOT$/README.md",
+        "$TURBO_ROOT$/specs/**",
+        "$TURBO_ROOT$/pkgs/equal/**",
+        "$TURBO_ROOT$/pkgs/assert/**",
+        "!scripts/check-task-costs.json"
+      ]
+    },
+    "src": {
+      "inputs": ["$TURBO_EXTENDS$", "!scripts/check-task-costs.json"]
+    },
+    "tc": {
+      "inputs": ["$TURBO_EXTENDS$", "!scripts/check-task-costs.json"]
+    }
+  }
+}

@@ -16,22 +16,25 @@ import { GLOBAL } from '@libs/infra/public/global';
 
 export async function resolveAwsSession(
   env: Readonly<Record<string, string | undefined>>,
-  stack: string
+  stack: string,
+  signal: AbortSignal
 ): Promise<AwsSession | null> {
   const plan = awsAuthPlan(env, stack);
-  if (plan === 'oidc') return assumeGithub(env);
+  if (plan === 'oidc') return assumeGithub(env, signal);
   if (plan === 'local') return readLocalAwsSession();
   return null;
 }
 
 async function assumeGithub(
-  env: Readonly<Record<string, string | undefined>>
+  env: Readonly<Record<string, string | undefined>>,
+  signal: AbortSignal
 ): Promise<AwsSession> {
   const roleArn = env['AWS_ROLE_ARN']?.trim() ?? '';
   const requestUrl = env['ACTIONS_ID_TOKEN_REQUEST_URL']?.trim() ?? '';
   const requestToken = env['ACTIONS_ID_TOKEN_REQUEST_TOKEN']?.trim() ?? '';
   const tokenResponse = await fetch(githubOidcUrl(requestUrl), {
     headers: { Authorization: `bearer ${requestToken}` },
+    signal,
   });
   if (!tokenResponse.ok) {
     throw new Error(
@@ -49,6 +52,7 @@ async function assumeGithub(
   });
   const sts = await fetch(`https://sts.${GLOBAL.aws.region}.amazonaws.com/`, {
     method: 'POST',
+    signal,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body,
   });
@@ -70,8 +74,12 @@ function readLocalAwsSession(): AwsSession | null {
   const result = spawnSync(
     'aws',
     ['configure', 'export-credentials', '--format', 'env-no-export'],
-    { encoding: 'utf8' }
+    { encoding: 'utf8', timeout: 20_000, killSignal: 'SIGKILL' }
   );
+  if (result.error)
+    throw new Error(
+      `AWS CLI credential export failed: ${result.error.message}`
+    );
   if (result.status !== 0) {
     const line = (result.stderr ?? '')
       .split('\n')

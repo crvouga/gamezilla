@@ -36,6 +36,7 @@ import {
   planFailureIsTransient,
   planReadFailed,
 } from '@libs/infra/public/plan-retry';
+import { redactInfraOutput } from '@libs/infra/public/redact-output';
 import {
   applyArgs,
   destroyPlanArgs,
@@ -60,6 +61,7 @@ import {
   useLocalBackend,
 } from './bootstrap-backend';
 import { resolveInfisicalToken } from './infisical-token';
+import { infraOperation } from './infra-operation';
 import { backupState } from './state-backup';
 import { conftest, fail, spawnTool, tofu } from './tofu-process';
 
@@ -113,11 +115,20 @@ function targetFor(stack: Stack): Target {
 async function toolEnvironment(
   target: Target
 ): Promise<Record<string, string>> {
-  const aws = await resolveAwsSession(process.env, target.stack);
+  const label = `${target.stack}/${target.env ?? 'global'}`;
+  const aws = await infraOperation(`${label}: AWS credentials`, (signal) =>
+    resolveAwsSession(process.env, target.stack, signal)
+  );
   const { env, missing } = tofuEnvironment(process.env, PATHS, target, aws);
   if (missing.length > 0) fail(missingSecretsMessage(target.stack, missing));
   if (target.stack === 'edge') return { ...env };
-  return { ...env, TF_VAR_infisical_token: await resolveInfisicalToken() };
+  return {
+    ...env,
+    TF_VAR_infisical_token: await infraOperation(
+      `${label}: Infisical credentials`,
+      () => resolveInfisicalToken()
+    ),
+  };
 }
 
 /** What a destroy plan covers: the whole stack, or one env's fleet entries. */
@@ -145,7 +156,10 @@ async function planTarget(
       : planArgs(PATHS, target);
   for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
     const result = spawnTool('tofu', args, { env, capture: true });
-    const output = `${result.stdout}${result.stderr}`;
+    const output = redactInfraOutput(`${result.stdout}${result.stderr}`, {
+      ...process.env,
+      ...env,
+    });
     if (output.length > 0) {
       process.stdout.write(output.endsWith('\n') ? output : `${output}\n`);
     }
