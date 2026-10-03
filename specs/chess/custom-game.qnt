@@ -36,18 +36,19 @@ module custom_game {
   }
   pure val _COMMANDS = Set("take", "bot", "open", "close", "invite", "accept", "decline", "revoke", "claim", "release", "ready", "unready", "swap", "clock", "start", "cancel", "resign", "offer", "agree", "reject", "create", "rematch")
 
-  /// The agreed Custom Game, including its visible result and readiness.
-  var status: str
-  var creator: str
-  var white: Participant
-  var black: Participant
-  var ready: Set[str]
-  var minutes: int
-  var increment: int
-  var starts: int
-  var outcome: str
-  var drawOfferedBy: str
-  val customGame = {status: status, creator: creator, white: white, black: black, ready: ready, minutes: minutes, increment: increment, starts: starts, outcome: outcome, drawOfferedBy: drawOfferedBy}
+  /// The agreed game remains itself when no person can currently see it.
+  /// Each person observes their own picture below, including its result and readiness.
+  var _status: str
+  var _creator: str
+  var _white: Participant
+  var _black: Participant
+  var _ready: Set[str]
+  var _minutes: int
+  var _increment: int
+  var _starts: int
+  var _outcome: str
+  var _drawOfferedBy: str
+  def customGame = {status: _status, creator: _creator, white: _white, black: _black, ready: _ready, minutes: _minutes, increment: _increment, starts: _starts, outcome: _outcome, drawOfferedBy: _drawOfferedBy}
   /// Each person's last picture of the Custom Game.
   var statusShown: Person -> str
   var creatorShown: Person -> str
@@ -163,16 +164,16 @@ module custom_game {
     else g
 
   action _update(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool): bool = all {
-    status' = g.status,
-    creator' = g.creator,
-    white' = g.white,
-    black' = g.black,
-    ready' = g.ready,
-    minutes' = g.minutes,
-    increment' = g.increment,
-    starts' = g.starts,
-    outcome' = g.outcome,
-    drawOfferedBy' = g.drawOfferedBy,
+    _status' = g.status,
+    _creator' = g.creator,
+    _white' = g.white,
+    _black' = g.black,
+    _ready' = g.ready,
+    _minutes' = g.minutes,
+    _increment' = g.increment,
+    _starts' = g.starts,
+    _outcome' = g.outcome,
+    _drawOfferedBy' = g.drawOfferedBy,
     _offline' = offline,
     _signedOut' = signedOut,
     refusal' = reasons,
@@ -218,16 +219,16 @@ module custom_game {
       else if (beginning == "playing" or beginning == "offering") {...people, status: "active", starts: 1, drawOfferedBy: if(beginning == "offering") "alice" else ""}
       else _BEGIN
     all {
-      status' = g.status,
-    creator' = g.creator,
-    white' = g.white,
-    black' = g.black,
-    ready' = g.ready,
-    minutes' = g.minutes,
-    increment' = g.increment,
-    starts' = g.starts,
-    outcome' = g.outcome,
-    drawOfferedBy' = g.drawOfferedBy,
+      _status' = g.status,
+    _creator' = g.creator,
+    _white' = g.white,
+    _black' = g.black,
+    _ready' = g.ready,
+    _minutes' = g.minutes,
+    _increment' = g.increment,
+    _starts' = g.starts,
+    _outcome' = g.outcome,
+    _drawOfferedBy' = g.drawOfferedBy,
       statusShown' = DEVICES.mapBy(p => if (p == "carol") _INITIAL.status else g.status),
       creatorShown' = DEVICES.mapBy(p => if (p == "carol") _INITIAL.creator else g.creator),
       whiteShown' = DEVICES.mapBy(p => if (p == "carol") _INITIAL.white else g.white),
@@ -321,10 +322,17 @@ module custom_game {
   action declineDraw(actor: Person): bool = all { not(_offline.contains(actor)), _reason(customGame,actor,"reject","white",actor,0,0) == "", _do(actor,"reject","white",actor,0,0) }
 
   /// A chess ending finishes an active game without changing its choices.
+  /// People playing the ending need a signed-in device with a connection;
+  /// running out of time does not wait for either person to return.
   action _finishGame(result: str): bool = all {
     customGame.status == "active",
     customGame.white.kind == "person", customGame.black.kind == "person",
     customGame.minutes > 0 or Set("white wins by checkmate", "black wins by checkmate", "draw").contains(result),
+    Set("white wins by checkmate", "black wins by checkmate", "draw").contains(result) implies SIDES.forall(side => {
+      val participant = _side(customGame,side).person
+      _members.contains(participant) and DEVICES.exists(device =>
+        _personOf(device) == participant and not(_offline.contains(device)) and not(_signedOut.contains(device)))
+    }),
     _update({...customGame, status: "completed", outcome: result, drawOfferedBy: ""}, _offline, _members,_signedOut, refusal, false),
   }
   /// A disconnected person retains their last picture, with no delayed choices.
@@ -341,8 +349,22 @@ module custom_game {
   action _reopenApp(actor: Person): bool = _update(customGame,_offline,_members,_signedOut,refusal,false)
   /// Hearing an acknowledged action again has no second product effect.
   action _repeatAcknowledged: bool = _update(customGame,_offline,_members,_signedOut,refusal,false)
-  /// Earlier choices never replace choices that have already changed.
-  action _staleChoice(actor: Person): bool = all { customGame.status != "none", _update(customGame,_offline,_members,_signedOut,refusal.set(actor,if (_offline.contains(actor)) "connection needed" else if(_signedOut.contains(actor) or not(_members.contains(_personOf(actor)))) "not in the space" else "choices changed"),false) }
+  /// Earlier choices never replace the agreed game. A person first hears
+  /// why they cannot make that choice, or otherwise that the choices changed.
+  action _staleChoice(actor: Person, command: str): bool = {
+    val reason = if (_offline.contains(actor)) "connection needed"
+      else if (_signedOut.contains(actor) or _spaceEnded or not(_members.contains(_personOf(actor)))) "not in the space"
+      else if (_creatorCommand(command) and _personOf(actor) != "alice") "only the creator"
+      else if (Set("create", "rematch").contains(command) and customGame.status != "none" and not(_terminal(customGame))) "finish or cancel first"
+      else if (customGame.status == "completed" and not(Set("create", "rematch").contains(command))) "finished"
+      else if (customGame.status == "cancelled" and not(Set("create", "rematch").contains(command))) "cancelled"
+      else if (_settingCommand(command) and customGame.status != "configuring") "already started"
+      else "choices changed"
+    all {
+      customGame.status != "none",
+      _update(customGame,_offline,_members,_signedOut,refusal.set(actor,reason),false),
+    }
+  }
   /// Two choices made together may be accepted in either order. A choice
   /// that changed the participants or time stops the other from using earlier choices.
   /// Readiness and starting do not replace those choices; each ready person
@@ -431,7 +453,7 @@ module custom_game {
       acceptDraw(actor),
       declineDraw(actor),
       _finishGame(result), _loseConnection(actor), _connectionReturns(actor),
-      _signOut(actor), _signIn(actor), _usernameChanges(actor), _personLeaves(actor), _personJoins(actor), _reopenApp(actor), _repeatAcknowledged, _staleChoice(actor), _attemptChoice(actor,command,side,person),
+      _signOut(actor), _signIn(actor), _usernameChanges(actor), _personLeaves(actor), _personJoins(actor), _reopenApp(actor), _repeatAcknowledged, _staleChoice(actor,command), _attemptChoice(actor,command,side,person),
       _competingChoices(actor,other,command,otherCommand,side,otherSide,person),
     }
   }
@@ -481,34 +503,34 @@ module custom_game {
   pure val _TIME_PAIRS = tuples(TIMES,INCREMENTS)
   // These promises survive any number of choices, departures and returns.
   val _inductive = all {
-    status.in(Set("none","configuring","active","completed","cancelled")),
+    _status.in(Set("none","configuring","active","completed","cancelled")),
     statusShown.in(DEVICES.setOfMaps(Set("none","configuring","active","completed","cancelled"))),
     _cutOffStatus.in(DEVICES.setOfMaps(Set("none","configuring","active","completed","cancelled"))),
-    creator.in(Set("","alice")),
+    _creator.in(Set("","alice")),
     creatorShown.in(DEVICES.setOfMaps(Set("","alice"))),
     _cutOffCreator.in(DEVICES.setOfMaps(Set("","alice"))),
-    white.in(_PARTICIPANTS),
+    _white.in(_PARTICIPANTS),
     whiteShown.in(DEVICES.setOfMaps(_PARTICIPANTS)),
     _cutOffWhite.in(DEVICES.setOfMaps(_PARTICIPANTS)),
-    black.in(_PARTICIPANTS),
+    _black.in(_PARTICIPANTS),
     blackShown.in(DEVICES.setOfMaps(_PARTICIPANTS)),
     _cutOffBlack.in(DEVICES.setOfMaps(_PARTICIPANTS)),
-    ready.in(SIDES.powerset()),
+    _ready.in(SIDES.powerset()),
     readyShown.in(DEVICES.setOfMaps(SIDES.powerset())),
     _cutOffReady.in(DEVICES.setOfMaps(SIDES.powerset())),
-    minutes.in(TIMES),
+    _minutes.in(TIMES),
     minutesShown.in(DEVICES.setOfMaps(TIMES)),
     _cutOffMinutes.in(DEVICES.setOfMaps(TIMES)),
-    increment.in(INCREMENTS),
+    _increment.in(INCREMENTS),
     incrementShown.in(DEVICES.setOfMaps(INCREMENTS)),
     _cutOffIncrement.in(DEVICES.setOfMaps(INCREMENTS)),
-    starts.in(Set(0,1)),
+    _starts.in(Set(0,1)),
     startsShown.in(DEVICES.setOfMaps(Set(0,1))),
     _cutOffStarts.in(DEVICES.setOfMaps(Set(0,1))),
-    outcome.in(Set("","cancelled","draw","white wins by resignation","black wins by resignation","white wins by checkmate","black wins by checkmate","white wins on time","black wins on time")),
+    _outcome.in(Set("","cancelled","draw","white wins by resignation","black wins by resignation","white wins by checkmate","black wins by checkmate","white wins on time","black wins on time")),
     outcomeShown.in(DEVICES.setOfMaps(Set("","cancelled","draw","white wins by resignation","black wins by resignation","white wins by checkmate","black wins by checkmate","white wins on time","black wins on time"))),
     _cutOffOutcome.in(DEVICES.setOfMaps(Set("","cancelled","draw","white wins by resignation","black wins by resignation","white wins by checkmate","black wins by checkmate","white wins on time","black wins on time"))),
-    drawOfferedBy.in(PEOPLE.union(Set(""))),
+    _drawOfferedBy.in(PEOPLE.union(Set(""))),
     drawOfferedByShown.in(DEVICES.setOfMaps(PEOPLE.union(Set("")))),
     _cutOffDrawofferedby.in(DEVICES.setOfMaps(PEOPLE.union(Set("")))),
     refusal.in(DEVICES.setOfMaps(_REASONS)),
