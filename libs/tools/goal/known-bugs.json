@@ -1,5 +1,10 @@
 [
   {
+    "id": "health-offline-existing-room-socket",
+    "summary": "Live journeys enabled Chrome network emulation after room sockets opened, so existing sockets escaped the cut. Enable networking before app navigation and await the room heartbeat disconnection before the offline start attempt.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-connection.test.ts"
+  },
+  {
     "id": "deploy-missing-framework-indexes",
     "summary": "Deployment deferred indexes for every declared schema but built only domain indexes afterward. Outbox deliveries had no event_id/consumer_id unique index, so membership delivery failed with ON CONFLICT errors. Reconcile framework and domain indexes in the deferred pass.",
     "regressionTest": "libs/runtime/tests/migrate-framework-indexes.test.ts"

@@ -31,6 +31,11 @@ export async function prepareCustomGame(ui: Driver): Promise<void> {
 }
 
 export async function startCustomGame(ui: Driver): Promise<void> {
+  // This gesture belongs to the offline scenario. A network cut is silent
+  // until the room's 20s heartbeat plus 8s acknowledgement deadline expires.
+  await ui.get('chess-custom-connection-needed').expect.visible({
+    timeoutMs: 30_000,
+  });
   await tap(ui, 'chess-custom-start');
 }
 

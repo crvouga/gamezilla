@@ -85,3 +85,28 @@ test('the offline start gesture still attempts the choice while disconnected', a
   await startCustomGame(ui);
   expect(taps).toEqual(['chess-custom-start']);
 });
+
+// regression: health-offline-existing-room-socket
+test('the offline start waits for the room to observe the network cut', async () => {
+  const { ui, taps } = connectingDevice(false);
+  let disconnect = () => {};
+  const disconnected = new Promise<void>((resolve) => {
+    disconnect = resolve;
+  });
+  const get = ui.get.bind(ui);
+  const delayed: Driver = {
+    ...ui,
+    get: (id) => {
+      const node = get(id);
+      return id === 'chess-custom-connection-needed'
+        ? { ...node, expect: { ...node.expect, visible: () => disconnected } }
+        : node;
+    },
+  };
+  const starting = startCustomGame(delayed);
+  await Promise.resolve();
+  expect(taps).toEqual([]);
+  disconnect();
+  await starting;
+  expect(taps).toEqual(['chess-custom-start']);
+});
