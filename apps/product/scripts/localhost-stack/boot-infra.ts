@@ -2,8 +2,6 @@
 
 /** The backing services an API instance shares with its peers. */
 
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { startAedesServer } from '@pkgs/aedes-server';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
@@ -54,9 +52,7 @@ async function bootS3(): Promise<{
   readonly endpoint: string;
   stop(): Promise<void>;
 }> {
-  const s3 = await startS3Server({
-    directory: mkdtempSync(join(tmpdir(), 's3-')),
-  });
+  const s3 = await startS3Server();
   return { endpoint: s3.endpoint, stop: s3.stop };
 }
 

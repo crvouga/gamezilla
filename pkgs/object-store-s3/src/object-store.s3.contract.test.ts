@@ -1,10 +1,7 @@
-// Cached contract checks always use a private local S3rver, never credentials
+// Cached contract checks always use a private local Mockingbird S3, never credentials
 // or a shared bucket injected by the environment.
 
 import { afterAll, describe, expect, test } from 'bun:test';
-import { randomUUID } from 'node:crypto';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { runObjectStoreContractTests } from '@pkgs/object-store/object-store-contract';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store/prefixes';
 import {
@@ -17,9 +14,7 @@ import {
 import { createHarnessAdapters } from '@pkgs/uuid';
 import { createS3ObjectStore } from './impl-s3';
 
-const handle = await startS3Server({
-  directory: join(tmpdir(), `s3-contract-${randomUUID()}`),
-});
+const handle = await startS3Server();
 const s3Config = {
   endpoint: handle.endpoint,
   accessKeyId: S3_ACCESS_KEY_ID,

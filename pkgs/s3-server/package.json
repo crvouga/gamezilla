@@ -10,7 +10,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "s3rver": "catalog:"
+    "@crvouga/mockingbird-service-s3": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
