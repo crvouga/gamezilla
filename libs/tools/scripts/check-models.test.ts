@@ -16,6 +16,18 @@ describe('verifyStepsOf', () => {
 });
 
 describe('modelChecks', () => {
+  test('only the matching binding opts into separate induction', () => {
+    const checks = specPackages().flatMap(modelChecks);
+    expect(
+      checks
+        .filter((check) => check.separateInduction)
+        .map((check) => check.specUri)
+    ).toEqual(['specs/matchmaking/matching.qnt']);
+    expect(
+      checks.find((check) => check.specUri === 'specs/chess/multiplayer.qnt')
+        ?.separateInduction
+    ).toBeUndefined();
+  });
   test('preserves an explicitly selected array encoding and the default otherwise', () => {
     expect(modelEncodingOf("model: 'door', encoding: 'fun-arrays'")).toBe(
       'fun-arrays'

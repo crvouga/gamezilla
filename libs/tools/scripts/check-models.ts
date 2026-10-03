@@ -52,6 +52,7 @@ const VERIFY_STEPS = /\bverifySteps:\s*(\d+)/;
 const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/;
 const INDUCTIVE_INVARIANT = /\binductiveInvariant:\s*['"]([A-Za-z_]\w*)['"]/;
 const ENCODING = /\bencoding:\s*['"](fun-arrays)['"]/;
+const SEPARATE_INDUCTION = /\bseparateInduction:\s*true\b/;
 
 export type ModelCheck = {
   /** Repo-relative model path (`specs/friends/friendship.qnt`). */
@@ -59,6 +60,7 @@ export type ModelCheck = {
   readonly steps: number;
   readonly inductiveInvariant: string | null;
   readonly encoding?: 'fun-arrays';
+  readonly separateInduction?: true;
 };
 
 /** The bound a binding's text declares, or the default. */
@@ -105,6 +107,9 @@ export function modelChecks(
             ? null
             : (INDUCTIVE_INVARIANT.exec(binding)?.[1] ?? null),
         ...(encoding === undefined ? {} : { encoding }),
+        ...(binding !== null && SEPARATE_INDUCTION.test(binding)
+          ? { separateInduction: true as const }
+          : {}),
       };
     })
     .sort((a, b) => a.specUri.localeCompare(b.specUri));
@@ -181,6 +186,9 @@ async function checkModel(
           invariants,
           maxSteps: check.steps,
           ...(check.encoding === undefined ? {} : { encoding: check.encoding }),
+          ...(check.separateInduction === true
+            ? { separateInduction: true }
+            : {}),
           ...(check.inductiveInvariant === null
             ? {}
             : { inductiveInvariant: check.inductiveInvariant }),

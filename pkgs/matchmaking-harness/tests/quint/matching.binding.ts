@@ -104,6 +104,7 @@ bindQuintModel<MatchmakingTraceWorld>({
   traces: 128,
   maxSteps: 160,
   inductiveInvariant: '_proof',
+  separateInduction: true,
   actions: {
     init: async (w) => {
       w.harness = await matchmaking.run({
