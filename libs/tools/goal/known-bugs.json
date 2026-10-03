@@ -1853,5 +1853,15 @@
     "id": "build-glob-nested-braces",
     "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
     "regressionTest": "pkgs/glob-match/tests/glob-match.test.ts"
+  },
+  {
+    "id": "custom-game-host-refusal-vocabulary",
+    "summary": "The configuration binding compared the visible host-only creation denial with a different canonical model phrase. Translate the observed host-creation denial to the model's creator-authority vocabulary without changing admission.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-held-success",
+    "summary": "A repeated Custom Game choice at the same virtual instant clicked a control still displaying Confirmed, so the mutation lifecycle suppressed it and the harness never settled. Use the explicit acknowledged command while the success display holds.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
   }
 ]

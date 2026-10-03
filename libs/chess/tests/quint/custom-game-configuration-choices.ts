@@ -107,7 +107,9 @@ export async function configurationChoice(
   }
   (w.memo.get('configuration-refusals') as Map<string, string>).set(
     actor,
-    reason
+    reason === 'only the host creates a Custom Game'
+      ? 'only the creator'
+      : reason
   );
   if (reason === '')
     await w.s.read(

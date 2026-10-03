@@ -138,7 +138,11 @@ export async function changeThroughCustomGameControls(
     confirmUnavailable(probe, input) ||
     cannotStart ||
     (input.operation === 'move' && !boardAllows(probe, input));
-  if (modified || !(await ui.get(target).isVisible())) {
+  if (
+    modified ||
+    !(await ui.get(target).isVisible()) ||
+    (await ui.get(target).text()) === 'Confirmed'
+  ) {
     await chooseCustomGame(s, actor, input);
     return;
   }

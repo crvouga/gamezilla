@@ -26,6 +26,8 @@ import {
   configurationPerson,
   prepareConfiguration,
 } from './custom-game-configuration-world';
+import heldSuccess from './fixtures/custom-game-held-success.itf.json';
+import hostRefusal from './fixtures/custom-game-host-refusal-vocabulary.itf.json';
 import idempotentReadiness from './fixtures/custom-game-idempotent-readiness.itf.json';
 import offlineBoundary from './fixtures/custom-game-offline-boundary.itf.json';
 import staleCancellation from './fixtures/custom-game-stale-cancellation.itf.json';
@@ -47,6 +49,20 @@ bindQuintModel<QuintHarnessWorld>({
   encoding: 'fun-arrays',
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: custom-game-host-refusal-vocabulary
+      id: 'custom-game-host-refusal-vocabulary',
+      title: 'A host-only refusal preserves the observed authority reason',
+      seed: '0x67932',
+      itf: hostRefusal,
+    },
+    {
+      // regression: custom-game-held-success
+      id: 'custom-game-held-success',
+      title: 'A second choice confirms while earlier success remains visible',
+      seed: '0x67932',
+      itf: heldSuccess,
+    },
     {
       // regression: custom-game-stale-cancellation
       id: 'custom-game-stale-cancellation',
