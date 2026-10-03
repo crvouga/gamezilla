@@ -102,12 +102,12 @@ module custom_game {
   def _priorityReason(g: CustomGame, actor: Person, c: str): str = {
     val sender = _personOf(actor)
     if (_signedOut.contains(actor) or _spaceEnded or not(_members.contains(sender))) "not in the space"
+    else if (g.status == "none" and not(Set("create", "rematch").contains(c))) "no Custom Game"
     else if (_creatorCommand(c) and sender != "alice") "only the creator"
     else if (Set("create", "rematch").contains(c)) {
       if (g.status == "none" and c == "rematch") "no finished game"
       else if (g.status != "none" and not(_terminal(g))) "finish or cancel first" else ""
     }
-    else if (g.status == "none") "no Custom Game"
     else if (g.status == "completed") "finished"
     else if (g.status == "cancelled") "cancelled"
     else if (_settingCommand(c) and g.status != "configuring") "already started"
