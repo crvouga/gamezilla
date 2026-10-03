@@ -74,15 +74,15 @@ function thresholdForPointer(pointerType: string | undefined): number {
 
 function finishDrag(
   interaction: PointerSessionInteraction,
-  from: Square,
-  wasSelected: boolean,
+  drag: Extract<PointerSessionState, { readonly kind: 'drag' }>,
   to: Square | null
 ): void {
+  const { from, wasSelected, moved } = drag;
   if (to === null || to === from) {
     interaction.cancelDrag();
     // Tapping the already-selected piece deselects (the pick-up cleared the
     // selection, so only re-select when it was not selected before).
-    if (!wasSelected) interaction.tap(from);
+    if (!moved && !wasSelected) interaction.tap(from);
     return;
   }
   interaction.drop(from, to);
@@ -127,7 +127,7 @@ export function createPointerSession(
       state = IDLE;
       if (current.kind === 'drag') {
         const to = current.moved ? square : current.from;
-        finishDrag(interaction, current.from, current.wasSelected, to);
+        finishDrag(interaction, current, to);
         return;
       }
       if (current.kind === 'press' && square === current.square) {

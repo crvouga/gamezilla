@@ -12,6 +12,8 @@ type MemPlayer = AudioPlayerHandle & {
 
 export type InMemoryAudioPlaybackPort = AudioPlaybackPort & {
   readonly players: () => readonly AudioPlayerHandle[];
+  /** Actual play calls, including a call later followed by pause or removal. */
+  readonly playedSources: () => readonly unknown[];
   readonly failNext: () => void;
   readonly failNextMatching: (match: (source: unknown) => boolean) => void;
   readonly failures: () => number;
@@ -22,10 +24,13 @@ export type InMemoryAudioPlaybackPort = AudioPlaybackPort & {
   ) => void;
 };
 
-function createMemoryPlayer(
-  source: unknown,
-  emit: (player: MemPlayer) => void
-): MemPlayer {
+function emit(player: MemPlayer): void {
+  for (const listener of [...player.__listeners]) {
+    listener(player.__status.current);
+  }
+}
+
+function createMemoryPlayer(source: unknown, played: unknown[]): MemPlayer {
   const status: { current: AudioPlayerStatus } = {
     current: {
       playing: false,
@@ -42,6 +47,7 @@ function createMemoryPlayer(
     __status: status,
     __listeners: listeners,
     play() {
+      played.push(player.__source);
       status.current = {
         ...status.current,
         playing: true,
@@ -83,14 +89,9 @@ function createMemoryPlayer(
 /** Harness / test {@link AudioPlaybackPort} with call recording + failNext. */
 export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
   const created: MemPlayer[] = [];
+  const played: unknown[] = [];
   let failWhen: ((source: unknown) => boolean) | null = null;
   let failures = 0;
-
-  function emit(player: MemPlayer): void {
-    for (const listener of [...player.__listeners]) {
-      listener(player.__status.current);
-    }
-  }
 
   return {
     createPlayer(source) {
@@ -99,7 +100,7 @@ export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
         failures++;
         throw new Error('in-memory audio: failNext');
       }
-      const player = createMemoryPlayer(source, emit);
+      const player = createMemoryPlayer(source, played);
       created.push(player);
       return player;
     },
@@ -119,6 +120,9 @@ export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
     },
     players() {
       return created;
+    },
+    playedSources() {
+      return [...played];
     },
     failNext() {
       failWhen = () => true;

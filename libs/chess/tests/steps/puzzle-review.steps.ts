@@ -22,9 +22,11 @@ import {
   readPuzzleReviewFen,
   readPuzzleReviewMoveLabels,
   readPuzzleReviewProbe,
+  readRenderedPuzzleReviewBoard,
   readSelectedMoveLabel,
   waitPuzzleReviewReady,
 } from '@libs/chess/harness/chess-puzzle-review-ui';
+import { NAMED_PUZZLES } from '@libs/chess/harness/puzzle-fixtures';
 import { canonicalReviewPosition } from '@libs/chess/harness/puzzle-review-oracle';
 import {
   type Actor,
@@ -34,9 +36,11 @@ import {
   When,
 } from '@libs/harness/spec/define';
 import { remember } from '@libs/harness/spec/world';
+import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
   currentPuzzle,
   ensureStatsOpen,
+  enterNamedPuzzle,
   lastPlayer,
   recalled,
   required,
@@ -80,6 +84,9 @@ async function expectReviewAt(
   expect(await w.s.read(readPuzzleReviewFen, actor)).toBe(
     canonicalReviewPosition(row, at.move)
   );
+  expect((await w.s.read(readRenderedPuzzleReviewBoard, actor)).fen).toBe(
+    canonicalReviewPosition(row, at.move)
+  );
   // The current move is the highlighted one.
   expect(await w.s.read(readSelectedMoveLabel, actor)).toStartWith(
     `${String(at.move - 1)}|`
@@ -96,6 +103,8 @@ When(
 Given(
   '{actor} is reviewing the solved puzzle at move {int}',
   async (w, actor: Actor, move: number) => {
+    if (!w.memo.has('puzzle:' + actor))
+      await enterNamedPuzzle(w, actor, NAMED_PUZZLES.fourMoveMateInTwo);
     await w.s.apply(playUntilSolved, actor);
     await openReview(w, actor);
     // The review opens on the last move; any other is chosen from the list.
@@ -103,6 +112,7 @@ Given(
       ' '
     ).length;
     if (move !== last) await w.s.apply(tapPuzzleReviewMove, actor, move - 1);
+    await w.s.read(readRenderedPuzzleReviewBoard, actor);
   }
 );
 
@@ -132,6 +142,7 @@ Then(
 When(
   '{actor} steps {direction} one move in the review',
   async (w, actor: Actor, way: Direction) => {
+    await markPuzzleSoundBoundary(w, actor);
     await w.s.apply(pressPuzzleReviewNav, actor, way);
   }
 );

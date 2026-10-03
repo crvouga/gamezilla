@@ -19,6 +19,19 @@ describe('mergeCosts', () => {
     ).toEqual({ '@p/a#tc': 7, '@p/b#lint': 9 });
   });
 
+  test('sanitized shard evidence supplies costs without cached task timings', () => {
+    expect(
+      mergeCosts({}, [
+        JSON.stringify({
+          tasks: [
+            { taskId: '@p/a#tc', cache: 'MISS', milliseconds: 4200 },
+            { taskId: '@p/b#tc', cache: 'HIT', milliseconds: 0 },
+          ],
+        }),
+      ])
+    ).toEqual({ '@p/a#tc': 4 });
+  });
+
   test('a task two shards ran keeps the larger; a cache hit measures nothing', () => {
     expect(
       mergeCosts({ '@p/c#test': 50 }, [

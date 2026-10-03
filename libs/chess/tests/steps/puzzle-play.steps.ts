@@ -58,6 +58,7 @@ import { cutConnection } from '@libs/harness/spec/steps/platform';
 import { remember } from '@libs/harness/spec/world';
 import { createSpace } from '@libs/spaces/harness/space-actions';
 import type { Square } from '@pkgs/chess-board-core/types';
+import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
   activePuzzle,
   boardBefore,
@@ -101,6 +102,7 @@ async function playMove(
   const uci = uciOf(move);
   await waitSolverToMove(w, actor);
   await rememberBoard(w, actor);
+  await markPuzzleSoundBoundary(w, actor);
   remember(w, moveKey(actor), uci);
   remember(w, LAST_MOVER, actor);
   await w.s.apply(playPuzzleMove, actor, uci);
@@ -258,6 +260,7 @@ Then("{actor}'s puzzle is not solved", async (w, actor: Actor) => {
 });
 
 When('{actor} plays a wrong move', async (w, actor: Actor) => {
+  await markPuzzleSoundBoundary(w, actor);
   await w.s.apply(playWrongPuzzleMove, actor);
 });
 
@@ -401,15 +404,19 @@ Then(
 
 // ------------------------------------------------------------------- moves
 
-When('{actor} plays the move {word}', async (w, actor: Actor, move: string) => {
-  await playMove(w, actor, move);
-});
+// regression: merge-puzzle-move-wording — Alice plays a1-a5
+When(
+  '{actor} plays (the move ){word}',
+  async (w, actor: Actor, move: string) => {
+    await playMove(w, actor, move);
+  }
+);
 Given('{actor} has played {word}', async (w, actor: Actor, move: string) => {
   await playMove(w, actor, move);
 });
 
 When(
-  '{actor} plays the move {word} and promotes to a {word}',
+  '{actor} plays (the move ){word} and promotes to a {word}',
   async (w, actor: Actor, move: string, piece: string) => {
     await playMove(w, actor, move);
     await w.s.apply(choosePuzzlePromotion, actor, promotionPiece(piece));

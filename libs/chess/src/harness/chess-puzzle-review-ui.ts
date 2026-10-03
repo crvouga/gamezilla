@@ -7,12 +7,24 @@
 import { actorUi, pollUntil } from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { Handles } from '@libs/test-ids';
+import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
 import type { DriverKey } from '@pkgs/ui-testing';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 100;
 
 export type PuzzleNavControl = 'start' | 'back' | 'forward' | 'end';
+
+/** Actual public board state; the review's own timeline probe is separate. */
+export async function readRenderedPuzzleReviewBoard(
+  s: ProductHarness,
+  actorId: string
+) {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessPuzzleBoardFrame).layout();
+  await ui.get(Handles.chessPuzzleReviewBoard).layout();
+  return new ChessBoardFlows(ui, Handles.chessPuzzleReviewBoard).readProbe();
+}
 
 function stripProbe(text: string | null | undefined): string {
   return (text ?? '').replace(/​/g, '').trim();

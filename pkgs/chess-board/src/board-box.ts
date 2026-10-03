@@ -29,13 +29,14 @@ export function measureBoardBox(
   fallbackPx: number
 ): BoardBox {
   const rect = node.getBoundingClientRect();
-  const left = node.clientLeft;
-  const top = node.clientTop;
-  const inner = node.clientWidth > 0 ? node.clientWidth : rect.width - 2 * left;
+  const scale = fallbackPx > 0 ? rect.width / fallbackPx : 1;
+  const borderX = node.clientLeft * scale;
+  const borderY = node.clientTop * scale;
+  const inner = rect.width - 2 * borderX;
   return {
-    left: rect.left + left,
-    top: rect.top + top,
-    size: inner > 0 ? inner : fallbackPx,
+    left: rect.left + borderX,
+    top: rect.top + borderY,
+    size: Number.isFinite(inner) && inner > 0 ? inner : 0,
   };
 }
 
@@ -97,8 +98,9 @@ export function cellAt(
   box: BoardBox,
   point: BoardPoint
 ): { col: number; row: number } | null {
-  if (box.size <= 0) return null;
+  if (!Number.isFinite(box.size) || box.size <= 0) return null;
   const { x, y } = point;
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
   if (x < 0 || y < 0 || x >= box.size || y >= box.size) return null;
   const cell = box.size / 8;
   return { col: Math.floor(x / cell), row: Math.floor(y / cell) };

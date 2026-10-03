@@ -125,6 +125,7 @@ terms:
   - term: sounds
     definition: The app's sound effects, which a person can turn off and on; a preference.
     avoid: [audio, sfx]
+    published: true
 
   - term: About in Settings
     definition: The part of Settings that shows which version of the app a person has.

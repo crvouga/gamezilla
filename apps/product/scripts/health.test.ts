@@ -63,6 +63,22 @@ test('health loads its live entry and constructs the real S3 transport', () => {
   }
 });
 
+// regression: health-solid-preload-order
+test('live health runs server adapters without the local DOM harness conditions', () => {
+  const stub = '.cache/spec-live/runtime-stored-files.feature.test.ts';
+  const args = healthTestArguments(parseCli(['--bail']), [stub]);
+  expect(args).toEqual([
+    'test',
+    '--timeout',
+    '900000',
+    '--parallel',
+    '--bail',
+    stub,
+  ]);
+  const health = readFileSync(join(import.meta.dir, 'health.ts'), 'utf8');
+  expect(health).toContain("'tests/steps/live-index.ts'");
+});
+
 describe('health host limits', () => {
   test('a production environment runs every scenario', () => {
     for (const limit of HOST_LIMITS) {
@@ -203,4 +219,27 @@ describe('synthetic discovery', () => {
     });
     expect(parseCli(['--target=test']).target).toBe('test');
   });
+});
+
+// regression: health-ui-step-loader-order
+test('live health avoids local UI steps while local specs preload the macro loader', () => {
+  const local = readFileSync(
+    join(import.meta.dir, '../tests/steps/index.ts'),
+    'utf8'
+  );
+  const developer = readFileSync(
+    join(import.meta.dir, '../tests/steps/developer-world.ts'),
+    'utf8'
+  );
+  const live = readFileSync(
+    join(import.meta.dir, '../tests/steps/live-index.ts'),
+    'utf8'
+  );
+  expect(
+    developer.indexOf("import '@pkgs/bun-test-solid/preload'")
+  ).toBeLessThan(developer.indexOf('import { openHarness }'));
+  expect(local).toContain("import './live-index'");
+  expect(live).toContain('useLiveWorld()');
+  expect(live).not.toContain('@pkgs/bun-test-solid/preload');
+  expect(live).not.toContain('@libs/harness/');
 });

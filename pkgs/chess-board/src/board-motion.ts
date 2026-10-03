@@ -7,8 +7,8 @@
  * engine can run compositor animations at all.
  *
  * Slides only ever animate `transform` (and the capture fade `opacity`), the
- * two properties browsers run on the compositor thread: once started they
- * keep 60fps even while the main thread is busy.
+ * two properties suitable for compositor animation. Frame performance is
+ * checked separately from the final rules state.
  */
 
 import type { Accessor } from 'solid-js';
@@ -78,6 +78,8 @@ export function resolveMotionPolicy(input: MotionPolicyInput): MotionPolicy {
   if (!input.enabled || input.prefersReducedMotion || !input.canAnimate) {
     return OFF;
   }
+  if (input.durationMs !== undefined && !Number.isFinite(input.durationMs))
+    return OFF;
   const durationMs = Math.max(
     0,
     Math.round(input.durationMs ?? DEFAULT_MOVE_DURATION_MS)

@@ -145,6 +145,23 @@ class AnimatorModel {
 }
 
 describe('createPieceAnimator', () => {
+  test('a cancelled completion cannot retarget a newer arrival or erase its handle', () => {
+    const fake = createFakeAnimate();
+    const animator = createPieceAnimator({
+      animate: () => fake.animate,
+      paintedTransform: () => 'translate(20px, 20px)',
+    });
+    const el = document.createElement('div');
+    animator.place(el, cell(0), { slide: false, durationMs: 150 });
+    animator.place(el, cell(8), { slide: true, durationMs: 150 });
+    animator.place(el, cell(16), { slide: true, durationMs: 150 });
+    fake.slides[0]?.finish?.();
+    expect(el.style.transform).toBe(cell(16));
+    expect(fake.running()).toHaveLength(1);
+    animator.grab(el);
+    expect(fake.running()).toHaveLength(0);
+  });
+
   test('a piece always ends up resting where it was last placed', () => {
     assertProperty(
       'piece-animator-model',

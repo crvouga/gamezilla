@@ -50,7 +50,7 @@ import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PACKAGE_DIR, '../..');
-const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
+const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/live-index.ts');
 const SLO_ENTRY = join(PACKAGE_DIR, 'tests/openslo/index.ts');
 const FEATURE_SUFFIX = '.feature';
 const SLO_SUFFIX = '.openslo.yaml';

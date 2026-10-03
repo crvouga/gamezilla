@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { modelTemporalProperties, verifyTemporal } from '@pkgs/quint/temporal';
 
@@ -24,6 +25,7 @@ test(
   'concurrent temporal checks own independent checker servers',
   async () => {
     // regression: quint-temporal-shared-port
+    // regression: check-tlc-shared-temporary-modules
     const results = await Promise.all(
       ['first', 'second'].map((name) =>
         verifyTemporal({
@@ -37,6 +39,14 @@ test(
     for (const result of results) {
       expect(result).toMatchObject({ ok: true });
       if (result.ok) expect(result.statesExplored).toBeGreaterThan(0);
+    }
+    for (const name of ['first', 'second']) {
+      const directory = join(OUT, `concurrent-${name}`);
+      // Literal failing input: two progress.qnt parsers read an incomplete
+      // shared /tmp/Integers.tla. Each standard module must now be private.
+      expect(readFileSync(join(directory, 'tlc-output.txt'), 'utf8')).toContain(
+        join(directory, 'tmp/Integers.tla')
+      );
     }
   },
   TIMEOUT_MS

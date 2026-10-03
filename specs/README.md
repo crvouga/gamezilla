@@ -1209,7 +1209,10 @@ in its header. It models operator actions and database states rather than
 app devices. All structural checks, nontrivial invariants, initialization,
 action reachability, trace replay and bounded verification still apply;
 device connectivity checks apply to the default offline-first app profile.
-Unknown or duplicate profiles fail the shape check.
+A local surface whose behavior has no connection dependency declares
+`// @model-profile: local` and describes that independence in its header.
+It retains every structural and conformance obligation without inventing
+connection-dependent commands. Unknown or duplicate profiles fail the shape check.
 
 Quint reads `x' = a and b` as `(x' = a) and b`: bracket an assignment's
 right-hand side. An `init` that can never hold draws empty traces, which the

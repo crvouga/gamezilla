@@ -16,6 +16,7 @@
     "@pkgs/os": "workspace:*"
   },
   "devDependencies": {
+    "@actions/artifact": "catalog:",
     "@libs/harness": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/conformance": "workspace:*",

@@ -229,7 +229,8 @@ const REMOTE_LOOKUP_TIMEOUT_MS = 10_000;
 
 /** Wall `HEAD` against the self-hosted remote cache: does it hold `hash`? */
 export function wallRemoteHas(
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  observe?: (status: number) => void
 ): (hash: string) => Promise<boolean> {
   const api = env['TURBO_API'] ?? '';
   const team = env['TURBO_TEAM'] ?? '';
@@ -240,6 +241,7 @@ export function wallRemoteHas(
       headers: { Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
     });
+    observe?.(res.status);
     return res.ok;
   };
 }
