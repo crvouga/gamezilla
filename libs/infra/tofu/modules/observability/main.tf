@@ -34,10 +34,11 @@ data "grafana_cloud_stack" "this" {
 
   lifecycle {
     postcondition {
-      # Free-plan stacks pause when idle and resume on use; OpenTofu cannot
-      # resume one. Anything else (missing, deleting) blocks the apply.
-      condition     = contains(["active", "paused"], self.status)
-      error_message = "Grafana Cloud stack ${var.stack_slug} is ${self.status} — run `bun run infra:bootstrap`, or resume it in the Grafana UI."
+      # The Grafana instance can be archived while hosted Tempo stays active.
+      # This module uses tracing only; require its backend, and reject terminal
+      # or unknown stack states without replacing any existing trace storage.
+      condition     = contains(["active", "paused", "archived"], self.status) && self.traces_status == "active"
+      error_message = "Grafana Cloud stack ${var.stack_slug} is ${self.status}, tracing is ${self.traces_status} — restore the existing tracing service before deploying."
     }
   }
 }
