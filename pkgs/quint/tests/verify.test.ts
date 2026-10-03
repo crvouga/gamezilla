@@ -91,6 +91,7 @@ describe('verify', () => {
         specPath: join(FIXTURES, 'door-induction-initial.qnt'),
         invariants: ['invNeverOpen'],
         inductiveInvariant: 'invNeverOpen',
+        separateInduction: true,
         maxSteps: 4,
         outDir: join(OUT, 'invalid-initial-induction'),
         timeoutMs: CHECK_TIMEOUT_MS,
@@ -100,6 +101,46 @@ describe('verify', () => {
       expect(result.output).toContain('; initial)');
       expect(result.output).toContain('found a counterexample');
       expect(result.output).toContain('[State 0] { state: "open" }');
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test.concurrent(
+    'separate induction checks a later guarded choice and its enclosing draws',
+    async () => {
+      // regression: quint-induction-redundant-state-zero
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-induction-choices.qnt'),
+        invariants: ['invNeverOpen'],
+        inductiveInvariant: 'invNeverOpen',
+        separateInduction: true,
+        maxSteps: 4,
+        outDir: join(OUT, 'invalid-later-induction-choice'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.output).toContain('found a counterexample');
+      expect(result.output).toContain('[State 1] { state: "open" }');
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test.concurrent.each(['invKnownState', 'invNeverOpen'])(
+    'separate induction retains the safety implication for %s',
+    async (invariant) => {
+      // regression: quint-induction-redundant-state-zero
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-induction-choices.qnt'),
+        invariants: [invariant],
+        inductiveInvariant: 'invKnownState',
+        separateInduction: true,
+        maxSteps: 4,
+        outDir: join(OUT, `separate-implication-${invariant}`),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(invariant === 'invKnownState');
+      if (!result.ok) expect(result.output).toContain('; implication)');
     },
     CHECK_TIMEOUT_MS
   );

@@ -42,6 +42,8 @@ export type VerifyOptions = {
   readonly maxSteps: number;
   /** Prove this candidate initially, under every step, and as implying every invariant. */
   readonly inductiveInvariant?: string;
+  /** Opt into fresh solver phases, without rechecking the assumed initial candidate. */
+  readonly separateInduction?: boolean;
   /** Apalache's working directory and QUINT_HOME (emptied first). */
   readonly outDir: string;
   /** Kill the check (Quint and its Apalache server) after this long. */
@@ -77,19 +79,60 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
     quintHome: linkQuintHome(options.outDir, apalache.home),
   });
   const elapsed = wallStopwatch();
-  for (const phase of phases) {
-    const configPath = verifyConfig(options, phase);
+  const runPhase = async (
+    phase: VerifyPhase
+  ): Promise<VerifyResult | undefined> => {
+    const phaseOptions =
+      phase.case === undefined
+        ? options
+        : {
+            ...options,
+            outDir: join(options.outDir, `case-${String(phase.case)}`),
+          };
+    mkdirSync(phaseOptions.outDir, { recursive: true });
+    const configPath = verifyConfig(phaseOptions, phase);
     const port = await freePort();
     const run = await runQuint({
-      args: verifyArgs(options, phase, port, configPath),
-      cwd: options.outDir,
+      args: verifyArgs(phaseOptions, phase, port, configPath),
+      cwd: phaseOptions.outDir,
       env,
       timeoutMs: Math.max(0, options.timeoutMs - elapsed()),
     });
-    const failure = runFailure(options, phase, run);
+    return runFailure(options, phase, run);
+  };
+  for (const name of [
+    'bounded',
+    'induction',
+    'initial',
+    'preservation',
+    'implication',
+  ] as const) {
+    const failure = await runPhaseGroup(
+      phases.filter((phase) => phase.name === name),
+      runPhase
+    );
     if (failure !== undefined) return failure;
   }
   return { ok: true, durationMs: elapsed() };
+}
+
+/** Independent cases share one deadline and at most four solver processes. */
+async function runPhaseGroup(
+  phases: readonly VerifyPhase[],
+  runPhase: (phase: VerifyPhase) => Promise<VerifyResult | undefined>
+): Promise<VerifyResult | undefined> {
+  let next = 0;
+  let failure: VerifyResult | undefined;
+  const worker = async () => {
+    while (failure === undefined) {
+      const phase = phases[next++];
+      if (phase === undefined) return;
+      const result = await runPhase(phase);
+      if (result !== undefined) failure ??= result;
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(4, phases.length) }, worker));
+  return failure;
 }
 
 function runFailure(
@@ -143,9 +186,14 @@ function verifyArgs(
     APALACHE_VERSION,
     '--server-endpoint',
     `127.0.0.1:${String(port)}`,
-    '--invariants',
-    ...phase.invariants,
+    ...(phase.invariants.length === 0
+      ? []
+      : ['--invariants', ...phase.invariants]),
     ...(phase.init === undefined ? [] : ['--init', phase.init]),
+    ...(phase.step === undefined ? [] : ['--step', phase.step]),
+    ...(phase.inductiveInvariant === undefined
+      ? []
+      : ['--inductive-invariant', phase.inductiveInvariant]),
   ];
 }
 
@@ -162,7 +210,10 @@ function verifyConfig(options: VerifyOptions, phase: VerifyPhase): string {
       : { 'smt-encoding': { type: options.encoding } }),
     tuning: {
       'search.invariant.mode':
-        options.inductiveInvariant === undefined ? 'after' : 'before',
+        options.inductiveInvariant === undefined ||
+        phase.name === 'preservation'
+          ? 'after'
+          : 'before',
       // Initialization already proved the candidate. Its reflexive check
       // under that same assumption adds no obligation to preservation.
       ...(phase.name === 'preservation'
