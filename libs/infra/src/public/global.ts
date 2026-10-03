@@ -55,6 +55,19 @@ export const globalFileSchema = z
         repo: id,
         repo_id: z.string().regex(/^[1-9][0-9]*$/),
         required_checks: z.array(id).min(1),
+        check_integration_id: z.number().int().positive(),
+        settings: z
+          .object({
+            visibility: z.enum(['private', 'public', 'internal']),
+            homepage_url: z.url(),
+            has_issues: z.boolean(),
+            has_projects: z.boolean(),
+            has_wiki: z.boolean(),
+            has_discussions: z.boolean(),
+            allow_forking: z.boolean(),
+          })
+          .strict(),
+        environments: z.array(id),
       })
       .strict(),
     depot: z.object({ org_id: id }).strict(),
@@ -89,7 +102,6 @@ export const globalFileSchema = z
         aws_depot_oidc_provider: id.optional(),
         infisical_environments: z.record(z.string(), id).optional(),
         github_repository: id.optional(),
-        github_branch_protection: id.optional(),
         github_variables: z.array(id).optional(),
         grafana_stack: id.optional(),
       })

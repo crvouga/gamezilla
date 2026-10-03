@@ -35,10 +35,45 @@ import {
   id       = each.value
 }
 
+# The transferred repository has no legacy protection to adopt. Forget a
+# stale state address without deleting safeguards if another state has one.
+removed {
+  from = module.repository.github_branch_protection.main
+  lifecycle {
+    destroy = false
+  }
+}
+
+# These settings already exist. Import blocks are idempotent once adopted.
 import {
-  for_each = var.global_imports.github_branch_protection == null ? toset([]) : toset([var.global_imports.github_branch_protection])
-  to       = module.repository.github_branch_protection.main
-  id       = each.value
+  to = module.repository.github_branch_default.main
+  id = var.github.repo
+}
+
+import {
+  to = module.repository.github_actions_repository_permissions.this
+  id = var.github.repo
+}
+
+import {
+  to = module.repository.github_workflow_repository_permissions.this
+  id = var.github.repo
+}
+
+import {
+  to = module.repository.github_repository_vulnerability_alerts.this
+  id = var.github.repo
+}
+
+import {
+  to = module.repository.github_repository_dependabot_security_updates.this
+  id = var.github.repo
+}
+
+import {
+  for_each = var.github.environments
+  to       = module.repository.github_repository_environment.this[each.value]
+  id       = "${var.github.repo}:${each.value}"
 }
 
 # The org's one free-plan stack, created in the Grafana UI before OpenTofu.

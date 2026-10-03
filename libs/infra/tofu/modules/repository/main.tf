@@ -1,7 +1,4 @@
-# The GitHub repository's settings, `main` protection and the Actions
-# variables the workflows read. STATEFUL: the repository is the code; it is
-# never destroyed (prevent_destroy, archive_on_destroy, plan policy).
-
+# Existing repository, adopted by bootstrap; never recreated or destroyed.
 terraform {
   required_providers {
     github = { source = "integrations/github" }
@@ -12,57 +9,130 @@ variable "name" {
   type = string
 }
 
+variable "settings" {
+  type = object({
+    visibility      = string
+    homepage_url    = string
+    has_issues      = bool
+    has_projects    = bool
+    has_wiki        = bool
+    has_discussions = bool
+    allow_forking   = bool
+  })
+}
+
 variable "required_checks" {
   type        = list(string)
-  description = "Gate jobs a PR must pass (each workflow's job named after it)."
+  description = "Aggregate gate jobs reported on PRs, not post-merge Deploy or Health."
+}
+
+variable "check_integration_id" {
+  type        = number
+  description = "GitHub App ID observed on the required check runs; prevents another actor spoofing the gate."
 }
 
 variable "variables" {
   type = map(string)
 }
 
+variable "environments" {
+  type        = set(string)
+  description = "Existing deployment environments, adopted without new approval gates."
+}
+
 resource "github_repository" "this" {
-  name                   = var.name
-  archive_on_destroy     = true
-  allow_auto_merge       = false
-  delete_branch_on_merge = true
-  allow_merge_commit     = true
-  allow_squash_merge     = false
-  allow_rebase_merge     = false
+  name                        = var.name
+  visibility                  = var.settings.visibility
+  homepage_url                = var.settings.homepage_url
+  has_issues                  = var.settings.has_issues
+  has_projects                = var.settings.has_projects
+  has_wiki                    = var.settings.has_wiki
+  has_discussions             = var.settings.has_discussions
+  allow_forking               = var.settings.allow_forking
+  archive_on_destroy          = true
+  archived                    = false
+  is_template                 = false
+  allow_auto_merge            = false
+  allow_update_branch         = true
+  delete_branch_on_merge      = true
+  allow_merge_commit          = false
+  allow_squash_merge          = true
+  allow_rebase_merge          = false
+  squash_merge_commit_title   = "PR_TITLE"
+  squash_merge_commit_message = "PR_BODY"
+  web_commit_signoff_required = false
+
+  # Preserve current secret-scanning settings. Version 6.13 advertises
+  # code_security and secret_scanning_non_provider_patterns but omits them
+  # from both read and write; declaring them would cause perpetual drift.
+  # See README.md#infrastructure for the provider limitation.
+  security_and_analysis {
+    secret_scanning {
+      status = "disabled"
+    }
+    secret_scanning_push_protection {
+      status = "disabled"
+    }
+  }
 
   lifecycle {
     prevent_destroy = true
-    # Metadata edited in the GitHub UI (description, topics, features) is not
-    # policy; only the settings above are.
-    ignore_changes = [
-      description, homepage_url, topics, has_issues, has_projects, has_wiki,
-      has_discussions, has_downloads, visibility, vulnerability_alerts,
-      security_and_analysis, pages, template, is_template, auto_init,
-      gitignore_template, license_template, allow_update_branch,
-      merge_commit_message, merge_commit_title, squash_merge_commit_message,
-      squash_merge_commit_title, web_commit_signoff_required, allow_forking,
-    ]
+    # Descriptive metadata is outside policy. No policy settings are ignored.
+    ignore_changes = [description, topics]
   }
 }
 
-# `main` only moves through a PR whose required checks are green on the
-# latest main. Admins included; no force pushes or deletion.
-resource "github_branch_protection" "main" {
-  repository_id       = github_repository.this.node_id
-  pattern             = "main"
-  enforce_admins      = true
-  allows_deletions    = false
-  allows_force_pushes = false
+resource "github_branch_default" "main" {
+  repository = github_repository.this.name
+  branch     = "main"
+}
 
-  required_pull_request_reviews {
-    dismiss_stale_reviews           = false
-    require_code_owner_reviews      = false
-    required_approving_review_count = 0
+resource "github_repository_ruleset" "main" {
+  name        = "main"
+  repository  = github_repository.this.name
+  target      = "branch"
+  enforcement = "active"
+
+  # Explicit main still stays protected if somebody changes the default
+  # branch before OpenTofu restores it. No bypass actors, including CI/admins.
+  conditions {
+    ref_name {
+      include = ["refs/heads/main"]
+      exclude = []
+    }
   }
 
-  required_status_checks {
-    strict   = true
-    contexts = var.required_checks
+  rules {
+    deletion                = true
+    non_fast_forward        = true
+    required_linear_history = true
+
+    pull_request {
+      allowed_merge_methods             = ["squash"]
+      required_approving_review_count   = 0
+      require_code_owner_review         = false
+      require_last_push_approval        = false
+      dismiss_stale_reviews_on_push     = false
+      required_review_thread_resolution = true
+    }
+
+    required_status_checks {
+      # Current main + the green aggregate gate is the simplest guarantee
+      # supported by this private Team repository (no merge queue).
+      strict_required_status_checks_policy = true
+      do_not_enforce_on_create             = false
+      dynamic "required_check" {
+        for_each = toset(var.required_checks)
+        content {
+          context        = required_check.value
+          integration_id = var.check_integration_id
+        }
+      }
+    }
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
