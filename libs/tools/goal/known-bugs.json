@@ -1863,5 +1863,10 @@
     "id": "custom-game-held-success",
     "summary": "A repeated Custom Game choice at the same virtual instant clicked a control still displaying Confirmed, so the mutation lifecycle suppressed it and the harness never settled. Use the explicit acknowledged command while the success display holds.",
     "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "puzzle-skipped-reconnect",
+    "summary": "An origin recovery wait inside the mutation upload loop error handler rejected during disposal and escaped the owned loop. Consume intentional HTTP cancellation at that wait while preserving unrelated errors and queued mutations.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-attempt.binding.ts"
   }
 ]
