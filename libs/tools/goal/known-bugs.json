@@ -1,5 +1,15 @@
 [
   {
+    "id": "quint-convergence-resampled",
+    "summary": "Trace conformance sampled again after observing convergence and could report a transient state during queued reconnect commands. Evaluate the same observation that established convergence; pin both long reconnect histories.",
+    "regressionTest": "pkgs/quint/tests/replay-observation.test.ts"
+  },
+  {
+    "id": "room-short-partition-loses-commands",
+    "summary": "A partition healed before the heartbeat lost offline commands without notifying the room client to resynchronize. A failed send closes the transport so its durable queue is replayed after healing.",
+    "regressionTest": "libs/harness/tests/partition-aware-room-transport.test.ts"
+  },
+  {
     "id": "room-archive-migration-history",
     "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
     "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
