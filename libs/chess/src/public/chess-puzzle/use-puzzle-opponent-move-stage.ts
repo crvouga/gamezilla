@@ -14,7 +14,7 @@ export function usePuzzleOpponentMoveStage(
   args: Accessor<OpponentStagerInput>
 ): Accessor<PuzzleOpponentMoveStage> {
   const timers = useTimers();
-  const stager = createPuzzleOpponentStager(timers);
+  const stager = createPuzzleOpponentStager(timers, args());
   onCleanup(() => stager.dispose());
 
   createEffect(() => {

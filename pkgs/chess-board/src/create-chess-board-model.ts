@@ -11,6 +11,7 @@ import {
   captureGhostForTransition,
 } from '@pkgs/chess-board-core/capture-ghost';
 import type { ChessGame, ChessGameSnapshot } from '@pkgs/chess-board-core/game';
+import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import {
   BoardInteraction,
   type BoardInteractionSnapshot,
@@ -20,11 +21,18 @@ import {
   createMoveSoundScheduler,
   type PostMoveAudio,
 } from '@pkgs/chess-board-core/move-sound';
+import { pieceCode } from '@pkgs/chess-board-core/piece-code';
 import {
   type ChessPieceRow,
   createPieceRowsTracker,
 } from '@pkgs/chess-board-core/piece-rows';
-import type { Move, PieceColor, Position } from '@pkgs/chess-board-core/types';
+import type {
+  BoardOrientation,
+  Move,
+  PieceColor,
+  Position,
+  Square,
+} from '@pkgs/chess-board-core/types';
 import type { Timers } from '@pkgs/clock/types';
 import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
 import {
@@ -41,6 +49,8 @@ export type ChessBoardModelArgs = {
   readonly fen: Accessor<string | undefined>;
   readonly fenSyncKey: Accessor<number | undefined>;
   readonly interactive: Accessor<boolean>;
+  readonly soundEnabled: Accessor<boolean>;
+  readonly orientation: Accessor<BoardOrientation>;
   /** Pieces slide (motion policy); the capture ghost only covers a slide. */
   readonly animated: Accessor<boolean>;
   /** Slide duration; capture SFX and the ghost follow it. */
@@ -48,7 +58,7 @@ export type ChessBoardModelArgs = {
   readonly onMove: (move: Move) => void;
   /** A gesture tried an illegal move (after the illegal sound). */
   readonly onIllegal: () => void;
-  readonly sounds: ChessMoveSoundPlayer;
+  readonly sounds: ChessMoveSoundPlayer & { readonly cancel: () => void };
   readonly timers: Timers;
   readonly premoves: Accessor<boolean>;
   readonly autoPromoteQueen: Accessor<boolean>;
@@ -62,28 +72,35 @@ export type ChessBoardModel = {
   readonly actions: BoardInteraction;
   readonly rows: Accessor<readonly ChessPieceRow[]>;
   readonly captureGhost: Accessor<CaptureGhost | null>;
+  readonly captureTargets: Accessor<readonly Square[]>;
 };
 
 function createExternalFenSync(
   args: ChessBoardModelArgs,
   interaction: BoardInteraction,
-  playMove: (move: Move, post: PostMoveAudio) => void
+  playMove: (move: Move, post: PostMoveAudio) => void,
+  cancelSound: () => void
 ): void {
   let prevFenProp: string | undefined;
+  let prevKey: number | undefined;
+  let seen = false;
   createEffect(
-    on([args.fen, args.fenSyncKey], ([fen]) => {
+    on([args.fen, args.fenSyncKey], ([fen, key]) => {
       if (fen === undefined || fen.length === 0) return;
+      if (seen && fen === prevFenProp && key === prevKey) return;
       const localFen = args.game.getSnapshot().fen;
-      const wasInSync = prevFenProp === undefined || localFen === prevFenProp;
-      const result = args.game.applyExternalFen(fen);
+      seen = true;
       prevFenProp = fen;
-      // Keep a queued premove across opponent plies so flushPremmove can run.
-      interaction.clear({ retainPremmove: true });
+      prevKey = key;
+      if (localFen === fen) return;
+      const result = args.game.applyExternalFen(fen);
       if (result === null) return;
-      // A single-ply external change while in sync is an opponent / canned
-      // reply: keep its last-move highlight and play SFX. Optimistic desync
-      // repairs (wrong-move revert) stay silent and unhighlighted.
-      if (result.moved !== null && wasInSync) {
+      cancelSound();
+      interaction.clear({ retainPremmove: result.moved !== null });
+      // A canonical successor may include confirmation and the opponent reply
+      // in one parent update. Replacements and rejected optimistic moves
+      // have no legal inferred move, so they stay silent and unhighlighted.
+      if (result.moved !== null) {
         playMove(result.moved, result);
         interaction.flushPremmove();
         return;
@@ -94,13 +111,35 @@ function createExternalFenSync(
   );
 }
 
+type CaptureOwner = { square: Square; code: string };
+function captureOwner(
+  position: Position,
+  move: Move | null
+): CaptureOwner | undefined {
+  if (move === null) return undefined;
+  const piece = position[indexFromSquare(move.to)];
+  if (piece === undefined || piece === null) return undefined;
+  return { square: move.to, code: pieceCode(piece.color, piece.type) ?? '' };
+}
+function ownerRemains(owner: CaptureOwner | undefined, position: Position) {
+  if (owner === undefined) return false;
+  const piece = position[indexFromSquare(owner.square)];
+  return (
+    piece !== undefined &&
+    piece !== null &&
+    pieceCode(piece.color, piece.type) === owner.code
+  );
+}
 function createCaptureGhost(
   args: ChessBoardModelArgs,
   game: Accessor<ChessGameSnapshot>
 ): Accessor<CaptureGhost | null> {
   const [ghost, setGhost] = createSignal<CaptureGhost | null>(null);
   let prev: Position | null = null;
+  let orientation: BoardOrientation | undefined;
+  let animated: boolean | undefined;
   let handle: unknown;
+  let owner: CaptureOwner | undefined;
   const clear = (): void => {
     if (handle !== undefined) args.timers.clearTimeout(handle);
     handle = undefined;
@@ -108,19 +147,35 @@ function createCaptureGhost(
   onCleanup(clear);
   createEffect(
     on(
-      () => game().position,
-      (position) => {
+      [() => game().position, args.animated, args.orientation],
+      ([position, slides, facing]) => {
+        if (position === prev && slides === animated && facing === orientation)
+          return;
         const next = captureGhostForTransition({
           prev,
           position,
           lastMove: game().lastMove,
-          animations: args.animated(),
+          animations:
+            slides && (orientation === undefined || facing === orientation),
         });
+        const retained =
+          next === null &&
+          ghost() !== null &&
+          slides &&
+          facing === orientation &&
+          game().lastMove !== null &&
+          ownerRemains(owner, position);
         prev = position;
-        if (next === null) return;
+        animated = slides;
+        orientation = facing;
+        if (retained) return;
         clear();
         setGhost(next);
+        owner = undefined;
+        if (next === null) return;
+        owner = captureOwner(position, game().lastMove);
         handle = args.timers.setTimeout(() => {
+          handle = undefined;
           setGhost(null);
         }, args.moveDurationMs());
       }
@@ -133,8 +188,17 @@ export function createChessBoardModel(
   args: ChessBoardModelArgs
 ): ChessBoardModel {
   const scheduler = createMoveSoundScheduler(args.sounds, args.timers);
-  onCleanup(scheduler.dispose);
+  const cancelSound = (): void => {
+    scheduler.dispose();
+    args.sounds.cancel();
+  };
+  onCleanup(cancelSound);
+  createEffect(() => {
+    if (!args.soundEnabled()) cancelSound();
+  });
   const playMove = (move: Move, post: PostMoveAudio): void => {
+    args.sounds.cancel();
+    if (!args.soundEnabled()) return;
     scheduler.apply(move, post, {
       captureDelayMs:
         args.animated() && move.captured !== undefined
@@ -151,7 +215,7 @@ export function createChessBoardModel(
         args.onMove(result.move);
       },
       onIllegal: () => {
-        args.sounds.playIllegal();
+        if (args.soundEnabled()) args.sounds.playIllegal();
         args.onIllegal();
       },
     },
@@ -165,7 +229,7 @@ export function createChessBoardModel(
   const game = createSubscriptionSignal(args.game);
   const interaction = createSubscriptionSignal(actions);
 
-  createExternalFenSync(args, actions, playMove);
+  createExternalFenSync(args, actions, playMove, cancelSound);
 
   // Local apply flips the turn — flush if a premove was queued somehow.
   createEffect(
@@ -184,11 +248,20 @@ export function createChessBoardModel(
     return tracker.next(snapshot.position, snapshot.lastMove);
   });
 
+  const captureTargets = createMemo(() => {
+    const current = game();
+    const ix = interaction();
+    const from = ix.selected ?? ix.dragFrom;
+    return from === null || current.isGameOver
+      ? []
+      : args.game.legalCapturesFrom(from);
+  });
   return {
     game,
     interaction,
     actions,
     rows,
     captureGhost: createCaptureGhost(args, game),
+    captureTargets,
   };
 }

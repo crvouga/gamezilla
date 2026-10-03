@@ -13,7 +13,7 @@ export type QueuedPremove = {
 
 export type PremoveQueue = {
   list(): readonly QueuedPremove[];
-  /** False when the queue is already at max capacity. */
+  /** False when the queue is at capacity or already contains this move. */
   enqueue(m: QueuedPremove): boolean;
   clear(): void;
   cancelLast(): void;
@@ -35,7 +35,16 @@ export function createPremoveQueue(max: number = DEFAULT_MAX): PremoveQueue {
   return {
     list: () => items,
     enqueue(m) {
-      if (items.length >= maxN) return false;
+      if (
+        items.length >= maxN ||
+        items.some(
+          (queued) =>
+            queued.from === m.from &&
+            queued.to === m.to &&
+            queued.promotion === m.promotion
+        )
+      )
+        return false;
       items = [...items, m];
       notify();
       return true;

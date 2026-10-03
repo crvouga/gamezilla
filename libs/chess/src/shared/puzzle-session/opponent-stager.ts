@@ -82,8 +82,14 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
     opponentAnimating: false,
   };
 
-  constructor(timers: Timers) {
+  constructor(timers: Timers, initial: OpponentStagerInput) {
     this.timers = timers;
+    if (canStage(initial)) {
+      this.prev = {
+        solveIdx: initial.solveIdx,
+        furthestSolveIdx: initial.furthestSolveIdx,
+      };
+    }
   }
 
   getSnapshot = (): OpponentStagerSnapshot => this.snapshot;
@@ -181,7 +187,8 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
 }
 
 export function createPuzzleOpponentStager(
-  timers: Timers
+  timers: Timers,
+  initial: OpponentStagerInput
 ): PuzzleOpponentStager {
-  return new PuzzleOpponentStagerImpl(timers);
+  return new PuzzleOpponentStagerImpl(timers, initial);
 }

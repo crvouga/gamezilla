@@ -42,8 +42,12 @@ function FeedbackMark(props: {
     props.theme.feedback[props.badge.feedback.kind];
   const opacity = () => props.badge.feedback.opacity ?? 1;
   const scale = (BADGE_RADIUS * 2) / 100;
-  const path = () => GLYPH_PATHS_100[props.badge.feedback.kind];
-  const text = () => TEXT_GLYPH[props.badge.feedback.kind];
+  const path = () =>
+    props.badge.feedback.label === undefined
+      ? GLYPH_PATHS_100[props.badge.feedback.kind]
+      : undefined;
+  const text = () =>
+    props.badge.feedback.label ?? TEXT_GLYPH[props.badge.feedback.kind];
   return (
     <g
       opacity={opacity()}
@@ -89,6 +93,12 @@ function FeedbackMark(props: {
             fill={props.theme.lightSquare}
             font-size={String(BADGE_FONT_SIZE)}
             font-weight={700}
+            textLength={
+              props.badge.feedback.label === undefined
+                ? undefined
+                : BADGE_RADIUS * 1.6
+            }
+            lengthAdjust="spacingAndGlyphs"
           >
             {label()}
           </text>

@@ -125,6 +125,7 @@ terms:
   - term: sounds
     definition: The app's sound effects, which a person can turn off and on; a preference.
     avoid: [audio, sfx]
+    published: true
 
   - term: About in Settings
     definition: The part of Settings that shows which version of the app a person has.
@@ -143,8 +144,7 @@ terms:
       Use the app by hearing it read aloud instead of seeing it, as people who
       cannot see it do. They hear what every control does and what every
       picture that means something shows.
-    forms: [is listening to the app, listening to the app, listens to the app]
-    published: true
+    forms: [is listening to the app, listening to the app, listens to the app, hears, hear]
     avoid: [screen reader, assistive technology, accessible name, alt text, label]
 
   - term: keyboard

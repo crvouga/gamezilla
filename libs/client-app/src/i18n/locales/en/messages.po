@@ -373,6 +373,10 @@ msgstr "Best streak"
 msgid "Billing"
 msgstr "Billing"
 
+#: pkgs/chess-board/src/chess-board-promotion.tsx
+msgid "Bishop"
+msgstr "Bishop"
+
 #: libs/chess/src/root/custom-game/custom-game-side.tsx
 #: libs/chess/src/root/custom-game/custom-game-status.tsx
 msgid "Black"
@@ -1415,6 +1419,10 @@ msgstr "just now"
 msgid "Keep a separate account"
 msgstr "Keep a separate account"
 
+#: pkgs/chess-board/src/chess-board-promotion.tsx
+msgid "Knight"
+msgstr "Knight"
+
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Last error"
 msgstr "Last error"
@@ -2100,6 +2108,10 @@ msgstr "Puzzle unavailable"
 msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 msgstr "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 
+#: pkgs/chess-board/src/chess-board-promotion.tsx
+msgid "Queen"
+msgstr "Queen"
+
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
 msgid "Random"
@@ -2258,6 +2270,10 @@ msgstr "Review position"
 #: libs/chess/src/root/custom-game/custom-game-side.tsx
 msgid "Revoke invitation"
 msgstr "Revoke invitation"
+
+#: pkgs/chess-board/src/chess-board-promotion.tsx
+msgid "Rook"
+msgstr "Rook"
 
 #: libs/client-app/src/screens/more/performance-screen.tsx
 msgid "Sampled from this tab while the monitor is on."

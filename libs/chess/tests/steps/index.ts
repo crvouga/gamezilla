@@ -19,6 +19,7 @@ import './account-privacy.steps';
 import './puzzle-feed.steps';
 import './puzzle-rating.steps';
 import './puzzle-review.steps';
+import './puzzle-sound.steps';
 import './puzzle-allowance.steps';
 import './puzzle-spectator.steps';
 import './puzzle-recovery.steps';

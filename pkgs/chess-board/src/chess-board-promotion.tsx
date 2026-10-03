@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /** Promotion picker stacked on the destination file. */
 
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
@@ -10,7 +10,7 @@ import type {
   PieceColor,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX, onMount, Show } from 'solid-js';
 
 import styles from './chess-board.module.css';
 
@@ -87,6 +87,38 @@ function CancelChip(props: {
   );
 }
 
+function PromotionChoice(props: {
+  readonly boardTestId: string;
+  readonly kind: PromotionKind;
+  readonly color: PieceColor;
+  readonly theme: BoardTheme;
+  readonly onPick: (p: PromotionKind) => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  let button: HTMLButtonElement | undefined;
+  onMount(() => {
+    if (props.kind === 'q') button?.focus();
+  });
+  const name = () =>
+    ({ q: t`Queen`, r: t`Rook`, b: t`Bishop`, n: t`Knight` })[props.kind];
+  return (
+    <button
+      ref={button}
+      class="clickable clickableTint p-0 w-full aspect-square"
+      style={{ 'background-color': props.theme.promotion.surface }}
+      type="button"
+      aria-label={name()}
+      data-testid={chessBoardPromotionTestId(props.boardTestId, props.kind)}
+      onClick={() => props.onPick(props.kind)}
+    >
+      <span
+        class={`${styles['piece']} ${styles['promotionPiece']}`}
+        data-piece={`${props.color}${props.kind}`}
+      />
+    </button>
+  );
+}
+
 function PromotionStack(props: {
   readonly boardTestId: string;
   readonly layout: StackLayout;
@@ -109,25 +141,23 @@ function PromotionStack(props: {
       style={props.layout.style}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => {
-        if (e.key === 'Escape') props.onCancel();
+        e.stopPropagation();
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          props.onCancel();
+        }
       }}
     >
       <Show when={props.layout.cancelFirst}>{cancel()}</Show>
       <For each={[...props.layout.kinds]}>
         {(kind) => (
-          <button
-            class="clickable clickableTint p-0 w-full aspect-square"
-            style={{ 'background-color': props.theme.promotion.surface }}
-            type="button"
-            aria-label={kind}
-            data-testid={chessBoardPromotionTestId(props.boardTestId, kind)}
-            onClick={() => props.onPick(kind)}
-          >
-            <span
-              class={`${styles['piece']} ${styles['promotionPiece']}`}
-              data-piece={`${props.color}${kind}`}
-            />
-          </button>
+          <PromotionChoice
+            boardTestId={props.boardTestId}
+            kind={kind}
+            color={props.color}
+            theme={props.theme}
+            onPick={props.onPick}
+          />
         )}
       </For>
       <Show when={!props.layout.cancelFirst}>{cancel()}</Show>
@@ -158,7 +188,11 @@ export function ChessBoardPromotion(
       on:contextmenu={(e) => e.preventDefault()}
       onClick={() => props.onCancel()}
       onKeyDown={(e) => {
-        if (e.key === 'Escape') props.onCancel();
+        e.stopPropagation();
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          props.onCancel();
+        }
       }}
     >
       <PromotionStack

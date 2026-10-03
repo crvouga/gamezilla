@@ -2,8 +2,10 @@ import { chessSoundUrls } from '@pkgs/sounds/chess-sound-urls';
 import {
   createAudioPlayer,
   createPlayFromStartHandles,
+  useSoundsPreference,
   warmAudioPlayers,
 } from '@pkgs/sounds/solid';
+import { createEffect, on } from 'solid-js';
 
 const PUZZLE_SOUND_KEYS = [
   'solved',
@@ -31,15 +33,24 @@ export function useChessPuzzleSounds(): {
   };
 
   const handles = createPlayFromStartHandles(players);
+  const preference = useSoundsPreference();
+  createEffect(
+    on(preference.muted, (muted) => {
+      if (muted) for (const key of PUZZLE_SOUND_KEYS) handles[key].cancel();
+    })
+  );
   warmAudioPlayers(
     PUZZLE_SOUND_KEYS.map((key) => players[key]),
     PUZZLE_SOUND_KEYS.map((key) => handles[key])
   );
 
+  const play = (key: PuzzleSoundKey) => {
+    if (!preference.muted()) handles[key].play();
+  };
   return {
-    playSolved: () => handles.solved.play(),
-    playEloCompleteGain: () => handles.eloCompleteGain.play(),
-    playEloCompleteLoss: () => handles.eloCompleteLoss.play(),
-    playCorrectMove: () => handles.correctMove.play(),
+    playSolved: () => play('solved'),
+    playEloCompleteGain: () => play('eloCompleteGain'),
+    playEloCompleteLoss: () => play('eloCompleteLoss'),
+    playCorrectMove: () => play('correctMove'),
   };
 }

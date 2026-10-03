@@ -48,7 +48,10 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
     on(
       () => getCtrl().model.game().lastMove,
       (move) => {
-        if (move === null) return;
+        if (move === null) {
+          setLiveMessage('');
+          return;
+        }
         const g = getCtrl().model.game();
         const piece = g.position[indexFromSquare(move.to)];
         setLiveMessage(
@@ -57,6 +60,8 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
             piece: piece ?? null,
             inCheck: g.inCheck,
             isCheckmate: g.isCheckmate,
+            isStalemate: g.isStalemate,
+            isGameOver: g.isGameOver,
           })
         );
       }
@@ -121,6 +126,7 @@ function BoardBody(args: {
         position={() => game().position}
         washes={useWashes(args.props, args.ctrl)}
         legalTargets={() => ix().legalTargets}
+        captureTargets={args.ctrl.model.captureTargets}
         cellHighlights={() => args.props.cellHighlights}
         showCoordinates={() => args.props.showCoordinates !== false}
         highlightLegalMoves={() => args.props.highlightLegalMoves !== false}
@@ -134,6 +140,7 @@ function BoardBody(args: {
         premoveGhosts={usePremoveGhosts(args.ctrl)}
         animator={args.ctrl.animator}
         motion={args.ctrl.motion}
+        canSlide={() => game().lastMove !== null}
       />
       <ChessBoardShapes
         boardTestId={args.boardTestId()}
@@ -154,6 +161,10 @@ function BoardBody(args: {
         orientation={args.ctrl.orientation()}
         onSquareFocus={(square) => args.ctrl.onSquareFocus(square)}
         cursor={args.ctrl.cursor()}
+        position={() => game().position}
+        selected={() => ix().selected ?? ix().dragFrom}
+        legalTargets={() => ix().legalTargets}
+        cellFeedback={() => args.props.cellFeedback}
       />
       <ChessBoardOverlays
         ctrl={args.ctrl}
@@ -225,7 +236,7 @@ export function ChessBoardView(args: {
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       role="application"
-      aria-label="Chess board"
+      aria-label={`Chess board, ${args.ctrl.orientation()} facing you`}
     >
       <BoardBody
         props={args.props}

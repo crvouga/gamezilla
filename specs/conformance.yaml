@@ -14,6 +14,7 @@ product:
     - billing
     - feedback
     - chess
+    - chess-board
     - developer-tools
     - db-indexes
     - friends
@@ -46,15 +47,6 @@ product:
     - { id: play puzzles, context: chess, decided by: access }
     - { id: customize the puzzle feed, context: chess, decided by: access }
     - { id: start a rated puzzle, context: chess, decided by: daily-puzzle-limit }
-    - { id: create a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: configure a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: invite a Custom Game participant, context: chess, decided by: custom-game-access }
-    - { id: configure a Custom Game bot, context: chess, decided by: custom-game-access }
-    - { id: start a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: cancel a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: join a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: watch a Custom Game, context: chess, decided by: custom-game-access }
-    - { id: play a Custom Game, context: chess, decided by: custom-game-access }
     - { id: create a space, context: spaces, decided by: access }
     - { id: join a space, context: spaces, decided by: access }
     - { id: host another open space, context: spaces, decided by: hosting-limit }
@@ -66,6 +58,11 @@ product:
 
   # Promises made to people outside the product that a rewrite must keep.
   public contracts:
+    - id: reusable chessboard
+      context: chess-board
+      promise: >-
+        An activity controls its chessboard position and settings; silence,
+        interrupted gestures and motion remain correct when those change.
     - id: account privacy
       context: profile
       promise: >-

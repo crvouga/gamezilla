@@ -150,7 +150,7 @@ export class BoardPointer {
   private downPrimary(e: PointerEvent): void {
     const touch = e.pointerType === 'touch';
     this.args.setTouch(touch);
-    if (this.args.enableUserArrows()) this.args.userShapes.clear();
+    this.args.userShapes.clear();
     this.startPress(e, { pointerId: e.pointerId, button: 'primary', touch });
     const square = this.squareOf(e);
     // One reactive flush: a pick-up publishes the interaction state more
@@ -193,9 +193,11 @@ export class BoardPointer {
     host.addEventListener('pointerup', this.onUp);
     host.addEventListener('pointercancel', this.onLost);
     host.addEventListener('lostpointercapture', this.onLost);
+    host.ownerDocument.defaultView?.addEventListener('blur', this.onBlur);
   }
 
   private endPress(): void {
+    const pointerId = this.press?.pointerId;
     this.press = null;
     this.boxes.clear();
     const host = this.host;
@@ -204,6 +206,14 @@ export class BoardPointer {
     host.removeEventListener('pointerup', this.onUp);
     host.removeEventListener('pointercancel', this.onLost);
     host.removeEventListener('lostpointercapture', this.onLost);
+    host.ownerDocument.defaultView?.removeEventListener('blur', this.onBlur);
+    if (pointerId !== undefined) {
+      try {
+        host.releasePointerCapture(pointerId);
+      } catch {
+        /* Already lost. */
+      }
+    }
   }
 
   private readonly onMove = (e: PointerEvent): void => {
@@ -250,6 +260,8 @@ export class BoardPointer {
     if (this.press === null || e.pointerId !== this.press.pointerId) return;
     this.cancelPress();
   };
+
+  private readonly onBlur = (): void => this.cancelPress();
 
   private readonly onContextMenu = (e: MouseEvent): void => {
     // The board owns the right button (shapes / cancel), never the menu.
