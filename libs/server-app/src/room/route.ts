@@ -1,4 +1,4 @@
-import { BearerAuthResolver } from '@libs/auth/public/bearer-resolve';
+import { appAuth } from '@libs/auth/public/auth-context';
 import { ANON_ID_HEADER } from '@libs/auth/public/session-middleware';
 import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
@@ -32,7 +32,7 @@ export const ROOM_ACTOR_GRANTS_HEADER = 'x-actor-grants';
 
 /** Who is connecting, as resolved from the upgrade request. */
 type RoomActor = {
-  /** Room identity: the account when the bearer resolves, else the install. */
+  /** Bound user identity, resolved by the same auth port as sync mutations. */
   readonly memberId: string;
   readonly deviceId: string;
   readonly accountId: string | null;
@@ -44,13 +44,12 @@ type RoomActor = {
  * the upgrade to the `ROOM` DO; the DO validates `module` and runs game
  * logic from there.
  *
- * Actor id is the Meet-style member id: signed-in account when the bearer +
- * device binding resolve, otherwise the install device id (anon device *is*
- * the user). Device binding is still verified when signed in.
+ * Actor id is the bound user for both guests and signed-in people, resolved
+ * exactly as it is for sync mutations. A device id is not a user id.
  *
- * When a bearer is offered but fails to resolve, fall back to the install id
- * so the socket can still sync. Clients refresh `token` on reconnect
- * (URL factory + getFreshToken) to restore account identity for host checks.
+ * A stale bearer can still resolve a bound guest through the auth port.
+ * Unresolved devices retain their install identity and need permission to
+ * enter the room. Clients refresh `token` on reconnect.
  *
  * Fallback: a fresh per-connection UUID when no anonId is available.
  *
@@ -116,13 +115,11 @@ async function resolveRoomActor(c: Context<ApiHonoEnv>): Promise<RoomActor> {
   const bearer = parseBearer(request);
   const anonId = parseAnonId(request);
 
-  if (bearer !== null && anonId !== null && isUuid(anonId)) {
-    const accountId = await tryResolveAccount(c, bearer, anonId);
+  if (anonId !== null && isUuid(anonId)) {
+    const accountId = await tryResolveAccount(request, bearer, anonId);
     if (accountId !== null) {
       return { memberId: accountId, deviceId: anonId, accountId };
     }
-    // Stale bearer: fall back to install id so the socket can still sync.
-    return { memberId: anonId, deviceId: anonId, accountId: null };
   }
   const deviceId = anonId ?? requireRequestStore().createId();
   return { memberId: deviceId, deviceId, accountId: null };
@@ -150,17 +147,20 @@ async function decideRoomGrants(
 }
 
 async function tryResolveAccount(
-  c: Context<ApiHonoEnv>,
-  bearerToken: string,
+  request: Request,
+  bearerToken: string | null,
   deviceId: string
 ): Promise<string | null> {
   try {
-    const { clock, createId } = requireRequestStore();
-    return await new BearerAuthResolver(
-      c.get('sqlClient'),
-      c.get('authServer'),
-      { clock, createId }
-    ).resolveAccountId(bearerToken, deviceId);
+    const { sqlClient, sessionAuth } = requireRequestStore();
+    const headers = new Headers({ [ANON_ID_HEADER]: deviceId });
+    if (bearerToken !== null)
+      headers.set('Authorization', `Bearer ${bearerToken}`);
+    const claims = await sessionAuth.resolveAuthContext(
+      sqlClient,
+      new Request(request.url, { headers })
+    );
+    return appAuth(claims)?.accountId ?? null;
   } catch {
     // Any auth resolution failure (invalid token, DB hiccup, etc.) falls back
     // to anon — never blocks the upgrade.
