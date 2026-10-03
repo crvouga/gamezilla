@@ -5,6 +5,7 @@ Feature: Guest puzzle progress carries over
   and reaches their other devices exactly once.
 
   Rule: A guest keeps every attempt when the app closes and when they sign in
+    No counter-example: Closing the app or signing in preserves the same person's progress.
 
     Scenario: A guest's offline solve survives the app closing before the connection comes back
       Given Alice is a guest

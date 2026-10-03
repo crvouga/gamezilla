@@ -13,8 +13,8 @@ export type ChessPuzzleFeedConfigSetter = (
 /**
  * One shared feed state for the whole chess surface. Every reader (picker,
  * feed bar, settings modal, pool subscription) sees the same config signal,
- * so an edit in the modal re-picks and re-syncs immediately instead of
- * living in a per-hook copy until remount.
+ * so a saved choice re-picks and re-syncs immediately. The settings modal
+ * previews a separate draft until the person saves it.
  */
 export type ChessPuzzleFeedState = {
   readonly config: Accessor<ChessPuzzleFeedConfig>;

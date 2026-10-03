@@ -15,7 +15,7 @@ Feature: The daily rated puzzle allowance
     Scenario: The next puzzle past the limit does not start
       Given Alice is a guest who has finished today's last allowed puzzle
       When Alice asks for another puzzle
-      Then Alice is shown the puzzle limit within 15 seconds
+      Then Alice is told no new puzzle can start because today's allowance is used within 15 seconds
       And Alice has no puzzle on the board
 
   Rule: Reaching the limit mid-puzzle lets that puzzle finish
@@ -59,5 +59,22 @@ Feature: The daily rated puzzle allowance
       Given Alice is a guest who has finished today's last allowed puzzle
       And Alice has left the puzzle for the chess choices
       When Alice goes back to the puzzles
-      Then Alice is shown the puzzle limit within 15 seconds
+      Then Alice is told no new puzzle can start because today's allowance is used within 15 seconds
       And Alice has no puzzle on the board
+
+  Rule: The remaining daily allowance is visible while solving
+    No counter-example: A limited allowance always tells the solver how many rated puzzles remain today.
+
+    Scenario: Starting a puzzle shows the remaining allowance
+      Given Alice is a guest
+      And Alice is hosting a space
+      When Alice opens puzzles in their space
+      Then Alice can read that 19 rated puzzles remain today
+
+    @regression:puzzle-allowance-no-readable-count
+    Scenario: Retrying uses none of the remaining allowance
+      Given Alice is a guest
+      And Alice is playing puzzles in their space
+      And Alice has played a wrong move
+      When Alice retries the puzzle
+      Then Alice can read that 19 rated puzzles remain today

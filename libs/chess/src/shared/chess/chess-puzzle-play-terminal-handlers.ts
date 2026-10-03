@@ -51,6 +51,18 @@ export function handleShowSolution(
       },
     };
   }
+  if (
+    ChessPuzzlePlayAttr.solveIdx.from(state) !==
+    ChessPuzzlePlayAttr.furthestSolveIdx.from(state)
+  ) {
+    return {
+      ok: false,
+      error: {
+        type: ROOM_ERROR_TYPE.conflict,
+        reason: 'return to the current position before showing the solution',
+      },
+    };
+  }
   const fen = ChessPuzzlePlayAttr.fen.from(state);
   const moves = ChessPuzzlePlayAttr.moves.from(state);
   const solveIdx = puzzleTokensLength(moves);

@@ -61,7 +61,7 @@ export function AppProviders(props: {
 }): JSX.Element {
   const env = useClientEnv();
   return (
-    <AppThemeProvider kv={env.kv}>
+    <AppThemeProvider kv={env.kv} motion={env.motion}>
       <AppProvidersOuter embedded={props.embedded}>
         <AppProvidersSession>{props.children}</AppProvidersSession>
       </AppProvidersOuter>

@@ -1,9 +1,4 @@
-import {
-  type HandleResult,
-  ROOM_ERROR_TYPE,
-  type RoomEvent,
-  type RoomState,
-} from '@pkgs/room';
+import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
 
 import { tokenize, uciToSquares } from './chess-puzzle-fsm';
 import {
@@ -43,13 +38,30 @@ function isHostOf(state: RoomState, identity: string): boolean {
   return host !== null && host === identity;
 }
 
-function buildHintEvents(state: RoomState): HintHandleResult {
+function requireCurrentSolvingPosition(
+  state: RoomState
+): HintHandleResult | null {
   const status = ChessPuzzlePlayAttr.status.from(state);
-  if (
-    status !== CHESS_PUZZLE_PLAY_STATUS.solving &&
-    status !== CHESS_PUZZLE_PLAY_STATUS.wrong
-  ) {
+  if (status !== CHESS_PUZZLE_PLAY_STATUS.solving) {
     return conflict(`cannot request hint while status is ${status}`);
+  }
+  if (
+    ChessPuzzlePlayAttr.solveIdx.from(state) !==
+    ChessPuzzlePlayAttr.furthestSolveIdx.from(state)
+  ) {
+    return conflict('return to the current position before requesting help');
+  }
+  return null;
+}
+
+function buildHintEvents(state: RoomState): HintHandleResult {
+  const denied = requireCurrentSolvingPosition(state);
+  if (denied !== null) return denied;
+  if (
+    ChessPuzzlePlayAttr.expectedFromSquare.from(state) !== null ||
+    ChessPuzzlePlayAttr.expectedToSquare.from(state) !== null
+  ) {
+    return conflict('the first hint is already taken');
   }
   const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
   const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
@@ -94,18 +106,12 @@ export function handleRevealSolution(
   if (ChessPuzzlePlayAttr.solutionRevealed.from(state)) {
     return conflict('solution already revealed');
   }
-
+  const denied = requireCurrentSolvingPosition(state);
+  if (denied !== null) return denied;
   const from = ChessPuzzlePlayAttr.expectedFromSquare.from(state);
   const to = ChessPuzzlePlayAttr.expectedToSquare.from(state);
-  const events: RoomEvent[] = [];
-
-  // One-shot Solution (wrong-mode bar): materialize hint squares first.
   if (from === null || to === null) {
-    const hint = buildHintEvents(state);
-    if (!hint.ok) return hint;
-    events.push(...hint.events);
+    return conflict('take the first hint before revealing the solution move');
   }
-
-  events.push(ChessPuzzleSolutionRevealed({}));
-  return { ok: true, events };
+  return { ok: true, events: [ChessPuzzleSolutionRevealed({})] };
 }

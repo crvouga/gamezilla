@@ -4,6 +4,7 @@ Feature: Feed choices stick
   the feed is still theirs after the app closes and on their other devices.
 
   Rule: Saved feed settings stay after the app closes and follow the account to other devices
+    No counter-example: Saved choices belong to the account and remain its choices on return.
 
     Background:
       Given Alice is signed in
@@ -11,8 +12,8 @@ Feature: Feed choices stick
       And Alice has saved a custom feed target raised by 1 step
 
     Scenario: The feed choices are kept after the app closes
-      When Alice closes and reopens the app
-      And Alice returns to their space
+      Given Alice has closed and reopened the app
+      When Alice returns to their space
       Then Alice's feed targets a custom 1550
 
     @regression:puzzle-feed-settings-device-local
@@ -22,6 +23,6 @@ Feature: Feed choices stick
 
     Scenario: The history filter is kept after the app closes
       Given Alice has changed the feed history to "Any" and saved the feed settings
-      When Alice closes and reopens the app
-      And Alice returns to their space
+      Given Alice has closed and reopened the app
+      When Alice returns to their space
       Then Alice's feed history shows "Any"

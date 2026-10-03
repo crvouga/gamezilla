@@ -1,19 +1,16 @@
 import { ensureActor, scenarioAction } from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
-import { accountIdOf, actorLocalSql } from '@libs/harness/system/identity';
+import { accountIdOf } from '@libs/harness/system/identity';
 import { bringToFront, partitioned } from '@libs/harness/system/observations';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-import {
-  ChessPuzzlePlayAttr,
-  ChessPuzzleResultAttr,
-} from '../public/chess-puzzle-play';
 import {
   playUntilSolved,
   retryPuzzle,
   returnToOwnSpace,
   showChessStatsScreen,
 } from './chess-actions';
+import { readRecoveryStats } from './puzzle-recovery-stats';
 
 export const closePuzzleApp = scenarioAction({
   name: 'closePuzzleApp',
@@ -81,27 +78,40 @@ async function records(db: SqlTx, owner: string, puzzle: string) {
   };
 }
 
-/** Canonical decided result and each open app's actual local progress rows. */
+/** The durable first result, used to place the second arrival after it. */
+export async function readRecordedPuzzleResult(
+  s: ProductHarness,
+  actor: string,
+  puzzle: string
+): Promise<string> {
+  const owner = await accountIdOf(s, actor);
+  if (owner === null) throw new Error('No solver account');
+  return (await records(s.harness.serverSql.sqlClient, owner, puzzle))
+    .ratedResult;
+}
+
+/** Each open app reads its own visible stats after the modeled navigation. */
+export const viewRecoveryStats = scenarioAction({
+  name: 'viewRecoveryStats',
+  act: async (s, includeOther: boolean) => {
+    for (const device of includeOther
+      ? ['alice', 'bob', 'charlie']
+      : ['alice', 'bob']) {
+      if (!s.actors.has(device)) continue;
+      await bringToFront(s, device);
+      await Promise.resolve(returnToOwnSpace.act(s, device));
+      await Promise.resolve(showChessStatsScreen.act(s, device));
+    }
+  },
+});
+
+/** Only displayed game logs and ratings are compared with the model. */
 export async function puzzleRecoveryState(
   s: ProductHarness,
-  spaceId: string,
-  puzzle: string
+  puzzle: string,
+  readingStats: boolean,
+  includeOther: boolean
 ) {
-  const state = s.harness.roomNode.inspect(`space:${spaceId}`)?.committedState;
-  if (state === undefined) throw new Error('No committed puzzle');
-  const owner = await accountIdOf(s, 'alice');
-  const watcher = await accountIdOf(s, 'bob');
-  if (owner === null || watcher === null) throw new Error('Accounts missing');
-  // Leaving the board clears its transient state. The rated attempt remains
-  // in the account's progress and must still be observed after navigation.
-  const firstResult =
-    ChessPuzzlePlayAttr.puzzleId.from(state) === puzzle
-      ? resultName(
-          ChessPuzzleResultAttr.outcome.from(state),
-          ChessPuzzleResultAttr.score.from(state)
-        )
-      : (await records(s.harness.serverSql.sqlClient, owner, puzzle))
-          .ratedResult;
   const gameLog = new Map<string, string>();
   const ratedResult = new Map<string, string>();
   const open = new Map<string, boolean>();
@@ -112,22 +122,16 @@ export async function puzzleRecoveryState(
       device,
       !partitioned(s).some((edge) => edge.split('|').includes(device))
     );
-    if (!s.actors.has(device)) continue;
-    const db = actorLocalSql(s, device);
-    if (db === null) throw new Error('Open app has no local database');
-    const result = await records(
-      db,
-      device === 'bob' ? watcher : owner,
-      puzzle
-    );
+    if (
+      !readingStats ||
+      !s.actors.has(device) ||
+      (device === 'charlie' && !includeOther)
+    )
+      continue;
+    await bringToFront(s, device);
+    const result = await readRecoveryStats(s, device, puzzle);
     gameLog.set(device, result.gameLog);
     ratedResult.set(device, result.ratedResult);
   }
-  return {
-    firstResult,
-    gameLog,
-    ratedResult,
-    _open: open,
-    _online: online,
-  };
+  return { gameLog, ratedResult, _open: open, _online: online };
 }

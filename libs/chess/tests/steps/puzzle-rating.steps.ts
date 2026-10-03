@@ -21,6 +21,7 @@ import {
   readStatsSolved,
 } from '@libs/chess/harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess/harness/chess-rating-data';
+import { readPuzzleRatingHistoryDirections } from '@libs/chess/harness/puzzle-rating-history-reads';
 import {
   PUZZLE_PROVISIONAL_RD,
   PUZZLE_RATING_DEFAULT,
@@ -285,12 +286,9 @@ Then(
     );
     // Oldest first: each solve raised the rating and each failure lowered
     // it, and the last is the rating the stats show now.
-    const moves = history.map((rating, index) =>
-      rating > (history[index - 1] ?? PUZZLE_RATING_DEFAULT)
-        ? 'solved'
-        : 'failed'
-    );
-    expect(moves).toEqual([...results]);
+    expect(await w.s.read(readPuzzleRatingHistoryDirections, actor)).toEqual([
+      ...results,
+    ]);
     expect(history.at(-1)).toBe(
       required(await w.s.read(readStatsElo, actor), `${actor}'s rating`)
     );

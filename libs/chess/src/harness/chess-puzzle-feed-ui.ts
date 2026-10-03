@@ -3,14 +3,26 @@
  * history / mode segments, step the rating offset, and read the bar labels.
  */
 
-import { actorUi, pollUntil } from '@libs/harness/system/actor-ui';
+import {
+  actorUi,
+  pollUntil,
+  scenarioAction,
+} from '@libs/harness/system/actor-ui';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import { Handles } from '@libs/test-ids';
 import { formatChessPuzzleThemeLabel } from '../public/chess-puzzle-theme-label';
-import type { ChessPuzzleTheme } from '../public/chess-puzzle-themes';
+import {
+  type ChessPuzzleTheme,
+  isChessPuzzleTheme,
+} from '../public/chess-puzzle-themes';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 250;
+
+export function puzzleThemeNamed(name: string): ChessPuzzleTheme {
+  if (!isChessPuzzleTheme(name)) throw new Error(`no puzzle theme "${name}"`);
+  return name;
+}
 
 export type FeedHistoryFilter = 'any' | 'neverSeen' | 'seen' | 'failed';
 export type FeedMode = 'auto' | 'custom';
@@ -40,6 +52,17 @@ export async function closeFeedSettings(
     timeoutMs: WAIT_MS,
   });
 }
+
+export const discardFeedSettings = scenarioAction({
+  name: 'discardFeedSettings',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    await ui.key('escape');
+    await ui
+      .get(Handles.chessPuzzleFeedDone)
+      .expect.hidden({ timeoutMs: WAIT_MS });
+  },
+});
 
 export async function selectFeedHistory(
   s: ProductHarness,
