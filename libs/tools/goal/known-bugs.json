@@ -2038,5 +2038,10 @@
     "id": "multiplayer-journey-unbound",
     "summary": "The multiplayer journey feature had no bindings in either the full-app CI runner or the shared live journey entry. Bind the three literal journeys through rendered multiplayer controls and observations.",
     "regressionTest": "libs/runtime/tests/multiplayer-journey-runner.test.ts"
+  },
+  {
+    "id": "multiplayer-journey-parameter-registration",
+    "summary": "Multiplayer journey steps used the actor parameter without registering it in the live entry; CI loaded that entry before the local harness side effect and failed at import. Register the shared parameter types before declaring any journey steps.",
+    "regressionTest": "apps/product/scripts/health.test.ts"
   }
 ]

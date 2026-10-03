@@ -90,3 +90,5 @@ Then('{actor} is invited to sign in', (w, actor: Actor) =>
 Then('{actor} has no multiplayer chess game', (w, actor: Actor) =>
   device(w.journey, actor)('expectNoMultiplayerGame', expectNoMultiplayerGame)
 );
+
+import '@libs/harness/spec/define';
