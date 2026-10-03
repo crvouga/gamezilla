@@ -12,6 +12,7 @@ import type { AuthClientPort } from '@pkgs/auth/client';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ClipboardPort } from '@pkgs/device/clipboard';
 import type { HapticsPort } from '@pkgs/device/haptics';
+import type { MotionPreferencePort } from '@pkgs/device/motion-preference';
 import type { NetworkStatePort } from '@pkgs/device/network-state';
 import type { Kv } from '@pkgs/kv/interface';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -51,6 +52,7 @@ export function createNoopDevMenuPort(): DevMenuPort {
 }
 
 export type ClientEnv = {
+  readonly motion: MotionPreferencePort;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;

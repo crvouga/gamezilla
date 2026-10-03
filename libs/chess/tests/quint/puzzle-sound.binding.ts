@@ -20,6 +20,7 @@ import {
   readActivePuzzleId,
   readPuzzleDebug,
 } from '@libs/chess/harness/chess-puzzle-ui';
+import { NAMED_PUZZLES } from '@libs/chess/harness/puzzle-fixtures';
 import {
   configurePuzzleSounds,
   readPuzzleSoundsOn,
@@ -28,7 +29,6 @@ import { returnToTabs, signInWithGoogle } from '@libs/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint/world';
 import { createSpace } from '@libs/spaces/harness/space-actions';
 import { bindQuintModel } from '@pkgs/quint/registry';
-import { NAMED_PUZZLES } from '../steps/puzzle-fixtures';
 
 const ACTOR = 'alice';
 async function boundary(w: QuintHarnessWorld) {

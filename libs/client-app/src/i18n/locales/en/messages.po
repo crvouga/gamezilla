@@ -86,6 +86,11 @@ msgstr "{0} people here"
 msgid "{0} puzzle streak"
 msgstr "{0} puzzle streak"
 
+#. placeholder {0}: remaining()
+#: libs/chess/src/public/chess-puzzle/use-puzzle-allowance.tsx
+msgid "{0} rated puzzles remaining today"
+msgstr "{0} rated puzzles remaining today"
+
 #. placeholder {0}: themes.length
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 msgid "{0} themes"
@@ -342,6 +347,10 @@ msgstr "Auto · {0}"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Auto-advance"
 msgstr "Auto-advance"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
+msgid "Automatic"
+msgstr "Automatic"
 
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
@@ -807,6 +816,7 @@ msgstr "Current game"
 msgid "Current streak"
 msgstr "Current streak"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Custom"
 msgstr "Custom"
@@ -1526,6 +1536,10 @@ msgstr "Manage or cancel anytime from the billing portal"
 msgid "Manage subscription"
 msgstr "Manage subscription"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
+msgid "Manual next puzzle"
+msgstr "Manual next puzzle"
+
 #: libs/notifications/src/root/client/notifications-screen.tsx
 msgid "Mark all read"
 msgstr "Mark all read"
@@ -1645,6 +1659,14 @@ msgstr "Next move"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
 msgid "Next puzzle"
 msgstr "Next puzzle"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
+msgid "Next puzzle after one second"
+msgstr "Next puzzle after one second"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
+msgid "Next puzzle immediately"
+msgstr "Next puzzle immediately"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "night"
@@ -2083,6 +2105,10 @@ msgstr "Puzzle failed"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Puzzle feed"
 msgstr "Puzzle feed"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
+msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
+msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-summary-card.tsx
 msgid "Puzzle rating {puzzleRating}"

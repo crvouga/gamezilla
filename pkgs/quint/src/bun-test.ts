@@ -24,6 +24,7 @@ import {
   quintWorld,
   type TraceContext,
 } from './registry';
+import { registerRegressionTraces } from './regression-tests';
 import {
   describeStep,
   replayTrace,
@@ -124,6 +125,12 @@ export function runQuintModel(options: RunModelOptions): void {
       registerModelWide({ options, model, drawn, binding, record });
     }
     registerTraces({ options, model, drawn, binding, mine, record });
+    registerRegressionTraces({
+      options,
+      binding,
+      mine: (i) => mine(drawn.traces.length + i),
+      record,
+    });
   });
 }
 

@@ -21,6 +21,7 @@ import type {
   TtsSynthesizeResponse,
 } from '../shared/tts-types';
 import { DEFAULT_TTS_VOICE, type Voice } from '../shared/tts-voice';
+import { playSynthesized } from './play-synthesized';
 import { TtsClient } from './tts-client';
 import {
   createTtsPlayerController,
@@ -104,11 +105,11 @@ export function TtsProvider(props: TtsProviderProps): JSX.Element {
   const api: TtsApi = {
     synthesize,
     prefetch: synthesize,
-    play: async (args) => {
-      const result = await synthesize(args);
-      setCurrentText(args.text);
-      await player.play(result.url);
-    },
+    play: (args) =>
+      playSynthesized(args, synthesize, async (result) => {
+        setCurrentText(args.text);
+        await player.play(result.url);
+      }),
     stop: player.stop,
     isPlaying: () => snapshot().isPlaying,
     current,
@@ -127,6 +128,8 @@ export function useTts(): TtsApi {
 export type SpeakArgs = {
   /** Text to speak. Empty / whitespace-only strings are skipped. */
   readonly text: string;
+  /** Identity of the position or document this utterance describes. */
+  readonly contextKey?: string | undefined;
   /** Voice to speak with. Defaults to {@link DEFAULT_TTS_VOICE}. */
   readonly voice?: Voice;
   /** Audio container format. Defaults to `'mp3'`. */
@@ -152,21 +155,24 @@ export type SpeakResult = {
  */
 export function createSpeak(args: Accessor<SpeakArgs>): SpeakResult {
   const tts = useTts();
-  const text = () => args().text;
-  const enabled = () => args().enabled ?? true;
+  const text = createMemo(() => args().text);
+  const enabled = createMemo(() => args().enabled ?? true);
+  const contextKey = createMemo(() => args().contextKey ?? '');
   const [isLoading, setIsLoading] = createSignal(false);
   const [durationMs, setDurationMs] = createSignal<number | null>(null);
   let lastSpoken: string | null = null;
 
   createEffect(
-    on([text, enabled], ([value, on_]) => {
+    on([text, enabled, contextKey], ([value, on_, contextKey]) => {
       if (!on_ || value.trim().length === 0) {
+        lastSpoken = null;
         setIsLoading(false);
         setDurationMs(null);
         return;
       }
-      if (lastSpoken === value) return;
-      lastSpoken = value;
+      const utteranceKey = `${contextKey}\u0000${value}`;
+      if (lastSpoken === utteranceKey) return;
+      lastSpoken = utteranceKey;
       setIsLoading(true);
       setDurationMs(null);
       const controller = new AbortController();

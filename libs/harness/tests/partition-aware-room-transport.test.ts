@@ -104,6 +104,20 @@ function setup() {
 }
 
 describe('partition-aware room transport', () => {
+  // regression: room-short-partition-loses-commands
+  test('an unsent frame closes even a partition shorter than one heartbeat', async () => {
+    const t = setup();
+    await t.transport.connect();
+    t.setReachable(false);
+    t.transport.sendJson({ command: 'offline solve' });
+    t.setReachable(true);
+    expect(t.transport.isConnected).toBe(false);
+    expect(t.events).toEqual(['open', 'close']);
+    t.timers.advance(ROOM_HEARTBEAT_MS);
+    expect(t.events).toEqual(['open', 'close', 'open']);
+    expect(t.server.received).toEqual([]);
+  });
+
   test('a partition drops the connection within a heartbeat, and nothing is sent across it', async () => {
     const t = setup();
     await t.transport.connect();

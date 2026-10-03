@@ -590,7 +590,8 @@ describe('chess puzzle play FSM — Clear', () => {
 });
 
 describe('chess puzzle play FSM — StepBack / StepForward', () => {
-  test('step back from solved rewinds one ply into solving', () => {
+  test('step back from solved rewinds one ply and retains completion', () => {
+    // regression: puzzle-solved-review-resumes
     let state = startValid(ChessModule.initialState());
     const r1 = ChessModule.handle(
       state,
@@ -621,7 +622,7 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     if (!back.ok) return;
     state = reduceAll(state, back.events);
     expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
-      CHESS_PUZZLE_PLAY_STATUS.solving
+      CHESS_PUZZLE_PLAY_STATUS.solved
     );
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
     expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(midFen);

@@ -1,47 +1,35 @@
 import { type Accessor, createMemo } from 'solid-js';
-
+import { puzzleCommentary } from '../../shared/assistant/puzzle-commentary';
+import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { chessPuzzleStatusKindFromState } from '../../shared/puzzle-session/status-kind';
-import {
-  type ChessPuzzleDialogueBoardContext,
-  useChessPuzzleAssistant,
-} from '../assistant/use-chess-puzzle-assistant';
 import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 
 export function usePuzzlePlayerPresentation(args: {
   puzzleId: Accessor<string>;
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   solveIdx: Accessor<number>;
-  themes: Accessor<readonly string[]>;
   layoutKey: Accessor<number>;
-  orientation: Accessor<'white' | 'black'>;
   displayFen: Accessor<string | null>;
-  totalTokens: Accessor<number>;
-  wrongFromSquare: Accessor<string | null>;
-  wrongToSquare: Accessor<string | null>;
-  rating: Accessor<number>;
+  wrongUci: Accessor<string | null>;
+  hintStage: Accessor<HintStage>;
+  opponentReplying: Accessor<boolean>;
+  viewingHistory: Accessor<boolean>;
 }) {
-  const board = createMemo<ChessPuzzleDialogueBoardContext>(() => ({
-    orientation: args.orientation(),
-    displayFen: args.displayFen(),
-    solveIdx: args.solveIdx(),
-    totalTokens: args.totalTokens(),
-    wrongFromSquare: args.wrongFromSquare(),
-    wrongToSquare: args.wrongToSquare(),
-    ...(args.rating() > 0 ? { puzzleRating: args.rating() } : {}),
-  }));
-
-  const assistant = useChessPuzzleAssistant({
-    puzzleId: args.puzzleId,
-    status: args.status,
-    solveIdx: args.solveIdx,
-    themes: args.themes,
-    layoutKey: args.layoutKey,
-    board,
-  });
-
+  const assistant = createMemo(() =>
+    puzzleCommentary({
+      puzzleId: args.puzzleId(),
+      fen: args.displayFen(),
+      status: args.status(),
+      solveIdx: args.solveIdx(),
+      layoutKey: args.layoutKey(),
+      wrongUci: args.wrongUci(),
+      hint: args.hintStage(),
+      opponentReplying: args.opponentReplying(),
+      viewingHistory: args.viewingHistory(),
+    })
+  );
   const statusKind = createMemo(() =>
     chessPuzzleStatusKindFromState({ status: args.status() })
   );
-
   return { assistant, statusKind };
 }

@@ -15,6 +15,7 @@ import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
+import { usePuzzleAllowance } from './use-puzzle-allowance';
 
 /** Puzzle ratings are 400–3000: four tabular digits, padded with figure space. */
 const RATING_SLOT_DIGITS = 4;
@@ -47,6 +48,22 @@ function themesSummary(themes: readonly string[]): string {
       : formatChessPuzzleThemeLabel(first);
   }
   return t`${themes.length} themes`;
+}
+
+function feedAccessibleLabel(
+  config: ChessPuzzleFeedConfig,
+  rating: number
+): string {
+  const mode = config.mode === 'auto' ? t`Automatic` : t`Custom`;
+  const history = historyFilterLabel(config.historyFilter);
+  const themes = themesSummary(config.themes);
+  const advance =
+    config.autoAdvance === 'off'
+      ? t`Manual next puzzle`
+      : config.autoAdvance === 'after1s'
+        ? t`Next puzzle after one second`
+        : t`Next puzzle immediately`;
+  return t`Puzzle feed. ${mode} target ${rating}. History: ${history}. Themes: ${themes}. ${advance}.`;
 }
 
 function ratingSlot(rating: number): string {
@@ -110,12 +127,13 @@ export function ChessPuzzleFeedBar(
   props: ChessPuzzleFeedBarProps
 ): JSX.Element {
   const myId = useMyId();
+  const allowance = usePuzzleAllowance();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   // §9: an exhausted-pool re-serve is played again but never re-rated (§8).
   const alreadyRated = useIsPuzzleAlreadyRated(() => props.puzzleId ?? '');
   const feed = useChessPuzzleFeedState();
   const config = feed.config;
-  const pool = useChessPuzzleFeedPoolStats();
+  const pool = useChessPuzzleFeedPoolStats(config);
   const effectiveRating = createMemo(() =>
     resolveEffectivePuzzleRating({
       config: config(),
@@ -135,6 +153,7 @@ export function ChessPuzzleFeedBar(
     <button
       class="clickable clickableTint self-stretch min-w-0 shrink-0"
       data-testid="chess-puzzle-feed-summary"
+      aria-label={`${feedAccessibleLabel(config(), effectiveRating())} ${allowance.label()}`.trim()}
       type="button"
       onClick={props.onOpenFeedSettings}
       role="button"
@@ -171,6 +190,12 @@ export function ChessPuzzleFeedBar(
             matched={pool.matched()}
             total={pool.total()}
           />
+        </Show>
+        <Show when={allowance.remaining() !== null}>
+          <FeedBarSep />
+          <p class={NUMERIC_LABEL} data-testid="chess-puzzle-remaining-today">
+            {allowance.label()}
+          </p>
         </Show>
       </ScrollView>
     </button>

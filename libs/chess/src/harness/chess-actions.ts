@@ -47,7 +47,6 @@ import {
   pressPuzzleBackToChessMenu,
   pressPuzzleHint,
   pressPuzzleRetry,
-  pressPuzzleSolution,
   readActivePuzzleId,
   readPuzzleDebug,
   readPuzzleDisplayFen,
@@ -211,15 +210,11 @@ export const requestPuzzleHint = scenarioAction({
   },
 });
 
-/** Reveal the full solution arrow (Hint again while highlighted, or Solution). */
+/** A second hint reveals the solution arrow. */
 export const revealPuzzleSolution = scenarioAction({
   name: 'revealPuzzleSolution',
-  act: async (s, actorId: string, via: 'hint' | 'solution' = 'hint') => {
-    if (via === 'solution') {
-      await pressPuzzleSolution(s, actorId);
-    } else {
-      await pressPuzzleHint(s, actorId);
-    }
+  act: async (s, actorId: string) => {
+    await pressPuzzleHint(s, actorId);
     await waitPuzzleHintStage(s, actorId, 'solution');
   },
 });

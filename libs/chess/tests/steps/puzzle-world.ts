@@ -13,12 +13,12 @@ import { ingestChessPuzzleCsv } from '@libs/chess/harness/chess-puzzle-data';
 import { readPuzzlePlayerId } from '@libs/chess/harness/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess/harness/chess-puzzle-solve-ui';
 import { readActivePuzzleId } from '@libs/chess/harness/chess-puzzle-ui';
+import type { NamedPuzzle } from '@libs/chess/harness/puzzle-fixtures';
 import { backToTabs, focusActor } from '@libs/harness';
 import type { Actor, HarnessWorld } from '@libs/harness/spec/define';
 import { recall, remember } from '@libs/harness/spec/world';
 import { createSpace } from '@libs/spaces/harness/space-actions';
 import { activeSpaceVisible } from '@libs/spaces/harness/spaces-ui-reads';
-import type { NamedPuzzle } from './puzzle-fixtures';
 
 export const SECOND_MS = 1_000;
 /** Memo key: the puzzles a scenario's pool can serve. */
@@ -97,30 +97,6 @@ export function lastPlayer(w: HarnessWorld): Actor {
 /** The puzzle a step names without naming whose it is. */
 export function lastPuzzle(w: HarnessWorld): string {
   return recalled<string>(w, LAST_PUZZLE);
-}
-
-// ------------------------------------------------------- a pass through pool
-
-export type ServedPuzzle = { readonly id: string };
-
-const passKey = (actor: Actor) => `pass:${actor}`;
-
-/** Record the puzzle on the board as served in the current pass. */
-export async function recordServed(
-  w: HarnessWorld,
-  actor: Actor
-): Promise<ServedPuzzle> {
-  const served = { id: await activePuzzle(w, actor) };
-  remember(w, passKey(actor), [...servedInPass(w, actor), served]);
-  return served;
-}
-
-/** The puzzles the actor was served while passing through the pool. */
-export function servedInPass(
-  w: HarnessWorld,
-  actor: Actor
-): readonly ServedPuzzle[] {
-  return recalledOr<readonly ServedPuzzle[]>(w, passKey(actor), []);
 }
 
 // ------------------------------------------------------------------ owners

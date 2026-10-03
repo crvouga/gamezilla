@@ -202,6 +202,13 @@ function evidenceLine(
   return tally(
     input.specs
       .filter((spec) => selects(rule, spec))
+      .filter(
+        (spec) =>
+          rule.subset !== 'permissions' ||
+          input.capabilities.some(
+            (capability) => capability.specUri === spec.path
+          )
+      )
       .map((spec) => specProblems(rule, spec, index))
   );
 }

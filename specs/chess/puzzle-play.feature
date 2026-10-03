@@ -9,12 +9,24 @@ Feature: Puzzle play is a feed
 
   Rule: Once a puzzle is over, moving on serves a different puzzle, and not before
 
-    Scenario: Moving on after a solve serves a different puzzle at once
-      Given Alice has solved the puzzle
+    Scenario Outline: Moving on after a finished puzzle serves a different one
+      Given Alice has finished this puzzle by <finish>
       When Alice moves on to the next puzzle
       Then Alice is solving a different puzzle than the one before
+
+      Examples:
+        | finish               |
+        | solving it cleanly   |
+        | showing the solution |
+        | skipping it          |
 
     Scenario: Moving on while the puzzle is still being solved is not offered
       When Alice asks for the next puzzle
       Then Alice is not offered to move on
       And Alice is on the same puzzle as before
+
+    Scenario: A wrong move needs a retry before moving on is offered
+      Given Alice has played a wrong move
+      When Alice asks for the next puzzle
+      Then Alice is not offered to move on
+      And Alice's puzzle remains wrong

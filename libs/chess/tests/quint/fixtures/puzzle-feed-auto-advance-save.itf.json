@@ -1,0 +1,550 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "/Users/chrisvouga/.super.engineering/worktrees/gamezilla/sc-trapped-niobium-f067/specs/chess/puzzle-feed.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Fri Oct 02 2026 07:29:12 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1790951352333
+  },
+  "vars": [
+    "feedChoice",
+    "editing",
+    "_draft",
+    "_saved",
+    "_pending",
+    "_offline",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": { "index": 0 },
+      "_draft": "own rating",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "own rating"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "None", "value": { "#tup": [] } },
+        "device": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "#meta": { "index": 1 },
+      "_draft": "own rating",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "own rating"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "failed" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 2 },
+      "_draft": "own rating",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "own rating"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "chosen rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 3 },
+      "_draft": "own rating",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "own rating"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "startEditingFeed",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "played" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 4 },
+      "_draft": "after one second",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "own rating"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "previewFeedChoice",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "after one second" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 5 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": false,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "own rating"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "any history" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 6 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "saveFeedChoices",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "played" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 7 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "after one second" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 8 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "chosen rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 9 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 10 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "failed" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 11 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "startEditingFeed",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "failed" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 12 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "failed" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 13 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "startEditingFeed",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "after one second" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 14 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "any history" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 15 },
+      "_draft": "own rating",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "previewFeedChoice",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 16 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "discardFeedChoices",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 17 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "harder" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 18 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "harder" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 19 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "any history" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 20 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 21 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "startEditingFeed",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "played" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 22 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": true,
+      "_saved": "own rating",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "own rating"]]
+      },
+      "mbt::actionTaken": "discardFeedChoices",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "played" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 23 },
+      "_draft": "after one second",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "connectionReturns",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 24 },
+      "_draft": "after one second",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "harder" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 25 },
+      "_draft": "after one second",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "startEditingFeed",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "after one second" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 26 },
+      "_draft": "after one second",
+      "_offline": { "#set": [] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "saveFeedChoices",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "any history" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 27 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 28 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": false,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "immediately" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 29 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice"] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "startEditingFeed",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 30 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "_loseConnection",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "own rating" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    },
+    {
+      "#meta": { "index": 31 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "after one second" },
+        "device": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "#meta": { "index": 32 },
+      "_draft": "after one second",
+      "_offline": { "#set": ["alice", "charlie"] },
+      "_pending": false,
+      "_saved": "after one second",
+      "editing": true,
+      "feedChoice": {
+        "#map": [["alice", "after one second"], ["charlie", "after one second"]]
+      },
+      "mbt::actionTaken": "_wait",
+      "mbt::nondetPicks": {
+        "choice": { "tag": "Some", "value": "failed" },
+        "device": { "tag": "Some", "value": "charlie" }
+      }
+    }
+  ]
+}

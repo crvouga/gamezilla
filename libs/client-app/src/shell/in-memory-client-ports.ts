@@ -7,6 +7,7 @@
 import type { DevMenuItem, DevMenuPort } from '@libs/client-app/device/ports';
 import { createRecordingClipboard } from '@pkgs/device/clipboard';
 import { createRecordingHaptics } from '@pkgs/device/haptics';
+import { createMotionPreference } from '@pkgs/device/motion-preference';
 import { createInMemoryNetworkStatePort } from '@pkgs/device/network-state';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
@@ -15,7 +16,13 @@ import type { ClientEnv } from './client-env';
 
 export type InMemoryClientPorts = Pick<
   ClientEnv,
-  'network' | 'clipboard' | 'haptics' | 'audio' | 'devMenu' | 'objectStore'
+  | 'network'
+  | 'clipboard'
+  | 'haptics'
+  | 'audio'
+  | 'motion'
+  | 'devMenu'
+  | 'objectStore'
 >;
 
 /** Recording {@link DevMenuPort}: keeps every registered item for the harness. */
@@ -31,6 +38,7 @@ function createInMemoryDevMenuPort(): DevMenuPort {
 
 export function createInMemoryClientPorts(): InMemoryClientPorts {
   return {
+    motion: createMotionPreference(),
     network: createInMemoryNetworkStatePort(),
     clipboard: createRecordingClipboard(),
     haptics: createRecordingHaptics(),

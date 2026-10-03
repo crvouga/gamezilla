@@ -44,6 +44,8 @@ import {
   readPuzzleStatus,
   readPuzzleStatusKind,
 } from '@libs/chess/harness/chess-puzzle-ui';
+import { readPuzzleControlAvailability } from '@libs/chess/harness/puzzle-control-reads';
+import { NAMED_PUZZLES } from '@libs/chess/harness/puzzle-fixtures';
 import { focusActor, restoreNetwork, signInWithGoogle } from '@libs/harness';
 import {
   type Actor,
@@ -54,11 +56,8 @@ import {
 } from '@libs/harness/spec/define';
 import { cutConnection } from '@libs/harness/spec/steps/platform';
 import { remember } from '@libs/harness/spec/world';
-import { visible } from '@libs/harness/system/observations';
 import { createSpace } from '@libs/spaces/harness/space-actions';
-import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board-core/types';
-import { NAMED_PUZZLES } from './puzzle-fixtures';
 import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';
 import {
   activePuzzle,
@@ -339,15 +338,11 @@ Given('{actor} has taken a hint', async (w, actor: Actor) => {
 
 Given('{actor} has taken two hints', async (w, actor: Actor) => {
   await w.s.apply(requestPuzzleHint, actor);
-  await w.s.apply(revealPuzzleSolution, actor, 'hint');
+  await w.s.apply(revealPuzzleSolution, actor);
 });
 
 When('{actor} asks for another hint', async (w, actor: Actor) => {
-  await w.s.apply(revealPuzzleSolution, actor, 'hint');
-});
-
-When('{actor} asks to see the solution move', async (w, actor: Actor) => {
-  await w.s.apply(revealPuzzleSolution, actor, 'solution');
+  await w.s.apply(revealPuzzleSolution, actor);
 });
 
 Then("{actor}'s hint highlights the piece to move", async (w, actor: Actor) => {
@@ -409,12 +404,19 @@ Then(
 
 // ------------------------------------------------------------------- moves
 
-When('{actor} plays {word}', async (w, actor: Actor, move: string) => {
+// regression: merge-puzzle-move-wording — Alice plays a1-a5
+When(
+  '{actor} plays (the move ){word}',
+  async (w, actor: Actor, move: string) => {
+    await playMove(w, actor, move);
+  }
+);
+Given('{actor} has played {word}', async (w, actor: Actor, move: string) => {
   await playMove(w, actor, move);
 });
 
 When(
-  '{actor} plays {word} and promotes to a {word}',
+  '{actor} plays (the move ){word} and promotes to a {word}',
   async (w, actor: Actor, move: string, piece: string) => {
     await playMove(w, actor, move);
     await w.s.apply(choosePuzzlePromotion, actor, promotionPiece(piece));
@@ -514,9 +516,14 @@ Then(
 );
 
 Then(
-  '{actor} is prompted {string}',
-  async (w, actor: Actor, prompt: string) => {
-    expect(await w.s.read(readPuzzlePrompt, actor)).toBe(prompt);
+  '{actor} is prompted to find the next move for {word}',
+  async (w, actor: Actor, side: string) => {
+    const prompt = required(
+      await w.s.read(readPuzzlePrompt, actor),
+      'move prompt'
+    );
+    expect(prompt).toContain(side);
+    expect(prompt.toLowerCase()).toContain('move');
   }
 );
 
@@ -621,12 +628,12 @@ When('{actor} asks for the next puzzle', async (w, actor: Actor) => {
 });
 
 Then('{actor} is not offered to move on', async (w, actor: Actor) => {
-  expect(await w.s.read(visible, actor, [Handles.chessPuzzleActionNext])).toBe(
-    false
-  );
-  expect(await w.s.read(visible, actor, [Handles.chessPuzzleSummaryNext])).toBe(
-    false
-  );
+  expect(
+    (await w.s.read(readPuzzleControlAvailability, actor)).moveOnOffered
+  ).toBe(false);
+  expect(
+    (await w.s.read(readPuzzleControlAvailability, actor)).summaryMoveOnOffered
+  ).toBe(false);
 });
 
 When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
@@ -663,9 +670,10 @@ Then(
     const over = required(previousPuzzle(w, actor), 'the puzzle that is over');
     expect(await w.s.read(readActivePuzzleId, actor)).not.toBe(over);
     expect(await w.s.read(isPuzzleSolved, actor)).toBe(false);
-    expect(await w.s.read(visible, actor, [Handles.chessPuzzleSummary])).toBe(
-      false
-    );
+    expect(
+      (await w.s.read(readPuzzleControlAvailability, actor))
+        .resultSummaryVisible
+    ).toBe(false);
   }
 );
 
@@ -682,6 +690,7 @@ Then(
 );
 
 Then('{actor} is on the same puzzle as before', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
   expect(await w.s.read(readActivePuzzleId, actor)).toBe(
     currentPuzzle(w, actor)
   );

@@ -11,14 +11,22 @@ Feature: Friends watch a puzzle
 
   Rule: Only the host drives the puzzle, and only the host may move on
 
-    Scenario: The host's move plays while friends watch
-      When Alice plays the next move of the solution
-      Then Alice is the host of the puzzle and can move pieces
-
     Scenario: The host drives the puzzle and the watcher only watches
       When Alice plays the next move of the solution
       Then Alice is the host of the puzzle and can move pieces
       And Bob is watching the puzzle and cannot move pieces
+
+    Scenario: The host can move on from a finished puzzle
+      Given Alice has solved the puzzle
+      When Alice moves on to the next puzzle
+      Then Alice is solving a different puzzle than the one before
+      And Alice's and Bob's boards agree
+
+    Scenario: A watcher cannot move on from the host's finished puzzle
+      Given Alice has solved the puzzle
+      When Bob tries to move on from Alice's puzzle
+      Then Alice is on the same puzzle as before
+      And Bob sees the puzzle solved within 15 seconds
 
     Scenario Outline: A watcher trying to <attempt> the host's puzzle changes nothing
       When Bob tries to <attempt> Alice's puzzle

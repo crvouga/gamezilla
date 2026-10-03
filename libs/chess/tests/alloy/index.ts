@@ -1,0 +1,1 @@
+import './puzzle-progress.binding';

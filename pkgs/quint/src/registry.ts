@@ -78,6 +78,14 @@ export type QuintBinding<W> = {
   readonly encoding?: 'fun-arrays';
   /** Per-trace test timeout. Default: the runner's. */
   readonly timeoutMs?: number;
+  /** Literal histories retained after a failing model trace found a defect. */
+  readonly regressions?: readonly {
+    readonly id: string;
+    readonly title: string;
+    readonly seed: string;
+    /** The original ITF input, decoded by the runner. */
+    readonly itf: unknown;
+  }[];
   /**
    * One entry per Quint action the model can take, `init` included. Each does
    * in the world what the action does in the model, with the values it drew.
