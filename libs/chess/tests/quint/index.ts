@@ -8,6 +8,7 @@ import './puzzle-attempt.binding';
 import './puzzle-result-recovery.binding';
 import './puzzle-feed.binding';
 import './puzzle-sound.binding';
+import './custom-game-play.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
 import { openHarness } from '../harness/open-chess-harness';

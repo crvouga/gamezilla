@@ -116,7 +116,8 @@ export function inProcessRuntime(
     const domSession: MultiAppSolidDomSession | undefined = withDom
       ? (await loadSolidDomSessionFactory())({
           onActorFocus: () => {
-            void runFor?.(1_000).catch(() => undefined);
+            // Reading another person's screen leaves game time unchanged.
+            void runFor?.(0).catch(() => undefined);
           },
         })
       : undefined;

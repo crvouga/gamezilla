@@ -1,5 +1,15 @@
 [
   {
+    "id": "custom-game-partition-spends-time",
+    "summary": "Losing a room connection reached the loopback transport only after a heartbeat; settling the offline view consumed time and let timed games or bots advance. Fabric network changes now notify live room sockets immediately.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"
+  },
+  {
+    "id": "custom-game-observation-spends-time",
+    "summary": "Switching Alice and Bob UI views advanced virtual time by one second per focus, causing observation of active Custom Games to expire clocks and move bots. Focus now drains only currently due work.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"
+  },
+  {
     "id": "known-bug-gate-rejects-pinned-quint",
     "summary": "The regression registry rejected a literal Quint history even though the standard model runner replayed it as an example test. Recognize canonical bindings only with a matching registered regression, imported literal trace and executable action history.",
     "regressionTest": "libs/tools/scripts/quint-regression-proof.test.ts"
