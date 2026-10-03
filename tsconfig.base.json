@@ -281,7 +281,10 @@
       "@apps/product/test-setup/*": ["./apps/product/src/test/setup/*"],
       "@apps/product/test-fixtures/*": ["./apps/product/src/test/fixtures/*"],
       "@apps/product/test-snapshots/*": ["./apps/product/src/test/snapshots/*"],
-      "ui-quality-check": ["./pkgs/ui-quality-check/src/index.ts"]
+      "ui-quality-check": ["./pkgs/ui-quality-check/src/index.ts"],
+      "ui-quality-check/harness": [
+        "./pkgs/ui-quality-check/src/harness/index.ts"
+      ]
     }
   }
 }

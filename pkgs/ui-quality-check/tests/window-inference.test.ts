@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/property';
+// regression: ui-quality-harness-source-resolution — fresh shards have no dist/harness.js; the public import must resolve source.
 import { WindowScorer } from 'ui-quality-check/harness';
 
 function image(top: number) {

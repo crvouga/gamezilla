@@ -1978,5 +1978,10 @@
     "id": "ui-quality-repeated-window-inference",
     "summary": "The visual gate repeats native inference for identical overlapping windows in different screenshots, consuming its unchanged CI deadline. Cache exact window embeddings with bounded memory while scoring every window and preserving summation order.",
     "regressionTest": "pkgs/ui-quality-check/tests/window-inference.test.ts"
+  },
+  {
+    "id": "ui-quality-harness-source-resolution",
+    "summary": "Fresh type-check and test shards have no built harness export. Map the public ui-quality-check/harness import to package source, like the existing main export, so verification needs no local build output.",
+    "regressionTest": "pkgs/ui-quality-check/tests/window-inference.test.ts"
   }
 ]
