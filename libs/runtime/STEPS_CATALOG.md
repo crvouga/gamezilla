@@ -13,6 +13,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has opened Settings from Spaces | {actor} | runtime, journeys |
 | Given | {actor} has opened the app before | {actor} | runtime, journeys |
 | Given | {actor} has turned sounds off | {actor} | runtime, journeys |
+| Given | {actor} is a guest on a fresh device | {actor} | runtime, journeys |
+| Given | {actor} is finding a multiplayer chess opponent | {actor} | runtime, journeys |
 | Given | {actor} is listening to the app | {actor} | runtime, journeys |
 | Given | {actor} is using the app on a computer | {actor} | runtime, journeys |
 | Given | {actor} is using the app on a phone | {actor} | runtime, journeys |
@@ -26,6 +28,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | a person is signed in on a fresh device | — | runtime, journeys |
 | Given | a recovery copy contains {actor}'s personal data from before confirmed account deletion | {actor} | runtime, journeys |
 | Given | a recovery copy has {actor}'s active account and personal data | {actor} | runtime, journeys |
+| Given | Alice and Bob have accounts and an unfinished multiplayer chess game | — | runtime, journeys |
+| Given | Alice and Bob have accounts on fresh devices | — | runtime, journeys |
+| Given | Alice's device went offline before Bob resigned | — | runtime, journeys |
 | Given | no specific legal preservation obligation applies to it | — | runtime, journeys |
 | Given | the app has been opened on a fresh device | — | runtime, journeys |
 | Given | the device is offline | — | runtime, journeys |
@@ -35,6 +40,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Step | a person opens the app on a fresh device | — | runtime, journeys |
 | Then | {actor} can reach every control offered there | {actor} | runtime, journeys |
 | Then | {actor} can use the recovered personal data | {actor} | runtime, journeys |
+| Then | {actor} has no multiplayer chess game | {actor} | runtime, journeys |
 | Then | {actor} has the same place in the app and saved preferences | {actor} | runtime, journeys |
 | Then | {actor} hears the picture on their profile described as their avatar | {actor} | runtime, journeys |
 | Then | {actor} hears what every control in Settings does | {actor} | runtime, journeys |
@@ -43,10 +49,12 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is (still )on Settings | {actor} | runtime, journeys |
 | Then | {actor} is (still )on Spaces | {actor} | runtime, journeys |
 | Then | {actor} is asked to update the app within {int} seconds | {actor}, {int} | runtime, journeys |
+| Then | {actor} is invited to sign in | {actor} | runtime, journeys |
 | Then | {actor} is offered the way back to Spaces | {actor} | runtime, journeys |
 | Then | {actor} is on Notifications | {actor} | runtime, journeys |
 | Then | {actor} is shown the version of the app they have | {actor} | runtime, journeys |
 | Then | {actor} is told there is nothing at that address | {actor} | runtime, journeys |
+| Then | {actor} sees the accepted multiplayer result | {actor} | runtime, journeys |
 | Then | {actor} sees the tabs | {actor} | runtime, journeys |
 | Then | {actor}'s app is dark | {actor} | runtime, journeys |
 | Then | {actor}'s deleted account cannot become usable again | {actor} | runtime, journeys |
@@ -57,6 +65,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s sounds are off | {actor} | runtime, journeys |
 | Then | a legal bot reply returns White's turn | — | runtime, journeys |
 | Then | a puzzle board is laid out and ready to play | — | runtime, journeys |
+| Then | Alice and Bob have the same multiplayer chess game within {int} seconds | {int} | runtime, journeys |
+| Then | both people see {actor} won the multiplayer game | {actor} | runtime, journeys |
 | Then | editing their avatar again shows the new one | — | runtime, journeys |
 | Then | Google is asked to sign them in and send them back to the app | — | runtime, journeys |
 | Then | Plus is offered at its monthly and yearly prices | — | runtime, journeys |
@@ -79,10 +89,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} narrows the space available to the app | {actor} | runtime, journeys |
 | When | {actor} opens About in Settings | {actor} | runtime, journeys |
 | When | {actor} opens an address the app does not have | {actor} | runtime, journeys |
+| When | {actor} opens multiplayer chess with a connection again | {actor} | runtime, journeys |
 | When | {actor} opens Settings | {actor} | runtime, journeys |
 | When | {actor} opens the app | {actor} | runtime, journeys |
 | When | {actor} opens the Notifications tab | {actor} | runtime, journeys |
 | When | {actor} opens the Profile tab | {actor} | runtime, journeys |
+| When | {actor} resigns multiplayer chess | {actor} | runtime, journeys |
+| When | {actor} starts finding a multiplayer chess opponent | {actor} | runtime, journeys |
 | When | {actor} takes the way back to Spaces | {actor} | runtime, journeys |
 | When | {actor} turns the phone from portrait to landscape | {actor} | runtime, journeys |
 | When | {actor} turns the tablet from landscape to portrait | {actor} | runtime, journeys |

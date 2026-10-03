@@ -2033,5 +2033,10 @@
     "id": "space-host-join-stale-fanout",
     "summary": "Joining an unchanged host identity emitted a full stale space row over optimistic fanout. Reconnect repeatedly resurrected an ended space, reopened host sessions and remounted subscriptions. Write host identity only when it actually changes.",
     "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "multiplayer-journey-unbound",
+    "summary": "The multiplayer journey feature had no bindings in either the full-app CI runner or the shared live journey entry. Bind the three literal journeys through rendered multiplayer controls and observations.",
+    "regressionTest": "libs/runtime/tests/multiplayer-journey-runner.test.ts"
   }
 ]

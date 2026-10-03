@@ -6,6 +6,7 @@
  */
 
 import './custom-game-journey.steps';
+import './multiplayer-journey.steps';
 
 import {
   appBooted,

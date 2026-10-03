@@ -5,9 +5,9 @@
  * so nothing needs undoing.
  */
 
+import { setMultiplayerConnection } from '@libs/chess/harness/multiplayer-actions';
 import {
   actorUi,
-  partition,
   restartApp,
   scenarioAction,
   signInWithGoogle,
@@ -70,6 +70,7 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
     w.s.apply(journeyGestures, HOST, name, gestures);
   return {
     runId: 'harness',
+    now: () => w.s.read((s) => s.session.ports.clock.now()),
     browser: null,
     // The harness runs the test build: the puzzle board carries its answers.
     showsPuzzleAnswers: true,
@@ -83,6 +84,20 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
       await act('confirmSignedIn', confirmSignedIn);
     },
     act,
+    openPeer: async (access) => {
+      await w.s.apply(
+        access === 'signed-in' ? signInWithGoogle : spawnActor,
+        GUEST
+      );
+      await w.s.apply(focusGuest, GUEST);
+      if (access === 'signed-in')
+        await w.s.apply(
+          journeyGestures,
+          GUEST,
+          'confirmSignedIn',
+          confirmSignedIn
+        );
+    },
     actAsGuest: async (name, gestures) => {
       await w.s.apply(spawnActor, GUEST);
       await w.s.apply(focusGuest, GUEST);
@@ -91,9 +106,10 @@ export function harnessJourneyHost(w: HarnessWorld): JourneyHost {
     spaceLink: () => w.s.read(actorSpaceLink, HOST),
     openGuest: (link) => w.s.apply(openActorLink, GUEST, link),
     offline: async () => {
-      await w.s.apply(partition, HOST);
+      await w.s.apply(setMultiplayerConnection, HOST, false);
       await w.s.advanceTime(1000);
     },
+    online: () => w.s.apply(setMultiplayerConnection, HOST, true),
     reopen: () => w.s.apply(restartApp, HOST),
     defer: () => undefined,
     settle: () => undefined,

@@ -35,7 +35,11 @@ import {
 } from '@libs/runtime/harness/critical-journeys';
 import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
 import { wallClock } from '@pkgs/clock';
-import { type ScenarioContext, setWorld } from '@pkgs/gherkin/registry';
+import {
+  hostLimit,
+  type ScenarioContext,
+  setWorld,
+} from '@pkgs/gherkin/registry';
 import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
 
 const API_PATH_PREFIX = '/api';
@@ -145,6 +149,7 @@ function liveJourneyHost(
 ): JourneyHost {
   return {
     runId: RUN_ID,
+    now: () => Promise.resolve(wallClock.now()),
     get browser() {
       return devices.host === null
         ? null
@@ -153,6 +158,13 @@ function liveJourneyHost(
     // The deployed bundle is a production build: no puzzle answers on the page.
     showsPuzzleAnswers: false,
     open: (access) => openLiveDevice(target, devices, access),
+    openPeer: async (access) => {
+      if (access === 'signed-in')
+        throw hostLimit(
+          'two account journeys need independent browser storage and a second synthetic-monitor account; this host has one account and Chrome views share storage'
+        );
+      await openGuestDevice(target, devices, '/');
+    },
     act: async (_name, gestures) => {
       const current = await ensureHost(target, devices);
       devices.shown = current;
@@ -170,6 +182,17 @@ function liveJourneyHost(
     openGuest: (link) => openGuestDevice(target, devices, link),
     offline: async () => {
       await emulateOffline(requireDevice(devices.host, 'device').view);
+    },
+    online: async () => {
+      await requireDevice(devices.host, 'device').view.cdp(
+        'Network.emulateNetworkConditions',
+        {
+          offline: false,
+          latency: 0,
+          downloadThroughput: -1,
+          uploadThroughput: -1,
+        }
+      );
     },
     reopen: () => requireDevice(devices.host, 'device').driver.launch(),
     defer: (key, cleanup) => {

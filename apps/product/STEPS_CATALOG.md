@@ -174,17 +174,27 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} is a guest on a fresh device | {actor} | runtime |
+| Given | {actor} is finding a multiplayer chess opponent | {actor} | runtime |
 | Given | a person has ended the space | — | runtime |
 | Given | a person is hosting a space | — | runtime |
 | Given | a person is signed in on a fresh device | — | runtime |
+| Given | Alice and Bob have accounts and an unfinished multiplayer chess game | — | runtime |
+| Given | Alice and Bob have accounts on fresh devices | — | runtime |
+| Given | Alice's device went offline before Bob resigned | — | runtime |
 | Given | the app has been opened on a fresh device | — | runtime |
 | Given | the device is offline | — | runtime |
 | Given | they are hosting a space | — | runtime |
 | Given | they have a ready Custom Game against a bot | — | runtime |
 | Given | they have started a chess puzzle in the space | — | runtime |
 | Step | a person opens the app on a fresh device | — | runtime |
+| Then | {actor} has no multiplayer chess game | {actor} | runtime |
+| Then | {actor} is invited to sign in | {actor} | runtime |
+| Then | {actor} sees the accepted multiplayer result | {actor} | runtime |
 | Then | a legal bot reply returns White's turn | — | runtime |
 | Then | a puzzle board is laid out and ready to play | — | runtime |
+| Then | Alice and Bob have the same multiplayer chess game within {int} seconds | {int} | runtime |
+| Then | both people see {actor} won the multiplayer game | {actor} | runtime |
 | Then | editing their avatar again shows the new one | — | runtime |
 | Then | Google is asked to sign them in and send them back to the app | — | runtime |
 | Then | Plus is offered at its monthly and yearly prices | — | runtime |
@@ -200,6 +210,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | their Custom Game has not started | — | runtime |
 | Then | their Custom Game is completed by resignation | — | runtime |
 | Then | they are told Custom Games need a connection | — | runtime |
+| When | {actor} opens multiplayer chess with a connection again | {actor} | runtime |
+| When | {actor} resigns multiplayer chess | {actor} | runtime |
+| When | {actor} starts finding a multiplayer chess opponent | {actor} | runtime |
 | When | a guest joins the space from the link | — | runtime |
 | When | the app reopens | — | runtime |
 | When | they end the space | — | runtime |
