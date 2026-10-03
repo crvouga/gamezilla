@@ -59,6 +59,7 @@ function useChessPuzzlePlayRoomSelectors() {
     solveIdx,
     furthestSolveIdx,
     roomMoves,
+    wrongUci: useSpaceRoomSelector(ChessPuzzlePlayAttr.wrongUci.from),
     wrongFromSquare,
     wrongToSquare,
     expectedFromSquare,
@@ -76,6 +77,7 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   solveIdx: Accessor<number>;
   furthestSolveIdx: Accessor<number>;
   totalTokens: Accessor<number>;
+  wrongUci: Accessor<string | null>;
   wrongFromSquare: Accessor<string | null>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
@@ -122,6 +124,7 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
     solveIdx: room.solveIdx,
     furthestSolveIdx: room.furthestSolveIdx,
     totalTokens,
+    wrongUci: room.wrongUci,
     wrongFromSquare: room.wrongFromSquare,
     wrongToSquare: room.wrongToSquare,
     expectedFromSquare: room.expectedFromSquare,

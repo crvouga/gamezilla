@@ -30,13 +30,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { closureProblems } from '@pkgs/conformance/closure';
 import { type EvidenceRecord, sha256 } from '@pkgs/conformance/evidence';
@@ -57,46 +51,10 @@ import {
   specRevision,
 } from '../conformance/verdict';
 import { readConformanceWorld } from '../conformance/world';
+import { reportBuckets } from './conformance-report-buckets';
 import { REPO_ROOT, SPECS_DIR } from './spec-packages';
 
 const REPORT_PATH = '.cache/conformance/report.json';
-
-function subdirs(dir: string): readonly string[] {
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => join(dir, entry.name));
-}
-
-/** Report dirs under `dir` holding an `evidence/` folder, `dir` included. */
-function withEvidence(dir: string, depth: number): readonly string[] {
-  if (!existsSync(dir)) return [];
-  const own = existsSync(join(dir, 'evidence')) ? [dir] : [];
-  if (depth === 0) return own;
-  return [
-    ...own,
-    ...subdirs(dir)
-      .filter((sub) => !sub.endsWith('/evidence'))
-      .flatMap((sub) => withEvidence(sub, depth - 1)),
-  ];
-}
-
-/** Every report bucket in the repository that may hold evidence. */
-function reportBuckets(): readonly string[] {
-  return [
-    ...['apps', 'libs', 'pkgs'].flatMap((tier) =>
-      subdirs(join(REPO_ROOT, tier)).flatMap((pkg) => [
-        // Only the gate's buckets (`test:spec:<k>`, `check:models`); an
-        // ad-hoc `bun run spec` writes `all/`, from whatever implementation
-        // was on disk then.
-        ...subdirs(join(pkg, '.cache/harness-report')).filter((bucket) =>
-          /\/(part-\d+|models)$/.test(bucket)
-        ),
-        ...withEvidence(join(pkg, '.cache/health-report'), 2),
-      ])
-    ),
-  ];
-}
 
 function git(args: readonly string[]): string {
   const result = spawnSync('git', args, { cwd: REPO_ROOT, encoding: 'utf8' });
@@ -138,7 +96,7 @@ const reportSpecs: ReportSpec[] = specs.map((spec) => {
 
 const records: EvidenceRecord[] = [];
 const malformed: string[] = [];
-for (const bucket of reportBuckets()) {
+for (const bucket of reportBuckets(REPO_ROOT)) {
   const read = readEvidence(bucket);
   records.push(...read.records);
   malformed.push(...read.malformed);

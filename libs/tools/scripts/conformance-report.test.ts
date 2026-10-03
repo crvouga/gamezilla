@@ -86,6 +86,48 @@ function line(report: ReportInput, id: LineId) {
 }
 
 describe('evaluateLines', () => {
+  test('semantic decisions require conformance without a server permission agreement', () => {
+    // regression: conformance-semantic-decision-server
+    const semantic: ReportSpec = {
+      ...DECISIONS,
+      path: 'specs/chess/assistant-observation.dmn',
+      context: 'chess',
+    };
+    const checked = input({
+      specs: [DECISIONS, semantic],
+      records: [
+        record(DECISIONS, [
+          pass('agree:hosting-limit:server', 'implementation'),
+        ]),
+        record(semantic, [
+          pass(
+            'agree:assistant-observation:semantic observation',
+            'implementation'
+          ),
+        ]),
+      ],
+    });
+    expect(line(checked, 'permission-enforcement')).toMatchObject({
+      status: 'pass',
+      total: 1,
+    });
+    expect(line(checked, 'decision-conformance')).toMatchObject({
+      status: 'pass',
+      total: 2,
+    });
+    expect(
+      line(
+        { ...checked, records: checked.records.slice(0, 1) },
+        'decision-conformance'
+      ).status
+    ).toBe('fail');
+    expect(
+      line(
+        { ...checked, records: checked.records.slice(1) },
+        'permission-enforcement'
+      ).status
+    ).toBe('fail');
+  });
   test('pure campaign evidence is required without claiming implementation conformance', () => {
     // regression: conformance-campaign-coverage
     const model: ReportSpec = {

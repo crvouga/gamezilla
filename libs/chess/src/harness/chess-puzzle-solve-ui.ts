@@ -175,9 +175,10 @@ export async function showPuzzleSolution(
     await solution.tap({ timeoutMs: WAIT_MS });
   } else {
     const hint = ui.get(Handles.chessPuzzleActionHint);
-    await hint.tap({ timeoutMs: WAIT_MS });
-    await hint.tap({ timeoutMs: WAIT_MS });
-    await hint.tap({ timeoutMs: WAIT_MS });
+    for (let press = 0; press < 3; press++) {
+      if ((await readPuzzleStatus(s, actorId)) === 'revealed') break;
+      await hint.tap({ timeoutMs: WAIT_MS });
+    }
   }
   await pollUntil(
     s,

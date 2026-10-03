@@ -38,7 +38,7 @@ Feature: Puzzle rating
       And Alice has solved 3 puzzles in a row
       And Alice's feed has come round to a puzzle they already played
       When Alice solves the puzzle
-      Then Alice's puzzle rating is unchanged by the repeat
+      Then Alice's puzzle rating is still unchanged by the repeat because that puzzle is already rated
       And Alice's stats show 3 played, 3 solved, and 100% accuracy
 
     Scenario: A second device shows the rating earned on the first
@@ -54,7 +54,7 @@ Feature: Puzzle rating
       And Alice is solving the hook-mate puzzle
       And Bob is solving the hook-mate puzzle
       And Bob has taken a hint
+      And Bob has solved the puzzle
       When Alice plays a wrong move
-      And Bob solves the puzzle
       Then Alice's puzzle rating is below 1500
       And Bob's puzzle rating is the same as Alice's

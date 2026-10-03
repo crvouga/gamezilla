@@ -11,10 +11,11 @@ Feature: Customizing the feed is for people with an account
       Given Alice is a guest
       And Alice is playing puzzles in their space
       When Alice starts editing the feed settings
-      Then Alice is invited to sign in to customize the feed
+      Then Alice cannot customize the feed without an account
 
     Scenario: A guest's feed still serves puzzles at the seed rating
       Given Alice is a guest
-      And Alice is playing puzzles in their space
+      And Alice is hosting a space
+      When Alice opens puzzles in their space
       Then Alice's feed targets 1500 automatically
       And Alice has a puzzle on the board

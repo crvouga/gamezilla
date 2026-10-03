@@ -4,3 +4,5 @@
  */
 
 import './daily-puzzle-limit.binding';
+
+import './assistant-observation.binding';

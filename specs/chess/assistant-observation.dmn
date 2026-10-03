@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="assistant-observation-definitions" name="One useful observation" namespace="https://gamezilla.dev/decisions">
+  <decision id="assistant-observation" name="What should the Puzzle Assistant explain?">
+    <description>A finished puzzle has priority. Otherwise check is answered first, then a missed checkmate, a hanging piece, a knight fork, and finally truthful general guidance. An unproved claim is never eligible. Help names the help offered, without adding a tactical claim.</description>
+    <decisionTable id="observation-policy" hitPolicy="UNIQUE">
+      <input id="result" label="puzzle state">
+        <inputExpression id="result-expression" typeRef="string"><text>puzzle state</text></inputExpression>
+        <inputValues id="result-values"><text>"solving","wrong","solved","revealed","skipped","unavailable"</text></inputValues>
+      </input>
+      <input id="check" label="king is in check">
+        <inputExpression id="check-expression" typeRef="string"><text>king is in check</text></inputExpression>
+        <inputValues id="check-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <input id="mate" label="checkmate is available">
+        <inputExpression id="mate-expression" typeRef="string"><text>checkmate is available</text></inputExpression>
+        <inputValues id="mate-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <input id="hanging" label="a hanging piece is established">
+        <inputExpression id="hanging-expression" typeRef="string"><text>a hanging piece is established</text></inputExpression>
+        <inputValues id="hanging-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <input id="fork" label="a knight fork is established">
+        <inputExpression id="fork-expression" typeRef="string"><text>a knight fork is established</text></inputExpression>
+        <inputValues id="fork-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <output id="observation" name="observation" typeRef="string">
+        <outputValues id="observations"><text>"solved","revealed","skipped","unavailable","check","ready","missed mate","hanging piece","knight fork","wrong"</text></outputValues>
+      </output>
+      <rule id="observation-0">
+        <inputEntry id="case-0-0"><text>"solved"</text></inputEntry>
+        <inputEntry id="case-0-1"><text>-</text></inputEntry>
+        <inputEntry id="case-0-2"><text>-</text></inputEntry>
+        <inputEntry id="case-0-3"><text>-</text></inputEntry>
+        <inputEntry id="case-0-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-0"><text>"solved"</text></outputEntry>
+      </rule>
+      <rule id="observation-1">
+        <inputEntry id="case-1-0"><text>"revealed"</text></inputEntry>
+        <inputEntry id="case-1-1"><text>-</text></inputEntry>
+        <inputEntry id="case-1-2"><text>-</text></inputEntry>
+        <inputEntry id="case-1-3"><text>-</text></inputEntry>
+        <inputEntry id="case-1-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-1"><text>"revealed"</text></outputEntry>
+      </rule>
+      <rule id="observation-2">
+        <inputEntry id="case-2-0"><text>"skipped"</text></inputEntry>
+        <inputEntry id="case-2-1"><text>-</text></inputEntry>
+        <inputEntry id="case-2-2"><text>-</text></inputEntry>
+        <inputEntry id="case-2-3"><text>-</text></inputEntry>
+        <inputEntry id="case-2-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-2"><text>"skipped"</text></outputEntry>
+      </rule>
+      <rule id="observation-3">
+        <inputEntry id="case-3-0"><text>"unavailable"</text></inputEntry>
+        <inputEntry id="case-3-1"><text>-</text></inputEntry>
+        <inputEntry id="case-3-2"><text>-</text></inputEntry>
+        <inputEntry id="case-3-3"><text>-</text></inputEntry>
+        <inputEntry id="case-3-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-3"><text>"unavailable"</text></outputEntry>
+      </rule>
+      <rule id="observation-4">
+        <inputEntry id="case-4-0"><text>"solving"</text></inputEntry>
+        <inputEntry id="case-4-1"><text>"yes"</text></inputEntry>
+        <inputEntry id="case-4-2"><text>-</text></inputEntry>
+        <inputEntry id="case-4-3"><text>-</text></inputEntry>
+        <inputEntry id="case-4-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-4"><text>"check"</text></outputEntry>
+      </rule>
+      <rule id="observation-5">
+        <inputEntry id="case-5-0"><text>"solving"</text></inputEntry>
+        <inputEntry id="case-5-1"><text>"no"</text></inputEntry>
+        <inputEntry id="case-5-2"><text>-</text></inputEntry>
+        <inputEntry id="case-5-3"><text>-</text></inputEntry>
+        <inputEntry id="case-5-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-5"><text>"ready"</text></outputEntry>
+      </rule>
+      <rule id="observation-6">
+        <inputEntry id="case-6-0"><text>"wrong"</text></inputEntry>
+        <inputEntry id="case-6-1"><text>"yes"</text></inputEntry>
+        <inputEntry id="case-6-2"><text>-</text></inputEntry>
+        <inputEntry id="case-6-3"><text>-</text></inputEntry>
+        <inputEntry id="case-6-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-6"><text>"check"</text></outputEntry>
+      </rule>
+      <rule id="observation-7">
+        <inputEntry id="case-7-0"><text>"wrong"</text></inputEntry>
+        <inputEntry id="case-7-1"><text>"no"</text></inputEntry>
+        <inputEntry id="case-7-2"><text>"yes"</text></inputEntry>
+        <inputEntry id="case-7-3"><text>-</text></inputEntry>
+        <inputEntry id="case-7-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-7"><text>"missed mate"</text></outputEntry>
+      </rule>
+      <rule id="observation-8">
+        <inputEntry id="case-8-0"><text>"wrong"</text></inputEntry>
+        <inputEntry id="case-8-1"><text>"no"</text></inputEntry>
+        <inputEntry id="case-8-2"><text>"no"</text></inputEntry>
+        <inputEntry id="case-8-3"><text>"yes"</text></inputEntry>
+        <inputEntry id="case-8-4"><text>-</text></inputEntry>
+        <outputEntry id="answer-8"><text>"hanging piece"</text></outputEntry>
+      </rule>
+      <rule id="observation-9">
+        <inputEntry id="case-9-0"><text>"wrong"</text></inputEntry>
+        <inputEntry id="case-9-1"><text>"no"</text></inputEntry>
+        <inputEntry id="case-9-2"><text>"no"</text></inputEntry>
+        <inputEntry id="case-9-3"><text>"no"</text></inputEntry>
+        <inputEntry id="case-9-4"><text>"yes"</text></inputEntry>
+        <outputEntry id="answer-9"><text>"knight fork"</text></outputEntry>
+      </rule>
+      <rule id="observation-10">
+        <inputEntry id="case-10-0"><text>"wrong"</text></inputEntry>
+        <inputEntry id="case-10-1"><text>"no"</text></inputEntry>
+        <inputEntry id="case-10-2"><text>"no"</text></inputEntry>
+        <inputEntry id="case-10-3"><text>"no"</text></inputEntry>
+        <inputEntry id="case-10-4"><text>"no"</text></inputEntry>
+        <outputEntry id="answer-10"><text>"wrong"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

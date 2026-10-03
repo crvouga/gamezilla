@@ -100,14 +100,15 @@ export function judgePuzzleMove(args: {
     line,
     ends,
   });
+  // Terminal chess truth takes precedence even over contradictory stored data.
+  if (played.isCheckmate) {
+    return accept('mate', [...tokens.slice(0, idx), played.uci], true);
+  }
   const expected = tokens[idx];
   const expectedApplied =
     expected === undefined ? null : applyUci(fen, expected);
   if (expectedApplied?.ok === true && expectedApplied.uci === played.uci) {
     return accept('line', tokens, idx + 1 >= tokens.length);
-  }
-  if (played.isCheckmate) {
-    return accept('mate', [...tokens.slice(0, idx), played.uci], true);
   }
   const transposed = transposedLine({ fen, tokens, idx, played: played.uci });
   if (transposed !== null) return accept('transposition', transposed, false);

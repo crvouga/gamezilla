@@ -17,6 +17,8 @@ import {
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
 import type { Harness, HarnessActor, ProductUi } from '..';
 import { createHarnessWaitPump } from '../setup/wait-pump';
+import type { HarnessDevice } from '../system/harness';
+import { inProcessDevice, webviewDevice } from './device-probes';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
 import { webviewLocalSql } from './webview-local-sql';
@@ -104,6 +106,16 @@ function reactiveViewport(runFor: (ms: number) => Promise<void>) {
   return { viewport, changeViewport };
 }
 
+function recorded(
+  raw: Driver,
+  id: string,
+  recorder: StepRecorder | undefined
+): Driver {
+  return recorder === undefined
+    ? raw
+    : recordingDriver(raw, { recorder, actorId: id });
+}
+
 export async function launchActor(args: {
   readonly ui: ProductUi;
   readonly harness: Harness;
@@ -119,6 +131,7 @@ export async function launchActor(args: {
   let openLink: (path: string) => Promise<void>;
   let currentPath: () => Promise<string>;
   let setViewport: (size: { width: number; height: number }) => Promise<void>;
+  let device: HarnessDevice;
   if (args.ui.kind === 'bun-webview') {
     const webOrigin = args.ui.webOrigin;
     // Each actor is its own device: its own on-disk storage (cookies, OPFS
@@ -126,6 +139,7 @@ export async function launchActor(args: {
     // the driver's `launch` navigates and awaits the load.
     const { dataStore, cleanup } = await actorDataStore(args.id);
     const view = new Bun.WebView({ width: 390, height: 844, dataStore });
+    device = webviewDevice(view);
     raw = new BunWebviewDriver({
       view,
       baseUrl: webOrigin,
@@ -162,6 +176,7 @@ export async function launchActor(args: {
     }
     const runFor = args.ui.runFor;
     const history = await actorHistory(args.harness, args.id);
+    device = inProcessDevice(await args.harness.client(args.id));
     const { viewport, changeViewport } = reactiveViewport(runFor);
     setViewport = changeViewport;
     raw = await createSolidDomClientDriver({
@@ -179,12 +194,17 @@ export async function launchActor(args: {
     currentPath = () => Promise.resolve(history.get());
     await raw.launch();
   }
-  const ui =
-    args.recorder !== undefined
-      ? recordingDriver(raw, { recorder: args.recorder, actorId: args.id })
-      : raw;
+  const ui = recorded(raw, args.id, args.recorder);
   return {
-    handle: { id: args.id, ui, localSql, openLink, currentPath, setViewport },
+    handle: {
+      id: args.id,
+      ui,
+      localSql,
+      openLink,
+      currentPath,
+      setViewport,
+      device,
+    },
     raw,
     closeResources,
   };

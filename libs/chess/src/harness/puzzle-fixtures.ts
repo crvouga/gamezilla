@@ -1,20 +1,29 @@
+// @io-wall-ok — test fixture composition: repository files through the object-store port.
 /**
  * The puzzles chess scenarios name, mapped to the fixtures the harness seeds or
  * the steps ingest (`libs/chess/fixtures/*.harness.csv`). No step definitions.
  */
 
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readUtf8 } from '@pkgs/object-store/helpers';
+import { ObjectStoreImplNodeFs } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+import type { ChessPuzzleTheme } from '../public/chess-puzzle-themes';
 import {
   HARNESS_CHESS_FIXTURES_DIR,
   HARNESS_CHESS_PUZZLE_IDS,
   HARNESS_CHESS_PUZZLE_MATE_IN_2,
-} from '@libs/chess/harness/chess-puzzles';
-import { HARNESS_CHESS_FEED_POOL_IDS } from '@libs/chess/harness/seed-harness-chess-puzzles';
-import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
+} from './chess-puzzles';
+import { HARNESS_CHESS_FEED_POOL_IDS } from './seed-harness-chess-puzzles';
 
-function fixtureCsv(name: string): string {
-  return readFileSync(join(HARNESS_CHESS_FIXTURES_DIR, name), 'utf8');
+const fixtureStore = new ObjectStoreImplNodeFs({
+  rootDir: HARNESS_CHESS_FIXTURES_DIR,
+  fs: wallNodeFs(),
+  layout: 'tree',
+});
+async function fixtureCsv(name: string): Promise<string> {
+  const text = await readUtf8(fixtureStore, name);
+  if (text === null) throw new Error(`Missing chess fixture: ${name}`);
+  return text;
 }
 
 /** The three puzzles every chess harness seeds at boot, in id order. */
@@ -26,10 +35,10 @@ export const STANDARD_PUZZLE_IDS: readonly string[] = [
 export const FEED_POOL_IDS: readonly string[] = HARNESS_CHESS_FEED_POOL_IDS;
 
 /** Fourteen puzzles clustered on the 1500 seed rating. */
-export const RATING_CSV = fixtureCsv('chess-puzzles-rating.harness.csv');
+export const RATING_CSV = await fixtureCsv('chess-puzzles-rating.harness.csv');
 
 /** One puzzle per motif, each with a theme no other seeded puzzle carries. */
-export const MOTIF_CSV = fixtureCsv('chess-puzzles-motifs.harness.csv');
+export const MOTIF_CSV = await fixtureCsv('chess-puzzles-motifs.harness.csv');
 
 export type NamedPuzzle = {
   readonly id: string;
@@ -60,7 +69,9 @@ export const NAMED_PUZZLES = {
  * `fixtures/chess-puzzles-selection.harness.csv`, by the rows a scenario's
  * "the puzzle pool also holds" table describes.
  */
-export const SELECTION_CSV = fixtureCsv('chess-puzzles-selection.harness.csv');
+export const SELECTION_CSV = await fixtureCsv(
+  'chess-puzzles-selection.harness.csv'
+);
 
 export type SelectionGroup = {
   readonly rated: string;

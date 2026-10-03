@@ -9,7 +9,6 @@
  */
 
 import { expect } from 'bun:test';
-
 import {
   playUntilSolved,
   pressPuzzleNext,
@@ -24,6 +23,7 @@ import {
   isPuzzleLimitSignInOffered,
   isPuzzleLimitVisible,
 } from '@libs/chess/harness/chess-puzzle-ui';
+import { readPuzzleRemainingToday } from '@libs/chess/harness/puzzle-control-reads';
 import {
   type Actor,
   Given,
@@ -108,7 +108,7 @@ When('{actor} asks for another puzzle', async (w, actor: Actor) => {
   await w.s.apply(pressPuzzleNextNoWait, actor);
 });
 
-When('the next day begins', async (w) => {
+Given('the next day has begun', async (w) => {
   await w.s.apply(sleepUntilNextUtcDay);
 });
 
@@ -117,7 +117,7 @@ Then('{actor} is not shown the puzzle limit', async (w, actor: Actor) => {
 });
 
 Then(
-  '{actor} is shown the puzzle limit within {int} seconds',
+  "{actor} is told no new puzzle can start because today's allowance is used within {int} seconds",
   async (w, actor: Actor, seconds: number) => {
     await w.s.until((surf) => isPuzzleLimitVisible(surf, actor), {
       maxMs: seconds * SECOND_MS,
@@ -129,5 +129,12 @@ Then(
   '{actor} is invited to sign in for more puzzles',
   async (w, actor: Actor) => {
     expect(await w.s.read(isPuzzleLimitSignInOffered, actor)).toBe(true);
+  }
+);
+
+Then(
+  '{actor} can read that {int} rated puzzles remain today',
+  async (w, actor: Actor, remaining: number) => {
+    expect(await w.s.read(readPuzzleRemainingToday, actor)).toBe(remaining);
   }
 );

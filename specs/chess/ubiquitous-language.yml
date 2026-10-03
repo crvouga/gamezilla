@@ -53,6 +53,10 @@ terms:
     from: kernel
     model: [reopenApp, closeApp]
 
+  - term: connection
+    from: kernel
+    model: [connectionReturns]
+
   # --- Where a person is in a space ------------------------------------------
 
   - term: game
@@ -123,10 +127,11 @@ terms:
 
   - term: puzzle
     definition: >-
-      A chess position with one line to find, played on the board. Each
+      A chess position whose objective is to find the solution or deliver
+      checkmate, played on the board. Each
       puzzle has a rating of its own, which is how hard it is.
     avoid: [problem, exercise]
-    model: [puzzle, PuzzleSound, puzzleSound]
+    model: [puzzle, Puzzle, PuzzleSound, puzzleSound]
     published: true
 
   - term: puzzle pool
@@ -170,19 +175,23 @@ terms:
       round to the one attempted longest ago, unrated.
     forms: [feed, feed's]
     avoid: [queue, playlist]
+    model: [feedChoice]
 
   - term: feed settings
     definition: >-
       A solver's choices for their puzzle feed: the history filter, a puzzle
       theme, and the feed target. Only a person with an account can change
       them; saved choices stick after the app closes and follow the person to
-      their other devices.
+      their other devices. Editing previews choices; saving applies them.
+      Closing without saving keeps the saved choices.
     forms: [feed choices, unsaved feed settings]
+    model: [feedChoice, editing, startEditingFeed, previewFeedChoice, saveFeedChoices, discardFeedChoices]
 
   - term: history filter
     definition: >-
       Which puzzles the feed may serve by whether the solver has played them:
-      "Unseen" (the default) or "Any".
+      "Unseen" (the default), "Any", "Seen" for played puzzles, or "Failed"
+      for puzzles whose first attempt failed.
     forms: [feed history]
 
   - term: puzzle theme
@@ -223,6 +232,7 @@ terms:
       The person solving the puzzle on the board: the host, when a space has
       watchers. The board faces the solver's side.
     avoid: [player, puzzler]
+    model: [Solver, solver]
 
   - term: attempt
     definition: >-
@@ -231,7 +241,7 @@ terms:
       continues the same attempt. Leaving the puzzle or closing the app does
       not end it.
     avoid: [session]
-    model: [Result, firstResult, finish, finishAsAppCloses, Unfinished]
+    model: [finish, finishAsAppCloses, finishAlongsideOtherDevice, Unfinished]
 
   - term: puzzle state
     definition: >-
@@ -271,10 +281,11 @@ terms:
   - term: solution move
     definition: The next move of the solution, from where the board stands.
     forms: [asks to see the solution move, asked to see the solution move, correct move]
+    model: [revealSolutionMove, trySolutionBeforeHint]
 
   - term: solve
     definition: >-
-      Finish a puzzle's line with the solution. A solved puzzle is over, and
+      Finish a puzzle with the solution or any legal checkmate. A solved puzzle is over, and
       its pieces can no longer be moved.
     forms: [solves, solved, solving]
     model: [solve, CleanSolve]
@@ -294,7 +305,7 @@ terms:
       Help while solving: the first highlights the piece to move, the second
       shows the solution move. A puzzle solved after a hint earns half credit.
     forms: [asks for a hint, asks for another hint, asked for a hint]
-    model: [HintedSolve]
+    model: [HintedSolve, requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
   - term: half credit
     definition: >-
@@ -303,11 +314,11 @@ terms:
 
   - term: retry the puzzle
     definition: >-
-      Play the same puzzle again from its start after a wrong move, a solve or
-      a shown solution. It continues the same attempt, so its outcome does not
-      change.
+      After a wrong move, continue at the position already reached. After a
+      solve, a shown solution or a skip, play the same puzzle from its start.
+      It continues the same attempt, so its first outcome does not change.
     forms: [retries the puzzle, retried the puzzle, retrying the puzzle]
-    model: [retry, retryAndSolve]
+    model: [retry, retryAndSolve, tryRetryWhileSolving]
 
   - term: show the solution
     definition: >-
@@ -321,14 +332,14 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution, ShownSolution]
+    model: [showSolution, ShownSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping]
-    model: [skip, Skipped]
+    model: [skip, Skipped, trySkipAfterFinish]
 
   - term: failed attempt
     definition: >-
@@ -368,7 +379,8 @@ terms:
     definition: >-
       How long the current attempt has run. It runs while the puzzle is being
       solved and stops when the puzzle is over.
-    forms: [clock]
+    forms: [clock, seconds pass]
+    model: [timePasses]
 
   - term: haptic
     definition: >-
@@ -391,6 +403,7 @@ terms:
       A move a watcher proposes. The host and every watcher see it; it does
       not move the puzzle, and the host's next move clears it.
     forms: [suggest, suggests, suggested]
+    model: [suggestMove]
 
   # --- Rating, stats and the game log ------------------------------------------
 
@@ -423,6 +436,7 @@ terms:
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
     forms: [rated, unrated, rated puzzle]
+    model: [RatedPuzzle]
 
   - term: stats
     definition: >-
@@ -430,7 +444,7 @@ terms:
       the rating moved over time. They count each puzzle's rated attempt
       only.
     avoid: [statistics, scoreboard]
-    model: [readStats]
+    model: [readStats, readStatsOnOtherDevice]
 
   - term: accuracy
     definition: The share of rated attempts solved, as a whole percentage.
@@ -440,7 +454,7 @@ terms:
       A solver's list of every puzzle they played, each recorded as solved,
       failed or abandoned, and each opening in review.
     avoid: [puzzle history]
-    model: [gameLog]
+    model: [gameLog, PlayedPuzzle]
 
   - term: review
     definition: >-
@@ -450,7 +464,7 @@ terms:
       review's move list, in algebraic notation.
     forms: [reviews, reviewing, reviewed]
     avoid: [replay, analysis]
-    model: [stepPuzzleSoundReview]
+    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
 
   # --- The daily puzzle limit --------------------------------------------------
 
@@ -474,15 +488,18 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playQuietPuzzleMove, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
   - term: piece
     source: FIDE Laws of Chess, Article 2.2
+    forms: [rook, knight, bishop, queen, pawn, king]
+    model: [choosePiece]
   - term: to move
     source: FIDE Laws of Chess, Article 1.1 (having the move)
   - term: illegal move
+    model: [tryIllegalMove]
     source: FIDE Laws of Chess, Article 3.10
   - term: check
     source: FIDE Laws of Chess, Article 3.9
@@ -509,3 +526,51 @@ terms:
 
   - term: keyboard
     from: runtime
+
+  - term: Puzzle Assistant
+    definition: >-
+      The talking character beside the board. Its observation explains the
+      current puzzle without claiming a chess fact it cannot establish.
+      Its words remain available without sound or movement.
+    forms: [assistant, assistant's, commentary]
+    model: [commentary, commentaryPuzzle]
+
+  - term: observation
+    definition: >-
+      One useful, justified explanation of the board or a proposed move.
+      A wrong move is described as a possibility because the board keeps
+      the position before it. Puzzle labels alone never justify a claim.
+    forms: [observations]
+    model: [guidance]
+
+  - term: hanging piece
+    definition: >-
+      A piece the opponent can legally capture without a legal recapture
+      of that attacker. The assistant names the piece and its square.
+    forms: [hanging knight, hanging rook, hanging bishop, hanging queen, hanging pawn]
+
+  - term: fork
+    definition: >-
+      One piece attacks at least two opposing pieces at once. The assistant
+      describes a knight fork only when two of its targets are kings,
+      queens or rooks, and a pinned knight cannot make the claimed captures.
+    forms: [forked]
+
+  - term: mute
+    definition: Stop the assistant's voice while keeping its words available.
+    forms: [muted, mutes, unmute, unmutes]
+    model: [muteAssistant, unmuteAssistant, assistantMuted]
+
+  - term: reduced motion
+    definition: A person's choice to avoid decorative movement in the app.
+
+  - term: speech
+    definition: The assistant's observation spoken aloud; it never delays play.
+    forms: [speaking, speaks, spoken]
+
+  - term: first result
+    definition: >-
+      The first solved, failed or abandoned outcome recorded for a solver's
+      puzzle. If devices act apart, the outcome that reaches the account first
+      is kept.
+    model: [Result, result, Solved, Failed, Abandoned]

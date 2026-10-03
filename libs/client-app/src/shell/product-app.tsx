@@ -48,7 +48,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
   });
   return (
     <OriginAvailabilityProvider value={availability}>
-      <AppThemeProvider kv={env.kv}>
+      <AppThemeProvider kv={env.kv} motion={env.motion}>
         <RootErrorBoundary copyError={env.clipboard.writeText}>
           <AppRouterProvider>
             <AppProvidersOuter embedded={props.embedded}>

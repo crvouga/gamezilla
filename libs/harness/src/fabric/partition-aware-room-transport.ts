@@ -28,6 +28,22 @@ async function connectOrDiscard(
   }
 }
 
+function transportRelay(
+  handlers: readonly ClientTransportHandlers[]
+): ClientTransportHandlers {
+  return {
+    onOpen: () => {
+      for (const h of [...handlers]) h.onOpen?.();
+    },
+    onClose: () => {
+      for (const h of [...handlers]) h.onClose?.();
+    },
+    onError: (err) => {
+      for (const h of [...handlers]) h.onError?.(err);
+    },
+  };
+}
+
 export function partitionAwareRoomTransport(args: {
   /** A fresh connection to the room host. */
   readonly open: () => ClientTransport;
@@ -42,17 +58,7 @@ export function partitionAwareRoomTransport(args: {
   let destroyed = false;
   let heartbeat: unknown = null;
 
-  const relay: ClientTransportHandlers = {
-    onOpen: () => {
-      for (const h of [...handlerSets]) h.onOpen?.();
-    },
-    onClose: () => {
-      for (const h of [...handlerSets]) h.onClose?.();
-    },
-    onError: (err) => {
-      for (const h of [...handlerSets]) h.onError?.(err);
-    },
-  };
+  const relay = transportRelay(handlerSets);
 
   const attach = (): ClientTransport => {
     const next = args.open();
@@ -107,8 +113,14 @@ export function partitionAwareRoomTransport(args: {
       await connectOrDiscard(next, discardFailed);
     },
     sendJson(payload) {
-      // A frame sent into a dead connection is lost, not queued.
-      if (inner === null || !args.reachable()) return;
+      // A failed send must invalidate the connection, including a short
+      // partition healed before its heartbeat. Otherwise the room client
+      // keeps believing its durable commands were sent and never resyncs.
+      if (!args.reachable()) {
+        drop();
+        return;
+      }
+      if (inner === null) return;
       inner.sendJson(payload);
     },
     subscribe(handler) {

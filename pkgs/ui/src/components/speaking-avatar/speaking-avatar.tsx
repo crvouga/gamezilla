@@ -54,6 +54,7 @@ const DEFAULT_SEED = 'speaking-avatar';
 /** Reactive input handed to the injected speaker. */
 export type SpeakingAvatarSpeechArgs = {
   readonly text: string;
+  readonly contextKey?: string | undefined;
   /** `false` while muted, resolving, or when `text` is blank. */
   readonly enabled: boolean;
 };
@@ -74,6 +75,8 @@ export type SpeakingAvatarProps = Omit<
   'children'
 > & {
   message: string;
+  /** Cancels old speech when the described position changes, even for identical text. */
+  contextKey?: string | undefined;
   /** Rendered above the bubble text (see `SpeechBubble`). */
   header?: JSX.Element | undefined;
   /**
@@ -133,6 +136,7 @@ function AvatarHead(props: {
   muted: boolean;
   indicator: SoundIndicatorState;
   onToggle: () => void;
+  testId: string | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -142,6 +146,7 @@ function AvatarHead(props: {
       onClick={() => props.onToggle()}
       aria-pressed={props.muted}
       aria-label={props.muted ? t`Unmute coach` : t`Mute coach`}
+      data-testid={props.testId}
     >
       <HeadImage svg={props.svg} size={props.size} />
       <div class="box absolute right-0 bottom-0">
@@ -160,6 +165,7 @@ function AvatarHead(props: {
 export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     'message',
+    'contextKey',
     'header',
     'bubbleResolving',
     'speaker',
@@ -187,6 +193,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
   });
   const speechArgs = createMemo<SpeakingAvatarSpeechArgs>(() => ({
     text: local.message,
+    contextKey: local.contextKey,
     enabled:
       !muted() &&
       local.bubbleResolving !== true &&
@@ -201,6 +208,9 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
       classList={{ [String(local.class)]: true }}
       {...dataAttrs({ component: 'SpeakingAvatar', ...local.dataSet })}
       {...rest}
+      data-muted={muted()}
+      data-speaking={speech.isSpeaking()}
+      data-loading={speech.isLoading()}
     >
       <Show
         when={createSpeech !== undefined}
@@ -216,6 +226,11 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
           muted={muted()}
           indicator={indicator()}
           onToggle={() => setMuted((m) => !m)}
+          testId={
+            local.dataSet?.['testid'] === undefined
+              ? undefined
+              : `${local.dataSet['testid']}-mute`
+          }
         />
       </Show>
       <SpeechBubble

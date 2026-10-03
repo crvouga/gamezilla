@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
+import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
 import { createTtsPlayerController } from '@pkgs/tts/client/tts-player-controller';
 
 const flush = async (): Promise<void> => {
@@ -8,6 +9,35 @@ const flush = async (): Promise<void> => {
 };
 
 describe('createTtsPlayerController', () => {
+  // regression: tts-old-seek-restarts-same-url
+  test('an interrupted seek cannot start speech for a later context with the same URL', async () => {
+    const memory = createInMemoryAudioPlaybackPort();
+    const seeks: ReturnType<typeof Promise.withResolvers<void>>[] = [];
+    const audio: AudioPlaybackPort = {
+      ...memory,
+      createPlayer(source) {
+        const target = memory.createPlayer(source);
+        target.seekTo = () => {
+          const pending = Promise.withResolvers<void>();
+          seeks.push(pending);
+          return pending.promise;
+        };
+        return target;
+      },
+    };
+    const player = createTtsPlayerController({ audio });
+    await player.play('same-observation.mp3');
+    player.stop();
+    const next = player.play('same-observation.mp3');
+    seeks[0]!.resolve();
+    await flush();
+    expect(player.getSnapshot().isPlaying).toBe(false);
+    seeks[1]!.resolve();
+    await next;
+    expect(player.getSnapshot().isPlaying).toBe(true);
+    player.dispose();
+  });
+
   test('play(url) loads, seeks and plays; snapshot tracks the port', async () => {
     const audio = createInMemoryAudioPlaybackPort();
     const player = createTtsPlayerController({ audio });

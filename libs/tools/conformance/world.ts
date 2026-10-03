@@ -187,7 +187,16 @@ function decisionFacts(
       );
       continue;
     }
-    for (const decision of parsed.definitions.decisions) {
+    // Capability closure concerns access answers. Other decisions still
+    // belong to the spec inventory and run their own conformance binding.
+    for (const decision of parsed.definitions.decisions.filter((decision) =>
+      decision.outputs.some(
+        (output) =>
+          output.name === 'answer' &&
+          output.values?.includes('yes') &&
+          output.values.includes('no')
+      )
+    )) {
       const input = decision.inputs.find(
         (i) => i.id === CAPABILITY_INPUT.id || i.name === CAPABILITY_INPUT.name
       );

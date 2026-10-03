@@ -14,7 +14,9 @@ Feature: An exhausted feed
       And Alice is playing puzzles in their space
 
     Scenario: No puzzle is served twice while unplayed ones remain
-      When Alice solves 3 puzzles in a row
+      Given Alice has solved 2 puzzles in a row
+      And Alice has moved on to the next puzzle
+      When Alice solves the puzzle
       Then Alice's stats show 3 played, 3 solved, and 100% accuracy
 
     Scenario: Once every puzzle is played, the feed comes round to the oldest one, unrated
