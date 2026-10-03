@@ -6,22 +6,85 @@ import type {
 
 type MemPlayer = AudioPlayerHandle & {
   readonly __status: { current: AudioPlayerStatus };
+  __source: unknown;
   readonly __listeners: Set<(s: AudioPlayerStatus) => void>;
 };
 
 export type InMemoryAudioPlaybackPort = AudioPlaybackPort & {
   readonly players: () => readonly AudioPlayerHandle[];
   readonly failNext: () => void;
+  readonly failNextMatching: (match: (source: unknown) => boolean) => void;
+  readonly failures: () => number;
+  readonly getSource: (player: AudioPlayerHandle) => unknown;
   readonly setStatus: (
     player: AudioPlayerHandle,
     patch: Partial<AudioPlayerStatus>
   ) => void;
 };
 
+function createMemoryPlayer(
+  source: unknown,
+  emit: (player: MemPlayer) => void
+): MemPlayer {
+  const status: { current: AudioPlayerStatus } = {
+    current: {
+      playing: false,
+      isLoaded: true,
+      duration: 1,
+      currentTime: 0,
+      didJustFinish: false,
+    },
+  };
+  const listeners = new Set<(s: AudioPlayerStatus) => void>();
+  const player: MemPlayer = {
+    volume: 1,
+    __source: source,
+    __status: status,
+    __listeners: listeners,
+    play() {
+      status.current = {
+        ...status.current,
+        playing: true,
+        didJustFinish: false,
+      };
+      emit(player);
+    },
+    pause() {
+      status.current = { ...status.current, playing: false };
+      emit(player);
+    },
+    async seekTo(seconds) {
+      status.current = { ...status.current, currentTime: seconds };
+      emit(player);
+    },
+    replace(source) {
+      player.__source = source;
+      status.current = {
+        ...status.current,
+        currentTime: 0,
+        didJustFinish: false,
+      };
+      emit(player);
+    },
+    remove() {
+      status.current = {
+        playing: false,
+        isLoaded: false,
+        duration: 0,
+        currentTime: 0,
+        didJustFinish: false,
+      };
+      emit(player);
+    },
+  };
+  return player;
+}
+
 /** Harness / test {@link AudioPlaybackPort} with call recording + failNext. */
 export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
   const created: MemPlayer[] = [];
-  let shouldFail = false;
+  let failWhen: ((source: unknown) => boolean) | null = null;
+  let failures = 0;
 
   function emit(player: MemPlayer): void {
     for (const listener of [...player.__listeners]) {
@@ -30,60 +93,13 @@ export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
   }
 
   return {
-    createPlayer(_source) {
-      if (shouldFail) {
-        shouldFail = false;
+    createPlayer(source) {
+      if (failWhen?.(source)) {
+        failWhen = null;
+        failures++;
         throw new Error('in-memory audio: failNext');
       }
-      const status: { current: AudioPlayerStatus } = {
-        current: {
-          playing: false,
-          isLoaded: true,
-          duration: 1,
-          currentTime: 0,
-          didJustFinish: false,
-        },
-      };
-      const listeners = new Set<(s: AudioPlayerStatus) => void>();
-      const player: MemPlayer = {
-        volume: 1,
-        __status: status,
-        __listeners: listeners,
-        play() {
-          status.current = {
-            ...status.current,
-            playing: true,
-            didJustFinish: false,
-          };
-          emit(player);
-        },
-        pause() {
-          status.current = { ...status.current, playing: false };
-          emit(player);
-        },
-        async seekTo(seconds) {
-          status.current = { ...status.current, currentTime: seconds };
-          emit(player);
-        },
-        replace() {
-          status.current = {
-            ...status.current,
-            currentTime: 0,
-            didJustFinish: false,
-          };
-          emit(player);
-        },
-        remove() {
-          status.current = {
-            playing: false,
-            isLoaded: false,
-            duration: 0,
-            currentTime: 0,
-            didJustFinish: false,
-          };
-          emit(player);
-        },
-      };
+      const player = createMemoryPlayer(source, emit);
       created.push(player);
       return player;
     },
@@ -105,7 +121,14 @@ export function createInMemoryAudioPlaybackPort(): InMemoryAudioPlaybackPort {
       return created;
     },
     failNext() {
-      shouldFail = true;
+      failWhen = () => true;
+    },
+    failNextMatching(match) {
+      failWhen = match;
+    },
+    failures: () => failures,
+    getSource(player) {
+      return (player as MemPlayer).__source;
     },
     setStatus(player, patch) {
       const mem = player as MemPlayer;

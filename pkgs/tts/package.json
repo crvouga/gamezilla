@@ -22,7 +22,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -34,6 +34,9 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

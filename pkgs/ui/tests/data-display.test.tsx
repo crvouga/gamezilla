@@ -187,7 +187,11 @@ describe('SpeakingAvatar', () => {
     expect(head).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(head);
     expect(head).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('status')).toHaveAttribute('aria-label');
+    expect(
+      screen
+        .getAllByRole('status')
+        .some((node) => node.hasAttribute('aria-label'))
+    ).toBe(true);
   });
 });
 

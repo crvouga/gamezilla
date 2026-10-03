@@ -5,9 +5,34 @@
     "regressionTest": "pkgs/quint/tests/replay-observation.test.ts"
   },
   {
+    "id": "tts-old-seek-restarts-same-url",
+    "summary": "An interrupted audio seek could start a later request with the same cached URL before its own seek completed. Guard asynchronous playback by request identity, including stop and disposal.",
+    "regressionTest": "pkgs/tts/tests/tts-player-controller.test.ts"
+  },
+  {
     "id": "room-short-partition-loses-commands",
     "summary": "A partition healed before the heartbeat lost offline commands without notifying the room client to resynchronize. A failed send closes the transport so its durable queue is replayed after healing.",
     "regressionTest": "libs/harness/tests/partition-aware-room-transport.test.ts"
+  },
+  {
+    "id": "tts-identical-input-cancels-speech",
+    "summary": "An accessor returning a fresh but equivalent observation reran the speech effect, aborted its pending audio, then refused to restart the same utterance. Track text, enabled and context as scalar memos.",
+    "regressionTest": "pkgs/tts/tests/speak-context.test.tsx"
+  },
+  {
+    "id": "avatar-tts-missing-request-auth",
+    "summary": "Puzzle voice never started because the app TTS provider sent raw HTTP without account or device headers. Compose it with current request auth while preserving cancellation and caller headers.",
+    "regressionTest": "libs/client-app/tests/shell/authenticated-fetch.test.ts"
+  },
+  {
+    "id": "tts-aborted-synthesis-plays",
+    "summary": "A synthesis response resolving after its request was aborted started old speech. Check cancellation before handing synthesized audio to playback.",
+    "regressionTest": "pkgs/tts/tests/play-synthesized.test.ts"
+  },
+  {
+    "id": "avatar-loading-hides-observation",
+    "summary": "Speech synthesis loading hid the already available observation; long messages were also clamped and their live region recreated. Keep the complete words visible in a persistent live region.",
+    "regressionTest": "pkgs/ui/tests/speaking-avatar-accessibility.test.tsx"
   },
   {
     "id": "room-archive-migration-history",
