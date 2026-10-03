@@ -36,6 +36,7 @@ import {
 } from './client-env';
 import { setOriginAvailability } from './origin-availability-for-env';
 import { getMainSqliteDbName } from './storage/main-sqlite-db-name';
+import { webDevicePorts } from './test-device-ports';
 import { createWallOpenAuthSession } from './wall-open-auth-session';
 
 const OBJECT_STORE_BASE_DIR = 'object-store';
@@ -97,6 +98,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
   const pubsubLogger = createLogger({ name: 'pubsub', now: wallClock.now });
 
   const env: ClientEnv = {
+    ...webDevicePorts(createWebAudioPlaybackPort()),
     clock: wallClock,
     timers: wallTimers,
     createId: () => crypto.randomUUID(),
@@ -123,7 +125,6 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     network: wallWebNetworkStatePort(),
     clipboard: wallWebClipboard(),
     haptics: wallWebHaptics(),
-    audio: createWebAudioPlaybackPort(),
     devMenu: createNoopDevMenuPort(),
     objectStore: createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
     serverUrl,

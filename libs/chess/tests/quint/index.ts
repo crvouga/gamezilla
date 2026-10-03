@@ -7,6 +7,7 @@
 import './puzzle-attempt.binding';
 import './puzzle-result-recovery.binding';
 import './multiplayer.binding';
+import './puzzle-feed.binding';
 import './puzzle-sound.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';

@@ -25,7 +25,7 @@
 // the connection is back, and then he sees the position Alice is in. Opening
 // puzzles before any have reached the device needs a connection.
 //
-// The puzzle pool holds three puzzles. They are served in turn, never the one
+// The puzzle pool holds three puzzles, each with two solver moves. They are served in turn, never the one
 // just played; once all three were played the feed comes round to the one
 // played longest ago. Each first start of a puzzle uses one puzzle start of
 // the guest's daily puzzle limit of 20; a puzzle served again once the pool
@@ -66,6 +66,28 @@ module puzzle_attempt {
   /// Puzzle starts each person's device has used today.
   var puzzleStarts: Person -> int
 
+  /// The assistant's current purpose: ready, wrong, solved, revealed,
+  /// skipped, or none away from the board. A diagnosis refines wrong but
+  /// never changes its meaning.
+  var commentary: Person -> str
+  /// The puzzle the assistant describes, or -1 away from the board.
+  var commentaryPuzzle: Person -> int
+  /// Whether each person has muted the assistant's speech.
+  var assistantMuted: Person -> bool
+
+  /// The move of the line the host is examining, or zero away from the board.
+  var position: int
+  /// Help visible to the host: none, highlight, or solution.
+  var help: str
+  /// The assistant's current observation, grouping specific wrong-move diagnoses.
+  var guidance: str
+  /// Bookkeeping: the furthest move reached in the two-move puzzle.
+  var _stage: int
+  /// Bookkeeping: help offered at the current position, zero to two.
+  var _help: int
+  /// Bookkeeping: the move being examined, retained when leaving.
+  var _shown: int
+
   /// Bookkeeping: what Alice has in view.
   var _at: View
   /// Bookkeeping: the state of Alice's current attempt, on or off the board.
@@ -78,6 +100,9 @@ module puzzle_attempt {
   var _watcherViewAtCutOff: View
   var _watcherStateAtCutOff: str
   var _watcherPuzzleAtCutOff: int
+
+  /// After the first pass, three positions suffice to count feed turns forever.
+  pure def _nextServed(served: int): int = if (served == 6) 4 else served + 1
 
   pure def isOver(a: str): bool = Set("solved", "skipped", "revealed").contains(a)
 
@@ -104,7 +129,27 @@ module puzzle_attempt {
     cutOffView: View,
     cutOffState: str,
     cutOffPuzzle: int,
+    muted: Person -> bool,
+    stage: int, hints: int, shown: int,
   ): bool = all {
+    _stage' = stage, _help' = hints, _shown' = shown,
+    position' = if (newAt == Board) shown else 0,
+    help' = if (newAt != Board) "none" else if (newAttempt == "revealed") "solution"
+      else if (hints == 1) "highlight" else if (hints == 2) "solution" else "none",
+    guidance' = if (newAt != Board) "none" else if (shown < stage and
+      Set("solving", "solved", "revealed").contains(newAttempt)) "review"
+      else if (newAttempt == "solving")
+        (if (hints > 0) "hint" else if (stage > 1) "progress" else "ready")
+      else if (newAttempt == "solved") "checkmate" else newAttempt,
+    assistantMuted' = muted,
+    commentary' = PEOPLE.mapBy(p => {
+      val at = if (p == HOST) newAt else watcherView
+      val result = if (p == HOST) newAttempt else watcherState
+      if (at != Board) "none" else if (result == "solving") "ready" else result
+    }),
+    commentaryPuzzle' = PEOPLE.mapBy(p =>
+      if (p == HOST) _hostPuzzle(newAt, newServed) else watcherPuzzle
+    ),
     _at' = newAt,
     _attempt' = newAttempt,
     _served' = newServed,
@@ -127,32 +172,53 @@ module puzzle_attempt {
 
   /// The host's board moves now. The watcher follows only while every device
   /// has a connection.
-  action _follow(newAt: View, newAttempt: str, newServed: int): bool =
+  action _followPosition(newAt: View, newAttempt: str, newServed: int,
+    stage: int, hints: int, shown: int): bool =
     if (_offline == Set())
       _show(
         newAt, newAttempt, newServed, _offline,
         newAt, _hostState(newAt, newAttempt), _hostPuzzle(newAt, newServed),
         newAt, _hostState(newAt, newAttempt), _hostPuzzle(newAt, newServed),
+        assistantMuted, stage, hints, shown,
       )
     else
       _show(
         newAt, newAttempt, newServed, _offline,
         view.get(WATCHER), puzzleState.get(WATCHER), puzzle.get(WATCHER),
         _watcherViewAtCutOff, _watcherStateAtCutOff, _watcherPuzzleAtCutOff,
+        assistantMuted, stage, hints, shown,
       )
 
-  action init = _show(
-    GameChoice, "none", 0, Set(),
-    GameChoice, "none", -1,
-    GameChoice, "none", -1,
-  )
+  /// New puzzles and practice after finishing start at the setup move.
+  /// A wrong move was never applied, so retry keeps the reached position.
+  action _follow(newAt: View, newAttempt: str, newServed: int): bool = {
+    val restart = newServed != _served or (newAttempt == "solving" and
+      _attempt != "solving" and _attempt != "wrong")
+    val finished = newAttempt != _attempt and Set("solved", "revealed").contains(newAttempt)
+    val stage = if (restart) 1 else if (finished) 4 else _stage
+    val changed = restart or newAttempt != _attempt
+    _followPosition(newAt, newAttempt, newServed, stage,
+      if (changed) 0 else _help, if (restart or finished) stage else _shown)
+  }
+
+  action init = all {
+    _at' = GameChoice, _attempt' = "none", _served' = 0, _offline' = Set(),
+    _watcherViewAtCutOff' = GameChoice, _watcherStateAtCutOff' = "none",
+    _watcherPuzzleAtCutOff' = -1, _stage' = 0, _help' = 0, _shown' = 0,
+    position' = 0, help' = "none", guidance' = "none",
+    view' = PEOPLE.mapBy(_ => GameChoice), puzzleState' = PEOPLE.mapBy(_ => "none"),
+    puzzle' = PEOPLE.mapBy(_ => -1), puzzleStarts' = PEOPLE.mapBy(_ => 0),
+    moveOnOffered' = PEOPLE.mapBy(_ => false),
+    commentary' = PEOPLE.mapBy(_ => "none"), commentaryPuzzle' = PEOPLE.mapBy(_ => -1),
+    assistantMuted' = PEOPLE.mapBy(_ => false),
+  }
 
   /// Onto the board: back to the unfinished puzzle, else a fresh one.
   action _enterBoard: bool =
     if (_attempt == "solving" or _attempt == "wrong")
       _follow(Board, _attempt, _served)
     else
-      _follow(Board, "solving", _served + 1)
+      _follow(Board, "solving", _nextServed(_served))
 
   /// From the space's game choice: chess, then its board. Before any puzzle
   /// has reached the device, this needs a connection.
@@ -182,21 +248,51 @@ module puzzle_attempt {
 
   action solve: bool = all {
     _at == Board,
-    _attempt == "solving",
+    _attempt == "solving", _shown == _stage,
     _follow(Board, "solved", _served),
   }
 
   /// A legal move that is not the solution.
   action playWrongMove: bool = all {
     _at == Board,
-    _attempt == "solving",
-    _follow(Board, "wrong", _served),
+    _attempt == "solving", _shown == _stage,
+    _followPosition(Board, "wrong", _served, _stage, 0, _shown)
+  }
+
+  /// A correct first move is answered by the opponent before the next move.
+  action playCorrectContinuation: bool = all {
+    _at == Board, _attempt == "solving", _stage == 1, _shown == 1,
+    _followPosition(Board, "solving", _served, 3, 0, 3),
+  }
+
+  /// The first hint highlights the piece to move.
+  action requestHint: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage, _help == 0,
+    _followPosition(Board, _attempt, _served, _stage, 1, _shown),
+  }
+
+  /// The next hint shows the move without finishing the puzzle.
+  action revealSolutionMove: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage, _help == 1,
+    _followPosition(Board, _attempt, _served, _stage, 2, _shown),
+  }
+
+  /// Examine an earlier reached position without reopening a finished puzzle.
+  action stepBackPosition: bool = all {
+    _at == Board, Set("solving", "solved", "revealed").contains(_attempt), _shown > 1,
+    _followPosition(Board, _attempt, _served, _stage, 0, _shown - 1),
+  }
+
+  /// Return toward the current move, without going beyond the reached line.
+  action stepForwardPosition: bool = all {
+    _at == Board, Set("solving", "solved", "revealed").contains(_attempt), _shown < _stage,
+    _followPosition(Board, _attempt, _served, _stage, 0, _shown + 1),
   }
 
   /// The rest of the line plays out, and the puzzle is over.
   action showSolution: bool = all {
     _at == Board,
-    Set("solving", "wrong").contains(_attempt),
+    Set("solving", "wrong").contains(_attempt), _shown == _stage,
     _follow(Board, "revealed", _served),
   }
 
@@ -210,7 +306,7 @@ module puzzle_attempt {
   /// The same puzzle again from the start.
   action retry: bool = all {
     _at == Board,
-    Set("wrong", "solved", "revealed").contains(_attempt),
+    Set("wrong", "solved", "revealed", "skipped").contains(_attempt),
     _follow(Board, "solving", _served),
   }
 
@@ -218,15 +314,124 @@ module puzzle_attempt {
   action moveOn: bool = all {
     _at == Board,
     isOver(_attempt),
-    _follow(Board, "solving", _served + 1),
+    _follow(Board, "solving", _nextServed(_served)),
   }
 
   /// Moving on twice at once: still just one different puzzle.
   action moveOnTwiceAtOnce: bool = all {
     _at == Board,
     isOver(_attempt),
-    _follow(Board, "solving", _served + 1),
+    _follow(Board, "solving", _nextServed(_served)),
   }
+
+  /// A finished puzzle cannot accept another candidate move.
+  action tryMoveAfterFinish: bool = all {
+    _at == Board, isOver(_attempt), _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Asking for help after finishing cannot reopen or alter the puzzle.
+  action tryHintAfterFinish: bool = all {
+    _at == Board, isOver(_attempt), _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Showing the whole solution again cannot replace a finished result.
+  action tryShowSolutionAfterFinish: bool = all {
+    _at == Board, isOver(_attempt), _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Skipping again cannot replace a finished result.
+  action trySkipAfterFinish: bool = all {
+    _at == Board, isOver(_attempt), _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// An earlier position cannot accept another candidate move.
+  action tryMoveFromReview: bool = all {
+    _at == Board, _attempt == "solving", _shown < _stage, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Help concerns the current solving position, never a past opponent turn.
+  action tryHintFromReview: bool = all {
+    _at == Board, _attempt == "solving", _shown < _stage, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// The whole solution is unavailable while reviewing an earlier position.
+  action tryShowSolutionFromReview: bool = all {
+    _at == Board, _attempt == "solving", _shown < _stage, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// After a wrong move, retry is required before requesting help.
+  action tryHintBeforeRetry: bool = all {
+    _at == Board, _attempt == "wrong", _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// A wrong move must be retried before another candidate can be played.
+  action tryMoveBeforeRetry: bool = all {
+    _at == Board, _attempt == "wrong", _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Retry is not offered before a wrong move or a result.
+  action tryRetryWhileSolving: bool = all {
+    _at == Board, _attempt == "solving",
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// The solution move cannot bypass the first hint.
+  action trySolutionBeforeHint: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage, _help == 0, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+
+  /// An illegal candidate changes neither the position nor its observation.
+  action tryIllegalMove: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Help cannot repeat its first stage or replace a later stage with it.
+  action tryEarlierHint: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage, _help > 0, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Wrong and skipped boards require a retry before reviewing positions.
+  action tryReviewBeforeRetry: bool = all {
+    _at == Board, Set("wrong", "skipped").contains(_attempt), _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// A suggestion marks a possible move without changing play or commentary.
+  action suggestMove: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage, _offline == Set(),
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Choose a reached position directly; choosing the current one changes nothing.
+  action chooseReviewPosition(move: int): bool = all {
+    _at == Board, Set("solving", "solved", "revealed").contains(_attempt),
+    1 <= move, move <= _stage,
+    _followPosition(_at, _attempt, _served, _stage,
+      if (move == _shown) _help else 0, move),
+  }
+
+  /// Choosing a piece shows its legal destinations without changing play.
+  action choosePiece: bool = all {
+    _at == Board, _attempt == "solving", _shown == _stage,
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown),
+  }
+
+  /// Time passing keeps the same board and guidance; the clock has its own examples.
+  action timePasses: bool =
+    _followPosition(_at, _attempt, _served, _stage, _help, _shown)
 
   /// Close the app on the board, reopen it and return to the space: the
   /// board is as it was.
@@ -245,21 +450,44 @@ module puzzle_attempt {
       if (_offline == Set()) view.get(WATCHER) else _watcherViewAtCutOff,
       if (_offline == Set()) puzzleState.get(WATCHER) else _watcherStateAtCutOff,
       if (_offline == Set()) puzzle.get(WATCHER) else _watcherPuzzleAtCutOff,
+      assistantMuted, _stage, _help, _shown,
     ),
   }
 
   /// Every connection comes back, and the watcher sees the host's position.
-  action _connectionReturns: bool = all {
+  action connectionReturns: bool = all {
     _offline != Set(),
     _show(
       _at, _attempt, _served, Set(),
       _at, _hostState(_at, _attempt), _hostPuzzle(_at, _served),
       _at, _hostState(_at, _attempt), _hostPuzzle(_at, _served),
+      assistantMuted, _stage, _help, _shown,
     ),
+  }
+
+  /// Muting stops speech without removing the current observation or board.
+  action muteAssistant(person: Person): bool = all {
+    view.get(person) == Board,
+    not(assistantMuted.get(person)),
+    _show(_at, _attempt, _served, _offline,
+      view.get(WATCHER), puzzleState.get(WATCHER), puzzle.get(WATCHER),
+      _watcherViewAtCutOff, _watcherStateAtCutOff, _watcherPuzzleAtCutOff,
+      assistantMuted.set(person, true), _stage, _help, _shown),
+  }
+
+  /// Unmuting restores speech about the position still on this person's board.
+  action unmuteAssistant(person: Person): bool = all {
+    view.get(person) == Board,
+    assistantMuted.get(person),
+    _show(_at, _attempt, _served, _offline,
+      view.get(WATCHER), puzzleState.get(WATCHER), puzzle.get(WATCHER),
+      _watcherViewAtCutOff, _watcherStateAtCutOff, _watcherPuzzleAtCutOff,
+      assistantMuted.set(person, false), _stage, _help, _shown),
   }
 
   action step = {
     nondet person = PEOPLE.oneOf()
+    nondet move = 1.to(4).oneOf()
     any {
       openPuzzles,
       goBackToPuzzles,
@@ -267,15 +495,36 @@ module puzzle_attempt {
       backToGameChoice,
       solve,
       playWrongMove,
+      playCorrectContinuation, requestHint, revealSolutionMove,
+      stepBackPosition, stepForwardPosition,
       showSolution,
       skip,
       retry,
       moveOn,
       moveOnTwiceAtOnce,
-      reopenApp,
-      any { _loseConnection(person), _connectionReturns },
+      tryMoveAfterFinish, tryHintAfterFinish, tryShowSolutionAfterFinish, trySkipAfterFinish,
+      tryMoveFromReview, tryHintFromReview, tryShowSolutionFromReview, tryHintBeforeRetry, tryMoveBeforeRetry,
+      tryRetryWhileSolving, trySolutionBeforeHint,
+      tryIllegalMove, tryEarlierHint, tryReviewBeforeRetry, suggestMove, chooseReviewPosition(move),
+      reopenApp, choosePiece, timePasses,
+      muteAssistant(person),
+      unmuteAssistant(person),
+      any { _loseConnection(person), connectionReturns },
     }
   }
+
+  /// The assistant always belongs to the puzzle visible on that device.
+  val invCommentaryBelongsToCurrentPuzzle = PEOPLE.forall(p =>
+    commentaryPuzzle.get(p) == puzzle.get(p))
+
+  /// The assistant cannot contradict the board's outcome, including offline.
+  val invCommentaryAgreesWithBoard = PEOPLE.forall(p =>
+    commentary.get(p) == (if (view.get(p) != Board) "none"
+      else if (puzzleState.get(p) == "solving") "ready" else puzzleState.get(p)))
+
+  /// Muting keeps the same observation whenever the board is present.
+  val invMutedObservationRemains = PEOPLE.forall(p =>
+    (assistantMuted.get(p) and view.get(p) == Board) implies commentary.get(p) != "none")
 
   /// A guest here never uses more than the daily allowance.
   val invStartsWithinAllowance = PEOPLE.forall(p => puzzleStarts.get(p) <= GUEST_DAILY_STARTS)
@@ -308,4 +557,33 @@ module puzzle_attempt {
       puzzleState.get(WATCHER) == _watcherStateAtCutOff and
       puzzle.get(WATCHER) == _watcherPuzzleAtCutOff
     )
+  /// Examining a position cannot go beyond the moves reached on that puzzle.
+  val invOnlyReachedPositions = position == (if (_at == Board) _shown else 0) and
+    _shown <= _stage and _shown >= 0 and _stage <= 4
+
+  /// Reviewing an earlier position never attaches current-move guidance to it.
+  val invReviewGuidanceBelongsToPosition =
+    (_at == Board and _shown < _stage and
+      Set("solving", "solved", "revealed").contains(_attempt)) implies guidance == "review"
+
+  /// Help belongs to the board being examined; off the board it is absent.
+  val invHelpBelongsToPosition = Set("none", "highlight", "solution").contains(help) and
+    (_at != Board implies help == "none") and
+    (_at == Board and _help > 0 and _shown == _stage and _attempt == "solving"
+      implies guidance == "hint")
+
+  /// A solved puzzle stays solved while its earlier positions are examined.
+  val invSolvedReviewCannotReactivate =
+    (_at == Board and _attempt == "solved") implies puzzleState.get(HOST) == "solved"
+
+  val _state = (view, puzzleState, moveOnOffered, puzzle, puzzleStarts,
+    commentary, commentaryPuzzle, assistantMuted, position, help, guidance,
+    _at, _attempt, _served, _offline, _watcherViewAtCutOff,
+    _watcherStateAtCutOff, _watcherPuzzleAtCutOff, _stage, _help, _shown)
+  temporal _bothReturn = eventually(always(_offline == Set()))
+  /// A returning watcher eventually follows the puzzle the host is in.
+  temporal liveReturningWatcherFollows = _bothReturn.implies(eventually(always(
+    puzzle.get(WATCHER) == puzzle.get(HOST) and
+    puzzleState.get(WATCHER) == puzzleState.get(HOST) and view.get(WATCHER) == view.get(HOST))))
+
 }

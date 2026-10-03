@@ -6,6 +6,7 @@ import { auditTree, formatFailure } from '@pkgs/a11y';
 import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { createRecordingClipboard } from '@pkgs/device/clipboard';
+import { createMotionPreference } from '@pkgs/device/motion-preference';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { TestViewportProvider, useThemePreference } from '@pkgs/ui';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
@@ -35,7 +36,10 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
   const view = render(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
       <TestViewportProvider value={{ width: 320, height: 480 }}>
-        <AppThemeProvider kv={new KvImplInMemory()}>
+        <AppThemeProvider
+          kv={new KvImplInMemory()}
+          motion={createMotionPreference()}
+        >
           <Contents />
         </AppThemeProvider>
       </TestViewportProvider>

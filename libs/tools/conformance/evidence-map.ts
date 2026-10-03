@@ -212,6 +212,7 @@ const PRODUCTION_READINESS: ProofTable = {
 /** The behavior specs that are the accessibility kind of spec. */
 const ACCESSIBILITY: readonly string[] = [
   'specs/runtime/accessibility.feature',
+  'specs/chess/puzzle-assistant-accessibility.feature',
 ];
 
 /** Every release gate's checks, as one list (what the release-gates line reads). */

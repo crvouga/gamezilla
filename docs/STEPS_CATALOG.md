@@ -7,7 +7,7 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | --- | --- | --- | --- | --- | --- |
 | @apps/product | `specs/developer-tools/`, `specs/journeys/`, `@synthetic` | 21 | 97 | 162 | [catalog](../apps/product/STEPS_CATALOG.md) |
 | @libs/billing | `specs/billing/` | 16 | 53 | 87 | [catalog](../libs/billing/STEPS_CATALOG.md) |
-| @libs/chess | `specs/chess/` | 37 | 212 | 312 | [catalog](../libs/chess/STEPS_CATALOG.md) |
+| @libs/chess | `specs/chess/` | 42 | 295 | 379 | [catalog](../libs/chess/STEPS_CATALOG.md) |
 | @libs/friends | `specs/friends/`, `specs/spaces/` | 27 | 92 | 118 | [catalog](../libs/friends/STEPS_CATALOG.md) |
 | @libs/profile | `specs/profile/` | 14 | 68 | 68 | [catalog](../libs/profile/STEPS_CATALOG.md) |
 | @libs/runtime | `specs/runtime/`, `specs/journeys/` | 12 | 44 | 87 | [catalog](../libs/runtime/STEPS_CATALOG.md) |

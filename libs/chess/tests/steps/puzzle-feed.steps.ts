@@ -13,26 +13,25 @@ import {
   includePlayedPuzzles,
   leaveChessStatsScreen,
   openPuzzleFeedSettings,
-  playUntilSolved,
   pressPuzzleNext,
   returnToPuzzleScreen,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   setPuzzleFeedTheme,
   showChessStatsScreen,
-  skipPuzzle,
   solvePuzzlesDaily,
   solvePuzzlesInARow,
 } from '@libs/chess/harness/chess-actions';
 import {
   ingestChessPuzzleCsv,
-  readLocalPuzzles,
   readServerPuzzles,
   retireChessPuzzle,
 } from '@libs/chess/harness/chess-puzzle-data';
 import {
+  discardFeedSettings,
   type FeedHistoryFilter,
   isFeedSignInInviteVisible,
+  puzzleThemeNamed,
   readFeedHistoryLabel,
   readFeedModalPool,
   readFeedModalTargetRating,
@@ -47,9 +46,20 @@ import {
   readStatsElo,
 } from '@libs/chess/harness/chess-puzzle-ui';
 import {
-  type ChessPuzzleTheme,
-  isChessPuzzleTheme,
-} from '@libs/chess/public/chess-puzzle-themes';
+  playPuzzleFeedPass,
+  readExcludedFeedPassPuzzles,
+  readPuzzleFeedPass,
+  readPuzzleFeedPassOrder,
+} from '@libs/chess/harness/puzzle-feed-pass';
+import {
+  FEED_POOL_IDS,
+  FULL_INGEST_ROWS,
+  type IngestRow,
+  ingestCsv,
+  SELECTION_CSV,
+  SELECTION_GROUPS,
+  STANDARD_PUZZLE_IDS,
+} from '@libs/chess/harness/puzzle-fixtures';
 import { focusActor } from '@libs/harness';
 import {
   type Actor,
@@ -66,25 +76,14 @@ import {
 } from '@libs/spaces/harness/space-actions';
 import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
 import {
-  FEED_POOL_IDS,
-  FULL_INGEST_ROWS,
-  type IngestRow,
-  ingestCsv,
-  SELECTION_CSV,
-  SELECTION_GROUPS,
-  STANDARD_PUZZLE_IDS,
-} from './puzzle-fixtures';
-import {
   currentPuzzle,
   ensureStatsOpen,
   lastPlayer,
   recalled,
-  recordServed,
   required,
   SECOND_MS,
   SERVABLE_KEY,
   SETTLE_MS,
-  servedInPass,
   trackPuzzle,
 } from './puzzle-world';
 
@@ -105,11 +104,6 @@ function historyFilter(label: string): FeedHistoryFilter {
   const filter = filters[label];
   if (filter === undefined) throw new Error(`no history filter "${label}"`);
   return filter;
-}
-
-function theme(name: string): ChessPuzzleTheme {
-  if (!isChessPuzzleTheme(name)) throw new Error(`no puzzle theme "${name}"`);
-  return name;
 }
 
 async function untilFeedTarget(
@@ -214,83 +208,62 @@ When(
   '{actor} plays through every puzzle the feed offers',
   async (w, actor: Actor) => {
     const servable = recalled<readonly string[]>(w, SERVABLE_KEY);
-    // Precondition: the whole pool has reached the device.
-    await w.s.until(
-      async (surf) =>
-        new Set((await readLocalPuzzles(surf, actor)).map((row) => row.id)),
-      {
-        maxMs: 30 * SECOND_MS,
-        pred: (local) => servable.every((id) => local.has(id)),
-      }
-    );
-    // Solve, then skip, and so on: the rating stays near the pool.
-    for (const [index] of servable.entries()) {
-      await recordServed(w, actor);
-      await w.s.apply(index % 2 === 0 ? playUntilSolved : skipPuzzle, actor);
-      await w.s.apply(pressPuzzleNext, actor);
-      await trackPuzzle(w, actor);
-    }
+    await w.s.apply(playPuzzleFeedPass, actor, servable);
+    await trackPuzzle(w, actor);
   }
 );
 
 Then(
   'none of the low-quality puzzles was served to {actor}',
   async (w, actor: Actor) => {
-    const ids = servedInPass(w, actor).map((s) => s.id);
+    const ids = await w.s.read(readPuzzleFeedPass, actor);
     expect(ids.length).toBeGreaterThan(0);
-    for (const low of recalled<readonly string[]>(w, LOW_QUALITY)) {
-      expect(ids).not.toContain(low);
-    }
+    expect(
+      await w.s.read(
+        readExcludedFeedPassPuzzles,
+        actor,
+        recalled<readonly string[]>(w, LOW_QUALITY)
+      )
+    ).toEqual([]);
   }
 );
 
 Then(
   'none of the broken puzzles was served to {actor}',
   async (w, actor: Actor) => {
-    const ids = servedInPass(w, actor).map((s) => s.id);
+    const ids = await w.s.read(readPuzzleFeedPass, actor);
     expect(ids.length).toBeGreaterThan(0);
-    for (const rejected of recalled<readonly string[]>(w, REJECTED)) {
-      expect(ids).not.toContain(rejected);
-    }
+    expect(
+      await w.s.read(
+        readExcludedFeedPassPuzzles,
+        actor,
+        recalled<readonly string[]>(w, REJECTED)
+      )
+    ).toEqual([]);
   }
 );
 
 Then(
   'every good puzzle near 1500 was served before any puzzle rated 1800 to 1900',
   async (w) => {
-    const ids = servedInPass(w, lastPlayer(w)).map((s) => s.id);
     const inWindow = recalled<readonly string[]>(w, IN_WINDOW);
     const outOfWindow = recalled<readonly string[]>(w, OUT_OF_WINDOW);
-    for (const id of [...inWindow, ...outOfWindow]) expect(ids).toContain(id);
-    const lastInWindow = Math.max(...inWindow.map((id) => ids.indexOf(id)));
-    const firstOutOfWindow = Math.min(
-      ...outOfWindow.map((id) => ids.indexOf(id))
-    );
-    expect(lastInWindow).toBeLessThan(firstOutOfWindow);
+    const order = await w.s.read(readPuzzleFeedPassOrder, lastPlayer(w), {
+      near: inWindow,
+      far: outOfWindow,
+    });
+    expect(order.allNearPresent).toBe(true);
+    expect(order.allFarPresent).toBe(true);
+    expect(order.lastNear).toBeLessThan(order.firstFar);
   }
 );
 
 // ------------------------------------------------------- an exhausted feed
 
-When(
-  '{actor} solves {int} puzzles in a row',
-  async (w, actor: Actor, count: number) => {
-    await solveInARow(w, actor, count);
-  }
-);
-
 Given(
   '{actor} has solved {int} puzzles in a row',
   async (w, actor: Actor, count: number) => {
     await solveInARow(w, actor, count);
-  }
-);
-
-When(
-  '{actor} solves {int} puzzles a day for {int} days',
-  async (w, actor: Actor, perDay: number, days: number) => {
-    await w.s.apply(solvePuzzlesDaily, actor, perDay, days);
-    await trackPuzzle(w, actor);
   }
 );
 
@@ -333,7 +306,7 @@ Then('{actor} is told the attempt is unrated', async (w, actor: Actor) => {
 });
 
 Then(
-  "{actor}'s puzzle rating is unchanged by the repeat",
+  "{actor}'s puzzle rating is still unchanged by the repeat because that puzzle is already rated",
   async (w, actor: Actor) => {
     await ensureStatsOpen(w, actor);
     expect(await w.s.read(readStatsElo, actor)).toBe(
@@ -359,12 +332,18 @@ async function saveHistoryFilter(w: HarnessWorld, actor: Actor, label: string) {
   await trackPuzzle(w, actor);
 }
 
-When(
-  '{actor} changes the feed history to {string} and saves the feed settings',
+Given(
+  '{actor} has chosen {string} for the unsaved feed history',
   async (w, actor: Actor, label: string) => {
-    await saveHistoryFilter(w, actor, label);
+    await w.s.apply(openPuzzleFeedSettings, actor);
+    await w.s.apply(setPuzzleFeedHistory, actor, historyFilter(label));
   }
 );
+
+When('{actor} saves the feed settings', async (w, actor: Actor) => {
+  await w.s.apply(closePuzzleFeedSettings, actor);
+  await trackPuzzle(w, actor);
+});
 
 Given(
   '{actor} has changed the feed history to {string} and saved the feed settings',
@@ -377,6 +356,13 @@ Then(
   "{actor}'s feed targets {int} automatically",
   async (w, actor: Actor, rating: number) => {
     await untilFeedTarget(w, actor, 'auto', rating);
+  }
+);
+
+When(
+  '{actor} closes the feed settings without saving',
+  async (w, actor: Actor) => {
+    await w.s.apply(discardFeedSettings, actor);
   }
 );
 
@@ -411,7 +397,7 @@ When('{actor} starts editing the feed settings', async (w, actor: Actor) => {
 });
 
 Then(
-  '{actor} is invited to sign in to customize the feed',
+  '{actor} cannot customize the feed without an account',
   async (w, actor: Actor) => {
     expect(await w.s.read(isFeedSignInInviteVisible, actor)).toBe(true);
   }
@@ -431,13 +417,11 @@ When(
   }
 );
 
-When(
-  '{actor} raises the feed rating offset by {int} step(s) and saves the feed settings',
+Given(
+  '{actor} has raised the unsaved feed rating offset by {int} step(s)',
   async (w, actor: Actor, steps: number) => {
     await w.s.apply(openPuzzleFeedSettings, actor);
     await w.s.apply(bumpPuzzleFeedOffset, actor, steps);
-    await w.s.apply(closePuzzleFeedSettings, actor);
-    await trackPuzzle(w, actor);
   }
 );
 
@@ -457,10 +441,12 @@ async function saveCustomTarget(w: HarnessWorld, actor: Actor, steps: number) {
   await trackPuzzle(w, actor);
 }
 
-When(
-  '{actor} switches the feed to a custom target raised by {int} step(s) and saves the feed settings',
+Given(
+  '{actor} has chosen an unsaved custom feed target raised by {int} step(s)',
   async (w, actor: Actor, steps: number) => {
-    await saveCustomTarget(w, actor, steps);
+    await w.s.apply(openPuzzleFeedSettings, actor);
+    await w.s.apply(setPuzzleFeedMode, actor, 'custom');
+    await w.s.apply(bumpPuzzleFeedCustomRating, actor, steps);
   }
 );
 
@@ -496,7 +482,7 @@ When(
   '{actor} limits the feed to the {string} theme',
   async (w, actor: Actor, name: string) => {
     await w.s.apply(openPuzzleFeedSettings, actor);
-    await w.s.apply(setPuzzleFeedTheme, actor, theme(name));
+    await w.s.apply(setPuzzleFeedTheme, actor, puzzleThemeNamed(name));
     await w.s.apply(closePuzzleFeedSettingsNoWait, actor);
   }
 );
@@ -505,7 +491,7 @@ Given(
   '{actor} has limited the feed to the {string} theme and it is empty',
   async (w, actor: Actor, name: string) => {
     await w.s.apply(openPuzzleFeedSettings, actor);
-    await w.s.apply(setPuzzleFeedTheme, actor, theme(name));
+    await w.s.apply(setPuzzleFeedTheme, actor, puzzleThemeNamed(name));
     await w.s.apply(closePuzzleFeedSettingsNoWait, actor);
     // Precondition guard: the filter really matches nothing.
     await w.s.until((surf) => isEmptyPoolVisible(surf, actor), {

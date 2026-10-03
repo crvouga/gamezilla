@@ -11,18 +11,17 @@ export function usePuzzlePlayerVisual(args: {
   puzzleId: Accessor<string>;
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   solveIdx: Accessor<number>;
-  themes: Accessor<readonly string[]>;
   layoutKey: Accessor<number>;
-  orientation: Accessor<'white' | 'black'>;
   displayFen: Accessor<string | null>;
-  totalTokens: Accessor<number>;
+  wrongUci: Accessor<string | null>;
   wrongFromSquare: Accessor<string | null>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
   expectedToSquare: Accessor<string | null>;
   hintStage: Accessor<HintStage>;
+  opponentReplying: Accessor<boolean>;
+  viewingHistory: Accessor<boolean>;
   atFrontier: Accessor<boolean>;
-  rating: Accessor<number>;
 }): {
   assistant: ReturnType<typeof usePuzzlePlayerPresentation>['assistant'];
   statusKind: ReturnType<typeof usePuzzlePlayerPresentation>['statusKind'];
@@ -36,14 +35,12 @@ export function usePuzzlePlayerVisual(args: {
     puzzleId: args.puzzleId,
     status: args.status,
     solveIdx: args.solveIdx,
-    themes: args.themes,
     layoutKey: args.layoutKey,
-    orientation: args.orientation,
     displayFen: args.displayFen,
-    totalTokens: args.totalTokens,
-    wrongFromSquare: args.wrongFromSquare,
-    wrongToSquare: args.wrongToSquare,
-    rating: args.rating,
+    wrongUci: args.wrongUci,
+    hintStage: args.hintStage,
+    opponentReplying: args.opponentReplying,
+    viewingHistory: args.viewingHistory,
   });
   const { cellFeedback, cellHighlights } = usePuzzlePlayerCellFeedback({
     status: args.status,

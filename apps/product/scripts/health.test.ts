@@ -1,12 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { parseFeature } from '@pkgs/gherkin/parse';
 import {
   allSpecs,
   type Environment,
   HOST_LIMITS,
-  healthTestArgs,
+  healthTestArguments,
+  healthTestEnvironment,
   hostSkips,
   parseCli,
   scopedSpecs,
@@ -25,10 +27,46 @@ const STANDARD: Environment = {
   observability: true,
 };
 
+test('health loads its live entry and constructs the real S3 transport', () => {
+  // regression: health-solid-preload-after-imports
+  // regression: health-browser-conditions-break-s3
+  // regression: health-environment-name-not-forwarded
+  const fixture = resolve(
+    import.meta.dir,
+    '../.cache/health-loader-regression.test.ts'
+  );
+  mkdirSync(resolve(import.meta.dir, '../.cache'), { recursive: true });
+  writeFileSync(
+    fixture,
+    "import '../tests/steps/index';\nimport { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';\nimport { expect, test } from 'bun:test';\ntest('live entry and S3 transport load', () => {\n  expect(process.env['SECRETS_ENV']).toBe('dev');\n  expect(createS3ObjectStore({ endpoint: 'http://127.0.0.1:1', bucket: 'health-loader', region: 'us-east-1', accessKeyId: 'local', secretAccessKey: 'local', rootPrefix: 'health-loader/', http: { fetch: async () => { throw new Error('constructing a transport cannot request HTTP'); } } })).toBeDefined();\n});\n"
+  );
+  try {
+    const result = spawnSync(
+      process.execPath,
+      healthTestArguments(parseCli([]), [fixture]),
+      {
+        cwd: resolve(import.meta.dir, '..'),
+        encoding: 'utf8',
+        env: healthTestEnvironment({
+          environment: 'dev',
+          tags: '',
+          vars: { ...process.env, SECRETS_ENV: undefined },
+        }),
+      }
+    );
+    expect({
+      code: result.status,
+      output: result.stdout + result.stderr,
+    }).toMatchObject({ code: 0 });
+  } finally {
+    rmSync(fixture);
+  }
+});
+
 // regression: health-solid-preload-order
 test('live health runs server adapters without the local DOM harness conditions', () => {
   const stub = '.cache/spec-live/runtime-stored-files.feature.test.ts';
-  const args = healthTestArgs(parseCli(['--bail']), [stub]);
+  const args = healthTestArguments(parseCli(['--bail']), [stub]);
   expect(args).toEqual([
     'test',
     '--timeout',
@@ -189,13 +227,17 @@ test('live health avoids local UI steps while local specs preload the macro load
     join(import.meta.dir, '../tests/steps/index.ts'),
     'utf8'
   );
+  const developer = readFileSync(
+    join(import.meta.dir, '../tests/steps/developer-world.ts'),
+    'utf8'
+  );
   const live = readFileSync(
     join(import.meta.dir, '../tests/steps/live-index.ts'),
     'utf8'
   );
-  expect(local.indexOf("import '@pkgs/bun-test-solid/preload'")).toBeLessThan(
-    local.indexOf('import { openHarness }')
-  );
+  expect(
+    developer.indexOf("import '@pkgs/bun-test-solid/preload'")
+  ).toBeLessThan(developer.indexOf('import { openHarness }'));
   expect(local).toContain("import './live-index'");
   expect(live).toContain('useLiveWorld()');
   expect(live).not.toContain('@pkgs/bun-test-solid/preload');

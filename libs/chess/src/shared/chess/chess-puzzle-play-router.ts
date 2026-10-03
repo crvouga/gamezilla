@@ -60,7 +60,6 @@ import {
   prevSolveIdx,
   puzzleTokensLength,
   resolveSeekSolveIdx,
-  statusAtSolveIdx,
 } from './chess-puzzle-step';
 
 function reject(error: RoomError): HandleResult {
@@ -150,6 +149,9 @@ function handleSubmitMove(
   }
   const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
   const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
+  if (idx !== ChessPuzzlePlayAttr.furthestSolveIdx.from(state)) {
+    return conflict('return to the current position before submitting a move');
+  }
   const fen = ChessPuzzlePlayAttr.displayFen.from(state);
   if (tokens[idx] === undefined) {
     return internal('no expected move at current solve index');
@@ -341,12 +343,8 @@ function emitSeekToSolveIdx(state: RoomState, nextIdx: number): HandleResult {
       ChessPuzzlePlayStepped({
         displayFen,
         solveIdx: nextIdx,
-        // Review after "Show solution" stays review while scrubbing.
-        status:
-          ChessPuzzlePlayAttr.status.from(state) ===
-          CHESS_PUZZLE_PLAY_STATUS.revealed
-            ? CHESS_PUZZLE_PLAY_STATUS.revealed
-            : statusAtSolveIdx(nextIdx, puzzleTokensLength(moves)),
+        // Viewing an earlier position never reopens a finished puzzle.
+        status: ChessPuzzlePlayAttr.status.from(state),
         layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
       }),
     ],

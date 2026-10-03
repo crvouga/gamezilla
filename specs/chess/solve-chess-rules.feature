@@ -15,66 +15,66 @@ Feature: Chess rules in puzzles
 
     Scenario: Promoting asks which piece instead of choosing the queen
       Given Alice is solving the underpromotion puzzle
-      When Alice plays e7-e8
+      When Alice plays the move e7-e8
       Then Alice is asked which piece White promotes to on e8
 
     Scenario: Promoting to a queen is wrong when underpromotion is the solution
       Given Alice is solving the underpromotion puzzle
-      When Alice plays e7-e8 and promotes to a queen
+      When Alice plays the move e7-e8 and promotes to a queen
       Then Alice is told the move was wrong within 20 seconds
 
     Scenario: Underpromotion to a knight solves the puzzle
       Given Alice is solving the underpromotion puzzle
-      When Alice plays e7-e8 and promotes to a knight
+      When Alice plays the move e7-e8 and promotes to a knight
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: A capture-promotion that mates with a piece other than the queen solves the puzzle
       Given Alice is solving the capture-promotion puzzle
-      When Alice plays g7-h8 and promotes to a rook
+      When Alice plays the move g7-h8 and promotes to a rook
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: En passant counts as the solution
       Given Alice is solving the en passant puzzle
-      When Alice plays e5-d6
+      When Alice plays the move e5-d6
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: A different mate on the final move solves the puzzle
       Given Alice is solving the puzzle with more than one mate on the final move
-      When Alice plays a7-a8
+      When Alice plays the move a7-a8
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: A faster mate on a move before the last solves the puzzle
       Given Alice is solving the hook-mate puzzle
-      When Alice plays b7-b8
+      When Alice plays the move b7-b8
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: A transposed move order solves the puzzle
       Given Alice is solving the two-rook clearance puzzle
-      When Alice plays h1-h5
-      And Alice plays a1-a5
+      And Alice has played h1-h5
+      When Alice plays the move a1-a5
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: When Black solves, the board and the prompt follow Black
-      Given Alice is solving the puzzle Black solves by promoting
+      When Alice opens the puzzle Black solves by promoting
       Then Alice's board faces Black
       And it is Black's move on Alice's board
-      And Alice is prompted "Your turn — find the best move for Black"
+      And Alice is prompted to find the next move for Black
 
     Scenario: When Black solves, the promotion choice is Black's
       Given Alice is solving the puzzle Black solves by promoting
-      When Alice plays e2-e1
+      When Alice plays the move e2-e1
       Then Alice is asked which piece Black promotes to
 
     Scenario: Black's promotion to a knight solves the puzzle
       Given Alice is solving the puzzle Black solves by promoting
-      When Alice plays e2-e1 and promotes to a knight
+      When Alice plays the move e2-e1 and promotes to a knight
       Then Alice's puzzle is solved within 20 seconds
 
     Scenario: A puzzle can start with the solver in check
-      Given Alice is solving the puzzle that starts with White in check
+      When Alice opens the puzzle that starts with White in check
       Then White is in check and to move on Alice's board
 
     Scenario: Escaping the opening check with the right move solves the puzzle
       Given Alice is solving the puzzle that starts with White in check
-      When Alice plays h1-h4
+      When Alice plays the move h1-h4
       Then Alice's puzzle is solved within 20 seconds

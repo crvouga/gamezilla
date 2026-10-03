@@ -5,6 +5,7 @@ Feature: Arriving while a puzzle is under way
   can follow along. Guests can watch as well as friends.
 
   Rule: An arriving or returning watcher sees the host's current puzzle
+    No counter-example: Watching always follows the host's position once the connection returns.
 
     Background:
       Given Alice and Bob are guests

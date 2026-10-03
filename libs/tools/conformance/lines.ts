@@ -13,7 +13,12 @@ import type { Layer, SpecKind } from '@pkgs/conformance/evidence';
 import type { Proof } from '@pkgs/conformance/proofs';
 
 /** Which specs of the kind an evidence line reads. */
-export type SpecSubset = 'all' | 'accessibility' | 'journeys' | 'acceptance';
+export type SpecSubset =
+  | 'all'
+  | 'accessibility'
+  | 'journeys'
+  | 'acceptance'
+  | 'permissions';
 
 export type EvidenceRule = {
   readonly type: 'evidence';
@@ -120,6 +125,7 @@ export const LINES = {
       kind: 'decisions',
       layer: 'implementation',
       runs: 'harness',
+      subset: 'permissions',
       obligation: SERVER_AGREEMENT,
     }),
   },
