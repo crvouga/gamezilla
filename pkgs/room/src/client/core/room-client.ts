@@ -255,7 +255,10 @@ export class RoomClient<
 
   private notify(): void {
     this.captureSnapshotInputs();
-    for (const fn of this.subscribers) fn();
+    // Reactive listeners can replace subscriptions while receiving a change.
+    for (const fn of [...this.subscribers]) {
+      if (this.subscribers.has(fn)) fn();
+    }
   }
 
   private reportError(err: RoomError | Error): void {
