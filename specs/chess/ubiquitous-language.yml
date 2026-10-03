@@ -1,10 +1,10 @@
 # The ubiquitous language of the Chess context: chess puzzles played in a
-# space. Chess rules are cited from the FIDE Laws of Chess, not redefined.
+# space, and Custom Games. Chess rules are cited from the FIDE Laws of Chess, not redefined.
 # Terms other contexts own are borrowed (from: <domain>) with the spelling the
 # context map publishes.
 context: Chess
 purpose: >-
-  An endless feed of chess puzzles a person solves in their space, with
+  Custom Games with configurable White and Black, and an endless feed of chess puzzles a person solves in their space, with
   friends watching, that keeps an honest puzzle rating and a game log of every
   puzzle played, online or offline.
 
@@ -29,8 +29,10 @@ terms:
     from: billing
   - term: space
     from: spaces
+    model: [Space, space]
   - term: host
     from: spaces
+    model: [spaceHost]
   - term: join
     from: spaces
   - term: space link
@@ -93,7 +95,7 @@ terms:
       The chessboard a puzzle is played on, as each person in the space sees
       it. It faces the solver's side, shows the last move, and shows the
       puzzle's state; a watcher's board agrees with the host's.
-    model: [Board]
+    model: [Board, playShown]
     published: true
 
   - term: play puzzles
@@ -222,7 +224,7 @@ terms:
     definition: >-
       The person solving the puzzle on the board: the host, when a space has
       watchers. The board faces the solver's side.
-    avoid: [player, puzzler]
+    avoid: [puzzler]
 
   - term: attempt
     definition: >-
@@ -379,7 +381,8 @@ terms:
 
   - term: watcher
     definition: >-
-      Someone in a space watching the host's puzzle. Their board agrees with
+      Someone in a space watching its Custom Game or the host's puzzle.
+      In a Custom Game they have no accepted side and cannot move pieces. Their board agrees with
       the host's, even after arriving mid-puzzle or losing the connection. A
       watcher may make a suggestion but never drives the puzzle and is never
       rated for it.
@@ -474,7 +477,7 @@ terms:
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playQuietPuzzleMove, playCapturePuzzleMove]
+    model: [playCustomMove, ply, sideToMove, playQuietPuzzleMove, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
@@ -509,3 +512,336 @@ terms:
 
   - term: keyboard
     from: runtime
+
+  # --- Custom Games --------------------------------------------------------
+
+  - term: Custom Game
+    definition: One unrated standard game of chess in a space, with White and Black each
+      chosen as a person, a bot, an invitation, an open place or a closed side before start.
+      The host is its creator and need not participate. The usual starting position is used;
+      other variants and starting positions are not offered. The game may be timed or untimed.
+      Every change needs a connection; agreed choices and moves remain available on return.
+    forms:
+    - Custom Games
+    - Custom Game's
+    model:
+    - CustomGame
+    - black
+    - blackShown
+    - createGame
+    - creator
+    - creatorShown
+    - customGame
+    - drawOfferedBy
+    - drawOfferedByShown
+    - gameShown
+    - increment
+    - incrementShown
+    - minutes
+    - minutesShown
+    - outcome
+    - outcomeShown
+    - ready
+    - readyShown
+    - starts
+    - startsShown
+    - status
+    - statusShown
+    - white
+    - whiteShown
+    - controllers
+    - controlledStatus
+    - controlledPly
+    - controlledTurn
+    - controlledOutcome
+    - controlledShown
+    - playControlledMove
+    - resignControlledGame
+    - cancelControlledGame
+    - current
+    published: true
+  - term: creator
+    definition: The host whose Custom Game it is. Only the creator creates, configures, starts,
+      cancels or makes a rematch, including when watching two other participants. Leaving
+      the space ends it and cancels unfinished games.
+    model:
+    - creator
+  - term: side
+    definition: White or Black in a Custom Game. Each has one choice of participant. One
+      person cannot be accepted or invited on both sides.
+    forms:
+    - sides
+    - White
+    - Black
+    model:
+    - Side
+    - Color
+    - color
+    - White
+    - Black
+    - white
+    - black
+  - term: participant
+    definition: A person who accepted one side, or a bot chosen for one side. The creator
+      is a participant only when accepted on a side. Watching never gives control of a participant.
+    forms:
+    - participants
+    model:
+    - Participant
+    - ParticipantKind
+    - PersonSide
+    - BotSide
+    - kind
+    - person
+  - term: bot
+    definition: A chess opponent that plays legal moves by itself for its own side. Either
+      or both sides may be bots, including identical bots. There are no strength or personality
+      choices. A bot stops when the game ends.
+    forms:
+    - bots
+    model:
+    - botPlays
+  - term: open place
+    definition: An unoccupied side anybody already in the space may claim before start. Competing
+      claims leave exactly one accepted person; either may win. A person must confirm readiness
+      after claiming.
+    forms:
+    - open places
+    model:
+    - OpenPlace
+    - openSide
+    - claimSide
+  - term: closed side
+    definition: An unoccupied side nobody may claim until the creator opens it or chooses
+      a participant. A closed side prevents starting.
+    forms:
+    - closed sides
+    - closed
+    - closes
+    model:
+    - ClosedSide
+    - closeSide
+  - term: invitation
+    definition: A side reserved by the creator for a person already in the space, who alone
+      may accept or decline it before start. It is not a participant until accepted. Declining
+      or revoking makes the side open; replacement removes the offer. An earlier offer cannot
+      survive new choices.
+    forms:
+    - invitations
+    - invited
+    - invites
+    - reserved
+    - revoked
+    - revokes
+    model:
+    - InvitedSide
+    - invite
+    - acceptSide
+    - declineSide
+    - revokeSide
+  - term: take a side
+    definition: The creator choosing themselves for one side before start. Replacing a choice
+      clears readiness; taking the same accepted side again changes nothing.
+    forms:
+    - takes
+    - take
+    model:
+    - takeSide
+  - term: assign a bot
+    definition: The creator choosing a bot for one side before start. Replacing any earlier
+      choice removes it and clears people's readiness; choosing the same bot again changes
+      nothing.
+    forms:
+    - assigns
+    - assigned
+    - replaced
+    - replaces
+    model:
+    - assignBot
+  - term: release a side
+    definition: An accepted person giving up their own side before start. It becomes an open
+      place. After start leaving the space resigns instead of releasing.
+    forms:
+    - releases
+    - released
+    model:
+    - releaseSide
+  - term: readiness
+    definition: A participating person agreeing to the current sides and time choice before
+      start. Every changed choice clears all people's readiness. Bots need no confirmation.
+      A person may withdraw readiness before start.
+    forms:
+    - ready
+    - not ready
+    - becomes ready
+    - no longer ready
+    model:
+    - ready
+    - becomeReady
+    - becomeUnready
+  - term: swap sides
+    definition: The creator exchanging all of White's and Black's choices before start. Any
+      people must become ready again.
+    forms:
+    - swaps
+    - swapped
+    model:
+    - swapSides
+  - term: Custom Game status
+    definition: Whether a Custom Game is configuring, active, completed or cancelled. A new
+      game follows a terminal game without reviving it.
+    forms:
+    - configuring
+    - active
+    - completed
+    - cancelled
+    - started
+    - finished
+    - startable
+    model:
+    - status
+    - CustomGameStatus
+    - Configuring
+    - Active
+    - Completed
+    - Cancelled
+    - playStatus
+    - startGame
+    - cancelGame
+  - term: Custom Game choices
+    definition: The sides and time choice agreed before start. Start requires two participants
+      and every person ready. Starting freezes these choices. Choices that have since changed
+      cannot be replaced by an earlier attempt.
+    forms:
+    - choices
+    - earlier choices
+    model:
+    - started
+  - term: time choice
+    definition: An untimed game, or the same whole number of minutes from 1 to 180 for both
+      sides with a whole number of seconds increment from 0 to 60. Untimed games have no
+      increment; no delay or different times for the sides are offered.
+    forms:
+    - untimed
+    - timed
+    model:
+    - chooseClock
+    - clockLeft
+    - customTimePasses
+  - term: Custom Game outcome
+    definition: 'The final result: White wins, Black wins, a draw or cancellation with no
+      winner. Wins say checkmate, resignation or time. Every game is unrated and never changes
+      puzzle progress. A finished result cannot be replaced by a later action.'
+    forms:
+    - winner
+    - unrated
+    - resignation
+    - on time
+    - wins
+    model:
+    - resignGame
+    - resignCustomGame
+    - cancelCustomGame
+    - result
+  - term: draw offer
+    definition: One participating person asking the other to agree to a draw in an active
+      game between two people. Only the other person accepts or declines; playing a move
+      clears the offer. Bots are not offered draws.
+    forms:
+    - offered a draw
+    - offers a draw
+    - accepts the draw
+    - declines the draw
+    model:
+    - offerDraw
+    - acceptDraw
+    - declineDraw
+  - term: rematch
+    definition: A separate configuring Custom Game after completion or cancellation, with
+      accepted participants swapped and the same time choice. Invitations are not inherited
+      and absent people become open places. People must agree again; the earlier game keeps
+      its outcome and move list.
+    forms:
+    - rematches
+    model:
+    - rematch
+  - term: Custom Game refusal
+    definition: 'Why a person''s choice cannot take effect: authority, lifecycle, participant
+      relationship, readiness, time choice, changed choices or no connection. No refused
+      choice changes a side, starts play or happens later on its own.'
+    forms:
+    - refusal
+    model:
+    - refusal
+  - term: Custom Game move list
+    definition: The moves of one game in algebraic notation, kept with its final outcome.
+      Reviewing a played move shows that position without moving the live game; a move that
+      was never played cannot be reviewed.
+    forms:
+    - move list
+  - term: leave
+    from: spaces
+  - term: end a space
+    from: spaces
+  - term: side control
+    definition: Who may move for a side in a Custom Game, exclusively its accepted person
+      or chosen bot.
+    forms:
+    - control
+    - controls
+    - controller
+  - term: people in the space
+    definition: The people who already belong to the Custom Game's space; only they may be
+      invited or claim a side.
+    model:
+    - peopleInSpace
+  - term: paid access
+    from: billing
+  - term: control
+    from: runtime
+  - term: listen to the app
+    from: runtime
+  - term: watch a Custom Game
+    definition: A person already in the space following its game without controlling a side.
+      Outside the space the game is unavailable.
+    forms:
+    - watches the Custom Game
+    - watching the Custom Game
+    - listens to the Custom Game
+    - reviews
+  - term: repetition
+    definition: The same position with the same side to move and the same rights appearing
+      again. The third appearance completes a Custom Game as a draw.
+    forms:
+    - repeated
+    - second repetition
+    - third repetition
+  - term: personal-data export
+    from: profile
+  - term: personal data
+    from: profile
+  - term: sign out
+    from: profile
+  - term: username
+    from: profile
+  - term: stalemate
+    definition: The side to move is not in check but has no legal move. The Custom Game ends
+      as a draw.
+  - term: mating material
+    definition: Pieces remaining that can produce checkmate, including help from the other
+      side's pieces. A bare king has none. Without it, running out of time or resignation
+      cannot award a win.
+    forms:
+    - insufficient mating material
+    - remaining material
+    - bare king
+    - bare kings
+  - term: fifty moves
+    definition: Fifty moves by each side without a pawn move or capture end a Custom Game
+      as a draw. A legal mating move completes checkmate before this draw.
+    forms:
+    - fiftieth
+    - quiet move
+    - quiet moves
+  - term: rename themselves
+    from: profile
