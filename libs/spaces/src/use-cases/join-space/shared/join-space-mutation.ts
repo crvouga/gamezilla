@@ -56,7 +56,11 @@ export const joinSpaceMutation = defineMutation({
           created_by_account_id = excluded.created_by_account_id
       `);
     }
-    if (isHost(env, row)) {
+    if (
+      isHost(env, row) &&
+      (row.host_member_id !== actorMemberId ||
+        row.host_account_id !== actorAccountId)
+    ) {
       await tx.run(sql`
         UPDATE spaces
         SET host_member_id = ${actorMemberId}, host_account_id = ${actorAccountId}

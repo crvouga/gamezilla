@@ -1893,5 +1893,10 @@
     "id": "room-notify-reactive-resubscribe",
     "summary": "A room change iterated the live subscription set, so a reactive listener that unsubscribed and resubscribed was revisited indefinitely. Snapshot listeners per change and skip removed listeners, deferring new subscriptions to the next notification.",
     "regressionTest": "pkgs/room/tests/room-client.contract.test.ts"
+  },
+  {
+    "id": "space-host-join-stale-fanout",
+    "summary": "Joining an unchanged host identity emitted a full stale space row over optimistic fanout. Reconnect repeatedly resurrected an ended space, reopened host sessions and remounted subscriptions. Write host identity only when it actually changes.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
   }
 ]

@@ -31,6 +31,7 @@ import hostRefusal from './fixtures/custom-game-host-refusal-vocabulary.itf.json
 import idempotentReadiness from './fixtures/custom-game-idempotent-readiness.itf.json';
 import offlineBoundary from './fixtures/custom-game-offline-boundary.itf.json';
 import staleCancellation from './fixtures/custom-game-stale-cancellation.itf.json';
+import hostJoinStaleFanout from './fixtures/space-host-join-stale-fanout.itf.json';
 import hostLeaveRemount from './fixtures/space-host-leave-remount.itf.json';
 
 function choose(command: string) {
@@ -50,6 +51,13 @@ bindQuintModel<QuintHarnessWorld>({
   encoding: 'fun-arrays',
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: space-host-join-stale-fanout
+      id: 'space-host-join-stale-fanout',
+      title: 'Reconnecting to an ended space settles its subscriptions',
+      seed: '0x67932',
+      itf: hostJoinStaleFanout,
+    },
     {
       // regression: space-host-leave-remount
       id: 'space-host-leave-remount',
