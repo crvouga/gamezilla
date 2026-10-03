@@ -424,7 +424,6 @@
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
         "@pkgs/alloy": "workspace:*",
-        "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/dmn": "workspace:*",
