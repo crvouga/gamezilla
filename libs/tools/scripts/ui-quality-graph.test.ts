@@ -7,6 +7,23 @@ const ROOT = join(import.meta.dir, '../../..');
 const readJson = <T>(file: string): T =>
   JSON.parse(readFileSync(join(ROOT, file), 'utf8')) as T;
 
+test('the product proof starts bounded solver workers before native replay', () => {
+  // regression: product-symbolic-worker-contention — 13 concurrent JVM checks starved whole-system at its unchanged 120s deadline.
+  const pkg = readJson<{ scripts: Record<string, string> }>(
+    'apps/product/package.json'
+  );
+  const stages = pkg.scripts['test:contract']!.split(' && ');
+  expect(stages).toHaveLength(2);
+  expect(stages[0]).toContain('tests/quint/system/model-checks.test.ts');
+  expect(stages[1]).toContain('tests/ui-quality-render.contract.test.ts');
+  for (const stage of stages) {
+    const workers = stage.match(/--max-concurrency (\d+)/)?.[1];
+    expect(workers).toBeDefined();
+    expect(Number(workers)).toBeGreaterThan(0);
+    expect(Number(workers)).toBeLessThanOrEqual(2);
+  }
+});
+
 test('the visual gate consumes every product spec part and caches both verdict and published evidence', () => {
   const owners = specPackages().filter(
     (p) => !p.dir.startsWith('pkgs/') && p.specDomains.length > 0
