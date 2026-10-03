@@ -92,6 +92,8 @@ export type CreateDurableObjectAdapterOptions<
   effectHandlers?: readonly RoomEffectHandler[];
   /** Resolve the OTel runtime from the concrete Worker's environment bindings. */
   telemetry: (env: Env) => DurableObjectTelemetry;
+  /** Enables private service commands; callers must keep the namespace off public routes. */
+  serviceIdentity?: Identity;
 };
 
 function defaultParseIdentity<Identity>(raw: string): Identity | null {
@@ -143,6 +145,7 @@ function resolveOptions<
     authorize: options.authorize,
     effectHandlers: options.effectHandlers ?? [],
     telemetry: options.telemetry,
+    serviceIdentity: options.serviceIdentity ?? null,
   };
 }
 

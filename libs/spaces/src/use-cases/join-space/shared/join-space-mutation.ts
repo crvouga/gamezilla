@@ -9,6 +9,7 @@ import {
   openSession,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
+import { changeSpaceRoomMembership } from '../../../shared/space/space-withdrawal';
 export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
@@ -55,13 +56,18 @@ export const joinSpaceMutation = defineMutation({
           created_by_account_id = excluded.created_by_account_id
       `);
     }
-    if (isHost(env, row)) {
+    if (
+      isHost(env, row) &&
+      (row.host_member_id !== actorMemberId ||
+        row.host_account_id !== actorAccountId)
+    ) {
       await tx.run(sql`
         UPDATE spaces
         SET host_member_id = ${actorMemberId}, host_account_id = ${actorAccountId}
         WHERE id = ${spaceId}
       `);
     }
+    await changeSpaceRoomMembership({ tx, env }, spaceId, 'joined');
     await openSession(tx, env, spaceId);
   },
 });

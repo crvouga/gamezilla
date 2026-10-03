@@ -1,5 +1,150 @@
 [
   {
+    "id": "harness-reconnect-stale-fabric-fixture",
+    "summary": "The offline-boot recovery example omitted the fabric heal port after reconnection began restoring both networks, aborting before it could verify origin recovery. Supply that port and assert that one-device and whole-network recovery heal the matching fabric scope.",
+    "regressionTest": "libs/harness/tests/reconnect-origin-health.test.ts"
+  },
+  {
+    "id": "custom-game-offline-boundary",
+    "summary": "Modified-device probes bypassed the injected network fabric and reached room authority while disconnected. Route probes through the device transport and observe the product connection refusal without disclosing room state.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-idempotent-readiness",
+    "summary": "The harness clicked the readiness toggle when the requested ready or unready state was already shown, reversing an idempotent command. Send the explicit acknowledged choice when the toggle would perform the opposite operation.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-stale-cancellation",
+    "summary": "A cancellation prepared before the creator assigned Black to a bot ignored the changed choices revision and cancelled the newer configuration. Reject a stale cancellation while preserving the newer agreed game.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-terminal-confirmation",
+    "summary": "The harness treated an unavailable cancel or resign control as usable and waited for a confirmation modal that could not open. Attempt unavailable choices through the acknowledged refusal path and use the modal only when its control is enabled.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-control.binding.ts"
+  },
+  {
+    "id": "custom-game-partition-spends-time",
+    "summary": "Losing a room connection reached the loopback transport only after a heartbeat; settling the offline view consumed time and let timed games or bots advance. Fabric network changes now notify live room sockets immediately.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"
+  },
+  {
+    "id": "custom-game-observation-spends-time",
+    "summary": "Switching Alice and Bob UI views advanced virtual time by one second per focus, causing observation of active Custom Games to expire clocks and move bots. Focus now drains only currently due work.",
+    "regressionTest": "libs/chess/tests/quint/custom-game-play.binding.ts"
+  },
+  {
+    "id": "known-bug-gate-rejects-pinned-quint",
+    "summary": "The regression registry rejected a literal Quint history even though the standard model runner replayed it as an example test. Recognize canonical bindings only with a matching registered regression, imported literal trace and executable action history.",
+    "regressionTest": "libs/tools/scripts/quint-regression-proof.test.ts"
+  },
+  {
+    "id": "custom-game-personal-export-omits-games",
+    "summary": "Personal-data exports returned puzzle rows but omitted the requesting person's Custom Game choices, moves and outcome. Include retained games created or played by that person, excluding an outsider's games.",
+    "regressionTest": "specs/chess/custom-game-privacy.feature"
+  },
+  {
+    "id": "ci-report-restore-aborts-independent-outputs",
+    "summary": "Check report restoration rejected on the missing @libs/chess#test:spec:13 cache artifact and abandoned queued friends reports. Drain every independent restoration and aggregate failures after completion, preserving the failed verdict.",
+    "regressionTest": "libs/tools/scripts/check-report-queue.test.ts"
+  },
+  {
+    "id": "chess-custom-board-sound-preference",
+    "summary": "The Custom Game board omitted an explicit sound choice, failing the public board contract and ignoring the app sound preference. Bind board sounds to the injected preference so muting applies to Custom Games.",
+    "regressionTest": "libs/chess/tests/board-contract.test.ts"
+  },
+  {
+    "id": "room-overlapping-command-results",
+    "summary": "Custom Game confirmation watched the shared room error, so a refused command could reject another overlapping accepted command. Expose command-correlated server results and confirm each choice from its own rejection or committed event.",
+    "regressionTest": "pkgs/room/tests/room-command-results.test.ts"
+  },
+  {
+    "id": "chess-custom-client-schedules",
+    "summary": "Creating the first Custom Game emitted authoritative schedule cancellations, but the Space Room client had no effect handler and threw before dispatch. Devices now recognize schedule effects while the server alone runs bot turns and clock deadlines. The guest creation scenario pins the literal first-create failure.",
+    "regressionTest": "specs/chess/custom-game-creation.feature"
+  },
+  {
+    "id": "room-command-client-time",
+    "summary": "The room server passed the client timestamp into authorization and module handlers. A modified client could send ts=7 while the server clock was 1000, miscounting active clocks. Stamp every received command with the injected server clock before authorization and handling.",
+    "regressionTest": "pkgs/room/tests/room-server-clock.test.ts"
+  },
+  {
+    "id": "ui-field-visible-label-unlinked",
+    "summary": "The Custom Game move-review number input showed its label but had no associated accessible name. Link TextInput fields to their visible labels.",
+    "regressionTest": "pkgs/ui/tests/hosts.test.tsx"
+  },
+  {
+    "id": "ui-translated-icon-label-unnamed",
+    "summary": "Custom Game listening checks found four space chrome icon buttons with empty names: IconButton only recognized a string label, while Lingui Trans supplies a reactive JSX value. Resolve the label before deriving the accessible name.",
+    "regressionTest": "pkgs/ui/tests/button.test.tsx"
+  },
+  {
+    "id": "space-membership-wrong-room-topic",
+    "summary": "A createSpace delivery for f724f291-a735-477a-b014-e07c4d070f8c updated room:<id>, the pubsub topic, instead of the authoritative space:<id> room. Devices saw no seats and rejected a valid creator as not in the space. Send membership updates and disconnects to the authoritative room topic.",
+    "regressionTest": "libs/spaces/tests/space-membership-delivery.test.ts"
+  },
+  {
+    "id": "custom-game-journey-unbound",
+    "summary": "The Custom Game critical journey had no step bindings in the shared entry, so both the Check and live journey runners failed before exercising the game.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-confirm-unmounted",
+    "summary": "Resignation and cancellation unmounted their confirmation modal as soon as the game became terminal, removing the loading and success surface before it could be dismissed. Keep the modal mounted and gate only its trigger.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-journey-offline-race",
+    "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
+    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+  },
+  {
+    "id": "custom-game-host-refusal-vocabulary",
+    "summary": "The configuration binding compared the visible host-only creation denial with a different canonical model phrase. Translate the observed host-creation denial to the model's creator-authority vocabulary without changing admission.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "custom-game-held-success",
+    "summary": "A repeated Custom Game choice at the same virtual instant clicked a control still displaying Confirmed, so the mutation lifecycle suppressed it and the harness never settled. Use the explicit acknowledged command while the success display holds.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "puzzle-skipped-reconnect",
+    "summary": "An origin recovery wait inside the mutation upload loop error handler rejected during disposal and escaped the owned loop. Consume intentional HTTP cancellation at that wait while preserving unrelated errors and queued mutations.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-attempt.binding.ts"
+  },
+  {
+    "id": "puzzle-recovery-watcher-not-ready",
+    "summary": "The recovery model partitioned its watcher before the current puzzle arrived, so cached stats could not be reached. Initialize the watcher with the same actual rendered puzzle before allowing connection loss.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+  },
+  {
+    "id": "puzzle-competing-equal-rating",
+    "summary": "Competing failed and hinted results had equal ratings, so rating equality completed recovery before the first result reached the returning device. Wait for the actual local result ledger to converge while retaining rendered statistics as the model observation.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+  },
+  {
+    "id": "space-lobby-ended-refusal",
+    "summary": "A stale lobby card opened the correct ended-space refusal, but joining waited only for a live space or its provisional Join prompt. Drain pending hydration, settle on the canonical space outcome, and join only when offered.",
+    "regressionTest": "specs/spaces/space-friend-join.feature"
+  },
+  {
+    "id": "space-host-leave-remount",
+    "summary": "Optimistic host leave removed the host permission while confirmation was loading, remounting a fresh idle non-host dialog and losing the mutation outcome. Retain the confirmed operation kind until dismissal, while keeping the unconfirmed choice reactive.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
+    "id": "room-notify-reactive-resubscribe",
+    "summary": "A room change iterated the live subscription set, so a reactive listener that unsubscribed and resubscribed was revisited indefinitely. Snapshot listeners per change and skip removed listeners, deferring new subscriptions to the next notification.",
+    "regressionTest": "pkgs/room/tests/room-client.contract.test.ts"
+  },
+  {
+    "id": "space-host-join-stale-fanout",
+    "summary": "Joining an unchanged host identity emitted a full stale space row over optimistic fanout. Reconnect repeatedly resurrected an ended space, reopened host sessions and remounted subscriptions. Write host identity only when it actually changes.",
+    "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  },
+  {
     "id": "build-glob-nested-braces",
     "summary": "The build tools pulled in braces 3.0.3, whose recursive compilation can overflow the stack on 12000 nested braces. Use bounded Picomatch compilation for source exclusions, catalog capture and watcher patterns, removing braces from the dependency graph.",
     "regressionTest": "pkgs/glob-match/tests/glob-match.test.ts"

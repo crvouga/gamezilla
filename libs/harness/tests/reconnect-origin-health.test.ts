@@ -16,6 +16,7 @@ async function flush(): Promise<void> {
 }
 
 // regression: harness-reconnect-origin-health — puzzle trace 46, seed 0x67932.
+// regression: harness-reconnect-stale-fabric-fixture
 test.each(['one', 'all'] as const)(
   'reconnecting %s wakes an offline boot before its backed-off probe',
   async (scope) => {
@@ -33,9 +34,13 @@ test.each(['one', 'all'] as const)(
     });
     const env = {} as ClientEnv;
     setOriginAvailability(env, server.availability);
+    const fabricHeals: string[][] = [];
     const s = {
       actors: new Map([['charlie', {}]]),
-      harness: { client: async () => env },
+      harness: {
+        client: async () => env,
+        heal: (...ids: string[]) => fabricHeals.push(ids),
+      },
       session: {
         network: {
           heal: (serverId: string, actor: string) => {
@@ -66,6 +71,9 @@ test.each(['one', 'all'] as const)(
       if (scope === 'one')
         await Promise.resolve(restoreActorConnection.act(s, 'charlie'));
       else await Promise.resolve(restoreNetwork.act(s));
+      expect(fabricHeals).toEqual(
+        scope === 'one' ? [[HARNESS_PRIMARY_SERVER_ID, 'charlie']] : [[]]
+      );
       expect(server.availability.getSnapshot().phase).toBe('available');
       await recovery;
       expect(resumed).toBe(true);

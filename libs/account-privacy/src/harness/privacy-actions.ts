@@ -15,10 +15,7 @@ import {
 } from '@libs/harness/system/identity';
 import { partitioned } from '@libs/harness/system/observations';
 import { openAccount } from '@libs/harness/system/shell-actions';
-import {
-  drainAndNotifyOutbox,
-  getOutboxConsumerRegistry,
-} from '@libs/server-app/sync/outbox-drain';
+import { drainAndNotifyOutbox } from '@libs/server-app/sync/outbox-drain';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { OutboxConsumerRegistry } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
@@ -102,7 +99,7 @@ export const runPrivacyJobs = scenarioAction({
     eventIds?: readonly string[]
   ) => {
     const consumerRegistry = new OutboxConsumerRegistry();
-    for (const consumer of getOutboxConsumerRegistry().all()) {
+    for (const consumer of s.harness.outboxConsumers().all()) {
       if (prepareExports || consumer.id !== 'profile-prepare-export')
         consumerRegistry.register(consumer);
     }
@@ -111,7 +108,10 @@ export const runPrivacyJobs = scenarioAction({
       consumerRegistry.get('profile-prepare-export') === undefined
     )
       consumerRegistry.register(
-        exportPreparationConsumer(s.harness.composition.app.accountPrivacy)
+        exportPreparationConsumer(
+          s.harness.composition.app.accountPrivacy,
+          s.harness.roomNode.services
+        )
       );
     await drainAndNotifyOutbox({
       db: s.harness.serverSql.sqlClient,

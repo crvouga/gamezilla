@@ -175,6 +175,7 @@ export function makeHarnessClientEnv(
       return partitionAwareRoomTransport({
         open: () => roomNode.createTransport(roomArgs),
         reachable: () => net.isReachable(id, HARNESS_PRIMARY_SERVER_ID),
+        subscribeReachability: net.subscribe,
         timers,
       });
     },

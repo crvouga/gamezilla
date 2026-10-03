@@ -4,6 +4,7 @@ import {
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
+import type { Random } from '@pkgs/uuid';
 
 import type { GameDefinition } from './game';
 import { createSpaceModule } from './space-module';
@@ -49,12 +50,14 @@ export function assertMatchingGameIds(
  */
 export function composeSpaceRoomModule(
   games: readonly GameDefinition[],
-  now: () => number
+  now: () => number,
+  random: Random
 ): RoomModule<RoomState, Message, Message, string> {
   return createSpaceModule(
     assertRoomModuleName(SPACE_ROOM_MODULE_NAME),
     games,
-    now
+    now,
+    random
   );
 }
 
@@ -64,7 +67,8 @@ export function composeSpaceRoomModule(
  */
 export function composeRoomModules(
   games: readonly GameDefinition[],
-  now: () => number
+  now: () => number,
+  random: Random
 ): readonly [RoomModule<RoomState, Message, Message, string>] {
-  return [composeSpaceRoomModule(games, now)] as const;
+  return [composeSpaceRoomModule(games, now, random)] as const;
 }

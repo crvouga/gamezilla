@@ -56,6 +56,7 @@ function createFakeRoom(initial: RoomState): FakeRoom {
     },
     dispatch: (payload) => {
       room.dispatched.push(payload);
+      return `fake-command-${room.dispatched.length}`;
     },
     setState: (next) => {
       state = next;

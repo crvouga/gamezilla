@@ -1,0 +1,61 @@
+import { actorUi, scenarioAction } from '@libs/harness/system/actor-ui';
+import type { CustomGameChoice } from '../public/custom-game';
+import {
+  chooseCustomGameWithKeyboard,
+  listenToCustomGame,
+} from './custom-game-accessibility';
+import { repeatCustomGameAcknowledgement } from './custom-game-acknowledgement';
+import { chooseCustomGameBotMove } from './custom-game-bot-choice';
+import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
+import { attemptCustomGameBoundary } from './custom-game-boundary';
+import { changeThroughCustomGameControls } from './custom-game-controls';
+import { playCustomGameHistory } from './custom-game-history';
+import { raceCustomGameChoices } from './custom-game-race';
+import { reviewCustomGame } from './custom-game-review';
+import {
+  configureCustomGame,
+  openCustomGameScreen,
+  sendCustomGameChoice,
+} from './custom-game-ui';
+
+export const openCustomGame = scenarioAction({
+  name: 'openCustomGame',
+  act: openCustomGameScreen,
+});
+export const changeCustomGame = scenarioAction({
+  name: 'changeCustomGame',
+  act: changeThroughCustomGameControls,
+});
+export const establishCustomGame = scenarioAction({
+  name: 'establishCustomGame',
+  act: configureCustomGame,
+});
+export const attemptCustomGameChoice = scenarioAction({
+  name: 'attemptCustomGameChoice',
+  act: (s, actor: string, choice: CustomGameChoice) =>
+    sendCustomGameChoice(s, actor, choice).then(() => undefined),
+});
+export const playCustomGamePreset = scenarioAction({
+  name: 'playCustomGamePreset',
+  act: async (s, actor: string) => {
+    const ui = await actorUi(s, actor);
+    await ui.get('chess-custom-play-bot').tap();
+  },
+});
+
+export const CUSTOM_GAME_HARNESS_ACTIONS = [
+  openCustomGame,
+  changeCustomGame,
+  establishCustomGame,
+  attemptCustomGameChoice,
+  playCustomGamePreset,
+  playCustomGameHistory,
+  raceCustomGameChoices,
+  reviewCustomGame,
+  attemptCustomGameBoundary,
+  repeatCustomGameAcknowledgement,
+  chooseCustomGameBotMove,
+  redeliverCustomGameBotWake,
+  chooseCustomGameWithKeyboard,
+  listenToCustomGame,
+];

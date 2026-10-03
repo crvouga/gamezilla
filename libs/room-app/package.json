@@ -17,6 +17,8 @@
     "@libs/games": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-durable-object": "workspace:*"
   },
   "devDependencies": {

@@ -1,4 +1,5 @@
 import { assert } from '@pkgs/assert';
+import { cacheWasInvalidated } from '../../cache-invalidation';
 
 import type { ROOM_WIRE_KIND, ServerToClientWire } from '../../protocol/wire';
 import type {
@@ -57,6 +58,13 @@ function resetToEmpty(env: AnyWireEnv): void {
   env.notify();
 }
 
+function invalidateCache(env: AnyWireEnv): void {
+  env.core.queue = [];
+  env.persist.queueChanged();
+  resetToEmpty(env);
+  env.sendSync();
+}
+
 function welcomeSuffix(
   entries: readonly LogEntry[],
   lastSeq: number
@@ -70,6 +78,8 @@ function welcomeSuffix(
 }
 
 export function applyWelcome(env: AnyWireEnv, msg: Welcome): void {
+  if (msg.fromSeq > 0 && cacheWasInvalidated(msg.entries))
+    return invalidateCache(env);
   const core = env.core;
   const suffix = welcomeSuffix(msg.entries, core.lastSeq);
   const suffixContiguous =
@@ -116,6 +126,7 @@ function ackQueued(env: AnyWireEnv, commandId: string): void {
 }
 
 export function applyCommitted(env: AnyWireEnv, msg: Committed): void {
+  if (cacheWasInvalidated(msg.entries)) return invalidateCache(env);
   const core = env.core;
   const first = msg.entries[0];
   const commandId = msg.commandId;

@@ -5,11 +5,14 @@ import type { ProductHarness } from '@libs/harness/system/harness';
 import { reopenSpaceLink } from '@libs/spaces/harness/space-actions';
 import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
 import { finishPuzzleBy, playPuzzleMove } from './chess-actions';
-import { readFeedTargetLabel } from './chess-puzzle-feed-ui';
 import { readActivePuzzleId, readPuzzleDebug } from './chess-puzzle-ui';
-import { readRecordedPuzzleResult } from './puzzle-result-recovery';
+import {
+  readLocalPuzzleResult,
+  readRecordedPuzzleResult,
+} from './puzzle-result-recovery';
 
 async function prepareCopies(s: ProductHarness, actor: string, other: string) {
+  await Promise.resolve(focusActor.act(s, actor));
   const link = await readSpaceLink(s, actor);
   const puzzle = await readActivePuzzleId(s, actor);
   if (link === null || puzzle === null) throw new Error('No active puzzle');
@@ -73,18 +76,17 @@ export const finishCompetingPuzzleResults = scenarioAction({
     if (args.reconnectOther) {
       await Promise.resolve(restoreActorConnection.act(s, args.other));
       await Promise.resolve(focusActor.act(s, args.actor));
-      const first = await readFeedTargetLabel(s, args.actor);
-      if (first === null) throw new Error('The first device shows no rating');
+      const first = await readRecordedPuzzleResult(s, args.actor, puzzle);
       await Promise.resolve(focusActor.act(s, args.other));
       await pollUntil(
         s,
         async () =>
-          (await readFeedTargetLabel(s, args.other))?.rating === first.rating
+          (await readLocalPuzzleResult(s, args.other, puzzle)) === first
             ? true
             : null,
         {
           maxMs: 30_000,
-          description: 'the returning device shows the first rating',
+          description: 'the returning device has received the first result',
         }
       );
     }

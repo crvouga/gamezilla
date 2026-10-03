@@ -37,5 +37,6 @@ export const ACCOUNT_PRIVACY_HARNESS_SLICE: HarnessSlice = {
     completeExport,
     openExportAddress,
   ],
-  server: (deps) => createAccountPrivacyServer(deps.app.accountPrivacy),
+  server: (deps) =>
+    createAccountPrivacyServer(deps.app.accountPrivacy, deps.rooms),
 };

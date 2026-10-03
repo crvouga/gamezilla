@@ -17,6 +17,7 @@ Feature: A friend joins from the lobby
       When Bob joins Alice's space from the lobby
       Then Bob is in the space
 
+    @regression:space-lobby-ended-refusal
     Scenario: A friend is not offered a space that has ended
       Given Alice has hosted a space and ended it
       When Bob joins Alice's space from the lobby

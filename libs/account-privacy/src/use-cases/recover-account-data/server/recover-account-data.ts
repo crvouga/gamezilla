@@ -1,6 +1,7 @@
 import { accountMutationEnv } from '@libs/auth/public/account-mutation-env';
 import type { AccountPrivacyContribution } from '@libs/feature/public/account-privacy';
 import type { Clock } from '@pkgs/clock';
+import type { RoomServicePort } from '@pkgs/room/server';
 import { sql } from '@pkgs/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import { wrapMutationDb } from '@pkgs/sync-engine/server';
@@ -11,6 +12,7 @@ export class RecoverAccountData {
   constructor(
     private readonly db: SqlClient,
     private readonly ports: {
+      readonly rooms: RoomServicePort;
       readonly clock: Clock;
       readonly createId: CreateId;
       readonly contributions: readonly AccountPrivacyContribution[];
@@ -31,7 +33,10 @@ export class RecoverAccountData {
         for (const contribution of this.ports.contributions) {
           await contribution.withdraw({ tx: managed.tx, env: context });
           if (Date.parse(String(receipt.erase_by)) <= this.ports.clock.now())
-            await contribution.erase({ tx: managed.tx, env: context });
+            await contribution.erase(
+              { tx: managed.tx, env: context },
+              this.ports.rooms
+            );
         }
       }
     });

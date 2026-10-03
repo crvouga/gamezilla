@@ -61,8 +61,11 @@ export const backToTabs = scenarioAction({
       .expect.visible({ timeoutMs: WAIT_MS });
     for (let pops = 0; pops < 4; pops++) {
       if (await ui.get(Handles.tabProfile).isVisible()) break;
-      if (!(await ui.get(Handles.navBack).isVisible())) break;
-      await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+      const back = (await ui.get(Handles.navBack).isVisible())
+        ? Handles.navBack
+        : Handles.spaceClose;
+      if (!(await ui.get(back).isVisible())) break;
+      await ui.get(back).tap({ timeoutMs: WAIT_MS });
       await s.session.waitForIdle();
     }
     await ui.get(Handles.tabProfile).expect.visible({ timeoutMs: WAIT_MS });

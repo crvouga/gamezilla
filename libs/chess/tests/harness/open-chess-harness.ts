@@ -2,6 +2,7 @@ import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy/harness/acc
 import { BILLING_HARNESS_SLICE } from '@libs/billing/harness/billing-harness-slice';
 import { seedChessPuzzlesForHarness } from '@libs/chess/harness/chess-harness-seed';
 import { CHESS_HARNESS_SLICE } from '@libs/chess/harness/chess-harness-slice';
+import { customGameBotRoomNode } from '@libs/chess/harness/custom-game-bot-choice';
 import {
   HARNESS_CHESS_FEED_POOL_KEY,
   seedHarnessChessPuzzles,
@@ -30,14 +31,16 @@ import { spacesHarnessSlice } from '@libs/spaces/harness/spaces-harness-slice';
  * puzzle limit sends you.
  */
 function chessSystem(chess: HarnessSlice) {
+  const spaces = spacesHarnessSlice({
+    games: [chessGameShared],
+    clients: [chessGameClient],
+  });
+  if (spaces.roomNode === undefined) throw new Error('Chess needs a room node');
   return defineProductSystem(
     composeHarnessSlices('chess', [
       ACCOUNT_PRIVACY_HARNESS_SLICE,
       PROFILE_HARNESS_SLICE,
-      spacesHarnessSlice({
-        games: [chessGameShared],
-        clients: [chessGameClient],
-      }),
+      { ...spaces, roomNode: customGameBotRoomNode(spaces.roomNode) },
       FRIENDS_HARNESS_SLICE,
       NOTIFICATIONS_HARNESS_SLICE,
       SEARCH_HARNESS_SLICE,

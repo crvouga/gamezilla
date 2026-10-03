@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { ChessModule } from '@libs/chess/public/chess-module';
+import { createChessModule } from '@libs/chess/public/chess-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
@@ -19,6 +19,8 @@ import {
 } from '@libs/chess/public/chess-puzzle-play';
 import { CHESS_PUZZLE_MAX_RECOMMENDATIONS } from '@libs/chess/public/puzzle-session';
 import { ROOM_ERROR_TYPE, type RoomCommand, type RoomState } from '@pkgs/room';
+
+const ChessModule = createChessModule(() => 0);
 
 const HOST = 'host-1';
 const GUEST = 'guest-1';

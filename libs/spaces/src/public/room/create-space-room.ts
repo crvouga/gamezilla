@@ -1,11 +1,13 @@
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import {
+  CancelScheduleEffect,
   type ClientTransport,
   RoomClient,
   type RoomCommandPayload,
   type RoomEvent,
   type RoomState,
+  ScheduleEffect,
 } from '@pkgs/room';
 import {
   KeyValueClientRoomStorage,
@@ -110,6 +112,14 @@ export class SpaceRoomFactory {
       clock: this.clock,
       timers: this.timers,
       createId: this.createId,
+      // Space schedules run on the authoritative room. Optimism recognizes
+      // their effects but never runs a bot or decides a timeout on a device.
+      effectHandlers: [
+        {
+          apply: (effect) =>
+            ScheduleEffect.is(effect) || CancelScheduleEffect.is(effect),
+        },
+      ],
     });
 
     return { room, transport };

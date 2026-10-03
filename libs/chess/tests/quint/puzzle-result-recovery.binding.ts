@@ -12,7 +12,11 @@ import {
   retryFinishedPuzzle,
   viewRecoveryStats,
 } from '@libs/chess/harness/puzzle-result-recovery';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness';
+import {
+  focusActor,
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint/world';
 import {
   partition,
@@ -26,6 +30,8 @@ import {
 import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
+import competingRatingTrace from './fixtures/puzzle-competing-equal-rating.itf.json';
+import watcherReadyTrace from './fixtures/puzzle-recovery-watcher-not-ready.itf.json';
 
 const FINISH = {
   CleanSolve: 'clean',
@@ -56,6 +62,22 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 64,
   maxSteps: 32,
   timeoutMs: 180_000,
+  regressions: [
+    // regression: puzzle-recovery-watcher-not-ready
+    {
+      id: 'puzzle-recovery-watcher-not-ready',
+      title: 'A watcher can read cached stats after losing connection',
+      seed: '0x67932',
+      itf: watcherReadyTrace,
+    },
+    // regression: puzzle-competing-equal-rating
+    {
+      id: 'puzzle-competing-equal-rating',
+      title: 'Equal ratings still converge to the first result',
+      seed: '0x67932',
+      itf: competingRatingTrace,
+    },
+  ],
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, 'alice');
@@ -71,6 +93,13 @@ bindQuintModel<QuintHarnessWorld>({
       const puzzle = await w.s.read(readActivePuzzleId, 'alice');
       if (puzzle === null) throw new Error('No active puzzle');
       w.memo.set('result-puzzle', puzzle);
+      // Initialization includes the watcher's cached copy before it can go offline.
+      await w.s.apply(focusActor, 'bob');
+      await w.s.until((s) => readActivePuzzleId(s, 'bob'), {
+        pred: (id) => id === puzzle,
+        maxMs: 15_000,
+      });
+      await w.s.apply(focusActor, 'alice');
     },
     finish: (w, picks) => w.s.apply(finishPuzzleBy, 'alice', finish(picks)),
     finishAsAppCloses: (w, picks) =>

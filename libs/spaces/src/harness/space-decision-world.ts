@@ -17,20 +17,21 @@ import {
   type ServerCase,
   type ServerOperation,
 } from '@libs/permissions/root/conformance/server';
-import { createInProcessRoomNode } from '@libs/spaces/harness/in-process-room-node';
-import { answerOfRoomCommand } from '@libs/spaces/harness/room-command-probe';
-import { SelectGame } from '@libs/spaces/public/games';
+import { createHarnessClock } from '@pkgs/clock';
+import { outboxEvents } from '@pkgs/outbox';
+import { sql } from '@pkgs/sql';
+import { SelectGame } from '../public/games';
 import {
   spaceOpenSessionEntityId,
   spaceUserEntityId,
-} from '@libs/spaces/public/participation/participation-ids';
-import { SPACES_TABLES } from '@libs/spaces/public/schema';
-import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
-import { createHarnessClock } from '@pkgs/clock';
-import { sql } from '@pkgs/sql';
+} from '../public/participation/participation-ids';
+import { SPACES_TABLES } from '../public/schema';
+import { spaceRoomGrants } from '../root/server/space-room-grants';
+import { createInProcessRoomNode } from './in-process-room-node';
+import { answerOfRoomCommand } from './room-command-probe';
 
 /** Everything the spaces operations read and write, plus memberships. */
-export const SPACE_TABLES = [...BILLING_TABLES, ...SPACES_TABLES];
+export const SPACE_TABLES = [...BILLING_TABLES, ...SPACES_TABLES, outboxEvents];
 
 /** The space every space-roles case is about. */
 export const SPACE_ID = 'the-space';
@@ -131,7 +132,7 @@ export const chooseGame: ServerOperation = async (c) => {
   let ids = 0;
   const gateway: HarnessRoomGateway = {
     roomGrants: ({ topic, actor }) =>
-      SPACES_SERVER.roomGrants?.({ db: c.db, topic, actor, nowMs: c.nowMs }) ??
+      spaceRoomGrants({ db: c.db, topic, actor, nowMs: c.nowMs }) ??
       Promise.resolve([]),
   };
   const node = createInProcessRoomNode(
@@ -150,6 +151,7 @@ export const chooseGame: ServerOperation = async (c) => {
       identity: memberIdOf(c),
       installId: c.env.deviceId,
       payload: SelectGame({ game: null }),
+      commandId: 'choose-no-game',
       nowMs: c.nowMs,
       timers,
     });

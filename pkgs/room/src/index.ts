@@ -27,7 +27,10 @@ export {
   MAX_ROSTER_SIZE,
   MAX_WELCOME_ENTRIES_PER_FRAME,
 } from './bounds';
-export type { RoomClientConfig } from './client/core/room-client';
+export type {
+  RoomClientConfig,
+  RoomCommandResult,
+} from './client/core/room-client';
 export { RoomClient } from './client/core/room-client';
 export { RoomMetaAttr, roomAttrNamespace } from './client/core/room-meta';
 export type { ClientRoomStorage, QueuedCommand } from './client/core/storage';
@@ -80,6 +83,7 @@ export {
   type ServerToClientWire,
   WIRE_VERSION,
 } from './protocol/wire';
+export { ROOM_SERVICE_GRANT, ROOM_SERVICE_IDENTITY } from './service-identity';
 export {
   TIGER_INVARIANTS,
   TIGER_MID_CHAOS_INVARIANTS,

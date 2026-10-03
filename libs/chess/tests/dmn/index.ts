@@ -4,5 +4,6 @@
  */
 
 import './daily-puzzle-limit.binding';
+import './custom-game-access.binding';
 
 import './assistant-observation.binding';

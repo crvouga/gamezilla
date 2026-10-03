@@ -13,6 +13,7 @@ import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { assertNonProdDatabaseUrl } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { composeFeatureServers } from '@libs/feature/public/compose-server';
+import { createRoomService } from '@libs/room-app/app/create-room-service';
 import { APP } from '@libs/runtime/root/app-features';
 import { APP_AUTH_PROVIDER } from '@libs/runtime/root/server/app-auth-provider';
 import { appFeatureServers } from '@libs/runtime/root/server/app-feature-servers';
@@ -320,7 +321,9 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   return await createServer(serverEnv, {
     app: APP,
-    servers: composeFeatureServers(appFeatureServers({ billing })),
+    servers: composeFeatureServers(
+      appFeatureServers({ billing, rooms: createRoomService(env.ROOM) })
+    ),
   });
 }
 
