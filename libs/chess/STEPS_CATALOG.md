@@ -27,6 +27,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has an active Custom Game after White's e4 | {actor} | chess |
 | Given | {actor} has an active Custom Game against a bot as Black | {actor} | chess |
 | Given | {actor} has an active Custom Game between {actor} as White and {actor} as Black | {actor}, {actor}, {actor} | chess |
+| Given | {actor} has an active Custom Game between two bots | {actor} | chess |
 | Given | {actor} has an active Custom Game one move before Black's checkmate | {actor} | chess |
 | Given | {actor} has an active Custom Game with {int} minute and {int} seconds increment | {actor}, {int}, {int} | chess |
 | Given | {actor} has an active Custom Game with a queen against {actor}'s bare king | {actor}, {actor} | chess |
@@ -117,6 +118,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} went offline before any puzzles reached their device | {actor} | chess |
 | Given | {actor}'s {competingFinish} result reached the account before the other device's {competingFinish} result | {actor}, {competingFinish}, {competingFinish} | chess |
 | Given | {actor}'s assistant is speaking | {actor} | chess |
+| Given | {actor}'s deleted account had a Custom Game | {actor} | chess |
 | Given | {actor}'s deleted account had solved puzzles in its game log | {actor} | chess |
 | Given | {actor}'s feed has come round to a puzzle they already played | {actor} | chess |
 | Given | {actor}'s invitation to Black has been revoked | {actor} | chess |
@@ -157,6 +159,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} cannot move pieces | {actor} | chess |
 | Then | {actor} cannot move pieces in the Custom Game | {actor} | chess |
 | Then | {actor} cannot see the Custom Game | {actor} | chess |
+| Then | {actor} cannot see the deleted account's Custom Game | {actor} | chess |
 | Then | {actor} feels the {word} haptic | {actor}, {word} | chess |
 | Then | {actor} has a configuring Custom Game with no moves | {actor} | chess |
 | Then | {actor} has a puzzle on the board | {actor} | chess |
@@ -302,6 +305,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s saved feed advances after one second | {actor} | chess |
 | Then | {actor}'s sounds are off | {actor} | chess |
 | Then | {actor}'s sounds are on | {actor} | chess |
+| Then | {actor}'s space has not ended | {actor} | chess |
 | Then | {actor}'s stats show {int} played, {int} solved, and {int}% accuracy | {actor}, {int}, {int}, {int} | chess |
 | Then | {actor}'s stats show 0 played and 0 solved | {actor} | chess |
 | Then | {actor}'s stats show a rating of {string} | {actor}, {string} | chess |
