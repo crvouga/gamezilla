@@ -1998,5 +1998,10 @@
     "id": "puzzle-csv-prototype-header",
     "summary": "csv-parse 6.2.1 treats the literal __proto__ CSV header as a prototype setter, losing the cell value attacker (property shrink: a) instead of preserving it as an own field. Upgrade to 7.0.3 and pin both inputs through the puzzle row iterator, with arbitrary cell coverage.",
     "regressionTest": "libs/chess/tests/puzzle-data/csv-record-security.test.ts"
+  },
+  {
+    "id": "check-failed-task-duration-history",
+    "summary": "Raw Turbo summaries store failed exit codes inside execution; harvesting their elapsed time as successful history inflated estimates. Ignore failed raw execution and sanitized shard timings, and ignore invalid or zero elapsed samples.",
+    "regressionTest": "libs/tools/scripts/check-task-costs.test.ts"
   }
 ]

@@ -44,3 +44,28 @@ describe('mergeCosts', () => {
     ).toEqual({ '@p/a#tc': 6, '@p/c#test': 50 });
   });
 });
+
+// regression: check-failed-task-duration-history
+test('failed, killed, zero and invalid timings do not poison history', () => {
+  const summaries = [
+    JSON.stringify({
+      tasks: [
+        {
+          taskId: 'failed',
+          cache: 'MISS',
+          milliseconds: 1200000,
+          passed: false,
+        },
+        {
+          taskId: 'raw-failed',
+          cache: { status: 'MISS' },
+          execution: { startTime: 0, endTime: 1200000, exitCode: 1 },
+        },
+        { taskId: 'zero', cache: 'MISS', milliseconds: 0 },
+        { taskId: 'negative', cache: 'MISS', milliseconds: -1 },
+        { taskId: 'ok', cache: 'MISS', milliseconds: 4500, passed: true },
+      ],
+    }),
+  ];
+  expect(mergeCosts({ failed: 5 }, summaries)).toEqual({ failed: 5, ok: 5 });
+});

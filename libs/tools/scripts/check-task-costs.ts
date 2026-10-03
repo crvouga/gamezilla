@@ -24,8 +24,14 @@ export function readTaskCosts(): TaskCosts {
 type SummaryTask = {
   readonly taskId: string;
   readonly cache?: { readonly status?: string } | string;
-  readonly execution?: { readonly startTime: number; readonly endTime: number };
+  readonly execution?: {
+    readonly startTime: number;
+    readonly endTime: number;
+    readonly exitCode?: number;
+  };
   readonly milliseconds?: number;
+  readonly passed?: boolean;
+  readonly exitCode?: number;
 };
 
 /** Measured seconds per executed task in a turbo `--summarize` summary. */
@@ -34,6 +40,8 @@ export function costsFromSummary(summaryJson: string): Record<string, number> {
   const costs: Record<string, number> = {};
   for (const task of summary.tasks) {
     if (
+      task.passed === false ||
+      (task.exitCode ?? task.execution?.exitCode ?? 0) !== 0 ||
       task.cache === 'HIT' ||
       (typeof task.cache === 'object' && task.cache.status === 'HIT')
     )
@@ -43,7 +51,8 @@ export function costsFromSummary(summaryJson: string): Record<string, number> {
       (task.execution
         ? task.execution.endTime - task.execution.startTime
         : undefined);
-    if (elapsed === undefined) continue;
+    if (elapsed === undefined || !Number.isFinite(elapsed) || elapsed <= 0)
+      continue;
     const seconds = elapsed / 1000;
     costs[task.taskId] = Math.max(1, Math.round(seconds));
   }
