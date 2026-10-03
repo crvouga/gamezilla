@@ -416,6 +416,8 @@ Leave a check untagged until it can run on a dedicated synthetic identity, clean
 
 While iterating, prefer `bun run --filter <pkg> tc` and `bun run --filter <pkg> test` before a full check.
 
+Health authenticates AWS with its read-only role on a named branch. Use `depot ci dispatch --workflow health.yml --repo gamezilla-org/gamezilla --ref <branch>` for infrastructure health evidence: an inline `depot ci run` uses a commit SHA as its ref, which does not match the branch trust policy. This does not grant a branch deployment access.
+
 Debug with `bun obs` before adding logs. Exit `0` found, `1` no match, `2` usage, `3` store unreachable. `--json` is for programs.
 
 | Need | Command |
