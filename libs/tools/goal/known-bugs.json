@@ -1868,5 +1868,15 @@
     "id": "puzzle-skipped-reconnect",
     "summary": "An origin recovery wait inside the mutation upload loop error handler rejected during disposal and escaped the owned loop. Consume intentional HTTP cancellation at that wait while preserving unrelated errors and queued mutations.",
     "regressionTest": "libs/chess/tests/quint/puzzle-attempt.binding.ts"
+  },
+  {
+    "id": "puzzle-recovery-watcher-not-ready",
+    "summary": "The recovery model partitioned its watcher before the current puzzle arrived, so cached stats could not be reached. Initialize the watcher with the same actual rendered puzzle before allowing connection loss.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+  },
+  {
+    "id": "puzzle-competing-equal-rating",
+    "summary": "Competing failed and hinted results had equal ratings, so rating equality completed recovery before the first result reached the returning device. Wait for the actual local result ledger to converge while retaining rendered statistics as the model observation.",
+    "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
   }
 ]
