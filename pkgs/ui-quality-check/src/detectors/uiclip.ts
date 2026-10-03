@@ -7,7 +7,6 @@ import prompts from '../../assets/prompts.json';
 import type { Files } from '../files';
 import { verifyModel } from '../model/setup';
 import type { CheckerOptions } from '../types';
-import { imageWindows } from './preprocess';
 import { executionProviderCandidates } from './providers';
 import type {
   DetectorInfo,
@@ -15,6 +14,7 @@ import type {
   QualityScore,
   RgbImage,
 } from './types';
+import { WindowScorer } from './window-scorer';
 
 function quality(embedding: Float64Array): number {
   const norm = Math.sqrt(
@@ -36,6 +36,7 @@ function quality(embedding: Float64Array): number {
 export class UIClipDetector implements QualityDetector {
   private session: Runtime.InferenceSession | undefined;
   private runtime: typeof Runtime | undefined;
+  private windows: WindowScorer | undefined;
   private selected = 'uninitialized';
   private inferenceMs = 0;
   private windowsProcessed = 0;
@@ -91,6 +92,10 @@ export class UIClipDetector implements QualityDetector {
         this.options.signal?.throwIfAborted();
         this.session = candidate;
         this.selected = provider;
+        this.windows = new WindowScorer(
+          (tensors) => this.infer(tensors),
+          this.options.batchSize ?? (provider === 'cpu' ? 16 : 32)
+        );
         return;
       } catch (error) {
         if (candidate) await candidate.release();
@@ -109,32 +114,16 @@ export class UIClipDetector implements QualityDetector {
     images: readonly RgbImage[],
     signal?: AbortSignal
   ): Promise<readonly QualityScore[]> {
-    if (!this.session) throw new Error('Detector is not initialized.');
-    const sums = images.map(() => new Float64Array(512));
-    const windows: { image: number; tensor: Float32Array }[] = [];
-    const limit = this.options.batchSize ?? (this.selected === 'cpu' ? 16 : 32);
-    for (let i = 0; i < images.length; i++) {
-      signal?.throwIfAborted();
-      const image = images[i];
-      if (!image) continue;
-      for (const tensor of await imageWindows(image)) {
-        windows.push({ image: i, tensor });
-        if (windows.length >= limit) await this.infer(windows.splice(0), sums);
-      }
-    }
-    if (windows.length) await this.infer(windows, sums);
-    signal?.throwIfAborted();
+    if (!this.windows) throw new Error('Detector is not initialized.');
+    const sums = await this.windows.score(images, signal);
     return sums.map((sum) => ({ quality: quality(sum) }));
   }
 
-  private async infer(
-    windows: readonly { image: number; tensor: Float32Array }[],
-    sums: Float64Array[]
-  ): Promise<void> {
+  private async infer(windows: readonly Float32Array[]): Promise<Float32Array> {
     const ort = this.runtime;
     if (!ort) throw new Error('Detector runtime is not initialized.');
     const data = new Float32Array(windows.length * 3 * 224 * 224);
-    windows.forEach((window, i) => data.set(window.tensor, i * 3 * 224 * 224));
+    windows.forEach((window, i) => data.set(window, i * 3 * 224 * 224));
     const start = this.clock.now();
     const result = await this.session?.run({
       pixel_values: new ort.Tensor('float32', data, [
@@ -152,17 +141,14 @@ export class UIClipDetector implements QualityDetector {
       embeddings.length !== windows.length * 512
     )
       throw new Error('Model returned an unexpected image embedding shape.');
-    windows.forEach((window, i) => {
-      const sum = sums[window.image];
-      if (!sum) return;
-      for (let d = 0; d < 512; d++)
-        sum[d] = (sum[d] ?? 0) + (embeddings[i * 512 + d] ?? 0);
-    });
+    return embeddings;
   }
 
   async dispose(): Promise<void> {
     const session = this.session;
     this.session = undefined;
+    this.windows?.clear();
+    this.windows = undefined;
     if (session) await session.release();
   }
   metrics() {

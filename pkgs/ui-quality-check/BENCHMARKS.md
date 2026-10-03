@@ -50,6 +50,10 @@ The Core ML dynamic-batch MLProgram graph failed execution-plan creation on this
 
 Direct native ONNX Runtime offers the best measured combination of portability, low startup cost and accelerated batching. Node/Bun consumers need neither Python nor Transformers.js. Core ML support in the runtime does not establish suitability for this particular exported graph.
 
+## Repeated screenshot windows
+
+An automated CPU comparison on 2026-10-03 used 1,024 failure screenshots retained by Check workflow `5976qtddpb` (head `4a1389d2bc`). It selected every sixth filename from the sorted failure PNGs, then compared the original detector with bounded window-embedding reuse, using one checker per implementation, the same pinned model, batch size 16, and threshold 0.5. Decoding and scoring took **83.084 seconds before and 47.144 seconds after** (43.3% less time); initialization is excluded. Native inference fell from 78.379 to 42.010 seconds, with 3,072 versus 1,799 inferred windows. All 1,024 scores and verdicts were exactly equal. This workstation measurement includes other local activity and uses failed screenshots only; it does not establish a complete CI duration or detector accuracy. The window cache retains at most 8,192 embeddings and is cleared on disposal.
+
 ## Reproduce
 
 Run explicit model setup first. From the package source directory:

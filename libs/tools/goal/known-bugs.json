@@ -1973,5 +1973,10 @@
     "id": "deploy-grafana-archived-active-traces",
     "summary": "Deploy blocked on Grafana stack shortawning2091 status archived although its hosted tracing service remained active and authenticated Tempo search returned HTTP 200. Require active traces and a nonterminal known stack state, preserving the existing stack and trace history.",
     "regressionTest": "libs/infra/tests/observability-status.test.ts"
+  },
+  {
+    "id": "ui-quality-repeated-window-inference",
+    "summary": "The visual gate repeats native inference for identical overlapping windows in different screenshots, consuming its unchanged CI deadline. Cache exact window embeddings with bounded memory while scoring every window and preserving summation order.",
+    "regressionTest": "pkgs/ui-quality-check/tests/window-inference.test.ts"
   }
 ]

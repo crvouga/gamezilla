@@ -20,6 +20,8 @@ await assertVideoQuality('test.webm');
 
 On an Apple M2 Max, a ten-minute corpus of mostly static recordings took **3.43 seconds**, including initialization. Dynamic recordings cost more: disabling deduplication took 27.86 seconds. Measurements and runtime comparisons are in [BENCHMARKS.md](BENCHMARKS.md).
 
+UIClip reuses embeddings for identical preprocessed image windows within one checker. The cache retains at most 8,192 embeddings (16 MiB of embedding data), is cleared on disposal, and preserves each window’s contribution in the original order. Changed pixels still require inference.
+
 ## Offline setup
 
 Node 22+ and Bun are supported. Installation supplies native ONNX Runtime, Sharp, and FFmpeg. Explicit setup downloads one pinned 605 MB checkpoint, verifies its SHA256, and prepares a 351 MB vision encoder in `~/.cache/ui-quality-check/<model-version>`. Check commands never download models or access remote media.

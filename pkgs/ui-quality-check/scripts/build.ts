@@ -6,7 +6,11 @@ import { publicDeclarations } from './declarations';
 await rm('dist', { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
 await build({
-  entryPoints: { index: 'src/index.ts', cli: 'src/cli/index.ts' },
+  entryPoints: {
+    index: 'src/index.ts',
+    cli: 'src/cli/index.ts',
+    harness: 'src/harness/index.ts',
+  },
   outdir: 'dist',
   platform: 'node',
   target: 'node22',
@@ -17,3 +21,8 @@ await build({
   sourcemap: true,
 });
 await writeFile('dist/index.d.ts', publicDeclarations('src/index.ts'));
+
+await writeFile(
+  'dist/harness.d.ts',
+  publicDeclarations('src/harness/index.ts')
+);
