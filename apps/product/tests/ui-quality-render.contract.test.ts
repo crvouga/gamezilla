@@ -1,9 +1,53 @@
 import { afterAll, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { snapshotFingerprint } from '@apps/product/ui-quality/fingerprint';
 import { openSnapshotRenderer } from '@apps/product/ui-quality/render';
+import { compileFrameCss } from '@libs/harness/ci/wall-frame-css';
+import { compileCssModule } from '@pkgs/bun-test-solid/css-module';
 import { createUIQualityChecker } from 'ui-quality-check';
 
 afterAll(() => Bun.WebView.closeAll());
+
+test('the full report stylesheet preserves chess-cell children and flush-content heading metrics', async () => {
+  // regression: ui-quality-css-module-collision
+  const root = resolve(import.meta.dir, '../../..');
+  const module = (file: string) => {
+    const path = resolve(root, file);
+    return compileCssModule(path, readFileSync(path, 'utf8'));
+  };
+  const chess = module('pkgs/chess-board/src/chess-board.module.css');
+  const flush = module(
+    'pkgs/ui/src/components/content-edge-padding/content-edge-padding.module.css'
+  );
+  const view = new Bun.WebView({
+    width: 390,
+    height: 844,
+    backend: { type: 'chrome', url: false },
+  });
+  try {
+    await view.navigate('about:blank');
+    const tree = (await view.cdp('Page.getFrameTree')) as {
+      frameTree: { frame: { id: string } };
+    };
+    await view.cdp('Page.setDocumentContent', {
+      frameId: tree.frameTree.frame.id,
+      html: `<html><head><style>${compileFrameCss(root)}</style></head><body><div style="container-type:inline-size;width:320px;height:40px;position:relative"><div class="${chess.classes['cell']}"><div id="piece">piece</div></div></div><div class="${flush.classes['content']}"><h1 id="heading">heading</h1></div></body></html>`,
+    });
+    const metrics = await view.evaluate(`(() => ({
+      piecePadding: getComputedStyle(document.getElementById('piece')).paddingLeft,
+      headingSize: getComputedStyle(document.getElementById('heading')).fontSize,
+      bodySize: getComputedStyle(document.body).fontSize
+    }))()`);
+    expect(metrics).toEqual({
+      piecePadding: '0px',
+      headingSize: '16px',
+      bodySize: '16px',
+    });
+  } finally {
+    view.close();
+  }
+}, 30_000);
 
 test('concurrent reused pages preserve every frame and metadata deduplication preserves actual pixels', async () => {
   // regression: ui-quality-reused-document-evaluation — Bun evaluates expressions, so a statement sequence fails on the first reused document.

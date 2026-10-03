@@ -1446,7 +1446,7 @@
   },
   {
     "id": "ui-quality-artifact-rounded-timestamp",
-    "summary": "The inspected black frame in a literal 60 FPS MP4 had PTS 16.666… ms, reported as 17 ms. Extracting at 17 ms skipped it and emitted the following white frame. Seek before the half-millisecond rounding boundary so diagnostics retain the inspected source frame.",
+    "summary": "The inspected black frame in a literal 60 FPS MP4 had PTS 16.666\u2026 ms, reported as 17 ms. Extracting at 17 ms skipped it and emitted the following white frame. Seek before the half-millisecond rounding boundary so diagnostics retain the inspected source frame.",
     "regressionTest": "pkgs/ui-quality-check/tests/native-decoder.test.ts"
   },
   {
@@ -1633,5 +1633,10 @@
     "id": "chessboard-coordinate-label-descent",
     "summary": "Native Linux font metrics place file g outside its assigned edge square at width 196 and half scale; inset both coordinate baselines inside their squares.",
     "regressionTest": "pkgs/chess-board/tests/browser/marking-geometry.contract.test.ts"
+  },
+  {
+    "id": "ui-quality-css-module-collision",
+    "summary": "Offline report CSS combined unhashed module classes: DataTable added 12px inside ChessBoard cells and MarkdownEditor enlarged headings inside ContentEdgePadding. Compile isolated names consistently in the DOM preload and report stylesheet.",
+    "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
   }
 ]

@@ -8,6 +8,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { compileCssModule } from '@pkgs/bun-test-solid/css-module';
 import { run } from '@pkgs/os';
 
 function uiCss(repoRoot: string): readonly string[] {
@@ -31,8 +32,8 @@ function listModuleCss(dir: string, out: string[]): void {
 
 /**
  * Stylesheet the phone snapshots share: Tailwind, tokens, skin, hosts, and
- * every `pkgs/` CSS module. bun's harness Babel plugin exports unhashed local
- * class names, so the raw module CSS applies. `hosts.css` `@import`s skin,
+ * every `pkgs/` CSS module, compiled with the DOM preload's isolated names.
+ * `hosts.css` `@import`s skin,
  * which a sheet concatenated after Tailwind drops, so skin is inlined above.
  */
 export function compileFrameCss(repoRoot: string): string {
@@ -65,7 +66,7 @@ export function compileFrameCss(repoRoot: string): string {
       ),
       ...modules.map(
         (p) =>
-          `/* ${p.slice(repoRoot.length + 1)} */\n${readFileSync(p, 'utf8')}`
+          `/* ${p.slice(repoRoot.length + 1)} */\n${compileCssModule(p, readFileSync(p, 'utf8')).css}`
       ),
     ].join('\n');
   } finally {

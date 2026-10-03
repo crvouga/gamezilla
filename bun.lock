@@ -1464,9 +1464,11 @@
         "@testing-library/jest-dom": "catalog:",
         "babel-preset-solid": "catalog:",
         "happy-dom": "catalog:",
+        "lightningcss": "1.33.0",
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/babel__core": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
