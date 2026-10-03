@@ -26,6 +26,8 @@ import { insertSearch } from './search-insert';
 export type SearchPorts = {
   readonly now: () => number;
   readonly schema: MatchmakingSchema;
+  /** Consumer eligibility is checked under the owner lock, after an original receipt. */
+  readonly authorizeBegin?: () => Promise<void>;
 };
 
 /** Constructed inside the caller's transaction; never opens another one. */
@@ -52,6 +54,7 @@ export class SearchCommands {
     const owner = await lockOwner(this.tx, input.ownerId, iso);
     const receipt = await readReceipt<JoinResult>(this.tx, input, 'begin');
     if (receipt !== undefined) return receipt;
+    await this.ports.authorizeBegin?.();
     let result: JoinResult;
     if (!owner.available)
       result = { participantId: null, outcome: 'unavailable' };

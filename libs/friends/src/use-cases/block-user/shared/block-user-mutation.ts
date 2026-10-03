@@ -1,3 +1,4 @@
+import { lockOwners } from '@pkgs/matchmaking-sql';
 import { Outbox } from '@pkgs/outbox';
 import { sql } from '@pkgs/sql';
 import {
@@ -56,6 +57,8 @@ export const blockUserMutation = defineMutation({
   args: z.object({ userId: z.string().min(1), blockId: z.string().min(1) }),
   async run({ tx, env }, { userId, blockId }) {
     const actor = await friendsActor(tx, env);
+    if (env.serverNow !== undefined)
+      await lockOwners(tx, [actor, userId], env.serverNow().toISOString());
     if (actor === userId) {
       throw new MutationError(FRIENDS_SELF, 'Cannot block yourself.');
     }

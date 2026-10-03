@@ -1,3 +1,4 @@
+import { lockOwners } from '@pkgs/matchmaking-sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 import { friendsActor } from '../../../shared/friendship/friends-actor';
@@ -9,6 +10,8 @@ export const unblockUserMutation = defineMutation({
   args: z.object({ userId: z.string().min(1) }),
   async run({ tx, env }, { userId }) {
     const actor = await friendsActor(tx, env);
+    if (env.serverNow !== undefined)
+      await lockOwners(tx, [actor, userId], env.serverNow().toISOString());
     if (actor === userId) {
       throw new MutationError(FRIENDS_SELF, 'Cannot unblock yourself.');
     }

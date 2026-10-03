@@ -1,3 +1,4 @@
+import { CHESS_CLIENT } from '@libs/chess/root/client/feature-client';
 /**
  * The client half of the composition root: which bounded contexts this
  * product's UI runs, and in what order they nest.
@@ -38,6 +39,7 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   PROFILE_CLIENT,
   ACCOUNT_PRIVACY_CLIENT,
   SPACES_CLIENT,
+  CHESS_CLIENT,
   // Friends registers a notification source, so it mounts above the inbox
   // that reads it.
   FRIENDS_CLIENT,

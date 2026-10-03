@@ -8,6 +8,8 @@ export type {
   MutationClientIds,
   MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
+export { createMutationClient } from '../mutations/client/create-mutation-client';
+export { awaitMutationVerdict } from '../mutations/client/await-mutation-verdict';
 export {
   notifySynchronously,
   type ScheduleNotify,

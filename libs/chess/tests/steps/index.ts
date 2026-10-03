@@ -14,6 +14,7 @@ import '@libs/billing/steps/access.steps';
 import '@libs/friends/steps/friends.steps';
 import '@libs/friends/steps/spaces.steps';
 import './puzzle-play.steps';
+import './multiplayer-find.steps';
 import './account-privacy.steps';
 import './puzzle-feed.steps';
 import './puzzle-rating.steps';
@@ -71,3 +72,9 @@ import {
 import type { Actor } from '@libs/harness/spec/define';
 import { remember } from '@libs/harness/spec/world';
 import { createSpace } from '@libs/spaces/harness/space-actions';
+
+import './multiplayer-game.steps';
+import './multiplayer-recovery.steps';
+import './multiplayer-accessibility.steps';
+import './multiplayer-account.steps';
+import './multiplayer-policies.steps';

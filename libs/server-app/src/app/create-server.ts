@@ -29,7 +29,6 @@ import { API_PATH_PREFIX, createAuthProvider } from '../config/auth-provider';
 import { ApiSecretName } from '../config/secret-names';
 import { resolveWebClientOrigin } from '../config/web-client-origin';
 import { createHealthApp } from '../health/route';
-import { createMatchmakingSubApp } from '../matchmaking/route';
 import {
   createRequestTelemetryMiddleware,
   takeRequestTraceId,
@@ -411,8 +410,7 @@ function createServerRouter(args: {
     .route('/', createPubSubTokenRoutes(servers))
     .route('/', tts.app)
     .route('/', llm.app)
-    .route('/', createRoomApp(servers.roomGrants))
-    .route('/matchmaking', createMatchmakingSubApp());
+    .route('/', createRoomApp(servers.roomGrants));
 
   // Whatever the composed features contribute, in feature order. The shell
   // mounts them; it does not know what any of them serves.

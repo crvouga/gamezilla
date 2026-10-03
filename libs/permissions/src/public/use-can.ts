@@ -1,7 +1,7 @@
-import { type Decision, decide } from '@pkgs/permissions';
+import { type Decision, decide, decideLimit } from '@pkgs/permissions';
 import { type Accessor, createMemo } from 'solid-js';
 
-import type { AppGrantKey } from '../shared/permission-catalog';
+import type { AppGrantKey, AppLimit } from '../shared/permission-catalog';
 import { PERMISSION } from '../shared/permission-catalog';
 import { usePermissionPolicy } from '../use-cases/decide-access/client/use-permission-policy';
 import {
@@ -11,6 +11,16 @@ import {
 import { usePrivacyDecision } from '../use-cases/decide-access/client/use-privacy-decision';
 
 export type { AccessScopeAccessor };
+
+/** A live decision for holding one more of a consumer's counted resource. */
+export function useLimitDecision(
+  key: AppLimit,
+  used: Accessor<number>
+): Accessor<Decision> {
+  const policy = usePermissionPolicy();
+  const subject = usePermissionSubject();
+  return () => decideLimit(policy(), subject(), key, used());
+}
 
 /**
  * The caller's live decision for `key` (restrictions applied). `scope` adds

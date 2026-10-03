@@ -5,6 +5,14 @@ This ledger indexes the canonical contracts; it is not a second product
 specification. Undefined bindings and operation failures remain required
 implementation work. Passing syntax checks alone do not establish conformance.
 
+The post-binding review corrected two reference omissions without relaxing a
+promise. Confirmed account deletion clears that account's private game while
+preserving the opponent's result and an offline device's last known board until
+return. The literal Dave/Bob history first failed the model regression. Generic
+legal worlds now include a complete group of sixteen and refuse a seventeenth
+place; six-bit cardinalities keep those boundaries representable. Existing
+command, privacy, group-size and structural coverage entries own these checks.
+
 ## Search status and commands
 
 Every cell refers to `matching.qnt` and the indexed features below. Offline

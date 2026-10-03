@@ -13,7 +13,11 @@ export {
   MatchmakingImplSql,
   type MatchmakingImplSqlOptions,
 } from './matchmaking';
-export { changeAvailability, changeRestriction } from './owner-repository';
+export {
+  changeAvailability,
+  changeRestriction,
+  lockOwners,
+} from './owner-repository';
 export { matchmakingSchema } from './schema/tables';
 export { SearchCommands, type SearchPorts } from './search-commands';
 export { readCurrent, readSearch } from './search-read';

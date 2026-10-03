@@ -4,3 +4,4 @@
  */
 
 import './daily-puzzle-limit.binding';
+import './unfinished-game-limit.binding';

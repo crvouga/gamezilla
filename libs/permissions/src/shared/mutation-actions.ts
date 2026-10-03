@@ -29,6 +29,10 @@ export const MUTATION_ACTIONS: Readonly<
   confirmAccountDeletion: PERMISSION.profileDeleteAccount,
   requestPersonalDataExport: PERMISSION.profileExportData,
   // chess
+  findChessOpponent: PERMISSION.matchmakingUse,
+  stopFindingChessOpponent: PERMISSION.matchmakingStop,
+  playMultiplayerMove: PERMISSION.chessMultiplayerPlay,
+  resignMultiplayer: PERMISSION.chessMultiplayerResign,
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
   ratePuzzleAttempt: PERMISSION.puzzlesPlay,
   savePuzzleFeedSettings: PERMISSION.puzzlesCustomizeFeed,

@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-01.1';
+export const PERMISSION_POLICY_VERSION = '2026-10-02.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -43,6 +43,11 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.billingSubscribe,
   PERMISSION.billingManage,
   PERMISSION.matchmakingUse,
+  PERMISSION.matchmakingView,
+  PERMISSION.matchmakingStop,
+  PERMISSION.matchmakingChangeRange,
+  PERMISSION.chessMultiplayerPlay,
+  PERMISSION.chessMultiplayerResign,
   PERMISSION.puzzlesCustomizeFeed,
 ];
 
@@ -75,6 +80,11 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.profileExportData,
   PERMISSION.billingManage,
   PERMISSION.matchmakingUse,
+  PERMISSION.matchmakingView,
+  PERMISSION.matchmakingStop,
+  PERMISSION.matchmakingChangeRange,
+  PERMISSION.chessMultiplayerPlay,
+  PERMISSION.chessMultiplayerResign,
   PERMISSION.puzzlesPlay,
   PERMISSION.puzzlesCustomizeFeed,
   PERMISSION.spacesCreate,
@@ -119,19 +129,28 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.spacesCreate,
         PERMISSION.spacesJoin,
       ],
-      limits: { [LIMIT.hostedSpaces]: 1 },
+      limits: {
+        [LIMIT.hostedSpaces]: 1,
+        [LIMIT.unfinishedMultiplayerGames]: 1,
+      },
       quotas: { [ACTION.puzzleRatedSolve]: ANONYMOUS_RATED },
     },
     [ROLE.planFree]: {
       when: { auth: 'verified', membership: 'none' },
       permissions: [...ACCOUNT_PERMISSIONS, PERMISSION.billingSubscribe],
-      limits: { [LIMIT.hostedSpaces]: 1 },
+      limits: {
+        [LIMIT.hostedSpaces]: 1,
+        [LIMIT.unfinishedMultiplayerGames]: 1,
+      },
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },
     [ROLE.planPaid]: {
       when: { auth: 'verified', membership: 'active' },
       permissions: [...ACCOUNT_PERMISSIONS, PERMISSION.billingSubscribe],
-      limits: { [LIMIT.hostedSpaces]: null },
+      limits: {
+        [LIMIT.hostedSpaces]: null,
+        [LIMIT.unfinishedMultiplayerGames]: 1,
+      },
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },
     [ROLE.spaceMember]: {
@@ -196,6 +215,14 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [PERMISSION.profileDeleteAccount]: PRIVACY_UNLOCK,
     [PERMISSION.profileExportData]: PRIVACY_UNLOCK,
     [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
+    [PERMISSION.matchmakingView]: SIGN_UP_UNLOCK,
+    [PERMISSION.matchmakingStop]: SIGN_UP_UNLOCK,
+    [PERMISSION.matchmakingChangeRange]: SIGN_UP_UNLOCK,
+    [PERMISSION.chessMultiplayerPlay]: SIGN_UP_UNLOCK,
+    [PERMISSION.chessMultiplayerResign]: SIGN_UP_UNLOCK,
+    [LIMIT.unfinishedMultiplayerGames]: {
+      limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
+    },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [LIMIT.hostedSpaces]: {
       // Guests and free accounts alike: hosting more is what Plus is for.

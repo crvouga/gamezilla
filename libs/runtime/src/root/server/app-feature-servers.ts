@@ -1,3 +1,4 @@
+import { CHESS_SERVER } from '@libs/chess/root/server/feature-server';
 /**
  * The server half of the composition root: which bounded contexts this
  * product's API runs, and what each of them needs from the host.
@@ -27,6 +28,7 @@ export function appFeatureServers(
   return [
     createAccountPrivacyServer(APP.accountPrivacy),
     SPACES_SERVER,
+    CHESS_SERVER,
     // Friends registers the inbox actions its deliveries carry, so it is
     // composed before the inbox that serves them.
     FRIENDS_SERVER,

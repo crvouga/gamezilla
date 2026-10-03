@@ -19,6 +19,7 @@ export const CHESS_FEATURE = defineFeature({
   // Held open for the whole session: what keeps this feature's slice
   // of the local database warm.
   sessionQueries: [
+    'chessMultiplayerSession',
     'chessPuzzleProfile',
     'chessPuzzleFeedSettings',
     'chessPuzzleInteractions',
