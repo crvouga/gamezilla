@@ -321,10 +321,7 @@ export async function waitPuzzleSolved(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessPuzzleSummary).expect.visible({
-    timeoutMs: WAIT_MS,
-  });
+  await waitPuzzleStatus(s, actorId, 'solved');
 }
 
 async function readPickStatusField(
@@ -672,9 +669,20 @@ export async function pressPuzzleRetry(
   s: ProductHarness,
   actorId: string
 ): Promise<void> {
+  await closePuzzleSummary(s, actorId);
   await tapAction(s, actorId, Handles.chessPuzzleActionRetry);
   await waitPuzzleStatus(s, actorId, 'solving');
   await expectPlayReady(s, actorId);
+}
+
+export async function closePuzzleSummary(s: ProductHarness, actorId: string) {
+  const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.chessPuzzleSummary).isVisible()) {
+    await ui.get(Handles.chessPuzzleSummaryClose).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.chessPuzzleSummary)
+      .expect.hidden({ timeoutMs: WAIT_MS });
+  }
 }
 
 /** Hint once → highlight; from highlight the same button reveals the solution. */
@@ -700,12 +708,7 @@ export async function pressPuzzleBackToChessMenu(
   const ui = await actorUi(s, actorId);
   // A solved puzzle's summary sits over the board; close it first, as a
   // person must before the header behind it can be pressed.
-  if (await ui.get(Handles.chessPuzzleSummary).isVisible()) {
-    await ui.get(Handles.chessPuzzleSummaryClose).tap({ timeoutMs: WAIT_MS });
-    await ui
-      .get(Handles.chessPuzzleSummary)
-      .expect.hidden({ timeoutMs: WAIT_MS });
-  }
+  await closePuzzleSummary(s, actorId);
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
 }

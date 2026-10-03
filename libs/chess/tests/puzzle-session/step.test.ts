@@ -1,12 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { setupPuzzleStart } from '@libs/chess/public/chess-puzzle-fsm';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess/public/chess-puzzle-play-attr';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
   prevSolveIdx,
   resolveSeekSolveIdx,
-  statusAtSolveIdx,
 } from '@libs/chess/public/chess-puzzle-step';
 
 const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
@@ -83,10 +81,5 @@ describe('chess-puzzle-step', () => {
     expect(
       fenAtSolveIdx({ fen: VALID_FEN, moves: VALID_MOVES, solveIdx: 1 })
     ).toBe(setup.displayFen);
-  });
-
-  test('statusAtSolveIdx', () => {
-    expect(statusAtSolveIdx(3, 4)).toBe(CHESS_PUZZLE_PLAY_STATUS.solving);
-    expect(statusAtSolveIdx(4, 4)).toBe(CHESS_PUZZLE_PLAY_STATUS.solved);
   });
 });

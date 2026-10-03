@@ -1,5 +1,15 @@
 [
   {
+    "id": "puzzle-assistant-opponent-king",
+    "summary": "During a correct move’s automatic reply the board temporarily shows the opponent in check. Coaching incorrectly said the solver’s king was checked and the opponent had already replied. Give neutral reply guidance until the board settles.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-history-diagnosis",
+    "summary": "Scrubbing to an earlier board retained a wrong-move diagnosis and hints belonging to the frontier. Give review guidance and replace the speech context.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
     "id": "quint-convergence-resampled",
     "summary": "Trace conformance sampled again after observing convergence and could report a transient state during queued reconnect commands. Evaluate the same observation that established convergence; pin both long reconnect histories.",
     "regressionTest": "pkgs/quint/tests/replay-observation.test.ts"
@@ -23,6 +33,36 @@
     "id": "avatar-tts-missing-request-auth",
     "summary": "Puzzle voice never started because the app TTS provider sent raw HTTP without account or device headers. Compose it with current request auth while preserving cancellation and caller headers.",
     "regressionTest": "libs/client-app/tests/shell/authenticated-fetch.test.ts"
+  },
+  {
+    "id": "puzzle-stored-mate-continues",
+    "summary": "A preferred checkmate with trailing source moves was accepted as a nonterminal line match; legal checkmate must end the attempt before source-line validation.",
+    "regressionTest": "libs/chess/tests/puzzle-session/mate-objective.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-theme-fiction",
+    "summary": "Theme-driven coaching called a completed non-mating castling line checkmate. Derive success commentary from the actual board.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-unavailable-is-illegal",
+    "summary": "Unavailable puzzle data was described as an illegal solver move. Keep unavailable data distinct from attempted moves.",
+    "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-defended-knight-hanging",
+    "summary": "A knight that could be recaptured after capture was treated as hanging. Require a legal capture and absence of legal recapture.",
+    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+  },
+  {
+    "id": "puzzle-assistant-missed-knight-fork",
+    "summary": "A supported knight fork of the king on f1 and queen on d1 was absent from coaching. Require legal moves and legal capture targets, excluding pinned attacks.",
+    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+  },
+  {
+    "id": "chess-tactics-opponent-already-checked",
+    "summary": "An impossible FEN with the nonmoving king already checked let the chess engine capture a king and crashed tactical analysis. Reject this position for tactical claims.",
+    "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
   },
   {
     "id": "tts-aborted-synthesis-plays",
@@ -1290,14 +1330,64 @@
     "regressionTest": "libs/infra/tests/github-oidc.test.ts"
   },
   {
+    "id": "puzzle-solved-review-resumes",
+    "summary": "Stepping back after a solve changes the displayed status to solving; leaving at that position preserved the completed puzzle and offered it again on return. Completion must survive historical viewing.",
+    "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+  },
+  {
     "id": "permission-catalog-nonaccess-decision",
     "summary": "The capability catalog required assistant-observation, a semantic decision with no permission answer, to own an access capability. Only decisions answering access yes/no belong in that permission catalog; every semantic decision remains bound and checked by its owner.",
     "regressionTest": "libs/permissions/tests/closed-world.test.ts"
   },
   {
+    "id": "puzzle-solved-review-forward",
+    "summary": "Reviewing a solved puzzle preserved its completed result but offered no forward control to return to the final position. Solved and skipped boards now expose bounded position navigation.",
+    "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+  },
+  {
+    "id": "puzzle-solution-after-hint-overclick",
+    "summary": "The real puzzle harness pressed the escalating hint control three times even when a hint had already been taken, then waited for a control removed by showing the solution. Stop pressing once the solution is revealed; the literal model history is pinned.",
+    "regressionTest": "specs/chess/puzzle-controls.feature"
+  },
+  {
+    "id": "puzzle-feed-unsaved-choice-persists",
+    "summary": "Editing the puzzle feed wrote each preview directly to synced account settings, so closing without saving retained an unconfirmed offset. Keep a local draft and persist it only on save; pool previews use the draft.",
+    "regressionTest": "specs/chess/puzzle-feed.feature"
+  },
+  {
+    "id": "puzzle-feed-draft-auto-advance",
+    "summary": "The first isolated feed draft saved only changes included in the puzzle-selection fingerprint, dropping auto-advance preferences. Persist every changed choice while selecting a different puzzle only for selection changes. The literal failing trace is pinned.",
+    "regressionTest": "specs/chess/puzzle-feed.feature"
+  },
+  {
+    "id": "puzzle-history-command-accepted",
+    "summary": "Submitting a move or requesting a hint while viewing an earlier position applied a move or revealed the opponent move. Only the current solving position can accept either action.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
+    "id": "puzzle-wrong-hint-accepted",
+    "summary": "A raw hint command after a wrong move bypassed the required retry and changed help on the wrong-state board.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
+    "id": "puzzle-solution-before-hint",
+    "summary": "A raw solution-move command materialized the first hint and solution together, bypassing the declared help progression.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
+  },
+  {
     "id": "conformance-semantic-decision-capability",
     "summary": "The conformance inventory treated every DMN decision without a capability input as an access decision, so assistant observation policy required an invented permission. Classify access decisions by their declared yes/no answer; keep semantic decisions bound and checked in the inventory.",
     "regressionTest": "libs/tools/scripts/conformance-evidence.test.ts"
+  },
+  {
+    "id": "puzzle-allowance-no-readable-count",
+    "summary": "The model could only inspect stored allowance rows because a limited solver could not read how many rated puzzles remained. Render the permission decision’s remaining allowance and bind the model to that visible count.",
+    "regressionTest": "specs/chess/puzzle-quota.feature"
+  },
+  {
+    "id": "puzzle-hint-help-regresses",
+    "summary": "Repeating the first-hint command either restarted the same help or replaced a solution arrow with a highlight. The first hint is available only before help; later help cannot be overwritten by that earlier command.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
   },
   {
     "id": "conformance-semantic-decision-server",
@@ -1323,5 +1413,10 @@
     "id": "conformance-live-objectives-undiscovered",
     "summary": "The conformance reporter read live feature reports but omitted the adjacent health-objectives-report bucket, losing recorded OpenSLO evidence. Discover both live report kinds while excluding ad-hoc harness runs.",
     "regressionTest": "libs/tools/scripts/conformance-report-buckets.test.ts"
+  },
+  {
+    "id": "puzzle-history-solution-accepted",
+    "summary": "The full-solution room command bypassed the unavailable help control while reviewing an earlier position and finished the attempt. Require the current solving position before showing a solution; retain the literal navigation and review history that exposed the gap.",
+    "regressionTest": "specs/chess/puzzle-refusals.feature"
   }
 ]

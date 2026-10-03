@@ -18,8 +18,13 @@ import {
   type RoomError,
   WIRE_VERSION,
 } from '@pkgs/room';
+import { ChessPuzzlePlayAttr } from '../public/chess-puzzle-play';
 import {
+  RequestChessPuzzleHint,
+  RevealChessPuzzleSolution,
+  ShowChessPuzzleSolution,
   SkipChessPuzzlePlay,
+  StepBackChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from '../shared/chess/chess-puzzle-play-messages';
 import { readPuzzleDebug } from './chess-puzzle-ui';
@@ -27,25 +32,61 @@ import { readPuzzleDebug } from './chess-puzzle-ui';
 const WAIT_MS = 15_000;
 const POLL_MS = 100;
 
-export type HostPuzzleCommand = 'move' | 'skip';
+export type HostPuzzleCommand =
+  | 'move'
+  | 'skip'
+  | 'hint'
+  | 'show-line'
+  | 'solution'
+  | 'step'
+  | 'illegal';
 
 /** What the room answered a member's command: refused (with why) or applied. */
 type PuzzleCommandOutcome =
   | { readonly kind: 'refused'; readonly error: RoomError }
   | { readonly kind: 'applied' };
 
+const replies = new WeakMap<ProductHarness, PuzzleCommandOutcome>();
+export function readLastPuzzleCommandOutcome(s: ProductHarness) {
+  const reply = replies.get(s);
+  if (reply === undefined) throw new Error('No puzzle command answer');
+  return reply;
+}
+
+/** Translate the room's refusal into the reason visible in the product contract. */
+export function readLastPuzzleRefusal(s: ProductHarness): string | null {
+  const reply = readLastPuzzleCommandOutcome(s);
+  if (reply.kind !== 'refused') return null;
+  if (!('reason' in reply.error)) return String(reply.error.type);
+  const reason = reply.error.reason;
+  if (reason === 'cannot step while status is skipped')
+    return 'the puzzle was skipped';
+  if (/status is (solved|revealed|skipped)/.test(reason))
+    return 'the puzzle is over';
+  if (reason.includes('current position'))
+    return 'they are reviewing an earlier position';
+  if (reason.includes('status is wrong')) return 'a retry is needed';
+  if (reason.includes('first hint is already'))
+    return 'the first hint is already taken';
+  if (reason.includes('first hint before')) return 'the first hint is needed';
+  return reason;
+}
+
 async function commandPayload(
   s: ProductHarness,
   hostId: string,
   command: HostPuzzleCommand
 ): Promise<RoomCommandPayload> {
+  if (command === 'step') return StepBackChessPuzzlePlay({});
+  if (command === 'illegal') return SubmitChessPuzzleMove({ uci: 'a1a1' });
+  if (command === 'show-line') return ShowChessPuzzleSolution({});
   if (command === 'skip') return SkipChessPuzzlePlay({});
+  if (command === 'hint') return RequestChessPuzzleHint({});
+  if (command === 'solution') return RevealChessPuzzleSolution({});
   // The host's own next move: even the right move is not the watcher's.
   const debug = await readPuzzleDebug(s, hostId);
-  const uci = debug?.solutionUci ?? '';
-  if (uci.length < 4) {
-    throw new Error(`${hostId} has no next move on the puzzle board`);
-  }
+  const next = debug?.solutionUci ?? '';
+  const uci = next.length >= 4 ? next : 'a7a8';
   return SubmitChessPuzzleMove({ uci });
 }
 
@@ -68,7 +109,13 @@ export const attemptHostPuzzleCommand = scenarioAction({
     command: HostPuzzleCommand
   ) => {
     const spaceId = spaceIdOfLink(await readSpaceLink(s, hostId), hostId);
-    const identity = await accountIdOf(s, actorId);
+    const state = s.harness.roomNode.inspect(
+      `space:${spaceId}`
+    )?.committedState;
+    const identity =
+      actorId === hostId && state !== undefined
+        ? ChessPuzzlePlayAttr.hostIdentity.from(state)
+        : await accountIdOf(s, actorId);
     if (identity === null) throw new Error(`${actorId} has no account`);
     const payload = await commandPayload(s, hostId, command);
     const env = await s.harness.client(actorId);
@@ -96,11 +143,16 @@ export const attemptHostPuzzleCommand = scenarioAction({
         ts: s.harness.clock.now(),
         payload,
       });
-      await pollUntil(s, () => Promise.resolve(answerTo(frames, commandId)), {
-        maxMs: WAIT_MS,
-        stepMs: POLL_MS,
-        description: `room answer to ${actorId}'s ${command}`,
-      });
+      const reply = await pollUntil(
+        s,
+        () => Promise.resolve(answerTo(frames, commandId)),
+        {
+          maxMs: WAIT_MS,
+          stepMs: POLL_MS,
+          description: `room answer to ${actorId}'s ${command}`,
+        }
+      );
+      replies.set(s, reply);
     } finally {
       unsubscribe();
       transport.destroy();

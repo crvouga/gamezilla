@@ -65,6 +65,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
       input({ status: 'solving', canGoBack: true, canGoForward: true })
     );
     expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
+    expect(slots.find((s) => s.id === 'hint')?.disabled).toBe(true);
     const forward = slots.find((s) => s.id === 'forward');
     expect(forward?.type === 'action' && forward.disabled).toBe(false);
   });
@@ -91,11 +92,11 @@ describe('buildChessPuzzleActionBarPlan', () => {
     expect(skip?.type === 'action' && skip.disabled).toBe(false);
   });
 
-  test('solved: back + success next button + retry action', () => {
+  test('solved: position navigation + success next button + retry action', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solved', canGoBack: true, canGoForward: false })
     );
-    expect(ids(slots)).toEqual(['back', 'next', 'retry']);
+    expect(ids(slots)).toEqual(['back', 'forward', 'next', 'retry']);
     const next = slots.find((s) => s.id === 'next');
     expect(next).toEqual({ id: 'next', type: 'button', intent: 'success' });
     const retry = slots.find((s) => s.id === 'retry');

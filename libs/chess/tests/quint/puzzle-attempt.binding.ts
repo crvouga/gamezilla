@@ -10,21 +10,42 @@ import {
   leaveChessMenuToGameMenu,
   leavePuzzleToChessMenu,
   openPuzzleFromSpace,
+  playNextSolutionMove,
   playUntilSolved,
   playWrongPuzzleMove,
   pressPuzzleNext,
   pressPuzzleNextTwice,
   reopenPuzzleFromChessMenu,
+  requestPuzzleHint,
   retryPuzzle,
   returnToOwnSpace,
+  revealPuzzleSolution,
   showPuzzleSolutionLine,
   skipPuzzle,
+  suggestNonSolutionMove,
+  tapPuzzleReviewMove,
 } from '@libs/chess/harness/chess-actions';
-import { readLocalPuzzleStartLedger } from '@libs/chess/harness/chess-puzzle-ledger-data';
+import { attemptHostPuzzleCommand } from '@libs/chess/harness/chess-puzzle-room-probe';
 import {
+  closePuzzleSummary,
   readActivePuzzleId,
   readPuzzleStatus,
 } from '@libs/chess/harness/chess-puzzle-ui';
+import {
+  chooseMovablePuzzlePiece,
+  mutePuzzleAssistant,
+  pressPuzzleRetryIfVisible,
+  readPuzzleAssistant,
+  stepPuzzlePosition,
+  unmutePuzzleAssistant,
+} from '@libs/chess/harness/puzzle-assistant-ui';
+import {
+  readPuzzleControlAvailability,
+  readPuzzleGuidance,
+  readPuzzleRemainingToday,
+  readPuzzleView,
+} from '@libs/chess/harness/puzzle-control-reads';
+import { preparePuzzleModelPool } from '@libs/chess/harness/puzzle-model-pool';
 import {
   focusActor,
   partition,
@@ -32,17 +53,19 @@ import {
   restoreNetwork,
 } from '@libs/harness';
 import type { QuintHarnessWorld } from '@libs/harness/quint/world';
-import type { ProductHarness } from '@libs/harness/system/harness';
-import { bringToFront, visible } from '@libs/harness/system/observations';
 import {
   createSpace,
   joinFromPrompt,
   openSpaceLink,
 } from '@libs/spaces/harness/space-actions';
 import { readSpaceLink } from '@libs/spaces/harness/spaces-ui-reads';
-import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel } from '@pkgs/quint/registry';
+import offlineNavigationTrace from './fixtures/puzzle-offline-navigation.itf.json';
+import reviewSolutionTrace from './fixtures/puzzle-review-solution.itf.json';
+import hintedSolutionTrace from './fixtures/puzzle-solution-after-hint.itf.json';
+import gameChoiceTrace from './fixtures/puzzle-watcher-game-choice.itf.json';
+import reconnectTrace from './fixtures/puzzle-watcher-reconnect.itf.json';
 
 const HOST = 'alice';
 const WATCHER = 'bob';
@@ -70,19 +93,6 @@ function numberOf(w: QuintHarnessWorld, id: string | null): number {
   return n === -1 ? -2 : n;
 }
 
-type View = 'Board' | 'ChessChoices' | 'GameChoice' | 'Elsewhere';
-
-async function viewOf(s: ProductHarness, actorId: string): Promise<View> {
-  await bringToFront(s, actorId);
-  if (await visible(s, actorId, [Handles.chessPuzzlePlayScreen])) {
-    return 'Board';
-  }
-  if (await visible(s, actorId, [Handles.chessMenuPuzzle]))
-    return 'ChessChoices';
-  if (await visible(s, actorId, [Handles.gameMenuChess])) return 'GameChoice';
-  return 'Elsewhere';
-}
-
 /** The host drives: bring her view to the front, then act on it. */
 function hostDoes(
   act: (w: QuintHarnessWorld) => Promise<void>,
@@ -95,15 +105,70 @@ function hostDoes(
   };
 }
 
+async function startsUsed(
+  w: QuintHarnessWorld,
+  actor: string,
+  onBoard: boolean
+) {
+  const remaining = onBoard
+    ? await w.quiet.read(readPuzzleRemainingToday, actor)
+    : null;
+  const starts =
+    remaining === null
+      ? Number(w.memo.get(`puzzleStarts:${actor}`) ?? 0)
+      : 20 - remaining;
+  w.memo.set(`puzzleStarts:${actor}`, starts);
+  return starts;
+}
+
 bindQuintModel<QuintHarnessWorld>({
   model: 'puzzle-attempt',
-  traces: 12,
-  maxSteps: 16,
+  traces: 64,
+  maxSteps: 64,
+  verifySteps: 8,
   // Two views read after every step: a trace runs ~10s alone, but several
   // times that beside the rest of the package's suite.
   timeoutMs: 180_000,
+  regressions: [
+    // regression: puzzle-history-solution-accepted
+    {
+      id: 'puzzle-review-solution',
+      title: 'Reviewing an earlier position cannot start showing the solution',
+      seed: '0x67932',
+      itf: reviewSolutionTrace,
+    },
+    // regression: quint-convergence-resampled
+    {
+      id: 'puzzle-watcher-reconnect',
+      title: 'A returning watcher reaches the latest chess choices',
+      seed: '0x67932',
+      itf: reconnectTrace,
+    },
+    // regression: puzzle-solution-after-hint-overclick
+    {
+      id: 'puzzle-solution-after-hint',
+      title: 'A hinted solution needs only the remaining presses',
+      seed: '0x67932',
+      itf: hintedSolutionTrace,
+    },
+    // regression: quint-convergence-resampled
+    {
+      id: 'puzzle-watcher-game-choice',
+      title: 'A returning watcher reaches the latest game choice',
+      seed: '0x67932',
+      itf: gameChoiceTrace,
+    },
+    // regression: quint-convergence-resampled
+    {
+      id: 'puzzle-offline-navigation',
+      title: 'Offline navigation survives reconnect',
+      seed: '0x67932',
+      itf: offlineNavigationTrace,
+    },
+  ],
   actions: {
     init: async (w) => {
+      await w.s.apply(preparePuzzleModelPool);
       await w.s.apply(focusActor, HOST);
       await w.s.apply(createSpace, HOST);
       const link = await w.s.read(readSpaceLink, HOST);
@@ -122,6 +187,17 @@ bindQuintModel<QuintHarnessWorld>({
     ),
     solve: hostDoes((w) => w.s.apply(playUntilSolved, HOST)),
     playWrongMove: hostDoes((w) => w.s.apply(playWrongPuzzleMove, HOST)),
+    playCorrectContinuation: hostDoes((w) =>
+      w.s.apply(playNextSolutionMove, HOST)
+    ),
+    requestHint: hostDoes((w) => w.s.apply(requestPuzzleHint, HOST)),
+    revealSolutionMove: hostDoes((w) => w.s.apply(revealPuzzleSolution, HOST)),
+    stepBackPosition: hostDoes((w) =>
+      w.s.apply(stepPuzzlePosition, HOST, 'back')
+    ),
+    stepForwardPosition: hostDoes((w) =>
+      w.s.apply(stepPuzzlePosition, HOST, 'forward')
+    ),
     showSolution: hostDoes((w) => w.s.apply(showPuzzleSolutionLine, HOST)),
     skip: hostDoes((w) => w.s.apply(skipPuzzle, HOST)),
     retry: hostDoes((w) => w.s.apply(retryPuzzle, HOST)),
@@ -130,14 +206,77 @@ bindQuintModel<QuintHarnessWorld>({
       (w) => w.s.apply(pressPuzzleNextTwice, HOST),
       true
     ),
+    tryMoveAfterFinish: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'move')
+    ),
+    tryHintAfterFinish: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'hint')
+    ),
+    tryShowSolutionAfterFinish: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'show-line')
+    ),
+    trySkipAfterFinish: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'skip')
+    ),
+    tryMoveFromReview: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'move')
+    ),
+    tryHintFromReview: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'hint')
+    ),
+    tryShowSolutionFromReview: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'show-line')
+    ),
+    tryHintBeforeRetry: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'hint')
+    ),
+    tryMoveBeforeRetry: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'move')
+    ),
+    tryRetryWhileSolving: hostDoes((w) =>
+      w.s.apply(pressPuzzleRetryIfVisible, HOST)
+    ),
+    trySolutionBeforeHint: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'solution')
+    ),
+    tryIllegalMove: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'illegal')
+    ),
+    tryEarlierHint: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'hint')
+    ),
+    tryReviewBeforeRetry: hostDoes((w) =>
+      w.s.apply(attemptHostPuzzleCommand, HOST, HOST, 'step')
+    ),
+    suggestMove: async (w) => {
+      await w.s.apply(focusActor, WATCHER);
+      await w.s.apply(suggestNonSolutionMove, WATCHER);
+    },
+    chooseReviewPosition: async (w, picks) => {
+      await w.s.apply(focusActor, HOST);
+      await w.s.read(closePuzzleSummary, HOST);
+      await w.s.apply(tapPuzzleReviewMove, HOST, Number(picks['move']) - 1);
+    },
+    choosePiece: hostDoes((w) => w.s.apply(chooseMovablePuzzlePiece, HOST)),
+    timePasses: (w) => w.s.advanceTime(65_000),
     reopenApp: hostDoes(async (w) => {
       await w.s.apply(restartApp, HOST);
       await w.s.apply(returnToOwnSpace, HOST);
     }),
+    muteAssistant: async (w, picks) => {
+      const actor = String(picks['person']);
+      await w.s.apply(focusActor, actor);
+      await w.s.apply(mutePuzzleAssistant, actor);
+    },
+    unmuteAssistant: async (w, picks) => {
+      const actor = String(picks['person']);
+      await w.s.apply(focusActor, actor);
+      await w.s.apply(unmutePuzzleAssistant, actor);
+    },
     _loseConnection: async (w, picks) => {
       await w.s.apply(partition, String(picks['person']));
     },
-    _connectionReturns: async (w) => {
+    connectionReturns: async (w) => {
       await w.s.apply(restoreNetwork);
     },
   },
@@ -147,9 +286,27 @@ bindQuintModel<QuintHarnessWorld>({
     const moveOnOffered = new Map<QuintValue, QuintValue>();
     const puzzle = new Map<QuintValue, QuintValue>();
     const puzzleStarts = new Map<QuintValue, QuintValue>();
+    const commentary = new Map<QuintValue, QuintValue>();
+    const commentaryPuzzle = new Map<QuintValue, QuintValue>();
+    const assistantMuted = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
-      const shown = await w.quiet.read(viewOf, actor);
+      const shown = await w.quiet.read(readPuzzleView, actor);
       const onBoard = shown === 'Board';
+      const assistant = onBoard
+        ? await w.quiet.read(readPuzzleAssistant, actor)
+        : null;
+      commentary.set(
+        actor,
+        onBoard ? (assistant?.purpose ?? 'unknown') : 'none'
+      );
+      commentaryPuzzle.set(
+        actor,
+        numberOf(w, onBoard ? (assistant?.puzzleId ?? null) : null)
+      );
+      const lastMuted = w.memo.get(`assistantMuted:${actor}`) ?? false;
+      const muted = assistant?.muted ?? lastMuted;
+      w.memo.set(`assistantMuted:${actor}`, muted);
+      assistantMuted.set(actor, muted as boolean);
       view.set(actor, variant(shown));
       puzzleState.set(
         actor,
@@ -159,7 +316,7 @@ bindQuintModel<QuintHarnessWorld>({
       );
       moveOnOffered.set(
         actor,
-        await w.quiet.read(visible, actor, [Handles.chessPuzzleActionNext])
+        (await w.quiet.read(readPuzzleControlAvailability, actor)).moveOnOffered
       );
       puzzle.set(
         actor,
@@ -168,11 +325,18 @@ bindQuintModel<QuintHarnessWorld>({
           onBoard ? await w.quiet.read(readActivePuzzleId, actor) : null
         )
       );
-      puzzleStarts.set(
-        actor,
-        (await w.quiet.read(readLocalPuzzleStartLedger, actor)).length
-      );
+      puzzleStarts.set(actor, await startsUsed(w, actor, onBoard));
     }
-    return { view, puzzleState, moveOnOffered, puzzle, puzzleStarts };
+    return {
+      ...(await w.quiet.read(readPuzzleGuidance, HOST)),
+      view,
+      puzzleState,
+      moveOnOffered,
+      puzzle,
+      puzzleStarts,
+      commentary,
+      commentaryPuzzle,
+      assistantMuted,
+    };
   },
 });

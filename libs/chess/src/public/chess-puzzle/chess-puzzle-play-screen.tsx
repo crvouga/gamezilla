@@ -1,9 +1,9 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Decision } from '@libs/permissions/public/use-permissions';
 import { t } from '@lingui/core/macro';
-import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { createSpeak } from '@pkgs/tts/solid';
 import { SpeakingAvatar, SpectatorIndicator, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
@@ -160,8 +160,14 @@ function PuzzlePlayerChrome(props: {
       puzzleRating={p.rating()}
       spectator={p.isSpectator}
       assistant={
-        <SpeakingAvatarAssistant
-          assistant={p.assistant()}
+        <SpeakingAvatar
+          message={p.assistant()?.text ?? ''}
+          contextKey={p.assistant()?.positionKey ?? ''}
+          speaker={createSpeak}
+          dataSet={{ testid: 'puzzle-assistant' }}
+          data-observation={p.assistant()?.kind ?? ''}
+          data-purpose={p.assistant()?.purpose ?? ''}
+          data-puzzle={p.assistant()?.puzzleId ?? ''}
           header={
             <ChessPuzzleStatusHeader
               kind={statusKind()}

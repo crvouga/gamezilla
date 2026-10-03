@@ -6,8 +6,10 @@ import {
   buildPuzzleTotalCountSql,
   PUZZLE_NEXT_MAX_BAND,
 } from '../../shared/puzzle-session/next-puzzle-selection';
-import { resolveEffectivePuzzleRating } from '../chess-puzzle-feed-config';
-import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
+import {
+  type ChessPuzzleFeedConfig,
+  resolveEffectivePuzzleRating,
+} from '../chess-puzzle-feed-config';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 export type ChessPuzzleFeedPoolStats = {
@@ -16,9 +18,10 @@ export type ChessPuzzleFeedPoolStats = {
   readonly isLoading: Accessor<boolean>;
 };
 
-export function useChessPuzzleFeedPoolStats(): ChessPuzzleFeedPoolStats {
+export function useChessPuzzleFeedPoolStats(
+  config: Accessor<ChessPuzzleFeedConfig>
+): ChessPuzzleFeedPoolStats {
   const myId = useMyId();
-  const [config] = useChessPuzzleFeedConfig();
   const profile = useChessPuzzleProfileRatings(myId);
   const matched = createQuery(() =>
     buildPuzzleMatchedCountSql({

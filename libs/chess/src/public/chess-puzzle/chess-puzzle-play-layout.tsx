@@ -9,6 +9,7 @@ import {
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
+import { ChessPuzzleAllowance } from './chess-puzzle-allowance';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overlay';
 import { ChessPuzzleFeedBar } from './chess-puzzle-feed-bar';
@@ -175,6 +176,9 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
             layout={props.layout}
             openFeedSettings={props.openFeedSettings}
           />
+        </Show>
+        <Show when={props.layout.spectator()}>
+          <ChessPuzzleAllowance />
         </Show>
         <div class="box shrink-0 min-w-0 overflow-hidden">
           {props.layout.assistant}

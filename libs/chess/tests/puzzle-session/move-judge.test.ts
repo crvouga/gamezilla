@@ -34,7 +34,7 @@ describe('judgePuzzleMove', () => {
       idx: 1,
       uci: 'b7b8',
     });
-    expect(last).toMatchObject({ kind: 'correct', via: 'line', ends: true });
+    expect(last).toMatchObject({ kind: 'correct', via: 'mate', ends: true });
   });
 
   test('castling is compared in canonical form, king-onto-rook included', () => {

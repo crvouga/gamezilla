@@ -1,6 +1,5 @@
 import { buildPuzzleFenTrail } from './chess-puzzle-fen-trail';
 import { tokenize } from './chess-puzzle-fsm';
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 
 /**
  * Rewind one ply along the solution line (player or opponent).
@@ -38,15 +37,6 @@ export function fenAtSolveIdx(args: {
   });
   if (trail.length === 0) return null;
   return trail[trail.length - 1] ?? null;
-}
-
-export function statusAtSolveIdx(
-  solveIdx: number,
-  tokensLength: number
-): (typeof CHESS_PUZZLE_PLAY_STATUS)['solving' | 'solved'] {
-  return solveIdx >= tokensLength
-    ? CHESS_PUZZLE_PLAY_STATUS.solved
-    : CHESS_PUZZLE_PLAY_STATUS.solving;
 }
 
 export function puzzleTokensLength(moves: string): number {

@@ -131,6 +131,7 @@ export const ChessPuzzlePlayAttr = {
   ),
   /** Bumps on every wrong-move / reset so the chess board can force a remount when FEN string is unchanged. */
   layoutKey: playNs.integer('layout-key', readNonNegativeInteger),
+  wrongUci: playNs.textOrNull('wrong-uci', readNullableNonEmptyString),
   wrongFromSquare: playNs.textOrNull(
     'wrong-from-square',
     readNullableNonEmptyString
