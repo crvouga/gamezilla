@@ -31,6 +31,7 @@ import hostRefusal from './fixtures/custom-game-host-refusal-vocabulary.itf.json
 import idempotentReadiness from './fixtures/custom-game-idempotent-readiness.itf.json';
 import offlineBoundary from './fixtures/custom-game-offline-boundary.itf.json';
 import staleCancellation from './fixtures/custom-game-stale-cancellation.itf.json';
+import hostLeaveRemount from './fixtures/space-host-leave-remount.itf.json';
 
 function choose(command: string) {
   return (w: QuintHarnessWorld, picks: Picks): Promise<void> =>
@@ -49,6 +50,13 @@ bindQuintModel<QuintHarnessWorld>({
   encoding: 'fun-arrays',
   timeoutMs: 180_000,
   regressions: [
+    {
+      // regression: space-host-leave-remount
+      id: 'space-host-leave-remount',
+      title: 'A host leaving keeps their confirmation outcome visible',
+      seed: '0x67932',
+      itf: hostLeaveRemount,
+    },
     {
       // regression: custom-game-host-refusal-vocabulary
       id: 'custom-game-host-refusal-vocabulary',

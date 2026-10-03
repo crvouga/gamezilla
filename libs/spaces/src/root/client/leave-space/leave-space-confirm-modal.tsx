@@ -4,7 +4,7 @@ import { Sounds } from '@pkgs/sounds';
 import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import { MutationModal, type MutationStateTransition } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { createEffect, createSignal, Show } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
@@ -22,6 +22,14 @@ export function LeaveSpaceConfirmModal(
   props: LeaveSpaceConfirmModalProps
 ): JSX.Element {
   const engine = useOptionalSoundEngine();
+  const [confirmedAsHost, setConfirmedAsHost] = createSignal<boolean>();
+  createEffect(() => {
+    if (!props.visible) setConfirmedAsHost(undefined);
+  });
+  const operation = (): Promise<void> => {
+    setConfirmedAsHost(props.asHost ?? false);
+    return props.operation();
+  };
   const onPhaseChange = (transition: MutationStateTransition): void => {
     const current = engine?.();
     if (current === undefined) return;
@@ -36,7 +44,7 @@ export function LeaveSpaceConfirmModal(
   };
   return (
     <Show
-      when={props.asHost ?? false}
+      when={confirmedAsHost() ?? props.asHost ?? false}
       fallback={
         <MutationModal
           visible={props.visible}
@@ -49,7 +57,7 @@ export function LeaveSpaceConfirmModal(
             </Trans>
           }
           submitLabel={<Trans>Leave</Trans>}
-          operation={() => props.operation()}
+          operation={operation}
           onSuccess={onSuccess}
           onPhaseChange={onPhaseChange}
           loadingLabel={<Trans>Leaving…</Trans>}
@@ -78,7 +86,7 @@ export function LeaveSpaceConfirmModal(
         }
         submitLabel={<Trans>Leave and end</Trans>}
         variant="destructive"
-        operation={() => props.operation()}
+        operation={operation}
         onSuccess={onSuccess}
         onPhaseChange={onPhaseChange}
         loadingLabel={<Trans>Ending space…</Trans>}
