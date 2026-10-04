@@ -47,10 +47,6 @@ env:
   CHECK_CONCURRENCY: ${{ inputs.concurrency || vars.CHECK_CONCURRENCY || '12' }}
   CHECK_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
 
-concurrency:
-  group: check-${{ github.event.pull_request.head.ref || github.ref_name }}
-  cancel-in-progress: true
-
 jobs:
   check-plan:
     name: check:plan

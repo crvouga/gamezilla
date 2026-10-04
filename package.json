@@ -13,7 +13,7 @@
     "check": "bun run libs/tools/scripts/workflow-remote.ts check",
     "check:coverage": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-coverage.ts",
     "check:heal": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-heal.ts",
-    "check:local": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts check",
+    "check:local": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-local.ts",
     "chess:puzzles:export-load": "SECRETS_ENV=prd bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/chess-puzzle-server export:puzzles-load -- --confirm-prod",
     "chess:puzzles:seed": "bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/chess-puzzle-server seed:puzzles",
     "ci:agent-commands": "bun run libs/tools/scripts/sync-agent-commands.ts --check",

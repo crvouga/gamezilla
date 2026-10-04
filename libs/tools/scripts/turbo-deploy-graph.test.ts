@@ -294,7 +294,9 @@ describe('turbo check/deploy graph invariants', () => {
 
   test('local runners go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
-    expect(turboCiRunTaskArgs(scripts['check:local'] ?? '')).toEqual(['check']);
+    expect(scripts['check:local']).toBe(
+      'bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-local.ts'
+    );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([
       '//#deploy',
     ]);
