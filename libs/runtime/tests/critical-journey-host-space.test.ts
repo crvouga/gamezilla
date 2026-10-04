@@ -27,6 +27,7 @@ type World = {
   created: boolean;
   overflow: boolean;
   endInOverflow: boolean;
+  profileReady: boolean;
   readonly taps: string[];
 };
 
@@ -45,7 +46,9 @@ function tabVisible(world: World, id: string): boolean | undefined {
   if (id === Handles.spaceCard(HOST)) {
     return world.screen === 'spaces' && world.listReady && world.spacesLeft > 0;
   }
-  if (id === Handles.profileDisplayUsername) return world.screen === 'profile';
+  if (id === Handles.profileDisplayUsername) {
+    return world.screen === 'profile' && world.profileReady;
+  }
   return undefined;
 }
 
@@ -127,6 +130,8 @@ function node(world: World, id: string): DriverNode {
       visible: () => {
         // Waiting for the list is what settles it, the way sync does.
         if (id === Handles.spacesListReady) world.listReady = true;
+        // A lazy profile route may render after the tab tap returns.
+        if (id === Handles.profileDisplayUsername) world.profileReady = true;
         assertState('visible');
         return Promise.resolve();
       },
@@ -137,10 +142,12 @@ function node(world: World, id: string): DriverNode {
       text: () => Promise.resolve(),
     },
     isVisible: () => Promise.resolve(shown()),
-    text: () =>
-      Promise.resolve(
+    text: () => {
+      assertState('visible');
+      return Promise.resolve(
         id === Handles.profileDisplayUsername ? `@${HOST}` : null
-      ),
+      );
+    },
   };
   return self;
 }
@@ -148,7 +155,8 @@ function node(world: World, id: string): DriverNode {
 function driver(
   spacesLeft: number,
   listReady = true,
-  endInOverflow = false
+  endInOverflow = false,
+  profileReady = true
 ): {
   readonly ui: Driver;
   readonly world: World;
@@ -162,6 +170,7 @@ function driver(
     created: false,
     overflow: false,
     endInOverflow,
+    profileReady,
     taps: [],
   };
   const ui: Driver = {
@@ -233,6 +242,15 @@ describe('hostSpace', () => {
     await hostSpace(ui);
     expectJoinedThenEnded(world.taps, 1);
     expect(world.spacesLeft).toBe(0);
+    expect(world.created).toBe(true);
+  });
+
+  // regression: journey-profile-username-route-race
+  test('waits for the lazy profile route before reading the host username', async () => {
+    const { ui, world } = driver(1, true, false, false);
+    await hostSpace(ui);
+    expectJoinedThenEnded(world.taps, 1);
+    expect(world.profileReady).toBe(true);
     expect(world.created).toBe(true);
   });
 });
