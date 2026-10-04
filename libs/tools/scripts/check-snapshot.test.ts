@@ -12,6 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { createCheckSnapshot } from './check-snapshot';
+import { archiveCheckSnapshot } from './check-snapshot-archive';
 
 // regression: concurrent-check-run-isolation
 test('overlapping runs isolate dirty inputs, workspace imports, logs, restores and Git metadata', async () => {
@@ -212,5 +213,48 @@ test('run temporary fixtures have no enclosing Git repository', async () => {
   } finally {
     for (const path of [run === undefined ? undefined : dirname(run), source])
       if (path) rmSync(path, { recursive: true, force: true });
+  }
+});
+
+// regression: check-snapshot-disk-leak
+test('completed snapshots retain compressed evidence and release only their own working files', async () => {
+  const container = mkdtempSync(join(tmpdir(), 'check-archive-fixture-'));
+  const root = join(container, 'workspace');
+  const other = join(container, 'other-run');
+  const report = '.cache/harness-report/part-11/runs/latest/report.json';
+  try {
+    for (const path of [
+      'src/input.ts',
+      report,
+      '.turbo/runs/summary.json',
+      '.turbo/cache/task.tar.zst',
+      '.git/HEAD',
+      'node_modules/native/library',
+    ]) {
+      mkdirSync(dirname(join(root, path)), { recursive: true });
+      writeFileSync(join(root, path), path);
+    }
+    mkdirSync(join(container, 'tmp'));
+    mkdirSync(other);
+    writeFileSync(join(other, 'evidence'), 'another run');
+    const archive = await archiveCheckSnapshot(root);
+    expect(existsSync(root)).toBe(false);
+    expect(existsSync(join(container, 'tmp'))).toBe(false);
+    expect(readFileSync(join(other, 'evidence'), 'utf8')).toBe('another run');
+    const entries = execFileSync('tar', ['-tzf', archive], {
+      encoding: 'utf8',
+    });
+    expect(entries).toContain(report);
+    expect(entries).toContain('.turbo/runs/summary.json');
+    expect(entries).toContain('src/input.ts');
+    for (const disposable of ['node_modules', '.git', '.turbo/cache'])
+      expect(entries).not.toContain(disposable);
+    expect(
+      execFileSync('tar', ['-xOf', archive, `./${report}`], {
+        encoding: 'utf8',
+      })
+    ).toBe(report);
+  } finally {
+    rmSync(container, { recursive: true, force: true });
   }
 });

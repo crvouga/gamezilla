@@ -9,6 +9,7 @@ import {
 } from './check-artifact-store';
 import { readLatestRunSummary } from './check-budget';
 import { createCheckSnapshot } from './check-snapshot';
+import { archiveCheckSnapshot } from './check-snapshot-archive';
 import { killProcessTree } from './kill-process-tree';
 
 export async function runLocalCheck(
@@ -17,14 +18,27 @@ export async function runLocalCheck(
 ): Promise<number> {
   const started = process.hrtime.bigint();
   const root = await createCheckSnapshot(source);
-  const store = join(source, '.cache/check-artifacts');
-  const cache = join(root, '.turbo/cache');
-  restoreCheckArtifacts(store, cache);
   console.log(
     `check:local: prepared snapshot in ${(Number(process.hrtime.bigint() - started) / 1e9).toFixed(1)}s`
   );
   console.log(`check:local: private run directory ${root}`);
-  // Keep evidence in this directory after exit; never restore outputs into the caller.
+  try {
+    return await runSnapshot(root, source, args);
+  } finally {
+    const archive = await archiveCheckSnapshot(root);
+    console.log(`check:local: diagnostics archived at ${archive}`);
+  }
+}
+
+async function runSnapshot(
+  root: string,
+  source: string,
+  args: string[]
+): Promise<number> {
+  const store = join(source, '.cache/check-artifacts');
+  const cache = join(root, '.turbo/cache');
+  restoreCheckArtifacts(store, cache);
+  // Never restore outputs into the caller; archive evidence after the runner exits.
   const temporary = join(dirname(root), 'tmp');
   mkdirSync(temporary, { recursive: true });
   const env = {
