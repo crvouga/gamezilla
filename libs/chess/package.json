@@ -21,6 +21,7 @@
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "export:puzzles-load": "bun run scripts/export-chess-puzzles-load.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "seed:deploy": "bun run scripts/seed-deploy-chess-puzzles.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --preload @libs/harness/preload",

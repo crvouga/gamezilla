@@ -791,10 +791,14 @@
       "cache": false,
       "dependsOn": ["@libs/infra#apply:foundation"]
     },
+    "@libs/chess#seed:deploy": {
+      "cache": false,
+      "dependsOn": ["@libs/runtime#migrate"]
+    },
     "@apps/product#deploy": {
       "cache": false,
       "dependsOn": [
-        "@libs/runtime#migrate",
+        "@libs/chess#seed:deploy",
         "@apps/server#check:api",
         "@apps/product#check:offline-shell",
         "@apps/product#check:worker-bundle"
