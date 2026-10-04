@@ -113,7 +113,8 @@ test('overlapping runs isolate dirty inputs, workspace imports, logs, restores a
 });
 
 // regression: check-snapshot-dependency-copy-overhead
-test('frozen offline installation reconstructs workspace imports inside the private run', async () => {
+// regression: check-snapshot-native-dependencies
+test('installed native libraries and workspace imports survive private dependency copies', async () => {
   const source = mkdtempSync(join(tmpdir(), 'check-install-fixture-'));
   let run: string | undefined;
   try {
@@ -154,7 +155,14 @@ test('frozen offline installation reconstructs workspace imports inside the priv
       '-qm',
       'fixture'
     );
+    const native = join(source, 'node_modules/native');
+    mkdirSync(native);
+    writeFileSync(join(native, 'libicudata.77.1.dylib'), 'installed library');
+    symlinkSync('libicudata.77.1.dylib', join(native, 'libicudata.77.dylib'));
     run = await createCheckSnapshot(source);
+    expect(
+      readFileSync(join(run, 'node_modules/native/libicudata.77.dylib'), 'utf8')
+    ).toBe('installed library');
     writeFileSync(join(source, 'pkgs/example/index.ts'), 'export default 0;');
     const result = execFileSync(
       process.execPath,

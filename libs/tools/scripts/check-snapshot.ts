@@ -79,20 +79,6 @@ async function copyDependencies(
   source: string,
   destination: string
 ): Promise<void> {
-  if (existsSync(join(source, 'bun.lock'))) {
-    await promisify(execFile)(
-      process.execPath,
-      [
-        'install',
-        '--offline',
-        '--frozen-lockfile',
-        '--ignore-scripts',
-        `--backend=${process.platform === 'darwin' ? 'clonefile' : 'copyfile'}`,
-      ],
-      { cwd: destination, maxBuffer: 4 * 1024 * 1024 }
-    );
-    return;
-  }
   await copyDependencyTree(
     join(source, 'node_modules'),
     join(destination, 'node_modules')
