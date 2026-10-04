@@ -16,10 +16,24 @@ export {
   ratingWithin,
 } from './attrs';
 export {
+  deviceConnected,
+  deviceRange,
+  deviceView,
+  type PersonDevice,
+} from './devices';
+export {
+  availability,
   changeRange,
+  connectDevice,
   LOBBY_ACTIONS,
+  lastBegin,
+  lastOffline,
   lastWait,
+  repeatBegin,
+  repeatChange,
+  restriction,
   stopWaiting,
+  timePasses,
   type WaitForMatchSpec,
   waitForMatch,
 } from './lobby';

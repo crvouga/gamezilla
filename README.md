@@ -345,7 +345,7 @@ deploy:<env>   foundation -> migrate -> product (assets + API + rooms)
 
 ## Laptop
 
-`bun run dev` (alias `bun run stack`) boots embedded Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
+`bun run dev` (alias `bun run stack`) runs through Turborepo’s terminal UI. Turbo owns environment setup, message catalog compilation, stack preparation, backend services, and Vite; Vite waits for the backend readiness manifest. The stack boots embedded Postgres, Mockingbird S3, Aedes, simulated Google, Apple, and Stripe, N API nodes, and the product web app (`/`, `/harness`, `/simulator`). Ports are OS-assigned and published to `.cache/localhost-stack/<instance>.json`. `source libs/tools/workspace/port.sh` before a sidecar. EMQX (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are machine-wide; one workspace binds them at a time.
 
 ```bash
 bun run dev                         # 2 API nodes
@@ -449,7 +449,7 @@ Recording uses the OpenTelemetry API only, at boundaries (runtime entry, interac
 
 Commit and push only through `bun run git-sync` (message is a Conventional Commit, subject ≤ 72 characters, no trailing period). The script commits, pushes the feature branch, merges `origin/main`, pushes again, and fast-forwards local main. It does not force-push and does not push `main`. On conflict it aborts unless `--leave-conflicts`.
 
-A commit that touches `specs/` or any `.feature` file is `spec:` or `spec(scope):` and may only change `specs/`, `.feature` files, and `docs/*.md`. Implementation follows in a later commit. `STEPS_CATALOG.md` files are generated and gitignored; refresh them with `bun run spec:catalog` after a step change.
+A commit that touches `specs/` or any `.feature` file is `spec:` or `spec(scope):` and may only change `specs/`, `.feature` files, and `docs/*.md`. Implementation follows in a later commit. `STEPS_CATALOG.md` files are generated and gitignored; refresh them with `bun run spec:catalog` after a step change. The ownership gate also recognizes those generated documentation files in historical commits.
 
 `main` moves only when a person merges a green PR. Agents do not merge, do not use `--admin`, and do not create branches or worktrees. Commit on the branch and worktree already checked out. PR body follows `.github/PULL_REQUEST_TEMPLATE.md`.
 

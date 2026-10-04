@@ -4,7 +4,12 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
+import {
+  FadeSwitch,
+  type MainMenuItem,
+  MainMenuScreen,
+  useRouter,
+} from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
 import { CustomGameScreen } from '../root/custom-game/custom-game-screen';
@@ -87,6 +92,7 @@ export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
 }
 
 function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
+  const router = useRouter();
   const dispatch = useSpaceRoomDispatch();
   const items: readonly MainMenuItem[] = [
     {
@@ -115,9 +121,10 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     },
     {
       key: 'matchmaking',
-      title: <Trans>Matchmaking</Trans>,
-      caption: <Trans>Coming soon</Trans>,
-      disabled: true,
+      title: <Trans>Multiplayer chess</Trans>,
+      caption: <Trans>Find an opponent for a private game</Trans>,
+      dataSet: { testid: 'chess-menu-multiplayer' },
+      onClick: () => router.push('/chess/multiplayer'),
     },
     {
       key: 'settings',

@@ -139,6 +139,7 @@ terms:
       can still find them and unblock.
     forms: [blocks someone, blocked someone, blocker, blocker's, blocked person, blocked people]
     model: [block, blocks, Blocking]
+    published: true
 
   - term: hidden by a block
     definition: >-

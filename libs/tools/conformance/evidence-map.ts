@@ -72,6 +72,20 @@ const ENVIRONMENTS: ProofTable = {
 
 /** Promises to people outside the product, and the specs that keep them. */
 const PUBLIC_CONTRACTS: ProofTable = {
+  'durable matchmaking outcomes': [
+    { spec: 'specs/matchmaking/search-identity.feature' },
+    { spec: 'specs/matchmaking/lasting-outcomes.feature' },
+    { spec: 'specs/matchmaking/waits-after-time-away.feature' },
+    { spec: 'specs/matchmaking/competing-waits.feature' },
+    { spec: 'specs/matchmaking/matching.qnt' },
+  ],
+  'private multiplayer games': [
+    { spec: 'specs/chess/play-multiplayer-chess.feature' },
+    { spec: 'specs/chess/multiplayer-recovery-and-privacy.feature' },
+    { spec: 'specs/chess/multiplayer-games.als' },
+    { spec: 'specs/chess/multiplayer.qnt' },
+    { spec: 'specs/chess/multiplayer-ready.openslo.yaml' },
+  ],
   'reusable chessboard': [
     { spec: 'specs/chess-board/board-authority.feature' },
     { spec: 'specs/chess-board/board-sound.feature' },

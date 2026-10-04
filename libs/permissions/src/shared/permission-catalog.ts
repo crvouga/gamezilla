@@ -11,6 +11,11 @@ export const PERMISSION = defineCatalog({
   billingSubscribe: 'billing:subscribe',
   billingManage: 'billing:manage',
   matchmakingUse: 'matchmaking:use',
+  matchmakingView: 'matchmaking:view',
+  matchmakingStop: 'matchmaking:stop',
+  matchmakingChangeRange: 'matchmaking:change-range',
+  chessMultiplayerPlay: 'chess:multiplayer-play',
+  chessMultiplayerResign: 'chess:multiplayer-resign',
   puzzlesPlay: 'puzzles:play',
   puzzlesCustomizeFeed: 'puzzles:customize-feed',
   chessCustomCreate: 'chess:custom-create',
@@ -35,6 +40,7 @@ export type AppPermission = (typeof PERMISSION)[keyof typeof PERMISSION];
 /** Every counted cap the product evaluates against usage. */
 export const LIMIT = defineCatalog({
   hostedSpaces: 'spaces:hosted',
+  unfinishedMultiplayerGames: 'chess:unfinished-multiplayer-games',
 });
 export type AppLimit = (typeof LIMIT)[keyof typeof LIMIT];
 

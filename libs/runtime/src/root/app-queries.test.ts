@@ -29,6 +29,7 @@ function schemaIndexesFromApp(): readonly SchemaIndex[] {
 }
 
 describe('APP_QUERIES indexability', () => {
+  // regression: chess-multiplayer-session-indexability
   test('every defineQuery statement is indexable (PK / schema / autoidx / catalog)', async () => {
     const schemaIndexes = schemaIndexesFromApp();
     await assertQueryRegistryIndexable(APP_QUERIES, {

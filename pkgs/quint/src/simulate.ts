@@ -98,8 +98,10 @@ export function simulate(options: SimulateOptions): SimulateResult {
       String(options.maxSteps),
       '--out-itf',
       join(options.outDir, 'trace-{seq}.itf.json'),
+      // Trace evidence is written to ITF files. Rendering a full trace
+      // on stdout can exhaust the child-process buffer on deep histories.
       '--verbosity',
-      '2',
+      '0',
       ...(invariants.length === 0 ? [] : ['--invariants', ...invariants]),
     ],
     { encoding: 'utf8' }
@@ -111,6 +113,7 @@ export function simulate(options: SimulateOptions): SimulateResult {
         ...(invariants.length === 0
           ? []
           : [`invariants checked: ${invariants.join(', ')}`]),
+        result.error?.message ?? '',
         result.stdout.trim(),
         result.stderr.trim(),
       ]

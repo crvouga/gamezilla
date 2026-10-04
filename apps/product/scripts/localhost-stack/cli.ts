@@ -12,15 +12,17 @@
 
 import { join } from 'node:path';
 import { bootLocalhostStack } from './boot-stack';
+import { devStackOptions } from './dev-options';
 import { removeManifest } from './manifest';
-import { parseStackOptions } from './stack-options';
 
 const REPO_ROOT = join(import.meta.dir, '../../../..');
-const options = parseStackOptions(process.argv.slice(2));
-const stack = await bootLocalhostStack(options);
+const options = devStackOptions();
+const stack = await bootLocalhostStack(options, true);
 
 process.stdout.write(`\n[stack] ready — ${stack.manifestPath}\n`);
-process.stdout.write(`${JSON.stringify(stack.manifest, null, 2)}\n`);
+process.stdout.write(
+  `[stack] simulator: ${stack.manifest.webOrigin}/?simulator\n`
+);
 process.stdout.write('[stack] Ctrl-C to stop\n');
 
 let stopping = false;

@@ -1,7 +1,7 @@
 /**
  * Portable matchmaking schema migrate (SQLite + Postgres).
  *
- * defineTable reconcile + fingerprint-driven waiting/partition rebuild.
+ * defineTable reconciliation preserves accepted state; incompatible active configuration changes are refused.
  * Hosts drive `tick()`.
  */
 
@@ -10,39 +10,28 @@ import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
 import { isNamespacedKeyword } from '@pkgs/keyword';
 import {
-  DEFAULT_RADIUS_OPTIONS,
   type MatchmakingSchema,
-  type RadiusOptions,
+  MatchmakingSchemaDriftError,
 } from '@pkgs/matchmaking/interface';
-import { isPostgresSqlClient } from '@pkgs/postgres-sqlite-compat';
-import { raw, sql } from '@pkgs/sql';
-import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { dropPreSchemaMatchmakingTables } from './pre-schema-tables';
 import {
-  MATCHMAKING_ACTIVE_PARTITIONS_TABLE,
+  installPostgresSqliteCompat,
+  isPostgresSqlClient,
+} from '@pkgs/postgres-sqlite-compat';
+import { sql } from '@pkgs/sql';
+import { getUnderlyingSqlClient } from '@pkgs/sql-client/impl-agnostic';
+import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
+import {
   MATCHMAKING_SCHEMA_STATE_ID,
-  MATCHMAKING_WAITING_TABLE,
   matchmakingSchema,
 } from './schema/tables';
 
 export type { MatchmakingSchema };
 
-export type MigrateTuning = {
-  readonly maxPairsPerPass?: number;
-  readonly maxWaitSeconds?: number;
-  readonly matchedRetentionSeconds?: number;
-  readonly claimTtlMs?: number;
-};
-
 export type MigrateOptions = {
   readonly sqlClient: SqlClient;
   readonly schema?: MatchmakingSchema;
-  readonly radius?: RadiusOptions;
-  readonly tuning?: MigrateTuning;
   /** Wall clock for managed timestamps (fingerprint upsert). */
-  readonly now?: () => number;
+  readonly now: () => number;
 };
 
 /** Schema layout version for fingerprinting. */
@@ -113,7 +102,7 @@ async function applyMatchmakingSchema(sqlClient: SqlClient): Promise<void> {
     await reconcilePostgresSchema(
       engine,
       matchmakingSchema,
-      createPostgresDbScope('public'),
+      (engine as PostgresSqlClient).dbScope,
       {
         skipAdvisoryLock: true,
         alreadyInTransaction: false,
@@ -124,16 +113,6 @@ async function applyMatchmakingSchema(sqlClient: SqlClient): Promise<void> {
   await reconcileSqliteSchema(engine, matchmakingSchema, {
     ownership: 'declared-only',
   });
-}
-
-async function rebuildWaitingTables(sqlClient: SqlClient): Promise<void> {
-  // Ephemeral tick state — drop + reconcile recreate is intentional.
-  const engine = getUnderlyingSqlClient(sqlClient);
-  await engine.run(raw(`DROP TABLE IF EXISTS ${MATCHMAKING_WAITING_TABLE}`));
-  await engine.run(
-    raw(`DROP TABLE IF EXISTS ${MATCHMAKING_ACTIVE_PARTITIONS_TABLE}`)
-  );
-  await applyMatchmakingSchema(engine);
 }
 
 async function upsertSchemaFingerprint(
@@ -161,7 +140,7 @@ async function upsertSchemaFingerprint(
   );
 }
 
-async function maybeRebuildSchema(
+async function recordSchemaFingerprint(
   sqlClient: SqlClient,
   schema: ResolvedSchema,
   nowMs: number
@@ -176,10 +155,10 @@ async function maybeRebuildSchema(
   );
   const currentFp = state[0]?.schema_fingerprint ?? null;
   if (currentFp === fp) return;
-  // Fresh install: tables already applied — only record fingerprint.
-  // Rebuild only when an existing fingerprint differs (schema change).
   if (currentFp !== null) {
-    await rebuildWaitingTables(sqlClient);
+    const active = await sqlClient.query(sql<{ id: string }>`
+      SELECT id FROM matchmaking_waiting WHERE deleted_at IS NULL LIMIT 1`);
+    if (active.length > 0) throw new MatchmakingSchemaDriftError(fp, currentFp);
   }
   await upsertSchemaFingerprint(sqlClient, fp, nowMs);
 }
@@ -204,16 +183,10 @@ export async function migrate(opts: MigrateOptions): Promise<void> {
 
 async function migrateInner(opts: MigrateOptions): Promise<void> {
   const schema = resolveSchema(opts.schema);
-  // radius / tuning are accepted for API compatibility but no longer baked
-  // into SQL functions — matching runs in the app layer.
-  void opts.radius;
-  void opts.tuning;
-  void DEFAULT_RADIUS_OPTIONS;
-
   const { sqlClient } = opts;
-  const nowMs = opts.now?.() ?? 0;
+  const nowMs = opts.now();
   const engine = getUnderlyingSqlClient(sqlClient);
-  await dropPreSchemaMatchmakingTables(engine);
+  await installPostgresSqliteCompat({ sqlClient: engine });
   await applyMatchmakingSchema(engine);
-  await maybeRebuildSchema(sqlClient, schema, nowMs);
+  await recordSchemaFingerprint(sqlClient, schema, nowMs);
 }

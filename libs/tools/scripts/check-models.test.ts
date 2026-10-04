@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { DEFAULT_VERIFY_STEPS } from '@pkgs/quint/registry';
+import {
+  DEFAULT_VERIFY_STEPS,
+  DEFAULT_VERIFY_TIMEOUT_MS,
+} from '@pkgs/quint/registry';
 
-import { modelChecks, modelEncodingOf, verifyStepsOf } from './check-models';
+import {
+  modelChecks,
+  modelEncodingOf,
+  verifyStepsOf,
+  verifyTimeoutOf,
+} from './check-models';
 import { specPackages } from './spec-packages';
 
 describe('verifyStepsOf', () => {
@@ -15,7 +23,32 @@ describe('verifyStepsOf', () => {
   });
 });
 
+describe('verifyTimeoutOf', () => {
+  test('reads the deadline a binding declares, underscores included', () => {
+    expect(
+      verifyTimeoutOf("model: 'door',\n  verifyTimeoutMs: 480_000,\n")
+    ).toBe(480_000);
+  });
+
+  test('falls back to the default without one, or without a binding', () => {
+    expect(verifyTimeoutOf("model: 'door',\n")).toBe(DEFAULT_VERIFY_TIMEOUT_MS);
+    expect(verifyTimeoutOf(null)).toBe(DEFAULT_VERIFY_TIMEOUT_MS);
+  });
+});
+
 describe('modelChecks', () => {
+  test('only the matching binding opts into separate induction', () => {
+    const checks = specPackages().flatMap(modelChecks);
+    expect(
+      checks
+        .filter((check) => check.separateInduction)
+        .map((check) => check.specUri)
+    ).toEqual(['specs/matchmaking/matching.qnt']);
+    expect(
+      checks.find((check) => check.specUri === 'specs/chess/multiplayer.qnt')
+        ?.separateInduction
+    ).toBeUndefined();
+  });
   test('preserves an explicitly selected array encoding and the default otherwise', () => {
     expect(modelEncodingOf("model: 'door', encoding: 'fun-arrays'")).toBe(
       'fun-arrays'
@@ -50,21 +83,25 @@ describe('modelChecks', () => {
         specUri: 'specs/sync-engine/note-conflicts.qnt',
         steps: 8,
         inductiveInvariant: '_inductive',
+        timeoutMs: DEFAULT_VERIFY_TIMEOUT_MS,
       },
       {
         specUri: 'specs/sync-engine/note-recovery.qnt',
         steps: 8,
         inductiveInvariant: null,
+        timeoutMs: DEFAULT_VERIFY_TIMEOUT_MS,
       },
       {
         specUri: 'specs/sync-engine/note-refusal-recovery.qnt',
         steps: 8,
         inductiveInvariant: null,
+        timeoutMs: DEFAULT_VERIFY_TIMEOUT_MS,
       },
       {
         specUri: 'specs/sync-engine/note-replication.qnt',
         steps: 1,
         inductiveInvariant: null,
+        timeoutMs: DEFAULT_VERIFY_TIMEOUT_MS,
       },
     ]);
   });

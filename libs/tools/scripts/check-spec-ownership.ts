@@ -8,7 +8,7 @@
  * writer. An implementer never edits a spec, so a commit that touches one is a spec commit and nothing else: its
  * subject starts with `spec:` (or `spec(scope):`) or the Conventional Commit
  * equivalent `docs(specs):` (except the rulebook, which requires `spec:`), and it changes only specs
- * and docs (`docs/*.md`). A commit that mixes a spec change with
+ * and docs (`docs/*.md` and generated `STEPS_CATALOG.md` files). A commit that mixes a spec change with
  * code is refused — the roles cannot be told apart in it.
  *
  *   check-spec-ownership.ts             commits in PR_BASE..PR_HEAD (CI) or
@@ -26,7 +26,8 @@ export type Commit = {
 const SPEC_FILE = /\.feature$|^specs\//;
 const SPEC_SUBJECT = /^(?:spec(\([^)]*\))?|docs\(specs\))!?:/;
 /** What a spec commit may touch besides specs. */
-const SPEC_SIDE_FILES = [/^docs\/.*\.md$/];
+// Catalogs are now gitignored, but older commits still contain generated docs.
+const SPEC_SIDE_FILES = [/^docs\/.*\.md$/, /(?:^|\/)STEPS_CATALOG\.md$/];
 
 export function isSpecFile(path: string): boolean {
   return SPEC_FILE.test(path);
@@ -84,13 +85,42 @@ export function stagedViolations(files: readonly string[]): readonly string[] {
   return [];
 }
 
-/** Incoming commits already own their specs; validate newly resolved changes. */
+/** Parent commits own automatic spec merges; validate authored resolutions. */
 export function mergeStagedViolations(
   staged: readonly string[],
-  changedFromIncoming: readonly string[]
+  changedFromIncoming: readonly string[],
+  changedFromAutomatic?: readonly string[]
 ): readonly string[] {
   const changed = new Set(changedFromIncoming);
-  return stagedViolations(staged.filter((file) => changed.has(file)));
+  const authored = new Set(changedFromAutomatic);
+  return stagedViolations(
+    staged.filter(
+      (file) =>
+        changed.has(file) &&
+        (changedFromAutomatic === undefined ||
+          !isSpecFile(file) ||
+          authored.has(file))
+    )
+  );
+}
+
+function changedPaths(ref: string): readonly string[] {
+  return git(['diff', '--cached', '--name-only', ref])
+    .split('\n')
+    .filter(Boolean);
+}
+
+/** Older merge strategies lack AUTO_MERGE; retain the parent-only guard. */
+function automaticMergeChanges(): readonly string[] | undefined {
+  const result = spawnSync(
+    'git',
+    ['rev-parse', '--verify', '--quiet', 'AUTO_MERGE^{tree}'],
+    { encoding: 'utf8' }
+  );
+  if (result.status === 1) return undefined;
+  if (result.status !== 0)
+    throw new Error(`Cannot read automatic merge: ${result.stderr}`);
+  return changedPaths(result.stdout.trim());
 }
 
 function checkStagedOwnership(): readonly string[] {
@@ -107,9 +137,8 @@ function checkStagedOwnership(): readonly string[] {
     throw new Error(`Cannot read merge parent: ${merge.stderr}`);
   return mergeStagedViolations(
     staged,
-    git(['diff', '--cached', '--name-only', merge.stdout.trim()])
-      .split('\n')
-      .filter(Boolean)
+    changedPaths(merge.stdout.trim()),
+    automaticMergeChanges()
   );
 }
 

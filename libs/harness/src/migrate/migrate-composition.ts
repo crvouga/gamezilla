@@ -1,3 +1,4 @@
+import { matchmakingSchema } from '@pkgs/matchmaking-sql';
 /**
  * Reconcile a fresh harness database for exactly the features a composition runs.
  *
@@ -42,6 +43,10 @@ async function reconcileHarnessSchemas(
   await ensurePostgresSchema(sqlClient, dbScope);
   await reconcileSyncEnginePostgres(sqlClient, options);
   await reconcileOutboxPostgres(sqlClient, options);
+  await reconcilePostgresSchema(sqlClient, matchmakingSchema, dbScope, {
+    ...HARNESS_RECONCILE,
+    indexPhase: 'inline',
+  });
   await reconcilePostgresSchema(sqlClient, app.schema, dbScope, {
     ...HARNESS_RECONCILE,
     indexPhase: 'inline',

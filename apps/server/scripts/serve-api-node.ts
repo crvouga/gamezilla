@@ -81,8 +81,20 @@ const roomNamespace: RoomNamespace = {
     return id;
   },
   get: (id) => ({
-    fetch: (request) =>
-      Promise.resolve(answerRoomUpgrade(roomTopics.get(id) ?? '', request)),
+    fetch: (request) => {
+      const topic = roomTopics.get(id) ?? '';
+      if (new URL(request.url).pathname === '/room-service') {
+        const target = new URL('/__room-service', process.env['API_URL']);
+        target.search = new URL(request.url).search;
+        const forwarded = new Request(target, request);
+        forwarded.headers.set(
+          'x-room-service-token',
+          process.env['LOCAL_ROOM_SERVICE_TOKEN'] ?? ''
+        );
+        return fetch(forwarded);
+      }
+      return Promise.resolve(answerRoomUpgrade(topic, request));
+    },
   }),
 };
 
@@ -103,6 +115,16 @@ const server = Bun.serve<BunRoomSocketData>({
   idleTimeout: 60,
   async fetch(request) {
     const url = new URL(request.url);
+    if (url.pathname === '/__room-service') {
+      const token = process.env['LOCAL_ROOM_SERVICE_TOKEN'];
+      if (!token || request.headers.get('x-room-service-token') !== token)
+        return new Response(null, { status: 403 });
+      return rooms.service(
+        url.searchParams.get('topic') ?? '',
+        url.searchParams.get('module') ?? '',
+        request
+      );
+    }
     const wantsRoom =
       url.pathname === '/api/room' &&
       (request.headers.get('upgrade') ?? '').toLowerCase() === 'websocket';
@@ -125,9 +147,13 @@ const server = Bun.serve<BunRoomSocketData>({
   },
   websocket: {
     async open(ws) {
-      await rooms.open(ws.data, (raw) => {
-        ws.send(raw);
-      });
+      await rooms.open(
+        ws.data,
+        (raw) => {
+          ws.send(raw);
+        },
+        () => ws.close()
+      );
     },
     async message(ws, message) {
       await rooms.message(ws.data, String(message));

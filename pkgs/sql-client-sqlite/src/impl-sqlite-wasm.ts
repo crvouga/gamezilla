@@ -90,7 +90,11 @@ function bindValues(
   stmt.bind(values as unknown as Parameters<typeof stmt.bind>[0]);
 }
 
+import { createTransactionChain } from './transaction-chain';
+
 export class SqlClientImplSqliteWasm implements SqlClient {
+  private readonly enqueueTxn = createTransactionChain();
+
   private constructor(
     private readonly sqlite3: Sqlite3Static,
     private db: WasmDatabase
@@ -194,7 +198,13 @@ export class SqlClientImplSqliteWasm implements SqlClient {
     };
   }
 
-  async transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+  transaction<T>(fn: (tx: SqlClient) => Promise<T>): Promise<T> {
+    return this.enqueueTxn(() => this.execTransaction(fn));
+  }
+
+  private async execTransaction<T>(
+    fn: (tx: SqlClient) => Promise<T>
+  ): Promise<T> {
     this.db.exec('BEGIN');
     try {
       const result = await fn(this);

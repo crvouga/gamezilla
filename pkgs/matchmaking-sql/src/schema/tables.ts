@@ -29,6 +29,7 @@ export const matchmakingActivePartitions = defineTable({
     partition_signature: 'text',
     group_size: 'integer',
     first_seen_at: 'integer',
+    accepted_count: 'integer',
   },
   uniqueIndexes: [['partition_signature', 'group_size']],
   indexes: ['first_seen_at'],
@@ -38,6 +39,7 @@ export const matchmakingMatched = defineTable({
   domain: 'matchmaking',
   name: 'matchmaking_matched',
   columns: {
+    owner_id: 'text',
     match_id: 'text',
     joined_at: 'integer',
     matched_at: 'integer',
@@ -51,29 +53,46 @@ export const matchmakingWaiting = defineTable({
   domain: 'matchmaking',
   name: 'matchmaking_waiting',
   columns: {
+    owner_id: 'text',
+    accepted_order: 'integer',
+    ended_at: 'integer',
     joined_at: 'integer',
     data: 'json',
     formulas: 'json',
     metadata: 'json',
     partition_signature: 'text',
     group_size: 'integer',
-    priority: 'integer',
     primary_rating: 'real',
     primary_bucket: 'integer',
-    claim_token: 'text',
-    claimed_at: 'integer',
   },
   indexes: [
-    [
-      'partition_signature',
-      'group_size',
-      'primary_bucket',
-      'priority',
-      'joined_at',
-    ],
-    'claim_token',
-    'claimed_at',
+    ['partition_signature', 'group_size', 'primary_bucket', 'joined_at'],
   ],
+});
+
+export const matchmakingOwners = defineTable({
+  domain: 'matchmaking',
+  name: 'matchmaking_owners',
+  columns: { current_id: 'text', available: 'boolean' },
+});
+
+export const matchmakingRequests = defineTable({
+  domain: 'matchmaking',
+  name: 'matchmaking_requests',
+  columns: {
+    owner_id: 'text',
+    request_id: 'text',
+    kind: 'text',
+    result: 'json',
+  },
+  uniqueIndexes: [['owner_id', 'request_id']],
+});
+
+export const matchmakingRestrictions = defineTable({
+  domain: 'matchmaking',
+  name: 'matchmaking_restrictions',
+  columns: { owner_a: 'text', owner_b: 'text', restricted: 'boolean' },
+  uniqueIndexes: [['owner_a', 'owner_b']],
 });
 
 export const matchmakingSchema = registerTables([
@@ -81,6 +100,9 @@ export const matchmakingSchema = registerTables([
   matchmakingActivePartitions,
   matchmakingMatched,
   matchmakingWaiting,
+  matchmakingOwners,
+  matchmakingRequests,
+  matchmakingRestrictions,
 ]);
 
 /** Deterministic id for an active-partition row. */

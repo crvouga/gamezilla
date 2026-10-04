@@ -21,6 +21,7 @@
  */
 
 import type { AttributeState, AttributeTag } from '@pkgs/attribute';
+import type { OwnerRequest } from './identity';
 
 export type ParticipantStatus = 'waiting' | 'matched';
 
@@ -58,7 +59,7 @@ export type MatchedStatus = {
 
 export type StatusResult = WaitingStatus | MatchedStatus;
 
-export type JoinInput = {
+export type JoinInput = OwnerRequest & {
   readonly data: AttributeState;
   /**
    * Ordered list of acceptance criteria. Semantically an OR — the
@@ -81,16 +82,6 @@ export type JoinInput = {
    */
   readonly groupSize?: number;
   /**
-   * Per-participant priority. Higher values are considered before lower
-   * values within the same primary bucket; ties fall back to FIFO
-   * (`joined_at`). Defaults to 0. Bounded to `[-1000, 1000]`.
-   *
-   * Use this to surface VIPs, retry-on-failure attempts, or any caller
-   * preference that should jump the queue without bypassing the
-   * partition/formula constraints.
-   */
-  readonly priority?: number;
-  /**
    * Free-form caller payload that round-trips through `status()`. Stored
    * verbatim as JSON TEXT on the waiting and matched rows. Capped at
    * {@link MATCHMAKING_PAYLOAD_LIMITS}.maxMetadataBytes (1024 bytes of
@@ -105,7 +96,8 @@ export type UpdateFormulasResult = {
 };
 
 export type JoinResult = {
-  readonly participantId: string;
+  readonly participantId: string | null;
+  readonly outcome: 'started' | 'already_waiting' | 'unavailable';
 };
 
 export type LeaveResult = {

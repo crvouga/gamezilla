@@ -28,7 +28,3 @@ export const MATCHMAKING_PAYLOAD_LIMITS = {
 export const MATCHMAKING_MIN_GROUP_SIZE = 2;
 /** Maximum `groupSize`. */
 export const MATCHMAKING_MAX_GROUP_SIZE = 16;
-/** Minimum `priority`. */
-export const MATCHMAKING_MIN_PRIORITY = -1000;
-/** Maximum `priority`. */
-export const MATCHMAKING_MAX_PRIORITY = 1000;

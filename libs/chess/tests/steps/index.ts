@@ -15,7 +15,6 @@ import '@libs/profile/steps/auth.steps';
 import '@libs/billing/steps/access.steps';
 import '@libs/friends/steps/friends.steps';
 import '@libs/friends/steps/spaces.steps';
-
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openSpecHarness } from '../harness/open-chess-harness';
 
@@ -76,6 +75,12 @@ import {
 } from '@libs/chess/public/chess-puzzle-rating';
 import type { Actor } from '@libs/harness/spec/define';
 import { remember } from '@libs/harness/spec/world';
+
+import './multiplayer-game.steps';
+import './multiplayer-recovery.steps';
+import './multiplayer-accessibility.steps';
+import './multiplayer-account.steps';
+import './multiplayer-policies.steps';
 import {
   createSpace,
   reopenSpaceLink,

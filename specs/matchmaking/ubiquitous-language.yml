@@ -1,6 +1,6 @@
 # The ubiquitous language of Matchmaking: people waiting to be paired with
 # someone close to their rating. Matchmaking stands alone (see the context
-# map): it borrows nothing from another context, and publishes nothing yet.
+# map). A formed matchmaking match is published for games to consume.
 context: Matchmaking
 purpose: >-
   People wait for a match and are paired with someone they accept who
@@ -18,7 +18,9 @@ terms:
       matchmaking pairs them up. A person waits for one match at a time:
       asking again while waiting, they are told they are already waiting.
       Once matched, or once they stop waiting, they may wait for a match
-      again.
+      again. Each accepted wait is kept separate from every earlier or
+      later wait, and belongs to at most one match. Stopping or changing
+      an earlier wait never changes a later one.
     forms:
       - waits for a match
       - waiting for a match
@@ -27,7 +29,15 @@ terms:
       - waits
       - wait
     avoid: [queue, join the queue, ticket, participant, enqueue]
-    model: [waitForMatch, Waiting]
+    model: [waitForMatch, Waiting, Wait, waitNumber]
+
+  - term: request for a match
+    definition: >-
+      One person's request to wait. Repeating the same request keeps its
+      earlier answer, even after that wait has stopped or been matched.
+      Asking anew while waiting is refused without replacing the wait.
+    forms: [request, requests, repeats her earlier request for a match, repeats his earlier request for a match]
+    model: [repeatRequest]
 
   - term: details
     definition: >-
@@ -47,7 +57,19 @@ terms:
       wide one.
     forms: [range, ranges, narrow range, wide range]
     avoid: [reach, radius, formula]
-    model: [RatingRange, Narrow, Wide]
+    model: [ratingRange]
+
+  - term: growing range
+    definition: >-
+      A chosen rating range that starts at 50 points, grows by 10 points
+      each second spent waiting and stops at 400 points. A new wait starts
+      afresh. Changing the range of the same wait keeps the wait's age.
+    forms: [growing ranges]
+
+  - term: seconds pass
+    definition: Time goes by while people wait; growing ranges grow as agreed.
+    forms: [second passes, seconds have passed]
+    model: [secondsPass]
 
   - term: accept
     definition: >-
@@ -61,24 +83,80 @@ terms:
       A person who is waiting widens or narrows their range, and sees the
       change counted; it counts from the next time matchmaking pairs people
       up. A person who is matched, or who is not waiting, is told their
-      change did not count.
+      change did not count. Repeating the same range change keeps its
+      earlier answer without overwriting a later choice.
     forms: [widens, widen, widened, narrows, narrowed, change]
     model: [changeRange]
 
   - term: pair people up
     definition: >-
-      Every so often, on its own, matchmaking looks at everyone waiting and
-      pairs up each two people who accept each other.
+      On its own, matchmaking gives earlier compatible waits their first
+      opportunity to form a complete group. An earlier incompatible wait
+      never holds up a later compatible group. Waits accepted at the same
+      moment may have either order. Every group is formed all at once.
     forms: [pairs people up, paired people up]
-    avoid: [matching round, round, tick]
+    avoid: [matching round, tick]
     model: [pairUp]
+    published: true
 
   - term: matched
     definition: >-
-      Paired with one other person by matchmaking. Each of the two is then
-      matched with the other, and stays matched.
+      Paired with the other people in a complete group by matchmaking.
+      Each person sees the same group, and that match is kept. Each wait is matched
+      once. Asking for a later wait does not change this earlier match.
     forms: [match, matches, matched with, matched with each other]
     model: [Matched]
+
+  - term: matching pool
+    definition: >-
+      People waiting for the same kind of match. People in different
+      matching pools never match, whatever their rating ranges.
+    forms: [matching pools]
+
+  - term: group
+    definition: >-
+      The distinct people in a complete match. Each asks for the same
+      number of people, from 2 through 16, and every person accepts every
+      other person. Nobody sees an incomplete group.
+    forms: [groups, group size]
+    model: [GroupSize, requestedSize]
+
+  - term: place in a group
+    definition: >-
+      One of the places a complete group needs filled by a distinct person.
+      A group of three has three places, each filled once.
+    model: [Seat, seats, seating]
+
+  - term: available for a match
+    definition: >-
+      Able to be matched now. Becoming unavailable ends a waiting wait;
+      a match already made is kept. Becoming available again never
+      restarts an ended wait without a new request.
+    forms: [available, unavailable, becomes unavailable for a match, becomes available for a match again]
+    model: [becomeUnavailable, becomeAvailable]
+
+  - term: private wait
+    definition: >-
+      Only the person waiting sees their wait and its details before a
+      match. Someone else asking to see, stop or change it sees the same
+      refusal as for a wait that does not exist. A matched person sees
+      who they are matched with.
+    forms: [private waiting details]
+
+  - term: last known wait
+    definition: >-
+      What an offline device last knew about the person's standing and
+      range. It stays until the device comes back online, when it shows
+      the accepted outcome without another request.
+    forms: [last known range]
+
+  - term: device
+    from: kernel
+    model: [Device]
+
+  - term: connection
+    from: kernel
+    model: [loseConnection, comeBackOnline]
 
   - term: stop waiting
     definition: >-
@@ -86,7 +164,7 @@ terms:
       they see they stopped waiting. A person who is matched, or who is
       not waiting, has nothing to stop and is told so; a matched person
       stays matched.
-    forms: [stops waiting, stopped waiting, stopping]
+    forms: [stops waiting, stopped waiting, stopping, ended, ends]
     avoid: [leave the queue, dequeue, cancel]
     model: [stopWaiting]
 
@@ -101,3 +179,35 @@ terms:
       Where a person stands with matchmaking: not waiting, waiting, or
       matched with someone.
     model: [Standing, standing]
+
+  - term: matchmaking match
+    definition: >-
+      A complete match formed by matchmaking, with its own identity and the
+      distinct people matched together. The consuming game receives this
+      same match whenever it asks again, and decides how that game is played.
+    forms: [matchmaking matches, matchmaking match is formed, matchmaking match was formed]
+    model: [MatchFormed, MatchmakingEvent, MatchGroup, people, waits]
+    published: true
+
+  - term: cannot be matched together
+    definition: >-
+      A restriction supplied by the kind of match that excludes a pair of
+      people, however close their ratings are. Removing that restriction
+      permits a still-waiting pair to match; it never brings back a stopped
+      wait. A restriction arising after a match does not undo that match.
+    forms: [can be matched together, cannot be matched with]
+    model: [restrictPair, allowPair]
+
+  - term: match ownership
+    definition: >-
+      Every wait belongs to one person and one matching pool, and is waiting,
+      stopped or in one complete matchmaking match. One person's current
+      wait never belongs to two matches; their earlier matches stay separate.
+    model: [Seeker, owns, current, Search, pool, state, SearchState, WaitingSearch, StoppedSearch, MatchedSearch, assignment, MatchingPool]
+
+  - term: repeat a range change
+    definition: >-
+      Ask again for the same range change. Its earlier answer is kept,
+      without overwriting a newer choice or changing a later wait.
+    forms: [repeats that range change, repeats her earlier wide range change, repeats his earlier wide range change]
+    model: [repeatRangeChange]

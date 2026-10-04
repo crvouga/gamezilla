@@ -37,6 +37,7 @@ export {
   encodeRoomGrants,
   ROOM_GRANTS_HEADER,
 } from './server/core/grants-header';
+export { handleRoomService } from './server/core/handle-room-service';
 export type {
   RoomConnection,
   RoomConnectionOptions,

@@ -30,26 +30,36 @@ const DEFAULT_RATING = 1500;
 /** The range a person waits with when the scenario does not say. */
 const DEFAULT_RANGE = 50;
 
-async function waitsForMatch(
+export async function waitsForMatch(
   w: MatchmakingWorld,
   person: string,
-  opts: { readonly rating?: number; readonly range?: number } = {}
+  opts: {
+    readonly rating?: number;
+    readonly range?: number;
+    readonly place?: string;
+    readonly groupSize?: number;
+    readonly pool?: string;
+  } = {}
 ): Promise<void> {
   await w.harness.apply(waitForMatch, {
+    ...opts,
     person,
     rating: opts.rating ?? DEFAULT_RATING,
     range: opts.range ?? DEFAULT_RANGE,
   });
+  const id = (await w.harness.read(participantIds))[person];
+  if (id !== undefined && !w.firstWaits.has(person))
+    w.firstWaits.set(person, id);
 }
 
-async function standing(
+export async function standing(
   w: MatchmakingWorld,
   person: string
 ): Promise<StatusResult | null> {
   return (await w.harness.read(statusOf, person)) as StatusResult | null;
 }
 
-async function expectMatchedWith(
+export async function expectMatchedWith(
   w: MatchmakingWorld,
   person: string,
   other: string
@@ -92,7 +102,12 @@ Given(
     await waitsForMatch(w, person, { rating: 1000, range: 200 });
     await waitsForMatch(w, other, { rating: 1050, range: 200 });
     await w.harness.apply(tick, {});
-    if ((await standing(w, person))?.status !== 'matched') {
+    const matched = await standing(w, person);
+    if (matched?.status === 'matched') {
+      w.firstMatches.set(person, matched.matchId);
+      w.firstMatches.set(other, matched.matchId);
+    }
+    if (matched?.status !== 'matched') {
       throw new Error(`setup: ${person} and ${other} were not matched`);
     }
   }
@@ -164,7 +179,7 @@ Then('{actor} sees she/he stopped waiting', async (w) => {
   expect((await leaveResult(w)).removed).toBe(true);
 });
 
-Then('{actor} is not waiting for a match', async (w, person: string) => {
+Then('{actor} is not waiting( for a match)', async (w, person: string) => {
   expect(await standing(w, person)).toBeNull();
 });
 
@@ -176,14 +191,6 @@ Then(
   '{actor} is matched with {actor}',
   async (w, person: string, other: string) => {
     await expectMatchedWith(w, person, other);
-  }
-);
-
-Then(
-  '{actor} and {actor} are matched with each other',
-  async (w, person: string, other: string) => {
-    await expectMatchedWith(w, person, other);
-    await expectMatchedWith(w, other, person);
   }
 );
 

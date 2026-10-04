@@ -1,6 +1,12 @@
-import type { FeatureServer, RoomGrantsCtx } from '@libs/feature/public/server';
+import {
+  defineFeatureServer,
+  type RoomGrantsCtx,
+} from '@libs/feature/public/server';
 import { decideOnServer } from '@libs/permissions/root/server/decide-on-server';
 import { storedSpacePresence } from '@libs/spaces/public/stored-space-presence';
+import { defineOutboxConsumer } from '@pkgs/outbox';
+import { formChessMatches } from '../../shared/multiplayer/match-handoff';
+import { OpponentRequested } from '../../shared/multiplayer/opponent-requested';
 import { CUSTOM_GAME_GRANT_KEYS } from '../../use-cases/change-custom-game/shared/custom-game-permissions';
 
 async function customGameRoomGrants(
@@ -25,7 +31,22 @@ async function customGameRoomGrants(
   return grants;
 }
 
-export const CHESS_SERVER: FeatureServer = {
+export const CHESS_SERVER = defineFeatureServer({
   name: 'chess',
   roomGrants: customGameRoomGrants,
-};
+  registerOutbox(registry) {
+    registry.register(
+      defineOutboxConsumer({
+        id: 'chess.form-opponent-match',
+        on: OpponentRequested,
+        async handler(ctx) {
+          const ids = await formChessMatches(ctx.tx, {
+            nowMs: ctx.clock.now(),
+            createId: ctx.createId,
+          });
+          return { notifyUserIds: ids };
+        },
+      })
+    );
+  },
+});

@@ -46,5 +46,6 @@
   "specDomains": [
     "feedback"
   ],
-  "specParts": 1
+  "specParts": 1,
+  "type": "module"
 }

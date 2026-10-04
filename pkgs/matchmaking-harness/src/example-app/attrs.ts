@@ -36,6 +36,7 @@ export const ModeAttr = exampleNs.textOrNull('mode', (v): string | null =>
  * one waits (the range never grows).
  */
 export function ratingWithin(points: number): DistanceFormula {
+  if (points === -1) return { numeric: [{ tag: RatingAttr, weight: 1 }] };
   return {
     numeric: [{ tag: RatingAttr, weight: 1 }],
     radius: {

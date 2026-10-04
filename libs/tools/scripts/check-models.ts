@@ -28,7 +28,10 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { sha256 } from '@pkgs/conformance/evidence';
 import { recordEvidence } from '@pkgs/conformance/evidence-store';
-import { DEFAULT_VERIFY_STEPS } from '@pkgs/quint/registry';
+import {
+  DEFAULT_VERIFY_STEPS,
+  DEFAULT_VERIFY_TIMEOUT_MS,
+} from '@pkgs/quint/registry';
 import { formatModelShapeIssue, modelShapeIssues } from '@pkgs/quint/shape';
 import { modelInvariants } from '@pkgs/quint/simulate';
 import { modelTemporalProperties, verifyTemporal } from '@pkgs/quint/temporal';
@@ -44,14 +47,14 @@ const CONCURRENCY = Math.max(
   1,
   Math.min(4, Number(process.env['MODEL_CHECK_CONCURRENCY'] ?? '4') || 4)
 );
-/** A timeout is a failed obligation; improve the abstraction or proof strategy. */
-const TIMEOUT_MS = 240_000;
 /** Package-relative; the `check:models` task's output. */
 const REPORT_DIR = '.cache/harness-report/models';
 const VERIFY_STEPS = /\bverifySteps:\s*(\d+)/;
 const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/;
 const INDUCTIVE_INVARIANT = /\binductiveInvariant:\s*['"]([A-Za-z_]\w*)['"]/;
 const ENCODING = /\bencoding:\s*['"](fun-arrays)['"]/;
+const SEPARATE_INDUCTION = /\bseparateInduction:\s*true\b/;
+const VERIFY_TIMEOUT_MS = /\bverifyTimeoutMs:\s*([\d_]+)/;
 
 export type ModelCheck = {
   /** Repo-relative model path (`specs/friends/friendship.qnt`). */
@@ -59,12 +62,24 @@ export type ModelCheck = {
   readonly steps: number;
   readonly inductiveInvariant: string | null;
   readonly encoding?: 'fun-arrays';
+  readonly separateInduction?: true;
+  /** A timeout is a failed obligation; improve the abstraction or proof strategy. */
+  readonly timeoutMs: number;
 };
 
 /** The bound a binding's text declares, or the default. */
 export function verifyStepsOf(bindingText: string | null): number {
   const match = bindingText === null ? null : VERIFY_STEPS.exec(bindingText);
   return match?.[1] === undefined ? DEFAULT_VERIFY_STEPS : Number(match[1]);
+}
+
+/** The deadline a binding's text declares, or the default. */
+export function verifyTimeoutOf(bindingText: string | null): number {
+  const match =
+    bindingText === null ? null : VERIFY_TIMEOUT_MS.exec(bindingText);
+  return match?.[1] === undefined
+    ? DEFAULT_VERIFY_TIMEOUT_MS
+    : Number(match[1].replaceAll('_', ''));
 }
 
 export function modelEncodingOf(
@@ -100,11 +115,15 @@ export function modelChecks(
       return {
         specUri,
         steps: verifyStepsOf(binding),
+        timeoutMs: verifyTimeoutOf(binding),
         inductiveInvariant:
           binding === null
             ? null
             : (INDUCTIVE_INVARIANT.exec(binding)?.[1] ?? null),
         ...(encoding === undefined ? {} : { encoding }),
+        ...(binding !== null && SEPARATE_INDUCTION.test(binding)
+          ? { separateInduction: true as const }
+          : {}),
       };
     })
     .sort((a, b) => a.specUri.localeCompare(b.specUri));
@@ -174,18 +193,21 @@ async function checkModel(
           properties,
           invariants,
           outDir: join(run.reportDir, 'tlc', outName),
-          timeoutMs: TIMEOUT_MS,
+          timeoutMs: check.timeoutMs,
         })
       : await verify({
           specPath,
           invariants,
           maxSteps: check.steps,
           ...(check.encoding === undefined ? {} : { encoding: check.encoding }),
+          ...(check.separateInduction === true
+            ? { separateInduction: true }
+            : {}),
           ...(check.inductiveInvariant === null
             ? {}
             : { inductiveInvariant: check.inductiveInvariant }),
           outDir: join(run.reportDir, 'apalache', outName),
-          timeoutMs: TIMEOUT_MS,
+          timeoutMs: check.timeoutMs,
         });
   const strategy = modelStrategy(check, properties);
   const states =

@@ -1,0 +1,78 @@
+{
+  "once": {
+    "games": [
+      {
+        "id": "match-1",
+        "match_id": "match-1",
+        "white_id": "eda97a60-80fa-462b-9bff-0f8fea010019",
+        "black_id": "f2487fa3-48fe-499f-adc0-f8b5223c698a",
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "pgn": "",
+        "revision": 0,
+        "turn": "",
+        "outcome": "black",
+        "reason": "account deletion"
+      },
+      {
+        "id": "match-2",
+        "match_id": "match-2",
+        "white_id": "f2487fa3-48fe-499f-adc0-f8b5223c698a",
+        "black_id": "bbfc0749-feb9-4096-9eee-75e5188ed2e6",
+        "fen": "rnbqkb1r/pppppppp/5n2/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 3 2",
+        "pgn": "[Event \"?\"]\n[Site \"?\"]\n[Date \"????.??.??\"]\n[Round \"?\"]\n[White \"?\"]\n[Black \"?\"]\n[Result \"*\"]\n\n1. Nf3 Nf6 2. Ng1 *",
+        "revision": 3,
+        "turn": "bbfc0749-feb9-4096-9eee-75e5188ed2e6",
+        "outcome": "ongoing",
+        "reason": null
+      }
+    ],
+    "current": [
+      {
+        "owner_id": "bbfc0749-feb9-4096-9eee-75e5188ed2e6",
+        "game_id": "match-2"
+      },
+      {
+        "owner_id": "f2487fa3-48fe-499f-adc0-f8b5223c698a",
+        "game_id": "match-2"
+      }
+    ]
+  },
+  "twice": {
+    "games": [
+      {
+        "id": "match-1",
+        "match_id": "match-1",
+        "white_id": "86b078ed-ac9a-41d6-ac04-594aef178186",
+        "black_id": "45346015-f3b7-47f9-a2aa-b8c991067af9",
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "pgn": "",
+        "revision": 0,
+        "turn": "",
+        "outcome": "black",
+        "reason": "account deletion"
+      },
+      {
+        "id": "match-2",
+        "match_id": "match-2",
+        "white_id": "45346015-f3b7-47f9-a2aa-b8c991067af9",
+        "black_id": "130a6fa4-400b-499e-b23e-f01558961aac",
+        "fen": "rnbqkb1r/pppppppp/5n2/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 3 2",
+        "pgn": "[Event \"?\"]\n[Site \"?\"]\n[Date \"????.??.??\"]\n[Round \"?\"]\n[White \"?\"]\n[Black \"?\"]\n[Result \"*\"]\n\n1. Nf3 Nf6 2. Ng1 *",
+        "revision": 3,
+        "turn": "130a6fa4-400b-499e-b23e-f01558961aac",
+        "outcome": "ongoing",
+        "reason": null
+      }
+    ],
+    "current": [
+      {
+        "owner_id": "130a6fa4-400b-499e-b23e-f01558961aac",
+        "game_id": "match-2"
+      },
+      {
+        "owner_id": "45346015-f3b7-47f9-a2aa-b8c991067af9",
+        "game_id": "match-2"
+      }
+    ]
+  }
+}

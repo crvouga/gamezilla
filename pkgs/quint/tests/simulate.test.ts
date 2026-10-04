@@ -79,6 +79,24 @@ describe('simulate', () => {
     DRAW_TIMEOUT_MS
   );
 
+  // regression: quint-long-trace-output-buffer
+  test(
+    'a valid long trace survives output larger than the process buffer',
+    () => {
+      const result = simulate({
+        specPath: join(FIXTURES, 'long-output.qnt'),
+        seed: '0x2a',
+        traces: 1,
+        maxSteps: 1024,
+        outDir: join(OUT, 'long-output'),
+      });
+      expect(result.traces).toHaveLength(1);
+      expect(result.traces[0]?.states).toHaveLength(1025);
+      expect(result.traces[0]?.states[1024]?.vars['count']).toBe(1024);
+    },
+    DRAW_TIMEOUT_MS
+  );
+
   test('invariants are the vals named inv<Name>', () => {
     expect(
       modelInvariants(

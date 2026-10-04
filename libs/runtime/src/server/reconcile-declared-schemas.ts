@@ -4,6 +4,7 @@ import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres';
 import { reconcileEntityStorePostgres } from '@pkgs/entity-store/reconcile-postgres';
 import { reconcileKvPostgres } from '@pkgs/kv-postgres/reconcile-postgres';
 import type { Logger } from '@pkgs/logger';
+import { matchmakingSchema } from '@pkgs/matchmaking-sql';
 import { reconcileOutboxPostgres } from '@pkgs/outbox';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -41,6 +42,12 @@ async function reconcileDeclaredSchemas(pass: SchemaPass): Promise<void> {
   await reconcileSyncEnginePostgres(pass.sqlClient, options);
   pass.logger.info('reconciling outbox schema');
   await reconcileOutboxPostgres(pass.sqlClient, options);
+  await reconcilePostgresSchema(
+    pass.sqlClient,
+    matchmakingSchema,
+    pass.dbScope,
+    options
+  );
   pass.logger.info('reconciling domain schema');
   await reconcilePostgresSchema(pass.sqlClient, appSchema, pass.dbScope, {
     skipAdvisoryLock: true,

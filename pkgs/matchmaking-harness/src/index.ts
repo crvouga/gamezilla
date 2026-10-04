@@ -12,17 +12,29 @@ export type {
 } from './api';
 export { registerTestCrashHandler } from './crash-handler';
 export {
+  availability,
   changeRange,
+  connectDevice,
+  deviceConnected,
+  deviceRange,
+  deviceView,
   type ExamplePartition,
   exampleAppSchema,
   exampleNs,
+  lastBegin,
+  lastOffline,
   lastWait,
   ModeAttr,
   NameAttr,
+  type PersonDevice,
   RatingAttr,
   RegionAttr,
   ratingWithin,
+  repeatBegin,
+  repeatChange,
+  restriction,
   stopWaiting,
+  timePasses,
   type WaitForMatchSpec,
   waitForMatch,
 } from './example-app';
@@ -50,3 +62,12 @@ export {
   tickAllWith,
   updateFormulas,
 } from './scenario';
+export { httpRequest } from './scenario/actions';
+export {
+  currentOf,
+  lastHttp,
+  pairAllowed,
+  privateStatus,
+} from './scenario/observations';
+
+export { type StoredSearch, storedSearches } from './stored-searches';

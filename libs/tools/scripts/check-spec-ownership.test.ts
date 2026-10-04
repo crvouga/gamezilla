@@ -9,6 +9,51 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
+  test('historical spec commits may include generated step catalogs', () => {
+    // regression: spec-ownership-generated-step-catalogs
+    const commit = {
+      sha: 'fc45ac91e07b3ce9c146d0390efc71099057da7b',
+      subject: 'spec: define multiplayer matchmaking',
+      files: [
+        'specs/README.md',
+        'docs/STEPS_CATALOG.md',
+        'apps/product/STEPS_CATALOG.md',
+        'libs/chess/STEPS_CATALOG.md',
+        'libs/runtime/STEPS_CATALOG.md',
+        'pkgs/matchmaking-harness/STEPS_CATALOG.md',
+      ],
+    };
+    expect(ownershipViolations([commit])).toEqual([]);
+    expect(stagedViolations(commit.files)).toEqual([]);
+    for (const file of [
+      'libs/chess/README.md',
+      'libs/chess/STEPS_CATALOG.md.ts',
+      'libs/chess/src/index.ts',
+    ]) {
+      expect(
+        ownershipViolations([{ ...commit, files: [...commit.files, file] }])
+      ).toHaveLength(1);
+      expect(stagedViolations([...commit.files, file])).toHaveLength(1);
+    }
+  });
+
+  test('automatically combined parent specs retain their original ownership', () => {
+    // regression: spec-ownership-resolved-merge
+    const staged = [
+      'specs/README.md',
+      'specs/chess/ubiquitous-language.yml',
+      'specs/conformance.yaml',
+      'libs/chess/package.json',
+    ];
+    expect(mergeStagedViolations(staged, staged, [])).toEqual([]);
+    assertProperty(
+      'authored spec resolutions remain refused beside code',
+      fc.property(fc.constantFrom(...staged.slice(0, 3)), (spec) => {
+        expect(mergeStagedViolations(staged, staged, [spec])).toHaveLength(1);
+      })
+    );
+  });
+
   test('merging committed specs does not count them as newly authored changes', () => {
     // regression: spec-ownership-resolved-merge
     expect(

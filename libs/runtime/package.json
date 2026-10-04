@@ -83,6 +83,7 @@
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/matchmaking-sql": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/outbox": "workspace:*",

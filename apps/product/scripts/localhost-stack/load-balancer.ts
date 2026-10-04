@@ -82,6 +82,7 @@ export function startLoadBalancer(args: {
     if (backend === undefined) throw new Error('load balancer: no backends');
     return backend;
   };
+
   const backendForTopic = (topic: string): Backend => {
     const backend =
       args.backends[hashTopic(topic) % args.backends.length] ??
@@ -115,7 +116,10 @@ export function startLoadBalancer(args: {
         }
         return new Response('upgrade failed', { status: 400 });
       }
-      const backend = nextBackend();
+      const backend =
+        url.pathname === '/__room-service'
+          ? backendForTopic(url.searchParams.get('topic') ?? '')
+          : nextBackend();
       const forwarded = new Request(forwardUrl(backend, request), request);
       forwarded.headers.set('x-lb-backend', backend.id);
       return await fetch(forwarded, { redirect: 'manual' });

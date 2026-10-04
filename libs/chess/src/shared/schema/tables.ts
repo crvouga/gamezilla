@@ -1,4 +1,5 @@
 import { defineTable } from '@pkgs/db-schema';
+import { CHESS_MULTIPLAYER_TABLES } from './multiplayer-tables';
 
 export const chessPuzzles = defineTable({
   domain: 'chess',
@@ -117,6 +118,7 @@ export const chessPuzzleFeedSettings = defineTable({
 });
 
 export const CHESS_TABLES = [
+  ...CHESS_MULTIPLAYER_TABLES,
   chessPuzzles,
   chessPuzzleLoad,
   chessPuzzleProfiles,

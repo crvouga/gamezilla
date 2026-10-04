@@ -3,11 +3,13 @@
  * Import from `@pkgs/sync-engine/client` only — deep paths are not public.
  */
 
+export { awaitMutationVerdict } from '../mutations/client/await-mutation-verdict';
 export type {
   MutationClient,
   MutationClientIds,
   MutationConnectivity,
 } from '../mutations/client/create-mutation-client';
+export { createMutationClient } from '../mutations/client/create-mutation-client';
 export {
   notifySynchronously,
   type ScheduleNotify,

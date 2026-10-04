@@ -7,8 +7,9 @@
  */
 
 import type { AttributeState } from '@pkgs/attribute';
-import type { Hono, MiddlewareHandler } from 'hono';
+import type { Context, Hono, MiddlewareHandler } from 'hono';
 import type { FormulaWire } from './formula-wire';
+import type { CurrentSearch, OwnerRequest, SearchRequest } from './identity';
 import type { MatchmakingSchema } from './schema';
 import type {
   DistanceFormula,
@@ -31,8 +32,6 @@ export type MatchmakingTuning = {
    */
   readonly createId: () => string;
   readonly maxPairsPerPass?: number;
-  readonly maxWaitSeconds?: number;
-  readonly matchedRetentionSeconds?: number;
 };
 
 /**
@@ -47,6 +46,7 @@ export type MatchmakingConfig = {
 
 export type MatchmakingAppOptions = {
   readonly requireAuth: MiddlewareHandler;
+  readonly ownerId: (context: Context) => string;
 };
 
 export type TickOptions = {
@@ -60,16 +60,13 @@ export type TickResult = {
   readonly matches: number;
   readonly passes: number;
   readonly partitions: number;
-  readonly expiredRemoved: number;
-  readonly matchedRemoved: number;
 };
 
 /** HTTP / wire join body (formulas as plain JSON paths). */
-export type JoinInputRaw = {
+export type JoinInputRaw = OwnerRequest & {
   readonly data: AttributeState;
   readonly formulas: readonly FormulaWire[];
   readonly groupSize?: number;
-  readonly priority?: number;
   readonly metadata?: Record<string, unknown> | null;
 };
 
@@ -86,15 +83,23 @@ export type Matchmaking = {
   join(input: JoinInput): Promise<JoinResult>;
   /** Wire-shaped join used by the HTTP `/join` route. */
   joinRaw(input: JoinInputRaw): Promise<JoinResult>;
-  leave(participantId: string): Promise<LeaveResult>;
-  status(participantId: string): Promise<StatusResult | null>;
+  leave(input: SearchRequest): Promise<LeaveResult>;
+  status(ownerId: string, participantId: string): Promise<StatusResult | null>;
+  current(ownerId: string): Promise<CurrentSearch | null>;
+  setAvailable(ownerId: string, available: boolean): Promise<void>;
+  setRestriction(
+    ownerA: string,
+    ownerB: string,
+    restricted: boolean
+  ): Promise<void>;
+  canPair(ownerA: string, ownerB: string): Promise<boolean>;
   updateFormulas(
-    participantId: string,
+    input: SearchRequest,
     formulas: readonly DistanceFormula[]
   ): Promise<UpdateFormulasResult>;
   /** Wire-shaped update used by the HTTP `/update-formulas` route. */
   updateFormulasRaw(
-    participantId: string,
+    request: SearchRequest,
     input: UpdateFormulasInputRaw
   ): Promise<UpdateFormulasResult>;
   app(opts: MatchmakingAppOptions): Hono;

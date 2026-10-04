@@ -44,7 +44,7 @@ Feature: Custom Games respect account deletion and personal-data export
 
   Rule: Personal-data exports include the person's retained Custom Games without another person's private data
 
-    @regression:custom-game-personal-export-omits-games
+    @regression:custom-game-personal-export-omits-games @regression:chess-custom-export-category
     Scenario: An export includes the participant's choices moves and outcome
       Given Alice has a recently proven account
       And Alice has a completed Custom Game after White's e4

@@ -7,38 +7,55 @@ import { sql } from '@pkgs/sql';
 import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 
 // regression: deploy-missing-framework-indexes
-test('deployment reconciliation creates the outbox delivery conflict index', async () => {
-  const dbScope = appPostgresDbScope();
-  const { sqlClient } = createMockingbirdPostgresSqlClient({
-    seed: 1,
-    dbScope,
-  });
-  const clock = { now: () => 0 };
-  const logger = createLogger({
-    name: 'migration',
-    level: 'silent',
-    now: clock.now,
-  });
-  try {
-    await reconcileDeclaredPostgresSchemas({
-      sqlClient,
+test.each([false, true])(
+  'reconciliation creates framework conflict indexes (inline: %s)',
+  async (skipIndexReconcile) => {
+    const dbScope = appPostgresDbScope();
+    const { sqlClient } = createMockingbirdPostgresSqlClient({
+      seed: 1,
       dbScope,
-      logger,
-      skipAdvisoryLock: true,
-      skipIndexReconcile: false,
     });
-    const indexes = await sqlClient.query(sql<{ indexname: string }>`
+    const clock = { now: () => 0 };
+    const logger = createLogger({
+      name: 'migration',
+      level: 'silent',
+      now: clock.now,
+    });
+    try {
+      await reconcileDeclaredPostgresSchemas({
+        sqlClient,
+        dbScope,
+        logger,
+        skipAdvisoryLock: true,
+        skipIndexReconcile,
+      });
+      const indexes = await sqlClient.query(sql<{ indexname: string }>`
       SELECT indexname FROM pg_indexes
       WHERE schemaname = ${dbScope.schema} AND tablename = ${'outbox_deliveries'}
     `);
-    expect(indexes.map(({ indexname }) => indexname)).toContain(
-      indexFingerprintName(
-        'outbox_deliveries',
-        ['event_id', 'consumer_id'],
-        true
-      )
-    );
-  } finally {
-    await sqlClient.disconnect();
-  }
-}, 30_000);
+      expect(indexes.map(({ indexname }) => indexname)).toContain(
+        indexFingerprintName(
+          'outbox_deliveries',
+          ['event_id', 'consumer_id'],
+          true
+        )
+      );
+      const matchmakingIndexes = await sqlClient.query(sql<{
+        indexname: string;
+      }>`
+      SELECT indexname FROM pg_indexes
+      WHERE schemaname = ${dbScope.schema} AND tablename = ${'matchmaking_active_partitions'}
+    `);
+      expect(matchmakingIndexes.map(({ indexname }) => indexname)).toContain(
+        indexFingerprintName(
+          'matchmaking_active_partitions',
+          ['partition_signature', 'group_size'],
+          true
+        )
+      );
+    } finally {
+      await sqlClient.disconnect();
+    }
+  },
+  30_000
+);

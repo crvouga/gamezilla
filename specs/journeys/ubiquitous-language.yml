@@ -74,5 +74,9 @@ terms:
   - term: billing plans
     from: billing
 
+  - term: multiplayer chess
+    from: chess
+  - term: multiplayer result
+    from: chess
   - term: Custom Game
     from: chess

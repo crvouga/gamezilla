@@ -3,6 +3,7 @@ import { readExportedCustomGames } from '@libs/chess/harness/custom-game-export'
 import type { CustomGame } from '@libs/chess/public/custom-game';
 import { Then } from '@libs/harness/spec/define';
 
+// regression: chess-custom-export-category
 Then(
   "{actor}'s personal-data export includes the Custom Game choices moves and outcome",
   async (w, actor: string) => {

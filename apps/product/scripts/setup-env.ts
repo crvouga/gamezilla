@@ -18,8 +18,7 @@ const productRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(productRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
-// `setup-env.ts` runs from the `setup` script (npm's `predev` lifecycle, and the
-// `setup` turbo task that `preview` depends on).
+// `setup-env.ts` runs as the Turborepo `setup` task before development.
 // Production builds do not invoke this script — they read `VITE_*` at bundle time.
 
 function isProductionHostname(rawUrl: string): boolean {

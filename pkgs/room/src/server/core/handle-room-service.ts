@@ -1,6 +1,6 @@
 import { isMessageEnvelope, isPlainRecord } from '@pkgs/message';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room';
-import type { RoomServer } from '@pkgs/room/server';
+import type { RoomCommandPayload, RoomEvent, RoomState } from '../../types';
+import type { RoomServer } from './room-server';
 
 /** Reached only through the host's private namespace binding. */
 export async function handleRoomService<

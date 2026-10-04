@@ -485,6 +485,7 @@ msgstr "Check the spelling or try a different username."
 
 #: libs/chess/src/public/chess-main-menu-view.tsx
 #: libs/chess/src/root/custom-game/custom-game-screen.tsx
+#: libs/client-app/src/chrome/multiplayer-chess-client.tsx
 msgid "Chess"
 msgstr "Chess"
 
@@ -573,10 +574,6 @@ msgstr "Collapse all"
 msgid "Color {0}"
 msgstr "Color {0}"
 
-#: libs/chess/src/public/chess-main-menu-view.tsx
-msgid "Coming soon"
-msgstr "Coming soon"
-
 #: pkgs/ui/src/components/command-palette/command-palette.tsx
 msgid "Command palette"
 msgstr "Command palette"
@@ -603,6 +600,7 @@ msgstr "Component not found"
 msgid "Components"
 msgstr "Components"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
 msgid "Confirm"
@@ -1133,6 +1131,14 @@ msgstr "Filter by puzzles you have never seen, already seen, or failed."
 msgid "Filter fruits…"
 msgstr "Filter fruits…"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Find a chess opponent"
+msgstr "Find a chess opponent"
+
+#: libs/chess/src/public/chess-main-menu-view.tsx
+msgid "Find an opponent for a private game"
+msgstr "Find an opponent for a private game"
+
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
 #: libs/friends/src/root/client/profile-friends-actions-view.tsx
 msgid "Find friends"
@@ -1146,9 +1152,17 @@ msgstr "Find friends by username and send requests."
 msgid "Find people"
 msgstr "Find people"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Finding an opponent…"
+msgstr "Finding an opponent…"
+
 #: libs/chess/src/root/custom-game/custom-game-error.tsx
 msgid "Finish or cancel this game before creating another."
 msgstr "Finish or cancel this game before creating another."
+
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "Finish your current multiplayer game first"
+msgstr "Finish your current multiplayer game first"
 
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Finishing checkout…"
@@ -1302,6 +1316,10 @@ msgstr "Hide performance monitor"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 msgid "Hint"
 msgstr "Hint"
+
+#: libs/chess/src/root/client/multiplayer-screen.tsx
+msgid "Home"
+msgstr "Home"
 
 #: libs/spaces/src/root/client/active-space/space-members-list.tsx
 #: libs/spaces/src/root/client/members/member-host-badge.tsx
@@ -1528,6 +1546,10 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 msgid "Long tasks"
 msgstr "Long tasks"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Looking for a chess opponent."
+msgstr "Looking for a chess opponent."
+
 #: libs/billing/src/root/client/billing-offer-sections.tsx
 msgid "Manage or cancel anytime from the billing portal"
 msgstr "Manage or cancel anytime from the billing portal"
@@ -1555,10 +1577,6 @@ msgstr "Marking…"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
 msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optional offset."
-
-#: libs/chess/src/public/chess-main-menu-view.tsx
-msgid "Matchmaking"
-msgstr "Matchmaking"
 
 #: libs/account-privacy/src/root/client/privacy-screen.tsx
 msgid "Membership cancellation has completed."
@@ -1601,6 +1619,27 @@ msgstr "Move number to review"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Move on to the next puzzle by itself after a solve."
 msgstr "Move on to the next puzzle by itself after a solve."
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "moves accepted."
+msgstr "moves accepted."
+
+#: libs/chess/src/public/chess-main-menu-view.tsx
+#: libs/chess/src/root/client/multiplayer-screen.tsx
+msgid "Multiplayer chess"
+msgstr "Multiplayer chess"
+
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Multiplayer command accepted"
+msgstr "Multiplayer command accepted"
+
+#: libs/chess/src/root/client/multiplayer-screen.tsx
+msgid "Multiplayer command refused"
+msgstr "Multiplayer command refused"
+
+#: libs/chess/src/root/client/multiplayer-screen.tsx
+msgid "Multiplayer commands need a connection. Your accepted game stays here."
+msgstr "Multiplayer commands need a connection. Your accepted game stays here."
 
 #: pkgs/ui/src/components/speaking-avatar/speaking-avatar.tsx
 msgid "Mute coach"
@@ -1736,6 +1775,10 @@ msgstr "No matching themes"
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "No membership yet."
 msgstr "No membership yet."
+
+#: libs/chess/src/root/client/multiplayer-screen.tsx
+msgid "No multiplayer game is available to you."
+msgstr "No multiplayer game is available to you."
 
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "No one added yet"
@@ -1905,6 +1948,14 @@ msgstr "Open space {0}"
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Opening…"
 msgstr "Opening…"
+
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Opponent search accepted"
+msgstr "Opponent search accepted"
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "Opponent:"
+msgstr "Opponent:"
 
 #: libs/account-privacy/src/root/client/privacy-screen.tsx
 msgid "Ordinary personal data will be erased within 30 days."
@@ -2275,6 +2326,14 @@ msgstr "Resets in {minutes} min"
 #: libs/chess/src/root/custom-game/custom-game-confirm.tsx
 msgid "Resign game"
 msgstr "Resign game"
+
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Resign multiplayer chess"
+msgstr "Resign multiplayer chess"
+
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Resign multiplayer chess?"
+msgstr "Resign multiplayer chess?"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 #: pkgs/ui/src/components/error-state/error-state.tsx
@@ -2785,6 +2844,14 @@ msgstr "Stats"
 msgid "Status"
 msgstr "Status"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Stop finding an opponent"
+msgstr "Stop finding an opponent"
+
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Stop finding an opponent?"
+msgstr "Stop finding an opponent?"
+
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Style"
 msgstr "Style"
@@ -2944,6 +3011,10 @@ msgstr "The host picks the game for this space."
 msgid "The link may be wrong, or the space may never have existed."
 msgstr "The link may be wrong, or the space may never have existed."
 
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "The multiplayer game is drawn."
+msgstr "The multiplayer game is drawn."
+
 #: libs/auth/src/public/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
@@ -3076,6 +3147,10 @@ msgstr "Try again"
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Try again later"
 msgstr "Try again later"
+
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Try finding an opponent again"
+msgstr "Try finding an opponent again"
 
 #: pkgs/ui/src/components/command-palette/command-palette-input.tsx
 msgid "Type a command or search…"
@@ -3287,6 +3362,14 @@ msgstr "Yes"
 msgid "You"
 msgstr "You"
 
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "You are Black."
+msgstr "You are Black."
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "You are White."
+msgstr "You are White."
+
 #: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
 msgstr "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
@@ -3314,6 +3397,10 @@ msgstr "You have unsaved avatar changes."
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You left the space"
 msgstr "You left the space"
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "You won the multiplayer game."
+msgstr "You won the multiplayer game."
 
 #. placeholder {0}: name()
 #: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
@@ -3401,6 +3488,18 @@ msgstr "Your last payment didn't go through. Update your payment method to keep 
 msgid "Your live spaces"
 msgstr "Your live spaces"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Your opponent will win this game."
+msgstr "Your opponent will win this game."
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "Your opponent won the multiplayer game."
+msgstr "Your opponent won the multiplayer game."
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "Your opponent's turn."
+msgstr "Your opponent's turn."
+
 #: libs/account-privacy/src/use-cases/request-personal-data-export/client/export-choice.tsx
 msgid "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
 msgstr "Your personal-data export is being prepared. It will be ready within 24 hours of asking."
@@ -3413,6 +3512,10 @@ msgstr "Your plan"
 msgid "Your rating"
 msgstr "Your rating"
 
+#: libs/chess/src/root/client/multiplayer-controls.tsx
+msgid "Your search will end."
+msgstr "Your search will end."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Your turn — find the best move for Black"
 msgstr "Your turn — find the best move for Black"
@@ -3420,6 +3523,10 @@ msgstr "Your turn — find the best move for Black"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Your turn — find the best move for White"
 msgstr "Your turn — find the best move for White"
+
+#: libs/chess/src/root/client/multiplayer-board.tsx
+msgid "Your turn."
+msgstr "Your turn."
 
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 msgid "your_handle"

@@ -8,6 +8,6 @@
 export {
   MatchmakingClient,
   type MatchmakingClientOptions,
-  type WaitForMatchOptions,
 } from './client';
 export { MatchmakingHttpError } from './client-error';
+export { type DevicePorts, MatchmakingDevice } from './device';

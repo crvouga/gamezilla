@@ -36,6 +36,8 @@ export type JourneyGestures = (ui: Driver) => Promise<void>;
 export type JourneyHost = {
   /** Unique per run: seeds values a journey writes, so runs never collide. */
   readonly runId: string;
+  /** The host's clock, virtual in the harness and wall time in live checks. */
+  now(): Promise<number>;
   /** Present only when the host drives a real browser. */
   readonly browser: JourneyBrowser | null;
   /**
@@ -46,6 +48,8 @@ export type JourneyHost = {
   readonly showsPuzzleAnswers: boolean;
   /** Open the app on a fresh device in `access`; ends on the tab shell. */
   open(access: JourneyAccess): Promise<void>;
+  /** Open the second person's fresh device with its own identity. */
+  openPeer(access: JourneyAccess): Promise<void>;
   /** Run `gestures` against the open app. */
   act(name: string, gestures: JourneyGestures): Promise<void>;
   /**
@@ -62,6 +66,8 @@ export type JourneyHost = {
   openGuest(link: string): Promise<void>;
   /** This device has no connection to the app's servers. */
   offline(): Promise<void>;
+  /** Restore this device's connection without clearing its storage. */
+  online(): Promise<void>;
   /** Open the app again on the same device. Its storage stays. */
   reopen(): Promise<void>;
   /**

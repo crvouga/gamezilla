@@ -1,0 +1,1735 @@
+{
+  "vars": [
+    "playOutcome",
+    "moveCount",
+    "lookingForOpponent",
+    "turn",
+    "playNumber",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "nobody"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "None", "value": { "#tup": [] } },
+        "black": { "tag": "None", "value": { "#tup": [] } },
+        "device": { "tag": "None", "value": { "#tup": [] } },
+        "earlierPosition": { "tag": "None", "value": { "#tup": [] } },
+        "legal": { "tag": "None", "value": { "#tup": [] } },
+        "matchNumber": { "tag": "None", "value": { "#tup": [] } },
+        "moveDevice": { "tag": "None", "value": { "#tup": [] } },
+        "moveNumber": { "tag": "None", "value": { "#tup": [] } },
+        "number": { "tag": "None", "value": { "#tup": [] } },
+        "person": { "tag": "None", "value": { "#tup": [] } },
+        "position": { "tag": "None", "value": { "#tup": [] } },
+        "sequence": { "tag": "None", "value": { "#tup": [] } },
+        "white": { "tag": "None", "value": { "#tup": [] } }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "nobody"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "78" } },
+        "black": { "tag": "Some", "value": "dave" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "bob", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "0" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "bob", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "bob" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "0" } },
+        "white": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "nobody"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "51" } },
+        "black": { "tag": "Some", "value": "carol" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "carol", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "3" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "carol", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "3" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "0" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "nobody"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "stopFindingOpponent",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "31" } },
+        "black": { "tag": "Some", "value": "bob" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "bob", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "0" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "bob", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "0" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, true],
+          [{ "person": "alice", "place": "phone" }, true],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "nobody"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "findOpponent",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "47" } },
+        "black": { "tag": "Some", "value": "dave" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "computer" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "7" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "computer" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "7" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "2" } },
+        "white": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, true],
+          [{ "person": "alice", "place": "phone" }, true],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, true],
+          [{ "person": "dave", "place": "phone" }, true]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "nobody"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "findOpponent",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "122" } },
+        "black": { "tag": "Some", "value": "bob" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "4" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "2" } },
+        "white": { "tag": "Some", "value": "alice" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "matchFormed",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "91" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "carol", "place": "computer" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "3" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "carol", "place": "computer" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "bob" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "1" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, false],
+          [{ "person": "bob", "place": "phone" }, false],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "123" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "carol", "place": "computer" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "7" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "bob" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "2" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "findOpponent",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "54" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "bob", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "4" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "dave" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "0" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "findOpponent",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "97" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "6" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "6" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "2" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "matchFormed",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "85" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "computer" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "3" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "computer" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "dave" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "0" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "playMove",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "62" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "3" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "dave" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "2" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "findOpponent",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "117" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "carol", "place": "computer" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "4" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "computer" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "bob" },
+        "position": { "tag": "Some", "value": { "#bigint": "4" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "2" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "openMultiplayer",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "14" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "computer" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "5" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "dave", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "1" } },
+        "white": { "tag": "Some", "value": "dave" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "dave"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "dave"],
+          [{ "person": "dave", "place": "phone" }, "dave"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "2" }]
+        ]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "78" } },
+        "black": { "tag": "Some", "value": "dave" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "6" } },
+        "legal": { "tag": "Some", "value": false },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "2" } },
+        "person": { "tag": "Some", "value": "alice" },
+        "position": { "tag": "Some", "value": { "#bigint": "6" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "0" } },
+        "white": { "tag": "Some", "value": "bob" }
+      }
+    },
+    {
+      "playOutcome": {
+        "#map": [
+          [
+            { "person": "alice", "place": "computer" },
+            { "tag": "WonPlay", "value": "alice" }
+          ],
+          [
+            { "person": "alice", "place": "phone" },
+            { "tag": "OngoingPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "bob", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "carol", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "computer" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ],
+          [
+            { "person": "dave", "place": "phone" },
+            { "tag": "NoPlay", "value": { "#tup": [] } }
+          ]
+        ]
+      },
+      "moveCount": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "lookingForOpponent": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, false],
+          [{ "person": "alice", "place": "phone" }, false],
+          [{ "person": "bob", "place": "computer" }, true],
+          [{ "person": "bob", "place": "phone" }, true],
+          [{ "person": "carol", "place": "computer" }, false],
+          [{ "person": "carol", "place": "phone" }, false],
+          [{ "person": "dave", "place": "computer" }, false],
+          [{ "person": "dave", "place": "phone" }, false]
+        ]
+      },
+      "turn": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, "nobody"],
+          [{ "person": "alice", "place": "phone" }, "dave"],
+          [{ "person": "bob", "place": "computer" }, "nobody"],
+          [{ "person": "bob", "place": "phone" }, "nobody"],
+          [{ "person": "carol", "place": "computer" }, "nobody"],
+          [{ "person": "carol", "place": "phone" }, "nobody"],
+          [{ "person": "dave", "place": "computer" }, "nobody"],
+          [{ "person": "dave", "place": "phone" }, "nobody"]
+        ]
+      },
+      "playNumber": {
+        "#map": [
+          [{ "person": "alice", "place": "computer" }, { "#bigint": "2" }],
+          [{ "person": "alice", "place": "phone" }, { "#bigint": "2" }],
+          [{ "person": "bob", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "bob", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "carol", "place": "phone" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "computer" }, { "#bigint": "0" }],
+          [{ "person": "dave", "place": "phone" }, { "#bigint": "0" }]
+        ]
+      },
+      "mbt::actionTaken": "deletePlayAccount",
+      "mbt::nondetPicks": {
+        "_rareEvent": { "tag": "Some", "value": { "#bigint": "0" } },
+        "black": { "tag": "Some", "value": "alice" },
+        "device": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "earlierPosition": { "tag": "Some", "value": { "#bigint": "6" } },
+        "legal": { "tag": "Some", "value": true },
+        "matchNumber": { "tag": "Some", "value": { "#bigint": "1" } },
+        "moveDevice": {
+          "tag": "Some",
+          "value": { "person": "alice", "place": "phone" }
+        },
+        "moveNumber": { "tag": "Some", "value": { "#bigint": "2" } },
+        "number": { "tag": "Some", "value": { "#bigint": "1" } },
+        "person": { "tag": "Some", "value": "dave" },
+        "position": { "tag": "Some", "value": { "#bigint": "0" } },
+        "sequence": { "tag": "Some", "value": { "#bigint": "1" } },
+        "white": { "tag": "Some", "value": "bob" }
+      }
+    }
+  ]
+}

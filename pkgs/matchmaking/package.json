@@ -5,7 +5,8 @@
   "exports": {
     "./interface": "./src/interface/index.ts",
     "./wire": "./src/wire/index.ts",
-    "./client": "./src/client/index.ts"
+    "./client": "./src/client/index.ts",
+    "./shared": "./src/shared/index.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -14,7 +15,6 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
-    "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",

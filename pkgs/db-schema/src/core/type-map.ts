@@ -87,6 +87,7 @@ export function normalizeSqliteType(
  */
 export const PG_PHYSICAL_ALIASES: Readonly<Record<string, string>> = {
   int8: 'bigint',
+  float8: 'double precision',
   bool: 'boolean',
   'character varying': 'varchar',
   'timestamp with time zone': 'timestamptz',
