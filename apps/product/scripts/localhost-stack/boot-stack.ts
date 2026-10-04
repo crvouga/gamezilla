@@ -171,6 +171,7 @@ function startApiNode(args: {
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
   readonly reportsEnv: Readonly<Record<string, string>>;
+  readonly roomServiceToken: string;
 }): ChildProcess {
   return spawn('bun', ['run', 'apps/server/scripts/serve-api-node.ts'], {
     cwd: REPO_ROOT,
@@ -182,6 +183,7 @@ function startApiNode(args: {
       ...args.idpEnv,
       API_NODE_ID: args.id,
       API_NODE_PORT: String(args.port),
+      LOCAL_ROOM_SERVICE_TOKEN: args.roomServiceToken,
       SECRETS_ENV: 'dev',
       API_URL: args.apiOrigin,
       AUTH_SECRET,
@@ -260,6 +262,7 @@ async function startApiTier(args: {
   readonly infra: InfraHandles;
 }): Promise<ApiTier> {
   const reportsEnv = reportsEnvForStack();
+  const roomServiceToken = crypto.randomUUID();
   process.stdout.write(
     `[stack] spec reports: ${GLOBAL.reports.bucket} (every API instance)\n`
   );
@@ -279,6 +282,7 @@ async function startApiTier(args: {
         webOrigin: args.webOrigin,
         infraEnv: args.infra.env,
         reportsEnv,
+        roomServiceToken,
       })
     );
     backends.push({
@@ -286,13 +290,11 @@ async function startApiTier(args: {
       origin: `http://127.0.0.1:${String(reservation.port)}`,
     });
   }
-  await Promise.all(
-    backends.map(async (backend) => {
-      await waitForHttp(`${backend.origin}/api/health`, 90_000);
-      // Health only proves the listener bound; this proves the worker booted.
-      await waitForApiBooted(backend.origin);
-    })
-  );
+  for (const backend of backends) {
+    await waitForHttp(`${backend.origin}/api/health`, 90_000);
+    // Health only proves the listener bound; this proves the worker booted.
+    await waitForApiBooted(backend.origin);
+  }
   return { children, backends };
 }
 
@@ -403,7 +405,8 @@ function reserveStackPorts(options: StackOptions) {
 }
 
 export async function bootLocalhostStack(
-  options: StackOptions
+  options: StackOptions,
+  externalWeb = false
 ): Promise<LocalhostStack> {
   const dataDir = instanceDataDir(options);
   const idpState = resolveIdpState(options, dataDir);
@@ -447,7 +450,7 @@ export async function bootLocalhostStack(
 
   await webReservation?.release();
   const webChild =
-    webOrigin === null
+    webOrigin === null || externalWeb
       ? null
       : await startWeb({
           origin: webOrigin,

@@ -23,7 +23,9 @@ async function one(phase: (typeof phases)[number]) {
   const dir = join(out, `case-${phase.case ?? 'init'}`); mkdirSync(dir, { recursive: true });
   const cfg = join(dir, 'cfg.json');
   const pres = phase.name === 'preservation';
-  writeFileSync(cfg, JSON.stringify({ checker: { ...(process.env.ENC ? { 'smt-encoding': { type: 'fun-arrays' } } : {}), tuning: { 'search.invariant.mode': pres ? 'after' : 'before', ...(pres ? { 'search.invariantFilter': '1->.*' } : {}) } } }));
+  writeFileSync(cfg, JSON.stringify({ checker: { ...(process.env.ENC ? { 'smt-encoding': { type: 'fun-arrays' } } : {}), tuning: { ...(process.env.SEED ? { 'smt.randomSeed': process.env.SEED } : {}), 'search.invariant.mode': pres ? 'after' : 'before', ...(pres ? { 'search.invariantFilter': '1->.*' } : {}) } } }));
+  const pick = (process.env.PICK ?? '').split(',').filter(Boolean).map(Number); const drop = (process.env.DROP ?? '').split(',').filter(Boolean).map(Number);
+  if (pick.length || drop.length) (phase as { invariants: string[] }).invariants = phase.invariants.filter((_, i) => (pick.length === 0 || pick.includes(i)) && !drop.includes(i));
   const t = performance.now();
   const run = await runQuint({ cwd: dir, env, timeoutMs: Number(process.env.TMO ?? 900_000), args: [QUINT_CLI, 'verify', specPath, '--main', mod, '--max-steps', String(phase.maxSteps), '--apalache-config', cfg, '--apalache-version', APALACHE_VERSION, '--server-endpoint', `127.0.0.1:${await freePort()}`, '--invariants', ...(process.env.COMBINE && phase.invariants.length > 1 ? [`not(or { ${phase.invariants.map((t) => `not(${t})`).join(', ')} })`] : phase.invariants), ...(phase.init ? ['--init', phase.init] : []), ...(phase.step ? ['--step', phase.step] : [])] });
   const secs = ((performance.now() - t) / 1000).toFixed(1);

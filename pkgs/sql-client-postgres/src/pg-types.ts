@@ -13,6 +13,7 @@ export type QueryResultRow = Record<string, unknown>;
 
 export type QueryResult<R extends QueryResultRow = QueryResultRow> = {
   rows: R[];
+  fields?: readonly { name: string; dataTypeID: number }[];
   rowCount: number | null;
 };
 

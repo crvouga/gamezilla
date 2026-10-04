@@ -33,7 +33,7 @@
     "deploy:local": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts //#deploy",
     "deploy:prd": "SECRETS_ENV=prd TURBO_UI=tui bun run deploy:local",
     "deps:graph": "bun run libs/tools/scripts/render-package-deps-graph.ts",
-    "dev": "bun run --silent --cwd apps/product dev --",
+    "dev": "bun run apps/product/scripts/localhost-stack/dev-run.ts",
     "dev:client": "SECRETS_ENV=dev bun run libs/secrets/src/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "fc": "clear && bun run fmt && bun run check",
     "feedback": "bun run pkgs/feedback/scripts/report.ts",

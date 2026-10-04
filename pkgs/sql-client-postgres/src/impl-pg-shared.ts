@@ -35,9 +35,19 @@ export function readLastInsertRowid(
 export function pgQueryRows<T = Record<string, unknown>>(
   res: QueryResult
 ): T[] {
-  return normalizePgInt8Rows(
-    (res.rows ?? []) as Record<string, unknown>[]
-  ) as T[];
+  const integerColumns =
+    res.fields?.filter((field) => field.dataTypeID === 20) ?? [];
+  const rows = (res.rows ?? []).map((row) => {
+    const normalized = { ...row };
+    for (const field of integerColumns) {
+      const value = normalized[field.name];
+      if (typeof value === 'string' && /^-?\d+$/.test(value)) {
+        normalized[field.name] = bigintToJsonSafe(BigInt(value));
+      }
+    }
+    return normalized;
+  });
+  return normalizePgInt8Rows(rows) as T[];
 }
 
 export function pgRunResultFromQuery(res: QueryResult): RunResult {
@@ -246,7 +256,7 @@ export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
         query.values
       );
       const res = await poolClient.query(text, vals);
-      return res.rows as T[];
+      return pgQueryRows<T>(res);
     },
     run: async (query: Sql<unknown>): Promise<RunResult> => {
       const [text, vals] = questionMarkParamsToDollarParams(
@@ -267,7 +277,7 @@ export function createPgSessionClient(poolClient: PgExecutor): SqlClient {
             params
           );
           const res = await poolClient.query(text, vals);
-          return res.rows as T[];
+          return pgQueryRows<T>(res);
         },
         run: async (params?: Value[]) => {
           const [text, vals] = questionMarkParamsToDollarParams(

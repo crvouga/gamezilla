@@ -12,7 +12,11 @@ import {
   type RoomModuleName,
   type RoomState,
 } from '@pkgs/room';
-import { decodeRoomGrants, RoomServer } from '@pkgs/room/server';
+import {
+  decodeRoomGrants,
+  handleRoomService,
+  RoomServer,
+} from '@pkgs/room/server';
 
 import type { ResolvedAdapterConfig } from './adapter-base-types';
 import { DoAlarmHub, openDoModuleSchedule } from './do-schedule';
@@ -26,7 +30,6 @@ import {
   observeRoomMessage,
   observeRoomUpgrade,
 } from './observability';
-import { handleRoomService } from './service';
 import {
   readRoomSocketAttachment,
   writeRoomSocketAttachment,

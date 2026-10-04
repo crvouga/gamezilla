@@ -1,5 +1,20 @@
 [
   {
+    "id": "postgres-session-string-attempts",
+    "summary": "Postgres bigint attempts returned as strings inside transactions, causing 0 + 1 to become 01 and 1 + 1 to become 11. Decode int8 fields in ordinary, transactional and prepared query rows.",
+    "regressionTest": "pkgs/sql-client-postgres/tests/session-integers.test.ts"
+  },
+  {
+    "id": "localhost-room-service-upgrade",
+    "summary": "The localhost private Room binding routed membership service commands into its WebSocket upgrade handler and returned 400. Use the shared production service handler and route by topic to the socket owner.",
+    "regressionTest": "pkgs/room-adapter-bun/tests/service.test.ts"
+  },
+  {
+    "id": "client-config-concurrent-materialization",
+    "summary": "Two API instances materializing client configuration at startup raced in SERIALIZABLE Postgres. Repeat only confirmed aborted configuration transactions and propagate permanent failures.",
+    "regressionTest": "libs/client-config/tests/materialize-conflict.test.ts"
+  },
+  {
     "id": "chess-custom-export-category",
     "summary": "Combining private multiplayer Chess with Custom Games renamed the Chess personal-data category while the Custom Game harness still read the former label. Read the composed contribution name and pin Alice\u2019s completed e4 game export.",
     "regressionTest": "specs/chess/custom-game-privacy.feature"

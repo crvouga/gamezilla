@@ -15,6 +15,7 @@
     "API_URL",
     "LOCAL_PREVIEW_API_ORIGIN",
     "LOCALHOST_STACK",
+    "LOCALHOST_STACK_ARGS",
     "DATABASE_URL",
     "HYPERDRIVE_ID",
     "AUTH_*",
@@ -69,6 +70,24 @@
       "dependsOn": ["kill", "install:deps"],
       "persistent": true,
       "cache": false
+    },
+    "//#i18n:compile": {
+      "cache": false
+    },
+    "@apps/product#dev:prepare": {
+      "cache": false
+    },
+    "@apps/product#dev:services": {
+      "dependsOn": ["setup", "dev:prepare", "//#i18n:compile"],
+      "persistent": true,
+      "cache": false
+    },
+    "@apps/product#dev": {
+      "dependsOn": ["setup", "dev:prepare", "//#i18n:compile"],
+      "with": ["dev:services"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["WORKSPACE_*", "PRODUCT_DEV_*", "VITE_*"]
     },
     "kill": {
       "cache": false

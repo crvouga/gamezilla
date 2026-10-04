@@ -11,5 +11,4 @@ set -euo pipefail
 # shellcheck source=libs/tools/workspace/port.sh
 . "$(dirname "${BASH_SOURCE[0]}")/port.sh"
 
-echo "==> simulator on http://127.0.0.1:${VITE_PORT}/?simulator"
 exec bun run --silent dev -- --web-port "${VITE_PORT}"

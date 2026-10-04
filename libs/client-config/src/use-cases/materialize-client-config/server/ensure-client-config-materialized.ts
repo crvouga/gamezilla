@@ -101,6 +101,22 @@ export class EnsureClientConfigMaterialized {
   async execute(
     desired: DesiredClientConfig
   ): Promise<{ readonly updated: boolean }> {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await this.materialize(desired);
+      } catch (cause) {
+        const code =
+          typeof cause === 'object' && cause !== null && 'code' in cause
+            ? cause.code
+            : null;
+        if (attempt >= 7 || (code !== '40001' && code !== '40P01')) throw cause;
+      }
+    }
+  }
+
+  private async materialize(
+    desired: DesiredClientConfig
+  ): Promise<{ readonly updated: boolean }> {
     const desiredRows = buildDesiredRows(desired);
     const stored = await new ClientConfigRepository(
       this.db,
