@@ -2,7 +2,11 @@
 // @io-wall-ok — one process tree and filesystem snapshot per local Check.
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import {
+  publishCheckArtifacts,
+  restoreCheckArtifacts,
+} from './check-artifact-store';
 import { createCheckSnapshot } from './check-snapshot';
 import { killProcessTree } from './kill-process-tree';
 
@@ -10,10 +14,17 @@ export async function runLocalCheck(
   source: string,
   args: string[]
 ): Promise<number> {
+  const started = process.hrtime.bigint();
   const root = await createCheckSnapshot(source);
+  const store = join(source, '.cache/check-artifacts');
+  const cache = join(root, '.turbo/cache');
+  restoreCheckArtifacts(store, cache);
+  console.log(
+    `check:local: prepared snapshot in ${(Number(process.hrtime.bigint() - started) / 1e9).toFixed(1)}s`
+  );
   console.log(`check:local: private run directory ${root}`);
   // Keep evidence in this directory after exit; never restore outputs into the caller.
-  const temporary = join(root, '.cache/tmp');
+  const temporary = join(dirname(root), 'tmp');
   mkdirSync(temporary, { recursive: true });
   const env = {
     ...process.env,
@@ -51,7 +62,7 @@ export async function runLocalCheck(
   };
   process.once('SIGINT', terminate);
   process.once('SIGTERM', terminate);
-  return new Promise<number>((resolve) => {
+  const verdict = await new Promise<number>((resolve) => {
     runner.on('error', () => resolve(1));
     runner.on('exit', (code) => {
       process.removeListener('SIGINT', terminate);
@@ -59,6 +70,8 @@ export async function runLocalCheck(
       resolve(code ?? 1);
     });
   });
+  if (verdict === 0) publishCheckArtifacts(cache, store);
+  return verdict;
 }
 
 if (import.meta.main)

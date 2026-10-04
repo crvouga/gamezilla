@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { createCheckSnapshot } from './check-snapshot';
 
 // regression: concurrent-check-run-isolation
@@ -90,7 +90,102 @@ test('overlapping runs isolate dirty inputs, workspace imports, logs, restores a
       'stale'
     );
   } finally {
-    for (const root of [...runs, source])
+    for (const root of [...runs.map(dirname), source])
       rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// regression: check-snapshot-dependency-copy-overhead
+test('frozen offline installation reconstructs workspace imports inside the private run', async () => {
+  const source = mkdtempSync(join(tmpdir(), 'check-install-fixture-'));
+  let run: string | undefined;
+  try {
+    const git = (...args: string[]) =>
+      execFileSync('git', args, { cwd: source, stdio: 'pipe' });
+    git('init', '-q');
+    writeFileSync(join(source, '.gitignore'), 'node_modules/\n');
+    writeFileSync(
+      join(source, 'package.json'),
+      JSON.stringify({
+        name: 'fixture',
+        workspaces: ['pkgs/*'],
+        dependencies: { example: 'workspace:*' },
+      })
+    );
+    mkdirSync(join(source, 'pkgs/example'), { recursive: true });
+    writeFileSync(
+      join(source, 'pkgs/example/package.json'),
+      JSON.stringify({
+        name: 'example',
+        version: '1.0.0',
+        exports: './index.ts',
+      })
+    );
+    writeFileSync(join(source, 'pkgs/example/index.ts'), 'export default 42;');
+    execFileSync(
+      process.execPath,
+      ['install', '--offline', '--ignore-scripts'],
+      { cwd: source, stdio: 'pipe' }
+    );
+    git('add', '.');
+    git(
+      '-c',
+      'user.name=Fixture',
+      '-c',
+      'user.email=fixture@example.com',
+      'commit',
+      '-qm',
+      'fixture'
+    );
+    run = await createCheckSnapshot(source);
+    writeFileSync(join(source, 'pkgs/example/index.ts'), 'export default 0;');
+    const result = execFileSync(
+      process.execPath,
+      ['-e', "import value from 'example'; console.log(value)"],
+      { cwd: run, encoding: 'utf8' }
+    );
+    expect(result.trim()).toBe('42');
+    expect(readFileSync(join(run, 'bun.lock'), 'utf8')).toBe(
+      readFileSync(join(source, 'bun.lock'), 'utf8')
+    );
+  } finally {
+    for (const path of [run === undefined ? undefined : dirname(run), source])
+      if (path) rmSync(path, { recursive: true, force: true });
+  }
+});
+
+// regression: private-check-temp-inherits-gitignore
+test('run temporary fixtures have no enclosing Git repository', async () => {
+  const source = mkdtempSync(join(tmpdir(), 'check-temp-fixture-'));
+  let run: string | undefined;
+  try {
+    execFileSync('git', ['init', '-q'], { cwd: source });
+    writeFileSync(join(source, 'input'), 'fixture');
+    execFileSync('git', ['add', '.'], { cwd: source });
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=Fixture',
+        '-c',
+        'user.email=fixture@example.com',
+        'commit',
+        '-qm',
+        'fixture',
+      ],
+      { cwd: source }
+    );
+    run = await createCheckSnapshot(source);
+    const temporary = join(dirname(run), 'tmp');
+    mkdirSync(temporary);
+    expect(() =>
+      execFileSync('git', ['rev-parse', '--show-toplevel'], {
+        cwd: temporary,
+        stdio: 'pipe',
+      })
+    ).toThrow();
+  } finally {
+    for (const path of [run === undefined ? undefined : dirname(run), source])
+      if (path) rmSync(path, { recursive: true, force: true });
   }
 });

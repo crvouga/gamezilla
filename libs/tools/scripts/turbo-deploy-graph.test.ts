@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { MAX_SPEC_PARTS, specPartProblems } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
+import { createTurboGraphFixture } from './turbo-graph-fixture';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -356,31 +357,37 @@ describe('turbo check/deploy graph invariants', () => {
   // lint/test tasks, so even the deployment dry run failed.
   // regression: worker-retirement-health-dependency — bare health resolved
   // to a nonexistent infra health task and allowed retirement before health.
+  // regression: tooling-check-subprocess-timeouts
   test('the retirement dependency chain is a runnable Turbo graph', () => {
-    const result = spawnSync(
-      join(REPO_ROOT, 'node_modules/.bin/turbo'),
-      [
-        'run',
-        '@libs/infra-shared#retire:workers',
-        '--dry=json',
-        '--cache=local:r',
-        '--framework-inference=false',
-      ],
-      { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
-    );
-    expect(result.error).toBeUndefined();
-    expect(result.status, result.stderr).toBe(0);
-    const graph = JSON.parse(result.stdout) as {
-      tasks: { taskId: string; dependencies: string[]; command: string }[];
-    };
-    const retirement = graph.tasks.find(
-      (task) => task.taskId === '@libs/infra-shared#retire:workers'
-    );
-    expect(retirement?.dependencies).toEqual(['@apps/product#health']);
-    const health = graph.tasks.find(
-      (task) => task.taskId === '@apps/product#health'
-    );
-    expect(health?.command).toBe('bun run scripts/health.ts');
+    const root = createTurboGraphFixture(REPO_ROOT);
+    try {
+      const result = spawnSync(
+        join(REPO_ROOT, 'node_modules/.bin/turbo'),
+        [
+          'run',
+          '@libs/infra-shared#retire:workers',
+          '--dry=json',
+          '--cache=local:r',
+          '--framework-inference=false',
+        ],
+        { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+      );
+      expect(result.error).toBeUndefined();
+      expect(result.status, result.stderr).toBe(0);
+      const graph = JSON.parse(result.stdout) as {
+        tasks: { taskId: string; dependencies: string[]; command: string }[];
+      };
+      const retirement = graph.tasks.find(
+        (task) => task.taskId === '@libs/infra-shared#retire:workers'
+      );
+      expect(retirement?.dependencies).toEqual(['@apps/product#health']);
+      const health = graph.tasks.find(
+        (task) => task.taskId === '@apps/product#health'
+      );
+      expect(health?.command).toBe('bun run scripts/health.ts');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   test('one application deployment follows migration and its checks', () => {

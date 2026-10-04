@@ -253,7 +253,15 @@ function resolveUi(): string | undefined {
 export function turboChildEnv(
   source: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { TURBO_TELEMETRY_DISABLED: '1', ...source };
+  const env: NodeJS.ProcessEnv = {
+    TURBO_TELEMETRY_DISABLED: '1',
+    RAYON_NUM_THREADS: '1',
+    CHECK_LINT_THREADS: '1',
+    GOMAXPROCS: '1',
+    JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=4',
+    JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx8192m -Xms2048m',
+    ...source,
+  };
   if (!hasRemoteCreds(env)) return env;
   if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
   const api = env['TURBO_API']?.trim() ?? '';

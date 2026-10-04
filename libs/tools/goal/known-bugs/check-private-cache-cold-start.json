@@ -1,0 +1,4 @@
+{
+  "summary": "Run isolation discarded the local task cache on every invocation, repeating remote lookups and downloads. Successful runs now atomically publish completed immutable artifacts, which future runs copy into independent private caches without sharing writable files or outputs.",
+  "regressionTest": "libs/tools/scripts/check-artifact-store.test.ts"
+}

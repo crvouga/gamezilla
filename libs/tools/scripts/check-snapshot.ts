@@ -1,6 +1,14 @@
 // @io-wall-ok — copy a check invocation's inputs into private scratch.
 import { execFile, execFileSync } from 'node:child_process';
-import { constants, existsSync, readlinkSync, symlinkSync } from 'node:fs';
+import {
+  constants,
+  cpSync,
+  existsSync,
+  readdirSync,
+  readlinkSync,
+  rmSync,
+  symlinkSync,
+} from 'node:fs';
 import { cp, mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -10,9 +18,9 @@ function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 }
 
-async function copyInput(source: string, destination: string): Promise<void> {
+function copyInput(source: string, destination: string): void {
   if (!existsSync(source)) return; // A tracked deletion is part of the snapshot.
-  await cp(source, destination, {
+  cpSync(source, destination, {
     recursive: true,
     verbatimSymlinks: true,
     mode: constants.COPYFILE_FICLONE,
@@ -31,14 +39,9 @@ async function copyGit(source: string, destination: string): Promise<void> {
   const local = git(source, ['rev-parse', '--absolute-git-dir']);
   const target = join(destination, '.git');
   // Copy objects too: garbage collection in the caller cannot invalidate a run.
-  await cp(common, target, {
-    recursive: true,
-    mode: constants.COPYFILE_FICLONE,
-    filter: (path) =>
-      !['worktrees', 'hooks', 'logs'].includes(
-        relative(common, path).split('/')[0]!
-      ),
-  });
+  await copyDependencyTree(common, target);
+  for (const name of ['worktrees', 'hooks', 'logs'])
+    rmSync(join(target, name), { recursive: true, force: true });
   await writeFile(
     join(target, 'HEAD'),
     `${git(source, ['rev-parse', 'HEAD'])}\n`
@@ -69,6 +72,20 @@ async function copyDependencies(
   source: string,
   destination: string
 ): Promise<void> {
+  if (existsSync(join(source, 'bun.lock'))) {
+    await promisify(execFile)(
+      process.execPath,
+      [
+        'install',
+        '--offline',
+        '--frozen-lockfile',
+        '--ignore-scripts',
+        `--backend=${process.platform === 'darwin' ? 'clonefile' : 'copyfile'}`,
+      ],
+      { cwd: destination, maxBuffer: 4 * 1024 * 1024 }
+    );
+    return;
+  }
   await copyDependencyTree(
     join(source, 'node_modules'),
     join(destination, 'node_modules')
@@ -87,7 +104,9 @@ async function copyDependencies(
 
 /** Preserve dirty/untracked inputs and installed dependencies, never another run's outputs. */
 export async function createCheckSnapshot(source: string): Promise<string> {
-  const destination = await mkdtemp(join(tmpdir(), 'check-run-'));
+  const container = await mkdtemp(join(tmpdir(), 'check-run-'));
+  const destination = join(container, 'workspace');
+  await mkdir(destination);
   try {
     const paths = git(source, [
       'ls-files',
@@ -99,35 +118,35 @@ export async function createCheckSnapshot(source: string): Promise<string> {
       .split('\0')
       .filter(Boolean);
     for (const path of new Set(paths))
-      await copyInput(join(source, path), join(destination, path));
+      copyInput(join(source, path), join(destination, path));
     await copyGit(source, destination);
     await copyDependencies(source, destination);
-    await rebaseLinks(destination, source, destination);
+    rebaseLinks(destination, source, destination);
     return destination;
   } catch (error) {
-    await rm(destination, { recursive: true, force: true });
+    await rm(container, { recursive: true, force: true });
     throw error;
   }
 }
 
 /** Absolute workspace links must not execute source-checkout modules. */
-async function rebaseLinks(
+function rebaseLinks(
   directory: string,
   source: string,
   destination: string
-): Promise<void> {
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
+): void {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
     if (entry.isSymbolicLink()) {
       const link = readlinkSync(path);
       if (link.startsWith(`${source}/`)) {
-        await rm(path);
+        rmSync(path);
         symlinkSync(
           relative(dirname(path), resolve(destination, relative(source, link))),
           path
         );
       }
     } else if (entry.isDirectory() && entry.name !== '.git')
-      await rebaseLinks(path, source, destination);
+      rebaseLinks(path, source, destination);
   }
 }

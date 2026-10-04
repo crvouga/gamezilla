@@ -173,3 +173,24 @@ describe('turbo-ci-run durations', () => {
     expect(formatDurations(450, [])).toBe('turbo-ci-run: finished in 0.5s');
   });
 });
+
+// regression: local-check-thread-oversubscription
+test('local and remote checks bound nested native thread pools identically', () => {
+  const local = turboChildEnv({});
+  const remote = turboChildEnv({ CI: 'true' });
+  for (const key of [
+    'RAYON_NUM_THREADS',
+    'CHECK_LINT_THREADS',
+    'GOMAXPROCS',
+    'JAVA_TOOL_OPTIONS',
+    'JVM_GC_ARGS',
+  ])
+    expect(local[key]).toBe(remote[key]);
+  expect(local['JAVA_TOOL_OPTIONS']).toBe('-XX:ActiveProcessorCount=4');
+  expect(local['GOMAXPROCS']).toBe('1');
+  expect(
+    turboChildEnv({ JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=2' })[
+      'JAVA_TOOL_OPTIONS'
+    ]
+  ).toBe('-XX:ActiveProcessorCount=2');
+});
