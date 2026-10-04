@@ -9,6 +9,8 @@ import type {
 import { FEEDBACK_PATH } from '@pkgs/feedback-server/http-handler';
 import { handleRootFeedbackReport } from './root-feedback-boot';
 
+export { RoomServerDurableObject } from './room';
+
 export default {
   async fetch(
     request: Request,
