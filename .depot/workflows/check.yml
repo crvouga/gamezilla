@@ -232,10 +232,13 @@ jobs:
           SHARD_RESULT: ${{ needs.check-shards.result }}
         run: test "$PREREQUISITE_RESULT" = success && test "$SHARD_RESULT" = success && test "$CONSUMER_RESULT" = success
 
+  # Reports publish only from a dispatched run (`bun check`): on a pull
+  # request they cost minutes and gate nothing. Deploy's `deploy:cleanup`
+  # prunes stale reports.
   check-reports:
     name: check:reports
     needs: [check-plan, check-shards, check-consumers]
-    if: always() && !cancelled()
+    if: always() && !cancelled() && github.event_name != 'pull_request'
     runs-on: depot-ubuntu-24.04-16
     timeout-minutes: 20
     steps:
@@ -252,11 +255,6 @@ jobs:
         run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers
       - name: Aggregate and publish one batch
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
-      - name: Prune stale spec reports
-        if: success() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
