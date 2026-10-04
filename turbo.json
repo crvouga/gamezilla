@@ -283,6 +283,8 @@
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",

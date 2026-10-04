@@ -24,7 +24,7 @@
  * Each declared temporal property also requires its own evidence obligation.
  */
 
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
@@ -40,6 +40,7 @@ import {
 } from '@pkgs/quint-shared/registry';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
 import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
+import { withModelWorkspace } from './model-check-workspace';
 import type { SpecPackage } from './spec-packages';
 import { REPO_ROOT, specPackages } from './spec-packages';
 
@@ -281,13 +282,10 @@ if (import.meta.main) {
     );
     process.exit(1);
   }
-  const run: Run = {
-    reportDir: join(REPO_ROOT, dir, REPORT_DIR),
-    packageName: `${pkg.name}#check:models`,
-  };
-  rmSync(run.reportDir, { recursive: true, force: true });
   const checks = modelChecks(pkg);
-  const verdicts = await runAll(run, checks);
+  const verdicts = await withModelWorkspace(join(REPO_ROOT, dir), (reportDir) =>
+    runAll({ reportDir, packageName: `${pkg.name}#check:models` }, checks)
+  );
   const failed = verdicts.filter((verdict) => !verdict.ok);
   if (failed.length > 0) {
     console.error(
