@@ -1,0 +1,23 @@
+{
+  "name": "@pkgs/observability-harness",
+  "version": "0.0.0",
+  "private": true,
+  "category": "harness",
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/observability-client": "workspace:*",
+    "@pkgs/observability-server": "workspace:*",
+    "@pkgs/observability-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

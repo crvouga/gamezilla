@@ -1,4 +1,4 @@
 {
   "summary": "Ending leftover hosted spaces treated a missing hosting count as hosting none. That count is also missing while the spaces list is still syncing, so a journey created another space before the server's live one arrived. The server refused the create, and the device was left on the join screen of a space it was no longer in. Fixed: wait until the list has answered, including when the count is zero, and wait for that answer again before creating.",
-  "regressionTest": "libs/runtime/tests/critical-journey-host-space.test.ts"
+  "regressionTest": "libs/runtime-harness/tests/critical-journey-host-space.test.ts"
 }

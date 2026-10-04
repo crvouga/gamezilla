@@ -2,40 +2,48 @@
   "name": "@pkgs/room-harness",
   "version": "0.0.0",
   "private": true,
+  "category": "harness",
   "exports": {
-    ".": "./src/index.ts",
     "./*": [
       "./src/*.ts",
-      "./src/*/index.ts"
+      "./src/*.tsx",
+      "./src/*.d.ts"
     ]
-  },
-  "scripts": {
-    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests",
-    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
-  },
-  "dependencies": {
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/harness": "workspace:*",
-    "@pkgs/property": "workspace:*",
-    "@pkgs/room": "workspace:*",
-    "@pkgs/room-adapter-memory": "workspace:*",
-    "@pkgs/uuid": "workspace:*"
-  },
-  "devDependencies": {
-    "@pkgs/gherkin": "workspace:*",
-    "@pkgs/keyword": "workspace:*",
-    "@pkgs/quint": "workspace:*",
-    "@types/bun": "catalog:",
-    "@typescript/native": "catalog:",
-    "fast-check": "catalog:",
-    "typescript": "catalog:"
   },
   "specDomains": [
     "room"
   ],
-  "specParts": 1
+  "specParts": 1,
+  "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+  },
+  "dependencies": {
+    "@pkgs/attribute-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/harness-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/room-adapter-memory-shared": "workspace:*",
+    "@pkgs/room-client": "workspace:*",
+    "@pkgs/room-server": "workspace:*",
+    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "fast-check": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/keyword-shared": "workspace:*",
+    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/quint-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
 }

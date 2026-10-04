@@ -89,10 +89,10 @@ describe('client-critical-path-imports', () => {
       join(REPO_ROOT, 'apps/client/tsconfig.json')
     );
     const target = aliases
-      .find((alias) => alias.pattern === '@pkgs/object-store-opfs/*')
+      .find((alias) => alias.pattern === '@pkgs/object-store-opfs-shared/*')
       ?.targets[0]?.replace('*', 'impl-cache-api');
     expect(resolve(REPO_ROOT, 'apps/client', `${target}.ts`)).toBe(
-      join(REPO_ROOT, 'pkgs/object-store-opfs/src/impl-cache-api.ts')
+      join(REPO_ROOT, 'pkgs/object-store-opfs-shared/src/impl-cache-api.ts')
     );
   });
 

@@ -3,7 +3,7 @@
  * Hang with embedded Postgres + product migrate/seed for CI (`check:api`).
  */
 
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
+import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
 import { runLocalMigrate } from './run-local-postgres-migrate';
 import { runLocalSeed } from './run-local-postgres-seed';
 

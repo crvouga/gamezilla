@@ -23,7 +23,7 @@
         "$TURBO_ROOT$/tsconfig*.json",
         "$TURBO_ROOT$/README.md",
         "$TURBO_ROOT$/specs/**",
-        "$TURBO_ROOT$/pkgs/equal/**",
+        "$TURBO_ROOT$/pkgs/equal-shared/**",
         "$TURBO_ROOT$/pkgs/assert/**",
         "!scripts/check-task-costs.json"
       ]

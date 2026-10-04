@@ -1,4 +1,4 @@
 {
   "summary": "The environment declaration health step buffered synchronous infrastructure children without deadlines, hiding the active operation until its 900000ms scenario timeout. Bounded credential reads, tool diagnostics and asynchronously supervised read-only stack groups fail closed with the blocked operation named.",
-  "regressionTest": "libs/infra/tests/bounded-operation.test.ts"
+  "regressionTest": "libs/infra-shared/tests/bounded-operation.test.ts"
 }

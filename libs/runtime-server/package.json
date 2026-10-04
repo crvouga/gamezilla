@@ -1,0 +1,67 @@
+{
+  "name": "@libs/runtime-server",
+  "version": "0.0.0",
+  "private": true,
+  "category": "server",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "check:schema-evolution": "bun run scripts/check-schema-evolution.ts",
+    "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "migrate": "bun run scripts/migrate-cli.ts --wait",
+    "schema:snapshot": "bun run scripts/schema-snapshot.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/account-privacy-server": "workspace:*",
+    "@libs/billing-server": "workspace:*",
+    "@libs/chess-server": "workspace:*",
+    "@libs/db-server": "workspace:*",
+    "@libs/db-shared": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/friends-server": "workspace:*",
+    "@libs/infra-shared": "workspace:*",
+    "@libs/notifications-server": "workspace:*",
+    "@libs/runtime-shared": "workspace:*",
+    "@libs/spaces-server": "workspace:*",
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/auth-inhouse-server": "workspace:*",
+    "@pkgs/auth-shared": "workspace:*",
+    "@pkgs/billing-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/db-indexes-postgres-shared": "workspace:*",
+    "@pkgs/db-indexes-shared": "workspace:*",
+    "@pkgs/db-schema-postgres-shared": "workspace:*",
+    "@pkgs/entity-store-shared": "workspace:*",
+    "@pkgs/kv-postgres-shared": "workspace:*",
+    "@pkgs/logger-shared": "workspace:*",
+    "@pkgs/matchmaking-sql-shared": "workspace:*",
+    "@pkgs/object-store-node-fs-server": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/postgres-sqlite-compat-shared": "workspace:*",
+    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/secret-store-shared": "workspace:*",
+    "@pkgs/secrets-config-server": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-postgres-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/database-url-policy-shared": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

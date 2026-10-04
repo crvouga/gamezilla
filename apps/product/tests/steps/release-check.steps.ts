@@ -1,11 +1,6 @@
 import { expect } from 'bun:test';
-import {
-  currentReleaseEvidence,
-  provideReleaseEvidence,
-  releaseResult,
-  runReleaseCheck,
-} from '@apps/product/harness/developer-release';
-import { Given, Then, When } from '@libs/harness/spec/define';
+import { currentReleaseEvidence, provideReleaseEvidence, releaseResult, runReleaseCheck } from '@apps/product/developer-release';
+import { Given, Then, When } from '@libs/harness/define';
 
 Given(
   'every required obligation has a current automated pass for this version of the app',

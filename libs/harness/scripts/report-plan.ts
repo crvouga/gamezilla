@@ -1,12 +1,10 @@
 // @io-wall-ok — the CI entry reads the exact plan produced before Turbo executes.
 import { readFileSync } from 'node:fs';
-import {
-  closeCommit,
-  reportGeneration,
-  type SourceIdentity,
-} from '@pkgs/harness-report/remote/publish';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-import { reportTask } from '../src/ci/report-ready';
+import { closeCommit } from '@pkgs/harness-report-shared/publish';
+import { reportGeneration } from '@pkgs/harness-report-shared/source-content';
+import type { SourceIdentity } from '@pkgs/harness-report-shared/source-content';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { reportTask } from '@libs/harness/report-ready';
 import { reuseReportTask, verifyPublications } from './report-task-publish';
 
 export type ReportPlan = {

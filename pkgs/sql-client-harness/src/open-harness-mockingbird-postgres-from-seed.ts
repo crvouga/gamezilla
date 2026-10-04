@@ -4,13 +4,13 @@
  * can restore seeds without bundling `node:crypto`.
  */
 
-import type { Clock } from '@pkgs/clock';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
+import type { Clock } from '@pkgs/clock-shared/types';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import {
   adaptMockingbirdPostgresAsPool,
   SqlClientImplMockingbirdPostgres,
-} from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
-import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
+} from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
 
 export type OpenHarnessMockingbirdPostgresFromSeedArgs = {
   readonly seedBytes: Uint8Array;

@@ -11,16 +11,16 @@
  */
 import { availableParallelism } from 'node:os';
 
-import { discoverPbtTests } from './test-pbt-random/discover';
-import { notifyPbtFailure } from './test-pbt-random/notify-failure';
+import { discoverPbtTests } from './discover';
+import { notifyPbtFailure } from './notify-failure';
 import {
   DEFAULT_NUM_RUNS,
   DEFAULT_SAMPLE_INTERRUPT_MS,
   REPO_ROOT,
   runPbtSuite,
-} from './test-pbt-random/run-suite';
-import { randomAttemptSeed } from './test-pbt-random/seed';
-import { PbtSessionUi } from './test-pbt-random/ui';
+} from './run-suite';
+import { randomAttemptSeed } from './seed';
+import { PbtSessionUi } from './ui';
 
 type Cli = {
   readonly attempts: number;

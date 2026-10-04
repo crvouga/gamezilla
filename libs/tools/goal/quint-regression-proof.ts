@@ -1,5 +1,5 @@
 import { posix } from 'node:path';
-import { decodeItfTrace } from '@pkgs/quint/itf';
+import { decodeItfTrace } from '@pkgs/quint-shared/itf';
 import type { ProofFiles } from './goal-manifest';
 
 type Fields = ReadonlyMap<string, readonly string[]>;

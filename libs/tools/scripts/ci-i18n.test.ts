@@ -50,6 +50,6 @@ test('the freshness check regenerates into scratch, never the committed catalog'
   expect(source).toContain(
     "path: '<rootDir>/.cache/ci-i18n/{locale}/messages'"
   );
-  expect(source).not.toContain('libs/client-app/src/i18n/locales');
+  expect(source).not.toContain('libs/app-shared/locales');
   expect(source).toContain('rootDir: "/repo"');
 });

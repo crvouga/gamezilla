@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
-import { type PlannedTask, restoreSelectedReports } from './turbo-preflight';
+import type { PlannedTask } from './turbo-preflight';
+import { restoreSelectedReports } from './turbo-preflight';
 
 function task(
   taskId: string,

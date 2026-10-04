@@ -3,10 +3,8 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import {
-  createReportPublisher,
-  type ReportTaskIdentity,
-} from './check-report-stream';
+import { createReportPublisher } from './check-report-stream';
+import type { ReportTaskIdentity } from './check-report-stream';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 

@@ -6,8 +6,8 @@
  */
 
 import { expect } from 'bun:test';
-import { SECRETS } from '@libs/secrets/shared/secrets/registry';
-import { validateSecretOrError } from '@libs/secrets/shared/secrets/secret';
+import { SECRETS } from '@libs/secrets-server/registry';
+import { validateSecretOrError } from '@libs/secrets-shared/secret';
 import { Then } from './define';
 import { liveSecrets } from './live-secrets';
 

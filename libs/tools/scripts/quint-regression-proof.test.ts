@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { validateGoalGate } from '../goal/goal-manifest';
 
-const bindingPath = 'libs/chess/tests/quint/custom-game-play.binding.ts';
+const bindingPath = 'libs/chess-harness/tests/quint/custom-game-play.binding.ts';
 const fixturePath = 'libs/chess/tests/quint/fixtures/partition.itf.json';
 const binding = `
 import { bindQuintModel } from '@pkgs/quint/registry';

@@ -2,19 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { parseFeature } from '@pkgs/gherkin/parse';
-import {
-  allSpecs,
-  type Environment,
-  HOST_LIMITS,
-  healthTestArguments,
-  healthTestEnvironment,
-  hostSkips,
-  parseCli,
-  scopedSpecs,
-  selectSpecs,
-  targetEnv,
-} from './health';
+import { parseFeature } from '@pkgs/gherkin-shared/parse';
+import { allSpecs, HOST_LIMITS, healthTestArguments, healthTestEnvironment, hostSkips, parseCli, scopedSpecs, selectSpecs, targetEnv } from './health';
+import type { Environment } from './health';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
@@ -225,7 +215,7 @@ describe('synthetic discovery', () => {
 // regression: health-ui-step-loader-order
 test('live health avoids local UI steps while local specs preload the macro loader', () => {
   const local = readFileSync(
-    join(import.meta.dir, '../tests/steps/index.ts'),
+    join(import.meta.dir, '../tests/steps/product.ts'),
     'utf8'
   );
   const developer = readFileSync(
@@ -237,10 +227,10 @@ test('live health avoids local UI steps while local specs preload the macro load
     'utf8'
   );
   expect(
-    developer.indexOf("import '@pkgs/bun-test-solid/preload'")
+    developer.indexOf("import '@pkgs/bun-test-solid-client/preload'")
   ).toBeLessThan(developer.indexOf('import { openHarness }'));
   expect(local).toContain("import './live-index'");
   expect(live).toContain('useLiveWorld()');
-  expect(live).not.toContain('@pkgs/bun-test-solid/preload');
+  expect(live).not.toContain('@pkgs/bun-test-solid-client/preload');
   expect(live).not.toContain('@libs/harness/');
 });

@@ -1,15 +1,12 @@
 import { expect, test } from 'bun:test';
-import type { ClientEnv } from '@libs/client-app/shell/client-env';
-import { setOriginAvailability } from '@libs/client-app/shell/origin-availability-for-env';
-import { harnessClientServerFetch } from '@libs/harness/fabric/client-server-fetch';
-import { harnessPartitionedError } from '@libs/harness/fabric/net';
-import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness/fabric/server-nodes';
-import {
-  restoreActorConnection,
-  restoreNetwork,
-} from '@libs/harness/system/actions';
-import type { ProductHarness } from '@libs/harness/system/harness';
-import { createHarnessClock } from '@pkgs/clock';
+import type { ClientEnv } from '@libs/app-client/client-env';
+import { setOriginAvailability } from '@libs/app-client/origin-availability-for-env';
+import { harnessClientServerFetch } from '@libs/harness/client-server-fetch';
+import { harnessPartitionedError } from '@libs/harness/net';
+import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness/server-nodes';
+import { restoreActorConnection, restoreNetwork } from '@libs/harness/actions';
+import type { ProductHarness } from '@libs/harness/harness';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 async function flush(): Promise<void> {
   for (let turn = 0; turn < 20; turn++) await Promise.resolve();

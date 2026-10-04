@@ -1,29 +1,14 @@
-import { bindQuintModel } from '@pkgs/quint/registry';
-import {
-  Move,
-  type Player,
-  readMatchStatus,
-  readPlayerToMove,
-  readTimeLeftSeconds,
-  readWinner,
-  StartMatch,
-} from '@pkgs/room/harness';
-import {
-  addClient,
-  clock,
-  connect,
-  disconnect,
-  dispatch,
-  exampleSystem,
-  expectInSync,
-  readServer,
-  resumeNetwork,
-  serverCrash,
-  serverCrashed,
-  serverRestart,
-} from '@pkgs/room-harness';
-import { interruptedMatchChoice } from '../helpers/interrupted-match';
-import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import { Move, readMatchStatus, readPlayerToMove, readTimeLeftSeconds, readWinner, StartMatch } from '@pkgs/room-harness/game-room';
+import type { Player } from '@pkgs/room-harness/game-room';
+import { addClient, connect, disconnect, dispatch, resumeNetwork, serverCrash, serverRestart } from '@pkgs/room-harness/room-actions';
+import { clock, serverCrashed } from '@pkgs/room-harness/observations';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import { readServer } from '@pkgs/room-harness/read-state';
+import { interruptedMatchChoice } from '../interrupted-match';
+import type { RoomTraceWorld } from './world';
+import { roomFingerprint, traceRoom } from './world';
 
 const PLAYERS = ['white', 'black'] as const;
 const apart = new WeakMap<RoomTraceWorld, Set<string>>();

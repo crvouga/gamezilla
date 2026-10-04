@@ -7,7 +7,7 @@ only once this node answers its HTTP API and accepts MQTT. Pass
 suites and other worktrees never share a broker. SSL/WSS listeners are off
 and the broker runs on two non-spinning Erlang schedulers (`ERL_FLAGS`).
 Deployed invalidation is AWS IoT Core
-(`libs/infra/tofu/modules/pubsub`). This package is the laptop and harness
+(`libs/infra-shared/tofu/modules/pubsub`). This package is the laptop and harness
 stand-in: those providers have no local mode.
 
 Default ports (dev):

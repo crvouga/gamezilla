@@ -1,15 +1,9 @@
 import { expect, test } from 'bun:test';
-import type { StatusResult } from '@pkgs/matchmaking/interface';
-import {
-  join,
-  leave,
-  matchmaking,
-  NameAttr,
-  participantIds,
-  RatingAttr,
-  ratingWithin,
-  statusOf,
-} from '@pkgs/matchmaking-harness';
+import type { StatusResult } from '@pkgs/matchmaking-shared/types';
+import { join, leave } from '@pkgs/matchmaking-harness/actions';
+import { matchmaking } from '@pkgs/matchmaking-harness/system';
+import { NameAttr, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import { participantIds, statusOf } from '@pkgs/matchmaking-harness/observations';
 
 function request(requestId: string, rating: number) {
   return {

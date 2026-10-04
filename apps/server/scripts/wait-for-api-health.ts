@@ -5,7 +5,7 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 
 const DEFAULT_ORIGIN = 'http://localhost:8788';
 const timeoutMs = Number(process.env['API_HEALTH_WAIT_MS'] ?? '120000');

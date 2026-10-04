@@ -1,0 +1,58 @@
+import { Trans } from '@lingui/solid/macro';
+import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
+import { useSoundsPreference } from '@pkgs/sounds-client/solid';
+import {
+  createEffect,
+  createSignal,
+  type JSX,
+  onCleanup,
+  Show,
+} from 'solid-js';
+
+const SAMPLE_FEN =
+  'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4';
+
+const MAX_BOARD_SIZE = 280;
+
+export default function ChessBoardExample(): JSX.Element {
+  const sounds = useSoundsPreference();
+  const [size, setSize] = createSignal(MAX_BOARD_SIZE);
+  const [hostEl, setHostEl] = createSignal<HTMLElement>();
+
+  createEffect(() => {
+    const el = hostEl();
+    if (el === undefined) return;
+    const measure = (): void => {
+      const next = Math.min(
+        MAX_BOARD_SIZE,
+        Math.floor(el.getBoundingClientRect().width)
+      );
+      if (next > 0) setSize((prev) => (prev === next ? prev : next));
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    onCleanup(() => ro.disconnect());
+  });
+
+  return (
+    <div
+      class="box gap-3 items-stretch w-full max-w-90 min-w-0"
+      ref={setHostEl}
+    >
+      <p class="text textCaption text-text-secondary">
+        <Trans>Interactive Solid chess board.</Trans>
+      </p>
+      <Show when={size() > 0}>
+        <ChessBoard
+          sound={!sounds.muted()}
+          fen={SAMPLE_FEN}
+          size={size()}
+          interactive
+          showCoordinates
+          highlightLastMove
+        />
+      </Show>
+    </div>
+  );
+}

@@ -2,19 +2,16 @@
  * Build MatchmakingImplSql replicas sharing one store + harness clock.
  */
 
-import type {
-  Matchmaking,
-  MatchmakingSchema,
-  MatchmakingTuning,
-  RadiusOptions,
-} from '@pkgs/matchmaking/interface';
-import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { SeededRng } from '@pkgs/uuid';
+import type { Matchmaking, MatchmakingTuning } from '@pkgs/matchmaking-shared/matchmaking';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
+import { MatchmakingImplSql } from '@pkgs/matchmaking-sql-server/matchmaking';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import { createSeededCreateId } from './create-id';
 import type { HarnessStore } from './store';
 
-/** Minimal clock — works with `@pkgs/harness` and `@pkgs/clock` HarnessClock. */
+/** Minimal clock — works with `@pkgs/harness-shared` and `@pkgs/clock` HarnessClock. */
 export type ReplicaClock = {
   readonly now: () => number;
 };

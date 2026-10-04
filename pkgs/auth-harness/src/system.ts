@@ -1,17 +1,15 @@
-import {
-  defineProperty,
-  defineRuntime,
-  defineSystem,
-  virtualTimeRuntime,
-} from '@pkgs/harness';
-import { gen } from '@pkgs/harness/fast-check';
-import { sql } from '@pkgs/sql';
+import { defineProperty } from '@pkgs/harness-shared/define-property';
+import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
+import { defineSystem } from '@pkgs/harness-shared/define-system';
+import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
+import { gen } from '@pkgs/harness-shared/fast-check';
+import sql from '@pkgs/sql-shared/sql';
 import fc from 'fast-check';
 
 import { AUTH_ACTIONS } from './actions';
 import { startActor } from './actor';
 import { sessionUserOf } from './checks';
-import { DIRECTORIES, emailOfEntry } from './example-app';
+import { DIRECTORIES, emailOfEntry } from './providers';
 import { authFingerprint, authInvariantViolations } from './invariants';
 import { createAuthModel } from './model';
 import { startStore } from './nodes';
@@ -202,5 +200,3 @@ export const auth = defineSystem<AuthSurface, AuthArgs>({
   actions: [...AUTH_ACTIONS],
   properties: [invariantsHold],
 });
-
-export type { AuthSurface };

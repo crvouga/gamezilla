@@ -47,7 +47,7 @@ if [ "$root" = "$WORKSPACE_PATH" ]; then
 fi
 
 # Offline secrets cache written by `bun run secrets:pull` (read by
-# libs/secrets/src/scripts/secrets-run.ts, i.e. `bun check:local`, `bun run dev`, deploys).
+# libs/secrets-server/src/secrets-run.ts, i.e. `bun check:local`, `bun run dev`, deploys).
 # Bootstrap it from the root checkout when possible so a fresh workspace does
 # not need a second Infisical login; setup stays fast because the cache lives
 # next to the checkout rather than per-worktree.

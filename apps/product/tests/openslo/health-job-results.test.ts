@@ -1,14 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { HttpClient } from '@pkgs/http-client';
-import { checkObjectiveSpec } from '@pkgs/openslo/check';
-import { objectiveSpecStem } from '@pkgs/openslo/registry';
-import {
-  type DepotSource,
-  HEALTH_WORKFLOW_FILE,
-  healthCheckEvents,
-} from './health-job-results';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
+import { checkObjectiveSpec } from '@pkgs/openslo-shared/check';
+import { objectiveSpecStem } from '@pkgs/openslo-shared/registry';
+import type { DepotSource } from './health-job-results';
+import { HEALTH_WORKFLOW_FILE, healthCheckEvents } from './health-job-results';
 
 const SPEC_PATH = join(
   import.meta.dir,

@@ -3,10 +3,10 @@
  */
 
 import { Database } from 'bun:sqlite';
-import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
+import { SqlClientImplAgnostic } from '@pkgs/sql-client-shared/impl-agnostic';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
 import type { MatchmakingHarnessBackend } from './api';
 import { openLiveStore } from './live-store';
 

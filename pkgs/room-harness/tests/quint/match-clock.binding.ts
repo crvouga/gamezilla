@@ -5,27 +5,18 @@
  * and the status each phone shows.
  */
 
-import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
-import {
-  ClaimOutOfTime,
-  Move,
-  type Player,
-  readMatchStatus,
-  readPlayerToMove,
-  readTimeLeftSeconds,
-  readWinner,
-  StartMatch,
-} from '@pkgs/room/harness';
-import {
-  addClient,
-  clock,
-  dispatch,
-  exampleSystem,
-  expectInSync,
-  type RoomHarness,
-  readServer,
-} from '@pkgs/room-harness';
-import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import type { Picks } from '@pkgs/quint-shared/registry';
+import { ClaimOutOfTime, Move, readMatchStatus, readPlayerToMove, readTimeLeftSeconds, readWinner, StartMatch } from '@pkgs/room-harness/game-room';
+import type { Player } from '@pkgs/room-harness/game-room';
+import { addClient, dispatch } from '@pkgs/room-harness/room-actions';
+import { clock } from '@pkgs/room-harness/observations';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { readServer } from '@pkgs/room-harness/read-state';
+import type { RoomTraceWorld } from './world';
+import { roomFingerprint, traceRoom } from './world';
 
 const PLAYERS = ['white', 'black'] as const satisfies readonly Player[];
 const SECOND_MS = 1_000;

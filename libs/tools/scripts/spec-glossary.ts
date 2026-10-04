@@ -8,15 +8,9 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  checkLanguage,
-  type FeatureProse,
-  featureProse,
-  type Glossary,
-  parseGlossary,
-  type QuintSpecNames,
-} from '@pkgs/gherkin/glossary';
-import { quintNames } from '@pkgs/quint/names';
+import { checkLanguage, featureProse, parseGlossary } from '@pkgs/gherkin-shared/glossary';
+import type { FeatureProse, Glossary, QuintSpecNames } from '@pkgs/gherkin-shared/glossary';
+import { quintNames } from '@pkgs/quint-shared/names';
 import { alloyNames } from './spec-alloy-names';
 import { REPO_ROOT, SPECS_DIR } from './spec-packages';
 

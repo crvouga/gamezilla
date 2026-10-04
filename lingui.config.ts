@@ -13,7 +13,7 @@ import { LINGUI_CATALOG_SOURCES } from './libs/tools/scripts/lingui-scope';
  *
  * Runtime macro output is JSX-runtime specific. This root config emits the
  * Solid shape; `lingui.solid.config.ts` layers the Solid shape on top for
- * Vite and `bun test` (`@pkgs/bun-test-solid`).
+ * Vite and `bun test` (`@pkgs/bun-test-solid-client`).
  */
 export const LINGUI_CATALOG_INCLUDE = LINGUI_CATALOG_SOURCES.map(
   (dir) => `<rootDir>/${dir}`
@@ -33,7 +33,7 @@ export default defineConfig({
   },
   catalogs: [
     {
-      path: '<rootDir>/libs/client-app/src/i18n/locales/{locale}/messages',
+      path: '<rootDir>/libs/app-shared/locales/{locale}/messages',
       include: [...LINGUI_CATALOG_INCLUDE],
       exclude: [
         '**/node_modules/**',

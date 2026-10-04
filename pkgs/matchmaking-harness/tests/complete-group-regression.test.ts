@@ -1,14 +1,9 @@
 import { expect, test } from 'bun:test';
-import type { StatusResult } from '@pkgs/matchmaking/interface';
-import {
-  join,
-  matchmaking,
-  NameAttr,
-  RatingAttr,
-  ratingWithin,
-  statusOf,
-  tick,
-} from '@pkgs/matchmaking-harness';
+import type { StatusResult } from '@pkgs/matchmaking-shared/types';
+import { join, tick } from '@pkgs/matchmaking-harness/actions';
+import { matchmaking } from '@pkgs/matchmaking-harness/system';
+import { NameAttr, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import { statusOf } from '@pkgs/matchmaking-harness/observations';
 
 // regression: matchmaking-incomplete-greedy-group
 // Bob can accept Alice, Carol and Dave. Alice accepts only Bob: taking

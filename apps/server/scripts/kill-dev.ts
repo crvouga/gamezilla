@@ -1,4 +1,4 @@
-import { killListenersOnPorts } from '@pkgs/os/kill-port';
+import { killListenersOnPorts } from '@pkgs/os-server/kill-port';
 
 const API_PORT = 8788;
 /** Matches `scripts/dev.ts` / `preview:serve` (`--inspector-port 9231`). */

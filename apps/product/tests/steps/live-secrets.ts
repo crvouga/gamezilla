@@ -7,7 +7,7 @@
  */
 
 import { expect } from 'bun:test';
-import { exportSecretsMapLive } from '@libs/secrets/shared/secrets/secrets-io';
+import { exportSecretsMapLive } from '@libs/secrets-server/secrets-io';
 import type { LiveWorld } from './live-world';
 
 const STORED = 'stored-secrets';

@@ -119,7 +119,7 @@ live product harness. The confirmed sync regression below does run the real API.
 
 - **Confirmed product defect, fixed:** a cancelled request's delayed sent event
   recreated an active notification. The real consumer regression is
-  [closed-request-delivery.test.ts](../../../../../libs/friends/tests/closed-request-delivery.test.ts),
+  [closed-request-delivery.test.ts](../../../../../libs/friends-server/tests/closed-request-delivery.test.ts),
   `friend-closed-request-late-notification`. It also pins a newer request between
   the same people, proving that the old event cannot substitute for the new id.
   Delivery now checks the exact current pending request before publishing.
@@ -131,7 +131,7 @@ live product harness. The confirmed sync regression below does run the real API.
   protected separately; no unconditional puzzle-result completion is claimed.
 - **Confirmed product defect, fixed:** an identical retry of a permanently
   rejected mutation returned an applied verdict. The real HTTP regression is
-  [rejected-retry.test.ts](../../../../../pkgs/sync-engine/tests/rejected-retry.test.ts),
+  [rejected-retry.test.ts](../../../../../pkgs/sync-engine-server/tests/rejected-retry.test.ts),
   `sync-rejected-retry-verdict`, registered in
   [known-bugs/](../../../../../libs/tools/goal/known-bugs/). Replay now reads
   the stored terminal rejection instead of treating every duplicate as applied.
@@ -149,7 +149,7 @@ live product harness. The confirmed sync regression below does run the real API.
   appends entries, then stores retry outcome, then applies effects. Restart
   between these stages can duplicate a command or lose scheduling. See
   `missingAtomicLogOutcomeTest` and `missingDurableEffectTest` and
-  [room-server.ts](../../../../../pkgs/room/src/server/core/room-server.ts).
+  [room-server.ts](../../../../../pkgs/room-server/src/room-server.ts).
   The positive boundary model demonstrates the atomicity/durable-work obligations;
   it does not claim those obligations are already satisfied by production.
 - **Missing implementation guarantee / possible product defect:** an old provider

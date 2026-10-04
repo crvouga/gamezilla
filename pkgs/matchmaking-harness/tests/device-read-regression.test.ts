@@ -1,10 +1,7 @@
 import { expect, test } from 'bun:test';
-import {
-  connectDevice,
-  deviceView,
-  matchmaking,
-  waitForMatch,
-} from '@pkgs/matchmaking-harness';
+import { connectDevice, waitForMatch } from '@pkgs/matchmaking-harness/lobby';
+import { deviceView } from '@pkgs/matchmaking-harness/devices';
+import { matchmaking } from '@pkgs/matchmaking-harness/system';
 
 // regression: matchmaking-concurrent-device-reads
 test('Alice begins after all eight connected devices open their current views', async () => {

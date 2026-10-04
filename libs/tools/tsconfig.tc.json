@@ -1,11 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
-    "../../pkgs/ts-reset/src/index.ts",
+    "../../pkgs/ts-reset-shared/src/ts-reset.ts",
+    "../../pkgs/ui-client/src/css-modules.d.ts",
+    "../../pkgs/ui-client/src/lingui-augmentation.ts",
     "./conformance/**/*.ts",
     "./goal/**/*.ts",
     "./naming/**/*.ts",
     "./scripts/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

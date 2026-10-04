@@ -1,14 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  AddOne,
-  ClaimRoom,
-  gameRoomModule,
-  Move,
-  StartMatch,
-  TakeOne,
-  TurnAway,
-} from '@pkgs/room/harness';
-import { runModuleConformance } from '@pkgs/room-harness';
+import { AddOne, ClaimRoom, gameRoomModule, Move, StartMatch, TakeOne, TurnAway } from '@pkgs/room-harness/game-room';
+import { runModuleConformance } from '@pkgs/room-harness/module-conformance';
 
 describe('kit: purity and seed (M-F01)', () => {
   test('the example game room passes the conformance suite', async () => {

@@ -18,20 +18,12 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import {
-  type FileCoverage,
-  formatLcov,
-  mergeInto,
-  parseLcov,
-} from './coverage/lcov';
-import { listPackagePlans, type PackagePlan } from './coverage/packages';
-import {
-  type CoverageSummary,
-  formatDuration,
-  type ReportMeta,
-  renderReport,
-  summarize,
-} from './coverage/report';
+import type { FileCoverage } from './lcov';
+import { formatLcov, mergeInto, parseLcov } from './lcov';
+import { listPackagePlans } from './packages';
+import type { PackagePlan } from './packages';
+import type { CoverageSummary, ReportMeta } from './report';
+import { formatDuration, renderReport, summarize } from './report';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ARTIFACT_DIR = join(REPO_ROOT, '.cache', 'coverage');

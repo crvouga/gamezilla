@@ -1,11 +1,6 @@
 import { expect } from 'bun:test';
-import {
-  moveRecordedMoment,
-  provideRecordedReport,
-  selectRecordedMoment,
-  shownMoment,
-} from '@apps/product/harness/developer-report';
-import { Given, Then, When } from '@libs/harness/spec/define';
+import { moveRecordedMoment, provideRecordedReport, selectRecordedMoment, shownMoment } from '@apps/product/developer-report';
+import { Given, Then, When } from '@libs/harness/define';
 
 Given('the team is viewing the first of three recorded moments', async (w) => {
   await w.s.apply(provideRecordedReport, 'passed', 1);

@@ -13,15 +13,10 @@ import { dirname, join } from 'node:path';
 import {
   renderCatalogIndex,
   renderPackageCatalog,
-} from '@pkgs/gherkin/catalog';
-import type { ExtractedStep } from '@pkgs/gherkin/extract';
-import {
-  importedSteps,
-  REPO_ROOT,
-  type SpecPackage,
-  sharedSteps,
-  specPackages,
-} from './spec-packages';
+} from '@pkgs/gherkin-shared/catalog';
+import type { ExtractedStep } from '@pkgs/gherkin-shared/extract';
+import { importedSteps, REPO_ROOT, sharedSteps, specPackages } from './spec-packages';
+import type { SpecPackage } from './spec-packages';
 
 export const PACKAGE_CATALOG = 'STEPS_CATALOG.md';
 export const INDEX_CATALOG = 'docs/STEPS_CATALOG.md';

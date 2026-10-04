@@ -2,12 +2,12 @@
 /** `specs/runtime/serving-people.feature`. */
 
 import { expect } from 'bun:test';
-import { appPostgresDbScope } from '@libs/db/public/scope';
-import { appSchema } from '@libs/runtime/root/app-schema';
-import { planServer } from '@pkgs/db-schema/core/plan-server';
-import { readPostgresCatalog } from '@pkgs/db-schema-postgres/catalog';
-import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
-import { createPgPool } from '@pkgs/sql-client-postgres/connect';
+import { appPostgresDbScope } from '@libs/db-shared/scope';
+import { appSchema } from '@libs/runtime-shared/app-schema';
+import { planServer } from '@pkgs/db-schema-shared/plan-server';
+import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
+import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
+import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import { Then } from './define';
 import { requireSecret } from './live-world';
 

@@ -17,12 +17,10 @@
  *   Apple account deletion (when nothing else can sign in), or expiry.
  */
 
-import {
-  AUTH_ERROR,
-  type AuthErrorCode,
-  type OauthProviderId,
-} from '@pkgs/auth/shared';
-import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse/shared';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 
 /** What the relying party learns about one provider identity. */
 export type SeenIdentity = {

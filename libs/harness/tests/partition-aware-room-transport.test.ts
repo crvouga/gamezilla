@@ -4,12 +4,9 @@
  * sent meanwhile are lost, and healing reconnects once — nobody appears twice.
  */
 import { describe, expect, test } from 'bun:test';
-import {
-  partitionAwareRoomTransport,
-  ROOM_HEARTBEAT_MS,
-} from '@libs/harness/fabric/partition-aware-room-transport';
-import type { Timers } from '@pkgs/clock';
-import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room';
+import { partitionAwareRoomTransport, ROOM_HEARTBEAT_MS } from '@libs/harness/partition-aware-room-transport';
+import type { Timers } from '@pkgs/clock-shared/types';
+import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room-shared/transport';
 
 type FakeServer = {
   readonly live: Set<number>;

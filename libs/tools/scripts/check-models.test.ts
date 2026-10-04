@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   DEFAULT_VERIFY_STEPS,
   DEFAULT_VERIFY_TIMEOUT_MS,
-} from '@pkgs/quint/registry';
+} from '@pkgs/quint-shared/registry';
 
 import {
   modelChecks,

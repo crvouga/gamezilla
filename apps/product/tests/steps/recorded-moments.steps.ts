@@ -1,14 +1,6 @@
 import { expect } from 'bun:test';
-import {
-  provideRecordedReport,
-  selectRecordedMoment,
-  shownControlResult,
-  shownMoment,
-  shownObservations,
-  shownPicture,
-  showRecordedControl,
-} from '@apps/product/harness/developer-report';
-import { Given, Then, When } from '@libs/harness/spec/define';
+import { provideRecordedReport, selectRecordedMoment, shownControlResult, shownMoment, shownObservations, shownPicture, showRecordedControl } from '@apps/product/developer-report';
+import { Given, Then, When } from '@libs/harness/define';
 
 Given(
   'a test report has several failed steps with recorded moments',

@@ -1,4 +1,4 @@
 {
   "summary": "An approved 200 minor-unit refund of a 700 minor-unit membership item blocked the remaining 500 and the untouched 300 minor-unit item forever. Return each remaining tax-inclusive balance; pending approval still prevents a duplicate adjustment.",
-  "regressionTest": "pkgs/billing-paddle/tests/refund-plan.test.ts"
+  "regressionTest": "pkgs/billing-paddle-shared/tests/refund-plan.test.ts"
 }

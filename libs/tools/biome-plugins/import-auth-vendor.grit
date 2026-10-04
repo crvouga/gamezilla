@@ -25,6 +25,6 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"](?:@pkgs/auth-(?:inhouse|harness)|@clerk/[^'\"]+|firebase|firebase-admin|@workos-inc/[^'\"]+|amazon-cognito-identity-js|@aws-sdk/client-cognito-identity-provider|aws-amplify|@aws-amplify/[^'\"]+|better-auth)(?:/[^'\"]*)?['\"]$",
-    register_diagnostic(span=$src, message="Product code knows auth only through the @pkgs/auth port. Build the auth service's adapter in a composition root (libs/runtime/src/root/server/app-auth-provider.ts, a wall or harness ClientEnv, a script) and inject it as an AuthProviderModule / AuthClientPort.", severity="error")
+    register_diagnostic(span=$src, message="Product code knows auth only through the @pkgs/auth port. Build the auth service's adapter in a composition root (libs/runtime-server/src/app-auth-provider.ts, a wall or harness ClientEnv, a script) and inject it as an AuthProviderModule / AuthClientPort.", severity="error")
   }
 }

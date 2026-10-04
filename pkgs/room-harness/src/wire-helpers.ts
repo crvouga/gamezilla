@@ -1,8 +1,5 @@
-import {
-  ROOM_WIRE_KIND,
-  type RoomCommandPayload,
-  WIRE_VERSION,
-} from '@pkgs/room';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
+import type { RoomCommandPayload } from '@pkgs/room-shared/types';
 /** Build a client→server command wire frame for inject/dedup scenarios. */
 export function commandWire(args: {
   readonly id: string;

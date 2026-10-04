@@ -1,4 +1,4 @@
 {
   "summary": "People search kept one rate-limit map for the whole process, keyed only by account id. Parallel spec harnesses share that process and quint traces mint the same account ids, so one trace used up the budget and a later search came back empty. Fixed: each server's clock has its own bucket.",
-  "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
+  "regressionTest": "libs/friends-shared/tests/people-search-rate-limit.test.ts"
 }

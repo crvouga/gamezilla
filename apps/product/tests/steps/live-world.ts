@@ -7,40 +7,21 @@
  * run and the device closes.
  */
 
-import {
-  type Device,
-  emulateOffline,
-  journeyBrowser,
-  type LiveTarget,
-  openDevice,
-  readLocation,
-  saveEvidence,
-} from '@apps/product/harness/live-browser';
-import { prepareCriticalJourneyAccess } from '@apps/product/harness/prepare-critical-journey-access';
-import {
-  authRelayOrigin,
-  type EnvFile,
-  type EnvOrigins,
-  envOrigins,
-} from '@libs/infra/public/env-file';
-import { envFile } from '@libs/infra/public/envs';
-import {
-  atTabShell,
-  confirmSignedIn,
-  type JourneyAccess,
-  type JourneyGestures,
-  type JourneyHost,
-  type JourneyWorld,
-  spaceLinkFromLocation,
-} from '@libs/runtime/harness/critical-journeys';
-import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
-import { wallClock } from '@pkgs/clock';
-import {
-  hostLimit,
-  type ScenarioContext,
-  setWorld,
-} from '@pkgs/gherkin/registry';
-import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
+import type { Device, LiveTarget } from '@apps/product/live-browser';
+import { emulateOffline, journeyBrowser, openDevice, readLocation, saveEvidence } from '@apps/product/live-browser';
+import { prepareCriticalJourneyAccess } from '@apps/product/prepare-critical-journey-access';
+import { authRelayOrigin, envOrigins } from '@libs/infra-shared/env-file';
+import type { EnvFile, EnvOrigins } from '@libs/infra-shared/env-file';
+import { envFile } from '@libs/infra-shared/envs';
+import { atTabShell, confirmSignedIn } from '@libs/runtime-harness/journey-gestures';
+import type { JourneyAccess, JourneyGestures, JourneyHost, JourneyWorld } from '@libs/runtime-harness/journey-types';
+import { spaceLinkFromLocation } from '@libs/runtime-harness/journey-types';
+import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse-shared/synthetic-monitor';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { hostLimit, setWorld } from '@pkgs/gherkin-shared/registry';
+import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 
 const API_PATH_PREFIX = '/api';
 /** Seeds what journeys write this run (avatar seed, search query). */

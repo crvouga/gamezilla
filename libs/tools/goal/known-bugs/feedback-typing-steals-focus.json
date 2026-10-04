@@ -1,4 +1,4 @@
 {
   "summary": "Each feedback answer edit invalidated the dialog visibility dependency even though it stayed open, restarting focus handling and moving focus to Close. Memoize visibility independently of draft updates so typing keeps field focus.",
-  "regressionTest": "pkgs/feedback/tests/focus.contract.test.ts"
+  "regressionTest": "pkgs/feedback-harness/tests/focus.contract.test.ts"
 }

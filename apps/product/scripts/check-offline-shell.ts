@@ -7,8 +7,8 @@
  */
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 
 import { readOfflineShellInput } from './dist-graph';
 import {

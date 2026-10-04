@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "../ts-reset-shared/src/ts-reset.ts",
+    "../chess-board-harness/vite.config.mts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

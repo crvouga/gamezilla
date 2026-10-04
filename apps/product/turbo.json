@@ -44,10 +44,10 @@
         "$TURBO_ROOT$/specs/sync-engine/**",
         "$TURBO_ROOT$/specs/system/**",
         "tests/ui-quality-render.contract.test.ts",
-        "scripts/ui-quality/render.ts",
+        "scripts/render.ts",
         "$TURBO_ROOT$/pkgs/ui/src/**/*.css",
         "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
-        "$TURBO_ROOT$/pkgs/tailwind/src/**",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -64,7 +64,7 @@
     "prepare:ui-quality-model": {
       "dependsOn": ["ui-quality-check#build"],
       "cache": false,
-      "inputs": ["scripts/ui-quality/prepare-model.ts"],
+      "inputs": ["scripts/prepare-model.ts"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -232,10 +232,10 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/pkgs/ui/src/**/*.css",
-        "$TURBO_ROOT$/pkgs/ui/src/theme/nunito-latin.woff2",
+        "$TURBO_ROOT$/pkgs/ui-shared/src/nunito-latin.woff2",
         "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
-        "$TURBO_ROOT$/libs/harness/src/ci/wall-frame-css.ts",
-        "$TURBO_ROOT$/pkgs/tailwind/src/**"
+        "$TURBO_ROOT$/libs/harness/src/wall-frame-css.ts",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/**"
       ],
       "outputs": [".cache/ui-quality-inputs/**"],
       "outputLogs": "errors-only"

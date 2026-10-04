@@ -1,7 +1,8 @@
-import { defineTable, registerTables } from '@pkgs/db-schema';
-import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
-import { raw, sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import sql, { raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { SqlClientWebState } from './types';
 
 /** `user_version = epoch * STRIDE + migrationIndex`, same shape as product. */

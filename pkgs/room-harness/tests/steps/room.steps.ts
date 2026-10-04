@@ -6,23 +6,15 @@
  */
 
 import { expect } from 'bun:test';
-import type { Run } from '@pkgs/harness';
-import {
-  addClient,
-  clientState,
-  connect,
-  connected,
-  crash,
-  disconnect,
-  exampleSystem,
-  expectHashMatch,
-  expectInSync,
-  inSync,
-  type RoomHarness,
-  readRejection,
-  restart,
-} from '@pkgs/room-harness';
-import { Given, type RoomWorld, room, Then, When } from './world';
+import type { Run } from '@pkgs/harness-shared/run-types';
+import { addClient, connect, crash, disconnect, restart } from '@pkgs/room-harness/room-actions';
+import { clientState, connected, inSync } from '@pkgs/room-harness/observations';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import { expectHashMatch, readRejection } from '@pkgs/room-harness/read-state';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { Given, room, Then, When } from './world';
+import type { RoomWorld } from './world';
 
 export const SECOND_MS = 1_000;
 

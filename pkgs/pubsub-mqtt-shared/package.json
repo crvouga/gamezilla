@@ -1,0 +1,28 @@
+{
+  "name": "@pkgs/pubsub-mqtt-shared",
+  "version": "0.0.0",
+  "private": true,
+  "category": "isomorphic",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/logger-shared": "workspace:*",
+    "@pkgs/pubsub-shared": "workspace:*",
+    "mqtt": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

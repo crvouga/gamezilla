@@ -9,8 +9,8 @@
  * — for behavior — a verdict for every scenario in the spec's current text.
  */
 
-import type { Layer, SpecKind } from '@pkgs/conformance/evidence';
-import type { Proof } from '@pkgs/conformance/proofs';
+import type { Layer, SpecKind } from '@pkgs/conformance-shared/evidence';
+import type { Proof } from '@pkgs/conformance-shared/proofs';
 
 /** Which specs of the kind an evidence line reads. */
 export type SpecSubset =

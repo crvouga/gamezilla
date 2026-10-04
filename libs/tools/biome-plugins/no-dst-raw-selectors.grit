@@ -4,45 +4,45 @@ language js
 // contain one of these tokens, so files without them are skipped for ~free.
 file($body) where {
   $body <: or {
-    includes "@pkgs/ui-testing",
+    includes "@pkgs/ui-testing-shared",
     includes "by"
   },
   $body <: contains bubble or {
-    `from '@pkgs/ui-testing'` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing.", severity="error")
+    `from '@pkgs/ui-testing-shared'` as $imp where {
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing-shared.", severity="error")
     },
-    `from "@pkgs/ui-testing"` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing.", severity="error")
+    `from "@pkgs/ui-testing-shared"` as $imp where {
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing-shared.", severity="error")
     },
-    `from '@pkgs/ui-testing/$rest'` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing.", severity="error")
+    `from '@pkgs/ui-testing-shared/$rest'` as $imp where {
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing-shared.", severity="error")
     },
-    `from "@pkgs/ui-testing/$rest"` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing.", severity="error")
+    `from "@pkgs/ui-testing-shared/$rest"` as $imp where {
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import @pkgs/ui-testing-shared.", severity="error")
     },
     `from '@pkgs/ui-testing-solid-dom'` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from "@pkgs/ui-testing-solid-dom"` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from '@pkgs/ui-testing-solid-dom/$rest'` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from "@pkgs/ui-testing-solid-dom/$rest"` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from '@pkgs/ui-testing-bun-webview'` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from "@pkgs/ui-testing-bun-webview"` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from '@pkgs/ui-testing-bun-webview/$rest'` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `from "@pkgs/ui-testing-bun-webview/$rest"` as $imp where {
-      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing driver.", severity="error")
+      register_diagnostic(span=$imp, message="Scenarios must use s.apply(defineAction) / openHarness — do not import a @pkgs/ui-testing-shared driver.", severity="error")
     },
     `by.text($args)` as $call where {
       register_diagnostic(span=$call, message="DST scenarios must not use by.text — use a named defineAction.", severity="error")

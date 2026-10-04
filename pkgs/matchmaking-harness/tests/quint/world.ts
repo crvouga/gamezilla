@@ -6,12 +6,11 @@
  * after each step (nothing here waits on time).
  */
 
-import type { Run } from '@pkgs/harness';
-import {
-  type MatchmakingHarness,
-  registerTestCrashHandler,
-} from '@pkgs/matchmaking-harness';
-import { setQuintWorld, type TraceContext } from '@pkgs/quint/registry';
+import type { Run } from '@pkgs/harness-shared/run-types';
+import type { MatchmakingHarness } from '@pkgs/matchmaking-harness/facade';
+import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
+import type { TraceContext } from '@pkgs/quint-shared/registry';
 
 export type MatchmakingTraceWorld = {
   readonly ctx: TraceContext;

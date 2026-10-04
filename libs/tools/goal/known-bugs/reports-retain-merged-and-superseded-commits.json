@@ -1,4 +1,4 @@
 {
   "summary": "The reports store retained superseded commits and reports of merged or deleted branches for thirty days. Keep only one report per existing branch and garbage collect orphan uploads.",
-  "regressionTest": "pkgs/harness-report/tests/retention.test.ts"
+  "regressionTest": "pkgs/harness-report-shared/tests/retention.test.ts"
 }

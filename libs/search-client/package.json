@@ -1,0 +1,36 @@
+{
+  "name": "@libs/search-client",
+  "version": "0.0.0",
+  "private": true,
+  "category": "client",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/feature-client": "workspace:*",
+    "@libs/search-shared": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@libs/user-search-client": "workspace:*",
+    "@libs/user-search-shared": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/keyword-shared": "workspace:*",
+    "@pkgs/kv-client": "workspace:*",
+    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/solid-context-client": "workspace:*",
+    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-shared": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

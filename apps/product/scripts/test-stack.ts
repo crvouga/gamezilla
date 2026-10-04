@@ -13,9 +13,9 @@
  */
 
 import { join } from 'node:path';
-import { bootLocalhostStack } from './localhost-stack/boot-stack';
-import { removeManifest } from './localhost-stack/manifest';
-import { parseStackOptions } from './localhost-stack/stack-options';
+import { bootLocalhostStack } from './boot-stack';
+import { removeManifest } from './manifest';
+import { parseStackOptions } from './stack-options';
 import { runSpecSuites } from './spec-suites';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');

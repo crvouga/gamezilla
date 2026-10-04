@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "../ts-reset-shared/src/ts-reset.ts",
+    "../ui/codemod/**/*.ts",
+    "./scripts/**/*.ts",
+    "./scripts/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

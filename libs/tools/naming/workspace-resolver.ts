@@ -10,7 +10,7 @@
 export interface AliasRule {
   /** Specifier prefix (`@pkgs/assistant/shared/`) or exact specifier. */
   readonly spec: string;
-  /** Repo path prefix the `*` lands in (`pkgs/assistant/src/shared/`), or exact target. */
+  /** Repo path prefix the `*` lands in (`pkgs/assistant-shared/`), or exact target. */
   readonly target: string;
   /** Suffix appended after `*` on the target side (`.ts`), '' when none. */
   readonly targetSuffix: string;
@@ -25,7 +25,7 @@ export interface WorkspaceManifest {
 }
 
 function stripDotSlash(p: string): string {
-  return p.startsWith('./') ? p.slice(2) : p;
+  return p.startsWith('.//') ? p.slice(2) : p;
 }
 
 function joinPath(dir: string, rel: string): string {

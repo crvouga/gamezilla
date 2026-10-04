@@ -21,7 +21,7 @@
  * evidence they record.
  */
 
-import { closureProblems } from '@pkgs/conformance/closure';
+import { closureProblems } from '@pkgs/conformance-shared/closure';
 
 import { readConformanceWorld } from '../conformance/world';
 

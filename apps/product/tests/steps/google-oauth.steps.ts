@@ -7,8 +7,8 @@
  */
 
 import { expect } from 'bun:test';
-import { authRelayOrigin } from '@libs/infra/public/env-file';
-import type { HttpClient } from '@pkgs/http-client';
+import { authRelayOrigin } from '@libs/infra-shared/env-file';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { Then } from './define';
 import { requireSecret } from './live-world';
 

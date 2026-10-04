@@ -1,0 +1,28 @@
+{
+  "name": "@pkgs/secrets-config-server",
+  "version": "0.0.0",
+  "private": true,
+  "category": "server",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/secrets-config-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/object-store-node-fs-server": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

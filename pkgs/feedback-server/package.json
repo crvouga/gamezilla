@@ -1,0 +1,35 @@
+{
+  "name": "@pkgs/feedback-server",
+  "version": "0.0.0",
+  "private": true,
+  "category": "server",
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/feedback-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/object-store-node-fs-server": "workspace:*",
+    "@pkgs/os-server": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

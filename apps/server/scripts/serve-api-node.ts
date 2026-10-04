@@ -15,19 +15,16 @@
  * can start as many of these as it likes on as many ports as it likes.
  */
 
-import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
-import type { ApiWorkerEnv, RoomNamespace } from '@libs/server-app/config/env';
-import type { ExecutionContext } from '@libs/server-app/config/worker-handler';
-import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
-import { createSpaceRoomAuthorizer } from '@libs/spaces/public/space-room-authorize';
-import { wallClock, wallTimers } from '@pkgs/clock';
-import {
-  type BunRoomSocketData,
-  createBunRoomHost,
-  decodeRoomGrants,
-  ROOM_GRANTS_HEADER,
-} from '@pkgs/room-adapter-bun';
-import workerHandler from '../src/server';
+import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
+import type { ApiWorkerEnv, RoomNamespace } from '@libs/app-shared/env';
+import type { ExecutionContext } from '@libs/app-shared/worker-handler';
+import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
+import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import type { BunRoomSocketData } from '@pkgs/room-adapter-bun-server/bun-room-host';
+import { createBunRoomHost } from '@pkgs/room-adapter-bun-server/bun-room-host';
+import { decodeRoomGrants, ROOM_GRANTS_HEADER } from '@pkgs/room-server/grants-header';
+import workerHandler from '@apps/server/server';
 
 const PORT = Number(process.env['API_NODE_PORT'] ?? 0);
 const NODE_ID = process.env['API_NODE_ID'] ?? 'api-a';

@@ -1,0 +1,34 @@
+{
+  "name": "@libs/user-search-client",
+  "version": "0.0.0",
+  "private": true,
+  "category": "client",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/auth-client": "workspace:*",
+    "@libs/permissions-client": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/profile-client": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@libs/user-search-shared": "workspace:*",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
+    "@pkgs/ui-client": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

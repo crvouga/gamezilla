@@ -1,4 +1,4 @@
 {
   "summary": "The S3 adapter accepted an HttpClient but used the SDK wall transport, making injected transport tests and clients ineffective. Send every S3 request through the injected handler.",
-  "regressionTest": "pkgs/object-store-s3/tests/bulk-delete.test.ts"
+  "regressionTest": "pkgs/object-store-s3-server/tests/bulk-delete.test.ts"
 }

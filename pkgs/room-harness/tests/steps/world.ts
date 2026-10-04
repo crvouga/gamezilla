@@ -3,14 +3,10 @@
  * disposed after the last step.
  */
 
-import {
-  defineParameterType,
-  type ScenarioContext,
-  setWorld,
-  stepsFor,
-} from '@pkgs/gherkin/registry';
-import type { Run } from '@pkgs/harness';
-import type { RoomHarness } from '@pkgs/room-harness';
+import { defineParameterType, setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
+import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
+import type { Run } from '@pkgs/harness-shared/run-types';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
 
 export type RoomWorld = {
   readonly ctx: ScenarioContext;

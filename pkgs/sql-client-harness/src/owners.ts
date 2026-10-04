@@ -1,11 +1,10 @@
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import {
-  createHarnessOpfsSqlOwner,
-  type HarnessOpfsStore,
-} from '@pkgs/sql-client-sqlite-web/owners/harness-opfs-sql-owner';
-import { createMemorySqlOwner } from '@pkgs/sql-client-sqlite-web/owners/memory-sql-owner';
-import type { SqlOwner } from '@pkgs/sql-client-sqlite-web/sql-owner';
-import { HARNESS_DB_NAME, requireStore, type SqlClientWebState } from './types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { createHarnessOpfsSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/harness-opfs-sql-owner';
+import type { HarnessOpfsStore } from '@pkgs/sql-client-sqlite-web-shared/harness-opfs-sql-owner';
+import { createMemorySqlOwner } from '@pkgs/sql-client-sqlite-web-shared/memory-sql-owner';
+import type { SqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
+import { HARNESS_DB_NAME, requireStore } from './types';
+import type { SqlClientWebState } from './types';
 
 type SnapshottingClient = SqlClient & {
   exportDatabaseBytes?: () => Uint8Array;

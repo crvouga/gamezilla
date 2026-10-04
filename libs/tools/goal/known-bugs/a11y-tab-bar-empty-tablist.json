@@ -1,4 +1,4 @@
 {
   "summary": "The bottom tab bar exposed role=tablist with plain buttons and no tab children, so a listener heard an empty tab list (ACT bc4a75, WCAG 1.3.1). Fixed by dropping the role: the bar is a nav of buttons with aria-current.",
-  "regressionTest": "libs/client-app/tests/chrome/app-tab-bar.test.tsx"
+  "regressionTest": "libs/app-client/tests/app-tab-bar.test.tsx"
 }

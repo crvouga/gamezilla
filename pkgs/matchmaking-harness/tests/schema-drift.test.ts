@@ -6,20 +6,14 @@
 
 import { Database } from 'bun:sqlite';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import {
-  type MatchmakingSchema,
-  MatchmakingSchemaDriftError,
-} from '@pkgs/matchmaking/interface';
-import {
-  exampleAppSchema,
-  RatingAttr,
-  ratingWithin,
-  registerTestCrashHandler,
-} from '@pkgs/matchmaking-harness';
-import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { createHarnessAdapters } from '@pkgs/uuid';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import { MatchmakingSchemaDriftError } from '@pkgs/matchmaking-shared/errors';
+import { exampleAppSchema, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
+import { MatchmakingImplSql } from '@pkgs/matchmaking-sql-server/matchmaking';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 async function bootExampleApp(
   sqlClient: SqlClient,

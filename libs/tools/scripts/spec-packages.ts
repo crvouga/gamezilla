@@ -19,21 +19,14 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import type { PackageSpecs } from '@pkgs/gherkin/check';
-import {
-  type ExtractedStep,
-  extractStepImports,
-  extractSteps,
-} from '@pkgs/gherkin/extract';
-import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
+import type { PackageSpecs } from '@pkgs/gherkin-shared/check';
+import type { ExtractedStep } from '@pkgs/gherkin-shared/extract';
+import { extractStepImports, extractSteps } from '@pkgs/gherkin-shared/extract';
+import { parseFeature } from '@pkgs/gherkin-shared/parse';
+import type { SpecFeature } from '@pkgs/gherkin-shared/parse';
 import { campaignOwnershipProblems, specCampaigns } from './spec-campaigns';
-import {
-  BINDING_KINDS,
-  type BindingKind,
-  bindingProblems,
-  contextEntryProblem,
-  specsRootEntryProblem,
-} from './spec-kinds';
+import { BINDING_KINDS, bindingProblems, contextEntryProblem, specsRootEntryProblem } from './spec-kinds';
+import type { BindingKind } from './spec-kinds';
 import {
   featuresFor,
   liveObjectivePaths,
@@ -42,7 +35,7 @@ import {
 } from './spec-live';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
-export const SHARED_STEPS_DIR = 'libs/harness/src/spec/steps';
+export const SHARED_STEPS_DIR = 'libs/harness/src';
 export const SPECS_DIR = 'specs';
 /** The specifier prefix a steps entry registers the shared steps with. */
 const SHARED_STEPS_IMPORT = '@libs/harness/spec/steps/';
@@ -308,7 +301,7 @@ function readFeatures(domains: readonly string[]): readonly SpecFeature[] {
 }
 
 /**
- * `@libs/profile/steps/profile.steps` → `libs/profile/tests/steps/profile.steps.ts`,
+ * `@libs/profile/steps/profile.steps` → `libs/profile-harness/src/profile.steps.ts`,
  * via that package's `./steps/*` export. Anything else is not a step import.
  */
 function resolveStepImport(

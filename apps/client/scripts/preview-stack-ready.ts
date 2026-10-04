@@ -1,5 +1,5 @@
 // @io-wall-ok
-import { resolveLocalPreviewApiOriginSync } from '@libs/client-config/public/resolve-local-preview-api-origin';
+import { resolveLocalPreviewApiOriginSync } from '@libs/app-config-shared/resolve-local-preview-api-origin';
 
 /**
  * Readiness probe for `turbo preview`: the static export on

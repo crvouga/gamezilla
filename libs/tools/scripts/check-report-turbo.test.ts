@@ -10,7 +10,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { REPORT_READY } from '@libs/harness/ci/report-ready';
+import { REPORT_READY } from '@libs/harness/report-ready';
 import { createReportPublisher } from './check-report-stream';
 
 const TASK = '@libs/example#test:spec:0';

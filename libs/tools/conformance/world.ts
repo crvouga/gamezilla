@@ -15,30 +15,21 @@ import type {
   ClosureWorld,
   DecisionFacts,
   ObjectiveFacts,
-} from '@pkgs/conformance/closure';
-import {
-  type ConformanceManifest,
-  parseManifest,
-} from '@pkgs/conformance/manifest';
-import type { SpecFile, SpecFileKind } from '@pkgs/conformance/proofs';
-import { parseDmn } from '@pkgs/dmn/model';
-import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
-import { isLiveObjectiveSource } from '@pkgs/openslo/live';
-import { parseOpenSlo } from '@pkgs/openslo/parse';
+} from '@pkgs/conformance-shared/closure';
+import type { ConformanceManifest } from '@pkgs/conformance-shared/manifest';
+import { parseManifest } from '@pkgs/conformance-shared/manifest';
+import type { SpecFile, SpecFileKind } from '@pkgs/conformance-shared/proofs';
+import { parseDmn } from '@pkgs/dmn-shared/model';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
+import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
+import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
 
-import {
-  REPO_ROOT,
-  SPECS_DIR,
-  type SpecPackage,
-  specPackages,
-} from '../scripts/spec-packages';
+import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
+import type { SpecPackage } from '../scripts/spec-packages';
 import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
-import {
-  type PackageScripts,
-  reachableTasks,
-  type TurboTasks,
-} from './gating-tasks';
+import type { PackageScripts, TurboTasks } from './gating-tasks';
+import { reachableTasks } from './gating-tasks';
 
 export const MANIFEST_PATH = `${SPECS_DIR}/conformance.yaml`;
 /** The release gate every gating proof must be reachable from. */

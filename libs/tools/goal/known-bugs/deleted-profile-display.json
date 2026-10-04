@@ -1,4 +1,4 @@
 {
   "summary": "Profile card and display reads returned a retained soft-deleted profile. All display reads now exclude tombstones while sync snapshots still carry them.",
-  "regressionTest": "libs/profile/tests/deleted-profile-read.test.ts"
+  "regressionTest": "libs/profile-shared/tests/deleted-profile-read.test.ts"
 }

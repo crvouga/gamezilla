@@ -1,6 +1,6 @@
 language js
 
-// Infrastructure is declared in libs/infra/tofu and changed only by OpenTofu.
+// Infrastructure is declared in libs/infra-shared/tofu and changed only by OpenTofu.
 // A TypeScript call to a vendor's resource-admin API — creating buckets,
 // DNS records, API tokens, Railway projects, Grafana stacks — is a second,
 // imperative source of truth that can drift from (or destroy) what the
@@ -19,6 +19,6 @@ file($body) where {
     JsTemplateExpression() as $node
   } where {
     $node <: r"(?s).*(?:/r2/buckets|/dns_records|/accounts/[^/`'\x22]*/tokens|backboard\.railway\.(?:app|com)|grafana\.com/api).*",
-    register_diagnostic(span=$node, message="Infrastructure is OpenTofu's (libs/infra/tofu): declare the resource there instead of calling a vendor admin API from TypeScript.", severity="error")
+    register_diagnostic(span=$node, message="Infrastructure is OpenTofu's (libs/infra-shared/tofu): declare the resource there instead of calling a vendor admin API from TypeScript.", severity="error")
   }
 }

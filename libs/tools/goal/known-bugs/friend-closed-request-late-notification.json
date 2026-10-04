@@ -1,4 +1,4 @@
 {
   "summary": "The sent-event consumer published a live friend-request notification after cancellation committed first. Independent outbox deliveries could therefore revive a closed request. The consumer now checks the current pending request and its exact id before publishing.",
-  "regressionTest": "libs/friends/tests/closed-request-delivery.test.ts"
+  "regressionTest": "libs/friends-server/tests/closed-request-delivery.test.ts"
 }

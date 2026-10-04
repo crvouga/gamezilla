@@ -1,4 +1,4 @@
 {
   "summary": "The public performance benchmark scrubs 200 authoritative positions with default board sound enabled and emits a move sound despite being a measurement-only preview. Benchmark boards are explicitly silent.",
-  "regressionTest": "pkgs/chess-board/tests/browser/performance.contract.test.ts"
+  "regressionTest": "pkgs/chess-board-harness/tests/performance.contract.test.ts"
 }

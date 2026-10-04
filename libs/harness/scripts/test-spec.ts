@@ -48,16 +48,17 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { wallClock } from '@pkgs/clock';
-import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
-import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
-import { parseJunit } from '@pkgs/harness';
-import { isLiveObjectiveSource } from '@pkgs/openslo/live';
-import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
-import { REPORT_COMPLETION, REPORT_READY } from '../src/ci/report-ready';
-import { testFailureSpans } from '../src/observability/test-failure-spans';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
+import { parseJunit } from '@pkgs/harness-shared/junit';
+import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
+import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
+import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
+import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
-import { type Part, partOf, type SpecUnit, specUnits } from './spec-parts';
+import type { Part, SpecUnit } from './spec-parts';
+import { partOf, specUnits } from './spec-parts';
 
 const PACKAGE_DIR = process.cwd();
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
@@ -303,7 +304,7 @@ function writeCheckStubs(units: readonly SpecUnit[]): readonly string[] {
  * isolated install without every feature re-declaring the harness's deps.
  */
 const SOLID_PRELOAD = Bun.resolveSync(
-  '@pkgs/bun-test-solid/preload',
+  '@pkgs/bun-test-solid-client/preload',
   import.meta.dir
 );
 const BASE_PRELOAD = Bun.resolveSync('@libs/harness/preload', import.meta.dir);

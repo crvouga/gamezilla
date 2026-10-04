@@ -227,7 +227,7 @@ function relativeSpec(
   original: string
 ): string {
   const rel = posix.relative(fromDir === '' ? '.' : fromDir, target) || '.';
-  return original.startsWith('./') && !rel.startsWith('.') ? `./${rel}` : rel;
+  return original.startsWith('.//') && !rel.startsWith('.') ? `./${rel}` : rel;
 }
 
 function mapRuleTarget(ctx: RewriteContext, target: string): string {
@@ -262,7 +262,7 @@ function rewriteCore(
   if (core.startsWith('@')) return viaAlias(ctx, core);
   const newFileDir = posix.dirname(mapPath(ctx.plan, file));
   const fileDir = posix.dirname(file);
-  const relative = core.startsWith('./') || core.startsWith('../');
+  const relative = core.startsWith('.//') || core.startsWith('../');
   if (core.startsWith('/')) {
     const hit = probe(ctx, joinRel('', core.slice(1)));
     const target = hit === null ? undefined : newTargetOf(ctx, hit);

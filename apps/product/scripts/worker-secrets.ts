@@ -1,11 +1,10 @@
 // @io-wall-ok — application deployment secrets composition root.
-import { apiWorkerVars, type EnvFile } from '@libs/infra/public/env-file';
-import {
-  activeEnvFile,
-  getApiWorkerSecrets,
-  refreshSecretsIntoEnv,
-} from '@libs/secrets/shared/secrets/secrets';
-import { assert } from '@pkgs/assert';
+import { apiWorkerVars } from '@libs/infra-shared/env-file';
+import type { EnvFile } from '@libs/infra-shared/env-file';
+import { activeEnvFile } from '@libs/secrets-shared/secret';
+import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
+import { refreshSecretsIntoEnv } from '@libs/secrets-server/secrets';
+import { assert } from '@pkgs/assert-shared/singleton';
 
 const WORKER_EXTRA_ENV_KEYS = ['OBSERVABILITY_ENABLED'] as const;
 

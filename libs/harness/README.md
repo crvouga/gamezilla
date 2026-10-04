@@ -17,11 +17,11 @@ not compose leaves it cached.
 
 | Suite | Composes | Why it is where it is |
 | --- | --- | --- |
-| `libs/chess/tests/harness` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
-| `libs/friends/tests/harness` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
-| `libs/profile/tests/harness` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
-| `libs/billing/tests/harness` | billing | the membership lifecycle through the payment provider node |
-| `libs/runtime/tests/harness` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
+| `libs/chess-harness/tests` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
+| `libs/friends-harness/tests` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
+| `libs/profile-harness/tests` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
+| `libs/billing-harness/tests` | billing | the membership lifecycle through the payment provider node |
+| `libs/runtime-harness/tests` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
 
 There are no product random walks. A feature's state machine is a Quint model
 (`specs/<domain>/<model>.qnt`) and its binding (`tests/quint/<model>.binding.ts`,
@@ -52,7 +52,7 @@ Each feature exports its slice (manifest, client, server, actions, reads,
 properties, seeds, room host, browser pages) from `@libs/<feature>/harness/*`.
 `composeHarnessSlices` adds the platform (auth, client-config, permissions) and
 folds in production's order. Run one package's suite with
-`bun run --filter @libs/chess test:spec`, one spec with
+`bun run --filter @libs/chess-harness test:spec`, one spec with
 `bun run spec specs/chess/puzzle-play.feature`.
 
 ## Hosts
@@ -154,7 +154,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 - **`in-process`** — the network mesh (`partition`) is first-class. Server schema is migrated
   **once** per composition into its seed; each `openHarness` clones that seed
   instead of re-running DDL. UI runs on **virtual
-  time**: `@pkgs/bun-test-solid/preload` installs a happy-dom document and
+  time**: `@pkgs/bun-test-solid-client/preload` installs a happy-dom document and
   compiles workspace `.tsx` with `babel-preset-solid` + the Lingui macro
   (`@libs/harness/preload` narrows it to a phone viewport) (CSS modules → class-name proxies, media assets → paths);
   `bun test` runs with `--conditions=browser --conditions=development` so Solid
@@ -185,5 +185,5 @@ the packages: `defineProductSystem` declares `defineSnapshot`s (`html` per
 actor, `topology`), `openHarness` wraps each actor's driver in
 `recordingDriver`, and `TestViewportProvider` sizes the 390×844 actor frame.
 The DOM preload and report stylesheet both use
-`@pkgs/bun-test-solid/css-module` to isolate CSS module selectors with portable
+`@pkgs/bun-test-solid-client/css-module` to isolate CSS module selectors with portable
 names. Reused local names such as `cell` and `content` cannot cross components.

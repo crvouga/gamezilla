@@ -1,0 +1,40 @@
+{
+  "name": "@libs/spaces-shared",
+  "version": "0.0.0",
+  "private": true,
+  "category": "isomorphic",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/feature-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@pkgs/attribute-shared": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

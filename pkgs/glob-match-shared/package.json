@@ -1,0 +1,33 @@
+{
+  "name": "@pkgs/glob-match-shared",
+  "version": "0.0.0",
+  "private": true,
+  "category": "isomorphic",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "picomatch": "^4.0.7"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/picomatch": "^4.0.3",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

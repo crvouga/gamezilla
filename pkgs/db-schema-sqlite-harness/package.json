@@ -1,0 +1,21 @@
+{
+  "name": "@pkgs/db-schema-sqlite-harness",
+  "version": "0.0.0",
+  "private": true,
+  "category": "harness",
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

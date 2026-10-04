@@ -8,9 +8,11 @@
  * after each step instead — letting time run would move its clock.
  */
 
-import type { Run } from '@pkgs/harness';
-import { setQuintWorld, type TraceContext } from '@pkgs/quint/registry';
-import { clientHash, type RoomHarness, serverHash } from '@pkgs/room-harness';
+import type { Run } from '@pkgs/harness-shared/run-types';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
+import type { TraceContext } from '@pkgs/quint-shared/registry';
+import { clientHash, serverHash } from '@pkgs/room-harness/observations';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
 
 export type RoomTraceWorld = {
   readonly ctx: TraceContext;

@@ -8,12 +8,8 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  buildPackageImportGraph,
-  discoverPackagesWithTier,
-  REPO_ROOT,
-  type Tier,
-} from './workspace-package-import-graph';
+import { buildPackageImportGraph, discoverPackagesWithTier, REPO_ROOT } from './workspace-package-import-graph';
+import type { Tier } from './workspace-package-import-graph';
 
 const OUT_DIR = join(REPO_ROOT, 'tmp');
 const OUT_HTML = join(OUT_DIR, 'package-deps-graph.html');

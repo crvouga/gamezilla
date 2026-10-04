@@ -7,19 +7,15 @@
  */
 
 import { expect } from 'bun:test';
-import {
-  CLIENT_CONFIG_KEYS,
-  ClientConfigKey,
-} from '@libs/client-config/public/client-config-keys';
-import {
-  type ClientConfigDbRow,
-  parseClientConfigRows,
-} from '@libs/client-config/public/parse-client-config';
-import { appPostgresDbScope } from '@libs/db/public/scope';
-import { sql } from '@pkgs/sql';
-import { createPgPool } from '@pkgs/sql-client-postgres/connect';
+import { CLIENT_CONFIG_KEYS, ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
+import type { ClientConfigDbRow } from '@libs/app-config-shared/parse-client-config';
+import { parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
+import { appPostgresDbScope } from '@libs/db-shared/scope';
+import sql from '@pkgs/sql-shared/sql';
+import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import { eventually, Then, WARMUP_MS } from './define';
-import { type LiveWorld, requireSecret } from './live-world';
+import type { LiveWorld } from './live-world';
+import { requireSecret } from './live-world';
 import { wallWait } from './wall-wait';
 
 const RETRY_MS = 5_000;

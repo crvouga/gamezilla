@@ -1,18 +1,14 @@
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room';
+import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
 import type { RoomHarnessRuntime } from './api';
 import type { RoomKernel } from './clients';
 import { buildRoomHarnessNode } from './clients';
 import type { RoomCrashEvent } from './edge-faults';
 import type { RoomHarnessClient } from './handles';
 import type { RoomHarnessNet, RoomNetSetArg } from './network';
-import { type DrainCtx, drainRoomHarness, flushRoomAux } from './wait-for-idle';
-import {
-  type NeverOptions,
-  type UntilPredicate,
-  type WaitUntilOptions,
-  waitNever,
-  waitUntil,
-} from './wait-until';
+import type { DrainCtx } from './wait-for-idle';
+import { drainRoomHarness, flushRoomAux } from './wait-for-idle';
+import type { NeverOptions, UntilPredicate, WaitUntilOptions } from './wait-until';
+import { waitNever, waitUntil } from './wait-until';
 
 export type AssembleKitOpts<
   S extends RoomState,

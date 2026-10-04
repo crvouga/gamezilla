@@ -1,13 +1,6 @@
 import { expect } from 'bun:test';
-import {
-  arrangeWorldDevices,
-  chooseWorldDevice,
-  devicePlaceKept,
-  giveDevicesDifferentPlaces,
-  provideWorldDevices,
-  shownWorldDevices,
-} from '@apps/product/harness/developer-world-views';
-import { Given, Then, When } from '@libs/harness/spec/define';
+import { arrangeWorldDevices, chooseWorldDevice, devicePlaceKept, giveDevicesDifferentPlaces, provideWorldDevices, shownWorldDevices } from '@apps/product/developer-world-views';
+import { Given, Then, When } from '@libs/harness/define';
 
 Given(
   "the testing tool has a test world with Alice's phone and Bob's phone",

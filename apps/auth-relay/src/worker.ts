@@ -9,7 +9,7 @@
 import {
   createOauthCallbackRelayApp,
   parseRelayTargets,
-} from '@pkgs/auth-inhouse/server/oauth-callback-relay';
+} from '@pkgs/auth-inhouse-server/oauth-callback-relay';
 import type { Hono } from 'hono';
 
 export type AuthRelayEnv = {

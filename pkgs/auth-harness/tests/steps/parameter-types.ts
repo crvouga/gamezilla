@@ -4,8 +4,8 @@
  * features with (pkgs never import libs; keep in step).
  */
 
-import type { OauthProviderId } from '@pkgs/auth/shared';
-import { defineParameterType } from '@pkgs/gherkin/registry';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { defineParameterType } from '@pkgs/gherkin-shared/registry';
 
 const ACTOR_IDS: Readonly<Record<string, string>> = {
   Alice: 'alice',

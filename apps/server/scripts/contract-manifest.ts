@@ -1,7 +1,7 @@
 // @io-wall-ok — contract manifest CLI entry root (scripts/**).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { APP } from '@libs/runtime/root/app-features';
+import { APP } from '@libs/runtime-shared/app-features';
 
 /**
  * The current query and mutation surface, recorded for review. Removed names

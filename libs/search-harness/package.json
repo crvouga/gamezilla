@@ -1,0 +1,29 @@
+{
+  "name": "@libs/search-harness",
+  "version": "0.0.0",
+  "private": true,
+  "category": "harness",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/harness": "workspace:*",
+    "@libs/search-client": "workspace:*",
+    "@libs/search-shared": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@libs/user-search-shared": "workspace:*",
+    "@pkgs/harness-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,4 +1,4 @@
 {
   "summary": "People search counted every keystroke and every refetch toward a 30-a-minute cap, then answered the next name with an empty list. The screen said nobody was found, so Add never appeared. A friendship trace moves virtual time between letters and refetches the open search, and one person spent the whole budget that way. Fixed: a name already counted in the window still runs, and typing a name is one change rather than one search per letter.",
-  "regressionTest": "libs/friends/tests/people-search-rate-limit.test.ts"
+  "regressionTest": "libs/friends-shared/tests/people-search-rate-limit.test.ts"
 }

@@ -2,16 +2,8 @@
  * Public types for the matchmaking deterministic harness.
  */
 
-import type {
-  DistanceFormula,
-  JoinInput,
-  LeaveResult,
-  Matchmaking,
-  StatusResult,
-  TickOptions,
-  TickResult,
-  UpdateFormulasResult,
-} from '@pkgs/matchmaking/interface';
+import type { DistanceFormula, JoinInput, LeaveResult, StatusResult, UpdateFormulasResult } from '@pkgs/matchmaking-shared/types';
+import type { Matchmaking, TickOptions, TickResult } from '@pkgs/matchmaking-shared/matchmaking';
 export type HarnessJoinInput = Omit<JoinInput, 'ownerId' | 'requestId'> & {
   readonly ownerId?: string;
   readonly requestId?: string;

@@ -1,4 +1,4 @@
 {
   "summary": "An upload response body ignoring cancellation could keep feedback sending indefinitely after the network request completed. Bound the complete upload and receipt read with the same hard deadline.",
-  "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+  "regressionTest": "pkgs/feedback-harness/tests/evidence.contract.test.ts"
 }

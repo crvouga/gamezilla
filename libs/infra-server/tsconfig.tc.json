@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
+  },
+  "include": [
+    "../../pkgs/ts-reset-shared/src/ts-reset.ts",
+    "../infra/tofu/**/*.mts",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx",
+    "./scripts/**/*.ts",
+    "./scripts/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

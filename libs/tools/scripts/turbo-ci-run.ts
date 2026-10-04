@@ -60,9 +60,9 @@ import { join } from 'node:path';
 import {
   DEFAULT_TURBO_API,
   TURBO_TEAM,
-} from '@libs/secrets/shared/secrets/turbo-token';
-import { capture } from '@pkgs/os';
-import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+} from '@libs/secrets-shared/turbo-token';
+import { capture } from '@pkgs/os-server/command';
+import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import {
   findBudgetOverruns,
@@ -77,18 +77,8 @@ import type { ReportTaskIdentity } from './check-report-stream';
 import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
-import {
-  dryRunPlan,
-  localCacheFlag,
-  prefetchRemoteHits,
-  REMOTE_LOOKUP_CONCURRENCY,
-  type RunPlan,
-  readsRemoteCache,
-  resolveRemoteHits,
-  restoreEveryHit,
-  restoreSelectedReports,
-  wallRemoteHas,
-} from './turbo-preflight';
+import { dryRunPlan, localCacheFlag, prefetchRemoteHits, REMOTE_LOOKUP_CONCURRENCY, readsRemoteCache, resolveRemoteHits, restoreEveryHit, restoreSelectedReports, wallRemoteHas } from './turbo-preflight';
+import type { RunPlan } from './turbo-preflight';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -129,7 +119,7 @@ function visualBrowserVersion(): string | null {
     process.execPath,
     [
       'run',
-      join(REPO_ROOT, 'apps/product/scripts/ui-quality/browser-version.ts'),
+      join(REPO_ROOT, 'apps/product/scripts/browser-version.ts'),
     ],
     { cwd: REPO_ROOT }
   );

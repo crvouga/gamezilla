@@ -3,26 +3,18 @@
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/public/local-api-origin';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/public/local-preview-api-origin';
-import { assertNonProductionSecretsEnv } from '@libs/db/public/database-url-policy';
-import { assertNonProdDatabaseUrlForTooling } from '@libs/db/public/database-url-policy-tooling';
-import { PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
-import {
-  getApiWorkerSecrets,
-  loadSecretsIntoEnv,
-} from '@libs/secrets/public/secrets';
-import { wallTimers } from '@pkgs/clock';
-import {
-  EMQX_API_KEY,
-  EMQX_API_SECRET,
-  EMQX_DASHBOARD_PORT,
-  EMQX_JWT_SECRET,
-  EMQX_WS_PORT,
-} from '@pkgs/emqx-server';
-import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
-import { resolveSecretsScope } from '@pkgs/secrets-config/index';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
+import { assertNonProductionSecretsEnv } from '@pkgs/database-url-policy-shared/database-url-policy';
+import { assertNonProdDatabaseUrlForTooling } from '@libs/db-server/database-url-policy-tooling';
+import { PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
+import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
+import { loadSecretsIntoEnv } from '@libs/secrets-server/secrets';
+import { wallTimers } from '@pkgs/clock-shared/wall';
+import { EMQX_API_KEY, EMQX_API_SECRET, EMQX_DASHBOARD_PORT, EMQX_JWT_SECRET, EMQX_WS_PORT } from '@pkgs/emqx-shared/ports';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
 const apiRoot = join(dirname(fileURLToPath(import.meta.url)), '..');

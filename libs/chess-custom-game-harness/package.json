@@ -1,0 +1,36 @@
+{
+  "name": "@libs/chess-custom-game-harness",
+  "version": "0.0.0",
+  "private": true,
+  "category": "harness",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/auth-shared": "workspace:*",
+    "@libs/chess-custom-game-client": "workspace:*",
+    "@libs/chess-custom-game-shared": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/spaces-harness": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/a11y-shared": "workspace:*",
+    "@pkgs/chess-board-core-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

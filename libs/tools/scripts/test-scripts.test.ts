@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { testScriptViolations } from './test-scripts';
 
 const spec = 'bun run ../../libs/harness/scripts/test-spec.ts';

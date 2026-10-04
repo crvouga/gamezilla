@@ -1,0 +1,35 @@
+{
+  "name": "@libs/auth-server",
+  "version": "0.0.0",
+  "private": true,
+  "category": "server",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/auth-shared": "workspace:*",
+    "@pkgs/auth-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

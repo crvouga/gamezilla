@@ -1,12 +1,9 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
-import { feedbackDevPlugin } from '@pkgs/feedback/vite';
-import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web/vite';
-import {
-  DEFAULT_WORKSPACE_SCOPES,
-  workspaceExportsResolver,
-} from '@pkgs/vite-workspace-resolver';
+import { feedbackDevPlugin } from '../../pkgs/feedback-server/scripts/vite';
+import { sqliteWebAssets } from '../../pkgs/sql-client-sqlite-web-server/scripts/sqlite-web-assets';
+import { DEFAULT_WORKSPACE_SCOPES, workspaceExportsResolver } from '@pkgs/vite-workspace-resolver-server/vite-workspace-resolver';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';

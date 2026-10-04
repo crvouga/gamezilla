@@ -1,0 +1,39 @@
+{
+  "name": "@libs/chess-matchmaking-harness",
+  "version": "0.0.0",
+  "private": true,
+  "category": "harness",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload tests"
+  },
+  "dependencies": {
+    "@libs/auth-shared": "workspace:*",
+    "@libs/chess-matchmaking-shared": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@pkgs/chess-board-core-shared": "workspace:*",
+    "@pkgs/keyword-shared": "workspace:*",
+    "@pkgs/matchmaking-sql-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

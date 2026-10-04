@@ -1,16 +1,9 @@
-import type {
-  RoomClient,
-  RoomCommandPayload,
-  RoomEvent,
-  RoomModule,
-  RoomState,
-  TigerInvariant,
-} from '@pkgs/room';
-import type { RoomServer } from '@pkgs/room/server';
-import type {
-  InMemoryClientStorage,
-  InMemoryRoomStorage,
-} from '@pkgs/room-adapter-memory';
+import type { RoomClient } from '@pkgs/room-client/room-client';
+import type { RoomCommandPayload, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
+import type { TigerInvariant } from '@pkgs/room-shared/tiger-invariants';
+import type { RoomServer } from '@pkgs/room-server/room-server';
+import type { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared/client-storage';
+import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
 import { foldServerDomainState, serverDomainHash } from './wait-for-idle';
 
 export type RoomInvariantViolation = {

@@ -1,7 +1,7 @@
-import '@pkgs/bun-test-solid/preload';
-import { openHarness } from '@libs/harness/open-harness/open-harness';
-import { useHarnessWorld } from '@libs/harness/spec/world';
-import { APP_COMPOSITION } from '@libs/runtime/harness/app-composition';
+import '@pkgs/bun-test-solid-client/preload';
+import { openHarness } from '@libs/harness/open-harness';
+import { useHarnessWorld } from '@libs/harness/spec-world';
+import { APP_COMPOSITION } from '@libs/runtime-harness/app-composition';
 
 const NOTEBOOK_ACTIONS = [
   saveNotebookQuestion,
@@ -43,48 +43,21 @@ useHarnessWorld(
   (ctx) => ctx.featureUri.startsWith('specs/developer-tools/')
 );
 
-import { defineProductSystem } from '@libs/harness/system/define-product-system';
+import { defineProductSystem } from '@libs/harness/define-product-system';
 import './notebook.steps';
 import './recorded-moments.steps';
 import './report-navigation.steps';
-import {
-  editNotebookQuestion,
-  openNotebook,
-  saveNotebookQuestion,
-} from '@apps/product/harness/developer-notebook';
-import {
-  moveRecordedMoment,
-  provideRecordedReport,
-  selectRecordedMoment,
-  showRecordedControl,
-} from '@apps/product/harness/developer-report';
+import { editNotebookQuestion, openNotebook, saveNotebookQuestion } from '@apps/product/developer-notebook';
+import { moveRecordedMoment, provideRecordedReport, selectRecordedMoment, showRecordedControl } from '@apps/product/developer-report';
 
 import './release-check.steps';
-import {
-  provideReleaseEvidence,
-  runReleaseCheck,
-} from '@apps/product/harness/developer-release';
+import { provideReleaseEvidence, runReleaseCheck } from '@apps/product/developer-release';
 
 import './checkpoints.steps';
-import {
-  changeInvestigatedApp,
-  checkpointOperation,
-  investigatePeople,
-  saveCheckpoint,
-} from '@apps/product/harness/developer-checkpoints';
+import { changeInvestigatedApp, checkpointOperation, investigatePeople, saveCheckpoint } from '@apps/product/developer-checkpoints';
 
 import './report-catalog.steps';
-import {
-  filterCatalog,
-  openCatalog,
-  openCompletedReport,
-  provideCatalog,
-} from '@apps/product/harness/developer-catalog';
+import { filterCatalog, openCatalog, openCompletedReport, provideCatalog } from '@apps/product/developer-catalog';
 
 import './test-world-views.steps';
-import {
-  arrangeWorldDevices,
-  chooseWorldDevice,
-  giveDevicesDifferentPlaces,
-  provideWorldDevices,
-} from '@apps/product/harness/developer-world-views';
+import { arrangeWorldDevices, chooseWorldDevice, giveDevicesDifferentPlaces, provideWorldDevices } from '@apps/product/developer-world-views';

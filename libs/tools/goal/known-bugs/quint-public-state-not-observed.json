@@ -1,4 +1,4 @@
 {
   "summary": "Replay accepted a trace that read one correct field while omitting another public model promise. Every public state variable must now be read from the product before a trace can pass. A door whose last actor is never observed is the literal regression.",
-  "regressionTest": "pkgs/quint/tests/bun-test.test.ts"
+  "regressionTest": "pkgs/quint-server/tests/bun-test.test.ts"
 }

@@ -1,4 +1,4 @@
 {
   "summary": "Individually bounded diagnostics could collectively exceed the reporting HTTP limit and reject the basic report. Enforce a total UTF-8 diagnostic budget and mark excess context unavailable.",
-  "regressionTest": "pkgs/feedback/tests/diagnostic-budget.test.ts"
+  "regressionTest": "pkgs/feedback-harness/tests/diagnostic-budget.test.ts"
 }

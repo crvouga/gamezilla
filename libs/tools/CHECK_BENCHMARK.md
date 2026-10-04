@@ -208,7 +208,7 @@ and 64 bins, dependency grouping and every supported matrix count.
 Native cold `lvs68ld73t` and consecutive warm `hlqhltfhkm` artifacts contain
 633 distinct passing results with identical hashes: 0 and 633 hits respectively.
 All original 555 IDs are present, with no duplicate or omitted owner. Native
-source probe `spvrz6rq13` changed `pkgs/glicko2/src/glicko2.ts`: exactly the 77
+source probe `spvrz6rq13` changed `pkgs/glicko2-shared/src/glicko2.ts`: exactly the 77
 expected source/dependent checks executed, with the other 556 valid cache hits.
 The source was restored byte-for-byte after patch upload. A separate timing-file
 probe invalidated only `@libs/tools#lint`, preserving the other 632 hashes.

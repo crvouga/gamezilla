@@ -23,7 +23,7 @@ test('an ordinary failing spec is queryable by its exact test name', () => {
   const runner = join(import.meta.dir, '../scripts/test-spec.ts');
   const obsCli = join(
     import.meta.dir,
-    '../../../pkgs/observability-cli/src/cli-io.ts'
+    '../../../pkgs/observability-cli-server/src/cli-io.ts'
   );
   writeFileSync(
     fixture,

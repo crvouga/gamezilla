@@ -1,0 +1,52 @@
+{
+  "name": "@libs/runtime-client",
+  "version": "0.0.0",
+  "private": true,
+  "category": "client",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+  },
+  "dependencies": {
+    "@libs/account-privacy-client": "workspace:*",
+    "@libs/app-client": "workspace:*",
+    "@libs/billing-client": "workspace:*",
+    "@libs/chess-matchmaking-client": "workspace:*",
+    "@libs/feature-client": "workspace:*",
+    "@libs/friends-client": "workspace:*",
+    "@libs/games-client": "workspace:*",
+    "@libs/games-shared": "workspace:*",
+    "@libs/notifications-client": "workspace:*",
+    "@libs/profile-client": "workspace:*",
+    "@libs/search-client": "workspace:*",
+    "@libs/spaces-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@libs/app-shared": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/runtime-shared": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/auth-inhouse-client": "workspace:*",
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/harness-shared": "workspace:*",
+    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/logger-shared": "workspace:*",
+    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/secure-storage-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-shared": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "solid-js": "catalog:",
+    "typescript": "catalog:"
+  }
+}

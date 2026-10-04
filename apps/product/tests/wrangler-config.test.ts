@@ -6,8 +6,8 @@ import {
   envOrigins,
   isProductionEnv,
   parseEnvFile,
-} from '@libs/infra/public/env-file';
-import { ENV_FILES } from '@libs/infra/public/envs';
+} from '@libs/infra-shared/env-file';
+import { ENV_FILES } from '@libs/infra-shared/envs';
 import {
   ROOM_ARCHIVE_CLASS,
   ROOM_ARCHIVE_TAG,
@@ -15,23 +15,19 @@ import {
   ROOM_MIGRATION_TAG,
   ROOM_TRANSFER_TAG,
   roomMigrations,
-} from '@libs/infra/public/worker-lifecycle';
-import {
-  deletedDurableObjectClasses,
-  HYPERDRIVE_BINDING,
-  renderWranglerConfig,
-  type WranglerConfig,
-  workerName,
-} from '@libs/infra/public/wrangler';
-import { getApiWorkerSecrets } from '@libs/secrets/shared/secrets/secrets';
-import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/server-app/config/auth-provider';
+} from '@libs/infra-shared/worker-lifecycle';
+import { deletedDurableObjectClasses, HYPERDRIVE_BINDING, renderWranglerConfig, workerName } from '@libs/infra-shared/wrangler';
+import type { WranglerConfig } from '@libs/infra-shared/wrangler';
+import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
+import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/app-shared/auth-provider';
 import {
   BILLING_PROVIDER_BINDING,
   DEPLOYMENT_PROTECTION_BINDING,
   readDeploymentProtection,
-} from '@libs/server-app/config/env';
-import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse/server';
-import { assertProperty, fc } from '@pkgs/property';
+} from '@libs/app-shared/env';
+import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { workerSecretPayload } from '../scripts/worker-secrets';
 
 const base = Bun.TOML.parse(

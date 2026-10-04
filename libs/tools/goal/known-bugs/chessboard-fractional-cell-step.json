@@ -1,4 +1,4 @@
 {
   "summary": "Percentage translations accumulate rounded cell widths, leaving fractional square edges misaligned with the board content width.",
-  "regressionTest": "pkgs/chess-board/tests/browser/resize.contract.test.ts"
+  "regressionTest": "pkgs/chess-board-harness/tests/resize.contract.test.ts"
 }

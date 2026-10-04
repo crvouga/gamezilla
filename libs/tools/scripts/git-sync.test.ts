@@ -48,7 +48,7 @@ describe('secretLookingPaths', () => {
       secretLookingPaths([
         '.env.example',
         '.secrets.json',
-        'libs/secrets/src/shared/secrets/registry.ts',
+        'libs/secrets-server/src/registry.ts',
         'pkgs/ui/src/components/key/key.tsx',
       ])
     ).toEqual([]);

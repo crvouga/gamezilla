@@ -1,14 +1,8 @@
 import { expect, test } from 'bun:test';
-import {
-  PUBSUB_HEARTBEAT_MS,
-  partitionAwarePubSub,
-} from '@libs/harness/fabric/partition-aware-pubsub';
-import { createHarnessClock } from '@pkgs/clock';
-import { createNoopLogger } from '@pkgs/logger';
-import {
-  createInMemoryBus,
-  createInMemoryPubSub,
-} from '@pkgs/pubsub/in-memory';
+import { PUBSUB_HEARTBEAT_MS, partitionAwarePubSub } from '@libs/harness/partition-aware-pubsub';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import { createInMemoryBus, createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
 
 test('a cut event connection drops live changes and signals recovery', async () => {
   // regression: product-harness-offline-events-leak

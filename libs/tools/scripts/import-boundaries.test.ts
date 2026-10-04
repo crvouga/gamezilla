@@ -111,7 +111,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/client-app/src/shell/observability/browser-identity.ts',
+    path: 'libs/app-shared/src/browser-identity.ts',
     source: "import { withSpan } from '@pkgs/observability/core';",
     message: null,
   },
@@ -132,7 +132,7 @@ const PROBES: readonly Probe[] = [
     message: 'browser observability runtime is restricted',
   },
   {
-    path: 'libs/client-app/src/shell/observability/browser-boundaries.ts',
+    path: 'libs/app-shared/src/browser-boundaries.ts',
     source:
       "import { createWorkerTelemetry } from '@pkgs/observability/worker';",
     message: 'Worker observability runtime is restricted',
@@ -248,8 +248,8 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'libs/zz/src/root/harness-user.ts',
-    source: "import { defineSystem } from '@pkgs/harness';",
-    message: '@pkgs/harness is harness-only',
+    source: "import { defineSystem } from '@pkgs/harness-shared';",
+    message: '@pkgs/harness-shared is harness-only',
   },
   {
     path: 'libs/zz/src/root/report-user.ts',
@@ -268,8 +268,8 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'pkgs/zz/src/internals-user.ts',
-    source: "import { a } from '@pkgs/harness/internals';",
-    message: 'Only pkgs/harness/** may import @pkgs/harness/internals',
+    source: "import { a } from '@pkgs/harness-shared/internals';",
+    message: 'Only pkgs/harness/** may import @pkgs/harness-shared/internals',
   },
   {
     path: 'libs/zz/src/root/transport.ts',
@@ -284,26 +284,26 @@ const PROBES: readonly Probe[] = [
   {
     path: 'pkgs/harness/src/core.ts',
     source: "import fc from 'fast-check';",
-    message: '@pkgs/harness core (except src/fast-check/ and tests)',
+    message: '@pkgs/harness-shared core (except src/fast-check/ and tests)',
   },
   {
     path: 'libs/zz/src/use-cases/pay/server/route.ts',
     source: "import { PaddleMembershipBilling } from '@pkgs/billing-paddle';",
-    message: 'Product code knows billing only through the @pkgs/billing',
+    message: 'Product code knows billing only through the @pkgs/billing-shared',
   },
   {
     path: 'libs/zz/src/root/client/screen.tsx',
     source: "import Stripe from 'stripe';",
-    message: 'Product code knows billing only through the @pkgs/billing',
+    message: 'Product code knows billing only through the @pkgs/billing-shared',
   },
   {
     path: 'pkgs/billing/src/port.ts',
     source: "export { STRIPE_PROVIDER } from '@pkgs/billing-stripe';",
-    message: 'Product code knows billing only through the @pkgs/billing',
+    message: 'Product code knows billing only through the @pkgs/billing-shared',
   },
   {
     path: 'libs/zz/src/use-cases/pay/server/port-route.ts',
-    source: "import type { MembershipProviders } from '@pkgs/billing';",
+    source: "import type { MembershipProviders } from '@pkgs/billing-shared';",
     message: null,
   },
   {
@@ -312,7 +312,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'apps/server/src/product/server.ts',
+    path: 'apps/server/src/product-server.ts',
     source:
       "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle';",
     message: null,
@@ -338,7 +338,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/server-app/src/app/create-server.ts',
+    path: 'libs/app-server/src/create-server.ts',
     source:
       "import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';",
     message: null,
@@ -397,7 +397,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/runtime/src/root/server/app-auth-provider.ts',
+    path: 'libs/runtime-server/src/app-auth-provider.ts',
     source:
       "import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';",
     message: null,

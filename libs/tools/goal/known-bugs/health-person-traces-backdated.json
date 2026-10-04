@@ -1,4 +1,4 @@
 {
   "summary": "Live person probes backdated new traces to the spec's fixed evening clock, outside Tempo's searchable ingestion block range during midday Deploy runs. Anchor the live fixture at the current minute while preserving its zone and differences between evening and morning questions.",
-  "regressionTest": "libs/observability/tests/person-probe-clock.test.ts"
+  "regressionTest": "libs/observability-server/tests/person-probe-clock.test.ts"
 }

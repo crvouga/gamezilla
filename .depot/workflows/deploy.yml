@@ -8,10 +8,10 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 # Deploy: ships the code. `bun deploy` dispatches this workflow on `main`.
 # Each environment job runs `bun run deploy:local`. `main` is what ships,
 # to every environment in
-# libs/infra/tofu/envs/<env>.tfvars.json — adding an env file needs no edit
+# libs/infra-shared/tofu/envs/<env>.tfvars.json — adding an env file needs no edit
 # here:
 #
-#   deploy:matrix  reads the env files (libs/infra/scripts/workflow-env-matrix.ts)
+#   deploy:matrix  reads the env files (libs/infra-shared/scripts/workflow-env-matrix.ts)
 #                  from a job with no secrets and publishes the env lists.
 #   deploy:<env>   one job per `protection: "standard"` env, in parallel: the
 #                  full replica's OpenTofu foundation apply → migrations → the
@@ -25,8 +25,8 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 #                  OpenTofu drift; the Health workflow
 #                  (.depot/workflows/health.yml) runs the same probes hourly.
 #
-# Infrastructure changes only through libs/infra/scripts/tofu.ts: plan to a
-# file, refuse it if libs/infra/policy/stateful.rego denies it (deleting or
+# Infrastructure changes only through libs/infra-server/scripts/tofu.ts: plan to a
+# file, refuse it if libs/infra-shared/policy/stateful.rego denies it (deleting or
 # replacing anything that may hold data), then apply exactly that plan.
 #
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
@@ -90,7 +90,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
       - name: Remove unused branches and stale reports
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
+        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
 
   deploy-matrix:
     name: deploy:matrix
@@ -102,7 +102,7 @@ jobs:
       shared: ${{ steps.envs.outputs.shared }}
     steps:
       # `main` only moves through a merged PR. Branch protection enforces that
-      # (libs/infra/tofu/modules/repository, applied by `bun run
+      # (libs/infra-shared/tofu/modules/repository, applied by `bun run
       # infra:bootstrap`); this guard is the Deploy workflow's own layer, so a
       # direct push can never ship even if protection drifts. Every deploy job
       # needs this one, so it fails before any deploy checks out.
@@ -129,10 +129,10 @@ jobs:
 
       - name: envs
         id: envs
-        run: bun run libs/infra/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+        run: bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
   # Every env file's secrets environment and its import of the shared
-  # credentials (libs/infra/tofu/stacks/fleet), then no env may keep a local
+  # credentials (libs/infra-shared/tofu/stacks/fleet), then no env may keep a local
   # copy that would shadow a shared one. A new env file gets its secrets
   # environment — and a route home through the OAuth relay — here, before its
   # first deploy reads it.
@@ -158,20 +158,20 @@ jobs:
 
       # Promote first: the fleet apply reads its state passphrase from shared.
       - name: promote shared secrets
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/secrets/src/scripts/secrets-reconcile-shared.ts promote
+        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/secrets-server/src/secrets-reconcile-shared.ts promote
 
       # The OAuth callback relay (auth.<zone>) forwards to every env file, so
       # it ships before any env deploys; the fleet apply then binds its
       # hostname (a custom domain needs its Worker to exist).
       - name: deploy auth relay
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @apps/auth-relay deploy
+        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @apps/auth-relay deploy
 
       - name: apply fleet
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra apply:fleet
+        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @libs/infra-server apply:fleet
 
       # Only now does every env import shared: drop the copies that shadow it.
       - name: prune shadowing copies
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/secrets/src/scripts/secrets-reconcile-shared.ts prune
+        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/secrets-server/src/secrets-reconcile-shared.ts prune
 
   deploy-standard:
     name: deploy:${{ matrix.env }}

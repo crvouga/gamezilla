@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
 import {
   isSpecFile,
@@ -77,7 +78,7 @@ describe('spec ownership', () => {
         ),
         fc.constantFrom(
           'libs/tools/scripts/check-plan.ts',
-          'pkgs/quint/src/verify.ts'
+          'pkgs/quint-server/src/verify.ts'
         ),
         (spec, implementation) => {
           expect(
@@ -216,14 +217,14 @@ describe('spec ownership', () => {
     expect(isSpecFile('specs/friends/friend-remove.feature')).toBe(true);
     expect(isSpecFile('libs/friends/features/remove.feature')).toBe(true);
     expect(isSpecFile('specs/spaces/space-hosting.qnt')).toBe(true);
-    expect(isSpecFile('pkgs/quint/tests/fixtures/door.qnt')).toBe(false);
+    expect(isSpecFile('pkgs/quint-server/tests/fixtures/door.qnt')).toBe(false);
     expect(isSpecFile('specs/README.md')).toBe(true);
     expect(isSpecFile('specs/conformance.yaml')).toBe(true);
     expect(isSpecFile('specs/billing/access.dmn')).toBe(true);
     expect(isSpecFile('specs/spaces/spaces.als')).toBe(true);
     expect(isSpecFile('specs/runtime/availability.openslo.yaml')).toBe(true);
-    expect(isSpecFile('pkgs/dmn/tests/fixtures/access.dmn')).toBe(false);
-    expect(isSpecFile('libs/billing/tests/dmn/access.binding.ts')).toBe(false);
+    expect(isSpecFile('pkgs/dmn-server/tests/fixtures/access.dmn')).toBe(false);
+    expect(isSpecFile('libs/billing-harness/tests/dmn/access.binding.ts')).toBe(false);
     expect(isSpecFile('specs/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/glossary.yaml')).toBe(true);
@@ -256,7 +257,7 @@ describe('spec ownership', () => {
     expect(
       stagedViolations([
         'specs/friends/friend-remove.feature',
-        'libs/friends/tests/steps/friends.steps.ts',
+        'libs/friends-harness/src/friends.steps.ts',
       ])
     ).toHaveLength(1);
     expect(stagedViolations(['specs/friends/friend-remove.feature'])).toEqual(
@@ -265,7 +266,7 @@ describe('spec ownership', () => {
     expect(
       stagedViolations([
         'specs/conformance.yaml',
-        'libs/billing/tests/dmn/access.binding.ts',
+        'libs/billing-harness/tests/dmn/access.binding.ts',
       ])
     ).toHaveLength(1);
     expect(

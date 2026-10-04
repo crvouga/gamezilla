@@ -1,7 +1,7 @@
 // @io-wall-ok — shard exit adapter: retain an explicit failure when the producer was killed.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { REPORT_COMPLETION, reportTask } from '@libs/harness/ci/report-ready';
+import { REPORT_COMPLETION, reportTask } from '@libs/harness/report-ready';
 import type { Result } from './check-shard-results';
 
 export function preserveInterruptedReports(

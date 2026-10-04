@@ -1,4 +1,4 @@
-import { arbJsonValue } from '@pkgs/property';
+import { arbJsonValue } from '@pkgs/property-shared/json';
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
 

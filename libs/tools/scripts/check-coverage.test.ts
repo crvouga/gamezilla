@@ -1,21 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
 
-import {
-  countLines,
-  type FileCoverage,
-  formatLcov,
-  type LcovRecord,
-  mergeInto,
-  parseLcov,
-} from './coverage/lcov';
-import { listSourceFiles, type PackagePlan } from './coverage/packages';
-import { formatPercent, summarizePackage } from './coverage/report';
+import { countLines, formatLcov, mergeInto, parseLcov } from './lcov';
+import type { FileCoverage, LcovRecord } from './lcov';
+import { listSourceFiles } from './packages';
+import type { PackagePlan } from './packages';
+import { formatPercent, summarizePackage } from './report';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const EQUAL_DIR = join(REPO_ROOT, 'pkgs/equal');
+const EQUAL_DIR = join(REPO_ROOT, 'pkgs/equal-shared');
 const EQUAL_SOURCE = join(EQUAL_DIR, 'src/is-equal.ts');
-const ASSERT_SOURCE = join(REPO_ROOT, 'pkgs/assert/src/assert.ts');
+const ASSERT_SOURCE = join(REPO_ROOT, 'pkgs/assert-shared/src/assert.ts');
 
 function firstRecord(text: string, baseDir: string): LcovRecord {
   const [record] = parseLcov(text, baseDir);
@@ -114,7 +109,7 @@ describe('listSourceFiles', () => {
 describe('summarizePackage', () => {
   test('counts uncovered sources as unreached files with no lines', () => {
     expect(
-      summarizePackage(planFor(EQUAL_DIR, '@pkgs/equal'), new Map())
+      summarizePackage(planFor(EQUAL_DIR, '@pkgs/equal-shared'), new Map())
     ).toMatchObject({
       filesTotal: 1,
       filesReached: 0,
@@ -134,7 +129,7 @@ describe('summarizePackage', () => {
       )
     );
     expect(
-      summarizePackage(planFor(EQUAL_DIR, '@pkgs/equal'), index)
+      summarizePackage(planFor(EQUAL_DIR, '@pkgs/equal-shared'), index)
     ).toMatchObject({
       filesTotal: 1,
       filesReached: 1,

@@ -1,4 +1,4 @@
 {
   "summary": "The production monitor account hosts one live space at a time. Critical journeys that died after creating a space left it live, so the next create was the Plus invitation and the journey never entered a space. Fixed: hosting ends those leftover spaces first, and the cleanup is registered before the create so a later failure still ends the new one.",
-  "regressionTest": "libs/runtime/tests/critical-journey-host-space.test.ts"
+  "regressionTest": "libs/runtime-harness/tests/critical-journey-host-space.test.ts"
 }

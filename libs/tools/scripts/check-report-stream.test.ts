@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { REPORT_READY } from '@libs/harness/ci/report-ready';
+import { REPORT_READY } from '@libs/harness/report-ready';
 import { createReportPublisher } from './check-report-stream';
 
 const A = '@libs/a#test:spec:0';

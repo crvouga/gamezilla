@@ -42,7 +42,7 @@ describe('specLocationProblems', () => {
             text: 'module friendship {}',
           },
           {
-            path: 'pkgs/quint/tests/fixtures/door.qnt',
+            path: 'pkgs/quint-server/tests/fixtures/door.qnt',
             text: '// @spec-meta — parser fixture\nmodule door {}',
           },
         ],

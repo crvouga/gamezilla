@@ -1,13 +1,9 @@
-import {
-  type EndpointId,
-  type FlowKey,
-  type Network,
-  type NetworkFaults,
-  RELIABLE_NETWORK,
-  type VirtualScheduler,
-} from '@pkgs/harness';
+import type { EndpointId, FlowKey, Network, NetworkFaults } from '@pkgs/harness-shared/network-state';
+import { RELIABLE_NETWORK } from '@pkgs/harness-shared/network-state';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
 
-import { createNetEffect, type NetEffect } from './net-effect';
+import { createNetEffect } from './net-effect';
+import type { NetEffect } from './net-effect';
 
 /** VOPR-style one-way link knobs for room loopback frames. */
 export type RoomFaultProfile = {
@@ -117,7 +113,7 @@ type RoomNetCtx = RoomNetMaps & {
 
 /**
  * Room-domain network: hold/down/faults keyed by client + direction.
- * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/harness`.
+ * Mechanics (delay/loss/dup/hold queues) live in `@pkgs/harness-shared`.
  */
 export type HarnessRoomNetwork = {
   readonly registerServer: (
@@ -422,7 +418,7 @@ function buildRoomNetworkApi(args: {
 }
 
 /**
- * Adapt a framework-owned `@pkgs/harness` network kernel to the room-domain
+ * Adapt a framework-owned `@pkgs/harness-shared` network kernel to the room-domain
  * client/direction-keyed surface. Framework systems pass `ctx.network`.
  */
 export function wrapRoomNetwork(args: {

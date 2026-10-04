@@ -9,7 +9,7 @@ language js
 file($body) where {
   $body <: or {
     includes "@pkgs/http-client",
-    includes "@pkgs/pubsub",
+    includes "@pkgs/pubsub-shared",
     includes "/wall"
   },
   $body <: contains bubble or {
@@ -18,7 +18,7 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"](?:@pkgs/(?:http-client|pubsub|pubsub-emqx)(?:/[^'\"]*)?|[^'\"]*/wall-io|[^'\"]*/wall)['\"]$",
-    not $src <: r".*@pkgs/pubsub/interface['\"]$",
+    not $src <: r".*@pkgs/pubsub-shared/interface['\"]$",
     register_diagnostic(span=$src, message="Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See README.md.", severity="error")
   }
 }

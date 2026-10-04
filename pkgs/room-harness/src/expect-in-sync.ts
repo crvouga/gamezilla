@@ -1,8 +1,8 @@
 import { expect } from 'bun:test';
-import type { Run } from '@pkgs/harness';
-import type { RoomHarness } from './scenario/harness';
-import { inSync } from './scenario/observations';
-import { recoverAll } from './scenario/room-actions';
+import type { Run } from '@pkgs/harness-shared/run-types';
+import type { RoomHarness } from './harness';
+import { inSync } from './observations';
+import { recoverAll } from './room-actions';
 
 const CONVERGE_STEP_MS = 25;
 const CONVERGE_MAX_MS = 15_000;

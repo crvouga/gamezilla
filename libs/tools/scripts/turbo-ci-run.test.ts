@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   DEFAULT_TURBO_API,
   TURBO_TEAM,
-} from '@libs/secrets/shared/secrets/turbo-token';
+} from '@libs/secrets-shared/turbo-token';
 import {
   flattenCheckAggregators,
   formatDurations,

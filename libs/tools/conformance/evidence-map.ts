@@ -14,7 +14,7 @@
  *   { line }  a line of `bun run conformance`'s pipeline (`lines.ts`)
  */
 
-import type { EvidenceMap, Proof, ProofTable } from '@pkgs/conformance/proofs';
+import type { EvidenceMap, Proof, ProofTable } from '@pkgs/conformance-shared/proofs';
 
 import { LINES } from './lines';
 
@@ -113,7 +113,7 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { task: '@pkgs/chess-board#test' },
     { task: '@pkgs/chess-board#test:contract' },
     { task: '@pkgs/chess-board#check:models' },
-    { task: '@pkgs/chess-board-core#test' },
+    { task: '@pkgs/chess-board-core-shared#test' },
     { task: '@libs/chess#check:board-contract' },
   ],
   'account privacy': [

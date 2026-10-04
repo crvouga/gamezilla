@@ -1,4 +1,4 @@
 {
   "summary": "A supported knight fork of the king on f1 and queen on d1 was absent from coaching. Require legal moves and legal capture targets, excluding pinned attacks.",
-  "regressionTest": "pkgs/chess-rules/tests/tactics.test.ts"
+  "regressionTest": "pkgs/chess-rules-shared/tests/tactics.test.ts"
 }

@@ -1,14 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  CHECK_WEIGHT,
-  MODEL_SLICES,
-  MODEL_WEIGHT,
-  partOf,
-  SLICE_SCENARIOS,
-  type SpecUnit,
-  specUnits,
-  specWeight,
-} from './spec-parts';
+import { CHECK_WEIGHT, MODEL_SLICES, MODEL_WEIGHT, partOf, SLICE_SCENARIOS, specUnits, specWeight } from './spec-parts';
+import type { SpecUnit } from './spec-parts';
 
 describe('specWeight', () => {
   test('counts scenarios and outline example rows', () => {

@@ -5,20 +5,11 @@
  * runs the same analysis against the real `dist/`.
  */
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 
-import {
-  analyzeOfflineShell,
-  keepInPrecache,
-  type OfflineShellInput,
-  offlineShellFailures,
-  parseChunkImports,
-  parseEntryHtml,
-  parsePrecacheManifest,
-  resolveDistPath,
-  wallReachable,
-} from './sw-policy';
+import { analyzeOfflineShell, keepInPrecache, offlineShellFailures, parseChunkImports, parseEntryHtml, parsePrecacheManifest, resolveDistPath, wallReachable } from './sw-policy';
+import type { OfflineShellInput } from './sw-policy';
 
 const INDEX_HTML = `<!doctype html><html><head>
   <link rel="icon" href="/favicon.ico" />

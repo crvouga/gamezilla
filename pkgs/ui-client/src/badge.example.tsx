@@ -1,0 +1,44 @@
+/** @jsxImportSource solid-js */
+import type { JSX } from 'solid-js';
+import { ExampleRoot } from './example-root';
+import { SchemePreview } from './scheme-preview';
+import { Badge } from './badge';
+
+export default function BadgeExample(): JSX.Element {
+  return (
+    <ExampleRoot>
+      <SchemePreview>
+        <div class="box flex-col gap-3">
+          <label class="text textLabel text-text-secondary">
+            {'Intent surfaces'}
+          </label>
+          <div class="box flex-row gap-2 flex-wrap">
+            <Badge label="Brand" intent="brand" />
+            <Badge label="Success" intent="success" />
+            <Badge label="Warning" intent="warning" />
+            <Badge label="Destructive" intent="destructive" />
+            <Badge label="Info" intent="info" />
+            <Badge label="Neutral" intent="neutral" />
+          </div>
+
+          <label class="text textLabel text-text-secondary">{'Sizes'}</label>
+          <div class="box flex-row gap-2 items-center">
+            <Badge label="3" intent="destructive" size="sm" />
+            <Badge label="99+" intent="brand" size="sm" />
+            <Badge label="New" intent="success" />
+            <Badge label="Updated" intent="info" />
+          </div>
+
+          <label class="text textLabel text-text-secondary">
+            {'Notification count (brand solid)'}
+          </label>
+          <div class="box flex-row gap-2 items-center">
+            <Badge label="1" intent="brand" tone="solid" size="sm" />
+            <Badge label="12" intent="brand" tone="solid" size="sm" />
+            <Badge label="99+" intent="brand" tone="solid" size="sm" />
+          </div>
+        </div>
+      </SchemePreview>
+    </ExampleRoot>
+  );
+}

@@ -10,11 +10,8 @@
 // @io-wall-ok — CI entry; reads trace artifacts + writes GITHUB_STEP_SUMMARY
 import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  type FailedTestTrace,
-  failedTestTraceMarkdown,
-  failedTestTracesFromNdjson,
-} from './workflow-observability';
+import type { FailedTestTrace } from './workflow-observability';
+import { failedTestTraceMarkdown, failedTestTracesFromNdjson } from './workflow-observability';
 
 function iconFor(result: string): string {
   switch (result) {

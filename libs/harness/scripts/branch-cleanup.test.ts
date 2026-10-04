@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
-import { type BranchCleanupPort, cleanupBranches } from './branch-cleanup';
+import type { BranchCleanupPort } from './branch-cleanup';
+import { cleanupBranches } from './branch-cleanup';
 
 test('branch cleanup preserves open work, protected refs, changed heads and unknown unmerged work', async () => {
   const removed: string[] = [];

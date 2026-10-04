@@ -9,7 +9,7 @@
  * - every device is signed in as exactly the user the model says (or none).
  */
 
-import { sql } from '@pkgs/sql';
+import sql from '@pkgs/sql-shared/sql';
 
 import { sessionUserOf } from './checks';
 import { expectedUser, identityKey } from './model';

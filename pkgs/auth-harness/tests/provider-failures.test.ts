@@ -11,22 +11,13 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
-import {
-  AUTH_FAULTS,
-  type AuthSurface,
-  accountsOnRecord,
-  auth,
-  clearProviderFaults,
-  lastOutcome,
-  type ProviderStepArgs,
-  rotateProviderKeys,
-  setProviderFault,
-  signedInUser,
-  signIn,
-  signOut,
-} from '@pkgs/auth-harness';
-import type { Run } from '@pkgs/harness';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AUTH_FAULTS, clearProviderFaults, rotateProviderKeys, setProviderFault, signIn, signOut } from '@pkgs/auth-harness/actions';
+import type { AuthSurface } from '@pkgs/auth-harness/types';
+import { accountsOnRecord, auth, lastOutcome, signedInUser } from '@pkgs/auth-harness/system';
+import type { ProviderStepArgs } from '@pkgs/auth-harness/actions';
+import type { Run } from '@pkgs/harness-shared/run-types';
 
 /** Booting the example app with its two providers costs ~0.3 s idle. */
 const BOOT_TIMEOUT_MS = 30_000;

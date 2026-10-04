@@ -16,7 +16,7 @@
       "!!**/.turbo",
       "!!**/.cache",
       "!**/*.lock",
-      "!libs/client-app/src/i18n/locales/*/messages.ts",
+      "!libs/app-shared/locales/*/messages.ts",
       "!.superset/config.json",
       "!.super.engineering/config.json",
       "!apps/product/public/sql-workers/**/*.js",
@@ -148,7 +148,9 @@
         "useFilenamingConvention": {
           "level": "error",
           "options": {
-            "filenameCases": ["kebab-case"],
+            "filenameCases": [
+              "kebab-case"
+            ],
             "requireAscii": true,
             "strictCase": false
           }
@@ -159,7 +161,10 @@
         "noConsole": {
           "level": "error",
           "options": {
-            "allow": ["error", "warn"]
+            "allow": [
+              "error",
+              "warn"
+            ]
           }
         },
         "noDebugger": "error",
@@ -197,18 +202,87 @@
       "path": "./libs/tools/biome-plugins/text-must-be-trans.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
-        "**/libs/client-app/src/**/*.{ts,tsx}",
-        "**/libs/spaces/**/*.{ts,tsx}",
-        "**/libs/chess/**/*.{ts,tsx}",
-        "**/libs/profile/**/*.{ts,tsx}",
-        "**/libs/auth/**/*.{ts,tsx}",
-        "**/libs/friends/**/*.{ts,tsx}",
-        "**/libs/search/**/*.{ts,tsx}",
-        "**/libs/user-search/**/*.{ts,tsx}",
-        "**/libs/client-config/**/*.{ts,tsx}",
-        "**/libs/notifications/**/*.{ts,tsx}",
-        "**/pkgs/tts/**/*.{ts,tsx}",
-        "**/pkgs/llm/**/*.{ts,tsx}",
+        "**/libs/app-client/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/tests/**/*.{ts,tsx}",
+        "**/libs/spaces-harness/src/**/*.{ts,tsx}",
+        "**/libs/spaces-shared/src/**/*.{ts,tsx}",
+        "**/libs/spaces-client/src/**/*.{ts,tsx}",
+        "**/libs/spaces-server/src/**/*.{ts,tsx}",
+        "**/libs/spaces-client/tests/**/*.{ts,tsx}",
+        "**/libs/spaces-harness/tests/**/*.{ts,tsx}",
+        "**/libs/spaces-shared/tests/**/*.{ts,tsx}",
+        "**/libs/chess-feature-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-shared-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-server/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
+        "**/libs/chess-harness/tests/**/*.{ts,tsx}",
+        "**/libs/chess-shared-server/tests/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-harness/tests/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/tests/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-harness/tests/**/*.{ts,tsx}",
+        "**/libs/chess-server/tests/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-client/tests/**/*.{ts,tsx}",
+        "**/libs/chess-shared-server/scripts/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/scripts/**/*.{ts,tsx}",
+        "**/libs/profile-harness/src/**/*.{ts,tsx}",
+        "**/libs/profile-client/src/**/*.{ts,tsx}",
+        "**/libs/profile-shared/src/**/*.{ts,tsx}",
+        "**/libs/profile-harness/tests/**/*.{ts,tsx}",
+        "**/libs/profile-shared/tests/**/*.{ts,tsx}",
+        "**/libs/profile-client/tests/**/*.{ts,tsx}",
+        "**/libs/auth-client/src/**/*.{ts,tsx}",
+        "**/libs/auth-shared/src/**/*.{ts,tsx}",
+        "**/libs/auth-server/src/**/*.{ts,tsx}",
+        "**/libs/auth-shared/tests/**/*.{ts,tsx}",
+        "**/libs/auth-client/tests/**/*.{ts,tsx}",
+        "**/libs/auth-server/tests/**/*.{ts,tsx}",
+        "**/libs/friends-harness/src/**/*.{ts,tsx}",
+        "**/libs/friends-client/src/**/*.{ts,tsx}",
+        "**/libs/friends-shared/src/**/*.{ts,tsx}",
+        "**/libs/friends-server/src/**/*.{ts,tsx}",
+        "**/libs/friends-harness/tests/**/*.{ts,tsx}",
+        "**/libs/friends-shared/tests/**/*.{ts,tsx}",
+        "**/libs/friends-server/tests/**/*.{ts,tsx}",
+        "**/libs/search-harness/src/**/*.{ts,tsx}",
+        "**/libs/search-shared/src/**/*.{ts,tsx}",
+        "**/libs/search-client/src/**/*.{ts,tsx}",
+        "**/libs/search-shared/tests/**/*.{ts,tsx}",
+        "**/libs/user-search-client/src/**/*.{ts,tsx}",
+        "**/libs/user-search-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-config-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-config-client/src/**/*.{ts,tsx}",
+        "**/libs/app-config-server/src/**/*.{ts,tsx}",
+        "**/libs/app-config-shared/tests/**/*.{ts,tsx}",
+        "**/libs/app-config-server/tests/**/*.{ts,tsx}",
+        "**/libs/notifications-harness/src/**/*.{ts,tsx}",
+        "**/libs/notifications-shared/src/**/*.{ts,tsx}",
+        "**/libs/notifications-client/src/**/*.{ts,tsx}",
+        "**/libs/notifications-server/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-client/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-server/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/tts-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/tts-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/llm-server/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-client/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/llm-shared/tests/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/harness/**",
@@ -219,18 +293,87 @@
       "path": "./libs/tools/biome-plugins/text-must-be-trans-children.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
-        "**/libs/client-app/src/**/*.{ts,tsx}",
-        "**/libs/spaces/**/*.{ts,tsx}",
-        "**/libs/chess/**/*.{ts,tsx}",
-        "**/libs/profile/**/*.{ts,tsx}",
-        "**/libs/auth/**/*.{ts,tsx}",
-        "**/libs/friends/**/*.{ts,tsx}",
-        "**/libs/search/**/*.{ts,tsx}",
-        "**/libs/user-search/**/*.{ts,tsx}",
-        "**/libs/client-config/**/*.{ts,tsx}",
-        "**/libs/notifications/**/*.{ts,tsx}",
-        "**/pkgs/tts/**/*.{ts,tsx}",
-        "**/pkgs/llm/**/*.{ts,tsx}",
+        "**/libs/app-client/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/tests/**/*.{ts,tsx}",
+        "**/libs/spaces-harness/src/**/*.{ts,tsx}",
+        "**/libs/spaces-shared/src/**/*.{ts,tsx}",
+        "**/libs/spaces-client/src/**/*.{ts,tsx}",
+        "**/libs/spaces-server/src/**/*.{ts,tsx}",
+        "**/libs/spaces-client/tests/**/*.{ts,tsx}",
+        "**/libs/spaces-harness/tests/**/*.{ts,tsx}",
+        "**/libs/spaces-shared/tests/**/*.{ts,tsx}",
+        "**/libs/chess-feature-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-shared-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-server/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
+        "**/libs/chess-harness/tests/**/*.{ts,tsx}",
+        "**/libs/chess-shared-server/tests/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-harness/tests/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/tests/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-harness/tests/**/*.{ts,tsx}",
+        "**/libs/chess-server/tests/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-client/tests/**/*.{ts,tsx}",
+        "**/libs/chess-shared-server/scripts/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/scripts/**/*.{ts,tsx}",
+        "**/libs/profile-harness/src/**/*.{ts,tsx}",
+        "**/libs/profile-client/src/**/*.{ts,tsx}",
+        "**/libs/profile-shared/src/**/*.{ts,tsx}",
+        "**/libs/profile-harness/tests/**/*.{ts,tsx}",
+        "**/libs/profile-shared/tests/**/*.{ts,tsx}",
+        "**/libs/profile-client/tests/**/*.{ts,tsx}",
+        "**/libs/auth-client/src/**/*.{ts,tsx}",
+        "**/libs/auth-shared/src/**/*.{ts,tsx}",
+        "**/libs/auth-server/src/**/*.{ts,tsx}",
+        "**/libs/auth-shared/tests/**/*.{ts,tsx}",
+        "**/libs/auth-client/tests/**/*.{ts,tsx}",
+        "**/libs/auth-server/tests/**/*.{ts,tsx}",
+        "**/libs/friends-harness/src/**/*.{ts,tsx}",
+        "**/libs/friends-client/src/**/*.{ts,tsx}",
+        "**/libs/friends-shared/src/**/*.{ts,tsx}",
+        "**/libs/friends-server/src/**/*.{ts,tsx}",
+        "**/libs/friends-harness/tests/**/*.{ts,tsx}",
+        "**/libs/friends-shared/tests/**/*.{ts,tsx}",
+        "**/libs/friends-server/tests/**/*.{ts,tsx}",
+        "**/libs/search-harness/src/**/*.{ts,tsx}",
+        "**/libs/search-shared/src/**/*.{ts,tsx}",
+        "**/libs/search-client/src/**/*.{ts,tsx}",
+        "**/libs/search-shared/tests/**/*.{ts,tsx}",
+        "**/libs/user-search-client/src/**/*.{ts,tsx}",
+        "**/libs/user-search-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-config-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-config-client/src/**/*.{ts,tsx}",
+        "**/libs/app-config-server/src/**/*.{ts,tsx}",
+        "**/libs/app-config-shared/tests/**/*.{ts,tsx}",
+        "**/libs/app-config-server/tests/**/*.{ts,tsx}",
+        "**/libs/notifications-harness/src/**/*.{ts,tsx}",
+        "**/libs/notifications-shared/src/**/*.{ts,tsx}",
+        "**/libs/notifications-client/src/**/*.{ts,tsx}",
+        "**/libs/notifications-server/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-client/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-server/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/tts-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/tts-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/llm-server/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-client/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/llm-shared/tests/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/harness/**",
@@ -241,12 +384,19 @@
       "path": "./libs/tools/biome-plugins/no-nested-await.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
-        "**/libs/client-app/src/**/*.{ts,tsx}"
+        "**/libs/app-client/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/tests/**/*.{ts,tsx}"
       ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-export-star.grit",
-      "includes": ["**/libs/notifications/**/*.{ts,tsx}"]
+      "includes": [
+        "**/libs/notifications-harness/src/**/*.{ts,tsx}",
+        "**/libs/notifications-shared/src/**/*.{ts,tsx}",
+        "**/libs/notifications-client/src/**/*.{ts,tsx}",
+        "**/libs/notifications-server/src/**/*.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/lingui-no-trans-inside-trans.grit",
@@ -283,22 +433,20 @@
     {
       "path": "./libs/tools/biome-plugins/no-locale-apis.grit",
       "includes": [
-        "**/libs/*/src/shared/**/*.{ts,tsx}",
-        "**/libs/*/src/shared/*.{ts,tsx}",
-        "**/libs/*/src/use-cases/*/shared/**/*.{ts,tsx}",
-        "**/libs/*/src/use-cases/*/shared/*.{ts,tsx}",
-        "**/pkgs/*/src/shared/**/*.{ts,tsx}",
-        "**/pkgs/*/src/shared/*.{ts,tsx}",
-        "**/pkgs/*/src/use-cases/*/shared/**/*.{ts,tsx}",
-        "**/pkgs/*/src/use-cases/*/shared/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/mutations/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/client/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/harness/**/*.{ts,tsx}",
-        "**/pkgs/db-schema/src/**/*.{ts,tsx}",
-        "**/pkgs/room/src/client/core/**/*.{ts,tsx}",
-        "**/pkgs/room/src/server/core/**/*.{ts,tsx}",
-        "**/pkgs/room/src/types.ts",
-        "**/pkgs/room/src/hash-room-state.ts",
+        "**/libs/*-shared/src/**/*.{ts,tsx}",
+        "**/libs/*-shared/src/*.{ts,tsx}",
+        "**/pkgs/*-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/*-shared/src/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-server/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-harness/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-client/src/**/*.{ts,tsx}",
+        "**/pkgs/room-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-server/src/**/*.{ts,tsx}",
+        "**/pkgs/room-shared/src",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -306,22 +454,20 @@
     {
       "path": "./libs/tools/biome-plugins/no-optional-io.grit",
       "includes": [
-        "**/libs/*/src/shared/**/*.{ts,tsx}",
-        "**/libs/*/src/shared/*.{ts,tsx}",
-        "**/libs/*/src/use-cases/*/shared/**/*.{ts,tsx}",
-        "**/libs/*/src/use-cases/*/shared/*.{ts,tsx}",
-        "**/pkgs/*/src/shared/**/*.{ts,tsx}",
-        "**/pkgs/*/src/shared/*.{ts,tsx}",
-        "**/pkgs/*/src/use-cases/*/shared/**/*.{ts,tsx}",
-        "**/pkgs/*/src/use-cases/*/shared/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/mutations/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/client/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine/src/harness/**/*.{ts,tsx}",
-        "**/pkgs/db-schema/src/**/*.{ts,tsx}",
-        "**/pkgs/room/src/client/core/**/*.{ts,tsx}",
-        "**/pkgs/room/src/server/core/**/*.{ts,tsx}",
-        "**/pkgs/room/src/types.ts",
-        "**/pkgs/room/src/hash-room-state.ts",
+        "**/libs/*-shared/src/**/*.{ts,tsx}",
+        "**/libs/*-shared/src/*.{ts,tsx}",
+        "**/pkgs/*-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/*-shared/src/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-server/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-harness/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-client/src/**/*.{ts,tsx}",
+        "**/pkgs/room-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-server/src/**/*.{ts,tsx}",
+        "**/pkgs/room-shared/src",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -352,7 +498,9 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/sync-engine/src/mutations/**",
+        "!**/pkgs/sync-engine-client/src/**",
+        "!**/pkgs/sync-engine-shared/src/**",
+        "!**/pkgs/sync-engine-server/src/**",
         "!**/dist/**",
         "!**/build/**"
       ]
@@ -362,7 +510,8 @@
       "includes": [
         "**/libs/*/src/**/*.{ts,tsx}",
         "**/apps/*/src/**/*.{ts,tsx}",
-        "!**/libs/secrets/src/shared/**",
+        "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/src/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/harness/**",
@@ -379,11 +528,26 @@
         "**/apps/*/tests/**/*.{ts,tsx}",
         "**/pkgs/*/src/**/*.{ts,tsx}",
         "**/pkgs/*/tests/**/*.{ts,tsx}",
-        "!**/libs/permissions/**",
-        "!**/pkgs/permissions/**",
-        "!**/libs/billing/**",
-        "!**/pkgs/billing*/**",
-        "!**/libs/billing/src/harness/**"
+        "!**/libs/permissions-client/src/**",
+        "!**/libs/permissions-shared/src/**",
+        "!**/libs/permissions-harness/src/**",
+        "!**/libs/permissions-server/src/**",
+        "!**/libs/permissions-shared/tests/**",
+        "!**/libs/permissions-harness/tests/**",
+        "!**/libs/permissions-shared/**",
+        "!**/pkgs/permissions-shared/src/**",
+        "!**/pkgs/permissions-shared/tests/**",
+        "!**/libs/billing-harness/src/**",
+        "!**/libs/billing-shared/src/**",
+        "!**/libs/billing-client/src/**",
+        "!**/libs/billing-server/src/**",
+        "!**/libs/billing-shared/tests/**",
+        "!**/libs/billing-server/tests/**",
+        "!**/libs/billing-client/tests/**",
+        "!**/libs/billing-harness/tests/**",
+        "!**/libs/billing-server/scripts/**",
+        "!**/libs/billing-shared/**",
+        "!**/pkgs/billing*/**"
       ]
     },
     {
@@ -396,30 +560,71 @@
         "**/apps/*/tests/**/*.{ts,tsx}",
         "**/pkgs/*/src/**/*.{ts,tsx}",
         "**/pkgs/*/tests/**/*.{ts,tsx}",
-        "!**/libs/permissions/**",
-        "!**/pkgs/permissions/**",
-        "!**/libs/billing/**",
-        "!**/pkgs/billing*/**",
-        "!**/libs/billing/src/harness/**"
+        "!**/libs/permissions-client/src/**",
+        "!**/libs/permissions-shared/src/**",
+        "!**/libs/permissions-harness/src/**",
+        "!**/libs/permissions-server/src/**",
+        "!**/libs/permissions-shared/tests/**",
+        "!**/libs/permissions-harness/tests/**",
+        "!**/libs/permissions-shared/**",
+        "!**/pkgs/permissions-shared/src/**",
+        "!**/pkgs/permissions-shared/tests/**",
+        "!**/libs/billing-harness/src/**",
+        "!**/libs/billing-shared/src/**",
+        "!**/libs/billing-client/src/**",
+        "!**/libs/billing-server/src/**",
+        "!**/libs/billing-shared/tests/**",
+        "!**/libs/billing-server/tests/**",
+        "!**/libs/billing-client/tests/**",
+        "!**/libs/billing-harness/tests/**",
+        "!**/libs/billing-server/scripts/**",
+        "!**/libs/billing-shared/**",
+        "!**/pkgs/billing*/**"
       ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-tier-words-puzzle.grit",
       "includes": [
-        "**/libs/chess/src/**/*.{ts,tsx}",
-        "!**/libs/chess/src/**/*.test.{ts,tsx}"
+        "**/libs/chess-feature-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-harness/src/**/*.{ts,tsx}",
+        "**/libs/chess-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-shared-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "**/libs/chess-server/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-server/src/**/*.{ts,tsx}",
+        "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
+        "!**/libs/chess-puzzle-shared/tests/**/*.test.{ts,tsx}"
       ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-sync-engine-terminology.grit",
       "includes": [
-        "**/pkgs/sync-engine/**/*.{ts,tsx}",
-        "**/libs/notifications/src/**/*.{ts,tsx}",
-        "**/libs/client-app/src/sync/**/*.{ts,tsx}",
-        "**/libs/server-app/src/sync/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-harness/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-server/src/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-shared/tests/**/*.{ts,tsx}",
+        "**/libs/notifications-harness/src/**/*.{ts,tsx}",
+        "**/libs/notifications-shared/src/**/*.{ts,tsx}",
+        "**/libs/notifications-client/src/**/*.{ts,tsx}",
+        "**/libs/notifications-server/src/**/*.{ts,tsx}",
+        "**/libs/app-client/src/**/*.{ts,tsx}",
+        "**/libs/app-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-server/src/**/*.{ts,tsx}",
         "**/libs/**/use-cases/**/shared/**/*.{ts,tsx}",
-        "**/libs/runtime/src/public/sync-topics.ts",
-        "**/libs/runtime/src/root/app-topic-map.ts",
+        "**/libs/runtime-shared/src",
         "!**/local-schema.ts",
         "!**/framework-server-ddl.ts",
         "!**/api-reports/**",
@@ -431,9 +636,7 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/sql-client/src/postgres/connect.ts",
-        "!**/pkgs/sql-client/src/postgres/ping.ts"
+        "**/pkgs/**/*.{ts,tsx}"
       ]
     },
     {
@@ -442,10 +645,15 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/pubsub-emqx/**",
-        "!**/libs/server-app/src/sync/**",
-        "!**/libs/client-app/src/sync/**",
-        "!**/libs/pubsub/src/root/server/**"
+        "!**/pkgs/pubsub-emqx-shared/src/**",
+        "!**/pkgs/pubsub-emqx-shared/tests/**",
+        "!**/pkgs/pubsub-emqx-harness/tests/**",
+        "!**/pkgs/pubsub-emqx-shared/**",
+        "!**/libs/app-server/src/**",
+        "!**/libs/app-shared/src/**",
+        "!**/libs/app-client/src/**",
+        "!**/libs/pubsub-server/src/**",
+        "!**/libs/pubsub-server/tests/**"
       ]
     },
     {
@@ -461,7 +669,10 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-eager-games-shell-imports.grit",
-      "includes": ["**/libs/client-app/src/shell/**/*.{ts,tsx}"]
+      "includes": [
+        "**/libs/app-shared/src/**/*.{ts,tsx}",
+        "**/libs/app-client/src/**/*.{ts,tsx}"
+      ]
     },
     "./libs/tools/biome-plugins/no-vitest.grit",
     {
@@ -491,7 +702,8 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/scripts/**",
-        "!**/libs/secrets/src/shared/**",
+        "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/src/**",
         "!**/wall-node-fs.ts",
         "!**/wall-path-exists.ts",
         "!**/wall-os-fs.ts",
@@ -512,8 +724,6 @@
         "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
-        "!**/pkgs/clock/src/index.ts",
-        "!**/pkgs/polyfill/src/crypto.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/harness/**",
@@ -527,7 +737,8 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/scripts/**",
-        "!**/libs/secrets/src/shared/**",
+        "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/src/**",
         "!**/public/**",
         "!**/apps/server/src/product/server.ts",
         "!**/server.ts",
@@ -564,8 +775,6 @@
         "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
-        "!**/pkgs/clock/src/index.ts",
-        "!**/pkgs/polyfill/src/crypto.ts",
         "!**/*-shared-worker.ts",
         "!**/*-shared-worker.js",
         "!**/*-boot.ts",
@@ -597,7 +806,8 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/scripts/**",
-        "!**/libs/secrets/src/shared/**",
+        "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/src/**",
         "!**/public/**",
         "!**/apps/server/src/product/server.ts",
         "!**/server.ts",
@@ -635,8 +845,6 @@
         "!**/launch-actor.ts",
         "!**/root-app.tsx",
         "!**/apps/client/src/main.tsx",
-        "!**/pkgs/clock/src/index.ts",
-        "!**/pkgs/polyfill/src/crypto.ts",
         "!**/*-shared-worker.ts",
         "!**/*-shared-worker.js",
         "!**/*-boot.ts",
@@ -657,13 +865,7 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "!**/libs/client-app/src/providers/root-error-boundary.tsx",
-        "!**/libs/client-app/src/i18n/i18n-provider.tsx",
-        "!**/libs/client-app/src/exemplars/virtualized-list.tsx",
-        "!**/pkgs/chess-board/src/chess-board-canvas-content.tsx",
-        "!**/pkgs/chess-board/src/chess-board-promotion.tsx",
-        "!**/pkgs/chess-board/src/chess-board-drag-preview.tsx",
-        "!**/pkgs/chess-board/src/chess-board-feedback.tsx",
+        "!**/pkgs/chess-board-client/src",
         "!**/fixtures/**",
         "!**/demo-app.*",
         "!**/serialize-host-tree-html*",
@@ -675,7 +877,10 @@
     },
     {
       "path": "./libs/tools/biome-plugins/invariant-id-literal.grit",
-      "includes": ["**/pkgs/invariants/**/*.ts"]
+      "includes": [
+        "**/pkgs/invariants-shared/src/**/*.ts",
+        "**/pkgs/invariants-shared/tests/**/*.ts"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
@@ -689,8 +894,7 @@
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "**/apps/**/*.{ts,tsx}",
-        "!**/pkgs/harness/src/script/**"
+        "**/apps/**/*.{ts,tsx}"
       ]
     },
     {
@@ -698,8 +902,7 @@
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "**/apps/**/*.{ts,tsx}",
-        "!**/pkgs/harness/src/script/**"
+        "**/apps/**/*.{ts,tsx}"
       ]
     },
     {
@@ -716,10 +919,9 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/db-schema-postgres/src/emit.ts",
-        "!**/pkgs/db-schema-sqlite/src/emit.ts",
-        "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
-        "!**/pkgs/sql-client/tests/helpers/generators/program.ts",
+        "!**/pkgs/db-schema-postgres-shared/src",
+        "!**/pkgs/db-schema-sqlite-shared/src",
+        "!**/pkgs/sql-client-shared/tests",
         "!**/dist/**",
         "!**/build/**",
         "!**/tests/**",
@@ -738,110 +940,172 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-skipped-tests.grit",
-      "includes": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
+      "includes": [
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-wall-time-in-tests.grit",
-      "includes": ["**/*.test.{ts,tsx}", "!**/*.contract.test.{ts,tsx}"]
+      "includes": [
+        "**/*.test.{ts,tsx}",
+        "!**/*.contract.test.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-unpinned-property.grit",
-      "includes": ["**/*.{ts,tsx}", "!**/pkgs/property/src/**"]
+      "includes": [
+        "**/*.{ts,tsx}",
+        "!**/pkgs/property-shared/src/**"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/import-no-ui-framework.grit",
       "includes": [
-        "**/libs/chess/src/shared/puzzle-session/**/*.{ts,tsx}",
-        "**/pkgs/assert-crash-browser/src/**/*.{ts,tsx}",
-        "**/pkgs/assert-crash-node/src/**/*.{ts,tsx}",
-        "**/pkgs/assert/src/**/*.{ts,tsx}",
-        "**/pkgs/async-local/src/**/*.{ts,tsx}",
-        "**/pkgs/attribute/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/assert-crash-browser-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/assert-crash-node-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/assert-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/assert-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/async-local-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/async-local-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/attribute-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/attribute-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/auth-harness/src/**/*.{ts,tsx}",
-        "**/pkgs/billing-paddle/src/**/*.{ts,tsx}",
-        "**/pkgs/billing-providers/src/**/*.{ts,tsx}",
-        "**/pkgs/billing-stripe/src/**/*.{ts,tsx}",
-        "**/pkgs/billing/src/**/*.{ts,tsx}",
-        "**/pkgs/browser/src/**/*.{ts,tsx}",
-        "**/pkgs/chess-board-core/src/**/*.{ts,tsx}",
-        "**/pkgs/collab/src/**/*.{ts,tsx}",
-        "**/pkgs/colors/src/**/*.{ts,tsx}",
-        "**/pkgs/database-url-policy/src/**/*.{ts,tsx}",
-        "**/pkgs/db-indexes-postgres/src/**/*.{ts,tsx}",
-        "**/pkgs/db-indexes-sqlite/src/**/*.{ts,tsx}",
-        "**/pkgs/db-indexes/src/**/*.{ts,tsx}",
-        "**/pkgs/db-migrate/src/**/*.{ts,tsx}",
-        "**/pkgs/db-schema-postgres/src/**/*.{ts,tsx}",
-        "**/pkgs/db-schema-sqlite/src/**/*.{ts,tsx}",
-        "**/pkgs/db-schema/src/**/*.{ts,tsx}",
-        "**/pkgs/device/src/**/*.{ts,tsx}",
-        "**/pkgs/distributed-lock/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-paddle-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-paddle-harness/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-providers-server/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe-harness/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe-server/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/billing-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/browser-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/chess-board-core-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/collab-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/collab-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/colors-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/colors-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/database-url-policy-server/src/**/*.{ts,tsx}",
+        "**/pkgs/database-url-policy-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/database-url-policy-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes-postgres-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes-sqlite-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes-harness/src/**/*.{ts,tsx}",
+        "**/pkgs/db-migrate-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/db-migrate-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-postgres-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-postgres-server/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-sqlite-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/device-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/device-client/src/**/*.{ts,tsx}",
+        "**/pkgs/distributed-lock-server/src/**/*.{ts,tsx}",
+        "**/pkgs/distributed-lock-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/distributed-lock-server/tests/**/*.{ts,tsx}",
         "**/pkgs/emqx-server/src/**/*.{ts,tsx}",
-        "**/pkgs/entity-store/src/**/*.{ts,tsx}",
-        "**/pkgs/equal/src/**/*.{ts,tsx}",
-        "**/pkgs/git/src/**/*.{ts,tsx}",
-        "**/pkgs/i18n/src/**/*.{ts,tsx}",
-        "**/pkgs/invariants/src/**/*.{ts,tsx}",
-        "**/pkgs/jingle/src/**/*.{ts,tsx}",
-        "**/pkgs/keyword/src/**/*.{ts,tsx}",
-        "**/pkgs/kv-postgres/src/**/*.{ts,tsx}",
-        "**/pkgs/kv-web/src/**/*.{ts,tsx}",
-        "**/pkgs/llm-openai/src/**/*.{ts,tsx}",
+        "**/pkgs/entity-store-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/entity-store-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/equal-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/equal-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/git-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/i18n-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/invariants-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/invariants-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/jingle-server/src/**/*.{ts,tsx}",
+        "**/pkgs/keyword-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/kv-postgres-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/kv-postgres-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/kv-web-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/kv-web-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/llm-openai-server/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-openai-shared/src/**/*.{ts,tsx}",
         "**/pkgs/matchmaking-harness/src/**/*.{ts,tsx}",
-        "**/pkgs/matchmaking-sql/src/**/*.{ts,tsx}",
-        "**/pkgs/matchmaking/src/**/*.{ts,tsx}",
-        "**/pkgs/message/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-sql-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-sql-server/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-client/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-server/src/**/*.{ts,tsx}",
+        "**/pkgs/message-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/message-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/s3-server/src/**/*.{ts,tsx}",
-        "**/pkgs/ndjson/src/**/*.{ts,tsx}",
-        "**/pkgs/object-store-node-fs/src/**/*.{ts,tsx}",
-        "**/pkgs/object-store-opfs/src/**/*.{ts,tsx}",
-        "**/pkgs/object-store-s3/src/**/*.{ts,tsx}",
-        "**/pkgs/os/src/**/*.{ts,tsx}",
-        "**/pkgs/outbox/src/**/*.{ts,tsx}",
-        "**/pkgs/permissions/src/**/*.{ts,tsx}",
-        "**/pkgs/postgres-embedded/src/**/*.{ts,tsx}",
-        "**/pkgs/postgres-sqlite-compat/src/**/*.{ts,tsx}",
-        "**/pkgs/pubsub-emqx/src/**/*.{ts,tsx}",
-        "**/pkgs/pubsub/src/**/*.{ts,tsx}",
-        "**/pkgs/room-adapter-durable-object/src/**/*.{ts,tsx}",
-        "**/pkgs/room-adapter-memory/src/**/*.{ts,tsx}",
-        "**/pkgs/room-adapter-web/src/**/*.{ts,tsx}",
+        "**/pkgs/ndjson-client/src/**/*.{ts,tsx}",
+        "**/pkgs/ndjson-server/src/**/*.{ts,tsx}",
+        "**/pkgs/ndjson-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-node-fs-server/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-node-fs-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-node-fs-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/object-store-opfs-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-s3-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-s3-server/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-s3-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/os-server/src/**/*.{ts,tsx}",
+        "**/pkgs/os-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/outbox-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/outbox-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/permissions-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/postgres-embedded-server/src/**/*.{ts,tsx}",
+        "**/pkgs/postgres-embedded-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/postgres-sqlite-compat-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-emqx-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-emqx-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-emqx-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-durable-object-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-durable-object-server/src/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-memory-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-web-shared/src/**/*.{ts,tsx}",
         "**/pkgs/room-harness/src/**/*.{ts,tsx}",
-        "**/pkgs/secret-provider/src/**/*.{ts,tsx}",
-        "**/pkgs/secret-store/src/**/*.{ts,tsx}",
-        "**/pkgs/secret-string/src/**/*.{ts,tsx}",
-        "**/pkgs/secrets-config/src/**/*.{ts,tsx}",
-        "**/pkgs/secure-storage-web/src/**/*.{ts,tsx}",
-        "**/pkgs/harness/src/**/*.{ts,tsx}",
-        "**/pkgs/sql-cli/src/**/*.{ts,tsx}",
-        "**/pkgs/sql-client-postgres/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-provider-server/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-provider-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-provider-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/secret-store-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-store-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/secret-string-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-string-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/secrets-config-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/secrets-config-server/src/**/*.{ts,tsx}",
+        "**/pkgs/secrets-config-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/secure-storage-web-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/secure-storage-web-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/harness-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/harness-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-cli-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-cli-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-cli-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-postgres-server/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-postgres-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-postgres-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-postgres-server/tests/**/*.{ts,tsx}",
         "**/pkgs/sql-client-harness/src/**/*.{ts,tsx}",
-        "**/pkgs/sql-map/src/**/*.{ts,tsx}",
-        "**/pkgs/sql/src/**/*.{ts,tsx}",
-        "**/pkgs/static-file-server/src/**/*.{ts,tsx}",
-        "**/pkgs/task-dag/src/**/*.{ts,tsx}",
-        "**/pkgs/ts-reset/src/**/*.{ts,tsx}",
-        "**/pkgs/tts-elevenlabs/src/**/*.{ts,tsx}",
-        "**/pkgs/ui-testing-bun-webview/src/**/*.{ts,tsx}",
-        "**/pkgs/vite-workspace-resolver/src/**/*.{ts,tsx}",
-        "**/pkgs/async/src/async-runner.ts",
-        "**/pkgs/clock/src/harness-clock.ts",
-        "**/pkgs/clock/src/types.ts",
-        "**/pkgs/clock/src/wall.ts",
-        "**/pkgs/http-client/src/origin-availability.ts",
-        "**/pkgs/http-client/src/types.ts",
-        "**/pkgs/kv/src/interface.ts",
-        "**/pkgs/kv/src/kv-state-codec.ts",
-        "**/pkgs/object-store/src/interface.ts",
-        "**/pkgs/secure-storage/src/interface.ts",
-        "**/pkgs/secure-storage/src/secure-storage-store.ts",
-        "**/pkgs/sounds/src/audio-playback/in-memory-audio-playback-port.ts",
-        "**/pkgs/sounds/src/audio-playback/ports.ts",
-        "**/pkgs/sounds/src/audio-playback/web-audio-playback-port.ts",
-        "**/pkgs/sounds/src/safe-audio-play.ts",
-        "**/pkgs/sounds/src/sound-engine.ts",
-        "**/pkgs/sql-client/src/interface.ts",
-        "**/pkgs/tts/src/client/tts-player-controller.ts",
+        "**/pkgs/sql-map-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-map-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/static-file-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/static-file-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/task-dag-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/ts-reset-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-elevenlabs-server/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-elevenlabs-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/ui-testing-bun-webview-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/ui-testing-bun-webview-server/src/**/*.{ts,tsx}",
+        "**/pkgs/ui-testing-bun-webview-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/vite-workspace-resolver-server/src/**/*.{ts,tsx}",
+        "**/pkgs/async-shared/src",
+        "**/pkgs/clock-shared/src",
+        "**/pkgs/http-client-shared/src",
+        "**/pkgs/kv-shared/src",
+        "**/pkgs/object-store-shared/src",
+        "**/pkgs/secure-storage-shared/src",
+        "**/pkgs/sounds-shared/src",
+        "**/pkgs/sql-client-shared/src",
+        "**/pkgs/tts-client/src",
         "!**/solid.{ts,tsx}"
       ]
     },
@@ -875,32 +1139,51 @@
     },
     {
       "path": "./libs/tools/biome-plugins/import-server-not-client.grit",
-      "includes": ["**/server/**/*.{ts,tsx}", "**/apps/server/**/*.{ts,tsx}"]
+      "includes": [
+        "**/server/**/*.{ts,tsx}",
+        "**/apps/server/**/*.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/import-assistant-internal.grit",
-      "includes": ["**/*.{ts,tsx}", "!**/pkgs/assistant/**"]
+      "includes": [
+        "**/*.{ts,tsx}",
+        "!**/pkgs/assistant-client/src/**",
+        "!**/pkgs/assistant-shared/src/**",
+        "!**/pkgs/assistant-client/tests/**",
+        "!**/pkgs/assistant-shared/tests/**"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/import-pkgs-tier.grit",
-      "includes": ["**/pkgs/**/*.{ts,tsx}"]
+      "includes": [
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/import-libs-tier.grit",
-      "includes": ["**/libs/**/*.{ts,tsx}"]
+      "includes": [
+        "**/libs/**/*.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/import-shared-no-wall-io.grit",
       "includes": [
-        "**/libs/*/src/shared/**/*.{ts,tsx}",
-        "**/libs/*/src/use-cases/*/shared/**/*.{ts,tsx}",
-        "**/pkgs/room/src/client/core/**/*.{ts,tsx}",
-        "**/pkgs/room/src/server/core/**/*.{ts,tsx}",
-        "**/pkgs/room/src/types.ts",
-        "**/pkgs/room/src/hash-room-state.ts",
-        "!**/libs/db/**",
-        "!**/libs/secrets/**",
-        "!**/libs/pubsub/**",
+        "**/libs/*-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-client/src/**/*.{ts,tsx}",
+        "**/pkgs/room-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-server/src/**/*.{ts,tsx}",
+        "**/pkgs/room-shared/src",
+        "!**/libs/db-server/src/**",
+        "!**/libs/db-shared/src/**",
+        "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/src/**",
+        "!**/libs/secrets-server/tests/**",
+        "!**/libs/secrets-shared/tests/**",
+        "!**/libs/pubsub-shared/src/**",
+        "!**/libs/pubsub-server/src/**",
+        "!**/libs/pubsub-server/tests/**",
+        "!**/libs/pubsub-shared/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**"
@@ -911,11 +1194,15 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/billing/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-shared/tests/**/*.{ts,tsx}",
         "!**/apps/server/src/product/server.ts",
         "!**/apps/product/**",
         "!**/libs/harness/src/**",
-        "!**/libs/secrets/**",
+        "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/src/**",
+        "!**/libs/secrets-server/tests/**",
+        "!**/libs/secrets-shared/tests/**",
         "!**/src/harness/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
@@ -927,8 +1214,19 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/libs/auth/**",
-        "!**/libs/permissions/**"
+        "!**/libs/auth-client/src/**",
+        "!**/libs/auth-shared/src/**",
+        "!**/libs/auth-server/src/**",
+        "!**/libs/auth-shared/tests/**",
+        "!**/libs/auth-client/tests/**",
+        "!**/libs/auth-server/tests/**",
+        "!**/libs/permissions-client/src/**",
+        "!**/libs/permissions-shared/src/**",
+        "!**/libs/permissions-harness/src/**",
+        "!**/libs/permissions-server/src/**",
+        "!**/libs/permissions-shared/tests/**",
+        "!**/libs/permissions-harness/tests/**",
+        "!**/libs/permissions-shared/**"
       ]
     },
     {
@@ -936,8 +1234,14 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/libs/permissions/**",
-        "!**/libs/server-app/src/app/create-server.ts",
+        "!**/libs/permissions-client/src/**",
+        "!**/libs/permissions-shared/src/**",
+        "!**/libs/permissions-harness/src/**",
+        "!**/libs/permissions-server/src/**",
+        "!**/libs/permissions-shared/tests/**",
+        "!**/libs/permissions-harness/tests/**",
+        "!**/libs/permissions-shared/**",
+        "!**/libs/app-server/src",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
       ]
@@ -947,9 +1251,29 @@
       "includes": [
         "**/libs/*/src/**/*.{ts,tsx}",
         "**/apps/*/src/**/*.{ts,tsx}",
-        "!**/libs/auth/**",
-        "!**/libs/billing/**",
-        "!**/libs/permissions/**",
+        "!**/libs/auth-client/src/**",
+        "!**/libs/auth-shared/src/**",
+        "!**/libs/auth-server/src/**",
+        "!**/libs/auth-shared/tests/**",
+        "!**/libs/auth-client/tests/**",
+        "!**/libs/auth-server/tests/**",
+        "!**/libs/billing-harness/src/**",
+        "!**/libs/billing-shared/src/**",
+        "!**/libs/billing-client/src/**",
+        "!**/libs/billing-server/src/**",
+        "!**/libs/billing-shared/tests/**",
+        "!**/libs/billing-server/tests/**",
+        "!**/libs/billing-client/tests/**",
+        "!**/libs/billing-harness/tests/**",
+        "!**/libs/billing-server/scripts/**",
+        "!**/libs/billing-shared/**",
+        "!**/libs/permissions-client/src/**",
+        "!**/libs/permissions-shared/src/**",
+        "!**/libs/permissions-harness/src/**",
+        "!**/libs/permissions-server/src/**",
+        "!**/libs/permissions-shared/tests/**",
+        "!**/libs/permissions-harness/tests/**",
+        "!**/libs/permissions-shared/**",
         "!**/libs/harness/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -959,11 +1283,12 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/auth/src/**/*.{ts,tsx}",
-        "!**/libs/runtime/src/root/server/app-auth-provider.ts",
+        "**/pkgs/auth-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/auth-client/src/**/*.{ts,tsx}",
+        "!**/libs/runtime-server/src",
         "!**/apps/auth-relay/src/worker.ts",
-        "!**/libs/client-app/src/shell/wall-client-env.ts",
-        "!**/libs/client-app/src/shell/auth-client-storage.ts",
+        "!**/libs/app-client/src",
+        "!**/libs/app-shared/src",
         "!**/apps/product/**",
         "!**/libs/harness/src/**",
         "!**/src/harness/**",
@@ -1000,13 +1325,19 @@
     },
     {
       "path": "./libs/tools/biome-plugins/import-harness-internals.grit",
-      "includes": ["**/*.{ts,tsx}", "!**/pkgs/harness/**"]
+      "includes": [
+        "**/*.{ts,tsx}",
+        "!**/pkgs/harness-shared/src/**",
+        "!**/pkgs/harness-shared/tests/**",
+        "!**/pkgs/harness-shared/**"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/import-harness-core-no-fast-check.grit",
       "includes": [
-        "**/pkgs/harness/src/**/*.{ts,tsx}",
-        "!**/pkgs/harness/src/fast-check/**",
+        "**/pkgs/harness-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/harness-shared/tests/**/*.{ts,tsx}",
+        "!**/pkgs/harness-shared/src/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**"
@@ -1014,7 +1345,9 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-switch-in-component.grit",
-      "includes": ["**/*.tsx"]
+      "includes": [
+        "**/*.tsx"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/observability-no-raw-attributes.grit",
@@ -1022,8 +1355,7 @@
         "**/apps/**/src/**/*.{ts,tsx}",
         "**/libs/**/src/**/*.{ts,tsx}",
         "**/pkgs/**/src/**/*.{ts,tsx}",
-        "!**/pkgs/observability/src/core/**",
-        "!**/pkgs/observability/src/query/**",
+        "!**/pkgs/observability-shared/src/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1050,8 +1382,7 @@
     {
       "path": "./libs/tools/biome-plugins/observability-core-no-runtime.grit",
       "includes": [
-        "**/pkgs/observability/src/core/**/*.{ts,tsx}",
-        "**/pkgs/observability/src/query/**/*.{ts,tsx}"
+        "**/pkgs/observability-shared/src/**/*.{ts,tsx}"
       ]
     },
     {
@@ -1060,33 +1391,35 @@
         "**/apps/**/src/**/*.{ts,tsx}",
         "**/libs/**/src/**/*.{ts,tsx}",
         "**/pkgs/**/src/**/*.{ts,tsx}",
-        "!**/pkgs/observability/**",
-        "!**/pkgs/observability-cli/**",
-        "!**/pkgs/observability-mcp/**",
+        "!**/pkgs/observability-client/src/**",
+        "!**/pkgs/observability-shared/src/**",
+        "!**/pkgs/observability-server/src/**",
+        "!**/pkgs/observability-shared/tests/**",
+        "!**/pkgs/observability-server/tests/**",
+        "!**/pkgs/observability-harness/tests/**",
+        "!**/pkgs/observability-server/scripts/**",
+        "!**/pkgs/observability-shared/**",
+        "!**/pkgs/observability-cli-shared/src/**",
+        "!**/pkgs/observability-cli-server/src/**",
+        "!**/pkgs/observability-cli-shared/tests/**",
+        "!**/pkgs/observability-cli-server/tests/**",
+        "!**/pkgs/observability-mcp-server/src/**",
+        "!**/pkgs/observability-mcp-shared/src/**",
+        "!**/pkgs/observability-mcp-server/tests/**",
         "!**/apps/client/src/main.tsx",
         "!**/apps/server/src/room.ts",
         "!**/apps/server/src/product/server.ts",
-        "!**/libs/client-app/src/shell/observability/browser-boundaries.ts",
-        "!**/libs/client-app/src/shell/observability/browser-identity.ts",
-        "!**/libs/client-app/src/shell/wall-client-env.ts",
-        "!**/libs/observability/src/server/person-trouble-document.ts",
-        "!**/libs/observability/src/server/person-trouble-probe.ts",
-        "!**/libs/server-app/src/app/create-server.ts",
-        "!**/libs/server-app/src/app/request-db-middleware.ts",
-        "!**/libs/server-app/src/observability/request-telemetry.ts",
-        "!**/libs/server-app/src/observability/stamp-connection-place.ts",
-        "!**/libs/server-app/src/observability/wrap-sql-client.ts",
-        "!**/libs/server-app/src/room/route.ts",
+        "!**/libs/app-shared/src",
+        "!**/libs/app-client/src",
+        "!**/libs/observability-server/src",
+        "!**/libs/app-server/src",
         "!**/libs/harness/src/observability/test-failure-spans.ts",
         "!**/libs/harness/src/preload.ts",
-        "!**/pkgs/logger/src/logger.ts",
-        "!**/pkgs/room-adapter-durable-object/src/adapter-base.ts",
-        "!**/pkgs/room-adapter-durable-object/src/observability.ts",
-        "!**/pkgs/sync-engine/src/client/mutation-upload-queue.ts",
-        "!**/pkgs/sync-engine/src/mutations/client/create-mutation-client.ts",
-        "!**/pkgs/sync-engine/src/mutations/server/replay-mutation.ts",
-        "!**/pkgs/sync-engine/src/server/sync-app-mutations-route.ts",
-        "!**/pkgs/sync-engine/src/shared/mutation-observability.ts",
+        "!**/pkgs/logger-shared/src",
+        "!**/pkgs/room-adapter-durable-object-server/src",
+        "!**/pkgs/sync-engine-client/src",
+        "!**/pkgs/sync-engine-server/src",
+        "!**/pkgs/sync-engine-shared/src",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1097,7 +1430,14 @@
         "**/apps/**/src/**/*.{ts,tsx}",
         "**/libs/**/src/**/*.{ts,tsx}",
         "**/pkgs/**/src/**/*.{ts,tsx}",
-        "!**/pkgs/observability/**",
+        "!**/pkgs/observability-client/src/**",
+        "!**/pkgs/observability-shared/src/**",
+        "!**/pkgs/observability-server/src/**",
+        "!**/pkgs/observability-shared/tests/**",
+        "!**/pkgs/observability-server/tests/**",
+        "!**/pkgs/observability-harness/tests/**",
+        "!**/pkgs/observability-server/scripts/**",
+        "!**/pkgs/observability-shared/**",
         "!**/apps/client/src/main.tsx",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
@@ -1109,9 +1449,21 @@
         "**/apps/**/src/**/*.{ts,tsx}",
         "**/libs/**/src/**/*.{ts,tsx}",
         "**/pkgs/**/src/**/*.{ts,tsx}",
-        "!**/pkgs/observability/**",
-        "!**/pkgs/observability-cli/**",
-        "!**/pkgs/observability-mcp/**",
+        "!**/pkgs/observability-client/src/**",
+        "!**/pkgs/observability-shared/src/**",
+        "!**/pkgs/observability-server/src/**",
+        "!**/pkgs/observability-shared/tests/**",
+        "!**/pkgs/observability-server/tests/**",
+        "!**/pkgs/observability-harness/tests/**",
+        "!**/pkgs/observability-server/scripts/**",
+        "!**/pkgs/observability-shared/**",
+        "!**/pkgs/observability-cli-shared/src/**",
+        "!**/pkgs/observability-cli-server/src/**",
+        "!**/pkgs/observability-cli-shared/tests/**",
+        "!**/pkgs/observability-cli-server/tests/**",
+        "!**/pkgs/observability-mcp-server/src/**",
+        "!**/pkgs/observability-mcp-shared/src/**",
+        "!**/pkgs/observability-mcp-server/tests/**",
         "!**/libs/harness/src/preload.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
@@ -1123,12 +1475,18 @@
         "**/apps/**/src/**/*.{ts,tsx}",
         "**/libs/**/src/**/*.{ts,tsx}",
         "**/pkgs/**/src/**/*.{ts,tsx}",
-        "!**/pkgs/observability/**",
+        "!**/pkgs/observability-client/src/**",
+        "!**/pkgs/observability-shared/src/**",
+        "!**/pkgs/observability-server/src/**",
+        "!**/pkgs/observability-shared/tests/**",
+        "!**/pkgs/observability-server/tests/**",
+        "!**/pkgs/observability-harness/tests/**",
+        "!**/pkgs/observability-server/scripts/**",
+        "!**/pkgs/observability-shared/**",
         "!**/apps/server/src/room.ts",
         "!**/apps/server/src/product/server.ts",
-        "!**/libs/server-app/src/room/route.ts",
-        "!**/pkgs/room-adapter-durable-object/src/adapter-base.ts",
-        "!**/pkgs/room-adapter-durable-object/src/observability.ts",
+        "!**/libs/app-server/src",
+        "!**/pkgs/room-adapter-durable-object-server/src",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1173,7 +1531,7 @@
       }
     },
     {
-      "includes": ["libs/client-app/src/providers/app-providers.tsx"],
+      "includes": [],
       "linter": {
         "rules": {
           "complexity": {
@@ -1186,7 +1544,10 @@
       }
     },
     {
-      "includes": ["libs/secrets/src/shared/**/*.ts"],
+      "includes": [
+        "libs/secrets-shared/src/**/*.ts",
+        "libs/secrets-server/src/**/*.ts"
+      ],
       "linter": {
         "rules": {
           "complexity": {
@@ -1215,7 +1576,7 @@
       }
     },
     {
-      "includes": ["pkgs/billing-stripe/src/catalog-sync.ts"],
+      "includes": [],
       "linter": {
         "rules": {
           "suspicious": {
@@ -1225,7 +1586,7 @@
       }
     },
     {
-      "includes": ["pkgs/async/src/use-async.ts"],
+      "includes": [],
       "linter": {
         "rules": {
           "complexity": {
@@ -1236,7 +1597,7 @@
       }
     },
     {
-      "includes": ["pkgs/chess-board/src/use-chess-game.ts"],
+      "includes": [],
       "linter": {
         "rules": {
           "complexity": {
@@ -1251,8 +1612,11 @@
         "**/scripts/**",
         "**/*.bench.ts",
         "**/*.bench.tsx",
-        "pkgs/logger/src/**",
-        "pkgs/sql-cli/src/**"
+        "pkgs/logger-shared/src/**",
+        "pkgs/logger-client/src/**",
+        "pkgs/sql-cli-shared/src/**",
+        "pkgs/sql-cli-harness/tests/**",
+        "pkgs/sql-cli-shared/tests/**"
       ],
       "linter": {
         "rules": {
@@ -1271,7 +1635,7 @@
     {
       "includes": [
         "pkgs/room-widgets/src/pages/use-room-harness.ts",
-        "pkgs/chess-board/src/chess-board.tsx"
+        "pkgs/chess-board-client/src"
       ],
       "linter": {
         "rules": {
@@ -1282,7 +1646,9 @@
       }
     },
     {
-      "includes": ["**/src/components/icons/**"],
+      "includes": [
+        "**/src/components/icons/**"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -1292,7 +1658,9 @@
       }
     },
     {
-      "includes": ["apps/client/**"],
+      "includes": [
+        "apps/client/**"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -1307,7 +1675,9 @@
       }
     },
     {
-      "includes": ["**/libs/*/tests/harness/**"],
+      "includes": [
+        "**/libs/*/tests/harness/**"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -1316,7 +1686,9 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "importNames": ["Driver"],
+                    "importNames": [
+                      "Driver"
+                    ],
                     "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness/README.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
@@ -1334,9 +1706,9 @@
     },
     {
       "includes": [
-        "pkgs/sql-client-contract/tests/helpers/contract/portable-contract.ts",
-        "pkgs/sync-engine/src/mutations/server/replay-mutation.ts",
-        "pkgs/sync-engine/src/harness/http-bridge-dispatch.ts"
+        "pkgs/sql-client-contract-harness/tests",
+        "pkgs/sync-engine-server/src",
+        "pkgs/sync-engine-harness/src"
       ],
       "linter": {
         "rules": {

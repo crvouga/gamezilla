@@ -10,11 +10,11 @@ import {
   describeApiKeySource,
   invokeAgent,
   requireApiKey,
-} from './check-heal/invoke-agent';
-import { formatDuration, healLog } from './check-heal/log';
-import { buildCheckHealPromptBody } from './check-heal/prompt';
-import { runStep } from './check-heal/run-step';
-import { CHECK_HEAL_STEPS } from './check-heal/steps';
+} from './invoke-agent';
+import { formatDuration, healLog } from './log';
+import { buildCheckHealPromptBody } from './prompt';
+import { runStep } from './run-step';
+import { CHECK_HEAL_STEPS } from './steps';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 

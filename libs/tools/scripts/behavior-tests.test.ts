@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { behaviorTestViolations, randomWalkViolations } from './behavior-tests';
 
 function violations(files: readonly string[]): string {

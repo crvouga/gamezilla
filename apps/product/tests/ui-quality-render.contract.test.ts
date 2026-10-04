@@ -1,11 +1,11 @@
 import { afterAll, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { snapshotFingerprint } from '@apps/product/ui-quality/fingerprint';
-import { openSnapshotRenderer } from '@apps/product/ui-quality/render';
-import { compileFrameCss } from '@libs/harness/ci/wall-frame-css';
-import { compileCssModule } from '@pkgs/bun-test-solid/css-module';
-import { createUIQualityChecker } from 'ui-quality-check';
+import { snapshotFingerprint } from '../scripts/fingerprint';
+import { openSnapshotRenderer } from '../scripts/render';
+import { compileFrameCss } from '@libs/harness/wall-frame-css';
+import { compileCssModule } from '@pkgs/bun-test-solid-client/css-module';
+import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
 
 afterAll(() => Bun.WebView.closeAll());
 
@@ -16,9 +16,9 @@ test('the full report stylesheet preserves chess-cell children and flush-content
     const path = resolve(root, file);
     return compileCssModule(path, readFileSync(path, 'utf8'));
   };
-  const chess = module('pkgs/chess-board/src/chess-board.module.css');
+  const chess = module('pkgs/chess-board-client/src/chess-board.module.css');
   const flush = module(
-    'pkgs/ui/src/components/content-edge-padding/content-edge-padding.module.css'
+    'pkgs/ui-client/src/content-edge-padding.module.css'
   );
   const view = new Bun.WebView({
     width: 390,

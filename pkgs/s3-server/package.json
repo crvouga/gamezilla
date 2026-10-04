@@ -2,8 +2,13 @@
   "name": "@pkgs/s3-server",
   "version": "0.0.0",
   "private": true,
+  "category": "server",
   "exports": {
-    ".": "./src/index.ts"
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",

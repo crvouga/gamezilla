@@ -1,25 +1,15 @@
-import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
-import { AddOne, readTally, TakeOne } from '@pkgs/room/harness';
-import {
-  addClient,
-  connect,
-  deliverQueuedRoomChange,
-  disconnect,
-  dispatch,
-  exampleSystem,
-  expectInSync,
-  hearRoomChangeCounted,
-  holdRoomChanges,
-  pendingRoomChangeIds,
-  type QueuedRoomChange,
-  readServer,
-  roomChangeReceipts,
-  serverCrash,
-  serverCrashed,
-  serverRestart,
-  stopAsRoomChangeCounts,
-} from '@pkgs/room-harness';
-import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import type { Picks } from '@pkgs/quint-shared/registry';
+import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
+import { addClient, connect, disconnect, dispatch, serverCrash, serverRestart } from '@pkgs/room-harness/room-actions';
+import { deliverQueuedRoomChange, hearRoomChangeCounted, holdRoomChanges, pendingRoomChangeIds, roomChangeReceipts, stopAsRoomChangeCounts } from '@pkgs/room-harness/commit-recovery';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import type { QueuedRoomChange } from '@pkgs/room-harness/commit-recovery';
+import { readServer } from '@pkgs/room-harness/read-state';
+import { serverCrashed } from '@pkgs/room-harness/observations';
+import type { RoomTraceWorld } from './world';
+import { roomFingerprint, traceRoom } from './world';
 
 const PEOPLE = ['alice', 'bob'] as const;
 const requests = new WeakMap<RoomTraceWorld, Map<string, QueuedRoomChange>>();

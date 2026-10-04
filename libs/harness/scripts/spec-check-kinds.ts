@@ -8,9 +8,9 @@
  *   specs/<domain>/<name>.openslo.yaml   objectives  tests/openslo/index.ts
  */
 
-import { alloyStubFileName, alloyStubSource } from '@pkgs/alloy/stubs';
-import { dmnStubFileName, dmnStubSource } from '@pkgs/dmn/stubs';
-import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
+import { alloyStubFileName, alloyStubSource } from '@pkgs/alloy-shared/stubs';
+import { dmnStubFileName, dmnStubSource } from '@pkgs/dmn-shared/stubs';
+import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared/stubs';
 
 export type CheckStubInput = {
   readonly packageName: string;

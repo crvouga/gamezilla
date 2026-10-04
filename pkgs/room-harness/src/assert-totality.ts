@@ -1,10 +1,4 @@
-import type {
-  RoomCommand,
-  RoomCommandPayload,
-  RoomEvent,
-  RoomModule,
-  RoomState,
-} from '@pkgs/room';
+import type { RoomCommand, RoomCommandPayload, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
 
 /**
  * M3: every (state, command, identity) yields ok+events or typed error — never throws.

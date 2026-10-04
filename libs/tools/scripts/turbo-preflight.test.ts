@@ -1,15 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
-import {
-  artifactUrl,
-  localCacheFlag,
-  type PrefetchIo,
-  planFromDryRun,
-  prefetchArtifacts,
-  readsRemoteCache,
-  resolveRemoteHits,
-  restoreEveryHit,
-} from './turbo-preflight';
+import { artifactUrl, localCacheFlag, planFromDryRun, prefetchArtifacts, readsRemoteCache, resolveRemoteHits, restoreEveryHit } from './turbo-preflight';
+import type { PrefetchIo } from './turbo-preflight';
 
 function dryRun(tasks: readonly unknown[]): string {
   return JSON.stringify({ id: 'run', tasks });

@@ -26,11 +26,11 @@
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SPEC_PARAMETER_TYPES } from '@libs/harness/spec/parameter-types';
-import { checkSpecs } from '@pkgs/gherkin/check';
-import { parameterTypeRegistryFrom } from '@pkgs/gherkin/registry';
-import { nearDuplicates } from '@pkgs/gherkin/similarity';
-import { specSmells } from '@pkgs/gherkin/smells';
+import { SPEC_PARAMETER_TYPES } from '@libs/harness/parameter-types';
+import { checkSpecs } from '@pkgs/gherkin-shared/check';
+import { parameterTypeRegistryFrom } from '@pkgs/gherkin-shared/registry';
+import { nearDuplicates } from '@pkgs/gherkin-shared/similarity';
+import { specSmells } from '@pkgs/gherkin-shared/smells';
 import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
 import { campaignProblems, specCampaigns } from './spec-campaigns';

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SECRETS } from '@libs/secrets/public/secrets';
+import { SECRETS } from '@libs/secrets-server/registry';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 

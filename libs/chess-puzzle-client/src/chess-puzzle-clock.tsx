@@ -1,0 +1,24 @@
+import { ClockIcon } from '@pkgs/ui-client/icons';
+import type { Accessor, JSX } from 'solid-js';
+import { Show } from 'solid-js';
+
+import { formatPuzzleClock } from '@libs/chess-puzzle-shared/puzzle-clock';
+
+/** Elapsed solve time for the live attempt (`m:ss`), frozen once terminal. */
+export function ChessPuzzleClock(props: {
+  elapsedMs: Accessor<number | null>;
+}): JSX.Element {
+  return (
+    <Show when={props.elapsedMs() !== null}>
+      <p
+        class="box flex-row items-center gap-1 shrink-0"
+        data-testid="chess-puzzle-clock"
+      >
+        <ClockIcon size={14} color="textSecondary" />
+        <span class="text textMono text-text">
+          {formatPuzzleClock(props.elapsedMs() ?? 0)}
+        </span>
+      </p>
+    </Show>
+  );
+}

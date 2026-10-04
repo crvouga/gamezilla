@@ -24,10 +24,10 @@
 
 import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { wallClock } from '@pkgs/clock';
-import { openCommit } from '@pkgs/harness-report/remote/publish';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-import { compileFrameCss } from '../src/ci/wall-frame-css';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { openCommit } from '@pkgs/harness-report-shared/publish';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { publishBatch } from './report-batch';
 import {
   createReportPlan,

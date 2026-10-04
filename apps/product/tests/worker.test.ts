@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import worker, {
-  type AppWorkerEnv,
-  RoomServerDurableObject,
-  RoomStorageArchive,
-} from '@apps/product/worker';
+import worker from '@apps/product/worker';
+import type { AppWorkerEnv } from '@apps/product/worker';
+import { RoomServerDurableObject } from '@apps/server/room';
+import { RoomStorageArchive } from '@apps/product/room-storage-archive';
 
 const context = {
   waitUntil: (_promise: Promise<unknown>) => undefined,

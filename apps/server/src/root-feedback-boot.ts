@@ -1,15 +1,13 @@
 // @io-wall-ok — feedback backend composition root; no product bootstrap
-import type { ApiWorkerEnv } from '@libs/server-app/config/env';
-import { workerEnvToSecretRecord } from '@libs/server-app/config/env';
-import { createApiObjectStore } from '@libs/server-app/config/object-store';
-import { createApiSecretStore } from '@libs/server-app/config/secret-store';
-import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
-import { wallClock, wallTimers } from '@pkgs/clock';
-import {
-  ArchivedIssueReporter,
-  createFeedbackHttpApp,
-  GitHubIssueReporter,
-} from '@pkgs/feedback/server';
+import type { ApiWorkerEnv } from '@libs/app-shared/env';
+import { workerEnvToSecretRecord } from '@libs/app-shared/env';
+import { createApiObjectStore } from '@libs/app-server/object-store';
+import { createApiSecretStore } from '@libs/app-shared/secret-store';
+import { resolveWebClientOrigin } from '@libs/app-shared/web-client-origin';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { ArchivedIssueReporter } from '@pkgs/feedback-server/archived-issue-reporter';
+import { createFeedbackHttpApp } from '@pkgs/feedback-server/feedback-http-app';
+import { GitHubIssueReporter } from '@pkgs/feedback-server/github-issue-reporter';
 
 export async function handleRootFeedbackReport(
   request: Request,

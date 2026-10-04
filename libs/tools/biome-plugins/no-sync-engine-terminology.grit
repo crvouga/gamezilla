@@ -16,7 +16,7 @@ file($body) where {
   },
   $body <: contains bubble or {
     `topicCheckpoints` as $id where {
-      register_diagnostic(span=$id, message="Retired sync terminology: topicCheckpoints. See pkgs/sync-engine/README.md.", severity="error")
+      register_diagnostic(span=$id, message="Retired sync terminology: topicCheckpoints. See pkgs/sync-engine-server/README.md.", severity="error")
     },
     `NudgePayload` as $id where {
       register_diagnostic(span=$id, message="Retired sync terminology: NudgePayload.", severity="error")

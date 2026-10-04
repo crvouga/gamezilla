@@ -1,9 +1,6 @@
 import { expect, test } from 'bun:test';
-import {
-  partitionAwareRoomTransport,
-  ROOM_HEARTBEAT_MS,
-} from '@libs/harness/fabric/partition-aware-room-transport';
-import { createHarnessClock } from '@pkgs/clock';
+import { partitionAwareRoomTransport, ROOM_HEARTBEAT_MS } from '@libs/harness/partition-aware-room-transport';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 // regression: harness-room-first-open-never-recovers
 test('a first admission refusal retries on the next heartbeat', async () => {

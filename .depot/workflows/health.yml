@@ -16,8 +16,8 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # probes as its last step (`//#deploy` → `health`); this schedule catches drift in
 # between (expired tokens, revoked keys, a dead Railway service).
 #
-# One job per environment in libs/infra/tofu/envs/<env>.tfvars.json
-# (health:matrix reads them — libs/infra/scripts/workflow-env-matrix.ts — from
+# One job per environment in libs/infra-shared/tofu/envs/<env>.tfvars.json
+# (health:matrix reads them — libs/infra-shared/scripts/workflow-env-matrix.ts — from
 # a job with no secrets); adding an env file needs no edit here. Envs with
 # `protection: "production"` run in the GitHub `production` environment and
 # keep their critical-journey evidence on failure. Scenarios only production
@@ -80,7 +80,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
       - name: Remove unused branches and stale reports
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
+        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
 
   health-matrix:
     name: health:matrix
@@ -97,7 +97,7 @@ jobs:
 
       - name: envs
         id: envs
-        run: bun run libs/infra/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+        run: bun run libs/infra-shared/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
   health-env:
     name: health:${{ matrix.env }}

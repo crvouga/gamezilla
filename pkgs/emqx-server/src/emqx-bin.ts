@@ -1,6 +1,6 @@
 // @io-wall-ok — resolves the broker binary for the process runner
 import { existsSync } from 'node:fs';
-import { capture } from '@pkgs/os/command';
+import { capture } from '@pkgs/os-server/command';
 
 /**
  * The `emqx` binary: `EMQX_BIN` when set, else the release pinned in the repo's

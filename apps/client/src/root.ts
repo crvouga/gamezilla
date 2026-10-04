@@ -1,7 +1,7 @@
 // @io-wall-ok — platform root: feedback is active before app modules load
 
-import { bootBrowserFeedback } from '@pkgs/feedback/browser';
-import { feedbackEndpoint } from '@pkgs/feedback/client';
+import { bootBrowserFeedback } from '@pkgs/feedback-client/wall';
+import { feedbackEndpoint } from '@pkgs/feedback-client/endpoint';
 
 bootBrowserFeedback({
   build: import.meta.env.VITE_COMMIT_HASH ?? 'unknown',

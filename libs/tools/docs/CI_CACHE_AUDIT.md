@@ -206,10 +206,10 @@ Relative to the supplied slow-run commit:
 - `libs/tools/scripts/turbo-deploy-graph.test.ts`
 - `libs/tools/scripts/turbo-cache-integration.test.ts`
 - `libs/tools/scripts/workflow-cache.test.ts`
-- `pkgs/object-store-s3/src/object-store.s3.contract.test.ts`
-- `pkgs/sql-client-postgres/src/postgres.contract.test.ts`
-- `pkgs/db-indexes-postgres/tests/postgres.contract.test.ts`
-- `pkgs/pubsub-emqx/tests/emqx.contract.test.ts`
+- `pkgs/object-store-s3-server/tests/object-store.s3.contract.test.ts`
+- `pkgs/sql-client-postgres-server/tests/postgres.contract.test.ts`
+- `pkgs/db-indexes-postgres-harness/tests/postgres.contract.test.ts`
+- `pkgs/pubsub-emqx-harness/tests/emqx.contract.test.ts`
 
 ## Validation boundaries
 

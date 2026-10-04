@@ -1,14 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  exampleAppSchema,
-  type MatchmakingHarnessBackend,
-  NameAttr,
-  RatingAttr,
-  ratingWithin,
-} from '@pkgs/matchmaking-harness';
+import { exampleAppSchema, NameAttr, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import type { MatchmakingHarnessBackend } from '@pkgs/matchmaking-harness/api';
 import { openHarnessStore } from '@pkgs/matchmaking-harness/store';
-import type { MatchmakingImplSqlOptions } from '@pkgs/matchmaking-sql';
-import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
+import type { MatchmakingImplSqlOptions } from '@pkgs/matchmaking-sql-server/matchmaking';
+import { MatchmakingImplSql } from '@pkgs/matchmaking-sql-server/matchmaking';
 
 const begin = (ownerId: string, requestId: string) => ({
   ownerId,

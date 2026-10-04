@@ -27,7 +27,7 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 /** Tools pinned to something outside this repo; bump them by hand. */
 const HELD: Record<string, string> = {
   'github:emqx/emqx':
-    'kept in step with the version pin (libs/pubsub/emqx-deploy/Dockerfile)',
+    'kept in step with the version pin (libs/pubsub-shared/emqx-deploy/Dockerfile)',
 };
 
 function run(cmd: readonly string[]): void {

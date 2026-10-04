@@ -12,12 +12,12 @@ import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
-} from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { Sql } from '@pkgs/sql';
-import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
-import type { PreparedStatement, SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplBetterSqlite } from '@pkgs/sql-client-sqlite/impl-better-sqlite3';
+} from '@pkgs/object-store-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { Sql } from '@pkgs/sql-shared/sql';
+import { SqlClientImplAgnostic } from '@pkgs/sql-client-shared/impl-agnostic';
+import type { PreparedStatement, SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplBetterSqlite } from '@pkgs/sql-client-sqlite-server/impl-better-sqlite3';
 import BetterSqlite3 from 'better-sqlite3';
 
 /** Bump when seed format / restore semantics change outside migrate source. */

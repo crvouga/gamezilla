@@ -1,0 +1,60 @@
+{
+  "name": "@pkgs/ui-client",
+  "version": "0.0.0",
+  "private": true,
+  "category": "client",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "codemod": "bun run codemod/cli-io.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+  },
+  "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/a11y-shared": "workspace:*",
+    "@pkgs/async-client": "workspace:*",
+    "@pkgs/async-shared": "workspace:*",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/i18n-shared": "workspace:*",
+    "@pkgs/keyword-shared": "workspace:*",
+    "@pkgs/kv-client": "workspace:*",
+    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/solid-context-client": "workspace:*",
+    "@pkgs/ui-shared": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "@tanstack/solid-virtual": "catalog:",
+    "lucide-solid": "catalog:",
+    "prosemirror-commands": "catalog:",
+    "prosemirror-history": "catalog:",
+    "prosemirror-inputrules": "catalog:",
+    "prosemirror-keymap": "catalog:",
+    "prosemirror-markdown": "catalog:",
+    "prosemirror-model": "catalog:",
+    "prosemirror-schema-list": "catalog:",
+    "prosemirror-state": "catalog:",
+    "prosemirror-view": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

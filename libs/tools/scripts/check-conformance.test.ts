@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { REQUIREMENTS } from '@pkgs/conformance/manifest';
+import { REQUIREMENTS } from '@pkgs/conformance-shared/manifest';
 
 import { EVIDENCE_MAP, RELEASE_GATE_TASKS } from '../conformance/evidence-map';
 import { verdictsFromPlan } from '../conformance/gate-verdicts';
