@@ -24,13 +24,13 @@
     },
     "test:contract": {
       "dependsOn": [
-        "@pkgs/quint#src",
-        "@pkgs/conformance#src",
+        "@pkgs/quint-server#src",
+        "@pkgs/conformance-shared#src",
         "@libs/harness#src",
-        "ui-quality-check#src"
+        "@pkgs/ui-quality-check-server#src"
       ],
       "inputs": [
-        "tests/quint/system/**",
+        "tests/quint/**",
         "package.json",
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/specs/auth/**",
@@ -45,7 +45,7 @@
         "$TURBO_ROOT$/specs/system/**",
         "tests/ui-quality-render.contract.test.ts",
         "scripts/render.ts",
-        "$TURBO_ROOT$/pkgs/ui/src/**/*.css",
+        "$TURBO_ROOT$/pkgs/ui-client/src/**/*.css",
         "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
         "$TURBO_ROOT$/pkgs/tailwind-shared/src/**",
         "$TURBO_ROOT$/turbo-platform-key.json"
@@ -62,7 +62,7 @@
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/developer-tools/**"]
     },
     "prepare:ui-quality-model": {
-      "dependsOn": ["ui-quality-check#build"],
+      "dependsOn": ["@pkgs/ui-quality-check-server#build"],
       "cache": false,
       "inputs": ["scripts/prepare-model.ts"],
       "outputs": [],
@@ -231,7 +231,7 @@
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/pkgs/ui/src/**/*.css",
+        "$TURBO_ROOT$/pkgs/ui-client/src/**/*.css",
         "$TURBO_ROOT$/pkgs/ui-shared/src/nunito-latin.woff2",
         "$TURBO_ROOT$/pkgs/*/src/**/*.module.css",
         "$TURBO_ROOT$/libs/harness/src/wall-frame-css.ts",
@@ -245,7 +245,7 @@
         "tc",
         "test:contract",
         "prepare:ui-quality",
-        "ui-quality-check#build"
+        "@pkgs/ui-quality-check-server#build"
       ],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/turbo-platform-key.json"],
       "outputs": [

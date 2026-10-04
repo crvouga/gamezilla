@@ -54,7 +54,7 @@ test('the visual gate consumes every product spec part and caches both verdict a
     'prepare:ui-quality'
   );
   expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain(
-    'ui-quality-check#build'
+    '@pkgs/ui-quality-check-server#build'
   );
   expect(turbo.tasks['check:ui-quality']!.outputs).toContain(
     '.cache/ui-quality/**'
