@@ -184,4 +184,6 @@ testcases also become `test.failure` spans under
 the packages: `defineProductSystem` declares `defineSnapshot`s (`html` per
 actor, `topology`), `openHarness` wraps each actor's driver in
 `recordingDriver`, and `TestViewportProvider` sizes the 390×844 actor frame.
-
+The DOM preload and report stylesheet both use
+`@pkgs/bun-test-solid/css-module` to isolate CSS module selectors with portable
+names. Reused local names such as `cell` and `content` cannot cross components.

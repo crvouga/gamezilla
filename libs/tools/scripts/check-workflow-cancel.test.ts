@@ -49,7 +49,9 @@ describe('Check workflow cancellation', () => {
     );
     expect(holding.length).toBeGreaterThan(0);
     expect(
-      holding.every((condition) => condition === 'always() && !cancelled()')
+      holding.every((condition) =>
+        condition.startsWith('always() && !cancelled()')
+      )
     ).toBe(true);
   });
 
@@ -60,6 +62,7 @@ describe('Check workflow cancellation', () => {
         string,
         {
           needs?: string[] | string;
+          if?: string;
           name: string;
           strategy?: { 'fail-fast': boolean };
           steps: {
@@ -72,11 +75,28 @@ describe('Check workflow cancellation', () => {
       >;
     };
     const gate = workflow.jobs['check']!;
-    expect(gate.needs).toEqual(['check-shards']);
+    expect(gate.needs).toEqual([
+      'check-plan',
+      'check-shards',
+      'check-consumers',
+    ]);
     expect(gate.steps[0]!.run).toContain('test "$SHARD_RESULT" = success');
     expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
-    expect(workflow.jobs['check-reports']!.needs).toEqual(['check-shards']);
+    expect(workflow.jobs['check-shards']!.needs).toEqual(['check-plan']);
+    expect(workflow.jobs['check-consumers']!.needs).toEqual([
+      'check-plan',
+      'check-shards',
+    ]);
+    expect(workflow.jobs['check-reports']!.needs).toEqual([
+      'check-plan',
+      'check-shards',
+      'check-consumers',
+    ]);
     expect(gate.needs).not.toContain('check-reports');
+    // Reports are too slow for every push; `bun check` dispatches them.
+    expect(workflow.jobs['check-reports']!.if).toBe(
+      "always() && !cancelled() && github.event_name != 'pull_request'"
+    );
     // regression: check-repeated-mise-cache-stall (1jzx5994v8)
     expect(
       workflow.jobs['check-shards']!.steps.filter(
@@ -89,7 +109,7 @@ describe('Check workflow cancellation', () => {
       workflow.jobs['check-shards']!.steps.find(
         (step) => step.name === 'Transfer raw evidence'
       )?.['continue-on-error']
-    ).toBe(true);
+    ).toBeUndefined();
     expect(
       workflow.jobs['check-shards']!.steps.find(
         (step) => step.name === 'check'

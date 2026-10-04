@@ -1,0 +1,15 @@
+name: Pinned visual renderer
+description: Install the fixed Chrome release only for tasks that need a native browser
+runs:
+  using: composite
+  steps:
+    - uses: browser-actions/setup-chrome@v2
+      id: chrome
+      with:
+        chrome-version: '154.0.8037.92'
+        install-dependencies: true
+    - name: Select visual renderer
+      shell: bash
+      env:
+        CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+      run: echo "BUN_CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"

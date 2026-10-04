@@ -1,0 +1,15 @@
+{
+  "threshold": 0.5,
+  "batchSize": 16,
+  "concurrency": 2,
+  "samplingFps": 4,
+  "aggregation": "minimum",
+  "detectorVersions": [
+    {
+      "id": "UIClip",
+      "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+      "executionProvider": "cpu"
+    }
+  ],
+  "provider": "cpu"
+}

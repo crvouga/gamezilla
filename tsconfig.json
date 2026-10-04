@@ -259,7 +259,9 @@
     "libs/account-privacy/src/**/*.tsx",
     "pkgs/feedback/src/**/*.ts",
     "pkgs/feedback/src/**/*.tsx",
-    "pkgs/feedback/scripts/**/*.ts"
+    "pkgs/feedback/scripts/**/*.ts",
+    "pkgs/ui-quality-check/src/**/*.ts",
+    "pkgs/ui-quality-check/scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

@@ -98,6 +98,8 @@ const arbChange: fc.Arbitrary<Change> = fc.record({
 });
 
 const deletes = (c: Change): boolean => c.change.actions.includes('delete');
+const drops = (c: Change): boolean =>
+  deletes(c) && !c.change.actions.includes('create');
 
 type Teardown = 'production' | 'standard' | null;
 
@@ -117,7 +119,7 @@ function modelDenies(
   if (protection !== 'production') return false;
   return [...new Set(managed.map((c) => c.type))].some((type) => {
     const all = managed.filter((c) => c.type === type);
-    const removed = all.filter(deletes).length;
+    const removed = all.filter(drops).length;
     return removed >= 2 && removed * 2 > all.length;
   });
 }

@@ -248,7 +248,8 @@ async function runCommand(argv: readonly string[]): Promise<number> {
     sha,
     automatic: command === 'check' && hasAutomaticCheck(branch, sha),
   };
-  if (policy.printsReport)
+  // A pull request's Check publishes no report (check.yml `check-reports`).
+  if (policy.printsReport && !target.automatic)
     console.log(`${command}: spec report ${reportUrl(sha)}`);
   const hold = holdTTY();
   let current: DepotWorkflow | undefined;

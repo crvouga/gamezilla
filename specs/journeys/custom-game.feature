@@ -4,6 +4,8 @@ Feature: A guest plays a Custom Game against a bot
 
   Rule: A guest can choose a bot, play and finish the same Custom Game
 
+    @regression:custom-game-journey-unbound
+    @regression:custom-game-confirm-unmounted
     Scenario: A guest plays a move against a bot and resigns
       Given a person opens the app on a fresh device
       And they are hosting a space
@@ -14,6 +16,8 @@ Feature: A guest plays a Custom Game against a bot
       When they resign the Custom Game
       Then their Custom Game is completed by resignation
 
+    @regression:custom-game-journey-unbound
+    @regression:custom-game-journey-offline-race
     Scenario: An offline guest cannot start the ready game
       Given a person opens the app on a fresh device
       And they are hosting a space

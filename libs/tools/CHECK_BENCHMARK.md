@@ -271,8 +271,14 @@ secret injection, HEAD lookup and minimal evidence transfer.
 Set `CHECK_SHARDS` (8, 12, 16, 24, 32), `CHECK_CONCURRENCY`, `CHECK_RUNNER`, or
 workflow-dispatch inputs. No Check-variable overrides exist. To add a count,
 change dispatch options and its matrix preset together; automated checks verify
-exact ownership. Durations live in `check-task-costs.json`; unknown tasks start
-at five seconds.
+exact ownership. The plan is computed once. Shared builds run in `check:plan`,
+parallel checks consume their exact Turbo artifacts, and `check:consumers`
+aggregates screenshots after every producer passes. Durations live in
+`check-task-costs.json`; unmeasured tasks use their task-family median or a
+60-second fallback. Cached verdicts carry zero execution weight. The pinned
+Chrome/Mesa setup runs only in planning and native-browser jobs. See
+[`CHECK_SHARD_BALANCE.md`](CHECK_SHARD_BALANCE.md) for the reproduction,
+load comparison, critical-path estimate and tradeoffs.
 
 ```sh
 bun run libs/tools/scripts/check-task-costs.ts --harvest <native-run-id>

@@ -33,4 +33,6 @@ runs:
     # frozen installs need neither a synthetic ref nor dependency restore keys.
     - name: Install dependencies
       shell: bash
+      env:
+        ONNXRUNTIME_NODE_INSTALL: skip
       run: bun install --frozen-lockfile
