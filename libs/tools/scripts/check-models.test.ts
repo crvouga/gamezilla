@@ -121,3 +121,17 @@ describe('modelChecks', () => {
     ]);
   });
 });
+
+// regression: custom-game-array-encoding-timeout
+test('custom-game default encoding retains the full induction and original deadline', () => {
+  const [check] = modelChecks({
+    dir: 'libs/chess-harness',
+    models: ['specs/chess/custom-game.qnt'],
+  });
+  expect(check).toEqual({
+    specUri: 'specs/chess/custom-game.qnt',
+    steps: 4,
+    inductiveInvariant: '_inductive',
+    timeoutMs: 240_000,
+  });
+});
