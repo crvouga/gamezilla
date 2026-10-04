@@ -36,7 +36,8 @@
     "@pkgs/sounds-shared": "workspace:*",
     "@pkgs/ui-client": "workspace:*",
     "chess.js": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/tailwind-shared": "workspace:*"
   },
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",

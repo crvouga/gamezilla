@@ -40,6 +40,7 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "apps/client": {
@@ -122,7 +123,6 @@
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-opfs-client": "workspace:*",
-        "@pkgs/object-store-opfs-shared": "workspace:*",
         "@pkgs/object-store-shared": "workspace:*",
         "@pkgs/polyfill-shared": "workspace:*",
         "@pkgs/postgres-embedded-shared": "workspace:*",
@@ -2945,6 +2945,7 @@
         "@pkgs/harness-shared": "workspace:*",
         "@pkgs/sounds-client": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
+        "@pkgs/tailwind-shared": "workspace:*",
         "@pkgs/ui-client": "workspace:*",
         "chess.js": "catalog:",
         "solid-js": "catalog:",

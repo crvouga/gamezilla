@@ -80,7 +80,6 @@
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/object-store-node-fs-server": "workspace:*",
-    "@pkgs/object-store-opfs-shared": "workspace:*",
     "@pkgs/object-store-shared": "workspace:*",
     "@pkgs/polyfill-shared": "workspace:*",
     "@pkgs/postgres-embedded-shared": "workspace:*",
