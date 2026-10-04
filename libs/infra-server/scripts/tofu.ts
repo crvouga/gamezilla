@@ -27,6 +27,7 @@
  */
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { tofuLayout } from '@libs/infra-server/tofu-layout';
 import { envFile } from '@libs/infra-shared/envs';
 import type { PlanJson } from '@libs/infra-shared/plan-policy';
 import { evaluatePlanPolicy } from '@libs/infra-shared/plan-policy';
@@ -35,7 +36,7 @@ import {
   planReadFailed,
 } from '@libs/infra-shared/plan-retry';
 import { redactInfraOutput } from '@libs/infra-shared/redact-output';
-import type { Stack, Target, TofuPaths } from '@libs/infra-shared/tofu-command';
+import type { Stack, Target } from '@libs/infra-shared/tofu-command';
 import {
   applyArgs,
   destroyPlanArgs,
@@ -68,11 +69,7 @@ const COMMANDS: readonly Command[] = ['plan', 'apply', 'drift', 'destroy'];
 type Teardown = PlanJson['teardown'];
 
 const PKG_DIR = join(import.meta.dirname, '..');
-const PATHS: TofuPaths = {
-  tofuDir: join(PKG_DIR, 'tofu'),
-  cacheDir: join(PKG_DIR, '.cache/tofu'),
-};
-const POLICY_DIR = join(PKG_DIR, 'policy');
+const { paths: PATHS, policyDir: POLICY_DIR } = tofuLayout(PKG_DIR);
 
 type Cli = {
   readonly command: Command;

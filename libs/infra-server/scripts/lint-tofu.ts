@@ -14,11 +14,13 @@
  */
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { tofuLayout } from '@libs/infra-server/tofu-layout';
 import { STACKS } from '@libs/infra-shared/tofu-command';
 import { pinnedTool } from './tofu-process';
 
 const PKG_DIR = join(import.meta.dirname, '..');
-const CACHE = join(PKG_DIR, '.cache/tofu');
+const { paths: PATHS, policyDir: POLICY_DIR } = tofuLayout(PKG_DIR);
+const CACHE = PATHS.cacheDir;
 mkdirSync(join(CACHE, 'plugins'), { recursive: true });
 
 /** One tool run; the checks are independent, so they run concurrently. */
@@ -49,7 +51,7 @@ async function stackOk(stack: string): Promise<boolean> {
     TF_DATA_DIR: join(CACHE, 'lint', stack),
     TF_PLUGIN_CACHE_DIR: join(CACHE, 'plugins'),
   };
-  const chdir = `-chdir=tofu/stacks/${stack}`;
+  const chdir = `-chdir=${join(PATHS.tofuDir, 'stacks', stack)}`;
   return (
     (await step(
       `tofu init (${stack})`,
@@ -66,17 +68,17 @@ const results = await Promise.all([
     'fmt',
     '-check',
     '-recursive',
-    'tofu',
+    PATHS.tofuDir,
   ]),
-  step('conftest verify', ['conftest', 'verify', '--policy', 'policy']),
-  step('conftest fmt --check', ['conftest', 'fmt', '--check', 'policy']),
+  step('conftest verify', ['conftest', 'verify', '--policy', POLICY_DIR]),
+  step('conftest fmt --check', ['conftest', 'fmt', '--check', POLICY_DIR]),
   step('tflint', [
     'tflint',
     '--config',
     join(PKG_DIR, 'tflint.hcl'),
     '--recursive',
     '--chdir',
-    'tofu',
+    PATHS.tofuDir,
   ]),
   // Stacks init one after another: they share the provider cache.
   (async () => {
