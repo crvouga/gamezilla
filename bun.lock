@@ -1889,6 +1889,7 @@
         "@pkgs/db-schema-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
+        "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/permissions-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",

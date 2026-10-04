@@ -46,11 +46,11 @@ export function compileFrameCss(repoRoot: string): string {
         '--no-install',
         '@tailwindcss/cli',
         '-i',
-        join(join(repoRoot, 'pkgs/tailwind'), 'src/tailwind.css'),
+        join(repoRoot, 'pkgs/tailwind-shared/src/tailwind.css'),
         '-o',
         out,
       ],
-      { cwd: join(repoRoot, 'pkgs/tailwind') }
+      { cwd: join(repoRoot, 'pkgs/tailwind-harness') }
     );
     const modules: string[] = [];
     for (const name of readdirSync(join(repoRoot, 'pkgs')).sort()) {
