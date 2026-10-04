@@ -54,6 +54,23 @@ test_production_mass_delete_denied if {
 	count(deny) == 1 with input as plan(changes, "production")
 }
 
+test_production_mass_replace_allowed if {
+	changes := [
+		change("cloudflare_workers_custom_domain", ["delete", "create"]),
+		change("cloudflare_workers_custom_domain", ["delete", "create"]),
+		change("cloudflare_workers_custom_domain", ["create", "delete"]),
+	]
+	count(deny) == 0 with input as plan(changes, "production")
+}
+
+test_production_mass_replace_of_stateful_denied if {
+	changes := [
+		change("cloudflare_r2_bucket", ["delete", "create"]),
+		change("cloudflare_r2_bucket", ["delete", "create"]),
+	]
+	count(deny) == 1 with input as plan(changes, "production")
+}
+
 test_standard_mass_delete_allowed if {
 	changes := [
 		change("cloudflare_dns_record", ["delete"]),
