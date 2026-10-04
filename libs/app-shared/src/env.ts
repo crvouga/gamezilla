@@ -58,6 +58,8 @@ export type ApiWorkerEnv = {
    * libs/infra render-wrangler on deployed Workers; absent locally.
    */
   DEPLOYMENT_PROTECTION?: string;
+  /** JSON array rendered from this environment's infrastructure file. */
+  PUZZLE_MANAGER_ACCOUNT_IDS?: string;
   BUILD_SHA?: string;
   FEEDBACK_GITHUB_TOKEN?: string;
   FEEDBACK_GITHUB_REPOSITORY?: string;
@@ -130,6 +132,30 @@ export function assertSecretsEnvBinding(env: ApiWorkerEnv): string {
 
 export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.API_URL);
+}
+
+export function readPuzzleManagerAccountIds(
+  env: Pick<ApiWorkerEnv, 'PUZZLE_MANAGER_ACCOUNT_IDS'>
+): readonly string[] {
+  const raw = readOptionalBinding(env.PUZZLE_MANAGER_ACCOUNT_IDS);
+  if (raw === null) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new ConfigurationError(
+      'PUZZLE_MANAGER_ACCOUNT_IDS must be a JSON array of non-empty strings'
+    );
+  }
+  if (
+    !Array.isArray(parsed) ||
+    parsed.some((value) => typeof value !== 'string' || value.trim().length === 0)
+  ) {
+    throw new ConfigurationError(
+      'PUZZLE_MANAGER_ACCOUNT_IDS must be a JSON array of non-empty strings'
+    );
+  }
+  return [...new Set(parsed.map((value) => value.trim()))].sort();
 }
 
 /** Rendered per env by `@libs/infra` from the env file's `billing.provider`. */

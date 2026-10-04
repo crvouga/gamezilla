@@ -107,6 +107,7 @@ variable "worker" {
       target_id = string
     }))
     retire = optional(list(string), [])
+    puzzle_manager_account_ids = optional(list(string), [])
   })
 }
 

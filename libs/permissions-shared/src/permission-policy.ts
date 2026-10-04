@@ -147,6 +147,10 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       },
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },
+    [ROLE.puzzleManager]: {
+      when: { accountId: [] },
+      permissions: [PERMISSION.puzzlesManage],
+    },
     [ROLE.spaceMember]: {
       permissions: [
         PERMISSION.spacesLeave,
@@ -249,3 +253,19 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     },
   },
 });
+
+/** The policy materialized for one environment's puzzle-management team. */
+export function permissionPolicyForPuzzleManagers(
+  accountIds: readonly string[]
+): PermissionPolicy<AppPolicyKey, AppLimit> {
+  return definePolicy<AppPolicyKey, AppLimit>({
+    ...DEFAULT_PERMISSION_POLICY,
+    roles: {
+      ...DEFAULT_PERMISSION_POLICY.roles,
+      [ROLE.puzzleManager]: {
+        when: { accountId: [...new Set(accountIds)].sort() },
+        permissions: [PERMISSION.puzzlesManage],
+      },
+    },
+  });
+}

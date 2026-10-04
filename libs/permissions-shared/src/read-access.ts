@@ -90,6 +90,7 @@ export async function readAccess(
     policy: policyOf(configRows),
     facts: resolveAccessFacts({
       signedIn,
+      accountId: identity.accountId,
       subscription: governingSubscription(subscriptions),
       nowMs,
       graceMs: config.billing_grace_period_ms,

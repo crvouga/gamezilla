@@ -6,6 +6,7 @@ import { defineFeatureServer } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
+import { createPuzzleManagementApp } from './puzzle-management-route';
 
 async function customGameRoomGrants(
   ctx: RoomGrantsCtx
@@ -31,6 +32,7 @@ async function customGameRoomGrants(
 
 export const CHESS_SERVER = defineFeatureServer({
   name: 'chess',
+  routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
   roomGrants: customGameRoomGrants,
   registerOutbox(registry) {
     registry.register(

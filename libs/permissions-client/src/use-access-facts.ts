@@ -52,6 +52,7 @@ export function useAccessFacts(): Accessor<Facts> {
   const inputs = createTimedValue(
     (nowMs): AccessInputs => ({
       signedIn: signedIn(),
+      accountId: signedIn() ? myId() : null,
       subscription: governingSubscription(subscription.rows()),
       nowMs,
       graceMs: config().billing_grace_period_ms,

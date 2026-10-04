@@ -28,6 +28,7 @@ export const envFileSchema = z
           .strict()
           .optional(),
         retire: z.array(slug).default([]),
+        puzzle_manager_account_ids: z.array(id).default([]),
       })
       .strict(),
     protection: z.enum(['production', 'standard']),
@@ -184,5 +185,8 @@ export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
     OAUTH_CALLBACK_ORIGIN: authRelayOrigin(),
     OAUTH_STATE_TAG: env.env,
     BILLING_PROVIDER: env.billing.provider,
+    PUZZLE_MANAGER_ACCOUNT_IDS: JSON.stringify(
+      env.worker.puzzle_manager_account_ids
+    ),
   };
 }
