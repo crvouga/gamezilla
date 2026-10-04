@@ -75,6 +75,7 @@ test('an inference failure does not cache missing embeddings', async () => {
 });
 
 test('window scores are independent of reuse, eviction and inference batch size', async () => {
+  // regression: ui-quality-window-preprocessing-timeout — retain all 40 default cases (seed 424242) under the original 5-second deadline.
   await assertProperty(
     'window embeddings preserve all image scores',
     fc.asyncProperty(
@@ -86,19 +87,21 @@ test('window scores are independent of reuse, eviction and inference batch size'
       fc.integer({ min: 1, max: 4 }),
       async (tops, batchSize, capacity) => {
         const scorer = new WindowScorer(inference().run, batchSize, capacity);
-        const expected = await Promise.all(
-          tops.map(
-            async (top) =>
-              (
-                await new WindowScorer(inference().run, 16).score([image(top)])
-              )[0]!
+        // This inference fixture reads the first 512 red-channel values:
+        // the top window is `top`, the bottom window is uniformly 40.
+        // Compute the oracle independently instead of repeating preprocessing.
+        const expected = tops.map((top) =>
+          new Float64Array(512).fill(
+            Math.fround((top / 255 - 0.48145466) / 0.26862954) +
+              Math.fround((40 / 255 - 0.48145466) / 0.26862954)
           )
         );
         const inputs = tops.map(image);
         expect(await scorer.score(inputs)).toEqual(expected);
         expect(await scorer.score(inputs)).toEqual(expected);
       }
-    )
+    ),
+    { examples: [[[80, 120, 80, 255, 0, 120, 40, 255], 1, 1]] }
   );
 });
 

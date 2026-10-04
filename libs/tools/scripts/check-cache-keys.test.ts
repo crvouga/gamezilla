@@ -16,7 +16,7 @@ const config = JSON.parse(
   readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
 ) as {
   globalPassThroughEnv: string[];
-  tasks: { build: { inputs: string[]; outputs: string[]; env: string[] } };
+  tasks: Record<string, { inputs: string[]; outputs: string[]; env: string[] }>;
 };
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), 'check-cache-keys-'));
@@ -40,11 +40,11 @@ function fixture(): string {
       globalPassThroughEnv: config.globalPassThroughEnv,
       tasks: {
         build: {
-          inputs: config.tasks.build.inputs.filter(
+          inputs: config.tasks['build']!.inputs.filter(
             (input: string) => !input.startsWith('$TURBO_ROOT$')
           ),
-          outputs: config.tasks.build.outputs,
-          env: config.tasks.build.env,
+          outputs: config.tasks['build']!.outputs,
+          env: config.tasks['build']!.env,
         },
         consume: { dependsOn: ['build'] },
         independent: {},
@@ -119,7 +119,7 @@ test('literal volatile Vite metadata is excluded while real source remains hashe
     ).toBe(false);
     writeFileSync(join(root, 'source.ts'), 'export const value = 2;\n');
     expect(dry(root, ['build'])[0]!.hash).not.toBe(first.hash);
-    expect(config.tasks.build.outputs).toContain('dist/**');
+    expect(config.tasks['build']!.outputs).toContain('dist/**');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -148,4 +148,68 @@ test('miss diagnostics distinguish absent artifacts, network failures, disabled 
   expect(reasons[1]).toContain('connectivity');
   expect(reasons[2]).toContain('explicitly disables');
   expect(reasons[3]).toContain('not performed');
+});
+
+// regression: ui-quality-window-preprocessing-timeout
+test('test verdict keys include source, tests, platform, runtime and property settings', () => {
+  const root = fixture();
+  try {
+    const packagePath = join(root, 'package.json');
+    const manifest = JSON.parse(readFileSync(packagePath, 'utf8'));
+    manifest.scripts.test = 'bun test tests';
+    writeFileSync(packagePath, JSON.stringify(manifest));
+    writeFileSync(
+      join(root, 'turbo.json'),
+      JSON.stringify({
+        tasks: {
+          test: {
+            inputs: config.tasks['test']!.inputs,
+            env: config.tasks['test']!.env,
+            outputs: [],
+          },
+        },
+      })
+    );
+    mkdirSync(join(root, 'tests'));
+    const testPath = join(root, 'tests/window-inference.test.ts');
+    writeFileSync(testPath, 'test("window scores", () => {});');
+    const keyPath = join(root, 'turbo-platform-key.json');
+    const platform = {
+      platform: 'darwin',
+      arch: 'arm64',
+      bun: '1.4.2',
+      chrome: '154',
+    };
+    writeFileSync(keyPath, JSON.stringify(platform));
+    const initial = dry(root, ['test'])[0]!;
+    expect(Object.keys(initial.inputs)).toContain('source.ts');
+    expect(Object.keys(initial.inputs)).toContain(
+      'tests/window-inference.test.ts'
+    );
+    expect(Object.keys(initial.inputs)).toContain('turbo-platform-key.json');
+    for (const changed of [
+      { platform: 'linux' },
+      { arch: 'x64' },
+      { bun: '1.4.3' },
+      { chrome: '155' },
+    ]) {
+      writeFileSync(keyPath, JSON.stringify({ ...platform, ...changed }));
+      expect(dry(root, ['test'])[0]!.hash).not.toBe(initial.hash);
+    }
+    writeFileSync(keyPath, JSON.stringify(platform));
+    expect(dry(root, ['test'])[0]!.hash).toBe(initial.hash);
+    for (const env of [
+      { FC_SEED: '7' },
+      { PBT_NUM_RUNS: '41' },
+      { PBT_RANDOM: '1' },
+    ])
+      expect(dry(root, ['test'], env)[0]!.hash).not.toBe(initial.hash);
+    writeFileSync(testPath, 'test("window scores", () => { throw Error(); });');
+    const changedTest = dry(root, ['test'])[0]!.hash;
+    expect(changedTest).not.toBe(initial.hash);
+    writeFileSync(join(root, 'source.ts'), 'export const value = 2;');
+    expect(dry(root, ['test'])[0]!.hash).not.toBe(changedTest);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

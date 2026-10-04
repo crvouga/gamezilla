@@ -4,6 +4,14 @@ import sharp from 'sharp';
 const SIZE = 224;
 const MEAN = [0.48145466, 0.4578275, 0.40821073] as const;
 const STD = [0.26862954, 0.26130258, 0.27577711] as const;
+// RGB bytes have only 256 values. Round once exactly as the tensor assignment
+// does, rather than dividing every channel of every overlapping window.
+const NORMALIZED = MEAN.map((mean, channel) =>
+  Float32Array.from(
+    { length: 256 },
+    (_, value) => (value / 255 - mean) / STD[channel]!
+  )
+);
 
 /** Versioned bicubic RGB resize + overlapping windows; covers the entire UI. */
 export async function imageWindows(
@@ -16,12 +24,17 @@ export async function imageWindows(
     throw new Error(
       'Image aspect ratio exceeds the supported 4096:224 window budget. Split unusually long screenshots.'
     );
-  const pixels = await sharp(image.data, {
-    raw: { width: image.width, height: image.height, channels: 3 },
-  })
-    .resize(width, height, { fit: 'fill', kernel: 'cubic' })
-    .raw()
-    .toBuffer();
+  const pixels =
+    image.width === width &&
+    image.height === height &&
+    image.data.length === width * height * 3
+      ? image.data
+      : await sharp(image.data, {
+          raw: { width: image.width, height: image.height, channels: 3 },
+        })
+          .resize(width, height, { fit: 'fill', kernel: 'cubic' })
+          .raw()
+          .toBuffer();
   const length = Math.max(width, height);
   const steps = Math.ceil(length / SIZE);
   const offsets =
@@ -47,13 +60,13 @@ function windowTensor(args: {
   top: number;
 }): Float32Array {
   const tensor = new Float32Array(3 * SIZE * SIZE);
-  for (let y = 0; y < SIZE; y++) {
-    for (let x = 0; x < SIZE; x++) {
-      const pixel = ((args.top + y) * args.width + args.left + x) * 3;
-      for (let c = 0; c < 3; c++)
-        tensor[c * SIZE * SIZE + y * SIZE + x] =
-          ((args.pixels[pixel + c] ?? 0) / 255 - (MEAN[c] ?? 0)) /
-          (STD[c] ?? 1);
+  for (let c = 0; c < 3; c++) {
+    const values = NORMALIZED[c]!;
+    let target = c * SIZE * SIZE;
+    for (let y = 0; y < SIZE; y++) {
+      let pixel = ((args.top + y) * args.width + args.left) * 3 + c;
+      for (let x = 0; x < SIZE; x++, pixel += 3)
+        tensor[target++] = values[args.pixels[pixel] ?? 0]!;
     }
   }
   return tensor;
