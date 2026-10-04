@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 const THIS_DIR = dirname(fileURLToPath(import.meta.url));
 
-export const SECRETS_PKG_ROOT = resolve(THIS_DIR, '..', '..');
+/** `libs/secrets-server` — this file lives in its `src/`. */
+export const SECRETS_PKG_ROOT = resolve(THIS_DIR, '..');
 
 export const REPO_ROOT = resolve(SECRETS_PKG_ROOT, '..', '..');

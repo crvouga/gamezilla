@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { devStackOptions } from './dev-options';
 import { manifestPath, readManifest } from './manifest';
 
-const root = join(import.meta.dir, '../../../..');
+const root = join(import.meta.dir, '../../..');
 const options = devStackOptions();
 if (!options.withWeb) process.exit(0);
 const path = manifestPath(root, options.instanceId);
