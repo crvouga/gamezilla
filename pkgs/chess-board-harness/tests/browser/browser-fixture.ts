@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { build, preview } from 'vite';
 
 export async function openBrowserExample() {
-  const configFile = resolve(import.meta.dirname, '../vite.config.mts');
+  const configFile = resolve(import.meta.dirname, '../../vite.config.mts');
   await build({ configFile, logLevel: 'error' });
   const server = await preview({
     configFile,

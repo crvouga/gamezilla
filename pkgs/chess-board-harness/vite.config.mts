@@ -11,7 +11,7 @@ import solid from 'vite-plugin-solid';
 const require = createRequire(import.meta.url);
 const repoRoot = resolve(import.meta.dirname, '../..');
 export default defineConfig({
-  root: resolve(import.meta.dirname, 'src/harness/browser'),
+  root: resolve(import.meta.dirname, 'src'),
   plugins: [
     workspaceExportsResolver({ repoRoot, scopes: { '@pkgs': 'pkgs' } }),
     tailwindcss(),
