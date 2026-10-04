@@ -38,6 +38,7 @@
     "@pkgs/device-shared": "workspace:*",
     "@pkgs/feedback-client": "workspace:*",
     "@pkgs/feedback-shared": "workspace:*",
+    "@pkgs/git-shared": "workspace:*",
     "@pkgs/harness-console-client": "workspace:*",
     "@pkgs/http-client-client": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
@@ -49,6 +50,7 @@
     "@pkgs/logger-client": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/object-store-client": "workspace:*",
+    "@pkgs/object-store-opfs-client": "workspace:*",
     "@pkgs/object-store-shared": "workspace:*",
     "@pkgs/observability-shared": "workspace:*",
     "@pkgs/pubsub-aedes-shared": "workspace:*",
@@ -77,9 +79,7 @@
     "@solidjs/router": "catalog:",
     "solid-js": "catalog:",
     "web-vitals": "catalog:",
-    "workbox-window": "catalog:",
-    "@pkgs/git-shared": "workspace:*",
-    "@pkgs/object-store-opfs-client": "workspace:*"
+    "workbox-window": "catalog:"
   },
   "devDependencies": {
     "@pkgs/a11y-shared": "workspace:*",

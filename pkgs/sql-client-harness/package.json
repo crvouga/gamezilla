@@ -25,11 +25,11 @@
     "@pkgs/sql-client-postgres-shared": "workspace:*",
     "@pkgs/sql-client-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-web-client": "workspace:*",
     "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
     "@pkgs/sql-shared": "workspace:*",
     "better-sqlite3": "catalog:",
-    "fast-check": "catalog:",
-    "@pkgs/sql-client-sqlite-web-client": "workspace:*"
+    "fast-check": "catalog:"
   },
   "devDependencies": {
     "@types/better-sqlite3": "catalog:",

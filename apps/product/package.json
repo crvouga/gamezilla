@@ -80,6 +80,7 @@
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/object-store-node-fs-server": "workspace:*",
+    "@pkgs/object-store-opfs-client": "workspace:*",
     "@pkgs/object-store-shared": "workspace:*",
     "@pkgs/polyfill-shared": "workspace:*",
     "@pkgs/postgres-embedded-shared": "workspace:*",
@@ -87,6 +88,7 @@
     "@pkgs/s3-server": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/tailwind-shared": "workspace:*",
     "@pkgs/ui-client": "workspace:*",
     "@pkgs/ui-testing-bun-webview-shared": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
@@ -94,9 +96,7 @@
     "@solidjs/router": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:",
-    "@pkgs/tailwind-shared": "workspace:*",
-    "@pkgs/object-store-opfs-client": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@clack/prompts": "catalog:",
@@ -109,6 +109,7 @@
     "@libs/pubsub-shared": "workspace:*",
     "@libs/secrets-server": "workspace:*",
     "@libs/secrets-shared": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/auth-inhouse-server": "workspace:*",
     "@pkgs/auth-inhouse-shared": "workspace:*",
@@ -120,6 +121,7 @@
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/db-schema-postgres-shared": "workspace:*",
     "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/feedback-server": "workspace:*",
     "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/git-shared": "workspace:*",
     "@pkgs/object-store-s3-server": "workspace:*",
@@ -134,6 +136,7 @@
     "@pkgs/secret-store-shared": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
     "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-web-server": "workspace:*",
     "@pkgs/sql-shared": "workspace:*",
     "@pkgs/ui-quality-check-server": "workspace:*",
     "@pkgs/ui-quality-check-shared": "workspace:*",
@@ -148,10 +151,7 @@
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:",
-    "wrangler": "catalog:",
-    "@pkgs/feedback-server": "workspace:*",
-    "@pkgs/sql-client-sqlite-web-server": "workspace:*",
-    "@lingui/babel-plugin-lingui-macro": "catalog:"
+    "wrangler": "catalog:"
   },
   "category": "harness",
   "liveDomains": [

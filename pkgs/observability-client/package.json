@@ -18,8 +18,8 @@
     "@opentelemetry/instrumentation": "catalog:",
     "@opentelemetry/instrumentation-fetch": "catalog:",
     "@opentelemetry/sdk-trace-web": "catalog:",
-    "@pkgs/observability-shared": "workspace:*",
-    "@pkgs/observability-runtime-shared": "workspace:*"
+    "@pkgs/observability-runtime-shared": "workspace:*",
+    "@pkgs/observability-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

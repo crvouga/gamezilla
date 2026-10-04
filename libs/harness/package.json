@@ -54,6 +54,7 @@
     "@pkgs/matchmaking-sql-shared": "workspace:*",
     "@pkgs/object-store-node-fs-server": "workspace:*",
     "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/observability-runtime-shared": "workspace:*",
     "@pkgs/observability-server": "workspace:*",
     "@pkgs/observability-shared": "workspace:*",
     "@pkgs/os-server": "workspace:*",
@@ -84,24 +85,23 @@
     "@pkgs/uuid-shared": "workspace:*",
     "@solidjs/router": "catalog:",
     "solid-js": "catalog:",
-    "stripe": "catalog:",
-    "@pkgs/observability-runtime-shared": "workspace:*"
+    "stripe": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/alloy-server": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/db-schema-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/dmn-server": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",
+    "@pkgs/gherkin-server": "workspace:*",
     "@pkgs/harness-report-shared": "workspace:*",
     "@pkgs/object-store-s3-server": "workspace:*",
+    "@pkgs/openslo-server": "workspace:*",
     "@pkgs/openslo-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/gherkin-server": "workspace:*",
-    "@pkgs/alloy-server": "workspace:*",
-    "@pkgs/dmn-server": "workspace:*",
-    "@pkgs/openslo-server": "workspace:*"
+    "typescript": "catalog:"
   },
   "category": "harness"
 }

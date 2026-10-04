@@ -15,20 +15,20 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@libs/app-shared": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
     "@libs/chess-custom-game-shared": "workspace:*",
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-puzzle-server": "workspace:*",
     "@libs/feature-shared": "workspace:*",
-    "@libs/app-shared": "workspace:*",
-    "@libs/auth-shared": "workspace:*",
+    "@libs/permissions-server": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
     "@pkgs/assert-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
-    "hono": "catalog:",
-    "@libs/permissions-server": "workspace:*",
-    "@libs/spaces-shared": "workspace:*",
-    "@pkgs/outbox-shared": "workspace:*"
+    "hono": "catalog:"
   },
   "devDependencies": {
     "@libs/billing-shared": "workspace:*",

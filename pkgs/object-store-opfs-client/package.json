@@ -15,8 +15,8 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/object-store-shared": "workspace:*",
-    "@pkgs/object-store-opfs-shared": "workspace:*"
+    "@pkgs/object-store-opfs-shared": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

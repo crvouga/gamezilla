@@ -29,22 +29,25 @@
     "@pkgs/feedback-client": "workspace:*",
     "@pkgs/observability-client": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
-    "solid-js": "catalog:",
     "@pkgs/tailwind-shared": "workspace:*",
-    "@pkgs/ui-client": "workspace:*"
+    "@pkgs/ui-client": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@libs/app-config-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/assert-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/feedback-server": "workspace:*",
     "@pkgs/git-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/object-store-node-fs-server": "workspace:*",
     "@pkgs/os-server": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-web-server": "workspace:*",
     "@pkgs/vite-workspace-resolver-server": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
@@ -53,10 +56,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
-    "workbox-build": "catalog:",
-    "@pkgs/feedback-server": "workspace:*",
-    "@pkgs/sql-client-sqlite-web-server": "workspace:*",
-    "@lingui/babel-plugin-lingui-macro": "catalog:"
+    "workbox-build": "catalog:"
   },
   "category": "client"
 }

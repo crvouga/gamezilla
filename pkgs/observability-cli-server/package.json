@@ -26,11 +26,11 @@
   },
   "devDependencies": {
     "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/observability-runtime-shared": "workspace:*",
     "@pkgs/observability-server": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/observability-runtime-shared": "workspace:*"
+    "typescript": "catalog:"
   },
   "category": "server"
 }

@@ -47,16 +47,16 @@
     "@libs/chess-feature-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
     "@pkgs/db-schema-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/http-client-shared": "workspace:*"
+    "typescript": "catalog:"
   },
   "category": "harness"
 }

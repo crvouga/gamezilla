@@ -34,10 +34,10 @@
     "@pkgs/harness-shared": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",
+    "@pkgs/tailwind-shared": "workspace:*",
     "@pkgs/ui-client": "workspace:*",
     "chess.js": "catalog:",
-    "solid-js": "catalog:",
-    "@pkgs/tailwind-shared": "workspace:*"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@lingui/babel-plugin-lingui-macro": "catalog:",

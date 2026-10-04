@@ -20,8 +20,8 @@
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/feedback-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*",
-    "@pkgs/object-store-node-fs-server": "workspace:*"
+    "@pkgs/object-store-node-fs-server": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/os-server": "workspace:*",

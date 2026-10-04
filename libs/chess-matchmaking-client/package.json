@@ -10,9 +10,9 @@
     ]
   },
   "scripts": {
+    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
     "@libs/auth-client": "workspace:*",
