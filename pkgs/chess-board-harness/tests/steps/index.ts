@@ -1,4 +1,4 @@
-import '../board-style-preload';
+import '@pkgs/chess-board-client/board-style-preload';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
 import { boardSystem } from '@pkgs/chess-board-harness/chess-board';
 import { setWorld } from '@pkgs/gherkin-shared/registry';

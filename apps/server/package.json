@@ -22,8 +22,8 @@
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --path-ignore-patterns='**/integration/**'",
-    "test:integration": "bun test tests"
+    "test": "bun test --path-ignore-patterns='**/*.integration.test.ts'",
+    "test:integration": "bun test integration.test"
   },
   "dependencies": {
     "@libs/app-server": "workspace:*",

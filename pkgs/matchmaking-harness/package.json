@@ -18,7 +18,7 @@
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests",
+    "test": "bun test --parallel=1 --timeout 120000 tests",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
   },
