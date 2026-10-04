@@ -23,8 +23,14 @@ test('completed artifacts warm independent runs without sharing writable cache f
     mkdirSync(first);
     writeFileSync(join(first, 'abc.tar.zst'), 'complete archive');
     writeFileSync(join(first, 'abc-meta.json'), '{"hash":"abc"}');
-    writeFileSync(join(first, 'def.tar.zst'), 'incomplete artifact');
-    publishCheckArtifacts(first, store);
+    writeFileSync(join(first, 'def.tar.zst'), 'failed artifact');
+    writeFileSync(join(first, 'def-meta.json'), '{}');
+    publishCheckArtifacts(first, store, {
+      tasks: [
+        { hash: 'abc', execution: { exitCode: 0 } },
+        { hash: 'def', execution: { exitCode: 1 } },
+      ],
+    });
     restoreCheckArtifacts(store, second);
     writeFileSync(join(first, 'abc.tar.zst'), 'first run changed');
     expect(readFileSync(join(second, 'abc.tar.zst'), 'utf8')).toBe(

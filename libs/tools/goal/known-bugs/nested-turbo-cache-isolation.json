@@ -1,0 +1,4 @@
+{
+  "summary": "The remote-cache integration fixture inherited its parent Check's TURBO_CACHE_DIR, so its local cache was written into the parent run and deleting the expected fixture cache failed. Pin the nested Turbo cache to its own fixture directory.",
+  "regressionTest": "libs/tools/scripts/turbo-cache-integration.test.ts"
+}

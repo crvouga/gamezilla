@@ -7,6 +7,7 @@ import {
   publishCheckArtifacts,
   restoreCheckArtifacts,
 } from './check-artifact-store';
+import { readLatestRunSummary } from './check-budget';
 import { createCheckSnapshot } from './check-snapshot';
 import { killProcessTree } from './kill-process-tree';
 
@@ -70,7 +71,7 @@ export async function runLocalCheck(
       resolve(code ?? 1);
     });
   });
-  if (verdict === 0) publishCheckArtifacts(cache, store);
+  publishCheckArtifacts(cache, store, readLatestRunSummary(root));
   return verdict;
 }
 

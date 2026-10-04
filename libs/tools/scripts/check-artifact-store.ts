@@ -10,6 +10,7 @@ import {
   rmSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import type { RunSummary } from './check-budget';
 
 function artifacts(directory: string): string[] {
   if (!existsSync(directory)) return [];
@@ -33,12 +34,27 @@ export function restoreCheckArtifacts(store: string, cache: string): void {
   }
 }
 
-/** Publish after Turbo exits successfully; readers only see fully copied pairs. */
-export function publishCheckArtifacts(cache: string, store: string): void {
+/** Publish only summary-confirmed passes; readers only see fully copied pairs. */
+export function publishCheckArtifacts(
+  cache: string,
+  store: string,
+  summary: RunSummary | null
+): void {
+  const passed = new Set(
+    (summary?.tasks ?? [])
+      .filter(
+        (task) =>
+          task.execution?.exitCode === 0 ||
+          (task.execution?.exitCode === undefined &&
+            task.cache?.status === 'HIT')
+      )
+      .map((task) => task.hash)
+  );
   mkdirSync(store, { recursive: true });
   const temporary = mkdtempSync(join(store, '.pending-'));
   try {
     for (const archive of artifacts(cache)) {
+      if (!passed.has(archive.replace('.tar.zst', ''))) continue;
       const metadata = archive.replace('.tar.zst', '-meta.json');
       if (existsSync(join(store, archive)) && existsSync(join(store, metadata)))
         continue;

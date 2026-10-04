@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import { readFileSync, rmSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { MAX_SPEC_PARTS, specPartProblems } from './spec-packages';
 import { flattenCheckAggregators } from './turbo-ci-run';
-import { createTurboGraphFixture } from './turbo-graph-fixture';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -359,34 +358,52 @@ describe('turbo check/deploy graph invariants', () => {
   // to a nonexistent infra health task and allowed retirement before health.
   // regression: tooling-check-subprocess-timeouts
   test('the retirement dependency chain is a runnable Turbo graph', () => {
-    const root = createTurboGraphFixture(REPO_ROOT);
-    try {
-      const result = spawnSync(
-        join(REPO_ROOT, 'node_modules/.bin/turbo'),
-        [
-          'run',
-          '@libs/infra-shared#retire:workers',
-          '--dry=json',
-          '--cache=local:r',
-          '--framework-inference=false',
-        ],
-        { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
-      );
-      expect(result.error).toBeUndefined();
-      expect(result.status, result.stderr).toBe(0);
-      const graph = JSON.parse(result.stdout) as {
-        tasks: { taskId: string; dependencies: string[]; command: string }[];
+    const result = spawnSync(
+      join(REPO_ROOT, 'node_modules/.bin/turbo'),
+      [
+        'query',
+        `query {
+        package(name: "@libs/infra-shared") {
+          tasks(filter: { equal: { field: NAME, value: "retire:workers" } }) {
+            items { fullName command
+              directDependencies { items { fullName command } }
+              allDependencies { items { fullName command } }
+            }
+          }
+        }
+      }`,
+      ],
+      { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.status, result.stderr).toBe(0);
+    type Task = { fullName: string; command: string | null };
+    const graph = JSON.parse(result.stdout) as {
+      errors?: unknown;
+      data: {
+        package: {
+          tasks: {
+            items: (Task & {
+              directDependencies: { items: Task[] };
+              allDependencies: { items: Task[] };
+            })[];
+          };
+        };
       };
-      const retirement = graph.tasks.find(
-        (task) => task.taskId === '@libs/infra-shared#retire:workers'
-      );
-      expect(retirement?.dependencies).toEqual(['@apps/product#health']);
-      const health = graph.tasks.find(
-        (task) => task.taskId === '@apps/product#health'
-      );
-      expect(health?.command).toBe('bun run scripts/health.ts');
-    } finally {
-      rmSync(root, { recursive: true, force: true });
+    };
+    expect(graph.errors).toBeUndefined();
+    const [retirement] = graph.data.package.tasks.items;
+    expect(retirement?.fullName).toBe('@libs/infra-shared#retire:workers');
+    expect(retirement?.directDependencies.items).toEqual([
+      {
+        fullName: '@apps/product#health',
+        command: 'bun run scripts/health.ts',
+      },
+    ]);
+    // A root dependency without an actual script cannot execute in a deployment.
+    for (const dependency of retirement!.allDependencies.items) {
+      if (dependency.fullName.startsWith('//#'))
+        expect(dependency.command).not.toBeNull();
     }
   });
 
