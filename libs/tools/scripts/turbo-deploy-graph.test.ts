@@ -409,11 +409,17 @@ describe('turbo check/deploy graph invariants', () => {
 
   test('one application deployment follows migration and its checks', () => {
     const tasks = loadTasks();
+    // regression: deploy-empty-chess-puzzle-catalog — schema reconcile left a
+    // fresh production database with zero puzzles, so the post-deploy chess
+    // journey reached "No puzzles left" instead of a playable board.
+    expect(tasks['@libs/chess-puzzle-server#seed:deploy']?.dependsOn).toEqual([
+      '@libs/runtime-server#migrate',
+    ]);
     // regression: product-deploy-dist-race — while Wrangler uploaded
     // apps/product/dist/assets/src-C2k0tIiA.js, a parallel Check build emptied
     // dist and replaced the content-hashed asset before an upload stream read it.
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
-      '@libs/runtime-server#migrate',
+      '@libs/chess-puzzle-server#seed:deploy',
       '@apps/server#check:api',
       '@apps/product#check:offline-shell',
       '@apps/product#check:worker-bundle',

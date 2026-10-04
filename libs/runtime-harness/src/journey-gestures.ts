@@ -145,6 +145,7 @@ async function showSpaces(ui: Driver): Promise<void> {
 
 async function hostUsername(ui: Driver): Promise<string> {
   await openTab(ui, Handles.tabProfile);
+  await expectVisible(ui, Handles.profileDisplayUsername);
   const raw = (await ui.get(Handles.profileDisplayUsername).text()) ?? '';
   const username = raw.trim().replace(/^@/, '');
   check(
