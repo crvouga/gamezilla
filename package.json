@@ -244,6 +244,8 @@
     "@embedded-postgres/linux-ia32",
     "@embedded-postgres/linux-ppc64",
     "@embedded-postgres/linux-x64",
-    "@embedded-postgres/windows-x64"
+    "@embedded-postgres/windows-x64",
+    "ffmpeg-static",
+    "onnxruntime-node"
   ]
 }

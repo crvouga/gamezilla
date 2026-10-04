@@ -1,12 +1,14 @@
 // @io-wall-ok — package test composition: load the board's actual stylesheet.
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { compileCssModule } from '@pkgs/bun-test-solid/css-module';
 
-// bun-test-solid exposes CSS-module names unchanged. Keep one real stylesheet
+// Use the DOM preload's isolated CSS-module names. Keep one real stylesheet
 // for this test process, like a browser's stylesheet, rather than inventing
 // computed values in observers or attaching styles to each mounted board.
 const stylesheet = document.createElement('style');
-stylesheet.textContent = readFileSync(
-  new URL('../src/chess-board.module.css', import.meta.url),
-  'utf8'
+const path = fileURLToPath(
+  new URL('../src/chess-board.module.css', import.meta.url)
 );
+stylesheet.textContent = compileCssModule(path, readFileSync(path, 'utf8')).css;
 document.head.append(stylesheet);

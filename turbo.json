@@ -5,6 +5,7 @@
   "globalDependencies": ["tsconfig.base.json", "mise.toml"],
   "globalPassThroughEnv": [
     "GITHUB_*",
+    "BUN_CHROME_PATH",
     "DEPOT_*",
     "FEEDBACK_*",
     "POST_DEPLOY_*",
@@ -407,6 +408,7 @@
         "!public/sql-workers/**",
         "!public/generated/**",
         "!dist/**",
+        "!node_modules/**",
         "!.cache/**",
         "!**/*.test.ts",
         "!**/*.test.tsx",

@@ -22,20 +22,12 @@
  * yet and every command skips with a warning.
  */
 
-import {
-  existsSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
+import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
 import { openCommit } from '@pkgs/harness-report/remote/publish';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { run } from '@pkgs/os';
+import { compileFrameCss } from '../src/ci/wall-frame-css';
 import { publishBatch } from './report-batch';
 import {
   createReportPlan,
@@ -51,67 +43,6 @@ const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 
 /** `@pkgs/tailwind`: its `node_modules/.bin` holds the CLI it declares. */
 export const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
-const UI_CSS = [
-  join(REPO_ROOT, 'pkgs/ui/src/theme/tokens.css'),
-  join(REPO_ROOT, 'pkgs/ui/src/components/skin.css'),
-  join(REPO_ROOT, 'pkgs/ui/src/components/hosts.css'),
-];
-
-function listModuleCss(dir: string, out: string[]): void {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name !== 'node_modules') listModuleCss(path, out);
-    } else if (entry.name.endsWith('.module.css')) {
-      out.push(path);
-    }
-  }
-}
-
-/**
- * Stylesheet the phone snapshots share: Tailwind, tokens, skin, hosts, and
- * every `pkgs/` CSS module. bun's harness Babel plugin exports unhashed local
- * class names, so the raw module CSS applies. `hosts.css` `@import`s skin,
- * which a sheet concatenated after Tailwind drops, so skin is inlined above.
- */
-function compileFrameCss(): string {
-  const tmp = mkdtempSync(join(tmpdir(), 'harness-report-css-'));
-  try {
-    const out = join(tmp, 'tailwind.css');
-    run(
-      'bunx',
-      [
-        '--no-install',
-        '@tailwindcss/cli',
-        '-i',
-        join(TAILWIND_DIR, 'src/tailwind.css'),
-        '-o',
-        out,
-      ],
-      { cwd: TAILWIND_DIR }
-    );
-    const modules: string[] = [];
-    for (const name of readdirSync(join(REPO_ROOT, 'pkgs')).sort()) {
-      const src = join(REPO_ROOT, 'pkgs', name, 'src');
-      if (existsSync(src)) listModuleCss(src, modules);
-    }
-    return [
-      readFileSync(out, 'utf8'),
-      // `hosts.css` `@import`s skin. A sheet concatenated after Tailwind
-      // drops `@import`, so skin is inlined and those lines are removed.
-      ...UI_CSS.map((p) =>
-        readFileSync(p, 'utf8').replace(/@import\s+[^;]+;/g, '')
-      ),
-      ...modules.map(
-        (p) =>
-          `/* ${p.slice(REPO_ROOT.length + 1)} */\n${readFileSync(p, 'utf8')}`
-      ),
-    ].join('\n');
-  } finally {
-    rmSync(tmp, { recursive: true, force: true });
-  }
-}
-
 const REPORTS_ENV = [
   'REPORTS_BUCKET',
   'REPORTS_ENDPOINT',
@@ -172,7 +103,7 @@ async function prepareReport(args: {
     branch: branchName(),
     runUrl: runUrl(),
     startedAtMs,
-    frameCss: compileFrameCss(),
+    frameCss: compileFrameCss(REPO_ROOT),
     publicationId: args.runId,
   });
   console.log(

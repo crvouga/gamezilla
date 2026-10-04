@@ -5,11 +5,12 @@ import { decodePlan, encodePlan } from './check-plan-transfer';
 test('compressed plan transport preserves exact task identities and rejects truncation', () => {
   const files = {
     'plan.json': JSON.stringify({
-      version: 1,
+      version: 2,
       tasks: [{ taskId: '@p/a#test', hash: 'abcd', dependencies: [] }],
       shards: [
         {
           index: 0,
+          stage: 'checks',
           seconds: 5,
           tasks: [{ taskId: '@p/a#test', hash: 'abcd', dependencies: [] }],
         },

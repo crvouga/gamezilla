@@ -1,0 +1,10 @@
+{
+  "model": "UIClip",
+  "modelVersion": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+  "sourceUrl": "https://huggingface.co/biglab/uiclip_jitteredwebsites-2-224-paraphrased_webpairs_humanpairs/resolve/505d4731b09263c07437a9022d23c800274da56b/model.safetensors",
+  "sourceSha256": "cf8bcb4f3605ab11a64f9ed515ef96c65618071c67e4756921db66a7aebd1820",
+  "sourceBytes": 605156676,
+  "weightsSha256": "3ca4556e6c7d23cdd8e0bd1995d2278e2ad544aa7e89defaa200ec1c5278b1b4",
+  "weightsBytes": 351396864,
+  "graphSha256": "6e68e4b1bea189e543047d96fab38cf6b0755d3339925a07f3828c83dc35005d"
+}

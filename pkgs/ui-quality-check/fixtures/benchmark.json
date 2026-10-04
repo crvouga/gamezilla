@@ -1,0 +1,518 @@
+{
+  "schemaVersion": 1,
+  "hardware": {
+    "chip": "Apple M2 Max",
+    "cpuCores": 12,
+    "gpuCores": 30,
+    "memoryGiB": 32,
+    "os": "macOS 26.6.2"
+  },
+  "runtime": {
+    "bun": "1.4.2",
+    "onnxruntime-node": "1.30.0",
+    "sharp": "0.35.5",
+    "ffmpeg": "6.1.1"
+  },
+  "pipeline": [
+    {
+      "name": "default",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 3426,
+      "processingMs": 2634,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 2364,
+      "startupMs": 792,
+      "scoringMs": 496,
+      "batches": 12,
+      "inferenceMs": 429,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 209.7902097902098,
+      "framesPerSecond": 13.66742596810934,
+      "videosPerMinute": 210.15761821366024,
+      "realtimeFactor": 175.13134851138355,
+      "peakRssBytes": 657850368,
+      "rssBytes": 652476416,
+      "parentCpuUtilizationPercent": 85.00329830706363,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 4,
+        "dedupeThreshold": 0.004,
+        "concurrency": 2
+      }
+    },
+    {
+      "name": "batch-1",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 3975,
+      "processingMs": 3512,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 2364,
+      "startupMs": 463,
+      "scoringMs": 1835,
+      "batches": 36,
+      "inferenceMs": 1699,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 52.97233666862861,
+      "framesPerSecond": 10.250569476082005,
+      "videosPerMinute": 181.1320754716981,
+      "realtimeFactor": 150.9433962264151,
+      "peakRssBytes": 661340160,
+      "rssBytes": 660127744,
+      "parentCpuUtilizationPercent": 93.19335849056604,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 1,
+        "samplingFps": 4,
+        "dedupeThreshold": 0.004,
+        "concurrency": 2
+      }
+    },
+    {
+      "name": "batch-32",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 3635,
+      "processingMs": 3007,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 2364,
+      "startupMs": 628,
+      "scoringMs": 505,
+      "batches": 12,
+      "inferenceMs": 427,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 210.7728337236534,
+      "framesPerSecond": 11.972065181243764,
+      "videosPerMinute": 198.07427785419532,
+      "realtimeFactor": 165.06189821182943,
+      "peakRssBytes": 705495040,
+      "rssBytes": 700104704,
+      "parentCpuUtilizationPercent": 80.83394773039889,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 32,
+        "samplingFps": 4,
+        "dedupeThreshold": 0.004,
+        "concurrency": 2
+      }
+    },
+    {
+      "name": "fps-2",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 5488,
+      "processingMs": 4806,
+      "candidateFrames": 1200,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 1164,
+      "startupMs": 682,
+      "scoringMs": 613,
+      "batches": 12,
+      "inferenceMs": 493,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 182.5557809330629,
+      "framesPerSecond": 7.49063670411985,
+      "videosPerMinute": 131.19533527696794,
+      "realtimeFactor": 109.32944606413994,
+      "peakRssBytes": 708591616,
+      "rssBytes": 703201280,
+      "parentCpuUtilizationPercent": 39.1634110787172,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 2,
+        "dedupeThreshold": 0.004,
+        "concurrency": 2
+      }
+    },
+    {
+      "name": "fps-8",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 4989,
+      "processingMs": 3965,
+      "candidateFrames": 4800,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 4764,
+      "startupMs": 1024,
+      "scoringMs": 513,
+      "batches": 12,
+      "inferenceMs": 445,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 202.24719101123594,
+      "framesPerSecond": 9.079445145018916,
+      "videosPerMinute": 144.31749849669274,
+      "realtimeFactor": 120.26458208057727,
+      "peakRssBytes": 712802304,
+      "rssBytes": 707395584,
+      "parentCpuUtilizationPercent": 88.05572258969734,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 8,
+        "dedupeThreshold": 0.004,
+        "concurrency": 2
+      }
+    },
+    {
+      "name": "no-dedupe",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 27857,
+      "processingMs": 27399,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 2400,
+      "framesDeduplicated": 0,
+      "startupMs": 458,
+      "scoringMs": 27169,
+      "batches": 156,
+      "inferenceMs": 22505,
+      "windowsProcessed": 6000,
+      "inferenceWindowsPerSecond": 266.60742057320596,
+      "framesPerSecond": 87.59443775320267,
+      "videosPerMinute": 25.846286391212264,
+      "realtimeFactor": 21.538571992676886,
+      "peakRssBytes": 1025212416,
+      "rssBytes": 1006813184,
+      "parentCpuUtilizationPercent": 47.8317622141652,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 4,
+        "dedupeThreshold": 0,
+        "concurrency": 2
+      }
+    },
+    {
+      "name": "one-decoder",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 5527,
+      "processingMs": 5086,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 2364,
+      "startupMs": 441,
+      "scoringMs": 495,
+      "batches": 12,
+      "inferenceMs": 437,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 205.94965675057207,
+      "framesPerSecond": 7.078254030672434,
+      "videosPerMinute": 130.26958567034558,
+      "realtimeFactor": 108.55798805862132,
+      "peakRssBytes": 1025212416,
+      "rssBytes": 1006157824,
+      "parentCpuUtilizationPercent": 52.3146372353899,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 4,
+        "dedupeThreshold": 0.004,
+        "concurrency": 1
+      }
+    },
+    {
+      "name": "four-decoders",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "webgpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 2453,
+      "processingMs": 1934,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 2364,
+      "startupMs": 519,
+      "scoringMs": 582,
+      "batches": 12,
+      "inferenceMs": 432,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 208.33333333333334,
+      "framesPerSecond": 18.61427094105481,
+      "videosPerMinute": 293.51814105177334,
+      "realtimeFactor": 244.59845087647778,
+      "peakRssBytes": 1025212416,
+      "rssBytes": 1007075328,
+      "parentCpuUtilizationPercent": 101.49922543823888,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 4,
+        "dedupeThreshold": 0.004,
+        "concurrency": 4
+      }
+    },
+    {
+      "name": "cpu",
+      "schemaVersion": 1,
+      "backend": [
+        {
+          "id": "UIClip",
+          "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+          "executionProvider": "cpu"
+        }
+      ],
+      "videos": 12,
+      "durationMs": 600000,
+      "elapsedMs": 4938,
+      "processingMs": 4382,
+      "candidateFrames": 2400,
+      "framesAnalyzed": 36,
+      "framesDeduplicated": 2364,
+      "startupMs": 556,
+      "scoringMs": 2131,
+      "batches": 12,
+      "inferenceMs": 2062,
+      "windowsProcessed": 90,
+      "inferenceWindowsPerSecond": 43.64694471387003,
+      "framesPerSecond": 8.215426745778183,
+      "videosPerMinute": 145.80801944106926,
+      "realtimeFactor": 121.50668286755771,
+      "peakRssBytes": 1025212416,
+      "rssBytes": 1019740160,
+      "parentCpuUtilizationPercent": 403.31340623734314,
+      "gpuUtilizationPercent": null,
+      "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+      "configuration": {
+        "batchSize": 16,
+        "samplingFps": 4,
+        "dedupeThreshold": 0.004,
+        "concurrency": 2
+      }
+    }
+  ],
+  "externalGpu": {
+    "schemaVersion": 1,
+    "backend": [
+      {
+        "id": "UIClip",
+        "version": "505d4731b09263c07437a9022d23c800274da56b-vision-caption-v1",
+        "executionProvider": "webgpu"
+      }
+    ],
+    "videos": 12,
+    "durationMs": 600000,
+    "elapsedMs": 3976,
+    "processingMs": 3226,
+    "candidateFrames": 2400,
+    "framesAnalyzed": 36,
+    "framesDeduplicated": 2364,
+    "startupMs": 750,
+    "scoringMs": 521,
+    "batches": 12,
+    "inferenceMs": 432,
+    "windowsProcessed": 90,
+    "inferenceWindowsPerSecond": 208.33333333333334,
+    "framesPerSecond": 11.159330440173589,
+    "videosPerMinute": 181.08651911468812,
+    "realtimeFactor": 150.90543259557344,
+    "peakRssBytes": 669827072,
+    "rssBytes": 664469504,
+    "parentCpuUtilizationPercent": 74.16390845070423,
+    "gpuUtilizationPercent": null,
+    "measurementNotes": "CPU includes the Node/Bun process only; FFmpeg child CPU is excluded. Peak RSS covers the process lifetime. Portable Node APIs do not expose GPU utilization; use an external profiler for GPU occupancy.",
+    "configuration": {
+      "batchSize": 16,
+      "samplingFps": 4,
+      "dedupeThreshold": 0.004,
+      "concurrency": 2
+    },
+    "externalGpu": {
+      "samples": [0, 0, 0, 50, 0, 84, 0, 0, 76, 0, 67, 76, 80, 80],
+      "meanPercent": 36.642857142857146,
+      "maximumPercent": 84,
+      "scope": "Device-global macOS ioreg utilization sampled every 250 ms; includes other GPU users and measurement overhead. Not process-specific occupancy."
+    }
+  },
+  "isolatedRuntime": {
+    "onnxCpu": [
+      {
+        "provider": "cpu",
+        "startupMs": 327.454291,
+        "rss": 461963264
+      },
+      {
+        "provider": "cpu",
+        "batch": 1,
+        "fps": 45.23621764784875,
+        "rss": 463683584,
+        "sample": [
+          -0.0486779510974884, 0.11161170899868011, -0.07252101600170135
+        ]
+      },
+      {
+        "provider": "cpu",
+        "batch": 4,
+        "fps": 46.58500380201568,
+        "rss": 468697088,
+        "sample": [
+          -0.0486779510974884, 0.11161170899868011, -0.07252101600170135
+        ]
+      },
+      {
+        "provider": "cpu",
+        "batch": 16,
+        "fps": 53.68083220436858,
+        "rss": 514310144,
+        "sample": [
+          -0.0486779510974884, 0.11161170899868011, -0.07252101600170135
+        ]
+      },
+      {
+        "provider": "cpu",
+        "batch": 32,
+        "fps": 57.12149747689974,
+        "rss": 591495168,
+        "sample": [
+          -0.0486779510974884, 0.11161170899868011, -0.07252101600170135
+        ]
+      }
+    ],
+    "onnxWebgpu": [
+      {
+        "provider": "webgpu",
+        "startupMs": 419.413208,
+        "rss": 768032768
+      },
+      {
+        "provider": "webgpu",
+        "batch": 1,
+        "fps": 62.42527434555527,
+        "rss": 784793600,
+        "sample": [
+          -0.04867783933877945, 0.11161153018474579, -0.07252101600170135
+        ]
+      },
+      {
+        "provider": "webgpu",
+        "batch": 4,
+        "fps": 181.19771690876698,
+        "rss": 786907136,
+        "sample": [
+          -0.04867783933877945, 0.11161153018474579, -0.07252101600170135
+        ]
+      },
+      {
+        "provider": "webgpu",
+        "batch": 16,
+        "fps": 257.70503284882835,
+        "rss": 798244864,
+        "sample": [
+          -0.04867783933877945, 0.11161153018474579, -0.07252101600170135
+        ]
+      },
+      {
+        "provider": "webgpu",
+        "batch": 32,
+        "fps": 272.4255018908499,
+        "rss": 817692672,
+        "sample": [
+          -0.04867783933877945, 0.11161153018474579, -0.07252101600170135
+        ]
+      }
+    ],
+    "transformersJsCpu": [
+      {
+        "provider": "transformers-js-cpu",
+        "startupMs": 384.52150000000006,
+        "rss": 825851904
+      },
+      {
+        "batch": 1,
+        "fps": 34.22938250193967,
+        "rss": 829571072
+      },
+      {
+        "batch": 4,
+        "fps": 36.18949721862151,
+        "rss": 837337088
+      },
+      {
+        "batch": 16,
+        "fps": 42.65415792727032,
+        "rss": 847904768
+      },
+      {
+        "batch": 32,
+        "fps": 49.52715752035064,
+        "rss": 868614144
+      }
+    ]
+  }
+}

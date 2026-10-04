@@ -12,7 +12,7 @@
  *   condition picks Solid's SSR build, whose `render` throws). Runtime
  *   `onResolve` cannot rewrite bare specifiers imported from `node_modules`,
  *   so conditions are the only lever.
- * - `*.module.css` → proxy of class names; plain `.css` → empty module;
+ * - `*.module.css` → isolated class names; plain `.css` → empty module;
  *   media assets (`.mp3`, images, fonts) → their file path.
  * - happy-dom supplies `document`/`window`; Bun's own fetch / streams / timers
  *   / crypto are restored afterwards so in-process Hono, SQLite and harness HTTP
@@ -26,6 +26,7 @@ import { join } from 'node:path';
 import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { plugin } from 'bun';
+import { compileCssModule } from './css-module';
 
 process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
 
@@ -117,8 +118,7 @@ function transformSolidTsx(path: string, source: string): string {
 function cssModule(path: string): { contents: string; loader: 'js' } {
   if (path.endsWith('.module.css')) {
     return {
-      contents:
-        'export default new Proxy({}, { get: (_target, key) => String(key) });',
+      contents: `export default ${JSON.stringify(compileCssModule(path, readFileSync(path, 'utf8')).classes)};`,
       loader: 'js',
     };
   }

@@ -1,17 +1,20 @@
+import { checkStages } from './check-stages';
 import type { PlannedTask } from './turbo-preflight';
 
 export type CheckTask = PlannedTask & {
   readonly command: string;
   readonly directory: string;
   readonly seconds: number;
+  readonly durationSource: 'history' | 'family' | 'fallback';
 };
 export type CheckShard = {
   readonly index: number;
+  readonly stage: 'prerequisites' | 'checks' | 'consumers';
   readonly seconds: number;
   readonly tasks: readonly CheckTask[];
 };
 export type CheckPlan = {
-  readonly version: 1;
+  readonly version: 2;
   readonly tasks: readonly CheckTask[];
   readonly shards: readonly CheckShard[];
 };
@@ -53,29 +56,49 @@ export function balanceShards(
     throw new Error('CHECK_SHARDS must be an integer in 1..64');
   const bins = Array.from({ length: count }, (_, index) => ({
     index,
+    stage: 'checks' as const,
     seconds: 0,
     tasks: [] as CheckTask[],
   }));
   const cost = (group: readonly CheckTask[]) =>
-    group.reduce((sum, task) => sum + task.seconds, 0);
+    group.reduce((sum, task) => sum + taskWeight(task), 0);
+  const canonical = [...tasks].sort((a, b) => compare(a.taskId, b.taskId));
+  const stages = checkStages(canonical);
   const ordered = groups(
-    [...tasks].sort((a, b) => compare(a.taskId, b.taskId))
+    [...stages.checks].sort((a, b) => compare(a.taskId, b.taskId))
   ).sort((a, b) => cost(b) - cost(a) || compare(a[0]!.taskId, b[0]!.taskId));
   for (const group of ordered) {
     const bin = bins.reduce((best, candidate) =>
-      candidate.seconds < best.seconds ? candidate : best
+      candidate.seconds < best.seconds ||
+      (candidate.seconds === best.seconds &&
+        candidate.tasks.filter(unknown).length <
+          best.tasks.filter(unknown).length) ||
+      (candidate.seconds === best.seconds &&
+        candidate.tasks.filter(unknown).length ===
+          best.tasks.filter(unknown).length &&
+        candidate.tasks.length < best.tasks.length)
+        ? candidate
+        : best
     );
     bin.tasks.push(...group);
     bin.seconds += cost(group);
   }
-  const plan: CheckPlan = { version: 1, tasks, shards: bins };
+  const shards: CheckShard[] = [...bins];
+  for (const stage of ['prerequisites', 'consumers'] as const)
+    shards.push({
+      index: shards.length,
+      stage,
+      tasks: stages[stage],
+      seconds: cost(stages[stage]),
+    });
+  const plan: CheckPlan = { version: 2, tasks: canonical, shards };
   validatePlan(plan);
   return plan;
 }
 
 /** Exact set equality and dependency ownership, never a hard-coded task count. */
 export function validatePlan(plan: CheckPlan): void {
-  if (plan.version !== 1 || plan.shards.length < 1)
+  if (plan.version !== 2 || plan.shards.length < 1)
     throw new Error('Invalid Check plan');
   const expected = new Map(plan.tasks.map((task) => [task.taskId, task.hash]));
   if (expected.size !== plan.tasks.length)
@@ -89,11 +112,21 @@ export function validatePlan(plan: CheckPlan): void {
       owners.set(task.taskId, index);
     }
   }
+  for (const task of plan.tasks)
+    if (!Number.isFinite(task.seconds) || task.seconds <= 0)
+      throw new Error(`Invalid task estimate: ${task.taskId}`);
   if (owners.size !== expected.size) throw new Error('Omitted Check task');
+  const rank = { prerequisites: 0, checks: 1, consumers: 2 };
+  for (const shard of plan.shards)
+    if (!(shard.stage in rank)) throw new Error('Unknown Check stage');
   for (const shard of plan.shards)
     for (const task of shard.tasks)
       for (const dep of task.dependencies)
-        if (owners.has(dep) && owners.get(dep) !== shard.index)
+        if (
+          owners.has(dep) &&
+          owners.get(dep) !== shard.index &&
+          rank[plan.shards[owners.get(dep)!]!.stage] >= rank[shard.stage]
+        )
           throw new Error(`Cross-shard dependency: ${task.taskId} -> ${dep}`);
 }
 
@@ -122,4 +155,36 @@ export function validateShardResult(
     seen.add(task.taskId);
   }
   if (seen.size !== expected.size) throw new Error('Incomplete shard result');
+}
+
+/** Cache verdicts consume no execution slots; restore time is reported separately. */
+export function taskWeight(task: CheckTask): number {
+  return task.hit ? 0 : task.seconds;
+}
+function unknown(task: CheckTask): boolean {
+  return !task.hit && task.durationSource !== 'history';
+}
+
+export function planWarnings(plan: CheckPlan): string[] {
+  const checks = plan.shards.filter((shard) => shard.stage === 'checks');
+  const values = checks.map((shard) => shard.seconds);
+  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const warnings: string[] = [];
+  if (max > 0 && (min === 0 || max / min > 1.25))
+    warnings.push(
+      `Estimated max/min exceeds 1.25 (${min.toFixed(1)}s..${max.toFixed(1)}s)`
+    );
+  if (max > average * 1.2)
+    warnings.push(
+      `Heaviest shard exceeds average by more than 20% (${max.toFixed(1)}s / ${average.toFixed(1)}s)`
+    );
+  const counts = checks.map((shard) => shard.tasks.filter(unknown).length);
+  const mean = counts.reduce((sum, value) => sum + value, 0) / counts.length;
+  if (Math.max(...counts) > Math.max(Math.ceil(mean) + 1, mean * 1.25))
+    warnings.push(
+      `Unknown-duration tasks concentrated on one shard (${counts.join(', ')})`
+    );
+  return warnings;
 }

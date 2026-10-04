@@ -1,10 +1,12 @@
 // @io-wall-ok — CI planning entry; artifacts contain identities, never environment values.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
-import { balanceShards, type CheckTask, imbalance } from './check-shards';
+import { cacheDiagnostics } from './check-cache-diagnostics';
+import { balanceShards, type CheckTask, planWarnings } from './check-shards';
 import { readTaskCosts } from './check-task-costs';
+import { estimateTask, shardSummary } from './check-task-estimates';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   flattenCheckAggregators,
@@ -49,12 +51,8 @@ export async function createCheckPlan(): Promise<void> {
   const lookupStarted = process.hrtime.bigint();
   const local = planFromDryRun(json);
   const costs = readTaskCosts();
-  const ids = ownedTaskIds(local, env, costs);
-  const { resolved, remoteResponses } = await resolveCache(
-    {
-      ...local,
-      toExecute: local.toExecute.filter((task) => ids.has(task.taskId)),
-    },
+  const { resolved, remoteResponses, responsesByHash } = await resolveCache(
+    local,
     env
   );
   const lookupMs = Number(process.hrtime.bigint() - lookupStarted) / 1e6;
@@ -66,7 +64,7 @@ export async function createCheckPlan(): Promise<void> {
     ...task,
     command: definitions.get(task.taskId)!.command,
     directory: definitions.get(task.taskId)!.directory,
-    seconds: costs[task.taskId] ?? 5,
+    ...estimateTask(task.taskId, costs),
   }));
   if (env['CHECK_CACHE_MODE'] === 'cold')
     for (const task of tasks) Object.assign(task, { hit: false, source: null });
@@ -83,43 +81,29 @@ export async function createCheckPlan(): Promise<void> {
       tasks: tasks.length,
       hits: tasks.filter((task) => task.hit).length,
       remoteResponses,
+      cacheMisses: cacheDiagnostics(tasks, responsesByHash),
     })
   );
   printPlan(plan, discoveryMs, lookupMs);
+  for (const miss of cacheDiagnostics(tasks, responsesByHash).slice(0, 5))
+    console.log(`cache miss ${miss.taskId} ${miss.hash}: ${miss.reason}`);
   // Capture the same historical scan context alongside this shard's plan.
   writeFileSync(
     join(DIRECTORY, 'context.json'),
-    JSON.stringify({ secretsRange: env[SECRETS_RANGE_ENV] })
+    JSON.stringify({
+      secretsRange: env[SECRETS_RANGE_ENV],
+      platformKey: readFileSync(join(ROOT, 'turbo-platform-key.json'), 'utf8'),
+    })
   );
 }
 
 if (import.meta.main) await createCheckPlan();
 
-function ownedTaskIds(
-  local: RunPlan,
-  env: NodeJS.ProcessEnv,
-  costs: Record<string, number>
-): Set<string> {
-  const ownership = balanceShards(
-    local.tasks.map((task) => ({
-      ...task,
-      command: '',
-      directory: '',
-      seconds: costs[task.taskId] ?? 5,
-    })),
-    Number(env['CHECK_SHARDS'] ?? '16')
-  );
-  const index =
-    env['CHECK_SHARD'] === undefined ? null : Number(env['CHECK_SHARD']);
-  const owned =
-    index === null ? ownership.tasks : ownership.shards[index]?.tasks;
-  if (!owned) throw new Error(`Unknown Check shard ${index}`);
-  return new Set(owned.map((task) => task.taskId));
-}
-
 async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
   const remoteResponses: Record<number, number> = {};
-  const remoteHas = wallRemoteHas(env, (status) => {
+  const responsesByHash: Record<string, number> = {};
+  const remoteHas = wallRemoteHas(env, (status, hash) => {
+    responsesByHash[hash] = status;
     remoteResponses[status] = (remoteResponses[status] ?? 0) + 1;
   });
   const resolved =
@@ -134,7 +118,7 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
     console.log(
       `cache: ${new URL(env['TURBO_API']!).origin}; scope ${env['TURBO_TEAM']}; responses ${JSON.stringify(remoteResponses)}`
     );
-  return { resolved, remoteResponses };
+  return { resolved, remoteResponses, responsesByHash };
 }
 
 function printPlan(
@@ -142,15 +126,9 @@ function printPlan(
   discoveryMs: number,
   lookupMs: number
 ): void {
-  for (const shard of plan.shards)
-    console.log(
-      `shard ${shard.index}: ${shard.tasks.length} tasks, estimated ${shard.seconds.toFixed(1)} task-seconds`
-    );
-  const skew = imbalance(plan.shards.map((shard) => shard.seconds));
-  if (skew > 0.1)
-    console.warn(
-      `::warning::Estimated shard imbalance ${(skew * 100).toFixed(1)}% exceeds 10%`
-    );
+  for (const shard of plan.shards) console.log(shardSummary(shard));
+  for (const warning of planWarnings(plan))
+    console.warn(`::warning::${warning}`);
   console.log(
     `plan: ${plan.tasks.length} exact task identities; discovery ${discoveryMs.toFixed(0)}ms; cache lookup ${lookupMs.toFixed(0)}ms`
   );

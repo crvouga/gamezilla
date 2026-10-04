@@ -52,6 +52,7 @@
  *   completed part from Turbo's structured stream. Uploads have their own
  *   bounded pool, overlap checks, and must finish before the gate passes.
  */
+
 import { type ChildProcess, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
@@ -60,6 +61,7 @@ import {
   DEFAULT_TURBO_API,
   TURBO_TEAM,
 } from '@libs/secrets/shared/secrets/turbo-token';
+import { capture } from '@pkgs/os';
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import {
@@ -116,8 +118,27 @@ export function writePlatformCacheKey(): void {
     platform: process.platform,
     arch: process.arch,
     bun: Bun.version,
+    chrome: visualBrowserVersion(),
   };
   writeFileSync(PLATFORM_KEY_PATH, `${JSON.stringify(key, null, 2)}\n`);
+}
+
+/** Browser pixels must not reuse a verdict from another Chrome version. */
+function visualBrowserVersion(): string | null {
+  const result = capture(
+    process.execPath,
+    [
+      'run',
+      join(REPO_ROOT, 'apps/product/scripts/ui-quality/browser-version.ts'),
+    ],
+    { cwd: REPO_ROOT }
+  );
+  if (result.status !== 0)
+    throw new Error(`Cannot fingerprint visual renderer: ${result.stderr}`);
+  const value = JSON.parse(result.stdout) as { chrome?: unknown };
+  if (value.chrome !== null && typeof value.chrome !== 'string')
+    throw new Error('Invalid visual renderer fingerprint.');
+  return value.chrome;
 }
 
 /** Root-package script names and turbo root-task aliases that are aggregators. */
@@ -153,8 +174,8 @@ export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
  * Turbo flags a run mode adds. Standalone health: `--only` keeps it off the
  * deploy chain, and `--continue` lets every probe report instead of stopping at
  * the first failure (probes are independent and deploy nothing). Deploy keeps
- * turbo's stop-on-first-failure: its deploy steps do not depend on the check
- * leaves, so continuing past a failed check could ship.
+ * turbo's stop-on-first-failure: some deploy steps do not depend on the full
+ * check surface, so continuing past a failed check could ship.
  */
 export function runModeFlags(mode: RunMode): readonly string[] {
   return mode === 'health'

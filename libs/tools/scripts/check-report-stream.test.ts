@@ -28,6 +28,23 @@ function completed(
 }
 
 describe('overlapping report uploads', () => {
+  test.each(['cache miss, executing', 'cache hit, replaying logs'])(
+    'the visual gate publishes exact-hash evidence after %s, including a quality failure',
+    async (message) => {
+      const task = '@apps/product#check:ui-quality';
+      const published: string[] = [];
+      const publisher = createReportPublisher(tasks(task), {
+        async publish(id) {
+          published.push(id);
+        },
+        log() {},
+      });
+      publisher.line(event(task, `${message} ${HASH}`));
+      publisher.line(event(task));
+      await publisher.finish(true);
+      expect(published).toEqual([task]);
+    }
+  );
   test('starts before Turbo finishes, bounds concurrency and drains every queued upload', async () => {
     const waits = new Map([A, B, C].map((id) => [id, deferred()]));
     const started: string[] = [];

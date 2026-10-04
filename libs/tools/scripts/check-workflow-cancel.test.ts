@@ -72,10 +72,23 @@ describe('Check workflow cancellation', () => {
       >;
     };
     const gate = workflow.jobs['check']!;
-    expect(gate.needs).toEqual(['check-shards']);
+    expect(gate.needs).toEqual([
+      'check-plan',
+      'check-shards',
+      'check-consumers',
+    ]);
     expect(gate.steps[0]!.run).toContain('test "$SHARD_RESULT" = success');
     expect(workflow.jobs['check-shards']!.strategy?.['fail-fast']).toBe(false);
-    expect(workflow.jobs['check-reports']!.needs).toEqual(['check-shards']);
+    expect(workflow.jobs['check-shards']!.needs).toEqual(['check-plan']);
+    expect(workflow.jobs['check-consumers']!.needs).toEqual([
+      'check-plan',
+      'check-shards',
+    ]);
+    expect(workflow.jobs['check-reports']!.needs).toEqual([
+      'check-plan',
+      'check-shards',
+      'check-consumers',
+    ]);
     expect(gate.needs).not.toContain('check-reports');
     // regression: check-repeated-mise-cache-stall (1jzx5994v8)
     expect(
@@ -89,7 +102,7 @@ describe('Check workflow cancellation', () => {
       workflow.jobs['check-shards']!.steps.find(
         (step) => step.name === 'Transfer raw evidence'
       )?.['continue-on-error']
-    ).toBe(true);
+    ).toBeUndefined();
     expect(
       workflow.jobs['check-shards']!.steps.find(
         (step) => step.name === 'check'
