@@ -12,7 +12,6 @@
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "mutants": "bun tests/mutants/scripted-mutants.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",

@@ -57,13 +57,13 @@ bounded). Rooms that log every cursor move grow without bound; snapshot /
 compaction or an unlogged presence channel would be a protocol addition, not
 an engine optimization.
 
-Measure with `bun run --filter @pkgs/room-client bench` (`tests/hot-paths.bench.ts`).
+Measure with `bun run --filter @pkgs/room-harness bench` (`tests/hot-paths.bench.ts`).
 To compare against a previous engine, snapshot it and point `ROOM_OLD_SRC` at
 its `src` (default `<repo>/.bench-old-room/src`):
 
 ```bash
 mkdir -p .bench-old-room && git archive <sha> pkgs/room/src | tar -x -C .bench-old-room --strip-components=2
-bun run --filter @pkgs/room-client bench
+bun run --filter @pkgs/room-harness bench
 ```
 
 ---

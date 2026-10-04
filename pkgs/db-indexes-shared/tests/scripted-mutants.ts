@@ -2,7 +2,7 @@
  * Scripted invariant mutants — delete I1/I3 guards in a temp copy of plan.ts
  * logic and assert the suite oracle would catch them.
  *
- * Run: bun tests/mutants/scripted-mutants.ts
+ * Run: bun tests/scripted-mutants.ts
  * Not part of default `bun test` (documentation / local audit).
  */
 import { assert } from '@pkgs/assert-shared/singleton';

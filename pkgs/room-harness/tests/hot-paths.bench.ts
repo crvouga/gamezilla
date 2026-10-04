@@ -6,7 +6,7 @@
  * `<repo>/.bench-old-room/src`). When the snapshot is absent, only the
  * current engine is measured.
  *
- * Run: `bun run --filter @pkgs/room-client bench`
+ * Run: `bun run --filter @pkgs/room-harness bench`
  */
 import type { Message } from '@pkgs/message-shared/message';
 import { RoomClient } from '@pkgs/room-client/room-client';
