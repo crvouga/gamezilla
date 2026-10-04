@@ -14,10 +14,10 @@ import {
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
   OPFS_WIPE_CHANNEL,
 } from '@pkgs/sql-client-sqlite-web-client/recover-in-process';
-import type { DbChangedNotify } from '@pkgs/sql-client-sqlite-web-shared/rpc';
-import { serializeSql } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import type { WebSqlTransport } from '@pkgs/sql-client-sqlite-web-client/shared-worker-transport';
 import { createSharedWorkerTransport } from '@pkgs/sql-client-sqlite-web-client/shared-worker-transport';
+import type { DbChangedNotify } from '@pkgs/sql-client-sqlite-web-shared/rpc';
+import { serializeSql } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import type { SqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
 import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import { createLeaderTransport } from './db-host-leader';

@@ -8,7 +8,7 @@ import type { ReportTestLoader } from './report-context';
 import { ReportProvider } from './report-context';
 import { TestView } from './test-view';
 import { useReportNav } from './use-report-nav';
-import '../styles.css';
+import './styles.css';
 
 export type HarnessReportAppProps = {
   data: ReportData;

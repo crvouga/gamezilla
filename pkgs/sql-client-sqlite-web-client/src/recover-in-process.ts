@@ -5,13 +5,13 @@ import {
   openWithWaitRetry,
   sleepMs,
 } from '@pkgs/sql-client-sqlite-web-shared/open-retry';
-import { OPFS_SAH_POOL_ROOT } from './opfs-sah-pool-backend';
 import {
   SQL_DB_HOST_PROTOCOL_VERSION,
   sqlDbHostSharedWorkerName,
 } from '@pkgs/sql-client-sqlite-web-shared/sql-db-host-protocol';
 import type { SqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
 import { isSqlOwnerWipeWorthyError } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
+import { OPFS_SAH_POOL_ROOT } from './opfs-sah-pool-backend';
 
 export const DEFAULT_DB_HOST_SHARED_WORKER_URL =
   '/sql-workers/db-host-shared-worker.js';

@@ -61,7 +61,8 @@ export type SqliteWasmOptions = {
   outDir: string;
 };
 
-const PKG_DIR = 'pkgs/sql-client-sqlite-web-client';
+const CLIENT_PACKAGE = '@pkgs/sql-client-sqlite-web-client';
+const PKG_DIR = CLIENT_PACKAGE.slice(1);
 
 function pkgSrc(repoRoot: string): string {
   return join(repoRoot, PKG_DIR, 'src');

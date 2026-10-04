@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { Timers } from '@pkgs/clock-shared/types';
+import type { OwnerRuntime } from '@pkgs/sql-client-sqlite-web-client/owner-runtime';
+import { createSharedWorkerTransport } from '@pkgs/sql-client-sqlite-web-client/shared-worker-transport';
 import { releaseOnPageHide } from '@pkgs/sql-client-sqlite-web-client/web-sql-client';
 import { createBrokerCore } from '@pkgs/sql-client-sqlite-web-shared/broker-core';
-import type { OwnerRuntime } from '@pkgs/sql-client-sqlite-web-client/owner-runtime';
 import type { ConnectResult } from '@pkgs/sql-client-sqlite-web-shared/rpc';
-import { createSharedWorkerTransport } from '@pkgs/sql-client-sqlite-web-client/shared-worker-transport';
 
 /** Timers that never fire: heartbeats and RPC timeouts stay parked. */
 const parkedTimers: Timers = {

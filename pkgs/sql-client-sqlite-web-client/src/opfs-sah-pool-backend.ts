@@ -1,4 +1,3 @@
-import { assertDatabaseName } from '@pkgs/sql-shared/assert-database-name';
 import type {
   Sqlite3Static,
   WasmDatabase,
@@ -8,6 +7,7 @@ import type {
   SqliteWorkerBackend,
   SqliteWorkerOpenedDatabase,
 } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-host';
+import { assertDatabaseName } from '@pkgs/sql-shared/assert-database-name';
 
 type SahPoolUtil = Awaited<ReturnType<Sqlite3Static['installOpfsSAHPoolVfs']>>;
 

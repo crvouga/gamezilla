@@ -5,12 +5,12 @@
  * every OPFS handle.
  */
 
-import { createMemorySqliteWorkerBackend } from '@pkgs/sql-client-sqlite-web-shared/memory-backend';
-import type { Sqlite3Static } from '@pkgs/sql-client-sqlite-web-shared/oo1-sql-client';
 import {
   isOpfsSahPoolSupported,
   OpfsSahPoolBackend,
 } from '@pkgs/sql-client-sqlite-web-client/opfs-sah-pool-backend';
+import { createMemorySqliteWorkerBackend } from '@pkgs/sql-client-sqlite-web-shared/memory-backend';
+import type { Sqlite3Static } from '@pkgs/sql-client-sqlite-web-shared/oo1-sql-client';
 import type { SqliteWorkerPort } from '@pkgs/sql-client-sqlite-web-shared/protocol';
 import type { SqliteWorkerBackend } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-host';
 import {

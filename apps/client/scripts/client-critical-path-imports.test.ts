@@ -28,17 +28,22 @@ describe('client-critical-path-imports', () => {
     expect(specs.sort()).toEqual(['./bar', './side', '../baz'].sort());
   });
 
+  // regression: flat-package-critical-path-boundaries
   test('isDeniedSpecifier matches chess / games / harness-console / wasm', () => {
-    expect(isDeniedSpecifier('@libs/chess/root/client/x')).toBe(true);
-    expect(isDeniedSpecifier('@libs/games/game-plugins.client')).toBe(true);
-    expect(isDeniedSpecifier('@pkgs/harness-console/client')).toBe(true);
+    expect(isDeniedSpecifier('@libs/chess-puzzle-client/x')).toBe(true);
+    expect(isDeniedSpecifier('@libs/games-client/game-plugins.client')).toBe(
+      true
+    );
+    expect(isDeniedSpecifier('@pkgs/harness-console-client/console')).toBe(
+      true
+    );
     expect(isDeniedSpecifier('@sqlite.org/sqlite-wasm')).toBe(true);
-    expect(isDeniedSpecifier('@libs/spaces/root/client/x')).toBe(false);
+    expect(isDeniedSpecifier('@libs/spaces-client/x')).toBe(false);
   });
 
   test('isDeniedResolvedPath matches chess and sql-workers paths', () => {
     expect(
-      isDeniedResolvedPath('/repo/libs/chess/src/root/client/board.tsx')
+      isDeniedResolvedPath('/repo/libs/chess-custom-game-client/src/board.tsx')
     ).toBe(true);
     expect(
       isDeniedResolvedPath('/repo/apps/client/public/sql-workers/sqlite3.wasm')
@@ -54,15 +59,15 @@ describe('client-critical-path-imports', () => {
     const child = join(src, 'child.ts');
     writeFileSync(entry, '');
     writeFileSync(child, '');
-    const libDir = join(root, 'libs/spaces/src/root/client');
+    const libDir = join(root, 'libs/spaces-client/src');
     mkdirSync(libDir, { recursive: true });
     const libFile = join(libDir, 'spaces-screen.tsx');
     writeFileSync(libFile, '');
 
     const aliases = [
       {
-        pattern: '@libs/spaces/*',
-        targets: ['libs/spaces/src/*'],
+        pattern: '@libs/spaces-client/*',
+        targets: ['libs/spaces-client/src/*'],
       },
     ];
     expect(
@@ -75,7 +80,7 @@ describe('client-critical-path-imports', () => {
     ).toBe(child);
     expect(
       resolveImport({
-        specifier: '@libs/spaces/root/client/spaces-screen',
+        specifier: '@libs/spaces-client/spaces-screen',
         fromFile: entry,
         repoRoot: root,
         aliases,
@@ -105,7 +110,7 @@ describe('client-critical-path-imports', () => {
     writeFileSync(entry, `import { App } from './shell/app';\n`);
     writeFileSync(
       shell,
-      `import { GAME_DEFINITIONS } from '@libs/games/game-plugins.client';\n`
+      `import { GAME_DEFINITIONS } from '@libs/games-client/game-plugins.client';\n`
     );
     const { violations } = walkCriticalPath({
       entryAbs: entry,

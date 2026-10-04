@@ -1,10 +1,6 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import { OPEN_DATABASE_TIMEOUT_MS } from '@pkgs/sql-client-sqlite-web-shared/open-retry';
 import type {
-  OwnerRuntime,
-  TransportOwnerRuntimeFactory,
-} from './owner-runtime';
-import type {
   BrokerToTabMessage,
   ConnectResult,
   DbChangedNotify,
@@ -24,6 +20,10 @@ import {
   sqlDbHostSharedWorkerName,
 } from '@pkgs/sql-client-sqlite-web-shared/sql-db-host-protocol';
 import { workerScriptLoadError } from '@pkgs/sql-client-sqlite-web-shared/worker-script-load-error';
+import type {
+  OwnerRuntime,
+  TransportOwnerRuntimeFactory,
+} from './owner-runtime';
 
 export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;

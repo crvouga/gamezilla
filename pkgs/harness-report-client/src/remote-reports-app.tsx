@@ -41,7 +41,7 @@ import { fmtDate } from './format-date';
 import { attachReportCache } from './persist';
 import { createRemoteReport } from './remote-report';
 import { HarnessReportApp } from './report-app';
-import '../styles.css';
+import './styles.css';
 
 export type RemoteReportsAppProps = {
   readonly http: HttpClient;

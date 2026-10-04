@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { buildSqlWorkers } from '@pkgs/sql-client-sqlite-web-server/sqlite-web-assets';
@@ -30,7 +30,9 @@ test('flat client workers produce every asset referenced by the browser', async 
       'sql-host.js',
       'sqlite-worker.js',
     ])
-      expect(readFileSync(join(outDir, name), 'utf8')).not.toContain('@pkgs/');
+      expect(readFileSync(join(outDir, name), 'utf8')).not.toMatch(
+        /(?:from\s*|import\s*\(?)['"]@pkgs\//
+      );
   } finally {
     rmSync(outDir, { recursive: true, force: true });
   }

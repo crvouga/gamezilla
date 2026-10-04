@@ -18,7 +18,7 @@ actionlint = "1.7.12"
 infisical = { version = "0.43.138", asset_pattern = "cli_{{ version }}_{{ os(macos='darwin') }}_{{ arch(x64='amd64') }}.tar.gz" }
 duckdb = "1.5.6"
 # Infrastructure as code (libs/infra): plans, policy gate over plan JSON.
-opentofu = "1.13.0"
+opentofu = "1.13.1"
 conftest = "0.71.0"
 tflint = "0.64.0"
 # Executable specs (specs/README.md): the JVM that runs Alloy (structural

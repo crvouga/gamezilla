@@ -10,7 +10,6 @@ import type {
   OwnerHandlerDeps,
 } from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
 import { handleOwnerRequest } from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
-import { openSqlOwnerWithRecovery } from './recover-in-process';
 import type {
   DbChangedNotify,
   RpcRequest,
@@ -22,10 +21,11 @@ import {
   RPC_ERROR_TX_TIMEOUT,
   TX_IDLE_TIMEOUT_MS,
 } from '@pkgs/sql-client-sqlite-web-shared/rpc';
-import { spawnSqliteWorker } from './spawn-sqlite-worker';
 import type { SqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
 import { sqlFromWire } from '@pkgs/sql-client-sqlite-web-shared/sql-wire';
 import { createSqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
+import { openSqlOwnerWithRecovery } from './recover-in-process';
+import { spawnSqliteWorker } from './spawn-sqlite-worker';
 
 export type OwnerRuntime = {
   readonly dbName: string;
