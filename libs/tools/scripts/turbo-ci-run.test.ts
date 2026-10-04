@@ -5,6 +5,7 @@ import {
   TURBO_TEAM,
 } from '@libs/secrets-shared/turbo-token';
 import {
+  defaultCheckConcurrency,
   flattenCheckAggregators,
   formatDurations,
   hasRemoteCreds,
@@ -193,4 +194,11 @@ test('local and remote checks bound nested native thread pools identically', () 
       'JAVA_TOOL_OPTIONS'
     ]
   ).toBe('-XX:ActiveProcessorCount=2');
+});
+
+// regression: local-check-thread-oversubscription
+test('task slots reserve CPU capacity for nested native workers', () => {
+  expect(defaultCheckConcurrency(12)).toBe(3);
+  expect(defaultCheckConcurrency(1)).toBe(1);
+  expect(defaultCheckConcurrency(64)).toBe(16);
 });

@@ -24,8 +24,8 @@
  *   (plus their `dependsOn` closure, same hashes), after the closure's remote
  *   hits are prefetched in parallel into the local cache — so `--concurrency`
  *   slots go to real work, not ~400 serialized cross-country cache restores.
- * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
- *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
+ * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise one task per four available
+ *   CPUs (at least one), reserving capacity for nested native workers.
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
  *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
  *   a task's output until it finishes, so a heartbeat prints every 2 min.
@@ -184,7 +184,6 @@ const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
 const DEFAULT_CACHE = 'local:rw,remote:rw';
 const LOCAL_ONLY_CACHE = 'local:rw';
-const MIN_CHECK_CONCURRENCY = 4;
 const CACHE_WORKERS = 16;
 
 type TurboTasks = Record<string, { dependsOn?: unknown }>;
@@ -226,12 +225,15 @@ export function resolveCacheFlag(
   return DEFAULT_CACHE;
 }
 
+/** A task may itself run four native workers; reserve capacity for those children. */
+export function defaultCheckConcurrency(cpus: number): number {
+  return Math.max(1, Math.floor(cpus / 4));
+}
+
 function resolveConcurrency(): string {
   const fromEnv = process.env['TURBO_CONCURRENCY']?.trim();
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
-  const cpus = availableParallelism();
-  const min = inCi() ? 2 : MIN_CHECK_CONCURRENCY;
-  return String(Math.max(cpus, min));
+  return String(defaultCheckConcurrency(availableParallelism()));
 }
 
 function resolveUi(): string | undefined {
