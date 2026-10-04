@@ -2,6 +2,13 @@
   "name": "@libs/infra-server",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
   "scripts": {
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
     "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
