@@ -1,4 +1,4 @@
-import { Spinner } from '@pkgs/ui-client/spinner';
+import { Spinner } from '@pkgs/ui-root-client/spinner';
 import type { JSX } from 'solid-js';
 
 export type ChessPuzzleBoardLoadingStateProps = {

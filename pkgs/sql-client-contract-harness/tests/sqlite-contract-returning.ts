@@ -1,6 +1,6 @@
 import { test } from 'bun:test';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import sql from '@pkgs/sql-shared/sql';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { SqliteClientGetter } from './sqlite-contract-helpers';
 import { applySchema, expectQuery, setup } from './sqlite-contract-helpers';
 

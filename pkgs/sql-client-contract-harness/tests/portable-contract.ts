@@ -4,16 +4,16 @@
  */
 import { afterEach, beforeEach, expect, test } from 'bun:test';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import type {
   PostgresSqlClient,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-root-shared/sql';
 import { assertWireSafeRows, assertWireSafeRunResult } from './wire-safety';
 
 export type PortableClientFactory = () => SqlClient | Promise<SqlClient>;

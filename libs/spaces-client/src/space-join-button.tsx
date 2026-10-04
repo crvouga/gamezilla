@@ -2,8 +2,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client/solid';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
-import { Button } from '@pkgs/ui-client/button';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 
 import { useCheckConnection } from './use-check-connection';

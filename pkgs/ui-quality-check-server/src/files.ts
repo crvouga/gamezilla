@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { basename, dirname, resolve } from 'node:path';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 export interface Files {
   store(directory: string): ObjectStore;

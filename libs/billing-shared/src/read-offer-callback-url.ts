@@ -1,5 +1,5 @@
-import type { MembershipProviderEnv } from '@pkgs/billing-shared/provider-module';
-import { membershipCallbackPath } from '@pkgs/billing-shared/providers';
+import type { MembershipProviderEnv } from '@pkgs/billing-root-shared/provider-module';
+import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { PLUS_MEMBERSHIP_OFFER } from './plus-membership-offer';
 import { BILLING_API_ORIGIN_SECRET } from './secret-names';
 

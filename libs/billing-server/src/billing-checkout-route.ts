@@ -4,11 +4,11 @@ import type { BillingRouteDeps } from '@libs/billing-shared/billing-route-deps';
 import { billingNotConfigured } from '@libs/billing-shared/billing-route-deps';
 import { CustomerLinks } from '@libs/billing-shared/customer-links';
 import { MembershipRepository } from '@libs/billing-shared/membership-repository';
-import type { MembershipBilling } from '@pkgs/billing-shared/membership';
+import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
 import {
   isMembershipLive,
   readMembershipStatus,
-} from '@pkgs/billing-shared/precedence';
+} from '@pkgs/billing-root-shared/precedence';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';

@@ -7,8 +7,8 @@ import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { drainOutbox } from '@pkgs/outbox-shared/drain';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const ping = createMessageNamespace('worker')(
   'ping',

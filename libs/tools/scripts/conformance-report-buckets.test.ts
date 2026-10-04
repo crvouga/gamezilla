@@ -10,13 +10,13 @@ test('conformance discovers live objective evidence beside feature and gate evid
   const buckets = [
     'apps/product/.cache/health-objectives-report',
     'apps/product/.cache/health-report',
-    'libs/chess-harness/.cache/harness-report/part-0',
-    'libs/chess-harness/.cache/harness-report/models',
+    'libs/chess-root-harness/.cache/harness-report/part-0',
+    'libs/chess-root-harness/.cache/harness-report/models',
   ];
   try {
     for (const bucket of [
       ...buckets,
-      'libs/chess-harness/.cache/harness-report/all',
+      'libs/chess-root-harness/.cache/harness-report/all',
       'apps/product/.cache/other-report',
     ]) {
       mkdirSync(join(root, bucket, 'evidence'), { recursive: true });

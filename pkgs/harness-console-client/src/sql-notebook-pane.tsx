@@ -1,8 +1,8 @@
 import { useClock } from '@pkgs/clock-client/solid';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { ErrorState } from '@pkgs/ui-client/error-state';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import {
   type Accessor,

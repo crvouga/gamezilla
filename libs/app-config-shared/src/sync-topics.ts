@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 
 /** Broadcast topic for the singleton client_config row. */
 export function clientConfigTopic(): Topic {

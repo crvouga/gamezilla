@@ -1,7 +1,7 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PubSub, PubSubStatus } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';

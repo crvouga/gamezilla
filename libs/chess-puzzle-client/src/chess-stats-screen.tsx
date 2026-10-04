@@ -3,13 +3,13 @@ import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
   SetChessSelectedReviewPuzzle,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { MAIN_MENU_SCREEN_MAX_WIDTH } from '@pkgs/ui-client/main-menu-screen';
-import { MainMenuScreenHeader } from '@pkgs/ui-client/main-menu-screen-header';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { MAIN_MENU_SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client/main-menu-screen';
+import { MainMenuScreenHeader } from '@pkgs/ui-root-client/main-menu-screen-header';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import type { JSX } from 'solid-js';
 import { ChessGameLog } from './chess-game-log';
 import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';

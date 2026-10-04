@@ -1,7 +1,7 @@
 import type { Message } from '@pkgs/message-shared/message';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { createComposedMessageRouter } from '@pkgs/message-shared/router';
-import { hashRoomState } from '@pkgs/room-shared/hash-room-state';
+import { hashRoomState } from '@pkgs/room-root-shared/hash-room-state';
 import type {
   HandleResult,
   RoomCommand,
@@ -9,8 +9,8 @@ import type {
   RoomModule,
   RoomModuleName,
   RoomState,
-} from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 
 import {

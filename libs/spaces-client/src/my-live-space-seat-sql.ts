@@ -1,6 +1,6 @@
 import { friendIdsForMemberSql } from '@libs/spaces-shared/actor-visible-spaces-sql';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export type LiveSpaceIdRow = {
   readonly id: string;

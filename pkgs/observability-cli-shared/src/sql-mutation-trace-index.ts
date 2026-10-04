@@ -1,6 +1,6 @@
-import type { MutationTraceIndex } from '@pkgs/observability-shared/mutation-trace-index';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { MutationTraceIndex } from '@pkgs/observability-root-shared/mutation-trace-index';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const MAX_TRACE_IDS = 16;
 

@@ -1,5 +1,5 @@
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { EndpointId } from '@pkgs/harness-root-shared/network-state';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared/scheduler';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type {
   HarnessHttpRequestBody,

@@ -1,7 +1,7 @@
-import type { IdentityResolver } from '@pkgs/observability-shared/identity-resolver';
-import { parseLocalClock } from '@pkgs/observability-shared/local-clock';
-import { findPersonTrouble } from '@pkgs/observability-shared/person-trouble';
-import type { TraceStore } from '@pkgs/observability-shared/types';
+import type { IdentityResolver } from '@pkgs/observability-root-shared/identity-resolver';
+import { parseLocalClock } from '@pkgs/observability-root-shared/local-clock';
+import { findPersonTrouble } from '@pkgs/observability-root-shared/person-trouble';
+import type { TraceStore } from '@pkgs/observability-root-shared/types';
 import type { ObsArgs } from './args';
 import { stringFlag } from './args';
 import { FORMAT_HEADER } from './format';

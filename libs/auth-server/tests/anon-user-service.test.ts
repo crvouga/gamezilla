@@ -3,12 +3,12 @@ import { EnsureAnonUserUseCase } from '@libs/auth-server/ensure-anon-user-use-ca
 import { AnonUserService } from '@libs/auth-shared/anon-user-service';
 import { EnsureInternalAccountUseCase } from '@libs/auth-shared/ensure-internal-account-use-case';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });

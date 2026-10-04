@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
   useSyncEngineInstance,

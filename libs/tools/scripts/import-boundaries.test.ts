@@ -96,42 +96,42 @@ const PROBES: readonly Probe[] = [
   },
   {
     // regression: flattened-observability-boundary
-    path: 'pkgs/observability-shared/src/sdk.ts',
+    path: 'pkgs/observability-root-shared/src/sdk.ts',
     source:
       "import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';",
     message: 'core and query are runtime-agnostic',
   },
   {
-    path: 'pkgs/observability-shared/src/api.ts',
+    path: 'pkgs/observability-root-shared/src/api.ts',
     source: "import { trace } from '@opentelemetry/api';",
     message: null,
   },
   {
-    path: 'libs/app-server/src/request-telemetry.ts',
-    source: "import { withSpan } from '@pkgs/observability-shared/span';",
+    path: 'libs/app-root-server/src/request-telemetry.ts',
+    source: "import { withSpan } from '@pkgs/observability-root-shared/span';",
     message: null,
   },
   {
     path: 'libs/zz-client/src/observability-feature.ts',
-    source: "import { withSpan } from '@pkgs/observability-shared/span';",
+    source: "import { withSpan } from '@pkgs/observability-root-shared/span';",
     message: 'confined to the ADR boundary-file inventory',
   },
   {
     path: 'apps/client/src/main.tsx',
     source:
-      "import { createNodeTelemetry } from '@pkgs/observability-server/node-node';",
+      "import { createNodeTelemetry } from '@pkgs/observability-root-server/node-node';",
     message: 'Node observability runtime is restricted',
   },
   {
     path: 'apps/server/src/room.ts',
     source:
-      "import { createBrowserTelemetry } from '@pkgs/observability-client/browser';",
+      "import { createBrowserTelemetry } from '@pkgs/observability-root-client/browser';",
     message: 'browser observability runtime is restricted',
   },
   {
-    path: 'libs/app-client/src/browser-boundaries.ts',
+    path: 'libs/app-root-client/src/browser-boundaries.ts',
     source:
-      "import { createWorkerTelemetry } from '@pkgs/observability-server/worker-worker';",
+      "import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';",
     message: 'Worker observability runtime is restricted',
   },
   {
@@ -204,8 +204,8 @@ const PROBES: readonly Probe[] = [
   {
     path: 'libs/zz-client/src/harness-user.ts',
     source:
-      "import { defineSystem } from '@pkgs/harness-shared/define-system';",
-    message: '@pkgs/harness-shared is harness-only',
+      "import { defineSystem } from '@pkgs/harness-root-shared/define-system';",
+    message: '@pkgs/harness-root-shared is harness-only',
   },
   {
     path: 'libs/zz-client/src/report-user.ts',
@@ -223,31 +223,35 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'pkgs/harness-shared/src/core.ts',
+    path: 'pkgs/harness-root-shared/src/core.ts',
     source: "import fc from 'fast-check';",
-    message: '@pkgs/harness-shared core (except src/fast-check/ and tests)',
+    message:
+      '@pkgs/harness-root-shared core (except src/fast-check/ and tests)',
   },
   {
     path: 'libs/zz-server/src/route.ts',
     source:
       "import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';",
-    message: 'Product code knows billing only through the @pkgs/billing-shared',
+    message:
+      'Product code knows billing only through the @pkgs/billing-root-shared',
   },
   {
     path: 'libs/zz-client/src/screen.tsx',
     source: "import Stripe from 'stripe';",
-    message: 'Product code knows billing only through the @pkgs/billing-shared',
+    message:
+      'Product code knows billing only through the @pkgs/billing-root-shared',
   },
   {
-    path: 'pkgs/billing-shared/src/port.ts',
+    path: 'pkgs/billing-root-shared/src/port.ts',
     source:
       "export { STRIPE_PROVIDER } from '@pkgs/billing-stripe-server/stripe-provider';",
-    message: 'Product code knows billing only through the @pkgs/billing-shared',
+    message:
+      'Product code knows billing only through the @pkgs/billing-root-shared',
   },
   {
     path: 'libs/zz-server/src/port-route.ts',
     source:
-      "import type { MembershipProviders } from '@pkgs/billing-shared/membership';",
+      "import type { MembershipProviders } from '@pkgs/billing-root-shared/membership';",
     message: null,
   },
   {
@@ -283,7 +287,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/app-server/src/create-server.ts',
+    path: 'libs/app-root-server/src/create-server.ts',
     source:
       "import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/access-model';",
     message: null,
@@ -331,7 +335,7 @@ const PROBES: readonly Probe[] = [
     message: 'Product code knows auth only through the @pkgs/auth port',
   },
   {
-    path: 'pkgs/auth-shared/src/port.ts',
+    path: 'pkgs/auth-root-shared/src/port.ts',
     source:
       "export { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';",
     message: 'Product code knows auth only through the @pkgs/auth port',
@@ -339,7 +343,7 @@ const PROBES: readonly Probe[] = [
   {
     path: 'libs/zz-server/src/me-port-route.ts',
     source:
-      "import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';",
+      "import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';",
     message: null,
   },
   {

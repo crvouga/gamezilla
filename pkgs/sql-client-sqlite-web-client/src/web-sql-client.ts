@@ -4,7 +4,7 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
+} from '@pkgs/sql-client-root-shared/interface';
 import type {
   CreateOwnerRuntimeArgs,
   TransportOwnerRuntimeFactory,
@@ -19,7 +19,7 @@ import { createSharedWorkerTransport } from '@pkgs/sql-client-sqlite-web-client/
 import type { DbChangedNotify } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import { serializeSql } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import type { SqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
 import { createLeaderTransport } from './db-host-leader';
 
 export type WebSqlClientOptions = {

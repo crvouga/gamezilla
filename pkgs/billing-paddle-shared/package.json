@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
-    "@pkgs/billing-shared": "workspace:*",
+    "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*"
   },
   "devDependencies": {

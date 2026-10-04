@@ -1,8 +1,8 @@
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
-import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
-import { PubSubClosedError } from '@pkgs/pubsub-shared/pubsub-closed-error';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
+import type { EndpointId } from '@pkgs/harness-root-shared/network-state';
+import type { PubSub, PubSubStatus } from '@pkgs/pubsub-root-shared/interface';
+import { PubSubClosedError } from '@pkgs/pubsub-root-shared/pubsub-closed-error';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import { assertValidTopic } from '@pkgs/pubsub-root-shared/topic';
 import type { SyncNetwork } from './network';
 
 export type PeerHandler = (data: unknown) => void;

@@ -13,7 +13,7 @@ import {
   useSpaceOpenRoomsRegistry,
 } from '@libs/spaces-client/space-open-rooms-store';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import type { RoomCommandPayload } from '@pkgs/room-shared/types';
+import type { RoomCommandPayload } from '@pkgs/room-root-shared/types';
 import { render, screen } from '@solidjs/testing-library';
 import { createEffect, type JSX } from 'solid-js';
 

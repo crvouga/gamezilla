@@ -1,6 +1,6 @@
 import { formatPuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import { Trans } from '@lingui/solid/macro';
-import { useTheme } from '@pkgs/ui-client/theme-context';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import type { JSX } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {

@@ -1,6 +1,6 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { join } from '@pkgs/sql-shared/sql';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql, { join } from '@pkgs/sql-root-shared/sql';
 
 import { managedUpdatedAtIso } from '@pkgs/sync-engine-shared/managed-columns';
 import { topicRowId } from '@pkgs/sync-engine-shared/tables';

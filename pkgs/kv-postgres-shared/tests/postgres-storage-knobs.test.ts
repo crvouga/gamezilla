@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { applyKvStorageOptimizations } from '@pkgs/kv-postgres-shared/postgres-storage-knobs';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 function clientWithRun(run: SqlClient['run'], relpersistence = 'u'): SqlClient {
   return {

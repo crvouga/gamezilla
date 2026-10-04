@@ -1,5 +1,5 @@
 import { createMessageRouter } from '@pkgs/message-shared/router';
-import type { RoomState } from '@pkgs/room-shared/types';
+import type { RoomState } from '@pkgs/room-root-shared/types';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,

@@ -1,14 +1,14 @@
-import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { hotAssert } from '@pkgs/assert-root-shared/hot-asserts';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import {
   assertKvRecord,
   parseKvRecordFromUnknown,
-} from '@pkgs/kv-shared/assert-kv-record';
-import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+} from '@pkgs/kv-root-shared/assert-kv-record';
+import type { Kv, KvRecord } from '@pkgs/kv-root-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 function assertKvKey(key: string): asserts key is Keyword {
   assertNamespacedKeyword(hotAssert(), key);

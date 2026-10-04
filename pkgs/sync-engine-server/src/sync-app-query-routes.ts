@@ -1,5 +1,5 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared/v2';

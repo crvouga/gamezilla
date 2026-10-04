@@ -2,8 +2,8 @@ import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-
 import { UserUsername } from '@libs/profile-client/user-username';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { Select } from '@pkgs/ui-client/select';
+import { Button } from '@pkgs/ui-root-client/button';
+import { Select } from '@pkgs/ui-root-client/select';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { CustomGameAction } from './custom-game-action';
 import { CustomGamePerson } from './custom-game-person';

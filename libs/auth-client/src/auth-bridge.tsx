@@ -12,8 +12,8 @@ import {
   authSessionError,
   isAuthSessionSignedIn,
 } from '@libs/auth-shared/session-snapshot';
-import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
-import type { AuthSessionState } from '@pkgs/auth-shared/auth-session-state';
+import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
+import type { AuthSessionState } from '@pkgs/auth-root-shared/auth-session-state';
 import { useTimers } from '@pkgs/clock-client/solid';
 import {
   useHttpClient,
@@ -23,8 +23,8 @@ import { useLogger } from '@pkgs/logger-client/solid';
 import {
   createSecureStorageItem,
   useSecureStorageStore,
-} from '@pkgs/secure-storage-client/solid';
-import { writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
+} from '@pkgs/secure-storage-root-client/solid';
+import { writeSecureStorageItem } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import {

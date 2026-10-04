@@ -1,4 +1,4 @@
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 
 export type TabStripItem = {
   readonly id: string;

@@ -1,4 +1,4 @@
-import { PubSubClosedError } from '@pkgs/pubsub-shared/pubsub-closed-error';
+import { PubSubClosedError } from '@pkgs/pubsub-root-shared/pubsub-closed-error';
 
 /** Broker down / peer closed — best-effort publish/subscribe, not a product bug. */
 export function isPubSubClosedError(error: unknown): boolean {

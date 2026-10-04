@@ -2,7 +2,7 @@
 import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report-shared/keys';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 function required(name: string): string {
   const value = process.env[name]?.trim();

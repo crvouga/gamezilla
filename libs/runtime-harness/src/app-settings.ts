@@ -4,7 +4,7 @@
  * reads look at what the app shows.
  */
 
-import { APP_VERSION } from '@libs/app-shared/app-metadata';
+import { APP_VERSION } from '@libs/app-root-shared/app-metadata';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorHtml, nodeText } from '@libs/harness/observations';

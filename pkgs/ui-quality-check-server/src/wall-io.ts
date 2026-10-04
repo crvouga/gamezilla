@@ -9,7 +9,7 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { whichPath } from '@pkgs/os-server/command';
 import { startProcess } from '@pkgs/os-server/streaming-process';
 import ffmpeg from 'ffmpeg-static';

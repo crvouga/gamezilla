@@ -1,6 +1,6 @@
 # `@pkgs/ui-testing-solid-dom`
 
-`Driver` / `DriverNode` implementation from `@pkgs/ui-testing-shared` over a Solid
+`Driver` / `DriverNode` implementation from `@pkgs/ui-testing-root-shared` over a Solid
 tree rendered into a DOM (happy-dom under `bun test`, via `@pkgs/bun-test-solid-client/preload`). `kind: 'solid-dom'`. In process: no
 browser, emulator, IPC, or HTTP server.
 

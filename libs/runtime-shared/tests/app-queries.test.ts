@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { APP_QUERIES } from '@libs/runtime-shared/app-queries';
 import { appSchema } from '@libs/runtime-shared/app-schema';
-import { analyzeIndexability } from '@pkgs/db-indexes-shared/indexability';
-import type { SchemaIndex } from '@pkgs/db-indexes-shared/schema-coverage';
-import { pkSchemaIndexes } from '@pkgs/db-indexes-shared/schema-coverage';
+import { analyzeIndexability } from '@pkgs/db-indexes-root-shared/indexability';
+import type { SchemaIndex } from '@pkgs/db-indexes-root-shared/schema-coverage';
+import { pkSchemaIndexes } from '@pkgs/db-indexes-root-shared/schema-coverage';
 import {
   assertQueryRegistryIndexable,
   extractWorkload,

@@ -1,13 +1,13 @@
 import { SpanStatusCode, trace } from '@opentelemetry/api';
-import { ATTR } from '@pkgs/observability-shared/attributes';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import {
   currentCorrelation,
   deserializeTraceContext,
-} from '@pkgs/observability-shared/correlation';
-import { EVENT, events } from '@pkgs/observability-shared/events';
-import { withSpan } from '@pkgs/observability-shared/span';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+} from '@pkgs/observability-root-shared/correlation';
+import { EVENT, events } from '@pkgs/observability-root-shared/events';
+import { withSpan } from '@pkgs/observability-root-shared/span';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   isMutationError,
   mutationErrorToFailure,

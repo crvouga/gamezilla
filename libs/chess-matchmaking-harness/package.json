@@ -21,8 +21,8 @@
     "@pkgs/chess-board-core-shared": "workspace:*",
     "@pkgs/keyword-shared": "workspace:*",
     "@pkgs/matchmaking-sql-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*"
   },

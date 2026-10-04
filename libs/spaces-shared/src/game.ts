@@ -5,7 +5,7 @@ import type {
   HandleResult,
   RoomEffect,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import type { JSX } from 'solid-js';
 

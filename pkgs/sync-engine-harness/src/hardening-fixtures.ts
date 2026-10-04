@@ -3,9 +3,9 @@
  * unknown names, constraint mapping, authorize throw, channel drift).
  */
 
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import sql from '@pkgs/sql-shared/sql';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';

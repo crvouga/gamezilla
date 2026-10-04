@@ -1,7 +1,7 @@
 import { useDeviceId } from '@libs/auth-client/use-device-id';
 import { closeEndedOpenSessionsMutation } from '@libs/spaces-shared/close-ended-open-sessions-mutation';
 import { useTimers } from '@pkgs/clock-client/solid';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import {
   createQuery,

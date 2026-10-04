@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 
 /** The signed-in player's saved feed choices (at most one row). */

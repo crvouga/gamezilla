@@ -2,16 +2,16 @@ import type { ConfigService } from '@libs/auth-shared/config-service-types';
 import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { Kv } from '@pkgs/kv-shared/interface';
+import type { Kv } from '@pkgs/kv-root-shared/interface';
 import { useLogger } from '@pkgs/logger-client/solid';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { RoomClient } from '@pkgs/room-client/room-client';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type { RoomClient } from '@pkgs/room-root-client/room-client';
+import type { ClientTransport } from '@pkgs/room-root-shared/transport';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useCreateId, useRandom } from '@pkgs/uuid-client/solid';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';

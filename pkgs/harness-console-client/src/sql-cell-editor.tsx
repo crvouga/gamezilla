@@ -1,11 +1,11 @@
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { CodeEditor } from '@pkgs/ui-client/code-editor';
+import { CodeEditor } from '@pkgs/ui-root-client/code-editor';
 import type {
   CodeSelection,
   CodeToken,
-} from '@pkgs/ui-shared/code-editor-types';
-import type { WebKeyboardEventLike } from '@pkgs/ui-shared/match';
-import { matchesWebShortcut } from '@pkgs/ui-shared/match';
+} from '@pkgs/ui-root-shared/code-editor-types';
+import type { WebKeyboardEventLike } from '@pkgs/ui-root-shared/match';
+import { matchesWebShortcut } from '@pkgs/ui-root-shared/match';
 import type { Accessor, JSX } from 'solid-js';
 import type { CompletionResult, completeAt } from './sql-completion';
 import { applyCompletion } from './sql-completion';

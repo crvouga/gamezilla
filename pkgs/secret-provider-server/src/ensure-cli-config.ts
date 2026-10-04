@@ -1,5 +1,5 @@
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { INFISICAL_CLI_CONFIG_FILENAME } from '@pkgs/secret-provider-shared/defaults';
 import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared/resolve-endpoint';
 import { readSecretsConfig } from '@pkgs/secrets-config-server/secrets-scope';

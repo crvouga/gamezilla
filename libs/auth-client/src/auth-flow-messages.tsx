@@ -8,9 +8,9 @@
 
 import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
-import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
+import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 
 const MESSAGES = {
   cancelled: msg`Sign-in was cancelled or didn't finish.`,

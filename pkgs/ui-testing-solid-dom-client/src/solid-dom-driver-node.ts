@@ -9,22 +9,22 @@ import type {
   UiWaitOptions,
   WaitState,
   WaitTextCondition,
-} from '@pkgs/ui-testing-shared/driver';
-import { isWaitTextCondition } from '@pkgs/ui-testing-shared/driver';
+} from '@pkgs/ui-testing-root-shared/driver';
+import { isWaitTextCondition } from '@pkgs/ui-testing-root-shared/driver';
 import {
   runExpectHidden,
   runExpectText,
   runExpectVisible,
-} from '@pkgs/ui-testing-shared/driver-expect';
-import { ElementNotFoundError } from '@pkgs/ui-testing-shared/element-not-found-error';
-import { formatTestIdPath } from '@pkgs/ui-testing-shared/format';
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
+} from '@pkgs/ui-testing-root-shared/driver-expect';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared/element-not-found-error';
+import { formatTestIdPath } from '@pkgs/ui-testing-root-shared/format';
+import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 import type {
   HostNode,
   RenderedApp,
-} from '@pkgs/ui-testing-shared/render-adapter';
-import { UiTestError } from '@pkgs/ui-testing-shared/ui-test-error';
+} from '@pkgs/ui-testing-root-shared/render-adapter';
+import { UiTestError } from '@pkgs/ui-testing-root-shared/ui-test-error';
 import { textMatches } from './dom-text';
 import type { WaitPump } from './dom-wait';
 import { waitForDom } from './dom-wait';

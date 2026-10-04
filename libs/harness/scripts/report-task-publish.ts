@@ -10,8 +10,8 @@ import type { SourceIdentity } from '@pkgs/harness-report-shared/source-content'
 import { reuseSource } from '@pkgs/harness-report-shared/source-content';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 function receiptKey(sha: string, runId: string, task: ReportTask): string {
   return `commits/${sha}/publications/${encodeURIComponent(runId)}/${sourceId(task.packageDir, task.bucket)}.json`;

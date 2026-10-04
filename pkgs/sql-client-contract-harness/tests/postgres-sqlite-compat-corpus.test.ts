@@ -4,17 +4,17 @@
  */
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import type {
   PostgresSqlClient,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 
 type Backend = {
   readonly name: string;

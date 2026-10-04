@@ -1,5 +1,5 @@
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 
 export const OUTBOX_EVENTS_TABLE = 'outbox_events';
 export const OUTBOX_DELIVERIES_TABLE = 'outbox_deliveries';

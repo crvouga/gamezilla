@@ -4,7 +4,7 @@ import {
   toSnapshotInfo,
 } from '@apps/product/product-harness-snapshot-prune';
 import { productHarnessSnapshotInfoSchema } from '@apps/product/product-harness-snapshot-schema';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 describe('measureSnapshotTreeBytes', () => {
   test('sums StoredObject.size under snapshots/{id}/', async () => {

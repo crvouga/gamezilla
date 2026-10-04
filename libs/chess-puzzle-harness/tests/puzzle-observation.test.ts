@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readPuzzleRemainingToday } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import type { ProductHarness } from '@libs/harness/harness';
-import { ElementNotFoundError } from '@pkgs/ui-testing-shared/element-not-found-error';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared/element-not-found-error';
 
 function allowanceSurface(text: () => Promise<string | null>): ProductHarness {
   return {

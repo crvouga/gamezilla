@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/observability-shared": "workspace:*"
+    "@pkgs/observability-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

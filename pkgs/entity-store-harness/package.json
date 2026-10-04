@@ -11,7 +11,7 @@
   "devDependencies": {
     "@pkgs/entity-store-shared": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

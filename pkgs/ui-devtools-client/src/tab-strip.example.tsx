@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 
-import { ExampleRoot } from '@pkgs/ui-client/example-root';
+import { ExampleRoot } from '@pkgs/ui-root-client/example-root';
 import {
   DatabaseIcon,
   FlaskConicalIcon,
@@ -9,7 +9,7 @@ import {
   PaintbrushIcon,
   ScrollTextIcon,
   TerminalIcon,
-} from '@pkgs/ui-client/icons';
+} from '@pkgs/ui-root-client/icons';
 import { createSignal, type JSX } from 'solid-js';
 import { TabStrip } from './tab-strip';
 import type { TabStripItem } from './tab-strip-types';

@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { bigintToJsonSafe } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
 import { sanitizePostgresUrlForBunSql } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-bun-sql';
 import {
@@ -11,11 +11,11 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-shared/positional-params';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-root-shared/positional-params';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { quotePgIdent } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
 import { SQL } from 'bun';
 
 type BunSql = InstanceType<typeof SQL>;

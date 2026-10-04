@@ -3,8 +3,8 @@
  */
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql, { bulk, join, raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql, { bulk, join, raw } from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type {
   ExistingPuzzleKey,

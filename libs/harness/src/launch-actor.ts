@@ -1,4 +1,4 @@
-import { readEmbeddedHref } from '@libs/app-shared/embedded-href';
+import { readEmbeddedHref } from '@libs/app-root-shared/embedded-href';
 import { createSignal } from 'solid-js';
 /**
  * Per-actor UI launch / teardown for the product system runtime.
@@ -6,11 +6,11 @@ import { createSignal } from 'solid-js';
 
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
-import { recordingDriver } from '@pkgs/ui-testing-shared/recording-driver';
-import type { StepRecorder } from '@pkgs/ui-testing-shared/step-recorder';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
+import { recordingDriver } from '@pkgs/ui-testing-root-shared/recording-driver';
+import type { StepRecorder } from '@pkgs/ui-testing-root-shared/step-recorder';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-dom-driver';
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';

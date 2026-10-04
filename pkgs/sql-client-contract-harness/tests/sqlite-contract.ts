@@ -1,5 +1,5 @@
 import { afterEach, beforeEach } from 'bun:test';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { registerSqliteDdlTests } from './sqlite-contract-ddl';
 import { registerSqliteQueryTests } from './sqlite-contract-query';
 import { registerSqliteReturningTests } from './sqlite-contract-returning';

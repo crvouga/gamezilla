@@ -3,7 +3,7 @@
  * spaces is what knows a room is a space.
  */
 
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 
 export function roomTopic(spaceId: string): Topic {
   return `room:${spaceId}`;

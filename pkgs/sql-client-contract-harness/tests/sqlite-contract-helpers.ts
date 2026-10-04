@@ -1,9 +1,9 @@
 import { expect } from 'bun:test';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 
 export async function applySchema(
   client: SqlClient,

@@ -1,4 +1,4 @@
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
 import { SpaceActiveLayout } from './space-active-layout';
 import { closeSpaceDetail } from './space-routes';

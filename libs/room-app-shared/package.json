@@ -17,7 +17,7 @@
     "@libs/feature-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
-    "@pkgs/room-shared": "workspace:*"
+    "@pkgs/room-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
-import { TextInput } from '@pkgs/ui-client/text-input';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createEffect, createSignal, type JSX } from 'solid-js';
 import { useRenameSpace } from './use-rename-space';
 import { SpaceField, useSpaceColumn } from './use-space-column';

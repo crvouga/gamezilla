@@ -4,7 +4,7 @@
  */
 
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
-import type { StepRecorder } from '@pkgs/ui-testing-shared/step-recorder';
+import type { StepRecorder } from '@pkgs/ui-testing-root-shared/step-recorder';
 import type { ProductHarness, ProductRuntime } from './harness';
 import { productExtra } from './harness';
 import { actorEmail } from './identity';

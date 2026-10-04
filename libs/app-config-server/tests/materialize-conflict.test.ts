@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import type { DesiredClientConfig } from '@libs/app-config-server/ensure-client-config-materialized';
 import { EnsureClientConfigMaterialized } from '@libs/app-config-server/ensure-client-config-materialized';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 const desired: DesiredClientConfig = {
   google: true,

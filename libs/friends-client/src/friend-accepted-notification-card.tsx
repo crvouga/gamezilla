@@ -2,7 +2,7 @@ import { NotificationCardDefault } from '@libs/notifications-client/notification
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
 
 function accepterUsername(interaction: Notification): string {

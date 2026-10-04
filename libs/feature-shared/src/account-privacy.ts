@@ -2,7 +2,7 @@ import {
   createMessageNamespace,
   isPlainRecord,
 } from '@pkgs/message-shared/message';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import type {
   MutationAuthorize,
   MutationCtx,

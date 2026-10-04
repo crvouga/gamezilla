@@ -1,6 +1,6 @@
 import { useSignInModal } from '@libs/auth-client/auth-modals-provider';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 
 import { unlockCtaLabel, unlockCtaRoute } from './unlock-copy';
 import { usePermissions } from './use-permissions';

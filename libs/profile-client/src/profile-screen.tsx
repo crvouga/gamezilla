@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import { Button } from '@pkgs/ui-client/button';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Button } from '@pkgs/ui-root-client/button';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { JSX } from 'solid-js';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';

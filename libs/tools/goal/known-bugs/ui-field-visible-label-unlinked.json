@@ -1,4 +1,4 @@
 {
   "summary": "The Custom Game move-review number input showed its label but had no associated accessible name. Link TextInput fields to their visible labels.",
-  "regressionTest": "pkgs/ui-harness/tests/hosts.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness/tests/hosts.test.tsx"
 }

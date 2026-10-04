@@ -10,7 +10,7 @@ import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { envFile, PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
 import { assertNonProdDatabaseUrlForTooling } from '@pkgs/database-url-policy-server/database-url-policy-tooling';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createScriptSecretStore } from '@pkgs/secret-store-shared/create-script-secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
 

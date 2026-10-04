@@ -1,4 +1,4 @@
-import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';
 
 /** Re-execute only transactions PostgreSQL confirms were aborted, with the same command identity. */
 export async function matchmakingTransaction<T>(

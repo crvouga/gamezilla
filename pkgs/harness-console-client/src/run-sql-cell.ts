@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 import { classifySqlStatement, splitSqlStatements } from './sql-tokenize';
 

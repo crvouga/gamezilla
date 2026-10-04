@@ -16,7 +16,7 @@
   "dependencies": {
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*"
+    "@pkgs/sql-client-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

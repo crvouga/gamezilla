@@ -20,10 +20,10 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
 import { actorIds, partitioned } from '@libs/harness/observations';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
-import { defineProperty } from '@pkgs/harness-shared/define-property';
-import type { CheckpointAction } from '@pkgs/harness-shared/effect';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import { defineProperty } from '@pkgs/harness-root-shared/define-property';
+import type { CheckpointAction } from '@pkgs/harness-root-shared/effect';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { readLastSyncedAtMs } from '@pkgs/sync-engine-client/last-synced';
 import {
   BILLING_PAYER,

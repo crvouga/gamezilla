@@ -2,9 +2,9 @@ import { expect, test } from 'bun:test';
 import { AnonUserService } from '@libs/auth-shared/anon-user-service';
 import { SessionAuth } from '@libs/auth-shared/session-middleware';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 test('an install header cannot authenticate its signed-in owner', async () => {

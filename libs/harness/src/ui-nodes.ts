@@ -3,7 +3,7 @@
  * A path is a chain of testIds resolved against one actor's live driver.
  */
 
-import type { DriverNode } from '@pkgs/ui-testing-shared/driver';
+import type { DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
 import type { ProductHarness } from './harness';
 

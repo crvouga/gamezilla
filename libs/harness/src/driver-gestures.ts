@@ -6,7 +6,7 @@
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 
 const BACK_PRESS_LIMIT = 3;
 const BACK_SETTLE_MS = 2_000;

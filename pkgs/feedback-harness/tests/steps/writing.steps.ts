@@ -6,7 +6,7 @@ import {
   readEditorView,
 } from '@pkgs/feedback-harness/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 
 const { When, Then } = stepsFor<Run<FeedbackReportingWorld>>();
 When('the team makes {string} a heading', (w, _text: string) =>

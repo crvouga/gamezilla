@@ -1,7 +1,7 @@
 import type {
   PostgresSqlClient,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
+} from '@pkgs/sql-client-root-shared/interface';
 
 export type SqlDialect = 'postgres' | 'sqlite';
 

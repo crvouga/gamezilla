@@ -1,5 +1,5 @@
-import type { Schema } from '@pkgs/db-schema-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Schema } from '@pkgs/db-schema-root-shared/types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { SqliteOwnership } from './driver';
 import { sqlite } from './driver';
 

@@ -1,14 +1,14 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { createRecordingSqlClient } from '@pkgs/db-schema-shared/fake-sql-client';
-import { planClient } from '@pkgs/db-schema-shared/plan-client';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { createRecordingSqlClient } from '@pkgs/db-schema-root-shared/fake-sql-client';
+import { planClient } from '@pkgs/db-schema-root-shared/plan-client';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { readSqliteCatalog } from '@pkgs/db-schema-sqlite-shared/catalog';
 import { sqlite } from '@pkgs/db-schema-sqlite-shared/driver';
 import { emitClientOperation } from '@pkgs/db-schema-sqlite-shared/emit';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { raw } from '@pkgs/sql-shared/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 function notesSchema(
   columns: Record<string, 'text'>,

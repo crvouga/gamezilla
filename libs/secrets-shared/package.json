@@ -17,7 +17,7 @@
   "dependencies": {
     "@libs/infra-shared": "workspace:*",
     "@libs/pubsub-shared": "workspace:*",
-    "@pkgs/async-shared": "workspace:*",
+    "@pkgs/async-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/secret-provider-shared": "workspace:*"

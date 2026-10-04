@@ -1,7 +1,7 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { applyHardLimit } from '@pkgs/sync-engine-shared/apply-hard-limit';
 import { hashQueryTables } from '@pkgs/sync-engine-shared/canonical';
 import { classify } from '@pkgs/sync-engine-shared/classify';

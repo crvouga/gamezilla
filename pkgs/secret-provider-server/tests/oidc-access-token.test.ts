@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import {
   MINTED_TOKEN_EXPIRES_AT,
   resolveInfisicalAccessTokenForWrites,

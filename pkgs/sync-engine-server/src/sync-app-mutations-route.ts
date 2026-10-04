@@ -1,8 +1,8 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { activeSpan } from '@pkgs/observability-shared/span';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { activeSpan } from '@pkgs/observability-root-shared/span';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type {
   MutationAuthorize,
   MutationEnv,

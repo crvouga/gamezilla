@@ -13,9 +13,9 @@ import { run } from '@pkgs/os-server/command';
 
 function uiCss(repoRoot: string): readonly string[] {
   return [
-    join(repoRoot, 'pkgs/ui-client/src/tokens.css'),
-    join(repoRoot, 'pkgs/ui-client/skin.css'),
-    join(repoRoot, 'pkgs/ui-client/src/hosts.css'),
+    join(repoRoot, 'pkgs/ui-root-client/src/tokens.css'),
+    join(repoRoot, 'pkgs/ui-root-client/skin.css'),
+    join(repoRoot, 'pkgs/ui-root-client/src/hosts.css'),
   ];
 }
 

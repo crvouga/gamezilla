@@ -1,7 +1,7 @@
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { Trans } from '@lingui/solid/macro';
-import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
+import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { createMemo, type JSX, Show } from 'solid-js';
 

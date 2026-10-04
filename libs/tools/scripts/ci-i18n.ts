@@ -21,7 +21,7 @@ import {
 import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const PO_REL = 'libs/app-shared/locales/en/messages.po';
+const PO_REL = 'libs/app-root-shared/locales/en/messages.po';
 /**
  * Scratch catalog the check regenerates into. The real catalogs are never
  * rewritten: `tc` of every package that imports them runs beside this
@@ -118,7 +118,7 @@ function assertCatalogsFresh(): void {
     '[ci:i18n] The Lingui catalog is stale. Production shows hashed ids ' +
       '(e.g. "iDNBZe") for any string missing from the catalog.\n' +
       'Run `bun run i18n:extract && bun run i18n:compile` and commit\n' +
-      'libs/app-shared/locales/en/messages.po'
+      'libs/app-root-shared/locales/en/messages.po'
   );
   process.exit(1);
 }

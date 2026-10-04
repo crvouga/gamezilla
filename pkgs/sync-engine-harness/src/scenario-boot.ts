@@ -1,12 +1,12 @@
-import type { System } from '@pkgs/harness-shared/define-system';
-import type { NetworkFaults } from '@pkgs/harness-shared/network-state';
-import { asSeededRng } from '@pkgs/harness-shared/rng';
+import type { System } from '@pkgs/harness-root-shared/define-system';
+import type { NetworkFaults } from '@pkgs/harness-root-shared/network-state';
+import { asSeededRng } from '@pkgs/harness-root-shared/rng';
 import type {
   Ports,
   Runtime,
   Session,
-} from '@pkgs/harness-shared/runtime-types';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
+} from '@pkgs/harness-root-shared/runtime-types';
+import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
 
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';

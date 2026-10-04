@@ -7,7 +7,7 @@
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import { ObjectStoreImplNodeFs } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import {
   HARNESS_CHESS_FIXTURES_DIR,
   HARNESS_CHESS_PUZZLE_IDS,

@@ -1,5 +1,5 @@
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
+import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 
 /** `@testing-library/user-event` keyboard descriptors per portable key. */
 export const DRIVER_KEY_TO_USER_EVENT: Record<DriverKey, string> = {

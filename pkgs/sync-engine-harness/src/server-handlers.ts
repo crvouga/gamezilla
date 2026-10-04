@@ -1,6 +1,6 @@
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { MutationUploadResult } from '@pkgs/sync-engine-client/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine-client/subscription-runtime';
 import { allocateTopicPushSeqs } from '@pkgs/sync-engine-server/allocate-topic-push-seq';

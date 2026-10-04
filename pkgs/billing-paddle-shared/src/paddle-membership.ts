@@ -14,8 +14,8 @@ import type {
   ReadCallbackInput,
   StartCheckoutInput,
   StartCheckoutResult,
-} from '@pkgs/billing-shared/membership';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/membership';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 
 import {
   PADDLE_MEMBERSHIP_CALLBACK_EVENTS,

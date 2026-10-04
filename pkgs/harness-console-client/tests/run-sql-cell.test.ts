@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { runSqlCell } from '@pkgs/harness-console-client/run-sql-cell';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import { raw } from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 describe('runSqlCell', () => {
   test('select and dml in one cell transaction', async () => {

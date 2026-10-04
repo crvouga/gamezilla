@@ -2,7 +2,7 @@ import type {
   MembershipProviderEnv,
   MembershipProviderFetch,
   MembershipProviderModule,
-} from '@pkgs/billing-shared/provider-module';
+} from '@pkgs/billing-root-shared/provider-module';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { PLUS_MEMBERSHIP_OFFER } from './plus-membership-offer';
 import { readOfferCallbackUrl } from './read-offer-callback-url';

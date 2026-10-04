@@ -1,5 +1,5 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import { Parser } from 'node-sql-parser';
 
 /** Dialects the capture layer must classify identically for the mutation corpus. */

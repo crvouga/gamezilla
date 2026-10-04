@@ -13,7 +13,7 @@
  * catching before anyone deploys — and every one of them is decidable from the
  * value alone.
  */
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 
 const CURRENCY = /^[a-z]{3}$/;
 

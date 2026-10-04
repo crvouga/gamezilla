@@ -10,8 +10,8 @@ import { accountWithdrawalChanged } from '@libs/feature-shared/account-privacy';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import type { OutboxConsumerCtx } from '@pkgs/outbox-shared/types';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import sql from '@pkgs/sql-shared/sql';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 
 function accountContext(

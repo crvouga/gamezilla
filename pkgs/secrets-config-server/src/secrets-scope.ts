@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type {
   ResolvedSecretsScope,
   SecretsConfigFile,

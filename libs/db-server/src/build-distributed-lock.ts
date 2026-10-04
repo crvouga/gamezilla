@@ -7,7 +7,7 @@ import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { SqlClientImplBunPostgres as SqlClientImplPostgresTcp } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
-import { raw } from '@pkgs/sql-shared/sql';
+import { raw } from '@pkgs/sql-root-shared/sql';
 import { resolveDatabaseUrl } from './postgres-ping-source';
 
 export interface DistributedLockConnection {

@@ -5,10 +5,10 @@
  * account.
  */
 
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
-import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
+import type { AuthIdentity } from '@pkgs/auth-root-shared/auth-identity';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Context } from 'hono';
 import {
   bearerUserId,

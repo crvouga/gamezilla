@@ -2,7 +2,7 @@ import type { Decision } from '@pkgs/permissions-shared/decision';
 import { decideQuota, quotaWindowOf } from '@pkgs/permissions-shared/decision';
 import { policyAt } from '@pkgs/permissions-shared/policy';
 import { resolveSubject } from '@pkgs/permissions-shared/resolve';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { unitsSince } from './ledger-time';
 import type { AccessIdentity, AccessReader } from './read-access';
 import { readAccess } from './read-access';

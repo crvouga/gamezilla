@@ -17,7 +17,7 @@ import {
 } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-host';
 import type { SqliteWorkerHandle } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 import { createSqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 let sqlite3: Sqlite3Static;

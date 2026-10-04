@@ -8,9 +8,9 @@ import {
   assertTigerPolicyForResolvedApiOrigin,
   PRODUCTION_API_HTTP_HOSTNAMES,
   productionApiUrlTigerExceptionEnabled,
-} from '@libs/app-shared/api-servers';
+} from '@libs/app-root-shared/api-servers';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import {
   assertCommitDateIso,
   COMMIT_HASH_HEX_REGEX,

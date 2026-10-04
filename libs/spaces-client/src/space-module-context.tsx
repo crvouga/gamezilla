@@ -1,5 +1,5 @@
 import type { Message } from '@pkgs/message-shared/message';
-import type { RoomModule, RoomState } from '@pkgs/room-shared/types';
+import type { RoomModule, RoomState } from '@pkgs/room-root-shared/types';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import type { JSX } from 'solid-js';
 

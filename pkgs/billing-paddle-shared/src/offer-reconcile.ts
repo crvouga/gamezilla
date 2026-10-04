@@ -11,7 +11,7 @@
 import type {
   OfferPriceSpec,
   PlusMembershipOffer,
-} from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/offer';
 import type { Logger } from '@pkgs/logger-shared/logger';
 
 import { PADDLE_CALLBACK_EVENTS } from './callback-events';

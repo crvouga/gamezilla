@@ -20,8 +20,8 @@ import {
   SubmitChessPuzzleMove,
 } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { CHESS_PUZZLE_MAX_RECOMMENDATIONS } from '@libs/chess-puzzle-shared/recommendations';
-import type { RoomCommand, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import type { RoomCommand, RoomState } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
 const ChessModule = createChessModule(() => 0);
 

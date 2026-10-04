@@ -4,7 +4,7 @@ import { validatePlusMembershipOffer } from '@libs/billing-shared/validate-offer
 import type {
   CancellationReason,
   PlusMembershipOffer,
-} from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/offer';
 
 function offer(patch: (draft: Draft) => void): PlusMembershipOffer {
   const draft = structuredClone(PLUS_MEMBERSHIP_OFFER) as unknown as Draft;

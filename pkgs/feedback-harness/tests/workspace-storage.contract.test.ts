@@ -4,7 +4,7 @@ import { createBrowserWorkspace } from '@pkgs/feedback-client/browser-workspace'
 import { FeedbackController } from '@pkgs/feedback-client/controller';
 import { FakeIssueReporter } from '@pkgs/feedback-server/fake-issue-reporter';
 import type { FeedbackWorkspaceSnapshot } from '@pkgs/feedback-shared/workspace';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

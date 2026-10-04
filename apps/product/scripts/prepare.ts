@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { collectArtifacts } from './collect';
 import { snapshotFingerprint } from './fingerprint';
 import sources from './ui-quality/sources.json';
@@ -34,10 +34,10 @@ export async function prepareInputs(): Promise<void> {
     (html) => snapshotFingerprint(html, stylesheet)
   );
   const font = await readFile(
-    join(ROOT, 'pkgs/ui-shared/src/nunito-latin.woff2')
+    join(ROOT, 'pkgs/ui-root-shared/src/nunito-latin.woff2')
   );
   const fontCss = (
-    await readFile(join(ROOT, 'pkgs/ui-shared/src/fonts.css'), 'utf8')
+    await readFile(join(ROOT, 'pkgs/ui-root-shared/src/fonts.css'), 'utf8')
   ).replace(
     './nunito-latin.woff2',
     `data:font/woff2;base64,${font.toString('base64')}`

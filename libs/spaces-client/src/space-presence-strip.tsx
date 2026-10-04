@@ -3,7 +3,7 @@
  */
 
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
-import { groupRosterByParticipant } from '@pkgs/collab-shared/group-roster';
+import { groupRosterByParticipant } from '@pkgs/collab-root-shared/group-roster';
 import { PresenceStrip } from '@pkgs/collab-ui-client/presence-strip';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';

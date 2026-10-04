@@ -2,7 +2,7 @@ import { useMyId } from '@libs/auth-client/use-current-user';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
-import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-client/content-edge-padding';
+import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-root-client/content-edge-padding';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
 

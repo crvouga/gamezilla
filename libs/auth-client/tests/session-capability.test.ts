@@ -3,8 +3,8 @@ import {
   resolveHasAuthSession,
   SessionCapabilityStore,
 } from '@libs/auth-shared/session-capability';
-import type { SecureStorage } from '@pkgs/secure-storage-shared/interface';
-import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { SecureStorage } from '@pkgs/secure-storage-root-shared/interface';
+import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 
 class InMemorySecureStorage implements SecureStorage {
   private readonly map = new Map<string, string>();

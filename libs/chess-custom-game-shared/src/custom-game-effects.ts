@@ -1,8 +1,8 @@
 import {
   CancelScheduleEffect,
   ScheduleEffect,
-} from '@pkgs/room-shared/builtin';
-import type { RoomEffect } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/builtin';
+import type { RoomEffect } from '@pkgs/room-root-shared/types';
 import { EndCustomGameOnTime, PlayCustomGameBot } from './custom-game-commands';
 import type { CustomGame } from './custom-game-state';
 

@@ -12,7 +12,7 @@ import type {
   FeedbackReport,
   FeedbackRepository,
 } from '@pkgs/feedback-shared/types';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

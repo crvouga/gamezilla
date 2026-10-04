@@ -58,7 +58,7 @@ Adapted from [TigerBeetle Tiger Style](https://github.com/tigerbeetle/tigerbeetl
 
 | Error class | Handling |
 |-------------|----------|
-| Programmer / invariant bug (registry, batch lengths we authored, corrupt local queue args) | `assert` from `@pkgs/assert-shared` — crash |
+| Programmer / invariant bug (registry, batch lengths we authored, corrupt local queue args) | `assert` from `@pkgs/assert-root-shared` — crash |
 | Operating (network, 429, storage full, auth revoke) | `onError`, retry/backoff, wipe |
 | Byzantine wire (oversized fanout, unknown push table) | Drop row images; refetch (lossy fanout OK) |
 | Domain `MutationError` on rebase | Keep queued; hide optimistic until upload reject |
@@ -740,7 +740,7 @@ loosen `observe`.
 
 ### Deterministic harness
 
-`src/harness/` (exported as `./harness`) is a `@pkgs/harness-shared` system,
+`src/harness/` (exported as `./harness`) is a `@pkgs/harness-root-shared` system,
 `exampleSystem`, over the one example app (`src/harness/example-app/`). One
 seed gives one timeline: a seeded RNG drives a virtual clock, scheduler and
 network (delay, loss, reorder, replay, partition) between a harness server
@@ -864,7 +864,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Related code
 
-- Client host wiring: `libs/app-client/src/create-local-sync-engine.ts`
-- API host wiring: `libs/app-server/src/sync-app.ts`
+- Client host wiring: `libs/app-root-client/src/create-local-sync-engine.ts`
+- API host wiring: `libs/app-root-server/src/sync-app.ts`
 - Topic helpers: `libs/feature-shared/src/sync.ts`
 - Domain schema: `libs/runtime-shared/src/app-schema.ts`

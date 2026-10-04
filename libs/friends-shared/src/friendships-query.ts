@@ -1,4 +1,4 @@
-import sql, { join } from '@pkgs/sql-shared/sql';
+import sql, { join } from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 
 type FriendshipRow = {

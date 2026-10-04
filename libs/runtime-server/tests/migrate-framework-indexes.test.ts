@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { reconcileDeclaredPostgresSchemas } from '@libs/runtime-server/reconcile-declared-schemas';
-import { indexFingerprintName } from '@pkgs/db-schema-shared/index-fingerprint';
+import { indexFingerprintName } from '@pkgs/db-schema-root-shared/index-fingerprint';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 // regression: deploy-missing-framework-indexes
 test.each([false, true])(

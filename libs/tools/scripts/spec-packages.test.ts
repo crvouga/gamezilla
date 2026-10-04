@@ -105,7 +105,7 @@ describe('specPackages', () => {
   // regression: db-framework-contract-spec-discovery
   test('unbound database protocols stay in package model tests', () => {
     expect(packages.map((pkg) => pkg.name)).not.toContain(
-      '@pkgs/db-schema-harness'
+      '@pkgs/db-schema-root-harness'
     );
     const models = packages.flatMap((pkg) => pkg.models);
     expect(models).not.toContain(
@@ -114,7 +114,7 @@ describe('specPackages', () => {
     expect(models).not.toContain('specs/db-schema/rebuild-recovery.qnt');
     expect(models).not.toContain('specs/db-indexes/index-reconciliation.qnt');
     const indexing = packages.find(
-      (pkg) => pkg.name === '@pkgs/db-indexes-harness'
+      (pkg) => pkg.name === '@pkgs/db-indexes-root-harness'
     );
     expect(indexing?.models).toEqual([
       'specs/db-indexes/index-interruption.qnt',

@@ -15,18 +15,18 @@
 
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
-import { handleRoomService } from '@pkgs/room-server/handle-room-service';
-import { RoomServer } from '@pkgs/room-server/room-server';
-import type { RoomServerConfig } from '@pkgs/room-shared/room-server-types';
-import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
-import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
+import { handleRoomService } from '@pkgs/room-root-server/handle-room-service';
+import { RoomServer } from '@pkgs/room-root-server/room-server';
+import type { RoomServerConfig } from '@pkgs/room-root-shared/room-server-types';
+import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared/service-identity';
+import { createTimerScheduleStack } from '@pkgs/room-root-shared/timer-schedule-stack';
 import type {
   RoomActor,
   RoomCommandPayload,
   RoomEvent,
   RoomModule,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 /** Per-connection state Bun carries on the socket. */

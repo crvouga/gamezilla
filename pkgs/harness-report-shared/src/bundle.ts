@@ -2,8 +2,8 @@ import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
-} from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+} from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 export const BUNDLE_BYTES = 4 * 1024 * 1024;
 type Location = { blob: string; offset: number; size: number };

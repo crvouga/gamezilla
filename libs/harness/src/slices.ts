@@ -16,14 +16,14 @@ import type { FeatureManifest } from '@libs/feature-shared/manifest';
 import type { FeatureServer } from '@libs/feature-shared/server';
 import type { EnvTime } from '@libs/feature-shared/sync';
 import { PERMISSIONS_FEATURE } from '@libs/permissions-shared/feature';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
   CatalogAction,
   CatalogProperty,
-} from '@pkgs/harness-shared/effect';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+} from '@pkgs/harness-root-shared/effect';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { withHome } from './bare-home-client';
 import type {
   HarnessComposition,

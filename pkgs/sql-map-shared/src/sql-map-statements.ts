@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { bulk, empty, ident, join } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { bulk, empty, ident, join } from '@pkgs/sql-root-shared/sql';
 import {
   compileFrom,
   compileGroupBy,

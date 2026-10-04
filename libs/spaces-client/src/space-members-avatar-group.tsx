@@ -1,4 +1,4 @@
-import { AvatarGroup } from '@pkgs/ui-client/avatar-group';
+import { AvatarGroup } from '@pkgs/ui-root-client/avatar-group';
 import type { JSX } from 'solid-js';
 import { For } from 'solid-js';
 

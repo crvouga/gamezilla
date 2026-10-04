@@ -3,7 +3,7 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
+} from '@pkgs/sql-client-root-shared/interface';
 import type {
   ActiveTx,
   OwnerHandlerDeps,

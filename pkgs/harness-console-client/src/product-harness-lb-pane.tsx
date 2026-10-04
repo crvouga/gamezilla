@@ -4,9 +4,9 @@ import type {
   ProductHarnessLoadBalancerRoute,
   ProductHarnessLoadBalancerSnapshot,
 } from '@pkgs/harness-console-shared/ports';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
-import { StatusDot } from '@pkgs/ui-client/status-dot';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { StatusDot } from '@pkgs/ui-root-client/status-dot';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 function BalancerSummary(props: {

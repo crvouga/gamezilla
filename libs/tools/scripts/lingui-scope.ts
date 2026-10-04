@@ -10,11 +10,11 @@
  */
 export const LINGUI_CATALOG_SOURCES = [
   'libs/account-privacy-client/src',
-  'libs/app-client/src',
+  'libs/app-root-client/src',
   'libs/app-config-client/src',
   'libs/auth-client/src',
   'libs/billing-client/src',
-  'libs/chess-client/src',
+  'libs/chess-root-client/src',
   'libs/chess-custom-game-client/src',
   'libs/chess-matchmaking-client/src',
   'libs/chess-puzzle-client/src',
@@ -25,8 +25,8 @@ export const LINGUI_CATALOG_SOURCES = [
   'libs/profile-client/src',
   'libs/search-client/src',
   'libs/spaces-client/src',
-  'pkgs/chess-board-client/src',
-  'pkgs/ui-client/src',
+  'pkgs/chess-board-root-client/src',
+  'pkgs/ui-root-client/src',
   'pkgs/ui-devtools-client/src',
 ] as const;
 

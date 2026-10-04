@@ -15,7 +15,7 @@ import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import type { RowKind } from './billing-matrix';
 import {

@@ -2,11 +2,11 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import {
   useAppFrameGlobalTrailing,
   useSetAppFrameHeader,
-} from '@pkgs/ui-client/app-frame-chrome';
-import { AppHeaderIsland } from '@pkgs/ui-client/app-header-island';
-import { TopBar } from '@pkgs/ui-client/top-bar';
-import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
-import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
+} from '@pkgs/ui-root-client/app-frame-chrome';
+import { AppHeaderIsland } from '@pkgs/ui-root-client/app-header-island';
+import { TopBar } from '@pkgs/ui-root-client/top-bar';
+import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
+import { ISLAND_GAP_STEP } from '@pkgs/ui-root-shared/layout';
 import type { JSX, ParentProps } from 'solid-js';
 import { Show } from 'solid-js';
 import {

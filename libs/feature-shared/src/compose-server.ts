@@ -8,9 +8,9 @@
  * knows which it is.
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 
 import type {
   FeatureRouter,

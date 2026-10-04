@@ -3,8 +3,8 @@
  * Framework-free so `bun test` suites can exercise them without loading JSX.
  */
 
-import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import { writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
+import { writeSecureStorageItem } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 
 import { SIGN_IN_PENDING_KEY } from './auth-storage-keys';
 

@@ -3,7 +3,7 @@ import { DefaultLockIdentityProvider } from '@pkgs/distributed-lock-server/defau
 import { DistributedLockImplKv } from '@pkgs/distributed-lock-shared/impl-kv';
 import { LockHeldError } from '@pkgs/distributed-lock-shared/interface';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
+import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });

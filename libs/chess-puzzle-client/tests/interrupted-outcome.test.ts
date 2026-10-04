@@ -4,10 +4,10 @@ import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { ChessPuzzleInteractionDb } from '@libs/chess-puzzle-client/chess-puzzle-interaction-db';
 import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 import { uniqueTables } from '@libs/permissions-shared/world';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 
 test('a failed result write leaves no half-finished attempt and retry counts once', async () => {

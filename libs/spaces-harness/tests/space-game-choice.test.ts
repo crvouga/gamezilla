@@ -10,9 +10,9 @@ import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { Message } from '@pkgs/message-shared/message';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const SPACE_ID = 'space-1';
 const HOST = 'host-device';

@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@pkgs/pubsub-mqtt-shared": "workspace:*",
-    "@pkgs/pubsub-shared": "workspace:*"
+    "@pkgs/pubsub-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -13,8 +13,8 @@
 import type { FeatureClient } from '@libs/feature-client/client';
 import { defineFeatureClient } from '@libs/feature-client/client';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { HouseIcon } from '@pkgs/ui-client/icons';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
+import { HouseIcon } from '@pkgs/ui-root-client/icons';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { JSX } from 'solid-js';
 
 function BareHomeScreen(): JSX.Element {

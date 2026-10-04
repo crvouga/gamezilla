@@ -17,7 +17,7 @@
   "dependencies": {
     "@pkgs/assistant-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

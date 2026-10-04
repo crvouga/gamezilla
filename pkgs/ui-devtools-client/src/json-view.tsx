@@ -15,9 +15,9 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
-import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-client/icons';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
+import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client/icons';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import type {
   JsonExpansionState,
   JsonPath,
@@ -32,8 +32,8 @@ import {
   safeStringify,
   toggleExpansion,
 } from '@pkgs/ui-devtools-shared/json-view-logic';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import styles from './json-view.module.css';

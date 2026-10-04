@@ -2,17 +2,17 @@
  * SQL-backed {@link Kv}. Schema via defineTable (`kvSchema`); not product appSchema.
  */
 
-import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
+import { hotAssert } from '@pkgs/assert-root-shared/hot-asserts';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import {
   assertKvRecord,
   parseKvRecordFromUnknown,
-} from '@pkgs/kv-shared/assert-kv-record';
-import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
+} from '@pkgs/kv-root-shared/assert-kv-record';
+import type { Kv, KvRecord } from '@pkgs/kv-root-shared/interface';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { KvImplPostgresTx } from './impl-postgres-tx';
 import { reconcileKvPostgres } from './reconcile-postgres';
 

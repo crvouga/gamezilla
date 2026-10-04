@@ -1,5 +1,5 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { SecretAdminStore } from '@pkgs/secret-store-shared/admin-interface';
 import { createInfisicalCliAdminStore } from './cli-admin-store';
 

@@ -1,4 +1,4 @@
-import type { MembershipStatus } from '@pkgs/billing-shared/membership';
+import type { MembershipStatus } from '@pkgs/billing-root-shared/membership';
 
 /**
  * Total: every Stripe subscription status maps to one of ours. Unknown strings

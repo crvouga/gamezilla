@@ -4,8 +4,8 @@ import {
 } from '@pkgs/message-shared/message';
 import type { MessageRouter } from '@pkgs/message-shared/router';
 import { createMessageRouter } from '@pkgs/message-shared/router';
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
 import type { GameCommandContext } from './game';
 import { SpaceMembersRoomAttr } from './space-members-messages';

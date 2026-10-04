@@ -19,7 +19,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

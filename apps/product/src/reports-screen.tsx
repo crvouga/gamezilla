@@ -10,7 +10,7 @@
  * no product chrome.
  */
 
-import { getServerBaseUrl } from '@libs/app-shared/api-url';
+import { getServerBaseUrl } from '@libs/app-root-shared/api-url';
 import { RemoteReportsApp } from '@pkgs/harness-report-client/remote-reports-app';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
 

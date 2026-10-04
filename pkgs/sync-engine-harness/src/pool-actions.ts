@@ -5,7 +5,7 @@
  * boolean verdict.
  */
 
-import { defineAction } from '@pkgs/harness-shared/define-action';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
 
 import type { SyncEnginePoolApi } from '@pkgs/sync-engine-client/sync-engine-pool';
 import type { SyncHarness } from './scenario-system';

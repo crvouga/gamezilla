@@ -1,9 +1,9 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import { TimeoutError } from '@pkgs/ui-testing-shared/timeout-error';
+import { TimeoutError } from '@pkgs/ui-testing-root-shared/timeout-error';
 
 /**
  * Advance product work between wait checks (the harness's `runFor(0)`).
- * Structurally identical to `@pkgs/ui-testing-shared`'s `WaitPump`; declared here so
+ * Structurally identical to `@pkgs/ui-testing-root-shared`'s `WaitPump`; declared here so
  * this Solid package does not pull the UI `@pkgs/clock` root into its
  * type program.
  */

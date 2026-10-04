@@ -1,5 +1,5 @@
-import { realTimeRuntime } from '@pkgs/harness-shared/real-time-runtime';
-import type { Ports, Runtime } from '@pkgs/harness-shared/runtime-types';
+import { realTimeRuntime } from '@pkgs/harness-root-shared/real-time-runtime';
+import type { Ports, Runtime } from '@pkgs/harness-root-shared/runtime-types';
 import type { HarnessComposition } from './composition';
 import type { ProductExtra } from './ports';
 import { ensureRealStack } from './real-stack';

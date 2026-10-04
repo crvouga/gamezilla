@@ -1,7 +1,7 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import { wallClock } from '@pkgs/clock-shared/wall';
-import type { Ports, Runtime } from '@pkgs/harness-shared/runtime-types';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
+import type { Ports, Runtime } from '@pkgs/harness-root-shared/runtime-types';
+import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import type { HarnessComposition } from './composition';
 import { loadSolidDomSessionFactory } from './in-process-dom';

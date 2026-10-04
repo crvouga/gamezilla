@@ -1,4 +1,4 @@
-import type { AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
+import type { AuthProviderModule } from '@pkgs/auth-root-shared/auth-provider-module';
 /**
  * What a simulation boots: which bounded contexts, and what each of them needs
  * from the host.
@@ -12,25 +12,25 @@ import type { AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module'
  * change.
  */
 
-import type { ClientEnv } from '@libs/app-client/client-env';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
 import type { FeatureClient } from '@libs/feature-client/client';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { FeatureServer, RoomGrantsCtx } from '@libs/feature-shared/server';
 import type { EnvTime } from '@libs/feature-shared/sync';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type {
   CatalogAction,
   CatalogProperty,
-} from '@pkgs/harness-shared/effect';
+} from '@pkgs/harness-root-shared/effect';
 import type {
   RoomStorageTopicReplace,
   RoomStorageTopicSnapshot,
 } from '@pkgs/room-adapter-memory-shared/room-storage';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import type { RoomActor, RoomState } from '@pkgs/room-shared/types';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import type { RoomActor, RoomState } from '@pkgs/room-root-shared/types';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import type { ProductHarness } from './harness';
 

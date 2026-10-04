@@ -1,7 +1,7 @@
 import type { FeedbackReportingWorld } from '@pkgs/feedback-harness/feedback';
 import { feedbackReportingSystem } from '@pkgs/feedback-harness/feedback';
 import { setWorld } from '@pkgs/gherkin-shared/registry';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 
 // Every `*.steps.ts` under this folder registers itself; a new one
 // needs no edit here.

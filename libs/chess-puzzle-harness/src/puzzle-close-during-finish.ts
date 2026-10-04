@@ -10,13 +10,16 @@ import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { newCommandId } from '@pkgs/room-shared/ids';
-import type { RoomCommandPayload, RoomState } from '@pkgs/room-shared/types';
+import { newCommandId } from '@pkgs/room-root-shared/ids';
+import type {
+  RoomCommandPayload,
+  RoomState,
+} from '@pkgs/room-root-shared/types';
 import {
   parseServerToClientWire,
   ROOM_WIRE_KIND,
   WIRE_VERSION,
-} from '@pkgs/room-shared/wire';
+} from '@pkgs/room-root-shared/wire';
 import { Chess } from 'chess.js';
 import type { PuzzleFinish } from './chess-actions';
 import { closePuzzleApp } from './puzzle-result-recovery';

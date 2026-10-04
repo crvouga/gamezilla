@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { openCommit } from '@pkgs/harness-report-shared/publish';
 import { pruneReports } from '@pkgs/harness-report-shared/retention';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 // regression: reports-retain-merged-and-superseded-commits
 test('keeps only the latest report per live branch, removing merged reports, rerun indexes and orphan uploads', async () => {

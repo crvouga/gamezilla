@@ -4,7 +4,7 @@
  * that anything outside it may depend on.
  */
 
-import { CHESS_TOPIC_MAP } from '@libs/chess-shared/topic-map';
+import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared/topic-map';
 import { defineFeature } from '@libs/feature-shared/manifest';
 import { CHESS_PRIVACY } from './account-privacy';
 import { CHESS_TABLES } from './chess-tables';

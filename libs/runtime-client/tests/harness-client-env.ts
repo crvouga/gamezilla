@@ -1,22 +1,22 @@
 /**
  * `harnessClientEnv()` — deterministic `ClientEnv` for shell tests and harness hosts:
- * `@pkgs/harness-shared` virtual clock / timers / ids, in-memory kv / secure storage /
+ * `@pkgs/harness-root-shared` virtual clock / timers / ids, in-memory kv / secure storage /
  * pubsub / object store / network / audio, mockingbird-sqlite local database and a
  * stub product API (`harness-server-fetch.ts`). No wall I/O.
  */
 
-import type { ClientEnv } from '@libs/app-client/client-env';
-import { createInMemoryClientPorts } from '@libs/app-client/in-memory-client-ports';
-import { createSecureStoreAuthClientStorage } from '@libs/app-shared/auth-client-storage';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
+import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
+import { createSecureStoreAuthClientStorage } from '@libs/app-root-shared/auth-client-storage';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
-import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
+import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import { createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
-import { createInMemorySecureStorage } from '@pkgs/secure-storage-shared/impl-memory';
-import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import { createInMemoryPubSub } from '@pkgs/pubsub-root-shared/in-memory';
+import { createInMemorySecureStorage } from '@pkgs/secure-storage-root-shared/impl-memory';
+import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 
 import { createHarnessServerFetch } from './harness-server-fetch';
 

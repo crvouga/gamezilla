@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@pkgs/keyword-shared": "workspace:*",
-    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/kv-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

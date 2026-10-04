@@ -6,12 +6,12 @@
  * needs a report with no screens (a synthesized state frame) configures it with
  * `screens: false` instead of forking it.
  */
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
-import { defineSnapshot } from '@pkgs/harness-shared/define-snapshot';
-import type { System } from '@pkgs/harness-shared/define-system';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import { defineRuntime } from '@pkgs/harness-root-shared/define-runtime';
+import { defineSnapshot } from '@pkgs/harness-root-shared/define-snapshot';
+import type { System } from '@pkgs/harness-root-shared/define-system';
+import { defineSystem } from '@pkgs/harness-root-shared/define-system';
+import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
 
 export type ExampleApp = { n: number; values: Record<string, string> };
 

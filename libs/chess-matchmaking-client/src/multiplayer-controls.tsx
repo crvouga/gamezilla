@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { useMultiplayerControls } from './use-multiplayer-controls';
 import type { useMultiplayerData } from './use-multiplayer-data';

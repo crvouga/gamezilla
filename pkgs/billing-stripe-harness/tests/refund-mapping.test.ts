@@ -6,8 +6,8 @@
  */
 // regression: refund-kept-grace
 import { describe, expect, test } from 'bun:test';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
-import type { CallbackResult } from '@pkgs/billing-shared/membership';
+import { CONTRACT_OFFER } from '@pkgs/billing-root-shared/contract-fixtures';
+import type { CallbackResult } from '@pkgs/billing-root-shared/membership';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
 

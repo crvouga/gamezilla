@@ -10,10 +10,10 @@
  * that moved from another user is re-homed onto this one.
  */
 
-import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
-import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { AuthIdentity } from '@pkgs/auth-root-shared/auth-identity';
+import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-root-shared/sign-in-method';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   managedInsertColumns,
   managedUpdatedAtIso,

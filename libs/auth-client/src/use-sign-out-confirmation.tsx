@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { useLogger } from '@pkgs/logger-client/solid';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import type { Accessor, JSX } from 'solid-js';
 
 /**

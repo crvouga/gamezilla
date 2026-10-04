@@ -1,6 +1,6 @@
 import type { SignInTriggerResult } from '@libs/auth-shared/sign-in-trigger';
-import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { SignInOptions } from '@pkgs/auth-root-shared/auth-client-port';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { useAuthClientPort } from './auth-client-provider';
 
 /**

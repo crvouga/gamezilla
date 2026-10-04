@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@pkgs/billing-paddle-shared": "workspace:*",
-    "@pkgs/billing-shared": "workspace:*",
+    "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/billing-stripe-server": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*"
   },

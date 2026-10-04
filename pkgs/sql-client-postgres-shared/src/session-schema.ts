@@ -15,9 +15,9 @@
  * {@link assertPgSessionSchema} verifies the live session actually resolves to
  * the expected schema.
  */
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { quotePgIdent } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 /** Anything that can run a text query and hand back rows (pg `Client` / `Pool` / `PoolClient`). */
 export interface PgQueryable {

@@ -2,14 +2,14 @@ import { expect, test } from 'bun:test';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import { BillingApp } from '@libs/billing-server/billing-app';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import type { MembershipBilling } from '@pkgs/billing-shared/membership';
-import { createMembershipProviders } from '@pkgs/billing-shared/providers';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
+import { createMembershipProviders } from '@pkgs/billing-root-shared/providers';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 test('a partial or pending refund does not complete withdrawal', async () => {

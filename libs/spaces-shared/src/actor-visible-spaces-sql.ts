@@ -1,5 +1,5 @@
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 /** Live (non-tombstoned) friend peer ids — for UI / local SQL only. */
 export function friendIdsForMemberSql(

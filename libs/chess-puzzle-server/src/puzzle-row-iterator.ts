@@ -1,7 +1,7 @@
 import { PassThrough, Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { parse } from 'csv-parse';
 import type { ResolvedSource } from './streaming';
 import { ZstdDecodeTransform } from './zstd-decode-transform';

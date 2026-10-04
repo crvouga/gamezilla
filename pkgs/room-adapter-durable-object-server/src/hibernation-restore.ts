@@ -1,15 +1,15 @@
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared/adapter-base-types';
 import type { RoomSocketAttachment } from '@pkgs/room-adapter-durable-object-shared/socket-attachment';
 import { readRoomSocketAttachment } from '@pkgs/room-adapter-durable-object-shared/socket-attachment';
 import type { DurableObjectInstanceState } from '@pkgs/room-adapter-durable-object-shared/types';
-import type { RoomServer } from '@pkgs/room-server/room-server';
+import type { RoomServer } from '@pkgs/room-root-server/room-server';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomModuleName,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 
 const crash: Assert = Assert.crash();
 

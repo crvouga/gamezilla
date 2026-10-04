@@ -18,8 +18,8 @@
     "@libs/app-config-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/equal-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*"
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

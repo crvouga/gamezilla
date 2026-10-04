@@ -1,7 +1,7 @@
 import { cliClock } from '@libs/db-shared/cli-io';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { SqlClientImplBunPostgres as SqlClientImplPostgresTcp } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
-import { raw, unsafe } from '@pkgs/sql-shared/sql';
+import { raw, unsafe } from '@pkgs/sql-root-shared/sql';
 import { fetchSecret } from './secret-io';
 
 export interface DatabasePingResult {

@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { Button } from '@pkgs/ui-client/button';
+import { Button } from '@pkgs/ui-root-client/button';
 import { Match, Show, Switch } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { FeedbackDetail } from './feedback-detail';

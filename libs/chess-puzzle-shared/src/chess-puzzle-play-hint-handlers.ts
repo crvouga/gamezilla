@@ -1,5 +1,5 @@
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
 import { tokenize, uciToSquares } from './chess-puzzle-fsm';
 import {

@@ -1,10 +1,10 @@
 import { blobDataUrl } from '@pkgs/harness-report-shared/frames';
 import { PHONE_H, PHONE_W, zoomScale } from '@pkgs/harness-report-shared/phone';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import type {
   ReportSnapshotBlob,
   ReportStepHit,
-} from '@pkgs/harness-shared/report-types';
+} from '@pkgs/harness-root-shared/report-types';
 import {
   createEffect,
   createSignal,

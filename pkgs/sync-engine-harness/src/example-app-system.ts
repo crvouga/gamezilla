@@ -1,6 +1,6 @@
-import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
-import { gen } from '@pkgs/harness-shared/fast-check';
+import { defineRuntime } from '@pkgs/harness-root-shared/define-runtime';
+import { defineSystem } from '@pkgs/harness-root-shared/define-system';
+import { gen } from '@pkgs/harness-root-shared/fast-check';
 import type { SyncArgs } from './args';
 import { arbSyncArgs } from './args';
 import { exampleApp } from './example-app-app';

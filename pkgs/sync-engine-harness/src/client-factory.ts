@@ -1,9 +1,9 @@
 import { Database } from 'bun:sqlite';
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { createControllableLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
 import type {

@@ -1,8 +1,8 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { InsertJoinAttrs } from '@pkgs/matchmaking-shared/join-helpers';
-import type { JoinInputRaw } from '@pkgs/matchmaking-shared/matchmaking';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { InsertJoinAttrs } from '@pkgs/matchmaking-root-shared/join-helpers';
+import type { JoinInputRaw } from '@pkgs/matchmaking-root-shared/matchmaking';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { activePartitionId } from './tables';
 
 export type InsertSearch = {

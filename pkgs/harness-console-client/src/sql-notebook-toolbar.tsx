@@ -1,7 +1,7 @@
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { IconButton } from '@pkgs/ui-client/icon-button';
-import { PlayIcon, PlusIcon } from '@pkgs/ui-client/icons';
-import { OverflowMenuButton } from '@pkgs/ui-client/overflow-menu-button';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
+import { PlayIcon, PlusIcon } from '@pkgs/ui-root-client/icons';
+import { OverflowMenuButton } from '@pkgs/ui-root-client/overflow-menu-button';
 import type { Accessor, JSX } from 'solid-js';
 
 import type { SqlDialect } from './sql-dialect';

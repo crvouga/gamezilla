@@ -8,7 +8,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import { expectPuzzlePlayable } from './space-gestures';
 

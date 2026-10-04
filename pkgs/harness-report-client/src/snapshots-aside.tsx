@@ -2,8 +2,8 @@ import {
   blobHeading,
   formatBlobBody,
 } from '@pkgs/harness-report-shared/format';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportSnapshotBlob } from '@pkgs/harness-shared/report-types';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import type { ReportSnapshotBlob } from '@pkgs/harness-root-shared/report-types';
 import { For } from 'solid-js';
 
 /** Raw text of the frame's non-UI snapshots, beside the phones. */

@@ -1,7 +1,7 @@
 import type { AppPolicyKey } from '@libs/permissions-shared/permission-catalog';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import { Button } from '@pkgs/ui-client/button';
-import { KeyRoundIcon } from '@pkgs/ui-client/icons';
+import { Button } from '@pkgs/ui-root-client/button';
+import { KeyRoundIcon } from '@pkgs/ui-root-client/icons';
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { usePermissions } from './use-permissions';
 

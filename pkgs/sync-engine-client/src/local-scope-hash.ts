@@ -1,4 +1,4 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { applyHardLimit } from '@pkgs/sync-engine-shared/apply-hard-limit';
 import { hashQueryTables } from '@pkgs/sync-engine-shared/canonical';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';

@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { empty, join, raw } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { empty, join, raw } from '@pkgs/sql-root-shared/sql';
 import { compileExpr, isOpOrFnHead } from './sql-map-expr';
 import { columnIdent } from './sql-map-ident';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';

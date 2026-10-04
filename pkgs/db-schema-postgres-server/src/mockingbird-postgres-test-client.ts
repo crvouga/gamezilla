@@ -7,12 +7,12 @@ import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-serv
 import type {
   PostgresSqlClient,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
+} from '@pkgs/sql-client-root-shared/interface';
 import {
   createPostgresDbScope,
   quotePgIdent,
-} from '@pkgs/sql-client-shared/postgres-db-scope';
-import { raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 export type MockingbirdPostgresTestClientBundle = {
   readonly sqlClient: PostgresSqlClient;

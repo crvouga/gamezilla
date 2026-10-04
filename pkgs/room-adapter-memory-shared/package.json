@@ -15,7 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/room-shared": "workspace:*"
+    "@pkgs/room-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/keyword-shared": "workspace:*",

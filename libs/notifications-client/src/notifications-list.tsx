@@ -5,8 +5,8 @@ import type {
   NotificationSection,
 } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { ScreenBodyVirtualList } from '@pkgs/ui-client/screen-body-virtual-list';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { NotificationCard } from './notification-card';
 import { NotificationsEmptyState } from './notifications-empty-state';

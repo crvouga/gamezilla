@@ -1,5 +1,5 @@
 import type { AccountPrivacyGuard } from '@libs/feature-shared/account-privacy';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 
 /** Withdrawal shares the mutation transaction and its captured wake topics. */

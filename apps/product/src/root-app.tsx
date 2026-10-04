@@ -4,14 +4,14 @@ import { ClockProvider } from '@pkgs/clock-client/solid';
 import { HarnessConsoleApp } from '@pkgs/harness-console-client/app';
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared/ports';
 import { HttpClientProvider } from '@pkgs/http-client-client/solid';
-import { DismissibleBannerPortalProvider } from '@pkgs/ui-client/dismissible-top-banner';
-import { OverlayPortalProvider } from '@pkgs/ui-client/overlay-portal';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+import { DismissibleBannerPortalProvider } from '@pkgs/ui-root-client/dismissible-top-banner';
+import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import {
   ThemePreferenceProvider,
   useThemePreference,
-} from '@pkgs/ui-client/theme-preference';
+} from '@pkgs/ui-root-client/theme-preference';
 import { IdProvider } from '@pkgs/uuid-client/solid';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import type { JSX } from 'solid-js';

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 
 // regression: upsert-managed-bindings-reordered

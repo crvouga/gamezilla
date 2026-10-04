@@ -1,5 +1,5 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import sql from '@pkgs/sql-shared/sql';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
 import { defineTopicMap } from '@pkgs/sync-engine-shared/topic-map';
 import { NOTES_ALL_TOPIC, roomTopic, userTopic } from './topics';

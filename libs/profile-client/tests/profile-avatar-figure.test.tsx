@@ -10,7 +10,7 @@ import { accessibleName } from '@pkgs/a11y-shared/accessible-name';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { imageName } from '@pkgs/a11y-shared/name-rules';
 import { roleOf } from '@pkgs/a11y-shared/roles';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import { render } from '@solidjs/testing-library';
 
 function pictureHeard(): {

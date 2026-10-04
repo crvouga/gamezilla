@@ -1,6 +1,6 @@
 /** A source can own commit-local files or reference a reusable complete source. */
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { commitPrefix, isKeySegment, sourceId, sourceKey } from './keys';
 import type { SourceRecord } from './protocol';
 import { reportStore } from './publication';

@@ -15,11 +15,11 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/db-indexes-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*"
+    "@pkgs/db-indexes-root-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

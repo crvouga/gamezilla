@@ -3,7 +3,7 @@
  * Named after observable behavior — never after internal engine modules.
  */
 
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { HarnessCorruptionVariant } from './corruption-faults';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
 import { createPubsubFaultArms } from './edge-fault-pubsub';

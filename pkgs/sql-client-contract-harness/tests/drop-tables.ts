@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { raw } from '@pkgs/sql-root-shared/sql';
 import type { SqlDialect } from './types';
 
 /** Drop sample tables; ignore missing (idempotent cleanup). */

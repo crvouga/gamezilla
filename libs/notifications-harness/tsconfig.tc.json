@@ -6,8 +6,8 @@
   },
   "include": [
     "../ts-reset/src/index.ts",
-    "../../pkgs/ui-client/src/css-modules.d.ts",
-    "../../pkgs/ui-client/src/lingui-augmentation.ts",
+    "../../pkgs/ui-root-client/src/css-modules.d.ts",
+    "../../pkgs/ui-root-client/src/lingui-augmentation.ts",
     "../app-shared/src/vite-env.d.ts",
     "../notifications/sync/**/*.ts",
     "./src/**/*.ts",

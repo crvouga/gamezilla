@@ -1,10 +1,13 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
-import { sortByName } from '@pkgs/db-indexes-shared/compare';
-import type { Config } from '@pkgs/db-indexes-shared/config';
-import { DEFAULT_CONFIG } from '@pkgs/db-indexes-shared/config';
-import { isOwnedName, ownedIndexName } from '@pkgs/db-indexes-shared/naming';
-import { parseWithNodeSqlParser } from '@pkgs/db-indexes-shared/parse-node-sql';
+import { sortByName } from '@pkgs/db-indexes-root-shared/compare';
+import type { Config } from '@pkgs/db-indexes-root-shared/config';
+import { DEFAULT_CONFIG } from '@pkgs/db-indexes-root-shared/config';
+import {
+  isOwnedName,
+  ownedIndexName,
+} from '@pkgs/db-indexes-root-shared/naming';
+import { parseWithNodeSqlParser } from '@pkgs/db-indexes-root-shared/parse-node-sql';
 import type {
   ActionResult,
   Candidate,
@@ -17,10 +20,10 @@ import type {
   Stmt,
   TableInfo,
   UsageInfo,
-} from '@pkgs/db-indexes-shared/types';
-import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { unsafe } from '@pkgs/sql-shared/sql';
+} from '@pkgs/db-indexes-root-shared/types';
+import { asOwnedIndexName } from '@pkgs/db-indexes-root-shared/types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 import {
   isConcurrentlyUnsupportedError,
   renderCreateIndexSql,

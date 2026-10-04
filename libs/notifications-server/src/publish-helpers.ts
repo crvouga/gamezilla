@@ -3,9 +3,9 @@ import { buildNotificationId } from '@libs/notifications-shared/notification-id'
 import { assertBoundedPayload } from '@libs/notifications-shared/payload-schema';
 import type { PublishNotificationInput } from '@libs/notifications-shared/publish-types';
 import type { StoredNotificationRow } from '@libs/notifications-shared/stored-notification-row';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { managedInsertColumns } from '@pkgs/sync-engine-shared/managed-columns';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 

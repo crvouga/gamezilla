@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import {
   isSecretsCacheEnv,
   isSecretsCacheStale,

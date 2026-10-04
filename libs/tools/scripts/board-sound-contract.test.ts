@@ -6,8 +6,8 @@ function issues(body: string) {
   return boardSoundIssues(
     ts.createSourceFile(
       'board.tsx',
-      `import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
-       import { createChessBoardSounds } from '@pkgs/chess-board-client/chess-board-sounds';
+      `import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
+       import { createChessBoardSounds } from '@pkgs/chess-board-root-client/chess-board-sounds';
        import { useSoundsPreference } from '@pkgs/sounds-client/solid';
        const sounds = useSoundsPreference();
        ${body}`,

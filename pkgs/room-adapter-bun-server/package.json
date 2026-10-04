@@ -16,8 +16,8 @@
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/room-adapter-memory-shared": "workspace:*",
-    "@pkgs/room-server": "workspace:*",
-    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/room-root-server": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*"
   },
   "devDependencies": {

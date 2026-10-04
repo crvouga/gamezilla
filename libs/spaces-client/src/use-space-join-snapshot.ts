@@ -8,7 +8,7 @@ import type {
   SpaceJoinSnapshot,
 } from '@libs/spaces-shared/resolve-space-join-snapshot';
 import { resolveSpaceJoinSnapshot } from '@libs/spaces-shared/resolve-space-join-snapshot';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
   useSyncEngine,

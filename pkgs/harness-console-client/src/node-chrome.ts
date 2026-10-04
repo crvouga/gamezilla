@@ -1,5 +1,5 @@
 import type { HarnessNodeKind } from '@pkgs/harness-console-shared/node';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import {
   DatabaseIcon,
   DoorOpenIcon,
@@ -7,7 +7,7 @@ import {
   RadioIcon,
   ServerIcon,
   ShuffleIcon,
-} from '@pkgs/ui-client/icons';
+} from '@pkgs/ui-root-client/icons';
 
 const NODE_ICONS: Readonly<Record<HarnessNodeKind, IconComponent>> = {
   client: MonitorIcon,

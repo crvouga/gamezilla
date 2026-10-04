@@ -1,13 +1,13 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import { assertIndexableWorkload } from '@pkgs/db-indexes-shared/indexability';
-import type { SchemaIndex } from '@pkgs/db-indexes-shared/schema-coverage';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import { fingerprintSql } from '@pkgs/db-indexes-root-shared/fingerprint';
+import { assertIndexableWorkload } from '@pkgs/db-indexes-root-shared/indexability';
+import type { SchemaIndex } from '@pkgs/db-indexes-root-shared/schema-coverage';
 import type {
   WorkloadManifest,
   WorkloadQuery,
   WorkloadStatement,
-} from '@pkgs/db-indexes-shared/types';
-import type { Sql } from '@pkgs/sql-shared/sql';
+} from '@pkgs/db-indexes-root-shared/types';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import { classify } from './classify';
 import { resolveQueryStubParams } from './define-query';
 import type { QueryCtx, QueryDef, QueryRegistry } from './queries-types';

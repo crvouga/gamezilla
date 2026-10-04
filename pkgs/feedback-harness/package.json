@@ -24,9 +24,9 @@
     "@pkgs/feedback-client": "workspace:*",
     "@pkgs/feedback-server": "workspace:*",
     "@pkgs/feedback-shared": "workspace:*",
-    "@pkgs/harness-shared": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/harness-root-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

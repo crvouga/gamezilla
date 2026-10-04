@@ -2,8 +2,8 @@
  * Session façade over createHarness + room node + snapshot store.
  */
 
-import type { Client } from '@libs/app-client/create-client';
-import { readEmbeddedHref } from '@libs/app-shared/embedded-href';
+import type { Client } from '@libs/app-root-client/create-client';
+import { readEmbeddedHref } from '@libs/app-root-shared/embedded-href';
 import type { HarnessBrowser } from '@libs/harness/browser';
 import { clearProductHarnessClientDurable } from '@libs/harness/client-durable';
 import type { Harness } from '@libs/harness/create-harness';
@@ -21,9 +21,9 @@ import type {
 } from '@pkgs/harness-console-shared/ports';
 import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub-shared/in-memory';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub-root-shared/in-memory';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 import { createMemoryHistory } from '@solidjs/router';
 import {

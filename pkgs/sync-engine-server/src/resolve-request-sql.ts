@@ -1,4 +1,4 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { Context } from 'hono';
 
 /** Request-scoped SQL set by API middleware — preferred over ALS `getSql`. */

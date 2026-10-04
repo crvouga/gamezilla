@@ -10,14 +10,14 @@
 
 import { createAccountPrivacyServer } from '@libs/account-privacy-server/feature-server';
 import { createBillingServer } from '@libs/billing-server/feature-server';
-import { CHESS_SERVER } from '@libs/chess-server/feature-server';
+import { CHESS_SERVER } from '@libs/chess-root-server/feature-server';
 import type { FeatureServer } from '@libs/feature-shared/server';
 import { FRIENDS_SERVER } from '@libs/friends-server/feature-server';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications-server/feature-server';
 import { APP } from '@libs/runtime-shared/app-features';
 import { createSpacesServer } from '@libs/spaces-server/feature-server';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 
 export type AppFeatureServerDeps = {
   readonly rooms: RoomServicePort;

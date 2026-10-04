@@ -7,8 +7,8 @@ import {
 } from '@libs/harness/identity';
 import { bringToFront, partitioned } from '@libs/harness/observations';
 import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   playUntilSolved,
   retryPuzzle,

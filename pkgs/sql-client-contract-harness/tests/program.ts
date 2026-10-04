@@ -1,5 +1,5 @@
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
-import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
+import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
+import sql, { ident, join, raw } from '@pkgs/sql-root-shared/sql';
 import fc from 'fast-check';
 import type { LogicalColumnType } from './canonical-dump';
 import { PG_DDL, SQLITE_DDL } from './canonical-dump';

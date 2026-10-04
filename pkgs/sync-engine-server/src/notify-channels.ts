@@ -1,6 +1,6 @@
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
 import type { PushMessage, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';

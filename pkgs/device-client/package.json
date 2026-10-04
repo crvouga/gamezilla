@@ -16,8 +16,8 @@
   "dependencies": {
     "@pkgs/device-shared": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
-    "solid-js": "catalog:",
-    "@pkgs/sync-engine-shared": "workspace:*"
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

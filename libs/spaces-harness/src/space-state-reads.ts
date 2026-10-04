@@ -1,6 +1,6 @@
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { ProductHarness } from '@libs/harness/harness';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 /** Which people still host an open space, including when away. */
 export async function openSpaceHosts(

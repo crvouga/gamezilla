@@ -4,7 +4,7 @@ import {
   startCustomGame,
   startCustomGameAgainstBot,
 } from '@libs/runtime-harness/custom-game-journey';
-import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
+import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
 /** The menu is usable before the fresh space's socket finishes syncing. */
 function connectingDevice(available = true): {

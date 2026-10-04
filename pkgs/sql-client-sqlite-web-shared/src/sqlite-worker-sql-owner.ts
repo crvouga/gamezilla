@@ -1,5 +1,5 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { withOpenTimeout } from './open-retry';
 import type { SqliteWorkerOpenResult, SqliteWorkerPort } from './protocol';
 import type { SqlOwner } from './sql-owner';

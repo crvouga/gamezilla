@@ -4,7 +4,7 @@ import {
   MQTT_PUBSUB_QOS,
   MQTT_SESSION_EXPIRY_SEC,
 } from '@pkgs/pubsub-mqtt-shared/create-mqtt-pubsub';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import { rememberEmqxClientId } from './emqx-client-id';
 
 /** MQTT QoS for EMQX publish + subscribe. */

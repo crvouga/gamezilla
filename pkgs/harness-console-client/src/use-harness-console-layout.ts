@@ -1,4 +1,4 @@
-import { useTheme } from '@pkgs/ui-client/theme-context';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
 
 import { useClientLayoutPreference } from './client-layout-preference';
 import type { HarnessConsoleLayout } from './layout';

@@ -1,5 +1,5 @@
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 
 export const SYNC_ENGINE_MUTATIONS = 'sync_engine_mutations';
 export const SYNC_ENGINE_MUTATIONS_APPLIED = 'sync_engine_mutations_applied';

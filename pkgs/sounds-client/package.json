@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@pkgs/keyword-shared": "workspace:*",
-    "@pkgs/kv-client": "workspace:*",
-    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/kv-root-client": "workspace:*",
+    "@pkgs/kv-root-shared": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",
     "solid-js": "catalog:"

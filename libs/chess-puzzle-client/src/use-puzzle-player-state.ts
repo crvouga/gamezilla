@@ -20,7 +20,7 @@ import {
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { formatUci } from '@pkgs/chess-rules-shared/uci';
 import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
+import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 import {

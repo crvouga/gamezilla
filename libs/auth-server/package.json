@@ -16,18 +16,18 @@
   },
   "dependencies": {
     "@libs/auth-shared": "workspace:*",
-    "@pkgs/auth-shared": "workspace:*",
+    "@pkgs/auth-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
-    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },

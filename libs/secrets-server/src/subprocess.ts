@@ -1,7 +1,7 @@
 // @io-wall-ok
 import { spawn, spawnSync } from 'node:child_process';
 import { cliClock } from '@libs/secrets-shared/cli-io';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { fmtMs } from './fmt';
 
 export interface RunOpts {

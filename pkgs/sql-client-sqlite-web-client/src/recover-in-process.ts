@@ -1,6 +1,6 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import {
   openWithWaitRetry,
   sleepMs,

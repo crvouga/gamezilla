@@ -14,11 +14,11 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/assert-shared": "workspace:*",
-    "@pkgs/matchmaking-server": "workspace:*",
-    "@pkgs/matchmaking-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
+    "@pkgs/matchmaking-root-server": "workspace:*",
+    "@pkgs/matchmaking-root-shared": "workspace:*",
     "@pkgs/matchmaking-sql-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {

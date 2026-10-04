@@ -2,7 +2,7 @@
  * Pure comparison helpers for the offer price reconcile — unit-tested without
  * network.
  */
-import type { OfferPriceSpec } from '@pkgs/billing-shared/offer';
+import type { OfferPriceSpec } from '@pkgs/billing-root-shared/offer';
 
 /** Provider/live currency options may use snake_case keys; normalize. */
 export function normalizeCurrencyOptions(

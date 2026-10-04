@@ -5,14 +5,14 @@
 
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HarnessCheckpointSqlFormat } from '@pkgs/harness-console-shared/checkpoint';
-import { openHarnessMockingbirdPostgresFromSeed } from '@pkgs/sql-client-harness/open-harness-mockingbird-postgres-from-seed';
+import { openHarnessMockingbirdPostgresFromSeed } from '@pkgs/sql-client-root-harness/open-harness-mockingbird-postgres-from-seed';
 import {
   adaptMockingbirdPostgresAsPool,
   SqlClientImplMockingbirdPostgres,
 } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import type { HarnessSql } from './sql-types';
 import { nextHarnessSqlDatabaseName } from './sql-types';
 

@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
 import { UI_DEVTOOLS_EXPLORER_ENTRIES } from '@pkgs/ui-devtools-client/explorer-entries';
 import { Dynamic } from 'solid-js/web';
 import { renderUi } from './render';

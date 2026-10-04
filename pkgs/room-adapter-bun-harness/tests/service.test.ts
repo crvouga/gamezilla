@@ -5,8 +5,8 @@ import {
   AddOne,
   gameRoomModule,
   readTally,
-} from '@pkgs/room-harness/game-room';
-import type { RoomState } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-harness/game-room';
+import type { RoomState } from '@pkgs/room-root-shared/types';
 
 // regression: localhost-room-service-upgrade
 test('private service commands use the same authoritative room as sockets and deduplicate delivery', async () => {

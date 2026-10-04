@@ -6,7 +6,7 @@
  */
 
 import { migratePostgresApp } from '@libs/runtime-server/migrate';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 const wait = process.argv.includes('--wait');
 const databaseUrlFlag = process.argv.find((arg) =>

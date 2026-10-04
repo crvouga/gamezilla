@@ -1,8 +1,8 @@
 import type {
   ClientRoomStorage,
   QueuedCommand,
-} from '@pkgs/room-shared/core-storage';
-import type { LogEntry } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/core-storage';
+import type { LogEntry } from '@pkgs/room-root-shared/types';
 
 /**
  * Volatile per-process {@link ClientRoomStorage} for tests and the loopback

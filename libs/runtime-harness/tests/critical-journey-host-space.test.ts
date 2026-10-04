@@ -11,7 +11,7 @@ import type {
   DriverWaitOptions,
   WaitState,
   WaitTextCondition,
-} from '@pkgs/ui-testing-shared/driver';
+} from '@pkgs/ui-testing-root-shared/driver';
 
 const HOST = 'OldMink726';
 

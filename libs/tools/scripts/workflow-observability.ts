@@ -1,4 +1,4 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
 
 export type FailedTestTrace = {
   readonly file?: string;

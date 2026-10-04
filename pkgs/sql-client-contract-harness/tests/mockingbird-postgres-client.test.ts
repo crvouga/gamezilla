@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import {
   createMockingbirdPostgresSqlClient,
   SqlClientImplMockingbirdPostgres,
 } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 import { runSqlDataSnapshotContractTests } from './sql-data-snapshot-contract';
 
 const openClients: SqlClientImplMockingbirdPostgres[] = [];

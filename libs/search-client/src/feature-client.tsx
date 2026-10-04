@@ -4,7 +4,7 @@
 import { defineFeatureClient } from '@libs/feature-client/client';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
-import { SearchIcon } from '@pkgs/ui-client/icons';
+import { SearchIcon } from '@pkgs/ui-root-client/icons';
 
 /** Read inside the tab memo, so the label follows the active locale. */
 function searchTabLabel(): string {

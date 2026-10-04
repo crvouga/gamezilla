@@ -19,8 +19,8 @@
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/message-shared": "workspace:*",
-    "@pkgs/room-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "chess.js": "catalog:",
     "zod": "catalog:"

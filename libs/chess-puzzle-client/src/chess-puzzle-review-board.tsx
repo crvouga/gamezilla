@@ -1,9 +1,9 @@
 import { puzzleNavIntentFromKey } from '@libs/chess-puzzle-shared/puzzle-nav';
 import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
-import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
+import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
-import { useDocumentShortcuts } from '@pkgs/ui-client/use-document-shortcuts';
+import { useDocumentShortcuts } from '@pkgs/ui-root-client/use-document-shortcuts';
 import { type JSX, onCleanup, Show } from 'solid-js';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';

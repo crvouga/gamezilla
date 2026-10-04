@@ -121,6 +121,6 @@ sequenceDiagram
 
 ## Opening
 
-The app (`libs/app-shared/src/open-main-sql-client.ts`) calls
+The app (`libs/app-root-shared/src/open-main-sql-client.ts`) calls
 `createWebSqlClient(dbName, { timers, logger, migrate?, schemaEpoch? })`.
 Sync upload/push is gated by the `sync-owner:<dbName>` lock.

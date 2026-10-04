@@ -14,8 +14,8 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/assert-shared": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

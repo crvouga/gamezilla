@@ -1,6 +1,6 @@
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorIds } from '@libs/harness/observations';
-import { defineProperty } from '@pkgs/harness-shared/define-property';
+import { defineProperty } from '@pkgs/harness-root-shared/define-property';
 import { pressPuzzleNext } from './chess-actions';
 import { readActivePuzzleId } from './chess-puzzle-ui';
 

@@ -1,8 +1,8 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
-import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
+import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
+import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
+import type { RenderedApp } from '@pkgs/ui-testing-root-shared/render-adapter';
 import type { JSX } from 'solid-js';
 import type { LayoutProvider } from './dom-layout';
 import type { WaitPump } from './dom-wait';

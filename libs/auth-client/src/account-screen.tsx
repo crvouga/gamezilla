@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import { SmartphoneIcon } from '@pkgs/ui-client/icons';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { SmartphoneIcon } from '@pkgs/ui-root-client/icons';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type JSX, Show } from 'solid-js';
 import { useHasAuthSession } from './access-facts';
 import { AccountActionsRow } from './account-actions-row';

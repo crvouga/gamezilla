@@ -55,8 +55,8 @@
  * @module
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import { compileQuery } from './sql-map-statements';
 import type { ColRef, Query } from './sql-map-types';
 
@@ -75,7 +75,7 @@ true satisfies _SqlMapValuesNotSqlValues;
  * Compile a sql-map query to a nested {@link Sql} fragment.
  *
  * Pure function: no I/O, no connection. Misuse (bad identifiers, unknown ops,
- * empty insert, …) crashes via `@pkgs/assert-shared`.
+ * empty insert, …) crashes via `@pkgs/assert-root-shared`.
  *
  * @param query - Sql-map query object (see {@link Query}).
  * @returns Nested {@link Sql} ready to execute or embed in `sql\`...\``.

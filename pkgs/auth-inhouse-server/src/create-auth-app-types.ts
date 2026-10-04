@@ -1,6 +1,6 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { OauthCallbackRelay } from './oauth-callback-relay';
 import type { OauthProviders, OauthProvidersConfig } from './registry';

@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useClipboard } from '@pkgs/device-client/solid';
-import { CopyToClipboardField } from '@pkgs/ui-client/copy-to-clipboard-field';
+import { CopyToClipboardField } from '@pkgs/ui-root-client/copy-to-clipboard-field';
 import type { JSX } from 'solid-js';
 
 export type AccountDeviceIdFieldProps = {

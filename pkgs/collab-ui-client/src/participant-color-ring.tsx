@@ -2,8 +2,8 @@
  * Colored ring around a child (typically an avatar) identifying a participant.
  */
 
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 
 export type ParticipantColorRingProps = {

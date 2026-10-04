@@ -14,8 +14,8 @@ import {
   reuseSource,
   sourceContentPrefix,
 } from '@pkgs/harness-report-shared/source-content';
-import type { HtmlReportBlob } from '@pkgs/harness-shared/bundle';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import type { HtmlReportBlob } from '@pkgs/harness-root-shared/bundle';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { exampleApp, put } from './example-app';

@@ -1,5 +1,5 @@
-import { Badge } from '@pkgs/ui-client/badge';
-import { colorVar } from '@pkgs/ui-shared/css-vars';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import type { Accessor } from 'solid-js';
 import { For, type JSX } from 'solid-js';
 

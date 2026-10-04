@@ -19,7 +19,7 @@
     "@libs/feature-shared": "workspace:*",
     "@libs/pubsub-shared": "workspace:*",
     "@pkgs/pubsub-emqx-shared": "workspace:*",
-    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*",
     "jose": "catalog:"
   },

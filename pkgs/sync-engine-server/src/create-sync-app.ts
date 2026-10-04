@@ -1,5 +1,5 @@
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { FRAMEWORK_MUTATIONS } from '@pkgs/sync-engine-shared/acknowledge-write-rejection';
 import { createMonotonicCheckpoint } from '@pkgs/sync-engine-shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '@pkgs/sync-engine-shared/framework-topic-map';

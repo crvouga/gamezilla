@@ -27,7 +27,7 @@ import { join, resolve } from 'node:path';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { openCommit } from '@pkgs/harness-report-shared/publish';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { publishBatch } from './report-batch';
 import {
   createReportPlan,

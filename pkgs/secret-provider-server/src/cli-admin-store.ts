@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { INFISICAL_CLI_BIN } from '@pkgs/secret-provider-shared/defaults';
 import { parseInfisicalExportJson } from '@pkgs/secret-provider-shared/local-secrets-cache';
 import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared/resolve-endpoint';

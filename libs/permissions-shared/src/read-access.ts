@@ -3,8 +3,8 @@ import type { ClientConfigDbRow } from '@libs/app-config-shared/parse-client-con
 import { parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
 import type { Facts } from '@pkgs/permissions-shared/facts';
 import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { SubscriptionRow } from './access-facts';
 import { governingSubscription, resolveAccessFacts } from './access-facts';
 import { parsePermissionPolicy } from './parse-permission-policy';

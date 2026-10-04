@@ -1,5 +1,5 @@
 import { UserUsername } from '@libs/profile-client/user-username';
-import type { TextVariant } from '@pkgs/ui-client/text';
+import type { TextVariant } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 
 export type SpaceGuestMembershipUsernameProps = {

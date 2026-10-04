@@ -1,4 +1,4 @@
 {
   "summary": "Switching Alice and Bob UI views advanced virtual time by one second per focus, causing observation of active Custom Games to expire clocks and move bots. Focus now drains only currently due work.",
-  "regressionTest": "libs/chess-harness/tests/quint/custom-game-play.binding.ts"
+  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game-play.binding.ts"
 }

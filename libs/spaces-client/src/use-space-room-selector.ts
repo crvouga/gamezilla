@@ -2,8 +2,11 @@ import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared/space-room-module-na
 import {
   useRoomDispatch,
   useRoomSelector,
-} from '@pkgs/room-client/room-clients-context';
-import type { RoomCommandPayload, RoomState } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-client/room-clients-context';
+import type {
+  RoomCommandPayload,
+  RoomState,
+} from '@pkgs/room-root-shared/types';
 import type { Accessor } from 'solid-js';
 import { useSpaceOpenRooms } from './space-open-rooms-store';
 import { useSpaceRoomSessionId } from './space-room-context';

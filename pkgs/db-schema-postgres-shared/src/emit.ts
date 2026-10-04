@@ -1,10 +1,10 @@
 import type {
   CreateTableColumn,
   ServerOperation,
-} from '@pkgs/db-schema-shared/operations';
-import { PG_TYPE_SQL } from '@pkgs/db-schema-shared/type-map';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/db-schema-root-shared/operations';
+import { PG_TYPE_SQL } from '@pkgs/db-schema-root-shared/type-map';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { ident, join, raw } from '@pkgs/sql-root-shared/sql';
 
 function pgTypeOf(col: {
   type: keyof typeof PG_TYPE_SQL;

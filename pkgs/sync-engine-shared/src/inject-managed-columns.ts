@@ -1,8 +1,8 @@
 /**
  * Ensure domain writes supply managed columns from MutationEnv (no SQL defaults).
  */
-import type { RawValue } from '@pkgs/sql-shared/sql';
-import { Sql } from '@pkgs/sql-shared/sql';
+import type { RawValue } from '@pkgs/sql-root-shared/sql';
+import { Sql } from '@pkgs/sql-root-shared/sql';
 
 import { parseSqlAst } from './classify';
 import type { MutationEnv } from './mutations-types';

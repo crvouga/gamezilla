@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared/client-storage';
-import type { QueuedCommand } from '@pkgs/room-shared/core-storage';
-import type { LogEntry } from '@pkgs/room-shared/types';
+import type { QueuedCommand } from '@pkgs/room-root-shared/core-storage';
+import type { LogEntry } from '@pkgs/room-root-shared/types';
 import fc from 'fast-check';
 
 const TYPE = asKeyword('test/cmd');

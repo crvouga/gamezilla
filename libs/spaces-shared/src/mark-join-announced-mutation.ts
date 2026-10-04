@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { spaceOpenSessionEntityId } from './participation-ids';
 import { spaceIdArgs } from './space-mutation-helpers';

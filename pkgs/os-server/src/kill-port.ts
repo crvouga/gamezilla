@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 function assertPort(port: number): void {
   assert.integer(port, `port must be an integer (got ${port})`);

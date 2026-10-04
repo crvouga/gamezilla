@@ -11,10 +11,10 @@
 
 import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { isTrustedCallbackUrl } from '@pkgs/auth-inhouse-shared/trusted-origins';
-import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
+import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Context } from 'hono';
 import { repo } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';

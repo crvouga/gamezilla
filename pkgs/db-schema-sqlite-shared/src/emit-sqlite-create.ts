@@ -1,6 +1,9 @@
-import { planClient } from '@pkgs/db-schema-shared/plan-client';
-import type { IntrospectedCatalog, Schema } from '@pkgs/db-schema-shared/types';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import { planClient } from '@pkgs/db-schema-root-shared/plan-client';
+import type {
+  IntrospectedCatalog,
+  Schema,
+} from '@pkgs/db-schema-root-shared/types';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import { emitClientOperation } from './emit';
 
 /**

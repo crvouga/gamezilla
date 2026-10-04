@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/solid/macro';
-import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
+import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
-import { Button } from '@pkgs/ui-client/button';
-import { Select } from '@pkgs/ui-client/select';
-import { TextInput } from '@pkgs/ui-client/text-input';
+import { Button } from '@pkgs/ui-root-client/button';
+import { Select } from '@pkgs/ui-root-client/select';
+import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { CustomGameError } from './custom-game-error';
 import type { CustomGameReview } from './use-custom-game-review';

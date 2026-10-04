@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import { Button } from '@pkgs/ui-client/button';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Button } from '@pkgs/ui-root-client/button';
 import type { JSX } from 'solid-js';
 
 export function ProfileFriendsActions(): JSX.Element {

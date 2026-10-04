@@ -10,9 +10,9 @@ import {
   MEMBERSHIP_PROVIDER_MODULES,
   MembershipProviderConfigError,
 } from '@pkgs/billing-providers-server/billing-providers';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
-import type { MembershipProviderEnv } from '@pkgs/billing-shared/provider-module';
-import { isMembershipProviderId } from '@pkgs/billing-shared/providers';
+import { CONTRACT_OFFER } from '@pkgs/billing-root-shared/contract-fixtures';
+import type { MembershipProviderEnv } from '@pkgs/billing-root-shared/provider-module';
+import { isMembershipProviderId } from '@pkgs/billing-root-shared/providers';
 import { StripeSecretKeys } from '@pkgs/billing-stripe-shared/secret-keys';
 
 function env(secrets: Readonly<Record<string, string>>): MembershipProviderEnv {

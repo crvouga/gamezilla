@@ -1,12 +1,12 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
-import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
-import type { WorkloadManifest } from '@pkgs/db-indexes-shared/types';
+import { createHarnessClock } from '@pkgs/db-indexes-root-harness/clock';
+import { fingerprintSql } from '@pkgs/db-indexes-root-shared/fingerprint';
+import { reconcileIndexes } from '@pkgs/db-indexes-root-shared/reconcile';
+import type { WorkloadManifest } from '@pkgs/db-indexes-root-shared/types';
 import { createSqlitePort } from '@pkgs/db-indexes-sqlite-shared/create-sqlite-port';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { emitSqliteCreateStatements } from '@pkgs/db-schema-sqlite-shared/emit-sqlite-create';
 
 function stmt(sql: string) {

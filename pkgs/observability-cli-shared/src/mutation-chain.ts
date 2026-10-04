@@ -1,10 +1,10 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import type { MutationTraceIndex } from '@pkgs/observability-shared/mutation-trace-index';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import type { MutationTraceIndex } from '@pkgs/observability-root-shared/mutation-trace-index';
 import type {
   TimeRange,
   Trace,
   TraceStore,
-} from '@pkgs/observability-shared/types';
+} from '@pkgs/observability-root-shared/types';
 import type { ObsArgs } from './args';
 import { stringFlag } from './args';
 import {

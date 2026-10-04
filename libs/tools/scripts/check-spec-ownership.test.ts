@@ -19,17 +19,17 @@ describe('spec ownership', () => {
         'specs/README.md',
         'docs/STEPS_CATALOG.md',
         'apps/product/STEPS_CATALOG.md',
-        'libs/chess-harness/STEPS_CATALOG.md',
+        'libs/chess-root-harness/STEPS_CATALOG.md',
         'libs/runtime-harness/STEPS_CATALOG.md',
-        'pkgs/matchmaking-harness/STEPS_CATALOG.md',
+        'pkgs/matchmaking-root-harness/STEPS_CATALOG.md',
       ],
     };
     expect(ownershipViolations([commit])).toEqual([]);
     expect(stagedViolations(commit.files)).toEqual([]);
     for (const file of [
-      'libs/chess-harness/README.md',
-      'libs/chess-harness/STEPS_CATALOG.md.ts',
-      'libs/chess-harness/src/index.ts',
+      'libs/chess-root-harness/README.md',
+      'libs/chess-root-harness/STEPS_CATALOG.md.ts',
+      'libs/chess-root-harness/src/index.ts',
     ]) {
       expect(
         ownershipViolations([{ ...commit, files: [...commit.files, file] }])
@@ -44,7 +44,7 @@ describe('spec ownership', () => {
       'specs/README.md',
       'specs/chess/ubiquitous-language.yml',
       'specs/conformance.yaml',
-      'libs/chess-harness/package.json',
+      'libs/chess-root-harness/package.json',
     ];
     expect(mergeStagedViolations(staged, staged, [])).toEqual([]);
     assertProperty(

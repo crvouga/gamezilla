@@ -1,6 +1,9 @@
-import type { RunReport } from '@pkgs/harness-shared/report-types';
-import { readObjectBytes, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { RunReport } from '@pkgs/harness-root-shared/report-types';
+import {
+  readObjectBytes,
+  writeUtf8,
+} from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { ArtifactScore, VisualGateResult } from './types';
 
 export function failureSummary(

@@ -9,7 +9,7 @@
  * match the declared data type, with paired `*OrNull` variants for the
  * nullable case.
  */
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { JoinDot, Keyword } from '@pkgs/keyword-shared/keyword';
 import {
   assertLocalName,

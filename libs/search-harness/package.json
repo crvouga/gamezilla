@@ -19,7 +19,7 @@
     "@libs/search-shared": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
     "@libs/user-search-shared": "workspace:*",
-    "@pkgs/harness-shared": "workspace:*"
+    "@pkgs/harness-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

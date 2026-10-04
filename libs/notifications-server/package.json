@@ -14,17 +14,17 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/app-shared": "workspace:*",
+    "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/feature-shared": "workspace:*",
     "@libs/notifications-shared": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
-    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/async-local-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "hono": "catalog:"

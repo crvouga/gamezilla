@@ -6,14 +6,14 @@
  * providers are configured) mount the same routes and take the same path.
  */
 
-import { notifyUserChannels } from '@libs/app-server/notify-user-channels';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
+import { notifyUserChannels } from '@libs/app-root-server/notify-user-channels';
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { defineFeatureServer } from '@libs/feature-shared/server';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { requirePermission } from '@libs/permissions-shared/require-permission';
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { registerBillingPrivacyConsumers } from './account-privacy-consumers';

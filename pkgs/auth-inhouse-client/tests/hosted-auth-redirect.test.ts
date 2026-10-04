@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
-import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
-import { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
+import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
+import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import {
   createBearerTokenStore,

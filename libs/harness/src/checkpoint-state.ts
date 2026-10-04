@@ -2,14 +2,14 @@
  * Collect / apply checkpoint slices (SQL, rooms, faults, clock).
  */
 
-import type { Client } from '@libs/app-client/create-client';
-import { assert } from '@pkgs/assert-shared/singleton';
+import type { Client } from '@libs/app-root-client/create-client';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type {
   HarnessCheckpoint,
   HarnessCheckpointRoomDump,
 } from '@pkgs/harness-console-shared/checkpoint';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,

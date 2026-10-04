@@ -6,7 +6,7 @@ import {
   pgRunResultFromQuery,
   readLastInsertRowid,
 } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 const testScope = createPostgresDbScope('public');
 

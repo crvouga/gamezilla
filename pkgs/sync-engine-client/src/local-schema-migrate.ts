@@ -1,9 +1,9 @@
 // @sql-vendor-ok — local SQLite client schema uses PRAGMA user_version.
-import type { Schema } from '@pkgs/db-schema-shared/types';
+import type { Schema } from '@pkgs/db-schema-root-shared/types';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { unsafe } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 import {
   FRAMEWORK_CACHE_TABLE_NAMES,
   FRAMEWORK_DURABLE_TABLE_NAMES,

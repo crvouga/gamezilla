@@ -7,8 +7,8 @@ import {
   signPaddlePayload,
   verifyPaddleSignature,
 } from '@pkgs/billing-paddle-shared/signature';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
-import type { MembershipStatus } from '@pkgs/billing-shared/membership';
+import { CONTRACT_OFFER } from '@pkgs/billing-root-shared/contract-fixtures';
+import type { MembershipStatus } from '@pkgs/billing-root-shared/membership';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

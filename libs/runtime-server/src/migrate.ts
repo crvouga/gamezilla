@@ -23,7 +23,7 @@ import { fetchSecret } from '@libs/db-server/secret-io';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { envFile, PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { createLogger } from '@pkgs/logger-shared/logger';

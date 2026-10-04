@@ -8,7 +8,7 @@ import {
 } from '@libs/profile-harness/profile-actions';
 import { readProfileTabUsername } from '@libs/profile-harness/profile-ui-reads';
 import { searchUsername } from '@libs/search-harness/search-actions';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 import { addFriend } from './friends-actions';
 import { pendingRequestStored } from './relationship-reads';
 

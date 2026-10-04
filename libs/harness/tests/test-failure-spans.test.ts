@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { testFailureSpans } from '@libs/harness/test-failure-spans';
-import { ATTR } from '@pkgs/observability-shared/attributes';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
 
 const OPTIONS = {
   buildSha: 'abc123',

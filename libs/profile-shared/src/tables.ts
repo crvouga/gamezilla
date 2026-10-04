@@ -1,4 +1,4 @@
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
 
 export const profile = defineTable({
   domain: 'profile',

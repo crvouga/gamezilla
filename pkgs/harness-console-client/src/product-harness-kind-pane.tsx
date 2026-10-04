@@ -11,7 +11,7 @@ import type {
   ProductHarnessSession,
   ProductHarnessSqlNode,
 } from '@pkgs/harness-console-shared/ports';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { For, type JSX, type ParentComponent, Show } from 'solid-js';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { DebuggerColumn, DebuggerColumns } from './debugger-columns';

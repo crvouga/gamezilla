@@ -1,5 +1,5 @@
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 

@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ErrorState } from '@pkgs/ui-client/error-state';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import type { PageView } from '@pkgs/ui-devtools-shared/data-table-page-load';
 import type { JSX } from 'solid-js';
 

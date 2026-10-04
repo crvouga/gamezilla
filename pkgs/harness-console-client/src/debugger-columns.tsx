@@ -1,4 +1,4 @@
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createEffect, type JSX, onCleanup } from 'solid-js';
 
 /** Stable web `id` for {@link DebuggerColumns} — used for outside-pointer hit tests. */

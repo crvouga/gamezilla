@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/llm-shared": "workspace:*"
+    "@pkgs/llm-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

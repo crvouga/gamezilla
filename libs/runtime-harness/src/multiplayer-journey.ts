@@ -1,4 +1,4 @@
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { check, JOURNEY_WAIT_MS, openTab, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 

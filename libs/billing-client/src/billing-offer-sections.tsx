@@ -6,8 +6,8 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-client/badge';
-import { CheckIcon } from '@pkgs/ui-client/icons';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { CheckIcon } from '@pkgs/ui-root-client/icons';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PriceSummary } from './billing-view-model';
 import { formatMinorUnits } from './billing-view-model';

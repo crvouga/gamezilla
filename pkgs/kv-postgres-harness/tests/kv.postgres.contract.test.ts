@@ -4,10 +4,10 @@
  */
 import { afterAll, beforeAll, describe } from 'bun:test';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
-import { runKvContractTests } from '@pkgs/kv-shared/kv-contract';
+import { runKvContractTests } from '@pkgs/kv-root-shared/kv-contract';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { raw } from '@pkgs/sql-shared/sql';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 describe('KvImplPostgres (mockingbird-postgres contract)', () => {
   let sqlClient: SqlClientImplMockingbirdPostgres;

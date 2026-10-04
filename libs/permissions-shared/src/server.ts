@@ -16,12 +16,12 @@
  */
 
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
 import type { DecisionOutput } from '@pkgs/dmn-shared/evaluate';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 import type { DenialReason } from '@pkgs/permissions-shared/policy';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type {
   Mutation,
   MutationAuthorize,

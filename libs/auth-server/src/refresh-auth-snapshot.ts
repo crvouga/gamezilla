@@ -1,12 +1,12 @@
 import { AccountDeviceMembership } from '@libs/auth-shared/account-device-membership';
 import { assertDeviceId } from '@libs/auth-shared/device-id';
 import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
-import type { AuthUser } from '@pkgs/auth-shared/auth-user';
-import type { VerifiedSession } from '@pkgs/auth-shared/verified-session';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Value } from '@pkgs/sql-shared/sql';
-import sql, { join, raw } from '@pkgs/sql-shared/sql';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
+import type { AuthUser } from '@pkgs/auth-root-shared/auth-user';
+import type { VerifiedSession } from '@pkgs/auth-root-shared/verified-session';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Value } from '@pkgs/sql-root-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-root-shared/sql';
 import { managedInsertColumns } from '@pkgs/sync-engine-shared/managed-columns';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { assertUuid } from '@pkgs/uuid-shared/uuid';

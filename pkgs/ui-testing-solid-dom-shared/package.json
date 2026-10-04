@@ -16,7 +16,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/ui-testing-shared": "workspace:*"
+    "@pkgs/ui-testing-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

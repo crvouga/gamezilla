@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { ModalBody } from '@pkgs/ui-client/modal-parts';
-import { SocialSignInButton } from '@pkgs/ui-client/social-sign-in-button';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { ModalBody } from '@pkgs/ui-root-client/modal-parts';
+import { SocialSignInButton } from '@pkgs/ui-root-client/social-sign-in-button';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
 

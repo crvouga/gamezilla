@@ -2,7 +2,7 @@ import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { SpaceEnded } from '@libs/spaces-shared/space-log-messages';
 import { SpaceSeatLeft } from '@libs/spaces-shared/space-members-messages';
 import type { Message } from '@pkgs/message-shared/message';
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { replaceCustomGameSide } from './custom-game-configuration';
 import { changedCustomGames } from './custom-game-handler';
 import {

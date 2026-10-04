@@ -1,8 +1,8 @@
 import { useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { AvatarGroup } from '@pkgs/ui-client/avatar-group';
-import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
-import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
+import { AvatarGroup } from '@pkgs/ui-root-client/avatar-group';
+import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
+import { ISLAND_GAP_STEP } from '@pkgs/ui-root-shared/layout';
 import type { JSX } from 'solid-js';
 import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
 import { ActiveSpacesSheet } from './active-spaces-sheet';

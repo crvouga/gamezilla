@@ -1,7 +1,7 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { Message, MessageTag } from '@pkgs/message-shared/message';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 /** Minimal mutation-shaped context for isomorphic Outbox.send. */

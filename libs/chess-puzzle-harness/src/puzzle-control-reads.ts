@@ -2,7 +2,7 @@ import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront, visible } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { ElementNotFoundError } from '@pkgs/ui-testing-shared/element-not-found-error';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared/element-not-found-error';
 import { readPuzzleDebug } from './chess-puzzle-ui';
 import { readPuzzleAssistant } from './puzzle-assistant-ui';
 

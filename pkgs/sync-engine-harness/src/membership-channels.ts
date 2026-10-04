@@ -1,4 +1,4 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';
 
