@@ -1,0 +1,4 @@
+{
+  "summary": "The custom-game configuration proof exceeded its unchanged 240-second budget when checked as one induction query. Use the existing equivalent split-induction checker to prove initialization, every transition alternative, and implication, retaining the model's full candidate and public invariants.",
+  "regressionTest": "libs/tools/scripts/check-models.test.ts"
+}

@@ -46,6 +46,7 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 256,
   maxSteps: 24,
   inductiveInvariant: '_inductive',
+  separateInduction: true,
   encoding: 'fun-arrays',
   timeoutMs: 180_000,
   regressions: [

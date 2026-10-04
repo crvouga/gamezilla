@@ -187,7 +187,8 @@ test('local and remote checks bound nested native thread pools identically', () 
     'JVM_GC_ARGS',
   ])
     expect(local[key]).toBe(remote[key]);
-  expect(local['JAVA_TOOL_OPTIONS']).toBe('-XX:ActiveProcessorCount=4');
+  expect(local['JAVA_TOOL_OPTIONS']).toBe('-XX:ActiveProcessorCount=1');
+  expect(local['JVM_GC_ARGS']).toBe('-XX:+UseParallelGC -Xmx4096m -Xms128m');
   expect(local['GOMAXPROCS']).toBe('1');
   expect(
     turboChildEnv({ JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=2' })[

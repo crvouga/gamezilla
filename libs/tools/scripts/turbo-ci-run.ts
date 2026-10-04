@@ -260,8 +260,8 @@ export function turboChildEnv(
     RAYON_NUM_THREADS: '1',
     CHECK_LINT_THREADS: '1',
     GOMAXPROCS: '1',
-    JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=4',
-    JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx8192m -Xms2048m',
+    JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=1',
+    JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx4096m -Xms128m',
     ...source,
   };
   if (!hasRemoteCreds(env)) return env;
