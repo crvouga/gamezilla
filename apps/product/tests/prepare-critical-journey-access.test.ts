@@ -1,6 +1,6 @@
 // regression: signed-in-health-before-tab-shell
 import { describe, expect, test } from 'bun:test';
-import { prepareCriticalJourneyAccess } from './prepare-critical-journey-access';
+import { prepareCriticalJourneyAccess } from '@apps/product/prepare-critical-journey-access';
 
 function recordStep(steps: string[], step: string): () => Promise<void> {
   return () => {
