@@ -449,7 +449,7 @@ Recording uses the OpenTelemetry API only, at boundaries (runtime entry, interac
 
 Commit and push only through `bun run git-sync` (message is a Conventional Commit, subject ≤ 72 characters, no trailing period). The script commits, pushes the feature branch, merges `origin/main`, pushes again, and fast-forwards local main. It does not force-push and does not push `main`. On conflict it aborts unless `--leave-conflicts`.
 
-A commit that touches `specs/` or any `.feature` file is `spec:` or `spec(scope):` and may only change `specs/`, `.feature` files, and `docs/*.md`. Implementation follows in a later commit. `STEPS_CATALOG.md` files are generated and gitignored; refresh them with `bun run spec:catalog` after a step change.
+A commit that touches `specs/` or any `.feature` file is `spec:` or `spec(scope):` and may only change `specs/`, `.feature` files, and `docs/*.md`. Implementation follows in a later commit. `STEPS_CATALOG.md` files are generated and gitignored; refresh them with `bun run spec:catalog` after a step change. The ownership gate also recognizes those generated documentation files in historical commits.
 
 `main` moves only when a person merges a green PR. Agents do not merge, do not use `--admin`, and do not create branches or worktrees. Commit on the branch and worktree already checked out. PR body follows `.github/PULL_REQUEST_TEMPLATE.md`.
 

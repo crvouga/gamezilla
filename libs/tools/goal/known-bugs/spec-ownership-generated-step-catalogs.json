@@ -1,0 +1,4 @@
+{
+  "summary": "The spec ownership gate rejected fc45ac91e0 because its spec changes included generated package STEPS_CATALOG.md documentation. Recognize the exact catalog filename as a documentation side file when auditing historical commits; implementation and unrelated package documentation remain blocked.",
+  "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+}
