@@ -1,13 +1,13 @@
 /** @jsxImportSource solid-js */
 
-import { ExampleRoot } from '@pkgs/ui-root-client/example-root';
-import { IconButton } from '@pkgs/ui-root-client/icon-button';
-import { Trash2Icon } from '@pkgs/ui-root-client/icons';
 import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared/create-memory-page-loader';
 import type {
   DataTableColumn,
   DataTableOrderDir,
 } from '@pkgs/ui-devtools-shared/data-table-types';
+import { ExampleRoot } from '@pkgs/ui-root-client/example-root';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
+import { Trash2Icon } from '@pkgs/ui-root-client/icons';
 import { createSignal, type JSX } from 'solid-js';
 import { DataTable } from './data-table';
 

@@ -4,12 +4,12 @@
  * changes per move; the per-frame paths (drag, hover) are imperative.
  */
 
-import { createBoardHaptics } from '@pkgs/chess-board-root-client/chess-board-haptics';
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
 import type {
   BoardOrientation,
   Square,
 } from '@pkgs/chess-board-core-shared/types';
+import { createBoardHaptics } from '@pkgs/chess-board-root-client/chess-board-haptics';
 import type { MotionPolicy } from '@pkgs/chess-board-root-shared/board-motion';
 import { resolveMotionPolicy } from '@pkgs/chess-board-root-shared/board-motion';
 import type { BoardColorScheme } from '@pkgs/chess-board-root-shared/board-theme';

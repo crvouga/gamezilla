@@ -16,13 +16,13 @@
  *   pressed during a left drag cancels the drag (the piece springs back).
  */
 
-import type { Haptics } from '@pkgs/chess-board-root-client/chess-board-haptics';
 import { brushFromModifiers } from '@pkgs/chess-board-core-shared/board-shapes';
 import type { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
 import type {
   BoardOrientation,
   Square,
 } from '@pkgs/chess-board-core-shared/types';
+import type { Haptics } from '@pkgs/chess-board-root-client/chess-board-haptics';
 import type { BoardBox } from '@pkgs/chess-board-root-shared/board-box';
 import {
   createBoardBoxCache,

@@ -6,7 +6,7 @@
   },
   "include": [
     "../ts-reset/src/index.ts",
-    "../app-shared/src/vite-env.d.ts",
+    "../app-root-shared/src/vite-env.d.ts",
     "../notifications/sync/**/*.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx"

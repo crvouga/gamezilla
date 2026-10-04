@@ -9,7 +9,7 @@
  */
 
 @import "../skin.css";
-@import "../../ui-shared/src/fonts.css";
+@import "../../ui-root-shared/src/fonts.css";
 
 @layer components {
   .card {

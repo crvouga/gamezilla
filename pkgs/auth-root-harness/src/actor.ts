@@ -5,8 +5,6 @@
  * network switch that can take the device offline.
  */
 
-import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
-import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
 import { AUTH_SSO_CANCELLED_ERROR } from '@pkgs/auth-inhouse-client/auth-client-http';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import {
@@ -17,6 +15,8 @@ import {
   createBearerTokenStore,
   createInMemoryAuthClientStorage,
 } from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
+import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
 import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 

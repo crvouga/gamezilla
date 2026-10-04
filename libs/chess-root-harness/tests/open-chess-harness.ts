@@ -1,14 +1,14 @@
 import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
-import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
 import { customGameBotRoomNode } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
 import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
-import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
 import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
 import {
   HARNESS_CHESS_FEED_POOL_KEY,
   seedHarnessChessPuzzles,
 } from '@libs/chess-puzzle-harness/seed-harness-chess-puzzles';
+import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
+import { CHESS_HARNESS_SLICE } from '@libs/chess-root-harness/chess-harness-slice';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';

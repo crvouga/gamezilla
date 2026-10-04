@@ -1,8 +1,8 @@
 import { expect } from 'bun:test';
-import type { MultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
-import { sendMultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
 import { givenMultiplayerPosition } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
+import type { MultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';

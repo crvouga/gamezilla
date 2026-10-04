@@ -9,7 +9,7 @@
     "../../pkgs/ui-root-client/src/css-modules.d.ts",
     "../../pkgs/ui-root-client/src/lingui-augmentation.ts",
     "../../pkgs/bun-test-solid-client/src/jest-dom.d.ts",
-    "../app-shared/src/vite-env.d.ts",
+    "../app-root-shared/src/vite-env.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./tests/**/*.ts",

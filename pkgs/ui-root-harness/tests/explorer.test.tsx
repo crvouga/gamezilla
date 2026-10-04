@@ -17,7 +17,7 @@ import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
-const COMPONENTS_DIR = join(import.meta.dirname, '../../ui-client/src');
+const COMPONENTS_DIR = join(import.meta.dirname, '../../ui-root-client/src');
 
 function exampleFolders(): string[] {
   return readdirSync(COMPONENTS_DIR)

@@ -2,12 +2,12 @@
 
 import { describe, expect, it } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
-import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import {
   chessBoardProbeTestId,
   chessBoardSquareTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
 } from '@pkgs/chess-board-core-shared/probe';
+import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';

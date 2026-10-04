@@ -2,9 +2,9 @@
 
 import { afterEach, describe, expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
+import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
-import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';

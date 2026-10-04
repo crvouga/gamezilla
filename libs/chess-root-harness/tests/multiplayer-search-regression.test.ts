@@ -1,9 +1,5 @@
 import { expect, test } from 'bun:test';
 import {
-  multiplayerCommandReply,
-  sendMultiplayerCommand,
-} from '@libs/chess-root-harness/multiplayer-commands';
-import {
   openMultiplayerChess,
   refreshMultiplayerConnection,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
@@ -15,6 +11,10 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/chess-root-harness/multiplayer-commands';
 import { partition } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { partitionLoadBalancer } from '@libs/harness/server-actions';

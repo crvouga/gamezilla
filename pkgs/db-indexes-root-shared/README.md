@@ -39,7 +39,7 @@ const report = await reconcileIndexes({
 The [Database indexing context](../../specs/db-indexes/) owns the executable
 Gherkin and Quint specifications. `test:spec` replays them against the public
 harness; `check:models` verifies their bounded invariants. Supplemental index
-reconciliation reference checks remain in `../db-indexes-harness/tests/quint/index-contracts.test.ts`;
+reconciliation reference checks remain in `../db-indexes-root-harness/tests/quint/index-contracts.test.ts`;
 they validate documentation examples and model invariants without adapter replay.
 See [`TESTING.md`](./docs/TESTING.md) for property and contract checks, and
 [`SAFETY_CONTRACT.md`](./docs/SAFETY_CONTRACT.md) for coverage, bounds and

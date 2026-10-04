@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
-import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
+import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { Button } from '@pkgs/ui-root-client/button';
 import { Select } from '@pkgs/ui-root-client/select';

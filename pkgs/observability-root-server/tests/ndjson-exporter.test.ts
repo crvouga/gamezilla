@@ -3,9 +3,9 @@ import type {
   ObjectStore,
   StoredObject,
 } from '@pkgs/object-store-root-shared/interface';
-import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
 import { createNodeTelemetry } from '@pkgs/observability-root-server/node-node';
 import { NdjsonTraceStore } from '@pkgs/observability-root-shared/ndjson';
+import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
 
 function memoryStore(): ObjectStore {
   const values = new Map<string, Uint8Array>();

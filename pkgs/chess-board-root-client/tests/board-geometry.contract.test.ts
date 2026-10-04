@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
-import { normalizeBoardSize } from '@pkgs/chess-board-root-client/chess-board-controller';
 import {
   squareCenter,
   squareFromIndex,
 } from '@pkgs/chess-board-core-shared/geometry';
+import { normalizeBoardSize } from '@pkgs/chess-board-root-client/chess-board-controller';
 import {
   measureBoardBox,
   squareAt,

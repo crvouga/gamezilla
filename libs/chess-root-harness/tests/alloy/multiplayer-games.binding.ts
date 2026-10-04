@@ -1,9 +1,9 @@
-import { sendMultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
 import {
   givenOpponentSearch,
   pairChessOpponents,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import { storedMultiplayerSnapshot } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { sendMultiplayerCommand } from '@libs/chess-root-harness/multiplayer-commands';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { bindStructure } from '@pkgs/alloy-shared/registry';
 import type { Snapshot } from '@pkgs/alloy-shared/world';

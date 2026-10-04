@@ -6,9 +6,9 @@
  * adapter throws these for everything that is not a code.
  */
 
+import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
-import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { isAuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
 import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';

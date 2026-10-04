@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
+import type { PageView } from '@pkgs/ui-devtools-shared/data-table-page-load';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { LoadingState } from '@pkgs/ui-root-client/loading-state';
-import type { PageView } from '@pkgs/ui-devtools-shared/data-table-page-load';
 import type { JSX } from 'solid-js';
 
 export const DATA_TABLE_SHELL_CLASS =

@@ -7,6 +7,7 @@
  * run on SQLite, even ones on Postgres.
  */
 
+import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import type { ProviderStepArgs } from '@pkgs/auth-root-harness/actions';
 import {
   advanceClock,
@@ -30,7 +31,6 @@ import {
   awaitingProof,
   signedInUser,
 } from '@pkgs/auth-root-harness/system';
-import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';

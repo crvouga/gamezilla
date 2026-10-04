@@ -22,7 +22,7 @@ describe('reconciliation contract syntax', () => {
     test(name, () => {
       const path = join(
         import.meta.dir,
-        '../../../db-schema-shared/docs',
+        '../../../db-schema-root-shared/docs',
         `${name}.md`
       );
       const feature = parseFeature(

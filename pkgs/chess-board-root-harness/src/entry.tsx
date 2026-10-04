@@ -3,9 +3,9 @@
 import './styles.css';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
+import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import { ChessBoardBenchPage } from '@pkgs/chess-board-root-client/chess-board-bench-page';
-import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared/chess-board-types';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';

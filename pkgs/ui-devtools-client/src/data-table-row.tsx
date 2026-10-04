@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 
 import { useLingui } from '@lingui/solid/macro';
-import { Checkbox } from '@pkgs/ui-root-client/checkbox';
 import {
   DATA_TABLE_ROW_HEIGHT,
   DATA_TABLE_SELECTION_COL_WIDTH,
@@ -11,6 +10,7 @@ import type {
   DataTableColumnAlign,
   DataTableDensity,
 } from '@pkgs/ui-devtools-shared/data-table-types';
+import { Checkbox } from '@pkgs/ui-root-client/checkbox';
 import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import { For, type JSX, Show } from 'solid-js';
 import styles from './data-table.module.css';

@@ -3,11 +3,6 @@ import {
   runPrivacyJobs,
 } from '@libs/account-privacy-harness/privacy-actions';
 import {
-  controlledMultiplayerCommand,
-  multiplayerMatchFact,
-  receiveMultiplayerMatch,
-} from '@libs/chess-root-harness/multiplayer-events';
-import {
   openMultiplayerChess,
   setMultiplayerConnection,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
@@ -16,6 +11,11 @@ import {
   multiplayerView,
   storedMultiplayerSnapshot,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import {
+  controlledMultiplayerCommand,
+  multiplayerMatchFact,
+  receiveMultiplayerMatch,
+} from '@libs/chess-root-harness/multiplayer-events';
 import {
   signInWithGoogle,
   signInWithGoogleAsAccount,

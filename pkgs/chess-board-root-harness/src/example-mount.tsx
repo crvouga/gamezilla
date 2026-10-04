@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
+import type { BoardArrow, Move } from '@pkgs/chess-board-core-shared/types';
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
-import type { BoardArrow, Move } from '@pkgs/chess-board-core-shared/types';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';

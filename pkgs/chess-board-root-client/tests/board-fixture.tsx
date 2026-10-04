@@ -7,14 +7,14 @@
  */
 
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
-import { BoardMotionProvider } from '@pkgs/chess-board-root-client/board-motion-context';
-import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import type { ChessBoardLayer } from '@pkgs/chess-board-core-shared/probe';
 import {
   chessBoardLayerTestId,
   parseChessBoardPaint,
 } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import { BoardMotionProvider } from '@pkgs/chess-board-root-client/board-motion-context';
+import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
 import type { BoardMotionEnvironment } from '@pkgs/chess-board-root-shared/board-motion';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared/chess-board-types';
 import { ClockProvider } from '@pkgs/clock-client/solid';

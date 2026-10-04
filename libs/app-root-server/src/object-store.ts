@@ -3,10 +3,10 @@ import { appObjectStoreRootPrefix } from '@libs/db-shared/scope';
 import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report-shared/keys';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
-import { S3SecretName } from '@pkgs/object-store-s3-shared/s3-config';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
+import { S3SecretName } from '@pkgs/object-store-s3-shared/s3-config';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 
 const S3_SECRET_NAMES = [

@@ -1,14 +1,14 @@
 import { expect } from 'bun:test';
 import {
-  multiplayerCommandReply,
-  sendMultiplayerCommand,
-} from '@libs/chess-root-harness/multiplayer-commands';
-import {
   givenOpponentSearch,
   pairChessOpponents,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import { multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/chess-root-harness/multiplayer-commands';
 import { accountIdOf } from '@libs/harness/identity';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';

@@ -12,10 +12,10 @@ import { wallTimers } from '@pkgs/clock-shared/wall';
 import { setDefaultLogLevel } from '@pkgs/logger-shared/logger';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
 import type { NodeTelemetry } from '@pkgs/observability-root-server/node-node';
 import { createNodeTelemetry } from '@pkgs/observability-root-server/node-node';
 import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
 
 process.env['VITE_TEST_HOOKS'] = '1';
 process.env['HARNESS_WITH_DOM'] = process.env['HARNESS_WITH_DOM'] ?? '1';
