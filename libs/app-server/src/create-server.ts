@@ -194,7 +194,6 @@ async function readOptionalSecretValue(
 async function resolveEmqxWssUrlForClientConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
-  readonly puzzleManagerAccountIds: readonly string[];
 }): Promise<string | null> {
   const apiUrl =
     args.apiUrlOverride?.trim() ||
@@ -218,6 +217,7 @@ async function buildDesiredClientConfig(args: {
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
+  readonly puzzleManagerAccountIds: readonly string[];
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
   const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
