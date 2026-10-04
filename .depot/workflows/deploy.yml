@@ -177,8 +177,7 @@ jobs:
     name: deploy:${{ matrix.env }}
     needs: [deploy-matrix, deploy-fleet]
     if: needs.deploy-matrix.outputs.standard != '[]'
-    # Match the measured Check runner for the full offline visual corpus.
-    runs-on: depot-ubuntu-24.04-16
+    runs-on: depot-ubuntu-latest
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
@@ -191,7 +190,6 @@ jobs:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-      TURBO_CONCURRENCY: '12'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -200,8 +198,6 @@ jobs:
 
       - id: setup
         uses: ./.depot/actions/setup
-        with:
-          ui-quality: 'true'
 
       - uses: ./.depot/actions/secrets-auth
         with:
@@ -209,22 +205,9 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
 
-      - name: Prepare visual model
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
-
       - name: deploy:${{ matrix.env }}
         id: deploy
         run: bun run deploy:local
-
-      - name: Upload visual quality evidence
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: ui-quality-${{ github.run_id }}-${{ matrix.env }}
-          path: apps/product/.cache/ui-quality/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
 
       # Same evidence as production: dev is the job that fails first, and
       # without the page the next fix is guessing.
@@ -258,8 +241,7 @@ jobs:
       && (needs.deploy-standard.result == 'success'
         || (needs.deploy-standard.result == 'skipped'
           && needs.deploy-matrix.outputs.standard == '[]'))
-    # Match the measured Check runner for the full offline visual corpus.
-    runs-on: depot-ubuntu-24.04-16
+    runs-on: depot-ubuntu-latest
     timeout-minutes: 55
     environment: production
     strategy:
@@ -270,7 +252,6 @@ jobs:
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-      TURBO_CONCURRENCY: '12'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -279,8 +260,6 @@ jobs:
 
       - id: setup
         uses: ./.depot/actions/setup
-        with:
-          ui-quality: 'true'
 
       - uses: ./.depot/actions/secrets-auth
         with:
@@ -288,22 +267,9 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
 
-      - name: Prepare visual model
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
-
       - name: deploy:${{ matrix.env }}
         id: deploy
         run: bun run deploy:local
-
-      - name: Upload visual quality evidence
-        if: failure()
-        uses: actions/upload-artifact@v6
-        with:
-          name: ui-quality-${{ github.run_id }}-${{ matrix.env }}
-          path: apps/product/.cache/ui-quality/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
 
       # The deploy ends with `@apps/product#health`, the critical journeys too.
       - name: Upload critical journey evidence

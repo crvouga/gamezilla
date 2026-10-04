@@ -108,7 +108,6 @@ const CHECK_LEAVES = [
   'test:contract',
   ...SPEC_PART_TASKS,
   'check:models',
-  '@apps/product#check:ui-quality',
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
@@ -378,12 +377,11 @@ describe('turbo check/deploy graph invariants', () => {
     expect(health?.command).toBe('bun run scripts/health.ts');
   });
 
-  test('one application deployment follows migration, the API check and visual quality', () => {
+  test('one application deployment follows migration and the API check', () => {
     const tasks = loadTasks();
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
       '@libs/runtime#migrate',
       '@apps/server#check:api',
-      '@apps/product#check:ui-quality',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');

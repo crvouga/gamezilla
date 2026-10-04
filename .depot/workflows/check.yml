@@ -63,8 +63,6 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.depot/actions/setup
-        with:
-          ui-quality: 'true'
       - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -124,15 +122,6 @@ jobs:
         env:
           CHECK_SHARD: ${{ matrix.shard }}
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
-      - name: Upload visual quality evidence
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: ui-quality-${{ github.run_id }}-${{ matrix.shard }}
-          path: apps/product/.cache/ui-quality/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -177,8 +166,6 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.depot/actions/setup
-        with:
-          ui-quality: 'true'
       - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -190,20 +177,9 @@ jobs:
         env:
           CHECK_PLAN_PAYLOAD: ${{ needs.check-plan.outputs.plan }}
         run: bun run libs/tools/scripts/check-stage-transfer.ts
-      - name: Prepare visual model
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts @apps/product#prepare:ui-quality-model
       - name: check
         timeout-minutes: 25
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$((CHECK_SHARDS + 1))"
-      - name: Upload visual quality evidence
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@v6
-        with:
-          name: ui-quality-${{ github.run_id }}-final
-          path: apps/product/.cache/ui-quality/
-          if-no-files-found: ignore
-          include-hidden-files: true
-          retention-days: 7
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6

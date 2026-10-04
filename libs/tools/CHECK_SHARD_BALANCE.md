@@ -125,7 +125,7 @@ All changed files and their purposes:
 | `libs/tools/scripts/check-task-costs.test.ts` | Failed/killed/invalid telemetry protection. |
 | `libs/tools/scripts/check-plan-transfer.test.ts` | Transport the current staged plan format. |
 | `libs/tools/scripts/check-workflow-cancel.test.ts` | Required producer/check/consumer verdicts and cancellation behavior. |
-| `libs/tools/scripts/ui-quality-graph.test.ts` | Native model setup follows distributed producers; renderer setup remains explicit. |
+| `libs/tools/scripts/ui-quality-graph.test.ts` | The visual gate keeps its producer graph but stays out of Check and Deploy. |
 | `libs/tools/goal/known-bugs.json` | Register shard-collapse, volatile-input and failed-duration regressions. |
 | `libs/tools/CHECK_BENCHMARK.md` | Update staging, fallback and evidence guidance. |
 | `libs/tools/CHECK_SHARD_BALANCE.md` | Reproduction, before/after plan, estimates, file inventory and tradeoffs. |

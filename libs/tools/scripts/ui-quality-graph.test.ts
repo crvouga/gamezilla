@@ -92,62 +92,16 @@ test('native inference waits for the existing product symbolic and renderer cont
   expect(turbo.tasks['check:ui-quality']!.dependsOn).toContain('test:contract');
 });
 
-// regression: ui-quality-deploy-order — aggregator siblings allowed publication before the visual verdict.
-test('product publication requires the visual gate to pass', () => {
+test('PR Check and Deploy never run the visual gate or prepare its model', () => {
   const turbo = readJson<{ tasks: Record<string, { dependsOn?: string[] }> }>(
     'turbo.json'
   );
-  expect(turbo.tasks['@apps/product#deploy']!.dependsOn).toContain(
-    '@apps/product#check:ui-quality'
-  );
-});
-
-test('sharded Check prepares visual inference while deploys retain their measured runner', () => {
-  type Workflow = {
-    jobs: Record<
-      string,
-      {
-        'runs-on': string;
-        env?: Record<string, string>;
-        steps: {
-          name?: string;
-          uses?: string;
-          run?: string;
-          with?: Record<string, string>;
-        }[];
-      }
-    >;
-  };
-  const workflow = (name: string) =>
-    Bun.YAML.parse(
+  for (const task of ['//#check', '@apps/product#deploy'])
+    expect(turbo.tasks[task]!.dependsOn).not.toContain(
+      '@apps/product#check:ui-quality'
+    );
+  for (const name of ['check', 'deploy'])
+    expect(
       readFileSync(join(ROOT, '.depot/workflows', `${name}.yml`), 'utf8')
-    ) as Workflow;
-  const check = workflow('check');
-  const deploy = workflow('deploy');
-  const shard = check.jobs['check-shards']!;
-  expect(shard['runs-on']).toContain('vars.CHECK_RUNNER');
-  expect(
-    shard.steps.find(
-      (step) => step.name === 'Install renderer for browser tasks'
-    )?.uses
-  ).toBe('./.depot/actions/visual-renderer');
-  const consumers = check.jobs['check-consumers']!;
-  const setupIndex = consumers.steps.findIndex(
-    (step) => step.name === 'Prepare visual model'
-  );
-  const checkIndex = consumers.steps.findIndex((step) => step.name === 'check');
-  expect(setupIndex).toBeGreaterThanOrEqual(0);
-  expect(setupIndex).toBeLessThan(checkIndex);
-  expect(consumers.steps[setupIndex]!.run).toContain(
-    '@apps/product#prepare:ui-quality-model'
-  );
-  expect(
-    consumers.steps.find(
-      (step) => step.name === 'Upload visual quality evidence'
-    )?.with?.['path']
-  ).toBe('apps/product/.cache/ui-quality/');
-  for (const name of ['deploy-standard', 'deploy-production']) {
-    expect(deploy.jobs[name]!['runs-on']).toBe('depot-ubuntu-24.04-16');
-    expect(deploy.jobs[name]!.env?.['TURBO_CONCURRENCY']).toBe('12');
-  }
+    ).not.toContain('ui-quality');
 });

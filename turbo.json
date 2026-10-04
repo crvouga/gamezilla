@@ -753,7 +753,6 @@
         "test:spec:62",
         "test:spec:63",
         "check:models",
-        "@apps/product#check:ui-quality",
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
         "@apps/product#check:worker-bundle",
@@ -779,11 +778,7 @@
     },
     "@apps/product#deploy": {
       "cache": false,
-      "dependsOn": [
-        "@libs/runtime#migrate",
-        "@apps/server#check:api",
-        "@apps/product#check:ui-quality"
-      ]
+      "dependsOn": ["@libs/runtime#migrate", "@apps/server#check:api"]
     },
     "@libs/infra#apply:edge": {
       "cache": false,

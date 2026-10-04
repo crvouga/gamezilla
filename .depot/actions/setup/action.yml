@@ -3,10 +3,6 @@ name: Setup repo (mise tools + deps)
 description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
 
 inputs:
-  ui-quality:
-    description: Install the pinned Chrome renderer for local visual quality inference
-    required: false
-    default: 'false'
   tools:
     description: Pinned mise tools to install; empty installs the full check toolchain
     required: false
@@ -40,7 +36,3 @@ runs:
       env:
         ONNXRUNTIME_NODE_INSTALL: skip
       run: bun install --frozen-lockfile
-
-    - name: Install pinned visual renderer
-      if: inputs.ui-quality == 'true'
-      uses: ./.depot/actions/visual-renderer

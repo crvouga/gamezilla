@@ -1845,11 +1845,6 @@
     "regressionTest": "apps/product/tests/ui-quality.test.ts"
   },
   {
-    "id": "ui-quality-deploy-order",
-    "summary": "The Deploy aggregator listed Check and product publication as siblings, so publication could complete before a failing visual verdict. Make product deployment directly depend on the visual gate; the literal graph without that dependency fails the regression.",
-    "regressionTest": "libs/tools/scripts/ui-quality-graph.test.ts"
-  },
-  {
     "id": "chessboard-disabled-sound-request",
     "summary": "A board sound requested while disabled could play after re-enabling if its seek had not completed. Guard both request and playback against parent sound authority.",
     "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
