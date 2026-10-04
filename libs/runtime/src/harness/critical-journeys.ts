@@ -38,6 +38,7 @@ export {
   confirmSignedIn,
   endActiveSpace,
   hostSpace,
+  JOURNEY_WAIT_MS,
 } from './critical-journeys/journey-gestures';
 export {
   type JourneyAccess,

@@ -27,6 +27,7 @@ import { envFile } from '@libs/infra/public/envs';
 import {
   atTabShell,
   confirmSignedIn,
+  JOURNEY_WAIT_MS,
   type JourneyAccess,
   type JourneyGestures,
   type JourneyHost,
@@ -43,6 +44,7 @@ import {
 import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
 
 const API_PATH_PREFIX = '/api';
+const SSO_CALLBACK_PATH = '/sso-callback';
 /** Seeds what journeys write this run (avatar seed, search query). */
 const RUN_ID = wallClock.now().toString(36);
 
@@ -72,9 +74,16 @@ async function signIn(device: Device, target: LiveTarget): Promise<void> {
     apiOrigin: target.apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
     token: requireSecret('SYNTHETIC_MONITOR_TOKEN'),
-    callbackUrl: `${target.webOrigin}/sso-callback`,
+    callbackUrl: `${target.webOrigin}${SSO_CALLBACK_PATH}`,
   });
   await device.view.navigate(redirectUrl);
+  // The header (and its account menu) shows before the lazy callback route
+  // reads `?code=` from the URL. Leaving first drops the code, so wait for
+  // the callback to finish and move on by itself.
+  await journeyBrowser(device, target).waitForNavigation(
+    (url) => new URL(url).pathname !== SSO_CALLBACK_PATH,
+    JOURNEY_WAIT_MS
+  );
   await confirmSignedIn(device.driver);
 }
 
