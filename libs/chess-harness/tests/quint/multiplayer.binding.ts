@@ -21,6 +21,8 @@ bindQuintModel<PlayTrace>({
   maxSteps: 300,
   timeoutMs: 180_000,
   inductiveInvariant: '_proof',
+  encoding: 'fun-arrays',
+  separateInduction: true,
   regressions: [
     // regression: chess-deletion-refreshes-connected-devices
     {
