@@ -1,0 +1,46 @@
+{
+  "name": "@libs/spaces-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+  },
+  "dependencies": {
+    "@libs/auth-shared": "workspace:*",
+    "@libs/billing-shared": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/harness": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/spaces-client": "workspace:*",
+    "@libs/spaces-server": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
+    "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/room-adapter-memory-shared": "workspace:*",
+    "@pkgs/room-server": "workspace:*",
+    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness"
+}

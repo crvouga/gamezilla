@@ -98,9 +98,11 @@ export function resolveRunDeadlineSeconds(
 }
 
 type SummaryTask = {
+  readonly hash?: unknown;
   readonly taskId?: unknown;
   readonly cache?: { readonly status?: unknown };
   readonly execution?: {
+    readonly exitCode?: unknown;
     readonly startTime?: unknown;
     readonly endTime?: unknown;
   };

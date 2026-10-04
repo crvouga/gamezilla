@@ -99,7 +99,7 @@
         "!**/*.md",
         "!**/*.test.ts",
         "!**/*.test.tsx",
-        "$TURBO_ROOT$/pkgs/ts-reset/src/**"
+        "$TURBO_ROOT$/pkgs/ts-reset-shared/src/**"
       ],
       "outputLogs": "errors-only",
       "outputs": []
@@ -109,120 +109,10 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/pkgs/ts-reset/src/**"
+        "$TURBO_ROOT$/pkgs/ts-reset-shared/src/**"
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/tc.tsbuildinfo"]
-    },
-    "@pkgs/auth#src": {
-      "dependsOn": [
-        "@pkgs/clock#src",
-        "@pkgs/db-migrate#src",
-        "@pkgs/http-client#src",
-        "@pkgs/sql-client#src",
-        "@pkgs/uuid#src"
-      ]
-    },
-    "@pkgs/auth#tc": {
-      "dependsOn": [
-        "@pkgs/clock#src",
-        "@pkgs/db-migrate#src",
-        "@pkgs/http-client#src",
-        "@pkgs/sql-client#src",
-        "@pkgs/uuid#src"
-      ]
-    },
-    "@pkgs/auth-inhouse#src": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/auth#src",
-        "@pkgs/clock#src",
-        "@pkgs/db-migrate#src",
-        "@pkgs/db-schema#src",
-        "@pkgs/db-schema-postgres#src",
-        "@pkgs/db-schema-sqlite#src",
-        "@pkgs/http-client#src",
-        "@pkgs/sql#src",
-        "@pkgs/sql-client#src",
-        "@pkgs/uuid#src"
-      ]
-    },
-    "@pkgs/auth-inhouse#tc": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/auth#src",
-        "@pkgs/clock#src",
-        "@pkgs/db-migrate#src",
-        "@pkgs/db-schema#src",
-        "@pkgs/db-schema-postgres#src",
-        "@pkgs/db-schema-sqlite#src",
-        "@pkgs/http-client#src",
-        "@pkgs/sql#src",
-        "@pkgs/sql-client#src",
-        "@pkgs/uuid#src"
-      ]
-    },
-    "@pkgs/matchmaking#src": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/attribute#src",
-        "@pkgs/clock#src",
-        "@pkgs/http-client#src",
-        "@pkgs/keyword#src",
-        "@pkgs/logger#src"
-      ]
-    },
-    "@pkgs/matchmaking#tc": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/attribute#src",
-        "@pkgs/clock#src",
-        "@pkgs/http-client#src",
-        "@pkgs/keyword#src",
-        "@pkgs/logger#src"
-      ]
-    },
-    "@pkgs/room#src": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/attribute#src",
-        "@pkgs/clock#src",
-        "@pkgs/keyword#src",
-        "@pkgs/kv#src",
-        "@pkgs/message#src",
-        "@pkgs/uuid#src"
-      ]
-    },
-    "@pkgs/room#tc": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/attribute#src",
-        "@pkgs/clock#src",
-        "@pkgs/keyword#src",
-        "@pkgs/kv#src",
-        "@pkgs/message#src",
-        "@pkgs/uuid#src"
-      ]
-    },
-    "@pkgs/sql-client-sqlite#src": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/clock#src",
-        "@pkgs/logger#src",
-        "@pkgs/object-store#src",
-        "@pkgs/sql#src",
-        "@pkgs/sql-client#src"
-      ]
-    },
-    "@pkgs/sql-client-sqlite#tc": {
-      "dependsOn": [
-        "@pkgs/assert#src",
-        "@pkgs/clock#src",
-        "@pkgs/logger#src",
-        "@pkgs/object-store#src",
-        "@pkgs/sql#src",
-        "@pkgs/sql-client#src"
-      ]
     },
     "lint": {
       "dependsOn": ["^src"],
@@ -232,10 +122,10 @@
         "$TURBO_ROOT$/libs/tools/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
-        "$TURBO_ROOT$/pkgs/tailwind/src/lint.css",
-        "$TURBO_ROOT$/pkgs/tailwind/src/tailwind.css",
-        "$TURBO_ROOT$/pkgs/ui/codemod/theme.css",
-        "$TURBO_ROOT$/pkgs/ui/src/components/hosts.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-client/codemod/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-client/src/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
         "$TURBO_ROOT$/libs/tools/scripts/banned-words.ts",
@@ -279,7 +169,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -298,7 +188,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -317,7 +207,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -336,7 +226,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -355,7 +245,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -374,7 +264,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -392,12 +282,13 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/pkgs/quint/package.json",
-        "$TURBO_ROOT$/pkgs/quint/src/**",
-        "$TURBO_ROOT$/pkgs/conformance/src/**",
         "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/model-check-workspace.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/check-model-evidence.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -406,7 +297,13 @@
         ".cache/harness-report/models/**/tlc-output.txt",
         ".cache/harness-report/models/**/*.itf.json"
       ],
-      "outputLogs": "errors-only"
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -481,27 +378,30 @@
     },
     "//#ci:i18n": {
       "inputs": [
+        "libs/account-privacy-client/src/**/*.{ts,tsx}",
+        "libs/app-client/src/**/*.{ts,tsx}",
+        "libs/app-config-client/src/**/*.{ts,tsx}",
+        "libs/auth-client/src/**/*.{ts,tsx}",
+        "libs/billing-client/src/**/*.{ts,tsx}",
+        "libs/chess-client/src/**/*.{ts,tsx}",
+        "libs/chess-custom-game-client/src/**/*.{ts,tsx}",
+        "libs/chess-matchmaking-client/src/**/*.{ts,tsx}",
+        "libs/chess-puzzle-client/src/**/*.{ts,tsx}",
+        "libs/chess-shared-client/src/**/*.{ts,tsx}",
+        "libs/friends-client/src/**/*.{ts,tsx}",
+        "libs/notifications-client/src/**/*.{ts,tsx}",
+        "libs/permissions-client/src/**/*.{ts,tsx}",
+        "libs/profile-client/src/**/*.{ts,tsx}",
+        "libs/search-client/src/**/*.{ts,tsx}",
+        "libs/spaces-client/src/**/*.{ts,tsx}",
+        "pkgs/chess-board-client/src/**/*.{ts,tsx}",
+        "pkgs/ui-client/src/**/*.{ts,tsx}",
+        "pkgs/ui-devtools-client/src/**/*.{ts,tsx}",
         "lingui.config.ts",
         "lingui.solid.config.ts",
-        "libs/account-privacy/src/**/*.{ts,tsx}",
-        "libs/auth/src/**/*.{ts,tsx}",
-        "libs/billing/src/**/*.{ts,tsx}",
-        "libs/chess/src/**/*.{ts,tsx}",
-        "libs/client-app/src/**/*.{ts,tsx}",
-        "libs/client-config/src/**/*.{ts,tsx}",
-        "libs/friends/src/**/*.{ts,tsx}",
-        "libs/notifications/src/**/*.{ts,tsx}",
-        "libs/permissions/src/**/*.{ts,tsx}",
-        "libs/profile/src/**/*.{ts,tsx}",
-        "libs/search/src/**/*.{ts,tsx}",
-        "libs/spaces/src/**/*.{ts,tsx}",
-        "libs/user-search/src/**/*.{ts,tsx}",
-        "pkgs/chess-board/src/**/*.{ts,tsx}",
-        "pkgs/ui/src/**/*.{ts,tsx}",
-        "pkgs/ui-devtools/src/**/*.{ts,tsx}",
-        "libs/client-app/src/i18n/locales/**",
+        "libs/app-shared/locales/**",
         "apps/client/babel.config.js",
-        "pkgs/bun-test-solid/src/babel.config.cjs",
+        "pkgs/bun-test-solid-client/src/babel.config.cjs",
         "libs/tools/scripts/ci-i18n.ts",
         "libs/tools/scripts/lingui-scope.ts"
       ],
@@ -539,7 +439,13 @@
       "outputLogs": "errors-only"
     },
     "//#ci:specs": {
-      "dependsOn": ["@libs/tools#src", "@pkgs/gherkin#src", "@pkgs/quint#src"],
+      "dependsOn": [
+        "@libs/tools#src",
+        "@pkgs/gherkin-server#src",
+        "@pkgs/gherkin-shared#src",
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!apps/**",
@@ -575,7 +481,7 @@
         "apps/*/tests/openslo/**",
         "libs/harness/src/spec/**",
         "pkgs/gherkin/src/**",
-        "pkgs/quint/src/names.ts",
+        "pkgs/quint-shared/src/names.ts",
         "libs/tools/scripts/check-specs.ts",
         "libs/tools/scripts/spec-alloy-names.ts",
         "libs/tools/scripts/spec-decoupling.ts",
@@ -589,7 +495,11 @@
       "outputLogs": "errors-only"
     },
     "//#ci:conformance": {
-      "dependsOn": ["@libs/tools#src", "@pkgs/conformance#src"],
+      "dependsOn": [
+        "@libs/tools#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!apps/**",
@@ -655,7 +565,7 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/runtime#check:schema-evolution": {
+    "@libs/runtime-server#check:schema-evolution": {
       "dependsOn": ["^src"],
       "env": ["PR_BASE"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
@@ -771,10 +681,10 @@
         "@apps/product#check:offline-shell",
         "@apps/auth-relay#check:worker-bundle",
         "@apps/product#check:worker-bundle",
-        "@libs/runtime#check:schema-evolution",
+        "@libs/runtime-server#check:schema-evolution",
         "@libs/tools#check:actionlint",
         "@libs/tools#check:secrets",
-        "@libs/chess#check:board-contract"
+        "check:board-contract"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -783,38 +693,41 @@
       "cache": false,
       "outputLogs": "errors-only"
     },
-    "@libs/infra#apply:foundation": {
+    "@libs/infra-server#apply:foundation": {
       "cache": false,
       "dependsOn": ["@libs/tools#install:cli"]
     },
-    "@libs/runtime#migrate": {
+    "@libs/runtime-server#migrate": {
       "cache": false,
-      "dependsOn": ["@libs/infra#apply:foundation"]
+      "dependsOn": ["@libs/infra-server#apply:foundation"]
     },
-    "@libs/chess#seed:deploy": {
+    "@libs/chess-puzzle-server#seed:deploy": {
       "cache": false,
-      "dependsOn": ["@libs/runtime#migrate"]
+      "dependsOn": ["@libs/runtime-server#migrate"]
     },
     "@apps/product#deploy": {
       "cache": false,
       "dependsOn": [
-        "@libs/chess#seed:deploy",
+        "@libs/chess-puzzle-server#seed:deploy",
         "@apps/server#check:api",
         "@apps/product#check:offline-shell",
         "@apps/product#check:worker-bundle"
       ]
     },
-    "@libs/infra#apply:edge": {
+    "@libs/infra-server#apply:edge": {
       "cache": false,
       "dependsOn": ["@apps/product#deploy"]
     },
-    "@libs/billing#billing:sync": {
+    "@libs/billing-server#billing:sync": {
       "cache": false,
-      "dependsOn": ["@libs/infra#apply:edge"]
+      "dependsOn": ["@libs/infra-server#apply:edge"]
     },
     "health": {
       "cache": false,
-      "dependsOn": ["@libs/infra#apply:edge", "@libs/billing#billing:sync"],
+      "dependsOn": [
+        "@libs/infra-server#apply:edge",
+        "@libs/billing-server#billing:sync"
+      ],
       "outputLogs": "errors-only"
     },
     "//#deploy": {
@@ -823,7 +736,7 @@
         "//#check",
         "@apps/server#check:api",
         "health",
-        "@libs/infra#retire:workers"
+        "@libs/infra-shared#retire:workers"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -841,7 +754,7 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/infra#lint": {
+    "@libs/infra-shared#lint": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -850,10 +763,10 @@
         "$TURBO_ROOT$/libs/tools/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/components.json",
-        "$TURBO_ROOT$/pkgs/tailwind/src/lint.css",
-        "$TURBO_ROOT$/pkgs/tailwind/src/tailwind.css",
-        "$TURBO_ROOT$/pkgs/ui/codemod/theme.css",
-        "$TURBO_ROOT$/pkgs/ui/src/components/hosts.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-client/codemod/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-client/src/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
         "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
@@ -869,7 +782,47 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "@libs/infra#test": {
+    "@libs/infra-server#lint": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/libs/tools/biome-plugins/**",
+        "$TURBO_ROOT$/oxlint.config.mts",
+        "$TURBO_ROOT$/components.json",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind-shared/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui-client/codemod/theme.css",
+        "$TURBO_ROOT$/pkgs/ui-client/src/hosts.css",
+        "$TURBO_ROOT$/libs/tools/port/*.json",
+        "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools/naming/**",
+        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@libs/infra-shared#test": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/.depot/workflows/**"
+      ],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@libs/infra-server#test": {
       "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -1027,7 +980,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1046,7 +999,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1065,7 +1018,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1084,7 +1037,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1103,7 +1056,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1122,7 +1075,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1141,7 +1094,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1160,7 +1113,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1179,7 +1132,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1198,7 +1151,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1217,7 +1170,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1236,7 +1189,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1255,7 +1208,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1274,7 +1227,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1293,7 +1246,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1312,7 +1265,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1331,7 +1284,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1350,7 +1303,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1369,7 +1322,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1388,7 +1341,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1407,7 +1360,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1426,7 +1379,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1445,7 +1398,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1464,7 +1417,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1483,7 +1436,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1502,7 +1455,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1521,7 +1474,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1540,7 +1493,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1559,7 +1512,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1578,7 +1531,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1597,7 +1550,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1616,7 +1569,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1635,7 +1588,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1654,7 +1607,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1673,7 +1626,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1692,7 +1645,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1711,7 +1664,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1730,7 +1683,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1749,7 +1702,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1768,7 +1721,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1787,7 +1740,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1806,7 +1759,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1825,7 +1778,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1844,7 +1797,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1863,7 +1816,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1882,7 +1835,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1901,7 +1854,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1920,7 +1873,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness/scripts/**",
-        "$TURBO_ROOT$/libs/harness/src/ci/report-ready.ts"
+        "$TURBO_ROOT$/libs/harness/src/report-ready.ts"
       ],
       "env": [
         "HARNESS_MODE",
@@ -1933,7 +1886,7 @@
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-63/**"]
     },
-    "@libs/infra#retire:workers": {
+    "@libs/infra-shared#retire:workers": {
       "cache": false,
       "dependsOn": ["@apps/product#health"]
     },
@@ -1949,7 +1902,12 @@
       "outputs": []
     },
     "check:board-contract": {
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/tools/scripts/check-board-contract.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/board-sound-contract.ts"
+      ],
       "outputs": [],
       "outputLogs": "errors-only"
     }

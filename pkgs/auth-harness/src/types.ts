@@ -1,12 +1,11 @@
-import type { AuthClientPort } from '@pkgs/auth/client';
-import type { OauthProviderId } from '@pkgs/auth/shared';
-import type { BearerTokenStore } from '@pkgs/auth-inhouse/client';
-import type { createAuthServerAdapter } from '@pkgs/auth-inhouse/server';
-import type { Session } from '@pkgs/harness';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-
-import type { AuthIdps } from './example-app';
+import type { createAuthServerAdapter } from '@pkgs/auth-inhouse-server/create-auth-server-adapter';
+import type { BearerTokenStore } from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { Session } from '@pkgs/harness-shared/runtime-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { AuthModel } from './model';
+import type { AuthIdps } from './providers';
 
 export type AuthFabric = 'mockingbird-sqlite' | 'mockingbird-postgres';
 

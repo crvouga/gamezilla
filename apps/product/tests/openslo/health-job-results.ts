@@ -1,6 +1,6 @@
 /** Every finished native Health check of one environment, including reruns. */
-import type { HttpClient } from '@pkgs/http-client';
-import type { Measurement } from '@pkgs/openslo/evaluate';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
+import type { Measurement } from '@pkgs/openslo-shared/evaluate';
 
 export const HEALTH_WORKFLOW_FILE = 'health.yml';
 const RUN_LEAD_MS = 86_400_000;

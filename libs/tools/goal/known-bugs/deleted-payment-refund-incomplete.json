@@ -1,4 +1,4 @@
 {
   "summary": "A partial or pending provider refund was reported as completed withdrawal. Settlement now rereads payment totals and keeps withdrawal pending until every later payment is fully returned.",
-  "regressionTest": "libs/billing/tests/deleted-payment-refund.test.ts"
+  "regressionTest": "libs/billing-server/tests/deleted-payment-refund.test.ts"
 }

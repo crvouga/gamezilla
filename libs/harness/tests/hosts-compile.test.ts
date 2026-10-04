@@ -4,7 +4,8 @@
 // (`defineProductSystem`), so any spec suite runs on it with `HARNESS_MODE=real`.
 
 import { describe, expect, test } from 'bun:test';
-import { bunWebviewRuntime, inProcessRuntime } from '@libs/harness';
+import { bunWebviewRuntime } from '@libs/harness/bun-webview';
+import { inProcessRuntime } from '@libs/harness/in-process';
 
 describe('product hosts', () => {
   test('both hosts are exported factories', () => {
@@ -14,7 +15,7 @@ describe('product hosts', () => {
 
   test('the bun-webview host compiles for the bun target', async () => {
     const build = await Bun.build({
-      entrypoints: [`${import.meta.dir}/../src/hosts/bun-webview.ts`],
+      entrypoints: [`${import.meta.dir}/../src/bun-webview.ts`],
       target: 'bun',
       external: ['@apps/*', '@libs/*', '@pkgs/*'],
     });

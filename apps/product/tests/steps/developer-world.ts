@@ -1,7 +1,7 @@
-import '@pkgs/bun-test-solid/preload';
-import { openHarness } from '@libs/harness/open-harness/open-harness';
-import { useHarnessWorld } from '@libs/harness/spec/world';
-import { APP_COMPOSITION } from '@libs/runtime/harness/app-composition';
+import '@pkgs/bun-test-solid-client/preload';
+import { openHarness } from '@libs/harness/open-harness';
+import { useHarnessWorld } from '@libs/harness/spec-world';
+import { APP_COMPOSITION } from '@libs/runtime-harness/app-composition';
 
 const NOTEBOOK_ACTIONS = [
   saveNotebookQuestion,
@@ -43,7 +43,7 @@ useHarnessWorld(
   (ctx) => ctx.featureUri.startsWith('specs/developer-tools/')
 );
 
-import { defineProductSystem } from '@libs/harness/system/define-product-system';
+import { defineProductSystem } from '@libs/harness/define-product-system';
 import './notebook.steps';
 import './recorded-moments.steps';
 import './report-navigation.steps';
@@ -51,19 +51,19 @@ import {
   editNotebookQuestion,
   openNotebook,
   saveNotebookQuestion,
-} from '@apps/product/harness/developer-notebook';
+} from '@apps/product/developer-notebook';
 import {
   moveRecordedMoment,
   provideRecordedReport,
   selectRecordedMoment,
   showRecordedControl,
-} from '@apps/product/harness/developer-report';
+} from '@apps/product/developer-report';
 
 import './release-check.steps';
 import {
   provideReleaseEvidence,
   runReleaseCheck,
-} from '@apps/product/harness/developer-release';
+} from '@apps/product/developer-release';
 
 import './checkpoints.steps';
 import {
@@ -71,7 +71,7 @@ import {
   checkpointOperation,
   investigatePeople,
   saveCheckpoint,
-} from '@apps/product/harness/developer-checkpoints';
+} from '@apps/product/developer-checkpoints';
 
 import './report-catalog.steps';
 import {
@@ -79,7 +79,7 @@ import {
   openCatalog,
   openCompletedReport,
   provideCatalog,
-} from '@apps/product/harness/developer-catalog';
+} from '@apps/product/developer-catalog';
 
 import './test-world-views.steps';
 import {
@@ -87,4 +87,4 @@ import {
   chooseWorldDevice,
   giveDevicesDifferentPlaces,
   provideWorldDevices,
-} from '@apps/product/harness/developer-world-views';
+} from '@apps/product/developer-world-views';

@@ -4,8 +4,9 @@
  * end to end: client adapter → auth app → provider → callback → exchange.
  */
 
-import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
-import { AUTH_PENDING_LINK_TTL_MS } from '@pkgs/auth-inhouse/shared';
+import { AUTH_PENDING_LINK_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 
 import { runClient } from './actor';
 import {
@@ -15,16 +16,15 @@ import {
   tally,
   violate,
 } from './checks';
+import type { Prediction, SeenIdentity } from './model';
 import {
   attachIdentity,
   expectedUser,
   identitiesOf,
   identityKey,
-  type Prediction,
   predictConfirm,
   predictSignIn,
   refreshIdentity,
-  type SeenIdentity,
   startSession,
 } from './model';
 import type {

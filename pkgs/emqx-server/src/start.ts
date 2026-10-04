@@ -3,9 +3,7 @@ import { spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
 import { join } from 'node:path';
-import type { Clock, Timers } from '@pkgs/clock';
-import type { HttpClient } from '@pkgs/http-client';
-import { resolveEmqxBin } from './emqx-bin';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -16,7 +14,9 @@ import {
   EMQX_MQTT_PORT,
   EMQX_MQTT_USER,
   EMQX_WS_PORT,
-} from './ports';
+} from '@pkgs/emqx-shared/ports';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
+import { resolveEmqxBin } from './emqx-bin';
 
 export type EmqxServerHandle = {
   readonly dashboardPort: number;

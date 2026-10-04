@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { createHarnessClientNamespaces } from '@libs/harness/fabric/client-namespace';
+import { createHarnessClientNamespaces } from '@libs/harness/client-namespace';
 
 test('another harness cannot change an existing device namespace', () => {
   // regression: concurrent-harness-client-epoch

@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
-import { MatchmakingDevice } from '@pkgs/matchmaking/client';
-import type { CurrentSearch, Matchmaking } from '@pkgs/matchmaking/interface';
+import { MatchmakingDevice } from '@pkgs/matchmaking-shared/device';
+import type { CurrentSearch } from '@pkgs/matchmaking-shared/identity';
+import type { Matchmaking } from '@pkgs/matchmaking-shared/matchmaking';
 
 function transport() {
   const pending: ((value: CurrentSearch | null) => void)[] = [];

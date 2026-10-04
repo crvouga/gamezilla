@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { closureProblems } from '@pkgs/conformance/closure';
+import { closureProblems } from '@pkgs/conformance-shared/closure';
 import { campaignBindings } from '../conformance/campaigns';
 import { EVIDENCE_MAP } from '../conformance/evidence-map';
 import { readConformanceWorld } from '../conformance/world';

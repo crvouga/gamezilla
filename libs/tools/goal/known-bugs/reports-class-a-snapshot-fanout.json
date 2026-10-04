@@ -1,4 +1,4 @@
 {
   "summary": "Check uploaded every individual report snapshot again, including cached suites, incurring millions of paid R2 writes. Publish compressed, bounded chunks and reuse identical chunks on reruns.",
-  "regressionTest": "pkgs/harness-report/tests/bundle.test.ts"
+  "regressionTest": "pkgs/harness-report-shared/tests/bundle.test.ts"
 }

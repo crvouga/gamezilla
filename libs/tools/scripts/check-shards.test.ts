@@ -1,10 +1,11 @@
 import { expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { needsBrowser } from './check-browser-tasks';
 import { redactSecrets, taskStream } from './check-shard-stream';
+import type { CheckTask } from './check-shards';
 import {
   balanceShards,
-  type CheckTask,
   planWarnings,
   validatePlan,
   validateShardResult,

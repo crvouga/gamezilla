@@ -1,4 +1,4 @@
 {
   "summary": "Reopening after an uncertain submission discarded the attempted report id and could create duplicate feedback. Journal attempted reports and recover their ids for unchanged retries.",
-  "regressionTest": "pkgs/feedback/tests/workspace-storage.contract.test.ts"
+  "regressionTest": "pkgs/feedback-harness/tests/workspace-storage.contract.test.ts"
 }

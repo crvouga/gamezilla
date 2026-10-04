@@ -1,4 +1,4 @@
 {
   "summary": "Social sign-in depended on window.open, which IDE integrated browsers and popup-blocking browsers refused. Navigate the current tab and complete sign-in on the callback route instead.",
-  "regressionTest": "libs/client-app/tests/shell/wall-open-auth-session.test.ts"
+  "regressionTest": "libs/app-client/tests/wall-open-auth-session.test.ts"
 }

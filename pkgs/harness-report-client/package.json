@@ -1,0 +1,40 @@
+{
+  "name": "@pkgs/harness-report-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ],
+    "./*.css": "./src/*.css"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/harness-report-shared": "workspace:*",
+    "@pkgs/harness-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@tanstack/query-persist-client-core": "catalog:",
+    "@tanstack/solid-query": "catalog:",
+    "solid-js": "catalog:",
+    "tailwindcss": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client"
+}

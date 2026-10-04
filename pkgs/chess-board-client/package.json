@@ -1,0 +1,45 @@
+{
+  "name": "@pkgs/chess-board-client",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload ./src/board-style-preload.ts tests"
+  },
+  "dependencies": {
+    "@lingui/solid": "catalog:",
+    "@pkgs/chess-board-core-shared": "workspace:*",
+    "@pkgs/chess-board-shared": "workspace:*",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/solid-context-client": "workspace:*",
+    "@pkgs/sounds-client": "workspace:*",
+    "@pkgs/sounds-shared": "workspace:*",
+    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-shared": "workspace:*",
+    "chess.js": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client"
+}

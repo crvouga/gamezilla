@@ -1,4 +1,4 @@
 {
   "summary": "Menu rows were named by their label alone (\"Theme\" for a row showing \"Theme System\") and the Connectivity row by its status alone (\"Online\"), so a listener did not hear the visible label (ACT 2ee8b8, WCAG 2.5.3). Fixed: a row's name comes from what it shows unless an aria-label is authored; the Connectivity row authors none.",
-  "regressionTest": "pkgs/ui/tests/floating-menu.test.tsx"
+  "regressionTest": "pkgs/ui-harness/tests/floating-menu.test.tsx"
 }

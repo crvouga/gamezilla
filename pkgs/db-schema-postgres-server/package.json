@@ -1,0 +1,35 @@
+{
+  "name": "@pkgs/db-schema-postgres-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
+    "test:contract": "bun test tests/postgres-reconcile.contract.test.ts"
+  },
+  "dependencies": {
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/db-schema-postgres-shared": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/postgres-embedded-server": "workspace:*",
+    "@pkgs/postgres-embedded-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

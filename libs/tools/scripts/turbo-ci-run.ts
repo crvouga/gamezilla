@@ -24,8 +24,8 @@
  *   (plus their `dependsOn` closure, same hashes), after the closure's remote
  *   hits are prefetched in parallel into the local cache — so `--concurrency`
  *   slots go to real work, not ~400 serialized cross-country cache restores.
- * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
- *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
+ * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise one task per four available
+ *   CPUs (at least one), reserving capacity for nested native workers.
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
  *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
  *   a task's output until it finishes, so a heartbeat prints every 2 min.
@@ -60,9 +60,9 @@ import { join } from 'node:path';
 import {
   DEFAULT_TURBO_API,
   TURBO_TEAM,
-} from '@libs/secrets/shared/secrets/turbo-token';
-import { capture } from '@pkgs/os';
-import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+} from '@libs/secrets-shared/turbo-token';
+import { capture } from '@pkgs/os-server/command';
+import { killOrphanEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
 import { captureAudit } from './audit-snapshot';
 import {
   findBudgetOverruns,
@@ -77,12 +77,12 @@ import type { ReportTaskIdentity } from './check-report-stream';
 import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
+import type { RunPlan } from './turbo-preflight';
 import {
   dryRunPlan,
   localCacheFlag,
   prefetchRemoteHits,
   REMOTE_LOOKUP_CONCURRENCY,
-  type RunPlan,
   readsRemoteCache,
   resolveRemoteHits,
   restoreEveryHit,
@@ -106,10 +106,10 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 /**
  * Turborepo's hash knows nothing about the platform
  * (https://turborepo.dev/docs/guides/handling-platforms), so a macOS result
- * could satisfy a Linux run. The platform-scoped `test:contract` leaves
- * (embedded Postgres / Mockingbird S3 / EMQX binaries) declare this file as an input,
- * so their caches are per-platform while everything portable (tc, lint, unit
- * tests) still shares one cache across machines. Written on every run: absent
+ * could satisfy a Linux run. Tests, contracts and browser builds declare
+ * this file as an input, so native runtime and browser differences cannot
+ * reuse each other's verdicts. Portable tc/lint tasks can still share a
+ * cache across machines. Written on every run: absent
  * (a bare `turbo run`) hashes differently, which costs a cache miss, never
  * correctness.
  */
@@ -127,10 +127,7 @@ export function writePlatformCacheKey(): void {
 function visualBrowserVersion(): string | null {
   const result = capture(
     process.execPath,
-    [
-      'run',
-      join(REPO_ROOT, 'apps/product/scripts/ui-quality/browser-version.ts'),
-    ],
+    ['run', join(REPO_ROOT, 'apps/product/scripts/browser-version.ts')],
     { cwd: REPO_ROOT }
   );
   if (result.status !== 0)
@@ -187,7 +184,6 @@ const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
 const DEFAULT_CACHE = 'local:rw,remote:rw';
 const LOCAL_ONLY_CACHE = 'local:rw';
-const MIN_CHECK_CONCURRENCY = 4;
 const CACHE_WORKERS = 16;
 
 type TurboTasks = Record<string, { dependsOn?: unknown }>;
@@ -229,12 +225,15 @@ export function resolveCacheFlag(
   return DEFAULT_CACHE;
 }
 
+/** Reserve four solver workers plus compiler and runtime capacity per task. */
+export function defaultCheckConcurrency(cpus: number): number {
+  return Math.max(1, Math.floor(cpus / 6));
+}
+
 function resolveConcurrency(): string {
   const fromEnv = process.env['TURBO_CONCURRENCY']?.trim();
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
-  const cpus = availableParallelism();
-  const min = inCi() ? 2 : MIN_CHECK_CONCURRENCY;
-  return String(Math.max(cpus, min));
+  return String(defaultCheckConcurrency(availableParallelism()));
 }
 
 function resolveUi(): string | undefined {
@@ -256,7 +255,16 @@ function resolveUi(): string | undefined {
 export function turboChildEnv(
   source: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { TURBO_TELEMETRY_DISABLED: '1', ...source };
+  const env: NodeJS.ProcessEnv = {
+    TURBO_TELEMETRY_DISABLED: '1',
+    RAYON_NUM_THREADS: '1',
+    CHECK_LINT_THREADS: '1',
+    GOMAXPROCS: '1',
+    MODEL_CHECK_CONCURRENCY: '2',
+    JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=2',
+    JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx4096m -Xms128m',
+    ...source,
+  };
   if (!hasRemoteCreds(env)) return env;
   if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
   const api = env['TURBO_API']?.trim() ?? '';

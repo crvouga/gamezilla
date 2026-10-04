@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { restoreReportQueue } from './check-report-queue';
 
 // regression: ci-report-restore-aborts-independent-outputs

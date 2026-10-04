@@ -1,5 +1,5 @@
-import { sql } from '@pkgs/sql';
-import type { MatchmakingHarness } from './scenario/facade';
+import sql from '@pkgs/sql-shared/sql';
+import type { MatchmakingHarness } from './facade';
 
 export type StoredSearch = {
   readonly owner_id: string;

@@ -2,7 +2,7 @@
 /** `specs/runtime/reaching-the-app.feature`. */
 
 import { expect } from 'bun:test';
-import { httpProbe } from '@libs/secrets/shared/http-probe';
+import { httpProbe } from '@libs/secrets-server/http-probe';
 import { Then } from './define';
 import type { LiveWorld } from './live-world';
 

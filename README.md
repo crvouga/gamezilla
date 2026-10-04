@@ -49,9 +49,9 @@ Bounded contexts in `specs/`. Each folder is one context. The file extension say
 | Auth | `@pkgs/auth` + `@pkgs/auth-inhouse`, product wiring in `@libs/auth` (`specs/auth/`) | Each Google or Apple account belongs to exactly one Gamezilla account. A matching account is confirmed before a new outside account is added. An unverified address match waits until the person proves it. Accounts never merge silently. An identity never moves. The last sign-in method stays. Provider trouble does not let anyone into the wrong account. A sign-in lasts until sign-out or it lapses. |
 | App | `@libs/client-app`, `@libs/runtime` (`specs/runtime/`) | Opens onto the Spaces tab, including with no connection after the first open. Tabs: Spaces, Notifications, Profile. Settings is reached from the tabs; theme, sounds, and version stick per device. An unknown address says so and offers the way back to Spaces. An app too old is told to update and keeps what is on the device. Usable without sight and without a mouse. |
 | Spaces | `@libs/spaces` | A person hosts a space (a guest may host). Friends join from the lobby. Anyone with the space link joins, including a guest. The lobby lists open spaces they host, have joined, or that a friend is in. Host renames, ends, and chooses the game. Host leaving ends the space for everyone. Presence is live. Creating and joining need a connection and say so; losing the connection is recoverable and is not leaving. Puzzle play already on the device continues offline (chess). A space link keeps leading to that space, or says the space ended or does not exist. |
-| Chess | `@libs/chess`, board in `@pkgs/chess-board` | The only shipped game (`GAME_DEFINITIONS` in `libs/games/src/game-plugins.ts`). An endless puzzle feed inside the host's space. Friends watch the same line. Rating, accuracy, and a game log stay honest online and offline. Hint, retry, skip, solution, clock. Feed settings (themes, rating window) require an account and sync across devices. Guest progress carries into the account on sign-in. The pool rejects puzzles that cannot be solved. |
+| Chess | `@libs/chess`, board in `@pkgs/chess-board` | The only shipped game (`GAME_DEFINITIONS` in `libs/games-shared/src/game-plugins.ts`). An endless puzzle feed inside the host's space. Friends watch the same line. Rating, accuracy, and a game log stay honest online and offline. Hint, retry, skip, solution, clock. Feed settings (themes, rating window) require an account and sync across devices. Guest progress carries into the account on sign-in. The pool rejects puzzles that cannot be solved. |
 | Friends | `@libs/friends`, search UI `@libs/search`, inbox `@libs/notifications` | Ask, accept, decline, cancel, remove, block, unblock. People search. Profile changes reach other people. An open space a friend is in shows up. Needs an account and a connection. |
-| Billing | `@libs/billing`, providers `@pkgs/billing-stripe` and `@pkgs/billing-paddle` via `@pkgs/billing-providers` | See the plans, subscribe, trial, renew, switch monthly/yearly, switch provider, portal, cancel, resubscribe, failed card, expired card, refund, Plus credit when switching plans. Membership is managed by the person. |
+| Billing | `@libs/billing`, providers `@pkgs/billing-stripe` and `@pkgs/billing-paddle` via `@pkgs/billing-providers-server` | See the plans, subscribe, trial, renew, switch monthly/yearly, switch provider, portal, cancel, resubscribe, failed card, expired card, refund, Plus credit when switching plans. Membership is managed by the person. |
 | Sync | `@pkgs/sync-engine` (`specs/sync-engine/`) | Shared rows (spec'd as notes) show at once, survive crash, offline, and app update, and count once. Leave a shared place and rejoin to catch up. Some actions are online-only and do not fire later. Server arrival order wins. |
 | Room | `@pkgs/room` (`specs/room/`) | One live topic. Shared tally, who is in the room, who owns it, timed match. Same picture after offline time or a crash. This is the session engine spaces and games sit on. It is separate from sync. |
 | Matchmaking | `specs/matchmaking/`, engine `@pkgs/matchmaking` | People waiting are paired with someone they accept who accepts them. A match already made is kept. Specified. Not in the shipped feature fold (`APP_FEATURES`). |
@@ -99,7 +99,7 @@ Two data planes.
 
 **Auth on the wire.** Token only. The API does not read or set cookies. Requests carry `Authorization: Bearer <session-token>` and the install id in `x-anon-id`. One current person per install. Several sign-in methods can sit on one account. Local SQLite on the web client is not encrypted at rest. Each account has its own file (`user_<shortId>`), so one account's queries do not read another's rows. Do not put secrets, or data that must not be lost with the device, only on the device.
 
-**Composition.** `@libs/runtime` is the only package that lists features. `APP_FEATURES` in `libs/runtime/src/root/app-features.ts` folds schema, queries, topics, and mutations. `APP_FEATURE_CLIENTS` folds routes and chrome. Order matters: profile is outermost, friends mounts above notifications. A feature never imports another feature. Cross-feature needs are ports the composition root fills (`readsForeign` is the checked exception). Shells (`@libs/client-app`, `@libs/server-app`) take the feature list as an argument, so a test boots one feature or all of them with the same code.
+**Composition.** `@libs/runtime` is the only package that lists features. `APP_FEATURES` in `libs/runtime-shared/src/app-features.ts` folds schema, queries, topics, and mutations. `APP_FEATURE_CLIENTS` folds routes and chrome. Order matters: profile is outermost, friends mounts above notifications. A feature never imports another feature. Cross-feature needs are ports the composition root fills (`readsForeign` is the checked exception). Shells (`@libs/client-app`, `@libs/server-app`) take the feature list as an argument, so a test boots one feature or all of them with the same code.
 
 Shipped feature manifests, in fold order: auth, profile, client-config, spaces, friends, notifications, chess, billing, permissions. Client fold also mounts search.
 
@@ -150,22 +150,51 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | `@libs/games` | Registry of game plugins. Chess is the only entry. |
 | `@libs/observability` | Product telemetry wiring. |
 
-A product lib is one use case deep:
+Packages split by vertical slice first, then by runtime. Both `libs/` and
+`pkgs/` use flat source modules:
 
 ```text
-libs/<feature>/src/
-  use-cases/<use-case>/{client,shared,server}/
-  shared/          domain types, repos, RoomModule, schema
-  root/            feature manifest, screens, chrome
-  harness/         spec actions and reads
-  public/          what other libs may import
+libs/chess-puzzle-client/src/puzzle-screen.tsx
+libs/chess-puzzle-shared/src/start-puzzle-mutation.ts
+libs/chess-puzzle-server/src/seed.ts
+libs/chess-puzzle-harness/src/puzzle-system.ts
+libs/chess-puzzle-harness/tests/puzzle.test.ts
 ```
 
-Package `exports` are `./public/*`, `./root/*`, and `./harness/*`. Use cases do not import other use cases, `root/`, or `public/`. `shared/` does not import `client/`, `server/`, `use-cases/`, `root/`, or `public/`. Client and server do not import each other.
+The paths above illustrate the layout. A package has `src/`, `tests/`, and
+`scripts/` only as needed. `src/` stays flat: no `root/`, `public/`, `shared/`,
+`use-cases/`, component folders, or directory index barrels. Split an independent
+use case into another package instead. Export individual modules as `./*`;
+import them as `@libs/chess-puzzle-shared/start-puzzle-mutation`. Use relative
+imports inside the package. Do not create empty packages for unused layers.
 
-Adding a feature: package under `libs/<name>/`, `defineTable` schema, `defineFeature` manifest, one line in `APP_FEATURES`, and client/server manifests if it has UI or routes. A feature exports up to three manifests, folded by the same functions in production and in tests: `FeatureManifest` (tables, topics, queries, mutations), `FeatureClient` (routes, chrome), `FeatureServer` (HTTP, outbox, pubsub).
+Every manifest explicitly declares `category`. Runtime packages use:
 
-Where a test goes: one feature's behavior stays in that feature's `tests/`, booting only the slices it needs. A test that spans features belongs in the full composition (`@libs/runtime`). `tests/harness/` holds composition only, never a `*.test.ts`. No spec lives in `apps/`. A framework package (`@pkgs/sync-engine`, `@pkgs/room`, `@pkgs/matchmaking`, …) is tested through one kitchen-sink example app under `src/harness/example-app/` (or `tests/example-app/`). A new capability grows that app. It does not fork a second fixture.
+| Category | Suffix | May import |
+| --- | --- | --- |
+| `client` | `-client` | client, isomorphic |
+| `server` | `-server` | server, isomorphic |
+| `isomorphic` | `-shared` | isomorphic |
+
+Test composition uses the separate `harness` category (`-harness`), which may
+compose all three runtimes. Production packages cannot depend on harness
+packages. Tests and tooling may use other runtimes in `devDependencies`;
+production `src/` imports still obey their category, regardless of which
+manifest field declares the dependency. `package-boundaries.ts` enforces these
+rules in each package's cached lint, including source imports and flatness.
+
+A feature exports manifests from the corresponding packages: `FeatureManifest`
+(tables, topics, queries, mutations), `FeatureClient` (routes, chrome), and
+`FeatureServer` (HTTP, outbox, pubsub). The `runtime` family composes these;
+`app` and `feature` packages stay independent of individual features.
+
+Tests live in the package that owns their runtime. Pure tests accompany shared
+modules, browser tests accompany client modules, and server tests accompany
+server modules. Tests that compose runtimes live in the slice's harness
+package; tests spanning product features live in `@libs/runtime-harness`.
+Framework behavior is tested through one kitchen-sink example app in the
+framework's harness package, with flat example modules. Test consumers import
+package exports, never another package's source paths.
 
 Known cross-feature table reads, still debt: `permissions` reads `billing_subscriptions` (so billing reruns every feature spec); `spaces` reads `friends_friendships` (spaces specs live in `@libs/friends`); `search` reads friends' search query and `friends_blocks` (people search lives in `@libs/friends`). Prefer a port the composition root fills.
 
@@ -174,28 +203,28 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 | Need | Package |
 | --- | --- |
 | UI components, tokens, theme | `@pkgs/ui` (in-house only; no third-party component library) |
-| Solid context helpers | `@pkgs/solid-context` |
+| Solid context helpers | `@pkgs/solid-context-client` |
 | Local-first sync | `@pkgs/sync-engine` entries: `client`, `server`, `shared`, `harness`, `solid` |
 | SQL tables | `@pkgs/db-schema`, emitted by `@pkgs/db-schema-postgres` and `@pkgs/db-schema-sqlite` |
 | SQL clients | `@pkgs/sql-client-sqlite-web` (browser), `@pkgs/sql-client-postgres` (server) |
-| Migrations | `@pkgs/db-migrate`, composed by `PostgresMigrationRunner` in `@libs/runtime` |
+| Migrations | `@pkgs/db-migrate-shared`, composed by `PostgresMigrationRunner` in `@libs/runtime` |
 | Live sessions | `@pkgs/room`; adapters `room-adapter-durable-object`, `room-adapter-web`, `room-adapter-bun`, `room-adapter-memory` |
 | Clock, timers | `@pkgs/clock` |
 | HTTP | `@pkgs/http-client` |
 | Ids and randomness | `@pkgs/uuid` (`createId`, `random`) |
 | Auth port | `@pkgs/auth`; vendor `@pkgs/auth-inhouse` |
-| Billing port | `@pkgs/billing`; vendors stripe and paddle, listed only in `@pkgs/billing-providers` |
-| Object storage | `@pkgs/object-store`; S3/R2 `@pkgs/object-store-s3`; browser OPFS `@pkgs/object-store-opfs` |
-| Pubsub | `@pkgs/pubsub`; MQTT `@pkgs/pubsub-mqtt` |
+| Billing port | `@pkgs/billing-shared`; vendors stripe and paddle, listed only in `@pkgs/billing-providers-server` |
+| Object storage | `@pkgs/object-store`; S3/R2 `@pkgs/object-store-s3`; browser OPFS `@pkgs/object-store-opfs-shared` |
+| Pubsub | `@pkgs/pubsub-shared`; MQTT `@pkgs/pubsub-mqtt` |
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
-| Property tests | `@pkgs/property` (`assertProperty` only) |
+| Property tests | `@pkgs/property-shared` (`assertProperty` only) |
 | Harness report UI | `@pkgs/harness-report` at `/reports` |
-| Chess rules and board | `@pkgs/chess-rules`, `@pkgs/chess-board-core`, `@pkgs/chess-board` |
-| Rating math | `@pkgs/glicko2` |
-| i18n | Lingui (`@pkgs/i18n`). Catalogs compile to `libs/client-app`. |
+| Chess rules and board | `@pkgs/chess-rules-shared`, `@pkgs/chess-board-core-shared`, `@pkgs/chess-board` |
+| Rating math | `@pkgs/glicko2-shared` |
+| i18n | Lingui (`@pkgs/i18n-shared`). Catalogs compile to `libs/client-app`. |
 | Observability | `@pkgs/observability`, CLI `@pkgs/observability-cli` (`bun obs`) |
-| Assert-and-crash | `@pkgs/assert` |
+| Assert-and-crash | `@pkgs/assert-shared` |
 
 UI is Solid. Components run once; reactivity tracks. Read `props.x` in the component body (never destructure props). Style with `class` / `classList` and `@pkgs/ui` tokens. `style` is only for dynamic values classes cannot express. `data-component` and `data-screen` exist for tests and are stripped from production bundles. `data-testid` ships in every build because live journeys drive the real bundle by it. Mutation weight picks the widget: `MutationModal` for confirm-first actions, `useMutationButton` for lightweight actions, `FormActionsFooter` for screen forms.
 
@@ -203,7 +232,7 @@ UI is Solid. Components run once; reactivity tracks. Read `props.x` in the compo
 
 Three rules cover every deployed resource.
 
-**Infrastructure as code.** OpenTofu under `libs/infra/tofu` is the only declaration. Modules and stacks name no environment. Shared values are `global.tfvars.json`. Per-environment values are only `envs/prd.tfvars.json` (`protection: "production"`) and `envs/dev.tfvars.json` (`protection: "standard"`). TypeScript, scripts, and consoles do not create, change, or delete infrastructure (`no-infra-outside-tofu.grit`). `scripts/tofu.ts` is the only way OpenTofu runs: plan, policy, state backup, apply.
+**Infrastructure as code.** OpenTofu under `libs/infra-shared/tofu` is the only declaration. Modules and stacks name no environment. Shared values are `global.tfvars.json`. Per-environment values are only `envs/prd.tfvars.json` (`protection: "production"`) and `envs/dev.tfvars.json` (`protection: "standard"`). TypeScript, scripts, and consoles do not create, change, or delete infrastructure (`no-infra-outside-tofu.grit`). `scripts/tofu.ts` is the only way OpenTofu runs: plan, policy, state backup, apply.
 
 **Zero ops.** Growth adds usage and cost. It adds no servers, clusters, replicas, shards, nodes to patch, or pools to size. A bigger day is a bigger bill.
 
@@ -225,7 +254,7 @@ A person applies this. CI does not.
 | GitHub repository settings and `main` protection | `main` is the default branch. Its active ruleset requires a PR, current-main `Check / check` from the Depot GitHub App, resolved conversations, and linear history. Squash is the only merge method; merged heads are deleted. No mandatory approvals or bypass actors. GitHub Team supports rulesets on this private repository. Repository and ruleset are `prevent_destroy`. |
 | Depot CI variables for this repository | Bootstrap provisions `SECRETS_IDENTITY_ID`, `SECRETS_PROJECT_ID`, `AWS_ROLE_ARN`, and `AWS_HEALTH_ROLE_ARN` sequentially. The Depot org comes from `global.tfvars.json` `depot.org_id`; Code Access must connect the repository to that same org. |
 
-GitHub policy lives in `libs/infra/tofu/modules/repository` under the bootstrap stack,
+GitHub policy lives in `libs/infra-shared/tofu/modules/repository` under the bootstrap stack,
 using the locked `integrations/github` provider. `global.tfvars.json` records
 the private visibility, homepage, enabled Issues/Projects/Wiki, disabled
 Discussions/forking, the observed check App ID, and existing environment names.
@@ -236,7 +265,7 @@ branch after main changes and rerunning Check; no merge queue is added.
 To review drift from the repository root:
 
 ```bash
-SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra plan:bootstrap
+SECRETS_ENV=prd bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:bootstrap
 bun run infra:bootstrap # review and restore through the guarded apply path
 ```
 
@@ -292,7 +321,7 @@ Production is `gamezilla-production`. Dev is `gamezilla-development`.
 | Read token and write token on `gamezilla-reports` | The API reads. Check writes. Each token is scoped to that bucket. |
 | Grafana write policy and token; read policy and token | Workers ingest on the write token. `bun obs` queries on the read token. One environment rotates without touching the other. Deploy requires active hosted traces; an archived Grafana instance may still have active Tempo. Deleted or unknown stack states fail closed. |
 | Generated secrets `AUTH_SECRET`, `EMQX_JWT_SECRET`, `SYNTHETIC_MONITOR_TOKEN` | Session signing, the HMAC the API mints and the IoT authorizer checks, and signed-in health journeys. A value already in the store wins, so an apply does not rotate them. A committed placeholder is replaced. |
-| Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `REPORTS_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets/src/shared/secrets/registry.ts`. `bun health` checks each required secret live. |
+| Derived secrets | Connection facts of the resources in this table: `DATABASE_URL`, `HYPERDRIVE_ID`, `API_URL`, `VITE_API_URL`, `S3_*`, `REPORTS_*`, `EMQX_WSS_URL`, `IOT_DATA_ENDPOINT`, `IOT_ACCESS_KEY_ID`, `IOT_SECRET_ACCESS_KEY`, `IOT_REGION`, `OBSERVABILITY_COLLECTOR_*`, `OBS_TEMPO_*`, `OBS_READONLY_DATABASE_URL`. Rewritten when the producer changes. The name lists are `stacks/foundation/secrets.json`. The names the app requires are `libs/secrets-server/src/registry.ts`. `bun health` checks each required secret live. |
 | Neki database `gamezilla-<suffix>`, branch `main` | System of record for that environment. Creating the branch creates the database. It starts empty; `@libs/runtime#migrate` reconciles the schema. Environments do not share rows. Production's branch is deletion-protected and `prevent_destroy`. |
 | Role `migrate`, inherits `postgres` | DDL. This is `DATABASE_URL`, used by migrate and the Postgres provider. |
 | Role `app`, inherits `pg_read_all_data` and `pg_write_all_data` | The API's rows. Table changes stay on `migrate`. |
@@ -325,7 +354,7 @@ OpenTofu looks them up. It does not create them.
 
 ### Data stays
 
-An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon and the old Railway broker are forgotten that way. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
+An environment rebuilds from its env file. `prevent_destroy` covers the state bucket, the Grafana stack, the repository, the shared secrets environment, and production's Neki branch. `libs/infra-shared/policy/stateful.rego` allow-lists what an ordinary apply may delete: credentials, DNS, routing, connection config, and derived secrets. Neki branches and roles stay protected. A plan that deletes most of a type in production is refused. To stop managing a stateful resource, use `removed { lifecycle { destroy = false } }`. Neon and the old Railway broker are forgotten that way. Before every apply, encrypted state is copied to `backups/<stack>/<env>/<timestamp>.tfstate`.
 
 ```sh
 bun run infra:destroy -- --env <env> --confirm <env>
@@ -333,7 +362,7 @@ bun run infra:destroy -- --env <env> --confirm <env>
 
 That refuses `protection: "production"`. It runs deploy in reverse: edge domains, delete the application Worker and any superseded scripts, empty the bucket, then foundation (that database, Hyperdrive, bucket, IoT, trace tokens, secrets), then that env's fleet entries. The env file stays. The next deploy builds a new empty database and reconciles the schema. Deleting the env file alone deletes nothing.
 
-A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra/src/public/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in Depot CI, triggered with `depot ci run --workflow <rehearsal.yml>` and managed locally with `depot ci status`, `logs`, and `artifacts`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
+A new environment is `envs/<env>.tfvars.json` with `protection: "standard"` and no `imports`, registered in `libs/infra-shared/src/envs.ts`. Deploy creates the rest: standard environments in parallel, then production. Health probes every env hourly. Rehearse before merging a change to deploy, infra, secrets, Workers, or health, and merge soon after: a rehearsal adopt sits in dev state until the branch lands. Rehearsals execute in Depot CI, triggered with `depot ci run --workflow <rehearsal.yml>` and managed locally with `depot ci status`, `logs`, and `artifacts`; never run them on the developer machine. Reuse Deploy's dev job, secrets authentication and deployment concurrency lock. A branch rejected by AWS's deployment trust remains an infrastructure-rehearsal blocker; an application deploy and health run must be reported separately, never as a full infrastructure apply.
 
 ```text
 deploy:fleet   auth-relay Worker, then the fleet stack
@@ -378,7 +407,7 @@ Specs are the definition of done. A rewrite that passes `specs/` is the same pro
 
 Tests are black-box against package `exports`, live in `tests/`, and run with `bun test` in-process on virtual time. Only `*.contract.test.ts` may touch the wall, and those boot their own Postgres, S3, and EMQX sidecars. Spec steps are thin wrappers over a package's `./harness` actions and reads. No skipped, `.only`, `.todo`, `.if`, `.failing`, `--pass-with-no-tests`, or retries. A verdict never branches on `CI`.
 
-New behavior is a property or a model. `assertProperty` from `@pkgs/property` is the only entry: seed `FC_SEED` default `424242`, runs `PBT_NUM_RUNS` default `40`. Raw `fc.assert`, `fc.check`, `fc.sample`, and `fc.statistics` are banned. Name the file `<topic>.property.test.ts`. A fingerprint binding replays its longest trace twice in fresh worlds and the hashes must match. `bun run test:pbt:random` hunts past the pin; whatever it finds is pinned before it is fixed. Product dynamics are a Quint model in `specs/<domain>/`, not a random walk in a test. A bug pins the shrunk input with `// regression: <bug-id>` (or `@regression:<bug-id>` on a scenario) and its own file `libs/tools/goal/known-bugs/<bug-id>.json`. That guard is an example, never a property file. A decided number, wire shape, or migration output is also an example. An example that a property fully covers, and that is neither a bug nor a decided value, is deleted.
+New behavior is a property or a model. `assertProperty` from `@pkgs/property-shared` is the only entry: seed `FC_SEED` default `424242`, runs `PBT_NUM_RUNS` default `40`. Raw `fc.assert`, `fc.check`, `fc.sample`, and `fc.statistics` are banned. Name the file `<topic>.property.test.ts`. A fingerprint binding replays its longest trace twice in fresh worlds and the hashes must match. `bun run test:pbt:random` hunts past the pin; whatever it finds is pinned before it is fixed. Product dynamics are a Quint model in `specs/<domain>/`, not a random walk in a test. A bug pins the shrunk input with `// regression: <bug-id>` (or `@regression:<bug-id>` on a scenario) and its own file `libs/tools/goal/known-bugs/<bug-id>.json`. That guard is an example, never a property file. A decided number, wire shape, or migration output is also an example. An example that a property fully covers, and that is neither a bug nor a decided value, is deleted.
 
 Gates that enforce this: `behavior-tests.ts`, `no-skipped-tests.grit`, `no-unpinned-property.grit`, `no-wall-time-in-tests.grit`, `test-scripts.ts`, `tc-scope.ts`, `//#ci:goals`, `check-worker-bundle.ts`, `check-offline-shell.ts`, `no-ci-verdict.grit`, `no-bare-io.grit`, `check-budget.ts`. A task budget is raised only after the task is made faster, with the measurement in the commit body. Check run deadline is 10 min on a laptop and 20 min on CI. Deploy run deadline is 45 min. One task is 300 s, doubled on CI. `CHECK_DEADLINE_SECONDS` overrides one run. There is no off switch.
 
@@ -390,7 +419,7 @@ Three workflows, dispatched from the laptop and blocked on the verdict:
 | `bun health` | Is this deployment well? | `bun health:local`, `bun health:prd` |
 | `bun deploy` | Ship `main`. | `bun deploy:local`, `bun deploy:dev`, `bun deploy:prd` |
 
-`bun check` git-syncs, runs on Depot (`.depot/workflows/check.yml`), and publishes the spec report to `/reports/<sha>`. It refuses to run on `main`. `bun check:local` runs the same leaves on this machine and publishes nothing. Per-package tasks (`tc`, `lint`, `test`, `test:contract`, `test:spec`) are cached and read only that package; contract fixtures use private local sidecars. The planner fetches current registry advisory evidence on every run; the pure vulnerability gate caches against that normalized snapshot and the lockfile. Advisory changes invalidate the security result even when repository inputs stay the same. `lint` is naming, Biome (import boundaries and size caps), oxlint for Solid, package boundaries, known-bug regressions. Typecheck is `tsc --noEmit -p tsconfig.tc.json` per package. Format with `bun fmt`.
+`bun check` git-syncs, runs on Depot (`.depot/workflows/check.yml`), and publishes the spec report to `/reports/<sha>`. It refuses to run on `main`. `bun check:local` runs the same leaves on this machine in a private temporary snapshot of the current files (including uncommitted edits) and private copies of installed dependencies, including native library links created during installation. Each invocation owns its Git metadata, generated files, task outputs, caches, logs and evidence; after exit, inputs, logs and reports remain in the printed compressed diagnostics archive while disposable working files are released. Runs atomically publish complete task artifacts with summary-confirmed passing verdicts to `.cache/check-artifacts`; later invocations copy them into their private cache, so warm checks reuse results without sharing writable cache files. It publishes nothing and never restores outputs into the working checkout. Concurrent remote Check invocations do not cancel one another. Per-package tasks (`tc`, `lint`, `test`, `test:contract`, `test:spec`) are cached and read only that package; contract fixtures use private local sidecars. The planner fetches current registry advisory evidence on every run; the pure vulnerability gate caches against that normalized snapshot and the lockfile. Advisory changes invalidate the security result even when repository inputs stay the same. `lint` is naming, Biome (import boundaries and size caps), oxlint for Solid, package boundaries, known-bug regressions. Typecheck is `tsc --noEmit -p tsconfig.tc.json` per package. Format with `bun fmt`.
 
 Exactly three native Depot CI workflows. Check runs on PRs (`//#check`, `SECRETS_ENV=dev`): independent shards discover identical task identities and use deterministic duration-balanced ownership, with fail-fast disabled, followed by one required `check` gate. Report aggregation and batch publication run independently after the shards, including after failures. Shard count, runner and Turbo slots are configurable; measurements and controls are in [the Check benchmark](libs/tools/CHECK_BENCHMARK.md). Exact task hashes reuse successful checks and already-published report sources. Deploy (`.depot/workflows/deploy.yml`) runs on `main` after a merged PR, standard envs in parallel, then production, and re-runs the gate first. Health (`.depot/workflows/health.yml`) runs hourly, deploys nothing, and probes every env file. `bun health` git-syncs, including `main`, and dispatches Health. `bun deploy` does not commit: it fast-forwards local `main` and dispatches Deploy on `origin/main`. Cancelling Deploy does not roll back an apply that already started. A new check is a package task under `//#check`, never a fourth workflow or a new job. Required GitHub check is `Check / check` only (`global.tfvars.json` `github.required_checks`). Merge commits only. `pre-push` refuses `main`.
 
@@ -398,9 +427,9 @@ If Check terminates before Turbo returns a task verdict, the shard retains that 
 
 The required Check verdict covers every check shard. Report publication has its own visible job result and does not delay the required verdict. One private R2 bucket (`reports` in `global.tfvars.json`) holds per-attempt commit manifests and shared report content keyed by task hash and cache generation. Each environment's API streams it (`/api/reports`). Snapshots are recorded on every harness step and published as compressed chunks, rather than one R2 write per snapshot. Identical chunks in a commit are reused on reruns; successful sources are reused across commits with identical task inputs. Check keeps only the latest report per branch and preserves its referenced shared content; Deploy and hourly Health remove unused branches and their reports. `bun reports:cleanup` previews maintenance; `--apply --branches` performs it. A red suite still publishes. `bun check:local` does not.
 
-`@apps/product#check:ui-quality` is an on-demand visual gate. It is not part of `//#check` or Deploy: the full corpus takes minutes on a 16-core runner, too slow for PR checks. Its artifact producer waits for every product spec part listed in [sources.json](apps/product/scripts/ui-quality/sources.json), copies unique recorded states into the product's own cache, and compiles the same local stylesheet used by the reports viewer. Before replay, the producer deduplicates unreferenced DOM metadata and generated SVG identifiers while retaining visible text, styles, classes, image geometry, and every scenario reference. On the first complete CI corpus, that reduces 30,355 HTML documents to 10,565 inputs from 101,035 references across 789 reports. The gate replays existing HTML snapshots through four reusable headless Chrome pages at their recorded 390×844 phone viewport, reuses scores for identical rendered PNGs, scores remaining screenshots in batches with one local [ui-quality-check](pkgs/ui-quality-check/README.md) instance, and checks any existing WebM/MP4 recordings directly. Matching document heads reuse their stylesheet and font context; one bounded replay batch is prefetched while the single model scores the current batch. Native inference waits for the existing product model contracts so it does not compete with symbolic verification. No scenario instrumentation or second UI exploration run is needed. Missing, failed, corrupt, or entirely absent evidence fails closed.
+`@apps/product#check:ui-quality` is an on-demand visual gate. It is not part of `//#check` or Deploy: the full corpus takes minutes on a 16-core runner, too slow for PR checks. Its artifact producer waits for every product spec part listed in [sources.json](apps/product/scripts/ui-quality/sources.json), copies unique recorded states into the product's own cache, and compiles the same local stylesheet used by the reports viewer. Before replay, the producer deduplicates unreferenced DOM metadata and generated SVG identifiers while retaining visible text, styles, classes, image geometry, and every scenario reference. On the first complete CI corpus, that reduces 30,355 HTML documents to 10,565 inputs from 101,035 references across 789 reports. The gate replays existing HTML snapshots through four reusable headless Chrome pages at their recorded 390×844 phone viewport, reuses scores for identical rendered PNGs, scores remaining screenshots in batches with one local [ui-quality-check](pkgs/ui-quality-check-server/README.md) instance, and checks any existing WebM/MP4 recordings directly. Matching document heads reuse their stylesheet and font context; one bounded replay batch is prefetched while the single model scores the current batch. Native inference waits for the existing product model contracts so it does not compete with symbolic verification. No scenario instrumentation or second UI exploration run is needed. Missing, failed, corrupt, or entirely absent evidence fails closed.
 
-The checked-in [visual configuration](apps/product/scripts/ui-quality/config.json) pins UIClip, CPU inference, minimum aggregation, and an explicit **experimental 0.5 threshold**. This is the model's neutral caption boundary, not a calibrated product quality claim; see its measured limitations in [EVALUATION.md](pkgs/ui-quality-check/EVALUATION.md). Current artifacts are snapshots from the in-process harness: replay checks their composition, and cannot detect animation jank between steps or prove that a deployed browser painted the same UI. Real recordings retain their actual sampled timestamps.
+The checked-in [visual configuration](apps/product/scripts/ui-quality/config.json) pins UIClip, CPU inference, minimum aggregation, and an explicit **experimental 0.5 threshold**. This is the model's neutral caption boundary, not a calibrated product quality claim; see its measured limitations in [EVALUATION.md](pkgs/ui-quality-check-server/EVALUATION.md). Current artifacts are snapshots from the in-process harness: replay checks their composition, and cannot detect animation jank between steps or prove that a deployed browser painted the same UI. Real recordings retain their actual sampled timestamps.
 
 The [complete Linux measurement on ef14b44c](https://depot.dev/orgs/mk7ncjwh4n/workflows/6q24fvwr46) processed 10,561 normalized inputs and scored 7,284 unique screenshots in 267 seconds on the 16-core runner, versus 364 seconds before replay/inference prefetching. Model startup took 537 ms; 21,852 image windows took 151 seconds of native CPU inference (145 windows/second). Peak parent RSS was 1.18 GiB, excluding Chrome. This run stayed within existing CI budgets and failed only the experimental quality threshold, flagging 4,485 input artifacts. These are unclassified model flags, not confirmed defects or product accuracy measurements.
 

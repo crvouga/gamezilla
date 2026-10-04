@@ -1,4 +1,4 @@
 {
   "summary": "Adding managed INSERT timestamps appended their bindings after ON CONFLICT parameters, assigning Preparing to a timestamp and blocking server exports. Bindings now follow their SQL positions.",
-  "regressionTest": "pkgs/sync-engine/tests/upsert-managed-bindings.test.ts"
+  "regressionTest": "pkgs/sync-engine-shared/tests/upsert-managed-bindings.test.ts"
 }

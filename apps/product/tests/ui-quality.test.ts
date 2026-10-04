@@ -1,28 +1,33 @@
 import { expect, test } from 'bun:test';
-import { collectArtifacts } from '@apps/product/ui-quality/collect';
-import { runVisualGate } from '@apps/product/ui-quality/gate';
-import { snapshotDocument } from '@apps/product/ui-quality/render';
+import { sourceId } from '@pkgs/harness-report-shared/keys';
+import { publishSource } from '@pkgs/harness-report-shared/publish';
 import {
-  failureSummary,
-  writeQualityReports,
-  writeToolingFailure,
-} from '@apps/product/ui-quality/report';
-import sources from '@apps/product/ui-quality/sources.json';
-import type { ArtifactManifest } from '@apps/product/ui-quality/types';
-import { readFrameBody, readTestReport, sourceId } from '@pkgs/harness-report';
-import { publishSource } from '@pkgs/harness-report/remote/publish';
+  readFrameBody,
+  readTestReport,
+} from '@pkgs/harness-report-shared/read';
 import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
-} from '@pkgs/object-store/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { assertProperty, fc } from '@pkgs/property';
+} from '@pkgs/object-store-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import type { ImageInput } from '@pkgs/ui-quality-check-shared/detectors-types';
 import type {
-  ImageInput,
   QualityResult,
   UIQualityChecker,
-} from 'ui-quality-check';
+} from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import fc from 'fast-check';
+import { collectArtifacts } from '../scripts/collect';
+import { runVisualGate } from '../scripts/gate';
+import { snapshotDocument } from '../scripts/render';
+import {
+  failureSummary,
+  writeQualityReports,
+  writeToolingFailure,
+} from '../scripts/report';
+import type { ArtifactManifest } from '../scripts/types';
+import sources from '../scripts/ui-quality/sources.json';
 
 const createMemObjectStore = () => new ObjectStoreImplInMemory();
 

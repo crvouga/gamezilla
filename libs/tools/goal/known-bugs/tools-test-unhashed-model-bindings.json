@@ -1,0 +1,4 @@
+{
+  "summary": "The tools suite reads discovered model bindings, specs, package graphs and CI actions outside its own package. Its cache key omitted them, hiding a stale split-induction assertion after the chess binding changed.",
+  "regressionTest": "libs/tools/scripts/check-cache-keys.test.ts"
+}

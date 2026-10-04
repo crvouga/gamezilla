@@ -30,7 +30,7 @@ describe('naming rules', () => {
     ['docs/GOAL.md', true],
     ['pkgs/x/README.md', true],
     ['.agents/commands/git-sync.md', true],
-    ['libs/pubsub/emqx-deploy/Dockerfile', true],
+    ['libs/pubsub-shared/emqx-deploy/Dockerfile', true],
     ['.superset/attachments/Design Shot.png', true],
     ['src/fooBar.ts', false],
     ['src/foo_bar.ts', false],

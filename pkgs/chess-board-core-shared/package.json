@@ -1,0 +1,31 @@
+{
+  "name": "@pkgs/chess-board-core-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/chess-rules-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/ui-testing-shared": "workspace:*",
+    "chess.js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

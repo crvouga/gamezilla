@@ -1,9 +1,9 @@
 /** Comparing what happened to what the model predicted, and recording drift. */
 
-import { hashAuthSecret } from '@pkgs/auth-inhouse/shared';
-import { sql } from '@pkgs/sql';
+import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
+import sql from '@pkgs/sql-shared/sql';
 
-import { AUTH_SYSTEM_SECRET } from './example-app';
+import { AUTH_SYSTEM_SECRET } from './relying-party';
 import type { ActorOutcome, ActorState, AuthSurface } from './types';
 
 export function violate(s: AuthSurface, message: string): void {

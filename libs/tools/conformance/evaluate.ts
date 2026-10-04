@@ -14,15 +14,10 @@ import type {
   Layer,
   Obligation,
   SpecKind,
-} from '@pkgs/conformance/evidence';
+} from '@pkgs/conformance-shared/evidence';
 
-import {
-  type EvidenceRule,
-  LINES,
-  type LineId,
-  type Rule,
-  SERVER_AGREEMENT,
-} from './lines';
+import type { EvidenceRule, LineId, Rule } from './lines';
+import { LINES, SERVER_AGREEMENT } from './lines';
 
 export type ReportSpec = {
   readonly path: string;

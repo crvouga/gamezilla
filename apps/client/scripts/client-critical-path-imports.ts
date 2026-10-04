@@ -13,8 +13,8 @@ const TSCONFIG_REL = 'tsconfig.base.json';
 
 const DENY_SPECIFIER_PREFIXES = [
   '@libs/chess',
-  '@libs/games/game-plugins.client',
-  '@pkgs/harness-console',
+  '@libs/games-client/game-plugins.client',
+  '@pkgs/harness-console-client',
   '@sqlite.org/sqlite-wasm',
 ] as const;
 
@@ -57,16 +57,18 @@ export function isDeniedSpecifier(specifier: string): boolean {
   for (const prefix of DENY_SPECIFIER_PREFIXES) {
     if (specifier === prefix || specifier.startsWith(`${prefix}/`)) return true;
   }
-  return specifier.includes('sql-workers');
+  return (
+    /^@libs\/chess(?:-|\/)/.test(specifier) || specifier.includes('sql-workers')
+  );
 }
 
 export function isDeniedResolvedPath(absPath: string): boolean {
   const norm = absPath.split('\\').join('/');
   return (
     norm.includes('/sql-workers/') ||
-    norm.includes('/libs/chess/') ||
+    /\/libs\/chess(?:-|\/)/.test(norm) ||
     norm.includes('game-plugins.client') ||
-    norm.includes('/pkgs/harness-console/') ||
+    norm.includes('/pkgs/harness-console-client/') ||
     norm.includes('sqlite-wasm')
   );
 }

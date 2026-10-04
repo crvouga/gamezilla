@@ -20,7 +20,7 @@ export function downloadRunArtifacts(
 ): void {
   const config = JSON.parse(
     readFileSync(
-      join(import.meta.dirname, '../../infra/tofu/global.tfvars.json'),
+      join(import.meta.dirname, '../../infra-shared/tofu/global.tfvars.json'),
       'utf8'
     )
   ) as { depot: { org_id: string } };

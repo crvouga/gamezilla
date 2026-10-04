@@ -1,4 +1,4 @@
 {
   "summary": "Explicit model setup found existing corrupt graph and weight files and refused with a rerun-setup error, making the suggested repair impossible. Retry preparation on explicit setup while ordinary checks continue to fail closed without downloading; an invalid local checkpoint must still be rejected before overwriting files.",
-  "regressionTest": "pkgs/ui-quality-check/tests/setup.test.ts"
+  "regressionTest": "pkgs/ui-quality-check-server/tests/setup.test.ts"
 }

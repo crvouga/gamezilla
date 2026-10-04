@@ -6,32 +6,35 @@
  */
 
 import { expect } from 'bun:test';
-import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
 import {
-  accountsOnRecord,
   appleAccountDeleted,
   appleConsentRevoked,
   appleRelayForwarding,
-  awaitingProof,
   clearProviderFaults,
   confirmPendingLink,
   declinePendingLink,
   googleEmailChanged,
-  identitiesOf,
-  lastOutcome,
   linkProvider,
-  movedGoogleEmail,
   prepareLink,
   setOnline,
   setProviderFault,
-  signedInUser,
   signIn,
   signOut,
   signOutEverywhere,
   stealBearer,
   unlinkProvider,
-} from '@pkgs/auth-harness';
-
+} from '@pkgs/auth-harness/actions';
+import {
+  accountsOnRecord,
+  awaitingProof,
+  identitiesOf,
+  lastOutcome,
+  signedInUser,
+} from '@pkgs/auth-harness/system';
+import { movedGoogleEmail } from '@pkgs/auth-harness/world-flows';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { SignInWorld } from './world';
 import {
   accountOf,
   answers,
@@ -42,7 +45,6 @@ import {
   handOver,
   onDevice,
   SECOND_GOOGLE_ACCOUNT,
-  type SignInWorld,
   Then,
   When,
 } from './world';

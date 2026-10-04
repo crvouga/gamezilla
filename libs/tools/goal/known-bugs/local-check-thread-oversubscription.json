@@ -1,0 +1,4 @@
+{
+  "summary": "Local Check allowed each nested native runtime to size thread pools for the whole host while CI bounded those pools. Use the same native thread and JVM defaults on both surfaces, retaining explicit overrides and existing proof deadlines.",
+  "regressionTest": "libs/tools/scripts/turbo-ci-run.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The lightweight client entry must continue to reject chess and harness imports after runtime packages replace nested paths.",
+  "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
+}

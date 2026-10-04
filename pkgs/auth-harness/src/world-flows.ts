@@ -4,17 +4,14 @@
  * forwarding, changing their address), providers misbehaving, keys rotating.
  */
 
-import type { OauthProviderId } from '@pkgs/auth/shared';
-import { sql } from '@pkgs/sql';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import sql from '@pkgs/sql-shared/sql';
 
 import { violate } from './checks';
-import {
-  APPLE_CLIENT_ID,
-  accountAt,
-  NO_PROVIDER_FAULTS,
-  type ProviderFaults,
-} from './example-app';
 import { endUserSessions, identitiesOf, identityKey } from './model';
+import type { ProviderFaults } from './providers';
+import { accountAt, NO_PROVIDER_FAULTS } from './providers';
+import { APPLE_CLIENT_ID } from './relying-party';
 import type { AuthSurface } from './types';
 import { grantOf } from './world';
 

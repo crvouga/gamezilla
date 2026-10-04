@@ -7,24 +7,23 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
 import {
   AddOne,
   readMatchStatus,
   readTally,
   StartMatch,
-} from '@pkgs/room/harness';
+} from '@pkgs/room-harness/game-room';
+import { serverCrashed } from '@pkgs/room-harness/observations';
+import { readClient, readServer } from '@pkgs/room-harness/read-state';
 import {
   addClient,
   crash,
   dispatch,
-  exampleSystem,
-  expectInSync,
-  readClient,
-  readServer,
   serverCrash,
-  serverCrashed,
   serverRestart,
-} from '@pkgs/room-harness';
+} from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
 
 describe('room restart fault', () => {
   test('a stopped room cannot run its match timer while every app is closed', async () => {

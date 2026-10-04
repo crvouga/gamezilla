@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-/// <reference types="@pkgs/bun-test-solid/jest-dom" />
+/// <reference types="@pkgs/bun-test-solid-client/jest-dom" />
 
 interface ImportMetaEnv {
   readonly VITE_API_URL?: string;

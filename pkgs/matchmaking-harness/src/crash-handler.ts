@@ -1,6 +1,6 @@
-import { Assert } from '@pkgs/assert';
+import { Assert } from '@pkgs/assert-shared/assert';
 
-/** Turn `@pkgs/assert` crashes into thrown errors for the test runner. */
+/** Turn `@pkgs/assert-shared` crashes into thrown errors for the test runner. */
 export function registerTestCrashHandler(): () => void {
   return Assert.registerCrashHandler({
     priority: 0,

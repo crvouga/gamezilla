@@ -6,8 +6,8 @@
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
-import { killAllEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
-import { killListenersOnPorts } from '@pkgs/os/kill-port';
+import { killAllEsbuildServices } from '@pkgs/os-server/kill-orphan-esbuild';
+import { killListenersOnPorts } from '@pkgs/os-server/kill-port';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 

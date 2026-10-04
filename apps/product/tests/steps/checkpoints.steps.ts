@@ -7,8 +7,8 @@ import {
   investigatePeople,
   restoredApps,
   saveCheckpoint,
-} from '@apps/product/harness/developer-checkpoints';
-import { Given, Then, When } from '@libs/harness/spec/define';
+} from '@apps/product/developer-checkpoints';
+import { Given, Then, When } from '@libs/harness/define';
 
 Given(
   'the team is investigating a test world with Alice and Bob',

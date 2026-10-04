@@ -1,4 +1,4 @@
 {
   "summary": "Typing a complete slash command expanded it before acceptance, with no keyboard suggestions.",
-  "regressionTest": "pkgs/feedback/tests/annotations.contract.test.ts"
+  "regressionTest": "pkgs/feedback-harness/tests/annotations.contract.test.ts"
 }

@@ -2,8 +2,8 @@
 /** `specs/spaces/spaces.feature`. */
 
 import { expect } from 'bun:test';
-import { workerName } from '@libs/infra/public/wrangler';
-import type { HttpClient } from '@pkgs/http-client';
+import { workerName } from '@libs/infra-shared/wrangler';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { Then } from './define';
 import { requireSecret } from './live-world';
 

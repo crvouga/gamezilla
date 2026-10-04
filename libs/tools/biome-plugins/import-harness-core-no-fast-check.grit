@@ -1,6 +1,6 @@
 language js
 
-// @pkgs/harness core (outside its fast-check adapter and tests) may not import fast-check.
+// @pkgs/harness-shared core (outside its fast-check adapter and tests) may not import fast-check.
 // Matches every static import / export-from source, dynamic import() and
 // require() specifier. Ported from dependency-cruiser, which had silently
 // cruised 0 modules per package.
@@ -14,6 +14,6 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"]fast-check(?:/[^'\"]*)?['\"]$",
-    register_diagnostic(span=$src, message="@pkgs/harness core (except src/fast-check/ and tests) must not import fast-check.", severity="error")
+    register_diagnostic(span=$src, message="@pkgs/harness-shared core (except src/fast-check/ and tests) must not import fast-check.", severity="error")
   }
 }

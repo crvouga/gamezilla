@@ -1,16 +1,14 @@
 import { expect } from 'bun:test';
-import {
-  pairAllowed,
-  restriction,
-  stopWaiting,
-  tick,
-} from '@pkgs/matchmaking-harness';
+import { tick } from '@pkgs/matchmaking-harness/actions';
+import { restriction, stopWaiting } from '@pkgs/matchmaking-harness/lobby';
+import { pairAllowed } from '@pkgs/matchmaking-harness/observations';
 import {
   expectMatchedWith,
   standing,
   waitsForMatch,
 } from './matchmaking.steps';
-import { Given, type MatchmakingWorld, Step, Then, When } from './world';
+import type { MatchmakingWorld } from './world';
+import { Given, Step, Then, When } from './world';
 
 async function restricted(
   w: MatchmakingWorld,

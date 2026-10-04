@@ -1,0 +1,46 @@
+// @io-wall-ok
+import { ChessPuzzleSeeder } from '@libs/chess-puzzle-server/chess-puzzle-seeder';
+import {
+  formatPostgresStorageLimitError,
+  isPostgresStorageLimitError,
+} from '@libs/chess-puzzle-server/defer-indexes';
+import { assert } from '@pkgs/assert-shared/singleton';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+
+const fs = wallNodeFs();
+const repoRoot = new URL('../../..', import.meta.url).pathname;
+
+await ChessPuzzleSeeder.fromArgv(
+  process.argv.slice(2),
+  {
+    clock: wallClock,
+    timers: wallTimers,
+    createId: () => crypto.randomUUID(),
+    http: createGlobalHttpClient(),
+  },
+  {
+    configStore: createRepoTreeObjectStore({ rootDir: repoRoot }),
+    sourceStore: createNodeFsObjectStore({
+      rootDir: '/',
+      fs,
+      layout: 'tree',
+    }),
+    cacheStoreForDir: (cacheDir) =>
+      createNodeFsObjectStore({
+        rootDir: cacheDir,
+        fs,
+        layout: 'tree',
+      }),
+  }
+)
+  .run()
+  .catch((error: unknown) => {
+    if (isPostgresStorageLimitError(error)) {
+      assert.fail(formatPostgresStorageLimitError(), { error });
+    }
+    assert.fail('seed:puzzles failed', { error });
+  });

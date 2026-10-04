@@ -1,0 +1,4 @@
+{
+  "summary": "Local Check spent 113 seconds preparing its private dependency tree through asynchronous per-file operations. Use native copy-on-write or independent copies and synchronous link traversal, preserving installed native files and workspace isolation without lifecycle scripts or network access.",
+  "regressionTest": "libs/tools/scripts/check-snapshot.test.ts"
+}

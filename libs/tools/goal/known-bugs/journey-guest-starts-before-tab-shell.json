@@ -1,4 +1,4 @@
 {
   "summary": "An anonymous critical journey started hosting as soon as the document navigated, before the tab shell existed, and then waited the whole step on a back button that was not on screen. By the time that wait ended, the Spaces tab was already up. Fixed: every journey waits for the tab shell, and a missing back button waits for the screen itself.",
-  "regressionTest": "apps/product/src/harness/prepare-critical-journey-access.test.ts"
+  "regressionTest": "apps/product/tests/prepare-critical-journey-access.test.ts"
 }

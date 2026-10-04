@@ -1,0 +1,36 @@
+{
+  "name": "@pkgs/observability-cli-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "obs": "bun run src/cli-io.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/object-store-node-fs-server": "workspace:*",
+    "@pkgs/observability-cli-shared": "workspace:*",
+    "@pkgs/observability-shared": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/observability-server": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "@pkgs/observability-runtime-shared": "workspace:*"
+  },
+  "category": "server"
+}

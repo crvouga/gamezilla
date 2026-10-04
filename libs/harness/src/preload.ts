@@ -1,23 +1,21 @@
 // @io-wall-ok — bun:test preload; product harness env, viewport and log noise
 /**
- * bun:test preload for harness spec suites, after `@pkgs/bun-test-solid/preload`
+ * bun:test preload for harness spec suites, after `@pkgs/bun-test-solid-client/preload`
  * (Solid compile, happy-dom `document` — Solid trees render into it via
  * `MultiAppSolidDomSession` — and the Lingui pin): harness env, a phone
  * viewport, and quieter logs.
  */
 
 import { afterAll, afterEach } from 'bun:test';
-import { setDomWindow } from '@pkgs/bun-test-solid/register';
-import { wallTimers } from '@pkgs/clock';
-import { setDefaultLogLevel } from '@pkgs/logger';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import {
-  ATTR,
-  createNodeTelemetry,
-  NdjsonSpanExporter,
-  type NodeTelemetry,
-} from '@pkgs/observability/node';
+import { setDomWindow } from '@pkgs/bun-test-solid-client/register';
+import { wallTimers } from '@pkgs/clock-shared/wall';
+import { setDefaultLogLevel } from '@pkgs/logger-shared/logger';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
+import type { NodeTelemetry } from '@pkgs/observability-server/node-node';
+import { createNodeTelemetry } from '@pkgs/observability-server/node-node';
+import { ATTR } from '@pkgs/observability-shared/attributes';
 
 process.env['VITE_TEST_HOOKS'] = '1';
 process.env['HARNESS_WITH_DOM'] = process.env['HARNESS_WITH_DOM'] ?? '1';

@@ -1,10 +1,10 @@
 // @io-wall-ok — composition root: the wall clock, the real HTTP client, Depot credentials from the process env.
 /** Availability is measured from native Depot Health job attempts. */
 
-import { envFile } from '@libs/infra/public/envs';
-import { wallClock } from '@pkgs/clock';
-import { createGlobalHttpClient } from '@pkgs/http-client';
-import { bindObjectives } from '@pkgs/openslo/registry';
+import { envFile } from '@libs/infra-shared/envs';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
+import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import { healthCheckEvents } from './health-job-results';
 
 function required(name: string): string {

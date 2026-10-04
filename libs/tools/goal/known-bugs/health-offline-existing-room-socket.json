@@ -1,4 +1,4 @@
 {
   "summary": "Live journeys enabled Chrome network emulation after room sockets opened, so existing sockets escaped the cut. Enable networking before app navigation and await the room heartbeat disconnection before the offline start attempt.",
-  "regressionTest": "libs/runtime/tests/custom-game-journey-connection.test.ts"
+  "regressionTest": "libs/runtime-harness/tests/custom-game-journey-connection.test.ts"
 }

@@ -3,7 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -16,5 +20,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "server"
 }

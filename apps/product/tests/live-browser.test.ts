@@ -4,8 +4,8 @@ import {
   emulateOffline,
   openDevice,
   waitForCachedShell,
-} from '@apps/product/harness/live-browser';
-import { createHarnessClock } from '@pkgs/clock';
+} from '@apps/product/live-browser';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 // regression: health-macos-offline-network
 // regression: health-offline-existing-room-socket

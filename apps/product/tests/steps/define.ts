@@ -1,6 +1,6 @@
 /** Step definers for live health scenarios, bound to {@link LiveWorld}. */
 
-import { stepsFor } from '@pkgs/gherkin/registry';
+import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { LiveWorld } from './live-world';
 
 export const { Given, When, Then, Step } = stepsFor<LiveWorld>();

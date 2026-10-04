@@ -1,4 +1,4 @@
 {
   "summary": "Sampling a literal 30 FPS, 50 second recording at 4 FPS yielded 188 frames because spacing each candidate from the previous selected timestamp accumulated rounding drift. Select by a fixed timestamp grid and retain original source timestamps; the automated native contract requires exactly 200 candidates.",
-  "regressionTest": "pkgs/ui-quality-check/tests/native-decoder.test.ts"
+  "regressionTest": "pkgs/ui-quality-check-server/tests/native-decoder.test.ts"
 }

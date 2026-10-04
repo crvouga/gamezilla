@@ -1,6 +1,6 @@
 // @io-wall-ok — one process, one store, bounded publication pool.
 import { readFileSync } from 'node:fs';
-import type { ObjectStore } from '@pkgs/object-store/interface';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { readReportPlan, taskIdentity } from './report-plan';
 import { publishReportTask } from './report-task-publish';
 

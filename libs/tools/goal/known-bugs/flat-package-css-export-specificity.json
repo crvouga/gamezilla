@@ -1,0 +1,4 @@
+{
+  "summary": "The Vite workspace resolver selected the general ./* TypeScript mapping before the more specific ./*.css export, breaking styles after package flattening. Match export patterns by specificity.",
+  "regressionTest": "pkgs/vite-workspace-resolver-server/tests/css-export.test.ts"
+}

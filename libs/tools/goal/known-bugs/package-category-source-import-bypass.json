@@ -1,0 +1,4 @@
+{
+  "summary": "A client source could import a server package through devDependencies or alternate import syntax because categories checked manifests and single-quoted isomorphic imports only. Parse source references and enforce categories independently of dependency placement.",
+  "regressionTest": "libs/tools/scripts/package-boundaries.test.ts"
+}

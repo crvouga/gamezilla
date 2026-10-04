@@ -1,10 +1,7 @@
-import { defineAction } from '@pkgs/harness';
-import {
-  ROOM_WIRE_KIND,
-  type RoomCommandPayload,
-  WIRE_VERSION,
-} from '@pkgs/room';
-import type { RoomHarness } from './scenario';
+import { defineAction } from '@pkgs/harness-shared/define-action';
+import type { RoomCommandPayload } from '@pkgs/room-shared/types';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
+import type { RoomHarness } from './harness';
 
 export type QueuedRoomChange = {
   readonly person: string;

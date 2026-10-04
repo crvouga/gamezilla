@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import type { FeatureClient } from '@libs/feature/public/client';
-import type { FeatureServer } from '@libs/feature/public/server';
+import type { FeatureClient } from '@libs/feature-client/client';
+import type { FeatureServer } from '@libs/feature-shared/server';
+import type { HarnessSlice } from '@libs/harness/slices';
 import {
   composeHarnessSlices,
-  type HarnessSlice,
   PLATFORM_HARNESS_SLICES,
 } from '@libs/harness/slices';
 

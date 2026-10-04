@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { modelInvariants } from '@pkgs/quint/simulate';
-import { verify } from '@pkgs/quint/verify';
+import { modelInvariants } from '@pkgs/quint-server/simulate';
+import { verify } from '@pkgs/quint-server/verify';
 
 // regression: model-array-encoding-default
 test('the default solver supports the outside-accounts model', async () => {

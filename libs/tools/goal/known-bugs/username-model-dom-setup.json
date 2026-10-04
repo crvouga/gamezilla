@@ -1,4 +1,4 @@
 {
   "summary": "Moving the username initialization regression into the regular test leaf exposed that the leaf loaded Solid but not the product harness host. Load the harness preload so named account initialization runs against its required in-process session.",
-  "regressionTest": "libs/profile/tests/username-model-initialization.test.ts"
+  "regressionTest": "libs/profile-harness/tests/username-model-initialization.test.ts"
 }

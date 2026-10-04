@@ -19,9 +19,13 @@ describe('§22.11 no tier coupling outside policy/ and billing/', () => {
       expect(biome).toContain(`./libs/tools/biome-plugins/${plugin}`);
     }
     for (const path of [
-      'libs/permissions',
-      'pkgs/permissions',
-      'libs/billing',
+      'libs/permissions-shared/src',
+      'libs/permissions-client/src',
+      'libs/permissions-server/src',
+      'pkgs/permissions-shared/src',
+      'libs/billing-shared/src',
+      'libs/billing-client/src',
+      'libs/billing-server/src',
     ]) {
       expect(biome).toContain(`"!**/${path}/**"`);
     }

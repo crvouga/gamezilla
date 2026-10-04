@@ -1,15 +1,13 @@
 // @io-wall-ok — platform entrypoint; feedback never imports product bootstrap
 
-import type { ApiWorkerEnv } from '@libs/server-app/config/env';
+import type { ApiWorkerEnv } from '@libs/app-shared/env';
 import type {
   ExecutionContext,
   ExportedHandler,
   ScheduledController,
-} from '@libs/server-app/config/worker-handler';
-import { FEEDBACK_PATH } from '@pkgs/feedback/server';
+} from '@libs/app-shared/worker-handler';
+import { FEEDBACK_PATH } from '@pkgs/feedback-server/http-handler';
 import { handleRootFeedbackReport } from './root-feedback-boot';
-
-export { RoomServerDurableObject } from './room';
 
 export default {
   async fetch(
@@ -22,7 +20,7 @@ export default {
       new URL(request.url).pathname.startsWith(`${FEEDBACK_PATH}/`)
     )
       return handleRootFeedbackReport(request, env);
-    const product = await import('./product/server');
+    const product = await import('./product-server');
     return product.default.fetch(request, env, ctx);
   },
   async scheduled(
@@ -30,7 +28,7 @@ export default {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<void> {
-    const product = await import('./product/server');
+    const product = await import('./product-server');
     return product.default.scheduled(controller, env, ctx);
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;

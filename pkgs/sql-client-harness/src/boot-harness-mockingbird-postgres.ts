@@ -12,21 +12,15 @@ import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
-} from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
+} from '@pkgs/object-store-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import {
   adaptMockingbirdPostgresAsPool,
   SqlClientImplMockingbirdPostgres,
-} from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
-import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
-
-export type {
-  HarnessMockingbirdPostgresSqlBundle,
-  OpenHarnessMockingbirdPostgresFromSeedArgs,
-} from './open-harness-mockingbird-postgres-from-seed';
-export { openHarnessMockingbirdPostgresFromSeed } from './open-harness-mockingbird-postgres-from-seed';
+} from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 /** Bump when seed format / restore semantics change outside migrate source. */
 export const HARNESS_MOCKINGBIRD_POSTGRES_SEED_VERSION = 3;

@@ -55,8 +55,8 @@ const SPEC_PART_TASKS = Array.from(
 // regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
 test('slow spec suites split into independently cached parts that all gate Check', () => {
   // regression: spec-task-batches-over-budget — friends 1,075s; sync 635s.
-  expectSpecParts('libs/friends', 64, ['friends', 'spaces']);
-  expectSpecParts('pkgs/sync-engine', 4, ['sync-engine']);
+  expectSpecParts('libs/friends-harness', 64, ['friends', 'spaces']);
+  expectSpecParts('pkgs/sync-engine-harness', 4, ['sync-engine']);
 });
 
 function expectSpecParts(dir: string, count: number, domains: string[]): void {
@@ -111,17 +111,17 @@ const CHECK_LEAVES = [
   '@apps/product#check:offline-shell',
   '@apps/auth-relay#check:worker-bundle',
   '@apps/product#check:worker-bundle',
-  '@libs/runtime#check:schema-evolution',
+  '@libs/runtime-server#check:schema-evolution',
   '@libs/tools#check:actionlint',
   '@libs/tools#check:secrets',
-  '@libs/chess#check:board-contract',
+  'check:board-contract',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
 const DEPLOY_ONLY = [
   '@apps/server#check:api',
   'health',
-  '@libs/infra#retire:workers',
+  '@libs/infra-shared#retire:workers',
 ] as const;
 
 /** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
@@ -270,11 +270,15 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   test('check:models hashes only the models and their checker', () => {
-    // Apalache's verdict depends on the model's text alone. A dependsOn folds
-    // that task's hash in (a `@libs/tools#tc` made every tooling edit re-run
-    // every model), and $TURBO_DEFAULT$ would re-run them on product edits.
+    // Hash the verifier and evidence implementations, never product runtime
+    // or unrelated tooling tasks such as @libs/tools#tc.
     const task = loadTasks()['check:models'];
-    expect(task?.dependsOn).toBeUndefined();
+    expect(task?.dependsOn).toEqual([
+      '@pkgs/quint-server#src',
+      '@pkgs/quint-shared#src',
+      '@pkgs/conformance-server#src',
+      '@pkgs/conformance-shared#src',
+    ]);
     expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
   });
 
@@ -290,7 +294,9 @@ describe('turbo check/deploy graph invariants', () => {
 
   test('local runners go through turbo-ci-run', () => {
     const scripts = loadRootScripts();
-    expect(turboCiRunTaskArgs(scripts['check:local'] ?? '')).toEqual(['check']);
+    expect(scripts['check:local']).toBe(
+      'bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-local.ts'
+    );
     expect(turboCiRunTaskArgs(scripts['deploy:local'] ?? '')).toEqual([
       '//#deploy',
     ]);
@@ -336,12 +342,12 @@ describe('turbo check/deploy graph invariants', () => {
   test('health probes live resources: never cached, ordered after the deploy', () => {
     const health = loadTasks()['health'];
     expect(health?.cache).toBe(false);
-    expect(health?.dependsOn).toContain('@libs/infra#apply:edge');
-    expect(health?.dependsOn).toContain('@libs/billing#billing:sync');
+    expect(health?.dependsOn).toContain('@libs/infra-server#apply:edge');
+    expect(health?.dependsOn).toContain('@libs/billing-server#billing:sync');
   });
 
   test('infrastructure applies after install:cli (tofu, conftest, infisical)', () => {
-    const deps = loadTasks()['@libs/infra#apply:foundation']?.dependsOn;
+    const deps = loadTasks()['@libs/infra-server#apply:foundation']?.dependsOn;
     expect(deps).toContain('@libs/tools#install:cli');
   });
 
@@ -350,31 +356,55 @@ describe('turbo check/deploy graph invariants', () => {
   // lint/test tasks, so even the deployment dry run failed.
   // regression: worker-retirement-health-dependency — bare health resolved
   // to a nonexistent infra health task and allowed retirement before health.
+  // regression: tooling-check-subprocess-timeouts
   test('the retirement dependency chain is a runnable Turbo graph', () => {
     const result = spawnSync(
       join(REPO_ROOT, 'node_modules/.bin/turbo'),
       [
-        'run',
-        '@libs/infra#retire:workers',
-        '--dry=json',
-        '--cache=local:r',
-        '--framework-inference=false',
+        'query',
+        `query {
+        package(name: "@libs/infra-shared") {
+          tasks(filter: { equal: { field: NAME, value: "retire:workers" } }) {
+            items { fullName command
+              directDependencies { items { fullName command } }
+              allDependencies { items { fullName command } }
+            }
+          }
+        }
+      }`,
       ],
       { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
     );
     expect(result.error).toBeUndefined();
     expect(result.status, result.stderr).toBe(0);
+    type Task = { fullName: string; command: string | null };
     const graph = JSON.parse(result.stdout) as {
-      tasks: { taskId: string; dependencies: string[]; command: string }[];
+      errors?: unknown;
+      data: {
+        package: {
+          tasks: {
+            items: (Task & {
+              directDependencies: { items: Task[] };
+              allDependencies: { items: Task[] };
+            })[];
+          };
+        };
+      };
     };
-    const retirement = graph.tasks.find(
-      (task) => task.taskId === '@libs/infra#retire:workers'
-    );
-    expect(retirement?.dependencies).toEqual(['@apps/product#health']);
-    const health = graph.tasks.find(
-      (task) => task.taskId === '@apps/product#health'
-    );
-    expect(health?.command).toBe('bun run scripts/health.ts');
+    expect(graph.errors).toBeUndefined();
+    const [retirement] = graph.data.package.tasks.items;
+    expect(retirement?.fullName).toBe('@libs/infra-shared#retire:workers');
+    expect(retirement?.directDependencies.items).toEqual([
+      {
+        fullName: '@apps/product#health',
+        command: 'bun run scripts/health.ts',
+      },
+    ]);
+    // A root dependency without an actual script cannot execute in a deployment.
+    for (const dependency of retirement!.allDependencies.items) {
+      if (dependency.fullName.startsWith('//#'))
+        expect(dependency.command).not.toBeNull();
+    }
   });
 
   test('one application deployment follows migration and its checks', () => {
@@ -382,24 +412,24 @@ describe('turbo check/deploy graph invariants', () => {
     // regression: deploy-empty-chess-puzzle-catalog — schema reconcile left a
     // fresh production database with zero puzzles, so the post-deploy chess
     // journey reached "No puzzles left" instead of a playable board.
-    expect(tasks['@libs/chess#seed:deploy']?.dependsOn).toEqual([
-      '@libs/runtime#migrate',
+    expect(tasks['@libs/chess-puzzle-server#seed:deploy']?.dependsOn).toEqual([
+      '@libs/runtime-server#migrate',
     ]);
     // regression: product-deploy-dist-race — while Wrangler uploaded
     // apps/product/dist/assets/src-C2k0tIiA.js, a parallel Check build emptied
     // dist and replaced the content-hashed asset before an upload stream read it.
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
-      '@libs/chess#seed:deploy',
+      '@libs/chess-puzzle-server#seed:deploy',
       '@apps/server#check:api',
       '@apps/product#check:offline-shell',
       '@apps/product#check:worker-bundle',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
-    expect(tasks['@libs/infra#apply:edge']?.dependsOn).toEqual([
+    expect(tasks['@libs/infra-server#apply:edge']?.dependsOn).toEqual([
       '@apps/product#deploy',
     ]);
-    expect(tasks['@libs/infra#retire:workers']?.dependsOn).toEqual([
+    expect(tasks['@libs/infra-shared#retire:workers']?.dependsOn).toEqual([
       '@apps/product#health',
     ]);
     expect(tasks['@apps/product#check:worker-bundle']?.dependsOn).toEqual([

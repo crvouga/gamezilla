@@ -8,24 +8,24 @@
 
 import { render } from 'solid-js/web';
 
-import '@pkgs/tailwind/tailwind.css';
-import '@pkgs/ui/tokens.css';
-import '@pkgs/ui/base.css';
-import {
-  APP_VERSION,
-  getCommitHash,
-  hasCommitProvenance,
-} from '@libs/client-app/config/app-metadata';
-import { createClient } from '@libs/client-app/shell/create-client';
+import '@pkgs/tailwind-shared/tailwind.css';
+import '@pkgs/ui-client/tokens.css';
+import '@pkgs/ui-client/hosts.css';
 import {
   browserObservabilityIdentity,
   installBrowserObsHelper,
   setBrowserSessionId,
-} from '@libs/client-app/shell/observability/browser-identity';
-import { wallClientEnv } from '@libs/client-app/shell/wall-client-env';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
-import { wallSpaceRoomTransport } from '@libs/spaces/root/client/room/wall-room-transport';
-import { setMutationCorrelationIdentity } from '@pkgs/sync-engine/client';
+} from '@libs/app-client/browser-identity';
+import { createClient } from '@libs/app-client/create-client';
+import { wallClientEnv } from '@libs/app-client/wall-client-env';
+import {
+  APP_VERSION,
+  getCommitHash,
+  hasCommitProvenance,
+} from '@libs/app-shared/app-metadata';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
+import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
+import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';
 
 const telemetryEnv = import.meta.env as {
   readonly DEV?: boolean;
@@ -38,7 +38,7 @@ setMutationCorrelationIdentity(sessionId, buildSha);
 installBrowserObsHelper();
 
 function initializeObservability() {
-  const telemetry = import('@pkgs/observability/browser').then(
+  const telemetry = import('@pkgs/observability-client/browser').then(
     ({ createBrowserTelemetry }) =>
       createBrowserTelemetry({
         serviceName: 'gamezilla-client',
@@ -57,7 +57,7 @@ function initializeObservability() {
   );
   const boundaries = telemetry.then(async (runtime) => {
     const boundariesModule = await import(
-      '@libs/client-app/shell/observability/browser-boundaries'
+      '@libs/app-client/browser-boundaries'
     );
     boundariesModule.setBrowserTraceFlush(() => runtime.forceFlush());
     return boundariesModule.installBrowserObservabilityBoundaries();
@@ -74,7 +74,7 @@ if (root === null) {
 
 const client = createClient(clientEnv, {
   features: APP_FEATURE_CLIENTS,
-  loadApp: async () => (await import('@libs/runtime/root/app-features')).APP,
+  loadApp: async () => (await import('@libs/runtime-shared/app-features')).APP,
   poolGlobalKey: '__gamezilla_sync_engine_pool__',
 });
 

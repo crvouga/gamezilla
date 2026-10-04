@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-
+import type { PrefetchIo } from './turbo-preflight';
 import {
   artifactUrl,
   localCacheFlag,
-  type PrefetchIo,
   planFromDryRun,
   prefetchArtifacts,
   readsRemoteCache,

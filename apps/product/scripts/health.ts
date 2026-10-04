@@ -41,12 +41,12 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { isProductionEnv } from '@libs/infra/public/env-file';
-import { envFile } from '@libs/infra/public/envs';
-import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
-import { isSyntheticFeatureSource } from '@pkgs/gherkin/tags';
-import { isLiveObjectiveSource } from '@pkgs/openslo/live';
-import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
+import { isProductionEnv } from '@libs/infra-shared/env-file';
+import { envFile } from '@libs/infra-shared/envs';
+import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
+import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
+import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
+import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared/stubs';
 
 const PACKAGE_DIR = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PACKAGE_DIR, '../..');

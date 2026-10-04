@@ -1,18 +1,15 @@
-import type { VirtualScheduler } from '@pkgs/harness';
-import {
-  type RoomClient,
-  type RoomCommandPayload,
-  type RoomEvent,
-  RoomMetaAttr,
-  type RoomModule,
-  type RoomState,
-  roomAttrNamespace,
-} from '@pkgs/room';
-import type { RoomServer } from '@pkgs/room/server';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared/client-storage';
+import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import type { RoomClient } from '@pkgs/room-client/room-client';
+import { RoomMetaAttr, roomAttrNamespace } from '@pkgs/room-client/room-meta';
+import type { RoomServer } from '@pkgs/room-server/room-server';
 import type {
-  InMemoryClientStorage,
-  InMemoryRoomStorage,
-} from '@pkgs/room-adapter-memory';
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type { HarnessLoopbackRoomTransport } from './loopback-transport';
 import type { HarnessRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';

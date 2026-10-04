@@ -1,7 +1,7 @@
 // @io-wall-ok — the conformance adapter discovers registered verification campaigns.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { SpecFile } from '@pkgs/conformance/proofs';
+import type { SpecFile } from '@pkgs/conformance-shared/proofs';
 import { campaignProblems, specCampaigns } from '../scripts/spec-campaigns';
 import { REPO_ROOT } from '../scripts/spec-packages';
 

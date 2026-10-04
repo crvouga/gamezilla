@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent local model checks removed the shared models report directory while another JVM was using it as its working directory, producing getcwd and Java initialization failures. Each invocation now owns private scratch and publishes only evidence after its solvers exit.",
+  "regressionTest": "libs/tools/scripts/model-check-workspace.test.ts"
+}

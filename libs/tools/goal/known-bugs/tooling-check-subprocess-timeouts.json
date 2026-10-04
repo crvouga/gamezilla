@@ -1,0 +1,4 @@
+{
+  "summary": "The retirement graph test hashed the entire repository and the report streaming test ran all four CLI scenarios within one five-second deadline. Query the actual resolved Turbo task graph without hashing build inputs, and bound each independent report scenario separately without changing its assertions or timeout.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

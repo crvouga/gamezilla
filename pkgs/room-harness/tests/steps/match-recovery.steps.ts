@@ -1,5 +1,5 @@
-import { Move, StartMatch } from '@pkgs/room/harness';
-import { interruptedMatchChoice } from '../helpers/interrupted-match';
+import { Move, StartMatch } from '@pkgs/room-harness/game-room';
+import { interruptedMatchChoice } from '../interrupted-match';
 import { openRoom } from './room.steps';
 import { Given, room } from './world';
 

@@ -34,13 +34,12 @@ describe('Check workflow cancellation', () => {
     );
   });
   // regression: check-duplicate-trigger-runners
-  test('PR and manual triggers share the branch concurrency group', () => {
+  // regression: concurrent-check-run-isolation
+  test('independent Check invocations never cancel or queue one another', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       concurrency: { group: string };
     };
-    expect(workflow.concurrency.group).toBe(
-      'check-${{ github.event.pull_request.head.ref || github.ref_name }}'
-    );
+    expect(workflow.concurrency).toBeUndefined();
   });
   // regression: check-cancel-holds-concurrency
   test('publish and the verdict skip a cancelled run', () => {

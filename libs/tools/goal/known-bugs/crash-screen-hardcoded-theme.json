@@ -1,4 +1,4 @@
 {
   "summary": "The root crash screen discarded the selected theme and rendered hardcoded red colors. Keep the minimal theme root mounted above recovery and render themed, responsive recovery controls with expandable diagnostics.",
-  "regressionTest": "libs/client-app/tests/shell/root-error-boundary.test.tsx"
+  "regressionTest": "libs/app-client/tests/root-error-boundary.test.tsx"
 }

@@ -1,4 +1,4 @@
 {
   "summary": "Reconciling framework tables dropped unique indexes owned by domain tables. The SQLite planner now removes stale indexes only for the slice it owns.",
-  "regressionTest": "pkgs/db-schema-sqlite/tests/declared-index-ownership.test.ts"
+  "regressionTest": "pkgs/db-schema-sqlite-harness/tests/declared-index-ownership.test.ts"
 }

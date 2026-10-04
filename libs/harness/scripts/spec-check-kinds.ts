@@ -8,9 +8,9 @@
  *   specs/<domain>/<name>.openslo.yaml   objectives  tests/openslo/index.ts
  */
 
-import { alloyStubFileName, alloyStubSource } from '@pkgs/alloy/stubs';
-import { dmnStubFileName, dmnStubSource } from '@pkgs/dmn/stubs';
-import { sloStubFileName, sloStubSource } from '@pkgs/openslo/stubs';
+import { alloyStubFileName, alloyStubSource } from '@pkgs/alloy-shared/stubs';
+import { dmnStubFileName, dmnStubSource } from '@pkgs/dmn-shared/stubs';
+import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared/stubs';
 
 export type CheckStubInput = {
   readonly packageName: string;
@@ -46,7 +46,7 @@ export const CHECK_KINDS: readonly CheckKind[] = [
   {
     suffix: '.dmn',
     dir: 'dmn',
-    bridge: '@pkgs/dmn/bun-test',
+    bridge: '@pkgs/dmn-server/bun-test',
     what: `DMN decision tables needs ${entryHint('dmn', 'table')}`,
     fileName: dmnStubFileName,
     source: dmnStubSource,
@@ -54,7 +54,7 @@ export const CHECK_KINDS: readonly CheckKind[] = [
   {
     suffix: '.als',
     dir: 'alloy',
-    bridge: '@pkgs/alloy/bun-test',
+    bridge: '@pkgs/alloy-server/bun-test',
     what: `Alloy structures needs ${entryHint('alloy', 'structure')}`,
     fileName: alloyStubFileName,
     source: alloyStubSource,
@@ -62,7 +62,7 @@ export const CHECK_KINDS: readonly CheckKind[] = [
   {
     suffix: '.openslo.yaml',
     dir: 'openslo',
-    bridge: '@pkgs/openslo/bun-test',
+    bridge: '@pkgs/openslo-server/bun-test',
     what: `OpenSLO objectives needs ${entryHint('openslo', 'objective file')}`,
     fileName: sloStubFileName,
     source: sloStubSource,

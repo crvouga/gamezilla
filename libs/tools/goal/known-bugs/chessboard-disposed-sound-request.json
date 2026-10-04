@@ -1,4 +1,4 @@
 {
   "summary": "A retained sound handle could start playback after its board scope was disposed. Disposed handles remain inert.",
-  "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  "regressionTest": "pkgs/chess-board-client/tests/sound-lifecycle.contract.test.tsx"
 }

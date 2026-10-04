@@ -6,15 +6,12 @@
  * model's state is read back from what Dave's Apple sign-in method shows.
  */
 
-import {
-  appleRelayForwarding,
-  auth,
-  identitiesOf,
-  signIn,
-} from '@pkgs/auth-harness';
-import { bindQuintModel } from '@pkgs/quint/registry';
+import { appleRelayForwarding, signIn } from '@pkgs/auth-harness/actions';
+import { auth, identitiesOf } from '@pkgs/auth-harness/system';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
-import { type SignInTraceWorld, traceAuth } from './world';
+import type { SignInTraceWorld } from './world';
+import { traceAuth } from './world';
 
 const DEVICE = 'c0';
 const DAVE_APPLE = 'dan@icloud.com';

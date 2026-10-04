@@ -1,5 +1,5 @@
-import type { Snapshot } from '@pkgs/alloy/snapshot';
-import type { StoredSearch } from '@pkgs/matchmaking-harness';
+import type { Snapshot } from '@pkgs/alloy-shared/world';
+import type { StoredSearch } from '@pkgs/matchmaking-harness/stored-searches';
 
 /** Rename persisted identities to atoms; Alloy alone judges whether the world is legal. */
 export function projectSearches(

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { startAedesServer } from '@pkgs/aedes-server';
+import { startAedesServer } from '@pkgs/aedes-server/start';
 
 describe('startAedesServer', () => {
   test('starts isolated brokers and accepts HTTP publishes', async () => {

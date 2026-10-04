@@ -1,4 +1,4 @@
 {
   "summary": "A board sound requested while disabled could play after re-enabling if its seek had not completed. Guard both request and playback against parent sound authority.",
-  "regressionTest": "pkgs/chess-board/tests/sound-lifecycle.contract.test.tsx"
+  "regressionTest": "pkgs/chess-board-client/tests/sound-lifecycle.contract.test.tsx"
 }

@@ -1,4 +1,4 @@
 {
   "summary": "Chess square hit buttons take no pointer events and the board captures the pointer. Recording only square targets dropped real chess drags. Preserve board control identifiers and normalized pointer endpoints.",
-  "regressionTest": "pkgs/feedback/tests/interaction.contract.test.ts"
+  "regressionTest": "pkgs/feedback-client/tests/interaction.contract.test.ts"
 }

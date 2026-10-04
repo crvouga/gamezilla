@@ -1,0 +1,32 @@
+{
+  "name": "@libs/chess-feature-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/chess-custom-game-shared": "workspace:*",
+    "@libs/chess-matchmaking-shared": "workspace:*",
+    "@libs/chess-puzzle-shared": "workspace:*",
+    "@libs/chess-shared": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

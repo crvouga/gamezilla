@@ -5,7 +5,7 @@
  * inherit it.
  */
 import { describe, expect, test } from 'bun:test';
-import { DocumentPage } from '@libs/harness/actors/document-page';
+import { DocumentPage } from '@libs/harness/document-page-view';
 import { render } from 'solid-js/web';
 
 const PAGE = [

@@ -1,12 +1,13 @@
 import { expect, test } from 'bun:test';
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth/public/auth-storage-keys';
-import { harnessClientSql } from '@libs/harness/fabric/client-sql';
-import type { HarnessSql } from '@libs/harness/fabric/sql';
-import { defineTable, registerTables } from '@pkgs/db-schema';
-import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite';
-import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
-import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
-import { sql } from '@pkgs/sql';
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
+import { harnessClientSql } from '@libs/harness/client-sql';
+import type { HarnessSql } from '@libs/harness/sql-types';
+import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import { createInMemorySecureStorage } from '@pkgs/secure-storage-shared/impl-memory';
+import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
+import sql from '@pkgs/sql-shared/sql';
 
 const PROFILE = defineTable({
   name: 'profile',

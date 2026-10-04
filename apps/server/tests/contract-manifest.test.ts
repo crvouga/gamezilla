@@ -3,7 +3,7 @@ import {
   buildContractManifest,
   missingNames,
   readCommittedContractManifest,
-} from '@apps/server/scripts/contract-manifest';
+} from '../scripts/contract-manifest';
 
 const committed = readCommittedContractManifest();
 const current = await buildContractManifest();

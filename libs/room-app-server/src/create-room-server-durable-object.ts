@@ -1,0 +1,30 @@
+import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
+import type { RoomServerEnv } from '@libs/room-app-shared/room-server-env';
+import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
+import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
+import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object-server/adapter';
+import type { DurableObjectTelemetry } from '@pkgs/room-adapter-durable-object-shared/types';
+import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
+
+/**
+ * Bind a Durable Object class from {@link RoomServerEnv}. Wall composition
+ * root only — harnesses use `createInProcessRoomNode` (`@libs/spaces/harness`) instead.
+ */
+export function createRoomServerDurableObject<WorkerEnv>(
+  env: RoomServerEnv,
+  telemetry: (workerEnv: WorkerEnv) => DurableObjectTelemetry
+) {
+  return createDurableObjectAdapter({
+    modules: composeRoomModules(
+      GAME_DEFINITIONS,
+      () => env.clock.now(),
+      env.random
+    ),
+    // Grants arrive with each connection from the API room gateway.
+    authorize: createSpaceRoomAuthorizer(GAME_DEFINITIONS),
+    clock: env.clock,
+    createId: env.createId,
+    telemetry,
+    serviceIdentity: ROOM_SERVICE_IDENTITY,
+  });
+}

@@ -1,4 +1,4 @@
 {
   "summary": "Scaled boards use unscaled client dimensions for pointer hit testing, disagreeing with the painted far files.",
-  "regressionTest": "pkgs/chess-board/tests/board-geometry.contract.test.ts"
+  "regressionTest": "pkgs/chess-board-client/tests/board-geometry.contract.test.ts"
 }

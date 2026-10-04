@@ -8,11 +8,11 @@ import {
   authRelayOrigin,
   envHostnames,
   envOrigins,
-} from '@libs/infra/public/env-file';
-import { ENV_FILES } from '@libs/infra/public/envs';
-import { httpProbe } from '@libs/secrets/shared/http-probe';
-import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
-import { wallClock } from '@pkgs/clock';
+} from '@libs/infra-shared/env-file';
+import { ENV_FILES } from '@libs/infra-shared/envs';
+import { httpProbe } from '@libs/secrets-server/http-probe';
+import { waitForHttp } from '@libs/secrets-server/wait-for-http';
+import { wallClock } from '@pkgs/clock-shared/wall';
 import { Then, WARMUP_MS, When } from './define';
 
 const DAY_MS = 24 * 60 * 60 * 1000;

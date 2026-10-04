@@ -1,14 +1,12 @@
 // @io-wall-ok — Room server Worker composition root (Durable Object isolate).
 
-import { createRoomServerDurableObject } from '@libs/room-app/app/create-room-server-durable-object';
-import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
-import { wallClock, wallTimers } from '@pkgs/clock';
-import {
-  createWorkerTelemetry,
-  deploymentTelemetryEnvironment,
-  otlpAuthorization,
-  type WorkerTelemetry,
-} from '@pkgs/observability/worker';
+import { createRoomServerDurableObject } from '@libs/room-app-server/create-room-server-durable-object';
+import type { RoomServerEnv } from '@libs/room-app-shared/room-server-env';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import type { WorkerTelemetry } from '@pkgs/observability-server/worker-worker';
+import { createWorkerTelemetry } from '@pkgs/observability-server/worker-worker';
+import { deploymentTelemetryEnvironment } from '@pkgs/observability-shared/deployment-environment';
+import { otlpAuthorization } from '@pkgs/observability-shared/otlp-auth';
 
 type RoomWorkerEnv = {
   readonly BUILD_SHA?: string;

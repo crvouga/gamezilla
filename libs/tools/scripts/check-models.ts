@@ -24,20 +24,25 @@
  * Each declared temporal property also requires its own evidence obligation.
  */
 
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { sha256 } from '@pkgs/conformance/evidence';
-import { recordEvidence } from '@pkgs/conformance/evidence-store';
+import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
+import { sha256 } from '@pkgs/conformance-shared/evidence';
+import { modelInvariants } from '@pkgs/quint-server/simulate';
+import {
+  modelTemporalProperties,
+  verifyTemporal,
+} from '@pkgs/quint-server/temporal';
+import { verify } from '@pkgs/quint-server/verify';
 import {
   DEFAULT_VERIFY_STEPS,
   DEFAULT_VERIFY_TIMEOUT_MS,
-} from '@pkgs/quint/registry';
-import { formatModelShapeIssue, modelShapeIssues } from '@pkgs/quint/shape';
-import { modelInvariants } from '@pkgs/quint/simulate';
-import { modelTemporalProperties, verifyTemporal } from '@pkgs/quint/temporal';
-import { verify } from '@pkgs/quint/verify';
-
-import { REPO_ROOT, type SpecPackage, specPackages } from './spec-packages';
+} from '@pkgs/quint-shared/registry';
+import { modelShapeIssues } from '@pkgs/quint-shared/shape';
+import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
+import { withModelWorkspace } from './model-check-workspace';
+import type { SpecPackage } from './spec-packages';
+import { REPO_ROOT, specPackages } from './spec-packages';
 
 /**
  * Bound independent JVM/SMT processes separately from Turbo's task slots.
@@ -107,7 +112,14 @@ export function modelChecks(
   pkg: Pick<SpecPackage, 'dir' | 'models'>
 ): readonly ModelCheck[] {
   const texts = bindingTexts(pkg.dir);
-  return pkg.models
+  return modelChecksFromBindings(pkg.models, texts);
+}
+
+export function modelChecksFromBindings(
+  models: readonly string[],
+  texts: ReadonlyMap<string, string>
+): readonly ModelCheck[] {
+  return models
     .map((specUri) => {
       const stem = specUri.replace(/^.*\//, '').replace(/\.qnt$/, '');
       const binding = texts.get(stem) ?? null;
@@ -270,13 +282,10 @@ if (import.meta.main) {
     );
     process.exit(1);
   }
-  const run: Run = {
-    reportDir: join(REPO_ROOT, dir, REPORT_DIR),
-    packageName: `${pkg.name}#check:models`,
-  };
-  rmSync(run.reportDir, { recursive: true, force: true });
   const checks = modelChecks(pkg);
-  const verdicts = await runAll(run, checks);
+  const verdicts = await withModelWorkspace(join(REPO_ROOT, dir), (reportDir) =>
+    runAll({ reportDir, packageName: `${pkg.name}#check:models` }, checks)
+  );
   const failed = verdicts.filter((verdict) => !verdict.ok);
   if (failed.length > 0) {
     console.error(

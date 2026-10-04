@@ -39,8 +39,8 @@ export const VITE_MANIFEST = '.vite/manifest.json';
 
 /** Dev-surface boots; their exclusive subgraphs are not part of the wall client. */
 export const DEV_SURFACE_BOOT_SOURCES: readonly string[] = [
-  'src/console/product-harness/boot-product-harness.ts',
-  'src/console/reports/reports-screen.tsx',
+  'src/boot-product-harness.ts',
+  'src/reports-screen.tsx',
 ];
 
 /** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */

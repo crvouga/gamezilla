@@ -1,0 +1,21 @@
+{
+  "name": "@pkgs/entity-store-harness",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/entity-store-shared": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness"
+}

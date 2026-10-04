@@ -1,4 +1,4 @@
 {
   "summary": "The namespace-conflict rehearsal replaced v1-app-room creation with an empty step, so Wrangler rejected the later rename of RoomServerDurableObject before upload. Keep the full creation, retention and transfer history even after resume; Cloudflare applies only steps after its committed tag. Pin the failing history against Wrangler public validation.",
-  "regressionTest": "libs/infra/tests/room-namespace-resolution.test.ts"
+  "regressionTest": "libs/infra-server/tests/room-namespace-resolution.test.ts"
 }

@@ -1,4 +1,4 @@
-import { killListenersOnPorts } from '@pkgs/os/kill-port';
+import { killListenersOnPorts } from '@pkgs/os-server/kill-port';
 
 function readPort(name: string, fallback: number): number {
   const raw = process.env[name]?.trim();
