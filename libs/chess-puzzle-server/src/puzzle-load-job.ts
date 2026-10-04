@@ -63,6 +63,7 @@ function latestJobQuery() {
            failed_rows, error, created_at, finished_at
     FROM chess_puzzle_load
     WHERE deleted_at IS NULL
+      AND status IN (${PUZZLE_LOAD_STATUS.adding}, ${PUZZLE_LOAD_STATUS.finished}, ${PUZZLE_LOAD_STATUS.failed})
     ORDER BY created_at DESC, id DESC
     LIMIT 1
   `;
