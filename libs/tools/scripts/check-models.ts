@@ -111,7 +111,14 @@ export function modelChecks(
   pkg: Pick<SpecPackage, 'dir' | 'models'>
 ): readonly ModelCheck[] {
   const texts = bindingTexts(pkg.dir);
-  return pkg.models
+  return modelChecksFromBindings(pkg.models, texts);
+}
+
+export function modelChecksFromBindings(
+  models: readonly string[],
+  texts: ReadonlyMap<string, string>
+): readonly ModelCheck[] {
+  return models
     .map((specUri) => {
       const stem = specUri.replace(/^.*\//, '').replace(/\.qnt$/, '');
       const binding = texts.get(stem) ?? null;

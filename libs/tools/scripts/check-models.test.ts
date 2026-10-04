@@ -6,6 +6,7 @@ import {
 
 import {
   modelChecks,
+  modelChecksFromBindings,
   modelEncodingOf,
   verifyStepsOf,
   verifyTimeoutOf,
@@ -38,14 +39,24 @@ describe('verifyTimeoutOf', () => {
 
 describe('modelChecks', () => {
   test('only the matching binding opts into separate induction', () => {
-    const checks = specPackages().flatMap(modelChecks);
+    // regression: tools-test-unhashed-model-bindings
+    const checks = modelChecksFromBindings(
+      ['specs/chess/multiplayer.qnt', 'specs/chess/custom-game.qnt'],
+      new Map([
+        [
+          'multiplayer',
+          "model: 'multiplayer', inductiveInvariant: '_proof', separateInduction: true",
+        ],
+        ['custom-game', "model: 'custom-game', inductiveInvariant: '_proof'"],
+      ])
+    );
     expect(
       checks
         .filter((check) => check.separateInduction)
         .map((check) => check.specUri)
-    ).toEqual(['specs/matchmaking/matching.qnt']);
+    ).toEqual(['specs/chess/multiplayer.qnt']);
     expect(
-      checks.find((check) => check.specUri === 'specs/chess/multiplayer.qnt')
+      checks.find((check) => check.specUri === 'specs/chess/custom-game.qnt')
         ?.separateInduction
     ).toBeUndefined();
   });

@@ -215,3 +215,65 @@ test('test verdict keys include source, tests, platform, runtime and property se
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// regression: tools-test-unhashed-model-bindings
+test('repository tooling verdicts invalidate when their discovered inputs change', () => {
+  const root = fixture();
+  const local = JSON.parse(
+    readFileSync(join(import.meta.dirname, '../turbo.json'), 'utf8')
+  ) as {
+    tasks: { test: { inputs: string[] } };
+  };
+  const inputs = local.tasks.test.inputs.flatMap((input) =>
+    input === '$TURBO_EXTENDS$'
+      ? config.tasks['@libs/tools#test']!.inputs
+      : [input]
+  );
+  try {
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({
+        name: 'fixture',
+        packageManager: `bun@${Bun.version}`,
+        workspaces: ['libs/tools'],
+      })
+    );
+    mkdirSync(join(root, 'libs/tools'), { recursive: true });
+    writeFileSync(
+      join(root, 'libs/tools/package.json'),
+      JSON.stringify({
+        name: '@libs/tools',
+        scripts: { build: 'echo verified' },
+      })
+    );
+    writeFileSync(join(root, 'bun.lock'), '');
+    writeFileSync(
+      join(root, 'turbo.json'),
+      JSON.stringify({
+        tasks: {
+          build: { inputs, outputs: [] },
+        },
+      })
+    );
+    for (const path of [
+      'libs/chess-harness/tests/quint/multiplayer.binding.ts',
+      'specs/chess/multiplayer.qnt',
+      'libs/chess-harness/package.json',
+      'libs/chess-harness/turbo.json',
+      'libs/profile-harness/src/username.steps.ts',
+      '.depot/actions/setup/action.yml',
+      'apps/product/scripts/ui-quality/sources.json',
+    ]) {
+      const before = dry(root, ['@libs/tools#build'])[0]!.hash;
+      const absolute = join(root, path);
+      mkdirSync(join(absolute, '..'), { recursive: true });
+      writeFileSync(
+        absolute,
+        path.endsWith('.json') ? '{}' : 'changed binding'
+      );
+      expect(dry(root, ['@libs/tools#build'])[0]!.hash, path).not.toBe(before);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

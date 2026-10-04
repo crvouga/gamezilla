@@ -282,12 +282,11 @@
         "package.json",
         "tests/quint/**",
         "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/pkgs/quint/package.json",
-        "$TURBO_ROOT$/pkgs/quint/src/**",
-        "$TURBO_ROOT$/pkgs/conformance/src/**",
         "$TURBO_ROOT$/libs/tools/scripts/check-models.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-packages.ts",
         "$TURBO_ROOT$/libs/tools/scripts/spec-kinds.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-live.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/spec-campaigns.ts",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputs": [
@@ -296,7 +295,13 @@
         ".cache/harness-report/models/**/tlc-output.txt",
         ".cache/harness-report/models/**/*.itf.json"
       ],
-      "outputLogs": "errors-only"
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "@pkgs/quint-server#src",
+        "@pkgs/quint-shared#src",
+        "@pkgs/conformance-server#src",
+        "@pkgs/conformance-shared#src"
+      ]
     },
     "build": {
       "dependsOn": ["^build"],

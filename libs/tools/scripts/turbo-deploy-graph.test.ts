@@ -270,11 +270,15 @@ describe('turbo check/deploy graph invariants', () => {
   });
 
   test('check:models hashes only the models and their checker', () => {
-    // Apalache's verdict depends on the model's text alone. A dependsOn folds
-    // that task's hash in (a `@libs/tools#tc` made every tooling edit re-run
-    // every model), and $TURBO_DEFAULT$ would re-run them on product edits.
+    // Hash the verifier and evidence implementations, never product runtime
+    // or unrelated tooling tasks such as @libs/tools#tc.
     const task = loadTasks()['check:models'];
-    expect(task?.dependsOn).toBeUndefined();
+    expect(task?.dependsOn).toEqual([
+      '@pkgs/quint-server#src',
+      '@pkgs/quint-shared#src',
+      '@pkgs/conformance-server#src',
+      '@pkgs/conformance-shared#src',
+    ]);
     expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
   });
 
