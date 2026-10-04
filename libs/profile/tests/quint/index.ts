@@ -4,11 +4,12 @@
  * every model's binding.
  */
 
-import './account-sign-in.binding';
-import './username-changes.binding';
-import './account-privacy.binding';
-
 import { useQuintHarness } from '@libs/harness/quint/world';
 import { openQuintHarness } from '../harness/open-profile-harness';
+
+// Every `*.binding.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.binding.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useQuintHarness(openQuintHarness);

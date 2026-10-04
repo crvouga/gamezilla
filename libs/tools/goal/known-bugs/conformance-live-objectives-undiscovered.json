@@ -1,0 +1,4 @@
+{
+  "summary": "The conformance reporter read live feature reports but omitted the adjacent health-objectives-report bucket, losing recorded OpenSLO evidence. Discover both live report kinds while excluding ad-hoc harness runs.",
+  "regressionTest": "libs/tools/scripts/conformance-report-buckets.test.ts"
+}

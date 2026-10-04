@@ -1,7 +1,29 @@
 import { describe, expect, test } from 'bun:test';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import type { KnownBug } from '../goal/goal-manifest';
 import { validateGoalGate } from '../goal/goal-manifest';
+import { KNOWN_BUGS_DIR, readKnownBugs } from '../goal/known-bugs';
+
+describe('readKnownBugs', () => {
+  test('each file is one bug and its name is the id', () => {
+    const root = mkdtempSync(join(tmpdir(), 'known-bugs-'));
+    const dir = join(root, KNOWN_BUGS_DIR);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, 'bug-2.json'),
+      JSON.stringify({ summary: 'y', regressionTest: 'b.test.ts' })
+    );
+    writeFileSync(join(dir, 'bug-1.json'), JSON.stringify({ summary: 'x' }));
+    writeFileSync(join(dir, 'notes.md'), 'not a bug');
+    expect(readKnownBugs(root)).toEqual([
+      { id: 'bug-1', summary: 'x', regressionTest: '' },
+      { id: 'bug-2', summary: 'y', regressionTest: 'b.test.ts' },
+    ]);
+  });
+});
 
 describe('validateGoalGate', () => {
   const files = (body: string | null) => ({

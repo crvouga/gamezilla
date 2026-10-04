@@ -1,0 +1,4 @@
+{
+  "summary": "Access facts and the billing tier read the clock once, so grace running out never updated a screen left open. Fixed with createTimedValue, which re-reads at the instant access lapses.",
+  "regressionTest": "pkgs/clock/tests/timed-value.test.tsx"
+}

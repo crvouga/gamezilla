@@ -1,0 +1,4 @@
+{
+  "summary": "A canonical g8-f6 opponent reply cleared the captured Black pawn remnant while the earlier White e4-d5 attacker was still sliding to its unchanged valid square. Keep the remnant until that arrival finishes.",
+  "regressionTest": "specs/chess-board/board-motion.feature"
+}

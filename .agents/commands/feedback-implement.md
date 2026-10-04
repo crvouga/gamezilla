@@ -58,7 +58,7 @@ Follow the repository workflow in `AGENTS.md` and the product definition in
   and implement against it.
 - For a defect, first pin the report's literal failing input in an example test
   marked `// regression: <bug-id>` (or a regression-tagged product scenario) and
-  add the same id to `libs/tools/goal/known-bugs.json`. Demonstrate red for the
+  add `libs/tools/goal/known-bugs/<bug-id>.json`. Demonstrate red for the
   reported reason before changing product code.
 - Treat feature, gap, and polish reports with the same evidence discipline:
   preserve the author's intent, add observable coverage, and make the smallest

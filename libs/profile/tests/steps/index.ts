@@ -3,15 +3,12 @@
 import '@libs/harness/spec/steps/platform';
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-profile-harness';
-import './profile.steps';
-import './retention.steps';
 import '@libs/account-privacy/steps/privacy.steps';
 import '@libs/account-privacy/steps/exports.steps';
-import './auth.steps';
-import './sign-in-methods.steps';
-import './sessions.steps';
-import './abandoned-sign-in.steps';
-import './devices.steps';
-import './finish-signing-in.steps';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openHarness);

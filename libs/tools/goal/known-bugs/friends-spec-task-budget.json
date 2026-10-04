@@ -1,0 +1,4 @@
+{
+  "summary": "The friends spec part 7 passed its assertions but took 627 seconds against the existing 600-second task cap. Split the same friends and spaces coverage into sixteen parts, and declare and gate every added part with a separate report cache. The time cap and every scenario and model trace remain unchanged.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

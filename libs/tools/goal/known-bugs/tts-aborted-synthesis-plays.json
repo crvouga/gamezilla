@@ -1,0 +1,4 @@
+{
+  "summary": "A synthesis response resolving after its request was aborted started old speech. Check cancellation before handing synthesized audio to playback.",
+  "regressionTest": "pkgs/tts/tests/play-synthesized.test.ts"
+}

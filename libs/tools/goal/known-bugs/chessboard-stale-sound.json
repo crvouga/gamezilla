@@ -1,0 +1,4 @@
+{
+  "summary": "Replacing a position leaves delayed capture feedback scheduled.",
+  "regressionTest": "specs/chess-board/board-sound.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Square accessible names omit occupants, selection and legal targets.",
+  "regressionTest": "specs/chess-board/board-accessibility.feature"
+}

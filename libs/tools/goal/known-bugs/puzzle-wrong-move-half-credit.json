@@ -1,0 +1,4 @@
+{
+  "summary": "Wrong moves scored zero instead of the agreed half credit; the recorder also read the move before its reactive row was available. Fixed using the board transition and guarded through offline replay.",
+  "regressionTest": "specs/chess/puzzle-rating.feature"
+}

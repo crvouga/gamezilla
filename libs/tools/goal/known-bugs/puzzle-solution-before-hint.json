@@ -1,0 +1,4 @@
+{
+  "summary": "A raw solution-move command materialized the first hint and solution together, bypassing the declared help progression.",
+  "regressionTest": "specs/chess/puzzle-refusals.feature"
+}

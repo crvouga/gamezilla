@@ -1,0 +1,4 @@
+{
+  "summary": "refreshQueries() resolved only once no sweep was pending, so sweeps enqueued after it (drift heals, pushes) held it forever and the \"New space\" connection check never returned. Fixed: it resolves once the sweep that carries its wake finishes.",
+  "regressionTest": "pkgs/sync-engine/src/client/subscription-runtime.test.ts"
+}

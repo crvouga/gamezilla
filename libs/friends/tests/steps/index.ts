@@ -10,13 +10,14 @@ import '@libs/account-privacy/steps/privacy.steps';
 import '@libs/harness/spec/steps/platform';
 import '@libs/profile/steps/profile.steps';
 import '@libs/billing/steps/access.steps';
-import './friends.steps';
-import './account-privacy.steps';
-import './search.steps';
-import './spaces.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-friends-harness';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openHarness, (w) => ({
   beforeAccountDeletion: async (actor: Actor) => {

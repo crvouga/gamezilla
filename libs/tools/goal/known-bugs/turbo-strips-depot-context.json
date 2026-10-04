@@ -1,0 +1,4 @@
+{
+  "summary": "Turbo strict environment mode dropped native Depot context, including report attempt URLs and the token needed for CI history. Pass Depot variables to tasks without changing task hashes.",
+  "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
+}

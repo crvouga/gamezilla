@@ -1,0 +1,4 @@
+{
+  "summary": "Partial-cache run 1jzx5994v8 stalled five shards at the second mise-action Restoring mise cache step, before check execution. One full cached toolchain setup per shard removes the repeated restore. Keep frozen Bun installation and all pinned tools; validate the partial-cache path with a real source-invalidation run.",
+  "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+}

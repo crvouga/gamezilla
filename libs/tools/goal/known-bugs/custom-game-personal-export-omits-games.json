@@ -1,0 +1,4 @@
+{
+  "summary": "Personal-data exports returned puzzle rows but omitted the requesting person's Custom Game choices, moves and outcome. Include retained games created or played by that person, excluding an outsider's games.",
+  "regressionTest": "specs/chess/custom-game-privacy.feature"
+}

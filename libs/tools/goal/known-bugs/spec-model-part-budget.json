@@ -1,0 +1,4 @@
+{
+  "summary": "The friends suite placed three 64-trace, 32-step models into four parts with sixteen traces per file; all four parts were still running past seven minutes when Check reached its 600-second deadline. Preserve every trace and seed while splitting models into eight files and the friends and chess suites into eight balanced parts.",
+  "regressionTest": "libs/harness/scripts/spec-parts.test.ts"
+}

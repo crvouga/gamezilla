@@ -1,0 +1,4 @@
+{
+  "summary": "Optimistic row fanout published a checked draft before acceptance, allowing refused writing onto another person's device.",
+  "regressionTest": "specs/sync-engine/checked-notes.feature"
+}

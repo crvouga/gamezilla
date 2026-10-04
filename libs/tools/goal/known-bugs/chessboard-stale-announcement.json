@@ -1,0 +1,4 @@
+{
+  "summary": "Replacing the mating queen g6-g7 position retained the old checkmate announcement. Clear prior move speech when an unrelated authoritative position has no completed move.",
+  "regressionTest": "specs/chess-board/board-authority.feature"
+}

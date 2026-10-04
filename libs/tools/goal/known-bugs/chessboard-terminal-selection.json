@@ -1,0 +1,4 @@
+{
+  "summary": "A checkmated or stalemated board allowed a piece to be selected or held despite offering no further move. Finished games refuse piece input.",
+  "regressionTest": "specs/chess-board/board-interaction.feature"
+}

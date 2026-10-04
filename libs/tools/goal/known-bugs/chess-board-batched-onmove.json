@@ -1,0 +1,4 @@
+{
+  "summary": "Board gestures were wrapped in Solid `batch` for a single reactive flush, which also ran the parent's `onMove` inside the batch and deferred the parent's own effects; the puzzle screen's offline outcome was never recorded. Fixed by batching only transitions that cannot play a move.",
+  "regressionTest": "pkgs/chess-board/tests/chess-board-parent.test.tsx"
+}

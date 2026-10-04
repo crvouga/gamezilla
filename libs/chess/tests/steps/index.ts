@@ -15,36 +15,14 @@ import '@libs/profile/steps/auth.steps';
 import '@libs/billing/steps/access.steps';
 import '@libs/friends/steps/friends.steps';
 import '@libs/friends/steps/spaces.steps';
-import './puzzle-play.steps';
-import './puzzle-opening.steps';
-import './puzzle-assistant.steps';
-import './puzzle-refusals.steps';
-import './account-privacy.steps';
-import './puzzle-feed.steps';
-import './puzzle-feed-editing.steps';
-import './puzzle-competing-results.steps';
-import './puzzle-rating.steps';
-import './puzzle-review.steps';
-import './puzzle-sound.steps';
-import './puzzle-allowance.steps';
-import './puzzle-spectator.steps';
-import './puzzle-recovery.steps';
-import './space-game.steps';
-import './custom-game-creation.steps';
-import './custom-game-choices.steps';
-import './custom-game-refusals.steps';
-import './custom-game-play.steps';
-import './custom-game-histories.steps';
-import './custom-game-races.steps';
-import './custom-game-recovery.steps';
-import './custom-game-access.steps';
-import './custom-game-devices.steps';
-import './custom-game-accessibility.steps';
-import './custom-game-privacy.steps';
-import './custom-game-export.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openSpecHarness } from '../harness/open-chess-harness';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openSpecHarness, (w) => ({
   beforeAccountDeletion: async (actor: Actor) => {

@@ -1,0 +1,4 @@
+{
+  "summary": "A puzzle result arriving while the solver app is closed has no live status transition to record when restored. The original result, including wrong moves and hints, must survive and be recorded exactly once on return. Each of the five literal finish paths is pinned.",
+  "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+}

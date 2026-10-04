@@ -1,0 +1,4 @@
+{
+  "summary": "Trace conformance sampled again after observing convergence and could report a transient state during queued reconnect commands. Evaluate the same observation that established convergence; pin both long reconnect histories.",
+  "regressionTest": "pkgs/quint/tests/replay-observation.test.ts"
+}

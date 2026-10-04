@@ -1,0 +1,4 @@
+{
+  "summary": "Closing the first board while shared audio warmup awaited a seek could pause the same sound already playing for a second board. Warmup may only pause unowned players.",
+  "regressionTest": "pkgs/chess-board/tests/sound-warmup.contract.test.tsx"
+}

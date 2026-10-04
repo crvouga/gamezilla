@@ -1,0 +1,4 @@
+{
+  "summary": "Parallel TLC verifiers extracted standard modules into shared /tmp/Integers.tla and /tmp/Apalache.tla. A concurrent overwrite produced NullPointerException and module-table lookup failures for the unchanged progress.qnt input. Each checker now owns its JS and JVM temporary directory.",
+  "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+}

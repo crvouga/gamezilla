@@ -1,0 +1,4 @@
+{
+  "summary": "The shipped client TypeScript configuration omitted the OPFS package path used by the feedback browser root, so a cold app type-check could not resolve evidence storage. Keep the concrete feedback import resolvable through the client path map.",
+  "regressionTest": "apps/client/scripts/client-critical-path-imports.test.ts"
+}

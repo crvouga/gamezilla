@@ -1,0 +1,4 @@
+{
+  "summary": "An active or trialing membership granted paid access on a device however long it had gone without confirming it. Fixed: access lapses 7 days (the grace) after the last sync and returns on the next one.",
+  "regressionTest": "libs/permissions/tests/plan.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A timeout whose event write aborted could restore the same deadline against an already consumed wake, leaving the match permanently playing. Wake execution now rearms before injection and preserves failed and not-yet-executed deadlines.",
+  "regressionTest": "pkgs/room-adapter-durable-object/tests/match-wake-failure.test.ts"
+}

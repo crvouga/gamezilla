@@ -3,12 +3,11 @@
  * room world and every step definition the features use.
  */
 
-import './room.steps';
-import './tally.steps';
-import './ownership.steps';
-import './match-clock.steps';
-import './match-recovery.steps';
-
 import { useRoomWorld } from './world';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useRoomWorld();

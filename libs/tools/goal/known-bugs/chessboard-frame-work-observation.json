@@ -1,0 +1,4 @@
+{
+  "summary": "A native frame gate discarded delivered MutationObserver records, allowing per-frame DOM work to pass as zero.",
+  "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+}

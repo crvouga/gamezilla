@@ -1,0 +1,4 @@
+{
+  "summary": "An initial room admission failure left a failed transport installed forever, preventing the heartbeat from retrying after the joined membership reached the server. The first failure now clears and destroys that transport so recovery can open a fresh connection. One failure followed by a heartbeat is pinned.",
+  "regressionTest": "libs/harness/tests/room-connect-recovery.test.ts"
+}

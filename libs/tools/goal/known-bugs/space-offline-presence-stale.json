@@ -1,0 +1,4 @@
+{
+  "summary": "The presence sheet and avatar strip used a stale room roster while disconnected. They now require a connected, caught-up room before presenting current presence. Losing Bob’s connection while in Alice’s space is pinned.",
+  "regressionTest": "specs/spaces/space-disconnect-reconnect.feature"
+}

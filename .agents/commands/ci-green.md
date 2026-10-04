@@ -59,8 +59,8 @@ shows it fixed afterwards:
 Fix the root cause the repo's way (see `AGENTS.md`):
 
 - **Every bug gets a check.** A failure that `bun check` did not catch means a check is
-  missing. Add the example test (`// regression: <bug-id>`), add an entry to
-  `libs/tools/goal/known-bugs.json`, or add a lint rule, so that the next occurrence fails
+  missing. Add the example test (`// regression: <bug-id>`), add
+  `libs/tools/goal/known-bugs/<bug-id>.json`, or add a lint rule, so that the next occurrence fails
   Check instead of Deploy or Health.
 - **Configuration drift** (a revoked key, a stale secret, GitHub settings) is fixed by the
   config-as-code that owns it: `libs/infra/tofu` (infrastructure), the `libs/secrets` registry; repository settings are the OpenTofu bootstrap stack.

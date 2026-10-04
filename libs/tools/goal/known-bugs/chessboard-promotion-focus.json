@@ -1,0 +1,4 @@
+{
+  "summary": "Promotion choices expose abbreviations and cancellation leaves keyboard focus at the destination.",
+  "regressionTest": "specs/chess-board/board-promotion.feature"
+}

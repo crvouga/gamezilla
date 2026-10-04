@@ -4,11 +4,12 @@
  * every model's binding.
  */
 
-import './friendship.binding';
-import './space-hosting.binding';
-import './space-recovery.binding';
-
 import { useQuintHarness } from '@libs/harness/quint/world';
 import { openHarness } from '../harness/open-friends-harness';
+
+// Every `*.binding.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.binding.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useQuintHarness(openHarness);

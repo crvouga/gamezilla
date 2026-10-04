@@ -1,0 +1,4 @@
+{
+  "summary": "The Neki branch used AWS's region name us-east-1, but PlanetScale's organization catalog names that region with the slug us-east. The API rejected the first branch with HTTP 422 after other foundation resources had already applied. Fixed by keeping AWS IoT on us-east-1 while passing PlanetScale's us-east slug to Neki.",
+  "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+}

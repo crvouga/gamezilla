@@ -1,0 +1,4 @@
+{
+  "summary": "Concurrent TLC checks started their Apalache compiler servers on the shared default port 8822 and failed to bind. Give every temporal check its own free port and process group, matching symbolic checks.",
+  "regressionTest": "pkgs/quint/tests/temporal.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A newer push cancelled Check's shards, but publish, close, and the verdict use if: always(), so they kept running and held the check-<pr> concurrency group. The required check on the new commit stayed queued and the PR stayed blocked. Fixed by skipping those jobs when the run is cancelled; a red shard is not a cancellation, so the report and the verdict still run.",
+  "regressionTest": "libs/tools/scripts/check-workflow-cancel.test.ts"
+}

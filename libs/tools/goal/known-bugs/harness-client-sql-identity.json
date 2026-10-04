@@ -1,0 +1,4 @@
+{
+  "summary": "The Alice device ignored the requested user id and shared one SQLite file between deleted-account and fresh-account, so an old alice profile blocked hydration of the fresh account with a unique username violation. Match production by retaining one file per device and account; inspection follows the active account while existing connections keep their original file.",
+  "regressionTest": "libs/harness/tests/client-sql-identity.test.ts"
+}

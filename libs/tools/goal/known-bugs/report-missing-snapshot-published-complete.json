@@ -1,0 +1,4 @@
+{
+  "summary": "The report publisher silently skipped a missing referenced snapshot and still published its source as complete. Fail publication before writing any completion marker when the literal referenced snapshot is absent.",
+  "regressionTest": "pkgs/harness-report/tests/reusable-source.test.ts"
+}

@@ -6,8 +6,8 @@
  * structure and `*.openslo.yaml` objective has exactly one binding, every `specs/<domain>/*.feature` scenario binds to exactly one step
  * definition, no definition is unused or pending, every scenario carries its
  * `@domain`, step text says intent (no UI mechanics, implementation words or
- * narrator), every scenario ends in an outcome with its context first, and the catalogs
- * are current, and no scenario has a BDD smell (`@pkgs/gherkin/smells`: a
+ * narrator), every scenario ends in an outcome with its context first, and
+ * no scenario has a BDD smell (`@pkgs/gherkin/smells`: a
  * long script, several events, acting after a Then outside journeys,
  * architecture words, a feature without a why), every Quint aggregate has
  * the offline-first shape (`model-shape.ts`), and every spec speaks its
@@ -34,7 +34,6 @@ import { specSmells } from '@pkgs/gherkin/smells';
 import { randomWalkViolations } from './behavior-tests';
 import { modelShapeProblems } from './model-shape';
 import { campaignProblems, specCampaigns } from './spec-campaigns';
-import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
 import { languageProblems, maintenanceVocabulary } from './spec-glossary';
 import { specLocationProblems } from './spec-location';
@@ -117,7 +116,6 @@ const errors: string[] = [
     parameterTypes,
     allowedImplementationWords: maintenanceVocabulary(),
   }),
-  ...catalogDrift(packages, shared.steps),
   ...languageProblems(campaignDomains),
   ...modelShapeProblems(campaignDomains),
   ...randomWalkViolations(

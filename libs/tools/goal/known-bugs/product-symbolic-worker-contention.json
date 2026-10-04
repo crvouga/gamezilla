@@ -1,0 +1,4 @@
+{
+  "summary": "The product contract started 13 JVM proof checks concurrently with spec producers; whole-system reached only two of five final invariants before its unchanged 120-second deadline. Bound solver workers without reducing transitions, models or deadlines.",
+  "regressionTest": "libs/tools/scripts/ui-quality-graph.test.ts"
+}

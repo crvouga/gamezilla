@@ -1,0 +1,4 @@
+{
+  "summary": "Returning from Sound settings repeats the already reached opponent opening move or a hydrated solved-puzzle cue.",
+  "regressionTest": "specs/chess/puzzle-sound.feature"
+}

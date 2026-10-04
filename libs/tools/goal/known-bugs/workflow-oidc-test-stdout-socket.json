@@ -1,0 +1,4 @@
+{
+  "summary": "The OIDC action regression redirected GITHUB_ENV to /dev/stdout, which cannot be opened when the Linux test runner captures stdout with a socket. Execute the action with a real temporary environment file and read it through stdout instead.",
+  "regressionTest": "libs/tools/scripts/workflow-oidc.test.ts"
+}

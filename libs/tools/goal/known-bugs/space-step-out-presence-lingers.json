@@ -1,0 +1,4 @@
+{
+  "summary": "Stepping out to the lobby retained a live room connection, leaving people counted as present despite the space promise. Room lifetime now follows actual space views, while membership, queued commands and the open-session identity survive stepping out. The literal friend-step-out sequence is pinned.",
+  "regressionTest": "specs/spaces/space-lifecycle.feature"
+}

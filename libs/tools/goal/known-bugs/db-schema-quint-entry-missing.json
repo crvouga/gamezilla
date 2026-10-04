@@ -1,0 +1,4 @@
+{
+  "summary": "The relocated schema-safety model registered its world and binding only from a test file. The spec runner imports tests/quint/index.ts, which was missing, leaving the existing model unbound in conformance. Extracted the registration into a binding imported by the shared entry and the model test.",
+  "regressionTest": "pkgs/db-schema/tests/schema-safety-entry.test.ts"
+}

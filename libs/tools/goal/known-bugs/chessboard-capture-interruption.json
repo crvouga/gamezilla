@@ -1,0 +1,4 @@
+{
+  "summary": "A replacement position retains the prior capture ghost.",
+  "regressionTest": "specs/chess-board/board-motion.feature"
+}

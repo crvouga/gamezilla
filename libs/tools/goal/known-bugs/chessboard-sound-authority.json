@@ -1,0 +1,4 @@
+{
+  "summary": "A parent cannot disable board sounds.",
+  "regressionTest": "specs/chess-board/board-sound.feature"
+}

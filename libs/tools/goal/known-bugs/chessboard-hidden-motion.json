@@ -1,0 +1,4 @@
+{
+  "summary": "Hiding a page did not cancel already-running piece motion or a capture remnant, allowing old transitions to resume when shown. Hidden motion settles immediately.",
+  "regressionTest": "specs/chess-board/board-motion.feature"
+}

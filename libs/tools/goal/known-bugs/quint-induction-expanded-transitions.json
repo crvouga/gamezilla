@@ -1,0 +1,4 @@
+{
+  "summary": "The unchanged specs/friends/friendship.qnt induction proof exceeded its 240-second deadline when its twelve transitions were combined into one solver formula during the full Check. Check every transition separately and discharge direct named conjuncts structurally while retaining candidate initialization and preservation; a closed-to-open counterexample guards the covered-target path.",
+  "regressionTest": "pkgs/quint/tests/verify.test.ts"
+}

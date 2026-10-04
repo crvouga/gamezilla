@@ -1,0 +1,4 @@
+{
+  "summary": "Stepping back after a solve changes the displayed status to solving; leaving at that position preserved the completed puzzle and offered it again on return. Completion must survive historical viewing.",
+  "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+}

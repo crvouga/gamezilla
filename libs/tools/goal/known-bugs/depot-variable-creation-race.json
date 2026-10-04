@@ -1,0 +1,4 @@
+{
+  "summary": "Bootstrap created four Depot variables concurrently for gamezilla-org/gamezilla. One succeeded and three failed to create their variants. Provision all four coordinates sequentially in one declared resource.",
+  "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+}

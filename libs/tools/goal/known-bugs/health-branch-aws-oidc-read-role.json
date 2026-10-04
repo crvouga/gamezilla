@@ -1,0 +1,4 @@
+{
+  "summary": "A branch-dispatched Health run could obtain its OIDC token but AWS rejected AssumeRoleWithWebIdentity because the only CI role trusted main and production; widening that deploy role would have granted feature branches mutation access. Fixed with a separate read-only health role that trusts this repository's branches, published as AWS_HEALTH_ROLE_ARN and selected only by health.yml.",
+  "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Enter or Space selection left completed personal arrows and circles on the board after drawing was disabled, while equivalent pointer selection cleared them.",
+  "regressionTest": "specs/chess-board/board-annotations.feature"
+}
