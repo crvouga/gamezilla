@@ -4,12 +4,15 @@ import {
   constants,
   cpSync,
   existsSync,
+  mkdirSync,
+  mkdtempSync,
   readdirSync,
+  readFileSync,
   readlinkSync,
   rmSync,
   symlinkSync,
 } from 'node:fs';
-import { cp, mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -38,15 +41,19 @@ async function copyGit(source: string, destination: string): Promise<void> {
   ]);
   const local = git(source, ['rev-parse', '--absolute-git-dir']);
   const target = join(destination, '.git');
+  // Pin references before copying objects: commits during the copy belong to
+  // the next run, and may not exist in this run's copied object database.
+  const head = git(source, ['rev-parse', 'HEAD']);
+  const refs = git(source, ['show-ref']);
+  const index = readFileSync(join(local, 'index'));
   // Copy objects too: garbage collection in the caller cannot invalidate a run.
   await copyDependencyTree(common, target);
-  for (const name of ['worktrees', 'hooks', 'logs'])
+  for (const name of ['worktrees', 'hooks', 'logs', 'refs'])
     rmSync(join(target, name), { recursive: true, force: true });
-  await writeFile(
-    join(target, 'HEAD'),
-    `${git(source, ['rev-parse', 'HEAD'])}\n`
-  );
-  await cp(join(local, 'index'), join(target, 'index'));
+  await writeFile(join(target, 'HEAD'), `${head}\n`);
+  await writeFile(join(target, 'packed-refs'), `${refs}\n`);
+  await mkdir(join(target, 'refs'));
+  await writeFile(join(target, 'index'), index);
   // A linked checkout's config must not redirect commands back to the source.
   await writeFile(
     join(target, 'config'),
@@ -104,9 +111,9 @@ async function copyDependencies(
 
 /** Preserve dirty/untracked inputs and installed dependencies, never another run's outputs. */
 export async function createCheckSnapshot(source: string): Promise<string> {
-  const container = await mkdtemp(join(tmpdir(), 'check-run-'));
+  const container = mkdtempSync(join(tmpdir(), 'check-run-'));
   const destination = join(container, 'workspace');
-  await mkdir(destination);
+  mkdirSync(destination);
   try {
     const paths = git(source, [
       'ls-files',

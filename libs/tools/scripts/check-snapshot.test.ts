@@ -45,15 +45,32 @@ test('overlapping runs isolate dirty inputs, workspace imports, logs, restores a
     );
     mkdirSync(join(source, '.cache'), { recursive: true });
     writeFileSync(join(source, '.cache/evidence.json'), 'stale');
-    runs.push(
-      ...(await Promise.all([
-        createCheckSnapshot(source),
-        createCheckSnapshot(source),
-      ]))
+    // regression: check-snapshot-head-race
+    const head = git('rev-parse', 'HEAD').toString().trim();
+    const pending = Promise.all([
+      createCheckSnapshot(source),
+      createCheckSnapshot(source),
+    ]);
+    git(
+      '-c',
+      'user.name=Fixture',
+      '-c',
+      'user.email=fixture@example.com',
+      'commit',
+      '--allow-empty',
+      '-qm',
+      'concurrent commit'
     );
+    runs.push(...(await pending));
     const [first, second] = runs as [string, string];
     expect(first).not.toBe(second);
     for (const root of runs) {
+      expect(
+        execFileSync('git', ['rev-parse', 'HEAD'], {
+          cwd: root,
+          encoding: 'utf8',
+        }).trim()
+      ).toBe(head);
       expect(readFileSync(join(root, 'node_modules/input.ts'), 'utf8')).toBe(
         'dirty input'
       );
