@@ -9,7 +9,7 @@ import { collectArtifacts } from './collect';
 import { snapshotFingerprint } from './fingerprint';
 import sources from './ui-quality/sources.json';
 
-const ROOT = resolve(import.meta.dir, '../../../..');
+const ROOT = resolve(import.meta.dir, '../../..');
 const OUTPUT = join(ROOT, 'apps/product/.cache/ui-quality-inputs');
 
 function store(rootDir: string) {

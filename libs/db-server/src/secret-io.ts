@@ -4,7 +4,7 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/rep
 import { createSecretAdminStore } from '@pkgs/secret-provider-server/create-secret-admin-store';
 import type { SecretAdminStore } from '@pkgs/secret-store-shared/admin-interface';
 
-const REPO_ROOT = join(import.meta.dirname, '../../..', '..', '..', '..');
+const REPO_ROOT = join(import.meta.dirname, '..', '..', '..');
 
 let adminStorePromise: Promise<SecretAdminStore> | null = null;
 

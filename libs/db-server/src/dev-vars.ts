@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../../..');
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../..');
 /** Wrangler worker secrets written by `apps/server/scripts/setup-dev-vars.ts`. */
 export const DEV_VARS_PATH = join(REPO_ROOT, 'apps/server/.dev.vars');
 
