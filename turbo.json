@@ -793,7 +793,12 @@
     },
     "@apps/product#deploy": {
       "cache": false,
-      "dependsOn": ["@libs/runtime#migrate", "@apps/server#check:api"]
+      "dependsOn": [
+        "@libs/runtime#migrate",
+        "@apps/server#check:api",
+        "@apps/product#check:offline-shell",
+        "@apps/product#check:worker-bundle"
+      ]
     },
     "@libs/infra#apply:edge": {
       "cache": false,
