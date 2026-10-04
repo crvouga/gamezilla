@@ -77,13 +77,21 @@ deny contains msg if {
 	msg := "refusing to tear down a production environment"
 }
 
-# Production brake: a plan that deletes most of a resource type is almost
-# certainly a broken or truncated configuration, not an intended change.
+# A delete with no matching create: the configuration no longer declares it.
+drops(rc) if {
+	deletes(rc)
+	not "create" in rc.change.actions
+}
+
+# Production brake: a plan that drops most of a resource type is almost
+# certainly a broken or truncated configuration, not an intended change. A
+# replace still declares the resource, so it is no evidence of truncation —
+# and a replace of anything that may hold data is already denied above.
 deny contains msg if {
 	protection == "production"
 	some type in {rc.type | some rc in managed_changes}
 	instances := [rc | some rc in managed_changes; rc.type == type]
-	removed := [rc | some rc in instances; deletes(rc)]
+	removed := [rc | some rc in instances; drops(rc)]
 	count(removed) >= 2
 	count(removed) * 2 > count(instances)
 	msg := sprintf(
