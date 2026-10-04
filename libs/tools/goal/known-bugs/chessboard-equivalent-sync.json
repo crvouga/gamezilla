@@ -1,0 +1,4 @@
+{
+  "summary": "Equivalent parent updates discard a selected piece.",
+  "regressionTest": "specs/chess-board/board-authority.feature"
+}

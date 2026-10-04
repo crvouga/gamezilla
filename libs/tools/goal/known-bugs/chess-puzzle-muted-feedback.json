@@ -1,0 +1,4 @@
+{
+  "summary": "Puzzle correct-move, solved and rating feedback played while the app sounds preference was muted. Honor the preference and cancel delayed seek-to-play starts.",
+  "regressionTest": "specs/chess/puzzle-sound.feature"
+}

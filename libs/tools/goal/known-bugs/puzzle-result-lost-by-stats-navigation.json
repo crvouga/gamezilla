@@ -1,0 +1,4 @@
+{
+  "summary": "After a finish arrived while the app was closed, reopening offline and going to stats as the connection returned disposed the board recorder before it heard the result. Result reconciliation now lives across chess menu, stats and settings navigation; the literal close, offline return, reconnect and stats sequence is pinned.",
+  "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+}

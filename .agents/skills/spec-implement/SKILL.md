@@ -29,7 +29,7 @@ P1–P4); test rules are [`README.md`](../../../README.md#correctness-machinery)
 ### 1. Red
 
 1. Read the scenarios, the context's glossary, and the package's catalog
-   ([index](../../../docs/STEPS_CATALOG.md)).
+   ([index](../../../docs/STEPS_CATALOG.md); `bun run spec:catalog` refreshes it).
 2. Run them: `bun run spec specs/<domain>/<file>.feature` (or
    `--package <workspace> -t '<scenario name>'`).
 3. Show the output. Each new scenario must fail as one of:
@@ -116,8 +116,8 @@ steps never call other steps.
 3. Next scenario. Repeat 1–3 until every scenario in the handoff passes.
 4. A bug you found on the way: an observable one gets a `@regression:<id>`
    scenario (request it from `spec-upsert`); an internal one gets an
-   example test marked `// regression: <id>`; both get a `known-bugs.json`
-   entry.
+   example test marked `// regression: <id>`; both get a
+   `libs/tools/goal/known-bugs/<id>.json`.
 
 ### 4. Whole context, then gates
 
@@ -136,7 +136,7 @@ steps never call other steps.
    test fail, restore.
 3. Move ties (P4): `@goal` → a `test` proof in
    `libs/tools/goal/goal-checks.json`; `@regression` → an example test with
-   `// regression: <id>` and `regressionTest` in `known-bugs.json`.
+   `// regression: <id>` and `regressionTest` in `known-bugs/<id>.json`.
 4. Commit that. Then hand the scenario's removal to `spec-upsert` as a
    `spec:` commit; rebind or delete its steps after.
 

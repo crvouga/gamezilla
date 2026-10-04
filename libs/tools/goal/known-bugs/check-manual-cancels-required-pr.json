@@ -1,0 +1,4 @@
+{
+  "summary": "On PR #107 at 2a2bda778fd0e66af2a74c7e02ecea6fb80c8956, bun check's manual dispatch cancelled the required PR Check run 36959395506, leaving the PR red despite a successful manual run. Check now observes the automatic PR run and resumes cancelled runs instead of dispatching over them.",
+  "regressionTest": "libs/tools/scripts/workflow-check-run.test.ts"
+}

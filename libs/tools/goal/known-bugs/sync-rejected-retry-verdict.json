@@ -1,0 +1,4 @@
+{
+  "summary": "An identical retry of a permanently rejected mutation returned applied after the original rejection response was lost. Replay now reads the permanent stored verdict, including acknowledged rejection rows.",
+  "regressionTest": "pkgs/sync-engine/tests/rejected-retry.test.ts"
+}

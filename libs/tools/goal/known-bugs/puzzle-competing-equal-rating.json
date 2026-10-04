@@ -1,0 +1,4 @@
+{
+  "summary": "Competing failed and hinted results had equal ratings, so rating equality completed recovery before the first result reached the returning device. Wait for the actual local result ledger to converge while retaining rendered statistics as the model observation.",
+  "regressionTest": "libs/chess/tests/quint/puzzle-result-recovery.binding.ts"
+}

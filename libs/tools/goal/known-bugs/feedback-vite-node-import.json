@@ -1,0 +1,4 @@
+{
+  "summary": "The feedback Vite plugin eagerly imported workspace runtime TypeScript while Node evaluated the build config, so its extensionless imports failed with ERR_MODULE_NOT_FOUND. Load the dev backend through Vite only when configuring the dev server.",
+  "regressionTest": "pkgs/feedback/tests/vite-config.contract.test.ts"
+}

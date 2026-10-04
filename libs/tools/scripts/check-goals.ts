@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
- * Known-bug gate (`//#ci:goals`): every entry in
- * `libs/tools/goal/known-bugs.json` is guarded by an example regression
+ * Known-bug gate (`//#ci:goals`): every
+ * `libs/tools/goal/known-bugs/<id>.json` is guarded by an example regression
  * test. Proof files inside a package are checked by that package's `lint`;
  * this gate checks the bookkeeping and any proof outside the package tiers.
  *
@@ -10,11 +10,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type { KnownBug } from '../goal/goal-manifest';
 import { validateGoalGate } from '../goal/goal-manifest';
+import { readKnownBugs } from '../goal/known-bugs';
 
 const ROOT = join(import.meta.dirname, '../../..');
-const BUGS_PATH = 'libs/tools/goal/known-bugs.json';
 
 function readRepoFile(path: string): string | null {
   try {
@@ -24,17 +23,8 @@ function readRepoFile(path: string): string | null {
   }
 }
 
-function readJson<T>(path: string): T {
-  const body = readRepoFile(path);
-  if (body === null) {
-    console.error(`known-bug gate: missing ${path}`);
-    process.exit(1);
-  }
-  return JSON.parse(body) as T;
-}
-
 const args = new Set(process.argv.slice(2));
-const knownBugs = readJson<readonly KnownBug[]>(BUGS_PATH);
+const knownBugs = readKnownBugs(ROOT);
 const errors = validateGoalGate({
   knownBugs,
   proofFiles: {

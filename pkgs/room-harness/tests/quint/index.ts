@@ -3,12 +3,11 @@
  * trace world and every model's binding.
  */
 
-import './tally.binding';
-import './tally-recovery.binding';
-import './ownership.binding';
-import './match-clock.binding';
-import './match-recovery.binding';
-
 import { useRoomTraceWorld } from './world';
+
+// Every `*.binding.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.binding.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useRoomTraceWorld();

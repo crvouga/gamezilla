@@ -1,0 +1,4 @@
+{
+  "summary": "Widths outside the playable range accept moves and retain selection or promotion after shrinking.",
+  "regressionTest": "specs/chess-board/board-options.feature"
+}

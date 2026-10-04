@@ -1,0 +1,4 @@
+{
+  "summary": "Development deploy health loaded the local DOM harness when linking live steps, failing every feature with missing babel-plugin-macros; forcing browser conditions also broke the S3 server adapter. Give live health its own step entry so it runs deployed resource adapters with Bun’s server runtime, while local spec suites retain their Solid preloads.",
+  "regressionTest": "apps/product/scripts/health.test.ts"
+}

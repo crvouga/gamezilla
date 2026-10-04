@@ -1,0 +1,4 @@
+{
+  "summary": "After an optimistic White e2-e4, the parent supplied the canonical Black e7-e5 successor without an intermediate confirmation. The board incorrectly treated it as desync repair and suppressed its highlight and sound. Canonical successors retain move feedback.",
+  "regressionTest": "specs/chess-board/board-authority.feature"
+}

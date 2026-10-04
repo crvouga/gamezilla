@@ -1,0 +1,4 @@
+{
+  "summary": "The Custom Game critical journey had no step bindings in the shared entry, so both the Check and live journey runners failed before exercising the game.",
+  "regressionTest": "specs/journeys/custom-game.feature"
+}

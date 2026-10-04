@@ -1,0 +1,4 @@
+{
+  "summary": "The exact release-graph contract omits the newly required Chessboard consumer conformance gate, rejecting Check and Deploy.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

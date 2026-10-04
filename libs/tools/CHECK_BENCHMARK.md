@@ -308,7 +308,7 @@ abort cancels AWS HTTP requests and terminates the drift process group. Both
 foundation and edge still run, and the unchanged stateful-resource policy must
 pass. Apply retains its existing deployment deadline. Health explicitly installs
 the browser/Solid loader before resolving UI-dependent step modules. Virtual-time
-hang and loader regressions are pinned in `known-bugs.json`.
+hang and loader regressions are pinned in `libs/tools/goal/known-bugs/`.
 
 All 633 required native checks passed in `hxdtv5tczq` and, with diagnostic
 redaction included, `klgp3d4r9v`; infrastructure has 93 passing tests. Tool and

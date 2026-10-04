@@ -24,6 +24,9 @@ if ! bun install; then
   # instead of failing workspace creation.
   echo "!!! bun install postinstall step failed; retrying with --ignore-scripts"
   bun install --ignore-scripts
+  # The root postinstall writes the gitignored generated files (compiled i18n
+  # catalog, step catalogs); --ignore-scripts skipped it.
+  bun run generate || echo "!!! bun run generate failed; run it in this workspace"
   echo "!!! native modules (better-sqlite3) are NOT built in this workspace."
   echo "!!! fix: sudo xcodebuild -license accept && bun install"
 fi

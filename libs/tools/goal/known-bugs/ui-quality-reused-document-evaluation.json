@@ -1,0 +1,4 @@
+{
+  "summary": "The first reused snapshot body was sent as a JavaScript statement sequence, but Bun.WebView evaluates expressions and raised Unexpected token semicolon. Use a single IIFE; native concurrent replay verifies the literal red/blue SVG frames remain correct across reuse.",
+  "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
+}

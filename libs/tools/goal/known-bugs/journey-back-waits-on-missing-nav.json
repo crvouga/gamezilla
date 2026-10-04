@@ -1,0 +1,4 @@
+{
+  "summary": "pressBackUntilVisible spent its whole timeout tapping nav-back even when that control was not on screen, so a screen that appeared during the wait was never noticed. Fixed: with no back control, wait for the destination itself.",
+  "regressionTest": "libs/harness/tests/press-back-until-visible.test.ts"
+}

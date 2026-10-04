@@ -1,0 +1,4 @@
+{
+  "summary": "After Apple deleted an account's only Apple account, the server ended every session but kept each device's live auth_account_devices row, and a device kept its own live row after any sign-out because it only synced the rows of the account it was in. Fixed by tombstoning every membership of an account left with no sign-in method in the same transaction, and syncing each device its own memberships in every account. Found by the accounts Alloy structure audit.",
+  "regressionTest": "libs/auth/src/root/server/changed-auth-user-resync.test.ts"
+}

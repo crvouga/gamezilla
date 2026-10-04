@@ -1,0 +1,4 @@
+{
+  "summary": "Disabling input leaves the lifted avatar and pointer session alive.",
+  "regressionTest": "specs/chess-board/board-authority.feature"
+}

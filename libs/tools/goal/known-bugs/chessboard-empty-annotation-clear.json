@@ -1,0 +1,4 @@
+{
+  "summary": "Clearing personal marks with an ordinary primary input while the mark set was already empty emitted no empty arrow update, so the activity could not observe the clear request.",
+  "regressionTest": "specs/chess-board/board-annotations.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "Creating a space offline was quietly queued. Fixed: it says spaces need a connection.",
+  "regressionTest": "specs/spaces/space-needs-connection.feature"
+}

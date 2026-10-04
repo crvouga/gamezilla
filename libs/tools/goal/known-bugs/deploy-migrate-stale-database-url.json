@@ -1,0 +1,4 @@
+{
+  "summary": "Foundation wrote the new Neki DATABASE_URL, but the migration task preferred the stale process value injected before foundation ran. Worker deploy refreshed its secrets and connected to the new empty database, so readiness and auth failed because client_config did not exist. Fixed by preferring the live post-foundation secret while retaining the injected URL as an offline fallback.",
+  "regressionTest": "libs/runtime/tests/migrate-database-url.test.ts"
+}

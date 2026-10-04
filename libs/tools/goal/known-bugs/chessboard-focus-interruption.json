@@ -1,0 +1,4 @@
+{
+  "summary": "Switching away during a held pointer gesture left its avatar and pointer session alive. Activity focus loss cancels and releases the gesture without a move.",
+  "regressionTest": "specs/chess-board/board-authority.feature"
+}

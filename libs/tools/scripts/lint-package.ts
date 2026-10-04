@@ -26,8 +26,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import type { KnownBug } from '../goal/goal-manifest';
 import { validateProofFiles } from '../goal/goal-manifest';
+import { readKnownBugs } from '../goal/known-bugs';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
@@ -128,7 +128,7 @@ function readJson<T>(path: string): T {
 /** Known-bug regression tests that live in `pkg` still carry their marker. */
 function knownBugsOk(pkg: string): boolean {
   const errors = validateProofFiles({
-    knownBugs: readJson<readonly KnownBug[]>('libs/tools/goal/known-bugs.json'),
+    knownBugs: readKnownBugs(REPO_ROOT),
     files: {
       owns: (path) => path.startsWith(`${pkg}/`),
       read: (path) => {

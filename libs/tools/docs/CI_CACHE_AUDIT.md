@@ -197,7 +197,7 @@ Relative to the supplied slow-run commit:
 - `libs/harness/scripts/test-spec.ts`
 - `libs/harness/scripts/test-spec-empty.test.ts`
 - `libs/tools/docs/CI_CACHE_AUDIT.md`
-- `libs/tools/goal/known-bugs.json`
+- `libs/tools/goal/known-bugs/*.json`
 - `libs/tools/scripts/ci-audit.ts`
 - `libs/tools/scripts/turbo-ci-run.ts`
 - `libs/tools/scripts/turbo-ci-run.test.ts`

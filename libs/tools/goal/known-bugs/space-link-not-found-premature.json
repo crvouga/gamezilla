@@ -1,0 +1,4 @@
+{
+  "summary": "A link to a missing space said it was unavailable before anything had answered, and the same while offline. Fixed: it says the space cannot be found once known, offers the way back, and offline says spaces need a connection.",
+  "regressionTest": "specs/spaces/space-links.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "During a correct move’s automatic reply the board temporarily shows the opponent in check. Coaching incorrectly said the solver’s king was checked and the opponent had already replied. Give neutral reply guidance until the board settles.",
+  "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+}

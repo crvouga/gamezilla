@@ -1,0 +1,4 @@
+{
+  "summary": "When the Check run hit its hard deadline, turbo-ci-run SIGKILLed turbo and claimed turbo prints the tasks still running; it cannot, so the log said only \"deadline reached\" and a 207-task cache miss on a 2-core runner was indistinguishable from a wedged task. Fixed by snapshotting the process tree before the kill and printing each running task with its elapsed time and package.",
+  "regressionTest": "libs/tools/scripts/running-tasks.test.ts"
+}

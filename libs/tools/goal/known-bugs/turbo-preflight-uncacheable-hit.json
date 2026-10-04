@@ -1,0 +1,4 @@
+{
+  "summary": "The preflight remote HEAD lookup could turn a non-cacheable task into a hit. Honor resolvedTaskDefinition.cache so live advisory data is checked on every run.",
+  "regressionTest": "libs/tools/scripts/turbo-preflight.test.ts"
+}

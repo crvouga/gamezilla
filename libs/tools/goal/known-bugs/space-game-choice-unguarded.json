@@ -1,0 +1,4 @@
+{
+  "summary": "The space room's select-game command was accepted from anyone connected (the room route is open to anyone and no command gate existed), so a joined member or someone not in the space could make the game choice; only the host (spaces:select-game) may. Fixed: the room gateway decides the actor's space grants through the permission layer at upgrade, strips any client-supplied grants, and the room refuses SelectGame without them. Found by the space-roles decision table.",
+  "regressionTest": "libs/spaces/tests/space-game-choice.test.ts"
+}

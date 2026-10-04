@@ -1,0 +1,4 @@
+{
+  "summary": "People search waited forever without a connection. Fixed: it says search needs a connection.",
+  "regressionTest": "specs/friends/social-needs-connection.feature"
+}

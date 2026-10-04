@@ -1,0 +1,4 @@
+{
+  "summary": "Reviewing a solved puzzle preserved its completed result but offered no forward control to return to the final position. Solved and skipped boards now expose bounded position navigation.",
+  "regressionTest": "specs/chess/puzzle-assistant-context.feature"
+}

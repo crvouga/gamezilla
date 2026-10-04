@@ -1,0 +1,4 @@
+{
+  "summary": "Activity-supplied feedback text is ignored in the visible badge.",
+  "regressionTest": "specs/chess-board/board-annotations.feature"
+}

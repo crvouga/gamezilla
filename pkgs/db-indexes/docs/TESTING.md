@@ -64,7 +64,7 @@ New normative contracts and outstanding adapter coverage:
 
 1. Extend `tests/generators/statement-ast.ts` render helpers if SQL shape differs.
 2. Pin an example test under `tests/` marked `// regression: <bug-id>`, with
-   its entry in `libs/tools/goal/known-bugs.json`.
+   its file `libs/tools/goal/known-bugs/<bug-id>.json`.
 3. Prefer harness / black-box pins over deep executor mocks.
 
 ```bash

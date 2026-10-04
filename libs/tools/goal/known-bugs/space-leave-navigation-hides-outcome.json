@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving a space navigated through browser history, so joining from a link could send the person to an unrelated screen and hide the outcome. Guests now remain on the open space with an offer to join again; hosts remain on the ended space. Bob joining by link and then leaving is pinned.",
+  "regressionTest": "specs/spaces/space-live-presence.feature"
+}

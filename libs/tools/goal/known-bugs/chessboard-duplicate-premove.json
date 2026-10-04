@@ -1,0 +1,4 @@
+{
+  "summary": "Repeated input queues the same waiting move twice and duplicates its visual preview.",
+  "regressionTest": "specs/chess-board/board-premoves.feature"
+}

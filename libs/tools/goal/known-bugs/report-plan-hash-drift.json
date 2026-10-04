@@ -1,0 +1,4 @@
+{
+  "summary": "A task could execute under a different hash from the preflight plan and publish its evidence under the earlier hash. Verify Turbo's execution or restoration hash before publishing the completed source.",
+  "regressionTest": "libs/tools/scripts/check-report-stream.test.ts"
+}

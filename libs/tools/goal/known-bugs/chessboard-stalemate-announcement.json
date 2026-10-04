@@ -1,0 +1,4 @@
+{
+  "summary": "A stalemating move played end feedback but its live announcement omitted stalemate, leaving silent users without the result. Announce the stalemate alongside the move.",
+  "regressionTest": "specs/chess-board/board-interaction.feature"
+}
