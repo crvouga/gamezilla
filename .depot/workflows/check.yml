@@ -63,6 +63,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.depot/actions/setup
+      # The plan fingerprints the renderer; browser shards must match it.
+      - uses: ./.depot/actions/visual-renderer
       - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
