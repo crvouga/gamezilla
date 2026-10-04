@@ -376,8 +376,8 @@ msgstr "Back to Spaces"
 msgid "Best streak"
 msgstr "Best streak"
 
-#: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-config-client/src/client-config-entity-card.tsx
+#: libs/app-root-client/src/settings-screen.tsx
 #: libs/billing-client/src/billing-screen.tsx
 msgid "Billing"
 msgstr "Billing"
@@ -484,8 +484,8 @@ msgid "Check the spelling or try a different username."
 msgstr "Check the spelling or try a different username."
 
 #: libs/app-root-client/src/multiplayer-chess-client.tsx
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-custom-game-client/src/custom-game-screen.tsx
+#: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Chess"
 msgstr "Chess"
 
@@ -531,8 +531,8 @@ msgstr "Claim this side"
 msgid "Clear"
 msgstr "Clear"
 
-#: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-config-client/src/client-config-screen.tsx
+#: libs/app-root-client/src/settings-screen.tsx
 msgid "Client config"
 msgstr "Client config"
 
@@ -551,8 +551,8 @@ msgstr "Client SQL"
 #: libs/auth-client/src/sign-in-idle-content.tsx
 #: libs/auth-client/src/sign-in-modal.tsx
 #: libs/spaces-client/src/space-chrome-action-bar.tsx
-#: pkgs/ui-root-client/src/close-icon-button.tsx
 #: pkgs/ui-devtools-client/src/tab-strip-tab.tsx
+#: pkgs/ui-root-client/src/close-icon-button.tsx
 msgid "Close"
 msgstr "Close"
 
@@ -1109,9 +1109,9 @@ msgstr "Failed · {0}"
 msgid "Failed · {puzzleRating}"
 msgstr "Failed · {puzzleRating}"
 
+#: pkgs/ui-devtools-client/src/data-table-status.tsx
 #: pkgs/ui-root-client/src/combobox-body.tsx
 #: pkgs/ui-root-client/src/picker.tsx
-#: pkgs/ui-devtools-client/src/data-table-status.tsx
 msgid "Failed to load"
 msgstr "Failed to load"
 
@@ -1529,8 +1529,8 @@ msgstr "Loading puzzle…"
 msgid "Loading sign-in methods…"
 msgstr "Loading sign-in methods…"
 
-#: pkgs/ui-root-client/src/spinner.tsx
 #: pkgs/ui-devtools-client/src/data-table-status.tsx
+#: pkgs/ui-root-client/src/spinner.tsx
 msgid "Loading…"
 msgstr "Loading…"
 
@@ -1624,8 +1624,8 @@ msgstr "Move on to the next puzzle by itself after a solve."
 msgid "moves accepted."
 msgstr "moves accepted."
 
-#: libs/chess-root-client/src/chess-main-menu-view.tsx
 #: libs/chess-matchmaking-client/src/multiplayer-screen.tsx
+#: libs/chess-root-client/src/chess-main-menu-view.tsx
 msgid "Multiplayer chess"
 msgstr "Multiplayer chess"
 
@@ -1867,9 +1867,9 @@ msgstr "Notifications"
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
 
+#: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/performance-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
-#: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/chess-puzzle-client/src/chess-puzzle-feed-settings-modal.tsx
 msgid "Off"
 msgstr "Off"
@@ -1883,11 +1883,11 @@ msgstr "Offer draw"
 msgid "Offline"
 msgstr "Offline"
 
+#: libs/app-config-client/src/client-config-entity-card.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
 #: libs/app-root-client/src/performance-screen.tsx
 #: libs/app-root-client/src/settings-screen.tsx
 #: libs/app-root-client/src/sound-screen.tsx
-#: libs/app-config-client/src/client-config-entity-card.tsx
 msgid "On"
 msgstr "On"
 
@@ -2501,6 +2501,7 @@ msgstr "Server status"
 msgid "Sessions"
 msgstr "Sessions"
 
+#: libs/app-config-client/src/client-config-screen.tsx
 #: libs/app-root-client/src/about-screen.tsx
 #: libs/app-root-client/src/app-header-global-menu.tsx
 #: libs/app-root-client/src/client-events.tsx
@@ -2512,7 +2513,6 @@ msgstr "Sessions"
 #: libs/app-root-client/src/sync-screen.tsx
 #: libs/app-root-client/src/theme-screen.tsx
 #: libs/app-root-client/src/ui-explorer.tsx
-#: libs/app-config-client/src/client-config-screen.tsx
 #: libs/auth-client/src/account-device-detail-screen.tsx
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
@@ -2759,6 +2759,7 @@ msgstr "Space not available"
 msgid "Space renamed"
 msgstr "Space renamed"
 
+#: libs/app-config-client/src/client-config-screen.tsx
 #: libs/app-root-client/src/about-screen.tsx
 #: libs/app-root-client/src/client-events.tsx
 #: libs/app-root-client/src/client-sql.tsx
@@ -2768,7 +2769,6 @@ msgstr "Space renamed"
 #: libs/app-root-client/src/sync-screen.tsx
 #: libs/app-root-client/src/theme-screen.tsx
 #: libs/app-root-client/src/ui-explorer.tsx
-#: libs/app-config-client/src/client-config-screen.tsx
 #: libs/auth-client/src/account-device-detail-screen.tsx
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
