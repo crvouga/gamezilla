@@ -37,6 +37,7 @@
     "@libs/permissions-shared": "workspace:*",
     "@pkgs/db-schema-postgres-shared": "workspace:*",
     "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*",
     "@pkgs/postgres-embedded-server": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
     "@pkgs/sql-client-postgres-shared": "workspace:*",

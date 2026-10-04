@@ -65,6 +65,7 @@ describe('environment protection', () => {
     );
     expect(sharedIdentities(envs)).toEqual([]);
     expect(apiWorkerVars(staging)['OAUTH_STATE_TAG']).toBe('staging');
+    expect(apiWorkerVars(staging)['PUZZLE_MANAGER_ACCOUNT_IDS']).toBe('[]');
   });
 
   test('every rendered Worker carries its env file protection', () => {
