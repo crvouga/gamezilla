@@ -116,7 +116,7 @@ export async function verify(options: VerifyOptions): Promise<VerifyResult> {
   return { ok: true, durationMs: elapsed() };
 }
 
-/** Independent cases share one deadline and at most two solver processes. */
+/** Independent cases share one deadline and at most four solver processes. */
 async function runPhaseGroup(
   phases: readonly VerifyPhase[],
   runPhase: (phase: VerifyPhase) => Promise<VerifyResult | undefined>
@@ -131,7 +131,7 @@ async function runPhaseGroup(
       if (result !== undefined) failure ??= result;
     }
   };
-  await Promise.all(Array.from({ length: Math.min(2, phases.length) }, worker));
+  await Promise.all(Array.from({ length: Math.min(4, phases.length) }, worker));
   return failure;
 }
 

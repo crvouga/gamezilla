@@ -260,7 +260,8 @@ export function turboChildEnv(
     RAYON_NUM_THREADS: '1',
     CHECK_LINT_THREADS: '1',
     GOMAXPROCS: '1',
-    JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=1',
+    MODEL_CHECK_CONCURRENCY: '2',
+    JAVA_TOOL_OPTIONS: '-XX:ActiveProcessorCount=2',
     JVM_GC_ARGS: '-XX:+UseParallelGC -Xmx4096m -Xms128m',
     ...source,
   };

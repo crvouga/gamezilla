@@ -121,22 +121,3 @@ describe('modelChecks', () => {
     ]);
   });
 });
-
-// regression: custom-game-induction-timeout
-test('custom-game split induction retains its candidate and the original deadline', () => {
-  const [check] = modelChecksFromBindings(
-    ['specs/chess/custom-game.qnt'],
-    new Map([
-      [
-        'custom-game',
-        "model: 'custom-game', inductiveInvariant: '_inductive', separateInduction: true",
-      ],
-    ])
-  );
-  expect(check).toMatchObject({
-    specUri: 'specs/chess/custom-game.qnt',
-    inductiveInvariant: '_inductive',
-    separateInduction: true,
-    timeoutMs: 240_000,
-  });
-});

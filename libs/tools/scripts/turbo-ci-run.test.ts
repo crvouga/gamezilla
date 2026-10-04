@@ -185,9 +185,11 @@ test('local and remote checks bound nested native thread pools identically', () 
     'GOMAXPROCS',
     'JAVA_TOOL_OPTIONS',
     'JVM_GC_ARGS',
+    'MODEL_CHECK_CONCURRENCY',
   ])
     expect(local[key]).toBe(remote[key]);
-  expect(local['JAVA_TOOL_OPTIONS']).toBe('-XX:ActiveProcessorCount=1');
+  expect(local['JAVA_TOOL_OPTIONS']).toBe('-XX:ActiveProcessorCount=2');
+  expect(local['MODEL_CHECK_CONCURRENCY']).toBe('2');
   expect(local['JVM_GC_ARGS']).toBe('-XX:+UseParallelGC -Xmx4096m -Xms128m');
   expect(local['GOMAXPROCS']).toBe('1');
   expect(
