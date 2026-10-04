@@ -10,7 +10,7 @@ import type { Sqlite3Static } from '@pkgs/sql-client-sqlite-web-shared/oo1-sql-c
 import {
   isOpfsSahPoolSupported,
   OpfsSahPoolBackend,
-} from '@pkgs/sql-client-sqlite-web-shared/opfs-sah-pool-backend';
+} from '@pkgs/sql-client-sqlite-web-client/opfs-sah-pool-backend';
 import type { SqliteWorkerPort } from '@pkgs/sql-client-sqlite-web-shared/protocol';
 import type { SqliteWorkerBackend } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-host';
 import {

@@ -1,5 +1,5 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import { OPEN_DATABASE_TIMEOUT_MS } from './open-retry';
+import { OPEN_DATABASE_TIMEOUT_MS } from '@pkgs/sql-client-sqlite-web-shared/open-retry';
 import type {
   OwnerRuntime,
   TransportOwnerRuntimeFactory,
@@ -12,18 +12,18 @@ import type {
   RpcOp,
   RpcRequest,
   RpcResponse,
-} from './rpc';
+} from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import {
   awaitRpcResponse,
   createRpcIdFactory,
   HEARTBEAT_INTERVAL_MS,
   settleRpcResponse,
-} from './rpc';
+} from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import {
   SQL_DB_HOST_PROTOCOL_VERSION,
   sqlDbHostSharedWorkerName,
-} from './sql-db-host-protocol';
-import { workerScriptLoadError } from './worker-script-load-error';
+} from '@pkgs/sql-client-sqlite-web-shared/sql-db-host-protocol';
+import { workerScriptLoadError } from '@pkgs/sql-client-sqlite-web-shared/worker-script-load-error';
 
 export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;

@@ -1,8 +1,8 @@
 // @io-wall-ok — SharedWorker entry: wall clock/timers for heartbeat reaping only.
 /// <reference lib="webworker" />
 
-import type { BrokerPort } from './broker-core';
-import { createBrokerCore } from './broker-core';
+import type { BrokerPort } from '@pkgs/sql-client-sqlite-web-shared/broker-core';
+import { createBrokerCore } from '@pkgs/sql-client-sqlite-web-shared/broker-core';
 
 declare const self: SharedWorkerGlobalScope;
 

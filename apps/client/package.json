@@ -54,7 +54,8 @@
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:",
-    "@pkgs/feedback-server": "workspace:*"
+    "@pkgs/feedback-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-web-server": "workspace:*"
   },
   "category": "client"
 }

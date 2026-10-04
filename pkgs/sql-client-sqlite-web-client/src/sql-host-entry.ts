@@ -2,7 +2,7 @@
 
 import { wallTimers } from '@pkgs/clock-shared/wall';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { spawnSqliteWorker } from '@pkgs/sql-client-sqlite-web-shared/spawn-sqlite-worker';
+import { spawnSqliteWorker } from '@pkgs/sql-client-sqlite-web-client/spawn-sqlite-worker';
 import type { SqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 import { createSqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 import type { Value } from '@pkgs/sql-shared/sql';

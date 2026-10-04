@@ -9,7 +9,7 @@ import {
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
-import { sqliteWebAssets } from '../../pkgs/sql-client-sqlite-web-server/scripts/sqlite-web-assets';
+import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server/sqlite-web-assets';
 import { reportsDevPlugin } from './scripts/reports-dev-plugin.ts';
 
 const consoleDir = import.meta.dirname;

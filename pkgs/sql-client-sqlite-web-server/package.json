@@ -8,11 +8,13 @@
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
-    ]
+    ],
+    "./sqlite-web-assets": "./scripts/sqlite-web-assets.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
   },
   "dependencies": {
     "@pkgs/sql-client-shared": "workspace:*",
@@ -25,7 +27,8 @@
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "@pkgs/sql-client-sqlite-web-client": "workspace:*"
   },
   "category": "server"
 }

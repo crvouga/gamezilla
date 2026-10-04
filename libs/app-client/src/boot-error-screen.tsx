@@ -4,7 +4,7 @@ import { reloadApp } from '@libs/app-shared/reload-app';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { useLogger } from '@pkgs/logger-client/solid';
-import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-shared/recover-in-process';
+import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client/recover-in-process';
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import { ErrorState } from '@pkgs/ui-client/error-state';
 import type { JSX } from 'solid-js';

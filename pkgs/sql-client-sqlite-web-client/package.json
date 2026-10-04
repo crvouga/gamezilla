@@ -21,7 +21,8 @@
     "@pkgs/sql-client-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
     "@pkgs/sql-shared": "workspace:*",
-    "@sqlite.org/sqlite-wasm": "catalog:"
+    "@sqlite.org/sqlite-wasm": "catalog:",
+    "@pkgs/sql-client-sqlite-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

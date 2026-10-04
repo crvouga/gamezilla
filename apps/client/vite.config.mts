@@ -10,7 +10,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import solid from 'vite-plugin-solid';
-import { sqliteWebAssets } from '../../pkgs/sql-client-sqlite-web-server/scripts/sqlite-web-assets';
+import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server/sqlite-web-assets';
 
 const clientDir = import.meta.dirname;
 const repoRoot = resolve(clientDir, '../..');

@@ -1,5 +1,5 @@
 // @io-wall-ok
-import type { SqliteWorkerHandle } from './sqlite-worker-sql-owner';
+import type { SqliteWorkerHandle } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 
 export const DEFAULT_SQLITE_WORKER_URL = '/sql-workers/sqlite-worker.js';
 

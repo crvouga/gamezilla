@@ -29,13 +29,13 @@ import type { Plugin } from 'vite';
 /** Bundled with esbuild (not Vite): these are separate worker entry graphs. */
 const WORKER_BUNDLES = [
   { entry: 'db-host-shared-worker.ts', out: 'db-host-shared-worker.js' },
-  { entry: 'sqlite-worker/sqlite-worker-entry.ts', out: 'sqlite-worker.js' },
-  { entry: 'sql-host/sql-host-entry.ts', out: 'sql-host.js' },
+  { entry: 'sqlite-worker-entry.ts', out: 'sqlite-worker.js' },
+  { entry: 'sql-host-entry.ts', out: 'sql-host.js' },
 ] as const;
 
 /** Copied verbatim beside the bundles. */
 const WORKER_COPIES = [
-  { from: 'sql-host/sql-host.html', out: 'sql-host.html' },
+  { from: 'sql-host.html', out: 'sql-host.html' },
 ] as const;
 
 /** Stale expo-sqlite-era artifacts the OPFS SAH-pool build no longer emits. */
@@ -47,7 +47,7 @@ const STALE_WORKER_FILES = [
 ];
 
 export type SqlWorkersOptions = {
-  /** Monorepo root. Worker sources live at `pkgs/sql-client-sqlite-web/src`. */
+  /** Monorepo root. Worker sources live at `pkgs/sql-client-sqlite-web-client/src`. */
   repoRoot: string;
   /** Directory the worker assets are emitted into. */
   outDir: string;
@@ -61,7 +61,7 @@ export type SqliteWasmOptions = {
   outDir: string;
 };
 
-const PKG_DIR = 'pkgs/sql-client-sqlite-web';
+const PKG_DIR = 'pkgs/sql-client-sqlite-web-client';
 
 function pkgSrc(repoRoot: string): string {
   return join(repoRoot, PKG_DIR, 'src');

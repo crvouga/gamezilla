@@ -5,20 +5,27 @@ import type {
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-shared/connection-pragmas';
-import type { ActiveTx, OwnerHandlerDeps } from './owner-handlers';
-import { handleOwnerRequest } from './owner-handlers';
+import type {
+  ActiveTx,
+  OwnerHandlerDeps,
+} from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
+import { handleOwnerRequest } from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
 import { openSqlOwnerWithRecovery } from './recover-in-process';
-import type { DbChangedNotify, RpcRequest, RpcResponse } from './rpc';
+import type {
+  DbChangedNotify,
+  RpcRequest,
+  RpcResponse,
+} from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import {
   createRpcIdFactory,
   RPC_ERROR_TX_ABORTED,
   RPC_ERROR_TX_TIMEOUT,
   TX_IDLE_TIMEOUT_MS,
-} from './rpc';
+} from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import { spawnSqliteWorker } from './spawn-sqlite-worker';
-import type { SqlOwner } from './sql-owner';
-import { sqlFromWire } from './sql-wire';
-import { createSqliteWorkerSqlOwner } from './sqlite-worker-sql-owner';
+import type { SqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sql-owner';
+import { sqlFromWire } from '@pkgs/sql-client-sqlite-web-shared/sql-wire';
+import { createSqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 
 export type OwnerRuntime = {
   readonly dbName: string;

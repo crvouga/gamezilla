@@ -2,7 +2,7 @@ import type { Timers } from '@pkgs/clock-shared/types';
 import type {
   OwnerRuntime,
   TransportOwnerRuntimeFactory,
-} from '@pkgs/sql-client-sqlite-web-shared/owner-runtime';
+} from '@pkgs/sql-client-sqlite-web-client/owner-runtime';
 import type {
   BrokerToTabMessage,
   ConnectResult,

@@ -149,7 +149,8 @@
     "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:",
     "wrangler": "catalog:",
-    "@pkgs/feedback-server": "workspace:*"
+    "@pkgs/feedback-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-web-server": "workspace:*"
   },
   "category": "harness",
   "liveDomains": [
