@@ -115,7 +115,7 @@ function kvCommittedLogBlobs(kv: Kv, committedKey: Keyword): CommittedLogBlobs {
  *
  * The committed log lives in fixed-size segment records hanging off
  * `committedKey` (the manifest), so appends never rewrite history. Use a
- * non-secure client {@link Kv} (e.g. the web `@pkgs/kv-web-shared` backend): even a
+ * non-secure client {@link Kv} (e.g. the web `@pkgs/kv-web-client` backend): even a
  * single segment outgrows the secure-store's 2048 UTF-8 byte per-value cap.
  * None of this data is sensitive — it's a recovery cache for
  * replay-on-reconnect.

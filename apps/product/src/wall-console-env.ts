@@ -2,7 +2,7 @@
 import { i18n } from '@lingui/core';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
-import { createBrowserObjectStore } from '@pkgs/object-store-opfs-shared/wall-browser-fs';
+import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client/wall-browser-fs';
 import type { ConsoleEnv } from './root-app';
 
 /** Wall services for the console, never for the actors' in-process HTTP. */

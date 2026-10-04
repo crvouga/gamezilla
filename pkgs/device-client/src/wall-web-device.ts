@@ -5,13 +5,16 @@
  * once and inject the resulting ports.
  */
 
+import type { ClipboardPort } from '@pkgs/device-shared/clipboard';
+import type { HapticsPort } from '@pkgs/device-shared/haptics';
+import {
+  createVibrationHaptics,
+  noopHaptics,
+} from '@pkgs/device-shared/haptics';
+import type { NetworkStatePort } from '@pkgs/device-shared/network-state';
+import { createWebAppLifecycle } from '@pkgs/device-shared/web-app-lifecycle';
+import { createWebNetworkStatePort } from '@pkgs/device-shared/web-network-state';
 import type { AppLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
-import type { ClipboardPort } from './clipboard';
-import type { HapticsPort } from './haptics';
-import { createVibrationHaptics, noopHaptics } from './haptics';
-import type { NetworkStatePort } from './network-state';
-import { createWebAppLifecycle } from './web-app-lifecycle';
-import { createWebNetworkStatePort } from './web-network-state';
 
 type BrowserGlobals = {
   navigator?: {

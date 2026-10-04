@@ -11,11 +11,11 @@ import {
   clearNamespacedKvWeb,
   dumpNamespacedKvWeb,
   KvImplWebNamespaced,
-} from '@pkgs/kv-web-shared/impl-kv-web-namespaced';
+} from '@pkgs/kv-web-client/impl-kv-web-namespaced';
 import {
   clearNamespacedWebSecureStorage,
   createNamespacedWebSecureStorage,
-} from '@pkgs/secure-storage-web-shared/impl-web';
+} from '@pkgs/secure-storage-web-client/impl-web';
 
 const SESSION_SCOPED = new Set(['lastLocalAccountId']);
 

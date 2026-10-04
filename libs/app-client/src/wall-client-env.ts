@@ -15,15 +15,15 @@ import {
   wallWebClipboard,
   wallWebHaptics,
   wallWebNetworkStatePort,
-} from '@pkgs/device-shared/wall-web-device';
+} from '@pkgs/device-client/wall-web-device';
 import { gateFetchUntilAvailable } from '@pkgs/http-client-shared/gate-fetch-until-available';
 import { createHealthOriginAvailability } from '@pkgs/http-client-shared/origin-availability';
-import { KvImplWeb } from '@pkgs/kv-web-shared/impl-kv-web';
+import { KvImplWeb } from '@pkgs/kv-web-client/impl-kv-web';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { createBrowserObjectStore } from '@pkgs/object-store-opfs-shared/wall-browser-fs';
+import { createBrowserObjectStore } from '@pkgs/object-store-opfs-client/wall-browser-fs';
 import { createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import { createWebSecureStorage } from '@pkgs/secure-storage-web-shared/impl-web';
+import { createWebSecureStorage } from '@pkgs/secure-storage-web-client/impl-web';
 import { createWebAudioPlaybackPort } from '@pkgs/sounds-shared/web-audio-playback-port';
 import {
   pendingInteractionRequestTraceparent,

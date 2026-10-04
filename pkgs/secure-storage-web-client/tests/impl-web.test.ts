@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 
-import { createWebSecureStorage } from '@pkgs/secure-storage-web-shared/impl-web';
+import { createWebSecureStorage } from '@pkgs/secure-storage-web-client/impl-web';
 
 function installMemoryStorage(): Storage {
   const map = new Map<string, string>();

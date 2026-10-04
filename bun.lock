@@ -61,6 +61,7 @@
       "devDependencies": {
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
+        "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/assert-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
@@ -120,6 +121,7 @@
         "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
+        "@pkgs/object-store-opfs-client": "workspace:*",
         "@pkgs/object-store-opfs-shared": "workspace:*",
         "@pkgs/object-store-shared": "workspace:*",
         "@pkgs/polyfill-shared": "workspace:*",
@@ -149,6 +151,7 @@
         "@libs/pubsub-shared": "workspace:*",
         "@libs/secrets-server": "workspace:*",
         "@libs/secrets-shared": "workspace:*",
+        "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/auth-inhouse-server": "workspace:*",
         "@pkgs/auth-inhouse-shared": "workspace:*",
@@ -370,12 +373,12 @@
         "@pkgs/keyword-shared": "workspace:*",
         "@pkgs/kv-client": "workspace:*",
         "@pkgs/kv-shared": "workspace:*",
-        "@pkgs/kv-web-shared": "workspace:*",
+        "@pkgs/kv-web-client": "workspace:*",
         "@pkgs/llm-client": "workspace:*",
         "@pkgs/logger-client": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/object-store-client": "workspace:*",
-        "@pkgs/object-store-opfs-shared": "workspace:*",
+        "@pkgs/object-store-opfs-client": "workspace:*",
         "@pkgs/object-store-shared": "workspace:*",
         "@pkgs/observability-shared": "workspace:*",
         "@pkgs/pubsub-aedes-shared": "workspace:*",
@@ -384,7 +387,7 @@
         "@pkgs/room-shared": "workspace:*",
         "@pkgs/secure-storage-client": "workspace:*",
         "@pkgs/secure-storage-shared": "workspace:*",
-        "@pkgs/secure-storage-web-shared": "workspace:*",
+        "@pkgs/secure-storage-web-client": "workspace:*",
         "@pkgs/solid-context-client": "workspace:*",
         "@pkgs/sounds-client": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
@@ -1542,7 +1545,7 @@
         "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/kv-postgres-shared": "workspace:*",
         "@pkgs/kv-shared": "workspace:*",
-        "@pkgs/kv-web-shared": "workspace:*",
+        "@pkgs/kv-web-client": "workspace:*",
         "@pkgs/llm-server": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/matchmaking-sql-shared": "workspace:*",
@@ -1561,7 +1564,7 @@
         "@pkgs/room-shared": "workspace:*",
         "@pkgs/secret-store-shared": "workspace:*",
         "@pkgs/secure-storage-shared": "workspace:*",
-        "@pkgs/secure-storage-web-shared": "workspace:*",
+        "@pkgs/secure-storage-web-client": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
         "@pkgs/sql-client-harness": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
@@ -3316,6 +3319,7 @@
       "dependencies": {
         "@pkgs/device-shared": "workspace:*",
         "@pkgs/solid-context-client": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {
@@ -3853,8 +3857,8 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/kv-web-shared": {
-      "name": "@pkgs/kv-web-shared",
+    "pkgs/kv-web-client": {
+      "name": "@pkgs/kv-web-client",
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/assert-shared": "workspace:*",
@@ -4166,6 +4170,19 @@
     "pkgs/object-store-node-fs-shared": {
       "name": "@pkgs/object-store-node-fs-shared",
       "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/object-store-opfs-client": {
+      "name": "@pkgs/object-store-opfs-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/object-store-opfs-shared": "workspace:*",
+        "@pkgs/object-store-shared": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -4969,15 +4986,15 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/secure-storage-web-shared": {
-      "name": "@pkgs/secure-storage-web-shared",
+    "pkgs/secure-storage-web-client": {
+      "name": "@pkgs/secure-storage-web-client",
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/secure-storage-shared": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/keyword-shared": "workspace:*",
-        "@pkgs/kv-web-shared": "workspace:*",
+        "@pkgs/kv-web-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -5460,6 +5477,9 @@
     "pkgs/tailwind-shared": {
       "name": "@pkgs/tailwind-shared",
       "version": "0.0.0",
+      "dependencies": {
+        "tailwindcss": "catalog:",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -7154,7 +7174,7 @@
 
     "@pkgs/kv-shared": ["@pkgs/kv-shared@workspace:pkgs/kv-shared"],
 
-    "@pkgs/kv-web-shared": ["@pkgs/kv-web-shared@workspace:pkgs/kv-web-shared"],
+    "@pkgs/kv-web-client": ["@pkgs/kv-web-client@workspace:pkgs/kv-web-client"],
 
     "@pkgs/llm-client": ["@pkgs/llm-client@workspace:pkgs/llm-client"],
 
@@ -7197,6 +7217,8 @@
     "@pkgs/object-store-node-fs-server": ["@pkgs/object-store-node-fs-server@workspace:pkgs/object-store-node-fs-server"],
 
     "@pkgs/object-store-node-fs-shared": ["@pkgs/object-store-node-fs-shared@workspace:pkgs/object-store-node-fs-shared"],
+
+    "@pkgs/object-store-opfs-client": ["@pkgs/object-store-opfs-client@workspace:pkgs/object-store-opfs-client"],
 
     "@pkgs/object-store-opfs-shared": ["@pkgs/object-store-opfs-shared@workspace:pkgs/object-store-opfs-shared"],
 
@@ -7306,7 +7328,7 @@
 
     "@pkgs/secure-storage-shared": ["@pkgs/secure-storage-shared@workspace:pkgs/secure-storage-shared"],
 
-    "@pkgs/secure-storage-web-shared": ["@pkgs/secure-storage-web-shared@workspace:pkgs/secure-storage-web-shared"],
+    "@pkgs/secure-storage-web-client": ["@pkgs/secure-storage-web-client@workspace:pkgs/secure-storage-web-client"],
 
     "@pkgs/solid-context-client": ["@pkgs/solid-context-client@workspace:pkgs/solid-context-client"],
 

@@ -237,7 +237,7 @@
       "@pkgs/kv-client/*": ["./pkgs/kv-client/src/*"],
       "@pkgs/kv-postgres-shared/*": ["./pkgs/kv-postgres-shared/src/*"],
       "@pkgs/kv-shared/*": ["./pkgs/kv-shared/src/*"],
-      "@pkgs/kv-web-shared/*": ["./pkgs/kv-web-shared/src/*"],
+      "@pkgs/kv-web-client/*": ["./pkgs/kv-web-client/src/*"],
       "@pkgs/llm-client/*": ["./pkgs/llm-client/src/*"],
       "@pkgs/llm-openai-server/*": ["./pkgs/llm-openai-server/src/*"],
       "@pkgs/llm-openai-shared/*": ["./pkgs/llm-openai-shared/src/*"],
@@ -334,8 +334,8 @@
       "@pkgs/secrets-config-shared/*": ["./pkgs/secrets-config-shared/src/*"],
       "@pkgs/secure-storage-client/*": ["./pkgs/secure-storage-client/src/*"],
       "@pkgs/secure-storage-shared/*": ["./pkgs/secure-storage-shared/src/*"],
-      "@pkgs/secure-storage-web-shared/*": [
-        "./pkgs/secure-storage-web-shared/src/*"
+      "@pkgs/secure-storage-web-client/*": [
+        "./pkgs/secure-storage-web-client/src/*"
       ],
       "@pkgs/solid-context-client/*": ["./pkgs/solid-context-client/src/*"],
       "@pkgs/sounds-client/*": ["./pkgs/sounds-client/src/*"],
@@ -414,6 +414,9 @@
       "@pkgs/word-filter-shared/*": ["./pkgs/word-filter-shared/src/*"],
       "@pkgs/observability-runtime-shared/*": [
         "./pkgs/observability-runtime-shared/src/*"
+      ],
+      "@pkgs/object-store-opfs-client/*": [
+        "./pkgs/object-store-opfs-client/src/*"
       ]
     }
   }

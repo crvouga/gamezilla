@@ -44,12 +44,11 @@
     "@pkgs/keyword-shared": "workspace:*",
     "@pkgs/kv-client": "workspace:*",
     "@pkgs/kv-shared": "workspace:*",
-    "@pkgs/kv-web-shared": "workspace:*",
+    "@pkgs/kv-web-client": "workspace:*",
     "@pkgs/llm-client": "workspace:*",
     "@pkgs/logger-client": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/object-store-client": "workspace:*",
-    "@pkgs/object-store-opfs-shared": "workspace:*",
     "@pkgs/object-store-shared": "workspace:*",
     "@pkgs/observability-shared": "workspace:*",
     "@pkgs/pubsub-aedes-shared": "workspace:*",
@@ -58,7 +57,7 @@
     "@pkgs/room-shared": "workspace:*",
     "@pkgs/secure-storage-client": "workspace:*",
     "@pkgs/secure-storage-shared": "workspace:*",
-    "@pkgs/secure-storage-web-shared": "workspace:*",
+    "@pkgs/secure-storage-web-client": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",
@@ -79,7 +78,8 @@
     "solid-js": "catalog:",
     "web-vitals": "catalog:",
     "workbox-window": "catalog:",
-    "@pkgs/git-shared": "workspace:*"
+    "@pkgs/git-shared": "workspace:*",
+    "@pkgs/object-store-opfs-client": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/a11y-shared": "workspace:*",

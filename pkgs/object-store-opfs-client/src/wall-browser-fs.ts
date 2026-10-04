@@ -6,11 +6,11 @@
  * receives the resulting {@link ObjectStore} by injection.
  */
 
+import type { CacheStorageLike } from '@pkgs/object-store-opfs-shared/impl-cache-api';
+import { createCacheApiObjectStore } from '@pkgs/object-store-opfs-shared/impl-cache-api';
+import { createOpfsObjectStore } from '@pkgs/object-store-opfs-shared/impl-opfs';
+import type { OpfsDirHandle } from '@pkgs/object-store-opfs-shared/opfs';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { CacheStorageLike } from './impl-cache-api';
-import { createCacheApiObjectStore } from './impl-cache-api';
-import { createOpfsObjectStore } from './impl-opfs';
-import type { OpfsDirHandle } from './opfs';
 
 type BrowserStorageGlobals = {
   navigator?: { storage?: { getDirectory?: () => Promise<OpfsDirHandle> } };

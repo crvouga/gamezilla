@@ -4,6 +4,7 @@
  * changes per move; the per-frame paths (drag, hover) are imperative.
  */
 
+import { createBoardHaptics } from '@pkgs/chess-board-client/chess-board-haptics';
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
 import type {
   BoardOrientation,
@@ -16,7 +17,6 @@ import {
   defaultBoardTheme,
   mergeBoardTheme,
 } from '@pkgs/chess-board-shared/board-theme';
-import { createBoardHaptics } from '@pkgs/chess-board-shared/chess-board-haptics';
 import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { defaultCursorSquare } from '@pkgs/chess-board-shared/keyboard-nav';
 import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';

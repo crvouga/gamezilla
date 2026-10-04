@@ -16,6 +16,7 @@
  *   pressed during a left drag cancels the drag (the piece springs back).
  */
 
+import type { Haptics } from '@pkgs/chess-board-client/chess-board-haptics';
 import { brushFromModifiers } from '@pkgs/chess-board-core-shared/board-shapes';
 import type { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
 import type {
@@ -30,7 +31,6 @@ import {
 } from '@pkgs/chess-board-shared/board-box';
 import type { MotionPolicy } from '@pkgs/chess-board-shared/board-motion';
 import { settleDurationMs } from '@pkgs/chess-board-shared/board-motion';
-import type { Haptics } from '@pkgs/chess-board-shared/chess-board-haptics';
 import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
 import type {
   HoverSquare,

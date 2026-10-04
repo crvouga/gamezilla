@@ -465,7 +465,7 @@
     "pkgs/kv-client/src/**/*.ts",
     "pkgs/kv-postgres-shared/src/**/*.ts",
     "pkgs/kv-postgres-harness/src/**/*.ts",
-    "pkgs/kv-web-shared/src/**/*.ts",
+    "pkgs/kv-web-client/src/**/*.ts",
     "pkgs/entity-store-shared/src/**/*.ts",
     "pkgs/entity-store-harness/src/**/*.ts",
     "pkgs/observability-client/src/**/*.ts",
@@ -529,8 +529,8 @@
     "pkgs/ui-testing-bun-webview-shared/src/**/*.tsx",
     "pkgs/ui-testing-bun-webview-server/src/**/*.tsx",
     "pkgs/ui-testing-bun-webview-harness/src/**/*.tsx",
-    "pkgs/secure-storage-web-shared/src/**/*.ts",
-    "pkgs/secure-storage-web-shared/src/**/*.tsx",
+    "pkgs/secure-storage-web-client/src/**/*.ts",
+    "pkgs/secure-storage-web-client/src/**/*.tsx",
     "pkgs/assert-crash-browser-shared/src/**/*.ts",
     "pkgs/assert-crash-browser-shared/src/**/*.tsx",
     "pkgs/assert-crash-node-shared/src/**/*.ts",
@@ -575,7 +575,9 @@
     "pkgs/ui-quality-check-shared/src/**/*.ts",
     "pkgs/ui-quality-check-server/scripts/**/*.ts",
     "pkgs/ui-quality-check-shared/scripts/**/*.ts",
-    "pkgs/observability-runtime-shared/src/**/*.ts"
+    "pkgs/observability-runtime-shared/src/**/*.ts",
+    "pkgs/object-store-opfs-client/src/**/*.ts",
+    "pkgs/object-store-opfs-client/tests/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "web-build"]
 }

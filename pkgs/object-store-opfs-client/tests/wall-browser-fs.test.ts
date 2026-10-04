@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import { createMemoryOpfsRoot } from '@pkgs/object-store-opfs-shared/memory-opfs';
 import {
   createBrowserObjectStore,
   wallCacheStorage,
   wallOpfsRoot,
-} from '@pkgs/object-store-opfs-shared/wall-browser-fs';
+} from '@pkgs/object-store-opfs-client/wall-browser-fs';
+import { createMemoryOpfsRoot } from '@pkgs/object-store-opfs-shared/memory-opfs';
 
 type MutableGlobals = { navigator?: unknown; caches?: unknown };
 const g = globalThis as unknown as MutableGlobals;

@@ -2,12 +2,12 @@
  * Namespaced web durable dumps for product-harness client checkpoints.
  */
 
-import { clearNamespacedAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import { clearNamespacedAuthClientStorage } from '@pkgs/auth-inhouse-client/bearer-token-storage-web';
 import {
   clearNamespacedKvWeb,
   dumpNamespacedKvWeb,
-} from '@pkgs/kv-web-shared/impl-kv-web-namespaced';
-import { clearNamespacedWebSecureStorage } from '@pkgs/secure-storage-web-shared/impl-web';
+} from '@pkgs/kv-web-client/impl-kv-web-namespaced';
+import { clearNamespacedWebSecureStorage } from '@pkgs/secure-storage-web-client/impl-web';
 
 /** Mirrors `@pkgs/secure-storage` session-scoped keys (tab-local). */
 const SESSION_SCOPED_DURABLE_KEYS = new Set(['lastLocalAccountId']);

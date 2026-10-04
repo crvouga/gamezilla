@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe } from 'bun:test';
 import { runKvContractTests } from '@pkgs/kv-shared/kv-contract';
-import { KvImplWeb } from '@pkgs/kv-web-shared/impl-kv-web';
+import { KvImplWeb } from '@pkgs/kv-web-client/impl-kv-web';
 
 function createLocalStoragePolyfill(): Storage {
   const map = new Map<string, string>();

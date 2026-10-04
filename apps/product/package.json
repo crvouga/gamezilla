@@ -96,7 +96,8 @@
     "hono": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:",
-    "@pkgs/tailwind-shared": "workspace:*"
+    "@pkgs/tailwind-shared": "workspace:*",
+    "@pkgs/object-store-opfs-client": "workspace:*"
   },
   "devDependencies": {
     "@clack/prompts": "catalog:",
@@ -150,7 +151,8 @@
     "workbox-build": "catalog:",
     "wrangler": "catalog:",
     "@pkgs/feedback-server": "workspace:*",
-    "@pkgs/sql-client-sqlite-web-server": "workspace:*"
+    "@pkgs/sql-client-sqlite-web-server": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:"
   },
   "category": "harness",
   "liveDomains": [
