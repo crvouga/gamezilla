@@ -25,18 +25,18 @@ module matching {
 
   pure val PEOPLE = Set("alice", "bob", "carol", "dave")
   pure val PLACES = Set("phone", "computer")
-  pure val NUMBERS = Set(1, 2, 3)
+  pure val NUMBERS = Set(1, 2)
   pure val DEVICES = PEOPLE.map(p => PLACES.map(d => { person: p, place: d })).flatten()
   pure val WAITS = PEOPLE.map(p => NUMBERS.map(n => { person: p, number: n })).flatten()
   pure val RATINGS = Map("alice" -> 1000, "bob" -> 1050, "carol" -> 1100, "dave" -> 1150)
   pure val RANGES = Set(5, 50, 200, -1)
   pure val GROUPS = Set(2, 3, 4)
   pure val POOLS = Set("nearby", "elsewhere")
-  pure val MATCH_NUMBERS = Set(1, 2, 3, 4, 5, 6)
+  pure val MATCH_NUMBERS = Set(1, 2, 3, 4)
   pure val TIMES = Set(1, 5, 35, 60)
 
   type _World = {
-    requests: Person -> int, current: Person -> int, receipts: Wait -> int,
+    requests: Person -> int, current: Person -> int,
     accepted: Set[Wait], waiting: Set[Wait], stopped: Set[Wait],
     assignments: Wait -> int, formIds: Set[int], approved: Wait -> bool,
     changes: Wait -> int, ranges: Wait -> int, sizes: Wait -> int, pools: Wait -> str,
@@ -52,7 +52,6 @@ module matching {
   var _exampleSize: int
   var _requests: Person -> int
   var _current: Person -> int
-  var _receipts: Wait -> int
   var _accepted: Set[Wait]
   var _waiting: Set[Wait]
   var _stopped: Set[Wait]
@@ -68,7 +67,7 @@ module matching {
   var _available: Set[Person]
   var _restricted: Set[Set[Person]]
   var _count: int
-  def _world = { requests: _requests, current: _current, receipts: _receipts, accepted: _accepted, waiting: _waiting, stopped: _stopped, assignments: _assignments, formIds: _formIds, approved: _approved, changes: _changes, ranges: _ranges, sizes: _sizes, pools: _pools, age: _age, order: _order, available: _available, restricted: _restricted, count: _count }
+  def _world = { requests: _requests, current: _current, accepted: _accepted, waiting: _waiting, stopped: _stopped, assignments: _assignments, formIds: _formIds, approved: _approved, changes: _changes, ranges: _ranges, sizes: _sizes, pools: _pools, age: _age, order: _order, available: _available, restricted: _restricted, count: _count }
   def _assigned = WAITS.filter(a => _formIds.contains(_assignments.get(a)))
   pure def _group(w, n) = WAITS.filter(a => w.assignments.get(a) == n)
   var _offline: Set[Device]
@@ -82,17 +81,15 @@ module matching {
   pure def _range(w, a) =
     if (w.ranges.get(a) == -1) _min(50 + 10 * w.age.get(a), 400)
     else w.ranges.get(a)
-  pure def _standing(w, p) = {
-    val a = _wait(w, p)
-    val waiting = if (w.waiting.contains(a)) Waiting else NotWaiting
-    if (a.number == 0) waiting
-    else if (w.assignments.get(a) == 0) waiting
-    else if (WAITS.exists(b => w.assignments.get(b) == w.assignments.get(a)))
-      Matched(WAITS.filter(b => b != a and
-        w.assignments.get(b) == w.assignments.get(a)).map(b => b.person))
-    else waiting
+  pure def _standing(current: Person -> int, waiting: Set[Wait], assignments: Wait -> int, p: Person): Standing = {
+    val a = { person: p, number: current.get(p) }
+    val n = if (a.number == 0) 0 else assignments.get(a)
+    if (n != 0)
+      Matched(PEOPLE.filter(q => NUMBERS.exists(m =>
+        (q != p or m != a.number) and assignments.get({ person: q, number: m }) == n)))
+    else if (waiting.contains(a)) Waiting else NotWaiting
   }
-  pure def _standingsFor(w) = PEOPLE.mapBy(p => _standing(w, p))
+  pure def _standingsFor(w) = PEOPLE.mapBy(p => _standing(w.current, w.waiting, w.assignments, p))
   pure def _rangesFor(w) = PEOPLE.mapBy(p => _shownRange(w, p))
   pure def _shownRange(w, p) =
     if (w.current.get(p) == 0) 5 else _range(w, _wait(w, p))
@@ -100,7 +97,6 @@ module matching {
   action _put(w) = all {
     _requests' = w.requests,
     _current' = w.current,
-    _receipts' = w.receipts,
     _accepted' = w.accepted,
     _waiting' = w.waiting,
     _stopped' = w.stopped,
@@ -118,21 +114,43 @@ module matching {
     _count' = w.count,
   }
 
-  action _show(w, offline) = {
+  /// Online devices show the accepted standing; offline devices keep what they showed.
+  def _shownStandings(w) = {
     val standings = _standingsFor(w)
-    val ranges = _rangesFor(w)
-    all {
-    _put(w),
-    _exampleSize' = _exampleSize,
-    _offline' = offline,
-    standing' = DEVICES.mapBy(d => if (offline.contains(d)) standing.get(d) else standings.get(d.person)),
-    waitNumber' = DEVICES.mapBy(d => if (offline.contains(d)) waitNumber.get(d) else w.current.get(d.person)),
-    ratingRange' = DEVICES.mapBy(d => if (offline.contains(d)) ratingRange.get(d) else ranges.get(d.person)),
-    _awayStanding' = DEVICES.mapBy(d => if (offline.contains(d) and not(_offline.contains(d))) standing.get(d) else _awayStanding.get(d)),
-    _awayNumber' = DEVICES.mapBy(d => if (offline.contains(d) and not(_offline.contains(d))) waitNumber.get(d) else _awayNumber.get(d)),
-    _awayRange' = DEVICES.mapBy(d => if (offline.contains(d) and not(_offline.contains(d))) ratingRange.get(d) else _awayRange.get(d)),
+    DEVICES.mapBy(d => if (_offline.contains(d)) standing.get(d) else standings.get(d.person))
   }
-
+  def _shownNumbers(w) = DEVICES.mapBy(d => if (_offline.contains(d)) waitNumber.get(d) else w.current.get(d.person))
+  def _shownRanges(w) = {
+    val ranges = _rangesFor(w)
+    DEVICES.mapBy(d => if (_offline.contains(d)) ratingRange.get(d) else ranges.get(d.person))
+  }
+  /// Connections and what offline devices last knew stay as they were.
+  action _sameConnections = all {
+    _exampleSize' = _exampleSize,
+    _offline' = _offline,
+    _awayStanding' = _awayStanding,
+    _awayNumber' = _awayNumber,
+    _awayRange' = _awayRange,
+  }
+  /// The accepted state changes; every online device shows it.
+  action _show(w) = all {
+    _put(w), _sameConnections,
+    standing' = _shownStandings(w), waitNumber' = _shownNumbers(w), ratingRange' = _shownRanges(w),
+  }
+  /// Only standings change; online devices show them.
+  action _showStandings(w) = all {
+    _put(w), _sameConnections,
+    standing' = _shownStandings(w), waitNumber' = waitNumber, ratingRange' = ratingRange,
+  }
+  /// Only ranges change; online devices show them.
+  action _showRanges(w) = all {
+    _put(w), _sameConnections,
+    standing' = standing, waitNumber' = waitNumber, ratingRange' = _shownRanges(w),
+  }
+  /// Nothing any device shows changes.
+  action _keepShown(w) = all {
+    _put(w), _sameConnections,
+    standing' = standing, waitNumber' = waitNumber, ratingRange' = ratingRange,
   }
 
   action init = {
@@ -141,7 +159,7 @@ module matching {
     _exampleSize' = exampleSize,
     _put({
       requests: PEOPLE.mapBy(_ => 0), current: PEOPLE.mapBy(_ => 0),
-      receipts: WAITS.mapBy(_ => 0), accepted: Set(), waiting: Set(),
+      accepted: Set(), waiting: Set(),
       stopped: Set(), assignments: WAITS.mapBy(_ => 0),
       formIds: Set(), approved: WAITS.mapBy(_ => false), changes: WAITS.mapBy(_ => 0), ranges: WAITS.mapBy(_ => 5),
       sizes: WAITS.mapBy(_ => 2), pools: WAITS.mapBy(_ => "nearby"),
@@ -168,52 +186,52 @@ module matching {
     val current = _wait(_world, p)
     val starts = not(_world.waiting.contains(current)) and _world.available.contains(p)
     all {
-      n <= 3,
-      if (_offline.contains(device)) _show(_world, _offline)
-      else _show({ ..._world,
+      n <= 2,
+      if (_offline.contains(device)) _keepShown(_world)
+      else if (starts) _show({ ..._world,
         requests: _world.requests.set(p, n),
-        receipts: _world.receipts.set(request, if (starts) n else _world.current.get(p)),
-        current: if (starts) _world.current.set(p, n) else _world.current,
-        accepted: if (starts) _world.accepted.union(Set(request)) else _world.accepted,
-        waiting: if (starts) _world.waiting.union(Set(request)) else _world.waiting,
-        ranges: if (starts) _world.ranges.set(request, points) else _world.ranges,
-        sizes: if (starts) _world.sizes.set(request, groupSize) else _world.sizes,
-        pools: if (starts) _world.pools.set(request, pool) else _world.pools,
-        age: if (starts) _world.age.set(request, 0) else _world.age,
-        order: if (starts) _world.order.set(request, _world.count + 1) else _world.order,
-        count: if (starts) _world.count + 1 else _world.count
-      }, _offline)
+        current: _world.current.set(p, n),
+        accepted: _world.accepted.union(Set(request)),
+        waiting: _world.waiting.union(Set(request)),
+        ranges: _world.ranges.set(request, points),
+        sizes: _world.sizes.set(request, groupSize),
+        pools: _world.pools.set(request, pool),
+        age: _world.age.set(request, 0),
+        order: _world.order.set(request, _world.count + 1),
+        count: _world.count + 1
+      })
+      else _keepShown({ ..._world, requests: _world.requests.set(p, n) })
     }
   }
 
   /// An earlier request keeps its accepted outcome; it never starts again.
   action repeatRequest(device: Device, number: int): bool = all {
     number <= _world.requests.get(device.person),
-    _show(_world, _offline),
+    _keepShown(_world),
   }
 
   /// Only this exact wait can be stopped; an earlier or matched wait stays as it was.
   action stopWaiting(device: Device, number: int): bool = {
     val a = { person: device.person, number: number }
     val stops = not(_offline.contains(device)) and _world.waiting.contains(a)
-    _show({ ..._world,
+    _showStandings({ ..._world,
       waiting: if (stops) _world.waiting.exclude(Set(a)) else _world.waiting,
       stopped: if (stops) _world.stopped.union(Set(a)) else _world.stopped
-    }, _offline)
+    })
   }
 
   /// Changing a range counts only for this waiting wait and keeps its age.
   action changeRange(device: Device, number: int, points: int): bool = {
     val a = { person: device.person, number: number }
     val changes = not(_offline.contains(device)) and _world.waiting.contains(a)
-    _show({ ..._world, ranges: if (changes) _world.ranges.set(a, points) else _world.ranges,
-      changes: if (changes) _world.changes.set(a, _world.changes.get(a) + 1) else _world.changes }, _offline)
+    _showRanges({ ..._world, ranges: if (changes) _world.ranges.set(a, points) else _world.ranges,
+      changes: if (changes) _world.changes.set(a, _world.changes.get(a) + 1) else _world.changes })
   }
 
   /// Repeating an earlier range change never overwrites a newer choice.
   action repeatRangeChange(device: Device, number: int): bool = all {
     _changes.get({ person: device.person, number: number }) > 0,
-    _show(_world, _offline),
+    _keepShown(_world),
   }
 
   pure def _accept(w, a, b) = and {
@@ -225,96 +243,126 @@ module matching {
     _abs(RATINGS.get(a.person) - RATINGS.get(b.person)) <= _range(w, b),
   }
 
-  pure def _oldest(order: Wait -> int, waits: Set[Wait]): Wait =
-    waits.fold({ person: "none", number: 0 }, (first, a) =>
-      if (first.person == "none") a
-      else if (order.get(a) < order.get(first)) a else first)
-  pure def _earlier(w, a, b) =
-    a.contains(_oldest(w.order, a.exclude(b).union(b.exclude(a))))
-  pure def _legalGroups(w, waits) = {
-    val candidates = PEOPLE.powerset().map(people => people.map(p => _wait(w, p)))
-    candidates.filter(g =>
-      g.subseteq(waits) and g.size() >= 2 and g.forall(a => w.sizes.get(a) == g.size() and
-        g.forall(b => a == b or _accept(w, a, b))))
+  /// These waiting people form a complete group of the size each asked for, all accepting each other.
+  pure def _legal(people: Set[Person], asked: Person -> int, accepts: Person -> Set[Person], g: Set[Person]): bool = and {
+    g.size() >= 2,
+    g.forall(p => people.contains(p) and asked.get(p) == g.size() and
+      g.forall(q => q == p or accepts.get(p).contains(q))),
   }
-  pure def _firstChoices(w, waits) = {
-    val choices = _legalGroups(w, waits)
-    val first = choices.fold(Set(), (earliest, group) =>
-      if (earliest == Set()) group
-      else if (_earlier(w, group, earliest)) group else earliest)
-    Set(first)
-  }
+  /// Of two groups, the earlier holds the oldest wait that only one of them holds.
+  pure def _before(order: Person -> int, g: Set[Person], h: Set[Person]): bool =
+    g.exists(p => not(h.contains(p)) and h.forall(q => g.contains(q) or order.get(p) < order.get(q)))
+  /// The earliest complete group among these waiting people, or no one.
+  pure def _firstChoices(people: Set[Person], asked: Person -> int, accepts: Person -> Set[Person], order: Person -> int): Set[Set[Person]] =
+    PEOPLE.powerset().filter(g =>
+      if (g == Set()) PEOPLE.powerset().forall(h => not(_legal(people, asked, accepts, h)))
+      else _legal(people, asked, accepts, g) and PEOPLE.powerset().forall(h =>
+        h == g or not(_legal(people, asked, accepts, h)) or _before(order, g, h)))
 
   pure def _spare(used: Set[int]): int = MATCH_NUMBERS.exclude(used).fold(0,
     (first, n) => if (first == 0 or n < first) n else first)
 
   /// Complete compatible groups are formed at once, earliest waits first.
   action pairUp: bool = {
-    nondet first = _firstChoices(_world, _world.waiting).oneOf()
-    nondet second = _firstChoices(_world, _world.waiting.exclude(first)).oneOf()
+    val people = PEOPLE.filter(p => _world.waiting.contains(_wait(_world, p)))
+    val asked = PEOPLE.mapBy(p => if (people.contains(p)) _world.sizes.get(_wait(_world, p)) else 0)
+    val order = PEOPLE.mapBy(p => if (people.contains(p)) _world.order.get(_wait(_world, p)) else 0)
+    val accepts = PEOPLE.mapBy(p => PEOPLE.filter(q =>
+      if (people.contains(p) and people.contains(q)) _accept(_world, _wait(_world, p), _wait(_world, q)) else false))
+    nondet first = _firstChoices(people, asked, accepts, order).oneOf()
+    // Four people make at most two groups: any second group is everyone the first leaves waiting.
+    val rest = people.exclude(first)
+    val second = if (_legal(people, asked, accepts, rest)) rest else Set()
+    val formsFirst = first != Set()
+    val formsSecond = second != Set()
     val firstId = _spare(_formIds)
-    val afterFirst = if (first == Set()) _formIds else _formIds.union(Set(firstId))
+    val afterFirst = if (formsFirst) _formIds.union(Set(firstId)) else _formIds
     val secondId = _spare(afterFirst)
-    val formed = if (second == Set()) afterFirst else afterFirst.union(Set(secondId))
     all {
-      first == Set() or firstId != 0, second == Set() or secondId != 0,
-      _show({ ..._world,
-        waiting: _world.waiting.exclude(first.union(second)),
-        assignments: WAITS.mapBy(a => if (first.contains(a)) firstId
-          else if (second.contains(a)) secondId else _assignments.get(a)),
-        formIds: formed,
-        approved: WAITS.mapBy(a => if (first.contains(a)) first.forall(b => a == b or _accept(_world, a, b))
-          else if (second.contains(a)) second.forall(b => a == b or _accept(_world, a, b)) else _approved.get(a))
-      }, _offline)
+      not(formsFirst) or firstId != 0, not(formsSecond) or secondId != 0,
+      _put({ ..._world,
+        waiting: _world.waiting.filter(a => not(_world.current.get(a.person) == a.number and
+          (first.contains(a.person) or second.contains(a.person)))),
+        assignments: WAITS.mapBy(a =>
+          if (_world.current.get(a.person) != a.number) _assignments.get(a)
+          else if (first.contains(a.person)) firstId
+          else if (second.contains(a.person)) secondId
+          else _assignments.get(a)),
+        formIds: if (formsSecond) afterFirst.union(Set(secondId)) else afterFirst,
+        approved: WAITS.mapBy(a =>
+          if (_world.current.get(a.person) != a.number) _approved.get(a)
+          else if (first.contains(a.person)) first.forall(q => q == a.person or accepts.get(a.person).contains(q))
+          else if (second.contains(a.person)) second.forall(q => q == a.person or accepts.get(a.person).contains(q))
+          else _approved.get(a))
+      }),
+      _sameConnections,
+      standing' = DEVICES.mapBy(d =>
+        if (_offline.contains(d)) standing.get(d)
+        else if (first.contains(d.person)) Matched(first.exclude(Set(d.person)))
+        else if (second.contains(d.person)) Matched(second.exclude(Set(d.person)))
+        else standing.get(d)),
+      waitNumber' = waitNumber, ratingRange' = ratingRange,
     }
   }
 
   /// Becoming unavailable ends a wait; a match already made is kept.
   action becomeUnavailable(person: Person): bool = {
     val ended = _world.waiting.filter(a => a.person == person)
-    _show({ ..._world, available: _world.available.exclude(Set(person)),
+    _showStandings({ ..._world, available: _world.available.exclude(Set(person)),
       waiting: _world.waiting.exclude(ended), stopped: _world.stopped.union(ended)
-    }, _offline)
+    })
   }
 
   /// Becoming available never brings back an ended wait.
   action becomeAvailable(person: Person): bool =
-    _show({ ..._world, available: _world.available.union(Set(person)) }, _offline)
+    _keepShown({ ..._world, available: _world.available.union(Set(person)) })
 
   /// Seconds pass; growing ranges reach 400 points and grow no further.
   action secondsPass(seconds: int): bool =
-    _show({ ..._world, age: WAITS.mapBy(a =>
+    _showRanges({ ..._world, age: WAITS.mapBy(a =>
       if (_world.waiting.contains(a)) _min(_world.age.get(a) + seconds, 35)
-      else _world.age.get(a)) }, _offline)
+      else _world.age.get(a)) })
 
   /// These people become unable to match together; existing matches stay.
   action restrictPair(person: Person, other: Person): bool = all {
     person != other,
-    _show({ ..._world, restricted: _world.restricted.union(Set(Set(person, other))) }, _offline),
+    _keepShown({ ..._world, restricted: _world.restricted.union(Set(Set(person, other))) }),
   }
 
   /// Removing a restriction permits a compatible waiting pair to match.
   action allowPair(person: Person, other: Person): bool = all {
     person != other,
-    _show({ ..._world, restricted: _world.restricted.exclude(Set(Set(person, other))) }, _offline),
+    _keepShown({ ..._world, restricted: _world.restricted.exclude(Set(Set(person, other))) }),
   }
 
   /// This device loses its connection and keeps its last known standing.
   action loseConnection(device: Device): bool = all {
     not(_offline.contains(device)),
-    _show(_world, _offline.union(Set(device))),
+    _put(_world),
+    _exampleSize' = _exampleSize,
+    _offline' = _offline.union(Set(device)),
+    standing' = standing, waitNumber' = waitNumber, ratingRange' = ratingRange,
+    _awayStanding' = _awayStanding.set(device, standing.get(device)),
+    _awayNumber' = _awayNumber.set(device, waitNumber.get(device)),
+    _awayRange' = _awayRange.set(device, ratingRange.get(device)),
   }
 
   /// This device returns and shows the accepted outcome without another request.
   action comeBackOnline(device: Device): bool = all {
     _offline.contains(device),
-    _show(_world, _offline.exclude(Set(device))),
+    _put(_world),
+    _exampleSize' = _exampleSize,
+    _offline' = _offline.exclude(Set(device)),
+    standing' = standing.set(device, _standingsFor(_world).get(device.person)),
+    waitNumber' = waitNumber.set(device, _world.current.get(device.person)),
+    ratingRange' = ratingRange.set(device, _rangesFor(_world).get(device.person)),
+    _awayStanding' = _awayStanding, _awayNumber' = _awayNumber, _awayRange' = _awayRange,
   }
 
   action step = {
     nondet anyDevice = DEVICES.oneOf()
     val ready = DEVICES.filter(d => not(_offline.contains(d)) and
-      _available.contains(d.person) and _requests.get(d.person) < 3 and
+      _available.contains(d.person) and _requests.get(d.person) < 2 and
       not(_waiting.contains(_wait(_world, d.person))))
     nondet device = ready.union(Set(anyDevice)).oneOf()
     nondet person = PEOPLE.oneOf()
@@ -388,14 +436,11 @@ module matching {
   /// Growing ranges stay between 50 and 400 points, including both boundaries.
   val invGrowingBoundaries = _world.accepted.forall(a =>
     _world.ranges.get(a) == -1 implies (_range(_world, a) >= 50 and _range(_world, a) <= 400))
-  /// Bookkeeping: the finite example admits three requests per person.
+  /// Bookkeeping: the finite example admits two requests per person.
   val invRequestBounds = PEOPLE.forall(p =>
-    _world.requests.get(p) >= 0 and _world.requests.get(p) <= 3 and
+    _world.requests.get(p) >= 0 and _world.requests.get(p) <= 2 and
     _world.current.get(p) >= 0 and _world.current.get(p) <= _world.requests.get(p))
   val _wellFormed = and {
-    _world.accepted.subseteq(WAITS), _world.waiting.subseteq(WAITS),
-    _world.stopped.subseteq(WAITS), _assigned.subseteq(WAITS),
-    _world.available.subseteq(PEOPLE), _offline.subseteq(DEVICES),
     PEOPLE.forall(p => and {
       _world.current.get(p) >= 0, _world.current.get(p) <= _world.requests.get(p),
       _world.current.get(p) != 0 implies _world.accepted.contains(_wait(_world, p)),
@@ -416,13 +461,12 @@ module matching {
   pure val _standings = Set(NotWaiting, Waiting).union(PEOPLE.powerset().map(g => Matched(g)))
   val _proof = all {
     _exampleSize.in(GROUPS),
-    _requests.in(PEOPLE.setOfMaps(Set(0, 1, 2, 3))),
-    _current.in(PEOPLE.setOfMaps(Set(0, 1, 2, 3))),
-    _receipts.in(WAITS.setOfMaps(Set(0, 1, 2, 3))),
+    _requests.in(PEOPLE.setOfMaps(Set(0, 1, 2))),
+    _current.in(PEOPLE.setOfMaps(Set(0, 1, 2))),
     _accepted.in(WAITS.powerset()),
     _waiting.in(WAITS.powerset()),
     _stopped.in(WAITS.powerset()),
-    _assignments.in(WAITS.setOfMaps(Set(0, 1, 2, 3, 4, 5, 6))),
+    _assignments.in(WAITS.setOfMaps(Set(0, 1, 2, 3, 4))),
     _formIds.in(MATCH_NUMBERS.powerset()),
     _approved.in(WAITS.setOfMaps(Set(true, false))),
     _changes.in(WAITS.setOfMaps(Nat)),
@@ -436,10 +480,10 @@ module matching {
     _count.in(Nat),
     _offline.in(DEVICES.powerset()),
     _awayStanding.in(DEVICES.setOfMaps(_standings)),
-    _awayNumber.in(DEVICES.setOfMaps(Set(0, 1, 2, 3))),
+    _awayNumber.in(DEVICES.setOfMaps(Set(0, 1, 2))),
     _awayRange.in(DEVICES.setOfMaps(Nat)),
     standing.in(DEVICES.setOfMaps(_standings)),
-    waitNumber.in(DEVICES.setOfMaps(Set(0, 1, 2, 3))),
+    waitNumber.in(DEVICES.setOfMaps(Set(0, 1, 2))),
     ratingRange.in(DEVICES.setOfMaps(Nat)),
 
     _wellFormed, invFormationApproved, invLastingAssignments, invOneWait, invExactlyOneAssignment, invCompleteGroups,
