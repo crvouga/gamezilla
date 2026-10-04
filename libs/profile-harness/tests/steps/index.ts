@@ -11,4 +11,8 @@ import '@libs/account-privacy-harness/exports.steps';
 const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
 for (const file of [...modules].sort()) await import(`./${file}`);
 
+// Exported steps belong to this package and register alongside its private steps.
+const exported = new Bun.Glob('../../src/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...exported].sort()) await import(`./${file}`);
+
 useHarnessWorld(openHarness);
