@@ -6,7 +6,7 @@ import { storedSearches } from '@pkgs/matchmaking-harness/stored-searches';
 import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
 import { replayTrace } from '@pkgs/quint-shared/replay';
 import { simulate } from '@pkgs/quint-server/simulate';
-import '../quint/matchmaking-harness';
+import '../quint/index';
 import type { MatchmakingTraceWorld } from '../quint/world';
 import { traceMatchmaking } from '../quint/world';
 import { projectSearches } from './searches-project';

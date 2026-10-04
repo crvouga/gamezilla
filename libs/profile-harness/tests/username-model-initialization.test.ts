@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
-import './quint/profile';
+import './quint/index';
 
 test(
   'username binding establishes the named initial accounts',

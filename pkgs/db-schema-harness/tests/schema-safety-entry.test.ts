@@ -3,7 +3,7 @@ import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
 
 // regression: db-schema-quint-entry-missing
 test('the spec entry registers the schema safety world and binding', async () => {
-  await import('./quint/db-schema');
+  await import('./quint/index');
   const binding = quintBinding('schema-safety');
   const world = await quintWorld().create({
     packageName: '@pkgs/db-schema',
