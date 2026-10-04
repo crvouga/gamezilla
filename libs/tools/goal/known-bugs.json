@@ -112,17 +112,17 @@
   {
     "id": "custom-game-journey-unbound",
     "summary": "The Custom Game critical journey had no step bindings in the shared entry, so both the Check and live journey runners failed before exercising the game.",
-    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+    "regressionTest": "specs/journeys/custom-game.feature"
   },
   {
     "id": "custom-game-confirm-unmounted",
     "summary": "Resignation and cancellation unmounted their confirmation modal as soon as the game became terminal, removing the loading and success surface before it could be dismissed. Keep the modal mounted and gate only its trigger.",
-    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+    "regressionTest": "specs/journeys/custom-game.feature"
   },
   {
     "id": "custom-game-journey-offline-race",
     "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
-    "regressionTest": "libs/runtime/tests/custom-game-journey-runner.test.ts"
+    "regressionTest": "specs/journeys/custom-game.feature"
   },
   {
     "id": "custom-game-host-refusal-vocabulary",

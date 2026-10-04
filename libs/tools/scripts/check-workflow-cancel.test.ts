@@ -49,7 +49,9 @@ describe('Check workflow cancellation', () => {
     );
     expect(holding.length).toBeGreaterThan(0);
     expect(
-      holding.every((condition) => condition === 'always() && !cancelled()')
+      holding.every((condition) =>
+        condition.startsWith('always() && !cancelled()')
+      )
     ).toBe(true);
   });
 
@@ -60,6 +62,7 @@ describe('Check workflow cancellation', () => {
         string,
         {
           needs?: string[] | string;
+          if?: string;
           name: string;
           strategy?: { 'fail-fast': boolean };
           steps: {
@@ -90,6 +93,10 @@ describe('Check workflow cancellation', () => {
       'check-consumers',
     ]);
     expect(gate.needs).not.toContain('check-reports');
+    // Reports are too slow for every push; `bun check` dispatches them.
+    expect(workflow.jobs['check-reports']!.if).toBe(
+      "always() && !cancelled() && github.event_name != 'pull_request'"
+    );
     // regression: check-repeated-mise-cache-stall (1jzx5994v8)
     expect(
       workflow.jobs['check-shards']!.steps.filter(
