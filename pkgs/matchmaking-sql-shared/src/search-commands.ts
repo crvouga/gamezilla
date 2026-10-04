@@ -1,23 +1,23 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { assertKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import type { SearchRequest } from '@pkgs/matchmaking-shared/identity';
-import { searchIdFor } from '@pkgs/matchmaking-shared/identity';
+import type { SearchRequest } from '@pkgs/matchmaking-root-shared/identity';
+import { searchIdFor } from '@pkgs/matchmaking-root-shared/identity';
 import {
   assertWireFormulasInput,
   resolveJoinAttrs,
-} from '@pkgs/matchmaking-shared/join-helpers';
+} from '@pkgs/matchmaking-root-shared/join-helpers';
 import type {
   JoinInputRaw,
   UpdateFormulasInputRaw,
-} from '@pkgs/matchmaking-shared/matchmaking';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+} from '@pkgs/matchmaking-root-shared/matchmaking';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-root-shared/schema';
 import type {
   JoinResult,
   LeaveResult,
   UpdateFormulasResult,
-} from '@pkgs/matchmaking-shared/types';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+} from '@pkgs/matchmaking-root-shared/types';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   partitionSignatureFor,
   primaryBucket,

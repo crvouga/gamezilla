@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 /**
  * Git object id as lowercase hex: short (≥7) or full SHA-1 (40).

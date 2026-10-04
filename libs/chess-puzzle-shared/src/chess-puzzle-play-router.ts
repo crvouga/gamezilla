@@ -5,8 +5,8 @@ import type {
   HandleResult,
   RoomError,
   RoomState,
-} from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
 import { setupPuzzleStart, tokenize, uciToSquares } from './chess-puzzle-fsm';
 import type { PuzzleMoveAccepted } from './chess-puzzle-move-judge';

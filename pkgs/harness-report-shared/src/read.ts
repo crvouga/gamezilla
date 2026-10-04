@@ -5,17 +5,17 @@
  */
 
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { HtmlReportBlob } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportBlob } from '@pkgs/harness-root-shared/bundle';
 import type {
   ReportStep,
   RunReport,
   SnapshotMedia,
-} from '@pkgs/harness-shared/report-types';
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
+} from '@pkgs/harness-root-shared/report-types';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import type {
   ObjectStore,
   StoredObject,
-} from '@pkgs/object-store-shared/interface';
+} from '@pkgs/object-store-root-shared/interface';
 
 import type { BundleEntry } from './bundle';
 import { inCompletionOrder } from './completion-order';

@@ -10,15 +10,15 @@
     ]
   },
   "scripts": {
+    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
     "@libs/auth-client": "workspace:*",
     "@libs/chess-custom-game-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
-    "@libs/chess-shared": "workspace:*",
+    "@libs/chess-root-shared": "workspace:*",
     "@libs/permissions-client": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",
@@ -26,14 +26,14 @@
     "@libs/spaces-shared": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
-    "@pkgs/chess-board-client": "workspace:*",
     "@pkgs/chess-board-core-shared": "workspace:*",
+    "@pkgs/chess-board-root-client": "workspace:*",
     "@pkgs/clock-client": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/room-client": "workspace:*",
-    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/room-root-client": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

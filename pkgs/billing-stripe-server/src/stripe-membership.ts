@@ -7,8 +7,8 @@ import type {
   ReadCallbackInput,
   StartCheckoutInput,
   StartCheckoutResult,
-} from '@pkgs/billing-shared/membership';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/membership';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from '@pkgs/billing-stripe-shared/callback-events';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
 import {

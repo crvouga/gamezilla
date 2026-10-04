@@ -1,13 +1,13 @@
 /** @jsxImportSource solid-js */
 
 import { useLingui } from '@lingui/solid/macro';
-import { Checkbox } from '@pkgs/ui-client/checkbox';
 import { DATA_TABLE_SELECTION_COL_WIDTH } from '@pkgs/ui-devtools-shared/data-table-metrics';
 import type {
   DataTableColumn,
   DataTableOrderDir,
 } from '@pkgs/ui-devtools-shared/data-table-types';
-import { cssPx } from '@pkgs/ui-shared/css-px';
+import { Checkbox } from '@pkgs/ui-root-client/checkbox';
+import { cssPx } from '@pkgs/ui-root-shared/css-px';
 import { For, type JSX, Show } from 'solid-js';
 import styles from './data-table.module.css';
 

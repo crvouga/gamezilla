@@ -14,11 +14,11 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*",
     "@pkgs/tts-elevenlabs-shared": "workspace:*",
-    "@pkgs/tts-server": "workspace:*",
-    "@pkgs/tts-shared": "workspace:*",
+    "@pkgs/tts-root-server": "workspace:*",
+    "@pkgs/tts-root-shared": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {

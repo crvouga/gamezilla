@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { createOpfsObjectStore } from '@pkgs/object-store-opfs-shared/impl-opfs';
 import { createMemoryOpfsRoot } from '@pkgs/object-store-opfs-shared/memory-opfs';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
+import { runObjectStoreContractTests } from '@pkgs/object-store-root-shared/object-store-contract';
 
 describe('ObjectStore — ObjectStoreImplOpfs (port suite)', () => {
   runObjectStoreContractTests(() =>

@@ -1,5 +1,5 @@
-import { wrapSecureStorage } from '@pkgs/secure-storage-shared/contract';
-import type { SecureStorage } from '@pkgs/secure-storage-shared/interface';
+import { wrapSecureStorage } from '@pkgs/secure-storage-root-shared/contract';
+import type { SecureStorage } from '@pkgs/secure-storage-root-shared/interface';
 
 /**
  * Web keys that must stay tab-scoped (not shared across browser tabs).

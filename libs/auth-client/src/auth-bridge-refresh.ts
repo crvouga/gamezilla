@@ -13,8 +13,8 @@ import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
 import type { Timers } from '@pkgs/clock-shared/types';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
-import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import { writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
+import { writeSecureStorageItem } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
 

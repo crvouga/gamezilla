@@ -14,7 +14,7 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
 
 const NAVIGATION_POLL_MS = 250;

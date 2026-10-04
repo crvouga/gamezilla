@@ -29,15 +29,15 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { Combobox } from '@pkgs/ui-client/combobox';
+import { Combobox } from '@pkgs/ui-root-client/combobox';
 import {
   ModalBody,
   ModalButton,
   ModalFooter,
-} from '@pkgs/ui-client/modal-parts';
-import { NumberStepper } from '@pkgs/ui-client/number-stepper';
-import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
-import { SegmentedControl } from '@pkgs/ui-client/segmented-control';
+} from '@pkgs/ui-root-client/modal-parts';
+import { NumberStepper } from '@pkgs/ui-root-client/number-stepper';
+import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { SegmentedControl } from '@pkgs/ui-root-client/segmented-control';
 import { createEffect, createMemo, type JSX, Show } from 'solid-js';
 import { createFeedSettingsDraft } from './create-feed-settings-draft';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';

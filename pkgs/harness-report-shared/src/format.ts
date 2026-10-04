@@ -1,5 +1,5 @@
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportSnapshotBlob } from '@pkgs/harness-shared/report-types';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import type { ReportSnapshotBlob } from '@pkgs/harness-root-shared/report-types';
 
 import { blobDataUrl, blobText } from './frames';
 

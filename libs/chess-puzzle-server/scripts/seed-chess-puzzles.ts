@@ -4,7 +4,7 @@ import {
   formatPostgresStorageLimitError,
   isPostgresStorageLimitError,
 } from '@libs/chess-puzzle-server/defer-indexes';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';

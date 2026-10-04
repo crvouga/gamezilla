@@ -11,8 +11,8 @@ import type { HttpClient } from '@pkgs/http-client-shared/types';
 import {
   createIotHttpPubSub,
   iotEndpointHost,
-} from '@pkgs/pubsub-shared/create-iot-http-pubsub';
-import { probeIotDataPlane } from '@pkgs/pubsub-shared/probe-iot-data-plane';
+} from '@pkgs/pubsub-root-shared/create-iot-http-pubsub';
+import { probeIotDataPlane } from '@pkgs/pubsub-root-shared/probe-iot-data-plane';
 import { awaitApiAnswered, liveRows } from './client-config.steps';
 import { eventually, Then } from './define';
 import { liveSecret } from './live-secrets';

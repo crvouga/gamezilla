@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import type { ClientEnv } from '@libs/app-client/client-env';
-import { setOriginAvailability } from '@libs/app-client/origin-availability-for-env';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
+import { setOriginAvailability } from '@libs/app-root-client/origin-availability-for-env';
 import { restoreActorConnection, restoreNetwork } from '@libs/harness/actions';
 import { harnessClientServerFetch } from '@libs/harness/client-server-fetch';
 import type { ProductHarness } from '@libs/harness/harness';

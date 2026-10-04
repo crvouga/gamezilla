@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 
 import type { MutationDb, MutationEnv } from './mutations-types';
 import type { QueryRow } from './v2';

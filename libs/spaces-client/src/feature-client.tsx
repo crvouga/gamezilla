@@ -10,7 +10,7 @@ import type { FeatureClient } from '@libs/feature-client/client';
 import { defineFeatureClient } from '@libs/feature-client/client';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
-import { Gamepad2Icon } from '@pkgs/ui-client/icons';
+import { Gamepad2Icon } from '@pkgs/ui-root-client/icons';
 import { type JSX, lazy, Suspense } from 'solid-js';
 import type { LoadGameRegistry } from './games-provider';
 import { AppGamesProvider } from './games-provider';

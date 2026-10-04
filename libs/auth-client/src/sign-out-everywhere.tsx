@@ -2,9 +2,9 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { LogOutIcon } from '@pkgs/ui-client/icons';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
+import { Button } from '@pkgs/ui-root-client/button';
+import { LogOutIcon } from '@pkgs/ui-root-client/icons';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { createSignal, type JSX } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';

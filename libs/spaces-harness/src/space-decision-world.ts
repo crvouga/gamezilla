@@ -26,7 +26,7 @@ import {
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { outboxEvents } from '@pkgs/outbox-shared/tables';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { answerOfRoomCommand } from './room-command-probe';
 

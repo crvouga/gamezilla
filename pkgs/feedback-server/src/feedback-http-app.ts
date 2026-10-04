@@ -1,8 +1,8 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import { readFeedbackReport } from '@pkgs/feedback-shared/read-report';
 import type { FeedbackRepository } from '@pkgs/feedback-shared/types';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createEvidenceHandler, EVIDENCE_ID } from './evidence-handler';
 import { createFeedbackReportHandler, FEEDBACK_PATH } from './http-handler';
 import { createFeedbackManagementHandler } from './management-handler';

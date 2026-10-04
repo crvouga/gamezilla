@@ -1,6 +1,6 @@
-import type { JsonValue } from '@pkgs/harness-shared/json';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { JsonValue } from '@pkgs/harness-root-shared/json';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import { mutationStatus } from '@pkgs/sync-engine-client/mutation-status';
 import type { HarnessClient } from './client';

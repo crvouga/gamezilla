@@ -1,4 +1,4 @@
 {
   "summary": "Modified-device probes bypassed the injected network fabric and reached room authority while disconnected. Route probes through the device transport and observe the product connection refusal without disclosing room state.",
-  "regressionTest": "libs/chess-harness/tests/quint/custom-game.binding.ts"
+  "regressionTest": "libs/chess-root-harness/tests/quint/custom-game.binding.ts"
 }

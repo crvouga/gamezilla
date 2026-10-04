@@ -1,5 +1,5 @@
 import { SESSION_EXPIRES_AT_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { createSecureStorageItem } from '@pkgs/secure-storage-client/solid';
+import { createSecureStorageItem } from '@pkgs/secure-storage-root-client/solid';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { useHasAuthSession } from './access-facts';

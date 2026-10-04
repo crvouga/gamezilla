@@ -1,4 +1,4 @@
-import type { CrashHandler } from '@pkgs/assert-shared/crash-handler';
+import type { CrashHandler } from '@pkgs/assert-root-shared/crash-handler';
 
 export class NodeCrashHandler implements CrashHandler {
   readonly priority: number = 30;

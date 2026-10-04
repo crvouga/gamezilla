@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';

@@ -5,10 +5,10 @@ import {
   SpanKind,
   SpanStatusCode,
 } from '@opentelemetry/api';
-import { extractRequestContext } from '@pkgs/observability-server/worker-worker';
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { linkFromTraceparent } from '@pkgs/observability-shared/correlation';
-import { withSpan } from '@pkgs/observability-shared/span';
+import { extractRequestContext } from '@pkgs/observability-root-server/worker-worker';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { linkFromTraceparent } from '@pkgs/observability-root-shared/correlation';
+import { withSpan } from '@pkgs/observability-root-shared/span';
 
 import type { WsMeta } from './hibernation-restore';
 

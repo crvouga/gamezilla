@@ -8,7 +8,7 @@
  * under test, and neither knows which it is.
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { type Component, createResource, type JSX, Show } from 'solid-js';
 
 import type {

@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { createRecordingPostgresClient } from '@pkgs/db-schema-shared/fake-sql-client';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { createRecordingPostgresClient } from '@pkgs/db-schema-root-shared/fake-sql-client';
 import {
   fingerprintForIndexDef,
   indexFingerprintName,
-} from '@pkgs/db-schema-shared/index-fingerprint';
-import { planServer } from '@pkgs/db-schema-shared/plan-server';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import type { IntrospectedCatalog } from '@pkgs/db-schema-shared/types';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+} from '@pkgs/db-schema-root-shared/index-fingerprint';
+import { planServer } from '@pkgs/db-schema-root-shared/plan-server';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
+import type { IntrospectedCatalog } from '@pkgs/db-schema-root-shared/types';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 const INDEX_DDL = /CREATE INDEX|DROP INDEX/i;
 const CREATE_INDEX = /CREATE INDEX/i;

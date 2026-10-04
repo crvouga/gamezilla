@@ -1,5 +1,5 @@
-import { useTheme } from '@pkgs/ui-client/theme-context';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 const SPARKLINE_HEIGHT = 48;

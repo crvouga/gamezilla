@@ -1,5 +1,5 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import { assertValidTopic } from '@pkgs/pubsub-root-shared/topic';
 import type { QueryChannelsCtx } from './push-payload';
 import type { QueryDef } from './queries-types';
 

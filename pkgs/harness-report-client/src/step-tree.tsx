@@ -6,7 +6,7 @@ import {
   lastFrameBefore,
   stepHasPress,
 } from '@pkgs/harness-report-shared/frames';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import {
   createEffect,
   createMemo,

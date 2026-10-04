@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
 
 import { openSpaceDetail } from './space-routes';

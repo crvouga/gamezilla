@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';
 import { signPaddlePayload } from '@pkgs/billing-paddle-shared/signature';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
+import { CONTRACT_OFFER } from '@pkgs/billing-root-shared/contract-fixtures';
 
 test('a signed completed payment reaches the payment evidence handler', async () => {
   // regression: paddle-completed-payment-ignored

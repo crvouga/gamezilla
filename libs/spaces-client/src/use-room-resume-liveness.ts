@@ -1,4 +1,4 @@
-import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type { ClientTransport } from '@pkgs/room-root-shared/transport';
 import { type Accessor, createEffect, onCleanup } from 'solid-js';
 
 /**

@@ -1,5 +1,5 @@
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { commitIndexKey, isCommitSha, shaOfIndexKey } from './keys';
 import type { CommitRecord } from './protocol';
 import { readCommit } from './read';

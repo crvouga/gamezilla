@@ -32,7 +32,7 @@ export type CreateBootRuntimeArgs = {
   readonly deps: BootRuntimeDeps;
   readonly clientOpts: HarnessClientOpts;
   readonly boundaryFaults?: EdgeFaultController;
-  /** Framework-owned network (framework systems wrap `@pkgs/harness-shared`'s kernel). */
+  /** Framework-owned network (framework systems wrap `@pkgs/harness-root-shared`'s kernel). */
   readonly network: SyncNetwork;
 };
 

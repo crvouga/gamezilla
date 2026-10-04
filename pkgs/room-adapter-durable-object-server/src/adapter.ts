@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared/adapter-base-types';
 import { DurableObjectRoomStorage } from '@pkgs/room-adapter-durable-object-shared/storage';
@@ -7,18 +7,18 @@ import type {
   DurableObjectInstanceState,
   DurableObjectTelemetry,
 } from '@pkgs/room-adapter-durable-object-shared/types';
-import { ROOM_GRANTS_HEADER } from '@pkgs/room-server/grants-header';
-import type { RoomEffectHandler } from '@pkgs/room-shared/handler';
-import type { RoomServerConfig } from '@pkgs/room-shared/room-server-types';
-import type { RoomStorage } from '@pkgs/room-shared/server-core-storage';
+import { ROOM_GRANTS_HEADER } from '@pkgs/room-root-server/grants-header';
+import type { RoomEffectHandler } from '@pkgs/room-root-shared/handler';
+import type { RoomServerConfig } from '@pkgs/room-root-shared/room-server-types';
+import type { RoomStorage } from '@pkgs/room-root-shared/server-core-storage';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomModule,
   RoomModuleName,
   RoomState,
-} from '@pkgs/room-shared/types';
-import { assertRoomModuleName } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
+import { assertRoomModuleName } from '@pkgs/room-root-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { RoomDurableObjectAdapterBase } from './adapter-base';
 

@@ -1,5 +1,5 @@
 import { formatPuzzleClock } from '@libs/chess-puzzle-shared/puzzle-clock';
-import { ClockIcon } from '@pkgs/ui-client/icons';
+import { ClockIcon } from '@pkgs/ui-root-client/icons';
 import type { Accessor, JSX } from 'solid-js';
 import { Show } from 'solid-js';
 

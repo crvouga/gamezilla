@@ -2,7 +2,7 @@
  * Session map notify / quiet batching + client teardown for product-harness.
  */
 
-import type { Client } from '@libs/app-client/create-client';
+import type { Client } from '@libs/app-root-client/create-client';
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import type { Harness } from '@libs/harness/create-harness';
 import type { HarnessSql } from '@libs/harness/sql-types';

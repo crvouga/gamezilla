@@ -10,7 +10,7 @@
 import type {
   OfferPriceSpec,
   PlusMembershipOffer,
-} from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/offer';
 
 export const PLUS_MEMBERSHIP_OFFER = {
   product: {

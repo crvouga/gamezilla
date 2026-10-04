@@ -2,8 +2,8 @@ import { describe, expect, mock, test } from 'bun:test';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import type { SyncBillingOfferOptions } from '@libs/billing-shared/sync-billing-offer';
 import { syncBillingOffer } from '@libs/billing-shared/sync-billing-offer';
-import type { MembershipProviderModule } from '@pkgs/billing-shared/provider-module';
-import { membershipCallbackPath } from '@pkgs/billing-shared/providers';
+import type { MembershipProviderModule } from '@pkgs/billing-root-shared/provider-module';
+import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 
 const now = () => 123;

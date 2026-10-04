@@ -11,15 +11,15 @@ import { peopleByName } from '@pkgs/observability-cli-shared/person-directory';
 import { discoverLatestLocalTraceSource } from '@pkgs/observability-cli-shared/source-discovery';
 import { SqlMutationTraceIndex } from '@pkgs/observability-cli-shared/sql-mutation-trace-index';
 import { SqlPgStatsSource } from '@pkgs/observability-cli-shared/sql-pg-stats';
-import { LookupIdentityResolver } from '@pkgs/observability-shared/identity-resolver';
-import { LocalExplorerTraceStore } from '@pkgs/observability-shared/local-explorer';
-import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
-import type { PgStatsSource } from '@pkgs/observability-shared/pg-stats';
-import { TempoTraceStore } from '@pkgs/observability-shared/tempo';
-import type { TraceStore } from '@pkgs/observability-shared/types';
+import { LookupIdentityResolver } from '@pkgs/observability-root-shared/identity-resolver';
+import { LocalExplorerTraceStore } from '@pkgs/observability-root-shared/local-explorer';
+import { NdjsonTraceStore } from '@pkgs/observability-root-shared/ndjson';
+import type { PgStatsSource } from '@pkgs/observability-root-shared/pg-stats';
+import { TempoTraceStore } from '@pkgs/observability-root-shared/tempo';
+import type { TraceStore } from '@pkgs/observability-root-shared/types';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import sql from '@pkgs/sql-shared/sql';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 

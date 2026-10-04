@@ -3,10 +3,10 @@ import { describe, expect, test } from 'bun:test';
 
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { validateUsername } from '@libs/profile-shared/username';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 
 async function openProfileDb() {
   const client = new SqlClientImplBunSqlite(new Database(':memory:'));

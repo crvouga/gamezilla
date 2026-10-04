@@ -4,8 +4,8 @@ import { NotificationsError } from '@libs/notifications-shared/notifications-err
 import type { NotificationListQuery } from '@libs/notifications-shared/publish-types';
 import { rowToNotification } from '@libs/notifications-shared/row-mapper';
 import type { StoredNotificationRow } from '@libs/notifications-shared/stored-notification-row';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { findNotificationById } from './publish';
 
 const DEFAULT_LIMIT = 30;

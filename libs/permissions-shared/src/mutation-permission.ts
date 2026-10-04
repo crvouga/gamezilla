@@ -1,5 +1,5 @@
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type {
   MutationDb,
   MutationEnv,

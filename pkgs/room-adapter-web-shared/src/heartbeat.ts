@@ -1,6 +1,6 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
 
 export type HeartbeatTimers = {
   interval: unknown | null;

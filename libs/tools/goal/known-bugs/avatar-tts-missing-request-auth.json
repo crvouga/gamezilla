@@ -1,4 +1,4 @@
 {
   "summary": "Puzzle voice never started because the app TTS provider sent raw HTTP without account or device headers. Compose it with current request auth while preserving cancellation and caller headers.",
-  "regressionTest": "libs/app-shared/tests/authenticated-fetch.test.ts"
+  "regressionTest": "libs/app-root-shared/tests/authenticated-fetch.test.ts"
 }

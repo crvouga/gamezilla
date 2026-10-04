@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
 import type { PushAppliedClock } from '@pkgs/sync-engine-shared/push-applied';
 import {

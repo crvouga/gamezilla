@@ -37,12 +37,12 @@ import {
   harnessBillingOrigin,
 } from '@libs/feature-shared/harness-constants';
 import type { ServerHttp } from '@libs/feature-shared/sync';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import {
   createMembershipProviders,
   membershipCallbackPath,
-} from '@pkgs/billing-shared/providers';
+} from '@pkgs/billing-root-shared/providers';
 import type { StripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
 import {
   createStripeClient,

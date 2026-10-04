@@ -20,7 +20,7 @@
     "stripe": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/billing-shared": "workspace:*",
+    "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/billing-stripe-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@types/bun": "catalog:",

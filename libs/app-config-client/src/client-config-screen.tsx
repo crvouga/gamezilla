@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 
 import { ClientConfigEntityCard } from './client-config-entity-card';
 

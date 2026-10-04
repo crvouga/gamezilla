@@ -3,13 +3,13 @@
 import { join } from 'node:path';
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
 import { resolveToolingDatabaseUrl } from '@libs/chess-puzzle-server/tooling-database-url';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 const CHESS_PACKAGE_ROOT = join(import.meta.dirname, '..');
 const REPO_ROOT = join(import.meta.dirname, '../../..');

@@ -10,15 +10,15 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
-import { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
-import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { ErrorState } from '@pkgs/ui-client/error-state';
-import { FadeSwitch } from '@pkgs/ui-client/fade-switch';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { ModalButton, ModalFooter } from '@pkgs/ui-client/modal-parts';
-import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
-import { SuccessState } from '@pkgs/ui-client/success-state';
+import { AuthLinkRequiredError } from '@pkgs/auth-root-client/auth-link-required-error';
+import type { SignInOptions } from '@pkgs/auth-root-shared/auth-client-port';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { ModalButton, ModalFooter } from '@pkgs/ui-root-client/modal-parts';
+import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { SuccessState } from '@pkgs/ui-root-client/success-state';
 import {
   type Accessor,
   createEffect,

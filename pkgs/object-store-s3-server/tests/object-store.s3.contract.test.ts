@@ -2,9 +2,9 @@
 // or a shared bucket injected by the environment.
 
 import { afterAll, describe, expect, test } from 'bun:test';
+import { runObjectStoreContractTests } from '@pkgs/object-store-root-shared/object-store-contract';
+import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store-root-shared/prefixes';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
-import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
-import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store-shared/prefixes';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,

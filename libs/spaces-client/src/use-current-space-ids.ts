@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { useDeviceId } from '@libs/auth-client/use-device-id';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import {
   createQuery,

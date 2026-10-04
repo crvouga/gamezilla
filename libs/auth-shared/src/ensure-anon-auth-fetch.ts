@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */

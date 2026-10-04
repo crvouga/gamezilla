@@ -1,4 +1,4 @@
-import { createMultiplayerChessClient } from '@libs/app-client/multiplayer-chess-client';
+import { createMultiplayerChessClient } from '@libs/app-root-client/multiplayer-chess-client';
 /**
  * The client half of the composition root: which bounded contexts this
  * product's UI runs, and in what order they nest.

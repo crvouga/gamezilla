@@ -3,12 +3,12 @@ import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-se
 import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
 import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import { defineSchema } from '@pkgs/db-schema-shared/define-schema';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { createRecordingSqlClient } from '@pkgs/db-schema-shared/fake-sql-client';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import { defineSchema } from '@pkgs/db-schema-root-shared/define-schema';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { createRecordingSqlClient } from '@pkgs/db-schema-root-shared/fake-sql-client';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
+import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 describe('postgres reconcile integration', () => {
   let sqlClient: PostgresSqlClient;

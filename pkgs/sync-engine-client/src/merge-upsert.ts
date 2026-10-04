@@ -1,8 +1,8 @@
 // @sql-vendor-ok — local SQLite client uses PRAGMA table_info for merge.
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Value } from '@pkgs/sql-shared/sql';
-import sql, { bulk, ident, join, unsafe } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Value } from '@pkgs/sql-root-shared/sql';
+import sql, { bulk, ident, join, unsafe } from '@pkgs/sql-root-shared/sql';
 
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { sqliteWireValue } from '@pkgs/sync-engine-shared/sqlite-wire-value';

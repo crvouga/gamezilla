@@ -17,7 +17,7 @@
   "dependencies": {
     "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/ui-testing-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
     "chess.js": "catalog:"
   },
   "devDependencies": {

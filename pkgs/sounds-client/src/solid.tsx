@@ -6,8 +6,11 @@
  * in-memory port in harnesses) — there is no lazy wall default.
  */
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { createKvState } from '@pkgs/kv-client/solid';
-import { booleanKvCodec, jsonKvCodec } from '@pkgs/kv-shared/kv-state-codec';
+import { createKvState } from '@pkgs/kv-root-client/solid';
+import {
+  booleanKvCodec,
+  jsonKvCodec,
+} from '@pkgs/kv-root-shared/kv-state-codec';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import type {

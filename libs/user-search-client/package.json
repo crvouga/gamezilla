@@ -21,9 +21,9 @@
     "@libs/test-ids-shared": "workspace:*",
     "@libs/user-search-shared": "workspace:*",
     "@pkgs/clock-client": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

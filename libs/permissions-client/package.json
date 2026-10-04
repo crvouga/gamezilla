@@ -21,9 +21,9 @@
     "@lingui/core": "catalog:",
     "@pkgs/clock-client": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
     "solid-js": "catalog:"
   },

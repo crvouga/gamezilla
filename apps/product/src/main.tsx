@@ -10,14 +10,14 @@
  * site root still lands in the harness.
  */
 
-import { createClient } from '@libs/app-client/create-client';
-import { wallClientEnv } from '@libs/app-client/wall-client-env';
+import { createClient } from '@libs/app-root-client/create-client';
+import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import '@pkgs/tailwind-shared/tailwind.css';
-import '@pkgs/ui-client/tokens.css';
-import '@pkgs/ui-client/hosts.css';
+import '@pkgs/ui-root-client/tokens.css';
+import '@pkgs/ui-root-client/hosts.css';
 import {
   createSignal,
   type JSX,

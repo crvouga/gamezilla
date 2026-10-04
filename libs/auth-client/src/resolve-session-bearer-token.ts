@@ -1,4 +1,4 @@
-import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
+import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import type { Timers } from '@pkgs/clock-shared/types';
 
 const BEARER_RETRY_DELAYS_MS = [0, 300, 1000, 2000] as const;

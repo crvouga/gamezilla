@@ -21,7 +21,7 @@ import type {
   OpenAuthSession,
   OpenAuthSessionResult,
 } from '@pkgs/auth-inhouse-client/auth-client-oauth';
-import type { OpenExternalUrl } from '@pkgs/ui-client/external-url';
+import type { OpenExternalUrl } from '@pkgs/ui-root-client/external-url';
 import { type Accessor, createSignal } from 'solid-js';
 
 import { requestHref } from './http-request';

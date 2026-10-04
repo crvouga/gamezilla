@@ -1,6 +1,6 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { FeedbackRepository } from '@pkgs/feedback-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { readBoundedBody } from './bounded-body';
 import { MAX_REPORT_BYTES } from './http-handler';
 import { normalizeReport } from './normalize-report';

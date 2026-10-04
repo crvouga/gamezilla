@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';

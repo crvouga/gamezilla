@@ -15,7 +15,7 @@ import type { ClientConfigDbRow } from '@libs/app-config-shared/parse-client-con
 import { parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { eventually, Then, WARMUP_MS } from './define';
 import type { LiveWorld } from './live-world';
 import { requireSecret } from './live-world';

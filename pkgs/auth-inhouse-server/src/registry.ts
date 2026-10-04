@@ -1,6 +1,6 @@
 /** The enabled providers, built once per auth app from configuration. */
 
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { AppleProvider, AppleProviderConfig } from './apple-oauth';

@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
-import { readObjectBytes, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import {
+  readObjectBytes,
+  writeUtf8,
+} from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type {
   QualityResult,
   UIQualityChecker,

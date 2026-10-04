@@ -1,8 +1,8 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
-import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
+import type { Kv, KvRecord } from '@pkgs/kv-root-shared/interface';
 import type {
   DistributedLock,
   LockHandle,

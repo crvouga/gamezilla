@@ -1,18 +1,18 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { Kv } from '@pkgs/kv-shared/interface';
-import { keyValueRoomClientKeywords } from '@pkgs/room-client/keys';
-import { RoomClient } from '@pkgs/room-client/room-client';
-import { KeyValueClientRoomStorage } from '@pkgs/room-client/storage';
+import type { Kv } from '@pkgs/kv-root-shared/interface';
+import { keyValueRoomClientKeywords } from '@pkgs/room-root-client/keys';
+import { RoomClient } from '@pkgs/room-root-client/room-client';
+import { KeyValueClientRoomStorage } from '@pkgs/room-root-client/storage';
 import {
   CancelScheduleEffect,
   ScheduleEffect,
-} from '@pkgs/room-shared/builtin';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
+} from '@pkgs/room-root-shared/builtin';
+import type { ClientTransport } from '@pkgs/room-root-shared/transport';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import type { CreateRoomTransport } from './room-transport-factory';
 import { WebSocketRoomTransportFactory } from './room-transport-factory';

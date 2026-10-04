@@ -5,8 +5,8 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-import { Button } from '@pkgs/ui-client/button';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { AccountPrivacyRow } from './use-account-privacy';
 

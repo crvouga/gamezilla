@@ -16,12 +16,12 @@ import {
   USERNAME_CHANGE_COOLDOWN_MS,
   validateUsername,
 } from '@libs/profile-shared/username';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';

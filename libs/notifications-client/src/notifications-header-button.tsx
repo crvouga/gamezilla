@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import { Badge } from '@pkgs/ui-client/badge';
-import { IconButton } from '@pkgs/ui-client/icon-button';
-import { BellIcon } from '@pkgs/ui-client/icons';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
+import { BellIcon } from '@pkgs/ui-root-client/icons';
 import { type JSX, Show } from 'solid-js';
 
 import { notificationsPath } from './notifications-routes';

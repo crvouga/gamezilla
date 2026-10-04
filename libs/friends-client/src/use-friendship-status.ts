@@ -1,8 +1,8 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { canonicalUserPair } from '@libs/friends-shared/canonical-pair';
 import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
   useSyncEngine,

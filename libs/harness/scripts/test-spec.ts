@@ -53,7 +53,7 @@ import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
-import { parseJunit } from '@pkgs/harness-shared/junit';
+import { parseJunit } from '@pkgs/harness-root-shared/junit';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';

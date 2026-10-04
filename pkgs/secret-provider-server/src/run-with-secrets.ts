@@ -1,4 +1,4 @@
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { SecretsEnvs } from '@pkgs/secret-provider-shared/local-secrets-cache';
 import { runWithInfisicalSecrets } from './cli-run';
 

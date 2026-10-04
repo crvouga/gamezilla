@@ -1,6 +1,6 @@
 import type { Assistant } from '@pkgs/assistant-shared/engine';
-import type { SpeakingAvatarProps } from '@pkgs/ui-client/speaking-avatar';
-import { SpeakingAvatar } from '@pkgs/ui-client/speaking-avatar';
+import type { SpeakingAvatarProps } from '@pkgs/ui-root-client/speaking-avatar';
+import { SpeakingAvatar } from '@pkgs/ui-root-client/speaking-avatar';
 import {
   batch,
   createEffect,

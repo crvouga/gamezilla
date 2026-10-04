@@ -30,7 +30,7 @@ import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const SIGNED_IN = ['alice', 'bob'] as const;
 const GUEST = 'carol';

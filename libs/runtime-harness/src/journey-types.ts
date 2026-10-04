@@ -5,7 +5,7 @@
  * (`@apps/product#health`); each runner supplies a {@link JourneyHost}.
  */
 
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 
 /** The state a host puts a fresh device in before the journey starts. */
 export type JourneyAccess = 'anonymous' | 'signed-in';

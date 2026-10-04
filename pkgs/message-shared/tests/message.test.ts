@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import { asKeyword, isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Message } from '@pkgs/message-shared/message';
 import {

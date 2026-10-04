@@ -1,5 +1,5 @@
 import { changeAvailability } from '@pkgs/matchmaking-sql-shared/owner-repository';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 import { MultiplayerGameRepository } from './game-repository';
 import { projectOpponentSearch } from './search-projection';

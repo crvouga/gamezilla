@@ -1,7 +1,7 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans } from '@lingui/solid/macro';
-import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { SpaceShareAddPeople } from './space-share-add-people';
 import { SpaceShareLinkSection } from './space-share-link-section';

@@ -20,9 +20,9 @@
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
-    "@pkgs/room-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*"
+    "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native": "catalog:",

@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/app-shared/auth-provider';
+import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/app-root-shared/auth-provider';
 import {
   BILLING_PROVIDER_BINDING,
   DEPLOYMENT_PROTECTION_BINDING,
   readDeploymentProtection,
-} from '@libs/app-shared/env';
+} from '@libs/app-root-shared/env';
 import {
   authRelayOrigin,
   envOrigins,

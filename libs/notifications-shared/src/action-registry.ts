@@ -1,4 +1,4 @@
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { Notification } from './notification';
 import { NotificationsError } from './notifications-errors';
 

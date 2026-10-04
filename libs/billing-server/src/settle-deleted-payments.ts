@@ -1,6 +1,6 @@
 import { recordPaymentEvidence } from '@libs/billing-shared/payment-evidence';
-import type { MembershipBilling } from '@pkgs/billing-shared/membership';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 
 export async function settleDeletedAccountPayments(args: {
   tx: SqlTx;

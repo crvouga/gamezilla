@@ -1,5 +1,5 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
-import type { RoomState } from '@pkgs/room-shared/types';
+import type { RoomState } from '@pkgs/room-root-shared/types';
 import type { ChessPuzzleOutcomeKind } from './chess-puzzle-interaction-entities';
 
 const result = createAttrNamespace('chess', 'puzzle', 'result');

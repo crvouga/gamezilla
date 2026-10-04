@@ -14,9 +14,9 @@ import { parseArgs } from 'node:util';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 import { DEFAULT_CACHE_DIR } from './cli';
 import type { PuzzleValidationSummary } from './puzzle-validation-report';

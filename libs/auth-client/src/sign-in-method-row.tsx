@@ -2,11 +2,11 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { BrandIcon } from '@pkgs/ui-client/brand-icon';
-import { Button } from '@pkgs/ui-client/button';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { BrandIcon } from '@pkgs/ui-root-client/brand-icon';
+import { Button } from '@pkgs/ui-root-client/button';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';

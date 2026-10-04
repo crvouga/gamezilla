@@ -1,6 +1,6 @@
 language js
 
-// The app knows billing only through the membership port (@pkgs/billing-shared).
+// The app knows billing only through the membership port (@pkgs/billing-root-shared).
 // A provider package (Stripe, Paddle), a vendor SDK or a simulated vendor
 // (the Stripe mock) is imported only where an adapter is chosen and built —
 // composition roots, harnesses, scripts, the secret registry — never by
@@ -20,6 +20,6 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"](?:@pkgs/billing-(?:stripe|paddle|providers)(?:-[a-z]+)?|stripe|@crvouga/mockingbird-service-stripe)(?:/[^'\"]*)?['\"]$",
-    register_diagnostic(span=$src, message="Product code knows billing only through the @pkgs/billing-shared membership port. Build provider adapters in a composition root (apps/server/src/product-server.ts, a harness, a script) and inject them as MembershipProviders.", severity="error")
+    register_diagnostic(span=$src, message="Product code knows billing only through the @pkgs/billing-root-shared membership port. Build provider adapters in a composition root (apps/server/src/product-server.ts, a harness, a script) and inject them as MembershipProviders.", severity="error")
   }
 }

@@ -9,7 +9,7 @@ import {
   openPgClient,
 } from '@pkgs/sql-client-postgres-server/connect';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import { exampleAppSchema } from '@pkgs/sync-engine-harness/schema';
 import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
 

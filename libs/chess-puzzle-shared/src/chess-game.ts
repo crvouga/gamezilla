@@ -5,9 +5,9 @@ import {
   chessEvtNs,
   chessMainMenuCommandRouter,
   chessMainMenuEventReducer,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import type { GameDefinition } from '@libs/spaces-shared/game';
-import type { RoomState } from '@pkgs/room-shared/types';
+import type { RoomState } from '@pkgs/room-root-shared/types';
 import {
   chessPuzzlePlayCmdNs,
   chessPuzzlePlayEvtNs,

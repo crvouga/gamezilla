@@ -1,10 +1,10 @@
 import { opponentRestrictions } from '@libs/friends-shared/opponent-restrictions';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { MatchFormation } from '@pkgs/matchmaking-sql-shared/match-pass';
 import { formMatches } from '@pkgs/matchmaking-sql-shared/match-pass';
 import { changeAvailability } from '@pkgs/matchmaking-sql-shared/owner-repository';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { Chess } from 'chess.js';
 import { MultiplayerGameRepository } from './game-repository';
 import { CHESS_OPPONENT_POOL, CHESS_SEARCH_RADIUS } from './search-config';

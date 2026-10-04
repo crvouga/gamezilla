@@ -8,11 +8,11 @@ import { IdentityLinker } from '@pkgs/auth-inhouse-server/identity-linker';
 import { IdpRepository } from '@pkgs/auth-inhouse-server/idp-repository';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
-import type { AuthServerContractHarness } from '@pkgs/auth-shared/auth-server-contract';
-import { describeAuthServerContract } from '@pkgs/auth-shared/auth-server-contract';
+import type { AuthServerContractHarness } from '@pkgs/auth-root-shared/auth-server-contract';
+import { describeAuthServerContract } from '@pkgs/auth-root-shared/auth-server-contract';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
 
 const SECRET = 'contract-secret-contract-secret-contract';

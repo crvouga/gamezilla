@@ -12,8 +12,8 @@
 
 import { AccountDeviceMembership } from '@libs/auth-shared/account-device-membership';
 import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { LinkedIdentityMirror } from './linked-identity-mirror';
 

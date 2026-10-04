@@ -5,7 +5,7 @@ import {
 } from '@pkgs/message-shared/message';
 import type { MessageRouter } from '@pkgs/message-shared/router';
 import { createMessageRouter } from '@pkgs/message-shared/router';
-import type { RoomState } from '@pkgs/room-shared/types';
+import type { RoomState } from '@pkgs/room-root-shared/types';
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0;

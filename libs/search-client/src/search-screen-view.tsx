@@ -6,12 +6,12 @@ import {
 } from '@libs/user-search-client/use-user-search';
 import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { SearchIcon, UsersIcon } from '@pkgs/ui-client/icons';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { ScreenBodyVirtualList } from '@pkgs/ui-client/screen-body-virtual-list';
-import { TextInput } from '@pkgs/ui-client/text-input';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { SearchIcon, UsersIcon } from '@pkgs/ui-root-client/icons';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { ScreenBodyVirtualList } from '@pkgs/ui-root-client/screen-body-virtual-list';
+import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
 import { SearchRecentQueries } from './search-recent-queries';
 import { SearchUserResultRow } from './search-user-result-row';

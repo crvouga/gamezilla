@@ -26,7 +26,7 @@
     "@pkgs/secret-provider-server": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*"
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

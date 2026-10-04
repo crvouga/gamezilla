@@ -8,9 +8,9 @@ import { join } from 'node:path';
 import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
 import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import { defineSchema } from '@pkgs/db-schema-shared/define-schema';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineSchema } from '@pkgs/db-schema-root-shared/define-schema';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
 import { databaseUrlFor } from '@pkgs/postgres-embedded-shared/ports';
@@ -18,9 +18,9 @@ import {
   createPgPool,
   openPgClient,
 } from '@pkgs/sql-client-postgres-server/connect';
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { raw } from '@pkgs/sql-shared/sql';
+import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
   let sqlClient: PostgresSqlClient;

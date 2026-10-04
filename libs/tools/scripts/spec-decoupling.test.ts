@@ -89,14 +89,14 @@ describe('decouplingProblems (D1)', () => {
     const errors = problems(
       'specs/room/ubiquitous-language.yml',
       [
-        '# bound in @pkgs/room-harness',
+        '# bound in @pkgs/room-root-harness',
         '# see specs/README.md',
         '# the kernel is ubiquitous-language.yml',
         '# written in room.steps.ts',
       ].join('\n')
     ).join('\n');
     expect(errors).toContain(
-      ':1: D1 names a workspace package "@pkgs/room-harness"'
+      ':1: D1 names a workspace package "@pkgs/room-root-harness"'
     );
     expect(errors).toContain(':2: D1 names a repo directory "specs/README.md"');
     expect(errors).toContain(

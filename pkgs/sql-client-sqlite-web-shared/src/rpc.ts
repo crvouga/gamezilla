@@ -1,5 +1,5 @@
-import type { RunResult } from '@pkgs/sql-client-shared/interface';
-import type { Value } from '@pkgs/sql-shared/sql';
+import type { RunResult } from '@pkgs/sql-client-root-shared/interface';
+import type { Value } from '@pkgs/sql-root-shared/sql';
 
 /**
  * Compile-time documentation marker: values at the RPC boundary must be

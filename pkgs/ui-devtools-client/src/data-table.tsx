@@ -21,7 +21,7 @@ import {
   toggleSelectedKey,
 } from '@pkgs/ui-devtools-shared/data-table-selection';
 import type { DataTableProps } from '@pkgs/ui-devtools-shared/data-table-types';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 import { createDataTablePageCache } from './create-data-table-page-cache';
 import styles from './data-table.module.css';

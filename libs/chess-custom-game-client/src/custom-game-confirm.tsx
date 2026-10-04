@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
+import { Button } from '@pkgs/ui-root-client/button';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { createSignal, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 

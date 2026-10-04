@@ -7,7 +7,7 @@ import {
 } from '@pkgs/feedback-harness/feedback';
 import type { FeedbackDraft } from '@pkgs/feedback-shared/types';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 
 const { Given, When, Then } = stepsFor<Run<FeedbackReportingWorld>>();
 const describe = (w: Run<FeedbackReportingWorld>, draft: FeedbackDraft) =>

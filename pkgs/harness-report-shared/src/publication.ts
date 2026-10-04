@@ -1,8 +1,8 @@
 /** Attempt-local commit records; immutable successful content remains shared. */
 
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreWithPrefix } from '@pkgs/object-store-root-shared/impl-with-prefix';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { commitKey } from './keys';
 import type { CommitRecord } from './protocol';
 

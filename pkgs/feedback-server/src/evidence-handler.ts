@@ -1,5 +1,5 @@
 import type { FeedbackAttachment } from '@pkgs/feedback-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { readBoundedBody } from './bounded-body';
 
 export const MAX_EVIDENCE_BYTES = 12 * 1024 * 1024;

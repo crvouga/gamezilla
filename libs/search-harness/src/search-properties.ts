@@ -1,7 +1,7 @@
 import type { ProductHarness } from '@libs/harness/harness';
 import { productExtra } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { defineProperty } from '@pkgs/harness-shared/define-property';
+import { defineProperty } from '@pkgs/harness-root-shared/define-property';
 
 /**
  * People search must not leave the focused actor on an eternal "Searching…"

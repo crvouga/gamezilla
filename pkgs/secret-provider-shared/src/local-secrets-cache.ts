@@ -3,7 +3,7 @@
  * `secrets-run` / check. Callers inject an ObjectStore rooted at the repo tree.
  */
 
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 export const SECRETS_CACHE_PREFIX = '.cache/secrets';
 export const SECRETS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;

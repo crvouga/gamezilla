@@ -3,7 +3,7 @@
  * SQL slices use {@link SqlDataDump}; schema comes from migrate / seed only.
  */
 
-import type { SqlDataDump } from '@pkgs/sql-client-shared/types';
+import type { SqlDataDump } from '@pkgs/sql-client-root-shared/types';
 import type { HarnessCheckpointRoomDump } from './checkpoint';
 
 export const HARNESS_SYSTEM_SNAPSHOT_VERSION = 1 as const;

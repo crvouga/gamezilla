@@ -1,7 +1,7 @@
 // regression: journey-back-waits-on-missing-nav
 import { describe, expect, test } from 'bun:test';
 import { pressBackUntilVisible } from '@libs/harness/driver-gestures';
-import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
+import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
 
 function node(args: {
   readonly id: string;

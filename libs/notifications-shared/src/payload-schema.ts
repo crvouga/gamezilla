@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 export const NOTIFICATIONS_MAX_PAYLOAD_BYTES = 4096;
 

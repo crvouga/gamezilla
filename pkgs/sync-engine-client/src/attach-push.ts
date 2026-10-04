@@ -1,7 +1,7 @@
-import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { PubSub, PubSubStatus } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
 import { clearRemovedPushApplied } from '@pkgs/sync-engine-shared/push-applied';

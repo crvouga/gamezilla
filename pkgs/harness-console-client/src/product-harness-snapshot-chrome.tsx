@@ -2,10 +2,10 @@ import type {
   ProductHarnessSession,
   ProductHarnessSnapshotInfo,
 } from '@pkgs/harness-console-shared/ports';
-import { Button } from '@pkgs/ui-client/button';
-import { Checkbox } from '@pkgs/ui-client/checkbox';
-import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-client/content-edge-padding';
-import { IconButton } from '@pkgs/ui-client/icon-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { Checkbox } from '@pkgs/ui-root-client/checkbox';
+import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-root-client/content-edge-padding';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   Columns2Icon,
   RotateCcwIcon,
@@ -14,11 +14,11 @@ import {
   SlidersHorizontalIcon,
   SquareStackIcon,
   Trash2Icon,
-} from '@pkgs/ui-client/icons';
-import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
-import { SegmentedControl } from '@pkgs/ui-client/segmented-control';
-import { Select } from '@pkgs/ui-client/select';
-import { useCommandPalette } from '@pkgs/ui-client/use-command-palette';
+} from '@pkgs/ui-root-client/icons';
+import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { SegmentedControl } from '@pkgs/ui-root-client/segmented-control';
+import { Select } from '@pkgs/ui-root-client/select';
+import { useCommandPalette } from '@pkgs/ui-root-client/use-command-palette';
 import { createSignal, Show } from 'solid-js';
 import { useClientLayoutPreference } from './client-layout-preference';
 import type { ClientLayoutMode } from './layout';

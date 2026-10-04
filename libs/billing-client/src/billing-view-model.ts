@@ -15,7 +15,7 @@ import type { MembershipRow } from '@libs/billing-shared/membership-row';
 import type {
   OfferPriceSpec,
   PlusMembershipOffer,
-} from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/offer';
 
 /** Whether the membership makes the account a member right now. */
 export type BillingTier = 'free' | 'paid';

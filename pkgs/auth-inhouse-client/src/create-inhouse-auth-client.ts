@@ -7,12 +7,12 @@ import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
 import type {
   AuthClientPort,
   GetFreshTokenOptions,
-} from '@pkgs/auth-shared/auth-client-port';
+} from '@pkgs/auth-root-shared/auth-client-port';
 import type {
   AuthSessionState,
   AuthSessionStore,
-} from '@pkgs/auth-shared/auth-session-state';
-import { AUTH_SESSION_INITIAL } from '@pkgs/auth-shared/auth-session-state';
+} from '@pkgs/auth-root-shared/auth-session-state';
+import { AUTH_SESSION_INITIAL } from '@pkgs/auth-root-shared/auth-session-state';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SessionBody } from './auth-client-http';
 import { apiUrl, postJson, toVerified } from './auth-client-http';

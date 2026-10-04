@@ -3,8 +3,8 @@
  * ctrl+shift+tab, mod+alt+arrows, mod+w (close), mod+t (add). Pure.
  */
 
-import type { WebKeyboardEventLike } from '@pkgs/ui-shared/match';
-import { matchesWebShortcut } from '@pkgs/ui-shared/match';
+import type { WebKeyboardEventLike } from '@pkgs/ui-root-shared/match';
+import { matchesWebShortcut } from '@pkgs/ui-root-shared/match';
 import type { TabStripItem } from './tab-strip-types';
 
 export type TabStripKeyboardProps = {

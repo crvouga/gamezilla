@@ -9,7 +9,7 @@ import {
   gherkinText,
   scenarioScript,
 } from '@pkgs/harness-report-shared/scenario';
-import type { ReportStep } from '@pkgs/harness-shared/report-types';
+import type { ReportStep } from '@pkgs/harness-root-shared/report-types';
 import { createMemo, For, Show } from 'solid-js';
 
 function pickFrame(

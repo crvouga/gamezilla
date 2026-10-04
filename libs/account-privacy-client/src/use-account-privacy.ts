@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createMemo } from 'solid-js';
 

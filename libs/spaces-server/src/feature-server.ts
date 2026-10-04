@@ -9,7 +9,7 @@
 
 import { defineFeatureServer } from '@libs/feature-shared/server';
 import { roomTopic } from '@libs/spaces-shared/space-room-topic';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 import { MySpaceIdsLoader } from './load-my-space-ids-sql';
 import { spaceRoomGrants } from './space-room-grants';
 import { registerSpaceWithdrawal } from './space-withdrawal-consumer';

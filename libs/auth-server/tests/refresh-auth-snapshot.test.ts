@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { AuthSnapshotRefresher } from '@libs/auth-server/refresh-auth-snapshot';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
-import type { AuthUser } from '@pkgs/auth-shared/auth-user';
-import type { VerifiedSession } from '@pkgs/auth-shared/verified-session';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
+import type { AuthUser } from '@pkgs/auth-root-shared/auth-user';
+import type { VerifiedSession } from '@pkgs/auth-root-shared/verified-session';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });

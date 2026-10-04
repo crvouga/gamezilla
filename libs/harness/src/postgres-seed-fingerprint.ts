@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { HARNESS_AUTH_SECRET } from '@libs/feature-shared/harness-constants';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 
 import type { HarnessComposition } from './composition';
 

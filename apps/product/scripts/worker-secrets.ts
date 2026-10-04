@@ -5,7 +5,7 @@ import { apiWorkerVars } from '@libs/infra-shared/env-file';
 import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
 import { refreshSecretsIntoEnv } from '@libs/secrets-server/secrets';
 import { activeEnvFile } from '@libs/secrets-shared/secret';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 const WORKER_EXTRA_ENV_KEYS = ['OBSERVABILITY_ENABLED'] as const;
 

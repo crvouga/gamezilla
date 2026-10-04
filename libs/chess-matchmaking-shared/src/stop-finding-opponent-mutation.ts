@@ -1,7 +1,7 @@
 import { requireInMutation } from '@libs/permissions-shared/mutation-permission';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { SearchCommands } from '@pkgs/matchmaking-sql-shared/search-commands';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';

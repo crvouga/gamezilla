@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 
 import { CRASH_OVERLAY_STYLES } from '@pkgs/assert-crash-browser-shared/crash-handler-browser-styles';
-import type { CrashHandler } from '@pkgs/assert-shared/crash-handler';
+import type { CrashHandler } from '@pkgs/assert-root-shared/crash-handler';
 import type { Timers } from '@pkgs/clock-shared/types';
 
 function isBrowser() {

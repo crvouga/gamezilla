@@ -1,4 +1,4 @@
 {
   "summary": "Buttons without an explicit type inside the feedback form inherited HTML's submit default, so choosing a template sent the draft. The shared Button now defaults to type=button and only explicit submit controls submit forms.",
-  "regressionTest": "pkgs/ui-harness/tests/button.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness/tests/button.test.tsx"
 }

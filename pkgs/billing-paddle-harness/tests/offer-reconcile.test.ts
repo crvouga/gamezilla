@@ -6,8 +6,8 @@ import {
   reconcilePaddleOffer,
 } from '@pkgs/billing-paddle-shared/offer-reconcile';
 import { PaddleApi } from '@pkgs/billing-paddle-shared/paddle-api';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import { CONTRACT_OFFER } from '@pkgs/billing-root-shared/contract-fixtures';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 
 const log = createNoopLogger();

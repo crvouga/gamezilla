@@ -4,9 +4,9 @@ import type {
   CreateLlmAppOptions,
   LlmGetKv,
   LlmRequireAuth,
-} from '@pkgs/llm-server/llm-routes';
-import { createLlmApp } from '@pkgs/llm-server/llm-routes';
-import type { LlmProvider } from '@pkgs/llm-shared/llm-provider';
+} from '@pkgs/llm-root-server/llm-routes';
+import { createLlmApp } from '@pkgs/llm-root-server/llm-routes';
+import type { LlmProvider } from '@pkgs/llm-root-shared/llm-provider';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import { Hono } from 'hono';
 

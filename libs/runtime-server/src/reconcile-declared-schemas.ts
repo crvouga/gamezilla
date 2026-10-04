@@ -6,9 +6,9 @@ import { reconcileKvPostgres } from '@pkgs/kv-postgres-shared/reconcile-postgres
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared/tables';
 import { reconcileOutboxPostgres } from '@pkgs/outbox-shared/reconcile';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 import { reconcileSyncEnginePostgres } from '@pkgs/sync-engine-shared/reconcile-sync-engine-postgres';
 
 export type DeclaredSchemaDeps = {

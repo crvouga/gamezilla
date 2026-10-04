@@ -1,8 +1,8 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { HistoryIcon } from '@pkgs/ui-client/icons';
-import { MenuList } from '@pkgs/ui-client/menu-list';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
+import { Button } from '@pkgs/ui-root-client/button';
+import { HistoryIcon } from '@pkgs/ui-root-client/icons';
+import { MenuList } from '@pkgs/ui-root-client/menu-list';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import { For, type JSX, Show } from 'solid-js';
 
 const ROW_ICON_SIZE = 18;

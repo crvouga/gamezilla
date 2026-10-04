@@ -18,11 +18,11 @@
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
-    "@sqlite.org/sqlite-wasm": "catalog:",
-    "@pkgs/sql-client-sqlite-shared": "workspace:*"
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@sqlite.org/sqlite-wasm": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

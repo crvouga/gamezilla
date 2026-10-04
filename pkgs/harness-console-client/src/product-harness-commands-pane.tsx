@@ -1,8 +1,8 @@
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
-import { Button } from '@pkgs/ui-client/button';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { For, Show } from 'solid-js';
 
 /**

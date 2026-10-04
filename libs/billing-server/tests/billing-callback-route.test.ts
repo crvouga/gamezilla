@@ -8,10 +8,10 @@ import type {
   ReadCallbackInput,
   StartCheckoutInput,
   StartCheckoutResult,
-} from '@pkgs/billing-shared/membership';
-import { createMembershipProviders } from '@pkgs/billing-shared/providers';
+} from '@pkgs/billing-root-shared/membership';
+import { createMembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 const NOW = 1_700_000_000_000;
 

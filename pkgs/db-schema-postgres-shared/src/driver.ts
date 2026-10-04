@@ -1,11 +1,11 @@
-import type { ServerOperation } from '@pkgs/db-schema-shared/operations';
-import { planServer } from '@pkgs/db-schema-shared/plan-server';
-import type { Schema } from '@pkgs/db-schema-shared/types';
+import type { ServerOperation } from '@pkgs/db-schema-root-shared/operations';
+import { planServer } from '@pkgs/db-schema-root-shared/plan-server';
+import type { Schema } from '@pkgs/db-schema-root-shared/types';
 import type {
   PostgresSqlClient,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import sql, { ident, raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import sql, { ident, raw } from '@pkgs/sql-root-shared/sql';
 import {
   advisoryLockSql,
   advisoryUnlockSql,

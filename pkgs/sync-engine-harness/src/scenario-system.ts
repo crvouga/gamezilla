@@ -1,4 +1,4 @@
-import type { Session } from '@pkgs/harness-shared/runtime-types';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type {

@@ -4,8 +4,8 @@
  * without wall sleep. Isomorphic — no `node:timers`.
  */
 
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import type { WaitPump } from '@pkgs/ui-testing-shared/wait';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import type { WaitPump } from '@pkgs/ui-testing-root-shared/wait';
 
 /** Heap scheduler behind `session.scheduler` (Runtime public API). */
 type UnderlyingScheduler = Session['scheduler']['underlying'];

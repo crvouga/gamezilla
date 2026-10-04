@@ -4,8 +4,8 @@ import {
   useDebouncedUserSearchEffect,
 } from '@libs/user-search-client/use-user-search';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Combobox } from '@pkgs/ui-client/combobox';
-import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
+import { Combobox } from '@pkgs/ui-root-client/combobox';
+import type { ComboboxOption } from '@pkgs/ui-root-shared/combobox-types';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
 

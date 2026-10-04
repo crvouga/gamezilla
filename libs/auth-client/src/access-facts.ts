@@ -4,8 +4,8 @@ import {
   resolveMyId,
 } from '@libs/auth-shared/resolve-client-identity';
 import { resolveHasAuthSession } from '@libs/auth-shared/session-capability';
-import { createSecureStorageItem } from '@pkgs/secure-storage-client/solid';
-import sql from '@pkgs/sql-shared/sql';
+import { createSecureStorageItem } from '@pkgs/secure-storage-root-client/solid';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { useCurrentAccountId } from './use-current-account-id';

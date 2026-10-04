@@ -4,7 +4,7 @@
  * copied text in local state instead of touching the clipboard.
  */
 
-import { ExampleRoot } from '@pkgs/ui-client/example-root';
+import { ExampleRoot } from '@pkgs/ui-root-client/example-root';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { JsonView } from './json-view';
 

@@ -1,5 +1,5 @@
 import { cliClock, cliTimers } from '@libs/secrets-shared/cli-io';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { fmtElapsed } from './fmt';
 import type { HealthResult } from './http-probe';

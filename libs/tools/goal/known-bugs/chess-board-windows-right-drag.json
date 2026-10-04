@@ -1,4 +1,4 @@
 {
   "summary": "Right-drag arrows began on `contextmenu`, which Windows fires after `pointerup`, so the stroke ended before it began: right-drags drew nothing there and the next right-click drew from a stale origin. Fixed by beginning strokes on the secondary `pointerdown`.",
-  "regressionTest": "pkgs/chess-board-client/tests/chess-board-input.test.tsx"
+  "regressionTest": "pkgs/chess-board-root-client/tests/chess-board-input.test.tsx"
 }

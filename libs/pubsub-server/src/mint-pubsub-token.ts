@@ -1,6 +1,6 @@
 import { clientConfigTopic } from '@libs/app-config-shared/sync-topics';
 import { userTopic } from '@libs/feature-shared/sync';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import { SignJWT } from 'jose';
 
 const TOKEN_TTL_SEC = 15 * 60;

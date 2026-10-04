@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import { defineProperty } from '@pkgs/harness-shared/define-property';
-import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
-import { defineSnapshot } from '@pkgs/harness-shared/define-snapshot';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
-import { noErrorBoundary } from '@pkgs/ui-testing-shared/observations';
+import { defineProperty } from '@pkgs/harness-root-shared/define-property';
+import { defineRuntime } from '@pkgs/harness-root-shared/define-runtime';
+import { defineSnapshot } from '@pkgs/harness-root-shared/define-snapshot';
+import { defineSystem } from '@pkgs/harness-root-shared/define-system';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
+import { noErrorBoundary } from '@pkgs/ui-testing-root-shared/observations';
 import {
   partition,
   resetActor,

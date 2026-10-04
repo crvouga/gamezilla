@@ -13,7 +13,7 @@ import {
 import { profileVisibleToPeople } from '@libs/profile-harness/profile-visibility';
 import { AppRecovery } from '@libs/runtime-server/app-recovery';
 import { InvestigationTrails } from '@libs/runtime-server/investigation-trails';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const recovery = (s: ProductHarness) =>
   new AppRecovery(s.harness.serverSql.sqlClient, {

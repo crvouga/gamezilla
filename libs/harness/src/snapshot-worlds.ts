@@ -15,8 +15,8 @@
 
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { ProductHarness } from './harness';
 import { accountIdOf, actorLocalSql } from './identity';
 import type { OpenHarness } from './open-harness';

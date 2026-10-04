@@ -1,6 +1,6 @@
-import { IconButton } from '@pkgs/ui-client/icon-button';
-import { LogOutIcon } from '@pkgs/ui-client/icons';
-import { RegisterCommand } from '@pkgs/ui-client/register-command';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
+import { LogOutIcon } from '@pkgs/ui-root-client/icons';
+import { RegisterCommand } from '@pkgs/ui-root-client/register-command';
 import type { JSX } from 'solid-js';
 
 const ICON_SIZE = 32;

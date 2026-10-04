@@ -1,24 +1,24 @@
-import type { ClientEnv } from '@libs/app-client/client-env';
-import type { Client } from '@libs/app-client/create-client';
-import { createClient } from '@libs/app-client/create-client';
-import type { ServerEnv } from '@libs/app-shared/server-env';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
+import type { Client } from '@libs/app-root-client/create-client';
+import { createClient } from '@libs/app-root-client/create-client';
+import type { ServerEnv } from '@libs/app-root-shared/server-env';
 import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
-import { InMemoryLlmProvider } from '@pkgs/llm-server/in-memory-llm-provider';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
+import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
-} from '@pkgs/pubsub-shared/in-memory';
+} from '@pkgs/pubsub-root-shared/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
-import { InMemoryTtsProvider } from '@pkgs/tts-server/in-memory-tts-provider';
+import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
 import type { HarnessAppBuild, HarnessAppBuilds } from './app-build';

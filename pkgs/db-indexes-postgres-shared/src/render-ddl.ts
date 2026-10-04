@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import { isOwnedName } from '@pkgs/db-indexes-shared/naming';
-import type { IndexDefinition } from '@pkgs/db-indexes-shared/types';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import { isOwnedName } from '@pkgs/db-indexes-root-shared/naming';
+import type { IndexDefinition } from '@pkgs/db-indexes-root-shared/types';
 
 /** Same heuristic as `@pkgs/db-schema` postgres emit — Neon pooler wraps in BEGIN. */
 export function isConcurrentlyUnsupportedError(err: unknown): boolean {

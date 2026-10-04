@@ -7,7 +7,7 @@ import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-pu
 import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';

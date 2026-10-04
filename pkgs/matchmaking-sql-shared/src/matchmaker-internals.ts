@@ -4,10 +4,10 @@
  * @internal
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { asKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import type { FormulaWire } from '@pkgs/matchmaking-shared/formula-wire';
-import type { MatchedParticipant } from '@pkgs/matchmaking-shared/types';
+import type { FormulaWire } from '@pkgs/matchmaking-root-shared/formula-wire';
+import type { MatchedParticipant } from '@pkgs/matchmaking-root-shared/types';
 export type ParticipantRow = {
   readonly id: string;
   readonly joined_at: number | string;

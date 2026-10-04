@@ -1,11 +1,14 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import {
   MIGRATE_RECONCILE_CONFIG,
   resolveConfig,
-} from '@pkgs/db-indexes-shared/config';
-import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
-import type { DbPort, WorkloadManifest } from '@pkgs/db-indexes-shared/types';
+} from '@pkgs/db-indexes-root-shared/config';
+import { reconcileIndexes } from '@pkgs/db-indexes-root-shared/reconcile';
+import type {
+  DbPort,
+  WorkloadManifest,
+} from '@pkgs/db-indexes-root-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 
 /** Hard cap on reconcile rounds so a stuck deferred loop cannot hang forever. */

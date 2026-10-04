@@ -1,8 +1,8 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { unsafe } from '@pkgs/sql-shared/sql';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 import { awaitMutationVerdict } from '@pkgs/sync-engine-client/await-mutation-verdict';
 import type { CreateLocalSyncEngineOptions } from '@pkgs/sync-engine-client/create-local-sync-engine';
 import { createLocalSyncEngine } from '@pkgs/sync-engine-client/create-local-sync-engine';

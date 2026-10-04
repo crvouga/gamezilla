@@ -1,6 +1,6 @@
 # `@pkgs/harness-report`
 
-Reports of `@pkgs/harness-shared` runs, object store → API → client: a shared store
+Reports of `@pkgs/harness-root-shared` runs, object store → API → client: a shared store
 keyed by commit, the read side an API serves from it as Server-Sent Events,
 and the SolidJS + TailwindCSS viewer that renders the stream as it lands.
 

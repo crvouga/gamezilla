@@ -301,7 +301,7 @@ export default defineConfig({
     {
       // Provider logos must retain their official brand colors rather than
       // adapting to the product theme.
-      files: ['pkgs/ui-client/src/brand-logos.tsx'],
+      files: ['pkgs/ui-root-client/src/brand-logos.tsx'],
       rules: { 'shadcn/no-raw-colors': 'off' },
     },
   ],

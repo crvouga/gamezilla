@@ -5,22 +5,22 @@
  * Hosts drive `tick()`.
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
-import { MatchmakingSchemaDriftError } from '@pkgs/matchmaking-shared/errors';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import { MatchmakingSchemaDriftError } from '@pkgs/matchmaking-root-shared/errors';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-root-shared/schema';
 import {
   installPostgresSqliteCompat,
   isPostgresSqlClient,
 } from '@pkgs/postgres-sqlite-compat-shared/install';
-import { getUnderlyingSqlClient } from '@pkgs/sql-client-shared/impl-agnostic';
+import { getUnderlyingSqlClient } from '@pkgs/sql-client-root-shared/impl-agnostic';
 import type {
   PostgresSqlClient,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { MATCHMAKING_SCHEMA_STATE_ID, matchmakingSchema } from './tables';
 
 export type MigrateOptions = {

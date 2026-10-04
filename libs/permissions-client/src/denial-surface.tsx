@@ -1,8 +1,8 @@
 import { useClock } from '@pkgs/clock-client/solid';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ClockIcon, KeyRoundIcon } from '@pkgs/ui-client/icons';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ClockIcon, KeyRoundIcon } from '@pkgs/ui-root-client/icons';
 import { createMemo, type JSX } from 'solid-js';
 import { useUnlock } from './unlock';
 import { denialReasonTitle, resetsInLabel, unlockCopy } from './unlock-copy';

@@ -13,8 +13,8 @@ import {
 } from '@pkgs/harness-report-shared/frames';
 import { showPress } from '@pkgs/harness-report-shared/hash';
 import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportSnapshotBlob } from '@pkgs/harness-shared/report-types';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import type { ReportSnapshotBlob } from '@pkgs/harness-root-shared/report-types';
 import { createMemo, For, Show } from 'solid-js';
 import { PhonePanel } from './phone-panel';
 import type { ReportNav } from './use-report-nav';

@@ -4,8 +4,8 @@ import { FakeIssueReporter } from '@pkgs/feedback-server/fake-issue-reporter';
 import { FileSystemIssueReporter } from '@pkgs/feedback-server/filesystem-issue-reporter';
 import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 import type { DiagnosticProvider } from '@pkgs/feedback-shared/types';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

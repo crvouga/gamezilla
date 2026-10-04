@@ -5,8 +5,8 @@
  * in `regression-random-faults-actions.ts`.
  */
 
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import { unsafe } from '@pkgs/sql-shared/sql';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 
 import type { Mutation } from '@pkgs/sync-engine-shared/mutations-types';
 import { prepareClientsForInSync, resetClockSkews } from './pool-support';

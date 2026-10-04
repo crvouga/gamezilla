@@ -3,7 +3,7 @@ import {
   PHONE_H,
   PHONE_W,
 } from '@pkgs/harness-report-shared/phone';
-import type { ReportStepHit } from '@pkgs/harness-shared/report-types';
+import type { ReportStepHit } from '@pkgs/harness-root-shared/report-types';
 
 /**
  * One long-lived snapshot surface per client panel. Frames are painted by

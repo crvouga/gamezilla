@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 
 export const chessPuzzleInteractions = defineQuery({

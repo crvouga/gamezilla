@@ -1,4 +1,4 @@
-import type { TimeRange } from '@pkgs/observability-shared/types';
+import type { TimeRange } from '@pkgs/observability-root-shared/types';
 
 const UNIT_MS = { m: 60_000, h: 3_600_000, d: 86_400_000 } as const;
 

@@ -12,8 +12,8 @@
  * Everything from the request guard to the provider call is the product's.
  */
 
-import type { ApiRequestAsyncStore } from '@libs/app-shared/request-scope';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
+import type { ApiRequestAsyncStore } from '@libs/app-root-shared/request-scope';
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { AuthClaimAttr } from '@libs/auth-shared/auth-context';
 import { billingCustomerLinkProvider } from '@libs/auth-shared/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
@@ -28,9 +28,9 @@ import type {
   ServerOperation,
 } from '@libs/permissions-shared/server';
 import { OperationRefused } from '@libs/permissions-shared/server';
-import type { MembershipBilling } from '@pkgs/billing-shared/membership';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
-import { createMembershipProviders } from '@pkgs/billing-shared/providers';
+import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
+import { createMembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { Hono } from 'hono';
 
 /** Everything the billing routes and the access decision read and write. */

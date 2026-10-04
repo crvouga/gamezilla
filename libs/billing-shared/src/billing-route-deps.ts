@@ -2,10 +2,10 @@
  * Dependency contract shared by the billing HTTP routes. Each route class
  * lives in its own use case; this is the composition seam the app satisfies.
  */
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { Context } from 'hono';
 

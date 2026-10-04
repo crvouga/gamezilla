@@ -1,8 +1,8 @@
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { spaceSeatMemberIds } from '@libs/spaces-shared/space-members-messages';
-import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-shared/builtin';
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 import type { CustomGameChoice } from './custom-game-choice';
 import type { CustomGameWake } from './custom-game-commands';
 import { CustomGamesChanged } from './custom-game-commands';

@@ -3,8 +3,8 @@
  * and record the outcome in `probes`, where a read can observe it back.
  */
 
-import type { Client } from '@libs/app-client/create-client';
-import { defineAction } from '@pkgs/harness-shared/define-action';
+import type { Client } from '@libs/app-root-client/create-client';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import type { ProductHarness } from './harness';
 import type { HarnessSql } from './sql-types';
 import type { SystemSnapshotCtx } from './system-snapshot';

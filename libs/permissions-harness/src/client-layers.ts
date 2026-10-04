@@ -27,7 +27,7 @@ import {
   tableAnswer,
 } from '@libs/permissions-shared/reasons';
 import type { AppPolicy } from '@libs/permissions-shared/world';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 import { clientGatingLayer } from './client';
 

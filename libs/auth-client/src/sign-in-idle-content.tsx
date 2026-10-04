@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { ModalButton } from '@pkgs/ui-client/modal-parts';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { ModalButton } from '@pkgs/ui-root-client/modal-parts';
 import type { JSX } from 'solid-js';
 import { SignInModalBody } from './sign-in-modal-body';
 

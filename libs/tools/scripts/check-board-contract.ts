@@ -6,14 +6,14 @@ import { boardSoundIssues } from './board-sound-contract';
 
 const ROOT = resolve(process.cwd(), 'src');
 const PUBLIC_BOARD = new Set([
-  '@pkgs/chess-board-client/chess-board',
-  '@pkgs/chess-board-shared/chess-board-types',
-  '@pkgs/chess-board-client/chess-board-sounds',
-  '@pkgs/chess-board-client/chess-board-bench-page',
+  '@pkgs/chess-board-root-client/chess-board',
+  '@pkgs/chess-board-root-shared/chess-board-types',
+  '@pkgs/chess-board-root-client/chess-board-sounds',
+  '@pkgs/chess-board-root-client/chess-board-bench-page',
 ]);
 function permitted(typeOnly: boolean, name: string) {
   if (
-    name === '@pkgs/chess-board-shared/chess-board-types' ||
+    name === '@pkgs/chess-board-root-shared/chess-board-types' ||
     name === '@pkgs/chess-board-core-shared/types'
   )
     return typeOnly;

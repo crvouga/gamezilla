@@ -2,7 +2,7 @@ import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import {
   createSecureStorageItem,
   useSecureStorageStore,
-} from '@pkgs/secure-storage-client/solid';
+} from '@pkgs/secure-storage-root-client/solid';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { isUuid } from '@pkgs/uuid-shared/uuid';
 import { type Accessor, createComputed } from 'solid-js';

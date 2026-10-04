@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@pkgs/assert-crash-browser-shared": "workspace:*",
-    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*"
   },
   "devDependencies": {},

@@ -1,7 +1,7 @@
 /** What a person does in a hosted space: see the games, open a chess puzzle. */
 
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { check, expectVisible, tap } from './journey-gestures';
 
 const BOARD_MEASURE_LIMIT = 20;

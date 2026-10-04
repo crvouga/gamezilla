@@ -6,8 +6,8 @@
  * server once it runs that version) and the sync engine must not lose them.
  */
 
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import sql from '@pkgs/sql-shared/sql';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import sql from '@pkgs/sql-root-shared/sql';
 import { requireClient } from './regression-support';
 import type { SyncHarness } from './scenario-system';
 import { rows } from './sync-observations';

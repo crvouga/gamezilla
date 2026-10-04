@@ -1,7 +1,7 @@
 import type {
   ElementLayout,
   TapPosition,
-} from '@pkgs/ui-testing-shared/driver';
+} from '@pkgs/ui-testing-root-shared/driver';
 import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 
 /**

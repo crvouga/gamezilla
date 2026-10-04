@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness/local-schema';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';

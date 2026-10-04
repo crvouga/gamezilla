@@ -12,7 +12,7 @@
  * Each scenario runs warmup iterations to stabilize the JIT, then a measured batch.
  * We report ns/op, ops/sec, and (current vs legacy) speedup.
  */
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type {
   Message,

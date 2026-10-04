@@ -8,7 +8,7 @@ import {
   EMQX_PUBSUB_QOS,
   EMQX_SESSION_EXPIRY_SEC,
 } from '@pkgs/pubsub-emqx-shared/create-emqx-pubsub';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
 
 /** Pinned jitter source: reconnect backoff is deterministic. */

@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 /**
  * Named Tiger Style invariants for the local sync stack.

@@ -9,9 +9,9 @@
  * afterward.
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { unsafe } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { unsafe } from '@pkgs/sql-root-shared/sql';
 import { SQLITE_JSON_INSTALL_STATEMENTS } from './json-functions-sql';
 
 /**

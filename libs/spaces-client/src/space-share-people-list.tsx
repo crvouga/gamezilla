@@ -1,8 +1,8 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
 import { SpaceShareUserRow } from './space-share-user-row';

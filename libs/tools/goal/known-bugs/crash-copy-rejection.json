@@ -1,4 +1,4 @@
 {
   "summary": "Crash recovery reported a successful copy without a clipboard and left denied writes unhandled. Use the injected clipboard, show retryable copy feedback, and cancel feedback timers on recovery.",
-  "regressionTest": "libs/app-client/tests/root-error-boundary.test.tsx"
+  "regressionTest": "libs/app-root-client/tests/root-error-boundary.test.tsx"
 }

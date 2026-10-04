@@ -1,5 +1,5 @@
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import type { ApiWorkerBindings } from './api-worker-bindings';
 import type { SessionAuth } from './session-middleware';

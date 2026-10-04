@@ -1,5 +1,5 @@
 import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export const NOTIFICATIONS_PRIVACY: AccountPrivacyContribution = {
   name: 'notifications',

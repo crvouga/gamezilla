@@ -1,9 +1,9 @@
 // @sql-vendor-ok — UNLOGGED / fillfactor migrate knobs are Postgres-only.
-import { assert } from '@pkgs/assert-shared/singleton';
-import { KV_TABLE as TABLE } from '@pkgs/kv-shared/tables';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import { KV_TABLE as TABLE } from '@pkgs/kv-root-shared/tables';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 
 const STORAGE_PARAMS = `
   fillfactor = 70,

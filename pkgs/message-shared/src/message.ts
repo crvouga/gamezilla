@@ -1,5 +1,5 @@
-import type { Assert } from '@pkgs/assert-shared/assert';
-import { assert } from '@pkgs/assert-shared/singleton';
+import type { Assert } from '@pkgs/assert-root-shared/assert';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { JoinDot, Keyword } from '@pkgs/keyword-shared/keyword';
 import {
   assertLocalName,
@@ -66,7 +66,7 @@ export function isMessageEnvelope(value: unknown): value is Message {
  * log replay) so corrupted data fails fast instead of silently dispatching.
  *
  * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
- * `hotAssert()` from `@pkgs/assert-shared` on per-routed-message hot paths.
+ * `hotAssert()` from `@pkgs/assert-root-shared` on per-routed-message hot paths.
  */
 export function assertMessageEnvelope(
   a: Assert,

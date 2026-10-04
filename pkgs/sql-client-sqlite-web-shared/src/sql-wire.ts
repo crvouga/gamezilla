@@ -1,5 +1,5 @@
-import type { RawValue } from '@pkgs/sql-shared/sql';
-import { Sql } from '@pkgs/sql-shared/sql';
+import type { RawValue } from '@pkgs/sql-root-shared/sql';
+import { Sql } from '@pkgs/sql-root-shared/sql';
 import type { SqlWire } from './rpc';
 
 /** Rebuild a {@link Sql} from wire `{ sql, values }` (placeholders are `?`). */

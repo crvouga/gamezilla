@@ -7,7 +7,7 @@
  * For tests and spec bindings only (a `root/` export).
  */
 
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import { grantKeyOf } from './capabilities';

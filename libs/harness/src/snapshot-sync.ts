@@ -2,10 +2,10 @@
  * Keep product-harness snapshot SQL dumps consistent across server + clients.
  */
 
-import type { Client } from '@libs/app-client/create-client';
+import type { Client } from '@libs/app-root-client/create-client';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import sql from '@pkgs/sql-shared/sql';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { HarnessSql } from './sql-types';
 
 type UnderlyingScheduler = Session['scheduler']['underlying'];

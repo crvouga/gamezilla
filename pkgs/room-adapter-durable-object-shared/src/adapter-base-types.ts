@@ -1,14 +1,14 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { RoomEffectHandler } from '@pkgs/room-shared/handler';
-import type { RoomServerConfig } from '@pkgs/room-shared/room-server-types';
-import type { RoomStorage } from '@pkgs/room-shared/server-core-storage';
+import type { RoomEffectHandler } from '@pkgs/room-root-shared/handler';
+import type { RoomServerConfig } from '@pkgs/room-root-shared/room-server-types';
+import type { RoomStorage } from '@pkgs/room-root-shared/server-core-storage';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomModule,
   RoomModuleName,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type {
   DurableObjectInstanceState,

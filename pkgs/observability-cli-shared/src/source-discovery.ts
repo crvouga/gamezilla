@@ -1,4 +1,4 @@
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 export type LocalTraceSource =
   | { readonly kind: 'ndjson'; readonly path: string }

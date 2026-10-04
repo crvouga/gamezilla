@@ -9,20 +9,20 @@
 import { render } from 'solid-js/web';
 
 import '@pkgs/tailwind-shared/tailwind.css';
-import '@pkgs/ui-client/tokens.css';
-import '@pkgs/ui-client/hosts.css';
+import '@pkgs/ui-root-client/tokens.css';
+import '@pkgs/ui-root-client/hosts.css';
 import {
   browserObservabilityIdentity,
   installBrowserObsHelper,
   setBrowserSessionId,
-} from '@libs/app-client/browser-identity';
-import { createClient } from '@libs/app-client/create-client';
-import { wallClientEnv } from '@libs/app-client/wall-client-env';
+} from '@libs/app-root-client/browser-identity';
+import { createClient } from '@libs/app-root-client/create-client';
+import { wallClientEnv } from '@libs/app-root-client/wall-client-env';
 import {
   APP_VERSION,
   getCommitHash,
   hasCommitProvenance,
-} from '@libs/app-shared/app-metadata';
+} from '@libs/app-root-shared/app-metadata';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';
@@ -38,7 +38,7 @@ setMutationCorrelationIdentity(sessionId, buildSha);
 installBrowserObsHelper();
 
 function initializeObservability() {
-  const telemetry = import('@pkgs/observability-client/browser').then(
+  const telemetry = import('@pkgs/observability-root-client/browser').then(
     ({ createBrowserTelemetry }) =>
       createBrowserTelemetry({
         serviceName: 'gamezilla-client',
@@ -57,7 +57,7 @@ function initializeObservability() {
   );
   const boundaries = telemetry.then(async (runtime) => {
     const boundariesModule = await import(
-      '@libs/app-client/browser-boundaries'
+      '@libs/app-root-client/browser-boundaries'
     );
     boundariesModule.setBrowserTraceFlush(() => runtime.forceFlush());
     return boundariesModule.installBrowserObservabilityBoundaries();

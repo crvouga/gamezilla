@@ -1,6 +1,6 @@
-import type { ClientEnv } from '@libs/app-client/client-env';
-import type { TestDevicePorts } from '@libs/app-client/test-device-ports';
-import { TEST_DEVICE_PORTS_GLOBAL } from '@libs/app-client/test-device-ports';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
+import type { TestDevicePorts } from '@libs/app-root-client/test-device-ports';
+import { TEST_DEVICE_PORTS_GLOBAL } from '@libs/app-root-client/test-device-ports';
 import type { MutableMotionPreferencePort } from '@pkgs/device-shared/motion-preference';
 import type { RecordingAudioPlaybackPort } from '@pkgs/sounds-shared/recording-audio-playback-port';
 import type { HarnessDevice } from './harness';

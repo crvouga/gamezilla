@@ -5,8 +5,8 @@
  * synthesized when the host cannot measure.
  */
 
-import type { ScrollDirection } from '@pkgs/ui-testing-shared/driver';
-import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
+import type { ScrollDirection } from '@pkgs/ui-testing-root-shared/driver';
+import type { RenderedApp } from '@pkgs/ui-testing-root-shared/render-adapter';
 import { userEventKeyFromDom } from '@pkgs/ui-testing-solid-dom-shared/dom-keys';
 import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
 import { serializeDomHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';

@@ -17,17 +17,17 @@
   },
   "dependencies": {
     "@crvouga/mockingbird-service-postgres": "catalog:",
-    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/postgres-sqlite-compat-shared": "workspace:*",
     "@pkgs/sql-client-postgres-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "pg": "catalog:"
   },
   "devDependencies": {
     "@pkgs/postgres-embedded-server": "workspace:*",
-    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

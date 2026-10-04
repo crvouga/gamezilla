@@ -1,13 +1,13 @@
 /** @jsxImportSource solid-js */
 
 import type { EvidenceFile } from '@pkgs/feedback-shared/types';
-import { IconButton } from '@pkgs/ui-client/icon-button';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   MonitorPlayIcon,
   PaperclipIcon,
   Trash2Icon,
   XIcon,
-} from '@pkgs/ui-client/icons';
+} from '@pkgs/ui-root-client/icons';
 import { Show } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { useFeedbackState, useRecordingState } from './use-feedback-state';

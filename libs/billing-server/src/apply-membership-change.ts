@@ -1,6 +1,6 @@
-import type { MembershipChange } from '@pkgs/billing-shared/membership';
+import type { MembershipChange } from '@pkgs/billing-root-shared/membership';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import { BillingSubscriptionRepository } from './billing-subscription-repository';
 

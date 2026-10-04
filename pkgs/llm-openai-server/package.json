@@ -16,8 +16,8 @@
   "dependencies": {
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/llm-openai-shared": "workspace:*",
-    "@pkgs/llm-server": "workspace:*",
-    "@pkgs/llm-shared": "workspace:*",
+    "@pkgs/llm-root-server": "workspace:*",
+    "@pkgs/llm-root-shared": "workspace:*",
     "@pkgs/secret-store-shared": "workspace:*",
     "hono": "catalog:"
   },

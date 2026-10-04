@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine-shared/bounds';
 import type {
   QueryRequestItem,

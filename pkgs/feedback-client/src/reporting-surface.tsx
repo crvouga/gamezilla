@@ -5,9 +5,9 @@ import { ClockProvider } from '@pkgs/clock-client/solid';
 import {
   OVERLAY_PORTAL_Z_INDEX,
   OverlayPortalProvider,
-} from '@pkgs/ui-client/overlay-portal';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+} from '@pkgs/ui-root-client/overlay-portal';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import { createSignal, onCleanup } from 'solid-js';
 import { render } from 'solid-js/web';
 import type {

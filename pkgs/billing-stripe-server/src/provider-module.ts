@@ -6,7 +6,7 @@
 import type {
   MembershipProviderEnv,
   MembershipProviderModule,
-} from '@pkgs/billing-shared/provider-module';
+} from '@pkgs/billing-root-shared/provider-module';
 
 import { reconcileStripeOffer } from '@pkgs/billing-stripe-shared/offer-reconcile';
 import { billingStripeSecretDefs } from '@pkgs/billing-stripe-shared/secret-defs';

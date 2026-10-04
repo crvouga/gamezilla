@@ -1,9 +1,9 @@
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { requirePermission } from '@libs/permissions-shared/require-permission';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { AsyncLocalStorage } from '@pkgs/async-local-shared/async-local-storage';
 import type { MiddlewareHandler } from 'hono';
 import { NotificationsApp } from './notifications-app';

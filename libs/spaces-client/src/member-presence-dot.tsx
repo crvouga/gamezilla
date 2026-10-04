@@ -1,4 +1,4 @@
-import { StatusDot } from '@pkgs/ui-client/status-dot';
+import { StatusDot } from '@pkgs/ui-root-client/status-dot';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 

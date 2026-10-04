@@ -3,8 +3,8 @@
  * Local type map (sql-client cannot depend on @pkgs/db-schema — cycle).
  */
 
-import { encodeSqlDumpCell } from '@pkgs/sql-client-shared/cell-codec';
-import type { SqlDumpValue } from '@pkgs/sql-client-shared/types';
+import { encodeSqlDumpCell } from '@pkgs/sql-client-root-shared/cell-codec';
+import type { SqlDumpValue } from '@pkgs/sql-client-root-shared/types';
 
 export type LogicalColumnType =
   | 'uuid'

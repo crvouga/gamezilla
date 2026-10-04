@@ -1,16 +1,16 @@
 // @sql-vendor-ok — Postgres schema reconcile uses information_schema / pg_advisory_*.
 
-import { pgTypeToToken } from '@pkgs/db-schema-shared/type-map';
+import { pgTypeToToken } from '@pkgs/db-schema-root-shared/type-map';
 import type {
   IntrospectedCatalog,
   IntrospectedIndex,
   IntrospectedTable,
   ReadonlyDeclaredSchema,
-} from '@pkgs/db-schema-shared/types';
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
-import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/db-schema-root-shared/types';
+import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { quotePgIdent } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 
 async function readDeclaredPostgresTables(
   client: PostgresSqlClient,

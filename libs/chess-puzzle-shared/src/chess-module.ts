@@ -2,15 +2,18 @@ import type { GameCommandContext } from '@libs/spaces-shared/game';
 import type { Message } from '@pkgs/message-shared/message';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { createComposedMessageRouter } from '@pkgs/message-shared/router';
-import { hashRoomState } from '@pkgs/room-shared/hash-room-state';
+import { hashRoomState } from '@pkgs/room-root-shared/hash-room-state';
 import type {
   HandleResult,
   RoomCommand,
   RoomError,
   RoomModule,
   RoomState,
-} from '@pkgs/room-shared/types';
-import { assertRoomModuleName, ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
+import {
+  assertRoomModuleName,
+  ROOM_ERROR_TYPE,
+} from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 
 import { chessPuzzleGame } from './chess-game';

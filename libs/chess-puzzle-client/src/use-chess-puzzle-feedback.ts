@@ -1,4 +1,4 @@
-import { createChessBoardSounds } from '@pkgs/chess-board-client/chess-board-sounds';
+import { createChessBoardSounds } from '@pkgs/chess-board-root-client/chess-board-sounds';
 import { useHaptics } from '@pkgs/device-client/solid';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 

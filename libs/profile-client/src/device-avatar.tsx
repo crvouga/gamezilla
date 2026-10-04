@@ -1,6 +1,6 @@
 import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
-import { Avatar } from '@pkgs/ui-client/avatar';
-import { UserIcon } from '@pkgs/ui-client/icons';
+import { Avatar } from '@pkgs/ui-root-client/avatar';
+import { UserIcon } from '@pkgs/ui-root-client/icons';
 import type { JSX } from 'solid-js';
 import { lazy, Show, Suspense } from 'solid-js';
 

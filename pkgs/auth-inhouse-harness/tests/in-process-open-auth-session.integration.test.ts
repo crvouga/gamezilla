@@ -8,7 +8,7 @@ import { createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/beare
 import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import { Hono } from 'hono';
 import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 

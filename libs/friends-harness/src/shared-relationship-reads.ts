@@ -1,7 +1,7 @@
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 type Relation = 'friendship' | 'pending' | 'block' | 'declined';
 type PairRow = {

@@ -4,7 +4,7 @@
  * {@link resolveHasAuthSession} / secure storage instead.
  */
 
-import type { AuthSessionState } from '@pkgs/auth-shared/auth-session-state';
+import type { AuthSessionState } from '@pkgs/auth-root-shared/auth-session-state';
 
 /** True when the IdP session atom reports a live session. */
 export function isAuthSessionSignedIn(state: AuthSessionState): boolean {

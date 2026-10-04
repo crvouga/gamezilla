@@ -4,8 +4,8 @@
  * @internal
  */
 
-import type { Sql, SqlFragment } from '@pkgs/sql-shared/sql';
-import sql, { join } from '@pkgs/sql-shared/sql';
+import type { Sql, SqlFragment } from '@pkgs/sql-root-shared/sql';
+import sql, { join } from '@pkgs/sql-root-shared/sql';
 import { MATCHMAKING_SCHEMA_STATE_ID } from './tables';
 
 export type SchemaFingerprintRow = {

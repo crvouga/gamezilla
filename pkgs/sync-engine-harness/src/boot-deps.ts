@@ -1,5 +1,5 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared/scheduler';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 /**

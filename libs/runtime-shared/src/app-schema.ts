@@ -1,4 +1,4 @@
-import { assertProductSchema } from '@pkgs/db-schema-shared/product-schema';
+import { assertProductSchema } from '@pkgs/db-schema-root-shared/product-schema';
 
 import { APP } from './app-features';
 

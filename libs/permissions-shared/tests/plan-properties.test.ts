@@ -11,7 +11,7 @@ import type {
 import { readSubscriptionSnapshot } from '@libs/permissions-shared/access-facts';
 import { resolvePlanRole } from '@libs/permissions-shared/access-model';
 import { ROLE } from '@libs/permissions-shared/permission-catalog';
-import type { MembershipStatus } from '@pkgs/billing-shared/membership';
+import type { MembershipStatus } from '@pkgs/billing-root-shared/membership';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

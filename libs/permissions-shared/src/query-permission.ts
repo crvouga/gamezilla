@@ -1,5 +1,5 @@
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type { QueryCtx } from '@pkgs/sync-engine-shared/queries-types';
 
 import { decideForActor } from './decide-for-actor';

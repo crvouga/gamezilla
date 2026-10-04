@@ -1,6 +1,6 @@
-import { useNamedRoomRoster } from '@pkgs/room-client/room-clients-context';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
-import type { RoomActor } from '@pkgs/room-shared/types';
+import { useNamedRoomRoster } from '@pkgs/room-root-client/room-clients-context';
+import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
+import type { RoomActor } from '@pkgs/room-root-shared/types';
 import { type Accessor, createMemo } from 'solid-js';
 import {
   SPACE_ROOM_NAME,

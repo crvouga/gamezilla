@@ -5,10 +5,10 @@
  */
 
 import { expect } from 'bun:test';
-import type { JsonValue } from '@pkgs/harness-shared/json';
-import type { Run } from '@pkgs/harness-shared/run-types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { JsonValue } from '@pkgs/harness-root-shared/json';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import type { SyncHarness } from './scenario-system';
 import { clientIds, deviceId, rows as rowsObs } from './sync-observations';

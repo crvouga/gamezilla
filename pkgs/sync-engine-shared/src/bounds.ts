@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 import {
   MAX_FANOUT_BYTES as PROTOCOL_MAX_FANOUT_BYTES,

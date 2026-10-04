@@ -1,9 +1,9 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
+import { Button } from '@pkgs/ui-root-client/button';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { useParams } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
 import { ExportChoice } from './export-choice';

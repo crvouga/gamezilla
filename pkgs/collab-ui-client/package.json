@@ -14,11 +14,11 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/collab-shared": "workspace:*",
+    "@pkgs/collab-root-shared": "workspace:*",
     "@pkgs/i18n-shared": "workspace:*",
-    "@pkgs/room-shared": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

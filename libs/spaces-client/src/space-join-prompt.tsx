@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { Gamepad2Icon } from '@pkgs/ui-client/icons';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { Gamepad2Icon } from '@pkgs/ui-root-client/icons';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createSignal, Match, Show, Switch } from 'solid-js';
 import { SpaceEndedScreen } from './space-ended-screen';

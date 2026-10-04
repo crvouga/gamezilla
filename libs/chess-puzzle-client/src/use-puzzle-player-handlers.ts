@@ -14,7 +14,7 @@ import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { formatUci } from '@pkgs/chess-rules-shared/uci';

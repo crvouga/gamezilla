@@ -1,6 +1,6 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { parseLocalClock } from '@pkgs/observability-shared/local-clock';
-import { splitPlace } from '@pkgs/observability-shared/place';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { parseLocalClock } from '@pkgs/observability-root-shared/local-clock';
+import { splitPlace } from '@pkgs/observability-root-shared/place';
 
 export type PersonPlant = {
   readonly name: string;

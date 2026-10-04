@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
+import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 import {
   DRIVER_KEY_TO_USER_EVENT,
   escapeUserEventText,

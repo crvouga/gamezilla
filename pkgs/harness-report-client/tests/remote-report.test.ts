@@ -29,7 +29,7 @@ import {
   testEvents,
 } from '@pkgs/harness-report-shared/read';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { createRoot } from 'solid-js';
 import { exampleApp, put } from './example-app';
 

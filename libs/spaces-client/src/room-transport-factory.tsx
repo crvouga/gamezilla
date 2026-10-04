@@ -6,7 +6,7 @@
 import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared/space-room-url';
 import type { Timers } from '@pkgs/clock-shared/types';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared/websocket-transport';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type { ClientTransport } from '@pkgs/room-root-shared/transport';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import { createContext, type JSX, useContext } from 'solid-js';
 

@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
 import { exampleAppSchema } from '@pkgs/sync-engine-harness/schema';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';

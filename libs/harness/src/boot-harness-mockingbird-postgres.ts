@@ -10,7 +10,7 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import {
   computeHarnessMockingbirdPostgresSeedFingerprint,
   ensureHarnessMockingbirdPostgresSeedBuffer,
-} from '@pkgs/sql-client-harness/boot-harness-mockingbird-postgres';
+} from '@pkgs/sql-client-root-harness/boot-harness-mockingbird-postgres';
 import type { HarnessComposition } from './composition';
 import { compositionMigratePostgres } from './migrate-composition';
 import { harnessPostgresSeedFingerprintSource } from './postgres-seed-fingerprint';

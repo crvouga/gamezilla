@@ -2,8 +2,8 @@ import {
   HOSTED_SIGN_IN_UNAVAILABLE_REASON,
   NO_SIGN_IN_METHODS_REASON,
 } from '@libs/auth-shared/auth-errors';
-import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { SignInOptions } from '@pkgs/auth-root-shared/auth-client-port';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { useLogger } from '@pkgs/logger-client/solid';
 import {
   type Accessor,

@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 
 function spaceShareUrl(spaceId: string): string {

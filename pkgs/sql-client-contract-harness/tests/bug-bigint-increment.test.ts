@@ -8,11 +8,11 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { raw } from '@pkgs/sql-shared/sql';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-root-shared/sql';
 import { dropTables } from './drop-tables';
 import { ALWAYS_FACTORIES, openBackend } from './registry';
 import { assertWireSafeRows } from './wire-safety';

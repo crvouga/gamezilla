@@ -4,13 +4,13 @@ import { createPostgresPort } from '@pkgs/db-indexes-postgres-shared/create-post
 import {
   MIGRATE_RECONCILE_CONFIG,
   resolveConfig,
-} from '@pkgs/db-indexes-shared/config';
+} from '@pkgs/db-indexes-root-shared/config';
 import { applyKvStorageOptimizations } from '@pkgs/kv-postgres-shared/postgres-storage-knobs';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import { extractWorkload } from '@pkgs/sync-engine-shared/extract-workload';
 import { APP_AUTH_PROVIDER } from './app-auth-provider';
 

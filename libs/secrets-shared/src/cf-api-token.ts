@@ -1,4 +1,4 @@
-import { fetchWithRetry } from '@pkgs/async-shared/fetch-with-retry';
+import { fetchWithRetry } from '@pkgs/async-root-shared/fetch-with-retry';
 import { cliHttp, cliTimers } from './cli-io';
 import { cfHeaders, probeCfPermission } from './cloudflare';
 import type { SecretInput } from './secret';

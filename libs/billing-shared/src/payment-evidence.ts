@@ -1,11 +1,11 @@
-import type { MembershipPayment } from '@pkgs/billing-shared/membership';
+import type { MembershipPayment } from '@pkgs/billing-root-shared/membership';
 import {
   createMessageNamespace,
   isPlainRecord,
 } from '@pkgs/message-shared/message';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export const paymentRetentionEnded = createMessageNamespace(
   'billing',

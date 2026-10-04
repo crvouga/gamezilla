@@ -1,6 +1,6 @@
 import { composeRoomGrants } from '@libs/feature-shared/compose-server';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 
 import type { HarnessComposition, HarnessRoomGateway } from './composition';
 import type { HarnessSql } from './sql-types';

@@ -9,7 +9,7 @@ import { formatPercent, summarizePackage } from './report';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const EQUAL_DIR = join(REPO_ROOT, 'pkgs/equal-shared');
 const EQUAL_SOURCE = join(EQUAL_DIR, 'src/is-equal.ts');
-const ASSERT_SOURCE = join(REPO_ROOT, 'pkgs/assert-shared/src/assert.ts');
+const ASSERT_SOURCE = join(REPO_ROOT, 'pkgs/assert-root-shared/src/assert.ts');
 
 function firstRecord(text: string, baseDir: string): LcovRecord {
   const [record] = parseLcov(text, baseDir);
@@ -51,7 +51,7 @@ describe('parseLcov', () => {
       'LH:1',
       'end_of_record',
       'TN:',
-      'SF:../assert-shared/src/assert.ts',
+      'SF:../assert-root-shared/src/assert.ts',
       'DA:5,1',
       'LF:1',
       'LH:1',
@@ -144,7 +144,7 @@ describe('formatLcov', () => {
   test('writes repo-relative paths that reparse to the same files', () => {
     const index = indexOf(
       firstRecord(
-        'TN:\nSF:../assert-shared/src/assert.ts\nDA:5,1\nend_of_record\n',
+        'TN:\nSF:../assert-root-shared/src/assert.ts\nDA:5,1\nend_of_record\n',
         EQUAL_DIR
       )
     );

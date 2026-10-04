@@ -1,5 +1,5 @@
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import {
   createContext,
   createMemo,

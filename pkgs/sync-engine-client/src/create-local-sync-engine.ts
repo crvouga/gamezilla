@@ -1,7 +1,7 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type {
   Mutation,
   MutationEnv,

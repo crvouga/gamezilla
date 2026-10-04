@@ -1,4 +1,4 @@
 {
   "summary": "Android fires `contextmenu` on a touch long-press; the board took it for a right button during a drag and put the held piece back. Fixed by cancelling on `contextmenu` only for mouse / pen presses.",
-  "regressionTest": "pkgs/chess-board-client/tests/chess-board-input.test.tsx"
+  "regressionTest": "pkgs/chess-board-root-client/tests/chess-board-input.test.tsx"
 }

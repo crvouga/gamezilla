@@ -1,8 +1,8 @@
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import { dropTables } from './drop-tables';
 import type { BackendFactory, MatrixBackend } from './types';
 
@@ -94,7 +94,7 @@ export const MOCKINGBIRD_POSTGRES_FACTORY: BackendFactory = {
 async function trySqliteWasm(): Promise<BackendFactory | null> {
   try {
     const { SqlClientImplSqliteWasm } = await import(
-      '@pkgs/sql-client-sqlite-client/impl-sqlite-wasm'
+      '@pkgs/sql-client-sqlite-root-client/impl-sqlite-wasm'
     );
     return {
       kind: 'sqlite-wasm',

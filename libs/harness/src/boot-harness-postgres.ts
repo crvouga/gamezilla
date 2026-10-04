@@ -4,7 +4,7 @@
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 export type HarnessPostgresHandle = {
   readonly sqlClient: SqlClient;

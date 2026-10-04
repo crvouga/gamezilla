@@ -6,17 +6,17 @@ import type {
   ExecutionContext,
   ExportedHandler,
   ScheduledController,
-} from '@libs/app-shared/worker-handler';
+} from '@libs/app-root-shared/worker-handler';
 import './install-native-als';
 
-import { createServer } from '@libs/app-server/create-server';
+import { createServer } from '@libs/app-root-server/create-server';
 import {
   createApiObjectStore,
   createReportsObjectStore,
-} from '@libs/app-server/object-store';
-import { openRequestDb } from '@libs/app-server/open-request-db-postgres';
-import { drainAndNotifyOutbox } from '@libs/app-server/outbox-drain';
-import type { ApiWorkerEnv } from '@libs/app-shared/env';
+} from '@libs/app-root-server/object-store';
+import { openRequestDb } from '@libs/app-root-server/open-request-db-postgres';
+import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
+import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import {
   assertSecretsEnvBinding,
   ConfigurationError,
@@ -27,12 +27,12 @@ import {
   readOptionalDatabaseUrlOverride,
   resolveCheckoutProvider,
   workerEnvToSecretRecord,
-} from '@libs/app-shared/env';
-import { ApiSecretName } from '@libs/app-shared/secret-names';
-import { createApiSecretStore } from '@libs/app-shared/secret-store';
-import type { ServerEnv } from '@libs/app-shared/server-env';
-import { resolveWebClientOrigin } from '@libs/app-shared/web-client-origin';
-import { wrapSqlClientForObservability } from '@libs/app-shared/wrap-sql-client';
+} from '@libs/app-root-shared/env';
+import { ApiSecretName } from '@libs/app-root-shared/secret-names';
+import { createApiSecretStore } from '@libs/app-root-shared/secret-store';
+import type { ServerEnv } from '@libs/app-root-shared/server-env';
+import { resolveWebClientOrigin } from '@libs/app-root-shared/web-client-origin';
+import { wrapSqlClientForObservability } from '@libs/app-root-shared/wrap-sql-client';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
@@ -42,29 +42,29 @@ import { APP_AUTH_PROVIDER } from '@libs/runtime-server/app-auth-provider';
 import { appFeatureServers } from '@libs/runtime-server/app-feature-servers';
 import { APP } from '@libs/runtime-shared/app-features';
 import { context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
-import { ThrowingCrashHandler } from '@pkgs/assert-shared/crash-handler-throwing';
-import { assert } from '@pkgs/assert-shared/singleton';
-import { AuthProviderConfigError } from '@pkgs/auth-shared/auth-provider-module';
+import { ThrowingCrashHandler } from '@pkgs/assert-root-shared/crash-handler-throwing';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import { AuthProviderConfigError } from '@pkgs/auth-root-shared/auth-provider-module';
 import {
   createConfiguredMembershipProviders,
   MembershipProviderConfigError,
   membershipSecretReader,
 } from '@pkgs/billing-providers-server/billing-providers';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
-import { InMemoryLlmProvider } from '@pkgs/llm-server/in-memory-llm-provider';
+import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import {
   createWorkerTelemetry,
   extractRequestContext,
   injectRequestHeaders,
-} from '@pkgs/observability-server/worker-worker';
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { deploymentTelemetryEnvironment } from '@pkgs/observability-shared/deployment-environment';
-import { otlpAuthorization } from '@pkgs/observability-shared/otlp-auth';
-import { withSpan } from '@pkgs/observability-shared/span';
+} from '@pkgs/observability-root-server/worker-worker';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { deploymentTelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
+import { otlpAuthorization } from '@pkgs/observability-root-shared/otlp-auth';
+import { withSpan } from '@pkgs/observability-root-shared/span';
 import { isSecretStoreError } from '@pkgs/secret-store-shared/is-secret-store-error';
-import { InMemoryTtsProvider } from '@pkgs/tts-server/in-memory-tts-provider';
+import { InMemoryTtsProvider } from '@pkgs/tts-root-server/in-memory-tts-provider';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 

@@ -15,9 +15,9 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/keyword-shared": "workspace:*",
-    "@pkgs/kv-shared": "workspace:*"
+    "@pkgs/kv-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -1,8 +1,8 @@
 import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
-import { runDbSchemaContractTests } from '@pkgs/db-schema-shared/contract-suite';
+import { runDbSchemaContractTests } from '@pkgs/db-schema-root-shared/contract-suite';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { PostgresSqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 runDbSchemaContractTests({
   name: 'mockingbird-postgres',

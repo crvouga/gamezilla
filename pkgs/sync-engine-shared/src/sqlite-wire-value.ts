@@ -1,4 +1,4 @@
-import type { Value } from '@pkgs/sql-shared/sql';
+import type { Value } from '@pkgs/sql-root-shared/sql';
 
 /**
  * A column value as the client's SQLite stores it. Postgres rows arrive with

@@ -1,7 +1,7 @@
 language js
 
 // The app knows auth only through the auth port (@pkgs/auth). The in-house
-// IdP (@pkgs/auth-inhouse, @pkgs/auth-harness) and every hosted auth service's
+// IdP (@pkgs/auth-inhouse, @pkgs/auth-root-harness) and every hosted auth service's
 // SDK (Clerk, Firebase, WorkOS, Cognito / Amplify, Better Auth) are imported
 // only where an adapter is chosen and built — composition roots, harnesses,
 // scripts, tests — never by product code, so no product path can branch on

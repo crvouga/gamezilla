@@ -14,7 +14,7 @@ import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
 import { isStyleKey } from '@libs/profile-shared/dicebear-styles';
 import { patchAvatarMutation } from '@libs/profile-shared/patch-avatar-mutation';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { useRandom } from '@pkgs/uuid-client/solid';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import type { Accessor } from 'solid-js';

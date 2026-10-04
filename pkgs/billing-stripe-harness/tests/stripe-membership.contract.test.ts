@@ -5,19 +5,19 @@
  * (`@pkgs/billing-stripe/harness`).
  */
 
-import type { ContractSituation } from '@pkgs/billing-shared/contract-fixtures';
+import type { ContractSituation } from '@pkgs/billing-root-shared/contract-fixtures';
 import {
   CONTRACT_ENDED_AT_MS,
   CONTRACT_NOW_MS,
   CONTRACT_OFFER,
   CONTRACT_PERIOD_END_MS,
-} from '@pkgs/billing-shared/contract-fixtures';
+} from '@pkgs/billing-root-shared/contract-fixtures';
 import type {
   ContractCallbackKind,
   ContractSubscription,
   MembershipBillingContractHarness,
-} from '@pkgs/billing-shared/membership-billing-contract';
-import { describeMembershipBillingContract } from '@pkgs/billing-shared/membership-billing-contract';
+} from '@pkgs/billing-root-shared/membership-billing-contract';
+import { describeMembershipBillingContract } from '@pkgs/billing-root-shared/membership-billing-contract';
 
 import type { PinnedSubscription } from '@pkgs/billing-stripe-harness/stripe-test-mode';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';

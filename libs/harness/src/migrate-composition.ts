@@ -8,18 +8,18 @@ import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared/tables';
 
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileEntityStorePostgres } from '@pkgs/entity-store-shared/reconcile-postgres';
 import { reconcileEntityStoreSqlite } from '@pkgs/entity-store-shared/reconcile-sqlite';
 import { reconcileKvPostgres } from '@pkgs/kv-postgres-shared/reconcile-postgres';
-import { reconcileKvSqlite } from '@pkgs/kv-shared/reconcile-sqlite';
+import { reconcileKvSqlite } from '@pkgs/kv-root-shared/reconcile-sqlite';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { reconcileOutboxPostgres } from '@pkgs/outbox-shared/reconcile';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { reconcileSyncEnginePostgres } from '@pkgs/sync-engine-shared/reconcile-sync-engine-postgres';
 

@@ -3,15 +3,15 @@ import {
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
   SetChessSelectedUiComponent,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ExplorerDetail } from '@pkgs/ui-client/explorer-detail';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ExplorerDetail } from '@pkgs/ui-root-client/explorer-detail';
 import type { JSX } from 'solid-js';
 import { CHESS_COMPONENT_ENTRIES } from './chess-board-register-example';
 

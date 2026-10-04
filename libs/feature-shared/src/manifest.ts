@@ -10,7 +10,7 @@
  * fills in.
  */
 
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
 import type { Mutation } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryDef } from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMapEntry } from '@pkgs/sync-engine-shared/topic-map';

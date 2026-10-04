@@ -5,9 +5,9 @@ import {
   gameRoomModule,
   readTally,
   TallyChanged,
-} from '@pkgs/room-harness/game-room';
-import { RoomServer } from '@pkgs/room-server/room-server';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
+} from '@pkgs/room-root-harness/game-room';
+import { RoomServer } from '@pkgs/room-root-server/room-server';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
 import { MemoryKv } from './memory-kv';
 
 async function open(kv: MemoryKv) {

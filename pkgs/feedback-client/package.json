@@ -24,12 +24,12 @@
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/i18n-shared": "workspace:*",
     "@pkgs/object-store-opfs-shared": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/tailwind-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
-    "solid-js": "catalog:",
-    "@pkgs/tailwind-shared": "workspace:*"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",

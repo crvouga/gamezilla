@@ -1,0 +1,32 @@
+{
+  "name": "@pkgs/db-indexes-root-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "mutants": "bun tests/scripted-mutants.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@noble/hashes": "catalog:",
+    "@pkgs/assert-root-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "node-sql-parser": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

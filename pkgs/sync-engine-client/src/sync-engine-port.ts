@@ -2,8 +2,8 @@
  * Interface describing the sync engine client.
  */
 
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type { Mutation } from '@pkgs/sync-engine-shared/mutations-types';
 import type { MutationStatus, UnackedWriteRejection } from './mutation-status';
 import type {

@@ -27,12 +27,12 @@ import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-author
 import type { Message } from '@pkgs/message-shared/message';
 import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared/loopback-transport';
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
-import { RoomServer } from '@pkgs/room-server/room-server';
-import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-shared/builtin';
-import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
-import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
-import type { RoomModule, RoomState } from '@pkgs/room-shared/types';
+import { RoomServer } from '@pkgs/room-root-server/room-server';
+import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared/builtin';
+import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared/service-identity';
+import { createTimerScheduleStack } from '@pkgs/room-root-shared/timer-schedule-stack';
+import type { ClientTransport } from '@pkgs/room-root-shared/transport';
+import type { RoomModule, RoomState } from '@pkgs/room-root-shared/types';
 
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;
 

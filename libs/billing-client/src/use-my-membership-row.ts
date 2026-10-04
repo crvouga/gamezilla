@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { governingRow } from '@libs/billing-shared/governing-row';
 import type { MembershipRow } from '@libs/billing-shared/membership-row';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 

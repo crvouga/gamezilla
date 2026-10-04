@@ -1,5 +1,5 @@
-import type { AppRouter } from '@pkgs/ui-client/app-router';
-import type { Href } from '@pkgs/ui-shared/href';
+import type { AppRouter } from '@pkgs/ui-root-client/app-router';
+import type { Href } from '@pkgs/ui-root-shared/href';
 
 export type InboxRouteFilter = 'all' | 'action_required' | 'archived';
 

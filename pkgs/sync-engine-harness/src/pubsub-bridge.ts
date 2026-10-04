@@ -1,6 +1,6 @@
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { EndpointId } from '@pkgs/harness-root-shared/network-state';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import { corruptUnknownPayload } from './corruption-faults';
 import type { EdgeFaultController } from './edge-faults';

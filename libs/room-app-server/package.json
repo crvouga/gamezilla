@@ -19,7 +19,7 @@
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/room-adapter-durable-object-server": "workspace:*",
     "@pkgs/room-adapter-durable-object-shared": "workspace:*",
-    "@pkgs/room-shared": "workspace:*"
+    "@pkgs/room-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

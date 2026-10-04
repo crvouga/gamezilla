@@ -21,7 +21,7 @@ import { partition, restoreNetwork } from '@libs/harness/actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { partitioned } from '@libs/harness/observations';
-import { defineAction } from '@pkgs/harness-shared/define-action';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
 
 import { checkoutPlusAtProvider, subscribeToPlus } from './billing-actions';
 import {

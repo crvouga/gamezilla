@@ -4,7 +4,7 @@ import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
 import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object-server/adapter';
 import type { DurableObjectTelemetry } from '@pkgs/room-adapter-durable-object-shared/types';
-import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
+import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared/service-identity';
 
 /**
  * Bind a Durable Object class from {@link RoomServerEnv}. Wall composition

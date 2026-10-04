@@ -8,7 +8,7 @@ import {
 import { savePuzzleFeedSettingsMutation } from '@libs/chess-puzzle-shared/save-puzzle-feed-settings-mutation';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import {
   createQuery,

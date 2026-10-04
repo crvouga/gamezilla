@@ -4,14 +4,14 @@ import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
 import { PuzzleValidationReport } from '@libs/chess-puzzle-server/puzzle-validation-report';
 import { validatePuzzleTable } from '@libs/chess-puzzle-server/puzzle-validation-sources';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const HEADER =
   'PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags';

@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-client/badge';
+import { Badge } from '@pkgs/ui-root-client/badge';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { useDeviceIsCurrent } from './use-device-is-current';

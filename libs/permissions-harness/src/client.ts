@@ -33,17 +33,17 @@ import {
   seedAccess,
   uniqueTables,
 } from '@libs/permissions-shared/world';
-import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
+import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import type { DecisionOutput } from '@pkgs/dmn-shared/evaluate';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
-import { SecureStorageStoreProvider } from '@pkgs/secure-storage-client/solid';
-import { createInMemorySecureStorage } from '@pkgs/secure-storage-shared/impl-memory';
-import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import sql from '@pkgs/sql-shared/sql';
+import { SecureStorageStoreProvider } from '@pkgs/secure-storage-root-client/solid';
+import { createInMemorySecureStorage } from '@pkgs/secure-storage-root-shared/impl-memory';
+import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { MutationClientProvider } from '@pkgs/sync-engine-client/mutation-client-provider';

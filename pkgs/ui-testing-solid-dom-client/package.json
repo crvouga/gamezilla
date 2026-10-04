@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/ui-testing-shared": "workspace:*",
+    "@pkgs/ui-testing-root-shared": "workspace:*",
     "@pkgs/ui-testing-solid-dom-shared": "workspace:*",
     "@testing-library/user-event": "catalog:",
     "solid-js": "catalog:"
@@ -27,7 +27,7 @@
     "@lingui/solid": "catalog:",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/clock-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "happy-dom": "catalog:",

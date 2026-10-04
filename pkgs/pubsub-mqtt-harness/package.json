@@ -14,7 +14,7 @@
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/pubsub-mqtt-shared": "workspace:*",
-    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/pubsub-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

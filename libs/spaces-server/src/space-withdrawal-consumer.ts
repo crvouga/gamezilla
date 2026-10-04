@@ -2,7 +2,7 @@ import { spaceRoomTopic } from '@libs/spaces-shared/space-room-topic';
 import { ApplySpaceMembership } from '@libs/spaces-shared/space-service-command';
 import { spaceRoomMembershipChanged } from '@libs/spaces-shared/space-withdrawal';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
 
 export function registerSpaceWithdrawal(
   registry: OutboxConsumerRegistry,

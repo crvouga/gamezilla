@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/solid/macro';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { formatTimestamp } from './device-parsers';

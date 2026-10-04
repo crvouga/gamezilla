@@ -1,9 +1,9 @@
 import { idpSchema } from '@pkgs/auth-inhouse-shared/tables';
 import type { ReconcilePostgresSchemaOptions } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 export type ReconcileIdpPostgresOptions = {
   readonly dbScope?: PostgresDbScope;

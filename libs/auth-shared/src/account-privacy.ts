@@ -4,7 +4,7 @@ import {
   isPlainRecord,
 } from '@pkgs/message-shared/message';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export type DeletedIdentity = { readonly externalId: string };
 export const deletedIdentity = createMessageNamespace('auth')(

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
-import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import type { JSX } from 'solid-js';
 import { For } from 'solid-js';
 import { ActiveSpaceSheetRow } from './active-space-sheet-row';

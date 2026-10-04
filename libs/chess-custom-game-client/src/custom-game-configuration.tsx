@@ -1,7 +1,7 @@
 import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
 import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { TextInput } from '@pkgs/ui-client/text-input';
+import { Button } from '@pkgs/ui-root-client/button';
+import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { CustomGameAction } from './custom-game-action';
 import type { CustomGameScreenModel } from './use-custom-game-screen';

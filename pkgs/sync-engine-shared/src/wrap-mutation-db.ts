@@ -1,5 +1,5 @@
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { classify, hasReturningClause } from './classify';
 import { FRAMEWORK_TABLE_NAMES } from './framework-server-ddl';
 import { injectManagedColumns } from './inject-managed-columns';

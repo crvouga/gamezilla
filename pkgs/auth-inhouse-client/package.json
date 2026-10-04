@@ -15,9 +15,9 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
   },
   "dependencies": {
-    "@pkgs/auth-client": "workspace:*",
     "@pkgs/auth-inhouse-shared": "workspace:*",
-    "@pkgs/auth-shared": "workspace:*",
+    "@pkgs/auth-root-client": "workspace:*",
+    "@pkgs/auth-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*"
   },

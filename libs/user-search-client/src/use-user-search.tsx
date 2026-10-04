@@ -9,14 +9,14 @@ import {
   USER_SEARCH_MAX_RESULTS,
 } from '@libs/user-search-shared/user-search-types';
 import { useTimers } from '@pkgs/clock-client/solid';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
   useSyncEngine,
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client/sync-engine-context';
-import { UsersIcon } from '@pkgs/ui-client/icons';
+import { UsersIcon } from '@pkgs/ui-root-client/icons';
 import {
   type Accessor,
   batch,

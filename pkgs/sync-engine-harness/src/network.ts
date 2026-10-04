@@ -3,7 +3,7 @@ import type {
   EndpointId,
   FlowKey,
   Network as KernelNetwork,
-} from '@pkgs/harness-shared/network-state';
+} from '@pkgs/harness-root-shared/network-state';
 
 import type { HarnessFaultOptions } from './faults';
 import type { ClientTraffic, HarnessTraffic } from './traffic';
@@ -11,7 +11,7 @@ import { clientForHop } from './traffic';
 
 /**
  * Sync-domain network: hold/faults keyed by node + {@link HarnessTraffic}.
- * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/harness-shared`.
+ * Mechanics (delay/loss/dup/partition/hold queues) live in `@pkgs/harness-root-shared`.
  */
 export type SyncNetwork = {
   readonly register: (id: EndpointId, deliver: Deliver) => void;
@@ -157,7 +157,7 @@ function clearNodeOverrides(
 }
 
 /**
- * Adapt a framework-owned `@pkgs/harness-shared` network kernel to the sync-domain
+ * Adapt a framework-owned `@pkgs/harness-root-shared` network kernel to the sync-domain
  * traffic-keyed surface. Framework systems pass `ctx.network`.
  */
 export function wrapHarnessNetwork(

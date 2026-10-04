@@ -4,7 +4,7 @@ import type {
   ChessPuzzleRatingEventSqlRow,
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
 import { ratingEventFromSql } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 

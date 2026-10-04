@@ -7,7 +7,7 @@ export const WORKSPACE_ROOTS = ['apps', 'libs', 'pkgs'] as const;
 export type Tier = (typeof WORKSPACE_ROOTS)[number];
 
 export type PackagePlan = {
-  /** Package name from its manifest (`@pkgs/assert-shared`, `@libs/tools`). */
+  /** Package name from its manifest (`@pkgs/assert-root-shared`, `@libs/tools`). */
   readonly name: string;
   readonly tier: Tier;
   /** Absolute package directory (also the `bun test` cwd). */

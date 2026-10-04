@@ -9,19 +9,19 @@ import { useLingui } from '@lingui/solid/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client/solid';
 import type { SoundId } from '@pkgs/sounds-shared/sound-id';
 import { isSoundId, Sounds } from '@pkgs/sounds-shared/sound-id';
-import { Avatar } from '@pkgs/ui-client/avatar';
-import { Button } from '@pkgs/ui-client/button';
+import { Avatar } from '@pkgs/ui-root-client/avatar';
+import { Button } from '@pkgs/ui-root-client/button';
 import {
   ChevronRightIcon,
   CircleCheckIcon,
   Trash2Icon,
   UserIcon,
-} from '@pkgs/ui-client/icons';
-import type { MutationStateTransition } from '@pkgs/ui-client/mutation-lifecycle';
-import { useRelativeTimeLabel } from '@pkgs/ui-client/relative-time';
-import { useTheme } from '@pkgs/ui-client/theme-context';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+} from '@pkgs/ui-root-client/icons';
+import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
+import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 
 const ROW_VERTICAL_PADDING = 4;

@@ -1,7 +1,7 @@
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { CustomGameAction } from './custom-game-action';
 import { CustomGameActive } from './custom-game-active';

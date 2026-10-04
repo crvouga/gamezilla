@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { HarnessCorruptionVariant } from './corruption-faults';
 
 export type HarnessPubsubFault =

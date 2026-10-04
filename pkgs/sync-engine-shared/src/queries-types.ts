@@ -1,5 +1,5 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import type { QueryChannelsCtx } from './push-payload';
 import type { QueryRow } from './v2';

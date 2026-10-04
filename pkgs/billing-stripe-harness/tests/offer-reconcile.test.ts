@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';
 import { reconcileStripeOffer } from '@pkgs/billing-stripe-shared/offer-reconcile';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';

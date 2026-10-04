@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { Chess } from 'chess.js';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 

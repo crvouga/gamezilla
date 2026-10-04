@@ -1,4 +1,4 @@
-import type { RoomCommandPayload } from '@pkgs/room-shared/types';
+import type { RoomCommandPayload } from '@pkgs/room-root-shared/types';
 
 /**
  * Buffers room commands for a space while the local Room is still opening

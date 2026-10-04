@@ -20,11 +20,11 @@ import type { ReportData } from '@pkgs/harness-report-shared/types';
 import type {
   HtmlReportBlob,
   HtmlReportTest,
-} from '@pkgs/harness-shared/bundle';
+} from '@pkgs/harness-root-shared/bundle';
 import type {
   ReportTestStatus,
   RunReportMeta,
-} from '@pkgs/harness-shared/report-types';
+} from '@pkgs/harness-root-shared/report-types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { type Accessor, batch, createSignal } from 'solid-js';
 import { createStore, produce, type SetStoreFunction } from 'solid-js/store';

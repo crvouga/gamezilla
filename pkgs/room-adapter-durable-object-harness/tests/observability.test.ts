@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { context, trace } from '@opentelemetry/api';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
-import type { WorkerTelemetry } from '@pkgs/observability-server/worker-worker';
-import { createWorkerTelemetry } from '@pkgs/observability-server/worker-worker';
-import { ATTR } from '@pkgs/observability-shared/attributes';
+import type { WorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
+import { createWorkerTelemetry } from '@pkgs/observability-root-server/worker-worker';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object-server/adapter';
 import type { DurableObjectInstanceState } from '@pkgs/room-adapter-durable-object-shared/types';
-import { gameRoomModule } from '@pkgs/room-harness/game-room';
+import { gameRoomModule } from '@pkgs/room-root-harness/game-room';
 import { MemoryKv } from './memory-kv';
 
 const CONNECTION_TRACE_ID = '11111111111111111111111111111111';

@@ -9,7 +9,7 @@ import {
   submitReport,
 } from '@pkgs/feedback-harness/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 
 const { Given, When, Then } = stepsFor<Run<FeedbackReportingWorld>>();
 Given("the team's app is working", (w) =>

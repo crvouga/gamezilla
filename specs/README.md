@@ -971,7 +971,7 @@ Change a rule here, and only here.
 | [`spec-upsert`](../.agents/skills/spec-upsert/SKILL.md) | spec writer | discovering and writing new or changed behavior, with a coverage map of the aggregate it touches |
 | [`spec-implement`](../.agents/skills/spec-implement/SKILL.md) | implementer | red first, then thin step definitions and model bindings over the harness, then the product change; demotions to code tests |
 | [`spec-audit`](../.agents/skills/spec-audit/SKILL.md) | spec auditor | checking specs and steps against this standard: findings with evidence, coverage maps, a verdict, safe mechanical fixes |
-| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/harness-shared` tests into features and Quint models with a parity ledger, then deleting them |
+| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/harness-root-shared` tests into features and Quint models with a parity ledger, then deleting them |
 
 Every rule has an ID, a **severity**, and a one-line **why**. Before deleting
 or softening a rule, answer its why.
@@ -1704,7 +1704,7 @@ A step definition or Quint binding for a harness domain (`specDomains`,
 `tests/steps/**` and `tests/quint/**`) calls only exported
 actions and reads of a package's `harness/` (`@libs/<pkg>/harness/…`,
 `@pkgs/<pkg>/harness…`, `@pkgs/<name>-harness`), the harness (`@libs/harness…`,
-`@pkgs/harness-shared`, `@pkgs/gherkin…`), the package's own step helpers, another
+`@pkgs/harness-root-shared`, `@pkgs/gherkin…`), the package's own step helpers, another
 package's exported `steps/`, and types and decided constants from a package's
 public entry point (`@libs/<pkg>/public/…`, a `@pkgs/<pkg>` root,
 `/shared` or `/interface` export). No selectors, test IDs,

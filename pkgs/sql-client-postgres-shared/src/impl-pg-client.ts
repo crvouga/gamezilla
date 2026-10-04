@@ -9,9 +9,9 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
 import {
   createPgSessionClient,
   pgQueryRows,

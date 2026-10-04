@@ -23,7 +23,7 @@ import {
 } from '@pkgs/permissions-shared/decision';
 import type { UiTreatment, UnlockEntry } from '@pkgs/permissions-shared/policy';
 import { policyVersionOf } from '@pkgs/permissions-shared/policy';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useCreateId } from '@pkgs/uuid-client/solid';

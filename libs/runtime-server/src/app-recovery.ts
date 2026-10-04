@@ -1,12 +1,12 @@
 import { RecoverAccountData } from '@libs/account-privacy-server/recover-account-data';
 import { APP } from '@libs/runtime-shared/app-features';
 import type { Clock } from '@pkgs/clock-shared/types';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { Value } from '@pkgs/sql-shared/sql';
-import sql, { ident, join } from '@pkgs/sql-shared/sql';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import type { SqlClient, SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import type { Value } from '@pkgs/sql-root-shared/sql';
+import sql, { ident, join } from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 type RecoveryCopy = Readonly<Record<string, readonly Record<string, Value>[]>>;

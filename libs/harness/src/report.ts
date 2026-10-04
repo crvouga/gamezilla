@@ -11,7 +11,7 @@
 import { join, relative, resolve } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 /** The package whose tests are running (`bun test` runs from its root). */
 const PACKAGE_DIR = process.cwd();

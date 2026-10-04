@@ -1,5 +1,5 @@
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { canonicalUserPair } from './canonical-pair';
 import { pairId } from './pair-id';
 

@@ -7,13 +7,13 @@
  * `regression-actions.ts` / `regression-random-faults-actions.ts`.
  */
 
-import { defineAction } from '@pkgs/harness-shared/define-action';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import type {
   Action,
   ArgsSampler,
   CatalogAction,
-} from '@pkgs/harness-shared/effect';
-import { gen } from '@pkgs/harness-shared/fast-check';
+} from '@pkgs/harness-root-shared/effect';
+import { gen } from '@pkgs/harness-root-shared/fast-check';
 import fc from 'fast-check';
 import {
   AUTH_STATUSES,

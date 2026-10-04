@@ -1,16 +1,16 @@
 import { useClock } from '@pkgs/clock-client/solid';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { IconButton } from '@pkgs/ui-client/icon-button';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   ChevronDownIcon,
   CopyIcon,
   PlayIcon,
   PlusIcon,
   Trash2Icon,
-} from '@pkgs/ui-client/icons';
-import { Switch } from '@pkgs/ui-client/switch';
-import type { CodeSelection } from '@pkgs/ui-shared/code-editor-types';
-import { colorVar } from '@pkgs/ui-shared/css-vars';
+} from '@pkgs/ui-root-client/icons';
+import { Switch } from '@pkgs/ui-root-client/switch';
+import type { CodeSelection } from '@pkgs/ui-root-shared/code-editor-types';
+import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import {
   type Accessor,
   createEffect,

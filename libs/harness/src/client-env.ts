@@ -3,22 +3,22 @@
  * it never holds a direct handle to a server instance.
  */
 
-import type { ClientEnv } from '@libs/app-client/client-env';
-import { createInMemoryClientPorts } from '@libs/app-client/in-memory-client-ports';
-import { setOriginAvailability } from '@libs/app-client/origin-availability-for-env';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
+import { createInMemoryClientPorts } from '@libs/app-root-client/in-memory-client-ports';
+import { setOriginAvailability } from '@libs/app-root-client/origin-availability-for-env';
 import { setPendingSignupUsername } from '@libs/auth-shared/pending-signup-username';
 import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-inhouse-client/bearer-token-storage-web';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web-client/impl-kv-web-namespaced';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import type { createInMemoryBus } from '@pkgs/pubsub-shared/in-memory';
-import { createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
-import { createInMemorySecureStorage } from '@pkgs/secure-storage-shared/impl-memory';
-import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { createInMemoryBus } from '@pkgs/pubsub-root-shared/in-memory';
+import { createInMemoryPubSub } from '@pkgs/pubsub-root-shared/in-memory';
+import { createInMemorySecureStorage } from '@pkgs/secure-storage-root-shared/impl-memory';
+import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web-client/impl-web';
 import { createSeededCreateId } from '@pkgs/uuid-shared/seeded-create-id';
 import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';

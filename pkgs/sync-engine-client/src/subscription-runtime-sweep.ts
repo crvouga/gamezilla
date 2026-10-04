@@ -1,5 +1,5 @@
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type {
   QueryRequestItem,

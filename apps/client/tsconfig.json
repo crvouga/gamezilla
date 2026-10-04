@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "../../pkgs/ts-reset-shared/src/ts-reset.ts",
-    "../../pkgs/ui-client/src/css-modules.d.ts",
-    "../../pkgs/ui-client/src/lingui-augmentation.ts",
+    "../../pkgs/ui-root-client/src/css-modules.d.ts",
+    "../../pkgs/ui-root-client/src/lingui-augmentation.ts",
     "../../pkgs/bun-test-solid-client/src/jest-dom.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
@@ -32,12 +32,12 @@
       "@libs/account-privacy-shared/*": [
         "../../libs/account-privacy-shared/src/*"
       ],
-      "@libs/app-client/*": ["../../libs/app-client/src/*"],
+      "@libs/app-root-client/*": ["../../libs/app-root-client/src/*"],
       "@libs/app-config-client/*": ["../../libs/app-config-client/src/*"],
       "@libs/app-config-server/*": ["../../libs/app-config-server/src/*"],
       "@libs/app-config-shared/*": ["../../libs/app-config-shared/src/*"],
-      "@libs/app-server/*": ["../../libs/app-server/src/*"],
-      "@libs/app-shared/*": ["../../libs/app-shared/src/*"],
+      "@libs/app-root-server/*": ["../../libs/app-root-server/src/*"],
+      "@libs/app-root-shared/*": ["../../libs/app-root-shared/src/*"],
       "@libs/auth-client/*": ["../../libs/auth-client/src/*"],
       "@libs/auth-server/*": ["../../libs/auth-server/src/*"],
       "@libs/auth-shared/*": ["../../libs/auth-shared/src/*"],
@@ -45,7 +45,7 @@
       "@libs/billing-harness/*": ["../../libs/billing-harness/src/*"],
       "@libs/billing-server/*": ["../../libs/billing-server/src/*"],
       "@libs/billing-shared/*": ["../../libs/billing-shared/src/*"],
-      "@libs/chess-client/*": ["../../libs/chess-client/src/*"],
+      "@libs/chess-root-client/*": ["../../libs/chess-root-client/src/*"],
       "@libs/chess-custom-game-client/*": [
         "../../libs/chess-custom-game-client/src/*"
       ],
@@ -56,7 +56,7 @@
         "../../libs/chess-custom-game-shared/src/*"
       ],
       "@libs/chess-feature-shared/*": ["../../libs/chess-feature-shared/src/*"],
-      "@libs/chess-harness/*": ["../../libs/chess-harness/src/*"],
+      "@libs/chess-root-harness/*": ["../../libs/chess-root-harness/src/*"],
       "@libs/chess-matchmaking-client/*": [
         "../../libs/chess-matchmaking-client/src/*"
       ],
@@ -70,9 +70,9 @@
       "@libs/chess-puzzle-harness/*": ["../../libs/chess-puzzle-harness/src/*"],
       "@libs/chess-puzzle-server/*": ["../../libs/chess-puzzle-server/src/*"],
       "@libs/chess-puzzle-shared/*": ["../../libs/chess-puzzle-shared/src/*"],
-      "@libs/chess-server/*": ["../../libs/chess-server/src/*"],
+      "@libs/chess-root-server/*": ["../../libs/chess-root-server/src/*"],
       "@libs/chess-shared-client/*": ["../../libs/chess-shared-client/src/*"],
-      "@libs/chess-shared/*": ["../../libs/chess-shared/src/*"],
+      "@libs/chess-root-shared/*": ["../../libs/chess-root-shared/src/*"],
       "@libs/db-server/*": ["../../libs/db-server/src/*"],
       "@libs/db-shared/*": ["../../libs/db-shared/src/*"],
       "@libs/feature-client/*": ["../../libs/feature-client/src/*"],
@@ -133,19 +133,19 @@
       "@pkgs/assert-crash-node-shared/*": [
         "../../pkgs/assert-crash-node-shared/src/*"
       ],
-      "@pkgs/assert-shared/*": ["../../pkgs/assert-shared/src/*"],
+      "@pkgs/assert-root-shared/*": ["../../pkgs/assert-root-shared/src/*"],
       "@pkgs/assistant-client/*": ["../../pkgs/assistant-client/src/*"],
       "@pkgs/assistant-shared/*": ["../../pkgs/assistant-shared/src/*"],
-      "@pkgs/async-client/*": ["../../pkgs/async-client/src/*"],
+      "@pkgs/async-root-client/*": ["../../pkgs/async-root-client/src/*"],
       "@pkgs/async-local-shared/*": ["../../pkgs/async-local-shared/src/*"],
-      "@pkgs/async-shared/*": ["../../pkgs/async-shared/src/*"],
+      "@pkgs/async-root-shared/*": ["../../pkgs/async-root-shared/src/*"],
       "@pkgs/attribute-shared/*": ["../../pkgs/attribute-shared/src/*"],
-      "@pkgs/auth-client/*": ["../../pkgs/auth-client/src/*"],
-      "@pkgs/auth-harness/*": ["../../pkgs/auth-harness/src/*"],
+      "@pkgs/auth-root-client/*": ["../../pkgs/auth-root-client/src/*"],
+      "@pkgs/auth-root-harness/*": ["../../pkgs/auth-root-harness/src/*"],
       "@pkgs/auth-inhouse-client/*": ["../../pkgs/auth-inhouse-client/src/*"],
       "@pkgs/auth-inhouse-server/*": ["../../pkgs/auth-inhouse-server/src/*"],
       "@pkgs/auth-inhouse-shared/*": ["../../pkgs/auth-inhouse-shared/src/*"],
-      "@pkgs/auth-shared/*": ["../../pkgs/auth-shared/src/*"],
+      "@pkgs/auth-root-shared/*": ["../../pkgs/auth-root-shared/src/*"],
       "@pkgs/billing-paddle-harness/*": [
         "../../pkgs/billing-paddle-harness/src/*"
       ],
@@ -155,7 +155,7 @@
       "@pkgs/billing-providers-server/*": [
         "../../pkgs/billing-providers-server/src/*"
       ],
-      "@pkgs/billing-shared/*": ["../../pkgs/billing-shared/src/*"],
+      "@pkgs/billing-root-shared/*": ["../../pkgs/billing-root-shared/src/*"],
       "@pkgs/billing-stripe-harness/*": [
         "../../pkgs/billing-stripe-harness/src/*"
       ],
@@ -169,16 +169,22 @@
       "@pkgs/bun-test-solid-client/*": [
         "../../pkgs/bun-test-solid-client/src/*"
       ],
-      "@pkgs/chess-board-client/*": ["../../pkgs/chess-board-client/src/*"],
+      "@pkgs/chess-board-root-client/*": [
+        "../../pkgs/chess-board-root-client/src/*"
+      ],
       "@pkgs/chess-board-core-shared/*": [
         "../../pkgs/chess-board-core-shared/src/*"
       ],
-      "@pkgs/chess-board-harness/*": ["../../pkgs/chess-board-harness/src/*"],
-      "@pkgs/chess-board-shared/*": ["../../pkgs/chess-board-shared/src/*"],
+      "@pkgs/chess-board-root-harness/*": [
+        "../../pkgs/chess-board-root-harness/src/*"
+      ],
+      "@pkgs/chess-board-root-shared/*": [
+        "../../pkgs/chess-board-root-shared/src/*"
+      ],
       "@pkgs/chess-rules-shared/*": ["../../pkgs/chess-rules-shared/src/*"],
       "@pkgs/clock-client/*": ["../../pkgs/clock-client/src/*"],
       "@pkgs/clock-shared/*": ["../../pkgs/clock-shared/src/*"],
-      "@pkgs/collab-shared/*": ["../../pkgs/collab-shared/src/*"],
+      "@pkgs/collab-root-shared/*": ["../../pkgs/collab-root-shared/src/*"],
       "@pkgs/collab-ui-client/*": ["../../pkgs/collab-ui-client/src/*"],
       "@pkgs/colors-shared/*": ["../../pkgs/colors-shared/src/*"],
       "@pkgs/conformance-server/*": ["../../pkgs/conformance-server/src/*"],
@@ -189,11 +195,15 @@
       "@pkgs/database-url-policy-shared/*": [
         "../../pkgs/database-url-policy-shared/src/*"
       ],
-      "@pkgs/db-indexes-harness/*": ["../../pkgs/db-indexes-harness/src/*"],
+      "@pkgs/db-indexes-root-harness/*": [
+        "../../pkgs/db-indexes-root-harness/src/*"
+      ],
       "@pkgs/db-indexes-postgres-shared/*": [
         "../../pkgs/db-indexes-postgres-shared/src/*"
       ],
-      "@pkgs/db-indexes-shared/*": ["../../pkgs/db-indexes-shared/src/*"],
+      "@pkgs/db-indexes-root-shared/*": [
+        "../../pkgs/db-indexes-root-shared/src/*"
+      ],
       "@pkgs/db-indexes-sqlite-shared/*": [
         "../../pkgs/db-indexes-sqlite-shared/src/*"
       ],
@@ -204,7 +214,9 @@
       "@pkgs/db-schema-postgres-shared/*": [
         "../../pkgs/db-schema-postgres-shared/src/*"
       ],
-      "@pkgs/db-schema-shared/*": ["../../pkgs/db-schema-shared/src/*"],
+      "@pkgs/db-schema-root-shared/*": [
+        "../../pkgs/db-schema-root-shared/src/*"
+      ],
       "@pkgs/db-schema-sqlite-shared/*": [
         "../../pkgs/db-schema-sqlite-shared/src/*"
       ],
@@ -243,28 +255,36 @@
       "@pkgs/harness-report-shared/*": [
         "../../pkgs/harness-report-shared/src/*"
       ],
-      "@pkgs/harness-shared/*": ["../../pkgs/harness-shared/src/*"],
+      "@pkgs/harness-root-shared/*": ["../../pkgs/harness-root-shared/src/*"],
       "@pkgs/http-client-client/*": ["../../pkgs/http-client-client/src/*"],
       "@pkgs/http-client-shared/*": ["../../pkgs/http-client-shared/src/*"],
       "@pkgs/i18n-shared/*": ["../../pkgs/i18n-shared/src/*"],
       "@pkgs/invariants-shared/*": ["../../pkgs/invariants-shared/src/*"],
       "@pkgs/jingle-server/*": ["../../pkgs/jingle-server/src/*"],
       "@pkgs/keyword-shared/*": ["../../pkgs/keyword-shared/src/*"],
-      "@pkgs/kv-client/*": ["../../pkgs/kv-client/src/*"],
+      "@pkgs/kv-root-client/*": ["../../pkgs/kv-root-client/src/*"],
       "@pkgs/kv-postgres-shared/*": ["../../pkgs/kv-postgres-shared/src/*"],
-      "@pkgs/kv-shared/*": ["../../pkgs/kv-shared/src/*"],
+      "@pkgs/kv-root-shared/*": ["../../pkgs/kv-root-shared/src/*"],
       "@pkgs/kv-web-client/*": ["../../pkgs/kv-web-client/src/*"],
-      "@pkgs/llm-client/*": ["../../pkgs/llm-client/src/*"],
+      "@pkgs/llm-root-client/*": ["../../pkgs/llm-root-client/src/*"],
       "@pkgs/llm-openai-server/*": ["../../pkgs/llm-openai-server/src/*"],
       "@pkgs/llm-openai-shared/*": ["../../pkgs/llm-openai-shared/src/*"],
-      "@pkgs/llm-server/*": ["../../pkgs/llm-server/src/*"],
-      "@pkgs/llm-shared/*": ["../../pkgs/llm-shared/src/*"],
+      "@pkgs/llm-root-server/*": ["../../pkgs/llm-root-server/src/*"],
+      "@pkgs/llm-root-shared/*": ["../../pkgs/llm-root-shared/src/*"],
       "@pkgs/logger-client/*": ["../../pkgs/logger-client/src/*"],
       "@pkgs/logger-shared/*": ["../../pkgs/logger-shared/src/*"],
-      "@pkgs/matchmaking-client/*": ["../../pkgs/matchmaking-client/src/*"],
-      "@pkgs/matchmaking-harness/*": ["../../pkgs/matchmaking-harness/src/*"],
-      "@pkgs/matchmaking-server/*": ["../../pkgs/matchmaking-server/src/*"],
-      "@pkgs/matchmaking-shared/*": ["../../pkgs/matchmaking-shared/src/*"],
+      "@pkgs/matchmaking-root-client/*": [
+        "../../pkgs/matchmaking-root-client/src/*"
+      ],
+      "@pkgs/matchmaking-root-harness/*": [
+        "../../pkgs/matchmaking-root-harness/src/*"
+      ],
+      "@pkgs/matchmaking-root-server/*": [
+        "../../pkgs/matchmaking-root-server/src/*"
+      ],
+      "@pkgs/matchmaking-root-shared/*": [
+        "../../pkgs/matchmaking-root-shared/src/*"
+      ],
       "@pkgs/matchmaking-sql-server/*": [
         "../../pkgs/matchmaking-sql-server/src/*"
       ],
@@ -275,7 +295,9 @@
       "@pkgs/ndjson-client/*": ["../../pkgs/ndjson-client/src/*"],
       "@pkgs/ndjson-server/*": ["../../pkgs/ndjson-server/src/*"],
       "@pkgs/ndjson-shared/*": ["../../pkgs/ndjson-shared/src/*"],
-      "@pkgs/object-store-client/*": ["../../pkgs/object-store-client/src/*"],
+      "@pkgs/object-store-root-client/*": [
+        "../../pkgs/object-store-root-client/src/*"
+      ],
       "@pkgs/object-store-node-fs-server/*": [
         "../../pkgs/object-store-node-fs-server/src/*"
       ],
@@ -291,22 +313,30 @@
       "@pkgs/object-store-s3-shared/*": [
         "../../pkgs/object-store-s3-shared/src/*"
       ],
-      "@pkgs/object-store-shared/*": ["../../pkgs/object-store-shared/src/*"],
+      "@pkgs/object-store-root-shared/*": [
+        "../../pkgs/object-store-root-shared/src/*"
+      ],
       "@pkgs/observability-cli-server/*": [
         "../../pkgs/observability-cli-server/src/*"
       ],
       "@pkgs/observability-cli-shared/*": [
         "../../pkgs/observability-cli-shared/src/*"
       ],
-      "@pkgs/observability-client/*": ["../../pkgs/observability-client/src/*"],
+      "@pkgs/observability-root-client/*": [
+        "../../pkgs/observability-root-client/src/*"
+      ],
       "@pkgs/observability-mcp-server/*": [
         "../../pkgs/observability-mcp-server/src/*"
       ],
       "@pkgs/observability-mcp-shared/*": [
         "../../pkgs/observability-mcp-shared/src/*"
       ],
-      "@pkgs/observability-server/*": ["../../pkgs/observability-server/src/*"],
-      "@pkgs/observability-shared/*": ["../../pkgs/observability-shared/src/*"],
+      "@pkgs/observability-root-server/*": [
+        "../../pkgs/observability-root-server/src/*"
+      ],
+      "@pkgs/observability-root-shared/*": [
+        "../../pkgs/observability-root-shared/src/*"
+      ],
       "@pkgs/openslo-server/*": ["../../pkgs/openslo-server/src/*"],
       "@pkgs/openslo-shared/*": ["../../pkgs/openslo-shared/src/*"],
       "@pkgs/os-server/*": ["../../pkgs/os-server/src/*"],
@@ -327,7 +357,7 @@
       "@pkgs/pubsub-aedes-shared/*": ["../../pkgs/pubsub-aedes-shared/src/*"],
       "@pkgs/pubsub-emqx-shared/*": ["../../pkgs/pubsub-emqx-shared/src/*"],
       "@pkgs/pubsub-mqtt-shared/*": ["../../pkgs/pubsub-mqtt-shared/src/*"],
-      "@pkgs/pubsub-shared/*": ["../../pkgs/pubsub-shared/src/*"],
+      "@pkgs/pubsub-root-shared/*": ["../../pkgs/pubsub-root-shared/src/*"],
       "@pkgs/quint-server/*": ["../../pkgs/quint-server/src/*"],
       "@pkgs/quint-shared/*": ["../../pkgs/quint-shared/src/*"],
       "@pkgs/room-adapter-bun-server/*": [
@@ -345,10 +375,10 @@
       "@pkgs/room-adapter-web-shared/*": [
         "../../pkgs/room-adapter-web-shared/src/*"
       ],
-      "@pkgs/room-client/*": ["../../pkgs/room-client/src/*"],
-      "@pkgs/room-harness/*": ["../../pkgs/room-harness/src/*"],
-      "@pkgs/room-server/*": ["../../pkgs/room-server/src/*"],
-      "@pkgs/room-shared/*": ["../../pkgs/room-shared/src/*"],
+      "@pkgs/room-root-client/*": ["../../pkgs/room-root-client/src/*"],
+      "@pkgs/room-root-harness/*": ["../../pkgs/room-root-harness/src/*"],
+      "@pkgs/room-root-server/*": ["../../pkgs/room-root-server/src/*"],
+      "@pkgs/room-root-shared/*": ["../../pkgs/room-root-shared/src/*"],
       "@pkgs/s3-server/*": ["../../pkgs/s3-server/src/*"],
       "@pkgs/secret-provider-server/*": [
         "../../pkgs/secret-provider-server/src/*"
@@ -364,11 +394,11 @@
       "@pkgs/secrets-config-shared/*": [
         "../../pkgs/secrets-config-shared/src/*"
       ],
-      "@pkgs/secure-storage-client/*": [
-        "../../pkgs/secure-storage-client/src/*"
+      "@pkgs/secure-storage-root-client/*": [
+        "../../pkgs/secure-storage-root-client/src/*"
       ],
-      "@pkgs/secure-storage-shared/*": [
-        "../../pkgs/secure-storage-shared/src/*"
+      "@pkgs/secure-storage-root-shared/*": [
+        "../../pkgs/secure-storage-root-shared/src/*"
       ],
       "@pkgs/secure-storage-web-client/*": [
         "../../pkgs/secure-storage-web-client/src/*"
@@ -377,23 +407,29 @@
       "@pkgs/sounds-client/*": ["../../pkgs/sounds-client/src/*"],
       "@pkgs/sounds-shared/*": ["../../pkgs/sounds-shared/src/*"],
       "@pkgs/sql-cli-shared/*": ["../../pkgs/sql-cli-shared/src/*"],
-      "@pkgs/sql-client-client/*": ["../../pkgs/sql-client-client/src/*"],
-      "@pkgs/sql-client-harness/*": ["../../pkgs/sql-client-harness/src/*"],
+      "@pkgs/sql-client-root-client/*": [
+        "../../pkgs/sql-client-root-client/src/*"
+      ],
+      "@pkgs/sql-client-root-harness/*": [
+        "../../pkgs/sql-client-root-harness/src/*"
+      ],
       "@pkgs/sql-client-postgres-server/*": [
         "../../pkgs/sql-client-postgres-server/src/*"
       ],
       "@pkgs/sql-client-postgres-shared/*": [
         "../../pkgs/sql-client-postgres-shared/src/*"
       ],
-      "@pkgs/sql-client-shared/*": ["../../pkgs/sql-client-shared/src/*"],
-      "@pkgs/sql-client-sqlite-client/*": [
-        "../../pkgs/sql-client-sqlite-client/src/*"
+      "@pkgs/sql-client-root-shared/*": [
+        "../../pkgs/sql-client-root-shared/src/*"
       ],
-      "@pkgs/sql-client-sqlite-server/*": [
-        "../../pkgs/sql-client-sqlite-server/src/*"
+      "@pkgs/sql-client-sqlite-root-client/*": [
+        "../../pkgs/sql-client-sqlite-root-client/src/*"
       ],
-      "@pkgs/sql-client-sqlite-shared/*": [
-        "../../pkgs/sql-client-sqlite-shared/src/*"
+      "@pkgs/sql-client-sqlite-root-server/*": [
+        "../../pkgs/sql-client-sqlite-root-server/src/*"
+      ],
+      "@pkgs/sql-client-sqlite-root-shared/*": [
+        "../../pkgs/sql-client-sqlite-root-shared/src/*"
       ],
       "@pkgs/sql-client-sqlite-web-client/*": [
         "../../pkgs/sql-client-sqlite-web-client/src/*"
@@ -405,7 +441,7 @@
         "../../pkgs/sql-client-sqlite-web-shared/src/*"
       ],
       "@pkgs/sql-map-shared/*": ["../../pkgs/sql-map-shared/src/*"],
-      "@pkgs/sql-shared/*": ["../../pkgs/sql-shared/src/*"],
+      "@pkgs/sql-root-shared/*": ["../../pkgs/sql-root-shared/src/*"],
       "@pkgs/static-file-shared/*": ["../../pkgs/static-file-shared/src/*"],
       "@pkgs/sync-engine-client/*": ["../../pkgs/sync-engine-client/src/*"],
       "@pkgs/sync-engine-harness/*": ["../../pkgs/sync-engine-harness/src/*"],
@@ -414,16 +450,16 @@
       "@pkgs/tailwind-shared/*": ["../../pkgs/tailwind-shared/src/*"],
       "@pkgs/task-dag-shared/*": ["../../pkgs/task-dag-shared/src/*"],
       "@pkgs/ts-reset-shared/*": ["../../pkgs/ts-reset-shared/src/*"],
-      "@pkgs/tts-client/*": ["../../pkgs/tts-client/src/*"],
+      "@pkgs/tts-root-client/*": ["../../pkgs/tts-root-client/src/*"],
       "@pkgs/tts-elevenlabs-server/*": [
         "../../pkgs/tts-elevenlabs-server/src/*"
       ],
       "@pkgs/tts-elevenlabs-shared/*": [
         "../../pkgs/tts-elevenlabs-shared/src/*"
       ],
-      "@pkgs/tts-server/*": ["../../pkgs/tts-server/src/*"],
-      "@pkgs/tts-shared/*": ["../../pkgs/tts-shared/src/*"],
-      "@pkgs/ui-client/*": ["../../pkgs/ui-client/src/*"],
+      "@pkgs/tts-root-server/*": ["../../pkgs/tts-root-server/src/*"],
+      "@pkgs/tts-root-shared/*": ["../../pkgs/tts-root-shared/src/*"],
+      "@pkgs/ui-root-client/*": ["../../pkgs/ui-root-client/src/*"],
       "@pkgs/ui-devtools-client/*": ["../../pkgs/ui-devtools-client/src/*"],
       "@pkgs/ui-devtools-shared/*": ["../../pkgs/ui-devtools-shared/src/*"],
       "@pkgs/ui-quality-check-server/*": [
@@ -432,14 +468,16 @@
       "@pkgs/ui-quality-check-shared/*": [
         "../../pkgs/ui-quality-check-shared/src/*"
       ],
-      "@pkgs/ui-shared/*": ["../../pkgs/ui-shared/src/*"],
+      "@pkgs/ui-root-shared/*": ["../../pkgs/ui-root-shared/src/*"],
       "@pkgs/ui-testing-bun-webview-server/*": [
         "../../pkgs/ui-testing-bun-webview-server/src/*"
       ],
       "@pkgs/ui-testing-bun-webview-shared/*": [
         "../../pkgs/ui-testing-bun-webview-shared/src/*"
       ],
-      "@pkgs/ui-testing-shared/*": ["../../pkgs/ui-testing-shared/src/*"],
+      "@pkgs/ui-testing-root-shared/*": [
+        "../../pkgs/ui-testing-root-shared/src/*"
+      ],
       "@pkgs/ui-testing-solid-dom-client/*": [
         "../../pkgs/ui-testing-solid-dom-client/src/*"
       ],

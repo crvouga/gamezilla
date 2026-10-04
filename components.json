@@ -4,6 +4,6 @@
     "css": "pkgs/tailwind-shared/src/lint.css"
   },
   "aliases": {
-    "ui": "./pkgs/ui-client/src"
+    "ui": "./pkgs/ui-root-client/src"
   }
 }

@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { markSpaceJoinAnnouncedMutation } from '@libs/spaces-shared/mark-join-announced-mutation';
 import { AnnounceMemberJoined } from '@libs/spaces-shared/space-log-messages';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
+import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { createEffect } from 'solid-js';
 import { useSpaceOpenSession } from './use-open-space-session-ids';

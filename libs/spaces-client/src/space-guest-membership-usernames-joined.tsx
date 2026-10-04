@@ -1,4 +1,4 @@
-import type { TextVariant } from '@pkgs/ui-client/text';
+import type { TextVariant } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
 

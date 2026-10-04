@@ -1,4 +1,4 @@
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type { WatchSubscription } from './sync-engine-port';
 
 /** Stable key for a watched SQL query (registry / identity). */

@@ -2,7 +2,7 @@ import type {
   SqlDataDump,
   SqlDumpValue,
   SqlTableDump,
-} from '@pkgs/sql-client-shared/types';
+} from '@pkgs/sql-client-root-shared/types';
 import type { HarnessCheckpointRoomDump } from './checkpoint';
 import type {
   HarnessSystemSnapshot,

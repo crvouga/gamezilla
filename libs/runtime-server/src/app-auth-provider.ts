@@ -8,6 +8,6 @@
  */
 
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
-import type { AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
+import type { AuthProviderModule } from '@pkgs/auth-root-shared/auth-provider-module';
 
 export const APP_AUTH_PROVIDER: AuthProviderModule = INHOUSE_AUTH_PROVIDER;

@@ -13,8 +13,8 @@ import {
 } from '@pkgs/sql-client-postgres-server/connect';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { raw } from '@pkgs/sql-shared/sql';
+import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 const TEST_SCHEMA = 'gamezilla_test_scope';
 const REMOTE_DB_TIMEOUT_MS = 30_000;

@@ -1,4 +1,7 @@
-import type { RunResult, SqlClient } from '@pkgs/sql-client-shared/interface';
+import type {
+  RunResult,
+  SqlClient,
+} from '@pkgs/sql-client-root-shared/interface';
 
 export type SqlCliResult =
   | { kind: 'rows'; rows: readonly Record<string, unknown>[] }

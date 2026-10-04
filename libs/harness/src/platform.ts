@@ -7,7 +7,7 @@
 import { expect } from 'bun:test';
 
 import { hostLimit } from '@pkgs/gherkin-shared/registry';
-import { ActionNotEnabled } from '@pkgs/harness-shared/probe';
+import { ActionNotEnabled } from '@pkgs/harness-root-shared/probe';
 import { partition, restartApp, restoreNetwork } from './actions';
 import {
   returnToTabs,

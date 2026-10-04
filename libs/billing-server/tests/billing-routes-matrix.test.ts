@@ -11,10 +11,10 @@ import type {
   CallbackResult,
   MembershipBilling,
   MembershipChange,
-} from '@pkgs/billing-shared/membership';
-import { createMembershipProviders } from '@pkgs/billing-shared/providers';
+} from '@pkgs/billing-root-shared/membership';
+import { createMembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { Hono } from 'hono';
 
 const NOW = 1_800_000_000_000;

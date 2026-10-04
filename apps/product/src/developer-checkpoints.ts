@@ -1,11 +1,11 @@
-import { readEmbeddedHref } from '@libs/app-shared/embedded-href';
+import { readEmbeddedHref } from '@libs/app-root-shared/embedded-href';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { openSettings } from '@libs/harness/shell-actions';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { useProductHarnessSnapshots } from '@pkgs/harness-console-client/use-product-harness-snapshots';
 import { useSnapshotChromeState } from '@pkgs/harness-console-client/use-snapshot-chrome-state';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { createRoot, createSignal } from 'solid-js';
 import { tools } from './developer-tools-state';
 import type { SnapshotSessionCtx } from './product-harness-snapshots';

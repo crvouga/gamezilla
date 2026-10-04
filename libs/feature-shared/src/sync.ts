@@ -11,8 +11,8 @@
  */
 
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 /**
  * Opens a SQL client. A client's is identity-scoped (`userId` /

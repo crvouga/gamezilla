@@ -3,8 +3,8 @@ import type { Logger } from '@pkgs/logger-shared/logger';
 import type {
   PreparedStatement,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-shared/connection-pragmas';
+} from '@pkgs/sql-client-root-shared/interface';
+import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-root-shared/connection-pragmas';
 import type {
   ActiveTx,
   OwnerHandlerDeps,

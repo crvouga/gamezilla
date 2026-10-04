@@ -9,7 +9,7 @@ import type {
   GestureOptions,
   PointerButton,
   TapPosition,
-} from '@pkgs/ui-testing-shared/driver';
+} from '@pkgs/ui-testing-root-shared/driver';
 import type { LayoutProvider } from './dom-layout';
 import { ensureElementLayout, pointFromRatio } from './dom-layout';
 

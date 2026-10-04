@@ -1,5 +1,5 @@
-import { chessPuzzlesChannels } from '@libs/chess-shared/sync-topics';
-import sql from '@pkgs/sql-shared/sql';
+import { chessPuzzlesChannels } from '@libs/chess-root-shared/sync-topics';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { z } from 'zod';
 

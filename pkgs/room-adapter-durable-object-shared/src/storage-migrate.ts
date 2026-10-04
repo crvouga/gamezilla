@@ -1,7 +1,7 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { assertKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import type { CommandDedupOutcome } from '@pkgs/room-shared/server-core-storage';
-import type { LogEntry } from '@pkgs/room-shared/types';
+import type { CommandDedupOutcome } from '@pkgs/room-root-shared/server-core-storage';
+import type { LogEntry } from '@pkgs/room-root-shared/types';
 import type { RoomDoKeyNs } from './storage-keys';
 import { DO_KV_MULTI_KEY_LIMIT, dedupKey, eventKey } from './storage-keys';
 import type {

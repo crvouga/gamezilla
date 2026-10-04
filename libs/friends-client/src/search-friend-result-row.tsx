@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
 
 import { FriendActionPills } from './friend-action-pills';

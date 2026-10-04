@@ -1,4 +1,4 @@
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
 
 /**
  * Append-only quota consumption ledger (§22.4). One row per consumed

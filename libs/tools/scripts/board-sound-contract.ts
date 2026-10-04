@@ -69,12 +69,12 @@ function chosenSound(
 export function boardSoundIssues(file: ts.SourceFile, path: string) {
   const boards = importedNames(
     file,
-    '@pkgs/chess-board-client/chess-board',
+    '@pkgs/chess-board-root-client/chess-board',
     'ChessBoard'
   );
   const helpers = importedNames(
     file,
-    '@pkgs/chess-board-client/chess-board-sounds',
+    '@pkgs/chess-board-root-client/chess-board-sounds',
     'createChessBoardSounds'
   );
   const preferences = preferenceNames(file);

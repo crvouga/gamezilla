@@ -1,5 +1,5 @@
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 
 export const MATCHMAKING_SCHEMA_STATE_TABLE = 'matchmaking_schema_state';
 export const MATCHMAKING_ACTIVE_PARTITIONS_TABLE =

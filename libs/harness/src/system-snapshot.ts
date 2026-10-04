@@ -2,13 +2,16 @@
  * Portable logical system snapshot capture / restore for createHarness.
  */
 
-import type { Client } from '@libs/app-client/create-client';
+import type { Client } from '@libs/app-root-client/create-client';
 import type {
   HarnessSystemSnapshot,
   HarnessSystemSnapshotClientSlice,
 } from '@pkgs/harness-console-shared/system-snapshot';
-import { dumpData, loadData } from '@pkgs/sql-client-shared/port';
-import type { SqlDataDump, SqlTableDump } from '@pkgs/sql-client-shared/types';
+import { dumpData, loadData } from '@pkgs/sql-client-root-shared/port';
+import type {
+  SqlDataDump,
+  SqlTableDump,
+} from '@pkgs/sql-client-root-shared/types';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine-shared/framework-server-ddl';
 import {

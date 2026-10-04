@@ -13,7 +13,7 @@ import {
   zoomMode,
 } from '@pkgs/harness-report-shared/hash';
 import type { ReportData } from '@pkgs/harness-report-shared/types';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import {
   createEffect,
   createMemo,

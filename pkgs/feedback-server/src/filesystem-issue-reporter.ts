@@ -4,8 +4,8 @@ import type {
   FeedbackReport,
   FeedbackRepository,
 } from '@pkgs/feedback-shared/types';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { agentHandoff, reportDirectory, reportMarkdown } from './report-files';
 
 /** ObjectStore is rooted at the repository's .feedback/; every put commits atomically. */

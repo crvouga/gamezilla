@@ -1,4 +1,4 @@
-import type { RunResult } from '@pkgs/sql-client-shared/interface';
+import type { RunResult } from '@pkgs/sql-client-root-shared/interface';
 
 export type WireSafetyViolation = {
   readonly path: string;

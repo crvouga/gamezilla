@@ -1,4 +1,4 @@
-import { createReportsApp } from '@libs/app-server/reports-route';
+import { createReportsApp } from '@libs/app-root-server/reports-route';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import {

@@ -4,7 +4,7 @@ import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
 import type {
   ReportFrame,
   ReportStep,
-} from '@pkgs/harness-shared/report-types';
+} from '@pkgs/harness-root-shared/report-types';
 
 function frame(detail: string, kind = 'quint'): FlatFrame {
   const step: ReportStep = {

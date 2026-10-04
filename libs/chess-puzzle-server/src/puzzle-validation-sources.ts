@@ -5,8 +5,8 @@
  * bounded memory.
  */
 
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import { PuzzleRowIterator } from './puzzle-row-iterator';
 import type { PuzzleValidationReport } from './puzzle-validation-report';

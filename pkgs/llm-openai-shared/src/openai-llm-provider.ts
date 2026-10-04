@@ -1,11 +1,11 @@
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 
-import type { LlmProvider } from '@pkgs/llm-shared/llm-provider';
-import { LlmProviderError } from '@pkgs/llm-shared/llm-provider';
+import type { LlmProvider } from '@pkgs/llm-root-shared/llm-provider';
+import { LlmProviderError } from '@pkgs/llm-root-shared/llm-provider';
 import type {
   LlmStructuredRequest,
   LlmStructuredResult,
-} from '@pkgs/llm-shared/llm-types';
+} from '@pkgs/llm-root-shared/llm-types';
 
 export type OpenAiLlmProviderOptions = {
   readonly apiKey: string;
