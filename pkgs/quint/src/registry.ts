@@ -76,6 +76,13 @@ export type QuintBinding<W> = {
   readonly inductiveInvariant?: string;
   /** Opt into independent solver phases for the same induction obligations. */
   readonly separateInduction?: boolean;
+  /**
+   * The models check's deadline for this model, in milliseconds. Default
+   * {@link DEFAULT_VERIFY_TIMEOUT_MS}. Raise it only for a proof whose cost
+   * is expected; a timeout remains a failed obligation. Read from the
+   * binding's text, so write it as a number literal.
+   */
+  readonly verifyTimeoutMs?: number;
   /** Opt into Apalache's array encoding without changing proof obligations. */
   readonly encoding?: 'fun-arrays';
   /** Per-trace test timeout. Default: the runner's. */
@@ -112,6 +119,7 @@ export type QuintBinding<W> = {
 export const DEFAULT_TRACES = 4;
 export const DEFAULT_MAX_STEPS = 10;
 export const DEFAULT_VERIFY_STEPS = 4;
+export const DEFAULT_VERIFY_TIMEOUT_MS = 240_000;
 
 type Registry = {
   world: QuintWorld<unknown> | null;
