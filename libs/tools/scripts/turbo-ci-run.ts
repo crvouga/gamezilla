@@ -225,9 +225,9 @@ export function resolveCacheFlag(
   return DEFAULT_CACHE;
 }
 
-/** Two models can each run four native workers; reserve capacity for both. */
+/** Reserve four solver workers plus compiler and runtime capacity per task. */
 export function defaultCheckConcurrency(cpus: number): number {
-  return Math.max(1, Math.floor(cpus / 8));
+  return Math.max(1, Math.floor(cpus / 6));
 }
 
 function resolveConcurrency(): string {

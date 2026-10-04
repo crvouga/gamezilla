@@ -201,7 +201,7 @@ test('local and remote checks bound nested native thread pools identically', () 
 
 // regression: local-check-thread-oversubscription
 test('task slots reserve CPU capacity for nested native workers', () => {
-  expect(defaultCheckConcurrency(12)).toBe(1);
+  expect(defaultCheckConcurrency(12)).toBe(2);
   expect(defaultCheckConcurrency(1)).toBe(1);
-  expect(defaultCheckConcurrency(64)).toBe(8);
+  expect(defaultCheckConcurrency(64)).toBe(10);
 });
