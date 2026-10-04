@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/bun-test-solid-client": "workspace:*"
   }
 }

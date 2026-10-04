@@ -40,7 +40,6 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
-        "wrangler": "catalog:",
       },
     },
     "apps/client": {
@@ -60,7 +59,6 @@
       "devDependencies": {
         "@libs/app-config-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
-        "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/assert-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
@@ -71,11 +69,9 @@
         "@pkgs/os-server": "workspace:*",
         "@pkgs/secret-store-shared": "workspace:*",
         "@pkgs/vite-workspace-resolver-server": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
         "@tailwindcss/vite": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
-        "esbuild": "catalog:",
         "rollup-plugin-visualizer": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
@@ -133,14 +129,11 @@
         "@pkgs/uuid-client": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
         "@solidjs/router": "catalog:",
-        "better-sqlite3": "catalog:",
-        "chess.js": "catalog:",
         "hono": "catalog:",
         "solid-js": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@babel/runtime": "catalog:",
         "@clack/prompts": "catalog:",
         "@libs/auth-shared": "workspace:*",
         "@libs/billing-shared": "workspace:*",
@@ -151,7 +144,6 @@
         "@libs/pubsub-shared": "workspace:*",
         "@libs/secrets-server": "workspace:*",
         "@libs/secrets-shared": "workspace:*",
-        "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/auth-inhouse-server": "workspace:*",
         "@pkgs/auth-inhouse-shared": "workspace:*",
@@ -222,11 +214,6 @@
         "@pkgs/s3-server": "workspace:*",
         "@pkgs/secret-store-shared": "workspace:*",
         "@pkgs/tts-server": "workspace:*",
-        "better-sqlite3": "catalog:",
-        "hono": "catalog:",
-        "jose": "catalog:",
-        "pg": "catalog:",
-        "zod": "catalog:",
       },
       "devDependencies": {
         "@libs/app-config-shared": "workspace:*",
@@ -255,7 +242,6 @@
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
-        "wrangler": "catalog:",
       },
     },
     "libs/account-privacy-client": {
@@ -558,7 +544,6 @@
         "hono": "catalog:",
       },
       "devDependencies": {
-        "@libs/app-client": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -1591,7 +1576,6 @@
         "@pkgs/ui-testing-solid-dom-client": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
         "@solidjs/router": "catalog:",
-        "better-sqlite3": "catalog:",
         "solid-js": "catalog:",
         "stripe": "catalog:",
       },
@@ -1735,6 +1719,7 @@
         "@pkgs/observability-shared": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1927,6 +1912,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-shared": "workspace:*",
@@ -2434,6 +2420,7 @@
       "version": "0.0.0",
       "devDependencies": {
         "@pkgs/a11y-shared": "workspace:*",
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -2539,6 +2526,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2548,6 +2536,7 @@
       "name": "@pkgs/assistant-shared",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2980,6 +2969,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -3697,7 +3687,6 @@
         "@pkgs/object-store-shared": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/harness-report-client": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -5266,7 +5255,6 @@
         "@sqlite.org/sqlite-wasm": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/sql-client-sqlite-web-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -5721,6 +5709,7 @@
       "version": "0.0.0",
       "devDependencies": {
         "@happy-dom/global-registrator": "catalog:",
+        "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/ui-testing-bun-webview-shared": "workspace:*",
         "@types/bun": "catalog:",

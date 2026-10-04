@@ -1,8 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
-    "../../pkgs/ui-client/src/css-modules.d.ts",
-    "../../pkgs/ui-client/src/lingui-augmentation.ts",
     "../../libs/app-shared/src/cloudflare.d.ts",
     "./src/**/*.ts",
     "./src/**/*.d.ts",
