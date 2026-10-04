@@ -10,15 +10,17 @@
     ]
   },
   "scripts": {
+    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests",
-    "check:board-contract": "bun run ../tools/scripts/check-board-contract.ts"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
   },
   "dependencies": {
     "@libs/auth-client": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-shared": "workspace:*",
+    "@libs/feature-client": "workspace:*",
     "@libs/permissions-client": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",
@@ -33,6 +35,7 @@
     "@pkgs/collab-shared": "workspace:*",
     "@pkgs/device-client": "workspace:*",
     "@pkgs/feedback-shared": "workspace:*",
+    "@pkgs/http-client-client": "workspace:*",
     "@pkgs/logger-client": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",
     "@pkgs/room-client": "workspace:*",

@@ -1,4 +1,5 @@
 import { createMultiplayerChessClient } from '@libs/app-client/multiplayer-chess-client';
+import { PUZZLE_MANAGEMENT_CLIENT } from '@libs/chess-puzzle-client/puzzle-management-feature-client';
 /**
  * The client half of the composition root: which bounded contexts this
  * product's UI runs, and in what order they nest.
@@ -51,4 +52,5 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   NOTIFICATIONS_CLIENT,
   SEARCH_CLIENT,
   BILLING_CLIENT,
+  PUZZLE_MANAGEMENT_CLIENT,
 ];

@@ -34,6 +34,7 @@ export type ComposedFeatureClients = {
   readonly Session: FeatureProvider;
   /** Docked widgets above the tab bar, in feature order. */
   readonly tabsDocks: readonly Component[];
+  readonly settings: readonly Component[];
 };
 
 /**
@@ -145,5 +146,6 @@ export function composeFeatureClients(
     Chrome: nest(clients.flatMap((c) => (c.chrome ? [c.chrome] : []))),
     Session: nestLazy(clients.flatMap((c) => (c.session ? [c.session] : []))),
     tabsDocks: clients.flatMap((c) => (c.tabsDock ? [c.tabsDock] : [])),
+    settings: clients.flatMap((c) => (c.settings ? [c.settings] : [])),
   };
 }
