@@ -133,7 +133,7 @@ live product harness. The confirmed sync regression below does run the real API.
   rejected mutation returned an applied verdict. The real HTTP regression is
   [rejected-retry.test.ts](../../../../../pkgs/sync-engine/tests/rejected-retry.test.ts),
   `sync-rejected-retry-verdict`, registered in
-  [known-bugs.json](../../../../../libs/tools/goal/known-bugs.json). Replay now reads
+  [known-bugs/](../../../../../libs/tools/goal/known-bugs/). Replay now reads
   the stored terminal rejection instead of treating every duplicate as applied.
 - **Incorrect abstraction, corrected:** eight-device multiplayer exploration
   reached a delayed host addition after the target account's deletion. A durable

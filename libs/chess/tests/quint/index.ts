@@ -4,16 +4,12 @@
  * every model's binding.
  */
 
-import './puzzle-attempt.binding';
-import './puzzle-result-recovery.binding';
-import './multiplayer.binding';
-import './puzzle-feed.binding';
-import './puzzle-sound.binding';
-import './custom-game.binding';
-import './custom-game-play.binding';
-import './custom-game-control.binding';
-
 import { useQuintHarness } from '@libs/harness/quint/world';
 import { openHarness } from '../harness/open-chess-harness';
+
+// Every `*.binding.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.binding.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useQuintHarness(openHarness);

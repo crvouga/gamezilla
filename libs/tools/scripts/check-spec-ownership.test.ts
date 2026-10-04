@@ -69,15 +69,15 @@ describe('spec ownership', () => {
     const staged = [
       'specs/README.md',
       'specs/spaces/space-create.feature',
-      'libs/tools/goal/known-bugs.json',
+      'libs/tools/goal/known-bugs/bug-1.json',
     ];
     expect(
-      mergeStagedViolations(staged, ['libs/tools/goal/known-bugs.json'])
+      mergeStagedViolations(staged, ['libs/tools/goal/known-bugs/bug-1.json'])
     ).toEqual([]);
     expect(
       mergeStagedViolations(staged, [
         'specs/spaces/space-create.feature',
-        'libs/tools/goal/known-bugs.json',
+        'libs/tools/goal/known-bugs/bug-1.json',
       ])
     ).toHaveLength(1);
     expect(mergeStagedViolations(staged, ['specs/README.md'])).toEqual([]);
@@ -91,8 +91,8 @@ describe('spec ownership', () => {
         (spec) => {
           expect(
             mergeStagedViolations(
-              [spec, 'libs/tools/goal/known-bugs.json'],
-              [spec, 'libs/tools/goal/known-bugs.json']
+              [spec, 'libs/tools/goal/known-bugs/bug-1.json'],
+              [spec, 'libs/tools/goal/known-bugs/bug-1.json']
             )
           ).toHaveLength(1);
         }
@@ -156,7 +156,7 @@ describe('spec ownership', () => {
                 ...commit,
                 files: [
                   'specs/db-schema/server-reconciliation.feature',
-                  'docs/STEPS_CATALOG.md',
+                  'docs/SPEC_NOTES.md',
                 ],
               },
             ])
@@ -216,11 +216,7 @@ describe('spec ownership', () => {
     expect(
       ownershipViolations([
         {
-          files: [
-            'specs/friends/friend-remove.feature',
-            'libs/friends/STEPS_CATALOG.md',
-            'specs/README.md',
-          ],
+          files: ['specs/friends/friend-remove.feature', 'specs/README.md'],
           sha: '1234567890abcdef',
           subject: 'spec(friends): remove friends',
         },
@@ -249,7 +245,6 @@ describe('spec ownership', () => {
         'specs/README.md',
         'specs/billing/access.dmn',
         'specs/README.md',
-        'libs/billing/STEPS_CATALOG.md',
       ])
     ).toEqual([]);
   });

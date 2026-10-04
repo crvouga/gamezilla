@@ -1,0 +1,4 @@
+{
+  "summary": "A failed feedback submission exposed the browser's raw \"Load failed\" transport error and expanded a large emergency payload, even though the draft was safely journalled. Fixed by presenting a concise recovery state, keeping the draft editable, and moving the machine-readable recovery payload behind an explicit disclosure.",
+  "regressionTest": "specs/feedback/drafts.feature"
+}

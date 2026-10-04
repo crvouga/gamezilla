@@ -1,0 +1,4 @@
+{
+  "summary": "A cancellation prepared before the creator assigned Black to a bot ignored the changed choices revision and cancelled the newer configuration. Reject a stale cancellation while preserving the newer agreed game.",
+  "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+}

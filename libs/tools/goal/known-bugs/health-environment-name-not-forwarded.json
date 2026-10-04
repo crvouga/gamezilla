@@ -1,0 +1,4 @@
+{
+  "summary": "Health chose dev when SECRETS_ENV was absent but did not forward that resolved name to its child process, so the infrastructure check refused to run. Pin the missing environment input and verify the actual live process receives dev.",
+  "regressionTest": "apps/product/scripts/health.test.ts"
+}

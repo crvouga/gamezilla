@@ -1,0 +1,4 @@
+{
+  "summary": "Resignation and cancellation unmounted their confirmation modal as soon as the game became terminal, removing the loading and success surface before it could be dismissed. Keep the modal mounted and gate only its trigger.",
+  "regressionTest": "specs/journeys/custom-game.feature"
+}

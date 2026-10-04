@@ -1,0 +1,4 @@
+{
+  "summary": "Reconnecting devices downloaded only blocks they created, missing incoming blocks or their removal while offline. The block snapshot now includes both parties and tombstones, preserving search privacy and allowing recovery after unblock. Literal block and unblock during the other device outage are pinned.",
+  "regressionTest": "specs/friends/friend-block.feature"
+}

@@ -11,7 +11,7 @@ passes. Repo-wide testing policy: [`README.md`](../../../README.md#correctness-m
 | Round-trip | `tests/roundtrip.test.ts` | property: generated schema + row survives insert → select |
 | Cross-dialect agreement | `tests/agreement-portable.test.ts` | property: mockingbird-sqlite ↔ mockingbird-postgres agree after type-map + dump codec |
 | Compat corpus | `tests/postgres-sqlite-compat-corpus.test.ts` | example corpus of the Postgres ↔ SQLite dialect bridge |
-| Regressions | `tests/bug-*.test.ts` | example: one pinned input per bug ([`known-bugs.json`](../../../libs/tools/goal/known-bugs.json)) |
+| Regressions | `tests/bug-*.test.ts` | example: one pinned input per bug ([`known-bugs/`](../../../libs/tools/goal/known-bugs/)) |
 | Live Postgres | `@pkgs/sql-client-postgres` `test:contract` | the same contract against embedded Postgres |
 
 Invariants the properties check:

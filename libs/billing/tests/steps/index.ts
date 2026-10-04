@@ -7,12 +7,6 @@ import '@libs/account-privacy/steps/privacy.steps';
  */
 
 import '@libs/harness/spec/steps/platform';
-import './access.steps';
-import './membership.steps';
-import './plans.steps';
-import './provider-switch.steps';
-import './time.steps';
-import './account-privacy.steps';
 
 import { privacyTimePasses } from '@libs/account-privacy/harness/privacy-actions';
 import {
@@ -27,6 +21,11 @@ import { signInWithGoogle } from '@libs/harness';
 import type { Actor } from '@libs/harness/spec/define';
 import { useHarnessWorld } from '@libs/harness/spec/world';
 import { openHarness } from '../harness/open-billing-harness';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openHarness, (w) => ({
   beforeAccountDeletion: async (

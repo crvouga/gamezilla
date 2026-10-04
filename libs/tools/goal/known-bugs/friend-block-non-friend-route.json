@@ -1,0 +1,4 @@
+{
+  "summary": "The executable blocking adapter required an existing friendship, leaving blocking strangers and pending outgoing requests unverified. The adapter now opens the person through search and uses the general blocking action. Both literal failing scenarios are pinned.",
+  "regressionTest": "specs/friends/friend-block.feature"
+}

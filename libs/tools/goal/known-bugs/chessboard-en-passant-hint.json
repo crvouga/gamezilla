@@ -1,0 +1,4 @@
+{
+  "summary": "An empty en passant destination is painted as a quiet move rather than a capture.",
+  "regressionTest": "specs/chess-board/board-annotations.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "A repeated Custom Game choice at the same virtual instant clicked a control still displaying Confirmed, so the mutation lifecycle suppressed it and the harness never settled. Use the explicit acknowledged command while the success display holds.",
+  "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+}

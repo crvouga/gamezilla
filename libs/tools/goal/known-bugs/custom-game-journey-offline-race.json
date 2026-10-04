@@ -1,0 +1,4 @@
+{
+  "summary": "The journey harness cut the connection without letting the transport publish disconnection, so the next start attempt produced a generic confirmation failure instead of the offline denial.",
+  "regressionTest": "specs/journeys/custom-game.feature"
+}

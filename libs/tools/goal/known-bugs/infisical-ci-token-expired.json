@@ -1,0 +1,4 @@
+{
+  "summary": "Health (and any Deploy step reading secrets live) failed after its tenth minute with \"Your token has expired\": the CI identity's OIDC-minted Infisical token lives 600s, and the admin CLI store published it as INFISICAL_TOKEN, which the resolver then read back as the caller's own token and never minted again. Fixed by marking a minted token with its expiry (INFISICAL_TOKEN_EXPIRES_AT) and re-resolving before every CLI call, minting a new token a minute before the old one expires; a caller's own token is never replaced.",
+  "regressionTest": "pkgs/secret-provider/tests/oidc-access-token.test.ts"
+}

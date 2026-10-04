@@ -1,0 +1,4 @@
+{
+  "summary": "After a host entered their space, a later sync could tombstone that device's open session while the space stayed live, and the join screen still offered a tombstoned space as live. The host could not end the space or keep a puzzle on screen. Fixed: a tombstoned space is not a live join, and a host whose own session was tombstoned on a live space reopens it.",
+  "regressionTest": "libs/spaces/tests/reopen-lost-host-session.test.ts"
+}

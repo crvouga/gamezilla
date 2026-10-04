@@ -1,0 +1,4 @@
+{
+  "summary": "After the global CLI installer was replaced by mise, @apps/product's deploy spawned `wrangler` without declaring it, so `bun run` never put the bin on PATH and Deploy failed with `Executable not found in $PATH: \"wrangler\"`. Fixed by declaring wrangler in every package that spawns it; lint-package now fails a package that spawns an undeclared npm CLI.",
+  "regressionTest": "libs/tools/scripts/spawned-clis.test.ts"
+}

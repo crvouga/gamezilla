@@ -92,14 +92,11 @@ function validateKnownBugs(
   files: ProofFiles,
   errors: string[]
 ): void {
-  const seen = new Set<string>();
   for (const bug of bugs) {
-    if (seen.has(bug.id)) {
-      errors.push(`known-bugs: duplicate id "${bug.id}"`);
-    }
-    seen.add(bug.id);
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(bug.id)) {
-      errors.push(`known-bugs: id "${bug.id}" must be lower-kebab-case`);
+      errors.push(
+        `known-bugs: file name "${bug.id}.json" must be lower-kebab-case`
+      );
     }
     if (bug.summary.trim().length === 0) {
       errors.push(`known-bugs: entry "${bug.id}" needs a summary`);

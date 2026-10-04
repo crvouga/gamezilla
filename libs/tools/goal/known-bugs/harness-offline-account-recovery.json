@@ -1,0 +1,4 @@
+{
+  "summary": "Account sign-in trace 8 at seed 0x67932 signed Alice out offline and then timed out waiting for auth-method-google after reconnection: the harness threw HarnessPartitionedError and exposed an always-available origin, so anonymous account recovery stopped. Classify simulated HTTP failures and provide the same health-based recovery port used by the production auth bridge.",
+  "regressionTest": "libs/harness/tests/client-server-fetch.test.ts"
+}

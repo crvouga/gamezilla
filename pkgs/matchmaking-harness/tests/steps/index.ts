@@ -3,12 +3,11 @@
  * registers the matchmaking world and every step definition the features use.
  */
 
-import './matchmaking.steps';
-import './groups.steps';
-import './recovery.steps';
-import './ranges.steps';
-import './restrictions.steps';
-
 import { useMatchmakingWorld } from './world';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useMatchmakingWorld();

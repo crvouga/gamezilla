@@ -7,8 +7,8 @@
  * `specs/README.md`) and any `.feature` file anywhere — belongs to the spec
  * writer. An implementer never edits a spec, so a commit that touches one is a spec commit and nothing else: its
  * subject starts with `spec:` (or `spec(scope):`) or the Conventional Commit
- * equivalent `docs(specs):` (except the rulebook, which requires `spec:`), and it changes only specs,
- * catalogs (`STEPS_CATALOG.md`) and docs (`docs/*.md`). A commit that mixes a spec change with
+ * equivalent `docs(specs):` (except the rulebook, which requires `spec:`), and it changes only specs
+ * and docs (`docs/*.md`). A commit that mixes a spec change with
  * code is refused — the roles cannot be told apart in it.
  *
  *   check-spec-ownership.ts             commits in PR_BASE..PR_HEAD (CI) or
@@ -26,7 +26,7 @@ export type Commit = {
 const SPEC_FILE = /\.feature$|^specs\//;
 const SPEC_SUBJECT = /^(?:spec(\([^)]*\))?|docs\(specs\))!?:/;
 /** What a spec commit may touch besides specs. */
-const SPEC_SIDE_FILES = [/(^|\/)STEPS_CATALOG\.md$/, /^docs\/.*\.md$/];
+const SPEC_SIDE_FILES = [/^docs\/.*\.md$/];
 
 export function isSpecFile(path: string): boolean {
   return SPEC_FILE.test(path);
@@ -65,7 +65,7 @@ export function ownershipViolations(
     }
     if (other.length > 0) {
       out.push(
-        `${label}: mixes specs with ${other.join(', ')} — a spec commit changes only specs/, features, catalogs and docs`
+        `${label}: mixes specs with ${other.join(', ')} — a spec commit changes only specs/, features and docs`
       );
     }
   }

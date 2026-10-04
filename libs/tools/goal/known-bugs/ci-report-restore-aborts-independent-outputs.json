@@ -1,0 +1,4 @@
+{
+  "summary": "Check report restoration rejected on the missing @libs/chess#test:spec:13 cache artifact and abandoned queued friends reports. Drain every independent restoration and aggregate failures after completion, preserving the failed verdict.",
+  "regressionTest": "libs/tools/scripts/check-report-queue.test.ts"
+}

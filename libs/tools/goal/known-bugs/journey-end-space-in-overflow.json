@@ -1,0 +1,4 @@
+{
+  "summary": "Live journeys could not clean up hosted spaces after End space moved into the overflow menu. Open the space overflow menu before waiting for the End action.",
+  "regressionTest": "libs/runtime/tests/critical-journey-host-space.test.ts"
+}

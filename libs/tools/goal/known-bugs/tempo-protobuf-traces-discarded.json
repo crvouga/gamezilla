@@ -1,0 +1,4 @@
+{
+  "summary": "Tempo returned a successful protobuf JSON trace under batches with base64 span ids, but the reader only accepted OTLP resourceSpans and silently discarded every span. Accept both document shapes and normalize protobuf ids to hex for lookup and narration.",
+  "regressionTest": "pkgs/observability/tests/tempo-protobuf.test.ts"
+}

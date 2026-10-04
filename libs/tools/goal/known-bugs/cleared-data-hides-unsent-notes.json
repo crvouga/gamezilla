@@ -1,0 +1,4 @@
+{
+  "summary": "Clearing the app's data while offline hid the notes the person had written but not yet sent until the device was back online: the wipe dropped the rows and nothing re-applied the queue. Found by the note-replication model. Fixed by re-applying queued edits after any wipe of the fetched rows (cleared data, an epoch bump on open).",
+  "regressionTest": "specs/sync-engine/notes-offline.feature"
+}

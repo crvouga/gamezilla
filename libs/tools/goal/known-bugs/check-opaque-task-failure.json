@@ -1,0 +1,4 @@
+{
+  "summary": "Depot attempt 8zdp3vll5k printed command finished with error, but continuing without the task command, elapsed time or failing stderr. Structured shard diagnostics identify the failure immediately, and the result manifest rejects incomplete or failed checks.",
+  "regressionTest": "libs/tools/scripts/check-shards.test.ts"
+}

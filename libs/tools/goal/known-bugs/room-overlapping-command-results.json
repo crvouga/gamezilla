@@ -1,0 +1,4 @@
+{
+  "summary": "Custom Game confirmation watched the shared room error, so a refused command could reject another overlapping accepted command. Expose command-correlated server results and confirm each choice from its own rejection or committed event.",
+  "regressionTest": "pkgs/room/tests/room-command-results.test.ts"
+}

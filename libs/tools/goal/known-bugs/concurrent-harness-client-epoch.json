@@ -1,0 +1,4 @@
+{
+  "summary": "Opening or restoring a concurrent harness changed the global epoch used by an existing harness, recreating its client environment and auth port under a foreign durable namespace. Allocate unique epochs globally but keep each current epoch owned by its harness; checkpoint capture and restore use that same owner.",
+  "regressionTest": "libs/harness/tests/client-namespace.test.ts"
+}

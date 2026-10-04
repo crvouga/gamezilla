@@ -1,0 +1,4 @@
+{
+  "summary": "Theme-driven coaching called a completed non-mating castling line checkmate. Derive success commentary from the actual board.",
+  "regressionTest": "libs/chess/tests/assistant/grounding.test.ts"
+}

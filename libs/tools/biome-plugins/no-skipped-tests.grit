@@ -33,7 +33,7 @@ or {
       `test.failing`,
       `it.failing`
     },
-    register_diagnostic(span=$call, message="Expected-failure tests are banned — a known bug is fixed and guarded by a passing regression test (libs/tools/goal/known-bugs.json), never parked as `.failing`.", severity="error")
+    register_diagnostic(span=$call, message="Expected-failure tests are banned — a known bug is fixed and guarded by a passing regression test (libs/tools/goal/known-bugs/), never parked as `.failing`.", severity="error")
   },
   `process.exit(0)` as $exit where {
     register_diagnostic(span=$exit, message="A test file must not exit 0 — that reports a pass for tests that never ran. Throw instead.", severity="error")

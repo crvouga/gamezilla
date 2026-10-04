@@ -4,10 +4,12 @@
  * Step catalogs: `<package>/STEPS_CATALOG.md` for every package that runs
  * spec domains (`specDomains`), plus the root index `docs/STEPS_CATALOG.md`. Generated from
  * `tests/steps/**` so spec writers read wording without reading `tests/`.
- * `check-specs.ts` fails on drift; `bun run spec:catalog` rewrites.
+ * They are gitignored build output, never committed, so concurrent worktrees
+ * adding steps never conflict on them: `bun install` writes them
+ * (`postinstall`) and `bun run spec:catalog` rewrites them after a step change.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import {
   renderCatalogIndex,
   renderPackageCatalog,
@@ -44,29 +46,14 @@ export function renderCatalogs(
   return out;
 }
 
-/** Catalog files missing or different from what the sources render. */
-export function catalogDrift(
-  packages: readonly SpecPackage[],
-  shared: readonly ExtractedStep[]
-): readonly string[] {
-  const out: string[] = [];
-  for (const file of renderCatalogs(packages, shared)) {
-    const full = join(REPO_ROOT, file.path);
-    const current = existsSync(full) ? readFileSync(full, 'utf8') : null;
-    if (current !== file.content) {
-      out.push(
-        `${file.path} is ${current === null ? 'missing' : 'stale'} — run \`bun run spec:catalog\``
-      );
-    }
-  }
-  return out;
-}
-
 if (import.meta.main) {
   const packages = specPackages();
   const shared = sharedSteps();
-  for (const file of renderCatalogs(packages, shared.steps)) {
-    writeFileSync(join(REPO_ROOT, file.path), file.content);
-    console.log(`wrote ${file.path}`);
+  const files = renderCatalogs(packages, shared.steps);
+  for (const file of files) {
+    const full = join(REPO_ROOT, file.path);
+    mkdirSync(dirname(full), { recursive: true });
+    writeFileSync(full, file.content);
   }
+  console.log(`spec:catalog: wrote ${String(files.length)} step catalogs`);
 }

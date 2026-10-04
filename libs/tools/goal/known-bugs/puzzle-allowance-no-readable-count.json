@@ -1,0 +1,4 @@
+{
+  "summary": "The model could only inspect stored allowance rows because a limited solver could not read how many rated puzzles remained. Render the permission decision’s remaining allowance and bind the model to that visible count.",
+  "regressionTest": "specs/chess/puzzle-quota.feature"
+}

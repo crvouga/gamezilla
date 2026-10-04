@@ -1,0 +1,4 @@
+{
+  "summary": "Enabling reduced motion leaves an existing slide running.",
+  "regressionTest": "specs/chess-board/board-motion.feature"
+}

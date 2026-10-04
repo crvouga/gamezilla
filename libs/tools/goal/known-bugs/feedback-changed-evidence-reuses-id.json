@@ -1,0 +1,4 @@
+{
+  "summary": "Adding evidence after an uncertain delivery could reuse the archived report id and leave the updated recording out of the saved bundle. Preserve ids for unchanged retries and mint a new id for edited evidence.",
+  "regressionTest": "pkgs/feedback/tests/evidence.contract.test.ts"
+}

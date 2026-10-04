@@ -1,0 +1,4 @@
+{
+  "summary": "Guests could open and change the feed settings although customizing the feed is for accounts. Fixed: guests get the sign-in invitation instead.",
+  "regressionTest": "specs/chess/puzzle-feed-gates.feature"
+}

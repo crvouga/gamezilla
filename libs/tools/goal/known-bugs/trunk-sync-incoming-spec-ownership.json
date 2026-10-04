@@ -1,0 +1,4 @@
+{
+  "summary": "Syncing the namespace fix with main 59cbccb32 staged already-committed incoming specs alongside product code, so the pre-commit ownership guard rejected the merge. During a merge, enforce ownership on staged changes that differ from the incoming parent; unchanged upstream specs keep their original ownership. Mixed spec conflict resolutions still fail.",
+  "regressionTest": "libs/tools/scripts/check-spec-ownership.test.ts"
+}

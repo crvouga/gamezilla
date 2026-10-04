@@ -1,0 +1,4 @@
+{
+  "summary": "An HTTP transport or response body ignoring AbortSignal left reporting pending forever. A hard deadline now preserves the emergency recovery path.",
+  "regressionTest": "pkgs/feedback/tests/http-deadline.test.ts"
+}

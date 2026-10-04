@@ -1,0 +1,4 @@
+{
+  "summary": "The people search query (searchProfiles) had no authorize hook, and the sync server only refuses callers with no actor id, so a guest's install got search results from the server although the app hides search from guests. Fixed by authorizing the query through the permission layer (people:search). Found by the access decision table's server layer.",
+  "regressionTest": "libs/friends/tests/people-search-authorization.test.ts"
+}

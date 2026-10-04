@@ -1,0 +1,4 @@
+{
+  "summary": "The final development rehearsal resolved retirement's bare health dependency to a nonexistent @libs/infra#health task, so retirement ran alongside @apps/product#health instead of waiting for its verdict. Depend on the explicit application health task and verify the resolved Turbo graph contains that executable dependency.",
+  "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+}

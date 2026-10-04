@@ -235,7 +235,7 @@ function modelProblems(
   }
   if (models.length > 0 && !existsSync(join(REPO_ROOT, quintDir, 'index.ts'))) {
     problems.push(
-      `${dir}: runs Quint models but has no tests/quint/index.ts (it imports the bindings and calls useQuintHarness)`
+      `${dir}: runs Quint models but has no tests/quint/index.ts (it loads every *.binding.ts and calls useQuintHarness)`
     );
   }
   const stems = new Set(

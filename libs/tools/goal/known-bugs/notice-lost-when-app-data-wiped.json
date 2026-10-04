@@ -1,0 +1,4 @@
+{
+  "summary": "A person's unacknowledged refusal notices vanished when the app updated to a version that fetches every note again, or when its data was cleared: sync_engine_write_rejections was a cache table, wiped with the fetched rows, and nothing fetches it back. Found porting the explore walks into specs/sync-engine/note-replication.qnt. Fixed by keeping it durable, like the unsent-edit queue.",
+  "regressionTest": "specs/sync-engine/note-refused-edits.feature"
+}

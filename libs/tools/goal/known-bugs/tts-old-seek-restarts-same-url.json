@@ -1,0 +1,4 @@
+{
+  "summary": "An interrupted audio seek could start a later request with the same cached URL before its own seek completed. Guard asynchronous playback by request identity, including stop and disposal.",
+  "regressionTest": "pkgs/tts/tests/tts-player-controller.test.ts"
+}

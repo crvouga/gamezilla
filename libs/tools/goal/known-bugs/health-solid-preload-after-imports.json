@@ -1,0 +1,4 @@
+{
+  "summary": "Health imported the assembled in-process browser product before its Solid/Lingui preload executed, so every live stub failed to load. Select the live world at the one registration entry without loading the browser composition; pin the actual live entry import in a child-process regression.",
+  "regressionTest": "apps/product/scripts/health.test.ts"
+}

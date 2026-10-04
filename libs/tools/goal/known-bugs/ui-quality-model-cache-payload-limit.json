@@ -1,0 +1,4 @@
+{
+  "summary": "The shared Turbo cache rejects the prepared 351 MB model artifact with HTTP 413. Keep explicit model setup outside the offline quality gate and exclude its oversized output from result caching.",
+  "regressionTest": "libs/tools/scripts/ui-quality-graph.test.ts"
+}

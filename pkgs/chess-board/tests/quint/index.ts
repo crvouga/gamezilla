@@ -8,6 +8,11 @@ import {
 import type { Run } from '@pkgs/harness';
 import { setQuintWorld } from '@pkgs/quint/registry';
 
+// Every `*.binding.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.binding.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
+
 setQuintWorld<Run<BoardWorld>>({
   create: async () => {
     const w = await boardSystem.run({ seed: 424242 });
@@ -17,11 +22,3 @@ setQuintWorld<Run<BoardWorld>>({
   },
   dispose: (w) => w[Symbol.asyncDispose](),
 });
-
-import './board-lifecycle.binding';
-import './board-promotion.binding';
-import './board-annotations.binding';
-import './board-options.binding';
-import './board-premoves.binding';
-import './board-independence.binding';
-import './board-keyboard.binding';

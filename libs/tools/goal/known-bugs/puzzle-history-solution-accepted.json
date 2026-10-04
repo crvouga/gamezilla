@@ -1,0 +1,4 @@
+{
+  "summary": "The full-solution room command bypassed the unavailable help control while reviewing an earlier position and finished the attempt. Require the current solving position before showing a solution; retain the literal navigation and review history that exposed the gap.",
+  "regressionTest": "specs/chess/puzzle-refusals.feature"
+}

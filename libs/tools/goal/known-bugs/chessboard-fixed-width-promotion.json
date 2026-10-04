@@ -1,0 +1,4 @@
+{
+  "summary": "After fluid width195 then fixed512, removing the fixed width at available320 briefly exposed a stale195 measurement and dismissed a still-valid promotion chooser.",
+  "regressionTest": "specs/chess-board/board-options.feature"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "The first Neki foundation plan configured the PostgreSQL provider from a role that the same plan had not created yet. OpenTofu substituted localhost and failed before it could create the database; the transition also tried to delete the retired broker's random credentials. Fixed by leaving pg_stat_statements with Neki's PlanetScale-managed default profile, removing the cyclic provider, and forgetting retired credentials without destroying them.",
+  "regressionTest": "libs/infra/tests/foundation-bootstrap.test.ts"
+}

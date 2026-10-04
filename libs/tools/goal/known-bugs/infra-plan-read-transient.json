@@ -1,0 +1,4 @@
+{
+  "summary": "A Railway GraphQL client error while reading EMQX_DASHBOARD_PASSWORD failed the drift check as if the environment had been changed by hand. The plan produced no diff; the provider connection dropped. Fixed: a plan read that fails with a transient provider error is tried again.",
+  "regressionTest": "libs/infra/tests/plan-retry.test.ts"
+}

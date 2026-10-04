@@ -1,0 +1,4 @@
+{
+  "summary": "Disabling new personal annotations also prevents choosing a piece from clearing completed personal marks.",
+  "regressionTest": "specs/chess-board/board-annotations.feature"
+}

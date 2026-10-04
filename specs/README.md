@@ -1004,9 +1004,11 @@ unrun spec is a false green. The package whose steps run a domain lists it in it
 live in that package's `tests/steps/`, model bindings in `tests/quint/`,
 decision, structure and objective bindings in `tests/dmn/`, `tests/alloy/`
 and `tests/openslo/` (one `<stem>.binding.ts` per spec file, each naming it
-with `spec: '<stem>'`, imported from that folder's `index.ts`), and
-the steps are listed in generated `STEPS_CATALOG.md` files
-([index](../docs/STEPS_CATALOG.md)).
+with `spec: '<stem>'`; that folder's `index.ts` loads every
+`*.binding.ts` and `*.steps.ts`, so a new file needs no registration), and
+the steps are listed in generated, gitignored `STEPS_CATALOG.md` files
+([index](../docs/STEPS_CATALOG.md); `bun install` writes them,
+`bun run spec:catalog` refreshes them).
 
 `specs/` contains no TypeScript or JavaScript.
 Step definitions, model bindings, adapters and runners live
@@ -1587,7 +1589,7 @@ Allowed, and nothing else:
 | Tag | Where | Meaning |
 | --- | --- | --- |
 | `@domain:<dir>` | feature line, required | the bounded context; equals the directory |
-| `@regression:<bug-id>` | scenario | pins an observable bug in `known-bugs.json` |
+| `@regression:<bug-id>` | scenario | pins an observable bug in `known-bugs/<bug-id>.json` |
 | `@synthetic` | feature line, exact | the whole feature is a standing live check; the harness does not run it |
 
 Aggregate and kind (command, invariant, event, policy) are never tags: the
@@ -1836,7 +1838,7 @@ or used in another sense, is the auditor's to catch (A1, A3).
 4. **Gate**: `bun run spec:ownership`, then `bun check`.
 
 `@regression:<bug-id>` scenarios have a
-`libs/tools/goal/known-bugs.json` entry pointing at the feature.
+`libs/tools/goal/known-bugs/<bug-id>.json` pointing at the feature.
 
 ```sh
 bun run spec --tags '@domain:friends'

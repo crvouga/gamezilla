@@ -1,0 +1,4 @@
+{
+  "summary": "A garbled live update (fields renamed on the way) created a note on other devices with no title or text until the next refresh. Found by the note-replication model's garbled-live-updates action. Fixed by refusing a pushed image that would create a row without every column the device keeps; the row is refetched whole.",
+  "regressionTest": "specs/sync-engine/note-writing.feature"
+}

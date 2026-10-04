@@ -1,0 +1,4 @@
+{
+  "summary": "Chrome clamps a requested 390 pixel window to 500 pixels, adding unrecorded whitespace to replay screenshots. Pin CDP device metrics and capture an explicit 390 by 844 clip; the native regression asserts the literal dimensions and painted corner pixel.",
+  "regressionTest": "apps/product/tests/ui-quality-render.contract.test.ts"
+}

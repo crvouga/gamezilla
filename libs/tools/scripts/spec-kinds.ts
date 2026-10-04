@@ -13,7 +13,7 @@
  * A decision table, structure or objective has exactly one binding in the
  * package that runs it, `tests/<dmn|alloy|openslo>/**` — an object with
  * `spec: '<stem>'` (read statically) — and that directory has an `index.ts`
- * entry importing the bindings.
+ * entry loading every `*.binding.ts` under it.
  */
 
 /** The files `specs/` itself may hold besides context directories. */
@@ -129,7 +129,7 @@ export function bindingProblems(input: BindingInput): readonly string[] {
   const out: string[] = [];
   if (specs.length > 0 && !input.hasEntry) {
     out.push(
-      `${dir}: runs ${kind.noun}s (*${kind.suffix}) but has no tests/${kind.dir}/index.ts importing their bindings`
+      `${dir}: runs ${kind.noun}s (*${kind.suffix}) but has no tests/${kind.dir}/index.ts loading their bindings`
     );
   }
   const bindings = bindingsByStem(input.files);
@@ -140,7 +140,7 @@ export function bindingProblems(input: BindingInput): readonly string[] {
     const files = bindings.get(stem) ?? [];
     if (files.length === 0) {
       out.push(
-        `${path}: no binding — add ${bindingDir}/${stem}.binding.ts with spec: '${stem}', imported from tests/${kind.dir}/index.ts`
+        `${path}: no binding — add ${bindingDir}/${stem}.binding.ts with spec: '${stem}' (tests/${kind.dir}/index.ts loads every *.binding.ts)`
       );
     } else if (files.length > 1) {
       out.push(`${path}: bound more than once (${files.join(', ')})`);

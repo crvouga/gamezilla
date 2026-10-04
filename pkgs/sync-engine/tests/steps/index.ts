@@ -4,15 +4,12 @@
  */
 
 import './parameter-types';
-import './notes.steps';
-import './devices.steps';
-import './spaces.steps';
-import './notices.steps';
-import './checked-notes.steps';
-import './note-confirmation.steps';
-import './many-notes.steps';
-import './app-updates.steps';
 
 import { useSyncWorld } from './world';
+
+// Every `*.steps.ts` under this folder registers itself; a new one
+// needs no edit here.
+const modules = new Bun.Glob('**/*.steps.ts').scanSync(import.meta.dir);
+for (const file of [...modules].sort()) await import(`./${file}`);
 
 useSyncWorld();

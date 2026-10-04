@@ -1,0 +1,4 @@
+{
+  "summary": "Black a2-b1 capture promotion to bishop or knight leaves dead material but announces only the move, omitting the drawn result for silent and assistive users. Announce every canonical drawn result.",
+  "regressionTest": "specs/chess-board/board-black-promotion.feature"
+}
