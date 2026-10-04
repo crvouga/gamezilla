@@ -4,9 +4,12 @@ import {
   PUZZLE_LOAD_STATUS,
 } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 const ROWS_PER_POSTGRES_BATCH = 500;
@@ -26,9 +29,9 @@ type StoredJobRow = {
 };
 
 type BatchResult = {
-  readonly processed: number;
-  readonly inserted: number;
-  readonly rejected: number;
+  processed: number;
+  inserted: number;
+  rejected: number;
 };
 
 export class PuzzleLoadAlreadyRunningError extends Error {}
@@ -72,7 +75,9 @@ async function startJob(args: {
   readonly nowIso: string;
 }): Promise<void> {
   await args.db.transaction(async (tx) => {
-    await tx.query(raw(`SELECT pg_advisory_xact_lock(${String(LOAD_LOCK)})`));
+    await tx.query(sql<{ readonly locked: unknown }>`
+      SELECT pg_advisory_xact_lock(${LOAD_LOCK}) AS locked
+    `);
     const active = await tx.query(sql<{ readonly id: string }>`
       SELECT id FROM chess_puzzle_load
       WHERE status = ${PUZZLE_LOAD_STATUS.adding} AND deleted_at IS NULL
@@ -228,7 +233,12 @@ export class PuzzleLoadJobService {
         totals.inserted += result.inserted;
         totals.rejected += result.rejected;
         batch = [];
-        await recordProgress({ db: this.db, jobId, totals, nowIso: new Date(this.clock.now()).toISOString() });
+        await recordProgress({
+          db: this.db,
+          jobId,
+          totals,
+          nowIso: new Date(this.clock.now()).toISOString(),
+        });
       }
       if (batch.length > 0) {
         const result = await loadBatch(this.db, batch, startedAt);
@@ -255,7 +265,8 @@ export class PuzzleLoadJobService {
       `);
     }
     const job = await this.latest();
-    if (job === null || job.id !== jobId) throw new Error('Puzzle load job disappeared');
+    if (job === null || job.id !== jobId)
+      throw new Error('Puzzle load job disappeared');
     return job;
   }
 }

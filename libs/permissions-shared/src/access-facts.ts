@@ -78,7 +78,7 @@ export function governingSubscription(
 /** Raw inputs the facts are resolved from. */
 export type AccessInputs = {
   readonly signedIn: boolean;
-  readonly accountId: string | null;
+  readonly accountId?: string | null;
   readonly subscription: SubscriptionSnapshot | null;
   readonly nowMs: number;
   readonly graceMs: number;
@@ -123,7 +123,7 @@ export function resolveAccessFacts(inputs: AccessInputs): Facts {
   const live = subscription !== null && isMembershipLive(subscription.status);
   return {
     auth: inputs.signedIn ? 'verified' : 'anonymous',
-    accountId: inputs.signedIn ? inputs.accountId : null,
+    accountId: inputs.signedIn ? (inputs.accountId ?? null) : null,
     membership: member ? 'active' : 'none',
     subscription: live ? 'live' : 'none',
     billing: inputs.billingEnabled ? 'on' : 'off',

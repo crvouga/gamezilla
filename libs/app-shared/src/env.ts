@@ -149,7 +149,9 @@ export function readPuzzleManagerAccountIds(
   }
   if (
     !Array.isArray(parsed) ||
-    parsed.some((value) => typeof value !== 'string' || value.trim().length === 0)
+    parsed.some(
+      (value) => typeof value !== 'string' || value.trim().length === 0
+    )
   ) {
     throw new ConfigurationError(
       'PUZZLE_MANAGER_ACCOUNT_IDS must be a JSON array of non-empty strings'

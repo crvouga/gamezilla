@@ -12,9 +12,16 @@ import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-async function authorizedService(clock: Clock, createId: CreateId, req: Request) {
+async function authorizedService(
+  clock: Clock,
+  createId: CreateId,
+  req: Request
+) {
   const store = requireRequestStore();
-  const context = await store.sessionAuth.resolveAuthContext(store.sqlClient, req);
+  const context = await store.sessionAuth.resolveAuthContext(
+    store.sqlClient,
+    req
+  );
   const auth = appAuth(context);
   await requirePermission({
     db: store.sqlClient,
