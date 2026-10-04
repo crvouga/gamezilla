@@ -155,8 +155,10 @@ test('test verdict keys include source, tests, platform, runtime and property se
   const root = fixture();
   try {
     const packagePath = join(root, 'package.json');
-    const manifest = JSON.parse(readFileSync(packagePath, 'utf8'));
-    manifest.scripts.test = 'bun test tests';
+    const manifest = JSON.parse(readFileSync(packagePath, 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+    manifest.scripts['test'] = 'bun test tests';
     writeFileSync(packagePath, JSON.stringify(manifest));
     writeFileSync(
       join(root, 'turbo.json'),
