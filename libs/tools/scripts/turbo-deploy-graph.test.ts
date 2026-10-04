@@ -377,11 +377,16 @@ describe('turbo check/deploy graph invariants', () => {
     expect(health?.command).toBe('bun run scripts/health.ts');
   });
 
-  test('one application deployment follows migration and the API check', () => {
+  test('one application deployment follows migration and its checks', () => {
     const tasks = loadTasks();
+    // regression: product-deploy-dist-race — while Wrangler uploaded
+    // apps/product/dist/assets/src-C2k0tIiA.js, a parallel Check build emptied
+    // dist and replaced the content-hashed asset before an upload stream read it.
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
       '@libs/runtime-server#migrate',
       '@apps/server#check:api',
+      '@apps/product#check:offline-shell',
+      '@apps/product#check:worker-bundle',
     ]);
     expect(tasks).not.toHaveProperty('@apps/server#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');

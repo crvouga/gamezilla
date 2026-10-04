@@ -696,7 +696,12 @@
     },
     "@apps/product#deploy": {
       "cache": false,
-      "dependsOn": ["@libs/runtime-server#migrate", "@apps/server#check:api"]
+      "dependsOn": [
+        "@libs/runtime-server#migrate",
+        "@apps/server#check:api",
+        "@apps/product#check:offline-shell",
+        "@apps/product#check:worker-bundle"
+      ]
     },
     "@libs/infra-server#apply:edge": {
       "cache": false,
