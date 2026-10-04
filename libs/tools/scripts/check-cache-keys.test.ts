@@ -151,7 +151,18 @@ test('miss diagnostics distinguish absent artifacts, network failures, disabled 
 });
 
 // regression: ui-quality-window-preprocessing-timeout
-test('test verdict keys include source, tests, platform, runtime and property settings', () => {
+test.each([
+  'source',
+  'test',
+  'platform',
+  'arch',
+  'bun',
+  'chrome',
+  'FC_SEED',
+  'PBT_NUM_RUNS',
+  'PBT_RANDOM',
+  'unchanged',
+])('test verdict key tracks %s', (change) => {
   const root = fixture();
   try {
     const packagePath = join(root, 'package.json');
@@ -189,35 +200,39 @@ test('test verdict keys include source, tests, platform, runtime and property se
       'tests/window-inference.test.ts'
     );
     expect(Object.keys(initial.inputs)).toContain('turbo-platform-key.json');
-    for (const changed of [
-      { platform: 'linux' },
-      { arch: 'x64' },
-      { bun: '1.4.3' },
-      { chrome: '155' },
-    ]) {
-      writeFileSync(keyPath, JSON.stringify({ ...platform, ...changed }));
-      expect(dry(root, ['test'])[0]!.hash).not.toBe(initial.hash);
-    }
-    writeFileSync(keyPath, JSON.stringify(platform));
-    expect(dry(root, ['test'])[0]!.hash).toBe(initial.hash);
-    for (const env of [
-      { FC_SEED: '7' },
-      { PBT_NUM_RUNS: '41' },
-      { PBT_RANDOM: '1' },
-    ])
-      expect(dry(root, ['test'], env)[0]!.hash).not.toBe(initial.hash);
-    writeFileSync(testPath, 'test("window scores", () => { throw Error(); });');
-    const changedTest = dry(root, ['test'])[0]!.hash;
-    expect(changedTest).not.toBe(initial.hash);
-    writeFileSync(join(root, 'source.ts'), 'export const value = 2;');
-    expect(dry(root, ['test'])[0]!.hash).not.toBe(changedTest);
+    const env: NodeJS.ProcessEnv = {};
+    if (change === 'source')
+      writeFileSync(join(root, 'source.ts'), 'export const value = 2;');
+    else if (change === 'test')
+      writeFileSync(
+        testPath,
+        'test("window scores", () => { throw Error(); });'
+      );
+    else if (change in platform)
+      writeFileSync(
+        keyPath,
+        JSON.stringify({ ...platform, [change]: 'changed' })
+      );
+    else if (change !== 'unchanged')
+      env[change] = change === 'PBT_RANDOM' ? '1' : '7';
+    const updated = dry(root, ['test'], env)[0]!.hash;
+    if (change === 'unchanged') expect(updated).toBe(initial.hash);
+    else expect(updated).not.toBe(initial.hash);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 });
 
 // regression: tools-test-unhashed-model-bindings
-test('repository tooling verdicts invalidate when their discovered inputs change', () => {
+test.each([
+  'libs/chess-harness/tests/quint/multiplayer.binding.ts',
+  'specs/chess/multiplayer.qnt',
+  'libs/chess-harness/package.json',
+  'libs/chess-harness/turbo.json',
+  'libs/profile-harness/src/username.steps.ts',
+  '.depot/actions/setup/action.yml',
+  'apps/product/scripts/ui-quality/sources.json',
+])('repository tooling verdict invalidates on %s', (path) => {
   const root = fixture();
   const local = JSON.parse(
     readFileSync(join(import.meta.dirname, '../turbo.json'), 'utf8')
@@ -255,24 +270,11 @@ test('repository tooling verdicts invalidate when their discovered inputs change
         },
       })
     );
-    for (const path of [
-      'libs/chess-harness/tests/quint/multiplayer.binding.ts',
-      'specs/chess/multiplayer.qnt',
-      'libs/chess-harness/package.json',
-      'libs/chess-harness/turbo.json',
-      'libs/profile-harness/src/username.steps.ts',
-      '.depot/actions/setup/action.yml',
-      'apps/product/scripts/ui-quality/sources.json',
-    ]) {
-      const before = dry(root, ['@libs/tools#build'])[0]!.hash;
-      const absolute = join(root, path);
-      mkdirSync(join(absolute, '..'), { recursive: true });
-      writeFileSync(
-        absolute,
-        path.endsWith('.json') ? '{}' : 'changed binding'
-      );
-      expect(dry(root, ['@libs/tools#build'])[0]!.hash, path).not.toBe(before);
-    }
+    const before = dry(root, ['@libs/tools#build'])[0]!.hash;
+    const absolute = join(root, path);
+    mkdirSync(join(absolute, '..'), { recursive: true });
+    writeFileSync(absolute, path.endsWith('.json') ? '{}' : 'changed binding');
+    expect(dry(root, ['@libs/tools#build'])[0]!.hash, path).not.toBe(before);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
