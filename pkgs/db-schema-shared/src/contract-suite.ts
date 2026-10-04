@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { raw } from '@pkgs/sql-shared/sql';
 import { defineTable } from './define-table';
 import { registerTables } from './register-tables';
 import type { Schema } from './types';

@@ -1,5 +1,5 @@
-import { createAlwaysAvailableOrigin } from '@pkgs/http-client-shared/origin-availability';
 import type { OriginAvailability } from '@pkgs/http-client-shared/origin-availability';
+import { createAlwaysAvailableOrigin } from '@pkgs/http-client-shared/origin-availability';
 import type { ClientEnv } from './client-env';
 
 const availabilityByEnv = new WeakMap<ClientEnv, OriginAvailability>();

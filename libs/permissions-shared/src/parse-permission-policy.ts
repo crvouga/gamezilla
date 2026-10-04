@@ -1,5 +1,5 @@
-import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
 import { parsePolicy } from '@pkgs/permissions-shared/parse';
+import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
 
 import type { AppLimit, AppPolicyKey } from './permission-catalog';
 import { DEFAULT_PERMISSION_POLICY } from './permission-policy';

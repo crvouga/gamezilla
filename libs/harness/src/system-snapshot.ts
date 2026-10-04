@@ -8,13 +8,9 @@ import type {
   HarnessSystemSnapshotClientSlice,
 } from '@pkgs/harness-console-shared/system-snapshot';
 import { dumpData, loadData } from '@pkgs/sql-client-shared/port';
-import type {
-  SqlDataDump,
-  SqlTableDump,
-} from '@pkgs/sql-client-shared/types';
+import type { SqlDataDump, SqlTableDump } from '@pkgs/sql-client-shared/types';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { FRAMEWORK_CACHE_TABLE_NAMES } from '@pkgs/sync-engine-shared/framework-server-ddl';
-import { migrateCompositionClientSqlite } from './migrate-composition';
 import {
   applyCheckpointFaults,
   collectRooms,
@@ -25,12 +21,13 @@ import {
   restoreProductHarnessClientDurable,
 } from './client-durable';
 import type { Harness } from './create-harness';
+import { migrateCompositionClientSqlite } from './migrate-composition';
 import {
   awaitProductHarnessMutationDrain,
   reconcileServerProfilesFromClients,
 } from './snapshot-sync';
-import type { HarnessSql } from './sql-types';
 import { openFreshHarnessClientSql } from './sql';
+import type { HarnessSql } from './sql-types';
 
 export type SystemSnapshotCtx = {
   readonly harness: Harness;

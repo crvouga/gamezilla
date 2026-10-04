@@ -3,14 +3,14 @@ import { Plural, Trans, useLingui } from '@lingui/solid/macro';
 import { useClipboard } from '@pkgs/device-client/solid';
 import { CopyToClipboardField } from '@pkgs/ui-client/copy-to-clipboard-field';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
 import { SmartphoneIcon } from '@pkgs/ui-client/icons';
+import { MenuSection } from '@pkgs/ui-client/menu-section';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
 import { useIsSignedIn } from './access-facts';
+import { AccountDeviceMenuRow } from './account-device-menu-row';
 import { useSignInModal } from './auth-modals-provider';
 import { useAccountDeviceIds } from './use-account-device-ids';
-import { AccountDeviceMenuRow } from './account-device-menu-row';
 
 export type AccountDevicesCardProps = {
   accountId: string | null;

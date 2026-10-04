@@ -1,7 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 
-import { DEFAULT_CHESS_PUZZLE_FEED_CONFIG, readChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { DEFAULT_CHESS_MOVE_NOTATION, formatSanNotation, isChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
+import {
+  DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+  readChessPuzzleFeedConfig,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import {
+  DEFAULT_CHESS_MOVE_NOTATION,
+  formatSanNotation,
+  isChessMoveNotation,
+} from '@libs/chess-puzzle-shared/chess-puzzle-notation';
 
 describe('§7 figurine notation', () => {
   test('SAN is the default and passes strings through untouched', () => {

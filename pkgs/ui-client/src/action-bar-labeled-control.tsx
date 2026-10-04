@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * Rectangular ActionBar control: icon/avatar + under-caption as one button.
  *
@@ -8,9 +9,9 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * shorter than 44px (`minHeight`) so the target stays legal.
  */
 
-import { type JSX, untrack } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, untrack } from 'solid-js';
 
 const MIN_HIT_TARGET = 44;
 

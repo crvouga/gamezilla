@@ -1,4 +1,5 @@
 import { useTimers } from '@pkgs/clock-client/solid';
+import type { ProductHarnessRoomNode } from '@pkgs/harness-console-shared/ports';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { JsonView } from '@pkgs/ui-devtools-client/json-view';
@@ -9,8 +10,6 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
-
-import type { ProductHarnessRoomNode } from '@pkgs/harness-console-shared/ports';
 
 /**
  * Room state / event-log inspector (in-memory storage, not SQL).

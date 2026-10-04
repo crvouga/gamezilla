@@ -5,12 +5,11 @@ import { LoadingState } from '@pkgs/ui-client/loading-state';
 import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
-
-import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 import { SpaceShareUserRow } from './space-share-user-row';
+import { useRemoveSpaceUser } from './use-remove-space-user';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 import type { SpaceUserEntry } from './use-space-user-entries';
 import { useSpaceUserEntries } from './use-space-user-entries';
-import { useRemoveSpaceUser } from './use-remove-space-user';
 
 export function SpaceSharePeopleList(props: {
   readonly spaceId: string;

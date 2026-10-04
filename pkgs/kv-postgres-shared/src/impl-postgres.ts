@@ -11,8 +11,8 @@ import {
 } from '@pkgs/kv-shared/assert-kv-record';
 import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { KvImplPostgresTx } from './impl-postgres-tx';
 import { reconcileKvPostgres } from './reconcile-postgres';
 

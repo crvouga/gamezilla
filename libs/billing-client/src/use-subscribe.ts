@@ -1,6 +1,6 @@
 import { useConfigService } from '@libs/auth-client/config-service-context';
-import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
 import { useClientRequestAuth } from '@libs/auth-client/use-client-request-auth';
+import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 
 export type SubscribeArgs = {

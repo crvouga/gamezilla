@@ -15,10 +15,10 @@
  * ```
  */
 
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 export type CardElement = 'div' | 'section' | 'main' | 'article';
 

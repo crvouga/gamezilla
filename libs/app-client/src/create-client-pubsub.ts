@@ -1,17 +1,20 @@
-import type { ConfigService } from '@libs/auth-shared/config-service-types';
 import { ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
 import { parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
+import type { ConfigService } from '@libs/auth-shared/config-service-types';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import { iotWireTopic } from '@pkgs/pubsub-shared/wire-topic';
 import { createAedesPubSub } from '@pkgs/pubsub-aedes-shared/create-aedes-pubsub';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx-shared/create-emqx-pubsub';
-import sql from '@pkgs/sql-shared/sql';
+import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import { iotWireTopic } from '@pkgs/pubsub-shared/wire-topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import type {
+  GetFreshAuthToken,
+  SyncClientAuth,
+} from '@pkgs/sync-engine-client/sync-http-client';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import { fetchPubSubToken } from './pubsub-token';
-import type { GetFreshAuthToken, SyncClientAuth } from '@pkgs/sync-engine-client/sync-http-client';
 import type { SyncApiFetch } from './sync-api';
 
 export async function readEmqxWssUrlFromLocalDb(

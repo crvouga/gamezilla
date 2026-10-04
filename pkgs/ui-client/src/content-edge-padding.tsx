@@ -8,8 +8,8 @@
  * the shell edge (padding lives inside the scrollable area).
  */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
 import { spacingScale } from '@pkgs/ui-shared/scale';
+import { createContext, type JSX, untrack, useContext } from 'solid-js';
 import styles from './content-edge-padding.module.css';
 
 /** Spacing-scale step (`1` = 4px → 16px) for screen/surface horizontal insets. */

@@ -1,8 +1,8 @@
 import { ATTR } from '@pkgs/observability-shared/attributes';
-import { activeSpan, withSpan } from '@pkgs/observability-shared/span';
 import { serializeTraceContext } from '@pkgs/observability-shared/correlation';
-import { Sql } from '@pkgs/sql-shared/sql';
+import { activeSpan, withSpan } from '@pkgs/observability-shared/span';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { Sql } from '@pkgs/sql-shared/sql';
 
 const MAX_QUERY_TEXT_LENGTH = 2_000;
 
@@ -41,8 +41,7 @@ async function runObservedSql<T>(
     [ATTR.DB_SYSTEM_NAME]: 'postgresql',
     [ATTR.DB_OPERATION_NAME]: sqlOperation(query.sql),
     [ATTR.DB_QUERY_TEXT]: truncateStatement(query.sql),
-    [ATTR.CODE_FILE_PATH]:
-      'libs/app-shared/src/wrap-sql-client.ts',
+    [ATTR.CODE_FILE_PATH]: 'libs/app-shared/src/wrap-sql-client.ts',
     [ATTR.CODE_FUNCTION_NAME]: 'runObservedSql',
   });
 }
@@ -61,8 +60,7 @@ export function wrapSqlClientForObservability(inner: SqlClient): SqlClient {
         () => inner.transaction((tx) => fn(wrapSqlClientForObservability(tx))),
         {
           [ATTR.DB_SYSTEM_NAME]: 'postgresql',
-          [ATTR.CODE_FILE_PATH]:
-            'libs/app-shared/src/wrap-sql-client.ts',
+          [ATTR.CODE_FILE_PATH]: 'libs/app-shared/src/wrap-sql-client.ts',
           [ATTR.CODE_FUNCTION_NAME]: 'transaction',
         }
       ),

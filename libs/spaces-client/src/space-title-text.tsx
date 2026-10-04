@@ -1,8 +1,8 @@
 import type { TextVariant } from '@pkgs/ui-client/text';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
-import { SpaceField, useSpaceColumn } from './use-space-column';
 import { SpaceHostFallbackTitle } from './space-host-fallback-title';
+import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceTitleTextProps = {
   spaceId: string;

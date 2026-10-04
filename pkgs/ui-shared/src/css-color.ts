@@ -5,9 +5,9 @@
  * Color math lives in `@pkgs/colors-shared`.
  */
 
-import { clamp01, rgba } from '@pkgs/colors-shared/types';
-import type { Hsla, Rgba } from '@pkgs/colors-shared/types';
 import { hslaToRgba, rgbaToHsla } from '@pkgs/colors-shared/convert';
+import type { Hsla, Rgba } from '@pkgs/colors-shared/types';
+import { clamp01, rgba } from '@pkgs/colors-shared/types';
 
 function expandShortHex(hex: string): string {
   let out = '';

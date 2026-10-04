@@ -1,8 +1,8 @@
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { BrokerPort } from '@pkgs/sql-client-sqlite-web-shared/broker-core';
 import { persistImage } from './owners';
-import { HARNESS_DB_NAME, nextRpcId, requireBroker, requireTab } from './types';
 import type { SqlClientWebState } from './types';
+import { HARNESS_DB_NAME, nextRpcId, requireBroker, requireTab } from './types';
 
 /** Ownership is read back off the broker slot, so ports only need an id. */
 export function tabPort(tabId: string): BrokerPort {

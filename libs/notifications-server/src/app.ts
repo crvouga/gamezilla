@@ -1,8 +1,7 @@
+import { NotificationsError } from '@libs/notifications-shared/notifications-errors';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { Hono, type MiddlewareHandler } from 'hono';
-
-import { NotificationsError } from '@libs/notifications-shared/notifications-errors';
 import { registerInboxRoutes } from './notifications-app-routes';
 import type { NotificationsRequestContext } from './notifications-context';
 

@@ -1,12 +1,16 @@
+import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
+import { customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
+import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
-import { customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
-import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
 import type { CustomGameProbe } from './custom-game-ui';
-import { chooseCustomGame, readCustomGameProbe, waitCustomGameSettled } from './custom-game-ui';
+import {
+  chooseCustomGame,
+  readCustomGameProbe,
+  waitCustomGameSettled,
+} from './custom-game-ui';
 
 function choiceTarget(input: CustomGameInput, probe: CustomGameProbe): string {
   if ('side' in input) return `chess-custom-${input.side}-${input.operation}`;

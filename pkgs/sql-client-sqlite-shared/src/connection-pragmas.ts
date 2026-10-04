@@ -1,5 +1,5 @@
-import { raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { raw } from '@pkgs/sql-shared/sql';
 
 /**
  * Run on every new SQLite connection (Bun, browser) so FKs are enforced like

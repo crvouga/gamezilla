@@ -8,10 +8,14 @@ import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 import { runQuintModel } from '@pkgs/quint-server/bun-test';
-import { bindQuintModel, setQuintWorld } from '@pkgs/quint-shared/registry';
-import type { QuintBinding } from '@pkgs/quint-shared/registry';
-import { replayTrace, replayTraceTwice, untakenActions } from '@pkgs/quint-shared/replay';
 import { simulate } from '@pkgs/quint-server/simulate';
+import type { QuintBinding } from '@pkgs/quint-shared/registry';
+import { bindQuintModel, setQuintWorld } from '@pkgs/quint-shared/registry';
+import {
+  replayTrace,
+  replayTraceTwice,
+  untakenActions,
+} from '@pkgs/quint-shared/replay';
 import lockedDoorTrace from './fixtures/door-locked.itf.json';
 
 type Door = { state: string; lastBy: string; steps: string[] };

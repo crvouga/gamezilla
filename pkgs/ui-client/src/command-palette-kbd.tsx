@@ -4,8 +4,8 @@
  * chips, resolving `mod` / `alt` to the current platform's glyphs.
  */
 
-import { createMemo, For, type JSX, Show } from 'solid-js';
 import { isMacPlatform } from '@pkgs/ui-shared/match';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 
 const STATIC_TOKEN_MAP: Readonly<Record<string, string>> = {
   shift: '⇧',

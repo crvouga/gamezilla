@@ -2,17 +2,17 @@
 import type { Schema } from '@pkgs/db-schema-shared/types';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
-import { unsafe } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { unsafe } from '@pkgs/sql-shared/sql';
+import {
+  FRAMEWORK_CACHE_TABLE_NAMES,
+  FRAMEWORK_DURABLE_TABLE_NAMES,
+} from '@pkgs/sync-engine-shared/framework-server-ddl';
 import {
   ensureFrameworkSchema,
   RETIRED_LOCAL_TABLES,
   SCHEMA_EPOCH,
 } from './local-schema';
-import {
-  FRAMEWORK_CACHE_TABLE_NAMES,
-  FRAMEWORK_DURABLE_TABLE_NAMES,
-} from '@pkgs/sync-engine-shared/framework-server-ddl';
 
 const VERSION_STRIDE = 1_000;
 const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);

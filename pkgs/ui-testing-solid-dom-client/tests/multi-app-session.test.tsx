@@ -1,10 +1,10 @@
 /** @jsxImportSource solid-js */
 
 import { afterEach, describe, expect, test } from 'bun:test';
+import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import { createMultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-dom-driver';
 import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
-import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
 import { createDemoClock, DemoApp, DemoProviders } from './demo-app';
 

@@ -5,10 +5,27 @@
  * once every SLI is known, in `parse`.
  */
 
+import type {
+  BudgetingMethod,
+  Objective,
+  Operator,
+  Sli,
+  Slo,
+  TimeWindow,
+} from './model';
 import { BUDGETING_METHODS, OPERATORS } from './model';
-import type { BudgetingMethod, Objective, Operator, Sli, Slo, TimeWindow } from './model';
 import type { Cursor, Mapping } from './parse-fields';
-import { isMapping, readBoolean, readFraction, readMapping, readMetadata, readOneOf, readOptionalString, readString, report } from './parse-fields';
+import {
+  isMapping,
+  readBoolean,
+  readFraction,
+  readMapping,
+  readMetadata,
+  readOneOf,
+  readOptionalString,
+  readString,
+  report,
+} from './parse-fields';
 import { readSli } from './parse-sli';
 import { parseDuration, parseStartTime, UTC_ZONES } from './window';
 

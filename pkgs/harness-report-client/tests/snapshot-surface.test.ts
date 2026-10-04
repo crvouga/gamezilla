@@ -1,12 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { Window } from 'happy-dom';
-
 import {
   drawHit,
   ensureShell,
   paintSnapshot,
   resolveHitTarget,
 } from '@pkgs/harness-report-client/snapshot-surface';
+import { Window } from 'happy-dom';
 
 const dom = new Window();
 const previousDomParser = globalThis.DOMParser;

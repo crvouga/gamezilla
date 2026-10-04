@@ -1,9 +1,8 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-
 import type {
   BootProductHarnessOptions,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared/ports';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 export type ProductHarnessSessionState =
   | { readonly status: 'idle' }

@@ -6,11 +6,11 @@
  */
 import { billingCustomerLinkProvider } from '@libs/auth-shared/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
+import { letTimePass } from '@libs/harness/actions';
 import type {
   HarnessBillingProvider,
   HarnessBillingProviders,
 } from '@libs/harness/billing';
-import { letTimePass } from '@libs/harness/actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import type Stripe from 'stripe';
 

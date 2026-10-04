@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-export const REPO_ROOT = join(import.meta.dir, '../../../../..');
+export const REPO_ROOT = join(import.meta.dir, '../../../..');
 export const MODEL_DIR = join(REPO_ROOT, 'specs/system');
 export const REPORT_DIR = join(
   REPO_ROOT,

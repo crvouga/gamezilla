@@ -5,8 +5,13 @@ import { DEFAULT_CONFIG, resolveConfig } from './config';
 import type { IngestedStatement } from './ingest';
 import { ingestManifest } from './ingest';
 import { parseWithNodeSqlParser } from './parse-node-sql';
-import { anySchemaCoversPath, assertSnakeCaseTable, isPkOnlyPath, pathKeyColumns } from './schema-coverage';
 import type { SchemaIndex } from './schema-coverage';
+import {
+  anySchemaCoversPath,
+  assertSnakeCaseTable,
+  isPkOnlyPath,
+  pathKeyColumns,
+} from './schema-coverage';
 import type { AccessPath, ParsedStatement, WorkloadManifest } from './types';
 
 export type IndexabilityGapReason =

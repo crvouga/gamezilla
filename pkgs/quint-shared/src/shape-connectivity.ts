@@ -4,8 +4,15 @@
  * what that changes.
  */
 
-import { byKind, closureText, indexByName, issue, mentions, reachableFrom } from './shape-model';
 import type { Item, ModelShapeIssue, ParsedModel } from './shape-model';
+import {
+  byKind,
+  closureText,
+  indexByName,
+  issue,
+  mentions,
+  reachableFrom,
+} from './shape-model';
 
 const DISCONNECT_NAME = /offline|cutOff|loseConnection|disconnect|goOffline/i;
 const RECONNECT_NAME =

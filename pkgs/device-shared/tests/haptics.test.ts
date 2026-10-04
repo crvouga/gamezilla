@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { createRecordingHaptics, createVibrationHaptics, HAPTIC_PATTERNS, noopHaptics } from '@pkgs/device-shared/haptics';
+import {
+  createRecordingHaptics,
+  createVibrationHaptics,
+  HAPTIC_PATTERNS,
+  noopHaptics,
+} from '@pkgs/device-shared/haptics';
 
 describe('haptics', () => {
   test('recording port captures calls in order', () => {

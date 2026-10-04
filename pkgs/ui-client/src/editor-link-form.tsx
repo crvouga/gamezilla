@@ -2,8 +2,8 @@
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { createSignal, onMount } from 'solid-js';
 import { Button } from './button';
-import { TextInput } from './text-input';
 import { safeMarkdownHref } from './safe-markdown';
+import { TextInput } from './text-input';
 
 export function EditorLinkForm(props: {
   onSave: (href: string) => void;

@@ -8,6 +8,10 @@
 import { useLingui } from '@lingui/solid/macro';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import {
+  RELATIVE_TIME_TICK_MS,
+  relativeTimeParts,
+} from '@pkgs/ui-shared/relative-time-format';
+import {
   type Accessor,
   createEffect,
   createMemo,
@@ -15,10 +19,6 @@ import {
   on,
   onCleanup,
 } from 'solid-js';
-import {
-  RELATIVE_TIME_TICK_MS,
-  relativeTimeParts,
-} from '@pkgs/ui-shared/relative-time-format';
 
 /** `clock.now()` sampled on mount, on every `restart` change, and every tick. */
 function createLiveNow(restart: Accessor<unknown>): Accessor<number> {

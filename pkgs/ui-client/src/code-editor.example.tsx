@@ -1,10 +1,13 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
+import type {
+  CodeToken,
+  CodeTokenKind,
+} from '@pkgs/ui-shared/code-editor-types';
 import { createSignal, type JSX } from 'solid-js';
+import { CodeEditor } from './code-editor';
 import { ExampleRoot } from './example-root';
 import { SchemePreview } from './scheme-preview';
-import { CodeEditor } from './code-editor';
-import type { CodeToken, CodeTokenKind } from '@pkgs/ui-shared/code-editor-types';
 
 const KEYWORDS = new Set(['select', 'from', 'where', 'and', 'or', 'limit']);
 const TOKEN_RE = /(--[^\n]*)|('([^']|'')*')|\b[a-z_][\w]*\b|\d+|[^\s]/gi;

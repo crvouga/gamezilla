@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { startProcess } from '@pkgs/os-server/streaming-process';
-import ffmpeg from 'ffmpeg-static';
-import type { BatchQualityResult } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import type { BatchQualityResult } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import ffmpeg from 'ffmpeg-static';
 
 const runtime = process.argv[2] ?? process.execPath;
 const recording = resolve('.cache/benchmark-videos/recording-0.webm');

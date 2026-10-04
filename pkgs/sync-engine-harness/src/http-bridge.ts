@@ -1,3 +1,4 @@
+import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
 import type {
   MutationUploadResult,
@@ -10,15 +11,17 @@ import { SyncHttpRateLimitError } from '@pkgs/sync-engine-client/sync-http-rate-
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import type { EdgeFaultController } from './edge-faults';
 import { dispatchHarnessHttpRequest } from './http-bridge-dispatch';
-import { abortAllPending, createHarnessHttpRpc, rejectAllPending } from './http-bridge-rpc';
 import type { HarnessHttpPending } from './http-bridge-rpc';
+import {
+  abortAllPending,
+  createHarnessHttpRpc,
+  rejectAllPending,
+} from './http-bridge-rpc';
 import type {
   HarnessHttpRequest,
   HarnessHttpResponse,
   HarnessHttpServerHandlers,
 } from './http-bridge-types';
-
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import type { SyncNetwork } from './network';
 import { classifyEndpoint } from './traffic';
 

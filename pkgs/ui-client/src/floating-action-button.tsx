@@ -7,11 +7,11 @@
  * extended pill variant; pair with `useMutationButton().fabProps`.
  */
 
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { spacingScale } from '@pkgs/ui-shared/scale';
+import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { ButtonFeedback, ButtonIntent } from './button-face';
 import { buttonInteraction, MUTATION_FEEDBACK_ICONS } from './button-face';
 import type { IconComponent } from './create-icon';

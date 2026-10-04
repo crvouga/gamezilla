@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { applyUci, castlingFromRookInput, castlingRookTargets, legalMoves, positionStatus, sanFromUci, uciFromSan } from '@pkgs/chess-rules-shared/moves';
+import {
+  applyUci,
+  castlingFromRookInput,
+  castlingRookTargets,
+  legalMoves,
+  positionStatus,
+  sanFromUci,
+  uciFromSan,
+} from '@pkgs/chess-rules-shared/moves';
 import { Chess } from 'chess.js';
 
 function legal(fen: string, uci: string): boolean {

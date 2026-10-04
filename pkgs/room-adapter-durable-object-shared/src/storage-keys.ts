@@ -1,5 +1,5 @@
-import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { RoomModuleName } from '@pkgs/room-shared/types';
 
 /** Zero-pad seq so event keys sort lexicographically with numeric order. */

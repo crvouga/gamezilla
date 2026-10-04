@@ -1,4 +1,4 @@
-import { assertNonProdDatabaseUrl as assertNonProdDatabaseUrlWith, } from '@pkgs/database-url-policy-shared/database-url-policy';
+import { assertNonProdDatabaseUrl as assertNonProdDatabaseUrlWith } from '@pkgs/database-url-policy-shared/database-url-policy';
 
 import { PRODUCT_CONFIG } from './product-config';
 

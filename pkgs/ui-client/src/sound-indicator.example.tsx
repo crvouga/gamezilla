@@ -2,8 +2,8 @@
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
 import { SegmentedControl } from './segmented-control';
-import { SoundIndicator } from './sound-indicator';
 import type { SoundIndicatorState } from './sound-indicator';
+import { SoundIndicator } from './sound-indicator';
 
 const STATE_SEGMENTS: readonly {
   key: SoundIndicatorState;

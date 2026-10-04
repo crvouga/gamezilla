@@ -1,8 +1,11 @@
 import { afterEach, expect, test } from 'bun:test';
 import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
-import { createBearerTokenStore, createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
+import {
+  createBearerTokenStore,
+  createInMemoryAuthClientStorage,
+} from '@pkgs/auth-inhouse-shared/bearer-token-store';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 const locationDescriptor = Object.getOwnPropertyDescriptor(

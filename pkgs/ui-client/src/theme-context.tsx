@@ -11,6 +11,18 @@
  * readers.
  */
 
+import type { BreakpointName } from '@pkgs/ui-shared/breakpoints';
+import { getBreakpoint } from '@pkgs/ui-shared/breakpoints';
+import { COLOR_PALETTE } from '@pkgs/ui-shared/color-palette';
+import type { ColorScheme, ColorTokens } from '@pkgs/ui-shared/colors-types';
+import { CSS_VAR_COLORS, cssVarElevation } from '@pkgs/ui-shared/css-vars';
+import type { FontStacks } from '@pkgs/ui-shared/fonts';
+import { fonts } from '@pkgs/ui-shared/fonts';
+import type { MotionTokens } from '@pkgs/ui-shared/motion';
+import { motion } from '@pkgs/ui-shared/motion';
+import type { ElevationLevel, ElevationStyle } from '@pkgs/ui-shared/scale';
+import type { TextCasing } from '@pkgs/ui-shared/text-casing';
+import { defaultTextCasing } from '@pkgs/ui-shared/text-casing';
 import {
   type Accessor,
   createContext,
@@ -21,19 +33,7 @@ import {
   onCleanup,
   useContext,
 } from 'solid-js';
-import type { BreakpointName } from '@pkgs/ui-shared/breakpoints';
-import { getBreakpoint } from '@pkgs/ui-shared/breakpoints';
-import type { ColorScheme, ColorTokens } from '@pkgs/ui-shared/colors-types';
-import { COLOR_PALETTE } from '@pkgs/ui-shared/color-palette';
-import { CSS_VAR_COLORS, cssVarElevation } from '@pkgs/ui-shared/css-vars';
-import type { FontStacks } from '@pkgs/ui-shared/fonts';
-import { fonts } from '@pkgs/ui-shared/fonts';
 import { createMediaQuery } from './media-query';
-import type { MotionTokens } from '@pkgs/ui-shared/motion';
-import { motion } from '@pkgs/ui-shared/motion';
-import type { ElevationLevel, ElevationStyle } from '@pkgs/ui-shared/scale';
-import { defaultTextCasing } from '@pkgs/ui-shared/text-casing';
-import type { TextCasing } from '@pkgs/ui-shared/text-casing';
 
 export type ThemeLayout = {
   width: number;

@@ -1,13 +1,22 @@
 import { expect } from 'bun:test';
-import { changeCustomGame, openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readCustomGameBoard, reviewCustomGame } from '@libs/chess-custom-game-harness/custom-game-review';
+import {
+  changeCustomGame,
+  openCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-actions';
+import {
+  readCustomGameBoard,
+  reviewCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-review';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
+import {
+  customGameFenAt,
+  customGameLegalMoves,
+} from '@libs/chess-custom-game-shared/custom-game-position';
 import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
-import { customGameFenAt, customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
-import { cutConnection } from '@libs/harness/platform';
 import { restoreNetwork } from '@libs/harness/actions';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { cutConnection } from '@libs/harness/platform';
 import { leaveSpace } from '@libs/spaces-harness/space-actions';
 import {
   customDefault,

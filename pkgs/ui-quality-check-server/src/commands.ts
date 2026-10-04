@@ -1,15 +1,15 @@
 // @io-wall-ok — CLI composition root.
 
+import type { Arguments } from '@pkgs/ui-quality-check-shared/arguments';
+import { textReport } from '@pkgs/ui-quality-check-shared/text';
+import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import { createUIQualityChecker, setup } from './api';
 import { benchmark } from './benchmark';
 import { calibrate } from './calibrate';
 import { discoverInputs, inputKind } from './discover';
 import { readJson, writeJson } from './files';
-import { textReport } from '@pkgs/ui-quality-check-shared/text';
-import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
-import { localFiles } from './wall-io';
-import type { Arguments } from '@pkgs/ui-quality-check-shared/arguments';
 import { expandGlobs } from './glob';
+import { localFiles } from './wall-io';
 
 async function configuration(args: Arguments) {
   if (!args.config) return args.options;

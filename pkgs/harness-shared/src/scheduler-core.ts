@@ -1,8 +1,13 @@
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { VirtualClock } from './clock';
 import { waitQuiescence } from './idle';
-import { advanceToNextDue, assertDrainBudget, assertQuiescentBudget, withinRunUntilBudget } from './scheduler-limits';
 import type { DrainBudget } from './scheduler-limits';
+import {
+  advanceToNextDue,
+  assertDrainBudget,
+  assertQuiescentBudget,
+  withinRunUntilBudget,
+} from './scheduler-limits';
 import type { InFlightTask, Task } from './scheduler-types';
 import { choose } from './step';
 import type { TraceRecorder } from './trace';

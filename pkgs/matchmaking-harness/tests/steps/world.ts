@@ -5,12 +5,16 @@
  * wait under their own name.
  */
 
-import { defineParameterType, setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
+import {
+  defineParameterType,
+  setWorld,
+  stepsFor,
+} from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
+import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
 import type { MatchmakingHarness } from '@pkgs/matchmaking-harness/facade';
 import { matchmaking } from '@pkgs/matchmaking-harness/system';
-import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
 
 export type MatchmakingWorld = {
   readonly ctx: ScenarioContext;

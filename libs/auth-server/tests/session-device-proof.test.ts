@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { AnonUserService } from '@libs/auth-shared/anon-user-service';
-import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import { SessionAuth } from '@libs/auth-shared/session-middleware';
+import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';

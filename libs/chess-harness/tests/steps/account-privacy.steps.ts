@@ -1,8 +1,14 @@
 import { expect } from 'bun:test';
 import { showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
-import { isGameLogEmpty, readStatsElo, readStatsPlayed, readStatsRatingLabel, readStatsSolved } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  isGameLogEmpty,
+  readStatsElo,
+  readStatsPlayed,
+  readStatsRatingLabel,
+  readStatsSolved,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { Given, Then } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { recall } from '@libs/harness/spec-world';
 
 Given(

@@ -4,8 +4,12 @@
  * envelope. No SDK, so it runs unchanged on Workers, Bun and in tests.
  */
 import { PaddleApiError } from './paddle-api-error';
-import { PADDLE_API_VERSION, PADDLE_LIVE_ORIGIN, PADDLE_SANDBOX_ORIGIN } from './wire';
 import type { PaddleEnvelope, PaddleErrorBody } from './wire';
+import {
+  PADDLE_API_VERSION,
+  PADDLE_LIVE_ORIGIN,
+  PADDLE_SANDBOX_ORIGIN,
+} from './wire';
 
 export type PaddleFetch = (
   input: RequestInfo | URL,

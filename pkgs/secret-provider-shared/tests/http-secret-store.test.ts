@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { SecretStoreRequestError } from '@pkgs/secret-store-shared/secret-store-request-error';
 import { InfisicalSecretStore } from '@pkgs/secret-provider-shared/http-secret-store';
+import { SecretStoreRequestError } from '@pkgs/secret-store-shared/secret-store-request-error';
 
 type RecordedCall = {
   readonly method: string;

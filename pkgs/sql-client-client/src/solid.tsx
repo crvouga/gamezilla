@@ -1,8 +1,7 @@
 /** @jsxImportSource solid-js */
 import { defineContext } from '@pkgs/solid-context-client/define-context';
-import type { JSX, ParentProps } from 'solid-js';
-
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { JSX, ParentProps } from 'solid-js';
 
 const SqlClientContext = defineContext<SqlClient>('SqlClient');
 

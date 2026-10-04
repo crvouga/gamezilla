@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 export type LiveNote = {
   readonly id: string;

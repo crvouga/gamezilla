@@ -1,10 +1,13 @@
 // @io-wall-ok — programmatic calibration composition root.
 
-import { createUIQualityChecker } from './api';
 import type { ImageInput } from '@pkgs/ui-quality-check-shared/detectors-types';
-import type { CheckerOptions, UIQualityChecker } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
-import { localClock } from './wall-io';
 import { calibrationStatistics } from '@pkgs/ui-quality-check-shared/statistics';
+import type {
+  CheckerOptions,
+  UIQualityChecker,
+} from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import { createUIQualityChecker } from './api';
+import { localClock } from './wall-io';
 
 export interface CalibrationOptions {
   readonly good: readonly ImageInput[];

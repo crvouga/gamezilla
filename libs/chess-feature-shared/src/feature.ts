@@ -4,11 +4,10 @@
  * that anything outside it may depend on.
  */
 
-import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { CHESS_TABLES } from './chess-tables';
 import { CHESS_TOPIC_MAP } from '@libs/chess-shared/topic-map';
+import { defineFeature } from '@libs/feature-shared/manifest';
 import { CHESS_PRIVACY } from './account-privacy';
+import { CHESS_TABLES } from './chess-tables';
 import { CHESS_QUERIES } from './queries';
 
 export const CHESS_FEATURE = defineFeature({

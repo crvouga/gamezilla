@@ -57,10 +57,22 @@ useHarnessWorld(openSpecHarness, (w) => ({
 }));
 
 import { proveAccount } from '@libs/account-privacy-harness/privacy-actions';
-import { leaveChessStatsScreen, openPuzzleFromSpace, playUntilSolved, showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
-import { readStatsElo, readStatsRatingLabel, readStatsSolved } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  leaveChessStatsScreen,
+  openPuzzleFromSpace,
+  playUntilSolved,
+  showChessStatsScreen,
+} from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  readStatsElo,
+  readStatsRatingLabel,
+  readStatsSolved,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
-import { PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS, PUZZLE_RATING_RD_MIN } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import {
+  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  PUZZLE_RATING_RD_MIN,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import type { Actor } from '@libs/harness/parameter-types';
 import { remember } from '@libs/harness/spec-world';
 

@@ -8,8 +8,8 @@ import type { StatusDotStatus } from '@pkgs/ui-client/status-dot';
 import { type Accessor, createSignal, onCleanup } from 'solid-js';
 
 import { useNetworkStatePort } from './device-ports-context';
-import { useSyncStatus } from './sync-status-context';
 import { resolveConnectivityStatus } from './resolve-connectivity-status';
+import { useSyncStatus } from './sync-status-context';
 
 function isOnline(state: NetworkState): boolean {
   // Unknown reachability counts as online (RN parity: `navigator.onLine !== false`).

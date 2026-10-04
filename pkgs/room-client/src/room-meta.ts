@@ -1,8 +1,7 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
-
-import { ROOM_ERROR_TYPES } from '@pkgs/room-shared/types';
 import type { RoomError } from '@pkgs/room-shared/types';
+import { ROOM_ERROR_TYPES } from '@pkgs/room-shared/types';
 
 /** Namespace for client-only `room/*` snapshot keys; use {@link roomAttrNamespace.ownsKey}. */
 export const roomAttrNamespace = createAttrNamespace('room');

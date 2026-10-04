@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
-import { selectUnifiedNode } from '@pkgs/harness-console-client/select-unified-node';
 import type { UnifiedTopology } from '@pkgs/harness-console-client/select-unified-node';
+import { selectUnifiedNode } from '@pkgs/harness-console-client/select-unified-node';
 
 function chromeSpy() {
   const onKindChange = mock(() => undefined);

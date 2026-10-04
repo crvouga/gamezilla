@@ -1,16 +1,19 @@
 import { describe, expect, it } from 'bun:test';
-import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { createMessageNamespace } from '@pkgs/message-shared/message';
-import { createMessageRouter } from '@pkgs/message-shared/router';
 import { deriveAttribution } from '@pkgs/collab-shared/derive-attribution';
-import type { LogLineContext, LogLineDraft } from '@pkgs/collab-shared/log-line';
-import { projectEventLog } from '@pkgs/collab-shared/project-event-log';
+import { groupRosterByParticipant } from '@pkgs/collab-shared/group-roster';
+import type {
+  LogLineContext,
+  LogLineDraft,
+} from '@pkgs/collab-shared/log-line';
 import {
   assignParticipantColors,
   resolveParticipantColor,
 } from '@pkgs/collab-shared/participant-color';
-import { groupRosterByParticipant } from '@pkgs/collab-shared/group-roster';
+import { projectEventLog } from '@pkgs/collab-shared/project-event-log';
+import { asLocalized } from '@pkgs/i18n-shared/localized-string';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
+import { createMessageNamespace } from '@pkgs/message-shared/message';
+import { createMessageRouter } from '@pkgs/message-shared/router';
 
 const demoNs = createMessageNamespace('demo-evt');
 const Renamed = demoNs('renamed', (p): p is { title: string } => {

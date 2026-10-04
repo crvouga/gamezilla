@@ -12,11 +12,11 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { PlusIcon } from '@pkgs/ui-client/icons';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { useDocumentShortcuts } from '@pkgs/ui-client/use-document-shortcuts';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import {
   createEffect,
   createUniqueId,

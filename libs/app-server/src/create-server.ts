@@ -1,55 +1,58 @@
-import { registerAccountDeletionConsumers } from '@libs/auth-shared/account-deletion-consumers';
-import { isLocalApiOrigin } from '@libs/auth-shared/local-api-origin';
-import type { AuthContext } from '@libs/auth-shared/types';
-import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
-import { AuthApiRoutes } from '@libs/auth-server/auth-routes';
-import { ChangedAuthUserResync } from '@libs/auth-server/changed-auth-user-resync';
-import { DEFAULT_BILLING_GRACE_PERIOD_MS } from '@libs/app-config-shared/client-config-defaults';
 import type { DesiredClientConfig } from '@libs/app-config-server/ensure-client-config-materialized';
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
-import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
-import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
-import { setHttpPubSubOverride } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
-import { assert } from '@pkgs/assert-shared/singleton';
-import { ForbiddenError } from '@pkgs/assert-shared/forbidden-error';
-import { ValidationError } from '@pkgs/assert-shared/validation-error';
-import type { AuthProvider } from '@pkgs/auth-shared/auth-provider-module';
-import { createLlmAppFromBindings } from '@pkgs/llm-openai-server/create-llm-app-from-bindings';
-import { createLogger } from '@pkgs/logger-shared/logger';
-import { activeSpan } from '@pkgs/observability-shared/span';
-import { currentCorrelation } from '@pkgs/observability-shared/correlation';
-import { otlpAuthorization } from '@pkgs/observability-shared/otlp-auth';
-import { SpanStatusCode } from '@opentelemetry/api';
-import type { SecretStore } from '@pkgs/secret-store-shared/interface';
-import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs-server/create-tts-app-from-bindings';
-import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
-import { API_PATH_PREFIX, createAuthProvider } from '@libs/app-shared/auth-provider';
-import { ApiSecretName } from '@libs/app-shared/secret-names';
-import { resolveWebClientOrigin } from '@libs/app-shared/web-client-origin';
-import { createHealthApp } from './health-route';
+import { DEFAULT_BILLING_GRACE_PERIOD_MS } from '@libs/app-config-shared/client-config-defaults';
 import {
-  createRequestTelemetryMiddleware,
-  takeRequestTraceId,
-} from './request-telemetry';
-import { createReportsApp } from './reports-route';
+  API_PATH_PREFIX,
+  createAuthProvider,
+} from '@libs/app-shared/auth-provider';
+import { apiCors } from '@libs/app-shared/cors';
 import {
   apiRequestAsyncLocalStorage,
   requireRequestStore,
 } from '@libs/app-shared/request-scope';
-import { createRoomApp } from './room-route';
+import { ApiSecretName } from '@libs/app-shared/secret-names';
+import type { ServerEnv } from '@libs/app-shared/server-env';
+import { resolveWebClientOrigin } from '@libs/app-shared/web-client-origin';
+import { AuthApiRoutes } from '@libs/auth-server/auth-routes';
+import { ChangedAuthUserResync } from '@libs/auth-server/changed-auth-user-resync';
+import { registerAccountDeletionConsumers } from '@libs/auth-shared/account-deletion-consumers';
+import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
+import { isLocalApiOrigin } from '@libs/auth-shared/local-api-origin';
+import type { AuthContext } from '@libs/auth-shared/types';
+import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
+import type { ComposedFeatures } from '@libs/feature-shared/compose';
+import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
+import { setHttpPubSubOverride } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
+import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
+import { SpanStatusCode } from '@opentelemetry/api';
+import { ForbiddenError } from '@pkgs/assert-shared/forbidden-error';
+import { assert } from '@pkgs/assert-shared/singleton';
+import { ValidationError } from '@pkgs/assert-shared/validation-error';
+import type { AuthProvider } from '@pkgs/auth-shared/auth-provider-module';
+import { createLlmAppFromBindings } from '@pkgs/llm-openai-server/create-llm-app-from-bindings';
+import { createLogger } from '@pkgs/logger-shared/logger';
+import { currentCorrelation } from '@pkgs/observability-shared/correlation';
+import { otlpAuthorization } from '@pkgs/observability-shared/otlp-auth';
+import { activeSpan } from '@pkgs/observability-shared/span';
+import type { SecretStore } from '@pkgs/secret-store-shared/interface';
+import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs-server/create-tts-app-from-bindings';
+import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import { createHealthApp } from './health-route';
 import { notifyUserChannels } from './notify-user-channels';
 import {
   drainAndNotifyOutbox,
   setOutboxConsumerRegistry,
 } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
-import { createSyncApp } from './sync-app';
-import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
-import { apiCors } from '@libs/app-shared/cors';
+import { createReportsApp } from './reports-route';
 import { createRequestDbMiddleware } from './request-db-middleware';
-import type { ServerEnv } from '@libs/app-shared/server-env';
+import {
+  createRequestTelemetryMiddleware,
+  takeRequestTraceId,
+} from './request-telemetry';
+import { createRoomApp } from './room-route';
+import { createSyncApp } from './sync-app';
 
 function createAppLogger(env: ServerEnv) {
   return createLogger({ name: 'server:app', now: env.clock.now });

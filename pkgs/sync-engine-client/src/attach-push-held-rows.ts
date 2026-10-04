@@ -1,12 +1,17 @@
 import type { Topic } from '@pkgs/pubsub-shared/topic';
-import sql, { ident } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { QueryDef, QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
+import sql, { ident } from '@pkgs/sql-shared/sql';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';
-import { subscribeTables, topicsFromHeldRows } from '@pkgs/sync-engine-shared/topic-map';
+import type {
+  QueryDef,
+  QueryRegistry,
+} from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMap, TopicMapCtx } from '@pkgs/sync-engine-shared/topic-map';
+import {
+  subscribeTables,
+  topicsFromHeldRows,
+} from '@pkgs/sync-engine-shared/topic-map';
+import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 function isLiveRow(row: QueryRow): boolean {
   return row['deleted_at'] == null;

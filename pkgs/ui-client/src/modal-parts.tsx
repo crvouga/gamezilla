@@ -4,9 +4,9 @@
  * `ModalFooter` (stacked full-width actions), and `ModalButton`.
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent, ButtonVariant } from './button-face';
 import { useModalTitleId } from './modal-title-id';

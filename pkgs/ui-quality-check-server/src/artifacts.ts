@@ -1,11 +1,14 @@
 import { basename, extname, join } from 'node:path';
-import sharp from 'sharp';
 import type { RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
+import type {
+  FrameQualityFailure,
+  QualityResult,
+} from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import sharp from 'sharp';
 import type { Files } from './files';
 import { hashBytes, writeBytes, writeJson } from './files';
-import type { FrameQualityFailure, QualityResult } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
-import { captureProcess } from './process';
 import type { ProcessStarter } from './process';
+import { captureProcess } from './process';
 
 interface ArtifactOptions {
   files: Files;

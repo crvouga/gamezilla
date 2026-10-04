@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import type { AnimateTransform } from '@pkgs/chess-board-shared/board-motion';
-import { createPieceAnimator, translateOfMatrix } from '@pkgs/chess-board-shared/piece-animator';
+import {
+  createPieceAnimator,
+  translateOfMatrix,
+} from '@pkgs/chess-board-shared/piece-animator';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

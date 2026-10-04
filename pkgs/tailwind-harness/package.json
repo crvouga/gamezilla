@@ -2,11 +2,10 @@
   "name": "@pkgs/tailwind-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
-  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "type": "module",
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
@@ -18,5 +17,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness"
 }

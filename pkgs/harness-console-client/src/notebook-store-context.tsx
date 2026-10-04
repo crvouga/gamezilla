@@ -7,9 +7,8 @@ import {
   type ParentProps,
   useContext,
 } from 'solid-js';
-
-import { createNotebookStore } from './notebook-store';
 import type { NotebookStore } from './notebook-store';
+import { createNotebookStore } from './notebook-store';
 
 const Ctx = createContext<NotebookStore | null>(null);
 

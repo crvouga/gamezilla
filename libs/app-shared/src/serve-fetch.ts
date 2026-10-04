@@ -39,7 +39,8 @@ async function materializeResponse(res: Response): Promise<Response> {
   }
   if (text === null || text.length === 0) {
     try {
-      text = new TextDecoder().decode(await res.arrayBuffer());
+      const bytes = await res.arrayBuffer();
+      text = new TextDecoder().decode(bytes);
     } catch {
       text = text ?? '';
     }
@@ -63,7 +64,8 @@ export function serveFetch(
         input instanceof Request && init === undefined
           ? input
           : new Request(input, init);
-      return await materializeResponse(await handler(request));
+      const response = await handler(request);
+      return await materializeResponse(response);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return new Response(message, { status: 500 });

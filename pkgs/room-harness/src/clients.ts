@@ -1,12 +1,18 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
-import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
-import { RoomClient } from '@pkgs/room-client/room-client';
-import type { RoomCommandPayload, RoomError, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
-import type { RoomServer } from '@pkgs/room-server/room-server';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared/client-storage';
 import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import { RoomClient } from '@pkgs/room-client/room-client';
+import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
+import type { RoomServer } from '@pkgs/room-server/room-server';
+import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
+import type {
+  RoomCommandPayload,
+  RoomError,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { RoomEdgeFaultController } from './edge-faults';
@@ -14,8 +20,8 @@ import type { RoomHarnessClient, RoomHarnessNode } from './handles';
 import { HarnessLoopbackRoomTransport } from './loopback-transport';
 import type { HarnessRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
-import { clientDomainHash, drainRoomHarness } from './wait-for-idle';
 import type { RoomHarnessClientSlot } from './wait-for-idle';
+import { clientDomainHash, drainRoomHarness } from './wait-for-idle';
 
 export type RoomKernel<
   S extends RoomState,

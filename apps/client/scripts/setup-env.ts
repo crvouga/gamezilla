@@ -3,11 +3,18 @@ import { execFileSync } from 'node:child_process';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
-import { assertTigerPolicyForResolvedApiOrigin, PRODUCTION_API_HTTP_HOSTNAMES, productionApiUrlTigerExceptionEnabled } from '@libs/app-shared/api-servers';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
+import {
+  assertTigerPolicyForResolvedApiOrigin,
+  PRODUCTION_API_HTTP_HOSTNAMES,
+  productionApiUrlTigerExceptionEnabled,
+} from '@libs/app-shared/api-servers';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
 import { assert } from '@pkgs/assert-shared/singleton';
-import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git-shared/git';
+import {
+  assertCommitDateIso,
+  COMMIT_HASH_HEX_REGEX,
+} from '@pkgs/git-shared/git';
 import { createScriptSecretStore } from '@pkgs/secret-store-shared/create-script-secret-store';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 

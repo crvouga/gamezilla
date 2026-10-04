@@ -1,10 +1,10 @@
 import type { JSX } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
-import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
 import { SpaceActiveLayout } from './space-active-layout';
-import { SpaceSessionUiProvider } from './space-session-ui-context';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
+import { SpaceSessionUiProvider } from './space-session-ui-context';
+import { useAnnounceJoinedOnSync } from './use-announce-joined-on-sync';
 
 export type ActiveSpaceBodyProps = {
   spaceId: string;

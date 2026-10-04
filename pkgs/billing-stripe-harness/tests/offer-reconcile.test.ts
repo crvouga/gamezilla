@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';
 import { reconcileStripeOffer } from '@pkgs/billing-stripe-shared/offer-reconcile';
+import { createNoopLogger } from '@pkgs/logger-shared/logger';
 
 const offer: PlusMembershipOffer = {
   product: {

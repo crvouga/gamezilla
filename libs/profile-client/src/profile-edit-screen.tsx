@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import { MenuList } from '@pkgs/ui-client/menu-list';
 import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
 
 export function ProfileEditScreen(): JSX.Element {

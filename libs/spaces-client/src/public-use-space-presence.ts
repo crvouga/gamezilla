@@ -1,13 +1,14 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { useDeviceId } from '@libs/auth-client/use-device-id';
+import type { SpacePresence } from '@libs/spaces-shared/resolve-space-presence';
+import { resolveSpacePresence } from '@libs/spaces-shared/resolve-space-presence';
 import type { Sql } from '@pkgs/sql-shared/sql';
 import sql from '@pkgs/sql-shared/sql';
-
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import { resolveSpacePresence } from '@libs/spaces-shared/resolve-space-presence';
-import type { SpacePresence } from '@libs/spaces-shared/resolve-space-presence';
 
 type PresenceRow = {
   readonly host_member_id: string | null;

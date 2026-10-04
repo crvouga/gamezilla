@@ -5,11 +5,19 @@
  */
 
 import { spawnActor } from '@libs/harness/actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection } from '@libs/harness/platform';
-import { followNotFoundWayBack, leaveAppOutdated, notFoundShown, notFoundWayBackOffered, openAddress, updateApp, updateRequested } from '@libs/runtime-harness/app-lifecycle';
+import type { HarnessWorld } from '@libs/harness/spec-world';
+import {
+  followNotFoundWayBack,
+  leaveAppOutdated,
+  notFoundShown,
+  notFoundWayBackOffered,
+  openAddress,
+  updateApp,
+  updateRequested,
+} from '@libs/runtime-harness/app-lifecycle';
 
 const SECOND_MS = 1_000;
 /** An address no screen of the app answers. */

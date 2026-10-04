@@ -1,5 +1,6 @@
-import { SpeakingAvatar } from '@pkgs/ui-client/speaking-avatar';
+import type { Assistant } from '@pkgs/assistant-shared/engine';
 import type { SpeakingAvatarProps } from '@pkgs/ui-client/speaking-avatar';
+import { SpeakingAvatar } from '@pkgs/ui-client/speaking-avatar';
 import {
   batch,
   createEffect,
@@ -8,8 +9,6 @@ import {
   onCleanup,
   splitProps,
 } from 'solid-js';
-
-import type { Assistant } from '@pkgs/assistant-shared/engine';
 import { subscribeAssistantSpeaking } from './assistant-speaking-bridge';
 
 export type SpeakingAvatarAssistantProps<TPayload = unknown> = {

@@ -6,7 +6,12 @@ import { join } from 'node:path';
 import type { GitSyncOptions } from './git-sync';
 import { gitSync, parseGitSyncArgs } from './git-sync';
 import type { DepotTarget, DepotWorkflow } from './workflow-depot';
-import { listWorkflows, selectWorkflow, startWorkflow, watchWorkflow } from './workflow-depot';
+import {
+  listWorkflows,
+  selectWorkflow,
+  startWorkflow,
+  watchWorkflow,
+} from './workflow-depot';
 
 const DEV_ENV_FILE = join(
   import.meta.dirname,

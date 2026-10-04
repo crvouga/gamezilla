@@ -2,11 +2,11 @@
 /** `specs/runtime/request-records.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
 
 import { expect } from 'bun:test';
-import { ObservabilitySecretName as Name } from '@libs/observability-shared/secret-names';
 import {
   probeIngest,
   probeQuery,
 } from '@libs/observability-server/grafana-probes';
+import { ObservabilitySecretName as Name } from '@libs/observability-shared/secret-names';
 import { eventually, Then } from './define';
 import { requireSecret } from './live-world';
 import { wallWait } from './wall-wait';

@@ -2,7 +2,10 @@
 
 import { describe, expect, it } from 'bun:test';
 import { matchAppRoute } from '@libs/app-client/match-route-path';
-import { buildRouteTable, SHELL_ROUTE_TABLE } from '@libs/app-client/route-table';
+import {
+  buildRouteTable,
+  SHELL_ROUTE_TABLE,
+} from '@libs/app-client/route-table';
 import { buildAppRoutes } from '@libs/app-client/routes';
 import type { FeatureRoute } from '@libs/feature-client/client';
 

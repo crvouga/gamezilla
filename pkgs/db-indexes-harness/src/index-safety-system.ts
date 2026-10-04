@@ -1,9 +1,3 @@
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import { defineProperty } from '@pkgs/harness-shared/define-property';
-import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import { isOwnedName } from '@pkgs/db-indexes-shared/naming';
 import { planIndexes } from '@pkgs/db-indexes-shared/plan';
 import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
@@ -13,13 +7,23 @@ import type {
   PlanAction,
   ReconcileReport,
 } from '@pkgs/db-indexes-shared/types';
+import { defineAction } from '@pkgs/harness-shared/define-action';
+import { defineProperty } from '@pkgs/harness-shared/define-property';
+import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
+import { defineSystem } from '@pkgs/harness-shared/define-system';
+import type { Session } from '@pkgs/harness-shared/runtime-types';
+import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import { createHarnessClock } from './clock';
 import { HarnessCrashError } from './crash-error';
 import { HarnessDb } from './db';
 import { mixedSafetyFixture } from './index-mixed-fixture';
 import { planningFixture } from './index-planning-fixtures';
-import { SAFETY_DAY_MS, SAFETY_NOW, safetyFixture } from './index-safety-fixtures';
 import type { SafetyFixture } from './index-safety-fixtures';
+import {
+  SAFETY_DAY_MS,
+  SAFETY_NOW,
+  safetyFixture,
+} from './index-safety-fixtures';
 
 export type IndexSafety = {
   readonly session: Session;

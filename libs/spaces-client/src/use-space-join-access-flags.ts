@@ -1,7 +1,7 @@
+import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import sql from '@pkgs/sql-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 
 type IdLike = string | null | Accessor<string | null>;
 

@@ -10,12 +10,15 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type {
+  ComboboxProps,
+  ComboboxValue,
+} from '@pkgs/ui-shared/combobox-types';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { ResponsiveSurface } from './responsive-surface';
+import { createUniqueId, type JSX, Show } from 'solid-js';
 import { ComboboxBody } from './combobox-body';
 import { ComboboxLabel, ComboboxTrigger } from './combobox-trigger';
-import type { ComboboxProps, ComboboxValue } from '@pkgs/ui-shared/combobox-types';
+import { ResponsiveSurface } from './responsive-surface';
 import { useComboboxController } from './use-combobox-controller';
 
 function resolveSurfaceTitle(

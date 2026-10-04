@@ -1,8 +1,19 @@
-import { createMemo, For, Show } from 'solid-js';
+import type {
+  CatalogEntity,
+  CatalogGroup,
+  CatalogGroupView,
+  CatalogLayout,
+  CatalogQuery,
+  CatalogSort,
+  CatalogStatus,
+} from '@pkgs/harness-report-shared/catalog';
 
-import { arrangeCatalog, catalogCounts } from '@pkgs/harness-report-shared/catalog';
-import type { CatalogEntity, CatalogGroup, CatalogGroupView, CatalogLayout, CatalogQuery, CatalogSort, CatalogStatus } from '@pkgs/harness-report-shared/catalog';
+import {
+  arrangeCatalog,
+  catalogCounts,
+} from '@pkgs/harness-report-shared/catalog';
 import { fmtMs } from '@pkgs/harness-report-shared/format';
+import { createMemo, For, Show } from 'solid-js';
 import type { TabOption } from './tab-picker';
 import { TabPicker } from './tab-picker';
 

@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `ProgressBar` -- determinate or indeterminate progress indicator.
  *
@@ -14,10 +15,10 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
+import type { JSX } from 'solid-js';
 import { useThemeTokens } from './theme-context';
 
 export type ProgressBarProps = {

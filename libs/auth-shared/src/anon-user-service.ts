@@ -1,13 +1,15 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import sql, { join, raw } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { Value } from '@pkgs/sql-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-shared/sql';
+import {
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '@pkgs/sync-engine-shared/managed-columns';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { assertDeviceId } from './device-id';
 import { assertUuid } from '@pkgs/uuid-shared/uuid';
 import { AccountDeviceMembership } from './account-device-membership';
-
-import { managedInsertColumns, managedUpdatedAtIso } from '@pkgs/sync-engine-shared/managed-columns';
+import { assertDeviceId } from './device-id';
 
 type DeviceUserRow = {
   readonly user_id: string | null;

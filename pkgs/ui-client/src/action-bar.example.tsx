@@ -1,13 +1,13 @@
 /** @jsxImportSource solid-js */
 
-import { createSignal, type JSX } from 'solid-js';
 import { cssPx } from '@pkgs/ui-shared/css-px';
+import { createSignal, type JSX } from 'solid-js';
+import { ActionBar } from './action-bar';
 import { useActionBarChrome } from './action-bar-chrome';
+import type { ActionBarItem } from './action-bar-logic';
 import { ExampleRoot } from './example-root';
 import { CodeIcon, SettingsIcon, UserIcon } from './icons';
 import { SegmentedControl } from './segmented-control';
-import { ActionBar } from './action-bar';
-import type { ActionBarItem } from './action-bar-logic';
 
 const BASE_ITEMS: readonly ActionBarItem[] = [
   {

@@ -1,7 +1,11 @@
 /** The controls on a page and the stops a keyboard should make among them. */
 
 import { describe, expect, test } from 'bun:test';
-import { controlsIn, describeControl, keyboardStops } from '@pkgs/a11y-shared/controls';
+import {
+  controlsIn,
+  describeControl,
+  keyboardStops,
+} from '@pkgs/a11y-shared/controls';
 import { page } from './dom';
 
 function heard(elements: readonly Element[]): string[] {

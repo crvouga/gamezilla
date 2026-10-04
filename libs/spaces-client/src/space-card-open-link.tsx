@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { useRouter } from '@pkgs/ui-client/app-router';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { openSpaceDetail } from './space-routes';

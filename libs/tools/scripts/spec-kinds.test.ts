@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { BINDING_KINDS, bindingProblems, contextEntryProblem, specsRootEntryProblem } from './spec-kinds';
 import type { BindingKind } from './spec-kinds';
+import {
+  BINDING_KINDS,
+  bindingProblems,
+  contextEntryProblem,
+  specsRootEntryProblem,
+} from './spec-kinds';
 
 const DMN = BINDING_KINDS.find((k) => k.field === 'decisions') as BindingKind;
 
@@ -59,7 +64,7 @@ describe('bindingProblems', () => {
   test('one binding per spec with an entry is clean', () => {
     expect(
       bindingProblems({
-        dir: 'libs/billing',
+        dir: 'libs/billing-harness',
         kind: DMN,
         specs: ['specs/billing/access.dmn'],
         files: [
@@ -76,21 +81,21 @@ describe('bindingProblems', () => {
 
   test('a missing entry, a missing, doubled or stray binding are named', () => {
     const problems = bindingProblems({
-      dir: 'libs/billing',
+      dir: 'libs/billing-harness',
       kind: DMN,
       specs: ['specs/billing/access.dmn', 'specs/billing/refunds.dmn'],
       files: [
-        binding('libs/billing/tests/dmn/a.binding.ts', 'refunds'),
-        binding('libs/billing/tests/dmn/b.binding.ts', 'refunds'),
-        binding('libs/billing/tests/dmn/c.binding.ts', 'gone'),
+        binding('libs/billing-harness/tests/dmn/a.binding.ts', 'refunds'),
+        binding('libs/billing-harness/tests/dmn/b.binding.ts', 'refunds'),
+        binding('libs/billing-harness/tests/dmn/c.binding.ts', 'gone'),
       ],
       hasEntry: false,
     });
     expect(problems).toEqual([
-      'libs/billing: runs decision tables (*.dmn) but has no tests/dmn/index.ts loading their bindings',
+      'libs/billing-harness: runs decision tables (*.dmn) but has no tests/dmn/index.ts loading their bindings',
       "specs/billing/access.dmn: no binding — add libs/billing-harness/tests/dmn/access.binding.ts with spec: 'access' (tests/dmn/index.ts loads every *.binding.ts)",
-      'specs/billing/refunds.dmn: bound more than once (libs/billing/tests/dmn/a.binding.ts, libs/billing/tests/dmn/b.binding.ts)',
-      'libs/billing/tests/dmn/c.binding.ts: binds decision table "gone", which is not a specs/<domain>/gone.dmn this package runs',
+      'specs/billing/refunds.dmn: bound more than once (libs/billing-harness/tests/dmn/a.binding.ts, libs/billing-harness/tests/dmn/b.binding.ts)',
+      'libs/billing-harness/tests/dmn/c.binding.ts: binds decision table "gone", which is not a specs/<domain>/gone.dmn this package runs',
     ]);
   });
 

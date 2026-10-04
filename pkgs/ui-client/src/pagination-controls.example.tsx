@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { SchemePreview } from './scheme-preview';
 import { PaginationControls } from './pagination-controls';
+import { SchemePreview } from './scheme-preview';
 
 const PAGE_COUNT = 12;
 

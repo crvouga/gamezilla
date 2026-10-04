@@ -1,12 +1,14 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type {
+  ChessPuzzleFeedConfig,
+  ChessPuzzleFeedHistoryFilter,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
-
-import type { ChessPuzzleFeedConfig, ChessPuzzleFeedHistoryFilter } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';

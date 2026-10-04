@@ -10,9 +10,10 @@
  * `Sql` template parts, so the harness never ships SQL text the app would not
  * build itself.
  */
-import { Sql } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
+
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Value } from '@pkgs/sql-shared/sql';
+import { Sql } from '@pkgs/sql-shared/sql';
 
 export const TEST_LOCAL_SQL_GLOBAL = '__testLocalSql';
 

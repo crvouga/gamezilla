@@ -1,6 +1,9 @@
 import { APP_IDENTITY } from '@libs/auth-shared/app-identity';
 import { assert } from '@pkgs/assert-shared/singleton';
-import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git-shared/git';
+import {
+  assertCommitDateIso,
+  COMMIT_HASH_HEX_REGEX,
+} from '@pkgs/git-shared/git';
 
 /** Human-facing product name shown on the About screen. */
 export const APP_NAME: string = APP_IDENTITY.displayName;
@@ -70,16 +73,4 @@ export function getCommitDate(): string {
   const normalized = raw.trim();
   assertCommitDateIso(normalized);
   return normalized;
-}
-
-export function formatCommitDate(iso: string, locale: string): string {
-  assertCommitDateIso(iso);
-  return new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZoneName: 'short',
-  }).format(new Date(iso));
 }

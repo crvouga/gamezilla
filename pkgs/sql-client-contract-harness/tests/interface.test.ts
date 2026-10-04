@@ -4,11 +4,11 @@ import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
-import sql, { raw } from '@pkgs/sql-shared/sql';
 import { SqlClientWithPubSub } from '@pkgs/sql-client-shared/impl-with-pub-sub';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });

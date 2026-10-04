@@ -1,9 +1,12 @@
+import type {
+  CustomGameChoice,
+  CustomGameInput,
+} from '@libs/chess-custom-game-shared/custom-game-choice';
+import type { CustomGames } from '@libs/chess-custom-game-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { CustomGameChoice, CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
-import type { CustomGames } from '@libs/chess-custom-game-shared/custom-game-state';
 
 export type CustomGameProbe = CustomGames & {
   readonly myId: string;

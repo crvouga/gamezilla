@@ -1,10 +1,15 @@
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { chooseKeyboardSquare, enterBoardKeyboard, moveKeyboard, tapKeyboardCoordinates } from '@pkgs/chess-board-harness/keyboard-actions';
-import { clearBoardEvidence } from '@pkgs/chess-board-harness/options-actions';
+import { setupBoard } from '@pkgs/chess-board-harness/chess-board';
 import type { KeyboardDirection } from '@pkgs/chess-board-harness/keyboard-actions';
+import {
+  chooseKeyboardSquare,
+  enterBoardKeyboard,
+  moveKeyboard,
+  tapKeyboardCoordinates,
+} from '@pkgs/chess-board-harness/keyboard-actions';
 import { readKeyboardModel } from '@pkgs/chess-board-harness/keyboard-model';
 import { readModelFingerprint } from '@pkgs/chess-board-harness/model-evidence';
-import { setupBoard } from '@pkgs/chess-board-harness/chess-board';
+import { clearBoardEvidence } from '@pkgs/chess-board-harness/options-actions';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 

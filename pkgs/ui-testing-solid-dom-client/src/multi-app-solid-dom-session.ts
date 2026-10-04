@@ -8,14 +8,14 @@
  * snapshot HTML for reports.
  */
 
+import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
+import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
 import type { JSX } from 'solid-js';
 import type { LayoutProvider } from './dom-layout';
-import { mountSolidRoot } from './mount-solid-app';
 import type { SolidMount } from './mount-solid-app';
-import { createDomUser, createSolidDomRenderedApp } from './renderer-solid-dom';
+import { mountSolidRoot } from './mount-solid-app';
 import type { SolidDomRenderedApp, UserEvent } from './renderer-solid-dom';
-import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
-import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
+import { createDomUser, createSolidDomRenderedApp } from './renderer-solid-dom';
 
 export const MULTI_APP_HOST_COMPONENT = 'MultiAppHost';
 

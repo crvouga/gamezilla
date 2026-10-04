@@ -1,8 +1,7 @@
+import { chessPuzzlesChannels } from '@libs/chess-shared/sync-topics';
 import sql from '@pkgs/sql-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { z } from 'zod';
-
-import { chessPuzzlesChannels } from '@libs/chess-shared/sync-topics';
 
 /** Hydrates one room-selected puzzle for a watcher outside their feed band. */
 export const chessPuzzleById = defineQuery({

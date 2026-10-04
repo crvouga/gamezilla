@@ -5,8 +5,8 @@
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Action, ActionDef } from '@pkgs/harness-shared/effect';
 import { defineAction } from '@pkgs/harness-shared/define-action';
+import type { Action, ActionDef } from '@pkgs/harness-shared/effect';
 import type { Driver } from '@pkgs/ui-testing-shared/driver';
 
 import type { ProductHarness } from './harness';

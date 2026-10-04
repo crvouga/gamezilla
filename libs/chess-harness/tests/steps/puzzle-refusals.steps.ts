@@ -1,15 +1,29 @@
 import { expect } from 'bun:test';
-import { finishPuzzleBy, leaveChessMenuToGameMenu, requestPuzzleHint, revealPuzzleSolution } from '@libs/chess-puzzle-harness/chess-actions';
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
-import { attemptHostPuzzleCommand, readLastPuzzleCommandOutcome, readLastPuzzleRefusal } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
+import {
+  finishPuzzleBy,
+  leaveChessMenuToGameMenu,
+  requestPuzzleHint,
+  revealPuzzleSolution,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import type { HostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
+import {
+  attemptHostPuzzleCommand,
+  readLastPuzzleCommandOutcome,
+  readLastPuzzleRefusal,
+} from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
 import { readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { pressPuzzleRetryIfVisible, stepPuzzlePosition } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
-import { readPuzzleControlAvailability, readPuzzleView } from '@libs/chess-puzzle-harness/puzzle-control-reads';
+import {
+  pressPuzzleRetryIfVisible,
+  stepPuzzlePosition,
+} from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
+import {
+  readPuzzleControlAvailability,
+  readPuzzleView,
+} from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { restartApp } from '@libs/harness/actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import type { PuzzleFinishName } from '@libs/harness/parameter-types';
+import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
+import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 
 Given(

@@ -7,9 +7,9 @@
 
 import { setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
-import { addClient } from '@pkgs/sync-engine-harness/regression-actions';
 import { exampleSystem } from '@pkgs/sync-engine-harness/example-app-system';
 import { SPACE_MEMBERSHIP_SESSION } from '@pkgs/sync-engine-harness/membership-query';
+import { addClient } from '@pkgs/sync-engine-harness/regression-actions';
 import type { SyncHarness } from '@pkgs/sync-engine-harness/scenario-system';
 
 export type Device = { readonly actor: string; readonly kind: string };

@@ -15,8 +15,13 @@ import {
   renderPackageCatalog,
 } from '@pkgs/gherkin-shared/catalog';
 import type { ExtractedStep } from '@pkgs/gherkin-shared/extract';
-import { importedSteps, REPO_ROOT, sharedSteps, specPackages } from './spec-packages';
 import type { SpecPackage } from './spec-packages';
+import {
+  importedSteps,
+  REPO_ROOT,
+  sharedSteps,
+  specPackages,
+} from './spec-packages';
 
 export const PACKAGE_CATALOG = 'STEPS_CATALOG.md';
 export const INDEX_CATALOG = 'docs/STEPS_CATALOG.md';

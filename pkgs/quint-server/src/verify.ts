@@ -20,7 +20,7 @@
 
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-
+import { wallStopwatch } from '@pkgs/quint-shared/wall';
 import {
   APALACHE_VERSION,
   freePort,
@@ -32,7 +32,6 @@ import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
 import type { VerifyPhase } from './verify-phases';
 import { verifyPhases } from './verify-phases';
-import { wallStopwatch } from '@pkgs/quint-shared/wall';
 
 export type VerifyOptions = {
   /** Absolute path of the `.qnt` model. */

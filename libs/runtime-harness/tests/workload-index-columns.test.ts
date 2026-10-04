@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
+import { runMigrateIndexReconcile } from '@libs/runtime-server/run-migrate-index-reconcile';
 import { APP_QUERIES } from '@libs/runtime-shared/app-queries';
 import { appSchema } from '@libs/runtime-shared/app-schema';
-import { runMigrateIndexReconcile } from '@libs/runtime-server/run-migrate-index-reconcile';
-import { parseWithNodeSqlParser } from '@pkgs/db-indexes-shared/parse-node-sql';
 import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
 import { HarnessDb } from '@pkgs/db-indexes-harness/db';
+import { parseWithNodeSqlParser } from '@pkgs/db-indexes-shared/parse-node-sql';
 import { MANAGED_IMPLICIT_COLUMN_NAMES } from '@pkgs/db-schema-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { extractWorkload } from '@pkgs/sync-engine-shared/extract-workload';

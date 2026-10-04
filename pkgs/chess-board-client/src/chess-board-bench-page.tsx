@@ -4,16 +4,15 @@
  * mount. Uses injected {@link useClock} / {@link useTimers}.
  */
 
-import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import { useClock, useTimers } from '@pkgs/clock-client/solid';
-import { createSignal, For, type JSX, Show } from 'solid-js';
-
-import { ChessBoard } from './chess-board';
 import {
   BOARD_PERF_BUDGETS,
   generatePlyFens,
   measureSync,
 } from '@pkgs/chess-board-shared/chess-board-bench';
+import { useClock, useTimers } from '@pkgs/clock-client/solid';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import { createSignal, For, type JSX, Show } from 'solid-js';
+import { ChessBoard } from './chess-board';
 
 export type BenchResultLine = {
   readonly label: string;

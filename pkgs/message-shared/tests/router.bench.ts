@@ -14,10 +14,25 @@
  */
 import { Assert } from '@pkgs/assert-shared/assert';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { acceptUnknownPayload, createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
-import type { Message, MessageNamespace, MessagePayloadValidator, MessageTag } from '@pkgs/message-shared/message';
-import type { ComposedMessageRouter, MessageRouter } from '@pkgs/message-shared/router';
-import { createComposedMessageRouter, createMessageRouter } from '@pkgs/message-shared/router';
+import type {
+  Message,
+  MessageNamespace,
+  MessagePayloadValidator,
+  MessageTag,
+} from '@pkgs/message-shared/message';
+import {
+  acceptUnknownPayload,
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
+import type {
+  ComposedMessageRouter,
+  MessageRouter,
+} from '@pkgs/message-shared/router';
+import {
+  createComposedMessageRouter,
+  createMessageRouter,
+} from '@pkgs/message-shared/router';
 
 const WARMUP_ITERS = 200_000;
 const BENCH_ITERS = 2_000_000;

@@ -6,11 +6,11 @@
  * `import.meta` / Node paths into the web bundle.
  */
 
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { chessPuzzlesTopic } from '@libs/chess-shared/sync-topics';
 import { PuzzleSeedFastPath } from '@libs/chess-puzzle-server/fast-path';
 import { PuzzleIngestTally } from '@libs/chess-puzzle-server/puzzle-ingest';
 import type { PuzzleTableRow } from '@libs/chess-puzzle-server/row';
+import { chessPuzzlesTopic } from '@libs/chess-shared/sync-topics';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 
 import { HARNESS_CHESS_PUZZLES_WEB_CSV } from './chess-puzzles-web-fixture';
 

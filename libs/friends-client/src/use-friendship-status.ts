@@ -1,12 +1,13 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
-
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { type Accessor, createMemo } from 'solid-js';
-
 import { canonicalUserPair } from '@libs/friends-shared/canonical-pair';
 import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
+import type { Sql } from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-shared/sql';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
+import { type Accessor, createMemo } from 'solid-js';
 
 type StatusRow = { readonly status: FriendshipStatus };
 

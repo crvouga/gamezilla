@@ -1,5 +1,5 @@
-import { Chess } from 'chess.js';
 import styles from '@pkgs/chess-board-client/chess-board.module.css';
+import { Chess } from 'chess.js';
 import type { BoardWorld } from './board-world';
 import type { PairApp } from './pair-world';
 import { pairOf } from './pair-world';

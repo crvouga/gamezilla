@@ -1,15 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
+import { EnsureAnonUserUseCase } from '@libs/auth-server/ensure-anon-user-use-case';
 import { AnonUserService } from '@libs/auth-shared/anon-user-service';
 import { EnsureInternalAccountUseCase } from '@libs/auth-shared/ensure-internal-account-use-case';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import { EnsureAnonUserUseCase } from '@libs/auth-server/ensure-anon-user-use-case';
+import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 

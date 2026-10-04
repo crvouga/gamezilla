@@ -1,14 +1,23 @@
+import { useClientConfig } from '@libs/app-config-client/use-client-config';
 import { useIsSignedIn } from '@libs/auth-client/access-facts';
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { useClientConfig } from '@libs/app-config-client/use-client-config';
+import type {
+  AccessInputs,
+  SubscriptionRow,
+} from '@libs/permissions-shared/access-facts';
+import {
+  accessFactsChangeAtMs,
+  governingSubscription,
+  resolveAccessFacts,
+} from '@libs/permissions-shared/access-facts';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import type { Facts } from '@pkgs/permissions-shared/facts';
 import sql from '@pkgs/sql-shared/sql';
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import type { AccessInputs, SubscriptionRow } from '@libs/permissions-shared/access-facts';
-import { accessFactsChangeAtMs, governingSubscription, resolveAccessFacts } from '@libs/permissions-shared/access-facts';
 
 function sameFacts(a: Facts, b: Facts): boolean {
   const keys = Object.keys(a);

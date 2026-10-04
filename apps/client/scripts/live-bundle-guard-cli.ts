@@ -1,7 +1,11 @@
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { assertLiveClientBuildEnv, LiveBundleGuard, productionClientApiOrigin } from '@libs/app-config-shared/live-client-bundle-guard';
+import {
+  assertLiveClientBuildEnv,
+  LiveBundleGuard,
+  productionClientApiOrigin,
+} from '@libs/app-config-shared/live-client-bundle-guard';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 

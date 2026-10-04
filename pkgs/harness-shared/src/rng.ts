@@ -1,5 +1,5 @@
-import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
+import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 /**
  * Uniform float in [0, 1). The only draw primitive the framework speaks.

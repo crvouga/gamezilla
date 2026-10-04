@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { computeFloatingMenuPosition } from '@pkgs/ui-client/floating-menu-position';
-import { estimateFloatingMenuHeight } from '@pkgs/ui-client/floating-menu-estimate-height';
 import type { FloatingMenuContent } from '@pkgs/ui-client/floating-menu-content';
-import { nextMenuItemIndex } from '@pkgs/ui-shared/floating-menu-keyboard';
+import { estimateFloatingMenuHeight } from '@pkgs/ui-client/floating-menu-estimate-height';
+import { computeFloatingMenuPosition } from '@pkgs/ui-client/floating-menu-position';
 import { SettingsIcon } from '@pkgs/ui-client/icons';
+import { nextMenuItemIndex } from '@pkgs/ui-shared/floating-menu-keyboard';
 
 const viewport = { width: 1000, height: 800 };
 const insets = { top: 0, bottom: 0 };

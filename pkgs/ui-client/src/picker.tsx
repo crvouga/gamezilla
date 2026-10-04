@@ -13,6 +13,13 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { filterPickerOptions } from '@pkgs/ui-shared/picker-logic';
+import type {
+  PickerOption,
+  PickerProps,
+  PickerValue,
+} from '@pkgs/ui-shared/picker-types';
 import {
   createMemo,
   createSignal,
@@ -21,16 +28,13 @@ import {
   onMount,
   Show,
 } from 'solid-js';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { ErrorState } from './error-state';
 import { SearchIcon } from './icons';
 import { LoadingState } from './loading-state';
-import { ResponsiveSurface } from './responsive-surface';
-import { TextInput } from './text-input';
-import { filterPickerOptions } from '@pkgs/ui-shared/picker-logic';
 import { PickerOptions } from './picker-options';
 import { PickerLabel, PickerTrigger } from './picker-trigger';
-import type { PickerOption, PickerProps, PickerValue } from '@pkgs/ui-shared/picker-types';
+import { ResponsiveSurface } from './responsive-surface';
+import { TextInput } from './text-input';
 
 function resolveTitle(
   surfaceTitle: JSX.Element | undefined,

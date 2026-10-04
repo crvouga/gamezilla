@@ -1,12 +1,12 @@
 // @io-wall-ok — browser page entry for the disposable OPFS sql-host iframe
 
 import { wallTimers } from '@pkgs/clock-shared/wall';
-import { Sql } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { spawnSqliteWorker } from '@pkgs/sql-client-sqlite-web-shared/spawn-sqlite-worker';
-import { createSqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
 import type { SqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
+import { createSqliteWorkerSqlOwner } from '@pkgs/sql-client-sqlite-web-shared/sqlite-worker-sql-owner';
+import type { Value } from '@pkgs/sql-shared/sql';
+import { Sql } from '@pkgs/sql-shared/sql';
 
 export type SqlHostRunResult = {
   readonly lastInsertRowId: number;

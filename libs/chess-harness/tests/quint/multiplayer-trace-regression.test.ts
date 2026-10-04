@@ -1,4 +1,4 @@
-import './chess';
+import './index';
 import { expect, test } from 'bun:test';
 import { decodeItfTrace } from '@pkgs/quint-shared/itf';
 import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';

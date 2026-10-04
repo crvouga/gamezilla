@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
+import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import fc from 'fast-check';
 
 const arbSeed = fc.oneof(

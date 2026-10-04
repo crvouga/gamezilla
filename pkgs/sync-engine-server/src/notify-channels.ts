@@ -1,10 +1,8 @@
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
-import type { PushMessage } from '@pkgs/sync-engine-shared/v2';
+import type { PushMessage, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 
 export type NotifyChannelsOptions = {

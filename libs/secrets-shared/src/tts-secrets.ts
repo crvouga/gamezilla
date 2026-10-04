@@ -1,6 +1,6 @@
 import { cliHttp } from './cli-io';
-import { requireNonEmpty, Secret } from './secret';
 import type { SecretInput } from './secret';
+import { requireNonEmpty, Secret } from './secret';
 
 async function validateElevenLabsApiKey(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();

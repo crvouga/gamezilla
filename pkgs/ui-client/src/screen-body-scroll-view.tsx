@@ -10,8 +10,8 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
-import { ScrollView } from './scroll-view';
 import type { ScrollViewProps } from './scroll-view';
+import { ScrollView } from './scroll-view';
 
 export type ScreenBodyScrollViewProps = ScrollViewProps;
 

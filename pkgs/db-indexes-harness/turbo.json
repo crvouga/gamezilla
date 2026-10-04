@@ -1,26 +1,15 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "check:models": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/db-indexes/*.qnt"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/db-indexes/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/db-indexes/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/db-indexes/**"]
     },
     "test": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/db-indexes/*.qnt"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/db-indexes/*.qnt"]
     }
   }
 }

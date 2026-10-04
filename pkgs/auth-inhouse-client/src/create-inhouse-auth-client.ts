@@ -1,16 +1,25 @@
-import type { AuthClientPort, GetFreshTokenOptions } from '@pkgs/auth-shared/auth-client-port';
-import { AUTH_SESSION_INITIAL } from '@pkgs/auth-shared/auth-session-state';
-import type { AuthSessionState, AuthSessionStore } from '@pkgs/auth-shared/auth-session-state';
-import type { HttpFetch } from '@pkgs/http-client-shared/types';
+import type { BearerTokenStore } from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import {
+  createBearerTokenStore,
+  createInMemoryAuthClientStorage,
+} from '@pkgs/auth-inhouse-shared/bearer-token-store';
 import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
-import { apiUrl, postJson, toVerified } from './auth-client-http';
+import type {
+  AuthClientPort,
+  GetFreshTokenOptions,
+} from '@pkgs/auth-shared/auth-client-port';
+import type {
+  AuthSessionState,
+  AuthSessionStore,
+} from '@pkgs/auth-shared/auth-session-state';
+import { AUTH_SESSION_INITIAL } from '@pkgs/auth-shared/auth-session-state';
+import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SessionBody } from './auth-client-http';
+import { apiUrl, postJson, toVerified } from './auth-client-http';
 import type { LinkingOps } from './auth-client-linking';
 import type { AuthClientAdapterConfig, SignInCtx } from './auth-client-oauth';
 import { codeOrThrow, exchangeCode, signInOauth } from './auth-client-oauth';
 import { readCallbackOutcome } from './auth-errors';
-import type { BearerTokenStore } from '@pkgs/auth-inhouse-shared/bearer-token-store';
-import { createBearerTokenStore, createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
 
 /** Verify the stored bearer against `/auth/session`; null when absent / dead. */
 async function loadSessionState(args: {

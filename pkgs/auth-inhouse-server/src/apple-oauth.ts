@@ -9,16 +9,22 @@
  * address may be a private relay. Boolean claims may be `"true"` strings.
  */
 
+import type { AppleOauthEndpoints } from '@pkgs/auth-inhouse-shared/auth-constants';
+import {
+  APPLE_CLIENT_SECRET_AUDIENCE,
+  IDP_PROVIDER_APPLE,
+} from '@pkgs/auth-inhouse-shared/auth-constants';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { importJWK, type JWK, SignJWT } from 'jose';
-
-import { APPLE_CLIENT_SECRET_AUDIENCE, IDP_PROVIDER_APPLE } from '@pkgs/auth-inhouse-shared/auth-constants';
-import type { AppleOauthEndpoints } from '@pkgs/auth-inhouse-shared/auth-constants';
-import { createJwksVerifier } from './jwks-verifier';
 import type { JwksVerifier } from './jwks-verifier';
+import { createJwksVerifier } from './jwks-verifier';
+import type {
+  OauthProviderAdapter,
+  ProviderCallback,
+  ProviderIdentity,
+} from './provider-identity';
 import { claimFlag, claimString } from './provider-identity';
-import type { OauthProviderAdapter, ProviderCallback, ProviderIdentity } from './provider-identity';
 
 export type AppleProviderConfig = {
   /** The Services ID. */

@@ -2,11 +2,17 @@ import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
-
-import type { LogEntry } from '@pkgs/room-shared/types';
-import type { ClientRoomStorage, QueuedCommand } from '@pkgs/room-shared/core-storage';
-import type { CommittedLogBlobs, CommittedLogManifest, SegmentedCommittedLog } from '@pkgs/room-shared/segmented-committed-log';
+import type {
+  ClientRoomStorage,
+  QueuedCommand,
+} from '@pkgs/room-shared/core-storage';
+import type {
+  CommittedLogBlobs,
+  CommittedLogManifest,
+  SegmentedCommittedLog,
+} from '@pkgs/room-shared/segmented-committed-log';
 import { createSegmentedCommittedLog } from '@pkgs/room-shared/segmented-committed-log';
+import type { LogEntry } from '@pkgs/room-shared/types';
 import { committedSegmentKeyword } from './keys';
 
 const Committed = createAttrNamespace('room', 'client', 'committed');

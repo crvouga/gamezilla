@@ -5,13 +5,27 @@
  */
 
 import { expect } from 'bun:test';
-import type { LeaveResult, StatusResult, UpdateFormulasResult } from '@pkgs/matchmaking-shared/types';
-import { changeRange, lastWait, stopWaiting, waitForMatch } from '@pkgs/matchmaking-harness/lobby';
-import { lastLeave, lastUpdate, participantIds, statusOf } from '@pkgs/matchmaking-harness/observations';
-import { NameAttr, RatingAttr } from '@pkgs/matchmaking-harness/attrs';
 import { tick } from '@pkgs/matchmaking-harness/actions';
-import { Given, Then, When } from './world';
+import { NameAttr, RatingAttr } from '@pkgs/matchmaking-harness/attrs';
+import {
+  changeRange,
+  lastWait,
+  stopWaiting,
+  waitForMatch,
+} from '@pkgs/matchmaking-harness/lobby';
+import {
+  lastLeave,
+  lastUpdate,
+  participantIds,
+  statusOf,
+} from '@pkgs/matchmaking-harness/observations';
+import type {
+  LeaveResult,
+  StatusResult,
+  UpdateFormulasResult,
+} from '@pkgs/matchmaking-shared/types';
 import type { MatchmakingWorld } from './world';
+import { Given, Then, When } from './world';
 
 /** The rating a person waits with when the scenario does not say. */
 const DEFAULT_RATING = 1500;

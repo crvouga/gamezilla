@@ -1,7 +1,6 @@
-import type { Accessor, JSX } from 'solid-js';
-
 import type { ChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
 import { CHESS_PUZZLE_TEST_ENABLED } from '@libs/chess-puzzle-shared/chess-puzzle-test-enabled';
+import type { Accessor, JSX } from 'solid-js';
 
 export type ChessPuzzleReviewTestProps = {
   solveIdx: Accessor<number>;

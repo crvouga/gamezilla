@@ -1,14 +1,14 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import { createMessageRouter } from '@pkgs/message-shared/router';
+import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
 import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
 import type { GameCommandContext } from './game';
 import { MemberLeft, SpaceEnded } from './space-log-messages';
-import {
-  SpaceSeatJoined,
-  SpaceSeatLeft,
-} from './space-members-messages';
+import { SpaceSeatJoined, SpaceSeatLeft } from './space-members-messages';
 
 export const spaceServiceCmdNs = createMessageNamespace('space-service-cmd');
 export const ApplySpaceMembership = spaceServiceCmdNs(

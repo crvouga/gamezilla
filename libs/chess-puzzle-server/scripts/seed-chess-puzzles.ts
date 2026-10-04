@@ -1,6 +1,9 @@
 // @io-wall-ok
 import { ChessPuzzleSeeder } from '@libs/chess-puzzle-server/chess-puzzle-seeder';
-import { formatPostgresStorageLimitError, isPostgresStorageLimitError } from '@libs/chess-puzzle-server/defer-indexes';
+import {
+  formatPostgresStorageLimitError,
+  isPostgresStorageLimitError,
+} from '@libs/chess-puzzle-server/defer-indexes';
 import { assert } from '@pkgs/assert-shared/singleton';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';

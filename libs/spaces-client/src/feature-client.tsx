@@ -6,19 +6,18 @@
  * inside it.
  */
 
-import { defineFeatureClient } from '@libs/feature-client/client';
 import type { FeatureClient } from '@libs/feature-client/client';
+import { defineFeatureClient } from '@libs/feature-client/client';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { Gamepad2Icon } from '@pkgs/ui-client/icons';
 import { type JSX, lazy, Suspense } from 'solid-js';
-
+import type { LoadGameRegistry } from './games-provider';
+import { AppGamesProvider } from './games-provider';
 import {
   createSpaceHostingsInFlight,
   SpaceHostingsInFlightContext,
 } from './space-hostings-in-flight';
-import { AppGamesProvider } from './games-provider';
-import type { LoadGameRegistry } from './games-provider';
 
 /** Pulls space-room / mutation graphs that must stay off the shell entry. */
 const SpaceMiniplayer = lazy(() =>

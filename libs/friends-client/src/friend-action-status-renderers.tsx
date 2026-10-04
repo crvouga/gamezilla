@@ -1,8 +1,4 @@
-import { Handles } from '@libs/test-ids-shared/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { Sounds } from '@pkgs/sounds-shared/sound-id';
-import { type Accessor, type JSX, Show } from 'solid-js';
-
+import type { FriendActionMutations } from '@libs/friends-shared/friend-action-types';
 import {
   FRIENDS_BLOCKED,
   FRIENDS_COOLDOWN,
@@ -10,11 +6,14 @@ import {
   FRIENDS_REQUEST_EXISTS,
 } from '@libs/friends-shared/friends-mutation-codes';
 import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
+import { Handles } from '@libs/test-ids-shared/handles';
+import { Trans, useLingui } from '@lingui/solid/macro';
+import { Sounds } from '@pkgs/sounds-shared/sound-id';
+import { type Accessor, type JSX, Show } from 'solid-js';
 import {
   ConfirmDeletePills,
   SingleActionPill,
 } from './friend-action-pill-buttons';
-import type { FriendActionMutations } from '@libs/friends-shared/friend-action-types';
 
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 

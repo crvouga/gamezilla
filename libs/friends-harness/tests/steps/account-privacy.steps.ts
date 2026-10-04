@@ -4,8 +4,8 @@ import {
   proveAccount,
 } from '@libs/account-privacy-harness/privacy-actions';
 import { requestDeletionReason } from '@libs/friends-harness/privacy-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
 import {
   closeSpaceMembers,
@@ -78,7 +78,12 @@ Then("{actor}'s space has not ended", async (w, actor: Actor) => {
   expect(await w.s.read(spaceEndedShown, actor)).toBe(false);
 });
 
-import { deletedDeviceReply, deletedProfileNotice, openDeletedProfile, tryDeletedDeviceJoin } from '@libs/friends-harness/deleted-device';
+import {
+  deletedDeviceReply,
+  deletedProfileNotice,
+  openDeletedProfile,
+  tryDeletedDeviceJoin,
+} from '@libs/friends-harness/deleted-device';
 
 When(
   "{actor}'s other device attempts to join {actor}'s open space as the deleted account",

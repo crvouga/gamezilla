@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
+
+import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
 import { type Accessor, For } from 'solid-js';
 import type { EditorSuggestion } from './editor-suggestions';
-import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
 
 export function EditorSuggestionMenu(props: {
   id: string;

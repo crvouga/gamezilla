@@ -1,14 +1,16 @@
 /** @jsxImportSource solid-js */
 /** Presentational shell for {@link ChessBoard}: host element + paint stack. */
 
-import { speakMove } from '@pkgs/chess-board-core-shared/speak-move';
 import { indexFromSquare } from '@pkgs/chess-board-core-shared/geometry';
 import { pieceCode } from '@pkgs/chess-board-core-shared/piece-code';
 import {
   chessBoardLiveRegionTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
 } from '@pkgs/chess-board-core-shared/probe';
+import { speakMove } from '@pkgs/chess-board-core-shared/speak-move';
 import type { Position, Square } from '@pkgs/chess-board-core-shared/types';
+import { boardThemeToCssVars } from '@pkgs/chess-board-shared/board-theme';
+import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import {
   type Accessor,
@@ -18,8 +20,6 @@ import {
   type JSX,
   on,
 } from 'solid-js';
-
-import { boardThemeToCssVars } from '@pkgs/chess-board-shared/board-theme';
 import styles from './chess-board.module.css';
 import { ChessBoardBackground } from './chess-board-background';
 import type { BoardController } from './chess-board-controller';
@@ -27,11 +27,10 @@ import { ChessBoardFeedback } from './chess-board-feedback';
 import { ChessBoardHitGrid } from './chess-board-hit-grid';
 import { ChessBoardLiveRegion } from './chess-board-live-region';
 import { ChessBoardOverlays } from './chess-board-overlays';
-import { ChessBoardPieces } from './chess-board-pieces';
 import type { PremoveGhost } from './chess-board-pieces';
+import { ChessBoardPieces } from './chess-board-pieces';
 import { ChessBoardShapes } from './chess-board-shapes';
 import { ChessBoardSquares, squareWashes } from './chess-board-squares';
-import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 
 function findKingSquare(position: Position, color: 'w' | 'b'): Square | null {
   for (let i = 0; i < 64; i += 1) {

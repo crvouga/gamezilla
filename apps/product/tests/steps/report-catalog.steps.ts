@@ -1,5 +1,14 @@
 import { expect } from 'bun:test';
-import { catalogEdition, catalogRunning, catalogShown, completedReportOpen, filterCatalog, openCatalog, openCompletedReport, provideCatalog } from '@apps/product/developer-catalog';
+import {
+  catalogEdition,
+  catalogRunning,
+  catalogShown,
+  completedReportOpen,
+  filterCatalog,
+  openCatalog,
+  openCompletedReport,
+  provideCatalog,
+} from '@apps/product/developer-catalog';
 import { Given, Then, When } from '@libs/harness/define';
 
 Given(

@@ -7,10 +7,13 @@ import { HttpClientProvider } from '@pkgs/http-client-client/solid';
 import { DismissibleBannerPortalProvider } from '@pkgs/ui-client/dismissible-top-banner';
 import { OverlayPortalProvider } from '@pkgs/ui-client/overlay-portal';
 import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { ThemePreferenceProvider, useThemePreference } from '@pkgs/ui-client/theme-preference';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
-import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
+import {
+  ThemePreferenceProvider,
+  useThemePreference,
+} from '@pkgs/ui-client/theme-preference';
 import { IdProvider } from '@pkgs/uuid-client/solid';
+import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import type { JSX } from 'solid-js';
 import {
   ConsoleChromeProvider,

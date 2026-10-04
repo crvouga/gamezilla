@@ -3,7 +3,6 @@
  * {@link SqlClient} implementations.
  */
 
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
@@ -12,6 +11,7 @@ import type {
 import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-shared/positional-params';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import { bigintToJsonSafe, normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
 

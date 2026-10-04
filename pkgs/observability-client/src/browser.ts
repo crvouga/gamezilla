@@ -5,11 +5,13 @@ import {
   type FetchInstrumentationConfig,
 } from '@opentelemetry/instrumentation-fetch';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-
+import type {
+  TelemetryOptions,
+  TelemetryRuntime,
+} from '@pkgs/observability-runtime-shared/options';
+import { createProviderConfig } from '@pkgs/observability-runtime-shared/provider-options';
 import { ATTR } from '@pkgs/observability-shared/attributes';
 import { withSpan } from '@pkgs/observability-shared/span';
-import type { TelemetryOptions, TelemetryRuntime } from '@pkgs/observability-shared/options';
-import { createProviderConfig } from '@pkgs/observability-shared/provider-options';
 
 export const CONTEXT_CAPABILITY = 'callback' as const;
 

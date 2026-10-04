@@ -1,7 +1,7 @@
-import { type Accessor, createEffect, createSignal, on } from 'solid-js';
 import type { AssistantAction } from '@pkgs/assistant-shared/action';
 import type { Assistant } from '@pkgs/assistant-shared/engine';
 import type { AssistantSignal } from '@pkgs/assistant-shared/signals';
+import { type Accessor, createEffect, createSignal, on } from 'solid-js';
 
 /**
  * Re-runs `observe` when `watch` changes (e.g. `${status}:${solveIdx}`).

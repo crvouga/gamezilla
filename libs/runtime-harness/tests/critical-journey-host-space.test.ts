@@ -5,7 +5,13 @@
 import { describe, expect, test } from 'bun:test';
 import { hostSpace } from '@libs/runtime-harness/journey-gestures';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Driver, DriverNode, DriverWaitOptions, WaitState, WaitTextCondition } from '@pkgs/ui-testing-shared/driver';
+import type {
+  Driver,
+  DriverNode,
+  DriverWaitOptions,
+  WaitState,
+  WaitTextCondition,
+} from '@pkgs/ui-testing-shared/driver';
 
 const HOST = 'OldMink726';
 

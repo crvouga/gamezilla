@@ -2,9 +2,9 @@ import { afterEach, describe } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
 
 describe('ObjectStore — ObjectStoreImplNodeFs sidecar (port suite)', () => {
   const dirs: string[] = [];

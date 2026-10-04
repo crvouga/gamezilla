@@ -5,8 +5,8 @@ import { describe, expect, test } from 'bun:test';
 import { connectivityMenuAction } from '@libs/app-client/app-header-global-menu';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { labelInName } from '@pkgs/a11y-shared/name-rules';
-import { buildOverflowMenuContent } from '@pkgs/ui-client/overflow-menu-button';
 import { FloatingMenu } from '@pkgs/ui-client/floating-menu';
+import { buildOverflowMenuContent } from '@pkgs/ui-client/overflow-menu-button';
 import { screen } from '@solidjs/testing-library';
 import { renderChrome } from './render-chrome';
 

@@ -12,7 +12,12 @@ import type { ClassListEntry } from './transform-node';
 import { readAsElement, readExistingClass } from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 import type { ComponentConversion, ExtraEntry } from './transform-shared';
-import { dataSetFields, finish, readSxConversion, withExtra } from './transform-shared';
+import {
+  dataSetFields,
+  finish,
+  readSxConversion,
+  withExtra,
+} from './transform-shared';
 
 const TEXT_VARIANT_HOST: Readonly<
   Record<string, { readonly element: string; readonly className?: string }>

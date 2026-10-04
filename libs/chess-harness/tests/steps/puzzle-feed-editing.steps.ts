@@ -1,9 +1,12 @@
 import { expect } from 'bun:test';
 import { openPuzzleFeedSettings } from '@libs/chess-puzzle-harness/chess-actions';
 import { readFeedTargetLabel } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
-import { previewPuzzleFeedChoice, readSavedFeedChoice } from '@libs/chess-puzzle-harness/puzzle-feed-model';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  previewPuzzleFeedChoice,
+  readSavedFeedChoice,
+} from '@libs/chess-puzzle-harness/puzzle-feed-model';
 import { Given, Then } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 
 Given(
   '{actor} has chosen unsaved auto-advance after one second',

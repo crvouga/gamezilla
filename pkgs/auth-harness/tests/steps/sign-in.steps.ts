@@ -6,14 +6,48 @@
  */
 
 import { expect } from 'bun:test';
+import {
+  appleAccountDeleted,
+  appleConsentRevoked,
+  appleRelayForwarding,
+  clearProviderFaults,
+  confirmPendingLink,
+  declinePendingLink,
+  googleEmailChanged,
+  linkProvider,
+  prepareLink,
+  setOnline,
+  setProviderFault,
+  signIn,
+  signOut,
+  signOutEverywhere,
+  stealBearer,
+  unlinkProvider,
+} from '@pkgs/auth-harness/actions';
+import {
+  accountsOnRecord,
+  awaitingProof,
+  identitiesOf,
+  lastOutcome,
+  signedInUser,
+} from '@pkgs/auth-harness/system';
+import { movedGoogleEmail } from '@pkgs/auth-harness/world-flows';
 import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { accountsOnRecord, awaitingProof, identitiesOf, lastOutcome, signedInUser } from '@pkgs/auth-harness/system';
-import { appleAccountDeleted, appleConsentRevoked, appleRelayForwarding, clearProviderFaults, confirmPendingLink, declinePendingLink, googleEmailChanged, linkProvider, prepareLink, setOnline, setProviderFault, signIn, signOut, signOutEverywhere, stealBearer, unlinkProvider } from '@pkgs/auth-harness/actions';
-import { movedGoogleEmail } from '@pkgs/auth-harness/world-flows';
-
-import { accountOf, answers, currentEmailOf, device, emailOf, Given, handOver, onDevice, SECOND_GOOGLE_ACCOUNT, Then, When } from './world';
 import type { SignInWorld } from './world';
+import {
+  accountOf,
+  answers,
+  currentEmailOf,
+  device,
+  emailOf,
+  Given,
+  handOver,
+  onDevice,
+  SECOND_GOOGLE_ACCOUNT,
+  Then,
+  When,
+} from './world';
 
 const MINUTE_MS = 60_000;
 /** The device key of "a shared device" / "that device". */

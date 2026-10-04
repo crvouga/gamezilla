@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
-import { SchemePreview } from './scheme-preview';
-import { HouseIcon } from './icons';
 import { EmptyState } from './empty-state';
+import { ExampleRoot } from './example-root';
+import { HouseIcon } from './icons';
+import { SchemePreview } from './scheme-preview';
 
 export default function EmptyStateExample(): JSX.Element {
   return (

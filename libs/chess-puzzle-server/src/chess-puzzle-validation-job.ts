@@ -15,20 +15,20 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 import { DEFAULT_CACHE_DIR } from './cli';
-import { PuzzleArchiveCache } from './streaming';
-import { resolveToolingDatabaseUrl } from './tooling-database-url';
-import { PuzzleValidationReport } from './puzzle-validation-report';
 import type { PuzzleValidationSummary } from './puzzle-validation-report';
+import { PuzzleValidationReport } from './puzzle-validation-report';
 import {
   validatePuzzleArchive,
   validatePuzzleTable,
 } from './puzzle-validation-sources';
+import { PuzzleArchiveCache } from './streaming';
+import { resolveToolingDatabaseUrl } from './tooling-database-url';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 export type PuzzleValidationCli = {
   readonly sources: readonly string[];

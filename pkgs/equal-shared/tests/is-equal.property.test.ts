@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { isEqual } from '@pkgs/equal-shared/is-equal';
-import { arbJsonValue } from '@pkgs/property-shared/json';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { arbJsonValue } from '@pkgs/property-shared/json';
 import fc from 'fast-check';
 
 /** Oracle: JSON with keys sorted at every level (no -0 / NaN in the domain). */

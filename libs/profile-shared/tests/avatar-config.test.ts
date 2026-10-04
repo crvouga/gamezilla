@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
-import { configsEqual, DEFAULT_AVATAR_STYLE, parseAvatarConfig, serializeAvatarConfig } from '@libs/profile-shared/avatar-config';
+import {
+  configsEqual,
+  DEFAULT_AVATAR_STYLE,
+  parseAvatarConfig,
+  serializeAvatarConfig,
+} from '@libs/profile-shared/avatar-config';
 
 describe('avatar config spec values', () => {
   test('pins the default DiceBear style', () => {

@@ -1,12 +1,23 @@
 import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { chooseKeyboardSquare, focusBoardSquare, moveKeyboard, selectSquareWithKeyboard } from '@pkgs/chess-board-harness/keyboard-actions';
-import type { KeyboardDirection } from '@pkgs/chess-board-harness/keyboard-actions';
-import { readFocusedBoardSquare, readKeyboardInput } from '@pkgs/chess-board-harness/keyboard-model';
-import { readInteraction } from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import type { Side } from '@pkgs/chess-board-harness/interaction-fixtures';
-import { selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
+import { readInteraction } from '@pkgs/chess-board-harness/interaction-reads';
+import type { KeyboardDirection } from '@pkgs/chess-board-harness/keyboard-actions';
+import {
+  chooseKeyboardSquare,
+  focusBoardSquare,
+  moveKeyboard,
+  selectSquareWithKeyboard,
+} from '@pkgs/chess-board-harness/keyboard-actions';
+import {
+  readFocusedBoardSquare,
+  readKeyboardInput,
+} from '@pkgs/chess-board-harness/keyboard-model';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

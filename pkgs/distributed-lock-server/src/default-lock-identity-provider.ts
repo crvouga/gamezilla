@@ -1,7 +1,9 @@
 import * as os from 'node:os';
+import type {
+  LockIdentityProvider,
+  LockInfo,
+} from '@pkgs/distributed-lock-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import type { LockIdentityProvider, LockInfo } from '@pkgs/distributed-lock-shared/interface';
 
 export type DefaultLockIdentityProviderOptions = {
   readonly now: () => number;

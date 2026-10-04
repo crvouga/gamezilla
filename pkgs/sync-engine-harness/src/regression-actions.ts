@@ -9,13 +9,21 @@ import { defineAction } from '@pkgs/harness-shared/define-action';
 import { unsafe } from '@pkgs/sql-shared/sql';
 
 import type { Mutation } from '@pkgs/sync-engine-shared/mutations-types';
+import { prepareClientsForInSync, resetClockSkews } from './pool-support';
 import { pumpInSync } from './pump';
+import type { PostRows } from './regression-support';
+import {
+  driveToSettled,
+  driveWhilePending,
+  requireClient,
+  resolveMutation,
+  SUBSCRIBE_ALL_BUDGET_MS,
+  subscriptionKey,
+  subscriptions,
+} from './regression-support';
+import type { SyncHarness } from './scenario-system';
 import type { StoragePressureKind } from './storage-pressure';
 import type { AddClientArgs } from './types';
-import { prepareClientsForInSync, resetClockSkews } from './pool-support';
-import { driveToSettled, driveWhilePending, requireClient, resolveMutation, SUBSCRIBE_ALL_BUDGET_MS, subscriptionKey, subscriptions } from './regression-support';
-import type { PostRows } from './regression-support';
-import type { SyncHarness } from './scenario-system';
 
 /** `s.apply(addClient, 'alice')` or `s.apply(addClient, { id, actorId })`. */
 export const addClient = defineAction({

@@ -2,7 +2,6 @@
   "name": "@libs/infra-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "scripts": {
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
     "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
@@ -32,5 +31,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:",
     "wrangler": "catalog:"
-  }
+  },
+  "category": "server"
 }

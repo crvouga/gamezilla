@@ -1,6 +1,5 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-
 import type { EndpointId } from '@pkgs/harness-shared/network-state';
+import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { PubSubPeer } from './pubsub-peer';
 
 /** Cap buffered offline delivers per endpoint (Tiger bound). */

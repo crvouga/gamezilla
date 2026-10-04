@@ -1,10 +1,10 @@
 import { accountSyncActor } from '@libs/auth-shared/auth-context';
+import type { FriendRequest } from '@libs/friends-shared/friends-types';
 import type { Clock } from '@pkgs/clock-shared/types';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import type { FriendRequest } from '@libs/friends-shared/friends-types';
 import { applyAcceptFriendRequest } from './apply-accept-friend-request';
 import { applyCancelFriendRequest } from './apply-cancel-friend-request';
 import { applyDeclineFriendRequest } from './apply-decline-friend-request';

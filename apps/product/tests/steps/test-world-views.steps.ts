@@ -1,5 +1,12 @@
 import { expect } from 'bun:test';
-import { arrangeWorldDevices, chooseWorldDevice, devicePlaceKept, giveDevicesDifferentPlaces, provideWorldDevices, shownWorldDevices } from '@apps/product/developer-world-views';
+import {
+  arrangeWorldDevices,
+  chooseWorldDevice,
+  devicePlaceKept,
+  giveDevicesDifferentPlaces,
+  provideWorldDevices,
+  shownWorldDevices,
+} from '@apps/product/developer-world-views';
 import { Given, Then, When } from '@libs/harness/define';
 
 Given(

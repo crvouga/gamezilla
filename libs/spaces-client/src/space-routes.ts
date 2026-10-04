@@ -1,6 +1,6 @@
 import type { AppRouter } from '@pkgs/ui-client/app-router';
-import { releaseWebFocus } from '@pkgs/ui-shared/release-web-focus';
 import { useLocalSearchParams } from '@pkgs/ui-client/app-router';
+import { releaseWebFocus } from '@pkgs/ui-shared/release-web-focus';
 import { type Accessor, createMemo } from 'solid-js';
 
 /** Path href for `/space/:id`. */

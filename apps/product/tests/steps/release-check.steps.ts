@@ -1,5 +1,10 @@
 import { expect } from 'bun:test';
-import { currentReleaseEvidence, provideReleaseEvidence, releaseResult, runReleaseCheck } from '@apps/product/developer-release';
+import {
+  currentReleaseEvidence,
+  provideReleaseEvidence,
+  releaseResult,
+  runReleaseCheck,
+} from '@apps/product/developer-release';
 import { Given, Then, When } from '@libs/harness/define';
 
 Given(

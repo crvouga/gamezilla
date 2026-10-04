@@ -6,12 +6,11 @@
  * catches up once updated. Dismiss hides it until the app is reopened.
  */
 
+import { reloadApp } from '@libs/app-shared/reload-app';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { DismissibleBanner } from '@pkgs/ui-client/dismissible-top-banner';
 import { createSignal, type JSX } from 'solid-js';
-
-import { reloadApp } from '@libs/app-shared/reload-app';
 import { useSyncStatus } from './sync-status-context';
 
 export function AppUpdateRequiredBanner(): JSX.Element {

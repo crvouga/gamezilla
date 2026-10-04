@@ -10,14 +10,14 @@
  */
 
 import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
-import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-shared/connection-pragmas';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 type Sqlite3Static = Awaited<ReturnType<typeof sqlite3InitModule>>;
 type WasmDatabase = InstanceType<Sqlite3Static['oo1']['DB']>;

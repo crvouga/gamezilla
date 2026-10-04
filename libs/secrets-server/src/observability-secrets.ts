@@ -1,8 +1,12 @@
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { ObservabilitySecretName as Name } from '@libs/observability-shared/secret-names';
-import { validateReadonlyDatabaseUrl } from './db-url';
-import { requireHttpsUrl, requireNonEmpty, Secret } from '@libs/secrets-shared/secret';
 import type { SecretInput } from '@libs/secrets-shared/secret';
+import {
+  requireHttpsUrl,
+  requireNonEmpty,
+  Secret,
+} from '@libs/secrets-shared/secret';
+import { validateReadonlyDatabaseUrl } from './db-url';
 
 const PROVISIONED = 'Written by `@libs/infra#apply:foundation` (OpenTofu).';
 

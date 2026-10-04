@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
+import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx-shared/create-emqx-http-pubsub';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-shared/pubsub-not-supported-error';
 import { PubSubPublishError } from '@pkgs/pubsub-shared/pubsub-publish-error';
-import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx-shared/create-emqx-http-pubsub';
 
 describe('createEmqxHttpPubSub', () => {
   test('publish posts qos1 retain false with basic auth', async () => {

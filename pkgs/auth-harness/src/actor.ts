@@ -7,14 +7,23 @@
 
 import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import { AUTH_SSO_CANCELLED_ERROR } from '@pkgs/auth-inhouse-client/auth-client-http';
-import { createAuthCookieJar, createInProcessOpenAuthSession } from '@pkgs/auth-inhouse-client/in-process-open-auth-session';
-import { createBearerTokenStore, createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
+import {
+  createAuthCookieJar,
+  createInProcessOpenAuthSession,
+} from '@pkgs/auth-inhouse-client/in-process-open-auth-session';
+import {
+  createBearerTokenStore,
+  createInMemoryAuthClientStorage,
+} from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 
-import { AUTH_SYSTEM_BASE_URL, AUTH_SYSTEM_CALLBACK_URL } from './relying-party';
+import {
+  AUTH_SYSTEM_BASE_URL,
+  AUTH_SYSTEM_CALLBACK_URL,
+} from './relying-party';
 import type { ActorOutcome, ActorState, AuthStore } from './types';
 
 /** What a browser throws when the network is gone. */

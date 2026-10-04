@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { NOTIFICATIONS_TABLES } from './tables';
-import { NOTIFICATIONS_TOPIC_MAP } from './topic-map';
 import { NOTIFICATIONS_PRIVACY } from './account-privacy';
 import { NOTIFICATIONS_QUERIES } from './notifications-active-query';
+import { NOTIFICATIONS_TABLES } from './tables';
+import { NOTIFICATIONS_TOPIC_MAP } from './topic-map';
 
 export const NOTIFICATIONS_FEATURE = defineFeature({
   name: 'notifications',

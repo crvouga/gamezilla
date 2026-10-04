@@ -1,8 +1,17 @@
 import { expect } from 'bun:test';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import type { PromotionName, Side } from '@pkgs/chess-board-harness/interaction-fixtures';
 import { prepareBlackPromotion } from '@pkgs/chess-board-harness/black-promotion-setup';
-import { readActivityMoves, readAnnouncement, readCompletedFeedback, readInteraction, readPiece } from '@pkgs/chess-board-harness/interaction-reads';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import type {
+  PromotionName,
+  Side,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  readActivityMoves,
+  readAnnouncement,
+  readCompletedFeedback,
+  readInteraction,
+  readPiece,
+} from '@pkgs/chess-board-harness/interaction-reads';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

@@ -1,5 +1,9 @@
 import { isMessageEnvelope, isPlainRecord } from '@pkgs/message-shared/message';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type { RoomServer } from './room-server';
 
 /** Reached only through the host's private namespace binding. */

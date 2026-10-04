@@ -3,6 +3,9 @@
 
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { quintNames } from '@pkgs/quint-shared/names';
+import { tlcStateSpace } from '@pkgs/quint-shared/tlc-state-space';
+import { wallStopwatch } from '@pkgs/quint-shared/wall';
 import {
   APALACHE_VERSION,
   freePort,
@@ -10,11 +13,8 @@ import {
   resolveApalache,
   verifyEnv,
 } from './apalache';
-import { quintNames } from '@pkgs/quint-shared/names';
 import { runQuint } from './run-quint';
 import { QUINT_CLI, quintModuleName } from './simulate';
-import { tlcStateSpace } from '@pkgs/quint-shared/tlc-state-space';
-import { wallStopwatch } from '@pkgs/quint-shared/wall';
 
 export type TemporalOptions = {
   readonly specPath: string;

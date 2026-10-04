@@ -1,10 +1,12 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type {
+  ChessPuzzleRatingEvent,
+  ChessPuzzleRatingEventSqlRow,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
+import { ratingEventFromSql } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
 import sql from '@pkgs/sql-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import type { ChessPuzzleRatingEvent, ChessPuzzleRatingEventSqlRow } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
-import { ratingEventFromSql } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
 
 /** Match the sync hydrate limit so the graph sees the whole ledger. */
 const RATING_EVENT_LIMIT = 5000;

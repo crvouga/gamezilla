@@ -1,5 +1,9 @@
 import { ATTR } from '@pkgs/observability-shared/attributes';
-import type { TimeRange, TraceRef, TraceStore } from '@pkgs/observability-shared/types';
+import type {
+  TimeRange,
+  TraceRef,
+  TraceStore,
+} from '@pkgs/observability-shared/types';
 import type { ObsArgs } from './args';
 import { FORMAT_HEADER, noResults, traceLine } from './format';
 

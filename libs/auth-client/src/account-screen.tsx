@@ -1,14 +1,14 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { useRouter } from '@pkgs/ui-client/app-router';
+import { SmartphoneIcon } from '@pkgs/ui-client/icons';
 import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { MenuSection } from '@pkgs/ui-client/menu-section';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { SmartphoneIcon } from '@pkgs/ui-client/icons';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import { type JSX, Show } from 'solid-js';
 import { useHasAuthSession } from './access-facts';
-import { useSignInModal } from './auth-modals-provider';
 import { AccountActionsRow } from './account-actions-row';
+import { useSignInModal } from './auth-modals-provider';
 import { SignInMethodsSection } from './sign-in-methods-section';
 import { SignOutEverywhereButton } from './sign-out-everywhere';
 

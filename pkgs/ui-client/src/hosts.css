@@ -4,12 +4,12 @@
  * `p-4`, …) can override defaults like `flex-direction: column` / `padding: 0`.
  * Unlayered rules beat layered utilities in the cascade.
  *
- * Import once from the app entry: `import '@pkgs/ui/base.css'`.
+ * Import once from the app entry: `import '@pkgs/ui-client/hosts.css'`.
  * `skin.css` is the component paint (buttons, chips, badges) — same layer.
  */
 
-@import "./skin.css";
-@import "../theme/fonts.css";
+@import "../skin.css";
+@import "../../ui-shared/src/fonts.css";
 
 @layer components {
   .card {

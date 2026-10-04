@@ -7,10 +7,10 @@
  */
 
 import type { Run } from '@pkgs/harness-shared/run-types';
-import type { MatchmakingHarness } from '@pkgs/matchmaking-harness/facade';
 import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
-import { setQuintWorld } from '@pkgs/quint-shared/registry';
+import type { MatchmakingHarness } from '@pkgs/matchmaking-harness/facade';
 import type { TraceContext } from '@pkgs/quint-shared/registry';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
 
 export type MatchmakingTraceWorld = {
   readonly ctx: TraceContext;

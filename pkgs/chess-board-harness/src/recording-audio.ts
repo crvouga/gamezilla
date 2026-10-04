@@ -4,12 +4,12 @@
  * sequence as text.
  */
 
+import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
 import type {
   AudioPlaybackPort,
   AudioPlayerHandle,
   AudioPlayerStatus,
 } from '@pkgs/sounds-shared/ports';
-import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
 import { type Accessor, createSignal } from 'solid-js';
 
 const IDLE: AudioPlayerStatus = {

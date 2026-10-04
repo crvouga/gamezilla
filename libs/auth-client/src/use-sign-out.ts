@@ -1,7 +1,7 @@
+import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
 import { useLogger } from '@pkgs/logger-client/solid';
 import { useSecureStorageStore } from '@pkgs/secure-storage-client/solid';
 import { useAuthClientPort } from './auth-client-provider';
-import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
 
 /**
  * Signs out via {@link AuthClientPort.signOut} and clears the session capability.

@@ -2,7 +2,6 @@
   "name": "@libs/chess-puzzle-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -51,5 +50,6 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "server"
 }

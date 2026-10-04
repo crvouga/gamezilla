@@ -2,7 +2,6 @@
   "name": "@pkgs/clock-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -20,5 +19,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

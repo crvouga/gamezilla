@@ -10,20 +10,30 @@
  */
 
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
-import { decide, decideLimit, decideQuota, quotaWindowOf } from '@pkgs/permissions-shared/decision';
+import {
+  decide,
+  decideLimit,
+  decideQuota,
+  quotaWindowOf,
+} from '@pkgs/permissions-shared/decision';
 import type { PolicyVersion } from '@pkgs/permissions-shared/policy';
 import { policyAt } from '@pkgs/permissions-shared/policy';
 import { resolveSubject } from '@pkgs/permissions-shared/resolve';
 import type { Subject } from '@pkgs/permissions-shared/subject';
-
-import { unitsSince } from './ledger-time';
-import { ACTION, LIMIT } from './permission-catalog';
-import type { AppLimit, AppPolicyKey } from './permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from './permission-policy';
-import { resolveSpaceRoles } from './space-roles';
 import { grantKeyOf } from './capabilities';
-import { CASE_NOW_MS, capabilityOf, countInput, DMN_INPUT, factsOf, spacePresenceOf } from './people';
+import { unitsSince } from './ledger-time';
 import type { CaseInput } from './people';
+import {
+  CASE_NOW_MS,
+  capabilityOf,
+  countInput,
+  DMN_INPUT,
+  factsOf,
+  spacePresenceOf,
+} from './people';
+import type { AppLimit, AppPolicyKey } from './permission-catalog';
+import { ACTION, LIMIT } from './permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from './permission-policy';
 import { startedEntries } from './puzzle-ledger';
 import {
   ACCESS_REASONS,
@@ -32,6 +42,7 @@ import {
   HOSTING_LIMIT_REASONS,
   tableAnswer,
 } from './reasons';
+import { resolveSpaceRoles } from './space-roles';
 import type { AppPolicy } from './world';
 
 type Active = PolicyVersion<AppPolicyKey, AppLimit>;

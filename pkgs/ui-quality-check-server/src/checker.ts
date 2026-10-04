@@ -1,10 +1,13 @@
 import { resolve } from 'node:path';
-import type { ImageInput, RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
-import type { Files } from './files';
-import { hashBytes } from './files';
-import { cachedResult, cacheResult, resultKey } from './result-cache';
-import { emitArtifacts } from './artifacts';
+import { batchResult, mapBounded } from '@pkgs/ui-quality-check-shared/batch';
+import { resolveOptions } from '@pkgs/ui-quality-check-shared/config';
+import type {
+  ImageInput,
+  RgbImage,
+} from '@pkgs/ui-quality-check-shared/detectors-types';
+import { WorkLimiter } from '@pkgs/ui-quality-check-shared/limiter';
 import { buildResult } from '@pkgs/ui-quality-check-shared/result';
+import type { Scorer } from '@pkgs/ui-quality-check-shared/scorer';
 import type {
   BatchQualityResult,
   CheckerOptions,
@@ -12,14 +15,14 @@ import type {
   QualityResult,
   UIQualityChecker,
 } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
-import { captureProcess } from './process';
-import type { ProcessStarter } from './process';
-import { batchResult, mapBounded } from '@pkgs/ui-quality-check-shared/batch';
-import { resolveOptions } from '@pkgs/ui-quality-check-shared/config';
+import { emitArtifacts } from './artifacts';
 import { discoverInputs, inputKind } from './discover';
+import type { Files } from './files';
+import { hashBytes } from './files';
 import { decodeImage } from './image';
-import { WorkLimiter } from '@pkgs/ui-quality-check-shared/limiter';
-import type { Scorer } from '@pkgs/ui-quality-check-shared/scorer';
+import type { ProcessStarter } from './process';
+import { captureProcess } from './process';
+import { cachedResult, cacheResult, resultKey } from './result-cache';
 import { analyzeVideo } from './video';
 
 export class ArtifactChecker implements UIQualityChecker {

@@ -1,23 +1,25 @@
 import { useLingui } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { AvatarGroup } from '@pkgs/ui-client/avatar-group';
-import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
 import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
+import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
 import type { JSX } from 'solid-js';
 import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
+import { ActiveSpacesSheet } from './active-spaces-sheet';
+import { useRequestEndSpace } from './end-space-modal-provider';
+import { useRequestLeaveSpace } from './leave-space-modal-provider';
+import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,
 } from './space-card-gradient';
-import { useRequestEndSpace } from './end-space-modal-provider';
-import { useRequestLeaveSpace } from './leave-space-modal-provider';
 import { SpaceHostAvatar } from './space-host-avatar';
-
-import { ActiveSpacesSheet } from './active-spaces-sheet';
-import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { SpaceMiniplayerCard } from './space-miniplayer-card';
 import type { MiniplayerFrame } from './space-miniplayer-layout';
-import { resolveMiniplayerFrame, resolveMiniplayerMode } from './space-miniplayer-layout';
+import {
+  resolveMiniplayerFrame,
+  resolveMiniplayerMode,
+} from './space-miniplayer-layout';
 import { useSpaceMiniplayerVisibleSpaceIds } from './use-space-miniplayer-visible-space-ids';
 
 const AVATAR_SIZE = 40;

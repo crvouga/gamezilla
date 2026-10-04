@@ -4,12 +4,18 @@
  */
 
 import { expect } from 'bun:test';
-import { ClaimRoom, REFUSAL, readOwner, readTurnedAway, TurnAway } from '@pkgs/room-harness/game-room';
-import { dispatch } from '@pkgs/room-harness/room-actions';
+import {
+  ClaimRoom,
+  REFUSAL,
+  readOwner,
+  readTurnedAway,
+  TurnAway,
+} from '@pkgs/room-harness/game-room';
 import { readClient, readServer } from '@pkgs/room-harness/read-state';
+import { dispatch } from '@pkgs/room-harness/room-actions';
 import { everyone, expectToldThat, settleEveryone } from './room.steps';
-import { Given, room, Then, When } from './world';
 import type { RoomWorld } from './world';
+import { Given, room, Then, When } from './world';
 
 async function claim(w: RoomWorld, id: string): Promise<void> {
   await room(w).apply(dispatch, { clientId: id, payload: ClaimRoom({}) });

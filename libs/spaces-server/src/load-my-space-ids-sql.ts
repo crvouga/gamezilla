@@ -1,7 +1,6 @@
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
 import { actorVisibleLiveSpacesPredicateSql } from '@libs/spaces-shared/actor-visible-spaces-sql';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /**
  * Space ids the actor can see via mySpaces scope: host (member or account),

@@ -2,7 +2,6 @@
   "name": "@libs/spaces-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -42,5 +41,6 @@
     "@pkgs/sync-engine-shared": "workspace:*",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness"
 }

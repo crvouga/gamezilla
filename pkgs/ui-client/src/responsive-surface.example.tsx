@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
-import { createSignal, For, type JSX } from 'solid-js';
+
 import type { ModalSize } from '@pkgs/ui-shared/modal-size';
+import { createSignal, For, type JSX } from 'solid-js';
 import { Button } from './button';
 import { ExampleRoot } from './example-root';
 import { ResponsiveSurface } from './responsive-surface';

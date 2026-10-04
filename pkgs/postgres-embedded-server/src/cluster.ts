@@ -1,6 +1,5 @@
 import { join } from 'node:path';
 import { wallOsFs } from '@pkgs/os-server/wall-os-fs';
-import EmbeddedPostgres from 'embedded-postgres';
 import {
   databaseUrlFor,
   POSTGRES_DATABASE,
@@ -8,6 +7,7 @@ import {
   POSTGRES_PORT,
   POSTGRES_USER,
 } from '@pkgs/postgres-embedded-shared/ports';
+import EmbeddedPostgres from 'embedded-postgres';
 
 const osFs = wallOsFs();
 

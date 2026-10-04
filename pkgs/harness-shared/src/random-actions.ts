@@ -1,15 +1,19 @@
-import { fingerprint } from './fingerprint';
-import type { Rng } from './rng';
-import type { AppliedAction } from './effect';
-import { ACTION_TAG } from './effect';
-import type { Action, CatalogAction } from './effect';
-import type { ActionSlice } from './registry';
-import { resolveActions } from './registry';
 import { checkpoint } from './checkpoint';
+import type { Action, AppliedAction, CatalogAction } from './effect';
+import { ACTION_TAG } from './effect';
+import { fingerprint } from './fingerprint';
 import type { ProbeResult } from './probe';
 import { probeAll } from './probe';
+import type { ActionSlice } from './registry';
+import { resolveActions } from './registry';
+import type { Rng } from './rng';
+import type {
+  RandomActionsOptions,
+  RandomActionsReport,
+  Run,
+  RunInternal,
+} from './run-types';
 import { getRunInternal } from './run-types';
-import type { RandomActionsOptions, RandomActionsReport, Run, RunInternal } from './run-types';
 
 type Cand<S> = {
   readonly action: Action<S, unknown[]>;

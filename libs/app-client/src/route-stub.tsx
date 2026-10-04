@@ -7,11 +7,11 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
-import type { Href } from '@pkgs/ui-shared/href';
 import { InfoIcon } from '@pkgs/ui-client/icons';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import type { Href } from '@pkgs/ui-shared/href';
 import type { JSX } from 'solid-js';
 
 export type RouteStubProps = {

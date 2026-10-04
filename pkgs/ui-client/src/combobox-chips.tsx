@@ -5,9 +5,12 @@
  * clicking a chip removes that value.
  */
 
+import type {
+  ComboboxOption,
+  ComboboxValue,
+} from '@pkgs/ui-shared/combobox-types';
 import { For, type JSX } from 'solid-js';
 import { Chip } from './chip';
-import type { ComboboxOption, ComboboxValue } from '@pkgs/ui-shared/combobox-types';
 
 export type ComboboxChipsProps<T extends ComboboxValue> = {
   selected: readonly ComboboxOption<T>[];

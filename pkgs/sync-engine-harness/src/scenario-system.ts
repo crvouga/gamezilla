@@ -7,12 +7,12 @@ import type {
 } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { SyncHarnessRuntime } from './api';
-import type { HarnessInfra } from './harness-boot';
 import type { HarnessSubscription } from './client';
+import type { HarnessInfra } from './harness-boot';
 import type { HarnessSessionQuery } from './harness-domain-pack';
-import type { BootedHarnessKernel, HarnessClientOpts } from './types';
-import type { SyncApp } from './scenario-app';
 import type { SyncHarnessBase } from './harness-types';
+import type { SyncApp } from './scenario-app';
+import type { BootedHarnessKernel, HarnessClientOpts } from './types';
 
 /** Outcome of the most recent `mutate` pin on one client. */
 

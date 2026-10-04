@@ -1,3 +1,10 @@
+import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
+import {
+  multiplayerFixture,
+  multiplayerTransaction,
+} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import { acceptChessMatch } from '@libs/chess-matchmaking-shared/match-handoff';
+import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { accountIdOf } from '@libs/harness/identity';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
@@ -5,15 +12,8 @@ import type { MatchFormation } from '@pkgs/matchmaking-sql-shared/match-pass';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared/search-read';
 import sql from '@pkgs/sql-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
-import { acceptChessMatch } from '@libs/chess-matchmaking-shared/match-handoff';
-import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
-import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
 import type { MultiplayerCommand } from './multiplayer-commands';
 import { sendMultiplayerCommand } from './multiplayer-commands';
-import {
-  multiplayerFixture,
-  multiplayerTransaction,
-} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 
 /**
  * The downstream model controls when an upstream fact arrives. Its commands

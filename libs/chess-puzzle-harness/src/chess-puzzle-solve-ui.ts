@@ -9,7 +9,11 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import type { ChessBoardProbe } from '@pkgs/chess-board-core-shared/probe';
-import { chessBoardLayerTestId, chessBoardPromotionTestId, parseChessBoardPaint } from '@pkgs/chess-board-core-shared/probe';
+import {
+  chessBoardLayerTestId,
+  chessBoardPromotionTestId,
+  parseChessBoardPaint,
+} from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type { RecordingHaptics } from '@pkgs/device-shared/haptics';
 import { Chess } from 'chess.js';

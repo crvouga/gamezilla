@@ -1,11 +1,14 @@
 /** @jsxImportSource solid-js */
+
+import type {
+  OriginAvailability,
+  OriginAvailabilitySnapshot,
+} from '@pkgs/http-client-shared/origin-availability';
+import { createAlwaysAvailableOrigin } from '@pkgs/http-client-shared/origin-availability';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import type { Accessor, JSX, ParentProps } from 'solid-js';
-
-import { createAlwaysAvailableOrigin } from '@pkgs/http-client-shared/origin-availability';
-import type { OriginAvailability, OriginAvailabilitySnapshot } from '@pkgs/http-client-shared/origin-availability';
-import type { HttpClient } from '@pkgs/http-client-shared/types';
 
 const HttpClientContext = defineContext<HttpClient>('HttpClient');
 

@@ -4,8 +4,11 @@ import type {
   SqlTableDump,
 } from '@pkgs/sql-client-shared/types';
 import type { HarnessCheckpointRoomDump } from './checkpoint';
+import type {
+  HarnessSystemSnapshot,
+  HarnessSystemSnapshotClientSlice,
+} from './system-snapshot';
 import { HARNESS_SYSTEM_SNAPSHOT_VERSION } from './system-snapshot';
-import type { HarnessSystemSnapshot, HarnessSystemSnapshotClientSlice } from './system-snapshot';
 
 export type ParsedHarnessSystemSnapshot = HarnessSystemSnapshot;
 

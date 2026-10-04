@@ -1,11 +1,22 @@
 import { expect } from 'bun:test';
-import { askForExport, completeExport, openExportAddress, openPrivacy, privacyTimePasses, proveAccount } from './privacy-actions';
-import { downloadedExport, exportCategories, privacyText } from './privacy-reads';
+import { Given, Then, When } from '@libs/harness/define';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
+import {
+  askForExport,
+  completeExport,
+  openExportAddress,
+  openPrivacy,
+  privacyTimePasses,
+  proveAccount,
+} from './privacy-actions';
+import {
+  downloadedExport,
+  exportCategories,
+  privacyText,
+} from './privacy-reads';
 
 async function request(w: HarnessWorld, actor: Actor) {
   if ((await w.s.read(signedInAccountOf, actor)) === null)

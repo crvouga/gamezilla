@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/app-shared/auth-provider';
+import {
+  BILLING_PROVIDER_BINDING,
+  DEPLOYMENT_PROTECTION_BINDING,
+  readDeploymentProtection,
+} from '@libs/app-shared/env';
 import {
   authRelayOrigin,
   envOrigins,
@@ -16,15 +22,14 @@ import {
   ROOM_TRANSFER_TAG,
   roomMigrations,
 } from '@libs/infra-shared/worker-lifecycle';
-import { deletedDurableObjectClasses, HYPERDRIVE_BINDING, renderWranglerConfig, workerName } from '@libs/infra-shared/wrangler';
 import type { WranglerConfig } from '@libs/infra-shared/wrangler';
-import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
-import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/app-shared/auth-provider';
 import {
-  BILLING_PROVIDER_BINDING,
-  DEPLOYMENT_PROTECTION_BINDING,
-  readDeploymentProtection,
-} from '@libs/app-shared/env';
+  deletedDurableObjectClasses,
+  HYPERDRIVE_BINDING,
+  renderWranglerConfig,
+  workerName,
+} from '@libs/infra-shared/wrangler';
+import { getApiWorkerSecrets } from '@libs/secrets-server/registry';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

@@ -7,13 +7,19 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import type { LogEntry } from '@pkgs/room-shared/types';
+import { AddOne, readTally } from '@pkgs/room-harness/game-room';
 import { MAX_WELCOME_ENTRIES_PER_FRAME } from '@pkgs/room-shared/bounds';
+import type { LogEntry } from '@pkgs/room-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 import { WIRE_VERSION } from '@pkgs/room-shared/wire';
-import { AddOne, readTally } from '@pkgs/room-harness/game-room';
-import { addOneCommand, connection, connectPerson, framesOfKind, startServer } from './server-rig';
 import type { ServerRig, StartServerOpts } from './server-rig';
+import {
+  addOneCommand,
+  connection,
+  connectPerson,
+  framesOfKind,
+  startServer,
+} from './server-rig';
 
 async function send(
   rig: ServerRig,

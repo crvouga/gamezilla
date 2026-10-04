@@ -6,12 +6,11 @@
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import sql from '@pkgs/sql-shared/sql';
+import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
-
-import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { NOTES_ALL_TOPIC } from './topics';
 
 /** Schema with optional `notes.color` for column-intersect scenarios. */

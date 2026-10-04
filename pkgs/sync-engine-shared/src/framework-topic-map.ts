@@ -1,7 +1,7 @@
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import { SYNC_ENGINE_WRITE_REJECTIONS } from './tables';
-import { defineTopicMap } from './topic-map';
 import type { TopicMap } from './topic-map';
+import { defineTopicMap } from './topic-map';
 
 /** Framework tables — product topic maps must not name these. */
 export const FRAMEWORK_TOPIC_MAP = defineTopicMap({

@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { BLOCKED_TERMS } from '@pkgs/word-filter-shared/blocklist';
-import { containsBlockedTerm, normalizeForMatch } from '@pkgs/word-filter-shared/match';
+import {
+  containsBlockedTerm,
+  normalizeForMatch,
+} from '@pkgs/word-filter-shared/match';
+import fc from 'fast-check';
 
 /** Leetspeak glyphs a person types for a letter (the filter's own table). */
 const LEET: Readonly<Record<string, readonly string[]>> = {

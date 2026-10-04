@@ -1,4 +1,9 @@
-import type { Deliver, EndpointId, FlowKey, Network as KernelNetwork } from '@pkgs/harness-shared/network-state';
+import type {
+  Deliver,
+  EndpointId,
+  FlowKey,
+  Network as KernelNetwork,
+} from '@pkgs/harness-shared/network-state';
 
 import type { HarnessFaultOptions } from './faults';
 import type { ClientTraffic, HarnessTraffic } from './traffic';

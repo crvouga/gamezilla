@@ -4,9 +4,13 @@
  */
 
 import { expect } from 'bun:test';
-import { acknowledgeWriteRejectionMutation } from '@pkgs/sync-engine-shared/acknowledge-write-rejection';
-import { connect, disconnect, mutate } from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  connect,
+  disconnect,
+  mutate,
+} from '@pkgs/sync-engine-harness/regression-actions';
 import { rejections } from '@pkgs/sync-engine-harness/sync-observations';
+import { acknowledgeWriteRejectionMutation } from '@pkgs/sync-engine-shared/acknowledge-write-rejection';
 import { removeNote, SETTLE_MS, settledWrite, writeNote } from './note-writes';
 import { app, ensureDevice, Given, Then, When } from './world';
 

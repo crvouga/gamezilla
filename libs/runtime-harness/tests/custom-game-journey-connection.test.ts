@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { prepareCustomGame, startCustomGame, startCustomGameAgainstBot } from '@libs/runtime-harness/custom-game-journey';
+import {
+  prepareCustomGame,
+  startCustomGame,
+  startCustomGameAgainstBot,
+} from '@libs/runtime-harness/custom-game-journey';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
 
 /** The menu is usable before the fresh space's socket finishes syncing. */

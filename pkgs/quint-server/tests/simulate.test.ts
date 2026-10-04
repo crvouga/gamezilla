@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { renderQuint } from '@pkgs/quint-shared/itf';
 import { modelInvariants, simulate } from '@pkgs/quint-server/simulate';
+import { renderQuint } from '@pkgs/quint-shared/itf';
 
 const FIXTURES = join(import.meta.dir, 'fixtures');
 const OUT = join(import.meta.dir, '../.cache/test-traces');

@@ -13,20 +13,17 @@ import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-pr
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileEntityStorePostgres } from '@pkgs/entity-store-shared/reconcile-postgres';
 import { reconcileEntityStoreSqlite } from '@pkgs/entity-store-shared/reconcile-sqlite';
-import { reconcileKvSqlite } from '@pkgs/kv-shared/reconcile-sqlite';
 import { reconcileKvPostgres } from '@pkgs/kv-postgres-shared/reconcile-postgres';
+import { reconcileKvSqlite } from '@pkgs/kv-shared/reconcile-sqlite';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { reconcileOutboxPostgres } from '@pkgs/outbox-shared/reconcile';
+import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { reconcileSyncEnginePostgres } from '@pkgs/sync-engine-shared/reconcile-sync-engine-postgres';
 
-import type {
-  HarnessComposition,
-  MigrateHarnessPostgres,
-} from './composition';
+import type { HarnessComposition, MigrateHarnessPostgres } from './composition';
 
 const HARNESS_RECONCILE = {
   skipAdvisoryLock: true,

@@ -1,7 +1,11 @@
 import { ownedIndexName } from '@pkgs/db-indexes-shared/naming';
 import type { IndexInfo } from '@pkgs/db-indexes-shared/types';
-import { SAFETY_CONFIG, SAFETY_INDEX, safetyManifest } from './index-safety-fixtures';
 import type { SafetyFixture } from './index-safety-fixtures';
+import {
+  SAFETY_CONFIG,
+  SAFETY_INDEX,
+  safetyManifest,
+} from './index-safety-fixtures';
 
 function ordinaryIndex(field: string): IndexInfo {
   const definition = {

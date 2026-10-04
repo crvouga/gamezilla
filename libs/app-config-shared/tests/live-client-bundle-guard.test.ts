@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 
-import { extractInlinedApiUrlFromBundleSource, productionClientApiOrigin } from '@libs/app-config-shared/live-client-bundle-guard';
+import {
+  extractInlinedApiUrlFromBundleSource,
+  productionClientApiOrigin,
+} from '@libs/app-config-shared/live-client-bundle-guard';
 
 test('extractInlinedApiUrlFromBundleSource parses minified import.meta.env chunks', () => {
   const prod = productionClientApiOrigin();

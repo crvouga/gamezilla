@@ -1,10 +1,18 @@
-import type { PromotionName } from '@pkgs/chess-board-harness/interaction-fixtures';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import {
+  configureBoard,
+  movePiece,
+  replacePosition,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { choosePromotion } from '@pkgs/chess-board-harness/interaction-actions';
-import { clearBoardEvidence, pressBoardKey } from '@pkgs/chess-board-harness/options-actions';
-import { configureBoard, movePiece, replacePosition, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { PREPARED_PROMOTIONS } from '@pkgs/chess-board-harness/prepared-positions';
+import type { PromotionName } from '@pkgs/chess-board-harness/interaction-fixtures';
 import { readModelFingerprint } from '@pkgs/chess-board-harness/model-evidence';
+import {
+  clearBoardEvidence,
+  pressBoardKey,
+} from '@pkgs/chess-board-harness/options-actions';
+import { PREPARED_PROMOTIONS } from '@pkgs/chess-board-harness/prepared-positions';
 import { readPromotionModel } from '@pkgs/chess-board-harness/promotion-model';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';

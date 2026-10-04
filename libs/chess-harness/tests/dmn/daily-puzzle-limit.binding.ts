@@ -20,16 +20,14 @@
  */
 
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { ratedStartKey } from '@libs/chess-puzzle-shared/rated-start-key';
 import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
-import { ACTION } from '@libs/permissions-shared/permission-catalog';
-import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-shared/application';
+import { ratedStartKey } from '@libs/chess-puzzle-shared/rated-start-key';
 import { dailyPuzzleLimitClientLayer } from '@libs/permissions-harness/client-layers';
-import {
-  identityFor,
-  personOf,
-} from '@libs/permissions-shared/people';
+import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-shared/application';
+import { PERMISSIONS_MUTATIONS } from '@libs/permissions-shared/mutations';
+import { identityFor, personOf } from '@libs/permissions-shared/people';
+import { ACTION } from '@libs/permissions-shared/permission-catalog';
 import {
   insertStarted,
   startedEntries,
@@ -41,9 +39,8 @@ import {
   serverEnforcementLayer,
 } from '@libs/permissions-shared/server';
 import { dailyPuzzleLimitServerLayer } from '@libs/permissions-shared/server-layers';
-import { PERMISSIONS_MUTATIONS } from '@libs/permissions-shared/mutations';
-import { bindDecisions } from '@pkgs/dmn-shared/registry';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
+import { bindDecisions } from '@pkgs/dmn-shared/registry';
 
 const [consumeQuota] = PERMISSIONS_MUTATIONS;
 const ATTEMPTED_PUZZLE = 'attempted-puzzle';

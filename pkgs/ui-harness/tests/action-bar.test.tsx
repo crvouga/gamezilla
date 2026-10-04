@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { ACTION_BAR_FEEDBACK_RESET_MS } from '@pkgs/ui-client/action-bar-icon-button';
 import { ActionBar } from '@pkgs/ui-client/action-bar';
+import { ACTION_BAR_FEEDBACK_RESET_MS } from '@pkgs/ui-client/action-bar-icon-button';
 import { ActionBarLabeledControl } from '@pkgs/ui-client/action-bar-labeled-control';
 import { BottomActionBar } from '@pkgs/ui-client/bottom-action-bar';
 import { PlusIcon, SettingsIcon, ShareIcon } from '@pkgs/ui-client/icons';

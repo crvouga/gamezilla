@@ -1,9 +1,12 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { Message } from '@pkgs/message-shared/message';
 
-import { CancelScheduleEffect, ScheduleEffect } from '@pkgs/room-shared/builtin';
-import { applyRoomEffects } from '@pkgs/room-shared/handler';
+import {
+  CancelScheduleEffect,
+  ScheduleEffect,
+} from '@pkgs/room-shared/builtin';
 import type { RoomEffectHandler } from '@pkgs/room-shared/handler';
+import { applyRoomEffects } from '@pkgs/room-shared/handler';
 import type { RoomEffect } from '@pkgs/room-shared/types';
 
 /**

@@ -1,10 +1,10 @@
+import type { ResolvedOptions } from '@pkgs/ui-quality-check-shared/config';
 import type { RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
-import { decodeVideo, probeVideo } from './decode';
-import type { ProcessStarter } from './process';
+import type { Scorer } from '@pkgs/ui-quality-check-shared/scorer';
 import { FrameSelection } from '@pkgs/ui-quality-check-shared/select';
 import type { VideoDecoder } from '@pkgs/ui-quality-check-shared/video-types';
-import type { ResolvedOptions } from '@pkgs/ui-quality-check-shared/config';
-import type { Scorer } from '@pkgs/ui-quality-check-shared/scorer';
+import { decodeVideo, probeVideo } from './decode';
+import type { ProcessStarter } from './process';
 
 interface AnalyzeOptions {
   input: string;

@@ -11,9 +11,8 @@ import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import type { OauthProviderId } from './sign-in-method';
 import type { AuthServerPort } from './auth-server-port';
+import type { OauthProviderId } from './sign-in-method';
 
 /** What a service is built from. */
 export type AuthProviderEnv = {

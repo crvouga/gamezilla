@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `ThemeTokens` -- visual inventory of every design-system token: color
  * swatches (per scheme), radius, spacing, elevation, and motion previews.
@@ -7,14 +8,14 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * Used in the explorer to make token drift instantly visible.
  */
 
-import { For, type JSX } from 'solid-js';
 import type { ColorTokens } from '@pkgs/ui-shared/colors-types';
-import { useThemeTokens } from './theme-context';
 import { duration, easing } from '@pkgs/ui-shared/motion';
 import type { BorderRadiusKey, ElevationLevel } from '@pkgs/ui-shared/scale';
 import { borderRadius, spacing } from '@pkgs/ui-shared/scale';
+import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
 import { SchemePreview } from './scheme-preview';
+import { useThemeTokens } from './theme-context';
 
 type ColorGroup = {
   title: string;

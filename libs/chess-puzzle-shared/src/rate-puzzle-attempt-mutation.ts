@@ -22,15 +22,19 @@
 import { requireChargedInMutation } from '@libs/permissions-shared/mutation-permission';
 import { ACTION } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-shared/sql';
-import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
+import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 
 import { PUZZLE_POOL_RATING_CEILING } from './chess-puzzle-feed-config';
 import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
-import { applyPuzzleAttemptRating, isPuzzleScorePermille, readPuzzleRatingState } from './chess-puzzle-rating';
 import type { PuzzleRatingState } from './chess-puzzle-rating';
+import {
+  applyPuzzleAttemptRating,
+  isPuzzleScorePermille,
+  readPuzzleRatingState,
+} from './chess-puzzle-rating';
 import { chessPuzzleRatingEventId } from './chess-puzzle-rating-event';
 import { ratedStartKeyPrefix } from './rated-start-key';
 

@@ -1,7 +1,13 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type {
+  ChessPuzzleGameLogEntry,
+  ChessPuzzleStats,
+} from '@libs/chess-puzzle-shared/chess-puzzle-stats';
+import {
+  deriveChessPuzzleGameLog,
+  deriveChessPuzzleStats,
+} from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { type Accessor, createMemo } from 'solid-js';
-import type { ChessPuzzleGameLogEntry, ChessPuzzleStats } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
-import { deriveChessPuzzleGameLog, deriveChessPuzzleStats } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { useChessPuzzleRatingEvents } from './use-chess-puzzle-rating-events';

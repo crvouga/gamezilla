@@ -10,10 +10,7 @@ import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
 import { type JSX, Show } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';
-import {
-  authFlowErrorMessage,
-  providerName,
-} from './auth-flow-messages';
+import { authFlowErrorMessage, providerName } from './auth-flow-messages';
 import type { LinkedIdentity } from './use-linked-identities';
 
 const ICON_SIZE = 20;

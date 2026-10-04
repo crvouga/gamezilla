@@ -1,8 +1,8 @@
 import { readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
-import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import type { MeasureContext } from '@pkgs/openslo-shared/registry';
+import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import { openHarness } from '../open-chess-harness';
 import { customDefault, customFact } from '../steps/custom-game-world';
 

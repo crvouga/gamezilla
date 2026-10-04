@@ -1,10 +1,10 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { Combobox } from '@pkgs/ui-client/combobox';
-import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
 import { comboboxOptionId } from '@pkgs/ui-client/combobox-list';
+import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
+import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';

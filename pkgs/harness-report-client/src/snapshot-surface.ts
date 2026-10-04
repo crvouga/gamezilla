@@ -1,6 +1,9 @@
+import {
+  cleanSnapshotHtml,
+  PHONE_H,
+  PHONE_W,
+} from '@pkgs/harness-report-shared/phone';
 import type { ReportStepHit } from '@pkgs/harness-shared/report-types';
-
-import { cleanSnapshotHtml, PHONE_H, PHONE_W } from '@pkgs/harness-report-shared/phone';
 
 /**
  * One long-lived snapshot surface per client panel. Frames are painted by

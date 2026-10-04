@@ -12,17 +12,16 @@
 import { describe, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-import type { Obligation } from '@pkgs/conformance-shared/evidence';
-import { sha256 } from '@pkgs/conformance-shared/evidence';
-import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
-
-import type { ExecAlloyResult } from './alloy-cli';
-import { execAlloy } from './alloy-cli';
-import { auditSnapshots, illegalSnapshotReport } from './audit';
 import { commandVerdict } from '@pkgs/alloy-shared/receipt';
 import type { StructureBinding } from '@pkgs/alloy-shared/registry';
 import { structureBinding } from '@pkgs/alloy-shared/registry';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
+import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
+import type { Obligation } from '@pkgs/conformance-shared/evidence';
+import { sha256 } from '@pkgs/conformance-shared/evidence';
+import type { ExecAlloyResult } from './alloy-cli';
+import { execAlloy } from './alloy-cli';
+import { auditSnapshots, illegalSnapshotReport } from './audit';
 
 export type RunStructureOptions = {
   readonly packageName: string;

@@ -1,5 +1,8 @@
+import type {
+  PreparedStatement,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
 import type { Sql } from '@pkgs/sql-shared/sql';
-import type { PreparedStatement, SqlClient } from '@pkgs/sql-client-shared/interface';
 
 /**
  * Serializes all transactions/runs on a Bun SQLite client.

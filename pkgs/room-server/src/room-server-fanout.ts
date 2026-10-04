@@ -1,8 +1,8 @@
 import { MAX_WELCOME_ENTRIES_PER_FRAME } from '@pkgs/room-shared/bounds';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import type { RoomActor } from '@pkgs/room-shared/types';
 import type { RoomStorage } from '@pkgs/room-shared/server-core-storage';
+import type { RoomActor } from '@pkgs/room-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 
 type Sender = (payload: unknown) => void;
 

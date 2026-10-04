@@ -3,10 +3,10 @@
 import { createRoomServerDurableObject } from '@libs/room-app-server/create-room-server-durable-object';
 import type { RoomServerEnv } from '@libs/room-app-shared/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import type { WorkerTelemetry } from '@pkgs/observability-server/worker-worker';
 import { createWorkerTelemetry } from '@pkgs/observability-server/worker-worker';
 import { deploymentTelemetryEnvironment } from '@pkgs/observability-shared/deployment-environment';
 import { otlpAuthorization } from '@pkgs/observability-shared/otlp-auth';
-import type { WorkerTelemetry } from '@pkgs/observability-server/worker-worker';
 
 type RoomWorkerEnv = {
   readonly BUILD_SHA?: string;

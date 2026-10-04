@@ -4,14 +4,11 @@
  * watch snapshots notify synchronously (no transition scheduling).
  */
 
+import { createAppSyncLifecycle } from '@libs/app-shared/app-sync-lifecycle';
+import { emqxUrlHolderFor } from '@libs/app-shared/emqx-url-holder';
+import { tryAcquireSyncOwnerLease } from '@libs/app-shared/sync-owner-lock';
 import { localSyncActor } from '@libs/auth-shared/auth-context';
 import type { ConfigService } from '@libs/auth-shared/config-service-types';
-import { createClientPubSub, readEmqxWssUrlFromLocalDb } from './create-client-pubsub';
-import { emqxUrlHolderFor } from '@libs/app-shared/emqx-url-holder';
-import type { GetFreshAuthToken, SyncClientAuth } from '@pkgs/sync-engine-client/sync-http-client';
-import { postAppQueries, postMutationBatch } from './sync-api';
-import { SyncApiAuthError } from '@pkgs/sync-engine-client/sync-http-client';
-import type { SyncApiFetch } from './sync-api';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ChannelsCtx, OpenSqlClient } from '@libs/feature-shared/sync';
 import { defaultEntryChannel } from '@libs/feature-shared/sync';
@@ -22,14 +19,23 @@ import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web-client/web-sql-client';
 import { createLocalSyncEngine } from '@pkgs/sync-engine-client/create-local-sync-engine';
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
+import type {
+  GetFreshAuthToken,
+  SyncClientAuth,
+} from '@pkgs/sync-engine-client/sync-http-client';
+import { SyncApiAuthError } from '@pkgs/sync-engine-client/sync-http-client';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
+import {
+  createClientPubSub,
+  readEmqxWssUrlFromLocalDb,
+} from './create-client-pubsub';
 import {
   openDisposableSqlClient,
   openMainSqlClient,
 } from './open-main-sql-client';
-import { createAppSyncLifecycle } from '@libs/app-shared/app-sync-lifecycle';
-import { tryAcquireSyncOwnerLease } from '@libs/app-shared/sync-owner-lock';
+import type { SyncApiFetch } from './sync-api';
+import { postAppQueries, postMutationBatch } from './sync-api';
 
 export type CreateAppLocalSyncEngineArgs = {
   /**

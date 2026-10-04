@@ -10,7 +10,7 @@ import { runQuintModel } from '@pkgs/quint-server/bun-test';
 import { modelInvariants } from '@pkgs/quint-server/simulate';
 import { verify } from '@pkgs/quint-server/verify';
 
-import './db-schema';
+import './index';
 
 const SPEC = join(import.meta.dir, 'schema-safety.qnt');
 const SPEC_URI = 'pkgs/db-schema-harness/tests/quint/schema-safety.qnt';

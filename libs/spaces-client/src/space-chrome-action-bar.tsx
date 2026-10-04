@@ -2,18 +2,25 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { ActionBar } from '@pkgs/ui-client/action-bar';
-import type { ActionBarItem } from '@pkgs/ui-client/action-bar-logic';
-import { ChevronLeftIcon, DoorOpenIcon, LogOutIcon, ShareIcon, SquarePenIcon, XIcon } from '@pkgs/ui-client/icons';
-import { iconButtonAvatarContentSize } from '@pkgs/ui-client/icon-button';
 import { useActionBarChrome } from '@pkgs/ui-client/action-bar-chrome';
+import type { ActionBarItem } from '@pkgs/ui-client/action-bar-logic';
+import { iconButtonAvatarContentSize } from '@pkgs/ui-client/icon-button';
+import {
+  ChevronLeftIcon,
+  DoorOpenIcon,
+  LogOutIcon,
+  ShareIcon,
+  SquarePenIcon,
+  XIcon,
+} from '@pkgs/ui-client/icons';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
-import { useSpacesNavBack } from './spaces-nav-context';
-import { useSpaceCan } from './use-space-can';
 import { SpaceMembersListModal } from './space-members-list-modal';
 import { SpacePresenceStrip } from './space-presence-strip';
-import { SpaceShareSheet } from './space-share-sheet';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { SpaceShareSheet } from './space-share-sheet';
+import { useSpacesNavBack } from './spaces-nav-context';
+import { useSpaceCan } from './use-space-can';
 
 type SpaceChromeNavCallbacks = {
   onPressHome: () => void;

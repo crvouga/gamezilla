@@ -1,6 +1,6 @@
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
 import { dropTables } from './drop-tables';

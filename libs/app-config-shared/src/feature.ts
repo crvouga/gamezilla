@@ -5,10 +5,9 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
+import { CLIENT_CONFIG_QUERIES } from './client-config-query';
 import { CLIENT_CONFIG_TABLES } from './tables';
 import { CLIENT_CONFIG_TOPIC_MAP } from './topic-map';
-import { CLIENT_CONFIG_QUERIES } from './client-config-query';
 
 export const CLIENT_CONFIG_FEATURE = defineFeature({
   name: 'client-config',

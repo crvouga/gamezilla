@@ -1,11 +1,11 @@
-import type { Rng } from './rng';
-import type { RunReporter } from './reporter';
-import type { RecordStepMeta, RunReport } from './report-types';
-import type { Session } from './runtime-types';
+import type { MonitorState, Transition } from './checkpoint';
 import type { Action, Property, Read } from './effect';
 import type { Step } from './recording';
 import type { ActionSlice, SystemCore as System } from './registry';
-import type { MonitorState, Transition } from './checkpoint';
+import type { RecordStepMeta, RunReport } from './report-types';
+import type { RunReporter } from './reporter';
+import type { Rng } from './rng';
+import type { Session } from './runtime-types';
 
 export type RandomActionsOptions<S> = {
   /**

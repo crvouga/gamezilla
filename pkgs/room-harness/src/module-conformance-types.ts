@@ -1,4 +1,9 @@
-import type { RoomCommandPayload, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 export type GenCtx<S extends RoomState> = {

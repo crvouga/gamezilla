@@ -1,23 +1,23 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
 import { Gamepad2Icon, PlusIcon } from '@pkgs/ui-client/icons';
 import { LoadingState } from '@pkgs/ui-client/loading-state';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-client/screen-base-types';
 import { ScreenBodyScrollView } from '@pkgs/ui-client/screen-body-scroll-view';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, For, Show } from 'solid-js';
-import { openSpaceDetail } from './space-routes';
-import { useCreateSpace } from './use-create-space';
-import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
 import { SpaceCard } from './space-card';
-import { SpacesAttemptNotice, SpacesHostingCount } from './spaces-notices';
+import { openSpaceDetail } from './space-routes';
 import type { SpacesNotice } from './spaces-notices';
+import { SpacesAttemptNotice, SpacesHostingCount } from './spaces-notices';
 import { useCheckConnection } from './use-check-connection';
+import { useCreateSpace } from './use-create-space';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
+import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
 import { useSpacesListReady } from './use-spaces-list-ready';
 
 function sortCurrentSpacesFirst(

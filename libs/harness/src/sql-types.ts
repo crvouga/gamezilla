@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 
 /**
  * Opaque SQL handle for harness server / actor DBs.

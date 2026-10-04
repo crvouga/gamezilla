@@ -4,7 +4,10 @@
  * each API instance — gets its own fault entries.
  */
 
-import type { ProductHarnessPaletteCommand, ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
+import type {
+  ProductHarnessPaletteCommand,
+  ProductHarnessSession,
+} from '@pkgs/harness-console-shared/ports';
 
 function collectIds(session: ProductHarnessSession): string[] {
   const ids = [session.loadBalancer.id, ...session.servers.keys()];

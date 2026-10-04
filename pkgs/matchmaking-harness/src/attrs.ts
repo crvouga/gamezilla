@@ -5,8 +5,8 @@
  */
 
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
-import type { DistanceFormula } from '@pkgs/matchmaking-shared/types';
 import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import type { DistanceFormula } from '@pkgs/matchmaking-shared/types';
 
 export const exampleNs = createAttrNamespace('example');
 

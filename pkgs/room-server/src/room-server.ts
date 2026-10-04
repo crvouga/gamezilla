@@ -3,27 +3,50 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { MAX_ROSTER_SIZE } from '@pkgs/room-shared/bounds';
 import { RoomCacheInvalidated } from '@pkgs/room-shared/cache-invalidation';
-import { applyRoomEffects } from '@pkgs/room-shared/handler';
 import type { RoomEffectHandler } from '@pkgs/room-shared/handler';
+import { applyRoomEffects } from '@pkgs/room-shared/handler';
+import type { RoomIdentityErasure } from '@pkgs/room-shared/room-service';
+import type {
+  CommandDedupOutcome,
+  RoomStorage,
+} from '@pkgs/room-shared/server-core-storage';
+import {
+  ROOM_SERVICE_GRANT,
+  ROOM_SERVICE_IDENTITY,
+} from '@pkgs/room-shared/service-identity';
+import type {
+  LogEntry,
+  RoomActor,
+  RoomCommand,
+  RoomCommandPayload,
+  RoomEffect,
+  RoomError,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 import {
   parseClientToServerWire,
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-shared/wire';
-import {
-  ROOM_SERVICE_GRANT,
-  ROOM_SERVICE_IDENTITY,
-} from '@pkgs/room-shared/service-identity';
-import type { LogEntry, RoomActor, RoomCommand, RoomCommandPayload, RoomEffect, RoomError, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 import { broadcastToConnections, sendWelcomeFrame } from './room-server-fanout';
-import type { RoomIdentityErasure } from '@pkgs/room-shared/room-service';
-import type { CommandDedupOutcome, RoomStorage } from '@pkgs/room-shared/server-core-storage';
 
 const crash: Assert = Assert.crash();
 
-import type { CommandFrame, CommitArgs, RoomConnection, RoomConnectionOptions, RoomServerConfig } from '@pkgs/room-shared/room-server-types';
-import { NO_GRANTS, PONG_FRAME, rejectedFrame } from '@pkgs/room-shared/room-server-types';
+import type {
+  CommandFrame,
+  CommitArgs,
+  RoomConnection,
+  RoomConnectionOptions,
+  RoomServerConfig,
+} from '@pkgs/room-shared/room-server-types';
+import {
+  NO_GRANTS,
+  PONG_FRAME,
+  rejectedFrame,
+} from '@pkgs/room-shared/room-server-types';
 
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).

@@ -4,10 +4,7 @@ import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { spaceUserEntityId } from './participation-ids';
-import {
-  requireSpacePermission,
-  spaceIdArgs,
-} from './space-mutation-helpers';
+import { requireSpacePermission, spaceIdArgs } from './space-mutation-helpers';
 export const addSpaceUserMutation = defineMutation({
   name: 'addSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),

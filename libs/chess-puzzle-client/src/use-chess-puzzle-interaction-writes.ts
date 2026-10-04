@@ -1,9 +1,11 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type {
+  ChessPuzzleInteractionKind,
+  ChessPuzzleOutcomeKind,
+} from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import type { Accessor } from 'solid-js';
-
-import type { ChessPuzzleInteractionKind, ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
 
 type AppendExtra = {

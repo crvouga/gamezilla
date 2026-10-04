@@ -17,8 +17,8 @@
 
 import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { Hono } from 'hono';
 
 /** Longest a single dependency probe may take before it counts as down. */

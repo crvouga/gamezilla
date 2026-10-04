@@ -3,8 +3,8 @@
  * `AppHeaderIsland` and friends.
  */
 
-import type { Accessor } from 'solid-js';
 import type { BreakpointName } from '@pkgs/ui-shared/breakpoints';
+import type { Accessor } from 'solid-js';
 import { useThemeLayout } from './theme-context';
 
 /** Mobile default — kept as the exported `TOP_BAR_CONTENT_HEIGHT` constant. */

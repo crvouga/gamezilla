@@ -1,9 +1,10 @@
+import { catalogParams } from '@pkgs/harness-report-shared/catalog';
+import { fmtMs } from '@pkgs/harness-report-shared/format';
+import { buildHash } from '@pkgs/harness-report-shared/hash';
 import { createMemo, Show } from 'solid-js';
+import { fmtDate } from './format-date';
 import { useReport } from './report-context';
 import type { ReportNav } from './use-report-nav';
-import { catalogParams } from '@pkgs/harness-report-shared/catalog';
-import { fmtDate, fmtMs } from '@pkgs/harness-report-shared/format';
-import { buildHash } from '@pkgs/harness-report-shared/hash';
 
 export function Header(props: {
   nav: ReportNav;

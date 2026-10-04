@@ -1,9 +1,16 @@
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
+import { networkSend, releaseHeldKey } from './network-send';
+import type { Network, NetworkFaults, NetworkState } from './network-state';
+import {
+  effectiveFaults,
+  isPartitioned,
+  RELIABLE_NETWORK,
+  setPartition,
+  validateFaults,
+  validatePartialFaults,
+} from './network-state';
 import type { Scheduler } from './scheduler';
 import type { TraceRecorder } from './trace';
-import { networkSend, releaseHeldKey } from './network-send';
-import { effectiveFaults, isPartitioned, RELIABLE_NETWORK, setPartition, validateFaults, validatePartialFaults } from './network-state';
-import type { Network, NetworkFaults, NetworkState } from './network-state';
 
 export type CreateNetworkArgs = {
   readonly scheduler: Scheduler;

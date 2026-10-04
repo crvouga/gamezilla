@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { MODAL_WIDTH_PX, resolveModalLayoutMaxHeight, resolveModalLayoutWidth } from '@pkgs/ui-shared/modal-size';
+import {
+  MODAL_WIDTH_PX,
+  resolveModalLayoutMaxHeight,
+  resolveModalLayoutWidth,
+} from '@pkgs/ui-shared/modal-size';
 
 describe('resolveModalLayoutWidth', () => {
   const margin = 16;

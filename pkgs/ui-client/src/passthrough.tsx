@@ -6,8 +6,11 @@
  * host is only for trees that must not mount sheet chrome (harness / DST).
  */
 
+import type {
+  BottomSheetHost,
+  BottomSheetHostSheetProps,
+} from '@pkgs/ui-shared/bottom-sheet-host-types';
 import { type JSX, Show } from 'solid-js';
-import type { BottomSheetHost, BottomSheetHostSheetProps } from '@pkgs/ui-shared/bottom-sheet-host-types';
 
 function PassthroughSheet(props: BottomSheetHostSheetProps): JSX.Element {
   return <Show when={props.open}>{props.children}</Show>;

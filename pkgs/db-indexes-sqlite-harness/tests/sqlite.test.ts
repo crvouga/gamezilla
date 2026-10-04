@@ -1,9 +1,9 @@
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
+import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
 import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
 import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
 import type { WorkloadManifest } from '@pkgs/db-indexes-shared/types';
-import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
 import { createSqlitePort } from '@pkgs/db-indexes-sqlite-shared/create-sqlite-port';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';

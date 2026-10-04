@@ -1,9 +1,12 @@
 import { expect } from 'bun:test';
 import { playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import { configurePuzzleSounds, readPuzzleSoundsOn } from '@libs/chess-puzzle-harness/puzzle-sound-preference';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  configurePuzzleSounds,
+  readPuzzleSoundsOn,
+} from '@libs/chess-puzzle-harness/puzzle-sound-preference';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import {
   markPuzzleSoundBoundary,
   recentPuzzleSounds,

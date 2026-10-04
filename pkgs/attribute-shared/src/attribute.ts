@@ -10,8 +10,13 @@
  * nullable case.
  */
 import { assert } from '@pkgs/assert-shared/singleton';
-import { assertLocalName, assertNamespacedKeyword, joinKeywordSegments, namespacePrefixOf } from '@pkgs/keyword-shared/keyword';
 import type { JoinDot, Keyword } from '@pkgs/keyword-shared/keyword';
+import {
+  assertLocalName,
+  assertNamespacedKeyword,
+  joinKeywordSegments,
+  namespacePrefixOf,
+} from '@pkgs/keyword-shared/keyword';
 
 /** Flat state bag keyed by full attribute keys (`prefix/name`). */
 export type AttributeState = Record<Keyword, unknown>;

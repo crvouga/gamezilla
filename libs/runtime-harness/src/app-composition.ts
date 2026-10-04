@@ -23,13 +23,13 @@ import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import type { HarnessComposition } from '@libs/harness/composition';
 import { defineProductSystem } from '@libs/harness/define-product-system';
 import { PROFILE_HARNESS_ACTIONS } from '@libs/profile-harness/profile-actions';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
+import { appFeatureServers } from '@libs/runtime-server/app-feature-servers';
+import { APP } from '@libs/runtime-shared/app-features';
 import { SEARCH_HARNESS_ACTIONS } from '@libs/search-harness/search-actions';
 import { searchDoesNotHang } from '@libs/search-harness/search-properties';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { SPACES_HARNESS_ACTIONS } from '@libs/spaces-harness/space-actions';
-import { APP } from '@libs/runtime-shared/app-features';
-import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
-import { appFeatureServers } from '@libs/runtime-server/app-feature-servers';
 
 export const APP_COMPOSITION: HarnessComposition = {
   name: 'app',

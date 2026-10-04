@@ -6,8 +6,8 @@
  * unexpectedly`). Permanent auth/config failures fail fast.
  */
 import type { Timers } from '@pkgs/clock-shared/types';
-import { Client } from 'pg';
 import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-node-pg';
+import { Client } from 'pg';
 
 const PING_ATTEMPTS = 5;
 /** First attempt immediate; then back off for cold-start / pooler flaps. */

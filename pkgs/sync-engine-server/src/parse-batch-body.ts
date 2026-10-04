@@ -1,4 +1,7 @@
-import { MAX_MUTATIONS_BATCH, MAX_QUERY_BATCH } from '@pkgs/sync-engine-shared/v2';
+import {
+  MAX_MUTATIONS_BATCH,
+  MAX_QUERY_BATCH,
+} from '@pkgs/sync-engine-shared/v2';
 
 export type QueryBatchItem = {
   readonly name: string;

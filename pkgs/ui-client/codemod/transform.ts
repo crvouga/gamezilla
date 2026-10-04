@@ -14,16 +14,28 @@ import ts from 'typescript';
 import { splitTopLevel } from './split-top-level';
 import { invariant, nonEmptyString } from './tiger';
 import { CLASS_HELPER_NAMES, classAttrs } from './transform-class-peel';
-import { collectNodes, isLeafNode, lineOf, resolveBindings, tagName } from './transform-collect';
 import type { PendingNode } from './transform-collect';
-import type { ComponentConversion } from './transform-shared';
+import {
+  collectNodes,
+  isLeafNode,
+  lineOf,
+  resolveBindings,
+  tagName,
+} from './transform-collect';
 import { convertComponent } from './transform-components';
-import { isConvertibleExport } from './transform-kinds';
-import { applyEdits, ensureRuntimeImports, fileNameOf, parse, pruneImports, syntaxErrors } from './transform-imports';
 import type { SpanEdit } from './transform-imports';
+import {
+  applyEdits,
+  ensureRuntimeImports,
+  fileNameOf,
+  parse,
+  pruneImports,
+  syntaxErrors,
+} from './transform-imports';
+import { isConvertibleExport } from './transform-kinds';
 import type { ExistingClass } from './transform-node';
 import { purgeClassHelpers } from './transform-purge-helpers';
-import type { PrefixedSlot } from './transform-shared';
+import type { ComponentConversion, PrefixedSlot } from './transform-shared';
 
 export type ConvertedNode = {
   readonly line: number;

@@ -4,8 +4,8 @@
  * The title carries the surface title id so the dialog is named by it.
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { CloseIconButton } from './close-icon-button';
 import { useModalTitleId } from './modal-title-id';
 

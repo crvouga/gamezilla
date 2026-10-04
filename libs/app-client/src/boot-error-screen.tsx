@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { reloadApp } from '@libs/app-shared/reload-app';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { useLogger } from '@pkgs/logger-client/solid';
@@ -6,8 +8,6 @@ import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-shared/
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import { ErrorState } from '@pkgs/ui-client/error-state';
 import type { JSX } from 'solid-js';
-
-import { reloadApp } from '@libs/app-shared/reload-app';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
 export const BOOT_STUCK_MESSAGE =

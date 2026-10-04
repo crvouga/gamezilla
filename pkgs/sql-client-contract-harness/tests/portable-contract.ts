@@ -3,18 +3,18 @@
  * in-process SqlClient (SQLite + Postgres with JSON1 compat).
  */
 import { afterEach, beforeEach, expect, test } from 'bun:test';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
+import type { TableDef } from '@pkgs/db-schema-shared/define-table';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { raw } from '@pkgs/sql-shared/sql';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client-shared/interface';
+import type {
+  PostgresSqlClient,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import {
-  assertWireSafeRows,
-  assertWireSafeRunResult,
-} from './wire-safety';
+import { raw } from '@pkgs/sql-shared/sql';
+import { assertWireSafeRows, assertWireSafeRunResult } from './wire-safety';
 
 export type PortableClientFactory = () => SqlClient | Promise<SqlClient>;
 

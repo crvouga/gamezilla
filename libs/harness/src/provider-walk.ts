@@ -12,11 +12,10 @@
  */
 
 import type { Driver } from '@pkgs/ui-testing-shared/driver';
-
-import type { HarnessIdpProvider } from './idp';
-import { harnessIdpAccountId } from './idp';
 import { pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
+import type { HarnessIdpProvider } from './idp';
+import { harnessIdpAccountId } from './idp';
 
 const WAIT_MS = 15_000;
 /** Screens one sign-in can pass through (chooser → sign-up → consent → hand-off). */

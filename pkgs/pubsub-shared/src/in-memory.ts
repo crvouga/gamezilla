@@ -3,8 +3,8 @@ import type { PubSub, PubSubStatus } from './interface';
 import { decodePayload, encodePayload } from './payload';
 import { PubSubClosedError } from './pubsub-closed-error';
 import { PubSubNotSupportedError } from './pubsub-not-supported-error';
-import { assertValidTopic } from './topic';
 import type { Topic } from './topic';
+import { assertValidTopic } from './topic';
 
 type Handler = (data: unknown) => void;
 

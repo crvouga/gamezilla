@@ -70,14 +70,18 @@ describe('modelChecks', () => {
 
   test("checks only the package's own models, at their bindings' bounds", () => {
     // regression: model-check-refusal-recovery-expectation
-    const friends = specPackages().find((pkg) => pkg.dir === 'libs/friends');
+    const friends = specPackages().find(
+      (pkg) => pkg.dir === 'libs/friends-harness'
+    );
     expect(friends).toBeDefined();
     if (friends === undefined) return;
     const checks = modelChecks(friends);
     expect(checks.map((check) => check.specUri)).toEqual(
       [...friends.models].sort()
     );
-    const sync = specPackages().find((pkg) => pkg.dir === 'pkgs/sync-engine');
+    const sync = specPackages().find(
+      (pkg) => pkg.dir === 'pkgs/sync-engine-harness'
+    );
     expect(sync === undefined ? [] : modelChecks(sync)).toEqual([
       {
         specUri: 'specs/sync-engine/note-conflicts.qnt',

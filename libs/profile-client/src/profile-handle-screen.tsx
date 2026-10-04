@@ -1,16 +1,16 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
+import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import { FormActionsFooter } from '@pkgs/ui-client/form-actions-footer';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { TextInput } from '@pkgs/ui-client/text-input';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import type { Accessor, JSX } from 'solid-js';
 import { createEffect, createSignal } from 'solid-js';
-import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
-import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
 import { useProfileRow } from './claim-username-use-profile-row';
 
 function useSyncedUsername(row: Accessor<ProfileRow | null>) {

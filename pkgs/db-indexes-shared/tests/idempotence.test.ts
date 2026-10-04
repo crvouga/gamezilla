@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { planIndexes } from '@pkgs/db-indexes-shared/plan';
 import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { genSchemaWithManifest } from './manifest';
 import { fixedClock, RecordingPort } from './recording-port';
 

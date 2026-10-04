@@ -8,14 +8,13 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
-
-import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
 import {
   SpaceOpenRoomsStoreProvider,
   useSpaceOpenRooms,
   useSpaceOpenRoomsPendingClear,
   useSpaceOpenRoomsRegistry,
 } from './space-open-rooms-store';
+import { useOpenSpaceSessionIds } from './use-open-space-session-ids';
 import type { SpaceRoomUiState } from './use-space-room';
 import { useSpaceRoom } from './use-space-room';
 

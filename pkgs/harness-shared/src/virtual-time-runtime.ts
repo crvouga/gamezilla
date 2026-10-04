@@ -1,17 +1,24 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import { createSeededCreateId } from '@pkgs/uuid-shared/seeded-create-id';
 import { createVirtualClock } from './clock';
-import { createRngInternal } from './rng';
-import { createVirtualScheduler } from './scheduler-api';
-import { createTimers } from './timers';
-import { createTraceRecorder } from './trace';
-import type { TraceRecorder } from './trace';
+import { createRuntime } from './create-runtime';
 import { createNetwork } from './network';
 import type { Network, NetworkFaults } from './network-state';
 import { RELIABLE_NETWORK } from './network-state';
-import { createRuntime } from './create-runtime';
-import type { Capability, Endpoint, Ports, Runtime, Session, VirtualTimeRuntimeOptions } from './runtime-types';
+import { createRngInternal } from './rng';
+import type {
+  Capability,
+  Endpoint,
+  Ports,
+  Runtime,
+  Session,
+  VirtualTimeRuntimeOptions,
+} from './runtime-types';
 import { CapabilityError } from './runtime-types';
+import { createVirtualScheduler } from './scheduler-api';
+import { createTimers } from './timers';
+import type { TraceRecorder } from './trace';
+import { createTraceRecorder } from './trace';
 
 const VIRTUAL_CAPS: readonly Capability[] = [
   'virtualTime',

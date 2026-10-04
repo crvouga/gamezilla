@@ -10,15 +10,19 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createMemo, type JSX, untrack } from 'solid-js';
+import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import type { Href } from '@pkgs/ui-shared/href';
+import { createMemo, type JSX, untrack } from 'solid-js';
 import { useRouter } from './app-router';
 import { CatalogList } from './catalog-list';
+import {
+  componentRegistry,
+  registryEntries,
+  toCatalogItems,
+} from './component-registry';
 import { ScreenBase } from './screen-base';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
-import { componentRegistry, registryEntries, toCatalogItems } from './component-registry';
 
 export type ExplorerListProps = {
   /** Called with the entry `id` when a row is activated. */

@@ -1,13 +1,24 @@
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import {
+  ClearChessPuzzlePlay,
+  RequestChessPuzzleHint,
+  ResetChessPuzzlePlay,
+  RevealChessPuzzleSolution,
+  ShowChessPuzzleSolution,
+  SkipChessPuzzlePlay,
+  StepBackChessPuzzlePlay,
+  StepForwardChessPuzzlePlay,
+} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
+import {
+  CHESS_SCREEN,
+  SetChessMainMenuScreen,
+} from '@libs/chess-shared/chess-main-menu';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { formatUci } from '@pkgs/chess-rules-shared/uci';
 import type { Accessor } from 'solid-js';
-
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import { CHESS_SCREEN, SetChessMainMenuScreen } from '@libs/chess-shared/chess-main-menu';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ClearChessPuzzlePlay, RequestChessPuzzleHint, ResetChessPuzzlePlay, RevealChessPuzzleSolution, ShowChessPuzzleSolution, SkipChessPuzzlePlay, StepBackChessPuzzlePlay, StepForwardChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 
 /**
  * An attempt is in flight while the player is still moving or has just gone

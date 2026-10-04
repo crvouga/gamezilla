@@ -4,11 +4,21 @@
  */
 
 import { expect } from 'bun:test';
-import { ClaimOutOfTime, MATCH_STATUS, Move, REFUSAL, readMatchStatus, readPlayerToMove, readTimeLeftSeconds, readWinner, StartMatch } from '@pkgs/room-harness/game-room';
 import type { Player } from '@pkgs/room-harness/game-room';
+import {
+  ClaimOutOfTime,
+  MATCH_STATUS,
+  Move,
+  REFUSAL,
+  readMatchStatus,
+  readPlayerToMove,
+  readTimeLeftSeconds,
+  readWinner,
+  StartMatch,
+} from '@pkgs/room-harness/game-room';
 import { clock } from '@pkgs/room-harness/observations';
-import { dispatch } from '@pkgs/room-harness/room-actions';
 import { readClient, readServer } from '@pkgs/room-harness/read-state';
+import { dispatch } from '@pkgs/room-harness/room-actions';
 import {
   everyone,
   expectToldThat,
@@ -16,8 +26,8 @@ import {
   SECOND_MS,
   settleEveryone,
 } from './room.steps';
-import { Given, room, Then, When } from './world';
 import type { RoomWorld } from './world';
+import { Given, room, Then, When } from './world';
 
 async function startMatch(
   w: RoomWorld,

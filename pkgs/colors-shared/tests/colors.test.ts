@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 
-import { hslaToRgba, hslToRgb, rgbaToHsla, rgbToHsl } from '@pkgs/colors-shared/convert';
-import { contrastRatio, relativeLuminance } from '@pkgs/colors-shared/luminance';
+import {
+  hslaToRgba,
+  hslToRgb,
+  rgbaToHsla,
+  rgbToHsl,
+} from '@pkgs/colors-shared/convert';
+import {
+  contrastRatio,
+  relativeLuminance,
+} from '@pkgs/colors-shared/luminance';
 import { adjustLightness, mix, setAlpha } from '@pkgs/colors-shared/ops';
 import { hsl, hsla, rgb, rgba } from '@pkgs/colors-shared/types';
 

@@ -9,16 +9,8 @@
  * each person's place in the app, their account and the app's capacity.
  */
 
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
-import {
-  partition,
-  restoreNetwork,
-  spawnActor,
-} from '@libs/harness/actions';
-import {
-  returnToTabs,
-  signInWithGoogle,
-} from '@libs/harness/auth-actions';
+import { partition, restoreNetwork, spawnActor } from '@libs/harness/actions';
+import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
 import {
@@ -28,6 +20,7 @@ import {
   partitioned,
   visible,
 } from '@libs/harness/observations';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {
   partitionLoadBalancer as cutOffOnTheWay,
   spawnServerNode as gainCapacityPart,
@@ -46,8 +39,8 @@ import { openSpaceHosts } from '@libs/spaces-harness/space-state-reads';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;
 

@@ -95,59 +95,44 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/zz/src/observability-deep.ts',
-    source: "import { x } from '@pkgs/observability/core/src/span';",
-    message: 'deep src imports are forbidden',
-  },
-  {
-    path: 'pkgs/observability/src/core/sdk.ts',
+    // regression: flattened-observability-boundary
+    path: 'pkgs/observability-shared/src/sdk.ts',
     source:
       "import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';",
     message: 'core and query are runtime-agnostic',
   },
   {
-    path: 'pkgs/observability/src/query/api.ts',
+    path: 'pkgs/observability-shared/src/api.ts',
     source: "import { trace } from '@opentelemetry/api';",
     message: null,
   },
   {
-    path: 'libs/app-shared/src/browser-identity.ts',
-    source: "import { withSpan } from '@pkgs/observability/core';",
+    path: 'libs/app-server/src/request-telemetry.ts',
+    source: "import { withSpan } from '@pkgs/observability-shared/span';",
     message: null,
   },
   {
-    path: 'libs/zz/src/observability-feature.ts',
-    source: "import { withSpan } from '@pkgs/observability/core';",
+    path: 'libs/zz-client/src/observability-feature.ts',
+    source: "import { withSpan } from '@pkgs/observability-shared/span';",
     message: 'confined to the ADR boundary-file inventory',
   },
   {
     path: 'apps/client/src/main.tsx',
-    source: "import { createNodeTelemetry } from '@pkgs/observability/node';",
+    source:
+      "import { createNodeTelemetry } from '@pkgs/observability-server/node-node';",
     message: 'Node observability runtime is restricted',
   },
   {
     path: 'apps/server/src/room.ts',
     source:
-      "import { createBrowserTelemetry } from '@pkgs/observability/browser';",
+      "import { createBrowserTelemetry } from '@pkgs/observability-client/browser';",
     message: 'browser observability runtime is restricted',
   },
   {
-    path: 'libs/app-shared/src/browser-boundaries.ts',
+    path: 'libs/app-client/src/browser-boundaries.ts',
     source:
-      "import { createWorkerTelemetry } from '@pkgs/observability/worker';",
+      "import { createWorkerTelemetry } from '@pkgs/observability-server/worker-worker';",
     message: 'Worker observability runtime is restricted',
-  },
-  {
-    path: 'libs/zz/src/observability-legacy.ts',
-    source:
-      "import { createObservability } from '@pkgs/observability/port/create-observability';",
-    message: 'deep src imports are forbidden',
-  },
-  {
-    path: 'libs/zz/src/observability-legacy-package.ts',
-    source:
-      "import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';",
-    message: 'deep src imports are forbidden',
   },
   {
     path: 'libs/zz/src/bad-span.ts',
@@ -172,17 +157,17 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'pkgs/equal/src/view.ts',
+    path: 'pkgs/equal-shared/src/view.ts',
     source: "import { createSignal } from 'solid-js';",
     message: 'Framework-agnostic core must not import solid-js',
   },
   {
-    path: 'pkgs/equal/src/solid.ts',
+    path: 'pkgs/equal-client/src/solid.ts',
     source: "import { createSignal } from 'solid-js';",
     message: null,
   },
   {
-    path: 'pkgs/equal/src/plain.ts',
+    path: 'pkgs/equal-shared/src/plain.ts',
     source: "import { x } from './x';",
     message: null,
   },
@@ -197,38 +182,8 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/zz/src/shared/leaf.ts',
-    source: "import { a } from '@pkgs/sync-engine/client';",
-    message: 'shared/ must not import client/ or server/ code',
-  },
-  {
-    path: 'libs/zz/src/use-cases/do-it/shared/leaf.ts',
-    source: "import { a } from '../server/handler';",
-    message: 'shared/ must not import client/ or server/ code',
-  },
-  {
-    path: 'libs/zz/src/shared/fine.ts',
-    source: "import { a } from '@libs/server-app';",
-    message: null,
-  },
-  {
-    path: 'libs/zz/src/root/client/view.ts',
-    source: "import { a } from '../server/handler';",
-    message: 'client/ must not import server/ code',
-  },
-  {
-    path: 'libs/zz/src/root/server/route.ts',
-    source: "const m = await import('../client/view');",
-    message: 'server/ must not import client/ code',
-  },
-  {
-    path: 'libs/zz/src/outside.ts',
-    source: "import { a } from '@pkgs/assistant/shared/internal/engine';",
-    message: 'Only @pkgs/assistant/shared and @pkgs/assistant/client',
-  },
-  {
-    path: 'pkgs/zz/src/leaf.ts',
-    source: "import { a } from '@libs/auth/public/x';",
+    path: 'pkgs/zz-shared/src/leaf.ts',
+    source: "import { a } from '@libs/auth-shared/x';",
     message: 'pkgs/ must not import libs/ or apps/',
   },
   {
@@ -242,169 +197,161 @@ const PROBES: readonly Probe[] = [
     message: 'libs/ must not import apps/',
   },
   {
-    path: 'libs/zz/src/shared/net.ts',
-    source: "import { a } from '@pkgs/http-client';",
+    path: 'libs/zz-shared/src/net.ts',
+    source: "import { a } from '@pkgs/http-client-shared/http-client';",
     message: 'Shared game/domain logic must not import networking',
   },
   {
-    path: 'libs/zz/src/root/harness-user.ts',
-    source: "import { defineSystem } from '@pkgs/harness-shared';",
+    path: 'libs/zz-client/src/harness-user.ts',
+    source:
+      "import { defineSystem } from '@pkgs/harness-shared/define-system';",
     message: '@pkgs/harness-shared is harness-only',
   },
   {
-    path: 'libs/zz/src/root/report-user.ts',
-    source: "import { r } from '@pkgs/harness-report';",
+    path: 'libs/zz-client/src/report-user.ts',
+    source: "import { r } from '@pkgs/harness-report-client/report-app';",
     message: null,
   },
   {
-    path: 'libs/zz/src/root/deep.ts',
-    source: "import { a } from '../harness/actions';",
-    message: 'src/harness/** is harness-only',
+    path: 'libs/zz-server/src/transport.ts',
+    source: "import { e } from '@pkgs/pubsub-emqx-shared/emqx-pubsub';",
+    message: '@pkgs/pubsub-emqx-* only from',
   },
   {
-    path: 'libs/zz/src/root/seam.ts',
-    source: "import { a } from '../harness/index';",
+    path: 'libs/pubsub-server/src/wiring.ts',
+    source: "import { e } from '@pkgs/pubsub-emqx-shared/emqx-pubsub';",
     message: null,
   },
   {
-    path: 'pkgs/zz/src/internals-user.ts',
-    source: "import { a } from '@pkgs/harness-shared/internals';",
-    message: 'Only pkgs/harness/** may import @pkgs/harness-shared/internals',
-  },
-  {
-    path: 'libs/zz/src/root/transport.ts',
-    source: "import { e } from '@pkgs/pubsub-emqx';",
-    message: '@pkgs/pubsub-emqx only from pkgs/pubsub-emqx',
-  },
-  {
-    path: 'libs/pubsub/src/root/server/wiring.ts',
-    source: "import { e } from '@pkgs/pubsub-emqx';",
-    message: null,
-  },
-  {
-    path: 'pkgs/harness/src/core.ts',
+    path: 'pkgs/harness-shared/src/core.ts',
     source: "import fc from 'fast-check';",
     message: '@pkgs/harness-shared core (except src/fast-check/ and tests)',
   },
   {
-    path: 'libs/zz/src/use-cases/pay/server/route.ts',
-    source: "import { PaddleMembershipBilling } from '@pkgs/billing-paddle';",
+    path: 'libs/zz-server/src/route.ts',
+    source:
+      "import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';",
     message: 'Product code knows billing only through the @pkgs/billing-shared',
   },
   {
-    path: 'libs/zz/src/root/client/screen.tsx',
+    path: 'libs/zz-client/src/screen.tsx',
     source: "import Stripe from 'stripe';",
     message: 'Product code knows billing only through the @pkgs/billing-shared',
   },
   {
-    path: 'pkgs/billing/src/port.ts',
-    source: "export { STRIPE_PROVIDER } from '@pkgs/billing-stripe';",
+    path: 'pkgs/billing-shared/src/port.ts',
+    source:
+      "export { STRIPE_PROVIDER } from '@pkgs/billing-stripe-server/stripe-provider';",
     message: 'Product code knows billing only through the @pkgs/billing-shared',
   },
   {
-    path: 'libs/zz/src/use-cases/pay/server/port-route.ts',
-    source: "import type { MembershipProviders } from '@pkgs/billing-shared';",
+    path: 'libs/zz-server/src/port-route.ts',
+    source:
+      "import type { MembershipProviders } from '@pkgs/billing-shared/membership';",
     message: null,
   },
   {
-    path: 'libs/zz/src/harness/provider-driver.ts',
-    source: "import { createStripeClient } from '@pkgs/billing-stripe';",
+    path: 'libs/zz-harness/src/provider-driver.ts',
+    source:
+      "import { createStripeClient } from '@pkgs/billing-stripe-server/stripe-client';",
     message: null,
   },
   {
     path: 'apps/server/src/product-server.ts',
     source:
-      "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle';",
+      "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle-shared/paddle-membership';",
     message: null,
   },
   {
-    path: 'libs/zz/src/root/client/gate.tsx',
-    source: "import { useIsSignedIn } from '@libs/auth/public/access-facts';",
+    path: 'libs/zz-client/src/gate.tsx',
+    source: "import { useIsSignedIn } from '@libs/auth-client/access-facts';",
     message: 'Only @libs/permissions reads sign-in state',
   },
   {
-    path: 'libs/permissions/src/use-cases/decide/client/facts.ts',
-    source: "import { useIsSignedIn } from '@libs/auth/public/access-facts';",
+    path: 'libs/permissions-client/src/facts.ts',
+    source: "import { useIsSignedIn } from '@libs/auth-client/access-facts';",
     message: null,
   },
   {
-    path: 'libs/zz/src/root/client/plan.ts',
-    source: "import { ROLE } from '@libs/permissions/root/access-model';",
+    path: 'libs/zz-client/src/plan.ts',
+    source: "import { ROLE } from '@libs/permissions-shared/access-model';",
     message: 'Roles, plans and access facts are private to @libs/permissions',
   },
   {
-    path: 'libs/zz/tests/plan.test.ts',
-    source: "import { ROLE } from '@libs/permissions/root/access-model';",
+    path: 'libs/zz-client/tests/plan.test.ts',
+    source: "import { ROLE } from '@libs/permissions-shared/access-model';",
     message: null,
   },
   {
     path: 'libs/app-server/src/create-server.ts',
     source:
-      "import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';",
+      "import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/access-model';",
     message: null,
   },
   {
-    path: 'libs/zz/src/use-cases/act/shared/act-mutation.ts',
+    path: 'libs/zz-shared/src/act-mutation.ts',
     source: 'export const guest = (env: { isAnon: boolean }) => env.isAnon;',
     message: 'Sign-in state and membership are read only by auth, billing',
   },
   {
-    path: 'libs/zz/src/root/client/banner.tsx',
+    path: 'libs/zz-client/src/banner.tsx',
     source: 'export const show = (signedIn: boolean) => !signedIn;',
     message: 'Sign-in state and membership are read only by auth, billing',
   },
   {
-    path: 'libs/zz/src/root/client/member-query.ts',
+    path: 'libs/zz-client/src/member-query.ts',
     source:
       'export const q = `\n  SELECT status\n  FROM billing_subscriptions\n`;',
     message: 'Sign-in state and membership are read only by auth, billing',
   },
   {
-    path: 'libs/auth/src/root/client/session.ts',
+    path: 'libs/auth-client/src/session.ts',
     source: 'export const guest = (env: { isAnon: boolean }) => env.isAnon;',
     message: null,
   },
   {
-    path: 'libs/zz/src/root/client/actor.ts',
+    path: 'libs/zz-client/src/actor.ts',
     source: 'export const who = (env: { actorId: string }) => env.actorId;',
     message: null,
   },
   {
-    path: 'libs/zz/src/root/client/sign-in.tsx',
+    path: 'libs/zz-client/src/sign-in.tsx',
     source:
-      "import { createInhouseAuthClient } from '@pkgs/auth-inhouse/client';",
+      "import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';",
     message: 'Product code knows auth only through the @pkgs/auth port',
   },
   {
-    path: 'libs/zz/src/use-cases/me/server/route.ts',
+    path: 'libs/zz-server/src/me-route.ts',
     source: "import { clerkClient } from '@clerk/backend';",
     message: 'Product code knows auth only through the @pkgs/auth port',
   },
   {
-    path: 'libs/zz/src/root/server/admin.ts',
+    path: 'libs/zz-server/src/admin.ts',
     source: "const admin = await import('firebase-admin/auth');",
     message: 'Product code knows auth only through the @pkgs/auth port',
   },
   {
-    path: 'pkgs/auth/src/server/port.ts',
+    path: 'pkgs/auth-shared/src/port.ts',
     source:
-      "export { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';",
+      "export { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';",
     message: 'Product code knows auth only through the @pkgs/auth port',
   },
   {
-    path: 'libs/zz/src/use-cases/me/server/port-route.ts',
-    source: "import type { AuthServerPort } from '@pkgs/auth/server';",
+    path: 'libs/zz-server/src/me-port-route.ts',
+    source:
+      "import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';",
     message: null,
   },
   {
     path: 'libs/runtime-server/src/app-auth-provider.ts',
     source:
-      "import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';",
+      "import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';",
     message: null,
   },
   {
-    path: 'libs/zz/src/harness/idp-driver.ts',
-    source: "import { IdpRepository } from '@pkgs/auth-inhouse/server';",
+    path: 'libs/zz-harness/src/idp-driver.ts',
+    source:
+      "import { IdpRepository } from '@pkgs/auth-inhouse-server/idp-repository';",
     message: null,
   },
   {
@@ -423,7 +370,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'pkgs/property/src/zz.ts',
+    path: 'pkgs/property-shared/src/zz.ts',
     source: 'fc.assert(property, params);',
     message: null,
   },

@@ -4,10 +4,10 @@
  * emphasised (`<mark>`-free: bold segments so colours stay on-theme).
  */
 
-import { createMemo, For, type JSX, Show } from 'solid-js';
-import type { TextVariant } from './text';
 import type { MatchRange } from '@pkgs/ui-shared/fuzzy-match';
 import { mergeRanges } from '@pkgs/ui-shared/fuzzy-match';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { TextVariant } from './text';
 
 export type HighlightedTextProps = {
   text: string;

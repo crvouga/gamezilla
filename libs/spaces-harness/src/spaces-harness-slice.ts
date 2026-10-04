@@ -1,9 +1,11 @@
 import type { HarnessSlice } from '@libs/harness/slices';
-
-import type { GameClientDefinition, GameDefinition } from '@libs/spaces-shared/game';
 import { createSpacesClient } from '@libs/spaces-client/feature-client';
-import { SPACES_FEATURE } from '@libs/spaces-shared/feature';
 import { createSpacesServer } from '@libs/spaces-server/feature-server';
+import { SPACES_FEATURE } from '@libs/spaces-shared/feature';
+import type {
+  GameClientDefinition,
+  GameDefinition,
+} from '@libs/spaces-shared/game';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { SPACES_HARNESS_ACTIONS } from './space-actions';
 

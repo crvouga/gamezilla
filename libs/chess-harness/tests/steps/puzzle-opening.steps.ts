@@ -1,6 +1,6 @@
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import type { Actor } from '@libs/harness/parameter-types';
 import { When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { enterNamedPuzzle } from './puzzle-world';
 
 When('{actor} opens the two-rook clearance puzzle', async (w, actor: Actor) => {

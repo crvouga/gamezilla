@@ -2,10 +2,16 @@
 import { useTimers } from '@pkgs/clock-client/solid';
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from './button';
-import { ExampleRoot } from './example-root';
-import { EllipsisIcon, HouseIcon, ListChecksIcon, PaintbrushIcon, WifiIcon } from './icons';
 import { CommandPalette } from './command-palette';
 import { CommandRegistryProvider } from './command-registry-context';
+import { ExampleRoot } from './example-root';
+import {
+  EllipsisIcon,
+  HouseIcon,
+  ListChecksIcon,
+  PaintbrushIcon,
+  WifiIcon,
+} from './icons';
 import { RegisterCommand } from './register-command';
 import { useCommandPalette } from './use-command-palette';
 

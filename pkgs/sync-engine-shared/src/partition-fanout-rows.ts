@@ -1,8 +1,8 @@
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 
 import type { MutationDb } from './mutations-types';
-import type { QueryRow } from './v2';
 import type { TopicMap, TopicMapCtx } from './topic-map';
+import type { QueryRow } from './v2';
 
 type TopicRowBag = Map<Topic, Record<string, QueryRow[]>>;
 

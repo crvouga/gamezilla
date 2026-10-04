@@ -6,11 +6,11 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import type { JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { IconButton } from './icon-button';
 import type { IconComponent } from './create-icon';
+import { IconButton } from './icon-button';
 import { ListChecksIcon } from './icons';
 import { useCommandPalette } from './use-command-palette';
 

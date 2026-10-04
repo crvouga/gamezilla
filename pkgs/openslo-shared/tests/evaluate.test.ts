@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { evaluateObjective } from '@pkgs/openslo-shared/evaluate';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
+import { evaluateObjective } from '@pkgs/openslo-shared/evaluate';
 import type { Objective, Sli, Slo } from '@pkgs/openslo-shared/model';
 import {
   events,

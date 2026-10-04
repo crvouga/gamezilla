@@ -1,5 +1,23 @@
 import { describe, expect, test } from 'bun:test';
-import { classifyValue, collapseAllState, collectAllContainerPaths, containerBrackets, containerCount, encodePath, entriesOf, expandAllState, formatContainerSummary, formatLeafPreview, formatPathLabel, isContainer, JSON_EXPANSION_INITIAL, resolveExpanded, safeStringify, stringifyForCopy, toggleExpansion } from '@pkgs/ui-devtools-shared/json-view-logic';
+import {
+  classifyValue,
+  collapseAllState,
+  collectAllContainerPaths,
+  containerBrackets,
+  containerCount,
+  encodePath,
+  entriesOf,
+  expandAllState,
+  formatContainerSummary,
+  formatLeafPreview,
+  formatPathLabel,
+  isContainer,
+  JSON_EXPANSION_INITIAL,
+  resolveExpanded,
+  safeStringify,
+  stringifyForCopy,
+  toggleExpansion,
+} from '@pkgs/ui-devtools-shared/json-view-logic';
 
 describe('classifyValue / isContainer', () => {
   test('classifies primitives and object-likes', () => {

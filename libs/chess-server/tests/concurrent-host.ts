@@ -2,14 +2,17 @@ import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import { uniqueTables } from '@libs/permissions-shared/world';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import sql from '@pkgs/sql-shared/sql';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
-import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 import type { ConcurrentDriver } from './concurrent-postgres';
 import { openConcurrentPostgres } from './concurrent-postgres';
 

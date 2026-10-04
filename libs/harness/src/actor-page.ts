@@ -12,7 +12,10 @@
  */
 
 import { describeControl } from '@pkgs/a11y-shared/controls';
-import { nextInFocusOrder, sequentialFocusOrder } from '@pkgs/a11y-shared/focus';
+import {
+  nextInFocusOrder,
+  sequentialFocusOrder,
+} from '@pkgs/a11y-shared/focus';
 import { hostLimit } from '@pkgs/gherkin-shared/registry';
 import { actorUi } from './actor-ui';
 import type { ProductHarness } from './harness';

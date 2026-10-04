@@ -12,7 +12,6 @@
  * environment (`--conditions=browser`, the `@pkgs/bun-test-solid-client` preload).
  */
 
-import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
 import { AuthClientProvider } from '@libs/auth-client/auth-client-provider';
 import {
   DEVICE_ID_KEY,
@@ -20,33 +19,44 @@ import {
   SESSION_TOKEN_KEY,
 } from '@libs/auth-shared/auth-storage-keys';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
+import type { CaseInput } from '@libs/permissions-shared/people';
+import {
+  CASE_NOW_MS,
+  DEVICE_ID,
+  personOf,
+} from '@libs/permissions-shared/people';
+import type { ServerCase } from '@libs/permissions-shared/server';
+import type { AppPolicy } from '@libs/permissions-shared/world';
+import {
+  mutationEnvFor,
+  seedAccess,
+  uniqueTables,
+} from '@libs/permissions-shared/world';
+import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
 import { ClockProvider } from '@pkgs/clock-client/solid';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import type { DecisionOutput } from '@pkgs/dmn-shared/evaluate';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
+import { SecureStorageStoreProvider } from '@pkgs/secure-storage-client/solid';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage-shared/impl-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import { SecureStorageStoreProvider } from '@pkgs/secure-storage-client/solid';
 import sql from '@pkgs/sql-shared/sql';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
-import type { SyncEngine, WatchSubscription } from '@pkgs/sync-engine-client/sync-engine-port';
-import { createInMemorySyncEngine } from '@pkgs/sync-engine-harness/in-memory-sync-engine';
-import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationClientProvider } from '@pkgs/sync-engine-client/mutation-client-provider';
 import { SyncEngineProvider } from '@pkgs/sync-engine-client/sync-engine-context';
-import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
+import type {
+  SyncEngine,
+  WatchSubscription,
+} from '@pkgs/sync-engine-client/sync-engine-port';
+import { createInMemorySyncEngine } from '@pkgs/sync-engine-harness/in-memory-sync-engine';
+import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import { IdProvider } from '@pkgs/uuid-client/solid';
+import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
 import { createComponent, createRoot, type JSX } from 'solid-js';
-
-import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
-import { CASE_NOW_MS, DEVICE_ID, personOf } from '@libs/permissions-shared/people';
-import type { CaseInput } from '@libs/permissions-shared/people';
-import type { ServerCase } from '@libs/permissions-shared/server';
-import type { AppPolicy } from '@libs/permissions-shared/world';
-import { mutationEnvFor, seedAccess, uniqueTables } from '@libs/permissions-shared/world';
 
 /** What the probe hands back once mounted: how to read the case's answer. */
 export type ClientProbe = () => DecisionOutput | Promise<DecisionOutput>;

@@ -1,6 +1,6 @@
 import type { AuthIdentity } from './auth-identity';
-import type { OauthProviderId } from './sign-in-method';
 import type { AuthSessionStore } from './auth-session-state';
+import type { OauthProviderId } from './sign-in-method';
 
 export type GetFreshTokenOptions = {
   /** Force a network mint (bypass any cached token) after an auth 401. */

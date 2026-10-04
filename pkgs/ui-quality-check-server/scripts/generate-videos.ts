@@ -2,8 +2,8 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { startProcess } from '@pkgs/os-server/streaming-process';
-import ffmpeg from 'ffmpeg-static';
 import { captureProcess } from '@pkgs/ui-quality-check-server/process';
+import ffmpeg from 'ffmpeg-static';
 
 if (!ffmpeg) throw new Error('Bundled FFmpeg is missing.');
 const directory = process.argv[2] ?? '.cache/benchmark-videos';

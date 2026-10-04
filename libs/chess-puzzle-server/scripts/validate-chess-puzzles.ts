@@ -3,7 +3,10 @@
  * §35 full-database validation job entry. See
  * `root/server/validate-chess-puzzles/chess-puzzle-validation-job.ts`.
  */
-import { ChessPuzzleValidationJob, parsePuzzleValidationCli } from '@libs/chess-puzzle-server/chess-puzzle-validation-job';
+import {
+  ChessPuzzleValidationJob,
+  parsePuzzleValidationCli,
+} from '@libs/chess-puzzle-server/chess-puzzle-validation-job';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createLogger } from '@pkgs/logger-shared/logger';

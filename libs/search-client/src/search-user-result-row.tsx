@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { UserSearchResultRow } from '@libs/user-search-client/user-search-result-row';
 import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { MENU_ROW_PX_STEP } from '@pkgs/ui-client/menu-row';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { spacingScale } from '@pkgs/ui-shared/scale';
 import { type JSX, Show } from 'solid-js';
 

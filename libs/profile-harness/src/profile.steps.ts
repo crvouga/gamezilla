@@ -1,14 +1,34 @@
 /** Profile steps other packages reuse (`@libs/profile/steps/profile.steps`). */
 
 import { expect } from 'bun:test';
-import { focusActor } from '@libs/harness/shell-actions';
-import { returnToTabs, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  returnToTabs,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { cancelAvatarEdits, leaveAvatarEditor, leaveUsernameEditor, openAvatarEditor, openProfileEdit, saveAvatar, setAvatarSeed, setAvatarStyle, setUsername, submitUsername, typeUsernameDraft } from './profile-actions';
-import { readProfileTabUsername, readProfileUsernameShown, readSavedAvatar, readUsernameSaveFace } from './profile-ui-reads';
+import {
+  cancelAvatarEdits,
+  leaveAvatarEditor,
+  leaveUsernameEditor,
+  openAvatarEditor,
+  openProfileEdit,
+  saveAvatar,
+  setAvatarSeed,
+  setAvatarStyle,
+  setUsername,
+  submitUsername,
+  typeUsernameDraft,
+} from './profile-actions';
+import {
+  readProfileTabUsername,
+  readProfileUsernameShown,
+  readSavedAvatar,
+  readUsernameSaveFace,
+} from './profile-ui-reads';
 
 const SECOND_MS = 1_000;
 

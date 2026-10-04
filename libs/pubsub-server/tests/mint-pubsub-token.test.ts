@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { mintPubSubToken } from '@libs/pubsub-server/mint-pubsub-token';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { jwtVerify } from 'jose';
-
-import { mintPubSubToken } from '@libs/pubsub-server/mint-pubsub-token';
 
 /** 2026-01-01T00:00:00Z — a fixed instant so the verdict never reads the wall. */
 const START_MS = 1_767_225_600_000;

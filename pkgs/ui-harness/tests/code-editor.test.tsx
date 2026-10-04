@@ -2,8 +2,8 @@
 
 import { describe, expect, mock, test } from 'bun:test';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { CODE_EDITOR_LINE_HEIGHT } from '@pkgs/ui-shared/code-editor-highlight';
 import { CodeEditor } from '@pkgs/ui-client/code-editor';
+import { CODE_EDITOR_LINE_HEIGHT } from '@pkgs/ui-shared/code-editor-highlight';
 import type { CodeToken } from '@pkgs/ui-shared/code-editor-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';

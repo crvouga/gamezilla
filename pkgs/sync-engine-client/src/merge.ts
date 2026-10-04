@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import { isMutationError } from '@pkgs/sync-engine-shared/failures';
 
@@ -9,10 +9,13 @@ import type {
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
-import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
-import type { TableChangeBus } from './table-change-bus';
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
+import {
+  compareCheckpoint,
+  raiseScopeCheckpoints,
+} from '@pkgs/sync-engine-shared/push-applied';
 import { parseStandardSchema } from '@pkgs/sync-engine-shared/standard-schema';
+import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
+import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import {
   assertCompleteNewRowImages,
   isValidTableName,
@@ -25,7 +28,7 @@ import {
   omitAlreadyLiveRows,
   recordOptimisticPeerRows,
 } from './optimistic-peer-rows';
-import { compareCheckpoint, raiseScopeCheckpoints } from '@pkgs/sync-engine-shared/push-applied';
+import type { TableChangeBus } from './table-change-bus';
 
 export type MergeFullInput = {
   readonly scopeHash: string;

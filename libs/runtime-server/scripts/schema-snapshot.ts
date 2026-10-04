@@ -1,7 +1,7 @@
 // @io-wall-ok — schema contract CLI entry root (scripts/**).
 import { writeFileSync } from 'node:fs';
-import { assertEvolvable } from '@pkgs/db-schema-shared/schema-evolution';
 import { appSchema } from '@libs/runtime-shared/app-schema';
+import { assertEvolvable } from '@pkgs/db-schema-shared/schema-evolution';
 import {
   readSnapshotFile,
   SNAPSHOT_PATH,

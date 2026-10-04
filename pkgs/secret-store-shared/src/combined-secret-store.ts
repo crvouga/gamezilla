@@ -1,10 +1,10 @@
 import type { SecretString } from '@pkgs/secret-string-shared/secret-string';
-import { SecretMissingError } from './secret-missing-error';
 import type {
   SecretStore,
   SecretStoreGetInit,
   SecretStoreSetInit,
 } from './interface';
+import { SecretMissingError } from './secret-missing-error';
 
 /**
  * Composes two stores with precedence: `primary` first, then `fallback`.

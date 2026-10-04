@@ -1,5 +1,14 @@
 import { expect, test } from 'bun:test';
-import { editorAction, feedbackAction, feedbackReportingSystem, navigationAction, readEditorView, readFeedbackView, readNavigationView, wizardAction } from '@pkgs/feedback-harness/feedback';
+import {
+  editorAction,
+  feedbackAction,
+  feedbackReportingSystem,
+  navigationAction,
+  readEditorView,
+  readFeedbackView,
+  readNavigationView,
+  wizardAction,
+} from '@pkgs/feedback-harness/feedback';
 
 // regression: feedback-widget-unbounded
 test('issues scroll in a fixed-height widget and stages move keyboard focus', async () => {

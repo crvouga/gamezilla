@@ -1,12 +1,11 @@
 import { defineProperty } from '@pkgs/harness-shared/define-property';
-
+import type { SyncHarness } from './scenario-system';
 import {
   inSync,
   invariantViolations,
   partitioned,
   quiet,
 } from './sync-observations';
-import type { SyncHarness } from './scenario-system';
 
 /** always(invariants hold) — read-only kit.checkInvariants */
 export const invariantsHold = defineProperty({

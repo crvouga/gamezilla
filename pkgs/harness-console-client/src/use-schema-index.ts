@@ -7,9 +7,8 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
-
-import { listProductHarnessTables, loadColumnNames } from './sql-schema-query';
 import type { SchemaRow } from './sql-schema-query';
+import { listProductHarnessTables, loadColumnNames } from './sql-schema-query';
 
 export type SchemaWakeSubscribe = (
   listener: (label: string) => void

@@ -2,8 +2,11 @@
 
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
-import { calibrationStatistics, confusion } from '@pkgs/ui-quality-check-shared/statistics';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import {
+  calibrationStatistics,
+  confusion,
+} from '@pkgs/ui-quality-check-shared/statistics';
 
 interface Sample {
   path: string;

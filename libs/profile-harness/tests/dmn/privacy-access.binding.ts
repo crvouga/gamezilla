@@ -1,10 +1,7 @@
-import { decidePrivacyAccess } from '@libs/permissions-shared/privacy-permission';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import { capabilityKey } from '@libs/permissions-shared/capabilities';
-import {
-  CASE_NOW_MS,
-  factsOf,
-} from '@libs/permissions-shared/people';
+import { CASE_NOW_MS, factsOf } from '@libs/permissions-shared/people';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
+import { decidePrivacyAccess } from '@libs/permissions-shared/privacy-permission';
 import { bindDecisions } from '@pkgs/dmn-shared/registry';
 import { decide } from '@pkgs/permissions-shared/decision';
 import { policyAt } from '@pkgs/permissions-shared/policy';

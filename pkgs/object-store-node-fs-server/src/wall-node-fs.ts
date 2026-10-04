@@ -13,7 +13,11 @@ import {
   writeFile,
 } from 'node:fs/promises';
 
-import type { NodeFs, NodeFsDirent, NodeFsStats } from '@pkgs/object-store-node-fs-shared/node-fs';
+import type {
+  NodeFs,
+  NodeFsDirent,
+  NodeFsStats,
+} from '@pkgs/object-store-node-fs-shared/node-fs';
 
 export function wallNodeFs(): NodeFs {
   return {

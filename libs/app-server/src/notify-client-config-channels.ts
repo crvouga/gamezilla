@@ -1,7 +1,7 @@
 import { clientConfigTopic } from '@libs/app-config-shared/sync-topics';
+import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 
 /** Best-effort system-topic push after client_config DOMAIN write. */
 export async function notifyClientConfigChannels(label: string): Promise<void> {

@@ -6,15 +6,21 @@
  * conversions into span edits.
  */
 
-import ts from 'typescript';
 import { CSS_VAR_COLORS, cssVarElevation } from '@pkgs/ui-shared/css-vars';
+import ts from 'typescript';
 import { sxToCss } from './legacy-sx-to-css';
 import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
 import { dashCase } from './sx-map-scale';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';
-import { attrExpression, attrStringLiteral, classifyTransform, getJsxAttr, readObjectSplices } from './transform-attrs';
 import type { ObjectEntry, SplicePart } from './transform-attrs';
+import {
+  attrExpression,
+  attrStringLiteral,
+  classifyTransform,
+  getJsxAttr,
+  readObjectSplices,
+} from './transform-attrs';
 
 export type StyleEntry = {
   readonly cssProp: string;

@@ -15,24 +15,24 @@
  * Enable bulk select with `selectionMode="multiple"` + controlled keys.
  */
 import { useLingui } from '@lingui/solid/macro';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { createMemo, For, type JSX, Show } from 'solid-js';
-import { createDataTablePageCache } from './create-data-table-page-cache';
-import styles from './data-table.module.css';
-import { DataTableHeader } from './data-table-header';
-import type { DataTableSelectionHeader } from './data-table-header';
-import { DataTablePagination } from './data-table-pagination';
-import { DataTableRow } from './data-table-row';
 import {
   pageSelectionState,
   setPageKeysSelected,
   toggleSelectedKey,
 } from '@pkgs/ui-devtools-shared/data-table-selection';
+import type { DataTableProps } from '@pkgs/ui-devtools-shared/data-table-types';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import { createDataTablePageCache } from './create-data-table-page-cache';
+import styles from './data-table.module.css';
+import type { DataTableSelectionHeader } from './data-table-header';
+import { DataTableHeader } from './data-table-header';
+import { DataTablePagination } from './data-table-pagination';
+import { DataTableRow } from './data-table-row';
 import {
   DATA_TABLE_SHELL_CLASS,
   DataTableStatusBody,
 } from './data-table-status';
-import type { DataTableProps } from '@pkgs/ui-devtools-shared/data-table-types';
 
 const DEFAULT_PAGE_SIZE = 50;
 

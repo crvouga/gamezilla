@@ -1,9 +1,8 @@
 import { useTimers } from '@pkgs/clock-client/solid';
+import type { ProductHarnessPubSubNode } from '@pkgs/harness-console-shared/ports';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-
-import type { ProductHarnessPubSubNode } from '@pkgs/harness-console-shared/ports';
 
 /**
  * Live pubsub topic inventory across in-memory bus peers.

@@ -1,9 +1,19 @@
 import { describe, expect, mock, test } from 'bun:test';
+import {
+  clampHighlightedIndex,
+  defaultFilterOption,
+  filterComboboxOptions,
+} from '@pkgs/ui-shared/combobox-filter';
 import type { ComboboxKeyEvent } from '@pkgs/ui-shared/combobox-key-nav';
-import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
-import { clampHighlightedIndex, defaultFilterOption, filterComboboxOptions } from '@pkgs/ui-shared/combobox-filter';
 import { handleComboboxKeyNav } from '@pkgs/ui-shared/combobox-key-nav';
-import { isMultipleComboboxProps, isValueSelected, removeSelectedValue, selectedOptionsFor, toggleSelectedValue } from '@pkgs/ui-shared/combobox-selection';
+import {
+  isMultipleComboboxProps,
+  isValueSelected,
+  removeSelectedValue,
+  selectedOptionsFor,
+  toggleSelectedValue,
+} from '@pkgs/ui-shared/combobox-selection';
+import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
 
 const RED: ComboboxOption = { value: 'red', label: 'Red' };
 const GREEN: ComboboxOption = {

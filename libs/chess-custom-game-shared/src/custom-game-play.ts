@@ -5,7 +5,11 @@ import {
   customGameMoveInput,
 } from './custom-game-position';
 import type { CustomGame, CustomGameSide } from './custom-game-state';
-import { customGamePersonSide, customGameTimeLeft, otherCustomGameSide } from './custom-game-state';
+import {
+  customGamePersonSide,
+  customGameTimeLeft,
+  otherCustomGameSide,
+} from './custom-game-state';
 
 export function finishCustomGame(
   game: CustomGame,

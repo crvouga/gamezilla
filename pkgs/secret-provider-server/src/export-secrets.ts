@@ -3,8 +3,8 @@
  * and `secrets:pull`.
  */
 import { spawnSync } from 'node:child_process';
-import { parseInfisicalExportJson } from '@pkgs/secret-provider-shared/local-secrets-cache';
 import { INFISICAL_CLI_BIN } from '@pkgs/secret-provider-shared/defaults';
+import { parseInfisicalExportJson } from '@pkgs/secret-provider-shared/local-secrets-cache';
 
 export type InfisicalExportCoords = {
   readonly repoRoot: string;

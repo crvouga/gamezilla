@@ -3,15 +3,25 @@
  * these scenarios hydrate their space memberships, so leaving stops notes.
  */
 
-import { createSpace, endSpace, joinSpace, leaveSpace } from '@pkgs/sync-engine-harness/membership-mutations';
-import { hasTopic, lacksTopic } from '@pkgs/sync-engine-harness/reads';
-import { mutate, nudge, subscribe, unsubscribe } from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  createSpace,
+  endSpace,
+  joinSpace,
+  leaveSpace,
+} from '@pkgs/sync-engine-harness/membership-mutations';
 import { notesDeniedQuery } from '@pkgs/sync-engine-harness/queries';
-import { roomTopic } from '@pkgs/sync-engine-harness/topics';
+import { hasTopic, lacksTopic } from '@pkgs/sync-engine-harness/reads';
+import {
+  mutate,
+  nudge,
+  subscribe,
+  unsubscribe,
+} from '@pkgs/sync-engine-harness/regression-actions';
 import { subscribedTopics } from '@pkgs/sync-engine-harness/sync-observations';
+import { roomTopic } from '@pkgs/sync-engine-harness/topics';
 import { SETTLE_MS } from './note-writes';
-import { app, ensureDevice, Given, When } from './world';
 import type { SyncWorld } from './world';
+import { app, ensureDevice, Given, When } from './world';
 
 async function subscribed(
   w: SyncWorld,

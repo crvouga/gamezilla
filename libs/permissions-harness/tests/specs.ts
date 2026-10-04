@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path';
 import type { DmnDecision } from '@pkgs/dmn-shared/model';
 import { findDecision, parseDmn } from '@pkgs/dmn-shared/model';
 
-const REPO_ROOT = resolve(import.meta.dir, '../../../..');
+const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const SPECS_DIR = join(REPO_ROOT, 'specs');
 
 export type ManifestCapability = {

@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-import { collectResults, completeResults } from './check-shard-results';
 import type { Result } from './check-shard-results';
+import { collectResults, completeResults } from './check-shard-results';
 import type { CheckPlan, CheckTask } from './check-shards';
 
 function task(taskId: string, hit = false): CheckTask {

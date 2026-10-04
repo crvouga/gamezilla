@@ -1,8 +1,10 @@
-import type { CellHighlight, Square } from '@pkgs/chess-board-core-shared/types';
-import { type Accessor, createMemo } from 'solid-js';
-
 import { deriveChessPuzzleCellFeedback } from '@libs/chess-puzzle-shared/cell-feedback';
 import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type {
+  CellHighlight,
+  Square,
+} from '@pkgs/chess-board-core-shared/types';
+import { type Accessor, createMemo } from 'solid-js';
 
 export function usePuzzlePlayerCellFeedback(args: {
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;

@@ -3,9 +3,8 @@ import type {
   Span,
   TimeInput,
 } from '@opentelemetry/api';
-
-import { ATTR } from './attributes';
 import type { Attributes } from './attributes';
+import { ATTR } from './attributes';
 
 export const EVENT = {
   MUTATION_APPLIED_OPTIMISTICALLY: 'app.mutation.applied_optimistically',

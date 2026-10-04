@@ -17,8 +17,8 @@
  */
 
 import type { Objective, Operator, Sli, Slo } from './model';
-import { parseDuration, windowBounds, withinBounds } from './window';
 import type { WindowBounds } from './window';
+import { parseDuration, windowBounds, withinBounds } from './window';
 
 export type Measurement =
   | {

@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-
-import { createSubject, withRoles } from '@pkgs/permissions-shared/subject';
-import { limitsOf, permissionsOf, resolveRoleClosure } from '@pkgs/permissions-shared/resolve';
 import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
+import {
+  limitsOf,
+  permissionsOf,
+  resolveRoleClosure,
+} from '@pkgs/permissions-shared/resolve';
 import { RoleCycleError } from '@pkgs/permissions-shared/role-cycle-error';
+import { createSubject, withRoles } from '@pkgs/permissions-shared/subject';
 import { UnknownRoleError } from '@pkgs/permissions-shared/unknown-role-error';
 
 const POLICY: PermissionPolicy = {

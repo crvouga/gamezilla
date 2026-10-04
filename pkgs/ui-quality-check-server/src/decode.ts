@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import type { RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
-import { captureProcess } from './process';
 import type { ProcessStarter } from './process';
+import { captureProcess } from './process';
 
 export interface VideoMetadata {
   width: number;

@@ -18,13 +18,13 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
-import { useThemeTokens } from './theme-context';
-import { Volume2Icon, VolumeXIcon } from './icons';
+import { type JSX, Show } from 'solid-js';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';
+import { Volume2Icon, VolumeXIcon } from './icons';
+import { useThemeTokens } from './theme-context';
 
 /** Padding around the icon, scaled to size for visual balance. */
 const PADDING_RATIO = 0.25;

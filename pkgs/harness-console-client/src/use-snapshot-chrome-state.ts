@@ -1,6 +1,5 @@
-import { createEffect, createMemo, createSignal } from 'solid-js';
-
 import type { ProductHarnessSnapshotInfo } from '@pkgs/harness-console-shared/ports';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import type { useProductHarnessSnapshots } from './use-product-harness-snapshots';
 
 export type SortKey = 'newest' | 'oldest';

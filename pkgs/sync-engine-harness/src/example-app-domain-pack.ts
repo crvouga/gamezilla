@@ -1,18 +1,11 @@
-import { unsafe } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
+import { unsafe } from '@pkgs/sql-shared/sql';
+import { checkAllClientsConverged } from './converge';
 import type { HarnessDomainPack } from './harness-domain-pack';
 import { exampleLocalSchema } from './local-schema';
-import { checkAllClientsConverged } from './converge';
 import { createHarnessMembershipChannels } from './membership-channels';
-import {
-  exampleMutationRegistry,
-  exampleQueryRegistry,
-} from './registries';
-import {
-  exampleDefaultEntryChannel,
-  exampleTopicMap,
-} from './topic-map';
+import { exampleMutationRegistry, exampleQueryRegistry } from './registries';
+import { exampleDefaultEntryChannel, exampleTopicMap } from './topic-map';
 import { NOTES_ALL_TOPIC } from './topics';
 
 async function tamperDomainRow(db: SqlClient): Promise<void> {

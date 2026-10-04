@@ -2,7 +2,11 @@ import { afterAll, beforeAll, expect, test } from 'bun:test';
 import { Chess, type Move, SQUARES } from 'chess.js';
 import { openBrowserExample } from './browser-fixture';
 import { observeFrameWork } from './frame-work';
-import type { MovingFrame, Point, SpecialFrame } from './special-frame-fixtures';
+import type {
+  MovingFrame,
+  Point,
+  SpecialFrame,
+} from './special-frame-fixtures';
 import { SPECIAL_FRAMES, specialFrameRead } from './special-frame-fixtures';
 
 let browser: Awaited<ReturnType<typeof openBrowserExample>>;

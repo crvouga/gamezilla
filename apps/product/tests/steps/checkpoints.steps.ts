@@ -1,5 +1,13 @@
 import { expect } from 'bun:test';
-import { changeInvestigatedApp, checkpointCanRestore, checkpointChoices, checkpointOperation, investigatePeople, restoredApps, saveCheckpoint } from '@apps/product/developer-checkpoints';
+import {
+  changeInvestigatedApp,
+  checkpointCanRestore,
+  checkpointChoices,
+  checkpointOperation,
+  investigatePeople,
+  restoredApps,
+  saveCheckpoint,
+} from '@apps/product/developer-checkpoints';
 import { Given, Then, When } from '@libs/harness/define';
 
 Given(

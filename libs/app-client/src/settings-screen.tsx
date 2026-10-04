@@ -4,23 +4,34 @@
  * `MenuRow`s linking to the sub-screens.
  */
 
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { APP_VERSION } from '@libs/app-shared/app-metadata';
 import { useCan } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
-import { CreditCardIcon, GaugeIcon, InfoIcon, PaintbrushIcon, RefreshCwIcon, SlidersHorizontalIcon, SquareStackIcon, UserIcon, Volume2Icon, VolumeXIcon, WifiIcon } from '@pkgs/ui-client/icons';
-import type { Href } from '@pkgs/ui-shared/href';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import {
+  CreditCardIcon,
+  GaugeIcon,
+  InfoIcon,
+  PaintbrushIcon,
+  RefreshCwIcon,
+  SlidersHorizontalIcon,
+  SquareStackIcon,
+  UserIcon,
+  Volume2Icon,
+  VolumeXIcon,
+  WifiIcon,
+} from '@pkgs/ui-client/icons';
 import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { MenuSection } from '@pkgs/ui-client/menu-section';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import { useThemePreference } from '@pkgs/ui-client/theme-preference';
+import type { Href } from '@pkgs/ui-shared/href';
 import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-
-import { APP_VERSION } from '@libs/app-shared/app-metadata';
 import { usePerfHudPreference } from './perf-hud-preference';
 
 const ROW_ICON_SIZE = 20;

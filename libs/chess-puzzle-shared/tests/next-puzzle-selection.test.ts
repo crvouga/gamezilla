@@ -1,6 +1,28 @@
 import { describe, expect, test } from 'bun:test';
-import { PUZZLE_RATING_DEFAULT_RD, PUZZLE_RATING_RD_MIN } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
-import { buildExhaustedPuzzleCandidatesSql, buildPuzzleBandCountSql, buildPuzzleCandidatesSql, buildPuzzleMatchedCountSql, capPuzzleCandidateOffset, computeNextPuzzleLoading, DEFAULT_PUZZLE_RATING, PUZZLE_CANDIDATE_MAX_OFFSET, PUZZLE_MIN_PLAYS, PUZZLE_MIN_POPULARITY, PUZZLE_WINDOW_HALF_MAX, PUZZLE_WINDOW_HALF_MIN, pickNextPuzzle, pickPuzzleIdFromPool, puzzleSelectionHalfWindow, resolveProfilePuzzleRating, resolvePuzzlePickOffset, selectPuzzleCandidates } from '@libs/chess-puzzle-shared/next-puzzle-selection';
+import {
+  PUZZLE_RATING_DEFAULT_RD,
+  PUZZLE_RATING_RD_MIN,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import {
+  buildExhaustedPuzzleCandidatesSql,
+  buildPuzzleBandCountSql,
+  buildPuzzleCandidatesSql,
+  buildPuzzleMatchedCountSql,
+  capPuzzleCandidateOffset,
+  computeNextPuzzleLoading,
+  DEFAULT_PUZZLE_RATING,
+  PUZZLE_CANDIDATE_MAX_OFFSET,
+  PUZZLE_MIN_PLAYS,
+  PUZZLE_MIN_POPULARITY,
+  PUZZLE_WINDOW_HALF_MAX,
+  PUZZLE_WINDOW_HALF_MIN,
+  pickNextPuzzle,
+  pickPuzzleIdFromPool,
+  puzzleSelectionHalfWindow,
+  resolveProfilePuzzleRating,
+  resolvePuzzlePickOffset,
+  selectPuzzleCandidates,
+} from '@libs/chess-puzzle-shared/next-puzzle-selection';
 
 describe('buildPuzzleCandidatesSql', () => {
   test('rating band bounds are present in SQL', () => {

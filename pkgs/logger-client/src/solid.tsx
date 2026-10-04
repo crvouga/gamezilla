@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
-import { defineContext } from '@pkgs/solid-context-client/define-context';
-import type { JSX, ParentProps } from 'solid-js';
 
 import type { Logger } from '@pkgs/logger-shared/logger';
+import { defineContext } from '@pkgs/solid-context-client/define-context';
+import type { JSX, ParentProps } from 'solid-js';
 
 const LoggerContext = defineContext<Logger>('Logger');
 

@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { ReportStep } from '@pkgs/harness-shared/report-types';
-
 import { actionLabel, formatArgs } from '@pkgs/harness-report-shared/format';
-import { gherkinText, scenarioScript } from '@pkgs/harness-report-shared/scenario';
+import {
+  gherkinText,
+  scenarioScript,
+} from '@pkgs/harness-report-shared/scenario';
+import type { ReportStep } from '@pkgs/harness-shared/report-types';
 
 function step(
   patch: Partial<ReportStep> & Pick<ReportStep, 'kind' | 'title'>

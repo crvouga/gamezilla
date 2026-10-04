@@ -1,10 +1,11 @@
 /** @jsxImportSource solid-js */
+
+import type { Notification } from '@libs/notifications-shared/notification';
+import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
 import { useRouter } from '@pkgs/ui-client/app-router';
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { NotificationCardDefault } from './notification-card-default';
 import { useNotificationRenderProvider } from './notifications-provider-registry';
-import type { Notification } from '@libs/notifications-shared/notification';
-import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
 
 export type NotificationCardProps = {
   readonly interaction: Notification;

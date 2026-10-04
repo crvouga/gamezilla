@@ -1,7 +1,6 @@
-import { createMemo, For, onCleanup } from 'solid-js';
-
-import type { ReportNav } from './use-report-nav';
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
+import { createMemo, For, onCleanup } from 'solid-js';
+import type { ReportNav } from './use-report-nav';
 
 type Marker = {
   readonly frame: FlatFrame;

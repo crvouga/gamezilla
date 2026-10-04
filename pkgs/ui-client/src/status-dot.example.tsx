@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { StatusDot } from './status-dot';
 import type { StatusDotStatus } from './status-dot';
+import { StatusDot } from './status-dot';
 
 const ROWS: readonly { status: StatusDotStatus; label: string }[] = [
   { status: 'online', label: 'Online' },

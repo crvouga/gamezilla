@@ -1,9 +1,17 @@
 import { describe, expect, test } from 'bun:test';
+import type {
+  Glicko2Rating,
+  Glicko2Result,
+} from '@pkgs/glicko2-shared/glicko2';
+import {
+  GLICKO2_DEFAULT,
+  GLICKO2_DEFAULT_RD,
+  glicko2Decay,
+  glicko2ExpectedScore,
+  glicko2Update,
+} from '@pkgs/glicko2-shared/glicko2';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
-import { GLICKO2_DEFAULT, GLICKO2_DEFAULT_RD, glicko2Decay, glicko2ExpectedScore, glicko2Update } from '@pkgs/glicko2-shared/glicko2';
-import type { Glicko2Rating, Glicko2Result } from '@pkgs/glicko2-shared/glicko2';
 
 const SEED = 20240908;
 

@@ -1,6 +1,17 @@
-import type { JourneyWorld } from './journey-types';
-import { expectCustomGameBotReply, expectCustomGameOffline, expectCustomGameReady, expectCustomGameResigned, expectCustomGameUnstarted, playCustomGameE4, prepareCustomGame, resignCustomGame, startCustomGame, startCustomGameAgainstBot } from './custom-game-journey';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
+import {
+  expectCustomGameBotReply,
+  expectCustomGameOffline,
+  expectCustomGameReady,
+  expectCustomGameResigned,
+  expectCustomGameUnstarted,
+  playCustomGameE4,
+  prepareCustomGame,
+  resignCustomGame,
+  startCustomGame,
+  startCustomGameAgainstBot,
+} from './custom-game-journey';
+import type { JourneyWorld } from './journey-types';
 
 const { Given, When, Then } = stepsFor<JourneyWorld>();
 

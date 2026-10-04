@@ -6,8 +6,17 @@
  * scheme, so a test drives the production adapter exactly as Paddle would.
  */
 import { signPaddlePayload } from '@pkgs/billing-paddle-shared/signature';
-import { PADDLE_CUSTOM_DATA, PADDLE_SIGNATURE_HEADER } from '@pkgs/billing-paddle-shared/wire';
-import type { PaddleCustomer, PaddleNotificationSetting, PaddlePrice, PaddleProduct, PaddleSubscription } from '@pkgs/billing-paddle-shared/wire';
+import type {
+  PaddleCustomer,
+  PaddleNotificationSetting,
+  PaddlePrice,
+  PaddleProduct,
+  PaddleSubscription,
+} from '@pkgs/billing-paddle-shared/wire';
+import {
+  PADDLE_CUSTOM_DATA,
+  PADDLE_SIGNATURE_HEADER,
+} from '@pkgs/billing-paddle-shared/wire';
 
 /** One subscription, in Paddle's words. */
 export type FakePaddleSubscription = {

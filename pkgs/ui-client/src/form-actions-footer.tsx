@@ -24,9 +24,9 @@
  * ```
  */
 
-import { type JSX, Show, untrack } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show, untrack } from 'solid-js';
 import { Button } from './button';
 import type { ButtonIntent } from './button-face';
 import { useMutationButton } from './use-mutation-button';

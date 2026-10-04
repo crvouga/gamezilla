@@ -1,4 +1,17 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import {
+  ClearChessPuzzleRecommendation,
+  ReclaimChessPuzzlePlay,
+  RecommendChessPuzzleMove,
+  StartChessPuzzlePlay,
+} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
+import { isBoardSquare } from '@libs/chess-puzzle-shared/recommendations';
+import {
+  decidePuzzleSessionStart,
+  shouldReclaimPuzzleHost,
+} from '@libs/chess-puzzle-shared/session-start-policy';
 import { useSpacePresence } from '@libs/spaces-client/room-use-space-presence';
 import {
   useSpaceRoomDispatch,
@@ -10,16 +23,6 @@ import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
-
-import { isBoardSquare } from '@libs/chess-puzzle-shared/recommendations';
-import {
-  decidePuzzleSessionStart,
-  shouldReclaimPuzzleHost,
-} from '@libs/chess-puzzle-shared/session-start-policy';
-
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
-import { ClearChessPuzzleRecommendation, ReclaimChessPuzzlePlay, RecommendChessPuzzleMove, StartChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,

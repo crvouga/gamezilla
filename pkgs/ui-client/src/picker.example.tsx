@@ -1,8 +1,9 @@
 /** @jsxImportSource solid-js */
+
+import type { PickerOption } from '@pkgs/ui-shared/picker-types';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
 import { Picker } from './picker';
-import type { PickerOption } from '@pkgs/ui-shared/picker-types';
 
 function Swatch(props: { color: string }): JSX.Element {
   return (

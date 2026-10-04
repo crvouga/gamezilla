@@ -1,9 +1,9 @@
-import { blockUserMutation } from './block-user-mutation';
 import { acceptFriendRequestMutation } from './accept-friend-request-mutation';
+import { blockUserMutation } from './block-user-mutation';
 import { cancelFriendRequestMutation } from './cancel-friend-request-mutation';
 import { declineFriendRequestMutation } from './decline-friend-request-mutation';
-import { sendFriendRequestMutation } from './send-friend-request-mutation';
 import { removeFriendMutation } from './remove-friend-mutation';
+import { sendFriendRequestMutation } from './send-friend-request-mutation';
 import { unblockUserMutation } from './unblock-user-mutation';
 
 export const FRIENDS_MUTATIONS = [

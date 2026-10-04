@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { isOwnedName, ownedIndexName } from '@pkgs/db-indexes-shared/naming';
 import { planIndexes } from '@pkgs/db-indexes-shared/plan';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { genDbState } from './db-state';
-import { genSchema } from './schema';
 import { genSmallManifest } from './manifest';
 import { fixedClock, RecordingPort } from './recording-port';
+import { genSchema } from './schema';
 
 describe('ownership PBT', () => {
   test('no action references non-owned or unique imposters', async () => {

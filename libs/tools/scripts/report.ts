@@ -1,7 +1,7 @@
-import { countFunctions, countLines, isReached } from './lcov';
 import type { FileCoverage } from './lcov';
-import { listSourceFiles, WORKSPACE_ROOTS } from './packages';
+import { countFunctions, countLines, isReached } from './lcov';
 import type { PackagePlan } from './packages';
+import { listSourceFiles, WORKSPACE_ROOTS } from './packages';
 
 export type PackageCoverage = {
   readonly name: string;

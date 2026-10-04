@@ -1,7 +1,8 @@
 // @io-wall-ok — feedback backend composition root; no product bootstrap
+
+import { createApiObjectStore } from '@libs/app-server/object-store';
 import type { ApiWorkerEnv } from '@libs/app-shared/env';
 import { workerEnvToSecretRecord } from '@libs/app-shared/env';
-import { createApiObjectStore } from '@libs/app-server/object-store';
 import { createApiSecretStore } from '@libs/app-shared/secret-store';
 import { resolveWebClientOrigin } from '@libs/app-shared/web-client-origin';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';

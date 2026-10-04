@@ -10,15 +10,18 @@
  * handle is purely decorative (no gesture support on the web).
  */
 
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type {
+  BottomSheetHost,
+  BottomSheetHostSheetProps,
+} from '@pkgs/ui-shared/bottom-sheet-host-types';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { cssPx } from '@pkgs/ui-shared/css-px';
-import { OnColorReset } from './on-color-context';
-import { useThemeLayout } from './theme-context';
+import { createUniqueId, type JSX, Show } from 'solid-js';
 import { FocusTrap } from './focus-trap';
 import { ModalTitleIdProvider } from './modal-title-id';
+import { OnColorReset } from './on-color-context';
 import { SurfaceStackSlot, useIsTopSurface } from './surface-stack';
-import type { BottomSheetHost, BottomSheetHostSheetProps } from '@pkgs/ui-shared/bottom-sheet-host-types';
+import { useThemeLayout } from './theme-context';
 
 /** Content-hugging sheets never exceed this share of the layout height. */
 export const BOTTOM_SHEET_MAX_HEIGHT_RATIO = 0.9;

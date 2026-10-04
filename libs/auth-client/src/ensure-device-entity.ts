@@ -1,6 +1,5 @@
-import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
-
 import { ensureDeviceMutation } from '@libs/auth-shared/ensure-device-mutation';
+import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 
 export type DeviceSnapshot = {
   readonly platform: string | null;

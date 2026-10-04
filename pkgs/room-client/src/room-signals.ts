@@ -1,6 +1,3 @@
-import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
-import { type Accessor, createMemo } from 'solid-js';
-
 import type {
   LogEntry,
   RoomActor,
@@ -8,6 +5,8 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room-shared/types';
+import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
+import { type Accessor, createMemo } from 'solid-js';
 import type { RoomClient } from './room-client';
 
 /** The read/dispatch surface of {@link RoomClient} the bindings depend on. */

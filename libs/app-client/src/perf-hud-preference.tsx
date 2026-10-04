@@ -5,8 +5,8 @@
  */
 
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { booleanKvCodec } from '@pkgs/kv-shared/kv-state-codec';
 import { createKvState } from '@pkgs/kv-client/solid';
+import { booleanKvCodec } from '@pkgs/kv-shared/kv-state-codec';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import type { Accessor, JSX } from 'solid-js';
 

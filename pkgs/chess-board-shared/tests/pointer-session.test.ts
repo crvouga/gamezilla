@@ -1,5 +1,9 @@
 import { describe, expect, it, mock } from 'bun:test';
-import { createPointerSession, MOUSE_DRAG_THRESHOLD_PX, TOUCH_DRAG_THRESHOLD_PX } from '@pkgs/chess-board-shared/pointer-session';
+import {
+  createPointerSession,
+  MOUSE_DRAG_THRESHOLD_PX,
+  TOUCH_DRAG_THRESHOLD_PX,
+} from '@pkgs/chess-board-shared/pointer-session';
 
 function fakeInteraction(owns = true) {
   let selected: string | null = null;

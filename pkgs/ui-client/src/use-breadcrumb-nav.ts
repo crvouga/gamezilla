@@ -6,8 +6,8 @@
  */
 
 import type { Href } from '@pkgs/ui-shared/href';
-import { useRouter } from './app-router';
 import { releaseWebFocus } from '@pkgs/ui-shared/release-web-focus';
+import { useRouter } from './app-router';
 
 export function useBreadcrumbNav(): (fallbackHref: Href) => () => void {
   const router = useRouter();

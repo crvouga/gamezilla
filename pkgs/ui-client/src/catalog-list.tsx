@@ -10,15 +10,14 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { createMemo, createSignal, type JSX } from 'solid-js';
-
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { ScrollView } from './scroll-view';
 import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
 import { filterCatalogItems } from '@pkgs/ui-shared/catalog-item';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { createMemo, createSignal, type JSX } from 'solid-js';
 import { CatalogListRows } from './catalog-list-rows';
 import { CatalogListSearch } from './catalog-list-search';
+import { ScrollView } from './scroll-view';
 
 export type CatalogListProps = {
   items: readonly CatalogItem[];

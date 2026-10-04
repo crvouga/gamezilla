@@ -3,11 +3,14 @@
  */
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import sql, { bulk, join, raw } from '@pkgs/sql-shared/sql';
-
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql, { bulk, join, raw } from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import type { ExistingPuzzleKey, PuzzleIngestTally, PuzzleInsertOutcome } from './puzzle-ingest';
+import type {
+  ExistingPuzzleKey,
+  PuzzleIngestTally,
+  PuzzleInsertOutcome,
+} from './puzzle-ingest';
 import { partitionPuzzleBatch } from './puzzle-ingest';
 import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry, PuzzleTableRow } from './row';

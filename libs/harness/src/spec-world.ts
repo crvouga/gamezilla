@@ -4,8 +4,8 @@
  * so a failure names what the world was asked to do.
  */
 
-import { isHostLimit, setWorld } from '@pkgs/gherkin-shared/registry';
 import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
+import { isHostLimit, setWorld } from '@pkgs/gherkin-shared/registry';
 import type { OpenHarnessOptions } from './mode';
 import type { OpenHarness } from './open-harness';
 

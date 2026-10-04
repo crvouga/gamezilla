@@ -20,9 +20,8 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { basename, join } from 'node:path';
-
-import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared/itf';
 import type { ItfTrace } from '@pkgs/quint-shared/itf';
+import { decodeItfTrace, renderQuint } from '@pkgs/quint-shared/itf';
 import { quintSeed } from '@pkgs/quint-shared/wall';
 
 /** The Quint CLI that ships in the npm package, run under Bun. */

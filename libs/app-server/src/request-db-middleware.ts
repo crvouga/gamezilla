@@ -1,8 +1,13 @@
+import type { DesiredClientConfig } from '@libs/app-config-server/ensure-client-config-materialized';
+import { EnsureClientConfigMaterialized } from '@libs/app-config-server/ensure-client-config-materialized';
+import type { DeploymentProtection } from '@libs/app-shared/env';
+import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
+import { ApiSecretName } from '@libs/app-shared/secret-names';
+import { wrapSqlClientForObservability } from '@libs/app-shared/wrap-sql-client';
+import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { SessionAuth } from '@libs/auth-shared/session-middleware';
 import type { AuthContext } from '@libs/auth-shared/types';
-import type { DesiredClientConfig } from '@libs/app-config-server/ensure-client-config-materialized';
-import { EnsureClientConfigMaterialized } from '@libs/app-config-server/ensure-client-config-materialized';
 import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
 import type { OpenSqlClient } from '@libs/feature-shared/sync';
 import { assert } from '@pkgs/assert-shared/singleton';
@@ -16,12 +21,7 @@ import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { MiddlewareHandler } from 'hono';
-import type { DeploymentProtection } from '@libs/app-shared/env';
-import { ApiSecretName } from '@libs/app-shared/secret-names';
-import { wrapSqlClientForObservability } from '@libs/app-shared/wrap-sql-client';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 import { notifyClientConfigChannels } from './notify-client-config-channels';
-import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 
 /** Per-request Postgres + session auth (AsyncLocalStorage). */
 async function resolveRequestDatabaseUrl(

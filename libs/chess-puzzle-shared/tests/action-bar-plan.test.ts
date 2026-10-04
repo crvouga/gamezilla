@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
-import { buildChessPuzzleActionBarPlan } from '@libs/chess-puzzle-shared/action-bar-plan';
 import type { ChessPuzzleActionBarPlanInput } from '@libs/chess-puzzle-shared/action-bar-plan';
+import { buildChessPuzzleActionBarPlan } from '@libs/chess-puzzle-shared/action-bar-plan';
 
 function input(
   partial: Partial<ChessPuzzleActionBarPlanInput>

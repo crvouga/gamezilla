@@ -15,13 +15,26 @@ import { removeFriendMutation } from '@libs/friends-shared/remove-friend-mutatio
 import { sendFriendRequestMutation } from '@libs/friends-shared/send-friend-request-mutation';
 import { unblockUserMutation } from '@libs/friends-shared/unblock-user-mutation';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import { applyMutation, openFriendsDb, readSnapshot } from './friendship-harness';
+import fc from 'fast-check';
 import type { RunnableMutation } from './friendship-harness';
-import { createModel, modelAccept, modelBlock, modelClose, modelRemove, modelSend, modelSnapshot, modelUnblock, RESEND_COOLDOWN_MS } from './friendship-model';
+import {
+  applyMutation,
+  openFriendsDb,
+  readSnapshot,
+} from './friendship-harness';
 import type { FriendsModel, ModelRequest } from './friendship-model';
+import {
+  createModel,
+  modelAccept,
+  modelBlock,
+  modelClose,
+  modelRemove,
+  modelSend,
+  modelSnapshot,
+  modelUnblock,
+  RESEND_COOLDOWN_MS,
+} from './friendship-model';
 
 const T0 = Date.parse('2026-09-01T00:00:00.000Z');
 const USERS = ['u_a', 'u_b', 'u_c'] as const;

@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
+import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse-client/in-process-open-auth-session';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
 import { googleEndpointsFor } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
-import { AUTH_NATIVE_SSO_CALLBACK_URL, oauthClientCallbackUrl } from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
+import {
+  AUTH_NATIVE_SSO_CALLBACK_URL,
+  oauthClientCallbackUrl,
+} from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse-client/in-process-open-auth-session';
 import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
 const BASE_URL = 'https://api.gamezilla.app';

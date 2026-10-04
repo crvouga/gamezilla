@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { HttpIssueReporter } from '@pkgs/feedback-client/http-issue-reporter';
-import { createFeedbackReportHandler } from '@pkgs/feedback-server/http-handler';
 import { FakeIssueReporter } from '@pkgs/feedback-server/fake-issue-reporter';
+import { createFeedbackReportHandler } from '@pkgs/feedback-server/http-handler';
 import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 
 // regression: feedback-optional-context-budget

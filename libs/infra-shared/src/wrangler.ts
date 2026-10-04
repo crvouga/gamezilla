@@ -8,8 +8,9 @@
  * The rendered file is written to `<app>/.cache/`, one directory below the
  * TOML, so relative paths are re-rooted by one level.
  */
-import { apiWorkerVars, authRelayTargets } from './env-file';
+
 import type { EnvFile } from './env-file';
+import { apiWorkerVars, authRelayTargets } from './env-file';
 import { ENV_FILES } from './envs';
 import { GLOBAL } from './global';
 import type { RoomMigration } from './worker-lifecycle';

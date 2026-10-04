@@ -1,9 +1,11 @@
+import type {
+  OpponentStagerInput,
+  OpponentStagerSnapshot,
+} from '@libs/chess-puzzle-shared/opponent-stager';
+import { createPuzzleOpponentStager } from '@libs/chess-puzzle-shared/opponent-stager';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { type Accessor, createEffect, onCleanup } from 'solid-js';
-
-import { createPuzzleOpponentStager } from '@libs/chess-puzzle-shared/opponent-stager';
-import type { OpponentStagerInput, OpponentStagerSnapshot } from '@libs/chess-puzzle-shared/opponent-stager';
 
 export type PuzzleOpponentMoveStage = OpponentStagerSnapshot;
 

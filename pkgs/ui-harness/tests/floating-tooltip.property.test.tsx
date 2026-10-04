@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { Tooltip } from '@pkgs/ui-client/tooltip';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import fc from 'fast-check';
 import { renderUi } from './render';
 
 function checkTooltip(input: {

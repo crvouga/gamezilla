@@ -6,10 +6,10 @@
  */
 // regression: refund-kept-grace
 import { describe, expect, test } from 'bun:test';
-import type { CallbackResult } from '@pkgs/billing-shared/membership';
 import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
-import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
+import type { CallbackResult } from '@pkgs/billing-shared/membership';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';
+import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
 
 const NOW_MS = 1_800_000_000_000;
 const DAY_MS = 86_400_000;

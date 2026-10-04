@@ -1,9 +1,9 @@
+import type { DebuggerViewId } from '@pkgs/harness-console-shared/debugger-views';
+import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
+import { coerceHarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import { TabStrip } from '@pkgs/ui-devtools-client/tab-strip';
 import type { TabStripItem } from '@pkgs/ui-devtools-client/tab-strip-types';
 import { type JSX, mergeProps } from 'solid-js';
-import type { DebuggerViewId } from '@pkgs/harness-console-shared/debugger-views';
-import { coerceHarnessChromeKind } from '@pkgs/harness-console-shared/node';
-import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import {
   DEBUGGER_KIND_TABS,
   debuggerInstanceTabItem,

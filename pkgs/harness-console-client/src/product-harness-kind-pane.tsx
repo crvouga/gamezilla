@@ -1,7 +1,9 @@
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { For, type JSX, type ParentComponent, Show } from 'solid-js';
-import { coerceDebuggerView, defaultViewForKind, viewsForKind } from '@pkgs/harness-console-shared/debugger-views';
 import type { DebuggerViewId } from '@pkgs/harness-console-shared/debugger-views';
+import {
+  coerceDebuggerView,
+  defaultViewForKind,
+  viewsForKind,
+} from '@pkgs/harness-console-shared/debugger-views';
 import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import type {
   ProductHarnessActor,
@@ -9,9 +11,10 @@ import type {
   ProductHarnessSession,
   ProductHarnessSqlNode,
 } from '@pkgs/harness-console-shared/ports';
-import { DebuggerColumn, DebuggerColumns } from './debugger-columns';
-import { useHarnessConsoleLayout } from './use-harness-console-layout';
+import { EmptyState } from '@pkgs/ui-client/empty-state';
+import { For, type JSX, type ParentComponent, Show } from 'solid-js';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
+import { DebuggerColumn, DebuggerColumns } from './debugger-columns';
 import {
   ClientProductHarnessPanel,
   LoadBalancerProductHarnessPanel,
@@ -19,6 +22,7 @@ import {
   RoomProductHarnessPanel,
   ServerProductHarnessPanel,
 } from './product-harness-panel';
+import { useHarnessConsoleLayout } from './use-harness-console-layout';
 
 export type ProductHarnessClientColumnShellProps = {
   readonly actor: ProductHarnessActor;

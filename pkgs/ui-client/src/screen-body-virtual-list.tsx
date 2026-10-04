@@ -9,8 +9,8 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
-import { VirtualList } from './virtual-list';
 import type { VirtualListProps } from './virtual-list';
+import { VirtualList } from './virtual-list';
 
 export type ScreenBodyVirtualListProps<ItemT> = VirtualListProps<ItemT>;
 

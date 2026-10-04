@@ -1,6 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import type { ActionBarItem } from '@pkgs/ui-client/action-bar-logic';
-import { actionBarBudgetWidth, actionBarHasContent, isActionBarAvatarItem, maxIconSlots, partitionActionBarItems, partitionTextActions, resolveCombinedOverflow, screenBaseActionToActionBarItem } from '@pkgs/ui-client/action-bar-logic';
+import {
+  actionBarBudgetWidth,
+  actionBarHasContent,
+  isActionBarAvatarItem,
+  maxIconSlots,
+  partitionActionBarItems,
+  partitionTextActions,
+  resolveCombinedOverflow,
+  screenBaseActionToActionBarItem,
+} from '@pkgs/ui-client/action-bar-logic';
 import type { IconComponent } from '@pkgs/ui-client/create-icon';
 
 const Icon = (() => null) as unknown as IconComponent;

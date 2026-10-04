@@ -5,13 +5,16 @@
  * synthesized when the host cannot measure.
  */
 
-import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
 import type { ScrollDirection } from '@pkgs/ui-testing-shared/driver';
+import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
+import { userEventKeyFromDom } from '@pkgs/ui-testing-solid-dom-shared/dom-keys';
+import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
+import { serializeDomHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
+import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 import userEvent from '@testing-library/user-event';
 import { fireDrag, fireTapAt } from './dom-gestures';
-import { userEventKeyFromDom } from '@pkgs/ui-testing-solid-dom-shared/dom-keys';
-import { ensureElementLayout, synthesizeLayout } from './dom-layout';
 import type { LayoutProvider } from './dom-layout';
+import { ensureElementLayout, synthesizeLayout } from './dom-layout';
 import {
   ACTOR_ATTR,
   asElement,
@@ -21,9 +24,6 @@ import {
 import { fieldOf, isTextField, readDomText } from './dom-text';
 import { layoutDomTree } from './dom-tree-layout';
 import { isDomVisible } from './dom-visibility';
-import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
-import { serializeDomHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';
-import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 export type UserEvent = ReturnType<typeof userEvent.setup>;
 
 export type SolidDomAppScope = {

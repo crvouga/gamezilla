@@ -1,10 +1,11 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { bulk, ident, join } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
+import sql, { bulk, ident, join } from '@pkgs/sql-shared/sql';
+import {
+  optimisticPeerRowId,
+  SYNC_ENGINE_OPTIMISTIC_PEER_ROWS,
+} from '@pkgs/sync-engine-shared/tables';
 import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
-import { SYNC_ENGINE_OPTIMISTIC_PEER_ROWS } from '@pkgs/sync-engine-shared/tables';
-import { optimisticPeerRowId } from '@pkgs/sync-engine-shared/tables';
 
 const MAX_SQLITE_VARS = 999;
 

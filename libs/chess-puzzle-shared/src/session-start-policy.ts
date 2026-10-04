@@ -5,8 +5,8 @@
  * `lastStartedNonce` memory; this module owns the rules.
  */
 
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 
 export type PuzzleSessionStartDecision =
   /** Nothing to do this tick; keep the last-started nonce untouched. */

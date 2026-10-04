@@ -1,11 +1,12 @@
 /** @jsxImportSource solid-js */
+
+import type { FeedbackDocument } from '@pkgs/feedback-shared/workspace';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { ChevronRightIcon, SearchIcon } from '@pkgs/ui-client/icons';
 import { List, ListItem } from '@pkgs/ui-client/list';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { TextInput } from '@pkgs/ui-client/text-input';
 import { type Accessor, createMemo, For, Show } from 'solid-js';
-import type { FeedbackDocument } from '@pkgs/feedback-shared/workspace';
 import type { FeedbackController, FeedbackState } from './controller';
 
 export function FeedbackManagement(props: {

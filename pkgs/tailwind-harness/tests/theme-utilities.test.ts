@@ -17,7 +17,9 @@ import { fileURLToPath } from 'node:url';
 
 const PKG_ROOT = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PKG_ROOT, '../..');
-const ENTRY = resolve(PKG_ROOT, 'src/tailwind.css');
+const ENTRY = fileURLToPath(
+  import.meta.resolve('@pkgs/tailwind-shared/tailwind.css')
+);
 const CLI = join(
   dirname(fileURLToPath(import.meta.resolve('@tailwindcss/cli/package.json'))),
   'dist/index.mjs'

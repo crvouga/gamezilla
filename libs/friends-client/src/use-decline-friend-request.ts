@@ -1,6 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-
 import { declineFriendRequestMutation } from '@libs/friends-shared/decline-friend-request-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useDeclineFriendRequest() {
   const mutationClient = useMutationClient();

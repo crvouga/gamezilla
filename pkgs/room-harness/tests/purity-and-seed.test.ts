@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { AddOne, ClaimRoom, gameRoomModule, Move, StartMatch, TakeOne, TurnAway } from '@pkgs/room-harness/game-room';
+import {
+  AddOne,
+  ClaimRoom,
+  gameRoomModule,
+  Move,
+  StartMatch,
+  TakeOne,
+  TurnAway,
+} from '@pkgs/room-harness/game-room';
 import { runModuleConformance } from '@pkgs/room-harness/module-conformance';
 
 describe('kit: purity and seed (M-F01)', () => {

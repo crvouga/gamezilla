@@ -1,9 +1,9 @@
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import type { SqliteWorkerDatabase } from './sqlite-worker-host';
 

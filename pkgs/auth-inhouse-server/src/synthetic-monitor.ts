@@ -18,11 +18,10 @@
  * - The provider is hidden: never in `/auth/providers`, never a sign-in button.
  */
 
-import type { Context } from 'hono';
-
 import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
 import { isTrustedCallbackUrl } from '@pkgs/auth-inhouse-shared/trusted-origins';
+import type { Context } from 'hono';
 import { readBearer, readStringField, repo } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';
 

@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import type { HttpClient } from '@pkgs/http-client-shared/types';
-
 import {
   createHttpReportFetcher,
   memoryReportCache,
   reportQueryClient,
 } from '@pkgs/harness-report-client/fetcher';
 import { attachReportCache } from '@pkgs/harness-report-client/persist';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 
 const API = 'https://api.test/api/reports';
 const SHA = 'e'.repeat(40);

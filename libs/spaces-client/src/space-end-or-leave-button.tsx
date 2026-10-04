@@ -2,9 +2,9 @@ import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
-import { useSpaceCan } from './use-space-can';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from './leave-space-modal-provider';
+import { useSpaceCan } from './use-space-can';
 
 export type SpaceEndOrLeaveButtonProps = {
   spaceId: string;

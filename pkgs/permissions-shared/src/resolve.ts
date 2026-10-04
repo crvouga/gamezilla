@@ -1,12 +1,12 @@
 import type { LimitKey, PermissionKey, RoleId } from './catalog';
-import { RoleCycleError } from './role-cycle-error';
-import { UnknownRoleError } from './unknown-role-error';
 import type { Facts } from './facts';
 import { matchesPredicate } from './facts';
 import type { DenialReason, PolicyVersion, RoleSpec } from './policy';
 import type { QuotaGrant } from './quota-window';
+import { RoleCycleError } from './role-cycle-error';
 import type { Subject } from './subject';
 import { createSubject, withRoles } from './subject';
+import { UnknownRoleError } from './unknown-role-error';
 
 function roleSpec(policy: PolicyVersion, role: RoleId): RoleSpec {
   const spec = policy.roles[role];

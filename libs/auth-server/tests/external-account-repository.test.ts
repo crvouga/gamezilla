@@ -1,13 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
-
 import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 

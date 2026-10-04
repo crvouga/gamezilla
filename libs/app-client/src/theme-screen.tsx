@@ -6,8 +6,13 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { CheckIcon, MonitorIcon, MoonIcon, SunIcon } from '@pkgs/ui-client/icons';
 import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import {
+  CheckIcon,
+  MonitorIcon,
+  MoonIcon,
+  SunIcon,
+} from '@pkgs/ui-client/icons';
 import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { MenuSection } from '@pkgs/ui-client/menu-section';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';

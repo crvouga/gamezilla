@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { decodeRoomGrants, encodeRoomGrants } from '@pkgs/room-server/grants-header';
+import {
+  decodeRoomGrants,
+  encodeRoomGrants,
+} from '@pkgs/room-server/grants-header';
 
 describe('room grants header', () => {
   test('round-trips the grants a gateway decided', () => {

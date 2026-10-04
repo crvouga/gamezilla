@@ -3,9 +3,8 @@ import { gaps, overlaps } from '@pkgs/dmn-shared/analyze';
 import { generateCases } from '@pkgs/dmn-shared/cases';
 import { evaluateDecision } from '@pkgs/dmn-shared/evaluate';
 import { inputClasses } from '@pkgs/dmn-shared/partition';
-
-import { decisionOf } from './fixtures/table';
 import type { TableSpec } from './fixtures/table';
+import { decisionOf } from './fixtures/table';
 
 const TIER = {
   name: 'tier',

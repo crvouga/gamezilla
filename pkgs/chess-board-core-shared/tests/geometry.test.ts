@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { indexFromSquare, isKnightJump, isSquare, squareCenter, squareFromIndex, squareToXY, xyToSquare } from '@pkgs/chess-board-core-shared/geometry';
+import {
+  indexFromSquare,
+  isKnightJump,
+  isSquare,
+  squareCenter,
+  squareFromIndex,
+  squareToXY,
+  xyToSquare,
+} from '@pkgs/chess-board-core-shared/geometry';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 
 describe('geometry', () => {

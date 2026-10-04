@@ -7,11 +7,8 @@
  */
 
 import { useTimers } from '@pkgs/clock-client/solid';
-import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
-import { CheckIcon } from './icons';
-import { ScrollView } from './scroll-view';
 import {
   isTypeAheadKey,
   nextPickerOptionIndex,
@@ -22,6 +19,9 @@ import type {
   PickerRenderOption,
   PickerValue,
 } from '@pkgs/ui-shared/picker-types';
+import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
+import { CheckIcon } from './icons';
+import { ScrollView } from './scroll-view';
 
 /** Every option row is at least this tall (pointer target). */
 export const PICKER_OPTION_MIN_HEIGHT = 44;

@@ -2,16 +2,28 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { context, propagation, trace } from '@opentelemetry/api';
 import type { SpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
-
+import { createNodeTelemetry } from '@pkgs/observability-server/node-node';
 import { ATTR } from '@pkgs/observability-shared/attributes';
-import { activeSpan, startFlushScope, startSpan, withSpan } from '@pkgs/observability-shared/span';
+import {
+  currentCorrelation,
+  deserializeTraceContext,
+  linkFromTraceparent,
+  serializeTraceContext,
+} from '@pkgs/observability-shared/correlation';
 import { addEvent, EVENT, events } from '@pkgs/observability-shared/events';
-import { allowlistedAttributes, createAllowlistRedactor } from '@pkgs/observability-shared/redaction';
-import { currentCorrelation, deserializeTraceContext, linkFromTraceparent, serializeTraceContext } from '@pkgs/observability-shared/correlation';
+import { recordLogEvent } from '@pkgs/observability-shared/log';
 import type { NarrateSpan } from '@pkgs/observability-shared/narrate';
 import { narrate } from '@pkgs/observability-shared/narrate';
-import { recordLogEvent } from '@pkgs/observability-shared/log';
-import { createNodeTelemetry } from '@pkgs/observability-server/node-node';
+import {
+  allowlistedAttributes,
+  createAllowlistRedactor,
+} from '@pkgs/observability-shared/redaction';
+import {
+  activeSpan,
+  startFlushScope,
+  startSpan,
+  withSpan,
+} from '@pkgs/observability-shared/span';
 
 afterEach(() => {
   trace.disable();

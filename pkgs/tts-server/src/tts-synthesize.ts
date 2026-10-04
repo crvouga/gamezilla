@@ -1,8 +1,11 @@
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { ttsCacheKey } from '@pkgs/tts-shared/tts-cache-key';
+import type {
+  TtsProvider,
+  TtsSynthesizeInput,
+} from '@pkgs/tts-shared/tts-provider';
 import type { TtsAudioFormat } from '@pkgs/tts-shared/tts-types';
 import { ttsContentTypeFor } from '@pkgs/tts-shared/tts-types';
-import type { TtsProvider, TtsSynthesizeInput } from '@pkgs/tts-shared/tts-provider';
 
 /**
  * Object key under which an audio blob is cached in the {@link ObjectStore}.

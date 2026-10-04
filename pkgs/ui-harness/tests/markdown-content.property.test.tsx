@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { MarkdownContent } from '@pkgs/ui-client/markdown-content';
+import fc from 'fast-check';
 import { renderUi } from './render';
 
 test('fenced Markdown preserves arbitrary code verbatim', () => {

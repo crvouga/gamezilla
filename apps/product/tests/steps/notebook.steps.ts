@@ -1,7 +1,16 @@
 import { expect } from 'bun:test';
-import { editNotebookQuestion, FRIENDS_QUESTION, notebookAnswer, openNotebook, SPACES_QUESTION, savedNotebook, saveNotebookQuestion, shownNotebook } from '@apps/product/developer-notebook';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  editNotebookQuestion,
+  FRIENDS_QUESTION,
+  notebookAnswer,
+  openNotebook,
+  SPACES_QUESTION,
+  savedNotebook,
+  saveNotebookQuestion,
+  shownNotebook,
+} from '@apps/product/developer-notebook';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 
 Given(
   "{actor}'s phone has a saved data notebook question about her friends",

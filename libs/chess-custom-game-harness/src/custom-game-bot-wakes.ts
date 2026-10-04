@@ -1,7 +1,7 @@
+import { PlayCustomGameBot } from '@libs/chess-custom-game-shared/custom-game-commands';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { RoomServerApp } from '@libs/spaces-harness/in-process-room-node';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { PlayCustomGameBot } from '@libs/chess-custom-game-shared/custom-game-commands';
 import { readCustomGameProbe } from './custom-game-ui';
 
 /** Redeliver a stale wake, or the other side's wake, without moving time. */

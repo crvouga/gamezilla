@@ -4,8 +4,8 @@ import { useTimers } from '@pkgs/clock-client/solid';
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from './button';
 import { ExampleRoot } from './example-root';
-import { TextInput } from './text-input';
 import { MutationModal } from './mutation-modal';
+import { TextInput } from './text-input';
 
 function createDelay(): (ms: number) => Promise<void> {
   const timers = useTimers();

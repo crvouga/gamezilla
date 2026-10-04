@@ -3,8 +3,8 @@
  */
 
 import type { AttributeState } from '@pkgs/attribute-shared/attribute';
-import { DEFAULT_RADIUS_OPTIONS } from '@pkgs/matchmaking-shared/types';
 import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
+import { DEFAULT_RADIUS_OPTIONS } from '@pkgs/matchmaking-shared/types';
 export function resolveGlobalRadius(
   radius: RadiusOptions | undefined
 ): RadiusOptions {

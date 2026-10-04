@@ -1,10 +1,15 @@
 import type { SyncBootDeps } from './boot-deps';
 import type { BootRuntime } from './boot-parts';
-import { createBootRuntime, makeNextId, resolveAuthForDevice, resolveBootDomain } from './boot-parts';
-import { HARNESS_SERVER_NODE_ID } from './clock-skew';
+import {
+  createBootRuntime,
+  makeNextId,
+  resolveAuthForDevice,
+  resolveBootDomain,
+} from './boot-parts';
 import type { HarnessAuthStatus } from './client-factory-parts';
-import { createBoundaryFaultController } from './edge-faults';
+import { HARNESS_SERVER_NODE_ID } from './clock-skew';
 import type { EdgeFaultController } from './edge-faults';
+import { createBoundaryFaultController } from './edge-faults';
 import { bindHarnessHttpLoadBalancer } from './http-bridge';
 import { fireCrashIfArmed } from './lifecycle';
 import type { SyncNetwork } from './network';

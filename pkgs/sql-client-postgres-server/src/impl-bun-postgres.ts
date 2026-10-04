@@ -1,5 +1,11 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import { bigintToJsonSafe } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
+import { sanitizePostgresUrlForBunSql } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-bun-sql';
+import {
+  postgresRejectsStartupSearchPathOption,
+  sqlBundledWithSearchPath,
+  withPostgresSearchPathOption,
+} from '@pkgs/sql-client-postgres-shared/session-schema';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -9,14 +15,8 @@ import type {
 import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-shared/positional-params';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import { SQL } from 'bun';
-import { bigintToJsonSafe } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
-import { sanitizePostgresUrlForBunSql } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-bun-sql';
-import {
-  postgresRejectsStartupSearchPathOption,
-  sqlBundledWithSearchPath,
-  withPostgresSearchPathOption,
-} from '@pkgs/sql-client-postgres-shared/session-schema';
 
 type BunSql = InstanceType<typeof SQL>;
 

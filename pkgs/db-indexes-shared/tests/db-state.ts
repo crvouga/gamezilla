@@ -1,4 +1,3 @@
-import fc from 'fast-check';
 import { ownedIndexName } from '@pkgs/db-indexes-shared/naming';
 import type {
   IndexDefinition,
@@ -7,6 +6,7 @@ import type {
   TableInfo,
 } from '@pkgs/db-indexes-shared/types';
 import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
+import fc from 'fast-check';
 import type { GenSchema } from './schema';
 
 export type GenDbState = {

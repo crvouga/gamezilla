@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
-
 import {
   parseSignInPending,
   SIGN_IN_RETURN_FALLBACK_HREF,
   sanitizeSignInReturnHref,
   signInReturnHrefFromPending,
 } from '@libs/auth-shared/sign-in-pending-parse';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 

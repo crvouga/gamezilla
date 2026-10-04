@@ -1,13 +1,16 @@
 import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
+import { clearRemovedPushApplied } from '@pkgs/sync-engine-shared/push-applied';
 import { commitPendingPushSeqs, handlePush } from './attach-push-handle';
 import { deriveScopeRowTopics } from './attach-push-held-rows';
-import { clearRemovedPushApplied } from '@pkgs/sync-engine-shared/push-applied';
-import type { AttachPushOptions, PushSubscriptions } from './push-subscriptions';
+import type {
+  AttachPushOptions,
+  PushSubscriptions,
+} from './push-subscriptions';
 import { createPushSubscriptions } from './push-subscriptions';
 
 async function countPendingMutations(db: SqlClient): Promise<number> {

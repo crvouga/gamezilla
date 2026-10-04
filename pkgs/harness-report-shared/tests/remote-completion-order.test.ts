@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { inCompletionOrder } from '@pkgs/harness-report-shared/completion-order';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
-import { inCompletionOrder } from '@pkgs/harness-report-shared/completion-order';
 
 /** Settles after `hops` microtask turns: a deterministic stand-in for latency. */
 async function after<T>(hops: number, value: T): Promise<T> {

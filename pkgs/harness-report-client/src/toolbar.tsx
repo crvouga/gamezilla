@@ -1,7 +1,11 @@
+import {
+  showAside,
+  showPress,
+  viewMode,
+  zoomMode,
+} from '@pkgs/harness-report-shared/hash';
 import { For, Show } from 'solid-js';
-
 import type { ReportNav } from './use-report-nav';
-import { showAside, showPress, viewMode, zoomMode } from '@pkgs/harness-report-shared/hash';
 
 const ZOOMS = ['fit', '50', '75', '100'] as const;
 

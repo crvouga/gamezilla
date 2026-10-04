@@ -3,10 +3,14 @@
  * identified by its title; a person in a shared space writes into it.
  */
 
-import { deleteNote, requiresOnlineNote, setNote } from '@pkgs/sync-engine-harness/mutations';
+import { setSpaceNote } from '@pkgs/sync-engine-harness/membership-mutations';
+import {
+  deleteNote,
+  requiresOnlineNote,
+  setNote,
+} from '@pkgs/sync-engine-harness/mutations';
 import { liveNote } from '@pkgs/sync-engine-harness/reads';
 import { mutate } from '@pkgs/sync-engine-harness/regression-actions';
-import { setSpaceNote } from '@pkgs/sync-engine-harness/membership-mutations';
 import type { Device, SyncWorld } from './world';
 import { ensureDevice } from './world';
 

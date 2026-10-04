@@ -2,10 +2,7 @@ import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { friendsActor } from './friends-actor';
-import {
-  FRIENDS_NOT_FOUND,
-  FRIENDS_SELF,
-} from './friends-mutation-codes';
+import { FRIENDS_NOT_FOUND, FRIENDS_SELF } from './friends-mutation-codes';
 import { FriendshipRepository } from './friendship-repository';
 
 export const removeFriendMutation = defineMutation({

@@ -5,11 +5,11 @@
  */
 
 import type { Message } from '@pkgs/message-shared/message';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
-import type { RoomState } from '@pkgs/room-shared/types';
 import { AddOne, gameRoomModule } from '@pkgs/room-harness/game-room';
 import { RoomServer } from '@pkgs/room-server/room-server';
 import type { RoomServerConfig } from '@pkgs/room-shared/room-server-types';
+import type { RoomState } from '@pkgs/room-shared/types';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import { CountingRoomStorage } from './counting-room-storage';
 import { testPorts } from './ports';
 

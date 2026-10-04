@@ -5,7 +5,16 @@
  * with a server-side key and learns what changed only from signed webhooks;
  * the app cannot tell it from Stripe.
  */
-import type { CallbackResult, Membership, MembershipBilling, MembershipChange, OpenPortalInput, ReadCallbackInput, StartCheckoutInput, StartCheckoutResult } from '@pkgs/billing-shared/membership';
+import type {
+  CallbackResult,
+  Membership,
+  MembershipBilling,
+  MembershipChange,
+  OpenPortalInput,
+  ReadCallbackInput,
+  StartCheckoutInput,
+  StartCheckoutResult,
+} from '@pkgs/billing-shared/membership';
 import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
 
 import {
@@ -14,14 +23,21 @@ import {
   PADDLE_SUBSCRIPTION_ENDED_EVENT,
 } from './callback-events';
 import { membershipStatusOf } from './membership-status';
-import { PaddleApi, paddleOriginForApiKey } from './paddle-api';
 import type { PaddleFetch } from './paddle-api';
+import { PaddleApi, paddleOriginForApiKey } from './paddle-api';
 import { PaddleApiError } from './paddle-api-error';
-import { planPaddleRefund } from './refund-plan';
 import type { RefundAdjustment, RefundLineItem } from './refund-plan';
+import { planPaddleRefund } from './refund-plan';
 import { verifyPaddleSignature } from './signature';
+import type {
+  PaddleCustomer,
+  PaddleEvent,
+  PaddlePortalSession,
+  PaddlePrice,
+  PaddleSubscription,
+  PaddleTransaction,
+} from './wire';
 import { PADDLE_CUSTOM_DATA, PADDLE_SIGNATURE_HEADER } from './wire';
-import type { PaddleCustomer, PaddleEvent, PaddlePortalSession, PaddlePrice, PaddleSubscription, PaddleTransaction } from './wire';
 
 /** The adapter's id: it keys stored data, so it never changes. */
 export const PADDLE_PROVIDER = 'paddle';

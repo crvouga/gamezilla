@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
-import { defineContext } from '@pkgs/solid-context-client/define-context';
-import type { JSX, ParentProps } from 'solid-js';
 
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { defineContext } from '@pkgs/solid-context-client/define-context';
+import type { JSX, ParentProps } from 'solid-js';
 
 const ObjectStoreContext = defineContext<ObjectStore>('ObjectStore');
 

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
 import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
 
 /**
  * The portable key table is the contract every driver maps through, so a key

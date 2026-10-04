@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
-import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared/space-room-url';
 import type { SpaceRoomWebSocketUrlArgs } from '@libs/spaces-shared/space-room-url';
+import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared/space-room-url';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

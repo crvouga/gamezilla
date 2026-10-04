@@ -1,4 +1,9 @@
-import type { RoomCommandPayload, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 
 /**
  * M2: rebuild each state with shuffled key insertion order; hashes must match.

@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { buildAuthTrustedOrigins, isTrustedCallbackUrl } from '@pkgs/auth-inhouse-shared/trusted-origins';
+import {
+  buildAuthTrustedOrigins,
+  isTrustedCallbackUrl,
+} from '@pkgs/auth-inhouse-shared/trusted-origins';
 
 describe('localhost OAuth callback origins', () => {
   test('allows a dynamically assigned stack web origin', () => {

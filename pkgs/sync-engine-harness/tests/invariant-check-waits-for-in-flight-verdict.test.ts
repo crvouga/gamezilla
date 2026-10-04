@@ -1,9 +1,14 @@
 import { describe, test } from 'bun:test';
-import { addClient, connect, disconnect, mutate } from '@pkgs/sync-engine-harness/regression-actions';
-import { deleteNote, setNote } from '@pkgs/sync-engine-harness/mutations';
 import { exampleSystem } from '@pkgs/sync-engine-harness/example-app-system';
 import { expectInSync } from '@pkgs/sync-engine-harness/expect-in-sync';
+import { deleteNote, setNote } from '@pkgs/sync-engine-harness/mutations';
 import { liveNote } from '@pkgs/sync-engine-harness/reads';
+import {
+  addClient,
+  connect,
+  disconnect,
+  mutate,
+} from '@pkgs/sync-engine-harness/regression-actions';
 import { untilExample } from '@pkgs/sync-engine-harness/until';
 
 /**

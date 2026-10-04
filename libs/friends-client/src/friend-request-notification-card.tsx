@@ -1,12 +1,12 @@
+import { NotificationCardDefault } from '@libs/notifications-client/notification-card-default';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
-import { NotificationCardDefault } from '@libs/notifications-client/notification-card-default';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
-import { useFriendRequestDecisionOptional } from './friend-request-decision-state';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';
+import { useFriendRequestDecisionOptional } from './friend-request-decision-state';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
 
 type FriendRequestNotificationCardProps = {

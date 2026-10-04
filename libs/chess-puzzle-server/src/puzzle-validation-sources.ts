@@ -4,12 +4,13 @@
  * `chess_puzzles` table, paged by id so the whole database streams in
  * bounded memory.
  */
-import sql from '@pkgs/sql-shared/sql';
+
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import { PuzzleRowIterator } from './puzzle-row-iterator';
-import type { ResolvedSource } from './streaming';
 import type { PuzzleValidationReport } from './puzzle-validation-report';
+import type { ResolvedSource } from './streaming';
 
 const DB_PAGE_SIZE = 5000;
 

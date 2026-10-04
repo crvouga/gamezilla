@@ -12,11 +12,13 @@
 
 import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
 import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import {
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '@pkgs/sync-engine-shared/managed-columns';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import { managedInsertColumns, managedUpdatedAtIso } from '@pkgs/sync-engine-shared/managed-columns';
 
 type MirrorRow = {
   readonly id: string;

@@ -1,8 +1,8 @@
+import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
 import { Avatar } from '@pkgs/ui-client/avatar';
 import { UserIcon } from '@pkgs/ui-client/icons';
 import type { JSX } from 'solid-js';
 import { lazy, Show, Suspense } from 'solid-js';
-import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
 
 /**
  * DiceBear stays off the shell entry graph — load only when a persisted

@@ -1,16 +1,15 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { deviceMutationEnv } from '@libs/auth-shared/device-mutation-env';
-import {
-  ensureActor,
-  pollUntil,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
+import { CHESS_MUTATIONS } from '@libs/chess-feature-shared/mutations';
+import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
+import { ensureActor, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { awaitMutationVerdict } from '@pkgs/sync-engine-client/await-mutation-verdict';
 import { createMutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
-import type { MutateResult, Mutation } from '@pkgs/sync-engine-shared/mutations-types';
-import { CHESS_MUTATIONS } from '@libs/chess-feature-shared/mutations';
-import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
+import type {
+  MutateResult,
+  Mutation,
+} from '@pkgs/sync-engine-shared/mutations-types';
 
 export type MultiplayerCommand = {
   readonly name: string;

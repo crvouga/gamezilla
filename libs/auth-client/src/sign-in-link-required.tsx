@@ -10,7 +10,11 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import type { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import { Button } from '@pkgs/ui-client/button';
-import { ModalBody, ModalButton, ModalFooter } from '@pkgs/ui-client/modal-parts';
+import {
+  ModalBody,
+  ModalButton,
+  ModalFooter,
+} from '@pkgs/ui-client/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-client/social-sign-in-button';
 import { For, type JSX } from 'solid-js';
 

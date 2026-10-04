@@ -1,14 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import { defineSchema } from '@pkgs/db-schema-shared/define-schema';
-import { createRecordingSqlClient } from '@pkgs/db-schema-shared/fake-sql-client';
-import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import sql from '@pkgs/sql-shared/sql';
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
+import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-server/mockingbird-postgres-test-client';
 import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
 import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
-import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-server/mockingbird-postgres-test-client';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
+import { defineSchema } from '@pkgs/db-schema-shared/define-schema';
+import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { createRecordingSqlClient } from '@pkgs/db-schema-shared/fake-sql-client';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 describe('postgres reconcile integration', () => {
   let sqlClient: PostgresSqlClient;

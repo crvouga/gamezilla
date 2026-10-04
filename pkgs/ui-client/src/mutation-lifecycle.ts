@@ -9,8 +9,8 @@
  * `idle`. Must be called inside a reactive owner (component body).
  */
 
-import type { AsyncStatus } from '@pkgs/async-shared/async-runner';
 import { createAsync } from '@pkgs/async-client/solid';
+import type { AsyncStatus } from '@pkgs/async-shared/async-runner';
 import { type Accessor, createEffect, on, untrack } from 'solid-js';
 
 export type MutationPhase = 'idle' | 'loading' | 'success' | 'error';

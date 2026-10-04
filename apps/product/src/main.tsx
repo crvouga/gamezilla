@@ -15,9 +15,9 @@ import { wallClientEnv } from '@libs/app-client/wall-client-env';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { assert } from '@pkgs/assert-shared/singleton';
-import '@pkgs/tailwind/tailwind.css';
-import '@pkgs/ui/tokens.css';
-import '@pkgs/ui/base.css';
+import '@pkgs/tailwind-shared/tailwind.css';
+import '@pkgs/ui-client/tokens.css';
+import '@pkgs/ui-client/hosts.css';
 import {
   createSignal,
   type JSX,
@@ -61,7 +61,8 @@ function HarnessBoot(): JSX.Element {
 function AppBoot(): JSX.Element {
   const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
     features: APP_FEATURE_CLIENTS,
-    loadApp: async () => (await import('@libs/runtime-shared/app-features')).APP,
+    loadApp: async () =>
+      (await import('@libs/runtime-shared/app-features')).APP,
     poolGlobalKey: '__gamezilla_sync_engine_pool__',
   });
   const onPageHide = (): void => {

@@ -2,8 +2,8 @@ import { expect } from 'bun:test';
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { recoverAll } from './regression-actions';
-import { inSync } from './sync-observations';
 import type { SyncHarness } from './scenario-system';
+import { inSync } from './sync-observations';
 
 /**
  * Module-private kit drain — not a public pin / explore action. Sync needs

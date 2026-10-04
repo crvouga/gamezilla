@@ -4,15 +4,14 @@
  * `AppFrame` `header`; ignored on compact layouts.
  */
 
+import { isAppTabActive } from '@libs/app-shared/is-app-tab-active';
+import { useAppFrameGlobalTrailing } from '@pkgs/ui-client/app-frame-chrome';
 import { AppHeaderIsland } from '@pkgs/ui-client/app-header-island';
 import type { AppHeaderIslandItem } from '@pkgs/ui-client/app-header-island-types';
 import { AppLogo } from '@pkgs/ui-client/app-logo';
-import { useAppFrameGlobalTrailing } from '@pkgs/ui-client/app-frame-chrome';
 import { usePathname, useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
-
 import { useAppTabs } from './app-tabs';
-import { isAppTabActive } from '@libs/app-shared/is-app-tab-active';
 
 const LOGO_SIZE = 24;
 

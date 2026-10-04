@@ -1,8 +1,17 @@
 import { rememberCustomGameAcknowledgement } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
-import { attemptCustomGameChoice, changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { attemptCustomGameBoundary, readCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
+import {
+  attemptCustomGameChoice,
+  changeCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-actions';
+import {
+  attemptCustomGameBoundary,
+  readCustomGameBoundary,
+} from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGameChoice, CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
+import type {
+  CustomGameChoice,
+  CustomGameInput,
+} from '@libs/chess-custom-game-shared/custom-game-choice';
 import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { Picks } from '@pkgs/quint-shared/registry';

@@ -1,5 +1,5 @@
-import { createMemo, createSignal } from 'solid-js';
 import { customGameFenAt } from '@libs/chess-custom-game-shared/custom-game-position';
+import { createMemo, createSignal } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 export type CustomGameReview = ReturnType<typeof useCustomGameReview>;

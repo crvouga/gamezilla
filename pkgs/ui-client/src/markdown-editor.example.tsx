@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { SchemePreview } from './scheme-preview';
 import { MarkdownEditor } from './markdown-editor';
+import { SchemePreview } from './scheme-preview';
 
 export default function MarkdownEditorExample() {
   const [value, setValue] = createSignal(

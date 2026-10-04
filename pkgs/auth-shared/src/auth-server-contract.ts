@@ -10,8 +10,8 @@
 import { describe, expect, test } from 'bun:test';
 
 import type { AuthProvider, AuthProviderModule } from './auth-provider-module';
-import { isOauthProviderId } from './sign-in-method';
 import type { OauthProviderId } from './sign-in-method';
+import { isOauthProviderId } from './sign-in-method';
 
 /** A person the harness signs in, as the provider would vouch for them. */
 export type ContractPerson = {

@@ -5,7 +5,10 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { accessibleName, normalizeName } from '@pkgs/a11y-shared/accessible-name';
+import {
+  accessibleName,
+  normalizeName,
+} from '@pkgs/a11y-shared/accessible-name';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { page } from './dom';

@@ -1,6 +1,13 @@
 import { expect } from 'bun:test';
-import { applicationCondition, closeApplication, diagnosticsCondition, readEmergencyReport, readReport, submitReport } from '@pkgs/feedback-harness/feedback';
 import type { FeedbackReportingWorld } from '@pkgs/feedback-harness/feedback';
+import {
+  applicationCondition,
+  closeApplication,
+  diagnosticsCondition,
+  readEmergencyReport,
+  readReport,
+  submitReport,
+} from '@pkgs/feedback-harness/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

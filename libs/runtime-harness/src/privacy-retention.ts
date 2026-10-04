@@ -11,9 +11,9 @@ import {
   setUsername,
 } from '@libs/profile-harness/profile-actions';
 import { profileVisibleToPeople } from '@libs/profile-harness/profile-visibility';
-import sql from '@pkgs/sql-shared/sql';
 import { AppRecovery } from '@libs/runtime-server/app-recovery';
 import { InvestigationTrails } from '@libs/runtime-server/investigation-trails';
+import sql from '@pkgs/sql-shared/sql';
 
 const recovery = (s: ProductHarness) =>
   new AppRecovery(s.harness.serverSql.sqlClient, {

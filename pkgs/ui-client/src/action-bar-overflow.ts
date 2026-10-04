@@ -3,10 +3,14 @@
  * (the row shape consumed by `OverflowMenuButton` / `FloatingMenu`).
  */
 
+import type {
+  ActionBarItem,
+  ActionBarOverflowMode,
+  ActionBarTextAction,
+} from './action-bar-logic';
+import { isActionBarAvatarItem } from './action-bar-logic';
 import { EllipsisIcon } from './icons';
 import type { OverflowMenuAction } from './overflow-menu-button';
-import type { ActionBarItem, ActionBarOverflowMode, ActionBarTextAction } from './action-bar-logic';
-import { isActionBarAvatarItem } from './action-bar-logic';
 
 export function actionBarItemToOverflowAction(
   item: ActionBarItem,

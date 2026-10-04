@@ -9,13 +9,13 @@
  * re-opens the modal on a cold start.
  */
 
+import { SIGN_IN_PENDING_KEY } from '@libs/auth-shared/auth-storage-keys';
+import type { SignInPending } from '@libs/auth-shared/sign-in-pending-parse';
+import { parseSignInPending } from '@libs/auth-shared/sign-in-pending-parse';
 import { useClock } from '@pkgs/clock-client/solid';
 import { createSecureStorageItem } from '@pkgs/secure-storage-client/solid';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
-import { SIGN_IN_PENDING_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { parseSignInPending } from '@libs/auth-shared/sign-in-pending-parse';
-import type { SignInPending } from '@libs/auth-shared/sign-in-pending-parse';
 
 /**
  * Reactive view of the pending marker for the modal provider. `pending` is the

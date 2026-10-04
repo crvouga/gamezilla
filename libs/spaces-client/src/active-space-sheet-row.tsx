@@ -2,14 +2,13 @@ import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-client/content-edge-padding'
 import type { JSX } from 'solid-js';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from './leave-space-modal-provider';
-
-import { SpaceHostAvatar } from './space-host-avatar';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
 import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
+import { SpaceHostAvatar } from './space-host-avatar';
 
 export type ActiveSpaceSheetRowProps = {
   spaceId: string;

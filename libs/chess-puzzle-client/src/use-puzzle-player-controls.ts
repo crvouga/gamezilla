@@ -1,10 +1,9 @@
-import type { Move } from '@pkgs/chess-board-core-shared/types';
-import { type Accessor, createMemo } from 'solid-js';
-
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import { hintStageFromRoom } from '@libs/chess-puzzle-shared/hint-stage';
 import { puzzleNavFromState } from '@libs/chess-puzzle-shared/puzzle-nav';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { Move } from '@pkgs/chess-board-core-shared/types';
+import { type Accessor, createMemo } from 'solid-js';
 import { usePuzzlePlayerEffects } from './use-puzzle-player-effects';
 import { usePuzzlePlayerHandlers } from './use-puzzle-player-handlers';
 

@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { deriveOutcomeScore, hasPendingPlay, hasPlayOutcome, playOutcome } from '@libs/chess-puzzle-shared/chess-puzzle-derive';
+import {
+  deriveOutcomeScore,
+  hasPendingPlay,
+  hasPlayOutcome,
+  playOutcome,
+} from '@libs/chess-puzzle-shared/chess-puzzle-derive';
 import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 
 let at = 0;

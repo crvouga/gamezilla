@@ -27,13 +27,24 @@
  * ```
  */
 
-import { createEffect, type JSX, Match, on, Switch } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import type { MutationPhase, MutationStateTransition } from './mutation-lifecycle';
+import { createEffect, type JSX, Match, on, Switch } from 'solid-js';
+import type {
+  MutationPhase,
+  MutationStateTransition,
+} from './mutation-lifecycle';
 import { useMutationLifecycle } from './mutation-lifecycle';
+import type {
+  MutationModalIds,
+  MutationModalLabels,
+} from './mutation-modal-parts';
+import {
+  MutationError,
+  MutationIdle,
+  MutationLoading,
+  MutationSuccess,
+} from './mutation-modal-parts';
 import { ResponsiveSurface } from './responsive-surface';
-import { MutationError, MutationIdle, MutationLoading, MutationSuccess } from './mutation-modal-parts';
-import type { MutationModalIds, MutationModalLabels } from './mutation-modal-parts';
 
 export type MutationModalProps = {
   visible: boolean;

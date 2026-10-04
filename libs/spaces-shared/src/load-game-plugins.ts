@@ -1,6 +1,6 @@
 import type { Message } from '@pkgs/message-shared/message';
-import { assertRoomModuleName } from '@pkgs/room-shared/types';
 import type { RoomModule, RoomState } from '@pkgs/room-shared/types';
+import { assertRoomModuleName } from '@pkgs/room-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 
 import type { GameDefinition } from './game';

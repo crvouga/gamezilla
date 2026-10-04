@@ -1,9 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 
-import { canChangeUsername, normalizeUsername, USERNAME_CHANGE_COOLDOWN_MS, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, validateUsername } from '@libs/profile-shared/username';
+import {
+  canChangeUsername,
+  normalizeUsername,
+  USERNAME_CHANGE_COOLDOWN_MS,
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+  validateUsername,
+} from '@libs/profile-shared/username';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
+import fc from 'fast-check';
 
 const ALPHABET = [
   ...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_',

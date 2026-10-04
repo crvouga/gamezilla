@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { PROFILE_TABLES } from './tables';
-import { PROFILE_TOPIC_MAP } from './topic-map';
 import { PROFILE_PRIVACY } from './profile-privacy';
 import { PROFILE_QUERIES } from './queries';
+import { PROFILE_TABLES } from './tables';
+import { PROFILE_TOPIC_MAP } from './topic-map';
 
 export const PROFILE_FEATURE = defineFeature({
   name: 'profile',

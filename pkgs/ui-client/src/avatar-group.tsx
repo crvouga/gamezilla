@@ -7,6 +7,10 @@
  * `Clickable`.
  */
 
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { colorVar } from '@pkgs/ui-shared/css-vars';
+import { resolveColor } from '@pkgs/ui-shared/resolve-color';
 import {
   createMemo,
   For,
@@ -14,10 +18,6 @@ import {
   children as resolveChildren,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { colorVar } from '@pkgs/ui-shared/css-vars';
-import { resolveColor } from '@pkgs/ui-shared/resolve-color';
 import { useThemeTokens } from './theme-context';
 
 export type AvatarGroupProps = {

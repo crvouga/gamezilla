@@ -1,23 +1,23 @@
 import { Trans } from '@lingui/solid/macro';
+import { useLocalSearchParams, useRouter } from '@pkgs/ui-client/app-router';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import type { ScreenBaseAction } from '@pkgs/ui-client/screen-base-types';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
-import { useLocalSearchParams, useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
-import { useFriendRequestIdsForUser } from './use-friend-request-ids';
-import { useFriendshipStatus } from './use-friendship-status';
-import { useBlockUser } from './use-block-user';
-import { useRemoveFriend } from './use-remove-friend';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
 import { FriendUserScreenContent } from './friend-user-screen-content';
 import { FriendsPermissionGate } from './friends-permission-gate';
+import { useBlockUser } from './use-block-user';
+import { useFriendRequestIdsForUser } from './use-friend-request-ids';
 import { useFriendUserOverflowMenu } from './use-friend-user-overflow-menu';
 import {
   friendUserBreadcrumbName,
   readRouteParam,
   useFriendUserProfile,
 } from './use-friend-user-profile';
+import { useFriendshipStatus } from './use-friendship-status';
+import { useRemoveFriend } from './use-remove-friend';
 
 function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const router = useRouter();

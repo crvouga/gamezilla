@@ -1,9 +1,8 @@
-import type { Decision } from '@pkgs/permissions-shared/decision';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
 import type { AccessScope } from '@libs/permissions-shared/decide-for-actor';
 import { decideForActor } from '@libs/permissions-shared/decide-for-actor';
 import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
+import type { Decision } from '@pkgs/permissions-shared/decision';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 
 /**
  * The actor's decision for `key` on the server, outside a mutation (a route

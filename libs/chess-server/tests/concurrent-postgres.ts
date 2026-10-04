@@ -3,12 +3,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { createPgPool, openPgClient } from '@pkgs/sql-client-postgres-server/connect';
-import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
+import {
+  createPgPool,
+  openPgClient,
+} from '@pkgs/sql-client-postgres-server/connect';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
+import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 export const CONCURRENT_DRIVERS = ['pool', 'session', 'bun'] as const;
 export type ConcurrentDriver = (typeof CONCURRENT_DRIVERS)[number];

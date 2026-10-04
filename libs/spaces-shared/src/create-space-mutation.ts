@@ -6,10 +6,7 @@ import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { liveHostedSpacesCountSql } from './hosted-spaces-sql';
 import { spaceUserEntityId } from './participation-ids';
-import {
-  memberId,
-  openSession,
-} from './space-mutation-helpers';
+import { memberId, openSession } from './space-mutation-helpers';
 import { changeSpaceRoomMembership } from './space-withdrawal';
 
 /**

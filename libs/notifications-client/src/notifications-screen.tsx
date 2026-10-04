@@ -1,19 +1,20 @@
 /** @jsxImportSource solid-js */
+
+import type { NotificationFilter } from '@libs/notifications-shared/notification';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useUnlock } from '@libs/permissions-client/unlock';
 import { useDecision } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useLingui } from '@lingui/solid/macro';
-import { BellIcon, CheckIcon } from '@pkgs/ui-client/icons';
 import { Button } from '@pkgs/ui-client/button';
+import { BellIcon, CheckIcon } from '@pkgs/ui-client/icons';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
 import { type JSX, onMount, Show } from 'solid-js';
-import { useNotifications } from './use-notifications';
-import { useNotificationsActions } from './use-notifications-actions';
-import type { NotificationFilter } from '@libs/notifications-shared/notification';
 import { NotificationsFilterBar } from './notifications-filter-bar';
 import { NotificationsList } from './notifications-list';
+import { useNotifications } from './use-notifications';
+import { useNotificationsActions } from './use-notifications-actions';
 
 export type NotificationsScreenProps = {
   readonly initialFilter?: NotificationFilter | undefined;

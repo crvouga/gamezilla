@@ -1,14 +1,14 @@
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
-import { SpaceField, useSpaceColumn } from './use-space-column';
-import { useIsSpaceOpenLocally } from './use-open-space-session-ids';
-import { SpaceGuestSection } from './space-guest-section';
 import {
   SPACE_CARD_BORDER_RADIUS,
   SpaceCardGradientBox,
 } from './space-card-gradient';
 import { SpaceCardOpenLink } from './space-card-open-link';
+import { SpaceGuestSection } from './space-guest-section';
 import { SpaceSummaryHeader } from './space-summary-header';
+import { useIsSpaceOpenLocally } from './use-open-space-session-ids';
+import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceCardProps = {
   spaceId: string;

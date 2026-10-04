@@ -6,9 +6,9 @@
  * label with an optional description line.
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 
 export type PickerSectionProps = {
   label: JSX.Element;

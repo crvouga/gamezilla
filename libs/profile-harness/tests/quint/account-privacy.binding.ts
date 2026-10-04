@@ -8,17 +8,16 @@ import {
   runPrivacyJobs,
 } from '@libs/account-privacy-harness/privacy-actions';
 import { privacyStatus } from '@libs/account-privacy-harness/privacy-reads';
-import { partition } from '@libs/harness/actions';
-import { partitioned } from '@libs/harness/observations';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { signedInAccountOf } from '@libs/harness/identity';
+import { partitioned } from '@libs/harness/observations';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
-import { restoreActorConnection } from '@libs/harness/actions';
 import { deviceShowsSignedIn } from '@libs/harness/sign-in-state-reads';
 import { profileVisibleToPeople } from '@libs/profile-harness/profile-visibility';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const PEOPLE = ['alice', 'bob'] as const;
 const DEVICES = ['alice-phone', 'alice-computer', 'bob-phone'] as const;

@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
+import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
 import { createNodeTelemetry } from '@pkgs/observability-server/node-node';
-import { NdjsonSpanExporter } from '@pkgs/observability-shared/ndjson-exporter';
 import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
 
 function memoryStore(): ObjectStore {

@@ -1,7 +1,10 @@
 import { decideInMutation } from '@libs/permissions-shared/mutation-permission';
 import type { AppPermission } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-shared/sql';
-import type { MutationDb, MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import {

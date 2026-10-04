@@ -1,7 +1,15 @@
 import { expect, test } from 'bun:test';
-import { listSourceRecords, readCommit, readFrameCss } from '@pkgs/harness-report-shared/read';
-import { closeCommit, openCommit, publishSource } from '@pkgs/harness-report-shared/publish';
 import { publicationStore } from '@pkgs/harness-report-shared/publication';
+import {
+  closeCommit,
+  openCommit,
+  publishSource,
+} from '@pkgs/harness-report-shared/publish';
+import {
+  listSourceRecords,
+  readCommit,
+  readFrameCss,
+} from '@pkgs/harness-report-shared/read';
 import { readBytes } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 

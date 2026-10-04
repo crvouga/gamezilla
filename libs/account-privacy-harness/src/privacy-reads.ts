@@ -1,7 +1,7 @@
+import { readPrivacyStatus } from '@libs/account-privacy-shared/privacy-status';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import sql from '@pkgs/sql-shared/sql';
-import { readPrivacyStatus } from '@libs/account-privacy-shared/privacy-status';
 
 export function exportCategories(s: ProductHarness): string[] {
   return s.harness.composition.app.accountPrivacy.map(

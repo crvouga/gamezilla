@@ -9,14 +9,14 @@
  * positioned in those gutters so they do not shift the text.
  */
 
+import { spacingScale } from '@pkgs/ui-shared/scale';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { spacingScale } from '@pkgs/ui-shared/scale';
+import type { ButtonFeedback } from './button-face';
+import { MUTATION_FEEDBACK_ICONS } from './button-face';
 import type { IconComponent } from './create-icon';
 import { XIcon } from './icons';
 import { Spinner } from './spinner';
-import type { ButtonFeedback } from './button-face';
-import { MUTATION_FEEDBACK_ICONS } from './button-face';
 
 export type ButtonSize = 'sm' | 'md' | 'lg';
 

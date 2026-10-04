@@ -1,7 +1,6 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-
-import { validateQueryChannels } from './validate-topics';
 import type { QueryDef, QueryRegistry } from './queries-types';
+import { validateQueryChannels } from './validate-topics';
 
 export function queryRegistry(qs: readonly QueryDef<unknown>[]): QueryRegistry {
   const out: Record<string, QueryDef<unknown>> = {};

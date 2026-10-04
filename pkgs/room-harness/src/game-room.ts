@@ -1,10 +1,22 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
-import { createMessageNamespace, isMessageEnvelope, isPlainRecord } from '@pkgs/message-shared/message';
 import type { Message } from '@pkgs/message-shared/message';
-import { CancelScheduleEffect, ScheduleEffect } from '@pkgs/room-shared/builtin';
+import {
+  createMessageNamespace,
+  isMessageEnvelope,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
+import {
+  CancelScheduleEffect,
+  ScheduleEffect,
+} from '@pkgs/room-shared/builtin';
 import { hashRoomState } from '@pkgs/room-shared/hash-room-state';
+import type {
+  HandleResult,
+  RoomCommand,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import { assertRoomModuleName, ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import type { HandleResult, RoomCommand, RoomModule, RoomState } from '@pkgs/room-shared/types';
 
 /**
  * The example app every test of the room framework drives: a game room

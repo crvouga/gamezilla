@@ -1,12 +1,12 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
+import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
+import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
 import type { JSX } from 'solid-js';
 import type { LayoutProvider } from './dom-layout';
-import { DEFAULT_WAIT_TIMEOUT_MS, microtaskPump } from './dom-wait';
 import type { WaitPump } from './dom-wait';
+import { DEFAULT_WAIT_TIMEOUT_MS, microtaskPump } from './dom-wait';
 import { mountSolidApp } from './mount-solid-app';
 import { SolidDomDriverNode } from './solid-dom-driver-node';
 

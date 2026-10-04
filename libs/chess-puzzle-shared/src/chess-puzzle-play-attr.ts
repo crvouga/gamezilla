@@ -1,7 +1,6 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
-
-import { parseRecommendations } from './recommendations';
 import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
+import { parseRecommendations } from './recommendations';
 
 /**
  * FSM state stored at `chess.puzzle-play/status`. The session lifecycle is:

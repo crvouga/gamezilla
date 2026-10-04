@@ -1,12 +1,14 @@
-import type { CatalogAction, CatalogProperty } from '@pkgs/harness-shared/effect';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import type { System } from '@pkgs/harness-shared/define-system';
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
+import type { System } from '@pkgs/harness-shared/define-system';
+import type {
+  CatalogAction,
+  CatalogProperty,
+} from '@pkgs/harness-shared/effect';
+import type { Session } from '@pkgs/harness-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
-import { createRoomHarnessRuntime } from './create-room-harness';
-import type { RoomApp } from './scenario-app';
 import type { RoomArgs } from './args';
+import { createRoomHarnessRuntime } from './create-room-harness';
 import type { RoomHarness } from './harness';
 import { invariants, staysInSync } from './observations';
 import {
@@ -14,6 +16,7 @@ import {
   LIBRARY_ACTIONS,
   SCRIPTED_ACTIONS,
 } from './room-actions';
+import type { RoomApp } from './scenario-app';
 
 export const HARNESS_START_MS = 1_700_000_000_000;
 

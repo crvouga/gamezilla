@@ -3,13 +3,17 @@ import {
   useMyDeviceId,
   useMyId,
 } from '@libs/auth-client/use-current-user';
-import sql from '@pkgs/sql-shared/sql';
-
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { type Accessor, createMemo } from 'solid-js';
-
+import type {
+  SpaceJoinLocalRow,
+  SpaceJoinSnapshot,
+} from '@libs/spaces-shared/resolve-space-join-snapshot';
 import { resolveSpaceJoinSnapshot } from '@libs/spaces-shared/resolve-space-join-snapshot';
-import type { SpaceJoinLocalRow, SpaceJoinSnapshot } from '@libs/spaces-shared/resolve-space-join-snapshot';
+import sql from '@pkgs/sql-shared/sql';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
+import { type Accessor, createMemo } from 'solid-js';
 import { useIsFriendOfHostLocal } from './use-is-friend-of-host-local';
 import { useHasSpaceUserLocal } from './use-space-join-access-flags';
 

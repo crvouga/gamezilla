@@ -8,10 +8,7 @@ import { MutationModal } from '@pkgs/ui-client/mutation-modal';
 import type { JSX } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';
-import {
-  authFlowErrorMessage,
-  providerName,
-} from './auth-flow-messages';
+import { authFlowErrorMessage, providerName } from './auth-flow-messages';
 import { useIdentityRefresh } from './use-identity-refresh';
 
 export function UnlinkMethodModal(props: {

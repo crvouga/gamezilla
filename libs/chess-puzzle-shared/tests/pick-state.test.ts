@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { resolvePuzzlePickState, shouldDropExhaustedActivePuzzle } from '@libs/chess-puzzle-shared/pick-state';
+import {
+  resolvePuzzlePickState,
+  shouldDropExhaustedActivePuzzle,
+} from '@libs/chess-puzzle-shared/pick-state';
 
 describe('resolvePuzzlePickState', () => {
   const base = {

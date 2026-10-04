@@ -1,10 +1,10 @@
 /** App shell steps: opening the app, the tabs, Settings. */
 
+import { spawnActor } from '@libs/harness/actions';
+import { Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import { onScreen, tabsVisible } from '@libs/harness/ui-reads';
-import { spawnActor } from '@libs/harness/actions';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Then, When } from '@libs/harness/define';
 import { openSettingsAs } from '../keyboard-actions';
 
 /** `data-screen` ids of the shell's destinations. */

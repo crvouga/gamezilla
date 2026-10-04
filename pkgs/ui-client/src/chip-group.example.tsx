@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
-import { ChipGroup } from './chip-group';
 import type { ChipGroupOption } from './chip-group';
+import { ChipGroup } from './chip-group';
+import { ExampleRoot } from './example-root';
 
 type Intensity = 'off' | 'mid' | 'high';
 

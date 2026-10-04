@@ -1,10 +1,9 @@
+import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
+import { resolveAvatarSeed } from '@libs/profile-shared/avatar-config';
+import { profileAvatarSvg } from '@libs/profile-shared/profile-dicebear';
 import { Avatar } from '@pkgs/ui-client/avatar';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
-import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
-import { resolveAvatarSeed } from '@libs/profile-shared/avatar-config';
-
-import { profileAvatarSvg } from '@libs/profile-shared/profile-dicebear';
 
 export type ProfileDiceBearAvatarProps = {
   config: AvatarConfig;

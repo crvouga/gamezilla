@@ -1,12 +1,4 @@
 /** @jsxImportSource solid-js */
-import {
-  type Accessor,
-  createContext,
-  createMemo,
-  type JSX,
-  type ParentProps,
-  useContext,
-} from 'solid-js';
 
 import type {
   LogEntry,
@@ -15,8 +7,21 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room-shared/types';
-import { createRoomDispatch, createRoomLog, createRoomRoster, createRoomSelector } from './room-signals';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  type JSX,
+  type ParentProps,
+  useContext,
+} from 'solid-js';
 import type { RoomReadable } from './room-signals';
+import {
+  createRoomDispatch,
+  createRoomLog,
+  createRoomRoster,
+  createRoomSelector,
+} from './room-signals';
 
 /** Type-erased room client for multi-room registries. */
 export type AnyRoomClient = RoomReadable<

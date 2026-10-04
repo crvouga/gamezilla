@@ -7,9 +7,7 @@
 
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
-import type {
-  CreateAppLocalSyncEnginePoolArgs,
-} from './create-local-sync-engine';
+import type { CreateAppLocalSyncEnginePoolArgs } from './create-local-sync-engine';
 
 export type AppSyncEnginePool = {
   readonly getOrCreate: (
@@ -52,12 +50,16 @@ export function createAppSyncEnginePool(options: {
   let poolPromise: Promise<PoolApi> | null = null;
   let loadedPool: PoolApi | null = null;
   const loadPool = (): Promise<PoolApi> => {
-    poolPromise ??= import('@pkgs/sync-engine-client/sync-engine-pool').then((mod) => {
-      loadedPool = mod.createSyncEnginePool(
-        options.globalKey === undefined ? {} : { globalKey: options.globalKey }
-      );
-      return loadedPool;
-    });
+    poolPromise ??= import('@pkgs/sync-engine-client/sync-engine-pool').then(
+      (mod) => {
+        loadedPool = mod.createSyncEnginePool(
+          options.globalKey === undefined
+            ? {}
+            : { globalKey: options.globalKey }
+        );
+        return loadedPool;
+      }
+    );
     return poolPromise;
   };
   const loadEngineModule = once(

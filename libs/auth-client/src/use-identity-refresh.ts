@@ -4,13 +4,12 @@
  * the bearer, so the auth bridge would not notice on its own).
  */
 
+import { refreshAuth } from '@libs/auth-shared/refresh-auth-fetch';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
-
 import { useAuthClientPort } from './auth-client-provider';
+import { collectDeviceSnapshot } from './collect-device-snapshot';
 import { useConfigService } from './config-service-context';
 import { useDeviceId } from './use-device-id';
-import { collectDeviceSnapshot } from './collect-device-snapshot';
-import { refreshAuth } from '@libs/auth-shared/refresh-auth-fetch';
 
 export function useIdentityRefresh(): () => Promise<void> {
   const port = useAuthClientPort();

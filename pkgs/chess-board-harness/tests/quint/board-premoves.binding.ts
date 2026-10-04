@@ -1,10 +1,22 @@
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { clearBoardEvidence, pressBoardKey } from '@pkgs/chess-board-harness/options-actions';
-import { configureBoard, movePiece, readProbe, selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { PREMOVE_READY, supplyPremoveReply } from '@pkgs/chess-board-harness/premove-actions';
-import { REPLACEMENT } from '@pkgs/chess-board-harness/positions';
+import {
+  configureBoard,
+  movePiece,
+  readProbe,
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { readModelFingerprint } from '@pkgs/chess-board-harness/model-evidence';
+import {
+  clearBoardEvidence,
+  pressBoardKey,
+} from '@pkgs/chess-board-harness/options-actions';
+import { REPLACEMENT } from '@pkgs/chess-board-harness/positions';
+import {
+  PREMOVE_READY,
+  supplyPremoveReply,
+} from '@pkgs/chess-board-harness/premove-actions';
 import { readPremoveModel } from '@pkgs/chess-board-harness/premove-model';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';

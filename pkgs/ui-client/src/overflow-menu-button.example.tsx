@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
-import type { JSX } from 'solid-js';
 import { cssPx } from '@pkgs/ui-shared/css-px';
+import type { JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
 import { MenuIcon, SettingsIcon, UserIcon } from './icons';
 import type { OverflowMenuAction } from './overflow-menu-button';

@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
+import {
+  HttpPubSubFromSecretStore,
+  resetHttpPubSubForTests,
+} from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { PubsubSecretName as Name } from '@libs/pubsub-shared/secret-names';
-import { HttpPubSubFromSecretStore, resetHttpPubSubForTests } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 
 function secretStore(values: Readonly<Record<string, string>>): SecretStore {

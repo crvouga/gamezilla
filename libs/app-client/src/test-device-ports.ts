@@ -1,8 +1,8 @@
-import type { MutableMotionPreferencePort } from '@pkgs/device-shared/motion-preference';
 import {
   controllableWebMotionPreference,
   wallWebMotionPreference,
 } from '@pkgs/device-client/wall-web-motion-preference';
+import type { MutableMotionPreferencePort } from '@pkgs/device-shared/motion-preference';
 import type {
   AudioPlaybackPort,
   AudioPlayerStatus,

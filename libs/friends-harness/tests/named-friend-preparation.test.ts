@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
-import { backToTabs } from '@libs/harness/shell-actions';
 import { signedInAccountOf } from '@libs/harness/identity';
+import { backToTabs } from '@libs/harness/shell-actions';
 import { readProfileTabUsername } from '@libs/profile-harness/profile-ui-reads';
 
 test('an existing offline friend name requires no setup mutation', async () => {

@@ -10,19 +10,31 @@
  */
 
 import { openBilling } from '@libs/billing-harness/billing-actions';
-import { BILLING_PAYER, BILLING_SECOND_DEVICE, billingStimulus, settleBilling } from '@libs/billing-harness/billing-lifecycle-stimuli';
 import type { BillingStimulus } from '@libs/billing-harness/billing-lifecycle-stimuli';
+import {
+  BILLING_PAYER,
+  BILLING_SECOND_DEVICE,
+  billingStimulus,
+  settleBilling,
+} from '@libs/billing-harness/billing-lifecycle-stimuli';
 import { paymentFacts } from '@libs/billing-harness/billing-payment-facts';
-import { billingTier, deviceMemberships, serverMemberships } from '@libs/billing-harness/billing-reads';
 import type { MembershipRecord } from '@libs/billing-harness/billing-reads';
+import {
+  billingTier,
+  deviceMemberships,
+  serverMemberships,
+} from '@libs/billing-harness/billing-reads';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import { focusActor } from '@libs/harness/shell-actions';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { spawnActor } from '@libs/harness/actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import {
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { bringToFront, partitioned } from '@libs/harness/observations';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 

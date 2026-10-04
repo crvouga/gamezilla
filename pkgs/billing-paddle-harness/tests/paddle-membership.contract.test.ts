@@ -3,13 +3,23 @@
  * Paddle REST origin (`@pkgs/billing-paddle/harness`): request encoding, the
  * envelope, error codes and Paddle's webhook signatures, end to end.
  */
-import { CONTRACT_ENDED_AT_MS, CONTRACT_NOW_MS, CONTRACT_OFFER, CONTRACT_PERIOD_END_MS } from '@pkgs/billing-shared/contract-fixtures';
-import type { ContractCallbackKind, ContractSubscription, MembershipBillingContractHarness } from '@pkgs/billing-shared/membership-billing-contract';
-import type { ContractSituation } from '@pkgs/billing-shared/contract-fixtures';
-import { describeMembershipBillingContract } from '@pkgs/billing-shared/membership-billing-contract';
-import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';
-import { FakePaddle } from '@pkgs/billing-paddle-harness/fake-paddle';
+
 import type { FakePaddleSubscription } from '@pkgs/billing-paddle-harness/fake-paddle';
+import { FakePaddle } from '@pkgs/billing-paddle-harness/fake-paddle';
+import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';
+import type { ContractSituation } from '@pkgs/billing-shared/contract-fixtures';
+import {
+  CONTRACT_ENDED_AT_MS,
+  CONTRACT_NOW_MS,
+  CONTRACT_OFFER,
+  CONTRACT_PERIOD_END_MS,
+} from '@pkgs/billing-shared/contract-fixtures';
+import type {
+  ContractCallbackKind,
+  ContractSubscription,
+  MembershipBillingContractHarness,
+} from '@pkgs/billing-shared/membership-billing-contract';
+import { describeMembershipBillingContract } from '@pkgs/billing-shared/membership-billing-contract';
 
 type Shape = Omit<
   FakePaddleSubscription,

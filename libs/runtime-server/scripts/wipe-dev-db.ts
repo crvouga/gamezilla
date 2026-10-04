@@ -7,20 +7,23 @@
  */
 
 import { join } from 'node:path';
-import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
-import { assertNonProductionSecretsEnv, normalizeDatabaseUrlForCompare } from '@pkgs/database-url-policy-shared/database-url-policy';
-import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { readDevVarsDatabaseUrl } from '@libs/db-server/dev-vars';
 import { fetchSecretFrom } from '@libs/db-server/secret-io';
+import { assertNonProdDatabaseUrl } from '@libs/db-shared/database-url-policy';
+import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
+import { reconcilePostgres } from '@libs/runtime-server/reconcile-postgres';
 import { assert } from '@pkgs/assert-shared/singleton';
 import { wallClock } from '@pkgs/clock-shared/wall';
+import {
+  assertNonProductionSecretsEnv,
+  normalizeDatabaseUrlForCompare,
+} from '@pkgs/database-url-policy-shared/database-url-policy';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
-import { raw } from '@pkgs/sql-shared/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
-import { reconcilePostgres } from '@libs/runtime-server/reconcile-postgres';
+import { raw } from '@pkgs/sql-shared/sql';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });

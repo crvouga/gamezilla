@@ -8,8 +8,11 @@
  */
 
 import type { AppleProviderConfig } from '@pkgs/auth-inhouse-server/apple-oauth';
-import { appleEndpointsFor, googleEndpointsFor } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
+import {
+  appleEndpointsFor,
+  googleEndpointsFor,
+} from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import type { Ports } from '@pkgs/harness-shared/runtime-types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';

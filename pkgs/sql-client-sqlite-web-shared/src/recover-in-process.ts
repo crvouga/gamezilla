@@ -2,13 +2,13 @@ import type { Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { openWithWaitRetry, sleepMs } from './open-retry';
+import { OPFS_SAH_POOL_ROOT } from './opfs-sah-pool-backend';
 import {
   SQL_DB_HOST_PROTOCOL_VERSION,
   sqlDbHostSharedWorkerName,
 } from './sql-db-host-protocol';
-import { isSqlOwnerWipeWorthyError } from './sql-owner';
 import type { SqlOwner } from './sql-owner';
-import { OPFS_SAH_POOL_ROOT } from './opfs-sah-pool-backend';
+import { isSqlOwnerWipeWorthyError } from './sql-owner';
 
 export const DEFAULT_DB_HOST_SHARED_WORKER_URL =
   '/sql-workers/db-host-shared-worker.js';

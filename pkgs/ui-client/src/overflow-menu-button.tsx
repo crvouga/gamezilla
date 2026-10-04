@@ -22,15 +22,15 @@
  * ```
  */
 
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import type { IconComponent } from './create-icon';
 import { FloatingMenu } from './floating-menu';
 import type { FloatingMenuPlacement } from './floating-menu-position';
 import { IconButton } from './icon-button';
 import { EllipsisIcon, MenuIcon } from './icons';
-import type { IconComponent } from './create-icon';
 import type { TooltipPlacement } from './tooltip';
 import type { AnchoredMenuController } from './use-anchored-menu';
 import { useAnchoredMenu } from './use-anchored-menu';

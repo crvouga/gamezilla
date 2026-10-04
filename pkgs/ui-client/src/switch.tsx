@@ -3,9 +3,9 @@
  * `Switch` -- on/off toggle rendered as `<button role="switch">`.
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 
 export type SwitchProps = {
   value: boolean;

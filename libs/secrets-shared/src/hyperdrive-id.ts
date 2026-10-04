@@ -1,6 +1,6 @@
 import { HEX32_RE } from './cloudflare';
-import { Secret } from './secret';
 import type { SecretInput } from './secret';
+import { Secret } from './secret';
 
 async function validateHyperdriveId(input: SecretInput): Promise<void> {
   if (!HEX32_RE.test(input.secretValue.trim())) {

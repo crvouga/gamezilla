@@ -6,8 +6,8 @@
  */
 
 import { assert } from '@pkgs/assert-shared/singleton';
-import { assertFormula, assertWireFormula } from './formula-wire';
 import type { FormulaWire } from './formula-wire';
+import { assertFormula, assertWireFormula } from './formula-wire';
 import {
   MATCHMAKING_MAX_GROUP_SIZE,
   MATCHMAKING_MIN_GROUP_SIZE,

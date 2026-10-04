@@ -1,10 +1,14 @@
 import { expect, test } from 'bun:test';
-import type { JoinResult, StatusResult } from '@pkgs/matchmaking-shared/types';
-import { serializeFormula } from '@pkgs/matchmaking-shared/formula-wire';
 import { httpRequest, tick } from '@pkgs/matchmaking-harness/actions';
+import {
+  NameAttr,
+  RatingAttr,
+  ratingWithin,
+} from '@pkgs/matchmaking-harness/attrs';
 import { lastHttp } from '@pkgs/matchmaking-harness/observations';
 import { matchmaking } from '@pkgs/matchmaking-harness/system';
-import { NameAttr, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import { serializeFormula } from '@pkgs/matchmaking-shared/formula-wire';
+import type { JoinResult, StatusResult } from '@pkgs/matchmaking-shared/types';
 
 // regression: matchmaking-wire-radius-discarded
 test('Alice accepts five points over HTTP while Bob fifty points away accepts two hundred', async () => {

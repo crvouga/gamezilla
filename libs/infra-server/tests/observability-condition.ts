@@ -4,7 +4,10 @@ import { join } from 'node:path';
 
 const tofu = Bun.spawnSync(['mise', 'which', 'tofu']).stdout.toString().trim();
 const module = readFileSync(
-  join(import.meta.dirname, '../../infra-shared/tofu/modules/observability/main.tf'),
+  join(
+    import.meta.dirname,
+    '../../infra-shared/tofu/modules/observability/main.tf'
+  ),
   'utf8'
 );
 

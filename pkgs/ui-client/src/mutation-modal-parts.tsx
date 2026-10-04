@@ -7,8 +7,8 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { ErrorState } from './error-state';
 import { LoadingState } from './loading-state';
 import { ModalBody, ModalButton, ModalFooter } from './modal-parts';

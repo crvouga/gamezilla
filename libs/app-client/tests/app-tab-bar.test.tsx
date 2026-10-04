@@ -2,11 +2,11 @@
 /** The tab bar as a listener hears it. */
 
 import { describe, expect, test } from 'bun:test';
-import { AppTabBar } from '@libs/app-client/app-tab-bar';
 import { AppCompositionProvider } from '@libs/app-client/app-features-context';
+import { AppTabBar } from '@libs/app-client/app-tab-bar';
 import type { ComposedFeatureClients } from '@libs/feature-client/compose-client';
-import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { requiredContext, requiredOwned } from '@pkgs/a11y-shared/aria-rules';
+import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { SettingsIcon, UserIcon } from '@pkgs/ui-client/icons';
 import { screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';

@@ -1,5 +1,5 @@
-import sql, { join } from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql, { join } from '@pkgs/sql-shared/sql';
 
 /** Only the pairing decision reads these facts; callers never disclose blocks. */
 export async function opponentRestrictions(

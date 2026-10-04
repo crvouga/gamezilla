@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import { Voices } from '@pkgs/tts-shared/tts-voice';
 import { InMemoryTtsProvider } from '@pkgs/tts-server/in-memory-tts-provider';
+import {
+  synthesizeWithCache,
+  ttsObjectKey,
+} from '@pkgs/tts-server/tts-synthesize';
 import type { TtsProvider } from '@pkgs/tts-shared/tts-provider';
 import { TtsProviderError } from '@pkgs/tts-shared/tts-provider';
-import { synthesizeWithCache, ttsObjectKey } from '@pkgs/tts-server/tts-synthesize';
+import { Voices } from '@pkgs/tts-shared/tts-voice';
 
 const SAMPLE_INPUT = {
   text: 'Hello world',

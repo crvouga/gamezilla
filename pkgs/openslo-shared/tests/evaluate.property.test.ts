@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { evaluateObjective } from '@pkgs/openslo-shared/evaluate';
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
+import { evaluateObjective } from '@pkgs/openslo-shared/evaluate';
 import type { Objective, Slo } from '@pkgs/openslo-shared/model';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

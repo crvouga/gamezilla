@@ -1,8 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-import { decodeItfTrace, decodeItfValue, quintEqual, renderQuint } from '@pkgs/quint-shared/itf';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
+import {
+  decodeItfTrace,
+  decodeItfValue,
+  quintEqual,
+  renderQuint,
+} from '@pkgs/quint-shared/itf';
+import fc from 'fast-check';
 
 /** Values as Quint writes them, next to what they decode to. */
 const leaf = fc.oneof(

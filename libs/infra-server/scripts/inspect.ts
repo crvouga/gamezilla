@@ -23,14 +23,29 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { ENV_FILES } from '@libs/infra-shared/envs';
-import type { EnvBundle, HelperQuery, PgVars, SecretsEnvName, WiredS3 } from './inspect-sql.ts';
-import { envIdent, INSPECT_ENV_PREFIX, loadEnvs, parseDatabaseUrl, pgChildEnv, renderInitSql, s3ChildEnv, wireS3 } from './inspect-sql.ts';
+import type {
+  EnvBundle,
+  HelperQuery,
+  PgVars,
+  SecretsEnvName,
+  WiredS3,
+} from './inspect-sql.ts';
+import {
+  envIdent,
+  INSPECT_ENV_PREFIX,
+  loadEnvs,
+  parseDatabaseUrl,
+  pgChildEnv,
+  renderInitSql,
+  s3ChildEnv,
+  wireS3,
+} from './inspect-sql.ts';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEFAULT_DB_PATH = '.local/inspect.duckdb';
 const INSPECT_SHORTHAND = 'bun run inspect';
 const INSPECT_FULL =
-  'SECRETS_ENV=prd bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/infra-server/scripts/inspect.ts';
+  'SECRETS_ENV=prd bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/infra-server/scripts/inspect.ts';
 const UI_URL = 'http://localhost:4213';
 const SECRET_KEY_RE = /secret|password|token|key/i;
 

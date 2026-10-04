@@ -1,11 +1,11 @@
+import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import {
   createSecureStorageItem,
   useSecureStorageStore,
 } from '@pkgs/secure-storage-client/solid';
 import { useCreateId } from '@pkgs/uuid-client/solid';
-import { type Accessor, createComputed } from 'solid-js';
-import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { isUuid } from '@pkgs/uuid-shared/uuid';
+import { type Accessor, createComputed } from 'solid-js';
 
 /** Empty until storage hydrates; mints at most one id per shared store. */
 export function useDeviceId(): Accessor<string> {

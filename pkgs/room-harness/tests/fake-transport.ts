@@ -1,4 +1,7 @@
-import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room-shared/transport';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from '@pkgs/room-shared/transport';
 
 /**
  * Minimal in-process transport: frames sent by the client go to `onSend`;

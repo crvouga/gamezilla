@@ -1,8 +1,7 @@
 import sql from '@pkgs/sql-shared/sql';
-
-import type { SyncEngine } from './sync-engine-port';
 import type { MutationVerdict } from './mutation-status';
 import { mutationVerdict } from './mutation-status';
+import type { SyncEngine } from './sync-engine-port';
 
 /**
  * Settle on the server's verdict for `mutationId`: re-check whenever its

@@ -1,7 +1,6 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import sql from '@pkgs/sql-shared/sql';
-
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 import type { ChessPuzzleInteractionKind } from './chess-puzzle-interaction-entities';

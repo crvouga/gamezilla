@@ -8,11 +8,10 @@
 
 import { test } from 'bun:test';
 import { readFileSync } from 'node:fs';
-
-import { decide } from './model-evidence';
-import type { RecordObligation } from './model-evidence';
-import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
+import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
+import type { RecordObligation } from './model-evidence';
+import { decide } from './model-evidence';
 import { typecheck } from './typecheck';
 
 /** Spawns the Quint CLI: ~0.5 s idle, a few seconds under a loaded gate. */

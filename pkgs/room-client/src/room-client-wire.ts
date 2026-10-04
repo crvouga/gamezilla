@@ -1,7 +1,5 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import { cacheWasInvalidated } from '@pkgs/room-shared/cache-invalidation';
-
-import type { ROOM_WIRE_KIND, ServerToClientWire } from '@pkgs/room-shared/wire';
 import type {
   LogEntry,
   RoomCommandPayload,
@@ -9,8 +7,18 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room-shared/types';
-import { appendCommitted, dropQueued, rebase, resetCommitted, tryFastAck } from './room-client-core';
+import type {
+  ROOM_WIRE_KIND,
+  ServerToClientWire,
+} from '@pkgs/room-shared/wire';
 import type { ClientCore } from './room-client-core';
+import {
+  appendCommitted,
+  dropQueued,
+  rebase,
+  resetCommitted,
+  tryFastAck,
+} from './room-client-core';
 import type { RoomClientPersist } from './room-client-persist';
 
 /**

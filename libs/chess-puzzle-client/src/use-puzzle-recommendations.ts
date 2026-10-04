@@ -1,11 +1,16 @@
+import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/recommendations';
+import {
+  recommendationArrows,
+  sortedRecommendations,
+} from '@libs/chess-puzzle-shared/recommendations';
 import { useSpaceRoomSelector } from '@libs/spaces-client/use-space-room-selector';
 import type { BoardArrow } from '@pkgs/chess-board-core-shared/types';
-import { assignParticipantColors, resolveParticipantColor } from '@pkgs/collab-shared/participant-color';
+import {
+  assignParticipantColors,
+  resolveParticipantColor,
+} from '@pkgs/collab-shared/participant-color';
 import { type Accessor, createMemo } from 'solid-js';
-
-import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/recommendations';
-import { recommendationArrows, sortedRecommendations } from '@libs/chess-puzzle-shared/recommendations';
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 
 /**
  * Suggestions other members made for the live position, plus the colours that

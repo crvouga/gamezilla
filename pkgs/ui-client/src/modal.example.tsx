@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from './button';
-import { ExampleRoot } from './example-root';
 import { ConfirmationModal } from './confirmation-modal';
+import { ExampleRoot } from './example-root';
 
 export default function ModalExample(): JSX.Element {
   const [defaultOpen, setDefaultOpen] = createSignal(false);

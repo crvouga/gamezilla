@@ -10,15 +10,6 @@ export function fmtMs(ms: number | null | undefined): string {
   return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
 }
 
-export function fmtDate(ms: number): string {
-  if (!ms) return '';
-  try {
-    return new Date(ms).toLocaleString();
-  } catch {
-    return String(ms);
-  }
-}
-
 export function fileName(path: string | undefined): string {
   return path ? (path.split('/').pop() ?? '') : '';
 }

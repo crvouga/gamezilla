@@ -1,6 +1,6 @@
+import { NotificationCardDefault } from '@libs/notifications-client/notification-card-default';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
-import { NotificationCardDefault } from '@libs/notifications-client/notification-card-default';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';

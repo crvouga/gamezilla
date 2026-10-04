@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 
-import { useProfileScreenSlots } from './profile-screen-slots';
-import { ProfileScreen } from './profile-screen';
 import { type JSX, Show } from 'solid-js';
+import { ProfileScreen } from './profile-screen';
+import { useProfileScreenSlots } from './profile-screen-slots';
 
 export default function ProfileRoute(): JSX.Element {
   const slots = useProfileScreenSlots();

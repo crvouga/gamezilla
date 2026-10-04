@@ -8,11 +8,10 @@
 
 import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
 import { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
-import { isAuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-
 import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
+import { isAuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 
 export type CallbackOutcome =
   | { readonly kind: 'code'; readonly code: string }

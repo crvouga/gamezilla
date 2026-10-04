@@ -1,26 +1,34 @@
+import type {
+  ProductHarnessSession,
+  ProductHarnessSnapshotInfo,
+} from '@pkgs/harness-console-shared/ports';
 import { Button } from '@pkgs/ui-client/button';
 import { Checkbox } from '@pkgs/ui-client/checkbox';
 import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-client/content-edge-padding';
-import { Columns2Icon, RotateCcwIcon, SaveIcon, SearchIcon, SlidersHorizontalIcon, SquareStackIcon, Trash2Icon } from '@pkgs/ui-client/icons';
 import { IconButton } from '@pkgs/ui-client/icon-button';
+import {
+  Columns2Icon,
+  RotateCcwIcon,
+  SaveIcon,
+  SearchIcon,
+  SlidersHorizontalIcon,
+  SquareStackIcon,
+  Trash2Icon,
+} from '@pkgs/ui-client/icons';
 import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
 import { SegmentedControl } from '@pkgs/ui-client/segmented-control';
 import { Select } from '@pkgs/ui-client/select';
 import { useCommandPalette } from '@pkgs/ui-client/use-command-palette';
 import { createSignal, Show } from 'solid-js';
-import type {
-  ProductHarnessSession,
-  ProductHarnessSnapshotInfo,
-} from '@pkgs/harness-console-shared/ports';
-import type { ClientLayoutMode } from './layout';
 import { useClientLayoutPreference } from './client-layout-preference';
-import { useHarnessConsoleLayout } from './use-harness-console-layout';
+import type { ClientLayoutMode } from './layout';
 import {
   formatSnapshotAge,
   formatSnapshotBytes,
   formatSnapshotTitle,
 } from './product-harness-snapshot-format';
 import { SnapshotChromeModals } from './product-harness-snapshot-modals';
+import { useHarnessConsoleLayout } from './use-harness-console-layout';
 import { useProductHarnessSnapshots } from './use-product-harness-snapshots';
 import type { SortKey } from './use-snapshot-chrome-state';
 import { useSnapshotChromeState } from './use-snapshot-chrome-state';

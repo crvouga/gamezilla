@@ -5,11 +5,10 @@
  * account.
  */
 
-import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
-
 import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { Context } from 'hono';
 import {
   bearerUserId,
@@ -21,8 +20,8 @@ import {
 } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';
 import { IdentityLinker } from './identity-linker';
-import { IdentityRepository } from './identity-repository';
 import type { IdentityRow } from './identity-repository';
+import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
 import { syncUserProfile } from './user-profile-sync';
 

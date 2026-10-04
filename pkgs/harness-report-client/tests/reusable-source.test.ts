@@ -1,8 +1,20 @@
 import { expect, test } from 'bun:test';
+import {
+  publishSource,
+  SPEC_RUN_ID,
+} from '@pkgs/harness-report-shared/publish';
+import {
+  listSourceRecords,
+  readFrameBody,
+  readTestReport,
+  testEvents,
+} from '@pkgs/harness-report-shared/read';
+import {
+  reportGeneration,
+  reuseSource,
+  sourceContentPrefix,
+} from '@pkgs/harness-report-shared/source-content';
 import type { HtmlReportBlob } from '@pkgs/harness-shared/bundle';
-import { listSourceRecords, readFrameBody, readTestReport, testEvents } from '@pkgs/harness-report-shared/read';
-import { publishSource, SPEC_RUN_ID } from '@pkgs/harness-report-shared/publish';
-import { reportGeneration, reuseSource, sourceContentPrefix } from '@pkgs/harness-report-shared/source-content';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

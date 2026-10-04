@@ -1,11 +1,19 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import {
+  AudioPlaybackProvider,
+  createAudioPlayer,
+  createAudioPlayerStatus,
+  SoundEngineProvider,
+  SoundsPreferenceProvider,
+  useSoundEngine,
+  useSoundsPreference,
+} from '@pkgs/sounds-client/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared/in-memory-audio-playback-port';
 import { resolveWebAudioSource } from '@pkgs/sounds-shared/web-audio-playback-port';
-import { AudioPlaybackProvider, createAudioPlayer, createAudioPlayerStatus, SoundEngineProvider, SoundsPreferenceProvider, useSoundEngine, useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { render, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 

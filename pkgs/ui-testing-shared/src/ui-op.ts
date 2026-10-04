@@ -4,8 +4,6 @@
  */
 
 import type { JsonValue } from '@pkgs/harness-shared/json';
-
-import type { DriverKey } from './keys';
 import type {
   Driver,
   DriverNode,
@@ -13,6 +11,7 @@ import type {
   ScrollDirection,
 } from './driver';
 import { formatTestIdPath } from './format';
+import type { DriverKey } from './keys';
 
 export type UiOp = {
   readonly actorId: string;

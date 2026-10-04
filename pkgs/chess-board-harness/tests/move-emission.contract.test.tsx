@@ -1,8 +1,25 @@
 import { expect, test } from 'bun:test';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
-import { beginDrag, boardSystem, movePiece, readBoard, readProbe, selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { cancelPromotion, choosePromotion, dragPiece, dropHeldPieceAtRatio } from '@pkgs/chess-board-harness/interaction-actions';
-import { readAnnouncement, readCompletedFeedback, readMovePayloads } from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  beginDrag,
+  boardSystem,
+  movePiece,
+  readBoard,
+  readProbe,
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
+import {
+  cancelPromotion,
+  choosePromotion,
+  dragPiece,
+  dropHeldPieceAtRatio,
+} from '@pkgs/chess-board-harness/interaction-actions';
+import {
+  readAnnouncement,
+  readCompletedFeedback,
+  readMovePayloads,
+} from '@pkgs/chess-board-harness/interaction-reads';
 import { Chess, SQUARES } from 'chess.js';
 import {
   EMISSION_CASES,

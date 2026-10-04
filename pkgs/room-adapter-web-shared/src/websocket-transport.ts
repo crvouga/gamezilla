@@ -1,9 +1,18 @@
 import { Assert } from '@pkgs/assert-shared/assert';
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room-shared/transport';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from '@pkgs/room-shared/transport';
 import type { Random } from '@pkgs/uuid-shared/create-id';
-import { clearHeartbeatTimers, isPongWire, raceWithTimeout, sendPing, startHeartbeat } from './heartbeat';
 import type { HeartbeatTimers } from './heartbeat';
+import {
+  clearHeartbeatTimers,
+  isPongWire,
+  raceWithTimeout,
+  sendPing,
+  startHeartbeat,
+} from './heartbeat';
 
 const crash: Assert = Assert.crash();
 

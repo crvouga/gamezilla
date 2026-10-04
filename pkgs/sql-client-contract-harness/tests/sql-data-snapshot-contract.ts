@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
+import type { TableDef } from '@pkgs/db-schema-shared/define-table';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql, { raw } from '@pkgs/sql-shared/sql';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client-shared/interface';
+import type {
+  PostgresSqlClient,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
 import { dumpData, loadData } from '@pkgs/sql-client-shared/port';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 
 function isPostgresSqlClient(client: SqlClient): client is PostgresSqlClient {
   return 'dbScope' in client;

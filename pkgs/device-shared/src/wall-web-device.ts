@@ -7,8 +7,8 @@
 
 import type { AppLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
 import type { ClipboardPort } from './clipboard';
-import { createVibrationHaptics, noopHaptics } from './haptics';
 import type { HapticsPort } from './haptics';
+import { createVibrationHaptics, noopHaptics } from './haptics';
 import type { NetworkStatePort } from './network-state';
 import { createWebAppLifecycle } from './web-app-lifecycle';
 import { createWebNetworkStatePort } from './web-network-state';

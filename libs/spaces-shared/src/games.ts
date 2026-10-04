@@ -1,5 +1,8 @@
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import { createMessageRouter } from '@pkgs/message-shared/router';
 import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
 

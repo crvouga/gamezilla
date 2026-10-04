@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { planPaddleRefund } from '@pkgs/billing-paddle-shared/refund-plan';
 import type { RefundAdjustment } from '@pkgs/billing-paddle-shared/refund-plan';
+import { planPaddleRefund } from '@pkgs/billing-paddle-shared/refund-plan';
 
 const ITEMS = [
   { id: 'txnitm_membership', totals: { total: '700' } },

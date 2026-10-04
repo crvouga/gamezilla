@@ -1,5 +1,5 @@
-import sql, { empty, join } from '@pkgs/sql-shared/sql';
 import type { Sql, SqlFragment } from '@pkgs/sql-shared/sql';
+import sql, { empty, join } from '@pkgs/sql-shared/sql';
 
 import type { ChessPuzzleFeedHistoryFilter } from './chess-puzzle-feed-config';
 import { PUZZLE_RATING_BAND_SIZE } from './chess-puzzle-feed-config';

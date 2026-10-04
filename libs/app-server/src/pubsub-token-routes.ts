@@ -1,12 +1,12 @@
+import { resolveSessionReplayAuth } from '@libs/app-shared/query-auth';
+import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
-import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
 import { mintPubSubToken } from '@libs/pubsub-server/mint-pubsub-token';
+import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { isAuthErrorBody } from '@pkgs/sync-engine-server/auth-error';
 import { Hono } from 'hono';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
-import { resolveSessionReplayAuth } from '@libs/app-shared/query-auth';
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();

@@ -3,8 +3,8 @@ import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconci
 import { kvSchema } from '@pkgs/kv-shared/tables';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 import { applyKvStorageOptimizations } from './postgres-storage-knobs';
 

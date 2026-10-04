@@ -10,6 +10,8 @@
 import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import {
   createEffect,
   createSignal,
@@ -18,8 +20,6 @@ import {
   Show,
   splitProps,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import type { DivBoxProps } from './box';
 import { CircleCheckIcon, CopyIcon } from './icons';
 

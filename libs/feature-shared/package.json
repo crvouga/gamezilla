@@ -2,7 +2,6 @@
   "name": "@libs/feature-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -33,5 +32,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "zod": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

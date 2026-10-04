@@ -1,7 +1,7 @@
-import { type Accessor, createEffect } from 'solid-js';
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 
 import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { type Accessor, createEffect } from 'solid-js';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 import { usePuzzleStatusFeedback } from './use-puzzle-status-feedback';
 

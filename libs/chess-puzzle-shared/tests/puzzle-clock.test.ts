@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 
-import { formatPuzzleClock, isPuzzleClockRunning, puzzleElapsedMs } from '@libs/chess-puzzle-shared/puzzle-clock';
+import {
+  formatPuzzleClock,
+  isPuzzleClockRunning,
+  puzzleElapsedMs,
+} from '@libs/chess-puzzle-shared/puzzle-clock';
 
 describe('puzzle clock', () => {
   test('projects a running and frozen elapsed duration', () => {

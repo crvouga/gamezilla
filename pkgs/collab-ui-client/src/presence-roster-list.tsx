@@ -5,10 +5,10 @@
 import type { ParticipantColor } from '@pkgs/collab-shared/participant-color';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import type { RoomActor } from '@pkgs/room-shared/types';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
 import { List, ListItem } from '@pkgs/ui-client/list';
 import { StatusDot } from '@pkgs/ui-client/status-dot';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
 import { For, type JSX } from 'solid-js';
 
 import { ParticipantColorRing } from './participant-color-ring';

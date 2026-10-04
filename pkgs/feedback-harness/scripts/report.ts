@@ -2,12 +2,12 @@
 import { resolve } from 'node:path';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { HttpIssueReporter } from '@pkgs/feedback-client/http-issue-reporter';
-import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 import { readFeedbackReport } from '@pkgs/feedback-shared/read-report';
+import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { readBytes } from '@pkgs/object-store-shared/helpers';
 
 const store = createNodeFsObjectStore({
   rootDir: resolve(import.meta.dirname, '../../../.feedback'),

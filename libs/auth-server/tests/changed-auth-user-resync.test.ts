@@ -7,24 +7,23 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
+import { ChangedAuthUserResync } from '@libs/auth-server/changed-auth-user-resync';
+import { LinkedIdentityMirror } from '@libs/auth-server/linked-identity-mirror';
+import { AccountDeviceMembership } from '@libs/auth-shared/account-device-membership';
+import { AnonUserService } from '@libs/auth-shared/anon-user-service';
+import { ownAccountDevices } from '@libs/auth-shared/own-account-devices-query';
+import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
+import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
 import type { AuthUser } from '@pkgs/auth-shared/auth-user';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import type { Sql } from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-shared/sql';
 import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
-
-import { AnonUserService } from '@libs/auth-shared/anon-user-service';
-import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import { AccountDeviceMembership } from '@libs/auth-shared/account-device-membership';
-import { ownAccountDevices } from '@libs/auth-shared/own-account-devices-query';
-import { ChangedAuthUserResync } from '@libs/auth-server/changed-auth-user-resync';
-import { LinkedIdentityMirror } from '@libs/auth-server/linked-identity-mirror';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 const time = { now: adapters.clock.now, createId: adapters.createId };

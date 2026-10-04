@@ -19,10 +19,10 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { ResponsiveSurface } from './responsive-surface';
+import { type JSX, Show } from 'solid-js';
 import { ModalBody, ModalButton, ModalFooter } from './modal-parts';
+import { ResponsiveSurface } from './responsive-surface';
 
 export type ConfirmationModalProps = {
   visible: boolean;

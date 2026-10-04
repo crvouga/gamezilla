@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import type { ITask } from '@pkgs/task-dag-shared/interface';
 import { Task } from '@pkgs/task-dag-shared/task';
 import { TaskRunner } from '@pkgs/task-dag-shared/task-runner';
+import fc from 'fast-check';
 
 /** Directed graph over nodes `0..n-1`; `deps[i]` lists what node `i` depends on. */
 type Graph = { readonly n: number; readonly deps: readonly number[][] };

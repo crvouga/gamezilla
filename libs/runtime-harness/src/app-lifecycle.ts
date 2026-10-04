@@ -5,9 +5,9 @@
  */
 
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness/server-nodes';
 import type { ProductHarness } from '@libs/harness/harness';
 import { visible } from '@libs/harness/observations';
+import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness/server-nodes';
 import { Handles } from '@libs/test-ids-shared/handles';
 
 const WAIT_MS = 15_000;

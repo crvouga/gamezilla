@@ -1,8 +1,7 @@
-import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
-
-import type { QueryDef } from './queries-types';
+import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
 import type { QueryChannelsCtx } from './push-payload';
+import type { QueryDef } from './queries-types';
 
 const SENTINEL_CHANNELS_CTX: QueryChannelsCtx = {
   actorId: 'actor_x',

@@ -1,15 +1,15 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { IClientOptions, MqttClient } from 'mqtt';
 import {
   createEmqxPubSub,
   EMQX_PUBSUB_QOS,
   EMQX_SESSION_EXPIRY_SEC,
 } from '@pkgs/pubsub-emqx-shared/create-emqx-pubsub';
+import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import type { IClientOptions, MqttClient } from 'mqtt';
 
 /** Pinned jitter source: reconnect backoff is deterministic. */
 const random = (): number => 0;

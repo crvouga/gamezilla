@@ -1,6 +1,16 @@
 import { describe, expect, test } from 'bun:test';
 
-import { chessPuzzlePoolRangeForBand, chessPuzzlePoolRangesForRating, chessPuzzleSyncRatingBands, DEFAULT_CHESS_PUZZLE_FEED_CONFIG, PUZZLE_FEED_BAND_SPREAD, PUZZLE_POOL_RATING_CEILING, PUZZLE_RATING_BAND_SIZE, puzzleFeedHasNarrowingFilters, widenPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import {
+  chessPuzzlePoolRangeForBand,
+  chessPuzzlePoolRangesForRating,
+  chessPuzzleSyncRatingBands,
+  DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+  PUZZLE_FEED_BAND_SPREAD,
+  PUZZLE_POOL_RATING_CEILING,
+  PUZZLE_RATING_BAND_SIZE,
+  puzzleFeedHasNarrowingFilters,
+  widenPuzzleFeedConfig,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 
 describe('chessPuzzleSyncRatingBands', () => {
   test('centers on the rating band and spreads one band each side', () => {

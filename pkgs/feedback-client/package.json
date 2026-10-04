@@ -2,7 +2,6 @@
   "name": "@pkgs/feedback-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "type": "module",
   "exports": {
     "./*": [
@@ -29,7 +28,8 @@
     "@pkgs/ui-client": "workspace:*",
     "@pkgs/ui-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/tailwind-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
@@ -39,5 +39,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
-  }
+  },
+  "category": "client"
 }

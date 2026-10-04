@@ -5,11 +5,19 @@
  * store — so it runs the same against R2, Mockingbird S3 or memory.
  */
 
-import { applyJunitOutcomes, parseJunit } from '@pkgs/harness-shared/junit';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportStep, ReportTestStatus, RunReport } from '@pkgs/harness-shared/report-types';
+import { applyJunitOutcomes, parseJunit } from '@pkgs/harness-shared/junit';
+import {
+  testFrameKey,
+  testPrefix,
+  testReportKey,
+} from '@pkgs/harness-shared/keys';
 import { suiteStatus } from '@pkgs/harness-shared/persist';
-import { testFrameKey, testPrefix, testReportKey } from '@pkgs/harness-shared/keys';
+import type {
+  ReportStep,
+  ReportTestStatus,
+  RunReport,
+} from '@pkgs/harness-shared/report-types';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 
@@ -28,8 +36,12 @@ import type { CommitRecord, SourceRecord } from './protocol';
 import { publicationStore } from './publication';
 import { readCommit } from './read';
 import { publishSnapshotBundle } from './snapshot-bundle';
-import { attachSource, readStoredSource, sourceContentPrefix } from './source-content';
 import type { SourceIdentity } from './source-content';
+import {
+  attachSource,
+  readStoredSource,
+  sourceContentPrefix,
+} from './source-content';
 import { sourceEntries } from './source-entries';
 
 /** The run id every spec suite writes its bucket under. */

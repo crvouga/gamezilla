@@ -1,11 +1,7 @@
-import {
-  actorUi,
-  pollUntil,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
-import { Handles } from '@libs/test-ids-shared/handles';
-import { STYLE_KEYS, styleLabel } from '@libs/profile-shared/dicebear-styles';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
+import { STYLE_KEYS, styleLabel } from '@libs/profile-shared/dicebear-styles';
+import { Handles } from '@libs/test-ids-shared/handles';
 
 type ActorUi = Awaited<ReturnType<typeof actorUi>>;
 

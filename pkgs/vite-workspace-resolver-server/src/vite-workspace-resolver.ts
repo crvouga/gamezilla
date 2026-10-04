@@ -57,7 +57,10 @@ export function expandExportTargets(
 ): readonly string[] {
   const exact = exportsMap[subpath];
   if (exact !== undefined) return targetCandidates(exact);
-  for (const [pattern, target] of Object.entries(exportsMap)) {
+  const patterns = Object.entries(exportsMap).sort(
+    ([a], [b]) => b.indexOf('*') - a.indexOf('*') || b.length - a.length
+  );
+  for (const [pattern, target] of patterns) {
     const star = pattern.indexOf('*');
     if (star === -1) continue;
     const head = pattern.slice(0, star);

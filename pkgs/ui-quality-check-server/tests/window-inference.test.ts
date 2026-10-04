@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 // regression: ui-quality-harness-source-resolution — fresh shards have no dist/harness.js; the public import must resolve source.
 import { WindowScorer } from '@pkgs/ui-quality-check-server/window-scorer';
+import fc from 'fast-check';
 
 function image(top: number) {
   const data = new Uint8Array(224 * 448 * 3).fill(40);

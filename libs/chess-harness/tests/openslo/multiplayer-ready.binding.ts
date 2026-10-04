@@ -1,9 +1,15 @@
-import { findChessOpponent, openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  findChessOpponent,
+  openMultiplayerChess,
+} from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { pairChessOpponents } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerText, multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import {
+  multiplayerText,
+  multiplayerView,
+} from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
-import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import type { MeasureContext } from '@pkgs/openslo-shared/registry';
+import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import { openHarness } from '../open-chess-harness';
 
 async function gameReadyTime(context: MeasureContext) {

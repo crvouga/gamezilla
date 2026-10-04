@@ -2,7 +2,10 @@
 import { syncBillingOffer } from '@libs/billing-shared/sync-billing-offer';
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { envFile } from '@libs/infra-shared/envs';
-import { MEMBERSHIP_PROVIDER_MODULES, membershipSecretReader } from '@pkgs/billing-providers-server/billing-providers';
+import {
+  MEMBERSHIP_PROVIDER_MODULES,
+  membershipSecretReader,
+} from '@pkgs/billing-providers-server/billing-providers';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createLogger } from '@pkgs/logger-shared/logger';

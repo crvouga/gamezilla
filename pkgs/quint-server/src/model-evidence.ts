@@ -19,10 +19,9 @@
  */
 
 import { readFileSync } from 'node:fs';
-
+import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 import type { Layer, Obligation } from '@pkgs/conformance-shared/evidence';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
-import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 
 export type ModelEvidenceInput = {
   readonly packageName: string;

@@ -1,7 +1,12 @@
 import { Assert } from '@pkgs/assert-shared/assert';
 import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
+import type {
+  Message,
+  MessageNamespace,
+  MessagePayloadValidator,
+  MessageTag,
+} from './message';
 import { assertMessageEnvelope } from './message';
-import type { Message, MessageNamespace, MessagePayloadValidator, MessageTag } from './message';
 
 const validation: Assert = Assert.validation();
 

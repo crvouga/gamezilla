@@ -4,8 +4,11 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import {
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '@pkgs/sync-engine-shared/managed-columns';
 import fc from 'fast-check';
-import { managedInsertColumns, managedUpdatedAtIso } from '@pkgs/sync-engine-shared/managed-columns';
 
 // Year 1970..2200 in ms — the range Date#toISOString renders as YYYY-….
 const arbNowMs = fc.integer({ min: 0, max: 7_258_118_400_000 });

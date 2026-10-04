@@ -15,12 +15,12 @@
 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { simulate } from '@pkgs/quint-server/simulate';
 import type { ItfState, ItfTrace } from '@pkgs/quint-shared/itf';
 import { quintEqual } from '@pkgs/quint-shared/itf';
 import type { QuintBinding } from '@pkgs/quint-shared/registry';
 import { quintBinding } from '@pkgs/quint-shared/registry';
 import { describeStep } from '@pkgs/quint-shared/replay';
-import { simulate } from '@pkgs/quint-server/simulate';
 
 import type { QuintHarnessWorld } from './quint-world';
 import type { Scenario } from './snapshot-worlds';
@@ -56,7 +56,7 @@ export function reaches(trace: ItfTrace, actions: readonly string[]): number {
   return actions.filter((action) => taken.has(action)).length;
 }
 
-const REPO_ROOT = join(import.meta.dir, '../../../..');
+const REPO_ROOT = join(import.meta.dir, '../../..');
 
 function modelOf(specUri: string): string {
   return (specUri.split('/').pop() ?? specUri).replace(/\.qnt$/, '');

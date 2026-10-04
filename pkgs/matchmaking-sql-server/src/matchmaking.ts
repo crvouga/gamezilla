@@ -7,17 +7,37 @@
  */
 
 import { assert } from '@pkgs/assert-shared/singleton';
-import type { CurrentSearch, SearchRequest } from '@pkgs/matchmaking-shared/identity';
 import { createMatchmakingApp } from '@pkgs/matchmaking-server/app';
-import type { DistanceFormula, JoinInput, JoinResult, LeaveResult, RadiusOptions, StatusResult, UpdateFormulasResult } from '@pkgs/matchmaking-shared/types';
-import type { JoinInputRaw, Matchmaking, MatchmakingAppOptions, MatchmakingConfig, MatchmakingTuning, TickOptions, TickResult, UpdateFormulasInputRaw } from '@pkgs/matchmaking-shared/matchmaking';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
 import { MatchmakingSchemaDriftError } from '@pkgs/matchmaking-shared/errors';
-import { Hono } from 'hono';
+import type {
+  CurrentSearch,
+  SearchRequest,
+} from '@pkgs/matchmaking-shared/identity';
+import type {
+  JoinInputRaw,
+  Matchmaking,
+  MatchmakingAppOptions,
+  MatchmakingConfig,
+  MatchmakingTuning,
+  TickOptions,
+  TickResult,
+  UpdateFormulasInputRaw,
+} from '@pkgs/matchmaking-shared/matchmaking';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import type {
+  DistanceFormula,
+  JoinInput,
+  JoinResult,
+  LeaveResult,
+  RadiusOptions,
+  StatusResult,
+  UpdateFormulasResult,
+} from '@pkgs/matchmaking-shared/types';
 import type { FormationPorts } from '@pkgs/matchmaking-sql-shared/match-pass';
-import { Matchmaker } from '@pkgs/matchmaking-sql-shared/matchmaker';
 import type { MatchmakerOptions } from '@pkgs/matchmaking-sql-shared/matchmaker';
+import { Matchmaker } from '@pkgs/matchmaking-sql-shared/matchmaker';
 import { migrate } from '@pkgs/matchmaking-sql-shared/migrate';
+import { Hono } from 'hono';
 
 export type MatchmakingImplSqlOptions = MatchmakingConfig & {
   readonly sqlClient: import('@pkgs/sql-client-shared/interface').SqlClient;

@@ -8,10 +8,10 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
-import { appSchema } from '@libs/runtime-shared/app-schema';
 import { migrateHarnessPostgres } from '@libs/runtime-server/migrate-harness-postgres';
-import { unsafe } from '@pkgs/sql-shared/sql';
+import { appSchema } from '@libs/runtime-shared/app-schema';
 import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import { unsafe } from '@pkgs/sql-shared/sql';
 
 function declaredIntegerColumns(): { table: string; column: string }[] {
   const snapshot = appSchema.snapshot();

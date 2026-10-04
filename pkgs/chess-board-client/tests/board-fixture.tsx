@@ -7,21 +7,24 @@
  */
 
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
-import type { BoardMotionEnvironment } from '@pkgs/chess-board-shared/board-motion';
 import { BoardMotionProvider } from '@pkgs/chess-board-client/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
-import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import type { ChessBoardLayer } from '@pkgs/chess-board-core-shared/probe';
-import { chessBoardLayerTestId, parseChessBoardPaint } from '@pkgs/chess-board-core-shared/probe';
+import {
+  chessBoardLayerTestId,
+  parseChessBoardPaint,
+} from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import type { BoardMotionEnvironment } from '@pkgs/chess-board-shared/board-motion';
+import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
 import type {
   AudioPlaybackPort,
   AudioPlayerHandle,
   AudioPlayerStatus,
 } from '@pkgs/sounds-shared/ports';
-import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { createSignal } from 'solid-js';
 

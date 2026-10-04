@@ -1,9 +1,14 @@
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import type { TigerInvariant } from '@pkgs/sync-engine-shared/tiger-invariants';
-import { checkCheckpointMonotonicPerScope, checkHealedQueueDrained, checkOptimisticMarkersHealed, checkPushSeqMonotonicPerTopic } from './invariant-tracker';
 import type { InvariantViolation } from './invariant-tracker';
+import {
+  checkCheckpointMonotonicPerScope,
+  checkHealedQueueDrained,
+  checkOptimisticMarkersHealed,
+  checkPushSeqMonotonicPerTopic,
+} from './invariant-tracker';
 
 /** Revoke / dispose close the handle; seq checks must skip those clients. */
 export function isClosedDatabaseError(error: unknown): boolean {

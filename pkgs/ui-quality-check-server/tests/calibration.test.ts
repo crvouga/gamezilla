@@ -1,9 +1,12 @@
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-import { calibrate } from '@pkgs/ui-quality-check-server/calibrate';
-import { calibrationStatistics, confusion } from '@pkgs/ui-quality-check-shared/statistics';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import { calibrate } from '@pkgs/ui-quality-check-server/calibrate';
+import {
+  calibrationStatistics,
+  confusion,
+} from '@pkgs/ui-quality-check-shared/statistics';
+import fc from 'fast-check';
 import { detector, options, rgb } from './support';
 
 test('calibration chooses a measured threshold and reports confusion counts', () => {

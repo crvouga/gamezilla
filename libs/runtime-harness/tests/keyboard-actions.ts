@@ -6,8 +6,6 @@
  * keys inside a menu), exactly the keys a keyboard user presses.
  */
 
-import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
-import type { ProductHarness } from '@libs/harness/harness';
 import {
   actorPage,
   keyboardElement,
@@ -16,11 +14,9 @@ import {
   pressTab,
   tabTo,
 } from '@libs/harness/actor-page';
-import {
-  backToTabs,
-  openSettings,
-  openTab,
-} from '@libs/harness/shell-actions';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
+import { backToTabs, openSettings, openTab } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { sequentialFocusOrder } from '@pkgs/a11y-shared/focus';
 import {

@@ -4,10 +4,6 @@ import { createMessageRouter } from '@pkgs/message-shared/router';
 import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
 import { z } from 'zod';
 import {
-  CustomGamesAttr,
-  EMPTY_CUSTOM_GAMES,
-} from './custom-game-state';
-import {
   ChangeCustomGame,
   CustomGamesChanged,
   customGameCmdNs,
@@ -19,6 +15,7 @@ import {
   handleCustomGameChoice,
   handleCustomGameWake,
 } from './custom-game-handler';
+import { CustomGamesAttr, EMPTY_CUSTOM_GAMES } from './custom-game-state';
 
 const noticeSchema = z
   .object({ commandId: z.string(), reason: z.string() })

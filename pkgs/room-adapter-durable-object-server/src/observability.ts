@@ -1,7 +1,12 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { context, ROOT_CONTEXT, SpanKind, SpanStatusCode } from '@opentelemetry/api';
-import { extractRequestContext } from '@pkgs/observability-server/worker-worker';
 import type { Link, Span } from '@opentelemetry/api';
+import {
+  context,
+  ROOT_CONTEXT,
+  SpanKind,
+  SpanStatusCode,
+} from '@opentelemetry/api';
+import { extractRequestContext } from '@pkgs/observability-server/worker-worker';
+import { ATTR } from '@pkgs/observability-shared/attributes';
 import { linkFromTraceparent } from '@pkgs/observability-shared/correlation';
 import { withSpan } from '@pkgs/observability-shared/span';
 

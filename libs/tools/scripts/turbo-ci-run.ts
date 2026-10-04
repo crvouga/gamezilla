@@ -77,8 +77,18 @@ import type { ReportTaskIdentity } from './check-report-stream';
 import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
-import { dryRunPlan, localCacheFlag, prefetchRemoteHits, REMOTE_LOOKUP_CONCURRENCY, readsRemoteCache, resolveRemoteHits, restoreEveryHit, restoreSelectedReports, wallRemoteHas } from './turbo-preflight';
 import type { RunPlan } from './turbo-preflight';
+import {
+  dryRunPlan,
+  localCacheFlag,
+  prefetchRemoteHits,
+  REMOTE_LOOKUP_CONCURRENCY,
+  readsRemoteCache,
+  resolveRemoteHits,
+  restoreEveryHit,
+  restoreSelectedReports,
+  wallRemoteHas,
+} from './turbo-preflight';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -117,10 +127,7 @@ export function writePlatformCacheKey(): void {
 function visualBrowserVersion(): string | null {
   const result = capture(
     process.execPath,
-    [
-      'run',
-      join(REPO_ROOT, 'apps/product/scripts/browser-version.ts'),
-    ],
+    ['run', join(REPO_ROOT, 'apps/product/scripts/browser-version.ts')],
     { cwd: REPO_ROOT }
   );
   if (result.status !== 0)

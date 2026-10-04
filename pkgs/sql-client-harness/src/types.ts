@@ -1,7 +1,7 @@
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import type { BrokerCore } from '@pkgs/sql-client-sqlite-web-shared/broker-core';
-import type { OwnerRuntime } from '@pkgs/sql-client-sqlite-web-shared/owner-runtime';
 import type { HarnessOpfsStore } from '@pkgs/sql-client-sqlite-web-shared/harness-opfs-sql-owner';
+import type { OwnerRuntime } from '@pkgs/sql-client-sqlite-web-shared/owner-runtime';
 
 /** Single logical database every simulated tab competes for. */
 export const HARNESS_DB_NAME = 'kv';

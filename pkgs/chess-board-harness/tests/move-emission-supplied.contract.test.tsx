@@ -1,12 +1,23 @@
 import { expect, test } from 'bun:test';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { boardSystem, configureBoard, movePiece, readBoard, readProbe, setupBoard } from '@pkgs/chess-board-harness/chess-board';
 import { confirmOfferedPosition } from '@pkgs/chess-board-harness/authority-actions';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import {
+  boardSystem,
+  configureBoard,
+  movePiece,
+  readBoard,
+  readProbe,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { dragPiece } from '@pkgs/chess-board-harness/interaction-actions';
-import { INITIAL } from '@pkgs/chess-board-harness/positions';
-import { readAnnouncement, readCompletedFeedback, readMovePayloads } from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  readAnnouncement,
+  readCompletedFeedback,
+  readMovePayloads,
+} from '@pkgs/chess-board-harness/interaction-reads';
 import { readOptions } from '@pkgs/chess-board-harness/options-reads';
+import { INITIAL } from '@pkgs/chess-board-harness/positions';
 import { readPremoves } from '@pkgs/chess-board-harness/premove-actions';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { Chess } from 'chess.js';

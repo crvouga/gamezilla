@@ -1,6 +1,6 @@
-import { raw } from '@pkgs/sql-shared/sql';
-import { assertSqlIdentifier } from '@pkgs/sql-shared/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { assertSqlIdentifier } from '@pkgs/sql-shared/assert-sql-identifier';
+import { raw } from '@pkgs/sql-shared/sql';
 
 import type { SqlCliCommand, SqlCliResult } from './types';
 

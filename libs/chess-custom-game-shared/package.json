@@ -2,7 +2,6 @@
   "name": "@libs/chess-custom-game-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -31,5 +30,6 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

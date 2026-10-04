@@ -1,12 +1,24 @@
 /** Connecting, removing, and proving sign-in methods. */
 
-import { accountMatchPromptShown, connectSignInMethod, removeSignInMethod, signInMethodRowText, tryRemoveSignInMethod } from '@libs/harness/sign-in-method-actions';
-import { confirmAccountLink, keepSeparateAccount, signInWithApple, signInWithProviderAs, signOut } from '@libs/harness/auth-actions';
-import { openAccount } from '@libs/harness/shell-actions';
-import { seedProviderAccount } from '@libs/harness/provider-events-actions';
+import {
+  confirmAccountLink,
+  keepSeparateAccount,
+  signInWithApple,
+  signInWithProviderAs,
+  signOut,
+} from '@libs/harness/auth-actions';
+import { Given, Then, When } from '@libs/harness/define';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
+import { seedProviderAccount } from '@libs/harness/provider-events-actions';
+import { openAccount } from '@libs/harness/shell-actions';
+import {
+  accountMatchPromptShown,
+  connectSignInMethod,
+  removeSignInMethod,
+  signInMethodRowText,
+  tryRemoveSignInMethod,
+} from '@libs/harness/sign-in-method-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember, signedInAccountKey } from '@libs/harness/spec-world';
 

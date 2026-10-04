@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { ConfigurationError, DEPLOYMENT_PROTECTION_BINDING, readDeploymentProtection } from '@libs/app-shared/env';
+import {
+  ConfigurationError,
+  DEPLOYMENT_PROTECTION_BINDING,
+  readDeploymentProtection,
+} from '@libs/app-shared/env';
 
 describe('readDeploymentProtection', () => {
   test('a Worker with no rendered protection is standard (local runs)', () => {

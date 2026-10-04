@@ -1,15 +1,15 @@
-import type { BootProductHarnessOptions } from './product-harness-session';
-import { buildProductHarnessSession } from './product-harness-session';
 import type { Harness } from '@libs/harness/create-harness';
 import type { ProductHarness } from '@libs/harness/harness';
 import { productExtra } from '@libs/harness/harness';
 import { APP_SYSTEM } from '@libs/runtime-harness/app-composition';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
+import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import type { Run } from '@pkgs/harness-shared/run-types';
-import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { BootProductHarnessOptions } from './product-harness-session';
+import { buildProductHarnessSession } from './product-harness-session';
 
 export type ProductHarnessBootEnv = {
   readonly clock: Clock;

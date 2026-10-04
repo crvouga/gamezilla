@@ -1,11 +1,20 @@
 /** Wait for the answer to the actual save, including when its first answer was lost. */
 
-import { auth, httpFault, partition, restart, resumeNetwork } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import { connect, nudge } from '@pkgs/sync-engine-harness/regression-actions';
-import { lastMutationId, outcome } from '@pkgs/sync-engine-harness/sync-observations';
+import {
+  auth,
+  httpFault,
+  partition,
+  restart,
+  resumeNetwork,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import {
+  lastMutationId,
+  outcome,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import { settledWrite, writeNote } from './note-writes';
-import { app, ensureDevice, Given, When } from './world';
 import type { Device } from './world';
+import { app, ensureDevice, Given, When } from './world';
 
 const CONFIRM_MS = 120_000;
 

@@ -1,5 +1,5 @@
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /** Whether viewer and host account/member ids are friends. */
 export async function areFriends(

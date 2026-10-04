@@ -4,12 +4,33 @@
  */
 
 import type { CheckpointSessionCtx } from '@libs/harness/checkpoint-state';
-import { captureCheckpoint, restoreCheckpoint } from './product-harness-checkpoint';
-import { deleteSnapshotTree, INDEX_KEY, pruneInvalidProductHarnessSnapshots, purgeIncompatibleProductHarnessSnapshots, putJson, readBody, readIndex, readText, snapshotCompatibility, toSnapshotInfo } from './product-harness-snapshot-prune';
-import { parseJsonWithSchema, productHarnessClientKvDumpSchema, productHarnessSnapshotManifestSchema } from './product-harness-snapshot-schema';
 import type { HarnessCheckpoint } from '@pkgs/harness-console-shared/checkpoint';
-import type { ProductHarnessSnapshotInfo, ProductHarnessSnapshotManifest } from '@pkgs/harness-console-shared/ports';
+import type {
+  ProductHarnessSnapshotInfo,
+  ProductHarnessSnapshotManifest,
+} from '@pkgs/harness-console-shared/ports';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import {
+  captureCheckpoint,
+  restoreCheckpoint,
+} from './product-harness-checkpoint';
+import {
+  deleteSnapshotTree,
+  INDEX_KEY,
+  pruneInvalidProductHarnessSnapshots,
+  purgeIncompatibleProductHarnessSnapshots,
+  putJson,
+  readBody,
+  readIndex,
+  readText,
+  snapshotCompatibility,
+  toSnapshotInfo,
+} from './product-harness-snapshot-prune';
+import {
+  parseJsonWithSchema,
+  productHarnessClientKvDumpSchema,
+  productHarnessSnapshotManifestSchema,
+} from './product-harness-snapshot-schema';
 
 export type SnapshotSessionCtx = CheckpointSessionCtx & {
   readonly store: ObjectStore;

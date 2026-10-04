@@ -15,13 +15,13 @@
  * colored surface does not inherit a white foreground on the neutral fill.
  */
 
-import { createUniqueId, type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { OnColorReset } from './on-color-context';
+import { createUniqueId, type JSX, Show } from 'solid-js';
 import { FocusTrap } from './focus-trap';
-import { SurfaceStackSlot, useIsTopSurface } from './surface-stack';
 import { ModalTitleIdProvider } from './modal-title-id';
+import { OnColorReset } from './on-color-context';
+import { SurfaceStackSlot, useIsTopSurface } from './surface-stack';
 
 export type ModalRootProps = {
   visible: boolean;

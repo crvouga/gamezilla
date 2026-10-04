@@ -18,12 +18,12 @@
  * ```
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { Spinner } from './spinner';
+import { type JSX, Show } from 'solid-js';
 import type { SpinnerProps } from './spinner';
-import { StateBlock } from './state-block';
+import { Spinner } from './spinner';
 import type { StateBlockVariant } from './state-block';
+import { StateBlock } from './state-block';
 
 export type LoadingStateProps = {
   /** Optional caption rendered under the spinner. */

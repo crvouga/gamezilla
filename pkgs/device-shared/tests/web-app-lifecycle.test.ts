@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { createWebAppLifecycle, onAppResume } from '@pkgs/device-shared/web-app-lifecycle';
+import {
+  createWebAppLifecycle,
+  onAppResume,
+} from '@pkgs/device-shared/web-app-lifecycle';
 import type { AppLifecycleEvent } from '@pkgs/sync-engine-shared/app-lifecycle';
 
 type Handler = () => void;

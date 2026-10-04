@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import type { FeatureClient } from '@libs/feature-client/client';
 import type { FeatureServer } from '@libs/feature-shared/server';
-import { composeHarnessSlices, PLATFORM_HARNESS_SLICES } from '@libs/harness/slices';
 import type { HarnessSlice } from '@libs/harness/slices';
+import {
+  composeHarnessSlices,
+  PLATFORM_HARNESS_SLICES,
+} from '@libs/harness/slices';
 
 function client(name: string): FeatureClient {
   return { name, routes: [] };

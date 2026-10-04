@@ -8,16 +8,30 @@
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
-import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
-import { addClient, armCrashAt, connect, crash, disconnect, dispatch, injectToServer, pauseNetwork, restart, resumeNetwork, serverCrash, serverRestart, takeOver } from '@pkgs/room-harness/room-actions';
-import { clock } from '@pkgs/room-harness/observations';
-import { commandWire } from '@pkgs/room-harness/wire-helpers';
-import { exampleSystem } from '@pkgs/room-harness/system';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
 import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { clock } from '@pkgs/room-harness/observations';
 import { readServer } from '@pkgs/room-harness/read-state';
+import {
+  addClient,
+  armCrashAt,
+  connect,
+  crash,
+  disconnect,
+  dispatch,
+  injectToServer,
+  pauseNetwork,
+  restart,
+  resumeNetwork,
+  serverCrash,
+  serverRestart,
+  takeOver,
+} from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import { commandWire } from '@pkgs/room-harness/wire-helpers';
 import type { RoomTraceWorld } from './world';
 import { roomFingerprint, traceRoom } from './world';
 

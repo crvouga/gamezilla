@@ -1,4 +1,7 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 
 const messages = createMessageNamespace('chess', 'outbox');
 export const OpponentRequested = messages(

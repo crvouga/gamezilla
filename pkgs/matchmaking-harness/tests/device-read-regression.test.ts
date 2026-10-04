@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { connectDevice, waitForMatch } from '@pkgs/matchmaking-harness/lobby';
 import { deviceView } from '@pkgs/matchmaking-harness/devices';
+import { connectDevice, waitForMatch } from '@pkgs/matchmaking-harness/lobby';
 import { matchmaking } from '@pkgs/matchmaking-harness/system';
 
 // regression: matchmaking-concurrent-device-reads

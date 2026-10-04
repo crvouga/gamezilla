@@ -1,10 +1,14 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql from '@pkgs/sql-shared/sql';
 import type { Sql } from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-shared/sql';
 import { ensureSqlMapBuiltins } from './sql-map-builtins';
 import { columnIdent } from './sql-map-ident';
-import { isRegisteredSqlMapHead, lookupSqlMapFn, lookupSqlMapOp } from './sql-map-registry';
 import type { SqlMapCompileCtx } from './sql-map-registry';
+import {
+  isRegisteredSqlMapHead,
+  lookupSqlMapFn,
+  lookupSqlMapOp,
+} from './sql-map-registry';
 import type { ColRef, OpCall, Query, Scalar } from './sql-map-types';
 
 ensureSqlMapBuiltins();

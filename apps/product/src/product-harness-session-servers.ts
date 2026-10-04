@@ -8,11 +8,14 @@
 
 import type { Harness } from '@libs/harness/create-harness';
 import type { HarnessLoadBalancerRoute } from '@libs/harness/load-balancer';
+import type {
+  ProductHarnessLoadBalancerNode,
+  ProductHarnessLogBuffer,
+  ProductHarnessSqlNode,
+} from '@pkgs/harness-console-shared/ports';
 import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import type { ProductHarnessLoadBalancerNode, ProductHarnessLogBuffer, ProductHarnessSqlNode } from '@pkgs/harness-console-shared/ports';
-
-import { fireDomainWake, notify } from './product-harness-session-teardown';
 import type { SessionMaps } from './product-harness-session-teardown';
+import { fireDomainWake, notify } from './product-harness-session-teardown';
 
 export function makeProductHarnessLoadBalancerNode(
   harness: Harness,

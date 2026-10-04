@@ -10,6 +10,12 @@
  * Controls inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
  */
 
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import {
+  claimActiveTooltip,
+  releaseActiveTooltip,
+} from '@pkgs/ui-shared/tooltip-coordinator';
 import {
   createContext,
   createSignal,
@@ -19,15 +25,9 @@ import {
   Show,
   useContext,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { useHoverCapable } from './use-hover-capable';
 import { FloatingTooltip } from './floating-tooltip';
 import styles from './tooltip.module.css';
-import {
-  claimActiveTooltip,
-  releaseActiveTooltip,
-} from '@pkgs/ui-shared/tooltip-coordinator';
+import { useHoverCapable } from './use-hover-capable';
 
 /** Static CSS placement — no measurement or auto-flip. Bare `top`/`bottom`
  *  center on the trigger; `*-start` / `*-end` pin to that edge. */

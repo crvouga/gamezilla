@@ -1,6 +1,12 @@
-import type { IndexSafety } from '@pkgs/db-indexes-harness/index-safety-system';
-import { indexSafetySystem, resumeSafetyReconcile, runSafetyReconcile, safetySnapshot, selectSafetyFixture } from '@pkgs/db-indexes-harness/index-safety-system';
 import { SAFETY_INDEX } from '@pkgs/db-indexes-harness/index-safety-fixtures';
+import type { IndexSafety } from '@pkgs/db-indexes-harness/index-safety-system';
+import {
+  indexSafetySystem,
+  resumeSafetyReconcile,
+  runSafetyReconcile,
+  safetySnapshot,
+  selectSafetyFixture,
+} from '@pkgs/db-indexes-harness/index-safety-system';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import type { QuintBinding, QuintWorld } from '@pkgs/quint-shared/registry';
 

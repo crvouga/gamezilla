@@ -12,7 +12,10 @@
  */
 
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room-shared/transport';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from '@pkgs/room-shared/transport';
 
 /** How often a live connection notices the network is gone (a keepalive). */
 export const ROOM_HEARTBEAT_MS = 1_000;

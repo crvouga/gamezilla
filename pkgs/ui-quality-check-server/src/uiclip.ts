@@ -1,19 +1,19 @@
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type * as Runtime from 'onnxruntime-node';
-import manifest from '../assets/manifest.json';
-import prompts from '../assets/prompts.json';
-import type { Files } from './files';
-import { verifyModel } from './setup';
-import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
-import { executionProviderCandidates } from '@pkgs/ui-quality-check-shared/providers';
 import type {
   DetectorInfo,
   QualityDetector,
   QualityScore,
   RgbImage,
 } from '@pkgs/ui-quality-check-shared/detectors-types';
+import { executionProviderCandidates } from '@pkgs/ui-quality-check-shared/providers';
+import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import type * as Runtime from 'onnxruntime-node';
+import manifest from '../assets/manifest.json';
+import prompts from '../assets/prompts.json';
+import type { Files } from './files';
+import { verifyModel } from './setup';
 import { WindowScorer } from './window-scorer';
 
 function quality(embedding: Float64Array): number {

@@ -1,14 +1,24 @@
 import { expect } from 'bun:test';
+import { leave, tick, updateFormulas } from '@pkgs/matchmaking-harness/actions';
+import { ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import { deviceConnected, deviceView } from '@pkgs/matchmaking-harness/devices';
+import {
+  availability,
+  connectDevice,
+  lastBegin,
+  lastOffline,
+  repeatBegin,
+  stopWaiting,
+} from '@pkgs/matchmaking-harness/lobby';
+import {
+  participantIds,
+  privateStatus,
+} from '@pkgs/matchmaking-harness/observations';
 import type { CurrentSearch } from '@pkgs/matchmaking-shared/identity';
 import type { JoinResult } from '@pkgs/matchmaking-shared/types';
-import { availability, connectDevice, lastBegin, lastOffline, repeatBegin, stopWaiting } from '@pkgs/matchmaking-harness/lobby';
-import { deviceConnected, deviceView } from '@pkgs/matchmaking-harness/devices';
-import { leave, tick, updateFormulas } from '@pkgs/matchmaking-harness/actions';
-import { participantIds, privateStatus } from '@pkgs/matchmaking-harness/observations';
-import { ratingWithin } from '@pkgs/matchmaking-harness/attrs';
 import { waitsForMatch } from './matchmaking.steps';
-import { Given, Then, When } from './world';
 import type { MatchmakingWorld } from './world';
+import { Given, Then, When } from './world';
 
 async function offline(w: MatchmakingWorld, person: string): Promise<void> {
   w.awayViews.set(person, await w.harness.read(deviceView, { person }));

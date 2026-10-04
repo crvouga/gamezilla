@@ -23,9 +23,8 @@ import { parseDmn } from '@pkgs/dmn-shared/model';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
-
-import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
 import type { SpecPackage } from '../scripts/spec-packages';
+import { REPO_ROOT, SPECS_DIR, specPackages } from '../scripts/spec-packages';
 import { campaignBindings } from './campaigns';
 import { EVIDENCE_MAP } from './evidence-map';
 import type { PackageScripts, TurboTasks } from './gating-tasks';

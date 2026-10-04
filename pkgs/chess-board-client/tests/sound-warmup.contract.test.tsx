@@ -2,9 +2,9 @@
 import { expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
 import { createChessBoardSounds } from '@pkgs/chess-board-client/chess-board-sounds';
-import type { AudioPlaybackPort } from '@pkgs/sounds-shared/ports';
-import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
+import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
+import type { AudioPlaybackPort } from '@pkgs/sounds-shared/ports';
 import { noopAudio } from './board-fixture';
 
 function interruptedWarmup() {

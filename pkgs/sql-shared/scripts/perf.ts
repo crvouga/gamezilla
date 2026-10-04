@@ -1,5 +1,5 @@
-import sql from '@pkgs/sql-shared/sql';
 import type { Sql } from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-shared/sql';
 
 const before = process.memoryUsage();
 process.stdout.write(

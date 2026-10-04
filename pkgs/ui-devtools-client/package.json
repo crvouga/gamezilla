@@ -2,11 +2,10 @@
   "name": "@pkgs/ui-devtools-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
-  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -36,5 +35,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

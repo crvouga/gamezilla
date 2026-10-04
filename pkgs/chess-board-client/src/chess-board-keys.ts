@@ -5,11 +5,13 @@
  * and every premove.
  */
 
-import type { BoardOrientation, Square } from '@pkgs/chess-board-core-shared/types';
-import { type Accessor, batch } from 'solid-js';
-
+import type {
+  BoardOrientation,
+  Square,
+} from '@pkgs/chess-board-core-shared/types';
 import { isArrowKey, moveCursor } from '@pkgs/chess-board-shared/keyboard-nav';
 import type { PointerSession } from '@pkgs/chess-board-shared/pointer-session';
+import { type Accessor, batch } from 'solid-js';
 
 export type BoardKeysArgs = {
   readonly host: Accessor<HTMLElement | undefined>;

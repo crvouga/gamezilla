@@ -1,10 +1,12 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { bulk, ident, join } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql, { bulk, ident, join } from '@pkgs/sql-shared/sql';
 
 import { FRAMEWORK_TABLE_NAMES } from '@pkgs/sync-engine-shared/framework-server-ddl';
-import { SYNC_ENGINE_OPTIMISTIC_PEER_ROWS } from '@pkgs/sync-engine-shared/tables';
-import { optimisticPeerRowId } from '@pkgs/sync-engine-shared/tables';
+import {
+  optimisticPeerRowId,
+  SYNC_ENGINE_OPTIMISTIC_PEER_ROWS,
+} from '@pkgs/sync-engine-shared/tables';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
 
 const FRAMEWORK_TABLE_SET: ReadonlySet<string> = new Set(FRAMEWORK_TABLE_NAMES);

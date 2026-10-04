@@ -1,12 +1,21 @@
 import { expect } from 'bun:test';
-import { findChessOpponent, openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { givenOpponentSearch, pairChessOpponents } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerText, multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import {
+  findChessOpponent,
+  openMultiplayerChess,
+} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  givenOpponentSearch,
+  pairChessOpponents,
+} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import {
+  multiplayerText,
+  multiplayerView,
+} from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
+import type { Actor } from '@libs/harness/parameter-types';
 import {
   disconnectMultiplayer,
   reconnectMultiplayer,

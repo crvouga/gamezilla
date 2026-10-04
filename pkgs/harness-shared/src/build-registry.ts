@@ -1,7 +1,7 @@
+import type { RuntimeDef } from './define-runtime';
+import { isRuntimeDef } from './define-runtime';
 import type { CatalogSnapshot } from './define-snapshot';
 import { isSnapshot } from './define-snapshot';
-import { isRuntimeDef } from './define-runtime';
-import type { RuntimeDef } from './define-runtime';
 import type { CatalogAction, CatalogProperty } from './effect';
 import { isAction, isProperty } from './effect';
 import type { SystemRegistry, SystemRuntimeEntry } from './registry';

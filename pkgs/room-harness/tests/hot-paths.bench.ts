@@ -10,16 +10,19 @@
  */
 import type { Message } from '@pkgs/message-shared/message';
 import { RoomClient } from '@pkgs/room-client/room-client';
-import type { ClientRoomStorage } from '@pkgs/room-shared/core-storage';
 import {
   AddOne,
   gameRoomModule,
   TallyChanged,
 } from '@pkgs/room-harness/game-room';
-import { canonicalRoomJson, hashRoomState } from '@pkgs/room-shared/hash-room-state';
-import { WIRE_VERSION } from '@pkgs/room-shared/wire';
 import { RoomServer } from '@pkgs/room-server/room-server';
+import type { ClientRoomStorage } from '@pkgs/room-shared/core-storage';
+import {
+  canonicalRoomJson,
+  hashRoomState,
+} from '@pkgs/room-shared/hash-room-state';
 import type { RoomState } from '@pkgs/room-shared/types';
+import { WIRE_VERSION } from '@pkgs/room-shared/wire';
 import { oldMemoryClientStorage } from './bench-old-client-storage';
 import { FakeTransport } from './fake-transport';
 import { MemoryRoomStorage } from './memory-room-storage';
@@ -58,9 +61,7 @@ async function loadEngines(): Promise<Engine[]> {
     new URL('../../../../.bench-old-room/src', import.meta.url).pathname;
   try {
     const oldIndex = (await import(`${oldRoot}/index.ts`)) as CoreModule;
-    const oldServer = (await import(
-      `${oldRoot}/server.ts`
-    )) as ServerModule;
+    const oldServer = (await import(`${oldRoot}/server.ts`)) as ServerModule;
     engines.unshift({
       name: 'old',
       RoomClient: oldIndex.RoomClient,
@@ -145,18 +146,8 @@ function print(engines: Engine[]): void {
 // ---------------------------------------------------------------------------
 
 const ACTOR = { id: 'alice', clientId: 'tab' };
-type AnyClient = RoomClient<
-  RoomState,
-  Message,
-  Message,
-  string
->;
-type AnyServer = RoomServer<
-  RoomState,
-  Message,
-  Message,
-  string
->;
+type AnyClient = RoomClient<RoomState, Message, Message, string>;
+type AnyServer = RoomServer<RoomState, Message, Message, string>;
 
 async function openClient(
   e: Engine,
@@ -164,12 +155,7 @@ async function openClient(
 ): Promise<{ room: AnyClient; transport: FakeTransport }> {
   const ports = testPorts();
   const transport = new FakeTransport();
-  const room = await e.RoomClient.open<
-    RoomState,
-    Message,
-    Message,
-    string
-  >({
+  const room = await e.RoomClient.open<RoomState, Message, Message, string>({
     topic: 'bench',
     module: opts.module ?? gameRoomModule,
     storage: e.clientStorage() as ClientRoomStorage,
@@ -224,12 +210,7 @@ async function loopback(e: Engine, connections: number) {
       }
     );
   }
-  const room = await e.RoomClient.open<
-    RoomState,
-    Message,
-    Message,
-    string
-  >({
+  const room = await e.RoomClient.open<RoomState, Message, Message, string>({
     topic: 'bench',
     module: gameRoomModule,
     storage: e.clientStorage() as ClientRoomStorage,

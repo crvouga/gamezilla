@@ -9,15 +9,14 @@
  */
 
 import { join, relative, resolve } from 'node:path';
-
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 
 /** The package whose tests are running (`bun test` runs from its root). */
 const PACKAGE_DIR = process.cwd();
 /** This file lives at `libs/harness/src/`. */
-const REPO_ROOT = resolve(import.meta.dirname, '../../../..');
+const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 
 /**
  * Raw report bucket (tree layout: keys map 1:1 to files). `test-spec.ts` names

@@ -1,3 +1,10 @@
+import type {
+  Notification,
+  NotificationFilter,
+} from '@libs/notifications-shared/notification';
+import { inboxListSql } from '@libs/notifications-shared/notifications-queries';
+import { buildNotificationSections } from '@libs/notifications-shared/notifications-sections';
+import { clientRowToInteraction } from '@libs/notifications-shared/row-mapper';
 import { useClock } from '@pkgs/clock-client/solid';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
@@ -6,14 +13,7 @@ import {
   createMemo,
   createSignal,
 } from 'solid-js';
-import type {
-  Notification,
-  NotificationFilter,
-} from '@libs/notifications-shared/notification';
-import { clientRowToInteraction } from '@libs/notifications-shared/row-mapper';
 import { useNotificationsShell } from './notifications-provider-registry';
-import { inboxListSql } from '@libs/notifications-shared/notifications-queries';
-import { buildNotificationSections } from '@libs/notifications-shared/notifications-sections';
 
 export function useNotifications(options?: {
   readonly filter?: NotificationFilter | undefined;

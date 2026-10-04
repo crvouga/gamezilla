@@ -5,11 +5,11 @@
  * first load; database naming lives in `./main-sqlite-db-name`.
  */
 
+import { getMainSqliteDbName } from '@libs/app-shared/main-sqlite-db-name';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { createWebSqlClient } from '@pkgs/sql-client-sqlite-web-client/web-sql-client';
-import { getMainSqliteDbName } from '@libs/app-shared/main-sqlite-db-name';
 
 export async function openMainSqlClient(
   userId: string,

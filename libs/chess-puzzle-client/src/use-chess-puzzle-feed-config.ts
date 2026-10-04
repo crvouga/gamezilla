@@ -1,19 +1,25 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import {
+  DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
+  decodeChessPuzzleFeedConfig,
+  encodeChessPuzzleFeedConfig,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { savePuzzleFeedSettingsMutation } from '@libs/chess-puzzle-shared/save-puzzle-feed-settings-mutation';
 import { useDecision } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-shared/sql';
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
 } from 'solid-js';
-
-import { savePuzzleFeedSettingsMutation } from '@libs/chess-puzzle-shared/save-puzzle-feed-settings-mutation';
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { DEFAULT_CHESS_PUZZLE_FEED_CONFIG, decodeChessPuzzleFeedConfig, encodeChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import type { ChessPuzzleFeedConfigSetter } from './chess-puzzle-feed-context';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 

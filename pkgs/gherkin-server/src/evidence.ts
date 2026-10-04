@@ -6,9 +6,9 @@
  * `release`. The bun test stays the gate — evidence is the record of it.
  */
 
+import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 import type { Layer } from '@pkgs/conformance-shared/evidence';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
-import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 
 export type ScenarioVerdict = {
   /** The report bucket evidence goes into (`<reportDir>/evidence/`). */

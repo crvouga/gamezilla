@@ -9,8 +9,8 @@
  */
 
 import { NotificationSourceProvider } from '@libs/notifications-client/notification-sources';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useCan } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { ProfileScreenSlotsProvider } from '@libs/profile-client/profile-screen-slots';
 import { SearchResultSlotsProvider } from '@libs/search-client/search-result-slots';
 import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';

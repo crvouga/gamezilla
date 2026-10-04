@@ -5,15 +5,20 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import { ActionBarIconButton } from './action-bar-icon-button';
+import { ActionBarLabeledControl } from './action-bar-labeled-control';
+import type {
+  ActionBarAvatarItem,
+  ActionBarIconItem,
+  ActionBarItem,
+  ActionBarTextAction,
+} from './action-bar-logic';
+import { isActionBarAvatarItem } from './action-bar-logic';
 import { Button } from './button';
 import { IconButton } from './icon-button';
 import { MenuIcon } from './icons';
-import { ActionBarIconButton } from './action-bar-icon-button';
-import { ActionBarLabeledControl } from './action-bar-labeled-control';
-import type { ActionBarAvatarItem, ActionBarIconItem, ActionBarItem, ActionBarTextAction } from './action-bar-logic';
-import { isActionBarAvatarItem } from './action-bar-logic';
 
 export type ActionBarOverflowTriggerSpec =
   | {

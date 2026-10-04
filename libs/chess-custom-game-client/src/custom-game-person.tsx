@@ -1,7 +1,7 @@
+import type { CustomGameParticipant } from '@libs/chess-custom-game-shared/custom-game-state';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
 import { type JSX, Match, Switch } from 'solid-js';
-import type { CustomGameParticipant } from '@libs/chess-custom-game-shared/custom-game-state';
 
 export function CustomGamePerson(props: {
   participant: CustomGameParticipant;

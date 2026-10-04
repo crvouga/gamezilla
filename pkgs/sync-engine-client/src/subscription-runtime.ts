@@ -1,19 +1,27 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { QueryRequestItem } from '@pkgs/sync-engine-shared/v2';
-import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
-import { scopeHash } from '@pkgs/sync-engine-shared/canonical';
-import type { AppLifecycle, AppLifecycleEvent } from '@pkgs/sync-engine-shared/app-lifecycle';
-import { alwaysOnLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
 import type { Timers } from '@pkgs/clock-shared/types';
-import { detachScope } from './merge';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type {
+  AppLifecycle,
+  AppLifecycleEvent,
+} from '@pkgs/sync-engine-shared/app-lifecycle';
+import { alwaysOnLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
+import { scopeHash } from '@pkgs/sync-engine-shared/canonical';
+import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
+import type {
+  QueryRequestItem,
+  QueryResponse,
+} from '@pkgs/sync-engine-shared/v2';
 import type { MergeApplierDeps } from './merge';
+import { detachScope } from './merge';
 import {
   QUERY_COALESCE_MS,
   QUERY_RECONCILE_INTERVAL_MS,
 } from './subscription-constants';
+import type {
+  SubscriptionSweepContext,
+  SweepEntry,
+} from './subscription-runtime-sweep';
 import { runSubscriptionSweep } from './subscription-runtime-sweep';
-import type { SubscriptionSweepContext, SweepEntry } from './subscription-runtime-sweep';
 
 /** Runtime/port alias of protocol {@link QueryRequestItem}. */
 export type QueryRequest = QueryRequestItem;

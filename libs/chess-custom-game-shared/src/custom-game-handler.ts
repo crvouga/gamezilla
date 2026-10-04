@@ -1,13 +1,16 @@
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { spaceSeatMemberIds } from '@libs/spaces-shared/space-members-messages';
+import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-shared/builtin';
 import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-shared/builtin';
 import type { CustomGameChoice } from './custom-game-choice';
+import type { CustomGameWake } from './custom-game-commands';
+import { CustomGamesChanged } from './custom-game-commands';
 import {
   configureCustomGame,
   rematchCustomGame,
 } from './custom-game-configuration';
+import { customGameEffects } from './custom-game-effects';
 import {
   expireCustomGame,
   playCustomGameChoice,
@@ -17,9 +20,6 @@ import { customGameLegalMoves } from './custom-game-position';
 import { customGameRefusal } from './custom-game-refusal';
 import type { CustomGame, CustomGames } from './custom-game-state';
 import { CustomGamesAttr, newCustomGame } from './custom-game-state';
-import { CustomGamesChanged } from './custom-game-commands';
-import type { CustomGameWake } from './custom-game-commands';
-import { customGameEffects } from './custom-game-effects';
 
 export function refuseCustomGame(reason: string): HandleResult {
   return { ok: false, error: { type: ROOM_ERROR_TYPE.conflict, reason } };

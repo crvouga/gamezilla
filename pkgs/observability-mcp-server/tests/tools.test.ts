@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
-import type { TraceStore } from '@pkgs/observability-shared/types';
-import { createObservabilityMcpTools } from '@pkgs/observability-mcp-shared/observability-mcp';
 import { createObservabilityMcpServer } from '@pkgs/observability-mcp-server/server';
+import { createObservabilityMcpTools } from '@pkgs/observability-mcp-shared/observability-mcp';
+import type { TraceStore } from '@pkgs/observability-shared/types';
 
 const trace = {
   traceId: 'trace-1',

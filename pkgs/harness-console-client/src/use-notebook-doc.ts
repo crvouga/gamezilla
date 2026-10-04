@@ -1,10 +1,9 @@
-import type { Timers } from '@pkgs/clock-shared/types';
 import { useTimers } from '@pkgs/clock-client/solid';
+import type { Timers } from '@pkgs/clock-shared/types';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-
-import { createEmptyNotebook } from './notebook-doc';
 import type { SqlNotebookDoc } from './notebook-doc';
+import { createEmptyNotebook } from './notebook-doc';
 import type { NotebookStore } from './notebook-store';
 import { useNotebookStore } from './notebook-store-context';
 import type { SqlDialect } from './sql-dialect';

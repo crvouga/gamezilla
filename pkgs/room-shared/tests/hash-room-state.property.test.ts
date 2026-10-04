@@ -1,9 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { arbJsonKey, arbJsonObject, arbJsonValue } from '@pkgs/property-shared/json';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-import { canonicalRoomJson, fnv1a64Hex, hashRoomState } from '@pkgs/room-shared/hash-room-state';
+import {
+  arbJsonKey,
+  arbJsonObject,
+  arbJsonValue,
+} from '@pkgs/property-shared/json';
+import {
+  canonicalRoomJson,
+  fnv1a64Hex,
+  hashRoomState,
+} from '@pkgs/room-shared/hash-room-state';
 import type { RoomState } from '@pkgs/room-shared/types';
+import fc from 'fast-check';
 
 /** Rebuild `value` with every object's own keys inserted in the order `keys` dictates. */
 function reorderKeys(value: unknown, seed: number): unknown {

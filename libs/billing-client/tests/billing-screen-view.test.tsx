@@ -5,21 +5,26 @@
  * model decided, and nothing else.
  */
 import { describe, expect, mock, test } from 'bun:test';
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import type { BillingActions } from '@libs/billing-client/billing-plan-card';
 import { BillingScreenView } from '@libs/billing-client/billing-screen-view';
 import type { BillingView } from '@libs/billing-client/billing-view-model';
 import { buildBillingView } from '@libs/billing-client/billing-view-model';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
-
-import { CALLERS, inputFor, ROW_KINDS, row, UNLOCK_LABEL } from './billing-matrix';
 import type { RowKind } from './billing-matrix';
+import {
+  CALLERS,
+  inputFor,
+  ROW_KINDS,
+  row,
+  UNLOCK_LABEL,
+} from './billing-matrix';
 
 const KINDS = Object.keys(ROW_KINDS) as RowKind[];
 

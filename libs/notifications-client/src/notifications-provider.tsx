@@ -3,15 +3,18 @@ import { useConfigService } from '@libs/auth-client/config-service-context';
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { useDeviceId } from '@libs/auth-client/use-device-id';
 import type { GetFreshAuthTokenFn } from '@libs/auth-client/use-fresh-auth-token';
-import { useFreshAuthToken, useGetFreshAuthToken } from '@libs/auth-client/use-fresh-auth-token';
+import {
+  useFreshAuthToken,
+  useGetFreshAuthToken,
+} from '@libs/auth-client/use-fresh-auth-token';
 import type { NotificationsClientDeps } from '@libs/notifications-shared/notifications-actions';
-import { NotificationsProviderRegistry } from './notifications-provider-registry';
-import { NotificationsUnreadCountLiveBridge } from './notifications-unread-count-live-bridge';
-import { useNotificationSources } from './notification-sources';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useCan } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 import { createMemo, type JSX } from 'solid-js';
+import { useNotificationSources } from './notification-sources';
+import { NotificationsProviderRegistry } from './notifications-provider-registry';
+import { NotificationsUnreadCountLiveBridge } from './notifications-unread-count-live-bridge';
 
 /** Must match {@link ANON_ID_HEADER} in libs/auth session-middleware. */
 const X_ANON_ID = 'x-anon-id';

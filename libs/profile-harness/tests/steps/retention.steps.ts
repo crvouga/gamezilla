@@ -10,12 +10,15 @@ import {
   preserveProfileForLegalObligation,
   retainedForPurpose,
 } from '@libs/account-privacy-harness/retention';
+import { Given, Then, When } from '@libs/harness/define';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
-import { openProfileEdit, setUsername } from '@libs/profile-harness/profile-actions';
+import {
+  openProfileEdit,
+  setUsername,
+} from '@libs/profile-harness/profile-actions';
 import { profileVisibleToPeople } from '@libs/profile-harness/profile-visibility';
 
 async function personalAccount(w: HarnessWorld, actor: Actor) {

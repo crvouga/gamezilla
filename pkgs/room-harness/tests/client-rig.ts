@@ -5,10 +5,15 @@
  */
 
 import type { Message } from '@pkgs/message-shared/message';
+import { RoomClient } from '@pkgs/room-client/room-client';
+import {
+  AddOne,
+  gameRoomModule,
+  TakeOne,
+  TallyChanged,
+} from '@pkgs/room-harness/game-room';
 import type { LogEntry, RoomState } from '@pkgs/room-shared/types';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
-import { RoomClient } from '@pkgs/room-client/room-client';
-import { AddOne, gameRoomModule, TakeOne, TallyChanged } from '@pkgs/room-harness/game-room';
 import { FakeTransport } from './fake-transport';
 import { CountingClientStorage } from './memory-storage';
 import { testPorts } from './ports';

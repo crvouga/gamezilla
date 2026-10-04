@@ -1,6 +1,6 @@
-import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import { createCachingSecretStore } from '@pkgs/secret-store-shared/caching-secret-store';
 import { createEnvSecretStore } from '@pkgs/secret-store-shared/impl-env';
+import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 
 /**
  * Worker secrets: all values are injected as env bindings at deploy / setup time.

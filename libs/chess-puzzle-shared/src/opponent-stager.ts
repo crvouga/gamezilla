@@ -7,7 +7,11 @@
 
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { OpponentStagePlan } from './chess-puzzle-opponent-stage';
-import { PUZZLE_OPPONENT_UNLOCK_BUFFER_MS, PUZZLE_PIECE_MOVE_MS, planOpponentStage } from './chess-puzzle-opponent-stage';
+import {
+  PUZZLE_OPPONENT_UNLOCK_BUFFER_MS,
+  PUZZLE_PIECE_MOVE_MS,
+  planOpponentStage,
+} from './chess-puzzle-opponent-stage';
 import type { SolveStatus } from './solve-status';
 
 export type OpponentStagerInput = {

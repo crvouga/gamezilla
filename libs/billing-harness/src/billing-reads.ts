@@ -4,15 +4,14 @@
  * projection rows on the actor's client and the server for code tests.
  */
 
+import { MembershipRepository } from '@libs/billing-shared/membership-repository';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
 import { actorHtml, nodeText } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-
-import { MembershipRepository } from '@libs/billing-shared/membership-repository';
+import sql from '@pkgs/sql-shared/sql';
 
 /** Raw row shape; `cancel_at_period_end` is 0/1 on SQLite and a bool on PG. */
 type MembershipRowRaw = {

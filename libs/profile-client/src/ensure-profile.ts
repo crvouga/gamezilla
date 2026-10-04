@@ -2,9 +2,8 @@ import {
   peekPendingSignupUsername,
   takePendingSignupUsername,
 } from '@libs/auth-shared/pending-signup-username';
-import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
-
 import { ensureProfileMutation } from '@libs/profile-shared/ensure-profile-mutation';
+import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 
 /**
  * Ensures a local `profiles` row exists for `auth.userId` (install id when

@@ -1,9 +1,9 @@
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 
 /**
  * D1Database binding shape. Matches the Cloudflare Workers D1 API.

@@ -10,7 +10,10 @@ import { describe, expect, test } from 'bun:test';
 
 import { LIMIT } from '@libs/permissions-shared/permission-catalog';
 import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
-import { decideLimit, resolveUnlockRef } from '@pkgs/permissions-shared/decision';
+import {
+  decideLimit,
+  resolveUnlockRef,
+} from '@pkgs/permissions-shared/decision';
 import type { Facts } from '@pkgs/permissions-shared/facts';
 import { resolveSubject } from '@pkgs/permissions-shared/resolve';
 

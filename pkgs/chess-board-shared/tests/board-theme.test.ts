@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'bun:test';
-import { boardThemeToCssVars, defaultBoardTheme, mergeBoardTheme } from '@pkgs/chess-board-shared/board-theme';
 import type { BoardTheme } from '@pkgs/chess-board-core-shared/types';
+import {
+  boardThemeToCssVars,
+  defaultBoardTheme,
+  mergeBoardTheme,
+} from '@pkgs/chess-board-shared/board-theme';
 
 describe('mergeBoardTheme', () => {
   it('overrides square colors and keeps feedback keys', () => {

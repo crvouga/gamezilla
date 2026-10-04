@@ -6,8 +6,8 @@
  * {@link createPassthroughBottomSheetHost} or a recording host.
  */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
 import type { BottomSheetHost } from '@pkgs/ui-shared/bottom-sheet-host-types';
+import { createContext, type JSX, untrack, useContext } from 'solid-js';
 import { createWebBottomSheetHost } from './web-bottom-sheet';
 
 const BottomSheetHostContext = createContext<BottomSheetHost>();

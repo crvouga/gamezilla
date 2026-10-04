@@ -1,4 +1,7 @@
-import type { EvidenceFile, ReproductionRecording } from '@pkgs/feedback-shared/types';
+import type {
+  EvidenceFile,
+  ReproductionRecording,
+} from '@pkgs/feedback-shared/types';
 
 export type VideoSession = {
   stop(): Promise<EvidenceFile>;

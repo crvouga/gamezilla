@@ -7,8 +7,8 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Badge } from '@pkgs/ui-client/badge';
 import type { BadgeIntent } from '@pkgs/ui-client/badge';
+import { Badge } from '@pkgs/ui-client/badge';
 import { Button } from '@pkgs/ui-client/button';
 import { CreditCardIcon, KeyRoundIcon } from '@pkgs/ui-client/icons';
 import { Notice } from '@pkgs/ui-client/notice';

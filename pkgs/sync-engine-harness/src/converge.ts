@@ -1,8 +1,7 @@
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { InvariantViolation } from './invariant-tracker';
 import type { LiveFolder, LiveNote } from './assert';
 import { readLiveFolders, readLiveNotes } from './assert';
+import type { InvariantViolation } from './invariant-tracker';
 
 function domainKey(
   notes: readonly LiveNote[],

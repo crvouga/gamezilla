@@ -21,15 +21,15 @@
  * existing accounts is refused, never guessed.
  */
 
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { IdentityRepository } from './identity-repository';
 import type { IdentityRow } from './identity-repository';
+import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
 import { PendingLinkRepository } from './pending-link-repository';
 import type { ProviderIdentity } from './provider-identity';

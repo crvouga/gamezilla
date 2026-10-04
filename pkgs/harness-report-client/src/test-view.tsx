@@ -1,16 +1,3 @@
-import { createEffect, createMemo, Match, Show, Switch } from 'solid-js';
-import type { TestLoad } from './report-context';
-import { useReport } from './report-context';
-import type { ReportNav } from './use-report-nav';
-import { FailBanner } from './fail-banner';
-import { FrameCaption } from './frame-caption';
-import { PhoneStage } from './phone-stage';
-import { ScenarioScript } from './scenario-script';
-import { Scrubber } from './scrubber';
-import { SnapshotsAside } from './snapshots-aside';
-import { StepTree } from './step-tree';
-import { TestNav } from './test-nav';
-import { Toolbar } from './toolbar';
 import { fileLabel, fmtMs } from '@pkgs/harness-report-shared/format';
 import {
   frameFilesNear,
@@ -22,6 +9,19 @@ import {
   testFrames,
 } from '@pkgs/harness-report-shared/frames';
 import { showAside, viewMode } from '@pkgs/harness-report-shared/hash';
+import { createEffect, createMemo, Match, Show, Switch } from 'solid-js';
+import { FailBanner } from './fail-banner';
+import { FrameCaption } from './frame-caption';
+import { PhoneStage } from './phone-stage';
+import type { TestLoad } from './report-context';
+import { useReport } from './report-context';
+import { ScenarioScript } from './scenario-script';
+import { Scrubber } from './scrubber';
+import { SnapshotsAside } from './snapshots-aside';
+import { StepTree } from './step-tree';
+import { TestNav } from './test-nav';
+import { Toolbar } from './toolbar';
+import type { ReportNav } from './use-report-nav';
 
 /** Opens the timeline at once. Frame files stream into the phones as they arrive. */
 export function TestView(props: { nav: ReportNav }) {

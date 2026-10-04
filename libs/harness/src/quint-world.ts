@@ -13,8 +13,8 @@
  *   useQuintHarness(openHarness);
  */
 
-import { setQuintWorld } from '@pkgs/quint-shared/registry';
 import type { TraceContext } from '@pkgs/quint-shared/registry';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
 
 import type { OpenHarness } from './open-harness';
 import type { OpenPackageHarness } from './spec-world';

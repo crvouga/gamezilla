@@ -1,16 +1,23 @@
 // @io-wall-ok — realTimeRuntime composition root
 import type { Clock } from '@pkgs/clock-shared/types';
 import { createSeededCreateId } from '@pkgs/uuid-shared/seeded-create-id';
-import { createWallScheduler } from './real-time-scheduler';
-import { createRngInternal } from './rng';
-import { createTimers } from './timers';
-import { NOOP_TRACE_RECORDER } from './trace';
+import { createRuntime } from './create-runtime';
 import { createNetwork } from './network';
 import type { Network, NetworkFaults } from './network-state';
 import { RELIABLE_NETWORK } from './network-state';
-import { createRuntime } from './create-runtime';
-import type { Capability, Endpoint, Ports, RealTimeRuntimeOptions, Runtime, Session } from './runtime-types';
+import { createWallScheduler } from './real-time-scheduler';
+import { createRngInternal } from './rng';
+import type {
+  Capability,
+  Endpoint,
+  Ports,
+  RealTimeRuntimeOptions,
+  Runtime,
+  Session,
+} from './runtime-types';
 import { CapabilityError } from './runtime-types';
+import { createTimers } from './timers';
+import { NOOP_TRACE_RECORDER } from './trace';
 
 function makeEndpoint(network: Network, id: string): Endpoint {
   return {

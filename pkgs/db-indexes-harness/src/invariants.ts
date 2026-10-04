@@ -1,6 +1,10 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import { isOwnedName } from '@pkgs/db-indexes-shared/naming';
-import type { IndexInfo, OwnedMeta, UsageInfo } from '@pkgs/db-indexes-shared/types';
+import type {
+  IndexInfo,
+  OwnedMeta,
+  UsageInfo,
+} from '@pkgs/db-indexes-shared/types';
 import type { HarnessDb } from './db';
 
 export type InvariantViolation = {

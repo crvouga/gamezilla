@@ -8,21 +8,25 @@
  * different schema impossible without going through here.
  */
 
-import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { Client as PgClient, Pool as PgPool } from 'pg';
 import { SqlClientImplPg } from '@pkgs/sql-client-postgres-shared/impl-pg';
 import { SqlClientImplPgClient } from '@pkgs/sql-client-postgres-shared/impl-pg-client';
 import type { PgExecutor } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
 import { pgRawQueryWithSearchPathPin } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
-import type { Client, Pool, PoolClient } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type {
+  Client,
+  Pool,
+  PoolClient,
+} from '@pkgs/sql-client-postgres-shared/pg-types';
 import { sanitizePostgresUrlForNodePg } from '@pkgs/sql-client-postgres-shared/sanitize-url-for-node-pg';
 import {
   pinAndVerifyPgSessionSchema,
   postgresRejectsStartupSearchPathOption,
   withPostgresSearchPathOption,
 } from '@pkgs/sql-client-postgres-shared/session-schema';
+import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { Client as PgClient, Pool as PgPool } from 'pg';
 
 /** Extra `pg.Client` knobs that standalone tools occasionally need. */
 export type PgClientOptions = {

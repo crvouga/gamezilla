@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { CancellationReason, PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { validatePlusMembershipOffer } from '@libs/billing-shared/validate-offer';
+import type {
+  CancellationReason,
+  PlusMembershipOffer,
+} from '@pkgs/billing-shared/offer';
 
 function offer(patch: (draft: Draft) => void): PlusMembershipOffer {
   const draft = structuredClone(PLUS_MEMBERSHIP_OFFER) as unknown as Draft;

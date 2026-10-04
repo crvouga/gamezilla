@@ -4,13 +4,22 @@ import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
 import { CHIP_HEIGHT, Chip } from '@pkgs/ui-client/chip';
 import { ChipGroup } from '@pkgs/ui-client/chip-group';
-import { CopyToClipboardField, DEFAULT_COPIED_RESET_MS } from '@pkgs/ui-client/copy-to-clipboard-field';
+import {
+  CopyToClipboardField,
+  DEFAULT_COPIED_RESET_MS,
+} from '@pkgs/ui-client/copy-to-clipboard-field';
 import { FormActionsFooter } from '@pkgs/ui-client/form-actions-footer';
-import { arraysEqualAsSets } from '@pkgs/ui-shared/arrays-equal-as-sets';
-import { MultiSelectSwatchGrid, toggleSwatch } from '@pkgs/ui-client/multi-select-swatch-grid';
+import {
+  MultiSelectSwatchGrid,
+  toggleSwatch,
+} from '@pkgs/ui-client/multi-select-swatch-grid';
 import { NumberStepper, stepValue } from '@pkgs/ui-client/number-stepper';
-import { SegmentedControl, segmentIndicatorCss } from '@pkgs/ui-client/segmented-control';
+import {
+  SegmentedControl,
+  segmentIndicatorCss,
+} from '@pkgs/ui-client/segmented-control';
 import { SocialSignInButton } from '@pkgs/ui-client/social-sign-in-button';
+import { arraysEqualAsSets } from '@pkgs/ui-shared/arrays-equal-as-sets';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { cssOf, renderUi } from './render';

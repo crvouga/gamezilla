@@ -1,11 +1,12 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type { Friend } from '@libs/friends-shared/friends-types';
 import type { Sql } from '@pkgs/sql-shared/sql';
 import sql from '@pkgs/sql-shared/sql';
-
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import type { Friend } from '@libs/friends-shared/friends-types';
 
 type FriendRow = {
   readonly friend_id: string;

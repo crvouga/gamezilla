@@ -1,4 +1,7 @@
-import type { BatchQualityResult, QualityResult } from './ui-quality-check-types';
+import type {
+  BatchQualityResult,
+  QualityResult,
+} from './ui-quality-check-types';
 
 export class UIQualityError extends Error {
   override readonly name = 'UIQualityError';

@@ -7,12 +7,12 @@
 
 import { Database, Snapshot } from '@crvouga/mockingbird-service-sqlite';
 import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
 
 const SQLM_MAGIC0 = 0x53;

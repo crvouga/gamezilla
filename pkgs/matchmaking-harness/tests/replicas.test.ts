@@ -8,13 +8,33 @@
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import type { Run } from '@pkgs/harness-shared/run-types';
-import type { LeaveResult, StatusResult, UpdateFormulasResult } from '@pkgs/matchmaking-shared/types';
-import { join, leave, ready, tick, updateFormulas } from '@pkgs/matchmaking-harness/actions';
-import { lastLeave, lastUpdate, participantIds, replicaIds, statusAcrossReplicas } from '@pkgs/matchmaking-harness/observations';
-import type { MatchmakingHarness } from '@pkgs/matchmaking-harness/facade';
-import { matchmaking } from '@pkgs/matchmaking-harness/system';
-import { NameAttr, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import {
+  join,
+  leave,
+  ready,
+  tick,
+  updateFormulas,
+} from '@pkgs/matchmaking-harness/actions';
+import {
+  NameAttr,
+  RatingAttr,
+  ratingWithin,
+} from '@pkgs/matchmaking-harness/attrs';
 import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
+import type { MatchmakingHarness } from '@pkgs/matchmaking-harness/facade';
+import {
+  lastLeave,
+  lastUpdate,
+  participantIds,
+  replicaIds,
+  statusAcrossReplicas,
+} from '@pkgs/matchmaking-harness/observations';
+import { matchmaking } from '@pkgs/matchmaking-harness/system';
+import type {
+  LeaveResult,
+  StatusResult,
+  UpdateFormulasResult,
+} from '@pkgs/matchmaking-shared/types';
 
 type Harness = Run<MatchmakingHarness>;
 

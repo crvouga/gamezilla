@@ -1,5 +1,9 @@
-import { createMessageNamespace, isMessageEnvelope, isPlainRecord } from '@pkgs/message-shared/message';
 import type { Message } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isMessageEnvelope,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 
 /** Identity used when the engine injects a scheduled command. */
 export const ROOM_SCHEDULER_IDENTITY = 'room:scheduler';

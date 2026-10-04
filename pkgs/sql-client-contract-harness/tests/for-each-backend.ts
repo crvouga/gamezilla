@@ -2,10 +2,10 @@
  * Open each factory, run `fn`, cleanup sample tables, close ephemeral engines.
  */
 
-import type { BackendFactory, MatrixBackend } from './types';
 import { openBackend } from './registry';
-import type { LogicalSchema } from './schema';
 import { withBackendSample } from './run-program';
+import type { LogicalSchema } from './schema';
+import type { BackendFactory, MatrixBackend } from './types';
 
 export async function forEachBackendSample(
   factories: readonly BackendFactory[],

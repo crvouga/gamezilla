@@ -1,7 +1,10 @@
 import { join } from 'node:path';
 import { readUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { ResolvedSecretsScope, SecretsConfigFile } from '@pkgs/secrets-config-shared/defaults';
+import type {
+  ResolvedSecretsScope,
+  SecretsConfigFile,
+} from '@pkgs/secrets-config-shared/defaults';
 import { SECRETS_DEFAULTS } from '@pkgs/secrets-config-shared/defaults';
 
 const PLACEHOLDER_PROJECT_IDS = new Set([

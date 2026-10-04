@@ -1,9 +1,6 @@
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
-import {
-  partition,
-  restoreActorConnection,
-} from '@libs/harness/actions';
 import {
   closeSpaceMembers,
   createSpace,

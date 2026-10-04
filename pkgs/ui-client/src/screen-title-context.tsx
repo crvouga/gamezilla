@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { shouldShowTopBarTitle } from '@pkgs/ui-shared/screen-title-reveal';
 import {
   type Accessor,
   createContext,
@@ -6,7 +8,6 @@ import {
   type JSX,
   useContext,
 } from 'solid-js';
-import { shouldShowTopBarTitle } from '@pkgs/ui-shared/screen-title-reveal';
 
 export type ScreenTitleContextValue = {
   title: Accessor<JSX.Element>;

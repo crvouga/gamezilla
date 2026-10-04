@@ -1,8 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { asKeyword, asKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
-import { booleanKvCodec, enumKvCodec, jsonKvCodec } from '@pkgs/kv-shared/kv-state-codec';
 import { decodePersistedRecord } from '@pkgs/kv-client/solid';
+import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
+import {
+  booleanKvCodec,
+  enumKvCodec,
+  jsonKvCodec,
+} from '@pkgs/kv-shared/kv-state-codec';
 
 const VALUE_ATTR = asKeyword('ui.prefs/value');
 const ROW_KEY = asKeyword('ui.prefs/test-row');

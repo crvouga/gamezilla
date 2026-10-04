@@ -3,8 +3,8 @@ import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { reconcileDeclaredPostgresSchemas } from '@libs/runtime-server/reconcile-declared-schemas';
 import { indexFingerprintName } from '@pkgs/db-schema-shared/index-fingerprint';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import sql from '@pkgs/sql-shared/sql';
 import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import sql from '@pkgs/sql-shared/sql';
 
 // regression: deploy-missing-framework-indexes
 test.each([false, true])(

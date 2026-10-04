@@ -14,7 +14,11 @@
  *   { line }  a line of `bun run conformance`'s pipeline (`lines.ts`)
  */
 
-import type { EvidenceMap, Proof, ProofTable } from '@pkgs/conformance-shared/proofs';
+import type {
+  EvidenceMap,
+  Proof,
+  ProofTable,
+} from '@pkgs/conformance-shared/proofs';
 
 import { LINES } from './lines';
 
@@ -110,11 +114,14 @@ const PUBLIC_CONTRACTS: ProofTable = {
     { spec: 'specs/chess-board/board-independence.qnt' },
     { spec: 'specs/chess/puzzle-sound.feature' },
     { spec: 'specs/chess/puzzle-sound.qnt' },
-    { task: '@pkgs/chess-board#test' },
-    { task: '@pkgs/chess-board#test:contract' },
-    { task: '@pkgs/chess-board#check:models' },
+    { task: '@pkgs/chess-board-client#test' },
+    { task: '@pkgs/chess-board-harness#test:contract' },
+    { task: '@pkgs/chess-board-harness#check:models' },
     { task: '@pkgs/chess-board-core-shared#test' },
-    { task: '@libs/chess#check:board-contract' },
+    { task: '@libs/chess-shared-client#check:board-contract' },
+    { task: '@libs/chess-custom-game-client#check:board-contract' },
+    { task: '@libs/chess-matchmaking-client#check:board-contract' },
+    { task: '@libs/chess-puzzle-client#check:board-contract' },
   ],
   'account privacy': [
     { spec: 'specs/profile/account-deletion.feature' },
@@ -160,7 +167,7 @@ const RELEASE_GATES: ProofTable = {
   // The secrets registry agrees with what the infrastructure writes, and a
   // live environment has what it needs to use every outside service.
   'settings the app needs': [
-    { task: '@libs/secrets#test' },
+    { task: '@libs/secrets-shared#test' },
     { live: 'specs/runtime/connected-services.feature' },
   ],
   'release artifact limits': [
@@ -168,9 +175,11 @@ const RELEASE_GATES: ProofTable = {
     { task: '@apps/product#check:worker-bundle' },
   ],
   'offline start': [{ task: '@apps/product#check:offline-shell' }],
-  'database evolution': [{ task: '@libs/runtime#check:schema-evolution' }],
+  'database evolution': [
+    { task: '@libs/runtime-server#check:schema-evolution' },
+  ],
   // `lint-tofu.ts`: tofu validate, tflint and the policy's conftest suite.
-  'infrastructure policy': [{ task: '@libs/infra#lint' }],
+  'infrastructure policy': [{ task: '@libs/infra-shared#lint' }],
   'workflow validity': [{ task: '@libs/tools#check:actionlint' }],
   'type safety': [{ task: 'tc' }],
   lint: [{ task: 'lint' }, { task: '//#lint:root' }],

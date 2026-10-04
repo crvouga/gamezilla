@@ -1,15 +1,18 @@
 import { APP_QUERIES } from '@libs/runtime-shared/app-queries';
-import { APP_AUTH_PROVIDER } from './app-auth-provider';
 import type { Clock } from '@pkgs/clock-shared/types';
-import { MIGRATE_RECONCILE_CONFIG, resolveConfig } from '@pkgs/db-indexes-shared/config';
 import { createPostgresPort } from '@pkgs/db-indexes-postgres-shared/create-postgres-port';
+import {
+  MIGRATE_RECONCILE_CONFIG,
+  resolveConfig,
+} from '@pkgs/db-indexes-shared/config';
 import { applyKvStorageOptimizations } from '@pkgs/kv-postgres-shared/postgres-storage-knobs';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install';
+import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
 import { extractWorkload } from '@pkgs/sync-engine-shared/extract-workload';
+import { APP_AUTH_PROVIDER } from './app-auth-provider';
 
 import { grantObsRead } from './grant-obs-read';
 import { reconcileDeclaredPostgresSchemas } from './reconcile-declared-schemas';

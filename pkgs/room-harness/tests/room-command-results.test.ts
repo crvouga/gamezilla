@@ -1,14 +1,9 @@
 import { expect, test } from 'bun:test';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import type { RoomCommandResult } from '@pkgs/room-client/room-client';
 import { AddOne, TakeOne } from '@pkgs/room-harness/game-room';
-import {
-  committed,
-  openClient,
-  tallyEntry,
-  welcome,
-} from './client-rig';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
+import { committed, openClient, tallyEntry, welcome } from './client-rig';
 
 // regression: room-overlapping-command-results
 test('a refused choice and an overlapping accepted choice receive separate server results', async () => {

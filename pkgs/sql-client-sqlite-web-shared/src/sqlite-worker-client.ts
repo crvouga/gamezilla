@@ -1,12 +1,17 @@
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
-import { createRpcIdFactory, rehydrateError, serializeSql } from './rpc';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import type {
+  SqliteWorkerOp,
+  SqliteWorkerOps,
+  SqliteWorkerPort,
+  SqliteWorkerRequest,
+} from './protocol';
 import { isSqliteWorkerResponse } from './protocol';
-import type { SqliteWorkerOp, SqliteWorkerOps, SqliteWorkerPort, SqliteWorkerRequest } from './protocol';
+import { createRpcIdFactory, rehydrateError, serializeSql } from './rpc';
 
 export type SqliteWorkerRpc = {
   request: <O extends SqliteWorkerOp>(

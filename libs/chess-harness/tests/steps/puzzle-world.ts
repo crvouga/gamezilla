@@ -4,14 +4,18 @@
  * owner, and the common ways into a puzzle. No step definitions here.
  */
 
-import { openPuzzleByTheme, openPuzzleFromSpace, showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  openPuzzleByTheme,
+  openPuzzleFromSpace,
+  showChessStatsScreen,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import { readPuzzlePlayerId } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
 import { readActivePuzzleId } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import type { NamedPuzzle } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { Actor } from '@libs/harness/parameter-types';
+import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember } from '@libs/harness/spec-world';
 import { createSpace } from '@libs/spaces-harness/space-actions';

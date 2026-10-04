@@ -1,7 +1,24 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { Assert } from '@pkgs/assert-shared/assert';
 import { assert } from '@pkgs/assert-shared/singleton';
-import { asKeyword, assertKeyword, assertKeywordRecord, assertLocalName, assertNamespacedKeyword, assertNamespacePrefix, CLOJURE_KEBAB_SEGMENT, CLOJURE_NAMESPACED_KEYWORD_REGEX, isKebabSegment, isLocalName, isNamespacedKeyword, isNamespacePrefix, joinKeywordSegments, KEYWORD_MAX_LENGTH, KEYWORD_SEGMENT_MIN_LENGTH, namespacePrefixOf } from '@pkgs/keyword-shared/keyword';
+import {
+  asKeyword,
+  assertKeyword,
+  assertKeywordRecord,
+  assertLocalName,
+  assertNamespacedKeyword,
+  assertNamespacePrefix,
+  CLOJURE_KEBAB_SEGMENT,
+  CLOJURE_NAMESPACED_KEYWORD_REGEX,
+  isKebabSegment,
+  isLocalName,
+  isNamespacedKeyword,
+  isNamespacePrefix,
+  joinKeywordSegments,
+  KEYWORD_MAX_LENGTH,
+  KEYWORD_SEGMENT_MIN_LENGTH,
+  namespacePrefixOf,
+} from '@pkgs/keyword-shared/keyword';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import {

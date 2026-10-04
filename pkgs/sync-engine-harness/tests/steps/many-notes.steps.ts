@@ -5,10 +5,10 @@
  */
 
 import { expect } from 'bun:test';
-import { liveFolders, liveNotes } from '@pkgs/sync-engine-harness/reads';
-import { mutate } from '@pkgs/sync-engine-harness/regression-actions';
 import { retouchNotes } from '@pkgs/sync-engine-harness/hardening-fixtures';
 import { setFolder, setNote } from '@pkgs/sync-engine-harness/mutations';
+import { liveFolders, liveNotes } from '@pkgs/sync-engine-harness/reads';
+import { mutate } from '@pkgs/sync-engine-harness/regression-actions';
 import { SETTLE_MS } from './note-writes';
 import { app, ensureDevice, Given, Then, When } from './world';
 

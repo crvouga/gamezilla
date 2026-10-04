@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { imageWindows } from './preprocess';
 import type { RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
+import { imageWindows } from './preprocess';
 
 export type WindowInference = (
   tensors: readonly Float32Array[]

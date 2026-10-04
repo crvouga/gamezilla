@@ -2,11 +2,18 @@
 /** `specs/profile/finding-a-person.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
 
 import { expect } from 'bun:test';
-import { ObservabilitySecretName as Name } from '@libs/observability-shared/secret-names';
-import { personProbeClock } from '@libs/observability-server/person-trouble-document';
 import type { PersonPlant } from '@libs/observability-server/person-trouble-document';
-import type { PersonProbeCredentials, PersonRead, PersonReadResult } from '@libs/observability-server/person-trouble-probe';
-import { plantPersonTrouble, readPersonTrouble } from '@libs/observability-server/person-trouble-probe';
+import { personProbeClock } from '@libs/observability-server/person-trouble-document';
+import type {
+  PersonProbeCredentials,
+  PersonRead,
+  PersonReadResult,
+} from '@libs/observability-server/person-trouble-probe';
+import {
+  plantPersonTrouble,
+  readPersonTrouble,
+} from '@libs/observability-server/person-trouble-probe';
+import { ObservabilitySecretName as Name } from '@libs/observability-shared/secret-names';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { eventually, Given, Then, When } from './define';
 import type { LiveWorld } from './live-world';

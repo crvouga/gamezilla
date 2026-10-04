@@ -1,9 +1,13 @@
-import type { EndpointId, FlowKey, Network, NetworkFaults } from '@pkgs/harness-shared/network-state';
+import type {
+  EndpointId,
+  FlowKey,
+  Network,
+  NetworkFaults,
+} from '@pkgs/harness-shared/network-state';
 import { RELIABLE_NETWORK } from '@pkgs/harness-shared/network-state';
 import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
-
-import { createNetEffect } from './net-effect';
 import type { NetEffect } from './net-effect';
+import { createNetEffect } from './net-effect';
 
 /** VOPR-style one-way link knobs for room loopback frames. */
 export type RoomFaultProfile = {

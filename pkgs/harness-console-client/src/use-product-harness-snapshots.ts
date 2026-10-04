@@ -1,9 +1,8 @@
-import { createEffect, createSignal } from 'solid-js';
-
 import type {
   ProductHarnessSession,
   ProductHarnessSnapshotInfo,
 } from '@pkgs/harness-console-shared/ports';
+import { createEffect, createSignal } from 'solid-js';
 
 /** List + mutate ObjectStore product-harness snapshots (busy/error included). */
 export function useProductHarnessSnapshots(

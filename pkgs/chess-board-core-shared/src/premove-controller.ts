@@ -3,8 +3,8 @@
  * snapshot surface for gradual adoption.
  */
 
-import { createPremoveQueue } from './premove-queue';
 import type { PremoveQueue, QueuedPremove } from './premove-queue';
+import { createPremoveQueue } from './premove-queue';
 
 export type PremoveController = {
   readonly queue: PremoveQueue;

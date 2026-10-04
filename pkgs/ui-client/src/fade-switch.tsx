@@ -4,9 +4,9 @@
  * key is kept for API parity and as a `data-state-key` hook for spec).
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
 
 export type FadeSwitchProps = {
   stateKey: string;

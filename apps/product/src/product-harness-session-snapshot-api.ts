@@ -2,12 +2,25 @@
  * Snapshot + palette methods attached onto a product-harness session façade.
  */
 
-import type { createProductHarnessChessCommands } from './product-harness-chess-seed';
-import { buildProductHarnessPaletteCommands, buildSnapshotLoadCommands } from './product-harness-fault-commands';
-import { deleteProductHarnessSnapshot, deleteProductHarnessSnapshots, listProductHarnessSnapshots, loadProductHarnessSnapshot, purgeIncompatibleProductHarnessSnapshotsFromStore, saveProductHarnessSnapshot } from './product-harness-snapshots';
-import type { SnapshotSessionCtx } from './product-harness-snapshots';
-import type { ProductHarnessPaletteCommand, ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
+import type {
+  ProductHarnessPaletteCommand,
+  ProductHarnessSession,
+} from '@pkgs/harness-console-shared/ports';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { createProductHarnessChessCommands } from './product-harness-chess-seed';
+import {
+  buildProductHarnessPaletteCommands,
+  buildSnapshotLoadCommands,
+} from './product-harness-fault-commands';
+import type { SnapshotSessionCtx } from './product-harness-snapshots';
+import {
+  deleteProductHarnessSnapshot,
+  deleteProductHarnessSnapshots,
+  listProductHarnessSnapshots,
+  loadProductHarnessSnapshot,
+  purgeIncompatibleProductHarnessSnapshotsFromStore,
+  saveProductHarnessSnapshot,
+} from './product-harness-snapshots';
 
 export type SnapshotSessionApiArgs = {
   readonly snapshotStore: ObjectStore;

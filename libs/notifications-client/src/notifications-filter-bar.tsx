@@ -1,10 +1,10 @@
 /** @jsxImportSource solid-js */
-import { useLingui } from '@lingui/solid/macro';
-import { ChipGroup } from '@pkgs/ui-client/chip-group';
-import type { ChipGroupOption } from '@pkgs/ui-client/chip-group';
-import type { JSX } from 'solid-js';
 
 import type { NotificationFilter } from '@libs/notifications-shared/notification';
+import { useLingui } from '@lingui/solid/macro';
+import type { ChipGroupOption } from '@pkgs/ui-client/chip-group';
+import { ChipGroup } from '@pkgs/ui-client/chip-group';
+import type { JSX } from 'solid-js';
 import {
   NOTIFICATIONS_FILTER_ACTION_REQUIRED,
   NOTIFICATIONS_FILTER_ALL,

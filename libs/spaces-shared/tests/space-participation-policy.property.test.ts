@@ -6,9 +6,18 @@
  * are common.
  */
 import { describe, expect, test } from 'bun:test';
-
-import { decideJoin, isHostMember, isSpaceHostActor, resolveMemberId, resolvePresenceRole, resolveRoomActorId } from '@libs/spaces-shared/space-participation-policy';
-import type { SpaceAccessDecision, SpaceAccessInput } from '@libs/spaces-shared/space-participation-policy';
+import type {
+  SpaceAccessDecision,
+  SpaceAccessInput,
+} from '@libs/spaces-shared/space-participation-policy';
+import {
+  decideJoin,
+  isHostMember,
+  isSpaceHostActor,
+  resolveMemberId,
+  resolvePresenceRole,
+  resolveRoomActorId,
+} from '@libs/spaces-shared/space-participation-policy';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

@@ -6,13 +6,25 @@
 
 import { expect } from 'bun:test';
 
-import { FIRST_PAYMENT_PROVIDER, managePlus, observeMembership, openBilling, SECOND_PAYMENT_PROVIDER, subscribeToPlus, switchPaymentProvider } from '@libs/billing-harness/billing-actions';
-import { checkoutProvider, membershipShown, providerPageShown } from '@libs/billing-harness/billing-reads';
+import {
+  FIRST_PAYMENT_PROVIDER,
+  managePlus,
+  observeMembership,
+  openBilling,
+  SECOND_PAYMENT_PROVIDER,
+  subscribeToPlus,
+  switchPaymentProvider,
+} from '@libs/billing-harness/billing-actions';
+import {
+  checkoutProvider,
+  membershipShown,
+  providerPageShown,
+} from '@libs/billing-harness/billing-reads';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
 import { accountIdOf } from '@libs/harness/identity';
+import type { Actor } from '@libs/harness/parameter-types';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 
 const SHOWN_WAIT = { maxMs: 60_000, stepMs: 1_000 } as const;
 

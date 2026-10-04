@@ -1,10 +1,10 @@
-import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
 import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
 import fc from 'fast-check';
-import type { SqlDialect } from './types';
 import type { LogicalColumnType } from './canonical-dump';
 import { PG_DDL, SQLITE_DDL } from './canonical-dump';
 import type { LogicalSchema, LogicalTable } from './schema';
+import type { SqlDialect } from './types';
 import { arbValueForType } from './values';
 
 export type RowValues = Record<string, unknown>;

@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 /** Mount a piece of the shell chrome under the theme and a virtual clock. */
 
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { render } from '@solidjs/testing-library';

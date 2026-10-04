@@ -1,7 +1,6 @@
+import type { Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
-
-import type { Timers } from '@pkgs/clock-shared/types';
 
 export type HarnessTestDriver = {
   readonly clock: { now(): number };

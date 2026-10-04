@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { checkLanguage, featureProse, parseGlossary } from '@pkgs/gherkin-shared/glossary';
-import type { Glossary, LanguageInput, QuintSpecNames } from '@pkgs/gherkin-shared/glossary';
+import type {
+  Glossary,
+  LanguageInput,
+  QuintSpecNames,
+} from '@pkgs/gherkin-shared/glossary';
+import {
+  checkLanguage,
+  featureProse,
+  parseGlossary,
+} from '@pkgs/gherkin-shared/glossary';
 
 function glossary(domain: string | null, data: unknown): Glossary {
   const uri =

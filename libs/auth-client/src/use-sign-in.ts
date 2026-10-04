@@ -1,8 +1,7 @@
+import type { SignInTriggerResult } from '@libs/auth-shared/sign-in-trigger';
 import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-
 import { useAuthClientPort } from './auth-client-provider';
-import type { SignInTriggerResult } from '@libs/auth-shared/sign-in-trigger';
 
 /**
  * Hosted sign-in via {@link AuthClientPort.signIn}. A sign-in whose address

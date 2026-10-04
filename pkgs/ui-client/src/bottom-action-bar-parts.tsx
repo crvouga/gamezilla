@@ -4,14 +4,14 @@
  * `Button`.
  */
 
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import type { JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { Button } from './button';
 import type {
   BottomActionBarActionItem,
   BottomActionBarButtonItem,
 } from './bottom-action-bar-types';
+import { Button } from './button';
 
 const ICON_SIZE = 24;
 const ICON_STROKE_WIDTH = 2.75;

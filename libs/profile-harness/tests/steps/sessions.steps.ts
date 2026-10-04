@@ -1,11 +1,18 @@
 /** Ending sessions: signing out everywhere, and Apple acting on its side. */
 
-import { appleDeletesAccount, appleRevokesApp } from '@libs/harness/provider-events-actions';
-import { connectSignInMethod, signedOutShown, signOutEverywhere } from '@libs/harness/sign-in-method-actions';
-import { signedInAccountOf } from '@libs/harness/identity';
 import { signInWithApple, signInWithGoogle } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, When } from '@libs/harness/define';
+import { signedInAccountOf } from '@libs/harness/identity';
+import type { Actor } from '@libs/harness/parameter-types';
+import {
+  appleDeletesAccount,
+  appleRevokesApp,
+} from '@libs/harness/provider-events-actions';
+import {
+  connectSignInMethod,
+  signedOutShown,
+  signOutEverywhere,
+} from '@libs/harness/sign-in-method-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember, signedInAccountKey } from '@libs/harness/spec-world';
 

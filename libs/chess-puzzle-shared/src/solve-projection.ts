@@ -6,8 +6,8 @@
 import type { BoardArrow, Square } from '@pkgs/chess-board-core-shared/types';
 
 import { tokenize } from './chess-puzzle-fsm';
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import type { HintStage } from './hint-stage';
 import type { SolveStatus } from './solve-status';
 

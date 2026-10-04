@@ -9,7 +9,7 @@ test('Node can load the reporting plugin while evaluating a build config', () =>
       '--experimental-strip-types',
       '--input-type=module',
       '-e',
-      `import { feedbackDevPlugin } from '@pkgs/feedback/vite';
+      `import { feedbackDevPlugin } from '@pkgs/feedback-server/vite';
      const plugin = feedbackDevPlugin({ repoRoot: '.' });
      if (plugin.apply !== 'serve') throw new Error('Expected a dev-only plugin');`,
     ],
@@ -27,7 +27,7 @@ test('Vite can load the reporting backend when configuring a dev server', () => 
       '--input-type=module',
       '-e',
       `import { createServer } from 'vite';
-       import { feedbackDevPlugin } from '@pkgs/feedback/vite';
+       import { feedbackDevPlugin } from '@pkgs/feedback-server/vite';
        const server = await createServer({
          configFile: false,
          plugins: [feedbackDevPlugin({ repoRoot: process.cwd() })],

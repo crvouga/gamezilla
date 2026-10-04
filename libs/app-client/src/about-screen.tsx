@@ -1,9 +1,19 @@
+import { formatCommitDate } from './format-commit-date';
 /** @jsxImportSource solid-js */
 /**
  * `/more/about` — app name / version / build provenance. Commit hash + date
  * come from `import.meta.env.VITE_COMMIT_*` inlined at build time.
  */
 
+import {
+  APP_NAME,
+  APP_VERSION,
+  getCommitDate,
+  getCommitHash,
+  getShortCommitHash,
+  hasCommitProvenance,
+} from '@libs/app-shared/app-metadata';
+import { writeClipboardText } from '@libs/app-shared/write-clipboard-text';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -12,17 +22,6 @@ import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { MenuSection } from '@pkgs/ui-client/menu-section';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
-
-import {
-  APP_NAME,
-  APP_VERSION,
-  formatCommitDate,
-  getCommitDate,
-  getCommitHash,
-  getShortCommitHash,
-  hasCommitProvenance,
-} from '@libs/app-shared/app-metadata';
-import { writeClipboardText } from '@libs/app-shared/write-clipboard-text';
 
 type CommitProvenance = {
   readonly fullHash: string;

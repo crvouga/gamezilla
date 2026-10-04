@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { OwnerRequest } from '@pkgs/matchmaking-shared/identity';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { parseJsonValue } from './matchmaker-internals';
 
 export type OwnerRow = {

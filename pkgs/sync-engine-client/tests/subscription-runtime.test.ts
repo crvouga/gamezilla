@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import type { MergeApplierDeps } from '@pkgs/sync-engine-client/merge';
 import { SubscriptionRuntime } from '@pkgs/sync-engine-client/subscription-runtime';
+import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 
 /** No scope has a stored hash, so every answer is taken as it comes. */
 const emptyDb = {

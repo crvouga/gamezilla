@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { DEFAULT_TTS_VOICE } from '@pkgs/tts-shared/tts-voice';
-import type { TtsProvider } from '@pkgs/tts-shared/tts-provider';
 import { InMemoryTtsProvider } from '@pkgs/tts-server/in-memory-tts-provider';
+import type { TtsProvider } from '@pkgs/tts-shared/tts-provider';
+import { DEFAULT_TTS_VOICE } from '@pkgs/tts-shared/tts-voice';
 
 function runTtsContract(factory: () => TtsProvider): void {
   test('synthesize returns bytes and contentType', async () => {

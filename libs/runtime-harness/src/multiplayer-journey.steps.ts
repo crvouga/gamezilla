@@ -1,7 +1,18 @@
 import type { Actor } from '@libs/harness/parameter-types';
-import type { JourneyHost, JourneyWorld } from './journey-types';
-import { expectMultiplayerInvitation, expectMultiplayerLoss, expectMultiplayerWin, expectNoMultiplayerGame, expectSharedMultiplayerGame, openMultiplayerJourney, prepareMultiplayerPair, prepareUnfinishedMultiplayerGame, resignMultiplayerJourney, startMultiplayerSearch } from './multiplayer-journey';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
+import type { JourneyHost, JourneyWorld } from './journey-types';
+import {
+  expectMultiplayerInvitation,
+  expectMultiplayerLoss,
+  expectMultiplayerWin,
+  expectNoMultiplayerGame,
+  expectSharedMultiplayerGame,
+  openMultiplayerJourney,
+  prepareMultiplayerPair,
+  prepareUnfinishedMultiplayerGame,
+  resignMultiplayerJourney,
+  startMultiplayerSearch,
+} from './multiplayer-journey';
 
 const { Given, When, Then } = stepsFor<JourneyWorld>();
 

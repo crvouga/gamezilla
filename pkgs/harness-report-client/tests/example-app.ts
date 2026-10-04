@@ -9,8 +9,8 @@
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
 import { defineSnapshot } from '@pkgs/harness-shared/define-snapshot';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
 import type { System } from '@pkgs/harness-shared/define-system';
+import { defineSystem } from '@pkgs/harness-shared/define-system';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 
 export type ExampleApp = { n: number; values: Record<string, string> };

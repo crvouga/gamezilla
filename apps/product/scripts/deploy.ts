@@ -12,14 +12,20 @@ import {
   assertRoomNamespacePreserved,
   roomMigrations,
 } from '@libs/infra-shared/worker-lifecycle';
-import { activeEnvFile, deployWorker } from '../../../libs/infra-server/scripts/worker-deploy';
-import { workerState } from '../../../libs/infra-shared/scripts/worker-state';
 import { ok } from '@libs/secrets-server/fmt';
-import { withNodeMaxOldSpaceSize } from '@libs/secrets-shared/node-options';
 import { REPO_ROOT } from '@libs/secrets-server/paths';
 import { runAsync, runCapture } from '@libs/secrets-server/subprocess';
+import { withNodeMaxOldSpaceSize } from '@libs/secrets-shared/node-options';
 import { assert } from '@pkgs/assert-shared/singleton';
-import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git-shared/git';
+import {
+  assertCommitDateIso,
+  COMMIT_HASH_HEX_REGEX,
+} from '@pkgs/git-shared/git';
+import {
+  activeEnvFile,
+  deployWorker,
+} from '../../../libs/infra-server/scripts/worker-deploy';
+import { workerState } from '../../../libs/infra-shared/scripts/worker-state';
 import { hyperdriveId, workerSecrets } from './worker-secrets';
 
 const productDir = join(import.meta.dirname, '..');

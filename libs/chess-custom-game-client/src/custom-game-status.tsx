@@ -1,10 +1,16 @@
+import type {
+  CustomGame,
+  CustomGameSide,
+} from '@libs/chess-custom-game-shared/custom-game-state';
+import {
+  customGameStartable,
+  customGameTimeLeft,
+} from '@libs/chess-custom-game-shared/custom-game-state';
 import { useProfileColumn } from '@libs/profile-client/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import { createMemo, type JSX, Show } from 'solid-js';
-import type { CustomGame, CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
-import { customGameStartable, customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 function participantName(

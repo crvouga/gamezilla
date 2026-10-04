@@ -26,10 +26,10 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { spacingScale } from '@pkgs/ui-shared/scale';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { ChevronRightIcon } from './icons';
 
 export type MenuRowSubmit = {

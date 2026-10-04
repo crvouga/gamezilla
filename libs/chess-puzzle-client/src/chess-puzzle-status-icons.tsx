@@ -1,10 +1,14 @@
+import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
 import { Trans } from '@lingui/solid/macro';
-import { ClockIcon, PlayIcon, SearchIcon, WifiOffIcon } from '@pkgs/ui-client/icons';
+import {
+  ClockIcon,
+  PlayIcon,
+  SearchIcon,
+  WifiOffIcon,
+} from '@pkgs/ui-client/icons';
 import { Spinner } from '@pkgs/ui-client/spinner';
 import { useTheme } from '@pkgs/ui-client/theme-context';
 import type { JSX } from 'solid-js';
-
-import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 
 const SIZE = 22;

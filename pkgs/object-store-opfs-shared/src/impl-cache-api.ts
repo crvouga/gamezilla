@@ -7,7 +7,10 @@
 
 import { readBytes } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
 import { assertBaseDir, sortKeys, splitKey } from './key-parts';
 import { bytesStream, toArrayBuffer } from './opfs-helpers';
 

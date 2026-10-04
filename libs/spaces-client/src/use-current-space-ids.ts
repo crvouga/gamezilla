@@ -3,11 +3,16 @@ import { useDeviceId } from '@libs/auth-client/use-device-id';
 import type { Sql } from '@pkgs/sql-shared/sql';
 import sql from '@pkgs/sql-shared/sql';
 
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
+import type {
+  CurrentSpaceEntry,
+  CurrentSpaceRow,
+} from './build-current-space-entries';
 import { buildCurrentSpaceEntries } from './build-current-space-entries';
-import type { CurrentSpaceEntry, CurrentSpaceRow } from './build-current-space-entries';
 
 type SpaceRow = CurrentSpaceRow;
 

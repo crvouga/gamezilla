@@ -6,8 +6,8 @@
 import type { BoardRulesPort } from './board-rules';
 import type { TryMoveOk } from './game';
 import { indexFromSquare } from './geometry';
-import { createPremoveController } from './premove-controller';
 import type { PremoveController } from './premove-controller';
+import { createPremoveController } from './premove-controller';
 import type { Move, PieceColor, Square } from './types';
 
 export type PendingPromotion = {

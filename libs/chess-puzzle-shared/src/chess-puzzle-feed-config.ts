@@ -6,7 +6,10 @@
  */
 
 import type { ChessMoveNotation } from './chess-puzzle-notation';
-import { DEFAULT_CHESS_MOVE_NOTATION, isChessMoveNotation } from './chess-puzzle-notation';
+import {
+  DEFAULT_CHESS_MOVE_NOTATION,
+  isChessMoveNotation,
+} from './chess-puzzle-notation';
 import { PUZZLE_RATING_DEFAULT } from './chess-puzzle-rating';
 import type { ChessPuzzleTheme } from './chess-puzzle-themes';
 import { isChessPuzzleTheme } from './chess-puzzle-themes';

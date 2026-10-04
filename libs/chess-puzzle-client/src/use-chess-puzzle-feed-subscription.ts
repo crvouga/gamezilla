@@ -1,3 +1,8 @@
+import type {
+  ChessPuzzleFeedConfig,
+  ChessPuzzlePoolRange,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { chessPuzzlePoolRangesForRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   type Accessor,
@@ -6,9 +11,6 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
-
-import type { ChessPuzzleFeedConfig, ChessPuzzlePoolRange } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { chessPuzzlePoolRangesForRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
 
 const POOL_QUERY_NAME = 'chessPuzzlePool';

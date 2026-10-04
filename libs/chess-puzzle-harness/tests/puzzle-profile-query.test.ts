@@ -5,16 +5,20 @@
  */
 import { expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { applyPuzzleAttemptRating, DEFAULT_PUZZLE_RATING_STATE, PUZZLE_SCORE_PERMILLE } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import { CHESS_QUERIES } from '@libs/chess-feature-shared/queries';
 import { chessPuzzleProfile } from '@libs/chess-puzzle-shared/chess-puzzle-profile-query';
+import {
+  applyPuzzleAttemptRating,
+  DEFAULT_PUZZLE_RATING_STATE,
+  PUZZLE_SCORE_PERMILLE,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { Sql } from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import type { Sql } from '@pkgs/sql-shared/sql';
 import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 const OWNER = 'user_1';

@@ -1,13 +1,13 @@
 import { RecoverAccountData } from '@libs/account-privacy-server/recover-account-data';
+import { APP } from '@libs/runtime-shared/app-features';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import sql, { ident, join } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { Value } from '@pkgs/sql-shared/sql';
+import sql, { ident, join } from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { APP } from '@libs/runtime-shared/app-features';
 
 type RecoveryCopy = Readonly<Record<string, readonly Record<string, Value>[]>>;
 // Privacy journals and disclosed exceptions are authoritative live records.

@@ -1,10 +1,16 @@
 import { useClock } from '@pkgs/clock-client/solid';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { ChevronDownIcon, CopyIcon, PlayIcon, PlusIcon, Trash2Icon } from '@pkgs/ui-client/icons';
+import { IconButton } from '@pkgs/ui-client/icon-button';
+import {
+  ChevronDownIcon,
+  CopyIcon,
+  PlayIcon,
+  PlusIcon,
+  Trash2Icon,
+} from '@pkgs/ui-client/icons';
+import { Switch } from '@pkgs/ui-client/switch';
 import type { CodeSelection } from '@pkgs/ui-shared/code-editor-types';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
-import { IconButton } from '@pkgs/ui-client/icon-button';
-import { Switch } from '@pkgs/ui-client/switch';
 import {
   type Accessor,
   createEffect,
@@ -16,8 +22,8 @@ import {
 } from 'solid-js';
 
 import type { SqlNotebookCell } from './notebook-doc';
-import { runSqlCell } from './run-sql-cell';
 import type { SqlCellRun } from './run-sql-cell';
+import { runSqlCell } from './run-sql-cell';
 import { SqlCellEditor } from './sql-cell-editor';
 import { SqlCellResults } from './sql-cell-results';
 import type { CellInsertApi } from './sql-cell-types';

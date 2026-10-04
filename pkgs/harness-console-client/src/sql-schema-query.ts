@@ -1,5 +1,5 @@
-import sql, { ident } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql, { ident } from '@pkgs/sql-shared/sql';
 
 import { isPostgresSqlClient } from './sql-dialect';
 

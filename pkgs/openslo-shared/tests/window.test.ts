@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import type { TimeWindow } from '@pkgs/openslo-shared/model';
-import { parseDuration, parseStartTime, timeWindowBounds } from '@pkgs/openslo-shared/window';
+import {
+  parseDuration,
+  parseStartTime,
+  timeWindowBounds,
+} from '@pkgs/openslo-shared/window';
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;

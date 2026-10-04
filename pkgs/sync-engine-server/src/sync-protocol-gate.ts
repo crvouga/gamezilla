@@ -1,5 +1,8 @@
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared/v2';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 
 /**
  * Reject pre-cut clients. `upgrade_required` must NOT wipe local DB

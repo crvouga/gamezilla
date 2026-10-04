@@ -1,14 +1,14 @@
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
-import { decidePrivacyAccess } from './privacy-permission';
-import { decideForActor } from './decide-for-actor';
-import { MUTATION_ACTIONS } from './mutation-actions';
-import { PERMISSION } from './permission-catalog';
 import {
   applyConsume,
   consumeQuotaArgs,
   consumeQuotaMutation,
 } from './consume-quota-mutation';
+import { decideForActor } from './decide-for-actor';
+import { MUTATION_ACTIONS } from './mutation-actions';
+import { PERMISSION } from './permission-catalog';
+import { decidePrivacyAccess } from './privacy-permission';
 
 /**
  * Server-authoritative consume: the window uses the host clock, so a device

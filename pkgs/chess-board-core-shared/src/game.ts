@@ -8,8 +8,8 @@
 import { castlingFromRookInput } from '@pkgs/chess-rules-shared/moves';
 import { Chess, type Move as ChessJsMove, validateFen } from 'chess.js';
 import { moveFromChessJs } from './chess-js-move';
-import { allDestinationsFrom, destinationsFrom } from './destinations';
 import type { Destination } from './destinations';
+import { allDestinationsFrom, destinationsFrom } from './destinations';
 import { inferLastMoveFromPositionDiff } from './infer-move';
 import { positionFromChess } from './position';
 import type { Move, PieceColor, Position, Square } from './types';

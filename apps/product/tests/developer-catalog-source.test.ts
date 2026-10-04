@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { catalogSource } from '@apps/product/developer-catalog-source';
 import { reportMeta } from '@apps/product/developer-report';
-import { testFrameKey } from '@pkgs/harness-shared/keys';
 import { publishSource } from '@pkgs/harness-report-shared/publish';
+import { testFrameKey } from '@pkgs/harness-shared/keys';
 import { readUtf8 } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 

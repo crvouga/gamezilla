@@ -3,8 +3,8 @@ import { afterEach, expect, spyOn, test } from 'bun:test';
 import { AppThemeProvider } from '@libs/app-client/app-theme-provider';
 import { RootErrorBoundary } from '@libs/app-client/root-error-boundary';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { createRecordingClipboard } from '@pkgs/device-shared/clipboard';
 import { createMotionPreference } from '@pkgs/device-shared/motion-preference';
 import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
@@ -22,7 +22,9 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
   const harness = createHarnessClock();
   const clipboard = createRecordingClipboard();
   const [broken, setBroken] = createSignal(true);
-  let setTheme: (scheme: 'light' | 'dark') => void = () => {};
+  let setTheme: (scheme: 'light' | 'dark') => void = () => {
+    /* Bound when Contents mounts. */
+  };
   function Contents(): JSX.Element {
     setTheme = useThemePreference().setPreference;
     return (
@@ -117,9 +119,9 @@ test('a denied clipboard write keeps recovery usable and shows a retryable error
 });
 
 test('reload invokes the host reload action', () => {
-  const reload = spyOn(globalThis.location, 'reload').mockImplementation(
-    () => {}
-  );
+  const reload = spyOn(globalThis.location, 'reload').mockImplementation(() => {
+    /* Record reload without navigating the test host. */
+  });
   try {
     mountCrash();
     fireEvent.click(screen.getByRole('button', { name: 'Reload app' }));

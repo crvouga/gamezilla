@@ -1,11 +1,20 @@
 import { expect } from 'bun:test';
 import { openPrivacy } from '@libs/account-privacy-harness/privacy-actions';
 import { privacyText } from '@libs/account-privacy-harness/privacy-reads';
-import { agePaymentRetention, cancellationPending, membershipCannotRenew, minimumPayments, newestPaymentRefund, paymentAfterDeletion, paymentHasLegalHold, resumeCancellation } from '@libs/billing-harness/account-privacy';
+import {
+  agePaymentRetention,
+  cancellationPending,
+  membershipCannotRenew,
+  minimumPayments,
+  newestPaymentRefund,
+  paymentAfterDeletion,
+  paymentHasLegalHold,
+  resumeCancellation,
+} from '@libs/billing-harness/account-privacy';
 import { openBilling } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
 
 Then(
@@ -166,6 +175,6 @@ Then(
   }
 );
 
-import { runPrivacyJobs } from '@libs/account-privacy-harness/privacy-actions';
 import type { PrivacySetupWorld } from '@libs/account-privacy-harness/privacy.steps';
+import { runPrivacyJobs } from '@libs/account-privacy-harness/privacy-actions';
 import { signedInAccountOf } from '@libs/harness/identity';

@@ -1,10 +1,14 @@
 /** @jsxImportSource solid-js */
-import { Trans } from '@lingui/solid/macro';
-import { BellIcon, ListChecksIcon, SquareStackIcon } from '@pkgs/ui-client/icons';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { type JSX, Match, Switch } from 'solid-js';
 
 import type { NotificationFilter } from '@libs/notifications-shared/notification';
+import { Trans } from '@lingui/solid/macro';
+import { EmptyState } from '@pkgs/ui-client/empty-state';
+import {
+  BellIcon,
+  ListChecksIcon,
+  SquareStackIcon,
+} from '@pkgs/ui-client/icons';
+import { type JSX, Match, Switch } from 'solid-js';
 
 export function NotificationsEmptyState(props: {
   readonly filter: NotificationFilter;

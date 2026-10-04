@@ -1,6 +1,10 @@
 /** A small, valid conformance manifest as a plain object (JSON is YAML). */
 
-import { CONFORMANCE_KINDS, FAIL_STATES, REQUIREMENTS } from '@pkgs/conformance-shared/manifest';
+import {
+  CONFORMANCE_KINDS,
+  FAIL_STATES,
+  REQUIREMENTS,
+} from '@pkgs/conformance-shared/manifest';
 
 export type ManifestObject = Record<string, unknown>;
 

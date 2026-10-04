@@ -54,6 +54,8 @@
         "@pkgs/feedback-client": "workspace:*",
         "@pkgs/observability-client": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
+        "@pkgs/tailwind-shared": "workspace:*",
+        "@pkgs/ui-client": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {
@@ -63,6 +65,7 @@
         "@pkgs/assert-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/feedback-server": "workspace:*",
         "@pkgs/git-shared": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
@@ -124,6 +127,7 @@
         "@pkgs/s3-server": "workspace:*",
         "@pkgs/sync-engine-client": "workspace:*",
         "@pkgs/sync-engine-server": "workspace:*",
+        "@pkgs/tailwind-shared": "workspace:*",
         "@pkgs/ui-client": "workspace:*",
         "@pkgs/ui-testing-bun-webview-shared": "workspace:*",
         "@pkgs/uuid-client": "workspace:*",
@@ -155,6 +159,7 @@
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/db-schema-postgres-shared": "workspace:*",
         "@pkgs/db-schema-shared": "workspace:*",
+        "@pkgs/feedback-server": "workspace:*",
         "@pkgs/gherkin-shared": "workspace:*",
         "@pkgs/git-shared": "workspace:*",
         "@pkgs/object-store-s3-server": "workspace:*",
@@ -242,6 +247,7 @@
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "libs/account-privacy-client": {
@@ -355,6 +361,7 @@
         "@pkgs/device-shared": "workspace:*",
         "@pkgs/feedback-client": "workspace:*",
         "@pkgs/feedback-shared": "workspace:*",
+        "@pkgs/git-shared": "workspace:*",
         "@pkgs/harness-console-client": "workspace:*",
         "@pkgs/http-client-client": "workspace:*",
         "@pkgs/http-client-shared": "workspace:*",
@@ -1107,8 +1114,10 @@
         "@libs/chess-feature-shared": "workspace:*",
         "@libs/permissions-shared": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
         "@pkgs/db-schema-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-shared": "workspace:*",
         "@pkgs/sync-engine-shared": "workspace:*",
         "@types/bun": "catalog:",
@@ -1248,16 +1257,6 @@
         "@pkgs/ui-shared": "workspace:*",
         "solid-js": "catalog:",
       },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/chess-shared-server": {
-      "name": "@libs/chess-shared-server",
-      "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
@@ -1547,6 +1546,7 @@
         "@pkgs/matchmaking-sql-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-shared": "workspace:*",
+        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-server": "workspace:*",
         "@pkgs/observability-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
@@ -1580,12 +1580,16 @@
         "stripe": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/alloy-server": "workspace:*",
         "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/db-schema-shared": "workspace:*",
         "@pkgs/db-schema-sqlite-shared": "workspace:*",
+        "@pkgs/dmn-server": "workspace:*",
         "@pkgs/dmn-shared": "workspace:*",
+        "@pkgs/gherkin-server": "workspace:*",
         "@pkgs/harness-report-shared": "workspace:*",
         "@pkgs/object-store-s3-server": "workspace:*",
+        "@pkgs/openslo-server": "workspace:*",
         "@pkgs/openslo-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -1627,6 +1631,7 @@
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
         "typescript": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "libs/notifications-client": {
@@ -1719,7 +1724,6 @@
         "@pkgs/observability-shared": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2383,6 +2387,7 @@
         "@pkgs/quint-server": "workspace:*",
         "@pkgs/quint-shared": "workspace:*",
         "fast-check": "catalog:",
+        "typescript": "catalog:",
         "wrangler": "catalog:",
       },
     },
@@ -2420,7 +2425,6 @@
       "version": "0.0.0",
       "devDependencies": {
         "@pkgs/a11y-shared": "workspace:*",
-        "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -2526,7 +2530,6 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2536,7 +2539,6 @@
       "name": "@pkgs/assistant-shared",
       "version": "0.0.0",
       "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -3472,6 +3474,7 @@
         "@pkgs/i18n-shared": "workspace:*",
         "@pkgs/object-store-opfs-shared": "workspace:*",
         "@pkgs/object-store-shared": "workspace:*",
+        "@pkgs/tailwind-shared": "workspace:*",
         "@pkgs/ui-client": "workspace:*",
         "@pkgs/ui-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
@@ -3522,10 +3525,10 @@
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/feedback-shared": "workspace:*",
         "@pkgs/http-client-shared": "workspace:*",
+        "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-shared": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/os-server": "workspace:*",
         "@pkgs/property-shared": "workspace:*",
         "@types/bun": "catalog:",
@@ -4234,6 +4237,7 @@
       },
       "devDependencies": {
         "@pkgs/object-store-shared": "workspace:*",
+        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-server": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -4263,6 +4267,7 @@
         "@opentelemetry/instrumentation": "catalog:",
         "@opentelemetry/instrumentation-fetch": "catalog:",
         "@opentelemetry/sdk-trace-web": "catalog:",
+        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-shared": "workspace:*",
       },
       "devDependencies": {
@@ -4315,6 +4320,23 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/observability-runtime-shared": {
+      "name": "@pkgs/observability-runtime-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@opentelemetry/api": "catalog:",
+        "@opentelemetry/exporter-trace-otlp-http": "catalog:",
+        "@opentelemetry/resources": "catalog:",
+        "@opentelemetry/sdk-trace-base": "catalog:",
+        "@pkgs/object-store-shared": "workspace:*",
+        "@pkgs/observability-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/observability-server": {
       "name": "@pkgs/observability-server",
       "version": "0.0.0",
@@ -4323,6 +4345,7 @@
         "@opentelemetry/context-async-hooks": "catalog:",
         "@opentelemetry/sdk-trace-base": "catalog:",
         "@opentelemetry/sdk-trace-node": "catalog:",
+        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-shared": "workspace:*",
       },
       "devDependencies": {
@@ -4338,9 +4361,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@opentelemetry/api": "catalog:",
-        "@opentelemetry/exporter-trace-otlp-http": "catalog:",
-        "@opentelemetry/resources": "catalog:",
-        "@opentelemetry/sdk-trace-base": "catalog:",
         "@opentelemetry/semantic-conventions": "catalog:",
         "@pkgs/object-store-shared": "workspace:*",
       },
@@ -5676,16 +5696,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/ui-server": {
-      "name": "@pkgs/ui-server",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@pkgs/ui-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/ui-shared": {
       "name": "@pkgs/ui-shared",
       "version": "0.0.0",
@@ -5709,7 +5719,6 @@
       "version": "0.0.0",
       "devDependencies": {
         "@happy-dom/global-registrator": "catalog:",
-        "@pkgs/bun-test-solid-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/ui-testing-bun-webview-shared": "workspace:*",
         "@types/bun": "catalog:",
@@ -6649,8 +6658,6 @@
 
     "@libs/chess-shared-client": ["@libs/chess-shared-client@workspace:libs/chess-shared-client"],
 
-    "@libs/chess-shared-server": ["@libs/chess-shared-server@workspace:libs/chess-shared-server"],
-
     "@libs/db-server": ["@libs/db-server@workspace:libs/db-server"],
 
     "@libs/db-shared": ["@libs/db-shared@workspace:libs/db-shared"],
@@ -7205,6 +7212,8 @@
 
     "@pkgs/observability-mcp-shared": ["@pkgs/observability-mcp-shared@workspace:pkgs/observability-mcp-shared"],
 
+    "@pkgs/observability-runtime-shared": ["@pkgs/observability-runtime-shared@workspace:pkgs/observability-runtime-shared"],
+
     "@pkgs/observability-server": ["@pkgs/observability-server@workspace:pkgs/observability-server"],
 
     "@pkgs/observability-shared": ["@pkgs/observability-shared@workspace:pkgs/observability-shared"],
@@ -7374,8 +7383,6 @@
     "@pkgs/ui-quality-check-server": ["@pkgs/ui-quality-check-server@workspace:pkgs/ui-quality-check-server"],
 
     "@pkgs/ui-quality-check-shared": ["@pkgs/ui-quality-check-shared@workspace:pkgs/ui-quality-check-shared"],
-
-    "@pkgs/ui-server": ["@pkgs/ui-server@workspace:pkgs/ui-server"],
 
     "@pkgs/ui-shared": ["@pkgs/ui-shared@workspace:pkgs/ui-shared"],
 

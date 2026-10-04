@@ -1,8 +1,13 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
+import {
+  createOriginAvailabilitySnapshot,
+  HttpClientProvider,
+  OriginAvailabilityProvider,
+  useHttpClient,
+} from '@pkgs/http-client-client/solid';
 import { createAlwaysAvailableOrigin } from '@pkgs/http-client-shared/origin-availability';
-import { createOriginAvailabilitySnapshot, HttpClientProvider, OriginAvailabilityProvider, useHttpClient } from '@pkgs/http-client-client/solid';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { render, screen } from '@solidjs/testing-library';
 

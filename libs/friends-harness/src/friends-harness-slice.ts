@@ -1,7 +1,7 @@
-import type { HarnessSlice } from '@libs/harness/slices';
 import { FRIENDS_CLIENT } from '@libs/friends-client/feature-client';
-import { FRIENDS_FEATURE } from '@libs/friends-shared/feature';
 import { FRIENDS_SERVER } from '@libs/friends-server/feature-server';
+import { FRIENDS_FEATURE } from '@libs/friends-shared/feature';
+import type { HarnessSlice } from '@libs/harness/slices';
 import {
   openDeletedProfile,
   prepareOldDevice,

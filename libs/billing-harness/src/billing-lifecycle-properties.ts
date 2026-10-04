@@ -11,21 +11,20 @@
  *   of that device's own rows at the harness clock.
  */
 
-import type { ProductHarness } from '@libs/harness/harness';
-import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
-import { actorIds, partitioned } from '@libs/harness/observations';
-import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
-import type { CheckpointAction } from '@pkgs/harness-shared/effect';
-import { defineProperty } from '@pkgs/harness-shared/define-property';
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import { readLastSyncedAtMs } from '@pkgs/sync-engine-client/last-synced';
-
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import {
   governingRow,
   rowGrantsMembership,
 } from '@libs/billing-shared/governing-row';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
+import type { ProductHarness } from '@libs/harness/harness';
+import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
+import { actorIds, partitioned } from '@libs/harness/observations';
+import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
+import { defineProperty } from '@pkgs/harness-shared/define-property';
+import type { CheckpointAction } from '@pkgs/harness-shared/effect';
+import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import { readLastSyncedAtMs } from '@pkgs/sync-engine-client/last-synced';
 import {
   BILLING_PAYER,
   BILLING_SECOND_DEVICE,

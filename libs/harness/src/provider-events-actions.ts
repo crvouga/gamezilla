@@ -6,13 +6,12 @@
  */
 
 import { HARNESS_APPLE_CLIENT_ID } from '@libs/feature-shared/harness-constants';
-
-import type { HarnessIdpAccount, HarnessIdpProvider } from './idp';
-import { harnessIdpAccountId } from './idp';
 import { scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';
 import { actorAppleEmail } from './identity';
+import type { HarnessIdpAccount, HarnessIdpProvider } from './idp';
+import { harnessIdpAccountId } from './idp';
 
 async function appleAdmin(
   s: ProductHarness,

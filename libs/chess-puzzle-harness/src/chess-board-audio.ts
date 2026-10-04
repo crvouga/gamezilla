@@ -1,6 +1,6 @@
 import type { ProductHarness } from '@libs/harness/harness';
-import type { InMemoryAudioPlaybackPort } from '@pkgs/sounds-shared/in-memory-audio-playback-port';
 import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
+import type { InMemoryAudioPlaybackPort } from '@pkgs/sounds-shared/in-memory-audio-playback-port';
 
 /** Observe the actor's actual injected playback calls, never player status. */
 export async function readPuzzleBoardSounds(

@@ -12,7 +12,10 @@
  */
 
 import { squareToXY } from '@pkgs/chess-board-core-shared/geometry';
-import type { BoardOrientation, Square } from '@pkgs/chess-board-core-shared/types';
+import type {
+  BoardOrientation,
+  Square,
+} from '@pkgs/chess-board-core-shared/types';
 
 export const BOARD_UNITS = 800;
 export const CELL_UNITS = BOARD_UNITS / 8;

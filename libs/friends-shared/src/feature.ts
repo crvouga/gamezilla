@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { FRIENDS_TABLES } from './tables';
-import { FRIENDS_TOPIC_MAP } from './topic-map';
 import { FRIENDS_PRIVACY } from './account-privacy';
 import { FRIENDS_QUERIES } from './queries';
+import { FRIENDS_TABLES } from './tables';
+import { FRIENDS_TOPIC_MAP } from './topic-map';
 
 export const FRIENDS_FEATURE = defineFeature({
   name: 'friends',

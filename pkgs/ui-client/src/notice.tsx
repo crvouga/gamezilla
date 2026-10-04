@@ -14,12 +14,12 @@
  * ```
  */
 
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { CircleAlertIcon, InfoIcon } from './icons';
+import type { JSX } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { IconComponent } from './create-icon';
+import { CircleAlertIcon, InfoIcon } from './icons';
 
 export type NoticeTone = 'info' | 'error';
 

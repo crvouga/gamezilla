@@ -1,5 +1,8 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { FeedbackReport, IssueReporter } from '@pkgs/feedback-shared/types';
+import type {
+  FeedbackReport,
+  IssueReporter,
+} from '@pkgs/feedback-shared/types';
 
 import { readBoundedBody } from './bounded-body';
 import { normalizeReport } from './normalize-report';

@@ -4,13 +4,13 @@
  * imports the module that (lazily) imports the runtime.
  */
 
-import type { CatalogSnapshot } from './define-snapshot';
-import type { Ports, Runtime, Session } from './runtime-types';
 import type { Awaitable } from './awaitable';
-import { isRuntimeDef } from './define-runtime';
 import type { RuntimeDef } from './define-runtime';
+import { isRuntimeDef } from './define-runtime';
+import type { CatalogSnapshot } from './define-snapshot';
 import type { CatalogAction, CatalogProperty, SYSTEM_TAG } from './effect';
 import type { Gen } from './gen';
+import type { Ports, Runtime, Session } from './runtime-types';
 
 export type SystemCreate<S, Args = void> = (
   session: Session,

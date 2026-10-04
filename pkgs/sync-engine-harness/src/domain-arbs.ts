@@ -1,5 +1,4 @@
 import fc from 'fast-check';
-import type { DomainOp, ServerOp } from './scenario-app';
 import {
   exampleCatalogInsertSilentOp,
   exampleCreateSpaceOp,
@@ -13,6 +12,7 @@ import {
   NOTE_IDS,
   SPACE_IDS,
 } from './domain-model';
+import type { DomainOp, ServerOp } from './scenario-app';
 
 const noteArb = fc.constantFrom(...NOTE_IDS);
 const folderArb = fc.constantFrom(...FOLDER_IDS);

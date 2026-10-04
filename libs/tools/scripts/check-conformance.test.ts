@@ -103,7 +103,7 @@ describe('verdictsFromPlan', () => {
       '//#ci:audit',
       'tc',
       'lint',
-      '@libs/infra#lint',
+      '@libs/infra-server#lint',
     ]);
     expect(verdicts.get('//#ci:audit')?.status).toBe('pass');
     expect(verdicts.get('lint')).toEqual({
@@ -115,7 +115,7 @@ describe('verdictsFromPlan', () => {
       detail:
         'not run for these inputs — 1 of 2 not passed in the build cache (@libs/ui#tc)',
     });
-    expect(verdicts.get('@libs/infra#lint')).toEqual({
+    expect(verdicts.get('@libs/infra-server#lint')).toEqual({
       status: 'fail',
       detail: 'not run — bun check does not plan it',
     });

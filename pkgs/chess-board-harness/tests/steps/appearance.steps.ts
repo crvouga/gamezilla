@@ -1,8 +1,16 @@
 import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { ArrowAppearance, FeedbackAppearance } from '@pkgs/chess-board-harness/annotation-appearance';
+import type {
+  ArrowAppearance,
+  FeedbackAppearance,
+} from '@pkgs/chess-board-harness/annotation-appearance';
+import {
+  chooseActivityArrow,
+  readArrowAt,
+  readPersonalArrowReport,
+  supplyFeedbackMarks,
+} from '@pkgs/chess-board-harness/annotation-appearance';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { chooseActivityArrow, readArrowAt, readPersonalArrowReport, supplyFeedbackMarks } from '@pkgs/chess-board-harness/annotation-appearance';
 import { readFeedbackAt } from '@pkgs/chess-board-harness/feedback-dom';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';

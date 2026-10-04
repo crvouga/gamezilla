@@ -1,14 +1,34 @@
 import { describe, expect, test } from 'bun:test';
-import { buildPaletteRows, DEFAULT_CATEGORY, groupPaletteRows, RECENT_SECTION_TITLE, selectableRows } from '@pkgs/ui-client/command-palette-filter';
-import { clampPaletteSelection, nextPaletteSelection } from '@pkgs/ui-shared/command-palette-keyboard';
-import { commandSearchText, isCommandEnabled, isCommandVisible, normalizeShortcut } from '@pkgs/ui-client/types';
-import { findCommandForShortcut, matchOpenShortcut } from '@pkgs/ui-client/command-registry-shortcuts';
-import { formatShortcutToken, shortcutTokens } from '@pkgs/ui-client/command-palette-kbd';
-import { fuzzyMatch, mergeRanges } from '@pkgs/ui-shared/fuzzy-match';
+import {
+  buildPaletteRows,
+  DEFAULT_CATEGORY,
+  groupPaletteRows,
+  RECENT_SECTION_TITLE,
+  selectableRows,
+} from '@pkgs/ui-client/command-palette-filter';
+import {
+  formatShortcutToken,
+  shortcutTokens,
+} from '@pkgs/ui-client/command-palette-kbd';
+import {
+  findCommandForShortcut,
+  matchOpenShortcut,
+} from '@pkgs/ui-client/command-registry-shortcuts';
 import { highlightSegments } from '@pkgs/ui-client/highlighted-text';
 import type { RegisteredCommand } from '@pkgs/ui-client/types';
-import { isMacPlatform } from '@pkgs/ui-shared/match';
+import {
+  commandSearchText,
+  isCommandEnabled,
+  isCommandVisible,
+  normalizeShortcut,
+} from '@pkgs/ui-client/types';
+import {
+  clampPaletteSelection,
+  nextPaletteSelection,
+} from '@pkgs/ui-shared/command-palette-keyboard';
+import { fuzzyMatch, mergeRanges } from '@pkgs/ui-shared/fuzzy-match';
 import type { WebKeyboardEventLike } from '@pkgs/ui-shared/match';
+import { isMacPlatform } from '@pkgs/ui-shared/match';
 
 function cmd(
   id: string,

@@ -2,10 +2,22 @@
 
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import type { LogEntry, RoomActor, RoomState } from '@pkgs/room-shared/types';
 import type { AnyRoomClient } from '@pkgs/room-client/room-clients-context';
-import { createRoomDispatch, createRoomLog, createRoomRoster, createRoomSelector, createRoomSnapshot, EMPTY_ROOM_STATE } from '@pkgs/room-client/room-signals';
-import { RoomClientsProvider, useNamedRoomRoster, useRoomDispatch, useRoomSelector } from '@pkgs/room-client/room-clients-context';
+import {
+  RoomClientsProvider,
+  useNamedRoomRoster,
+  useRoomDispatch,
+  useRoomSelector,
+} from '@pkgs/room-client/room-clients-context';
+import {
+  createRoomDispatch,
+  createRoomLog,
+  createRoomRoster,
+  createRoomSelector,
+  createRoomSnapshot,
+  EMPTY_ROOM_STATE,
+} from '@pkgs/room-client/room-signals';
+import type { LogEntry, RoomActor, RoomState } from '@pkgs/room-shared/types';
 import { render, screen } from '@solidjs/testing-library';
 import { createRoot, createSignal } from 'solid-js';
 

@@ -1,9 +1,9 @@
-import type { JSX } from 'solid-js';
-import { FriendActionPills } from './friend-action-pills';
 import type {
   FriendProfile,
   FriendshipStatus,
 } from '@libs/friends-shared/friends-types';
+import type { JSX } from 'solid-js';
+import { FriendActionPills } from './friend-action-pills';
 import { FriendProfileHeader } from './friend-profile-header';
 import { FriendUserDangerModals } from './friend-user-danger-modals';
 

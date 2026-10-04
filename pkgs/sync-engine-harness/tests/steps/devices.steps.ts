@@ -4,9 +4,19 @@
  */
 
 import { expect } from 'bun:test';
-import { clearLocalData, connect, disconnect, online } from '@pkgs/sync-engine-harness/regression-actions';
-import { crash, httpFault, net, restart } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import { liveNotes } from '@pkgs/sync-engine-harness/reads';
+import {
+  clearLocalData,
+  connect,
+  disconnect,
+  online,
+} from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  crash,
+  httpFault,
+  net,
+  restart,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import { settledWrite, writeNote } from './note-writes';
 import type { Device } from './world';
 import { ensureDevice, Given, Then, When } from './world';

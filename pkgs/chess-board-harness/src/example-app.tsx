@@ -11,10 +11,10 @@ import { createExampleEvidence } from './example-evidence';
 import { attachExampleLayout } from './example-layout';
 import { mountExample } from './example-mount';
 import { INITIAL } from './positions';
-import { createRecordingAudio } from './recording-audio';
 import type { RecordingAudio } from './recording-audio';
-import { createRecordingMotion } from './recording-motion';
+import { createRecordingAudio } from './recording-audio';
 import type { EarlierCompletionSlot } from './recording-motion';
+import { createRecordingMotion } from './recording-motion';
 
 function attachLifecycle(
   session: Session,

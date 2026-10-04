@@ -1,7 +1,6 @@
+import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Trans } from '@lingui/solid/macro';
 import { For, type JSX, Show } from 'solid-js';
-
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { ChessGameLogRow } from './chess-game-log-row';
 
 export type ChessGameLogProps = {

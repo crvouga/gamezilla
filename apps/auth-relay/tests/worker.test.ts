@@ -5,8 +5,8 @@ import worker from '@apps/auth-relay/worker';
 import { authRelayOrigin, envOrigins } from '@libs/infra-shared/env-file';
 import { ENV_FILES } from '@libs/infra-shared/envs';
 import { GLOBAL } from '@libs/infra-shared/global';
-import { renderAuthRelayWranglerConfig } from '@libs/infra-shared/wrangler';
 import type { WranglerConfig } from '@libs/infra-shared/wrangler';
+import { renderAuthRelayWranglerConfig } from '@libs/infra-shared/wrangler';
 
 const base = Bun.TOML.parse(
   readFileSync(join(import.meta.dirname, '../wrangler.toml'), 'utf8')

@@ -10,11 +10,14 @@
 
 import { readBytes } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
-import { assertBaseDir, sortKeys, splitKey } from './key-parts';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
 import type { KeyParts } from './key-parts';
-import { isNotFoundError } from './opfs';
+import { assertBaseDir, sortKeys, splitKey } from './key-parts';
 import type { OpfsDirHandle, OpfsRootProvider } from './opfs';
+import { isNotFoundError } from './opfs';
 import {
   bytesStream,
   parseMetaText,

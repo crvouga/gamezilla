@@ -1,13 +1,13 @@
 import type { Sql } from '@pkgs/sql-shared/sql';
 import sql from '@pkgs/sql-shared/sql';
-import type { QueryRow } from './v2';
-import { FRAMEWORK_TABLE_NAMES } from './framework-server-ddl';
 import { classify, hasReturningClause } from './classify';
-import { createWriteCaptureBag } from './write-capture';
-import type { WriteCaptureBag, WriteCaptureSnapshot } from './write-capture';
+import { FRAMEWORK_TABLE_NAMES } from './framework-server-ddl';
+import { injectManagedColumns } from './inject-managed-columns';
 import type { MutationDb, MutationEnv } from './mutations-types';
 import { MutationError } from './mutations-types';
-import { injectManagedColumns } from './inject-managed-columns';
+import type { QueryRow } from './v2';
+import type { WriteCaptureBag, WriteCaptureSnapshot } from './write-capture';
+import { createWriteCaptureBag } from './write-capture';
 
 const FRAMEWORK_TABLE_SET: ReadonlySet<string> = new Set(FRAMEWORK_TABLE_NAMES);
 

@@ -6,8 +6,8 @@
  * - `button` — solid / outline / ghost `Button`
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
 import type { ButtonIntent, ButtonVariant } from './button-face';
 import type { IconComponent } from './create-icon';
 

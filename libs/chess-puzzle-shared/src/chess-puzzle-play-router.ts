@@ -1,14 +1,21 @@
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { applyUci } from '@pkgs/chess-rules-shared/moves';
 import { createMessageRouter } from '@pkgs/message-shared/router';
-import type { HandleResult, RoomError, RoomState } from '@pkgs/room-shared/types';
+import type {
+  HandleResult,
+  RoomError,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 
 import { setupPuzzleStart, tokenize, uciToSquares } from './chess-puzzle-fsm';
-import { judgePuzzleMove } from './chess-puzzle-move-judge';
 import type { PuzzleMoveAccepted } from './chess-puzzle-move-judge';
-import { CHESS_PUZZLE_PLAY_STATUS, ChessPuzzlePlayAttr } from './chess-puzzle-play-attr';
+import { judgePuzzleMove } from './chess-puzzle-move-judge';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import {
+  CHESS_PUZZLE_PLAY_STATUS,
+  ChessPuzzlePlayAttr,
+} from './chess-puzzle-play-attr';
 import {
   handleRequestHint,
   handleRevealSolution,

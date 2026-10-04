@@ -1,7 +1,6 @@
-import { type Accessor, createMemo } from 'solid-js';
-
-import { SpaceField, useSpaceColumn } from './use-space-column';
 import { resolvePresenceRole } from '@libs/spaces-shared/space-participation-policy';
+import { type Accessor, createMemo } from 'solid-js';
+import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export function useMemberRole(
   spaceId: string,

@@ -1,7 +1,7 @@
-import { type Accessor, createMemo } from 'solid-js';
-import { useSpaceRoomSelector } from './use-space-room-selector';
-import { SpaceField, useSpaceColumn } from './use-space-column';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared/space-members-messages';
+import { type Accessor, createMemo } from 'solid-js';
+import { SpaceField, useSpaceColumn } from './use-space-column';
+import { useSpaceRoomSelector } from './use-space-room-selector';
 
 /**
  * Guest member ids currently seated in the room (excludes the host).

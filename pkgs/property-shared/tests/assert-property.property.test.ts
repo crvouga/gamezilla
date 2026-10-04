@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { arbJsonValue } from '@pkgs/property-shared/json';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { arbJsonValue } from '@pkgs/property-shared/json';
 import fc from 'fast-check';
 
 describe('assertProperty', () => {

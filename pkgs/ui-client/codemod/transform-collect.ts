@@ -85,7 +85,7 @@ export function expectedExportForModule(
   modulePath: string
 ): string | undefined {
   if (modulePath === '@pkgs/ui') return '*';
-  if (!(modulePath.startsWith('.//') || modulePath.startsWith('../'))) {
+  if (!(modulePath.startsWith('./') || modulePath.startsWith('../'))) {
     return undefined;
   }
   const cleaned = modulePath.replace(/\\/g, '/').replace(/\/index$/, '');

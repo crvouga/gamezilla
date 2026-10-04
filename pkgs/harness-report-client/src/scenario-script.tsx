@@ -1,11 +1,16 @@
-import type { ReportStep } from '@pkgs/harness-shared/report-types';
-import { createMemo, For, Show } from 'solid-js';
-
 import { actionLabel, fmtMs } from '@pkgs/harness-report-shared/format';
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
-import { firstFrameFor, lastFrameBefore } from '@pkgs/harness-report-shared/frames';
-import { gherkinText, scenarioScript } from '@pkgs/harness-report-shared/scenario';
+import {
+  firstFrameFor,
+  lastFrameBefore,
+} from '@pkgs/harness-report-shared/frames';
 import type { ScenarioLine } from '@pkgs/harness-report-shared/scenario';
+import {
+  gherkinText,
+  scenarioScript,
+} from '@pkgs/harness-report-shared/scenario';
+import type { ReportStep } from '@pkgs/harness-shared/report-types';
+import { createMemo, For, Show } from 'solid-js';
 
 function pickFrame(
   step: ReportStep,

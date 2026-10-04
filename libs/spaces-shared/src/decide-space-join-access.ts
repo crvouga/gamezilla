@@ -3,8 +3,8 @@
  * Thin adapter for call sites that only need visibility / ACL ABAC.
  */
 
-import { decideJoin } from './space-participation-policy';
 import type { SpaceAccessDecision } from './space-participation-policy';
+import { decideJoin } from './space-participation-policy';
 import type { SpaceVisibility } from './space-visibility';
 
 export type SpaceAccessInput = {

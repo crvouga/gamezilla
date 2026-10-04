@@ -4,10 +4,10 @@
  * the steps ingest (`libs/chess-puzzle-harness/fixtures/*.harness.csv`). No step definitions.
  */
 
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
+import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import { ObjectStoreImplNodeFs } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import { readUtf8 } from '@pkgs/object-store-shared/helpers';
 import {
   HARNESS_CHESS_FIXTURES_DIR,
   HARNESS_CHESS_PUZZLE_IDS,

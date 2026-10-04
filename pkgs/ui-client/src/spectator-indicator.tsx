@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { Trans } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
+import type { JSX } from 'solid-js';
 import { EyeIcon } from './icons';
 import { Tooltip } from './tooltip';
 

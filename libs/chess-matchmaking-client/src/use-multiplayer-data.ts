@@ -1,8 +1,11 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import sql from '@pkgs/sql-shared/sql';
-import { createQuery, useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
-import { type Accessor, createEffect, onCleanup, onMount } from 'solid-js';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
+import sql from '@pkgs/sql-shared/sql';
+import {
+  createQuery,
+  useSyncEngineInstance,
+} from '@pkgs/sync-engine-client/sync-engine-context';
+import { type Accessor, createEffect, onCleanup, onMount } from 'solid-js';
 
 export function useMultiplayerData(
   requestedGame: Accessor<string | undefined>

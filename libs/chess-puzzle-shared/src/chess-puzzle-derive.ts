@@ -1,5 +1,11 @@
-import { CHESS_PUZZLE_INTERACTION_KIND, isOutcomeKind } from './chess-puzzle-interaction-entities';
-import type { ChessPuzzleInteractionRow, ChessPuzzleOutcomeKind } from './chess-puzzle-interaction-entities';
+import type {
+  ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
+} from './chess-puzzle-interaction-entities';
+import {
+  CHESS_PUZZLE_INTERACTION_KIND,
+  isOutcomeKind,
+} from './chess-puzzle-interaction-entities';
 import { compareCodeUnit } from './code-unit-compare';
 
 /** Rows for the current open play of `puzzleId` (since last `started`). */

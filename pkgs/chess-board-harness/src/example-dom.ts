@@ -7,8 +7,8 @@ import {
   parseChessBoardProbe,
 } from '@pkgs/chess-board-core-shared/probe';
 import type { Move, Square } from '@pkgs/chess-board-core-shared/types';
-import { createPointerInputs } from './example-pointer';
 import type { ExampleInputArgs } from './example-pointer';
+import { createPointerInputs } from './example-pointer';
 
 export function required(root: HTMLElement, selector: string): HTMLElement {
   const el = root.querySelector<HTMLElement>(selector);

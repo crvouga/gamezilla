@@ -1,10 +1,10 @@
+import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared/search-read';
 import sql from '@pkgs/sql-shared/sql';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
 
 export async function multiplayerView(s: ProductHarness, actor: string) {
   const db = actorLocalSql(s, actor);

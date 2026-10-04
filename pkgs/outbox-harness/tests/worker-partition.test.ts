@@ -1,11 +1,14 @@
 import { expect, test } from 'bun:test';
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
+import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { drainOutbox } from '@pkgs/outbox-shared/drain';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
-import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 
 const ping = createMessageNamespace('worker')(
   'ping',

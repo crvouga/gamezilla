@@ -6,11 +6,17 @@
  * every frame or long task.
  */
 
+import type {
+  PerfListener,
+  PerfSampler,
+  PerfSnapshot,
+} from '@libs/app-shared/types';
+import {
+  createNoopPerfSampler,
+  EMPTY_PERF_SNAPSHOT,
+} from '@libs/app-shared/types';
 import type { Timers } from '@pkgs/clock-shared/types';
 import { onCLS, onINP, onLCP } from 'web-vitals/attribution';
-
-import { createNoopPerfSampler, EMPTY_PERF_SNAPSHOT } from '@libs/app-shared/types';
-import type { PerfListener, PerfSampler, PerfSnapshot } from '@libs/app-shared/types';
 
 const FRAME_BUDGET_MS = 1000 / 60;
 const SLOW_FRAME_MS = FRAME_BUDGET_MS;

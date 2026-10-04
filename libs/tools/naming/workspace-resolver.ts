@@ -25,7 +25,7 @@ export interface WorkspaceManifest {
 }
 
 function stripDotSlash(p: string): string {
-  return p.startsWith('.//') ? p.slice(2) : p;
+  return p.startsWith('./') ? p.slice(2) : p;
 }
 
 function joinPath(dir: string, rel: string): string {

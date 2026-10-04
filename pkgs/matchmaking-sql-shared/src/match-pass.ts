@@ -1,13 +1,17 @@
 import type { AttributeState } from '@pkgs/attribute-shared/attribute';
 import { asKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import type { FormulaWire } from '@pkgs/matchmaking-shared/formula-wire';
-import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
 import { pairMatch } from '@pkgs/matchmaking-shared/compatibility';
+import type { FormulaWire } from '@pkgs/matchmaking-shared/formula-wire';
 import { planGroups } from '@pkgs/matchmaking-shared/groups';
-import sql from '@pkgs/sql-shared/sql';
+import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
-import { epochMs, parseJsonObject, parseJsonValue } from './matchmaker-internals';
+import sql from '@pkgs/sql-shared/sql';
 import type { WaitingRow } from './matchmaker-internals';
+import {
+  epochMs,
+  parseJsonObject,
+  parseJsonValue,
+} from './matchmaker-internals';
 import {
   deleteWaitingIdsQuery,
   insertMatchedRowQuery,

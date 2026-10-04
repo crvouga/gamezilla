@@ -1,8 +1,13 @@
+import {
+  isProvisionalPuzzleRating,
+  PUZZLE_RATING_DEFAULT_RD,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import sql from '@pkgs/sql-shared/sql';
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import { isProvisionalPuzzleRating, PUZZLE_RATING_DEFAULT_RD } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 
 type PuzzleProfileRatingsRow = {
   readonly rating: number | null;

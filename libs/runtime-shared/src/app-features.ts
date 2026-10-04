@@ -9,10 +9,10 @@
  */
 
 import { ACCOUNT_PRIVACY_FEATURE } from '@libs/account-privacy-shared/feature';
+import { CLIENT_CONFIG_FEATURE } from '@libs/app-config-shared/feature';
 import { AUTH_FEATURE } from '@libs/auth-shared/feature';
 import { BILLING_FEATURE } from '@libs/billing-shared/feature';
 import { CHESS_FEATURE } from '@libs/chess-feature-shared/feature';
-import { CLIENT_CONFIG_FEATURE } from '@libs/app-config-shared/feature';
 import { composeFeatures } from '@libs/feature-shared/compose';
 import type { FeatureManifest } from '@libs/feature-shared/manifest';
 import { FRIENDS_FEATURE } from '@libs/friends-shared/feature';

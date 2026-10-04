@@ -5,8 +5,8 @@ import type {
   OpenAuthSession,
   OpenAuthSessionResult,
 } from './auth-client-oauth';
-import { formSubmitBody, parseForms } from './headless-form';
 import type { HeadlessButton, HeadlessForm } from './headless-form';
+import { formSubmitBody, parseForms } from './headless-form';
 
 export type InProcessOpenAuthSessionFault =
   | 'cancel'

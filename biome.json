@@ -148,9 +148,7 @@
         "useFilenamingConvention": {
           "level": "error",
           "options": {
-            "filenameCases": [
-              "kebab-case"
-            ],
+            "filenameCases": ["kebab-case"],
             "requireAscii": true,
             "strictCase": false
           }
@@ -161,10 +159,7 @@
         "noConsole": {
           "level": "error",
           "options": {
-            "allow": [
-              "error",
-              "warn"
-            ]
+            "allow": ["error", "warn"]
           }
         },
         "noDebugger": "error",
@@ -194,7 +189,8 @@
         "**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -230,13 +226,11 @@
         "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
         "**/libs/chess-harness/tests/**/*.{ts,tsx}",
-        "**/libs/chess-shared-server/tests/**/*.{ts,tsx}",
         "**/libs/chess-matchmaking-harness/tests/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/tests/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-harness/tests/**/*.{ts,tsx}",
         "**/libs/chess-server/tests/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-client/tests/**/*.{ts,tsx}",
-        "**/libs/chess-shared-server/scripts/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/scripts/**/*.{ts,tsx}",
         "**/libs/profile-harness/src/**/*.{ts,tsx}",
         "**/libs/profile-client/src/**/*.{ts,tsx}",
@@ -285,7 +279,8 @@
         "**/pkgs/llm-shared/tests/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -321,13 +316,11 @@
         "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
         "**/libs/chess-harness/tests/**/*.{ts,tsx}",
-        "**/libs/chess-shared-server/tests/**/*.{ts,tsx}",
         "**/libs/chess-matchmaking-harness/tests/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/tests/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-harness/tests/**/*.{ts,tsx}",
         "**/libs/chess-server/tests/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-client/tests/**/*.{ts,tsx}",
-        "**/libs/chess-shared-server/scripts/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-server/scripts/**/*.{ts,tsx}",
         "**/libs/profile-harness/src/**/*.{ts,tsx}",
         "**/libs/profile-client/src/**/*.{ts,tsx}",
@@ -376,7 +369,8 @@
         "**/pkgs/llm-shared/tests/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -406,7 +400,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -426,7 +421,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -437,18 +433,86 @@
         "**/libs/*-shared/src/*.{ts,tsx}",
         "**/pkgs/*-shared/src/**/*.{ts,tsx}",
         "**/pkgs/*-shared/src/*.{ts,tsx}",
-        "**/pkgs/sync-engine-client/src/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine-server/src/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/src/await-mutation-verdict.ts",
+        "**/pkgs/sync-engine-client/src/create-mutation-client.ts",
+        "**/pkgs/sync-engine-client/src/mutation-status.ts",
+        "**/pkgs/sync-engine-client/src/optimistic-own-rows.ts",
+        "**/pkgs/sync-engine-shared/src/define-mutation.ts",
+        "**/pkgs/sync-engine-shared/src/failures.ts",
+        "**/pkgs/sync-engine-shared/src/mutations-registry.ts",
+        "**/pkgs/sync-engine-shared/src/mutations-types.ts",
+        "**/pkgs/sync-engine-shared/src/acknowledge-write-rejection.ts",
+        "**/pkgs/sync-engine-shared/src/inject-managed-columns.ts",
+        "**/pkgs/sync-engine-shared/src/managed-columns.ts",
+        "**/pkgs/sync-engine-shared/src/soft-delete.ts",
+        "**/pkgs/sync-engine-shared/src/table-policy.ts",
+        "**/pkgs/sync-engine-shared/src/with-framework-mutations.ts",
+        "**/pkgs/sync-engine-shared/src/wrap-mutation-db.ts",
+        "**/pkgs/sync-engine-server/src/map-constraint-error.ts",
+        "**/pkgs/sync-engine-server/src/process-mutations-batch.ts",
+        "**/pkgs/sync-engine-server/src/prune-mutation-artifacts.ts",
+        "**/pkgs/sync-engine-server/src/replay-mutation.ts",
+        "**/pkgs/sync-engine-server/src/stored-replay-verdict.ts",
+        "**/pkgs/sync-engine-shared/src/app-lifecycle.ts",
+        "**/pkgs/sync-engine-shared/src/interaction-correlation.ts",
+        "**/pkgs/sync-engine-shared/src/push-applied.ts",
+        "**/pkgs/sync-engine-shared/src/storage-full-error.ts",
+        "**/pkgs/sync-engine-client/src/attach-configured-push.ts",
+        "**/pkgs/sync-engine-client/src/attach-push-handle.ts",
+        "**/pkgs/sync-engine-client/src/attach-push-held-rows.ts",
+        "**/pkgs/sync-engine-client/src/attach-push-rows-cap.ts",
+        "**/pkgs/sync-engine-client/src/attach-push.ts",
+        "**/pkgs/sync-engine-client/src/create-local-sync-engine.ts",
+        "**/pkgs/sync-engine-client/src/harness-ports.ts",
+        "**/pkgs/sync-engine-client/src/last-synced.ts",
+        "**/pkgs/sync-engine-client/src/local-schema-migrate.ts",
+        "**/pkgs/sync-engine-client/src/local-scope-hash.ts",
+        "**/pkgs/sync-engine-client/src/local-sync-status.ts",
+        "**/pkgs/sync-engine-client/src/merge-upsert.ts",
+        "**/pkgs/sync-engine-client/src/merge.ts",
+        "**/pkgs/sync-engine-client/src/mutation-upload-queue.ts",
+        "**/pkgs/sync-engine-client/src/optimistic-fanout.ts",
+        "**/pkgs/sync-engine-client/src/optimistic-peer-rows.ts",
+        "**/pkgs/sync-engine-client/src/post-query-batch.ts",
+        "**/pkgs/sync-engine-client/src/push-subscriptions.ts",
+        "**/pkgs/sync-engine-client/src/query-wire-validation.ts",
+        "**/pkgs/sync-engine-client/src/shared-watch-registry.ts",
+        "**/pkgs/sync-engine-client/src/subscribe-queries-types.ts",
+        "**/pkgs/sync-engine-client/src/subscribe-queries.ts",
+        "**/pkgs/sync-engine-client/src/subscription-cache-keys.ts",
+        "**/pkgs/sync-engine-client/src/subscription-constants.ts",
+        "**/pkgs/sync-engine-client/src/subscription-runtime-sweep.ts",
+        "**/pkgs/sync-engine-client/src/subscription-runtime.ts",
+        "**/pkgs/sync-engine-client/src/sync-engine-pool.ts",
+        "**/pkgs/sync-engine-client/src/sync-engine-port.ts",
+        "**/pkgs/sync-engine-client/src/sync-http-client.ts",
+        "**/pkgs/sync-engine-client/src/sync-http-rate-limit-error.ts",
+        "**/pkgs/sync-engine-client/src/sync-status.ts",
+        "**/pkgs/sync-engine-client/src/table-change-sql-client.ts",
+        "**/pkgs/sync-engine-client/src/watch-query-loading.ts",
+        "**/pkgs/sync-engine-client/tests/subscription-runtime.test.ts",
         "**/pkgs/sync-engine-harness/src/**/*.{ts,tsx}",
         "**/pkgs/db-schema-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/room-client/src/**/*.{ts,tsx}",
-        "**/pkgs/room-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-client/src/room-client-core.ts",
+        "**/pkgs/room-client/src/room-client-persist.ts",
+        "**/pkgs/room-client/src/room-client-snapshot.ts",
+        "**/pkgs/room-client/src/room-client-wire.ts",
+        "**/pkgs/room-client/src/room-client.ts",
+        "**/pkgs/room-client/src/room-meta.ts",
+        "**/pkgs/room-client/src/room-optimistic-effects.ts",
+        "**/pkgs/room-client/src/wipe-local-cache.ts",
+        "**/pkgs/room-shared/src/core-storage.ts",
+        "**/pkgs/room-shared/src/transport.ts",
         "**/pkgs/room-server/src/**/*.{ts,tsx}",
-        "**/pkgs/room-shared/src",
+        "**/pkgs/room-shared/src/room-server-types.ts",
+        "**/pkgs/room-shared/src/room-service.ts",
+        "**/pkgs/room-shared/src/server-core-storage.ts",
+        "**/pkgs/room-shared/src/types.ts",
+        "**/pkgs/room-shared/src/hash-room-state.ts",
         "!**/tests/**",
-        "!**/*.test.{ts,tsx}"
+        "!**/*.test.{ts,tsx}",
+        "!**/pkgs/permissions-shared/src/quota-window.ts",
+        "!**/pkgs/sql-cli-shared/src/summary.ts"
       ]
     },
     {
@@ -458,16 +522,82 @@
         "**/libs/*-shared/src/*.{ts,tsx}",
         "**/pkgs/*-shared/src/**/*.{ts,tsx}",
         "**/pkgs/*-shared/src/*.{ts,tsx}",
-        "**/pkgs/sync-engine-client/src/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine-server/src/**/*.{ts,tsx}",
-        "**/pkgs/sync-engine-client/tests/**/*.{ts,tsx}",
+        "**/pkgs/sync-engine-client/src/await-mutation-verdict.ts",
+        "**/pkgs/sync-engine-client/src/create-mutation-client.ts",
+        "**/pkgs/sync-engine-client/src/mutation-status.ts",
+        "**/pkgs/sync-engine-client/src/optimistic-own-rows.ts",
+        "**/pkgs/sync-engine-shared/src/define-mutation.ts",
+        "**/pkgs/sync-engine-shared/src/failures.ts",
+        "**/pkgs/sync-engine-shared/src/mutations-registry.ts",
+        "**/pkgs/sync-engine-shared/src/mutations-types.ts",
+        "**/pkgs/sync-engine-shared/src/acknowledge-write-rejection.ts",
+        "**/pkgs/sync-engine-shared/src/inject-managed-columns.ts",
+        "**/pkgs/sync-engine-shared/src/managed-columns.ts",
+        "**/pkgs/sync-engine-shared/src/soft-delete.ts",
+        "**/pkgs/sync-engine-shared/src/table-policy.ts",
+        "**/pkgs/sync-engine-shared/src/with-framework-mutations.ts",
+        "**/pkgs/sync-engine-shared/src/wrap-mutation-db.ts",
+        "**/pkgs/sync-engine-server/src/map-constraint-error.ts",
+        "**/pkgs/sync-engine-server/src/process-mutations-batch.ts",
+        "**/pkgs/sync-engine-server/src/prune-mutation-artifacts.ts",
+        "**/pkgs/sync-engine-server/src/replay-mutation.ts",
+        "**/pkgs/sync-engine-server/src/stored-replay-verdict.ts",
+        "**/pkgs/sync-engine-shared/src/app-lifecycle.ts",
+        "**/pkgs/sync-engine-shared/src/interaction-correlation.ts",
+        "**/pkgs/sync-engine-shared/src/push-applied.ts",
+        "**/pkgs/sync-engine-shared/src/storage-full-error.ts",
+        "**/pkgs/sync-engine-client/src/attach-configured-push.ts",
+        "**/pkgs/sync-engine-client/src/attach-push-handle.ts",
+        "**/pkgs/sync-engine-client/src/attach-push-held-rows.ts",
+        "**/pkgs/sync-engine-client/src/attach-push-rows-cap.ts",
+        "**/pkgs/sync-engine-client/src/attach-push.ts",
+        "**/pkgs/sync-engine-client/src/create-local-sync-engine.ts",
+        "**/pkgs/sync-engine-client/src/harness-ports.ts",
+        "**/pkgs/sync-engine-client/src/last-synced.ts",
+        "**/pkgs/sync-engine-client/src/local-schema-migrate.ts",
+        "**/pkgs/sync-engine-client/src/local-scope-hash.ts",
+        "**/pkgs/sync-engine-client/src/local-sync-status.ts",
+        "**/pkgs/sync-engine-client/src/merge-upsert.ts",
+        "**/pkgs/sync-engine-client/src/merge.ts",
+        "**/pkgs/sync-engine-client/src/mutation-upload-queue.ts",
+        "**/pkgs/sync-engine-client/src/optimistic-fanout.ts",
+        "**/pkgs/sync-engine-client/src/optimistic-peer-rows.ts",
+        "**/pkgs/sync-engine-client/src/post-query-batch.ts",
+        "**/pkgs/sync-engine-client/src/push-subscriptions.ts",
+        "**/pkgs/sync-engine-client/src/query-wire-validation.ts",
+        "**/pkgs/sync-engine-client/src/shared-watch-registry.ts",
+        "**/pkgs/sync-engine-client/src/subscribe-queries-types.ts",
+        "**/pkgs/sync-engine-client/src/subscribe-queries.ts",
+        "**/pkgs/sync-engine-client/src/subscription-cache-keys.ts",
+        "**/pkgs/sync-engine-client/src/subscription-constants.ts",
+        "**/pkgs/sync-engine-client/src/subscription-runtime-sweep.ts",
+        "**/pkgs/sync-engine-client/src/subscription-runtime.ts",
+        "**/pkgs/sync-engine-client/src/sync-engine-pool.ts",
+        "**/pkgs/sync-engine-client/src/sync-engine-port.ts",
+        "**/pkgs/sync-engine-client/src/sync-http-client.ts",
+        "**/pkgs/sync-engine-client/src/sync-http-rate-limit-error.ts",
+        "**/pkgs/sync-engine-client/src/sync-status.ts",
+        "**/pkgs/sync-engine-client/src/table-change-sql-client.ts",
+        "**/pkgs/sync-engine-client/src/watch-query-loading.ts",
+        "**/pkgs/sync-engine-client/tests/subscription-runtime.test.ts",
         "**/pkgs/sync-engine-harness/src/**/*.{ts,tsx}",
         "**/pkgs/db-schema-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/room-client/src/**/*.{ts,tsx}",
-        "**/pkgs/room-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-client/src/room-client-core.ts",
+        "**/pkgs/room-client/src/room-client-persist.ts",
+        "**/pkgs/room-client/src/room-client-snapshot.ts",
+        "**/pkgs/room-client/src/room-client-wire.ts",
+        "**/pkgs/room-client/src/room-client.ts",
+        "**/pkgs/room-client/src/room-meta.ts",
+        "**/pkgs/room-client/src/room-optimistic-effects.ts",
+        "**/pkgs/room-client/src/wipe-local-cache.ts",
+        "**/pkgs/room-shared/src/core-storage.ts",
+        "**/pkgs/room-shared/src/transport.ts",
         "**/pkgs/room-server/src/**/*.{ts,tsx}",
-        "**/pkgs/room-shared/src",
+        "**/pkgs/room-shared/src/room-server-types.ts",
+        "**/pkgs/room-shared/src/room-service.ts",
+        "**/pkgs/room-shared/src/server-core-storage.ts",
+        "**/pkgs/room-shared/src/types.ts",
+        "**/pkgs/room-shared/src/hash-room-state.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -479,7 +609,8 @@
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -488,7 +619,8 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -498,9 +630,26 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/sync-engine-client/src/**",
-        "!**/pkgs/sync-engine-shared/src/**",
-        "!**/pkgs/sync-engine-server/src/**",
+        "!**/pkgs/sync-engine-client/src/await-mutation-verdict.ts",
+        "!**/pkgs/sync-engine-client/src/create-mutation-client.ts",
+        "!**/pkgs/sync-engine-client/src/mutation-status.ts",
+        "!**/pkgs/sync-engine-client/src/optimistic-own-rows.ts",
+        "!**/pkgs/sync-engine-shared/src/define-mutation.ts",
+        "!**/pkgs/sync-engine-shared/src/failures.ts",
+        "!**/pkgs/sync-engine-shared/src/mutations-registry.ts",
+        "!**/pkgs/sync-engine-shared/src/mutations-types.ts",
+        "!**/pkgs/sync-engine-shared/src/acknowledge-write-rejection.ts",
+        "!**/pkgs/sync-engine-shared/src/inject-managed-columns.ts",
+        "!**/pkgs/sync-engine-shared/src/managed-columns.ts",
+        "!**/pkgs/sync-engine-shared/src/soft-delete.ts",
+        "!**/pkgs/sync-engine-shared/src/table-policy.ts",
+        "!**/pkgs/sync-engine-shared/src/with-framework-mutations.ts",
+        "!**/pkgs/sync-engine-shared/src/wrap-mutation-db.ts",
+        "!**/pkgs/sync-engine-server/src/map-constraint-error.ts",
+        "!**/pkgs/sync-engine-server/src/process-mutations-batch.ts",
+        "!**/pkgs/sync-engine-server/src/prune-mutation-artifacts.ts",
+        "!**/pkgs/sync-engine-server/src/replay-mutation.ts",
+        "!**/pkgs/sync-engine-server/src/stored-replay-verdict.ts",
         "!**/dist/**",
         "!**/build/**"
       ]
@@ -510,11 +659,31 @@
       "includes": [
         "**/libs/*/src/**/*.{ts,tsx}",
         "**/apps/*/src/**/*.{ts,tsx}",
-        "!**/libs/secrets-shared/src/**",
         "!**/libs/secrets-server/src/**",
+        "!**/libs/secrets-shared/src/cli-io.ts",
+        "!**/libs/secrets-shared/src/node-options.ts",
+        "!**/libs/secrets-shared/src/api-url.ts",
+        "!**/libs/secrets-shared/src/auth-secrets.ts",
+        "!**/libs/secrets-shared/src/cf-account-id.ts",
+        "!**/libs/secrets-shared/src/cf-api-token.ts",
+        "!**/libs/secrets-shared/src/cloudflare.ts",
+        "!**/libs/secrets-shared/src/feedback-secrets.ts",
+        "!**/libs/secrets-shared/src/hyperdrive-id.ts",
+        "!**/libs/secrets-shared/src/infra-secrets.ts",
+        "!**/libs/secrets-shared/src/obs-query-env.ts",
+        "!**/libs/secrets-shared/src/pubsub-emqx-secrets.ts",
+        "!**/libs/secrets-shared/src/pubsub-iot-secrets.ts",
+        "!**/libs/secrets-shared/src/reports-credentials.ts",
+        "!**/libs/secrets-shared/src/secret.ts",
+        "!**/libs/secrets-shared/src/secrets-envs.ts",
+        "!**/libs/secrets-shared/src/shared-reconcile.ts",
+        "!**/libs/secrets-shared/src/shared-secrets.ts",
+        "!**/libs/secrets-shared/src/tts-secrets.ts",
+        "!**/libs/secrets-shared/src/turbo-token.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -534,7 +703,7 @@
         "!**/libs/permissions-server/src/**",
         "!**/libs/permissions-shared/tests/**",
         "!**/libs/permissions-harness/tests/**",
-        "!**/libs/permissions-shared/**",
+        "!**/libs/permissions-shared/turbo.json",
         "!**/pkgs/permissions-shared/src/**",
         "!**/pkgs/permissions-shared/tests/**",
         "!**/libs/billing-harness/src/**",
@@ -546,8 +715,17 @@
         "!**/libs/billing-client/tests/**",
         "!**/libs/billing-harness/tests/**",
         "!**/libs/billing-server/scripts/**",
-        "!**/libs/billing-shared/**",
-        "!**/pkgs/billing*/**"
+        "!**/libs/billing-shared/turbo.json",
+        "!**/pkgs/billing*/**",
+        "!**/libs/billing-harness/src/account-privacy.ts",
+        "!**/libs/billing-harness/src/billing-actions.ts",
+        "!**/libs/billing-harness/src/billing-harness-slice.ts",
+        "!**/libs/billing-harness/src/billing-lifecycle-properties.ts",
+        "!**/libs/billing-harness/src/billing-lifecycle-stimuli.ts",
+        "!**/libs/billing-harness/src/billing-payment-facts.ts",
+        "!**/libs/billing-harness/src/billing-plans-reads.ts",
+        "!**/libs/billing-harness/src/billing-provider-driver.ts",
+        "!**/libs/billing-harness/src/billing-reads.ts"
       ]
     },
     {
@@ -566,7 +744,7 @@
         "!**/libs/permissions-server/src/**",
         "!**/libs/permissions-shared/tests/**",
         "!**/libs/permissions-harness/tests/**",
-        "!**/libs/permissions-shared/**",
+        "!**/libs/permissions-shared/turbo.json",
         "!**/pkgs/permissions-shared/src/**",
         "!**/pkgs/permissions-shared/tests/**",
         "!**/libs/billing-harness/src/**",
@@ -578,8 +756,17 @@
         "!**/libs/billing-client/tests/**",
         "!**/libs/billing-harness/tests/**",
         "!**/libs/billing-server/scripts/**",
-        "!**/libs/billing-shared/**",
-        "!**/pkgs/billing*/**"
+        "!**/libs/billing-shared/turbo.json",
+        "!**/pkgs/billing*/**",
+        "!**/libs/billing-harness/src/account-privacy.ts",
+        "!**/libs/billing-harness/src/billing-actions.ts",
+        "!**/libs/billing-harness/src/billing-harness-slice.ts",
+        "!**/libs/billing-harness/src/billing-lifecycle-properties.ts",
+        "!**/libs/billing-harness/src/billing-lifecycle-stimuli.ts",
+        "!**/libs/billing-harness/src/billing-payment-facts.ts",
+        "!**/libs/billing-harness/src/billing-plans-reads.ts",
+        "!**/libs/billing-harness/src/billing-provider-driver.ts",
+        "!**/libs/billing-harness/src/billing-reads.ts"
       ]
     },
     {
@@ -602,7 +789,7 @@
         "**/libs/chess-custom-game-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-matchmaking-shared/src/**/*.{ts,tsx}",
         "**/libs/chess-puzzle-shared/tests/**/*.{ts,tsx}",
-        "!**/libs/chess-puzzle-shared/tests/**/*.test.{ts,tsx}"
+        "!**/libs/chess-puzzle-shared/tests/chess-puzzle-play.test.ts"
       ]
     },
     {
@@ -624,7 +811,7 @@
         "**/libs/app-shared/src/**/*.{ts,tsx}",
         "**/libs/app-server/src/**/*.{ts,tsx}",
         "**/libs/**/use-cases/**/shared/**/*.{ts,tsx}",
-        "**/libs/runtime-shared/src",
+        "**/libs/runtime-shared/src/app-topic-map.ts",
         "!**/local-schema.ts",
         "!**/framework-server-ddl.ts",
         "!**/api-reports/**",
@@ -648,12 +835,20 @@
         "!**/pkgs/pubsub-emqx-shared/src/**",
         "!**/pkgs/pubsub-emqx-shared/tests/**",
         "!**/pkgs/pubsub-emqx-harness/tests/**",
-        "!**/pkgs/pubsub-emqx-shared/**",
-        "!**/libs/app-server/src/**",
-        "!**/libs/app-shared/src/**",
-        "!**/libs/app-client/src/**",
+        "!**/pkgs/pubsub-emqx-shared/README.md",
+        "!**/libs/app-server/src/notify-client-config-channels.ts",
+        "!**/libs/app-server/src/notify-user-channels.ts",
+        "!**/libs/app-server/src/outbox-drain.ts",
+        "!**/libs/app-server/src/pubsub-token-routes.ts",
+        "!**/libs/app-server/src/sync-app.ts",
+        "!**/libs/app-shared/src/query-auth.ts",
+        "!**/libs/app-shared/src/upload-rejection-metrics.ts",
+        "!**/libs/app-client/src/create-client-pubsub.ts",
+        "!**/libs/app-client/src/pubsub-token.ts",
+        "!**/libs/app-client/src/sync-api.ts",
+        "!**/libs/app-shared/src/emqx-url-holder.ts",
         "!**/libs/pubsub-server/src/**",
-        "!**/libs/pubsub-server/tests/**"
+        "!**/libs/pubsub-server/tests/mint-pubsub-token.test.ts"
       ]
     },
     {
@@ -663,7 +858,8 @@
         "**/libs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -691,7 +887,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -702,8 +899,27 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/scripts/**",
-        "!**/libs/secrets-shared/src/**",
         "!**/libs/secrets-server/src/**",
+        "!**/libs/secrets-shared/src/cli-io.ts",
+        "!**/libs/secrets-shared/src/node-options.ts",
+        "!**/libs/secrets-shared/src/api-url.ts",
+        "!**/libs/secrets-shared/src/auth-secrets.ts",
+        "!**/libs/secrets-shared/src/cf-account-id.ts",
+        "!**/libs/secrets-shared/src/cf-api-token.ts",
+        "!**/libs/secrets-shared/src/cloudflare.ts",
+        "!**/libs/secrets-shared/src/feedback-secrets.ts",
+        "!**/libs/secrets-shared/src/hyperdrive-id.ts",
+        "!**/libs/secrets-shared/src/infra-secrets.ts",
+        "!**/libs/secrets-shared/src/obs-query-env.ts",
+        "!**/libs/secrets-shared/src/pubsub-emqx-secrets.ts",
+        "!**/libs/secrets-shared/src/pubsub-iot-secrets.ts",
+        "!**/libs/secrets-shared/src/reports-credentials.ts",
+        "!**/libs/secrets-shared/src/secret.ts",
+        "!**/libs/secrets-shared/src/secrets-envs.ts",
+        "!**/libs/secrets-shared/src/shared-reconcile.ts",
+        "!**/libs/secrets-shared/src/shared-secrets.ts",
+        "!**/libs/secrets-shared/src/tts-secrets.ts",
+        "!**/libs/secrets-shared/src/turbo-token.ts",
         "!**/wall-node-fs.ts",
         "!**/wall-path-exists.ts",
         "!**/wall-os-fs.ts",
@@ -726,7 +942,8 @@
         "!**/apps/client/src/main.tsx",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -737,10 +954,29 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/scripts/**",
-        "!**/libs/secrets-shared/src/**",
         "!**/libs/secrets-server/src/**",
+        "!**/libs/secrets-shared/src/cli-io.ts",
+        "!**/libs/secrets-shared/src/node-options.ts",
+        "!**/libs/secrets-shared/src/api-url.ts",
+        "!**/libs/secrets-shared/src/auth-secrets.ts",
+        "!**/libs/secrets-shared/src/cf-account-id.ts",
+        "!**/libs/secrets-shared/src/cf-api-token.ts",
+        "!**/libs/secrets-shared/src/cloudflare.ts",
+        "!**/libs/secrets-shared/src/feedback-secrets.ts",
+        "!**/libs/secrets-shared/src/hyperdrive-id.ts",
+        "!**/libs/secrets-shared/src/infra-secrets.ts",
+        "!**/libs/secrets-shared/src/obs-query-env.ts",
+        "!**/libs/secrets-shared/src/pubsub-emqx-secrets.ts",
+        "!**/libs/secrets-shared/src/pubsub-iot-secrets.ts",
+        "!**/libs/secrets-shared/src/reports-credentials.ts",
+        "!**/libs/secrets-shared/src/secret.ts",
+        "!**/libs/secrets-shared/src/secrets-envs.ts",
+        "!**/libs/secrets-shared/src/shared-reconcile.ts",
+        "!**/libs/secrets-shared/src/shared-secrets.ts",
+        "!**/libs/secrets-shared/src/tts-secrets.ts",
+        "!**/libs/secrets-shared/src/turbo-token.ts",
         "!**/public/**",
-        "!**/apps/server/src/product/server.ts",
+        "!**/apps/server/src/product-server.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
         "!**/harness-io.ts",
@@ -786,7 +1022,8 @@
         "!**/cf-dns.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -806,10 +1043,29 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/scripts/**",
-        "!**/libs/secrets-shared/src/**",
         "!**/libs/secrets-server/src/**",
+        "!**/libs/secrets-shared/src/cli-io.ts",
+        "!**/libs/secrets-shared/src/node-options.ts",
+        "!**/libs/secrets-shared/src/api-url.ts",
+        "!**/libs/secrets-shared/src/auth-secrets.ts",
+        "!**/libs/secrets-shared/src/cf-account-id.ts",
+        "!**/libs/secrets-shared/src/cf-api-token.ts",
+        "!**/libs/secrets-shared/src/cloudflare.ts",
+        "!**/libs/secrets-shared/src/feedback-secrets.ts",
+        "!**/libs/secrets-shared/src/hyperdrive-id.ts",
+        "!**/libs/secrets-shared/src/infra-secrets.ts",
+        "!**/libs/secrets-shared/src/obs-query-env.ts",
+        "!**/libs/secrets-shared/src/pubsub-emqx-secrets.ts",
+        "!**/libs/secrets-shared/src/pubsub-iot-secrets.ts",
+        "!**/libs/secrets-shared/src/reports-credentials.ts",
+        "!**/libs/secrets-shared/src/secret.ts",
+        "!**/libs/secrets-shared/src/secrets-envs.ts",
+        "!**/libs/secrets-shared/src/shared-reconcile.ts",
+        "!**/libs/secrets-shared/src/shared-secrets.ts",
+        "!**/libs/secrets-shared/src/tts-secrets.ts",
+        "!**/libs/secrets-shared/src/turbo-token.ts",
         "!**/public/**",
-        "!**/apps/server/src/product/server.ts",
+        "!**/apps/server/src/product-server.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
         "!**/harness-io.ts",
@@ -855,8 +1111,11 @@
         "!**/sql-host-entry.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
-        "!**/libs/harness/src/**"
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
+        "!**/libs/harness/src/**",
+        "!**/pkgs/feedback-server/src/vite-handler.ts",
+        "!**/libs/db-server/src/database-url-policy-tooling.ts"
       ]
     },
     {
@@ -865,13 +1124,15 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "!**/pkgs/chess-board-client/src",
+        "!**/pkgs/chess-board-client/src/chess-board-promotion.tsx",
+        "!**/pkgs/chess-board-client/src/chess-board-feedback.tsx",
         "!**/fixtures/**",
         "!**/demo-app.*",
         "!**/serialize-host-tree-html*",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -885,8 +1146,8 @@
     {
       "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/libs/harness/src/open-harness/**/*.{ts,tsx}",
-        "**/libs/*/tests/harness/**/*.{ts,tsx}"
+        "**/libs/harness/src/**/*.{ts,tsx}",
+        "**/libs/*-harness/**/*.{ts,tsx}"
       ]
     },
     {
@@ -919,14 +1180,15 @@
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
-        "!**/pkgs/db-schema-postgres-shared/src",
-        "!**/pkgs/db-schema-sqlite-shared/src",
-        "!**/pkgs/sql-client-shared/tests",
+        "!**/pkgs/db-schema-postgres-shared/src/emit.ts",
+        "!**/pkgs/db-schema-sqlite-shared/src/emit.ts",
+        "!**/pkgs/sql-client-shared/tests/agnostic-sql.test.ts",
         "!**/dist/**",
         "!**/build/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**"
       ]
     },
@@ -940,30 +1202,35 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-skipped-tests.grit",
-      "includes": [
-        "**/*.test.{ts,tsx}",
-        "**/*.spec.{ts,tsx}"
-      ]
+      "includes": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
     },
     {
       "path": "./libs/tools/biome-plugins/no-wall-time-in-tests.grit",
-      "includes": [
-        "**/*.test.{ts,tsx}",
-        "!**/*.contract.test.{ts,tsx}"
-      ]
+      "includes": ["**/*.test.{ts,tsx}", "!**/*.contract.test.{ts,tsx}"]
     },
     {
       "path": "./libs/tools/biome-plugins/no-unpinned-property.grit",
-      "includes": [
-        "**/*.{ts,tsx}",
-        "!**/pkgs/property-shared/src/**"
-      ]
+      "includes": ["**/*.{ts,tsx}", "!**/pkgs/property-shared/src/**"]
     },
     {
       "path": "./libs/tools/biome-plugins/import-no-ui-framework.grit",
       "includes": [
-        "**/libs/chess-puzzle-shared/src/**/*.{ts,tsx}",
+        "**/libs/chess-puzzle-shared/src/action-bar-plan.ts",
+        "**/libs/chess-puzzle-shared/src/cell-feedback.ts",
+        "**/libs/chess-puzzle-shared/src/completion.ts",
+        "**/libs/chess-puzzle-shared/src/hint-stage.ts",
+        "**/libs/chess-puzzle-shared/src/next-puzzle-selection.ts",
+        "**/libs/chess-puzzle-shared/src/opponent-stager.ts",
+        "**/libs/chess-puzzle-shared/src/pick-state.ts",
+        "**/libs/chess-puzzle-shared/src/puzzle-clock.ts",
+        "**/libs/chess-puzzle-shared/src/puzzle-nav.ts",
+        "**/libs/chess-puzzle-shared/src/recommendations.ts",
+        "**/libs/chess-puzzle-shared/src/session-start-policy.ts",
+        "**/libs/chess-puzzle-shared/src/solve-projection.ts",
+        "**/libs/chess-puzzle-shared/src/solve-status.ts",
+        "**/libs/chess-puzzle-shared/src/status-kind.ts",
         "**/pkgs/assert-crash-browser-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/assert-crash-browser-client/src/**/*.{ts,tsx}",
         "**/pkgs/assert-crash-node-shared/src/**/*.{ts,tsx}",
         "**/pkgs/assert-shared/src/**/*.{ts,tsx}",
         "**/pkgs/assert-shared/tests/**/*.{ts,tsx}",
@@ -979,10 +1246,12 @@
         "**/pkgs/billing-stripe-harness/src/**/*.{ts,tsx}",
         "**/pkgs/billing-stripe-server/src/**/*.{ts,tsx}",
         "**/pkgs/billing-stripe-shared/tests/**/*.{ts,tsx}",
-        "**/pkgs/billing-stripe-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe-harness/tests/offer-reconcile.test.ts",
+        "**/pkgs/billing-stripe-harness/tests/stripe-membership.contract.test.ts",
+        "**/pkgs/billing-stripe-harness/tests/stripe-membership.test.ts",
         "**/pkgs/billing-shared/src/**/*.{ts,tsx}",
         "**/pkgs/billing-shared/tests/**/*.{ts,tsx}",
-        "**/pkgs/browser-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/browser-client/src/**/*.{ts,tsx}",
         "**/pkgs/chess-board-core-shared/src/**/*.{ts,tsx}",
         "**/pkgs/collab-shared/src/**/*.{ts,tsx}",
         "**/pkgs/collab-shared/tests/**/*.{ts,tsx}",
@@ -1010,7 +1279,7 @@
         "**/pkgs/entity-store-shared/src/**/*.{ts,tsx}",
         "**/pkgs/entity-store-harness/tests/**/*.{ts,tsx}",
         "**/pkgs/equal-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/equal-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/equal-shared/tests/is-equal.test.ts",
         "**/pkgs/git-shared/src/**/*.{ts,tsx}",
         "**/pkgs/i18n-shared/src/**/*.{ts,tsx}",
         "**/pkgs/invariants-shared/src/**/*.{ts,tsx}",
@@ -1037,24 +1306,25 @@
         "**/pkgs/ndjson-shared/src/**/*.{ts,tsx}",
         "**/pkgs/object-store-node-fs-server/src/**/*.{ts,tsx}",
         "**/pkgs/object-store-node-fs-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/object-store-node-fs-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/object-store-node-fs-server/tests/impl-node-fs.test.ts",
         "**/pkgs/object-store-opfs-shared/src/**/*.{ts,tsx}",
         "**/pkgs/object-store-s3-shared/src/**/*.{ts,tsx}",
         "**/pkgs/object-store-s3-server/src/**/*.{ts,tsx}",
-        "**/pkgs/object-store-s3-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/object-store-s3-server/tests/object-store.s3.contract.test.ts",
         "**/pkgs/os-server/src/**/*.{ts,tsx}",
         "**/pkgs/os-shared/src/**/*.{ts,tsx}",
         "**/pkgs/outbox-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/outbox-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/outbox-harness/tests/outbox.test.ts",
         "**/pkgs/permissions-shared/src/**/*.{ts,tsx}",
         "**/pkgs/postgres-embedded-server/src/**/*.{ts,tsx}",
         "**/pkgs/postgres-embedded-shared/src/**/*.{ts,tsx}",
         "**/pkgs/postgres-sqlite-compat-shared/src/**/*.{ts,tsx}",
         "**/pkgs/pubsub-emqx-shared/src/**/*.{ts,tsx}",
         "**/pkgs/pubsub-emqx-shared/tests/**/*.{ts,tsx}",
-        "**/pkgs/pubsub-emqx-harness/tests/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-emqx-harness/tests/create-emqx-pubsub.test.ts",
         "**/pkgs/pubsub-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/pubsub-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-shared/tests/in-memory.test.ts",
+        "**/pkgs/pubsub-shared/tests/interface.test.ts",
         "**/pkgs/room-adapter-durable-object-shared/src/**/*.{ts,tsx}",
         "**/pkgs/room-adapter-durable-object-server/src/**/*.{ts,tsx}",
         "**/pkgs/room-adapter-memory-shared/src/**/*.{ts,tsx}",
@@ -1062,7 +1332,7 @@
         "**/pkgs/room-harness/src/**/*.{ts,tsx}",
         "**/pkgs/secret-provider-server/src/**/*.{ts,tsx}",
         "**/pkgs/secret-provider-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/secret-provider-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/secret-provider-shared/tests/http-secret-store.test.ts",
         "**/pkgs/secret-store-shared/src/**/*.{ts,tsx}",
         "**/pkgs/secret-store-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/secret-string-shared/src/**/*.{ts,tsx}",
@@ -1073,14 +1343,18 @@
         "**/pkgs/secure-storage-web-shared/src/**/*.{ts,tsx}",
         "**/pkgs/secure-storage-web-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/harness-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/harness-shared/tests/**/*.{ts,tsx}",
+        "**/pkgs/harness-shared/tests/scheduler.contract.test.ts",
+        "**/pkgs/harness-shared/tests/network.contract.test.ts",
         "**/pkgs/sql-cli-shared/src/**/*.{ts,tsx}",
         "**/pkgs/sql-cli-harness/tests/**/*.{ts,tsx}",
         "**/pkgs/sql-cli-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/sql-client-postgres-server/src/**/*.{ts,tsx}",
         "**/pkgs/sql-client-postgres-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/sql-client-postgres-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/sql-client-postgres-server/tests/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-postgres-shared/tests/impl-pg-shared.test.ts",
+        "**/pkgs/sql-client-postgres-shared/tests/normalize-pg-int8.test.ts",
+        "**/pkgs/sql-client-postgres-shared/tests/sanitize-url-for-bun-sql.test.ts",
+        "**/pkgs/sql-client-postgres-shared/tests/sanitize-url-for-node-pg.test.ts",
         "**/pkgs/sql-client-harness/src/**/*.{ts,tsx}",
         "**/pkgs/sql-map-shared/src/**/*.{ts,tsx}",
         "**/pkgs/sql-map-shared/tests/**/*.{ts,tsx}",
@@ -1097,15 +1371,24 @@
         "**/pkgs/ui-testing-bun-webview-server/src/**/*.{ts,tsx}",
         "**/pkgs/ui-testing-bun-webview-shared/tests/**/*.{ts,tsx}",
         "**/pkgs/vite-workspace-resolver-server/src/**/*.{ts,tsx}",
-        "**/pkgs/async-shared/src",
-        "**/pkgs/clock-shared/src",
-        "**/pkgs/http-client-shared/src",
-        "**/pkgs/kv-shared/src",
-        "**/pkgs/object-store-shared/src",
-        "**/pkgs/secure-storage-shared/src",
-        "**/pkgs/sounds-shared/src",
-        "**/pkgs/sql-client-shared/src",
-        "**/pkgs/tts-client/src",
+        "**/pkgs/async-shared/src/async-runner.ts",
+        "**/pkgs/clock-shared/src/harness-clock.ts",
+        "**/pkgs/clock-shared/src/types.ts",
+        "**/pkgs/clock-shared/src/wall.ts",
+        "**/pkgs/http-client-shared/src/origin-availability.ts",
+        "**/pkgs/http-client-shared/src/types.ts",
+        "**/pkgs/kv-shared/src/interface.ts",
+        "**/pkgs/kv-shared/src/kv-state-codec.ts",
+        "**/pkgs/object-store-shared/src/interface.ts",
+        "**/pkgs/secure-storage-shared/src/interface.ts",
+        "**/pkgs/secure-storage-shared/src/secure-storage-store.ts",
+        "**/pkgs/sounds-shared/src/in-memory-audio-playback-port.ts",
+        "**/pkgs/sounds-shared/src/ports.ts",
+        "**/pkgs/sounds-shared/src/web-audio-playback-port.ts",
+        "**/pkgs/sounds-shared/src/safe-audio-play.ts",
+        "**/pkgs/sounds-shared/src/sound-engine.ts",
+        "**/pkgs/sql-client-shared/src/interface.ts",
+        "**/pkgs/tts-client/src/tts-player-controller.ts",
         "!**/solid.{ts,tsx}"
       ]
     },
@@ -1121,72 +1404,51 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/import-shared-pure.grit",
-      "includes": [
-        "**/src/shared/**/*.{ts,tsx}",
-        "**/use-cases/*/shared/**/*.{ts,tsx}"
-      ]
-    },
-    {
-      "path": "./libs/tools/biome-plugins/import-client-not-server.grit",
-      "includes": [
-        "**/client/**/*.{ts,tsx}",
-        "**/apps/client/**/*.{ts,tsx}",
-        "!**/*.test.{ts,tsx}",
-        "!**/*.spec.{ts,tsx}",
-        "!**/tests/**"
-      ]
-    },
-    {
-      "path": "./libs/tools/biome-plugins/import-server-not-client.grit",
-      "includes": [
-        "**/server/**/*.{ts,tsx}",
-        "**/apps/server/**/*.{ts,tsx}"
-      ]
-    },
-    {
-      "path": "./libs/tools/biome-plugins/import-assistant-internal.grit",
-      "includes": [
-        "**/*.{ts,tsx}",
-        "!**/pkgs/assistant-client/src/**",
-        "!**/pkgs/assistant-shared/src/**",
-        "!**/pkgs/assistant-client/tests/**",
-        "!**/pkgs/assistant-shared/tests/**"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/import-pkgs-tier.grit",
-      "includes": [
-        "**/pkgs/**/*.{ts,tsx}"
-      ]
+      "includes": ["**/pkgs/**/*.{ts,tsx}"]
     },
     {
       "path": "./libs/tools/biome-plugins/import-libs-tier.grit",
-      "includes": [
-        "**/libs/**/*.{ts,tsx}"
-      ]
+      "includes": ["**/libs/**/*.{ts,tsx}"]
     },
     {
       "path": "./libs/tools/biome-plugins/import-shared-no-wall-io.grit",
       "includes": [
         "**/libs/*-shared/src/**/*.{ts,tsx}",
-        "**/pkgs/room-client/src/**/*.{ts,tsx}",
-        "**/pkgs/room-shared/src/**/*.{ts,tsx}",
+        "**/pkgs/room-client/src/room-client-core.ts",
+        "**/pkgs/room-client/src/room-client-persist.ts",
+        "**/pkgs/room-client/src/room-client-snapshot.ts",
+        "**/pkgs/room-client/src/room-client-wire.ts",
+        "**/pkgs/room-client/src/room-client.ts",
+        "**/pkgs/room-client/src/room-meta.ts",
+        "**/pkgs/room-client/src/room-optimistic-effects.ts",
+        "**/pkgs/room-client/src/wipe-local-cache.ts",
+        "**/pkgs/room-shared/src/core-storage.ts",
+        "**/pkgs/room-shared/src/transport.ts",
         "**/pkgs/room-server/src/**/*.{ts,tsx}",
-        "**/pkgs/room-shared/src",
+        "**/pkgs/room-shared/src/room-server-types.ts",
+        "**/pkgs/room-shared/src/room-service.ts",
+        "**/pkgs/room-shared/src/server-core-storage.ts",
+        "**/pkgs/room-shared/src/types.ts",
+        "**/pkgs/room-shared/src/hash-room-state.ts",
         "!**/libs/db-server/src/**",
         "!**/libs/db-shared/src/**",
         "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/scripts/**",
         "!**/libs/secrets-server/src/**",
         "!**/libs/secrets-server/tests/**",
         "!**/libs/secrets-shared/tests/**",
         "!**/libs/pubsub-shared/src/**",
         "!**/libs/pubsub-server/src/**",
         "!**/libs/pubsub-server/tests/**",
-        "!**/libs/pubsub-shared/**",
+        "!**/libs/pubsub-shared/emqx-deploy/Caddyfile",
+        "!**/libs/pubsub-shared/emqx-deploy/Dockerfile",
+        "!**/libs/pubsub-shared/emqx-deploy/config/emqx.conf",
+        "!**/libs/pubsub-shared/emqx-deploy/docker-entrypoint.sh",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**"
+        "!**/tests/**",
+        "!**/libs/room-app-shared/src/wall-room-server-env.ts"
       ]
     },
     {
@@ -1196,14 +1458,16 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/billing-shared/src/**/*.{ts,tsx}",
         "**/pkgs/billing-shared/tests/**/*.{ts,tsx}",
-        "!**/apps/server/src/product/server.ts",
+        "!**/apps/server/src/product-server.ts",
         "!**/apps/product/**",
         "!**/libs/harness/src/**",
         "!**/libs/secrets-shared/src/**",
+        "!**/libs/secrets-server/scripts/**",
         "!**/libs/secrets-server/src/**",
         "!**/libs/secrets-server/tests/**",
         "!**/libs/secrets-shared/tests/**",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
@@ -1226,7 +1490,7 @@
         "!**/libs/permissions-server/src/**",
         "!**/libs/permissions-shared/tests/**",
         "!**/libs/permissions-harness/tests/**",
-        "!**/libs/permissions-shared/**"
+        "!**/libs/permissions-shared/turbo.json"
       ]
     },
     {
@@ -1240,8 +1504,8 @@
         "!**/libs/permissions-server/src/**",
         "!**/libs/permissions-shared/tests/**",
         "!**/libs/permissions-harness/tests/**",
-        "!**/libs/permissions-shared/**",
-        "!**/libs/app-server/src",
+        "!**/libs/permissions-shared/turbo.json",
+        "!**/libs/app-server/src/create-server.ts",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
       ]
@@ -1266,14 +1530,14 @@
         "!**/libs/billing-client/tests/**",
         "!**/libs/billing-harness/tests/**",
         "!**/libs/billing-server/scripts/**",
-        "!**/libs/billing-shared/**",
+        "!**/libs/billing-shared/turbo.json",
         "!**/libs/permissions-client/src/**",
         "!**/libs/permissions-shared/src/**",
         "!**/libs/permissions-harness/src/**",
         "!**/libs/permissions-server/src/**",
         "!**/libs/permissions-shared/tests/**",
         "!**/libs/permissions-harness/tests/**",
-        "!**/libs/permissions-shared/**",
+        "!**/libs/permissions-shared/turbo.json",
         "!**/libs/harness/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1285,13 +1549,14 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/auth-shared/src/**/*.{ts,tsx}",
         "**/pkgs/auth-client/src/**/*.{ts,tsx}",
-        "!**/libs/runtime-server/src",
+        "!**/libs/runtime-server/src/app-auth-provider.ts",
         "!**/apps/auth-relay/src/worker.ts",
-        "!**/libs/app-client/src",
-        "!**/libs/app-shared/src",
+        "!**/libs/app-client/src/wall-client-env.ts",
+        "!**/libs/app-shared/src/auth-client-storage.ts",
         "!**/apps/product/**",
         "!**/libs/harness/src/**",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**"
@@ -1302,7 +1567,8 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/src/harness/**",
+        "!**/*-harness/**",
+        "!**/apps/product/src/**",
         "!**/libs/harness/src/**",
         "!**/libs/harness/scripts/**",
         "!**/apps/product/**",
@@ -1312,32 +1578,11 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/import-harness-seam.grit",
-      "includes": [
-        "**/*.{ts,tsx}",
-        "!**/src/harness/**",
-        "!**/libs/harness/src/**",
-        "!**/apps/product/**",
-        "!**/*.test.{ts,tsx}",
-        "!**/*.spec.{ts,tsx}",
-        "!**/tests/**"
-      ]
-    },
-    {
-      "path": "./libs/tools/biome-plugins/import-harness-internals.grit",
-      "includes": [
-        "**/*.{ts,tsx}",
-        "!**/pkgs/harness-shared/src/**",
-        "!**/pkgs/harness-shared/tests/**",
-        "!**/pkgs/harness-shared/**"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/import-harness-core-no-fast-check.grit",
       "includes": [
         "**/pkgs/harness-shared/src/**/*.{ts,tsx}",
         "**/pkgs/harness-shared/tests/**/*.{ts,tsx}",
-        "!**/pkgs/harness-shared/src/**",
+        "!**/pkgs/harness-shared/src/fast-check.ts",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**"
@@ -1345,9 +1590,7 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-switch-in-component.grit",
-      "includes": [
-        "**/*.tsx"
-      ]
+      "includes": ["**/*.tsx"]
     },
     {
       "path": "./libs/tools/biome-plugins/observability-no-raw-attributes.grit",
@@ -1355,7 +1598,32 @@
         "**/apps/**/src/**/*.{ts,tsx}",
         "**/libs/**/src/**/*.{ts,tsx}",
         "**/pkgs/**/src/**/*.{ts,tsx}",
-        "!**/pkgs/observability-shared/src/**",
+        "!**/pkgs/observability-shared/src/attributes.ts",
+        "!**/pkgs/observability-shared/src/connection-place.ts",
+        "!**/pkgs/observability-shared/src/correlation.ts",
+        "!**/pkgs/observability-shared/src/deployment-environment.ts",
+        "!**/pkgs/observability-shared/src/events.ts",
+        "!**/pkgs/observability-shared/src/identity.ts",
+        "!**/pkgs/observability-shared/src/log.ts",
+        "!**/pkgs/observability-shared/src/narrate.ts",
+        "!**/pkgs/observability-shared/src/otlp-auth.ts",
+        "!**/pkgs/observability-shared/src/redaction.ts",
+        "!**/pkgs/observability-shared/src/span.ts",
+        "!**/pkgs/observability-shared/src/assert-trace.ts",
+        "!**/pkgs/observability-shared/src/identity-resolver.ts",
+        "!**/pkgs/observability-shared/src/indexed.ts",
+        "!**/pkgs/observability-shared/src/local-clock.ts",
+        "!**/pkgs/observability-shared/src/local-explorer.ts",
+        "!**/pkgs/observability-shared/src/mutation-trace-index.ts",
+        "!**/pkgs/observability-shared/src/ndjson.ts",
+        "!**/pkgs/observability-shared/src/normalize-id.ts",
+        "!**/pkgs/observability-shared/src/normalize.ts",
+        "!**/pkgs/observability-shared/src/person-name.ts",
+        "!**/pkgs/observability-shared/src/person-trouble.ts",
+        "!**/pkgs/observability-shared/src/pg-stats.ts",
+        "!**/pkgs/observability-shared/src/place.ts",
+        "!**/pkgs/observability-shared/src/tempo.ts",
+        "!**/pkgs/observability-shared/src/types.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1372,18 +1640,8 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/observability-no-deep-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/observability-core-no-runtime.grit",
-      "includes": [
-        "**/pkgs/observability-shared/src/**/*.{ts,tsx}"
-      ]
+      "includes": ["**/pkgs/observability-shared/src/**/*.{ts,tsx}"]
     },
     {
       "path": "./libs/tools/biome-plugins/observability-boundary-imports.grit",
@@ -1398,7 +1656,8 @@
         "!**/pkgs/observability-server/tests/**",
         "!**/pkgs/observability-harness/tests/**",
         "!**/pkgs/observability-server/scripts/**",
-        "!**/pkgs/observability-shared/**",
+        "!**/pkgs/observability-shared/configs/collector-ci.yaml",
+        "!**/pkgs/observability-shared/configs/production-error-alert.txt",
         "!**/pkgs/observability-cli-shared/src/**",
         "!**/pkgs/observability-cli-server/src/**",
         "!**/pkgs/observability-cli-shared/tests/**",
@@ -1408,20 +1667,31 @@
         "!**/pkgs/observability-mcp-server/tests/**",
         "!**/apps/client/src/main.tsx",
         "!**/apps/server/src/room.ts",
-        "!**/apps/server/src/product/server.ts",
-        "!**/libs/app-shared/src",
-        "!**/libs/app-client/src",
-        "!**/libs/observability-server/src",
-        "!**/libs/app-server/src",
-        "!**/libs/harness/src/observability/test-failure-spans.ts",
+        "!**/apps/server/src/product-server.ts",
+        "!**/libs/app-client/src/browser-boundaries.ts",
+        "!**/libs/app-client/src/browser-identity.ts",
+        "!**/libs/app-client/src/wall-client-env.ts",
+        "!**/libs/observability-server/src/person-trouble-document.ts",
+        "!**/libs/observability-server/src/person-trouble-probe.ts",
+        "!**/libs/app-server/src/create-server.ts",
+        "!**/libs/app-server/src/request-db-middleware.ts",
+        "!**/libs/app-server/src/request-telemetry.ts",
+        "!**/libs/app-shared/src/stamp-connection-place.ts",
+        "!**/libs/app-shared/src/wrap-sql-client.ts",
+        "!**/libs/app-server/src/room-route.ts",
+        "!**/libs/harness/src/test-failure-spans.ts",
         "!**/libs/harness/src/preload.ts",
-        "!**/pkgs/logger-shared/src",
-        "!**/pkgs/room-adapter-durable-object-server/src",
-        "!**/pkgs/sync-engine-client/src",
-        "!**/pkgs/sync-engine-server/src",
-        "!**/pkgs/sync-engine-shared/src",
+        "!**/pkgs/logger-shared/src/logger.ts",
+        "!**/pkgs/room-adapter-durable-object-server/src/adapter-base.ts",
+        "!**/pkgs/room-adapter-durable-object-server/src/observability.ts",
+        "!**/pkgs/sync-engine-client/src/mutation-upload-queue.ts",
+        "!**/pkgs/sync-engine-client/src/create-mutation-client.ts",
+        "!**/pkgs/sync-engine-server/src/replay-mutation.ts",
+        "!**/pkgs/sync-engine-server/src/sync-app-mutations-route.ts",
+        "!**/pkgs/sync-engine-shared/src/mutation-observability.ts",
         "!**/tests/**",
-        "!**/*.test.{ts,tsx}"
+        "!**/*.test.{ts,tsx}",
+        "!**/pkgs/observability-runtime-shared/src/**"
       ]
     },
     {
@@ -1437,7 +1707,8 @@
         "!**/pkgs/observability-server/tests/**",
         "!**/pkgs/observability-harness/tests/**",
         "!**/pkgs/observability-server/scripts/**",
-        "!**/pkgs/observability-shared/**",
+        "!**/pkgs/observability-shared/configs/collector-ci.yaml",
+        "!**/pkgs/observability-shared/configs/production-error-alert.txt",
         "!**/apps/client/src/main.tsx",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
@@ -1456,7 +1727,8 @@
         "!**/pkgs/observability-server/tests/**",
         "!**/pkgs/observability-harness/tests/**",
         "!**/pkgs/observability-server/scripts/**",
-        "!**/pkgs/observability-shared/**",
+        "!**/pkgs/observability-shared/configs/collector-ci.yaml",
+        "!**/pkgs/observability-shared/configs/production-error-alert.txt",
         "!**/pkgs/observability-cli-shared/src/**",
         "!**/pkgs/observability-cli-server/src/**",
         "!**/pkgs/observability-cli-shared/tests/**",
@@ -1482,11 +1754,13 @@
         "!**/pkgs/observability-server/tests/**",
         "!**/pkgs/observability-harness/tests/**",
         "!**/pkgs/observability-server/scripts/**",
-        "!**/pkgs/observability-shared/**",
+        "!**/pkgs/observability-shared/configs/collector-ci.yaml",
+        "!**/pkgs/observability-shared/configs/production-error-alert.txt",
         "!**/apps/server/src/room.ts",
-        "!**/apps/server/src/product/server.ts",
-        "!**/libs/app-server/src",
-        "!**/pkgs/room-adapter-durable-object-server/src",
+        "!**/apps/server/src/product-server.ts",
+        "!**/libs/app-server/src/room-route.ts",
+        "!**/pkgs/room-adapter-durable-object-server/src/adapter-base.ts",
+        "!**/pkgs/room-adapter-durable-object-server/src/observability.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
       ]
@@ -1514,7 +1788,8 @@
         "**/tests/**",
         "**/*.test.{ts,tsx}",
         "**/src/harness/**",
-        "**/*.spec.{ts,tsx}"
+        "**/*.spec.{ts,tsx}",
+        "**/*-harness/src/**"
       ],
       "linter": {
         "rules": {
@@ -1523,19 +1798,6 @@
           },
           "nursery": {
             "noExcessiveNestedCallbacks": "off"
-          },
-          "style": {
-            "noExcessiveLinesPerFile": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noExcessiveLinesPerFunction": "off"
           },
           "style": {
             "noExcessiveLinesPerFile": "off"
@@ -1576,38 +1838,6 @@
       }
     },
     {
-      "includes": [],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noExcessiveCognitiveComplexity": "off",
-            "noExcessiveLinesPerFunction": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [],
-      "linter": {
-        "rules": {
-          "complexity": {
-            "noExcessiveCognitiveComplexity": "off",
-            "noExcessiveLinesPerFunction": "off"
-          }
-        }
-      }
-    },
-    {
       "includes": [
         "**/scripts/**",
         "**/*.bench.ts",
@@ -1635,7 +1865,7 @@
     {
       "includes": [
         "pkgs/room-widgets/src/pages/use-room-harness.ts",
-        "pkgs/chess-board-client/src"
+        "pkgs/chess-board-client/src/chess-board.tsx"
       ],
       "linter": {
         "rules": {
@@ -1646,9 +1876,7 @@
       }
     },
     {
-      "includes": [
-        "**/src/components/icons/**"
-      ],
+      "includes": ["**/src/components/icons/**"],
       "linter": {
         "rules": {
           "style": {
@@ -1658,9 +1886,7 @@
       }
     },
     {
-      "includes": [
-        "apps/client/**"
-      ],
+      "includes": ["apps/client/**"],
       "linter": {
         "rules": {
           "style": {
@@ -1675,9 +1901,7 @@
       }
     },
     {
-      "includes": [
-        "**/libs/*/tests/harness/**"
-      ],
+      "includes": ["**/libs/*/tests/harness/**"],
       "linter": {
         "rules": {
           "style": {
@@ -1686,9 +1910,7 @@
               "options": {
                 "paths": {
                   "@pkgs/ui-testing": {
-                    "importNames": [
-                      "Driver"
-                    ],
+                    "importNames": ["Driver"],
                     "message": "Scenarios must use s.apply(defineAction) / openHarness (see libs/harness/README.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
@@ -1706,9 +1928,9 @@
     },
     {
       "includes": [
-        "pkgs/sql-client-contract-harness/tests",
-        "pkgs/sync-engine-server/src",
-        "pkgs/sync-engine-harness/src"
+        "pkgs/sql-client-contract-harness/tests/portable-contract.ts",
+        "pkgs/sync-engine-server/src/replay-mutation.ts",
+        "pkgs/sync-engine-harness/src/http-bridge-dispatch.ts"
       ],
       "linter": {
         "rules": {
@@ -1720,6 +1942,12 @@
             "noExcessiveNestedCallbacks": "off"
           }
         }
+      }
+    },
+    {
+      "includes": ["pkgs/ui-client/src/tokens.css"],
+      "formatter": {
+        "enabled": false
       }
     }
   ]

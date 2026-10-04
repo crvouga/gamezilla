@@ -1,8 +1,14 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
-import { COMMAND_HISTORY_DEFAULT_LIMIT, HistoryStore } from '@pkgs/ui-shared/history-store';
-import { CommandRegistryStore, createCommandRegistryStore } from '@pkgs/ui-client/command-registry-store';
+import {
+  CommandRegistryStore,
+  createCommandRegistryStore,
+} from '@pkgs/ui-client/command-registry-store';
 import type { RegisteredCommand } from '@pkgs/ui-client/types';
+import {
+  COMMAND_HISTORY_DEFAULT_LIMIT,
+  HistoryStore,
+} from '@pkgs/ui-shared/history-store';
 
 function cmd(id: string, title = id): RegisteredCommand {
   return { id, title, run: () => {}, _version: 0 };

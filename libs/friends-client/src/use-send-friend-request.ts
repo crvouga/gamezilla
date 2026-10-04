@@ -1,10 +1,8 @@
+import { FRIENDS_NEEDS_CONNECTION } from '@libs/friends-shared/friends-mutation-codes';
+import { sendFriendRequestMutation } from '@libs/friends-shared/send-friend-request-mutation';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { useCreateId } from '@pkgs/uuid-client/solid';
-
-import { FRIENDS_NEEDS_CONNECTION } from '@libs/friends-shared/friends-mutation-codes';
-
-import { sendFriendRequestMutation } from '@libs/friends-shared/send-friend-request-mutation';
 
 /** A refused request, with the server's reason code (e.g. `FRIENDS_COOLDOWN`). */
 export class SendFriendRequestError extends Error {

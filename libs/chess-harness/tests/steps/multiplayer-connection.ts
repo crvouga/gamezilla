@@ -1,8 +1,14 @@
-import { openMultiplayerChess, refreshMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { multiplayerText, multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import {
+  openMultiplayerChess,
+  refreshMultiplayerConnection,
+} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  multiplayerText,
+  multiplayerView,
+} from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { partition, restoreNetwork } from '@libs/harness/actions';
 import { partitionLoadBalancer } from '@libs/harness/server-actions';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 
 export async function disconnectMultiplayer(w: HarnessWorld, actor: string) {
   await w.s.apply(openMultiplayerChess, actor);

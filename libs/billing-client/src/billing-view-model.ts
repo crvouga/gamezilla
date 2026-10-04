@@ -6,13 +6,16 @@
  * renders this and nothing else, so every combination is testable without a
  * DOM.
  */
-import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing-shared/offer';
 
 import {
   rowGrantsMembership,
   rowMembershipLapsesAtMs,
 } from '@libs/billing-shared/governing-row';
 import type { MembershipRow } from '@libs/billing-shared/membership-row';
+import type {
+  OfferPriceSpec,
+  PlusMembershipOffer,
+} from '@pkgs/billing-shared/offer';
 
 /** Whether the membership makes the account a member right now. */
 export type BillingTier = 'free' | 'paid';

@@ -1,10 +1,15 @@
-import { finishPuzzleBy, openPuzzleFromSpace, playUntilSolved, retryPuzzle } from '@libs/chess-puzzle-harness/chess-actions';
-import { partition, restoreNetwork } from '@libs/harness/actions';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import {
-  captureWorlds,
-  sharedWorlds,
-} from '@libs/harness/snapshot-worlds';
+  finishPuzzleBy,
+  openPuzzleFromSpace,
+  playUntilSolved,
+  retryPuzzle,
+} from '@libs/chess-puzzle-harness/chess-actions';
+import { partition, restoreNetwork } from '@libs/harness/actions';
+import {
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
+import { captureWorlds, sharedWorlds } from '@libs/harness/snapshot-worlds';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import { bindStructure } from '@pkgs/alloy-shared/registry';
 import { openHarness } from '../open-chess-harness';

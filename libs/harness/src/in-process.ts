@@ -4,13 +4,16 @@ import type { Ports, Runtime } from '@pkgs/harness-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session';
 import type { HarnessComposition } from './composition';
-import type { HarnessSql } from './sql-types';
-import { openFreshHarnessServerSql, openHarnessServerSqlFromSeedBytes } from './sql';
-import { compositionMigratePostgres } from './migrate-composition';
-import { createSerializedRunFor } from './wait-pump';
 import { loadSolidDomSessionFactory } from './in-process-dom';
-import { HARNESS_START_MS } from './ports';
+import { compositionMigratePostgres } from './migrate-composition';
 import type { ProductExtra } from './ports';
+import { HARNESS_START_MS } from './ports';
+import {
+  openFreshHarnessServerSql,
+  openHarnessServerSqlFromSeedBytes,
+} from './sql';
+import type { HarnessSql } from './sql-types';
+import { createSerializedRunFor } from './wait-pump';
 
 // @io-wall-ok — host factory; wallClock only when skipSeed (product-harness).
 

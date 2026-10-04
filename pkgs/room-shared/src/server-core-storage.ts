@@ -1,5 +1,5 @@
-import type { LogEntry, RoomError } from './types';
 import type { RoomIdentityErasure } from './room-service';
+import type { LogEntry, RoomError } from './types';
 
 export type CommandDedupOutcome =
   | { kind: 'committed'; entries: LogEntry[] }

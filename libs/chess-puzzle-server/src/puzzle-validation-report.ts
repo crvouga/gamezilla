@@ -5,8 +5,8 @@
  * `duplicatePosition` failure.
  */
 import { validatePuzzleRecord } from '@libs/chess-puzzle-shared/puzzle-records';
-import { PUZZLE_REJECTION_REASONS } from '@libs/chess-puzzle-shared/puzzle-validation';
 import type { PuzzleRejectionReason } from '@libs/chess-puzzle-shared/puzzle-validation';
+import { PUZZLE_REJECTION_REASONS } from '@libs/chess-puzzle-shared/puzzle-validation';
 
 export type PuzzleValidationFailureReason =
   | PuzzleRejectionReason

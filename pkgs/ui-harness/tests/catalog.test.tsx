@@ -3,9 +3,9 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { CatalogDetail } from '@pkgs/ui-client/catalog-detail';
 import { CatalogDetailNav } from '@pkgs/ui-client/catalog-detail-nav';
-import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
 import { CatalogList } from '@pkgs/ui-client/catalog-list';
 import { ContentEdgePaddingProvider } from '@pkgs/ui-client/content-edge-padding';
+import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { cssOf, renderUi } from './render';

@@ -1,15 +1,24 @@
-import { finishPuzzleBy, openPuzzleFromSpace } from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  finishPuzzleBy,
+  openPuzzleFromSpace,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import { readActivePuzzleId } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { finishPuzzleAsAppCloses } from '@libs/chess-puzzle-harness/puzzle-close-during-finish';
 import { finishCompetingPuzzleResults } from '@libs/chess-puzzle-harness/puzzle-competing-mates';
-import { closePuzzleApp, puzzleRecoveryState, reopenPuzzleApp, retryFinishedPuzzle, viewRecoveryStats } from '@libs/chess-puzzle-harness/puzzle-result-recovery';
-import { focusActor } from '@libs/harness/shell-actions';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {
-  partition,
-  restoreActorConnection,
-} from '@libs/harness/actions';
+  closePuzzleApp,
+  puzzleRecoveryState,
+  reopenPuzzleApp,
+  retryFinishedPuzzle,
+  viewRecoveryStats,
+} from '@libs/chess-puzzle-harness/puzzle-result-recovery';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
+import {
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
 import {
   createSpace,
   joinFromPrompt,
@@ -18,8 +27,8 @@ import {
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import competingRatingTrace from './fixtures/puzzle-competing-equal-rating.itf.json';
 import watcherReadyTrace from './fixtures/puzzle-recovery-watcher-not-ready.itf.json';
 

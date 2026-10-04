@@ -1,8 +1,15 @@
 import { ATTR } from '@pkgs/observability-shared/attributes';
+import type {
+  IdentityResolver,
+  ResolvedIdentity,
+} from '@pkgs/observability-shared/identity-resolver';
 import type { NarrateSpan } from '@pkgs/observability-shared/narrate';
-import type { IdentityResolver, ResolvedIdentity } from '@pkgs/observability-shared/identity-resolver';
 import type { PgStatsSource } from '@pkgs/observability-shared/pg-stats';
-import type { TimeRange, TraceRef, TraceStore } from '@pkgs/observability-shared/types';
+import type {
+  TimeRange,
+  TraceRef,
+  TraceStore,
+} from '@pkgs/observability-shared/types';
 import type { ObsArgs } from './args';
 import { stringFlag } from './args';
 import { emptyResult } from './empty-result';
@@ -17,6 +24,7 @@ import {
 import { HELP } from './help';
 import type { MutationCommandContext } from './mutation-chain';
 import { mutationCommand } from './mutation-chain';
+import { percentile } from './percentile';
 import { personCommand } from './person-command';
 import { resolveRange } from './time';
 
@@ -250,16 +258,6 @@ async function correlated(
   };
 }
 
-function percentile(values: readonly number[], requested: number): number {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const index = Math.min(
-    sorted.length - 1,
-    Math.ceil((requested / 100) * sorted.length) - 1
-  );
-  return sorted[Math.max(0, index)] ?? 0;
-}
-
 async function slow(ctx: Context, args: ObsArgs): Promise<CommandResult> {
   const range = rangeFor(args, ctx.nowMs, '1h');
   if (range === undefined) return { code: 2, text: HELP };
@@ -349,7 +347,9 @@ async function refsForLayer(
       trace?.spans.filter((item) => spanLayer(item) === layer) ?? [];
     if (spans.length === 0) continue;
     const slowest = [...spans].sort(
-      (a, b) => b.durationMs - a.durationMs || a.name.localeCompare(b.name)
+      (a, b) =>
+        b.durationMs - a.durationMs ||
+        (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
     )[0];
     if (slowest === undefined) continue;
     selected.push({

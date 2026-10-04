@@ -1,11 +1,28 @@
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import sql from '@pkgs/sql-shared/sql';
-import { addClient, connect, disconnect, online as setOnline, startMutate } from '@pkgs/sync-engine-harness/regression-actions';
-import { deviceOnlineSignal, lastMutationOk, lastMutationSettled, queuedEdits, rejections, rows } from '@pkgs/sync-engine-harness/sync-observations';
-import { httpFault, partition, resumeNetwork } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
-import { liveNote } from '@pkgs/sync-engine-harness/reads';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
+import { liveNote } from '@pkgs/sync-engine-harness/reads';
+import {
+  addClient,
+  connect,
+  disconnect,
+  online as setOnline,
+  startMutate,
+} from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  httpFault,
+  partition,
+  resumeNetwork,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import {
+  deviceOnlineSignal,
+  lastMutationOk,
+  lastMutationSettled,
+  queuedEdits,
+  rejections,
+  rows,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import type { NoteWorld } from './note-world';
 
 const PEOPLE = ['alice', 'bob'] as const;

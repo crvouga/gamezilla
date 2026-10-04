@@ -1,9 +1,9 @@
+import { customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
+import { scenarioAction } from '@libs/harness/actor-ui';
 import type {
   HarnessComposition,
   HarnessRoomNode,
 } from '@libs/harness/composition';
-import { scenarioAction } from '@libs/harness/actor-ui';
-import { customGameLegalMoves } from '@libs/chess-custom-game-shared/custom-game-position';
 import { readCustomGameProbe } from './custom-game-ui';
 
 const choices = new WeakMap<HarnessRoomNode, { next: number | null }>();

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { LlmProvider } from '@pkgs/llm-shared/llm-provider';
 import { InMemoryLlmProvider } from '@pkgs/llm-server/in-memory-llm-provider';
+import type { LlmProvider } from '@pkgs/llm-shared/llm-provider';
 
 function runLlmContract(factory: () => LlmProvider): void {
   test('structured returns json', async () => {

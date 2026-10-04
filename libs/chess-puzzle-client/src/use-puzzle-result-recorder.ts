@@ -1,6 +1,6 @@
+import type { ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-import type { ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 
 /** Reconcile a decided result after restore, including an interrupted rating write. */
 export function usePuzzleResultRecorder(args: {

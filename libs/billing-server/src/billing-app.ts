@@ -1,6 +1,5 @@
-import { Hono } from 'hono';
-
 import type { BillingRouteDeps } from '@libs/billing-shared/billing-route-deps';
+import { Hono } from 'hono';
 import { BillingCallbackRoutes } from './billing-callback-route';
 import { BillingCheckoutRoutes } from './billing-checkout-route';
 import { BillingPortalRoutes } from './billing-portal-route';

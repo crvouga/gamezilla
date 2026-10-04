@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
+import { Checkbox } from './checkbox';
 import { ExampleRoot } from './example-root';
 import { SchemePreview } from './scheme-preview';
-import { Checkbox } from './checkbox';
 
 export default function CheckboxExample(): JSX.Element {
   const [a, setA] = createSignal(false);

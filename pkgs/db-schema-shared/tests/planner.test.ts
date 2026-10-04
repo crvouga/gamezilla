@@ -1,12 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { classifyDelta } from '@pkgs/db-schema-shared/compatibility';
-import { POSTGRES_CAPS, SQLITE_CAPS } from '@pkgs/db-schema-shared/dialect-caps';
+import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import {
+  POSTGRES_CAPS,
+  SQLITE_CAPS,
+} from '@pkgs/db-schema-shared/dialect-caps';
 import type { ClientOperation } from '@pkgs/db-schema-shared/operations';
 import { planClient } from '@pkgs/db-schema-shared/plan-client';
 import { planServer } from '@pkgs/db-schema-shared/plan-server';
-import type { ColumnType, IntrospectedCatalog, IntrospectedColumn, IntrospectedTable, ReadonlyDeclaredSchema } from '@pkgs/db-schema-shared/types';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type {
+  ColumnType,
+  IntrospectedCatalog,
+  IntrospectedColumn,
+  IntrospectedTable,
+  ReadonlyDeclaredSchema,
+} from '@pkgs/db-schema-shared/types';
 
 type Dialect = 'postgres' | 'sqlite';
 

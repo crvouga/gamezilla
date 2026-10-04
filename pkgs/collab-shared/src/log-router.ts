@@ -1,4 +1,7 @@
-import type { ComposedMessageRouter, MessageRouter } from '@pkgs/message-shared/router';
+import type {
+  ComposedMessageRouter,
+  MessageRouter,
+} from '@pkgs/message-shared/router';
 
 import type { LogLineContext, LogLineDraft } from './log-line';
 

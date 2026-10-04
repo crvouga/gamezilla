@@ -1,5 +1,5 @@
-import { parseSpaceVisibility } from './space-visibility';
 import { decideSpaceJoinAccess } from './decide-space-join-access';
+import { parseSpaceVisibility } from './space-visibility';
 
 export type SpaceJoinSnapshotStatus =
   | 'loading'

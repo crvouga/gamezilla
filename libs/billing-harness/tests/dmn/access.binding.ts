@@ -17,9 +17,9 @@
  */
 
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import { accessApplicationLayer } from '@libs/permissions-shared/application';
 import { accessClientLayer } from '@libs/permissions-harness/client-layers';
+import { accessApplicationLayer } from '@libs/permissions-shared/application';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import {
   queryGuardOperation,
   routeGuardOperation,

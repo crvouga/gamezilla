@@ -5,8 +5,8 @@ import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { validateUsername } from '@libs/profile-shared/username';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 
 async function openProfileDb() {
   const client = new SqlClientImplBunSqlite(new Database(':memory:'));

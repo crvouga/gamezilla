@@ -12,6 +12,11 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { cssPx } from '@pkgs/ui-shared/css-px';
+import { APP_FRAME_GUTTER_STEP, APP_MAX_WIDTH } from '@pkgs/ui-shared/layout';
+import { spacingScale } from '@pkgs/ui-shared/scale';
 import {
   createContext,
   createEffect,
@@ -21,16 +26,11 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { cssPx } from '@pkgs/ui-shared/css-px';
-import { APP_FRAME_GUTTER_STEP, APP_MAX_WIDTH } from '@pkgs/ui-shared/layout';
-import { spacingScale } from '@pkgs/ui-shared/scale';
-import { useLayoutMode } from './use-layout-mode';
 import { Button } from './button';
 import { CONTENT_EDGE_PADDING_STEP } from './content-edge-padding';
 import { IconButton } from './icon-button';
 import { XIcon } from './icons';
+import { useLayoutMode } from './use-layout-mode';
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
 

@@ -4,9 +4,12 @@ import { join } from 'node:path';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { createPgPool, openPgClient } from '@pkgs/sql-client-postgres-server/connect';
+import {
+  createPgPool,
+  openPgClient,
+} from '@pkgs/sql-client-postgres-server/connect';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { exampleAppSchema } from '@pkgs/sync-engine-harness/schema';
 import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
 

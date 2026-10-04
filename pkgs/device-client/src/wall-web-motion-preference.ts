@@ -1,6 +1,7 @@
 // @io-wall-ok — browser device preference adapter, injected at composition.
-import { createMotionPreference } from '@pkgs/device-shared/motion-preference';
+
 import type { MotionPreferencePort } from '@pkgs/device-shared/motion-preference';
+import { createMotionPreference } from '@pkgs/device-shared/motion-preference';
 
 export function wallWebMotionPreference(): MotionPreferencePort {
   const query = window.matchMedia('(prefers-reduced-motion: reduce)');

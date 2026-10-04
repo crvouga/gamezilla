@@ -1,6 +1,6 @@
 import { NdjsonStreamDecoder } from '@pkgs/ndjson-shared/decode';
-import { IndexedNdjsonCollector } from './indexed-collector';
 import type { OnNdjsonErrorFrame } from './indexed-collector';
+import { IndexedNdjsonCollector } from './indexed-collector';
 
 export type CollectIndexedNdjsonOptions = {
   /** Optional eager hook fired when an `error` frame is decoded. */

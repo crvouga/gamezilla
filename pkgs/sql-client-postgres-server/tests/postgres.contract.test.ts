@@ -6,11 +6,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import { raw } from '@pkgs/sql-shared/sql';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { createPgPool, isLoopbackPostgresUrl, openPgClient } from '@pkgs/sql-client-postgres-server/connect';
-import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
+import {
+  createPgPool,
+  isLoopbackPostgresUrl,
+  openPgClient,
+} from '@pkgs/sql-client-postgres-server/connect';
 import { SqlClientImplBunPostgres } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
+import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-shared/sql';
 
 const TEST_SCHEMA = 'gamezilla_test_scope';
 const REMOTE_DB_TIMEOUT_MS = 30_000;

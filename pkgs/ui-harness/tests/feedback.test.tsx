@@ -1,15 +1,22 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { DismissibleBanner, DismissibleBannerPortalProvider, InFlowBanner } from '@pkgs/ui-client/dismissible-top-banner';
+import {
+  DismissibleBanner,
+  DismissibleBannerPortalProvider,
+  InFlowBanner,
+} from '@pkgs/ui-client/dismissible-top-banner';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
 import { ErrorState } from '@pkgs/ui-client/error-state';
 import { LoadingState } from '@pkgs/ui-client/loading-state';
 import { ProgressBar } from '@pkgs/ui-client/progress-bar';
 import { Skeleton } from '@pkgs/ui-client/skeleton';
-import { SPIN_DURATION_MS, SpinnerProvider } from '@pkgs/ui-client/spinner-context';
 import { Spinner } from '@pkgs/ui-client/spinner';
 import { SpinnerBox } from '@pkgs/ui-client/spinner-box';
+import {
+  SPIN_DURATION_MS,
+  SpinnerProvider,
+} from '@pkgs/ui-client/spinner-context';
 import { StateBlock } from '@pkgs/ui-client/state-block';
 import { SuccessState } from '@pkgs/ui-client/success-state';
 import { Tooltip } from '@pkgs/ui-client/tooltip';

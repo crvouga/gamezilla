@@ -16,11 +16,11 @@ import {
   signInWithGoogleAsAccount,
   signOut,
 } from './auth-actions';
+import { Given, Then, When } from './define';
 import { accountIdOf, signedInAccountOf } from './identity';
 import { caps } from './observations';
-import { focusActor, openAccount } from './shell-actions';
 import type { Actor } from './parameter-types';
-import { Given, Then, When } from './define';
+import { focusActor, openAccount } from './shell-actions';
 import type { HarnessWorld } from './spec-world';
 import { remember, signedInAccountKey } from './spec-world';
 

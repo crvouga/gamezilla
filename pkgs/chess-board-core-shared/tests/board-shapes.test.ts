@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import type { BoardShape } from '@pkgs/chess-board-core-shared/board-shapes';
-import { brushFromModifiers, toggleShape } from '@pkgs/chess-board-core-shared/board-shapes';
+import {
+  brushFromModifiers,
+  toggleShape,
+} from '@pkgs/chess-board-core-shared/board-shapes';
 
 describe('brushFromModifiers', () => {
   test('maps shift/alt/ctrl to brushes', () => {

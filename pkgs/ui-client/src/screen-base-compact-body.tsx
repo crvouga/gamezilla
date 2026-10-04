@@ -6,19 +6,24 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import { ContentEdgePaddingProvider } from './content-edge-padding';
-import { ScreenLargeTitle } from './screen-large-title';
-import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
-import { ScrollView } from './scroll-view';
+import {
+  ContentEdgePaddingProvider,
+  CONTENT_EDGE_PADDING_STEP as SCREEN_BODY_PADDING_STEP,
+} from './content-edge-padding';
 import {
   bodyNeedsSafeBottom,
   buildBodyContentProps,
   SCREEN_SCROLL_BOTTOM_PADDING,
 } from './screen-base-logic';
-import { primaryActionVisible, ScreenBasePrimaryFab } from './screen-base-primary-action';
 import type { ScreenBasePrimaryActionRender } from './screen-base-primary-action';
+import {
+  primaryActionVisible,
+  ScreenBasePrimaryFab,
+} from './screen-base-primary-action';
 import type { ScreenBaseProps } from './screen-base-types';
-import { CONTENT_EDGE_PADDING_STEP as SCREEN_BODY_PADDING_STEP } from './content-edge-padding';
+import { ScreenLargeTitle } from './screen-large-title';
+import { ScrollView } from './scroll-view';
+import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
 /** Spacing-scale steps (1 = 4px): body gap 12px. */
 const BODY_GAP_STEP = 3;

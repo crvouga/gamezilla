@@ -1,7 +1,6 @@
+import { spaceByLink } from '@libs/spaces-shared/space-by-link-query';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-
-import { spaceByLink } from '@libs/spaces-shared/space-by-link-query';
 
 /**
  * While a space's screen is open, keep its row in sync — including for a

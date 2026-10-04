@@ -1,6 +1,10 @@
 import { expect, test } from 'bun:test';
 import { runInNewContext } from 'node:vm';
-import { emulateOffline, openDevice, waitForCachedShell } from '@apps/product/live-browser';
+import {
+  emulateOffline,
+  openDevice,
+  waitForCachedShell,
+} from '@apps/product/live-browser';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 // regression: health-macos-offline-network

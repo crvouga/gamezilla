@@ -5,14 +5,6 @@ import { defineSnapshot } from '@pkgs/harness-shared/define-snapshot';
 import { defineSystem } from '@pkgs/harness-shared/define-system';
 import type { Driver } from '@pkgs/ui-testing-shared/driver';
 import { noErrorBoundary } from '@pkgs/ui-testing-shared/observations';
-import type { HarnessComposition } from './composition';
-import { createHarness } from './create-harness';
-
-import { bunWebviewRuntime } from './bun-webview';
-import { inProcessRuntime } from './in-process';
-import type { ProductExtra, ProductUi } from './ports';
-import { harnessReportTopology } from './report-topology';
-import { wireProductRuntime } from './wire-product-runtime';
 import {
   partition,
   resetActor,
@@ -22,12 +14,19 @@ import {
   spawnActor,
   uiOp,
 } from './actions';
-import { createProductHarness, productExtra } from './harness';
+import { bunWebviewRuntime } from './bun-webview';
+import type { HarnessComposition } from './composition';
+import { createHarness } from './create-harness';
 import type { ProductHarness } from './harness';
+import { createProductHarness, productExtra } from './harness';
+import { inProcessRuntime } from './in-process';
 import { anyActor } from './observations';
+import type { ProductExtra, ProductUi } from './ports';
 import { captureSnapshot } from './probes';
+import { harnessReportTopology } from './report-topology';
 import { productServerActions } from './server-actions';
 import { SHELL_SCENARIO_ACTIONS } from './shell-scenario-actions';
+import { wireProductRuntime } from './wire-product-runtime';
 
 function extraOf(session: { readonly ports: object }): ProductExtra {
   return session.ports as ProductExtra;

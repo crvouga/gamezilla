@@ -6,11 +6,11 @@
 import { Database } from 'bun:sqlite';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import sql from '@pkgs/sql-shared/sql';
 
 type Backend = {
   readonly name: string;

@@ -2,8 +2,8 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import { KV_TABLE as TABLE } from '@pkgs/kv-shared/tables';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import sql, { raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 
 const STORAGE_PARAMS = `
   fillfactor = 70,

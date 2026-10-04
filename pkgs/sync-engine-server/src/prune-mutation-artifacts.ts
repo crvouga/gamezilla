@@ -1,5 +1,5 @@
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import { managedUpdatedAtIso } from '@pkgs/sync-engine-shared/managed-columns';
 

@@ -1,12 +1,12 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
-import { RPC_ERROR_TX_ABORTED, serializeError } from './rpc';
+import type { Value } from '@pkgs/sql-shared/sql';
 import type { RpcRequest, RpcResponse, SqlWire } from './rpc';
+import { RPC_ERROR_TX_ABORTED, serializeError } from './rpc';
 import { sqlFromWire } from './sql-wire';
 
 export type ActiveTx = {

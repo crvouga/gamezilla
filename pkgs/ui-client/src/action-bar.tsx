@@ -18,19 +18,30 @@
  * ```
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { buildOverflowMenuContent, OVERFLOW_MENU_DEFAULT_WIDTH, renderDefaultOverflowMenu } from './overflow-menu-button';
-import type { OverflowMenuHeader, OverflowMenuRenderProps } from './overflow-menu-button';
+import { type JSX, Show } from 'solid-js';
 import type {
   ActionBarAlign,
   ActionBarItem,
   ActionBarOverflowMode,
   ActionBarTextAction,
 } from './action-bar-logic';
-import { ActionBarIconItems, ActionBarOverflowTrigger, ActionBarTextItems } from './action-bar-parts';
 import type { ActionBarOverflowTriggerSpec } from './action-bar-parts';
+import {
+  ActionBarIconItems,
+  ActionBarOverflowTrigger,
+  ActionBarTextItems,
+} from './action-bar-parts';
+import type {
+  OverflowMenuHeader,
+  OverflowMenuRenderProps,
+} from './overflow-menu-button';
+import {
+  buildOverflowMenuContent,
+  OVERFLOW_MENU_DEFAULT_WIDTH,
+  renderDefaultOverflowMenu,
+} from './overflow-menu-button';
 import type { ActionBarController } from './use-action-bar-controller';
 import { useActionBarController } from './use-action-bar-controller';
 

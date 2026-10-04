@@ -21,14 +21,17 @@
 import { describe, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
+import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 import type { Obligation } from '@pkgs/conformance-shared/evidence';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
-import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
-
-import { gaps, overlaps } from '@pkgs/dmn-shared/analyze';
 import type { Overlap } from '@pkgs/dmn-shared/analyze';
+import { gaps, overlaps } from '@pkgs/dmn-shared/analyze';
 import { generateCases } from '@pkgs/dmn-shared/cases';
-import { bindingProblems, compareLayer, formatMismatches } from '@pkgs/dmn-shared/compare';
+import {
+  bindingProblems,
+  compareLayer,
+  formatMismatches,
+} from '@pkgs/dmn-shared/compare';
 import type { DmnDecision, DmnDefinitions } from '@pkgs/dmn-shared/model';
 import { findDecision, parseDmn } from '@pkgs/dmn-shared/model';
 import type { DecisionBinding } from '@pkgs/dmn-shared/registry';

@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
-import { createHealthApp, READINESS_CHECK_TIMEOUT_MS } from '@libs/app-server/health-route';
 import type { ReadinessBody } from '@libs/app-server/health-route';
+import {
+  createHealthApp,
+  READINESS_CHECK_TIMEOUT_MS,
+} from '@libs/app-server/health-route';
+import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import fc from 'fast-check';
 import { Hono } from 'hono';
 
 /** How the database behaves for one readiness probe. */

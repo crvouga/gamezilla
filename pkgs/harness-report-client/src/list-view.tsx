@@ -1,11 +1,16 @@
-import { createMemo } from 'solid-js';
-
-import { useReport } from './report-context';
-import type { ReportNav } from './use-report-nav';
-import { EntityBrowser } from './entity-browser';
-import type { CatalogGroup, CatalogLayout, CatalogQuery, CatalogSort, CatalogStatus } from '@pkgs/harness-report-shared/catalog';
+import type {
+  CatalogGroup,
+  CatalogLayout,
+  CatalogQuery,
+  CatalogSort,
+  CatalogStatus,
+} from '@pkgs/harness-report-shared/catalog';
 import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 import { testCatalogEntity } from '@pkgs/harness-report-shared/test-catalog-entity';
+import { createMemo } from 'solid-js';
+import { EntityBrowser } from './entity-browser';
+import { useReport } from './report-context';
+import type { ReportNav } from './use-report-nav';
 
 const STATUSES = new Set<string>([
   'all',

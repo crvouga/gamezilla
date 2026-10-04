@@ -1,18 +1,21 @@
 import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
-import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
-import { CHESS_HARNESS_SLICE } from '@libs/chess-harness/chess-harness-slice';
-import { customGameBotRoomNode } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
-import { HARNESS_CHESS_FEED_POOL_KEY, seedHarnessChessPuzzles } from '@libs/chess-puzzle-harness/seed-harness-chess-puzzles';
-import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
 import { chessGameClient } from '@libs/chess-client/chess-game-def';
+import { customGameBotRoomNode } from '@libs/chess-custom-game-harness/custom-game-bot-choice';
+import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
+import { CHESS_HARNESS_SLICE } from '@libs/chess-harness/chess-harness-slice';
+import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-harness-seed';
+import {
+  HARNESS_CHESS_FEED_POOL_KEY,
+  seedHarnessChessPuzzles,
+} from '@libs/chess-puzzle-harness/seed-harness-chess-puzzles';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
-import type { OpenHarness } from '@libs/harness/open-harness';
-import type { OpenHarnessOptions } from '@libs/harness/mode';
-import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
-import { composeHarnessSlices } from '@libs/harness/slices';
-import type { HarnessSlice } from '@libs/harness/slices';
 import { defineProductSystem } from '@libs/harness/define-product-system';
+import type { OpenHarnessOptions } from '@libs/harness/mode';
+import type { OpenHarness } from '@libs/harness/open-harness';
+import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
+import type { HarnessSlice } from '@libs/harness/slices';
+import { composeHarnessSlices } from '@libs/harness/slices';
 import { NOTIFICATIONS_HARNESS_SLICE } from '@libs/notifications-harness/notifications-harness-slice';
 import { PROFILE_HARNESS_SLICE } from '@libs/profile-harness/profile-harness-slice';
 import { SEARCH_HARNESS_SLICE } from '@libs/search-harness/search-harness-slice';

@@ -22,30 +22,32 @@ import {
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { GLOBAL } from '@libs/infra-shared/global';
-import { membershipCallbackPath } from '@pkgs/billing-shared/providers';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
+import { membershipCallbackPath } from '@pkgs/billing-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
 import { STRIPE_PROVIDER } from '@pkgs/billing-stripe-server/stripe-membership';
-import { StripeBindingKeys, StripeSecretKeys } from '@pkgs/billing-stripe-shared/secret-keys';
-import { createLogger } from '@pkgs/logger-shared/logger';
-
 import {
-  loadReportsDevSecrets,
-  reportsReadCredential,
-} from './reports-dev-credentials';
-import { bootInfra } from './boot-infra';
+  StripeBindingKeys,
+  StripeSecretKeys,
+} from '@pkgs/billing-stripe-shared/secret-keys';
+import { createLogger } from '@pkgs/logger-shared/logger';
 import type { InfraHandles } from './boot-infra';
+import { bootInfra } from './boot-infra';
 import type { PortReservation } from './free-port';
 import { reservePort, waitForApiBooted, waitForHttp } from './free-port';
 import { startLoadBalancer } from './load-balancer';
 import type { StackManifest } from './manifest';
 import { writeManifest } from './manifest';
 import { mockingbirdSqliteFile } from './mockingbird-sqlite';
+import {
+  loadReportsDevSecrets,
+  reportsReadCredential,
+} from './reports-dev-credentials';
 import type { StackOptions } from './stack-options';
 import type { IdpState, StackIdps } from './start-idps';
 import { startStackIdps } from './start-idps';
 
-const REPO_ROOT = join(import.meta.dir, '../../../..');
+const REPO_ROOT = join(import.meta.dir, '../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
 const BILLING_SECRET_KEY = 'sk_test_localhost_stack';
 /**

@@ -2,7 +2,7 @@
 /**
  * Export a bounded chess_puzzles CSV load file from Postgres (typically prod).
  *
- *   SECRETS_ENV=prd bun run libs/secrets-server/src/secrets-run.ts -- \
+ *   SECRETS_ENV=prd bun run libs/secrets-server/scripts/secrets-run.ts -- \
  *     bun run --filter @libs/chess-puzzle-server export:puzzles-load -- --confirm-prod
  */
 
@@ -14,16 +14,19 @@ import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
-import { raw } from '@pkgs/sql-shared/sql';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
-import { CHESS_PUZZLES_LOAD_CSV_COLUMNS, CHESS_PUZZLES_LOAD_EXPORT_SQL } from './load-file-constants';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { raw } from '@pkgs/sql-shared/sql';
 import { resolveChessPuzzlesLoadFilePath } from './load-file';
+import {
+  CHESS_PUZZLES_LOAD_CSV_COLUMNS,
+  CHESS_PUZZLES_LOAD_EXPORT_SQL,
+} from './load-file-constants';
 import { PuzzleIngestTally } from './puzzle-ingest';
 import type { PuzzleTableRow } from './row';
 import { resolveToolingDatabaseUrl } from './tooling-database-url';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 
 type ExportRow = {

@@ -9,12 +9,23 @@
  */
 
 import { expect } from 'bun:test';
-import { playUntilSolved, pressPuzzleNext, pressPuzzleNextNoWait, sleepUntilNextUtcDay } from '@libs/chess-puzzle-harness/chess-actions';
-import { readLocalPuzzleStartLedger, useUpPuzzleStartsToday } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
-import { isPuzzleLimitSignInOffered, isPuzzleLimitVisible } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  playUntilSolved,
+  pressPuzzleNext,
+  pressPuzzleNextNoWait,
+  sleepUntilNextUtcDay,
+} from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  readLocalPuzzleStartLedger,
+  useUpPuzzleStartsToday,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
+import {
+  isPuzzleLimitSignInOffered,
+  isPuzzleLimitVisible,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { readPuzzleRemainingToday } from '@libs/chess-puzzle-harness/puzzle-control-reads';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   enterPuzzles,

@@ -1,8 +1,8 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import sql, { join } from '@pkgs/sql-shared/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql, { join } from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 import type { OutboxConsumerRegistry } from './define-consumer';

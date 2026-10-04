@@ -22,14 +22,14 @@
  * always-active scope.
  */
 
-import { AppUpdateRequiredBanner } from './app-update-required';
-import { OfflineIndicator } from './offline-indicator';
 import { CommandPalette } from '@pkgs/ui-client/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-client/command-registry-context';
 import { KeyboardShortcutScope } from '@pkgs/ui-client/keyboard-shortcut-scope';
 import { type JSX, Show } from 'solid-js';
 import { AppCommands } from './app-commands';
+import { AppUpdateRequiredBanner } from './app-update-required';
 import { useEmbeddedApp } from './embedded-app-context';
+import { OfflineIndicator } from './offline-indicator';
 import { PerfHudOverlay } from './perf-hud-overlay';
 import { PwaUpdatePromptBanner } from './update-prompt';
 

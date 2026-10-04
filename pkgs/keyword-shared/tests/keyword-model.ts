@@ -1,4 +1,9 @@
-import { KEYWORD_MAX_LENGTH, KEYWORD_NAMESPACE_MAX_SEGMENTS, KEYWORD_SEGMENT_MAX_LENGTH, KEYWORD_SEGMENT_MIN_LENGTH } from '@pkgs/keyword-shared/keyword';
+import {
+  KEYWORD_MAX_LENGTH,
+  KEYWORD_NAMESPACE_MAX_SEGMENTS,
+  KEYWORD_SEGMENT_MAX_LENGTH,
+  KEYWORD_SEGMENT_MIN_LENGTH,
+} from '@pkgs/keyword-shared/keyword';
 
 /**
  * Reference model of the keyword wire rules, written as a character walk so

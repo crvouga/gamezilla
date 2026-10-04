@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'bun:test';
-import { createRenderCounter, isChessBoardDevInstrumentation } from '@pkgs/chess-board-shared/render-counts';
+import {
+  createRenderCounter,
+  isChessBoardDevInstrumentation,
+} from '@pkgs/chess-board-shared/render-counts';
 
 type DevGlobal = typeof globalThis & { __CHESS_BOARD_DEV__?: boolean };
 

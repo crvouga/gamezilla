@@ -1,5 +1,11 @@
 /** @jsxImportSource solid-js */
 import { useClock } from '@pkgs/clock-client/solid';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { pushEscapeDismissHandler } from '@pkgs/ui-shared/escape-dismiss-stack';
+import type {
+  MarkdownEditorCommand,
+  MarkdownEditorProps,
+} from '@pkgs/ui-shared/markdown-editor-types';
 import { defaultMarkdownParser, schema } from 'prosemirror-markdown';
 import type { Command, Selection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
@@ -11,20 +17,14 @@ import {
   onMount,
   Show,
 } from 'solid-js';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { pushEscapeDismissHandler } from '@pkgs/ui-shared/escape-dismiss-stack';
 import { EditorLinkForm } from './editor-link-form';
 import { suggestionKeyHandler } from './editor-suggestion-key';
 import { EditorSuggestionMenu } from './editor-suggestion-menu';
-import { applyEditorSuggestion, editorSuggestion } from './editor-suggestions';
 import type { EditorSuggestion } from './editor-suggestions';
+import { applyEditorSuggestion, editorSuggestion } from './editor-suggestions';
 import { EditorToolbar } from './editor-toolbar';
 import { createMarkdownView } from './editor-view';
 import styles from './markdown-editor.module.css';
-import type {
-  MarkdownEditorCommand,
-  MarkdownEditorProps,
-} from '@pkgs/ui-shared/markdown-editor-types';
 import { cleanMarkdownNode } from './safe-markdown';
 
 function useEditor(props: MarkdownEditorProps) {

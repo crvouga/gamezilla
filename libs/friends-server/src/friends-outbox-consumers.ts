@@ -1,3 +1,9 @@
+import { FriendRequestRepository } from '@libs/friends-shared/friend-request-repository';
+import {
+  FriendRequestAccepted,
+  FriendRequestClosed,
+  FriendRequestSent,
+} from '@libs/friends-shared/friends-outbox-messages';
 import { Notifications } from '@libs/notifications-server/notifications-service';
 import type { PublishNotificationInput } from '@libs/notifications-shared/publish-types';
 import { ProfileReadRepository } from '@libs/profile-shared/read-profile';
@@ -6,13 +12,6 @@ import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import {
-  FriendRequestAccepted,
-  FriendRequestClosed,
-  FriendRequestSent,
-} from '@libs/friends-shared/friends-outbox-messages';
-import { FriendRequestRepository } from '@libs/friends-shared/friend-request-repository';
 
 const FRIENDS_NAMESPACE = 'friends' as const;
 const FRIEND_REQUEST_TYPE = 'friend-request' as const;

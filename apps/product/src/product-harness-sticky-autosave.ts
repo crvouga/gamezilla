@@ -2,10 +2,10 @@
  * Debounced sticky `latest` snapshot so product-harness refresh restores session.
  */
 
-import type { SnapshotSessionCtx } from './product-harness-snapshots';
-import { saveProductHarnessStickySnapshot } from './product-harness-snapshots';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
+import type { SnapshotSessionCtx } from './product-harness-snapshots';
+import { saveProductHarnessStickySnapshot } from './product-harness-snapshots';
 
 const AUTOSAVE_DEBOUNCE_MS = 1500;
 

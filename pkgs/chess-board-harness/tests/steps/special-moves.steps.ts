@@ -1,12 +1,31 @@
 import { expect } from 'bun:test';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { CASTLE_ACROSS_CHECK, castlingConfig, EN_PASSANT, EXPIRED_EN_PASSANT, WHITE_PROMOTION } from '@pkgs/chess-board-harness/interaction-fixtures';
-import { cancelPromotion, choosePromotion, setupPendingPromotion } from '@pkgs/chess-board-harness/interaction-actions';
-import type { PromotionName, Side } from '@pkgs/chess-board-harness/interaction-fixtures';
-import { pressBoardKey } from '@pkgs/chess-board-harness/options-actions';
-import { readActivityMoves, readAnnouncement, readInteraction, readPiece, readPromotionChoices } from '@pkgs/chess-board-harness/interaction-reads';
-import { setupBoard } from '@pkgs/chess-board-harness/chess-board';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import { setupBoard } from '@pkgs/chess-board-harness/chess-board';
+import {
+  cancelPromotion,
+  choosePromotion,
+  setupPendingPromotion,
+} from '@pkgs/chess-board-harness/interaction-actions';
+import type {
+  PromotionName,
+  Side,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  CASTLE_ACROSS_CHECK,
+  castlingConfig,
+  EN_PASSANT,
+  EXPIRED_EN_PASSANT,
+  WHITE_PROMOTION,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  readActivityMoves,
+  readAnnouncement,
+  readInteraction,
+  readPiece,
+  readPromotionChoices,
+} from '@pkgs/chess-board-harness/interaction-reads';
+import { pressBoardKey } from '@pkgs/chess-board-harness/options-actions';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

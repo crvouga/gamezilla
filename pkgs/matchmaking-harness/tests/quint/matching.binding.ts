@@ -1,15 +1,30 @@
-import type { CurrentSearch } from '@pkgs/matchmaking-shared/identity';
-import type { JoinResult } from '@pkgs/matchmaking-shared/types';
-import { availability, changeRange, connectDevice, lastBegin, repeatBegin, repeatChange, restriction, stopWaiting, timePasses, waitForMatch } from '@pkgs/matchmaking-harness/lobby';
-import { deviceConnected, deviceRange, deviceView } from '@pkgs/matchmaking-harness/devices';
+import { tick } from '@pkgs/matchmaking-harness/actions';
+import { NameAttr } from '@pkgs/matchmaking-harness/attrs';
+import {
+  deviceConnected,
+  deviceRange,
+  deviceView,
+} from '@pkgs/matchmaking-harness/devices';
+import {
+  availability,
+  changeRange,
+  connectDevice,
+  lastBegin,
+  repeatBegin,
+  repeatChange,
+  restriction,
+  stopWaiting,
+  timePasses,
+  waitForMatch,
+} from '@pkgs/matchmaking-harness/lobby';
 import { matchFingerprint } from '@pkgs/matchmaking-harness/observations';
 import { matchmaking } from '@pkgs/matchmaking-harness/system';
-import { NameAttr } from '@pkgs/matchmaking-harness/attrs';
-import { tick } from '@pkgs/matchmaking-harness/actions';
+import type { CurrentSearch } from '@pkgs/matchmaking-shared/identity';
+import type { JoinResult } from '@pkgs/matchmaking-shared/types';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { MatchmakingTraceWorld } from './world';
 import { traceMatchmaking } from './world';
 

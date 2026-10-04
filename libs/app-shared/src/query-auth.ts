@@ -1,5 +1,5 @@
-import { appAuth, syncActorOf } from '@libs/auth-shared/auth-context';
 import type { SyncActor } from '@libs/auth-shared/auth-context';
+import { appAuth, syncActorOf } from '@libs/auth-shared/auth-context';
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared/v2';
 

@@ -9,8 +9,8 @@ import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { runStructureSpec } from '@pkgs/alloy-server/bun-test';
 import { bindStructure, structureBinding } from '@pkgs/alloy-shared/registry';
-import type { Snapshot } from '@pkgs/alloy-shared/world';
 import { alloyStubFileName, alloyStubSource } from '@pkgs/alloy-shared/stubs';
+import type { Snapshot } from '@pkgs/alloy-shared/world';
 import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 
 const SPEC_URI = 'pkgs/alloy-server/tests/fixtures/spaces.als';

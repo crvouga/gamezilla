@@ -26,20 +26,22 @@
 
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { sha256 } from '@pkgs/conformance-shared/evidence';
 import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
+import { sha256 } from '@pkgs/conformance-shared/evidence';
+import { modelInvariants } from '@pkgs/quint-server/simulate';
+import {
+  modelTemporalProperties,
+  verifyTemporal,
+} from '@pkgs/quint-server/temporal';
+import { verify } from '@pkgs/quint-server/verify';
 import {
   DEFAULT_VERIFY_STEPS,
   DEFAULT_VERIFY_TIMEOUT_MS,
 } from '@pkgs/quint-shared/registry';
-import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
-import { modelInvariants } from '@pkgs/quint-server/simulate';
-import { modelTemporalProperties, verifyTemporal } from '@pkgs/quint-server/temporal';
-import { verify } from '@pkgs/quint-server/verify';
-
-import { REPO_ROOT, specPackages } from './spec-packages';
+import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import type { SpecPackage } from './spec-packages';
+import { REPO_ROOT, specPackages } from './spec-packages';
 
 /**
  * Bound independent JVM/SMT processes separately from Turbo's task slots.

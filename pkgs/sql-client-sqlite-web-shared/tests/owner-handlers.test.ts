@@ -4,7 +4,10 @@ import type {
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
-import type { ActiveTx, OwnerHandlerDeps } from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
+import type {
+  ActiveTx,
+  OwnerHandlerDeps,
+} from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
 import { handleOwnerRequest } from '@pkgs/sql-client-sqlite-web-shared/owner-handlers';
 import { RPC_ERROR_TX_ABORTED } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 

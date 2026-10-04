@@ -1,6 +1,7 @@
 // @io-wall-ok
-import { requireNonEmpty, Secret } from './secret';
+
 import type { SecretInput } from './secret';
+import { requireNonEmpty, Secret } from './secret';
 
 const MIN_AUTH_SECRET_LENGTH = 32;
 

@@ -1,5 +1,10 @@
 import { narrate } from '@pkgs/observability-shared/narrate';
-import type { TimeRange, Trace, TraceRef, TraceStore } from '@pkgs/observability-shared/types';
+import type {
+  TimeRange,
+  Trace,
+  TraceRef,
+  TraceStore,
+} from '@pkgs/observability-shared/types';
 import { formatRange } from './time';
 
 export const FORMAT_HEADER = 'obs/v1';

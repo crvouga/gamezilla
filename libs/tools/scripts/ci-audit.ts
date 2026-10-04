@@ -1,8 +1,8 @@
 // @io-wall-ok — pure gate over current registry evidence injected by Check/Deploy.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { AUDIT_SNAPSHOT } from './audit-snapshot';
 import type { AuditSnapshot } from './audit-snapshot';
+import { AUDIT_SNAPSHOT } from './audit-snapshot';
 
 export function auditVerdict(json: string): AuditSnapshot {
   const snapshot = JSON.parse(json) as AuditSnapshot;

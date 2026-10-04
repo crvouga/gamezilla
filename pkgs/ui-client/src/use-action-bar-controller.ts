@@ -5,13 +5,25 @@
  */
 
 import { type Accessor, createMemo, createSignal } from 'solid-js';
-import type { AnchoredMenuController } from './use-anchored-menu';
-import type { OverflowMenuAction } from './overflow-menu-button';
-import { useAnchoredMenu } from './use-anchored-menu';
-import { ACTION_BAR_DEFAULT_GAP, actionBarHasContent, partitionActionBarItems, partitionTextActions, resolveCombinedOverflow } from './action-bar-logic';
-import type { ActionBarAlign, ActionBarItem, ActionBarOverflowMode, ActionBarPartition, ActionBarTextAction } from './action-bar-logic';
+import type {
+  ActionBarAlign,
+  ActionBarItem,
+  ActionBarOverflowMode,
+  ActionBarPartition,
+  ActionBarTextAction,
+} from './action-bar-logic';
+import {
+  ACTION_BAR_DEFAULT_GAP,
+  actionBarHasContent,
+  partitionActionBarItems,
+  partitionTextActions,
+  resolveCombinedOverflow,
+} from './action-bar-logic';
 import { collectOverflowActions } from './action-bar-overflow';
 import { createElementWidth } from './create-element-width';
+import type { OverflowMenuAction } from './overflow-menu-button';
+import type { AnchoredMenuController } from './use-anchored-menu';
+import { useAnchoredMenu } from './use-anchored-menu';
 
 const DEFAULT_BUTTON_SIZE = 36;
 

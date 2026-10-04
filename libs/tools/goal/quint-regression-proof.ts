@@ -96,7 +96,7 @@ function registryImported(tokens: readonly string[]): boolean {
     if (
       close < 0 ||
       tokens[close + 1] !== 'from' ||
-      quoted(tokens[close + 2]) !== '@pkgs/quint/registry'
+      quoted(tokens[close + 2]) !== '@pkgs/quint-shared/registry'
     )
       return false;
     return splitFields(tokens.slice(at + 2, close)).some(

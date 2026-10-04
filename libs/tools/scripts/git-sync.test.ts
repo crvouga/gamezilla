@@ -113,10 +113,10 @@ describe('worktreeForBranch', () => {
 describe('generateCommitMessage', () => {
   test('names the package and passes the commit rules', () => {
     const message = generateCommitMessage([
-      'libs/friends/src/a.ts',
-      'libs/friends/src/b.ts',
+      'libs/friends-harness/src/a.ts',
+      'libs/friends-harness/src/b.ts',
     ]);
-    expect(message).toBe('chore(friends): update 2 files');
+    expect(message).toBe('chore(friends-harness): update 2 files');
     expect(validateCommitMessage(message)).toEqual([]);
   });
 

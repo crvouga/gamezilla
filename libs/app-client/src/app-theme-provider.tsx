@@ -2,11 +2,14 @@
 /** Minimal theme root stays mounted when the feature/provider tree crashes. */
 
 import type { MotionPreferencePort } from '@pkgs/device-shared/motion-preference';
-import type { Kv } from '@pkgs/kv-shared/interface';
 import { KvProvider } from '@pkgs/kv-client/solid';
-import { ThemePreferenceProvider, useThemePreference } from '@pkgs/ui-client/theme-preference';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+import type { Kv } from '@pkgs/kv-shared/interface';
 import { useTestViewport } from '@pkgs/ui-client/test-viewport';
+import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+import {
+  ThemePreferenceProvider,
+  useThemePreference,
+} from '@pkgs/ui-client/theme-preference';
 import { createSignal, type JSX, onCleanup, untrack } from 'solid-js';
 
 function AppTheme(props: {

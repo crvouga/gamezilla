@@ -1,10 +1,10 @@
 import { join } from 'node:path';
+import { cliClock } from '@libs/db-shared/cli-io';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider-server/create-secret-admin-store';
 import type { SecretAdminStore } from '@pkgs/secret-store-shared/admin-interface';
-import { cliClock } from '@libs/db-shared/cli-io';
 
-const REPO_ROOT = join(import.meta.dirname, '..', '..', '..', '..');
+const REPO_ROOT = join(import.meta.dirname, '../../..', '..', '..', '..');
 
 let adminStorePromise: Promise<SecretAdminStore> | null = null;
 

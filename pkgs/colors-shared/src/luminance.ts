@@ -2,8 +2,8 @@
  * WCAG relative luminance and contrast ratio on typed RGB channels `[0, 1]`.
  */
 
-import { clamp01 } from './types';
 import type { Rgb } from './types';
+import { clamp01 } from './types';
 
 function linearizeChannel(channel: number): number {
   const s = clamp01(channel);

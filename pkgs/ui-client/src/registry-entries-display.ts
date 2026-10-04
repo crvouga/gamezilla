@@ -2,6 +2,9 @@
  * Explorer entries: Data Display / Feedback / Disclosure / Overlay.
  * Split from `registry-entries-core.ts` to keep each file under the size cap.
  */
+
+import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
+import { entry } from '@pkgs/ui-shared/component-entry';
 import AvatarExample from './avatar.example';
 import AvatarGroupExample from './avatar-group.example';
 import AvatarHeroExample from './avatar-hero.example';
@@ -27,8 +30,6 @@ import SpeakingAvatarExample from './speaking-avatar.example';
 import SpinnerExample from './spinner.example';
 import StatusDotExample from './status-dot.example';
 import SuccessStateExample from './success-state.example';
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
-import { entry } from '@pkgs/ui-shared/component-entry';
 
 const DATA_DISPLAY = 'Data Display';
 const FEEDBACK = 'Feedback';

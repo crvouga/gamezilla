@@ -1,11 +1,10 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { resolveProfilePuzzleRating } from '@libs/chess-puzzle-shared/next-puzzle-selection';
 import sql from '@pkgs/sql-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import { resolveProfilePuzzleRating } from '@libs/chess-puzzle-shared/next-puzzle-selection';
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 
 type PuzzleRatingValueRow = { readonly value: number };

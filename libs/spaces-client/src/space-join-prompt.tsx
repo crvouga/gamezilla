@@ -7,11 +7,11 @@ import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createSignal, Match, Show, Switch } from 'solid-js';
-import { SpaceTitleText } from './space-title-text';
-import { SpacesNeedConnectionNotice } from './spaces-notices';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinButton } from './space-join-button';
 import { SpaceJoinLiveBody } from './space-join-live-body';
+import { SpaceTitleText } from './space-title-text';
+import { SpacesNeedConnectionNotice } from './spaces-notices';
 import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 
 export type SpaceJoinPromptProps = {

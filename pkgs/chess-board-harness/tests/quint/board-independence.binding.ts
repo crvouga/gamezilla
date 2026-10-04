@@ -1,7 +1,20 @@
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginSeparateDrag, cancelSeparateDrag, closeSeparateBoard, configureSeparateInput, configureSeparateSound, moveSeparatePiece, preparePair, replaceSeparatePosition, selectSeparatePiece } from '@pkgs/chess-board-harness/pair-actions';
+import {
+  beginSeparateDrag,
+  cancelSeparateDrag,
+  closeSeparateBoard,
+  configureSeparateInput,
+  configureSeparateSound,
+  moveSeparatePiece,
+  preparePair,
+  replaceSeparatePosition,
+  selectSeparatePiece,
+} from '@pkgs/chess-board-harness/pair-actions';
+import {
+  readPairFingerprint,
+  readPairModel,
+} from '@pkgs/chess-board-harness/pair-reads';
 import type { PairSide } from '@pkgs/chess-board-harness/pair-world';
-import { readPairFingerprint, readPairModel } from '@pkgs/chess-board-harness/pair-reads';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 

@@ -1,11 +1,11 @@
 import type { SecretString } from '@pkgs/secret-string-shared/secret-string';
-import { SecretMissingError } from './secret-missing-error';
-import { SecretStoreRequestError } from './secret-store-request-error';
 import type {
   SecretStore,
   SecretStoreGetInit,
   SecretStoreSetInit,
 } from './interface';
+import { SecretMissingError } from './secret-missing-error';
+import { SecretStoreRequestError } from './secret-store-request-error';
 import { wrapSecretOptional } from './wrap-secret';
 
 /**

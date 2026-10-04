@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
-import { COMMITTED_LOG_SEGMENT_SIZE } from '@pkgs/room-shared/segmented-committed-log';
-import type { LogEntry } from '@pkgs/room-shared/types';
-import { committedSegmentKeyword, keyValueRoomClientKeywords } from '@pkgs/room-client/keys';
+import {
+  committedSegmentKeyword,
+  keyValueRoomClientKeywords,
+} from '@pkgs/room-client/keys';
 import { KeyValueClientRoomStorage } from '@pkgs/room-client/storage';
 import { AddOne, TallyChanged } from '@pkgs/room-harness/game-room';
+import { COMMITTED_LOG_SEGMENT_SIZE } from '@pkgs/room-shared/segmented-committed-log';
+import type { LogEntry } from '@pkgs/room-shared/types';
 
 function entry(seq: number): LogEntry {
   return { seq, event: TallyChanged({ by: seq }), ts: seq };

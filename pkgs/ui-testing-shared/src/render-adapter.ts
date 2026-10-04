@@ -1,8 +1,4 @@
-import type {
-  ElementLayout,
-  GestureOptions,
-  TapPosition,
-} from './driver';
+import type { ElementLayout, GestureOptions, TapPosition } from './driver';
 
 /**
  * Runtime-agnostic node handle. DOM adapters use `Element`.

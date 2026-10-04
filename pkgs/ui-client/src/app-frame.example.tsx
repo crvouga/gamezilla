@@ -1,12 +1,12 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { AppLogo } from './app-logo';
-import { ExampleRoot } from './example-root';
 import { AppFrame } from './app-frame';
 import {
   AppFrameChromeProvider,
   useSetAppFrameHeader,
 } from './app-frame-chrome';
+import { AppLogo } from './app-logo';
+import { ExampleRoot } from './example-root';
 
 function OverrideDemo(): JSX.Element {
   useSetAppFrameHeader(

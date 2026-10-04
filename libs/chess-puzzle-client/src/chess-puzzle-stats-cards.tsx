@@ -1,7 +1,6 @@
+import type { ChessPuzzleStats } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-
-import type { ChessPuzzleStats } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 
 type StatTileProps = {
   label: JSX.Element;

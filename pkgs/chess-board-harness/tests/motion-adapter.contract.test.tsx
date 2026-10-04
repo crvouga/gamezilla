@@ -1,9 +1,23 @@
 import { expect, test } from 'bun:test';
-import { beginDrag, boardSystem, configureBoard, movePiece, readBoard, readProbe, readSlides, reduceMotion, replacePosition, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { CAPTURE } from '@pkgs/chess-board-harness/positions';
 import { confirmOfferedPosition } from '@pkgs/chess-board-harness/authority-actions';
-import { dragPiece, dropHeldPieceAtRatio } from '@pkgs/chess-board-harness/interaction-actions';
+import {
+  beginDrag,
+  boardSystem,
+  configureBoard,
+  movePiece,
+  readBoard,
+  readProbe,
+  readSlides,
+  reduceMotion,
+  replacePosition,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
+import {
+  dragPiece,
+  dropHeldPieceAtRatio,
+} from '@pkgs/chess-board-harness/interaction-actions';
 import { readCompletedFeedback } from '@pkgs/chess-board-harness/interaction-reads';
+import { CAPTURE } from '@pkgs/chess-board-harness/positions';
 import { Chess } from 'chess.js';
 
 test.each([

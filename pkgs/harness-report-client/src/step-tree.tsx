@@ -1,3 +1,11 @@
+import { actionLabel, fmtMs } from '@pkgs/harness-report-shared/format';
+import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
+import {
+  firstFrameFor,
+  flattenSteps,
+  lastFrameBefore,
+  stepHasPress,
+} from '@pkgs/harness-report-shared/frames';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
 import {
   createEffect,
@@ -7,14 +15,6 @@ import {
   For,
   Show,
 } from 'solid-js';
-import { actionLabel, fmtMs } from '@pkgs/harness-report-shared/format';
-import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
-import {
-  firstFrameFor,
-  flattenSteps,
-  lastFrameBefore,
-  stepHasPress,
-} from '@pkgs/harness-report-shared/frames';
 
 export function StepTree(props: {
   test: HtmlReportTest;

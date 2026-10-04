@@ -1,3 +1,6 @@
+import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
+import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
+import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import {
   type Accessor,
@@ -6,8 +9,6 @@ import {
   type JSX,
   Show,
 } from 'solid-js';
-
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
 import { ChessPuzzleAllowance } from './chess-puzzle-allowance';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
@@ -15,8 +16,6 @@ import { ChessPuzzleCelebrationOverlay } from './chess-puzzle-celebration-overla
 import { ChessPuzzleFeedBar } from './chess-puzzle-feed-bar';
 import { ChessPuzzleFeedSettingsModal } from './chess-puzzle-feed-settings-modal';
 import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
 
 const noopRating = (): void => {};
 

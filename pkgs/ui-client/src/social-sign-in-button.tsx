@@ -21,13 +21,19 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { BrandIcon } from './brand-icon';
-import { Spinner } from './spinner';
+import type {
+  SocialProviderSpec,
+  SocialSignInButtonAction,
+  SocialSignInButtonTheme,
+  SocialSignInProvider,
+  SocialThemePalette,
+} from './social-provider-config';
 import { SOCIAL_PROVIDER_SPECS } from './social-provider-config';
-import type { SocialProviderSpec, SocialSignInButtonAction, SocialSignInButtonTheme, SocialSignInProvider, SocialThemePalette } from './social-provider-config';
+import { Spinner } from './spinner';
 
 export type SocialSignInButtonShape = 'rectangular' | 'pill';
 

@@ -14,9 +14,7 @@ function searchTabLabel(): string {
 
 export const SEARCH_CLIENT = defineFeatureClient({
   name: 'search',
-  routes: [
-    { path: '/search', tab: true, load: () => import('./search') },
-  ],
+  routes: [{ path: '/search', tab: true, load: () => import('./search') }],
   tabs: [
     {
       name: 'Search',

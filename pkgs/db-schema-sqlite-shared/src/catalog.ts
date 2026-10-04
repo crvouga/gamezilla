@@ -6,8 +6,8 @@ import type {
   IntrospectedIndex,
   IntrospectedTable,
 } from '@pkgs/db-schema-shared/types';
-import { raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { raw } from '@pkgs/sql-shared/sql';
 
 function quoteSqliteIdent(name: string): string {
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {

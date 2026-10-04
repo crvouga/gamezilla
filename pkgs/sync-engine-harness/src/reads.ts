@@ -7,8 +7,8 @@
 import { expect } from 'bun:test';
 import type { JsonValue } from '@pkgs/harness-shared/json';
 import type { Run } from '@pkgs/harness-shared/run-types';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import type { SyncHarness } from './scenario-system';
 import { clientIds, deviceId, rows as rowsObs } from './sync-observations';

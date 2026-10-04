@@ -6,8 +6,8 @@
 
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { reconcilePostgres } from './reconcile-postgres';
 
 /**

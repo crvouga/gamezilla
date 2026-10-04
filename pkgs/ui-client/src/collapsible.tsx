@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 /** `Collapsible` -- disclosure row that toggles its body (`aria-expanded`). */
 
-import { createSignal, type JSX, Show, untrack } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { createSignal, type JSX, Show, untrack } from 'solid-js';
 import { ChevronRightIcon } from './icons';
 
 export type CollapsibleProps = {

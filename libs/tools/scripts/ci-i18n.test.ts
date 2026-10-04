@@ -13,7 +13,7 @@ const MACRO = "import { t } from '@lingui/core/macro';";
 
 describe('lingui catalog scope', () => {
   test('underCatalogSource matches files inside a source dir only', () => {
-    expect(underCatalogSource('libs/spaces/src/root/x.tsx')).toBe(true);
+    expect(underCatalogSource('libs/spaces-client/src/x.tsx')).toBe(true);
     expect(underCatalogSource('libs/spaces-extra/src/x.tsx')).toBe(false);
     expect(underCatalogSource('apps/server/src/api.ts')).toBe(false);
   });
@@ -21,7 +21,7 @@ describe('lingui catalog scope', () => {
   test('macrosOutsideCatalog lists macro files the extractor would skip', () => {
     expect(
       macrosOutsideCatalog([
-        { path: 'libs/spaces/src/root/spaces-screen.tsx', text: MACRO },
+        { path: 'libs/spaces-client/src/spaces-screen.tsx', text: MACRO },
         { path: 'apps/server/src/untranslated.tsx', text: MACRO },
         { path: 'apps/server/src/plain.ts', text: 'export {};' },
         { path: 'apps/server/tests/fixture.test.tsx', text: MACRO },

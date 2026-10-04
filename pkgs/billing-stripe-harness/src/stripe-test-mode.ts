@@ -16,9 +16,8 @@ import {
   type StripeRuntimeOptions,
   type StripeWebhookEvent,
 } from '@crvouga/mockingbird-service-stripe';
-import Stripe from 'stripe';
-
 import { createStripeClient } from '@pkgs/billing-stripe-server/stripe-membership';
+import Stripe from 'stripe';
 
 const ACCOUNT = 'acct_test_mode';
 

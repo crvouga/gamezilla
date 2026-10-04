@@ -1,7 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { PgExecutor } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
-import { pgQueryWithOptionalSearchPathPin, pgRawQueryWithSearchPathPin, pgRunResultFromQuery, readLastInsertRowid } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
+import {
+  pgQueryWithOptionalSearchPathPin,
+  pgRawQueryWithSearchPathPin,
+  pgRunResultFromQuery,
+  readLastInsertRowid,
+} from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 const testScope = createPostgresDbScope('public');
 

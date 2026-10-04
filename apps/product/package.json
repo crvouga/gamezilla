@@ -4,25 +4,6 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./console-nav/*": [
-      "./src/console/console-nav/*.ts",
-      "./src/console/console-nav/*.tsx",
-      "./src/console/console-nav/*/index.ts"
-    ],
-    "./console/*": [
-      "./src/console/*.ts",
-      "./src/console/*.tsx",
-      "./src/console/*/index.ts"
-    ],
-    "./product-harness/*": [
-      "./src/console/product-harness/*.ts",
-      "./src/console/product-harness/*.tsx",
-      "./src/console/product-harness/*/index.ts"
-    ],
-    "./harness/*": [
-      "./src/harness/*.ts",
-      "./src/harness/*.tsx"
-    ],
     "./worker": "./src/worker.ts",
     "./ui-quality/*": "./scripts/ui-quality/*.ts",
     "./ui-quality/sources.json": "./scripts/ui-quality/sources.json",
@@ -43,6 +24,8 @@
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",
     "dev": "bun run scripts/dev-web.ts",
+    "dev:prepare": "bun run scripts/dev-prepare.ts",
+    "dev:services": "bun run scripts/cli.ts",
     "explore:quint-system": "bun tests/quint/explore-campaign.ts",
     "health": "bun run scripts/health.ts",
     "health:objectives": "bun run scripts/health.ts --objectives",
@@ -61,9 +44,7 @@
     "test:quint-system": "bun test tests/quint/simulation.test.ts tests/quint/effectiveness.test.ts",
     "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
     "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1",
-    "test:stack": "bun run scripts/test-stack.ts",
-    "dev:services": "bun run scripts/cli.ts",
-    "dev:prepare": "bun run scripts/dev-prepare.ts"
+    "test:stack": "bun run scripts/test-stack.ts"
   },
   "dependencies": {
     "@apps/server": "workspace:*",
@@ -114,7 +95,8 @@
     "@solidjs/router": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@pkgs/tailwind-shared": "workspace:*"
   },
   "devDependencies": {
     "@clack/prompts": "catalog:",
@@ -166,8 +148,10 @@
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "@pkgs/feedback-server": "workspace:*"
   },
+  "category": "harness",
   "liveDomains": [
     "journeys"
   ],
@@ -177,6 +161,5 @@
   "specDomains": [
     "developer-tools"
   ],
-  "specParts": 1,
-  "category": "harness"
+  "specParts": 1
 }

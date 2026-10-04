@@ -1,21 +1,21 @@
 import { expect } from 'bun:test';
-import { changeCustomGame, openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import {
+  changeCustomGame,
+  openCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-actions';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
 import { readCustomGameName } from '@libs/chess-custom-game-harness/custom-game-names';
 import { raceCustomGameChoices } from '@libs/chess-custom-game-harness/custom-game-race';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
-import { otherDevice } from '@libs/harness/platform';
-import {
-  partition,
-  restoreActorConnection,
-} from '@libs/harness/actions';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   returnToTabs,
   signInWithGoogleAsAccount,
 } from '@libs/harness/auth-actions';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { otherDevice } from '@libs/harness/platform';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
 import { customSide } from './custom-game-choices.steps';
 import {

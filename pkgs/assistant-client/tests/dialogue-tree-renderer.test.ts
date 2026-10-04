@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test';
-import type { Assistant } from '@pkgs/assistant-shared/engine';
-import type { AssistantClock } from '@pkgs/assistant-shared/clock';
-import { defineDialogueTree } from '@pkgs/assistant-shared/define-dialogue-tree';
-import { INTENT } from '@pkgs/assistant-shared/intents';
-import { createAssistantDialogueTreeRenderer } from '@pkgs/assistant-client/create-dialogue-tree-renderer';
 import type { AssistantSpeakingUpdate } from '@pkgs/assistant-client/assistant-speaking-bridge';
 import { subscribeAssistantSpeaking } from '@pkgs/assistant-client/assistant-speaking-bridge';
+import { createAssistantDialogueTreeRenderer } from '@pkgs/assistant-client/create-dialogue-tree-renderer';
+import type { AssistantClock } from '@pkgs/assistant-shared/clock';
+import { defineDialogueTree } from '@pkgs/assistant-shared/define-dialogue-tree';
+import type { Assistant } from '@pkgs/assistant-shared/engine';
+import { INTENT } from '@pkgs/assistant-shared/intents';
 
 function createFakeClock(): AssistantClock & {
   readonly advance: (ms: number) => void;

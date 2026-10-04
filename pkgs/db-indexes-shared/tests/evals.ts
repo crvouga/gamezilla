@@ -1,6 +1,10 @@
-import fc from 'fast-check';
-import type { Candidate, Eval, OwnedIndexName } from '@pkgs/db-indexes-shared/types';
+import type {
+  Candidate,
+  Eval,
+  OwnedIndexName,
+} from '@pkgs/db-indexes-shared/types';
 import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
+import fc from 'fast-check';
 
 /**
  * Adversarial eval responses: all equal, exactly minImprovementFactor, ±ε.

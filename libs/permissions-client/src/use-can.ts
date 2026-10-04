@@ -1,9 +1,11 @@
+import type {
+  AppGrantKey,
+  AppLimit,
+} from '@libs/permissions-shared/permission-catalog';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { decide, decideLimit } from '@pkgs/permissions-shared/decision';
 import { type Accessor, createMemo } from 'solid-js';
-
-import type { AppGrantKey, AppLimit } from '@libs/permissions-shared/permission-catalog';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { usePermissionPolicy } from './use-permission-policy';
 import type { AccessScopeAccessor } from './use-permission-subject';
 import { usePermissionSubject } from './use-permission-subject';

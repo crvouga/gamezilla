@@ -10,6 +10,12 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import {
+  clampPaletteSelection,
+  nextPaletteSelection,
+} from '@pkgs/ui-shared/command-palette-keyboard';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-shared/modal-size';
+import {
   createEffect,
   createMemo,
   createUniqueId,
@@ -18,26 +24,20 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-shared/modal-size';
-import { ModalContent } from './modal-content';
-import { ModalRoot } from './modal-root';
-import { ProgressBar } from './progress-bar';
 import { CommandPaletteEmpty } from './command-palette-empty';
-import { buildPaletteRows, selectableRows } from './command-palette-filter';
 import type { PaletteItemRow, PaletteRows } from './command-palette-filter';
+import { buildPaletteRows, selectableRows } from './command-palette-filter';
 import { CommandPaletteHint } from './command-palette-hint';
 import { CommandPaletteInput } from './command-palette-input';
-import {
-  clampPaletteSelection,
-  nextPaletteSelection,
-} from '@pkgs/ui-shared/command-palette-keyboard';
 import {
   CommandPaletteList,
   commandPaletteRowId,
 } from './command-palette-list';
 import type { CommandRegistryContextValue } from './command-registry-context';
 import { useCommandRegistry } from './command-registry-context';
+import { ModalContent } from './modal-content';
+import { ModalRoot } from './modal-root';
+import { ProgressBar } from './progress-bar';
 
 const TOP_INSET_STEP = 12;
 

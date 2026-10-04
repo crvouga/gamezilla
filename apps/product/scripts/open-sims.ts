@@ -16,8 +16,8 @@ import {
   openSimulatorApp,
   resolveProjectSim,
 } from './sim-runtime';
-import { SIM_SPEC } from './sim-spec';
 import type { SimSpecId } from './sim-spec';
+import { SIM_SPEC } from './sim-spec';
 import { findDeviceByName } from './simctl';
 
 const LOG_PREFIX = '[sims:open]';

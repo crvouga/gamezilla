@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
+import {
+  createPgSessionClient,
+  pgQueryRows,
+} from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
 import sql from '@pkgs/sql-shared/sql';
-import { createPgSessionClient, pgQueryRows } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
 
 const result = {
   rows: [{ attempts: '0', large: '9007199254740993', label: '001' }],

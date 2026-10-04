@@ -11,7 +11,7 @@ file($body) where {
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"]@pkgs/pubsub-emqx(?:/[^'\"]*)?['\"]$",
-    register_diagnostic(span=$src, message="@pkgs/pubsub-emqx only from pkgs/pubsub-emqx, the sync shells, or libs/pubsub server wiring.", severity="error")
+    $src <: r"^['\"]@pkgs/pubsub-emqx-[a-z]+(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="@pkgs/pubsub-emqx-* only from the pubsub-emqx packages, the app shell, or libs/pubsub-server wiring.", severity="error")
   }
 }

@@ -1,13 +1,12 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-
+import { TtsClient } from '@pkgs/tts-client/tts-client';
+import { TtsClientError } from '@pkgs/tts-client/tts-client-error';
 import type {
   TtsSynthesizeRequest,
   TtsSynthesizeResponse,
 } from '@pkgs/tts-shared/tts-types';
 import { Voices } from '@pkgs/tts-shared/tts-voice';
-import { TtsClient } from '@pkgs/tts-client/tts-client';
-import { TtsClientError } from '@pkgs/tts-client/tts-client-error';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

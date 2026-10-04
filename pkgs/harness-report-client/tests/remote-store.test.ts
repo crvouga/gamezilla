@@ -1,19 +1,25 @@
 import { describe, expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { matchJunitCase, parseJunit } from '@pkgs/harness-shared/junit';
-import { runManifestKey } from '@pkgs/harness-shared/keys';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-
-import type { CommitEvent, TestEvent } from '@pkgs/harness-report-shared/protocol';
-import { commitEvents, listCommits, testEvents } from '@pkgs/harness-report-shared/read';
+import type {
+  CommitEvent,
+  TestEvent,
+} from '@pkgs/harness-report-shared/protocol';
 import {
   closeCommit,
   openCommit,
   publishSource,
   SPEC_RUN_ID,
 } from '@pkgs/harness-report-shared/publish';
+import {
+  commitEvents,
+  listCommits,
+  testEvents,
+} from '@pkgs/harness-report-shared/read';
+import { matchJunitCase, parseJunit } from '@pkgs/harness-shared/junit';
+import { runManifestKey } from '@pkgs/harness-shared/keys';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { exampleApp, put } from './example-app';
 
 const SHA = 'a'.repeat(40);

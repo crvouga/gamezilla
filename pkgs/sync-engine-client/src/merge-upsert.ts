@@ -1,12 +1,12 @@
 // @sql-vendor-ok — local SQLite client uses PRAGMA table_info for merge.
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { bulk, ident, join, unsafe } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Value } from '@pkgs/sql-shared/sql';
+import sql, { bulk, ident, join, unsafe } from '@pkgs/sql-shared/sql';
 
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { sqliteWireValue } from '@pkgs/sync-engine-shared/sqlite-wire-value';
+import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 /**
  * Lowest common SQLITE_MAX_VARIABLE_NUMBER on mobile / wasm SQLite.

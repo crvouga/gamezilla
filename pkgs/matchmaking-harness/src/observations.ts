@@ -1,7 +1,7 @@
 import { defineProperty } from '@pkgs/harness-shared/define-property';
 import type { JsonValue } from '@pkgs/harness-shared/json';
-import { assertReplicaAgreement } from './facade';
 import type { MatchmakingHarness } from './facade';
+import { assertReplicaAgreement } from './facade';
 import { mmOf, ownerOf } from './refs';
 
 export function asJson(value: unknown): JsonValue {

@@ -1,17 +1,21 @@
 import type { Topic } from '@pkgs/pubsub-shared/topic';
-
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
-import type { PushMessage } from '@pkgs/sync-engine-shared/v2';
+import type { PushAppliedClock } from '@pkgs/sync-engine-shared/push-applied';
+import {
+  compareCheckpoint,
+  isContiguousNext,
+  raiseScopeCheckpoints,
+  readLastPushSeq,
+  recordPushApplied,
+} from '@pkgs/sync-engine-shared/push-applied';
 import { filterAcceptableImages } from '@pkgs/sync-engine-shared/row-image-guard';
 import type { TopicMapCtx } from '@pkgs/sync-engine-shared/topic-map';
+import type { PushMessage, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { rowsWithinReceiveCap } from './attach-push-rows-cap';
-import { applyRowImages } from './merge';
 import type { RowImageCheckpointRaise } from './merge';
-import { compareCheckpoint, isContiguousNext, raiseScopeCheckpoints, readLastPushSeq, recordPushApplied } from '@pkgs/sync-engine-shared/push-applied';
-import type { PushAppliedClock } from '@pkgs/sync-engine-shared/push-applied';
-import { filterScopesByTables, parsePush } from './push-subscriptions';
+import { applyRowImages } from './merge';
 import type { PushSubscriptions } from './push-subscriptions';
+import { filterScopesByTables, parsePush } from './push-subscriptions';
 
 function topicMapCtxFromSubscriptions(bag: PushSubscriptions): TopicMapCtx {
   const channels = bag.options.getChannelsCtx();

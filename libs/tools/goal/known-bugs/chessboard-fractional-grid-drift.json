@@ -1,4 +1,4 @@
 {
   "summary": "At 319.5 CSS pixels and half scale, grid track rounding and a rotated hit grid displaced piece centers from their square centers in White and Black orientations. Place all hit targets with the same fractional cell transforms as pieces.",
-  "regressionTest": "pkgs/chess-board-harness/tests/visual.contract.test.ts"
+  "regressionTest": "pkgs/chess-board-harness/tests/browser/visual.contract.test.ts"
 }

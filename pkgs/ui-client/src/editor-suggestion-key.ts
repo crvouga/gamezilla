@@ -1,6 +1,6 @@
+import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
 import type { Accessor, Setter } from 'solid-js';
 import type { EditorSuggestion } from './editor-suggestions';
-import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
 
 export function suggestionKeyHandler(options: {
   suggestion: Accessor<EditorSuggestion | null>;

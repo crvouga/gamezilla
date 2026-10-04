@@ -1,6 +1,9 @@
-import { changeAvailability, lockOwners } from '@pkgs/matchmaking-sql-shared/owner-repository';
-import sql from '@pkgs/sql-shared/sql';
+import {
+  changeAvailability,
+  lockOwners,
+} from '@pkgs/matchmaking-sql-shared/owner-repository';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import type { MultiplayerGame } from './game';
 

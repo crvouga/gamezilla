@@ -1,5 +1,5 @@
-import { parseRoomModuleName } from '@pkgs/room-shared/types';
 import type { RoomModuleName } from '@pkgs/room-shared/types';
+import { parseRoomModuleName } from '@pkgs/room-shared/types';
 
 /**
  * Per-WebSocket metadata persisted via the Hibernation WebSocket API

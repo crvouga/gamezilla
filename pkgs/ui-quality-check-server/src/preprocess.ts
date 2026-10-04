@@ -1,5 +1,5 @@
-import sharp from 'sharp';
 import type { RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
+import sharp from 'sharp';
 
 const SIZE = 224;
 const MEAN = [0.48145466, 0.4578275, 0.40821073] as const;

@@ -1,19 +1,22 @@
 // @io-wall-ok — standalone API composition root.
 
-import { ArtifactChecker } from './checker';
 import { resolveOptions } from '@pkgs/ui-quality-check-shared/config';
-import { Scorer } from '@pkgs/ui-quality-check-shared/scorer';
-import type { ImageInput, QualityDetector } from '@pkgs/ui-quality-check-shared/detectors-types';
-import { UIClipDetector } from './uiclip';
+import type {
+  ImageInput,
+  QualityDetector,
+} from '@pkgs/ui-quality-check-shared/detectors-types';
 import { UIQualityError } from '@pkgs/ui-quality-check-shared/errors';
-import { prepareModel } from './setup';
-import type { SetupOptions } from './setup';
+import { Scorer } from '@pkgs/ui-quality-check-shared/scorer';
 import type {
   BatchQualityResult,
   CheckerOptions,
   QualityResult,
   UIQualityChecker,
 } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import { ArtifactChecker } from './checker';
+import type { SetupOptions } from './setup';
+import { prepareModel } from './setup';
+import { UIClipDetector } from './uiclip';
 import {
   assetDirectory,
   decoderPath,

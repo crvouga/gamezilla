@@ -5,21 +5,24 @@
 import type { Client } from '@libs/app-client/create-client';
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
+import type {
+  HarnessCheckpoint,
+  HarnessCheckpointRoomDump,
+} from '@pkgs/harness-console-shared/checkpoint';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
-import type { HarnessCheckpoint, HarnessCheckpointRoomDump } from '@pkgs/harness-console-shared/checkpoint';
-import {
-  compositionMigratePostgres,
-  migrateCompositionClientSqlite,
-} from './migrate-composition';
 import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,
 } from './client-durable';
 import type { Harness } from './create-harness';
+import {
+  compositionMigratePostgres,
+  migrateCompositionClientSqlite,
+} from './migrate-composition';
 import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import { reconcileServerProfilesFromClients } from './snapshot-sync';
-import type { HarnessSql } from './sql-types';
 import { openFreshHarnessClientSql } from './sql';
+import type { HarnessSql } from './sql-types';
 
 export type CheckpointSessionMaps = {
   readonly clients: {

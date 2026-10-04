@@ -1,7 +1,7 @@
-import type { SyncApiFetch } from './sync-api';
-import type { SyncClientAuth } from '@pkgs/sync-engine-client/sync-http-client';
+import { exposeLocalSqlForTests } from '@libs/app-shared/test-local-sql';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { useLogger } from '@pkgs/logger-client/solid';
+import type { SyncClientAuth } from '@pkgs/sync-engine-client/sync-http-client';
 import {
   type Accessor,
   createEffect,
@@ -10,14 +10,14 @@ import {
   onCleanup,
 } from 'solid-js';
 import { useAppData } from './app-features-context';
-import { useLocalPaintLatch } from './local-paint-latch';
-import { useClientEnv, useSyncEnginePool } from './client-env-context';
-import { useLocalIdentity } from './identity-context';
-import { originAvailabilityFor } from './origin-availability-for-env';
-import { exposeLocalSqlForTests } from '@libs/app-shared/test-local-sql';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
-import { createSyncEngineBootState } from './create-sync-engine-boot-state';
+import { useClientEnv, useSyncEnginePool } from './client-env-context';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';
+import { createSyncEngineBootState } from './create-sync-engine-boot-state';
+import { useLocalIdentity } from './identity-context';
+import { useLocalPaintLatch } from './local-paint-latch';
+import { originAvailabilityFor } from './origin-availability-for-env';
+import type { SyncApiFetch } from './sync-api';
 
 /**
  * UI watchdog: shorter than the SQLite open timeout so users see Reload

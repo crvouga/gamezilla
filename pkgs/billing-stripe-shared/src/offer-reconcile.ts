@@ -8,7 +8,11 @@
  *   - portal configuration by `metadata.catalog_portal_configuration_id`
  *   - webhook endpoint by `url`
  */
-import type { CancellationReason, OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type {
+  CancellationReason,
+  OfferPriceSpec,
+  PlusMembershipOffer,
+} from '@pkgs/billing-shared/offer';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type Stripe from 'stripe';
 
@@ -31,8 +35,14 @@ const STRIPE_CANCELLATION_REASON: Readonly<
   other: 'other',
 };
 
-import { currencyOptionsToSnake, decidePriceReconcile, normalizeSnakeCurrencyOptions, priceMatchesSpec, priceProductId } from './offer-price-compare';
 import type { LivePriceSnapshot } from './offer-price-compare';
+import {
+  currencyOptionsToSnake,
+  decidePriceReconcile,
+  normalizeSnakeCurrencyOptions,
+  priceMatchesSpec,
+  priceProductId,
+} from './offer-price-compare';
 
 /** Stripe product metadata key used to match the offer product id. */
 export const STRIPE_CATALOG_PRODUCT_METADATA_KEY =

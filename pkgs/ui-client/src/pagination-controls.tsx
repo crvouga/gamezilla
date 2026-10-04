@@ -9,15 +9,20 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import type { PaginationWindowItem } from '@pkgs/ui-shared/build-pagination-window';
+import { buildPaginationWindow } from '@pkgs/ui-shared/build-pagination-window';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from './icons';
+import { For, type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { IconComponent } from './create-icon';
-import { buildPaginationWindow } from '@pkgs/ui-shared/build-pagination-window';
-import type { PaginationWindowItem } from '@pkgs/ui-shared/build-pagination-window';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+} from './icons';
 
 const DEFAULT_SIZE = 28;
 const DEFAULT_SIBLING_COUNT = 1;

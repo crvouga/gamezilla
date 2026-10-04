@@ -4,9 +4,9 @@
  */
 
 import { chessGameMenuVisible } from '@libs/chess-harness/chess-ui-reads';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { focusActor } from '@libs/harness/shell-actions';
 import { selectChessGame } from '@libs/spaces-harness/space-actions';
 import { SECOND_MS } from './puzzle-world';
 

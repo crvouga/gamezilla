@@ -1,27 +1,31 @@
+import { CustomGameScreen } from '@libs/chess-custom-game-client/custom-game-screen';
+import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
+import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
+import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
+import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
+import { ReconcilePuzzleResult } from '@libs/chess-puzzle-client/reconcile-puzzle-result';
+import type { ChessMainMenuScreen } from '@libs/chess-shared/chess-main-menu';
+import {
+  CHESS_SCREEN,
+  ChessMainMenuScreenAttr,
+  SetChessMainMenuScreen,
+} from '@libs/chess-shared/chess-main-menu';
+import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client/chess-settings-developer-screen';
+import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-component-detail-screen';
+import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-components-screen';
+import { ChessSettingsScreen } from '@libs/chess-shared-client/chess-settings-screen';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-client/main-menu-screen';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
 import { Match, Switch } from 'solid-js';
-import { CustomGameScreen } from '@libs/chess-custom-game-client/custom-game-screen';
-import { CHESS_SCREEN, ChessMainMenuScreenAttr, SetChessMainMenuScreen } from '@libs/chess-shared/chess-main-menu';
-import type { ChessMainMenuScreen } from '@libs/chess-shared/chess-main-menu';
-import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
-import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
-import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
-import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
-import { ReconcilePuzzleResult } from '@libs/chess-puzzle-client/reconcile-puzzle-result';
-import { ChessSettingsDeveloperScreen } from '@libs/chess-shared-client/chess-settings-developer-screen';
-import { ChessSettingsDeveloperUiComponentDetailScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-component-detail-screen';
-import { ChessSettingsDeveloperUiComponentsScreen } from '@libs/chess-shared-client/chess-settings-developer-ui-components-screen';
-import { ChessSettingsScreen } from '@libs/chess-shared-client/chess-settings-screen';
 
 export type ChessMainMenuProps = {
   onBackToGames: () => void;

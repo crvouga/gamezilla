@@ -3,14 +3,18 @@
  * on every query/run result.
  */
 
-import type { MatrixBackend } from './types';
 import type { ProgramStep } from './program';
-import { renderCount, renderCreateTable, renderInsert, renderSelectAll, renderSoftDelete, renderUpdate } from './program';
-import type { LogicalSchema, LogicalTable } from './schema';
 import {
-  assertWireSafeRows,
-  assertWireSafeRunResult,
-} from './wire-safety';
+  renderCount,
+  renderCreateTable,
+  renderInsert,
+  renderSelectAll,
+  renderSoftDelete,
+  renderUpdate,
+} from './program';
+import type { LogicalSchema, LogicalTable } from './schema';
+import type { MatrixBackend } from './types';
+import { assertWireSafeRows, assertWireSafeRunResult } from './wire-safety';
 
 function requireTable(schema: LogicalSchema, name: string): LogicalTable {
   const table = schema.tables.find((t) => t.name === name);

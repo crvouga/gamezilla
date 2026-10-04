@@ -2,7 +2,6 @@
   "name": "@libs/profile-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -31,13 +30,14 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@pkgs/sql-client-sqlite-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/bun-test-solid-client": "workspace:*"
-  }
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
 }

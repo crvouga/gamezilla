@@ -1,12 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import sql, { unsafe } from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql, { unsafe } from '@pkgs/sql-shared/sql';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
-import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import { queryRegistry } from '@pkgs/sync-engine-shared/queries-registry';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 import { z } from 'zod';
 
 type NoteRow = {

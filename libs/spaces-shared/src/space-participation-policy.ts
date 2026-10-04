@@ -1,6 +1,6 @@
+import { resolveSpaceMemberId } from './participation-ids';
 import type { SpaceVisibility } from './space-visibility';
 import type { SpacesError } from './spaces-errors';
-import { resolveSpaceMemberId } from './participation-ids';
 
 export type SpaceAccessDecision =
   | {

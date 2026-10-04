@@ -8,11 +8,17 @@
 import { chessGameRules } from '@pkgs/chess-board-core-shared/board-rules';
 import type { CaptureGhost } from '@pkgs/chess-board-core-shared/capture-ghost';
 import { captureGhostForTransition } from '@pkgs/chess-board-core-shared/capture-ghost';
-import type { ChessGame, ChessGameSnapshot } from '@pkgs/chess-board-core-shared/game';
+import type {
+  ChessGame,
+  ChessGameSnapshot,
+} from '@pkgs/chess-board-core-shared/game';
 import { indexFromSquare } from '@pkgs/chess-board-core-shared/geometry';
-import { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
 import type { BoardInteractionSnapshot } from '@pkgs/chess-board-core-shared/interaction';
-import type { ChessMoveSoundPlayer, PostMoveAudio } from '@pkgs/chess-board-core-shared/move-sound';
+import { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
+import type {
+  ChessMoveSoundPlayer,
+  PostMoveAudio,
+} from '@pkgs/chess-board-core-shared/move-sound';
 import { createMoveSoundScheduler } from '@pkgs/chess-board-core-shared/move-sound';
 import { pieceCode } from '@pkgs/chess-board-core-shared/piece-code';
 import type { ChessPieceRow } from '@pkgs/chess-board-core-shared/piece-rows';

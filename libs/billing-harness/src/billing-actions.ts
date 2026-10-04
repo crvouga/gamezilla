@@ -5,23 +5,30 @@
  * effect reaches the app only as a signed webhook.
  */
 
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import {
   HARNESS_FIRST_BILLING_PROVIDER,
   HARNESS_SERVER_URL,
 } from '@libs/feature-shared/harness-constants';
-import {
-  actorUi,
-  pollUntil,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { nodeText } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import type { BillingObserveKind, EarlierNews } from './billing-provider-driver';
-import { billingProviders, customerOf, driveProvider, expireCardOnFile, refundLastPayment, repeatEarlierNews, runBillingPeriodOn, runOutBillingPeriod } from './billing-provider-driver';
+import type {
+  BillingObserveKind,
+  EarlierNews,
+} from './billing-provider-driver';
+import {
+  billingProviders,
+  customerOf,
+  driveProvider,
+  expireCardOnFile,
+  refundLastPayment,
+  repeatEarlierNews,
+  runBillingPeriodOn,
+  runOutBillingPeriod,
+} from './billing-provider-driver';
 import { billingButtonEnabled } from './billing-reads';
 
 const WAIT_MS = 20_000;

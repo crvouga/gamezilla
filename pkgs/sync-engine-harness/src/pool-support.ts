@@ -5,8 +5,8 @@
  */
 
 import { isStorageFullError } from '@pkgs/sync-engine-shared/storage-full-error';
-import { peerClientIdsSharingRawDb } from './lifecycle';
 import type { SyncHarnessBase } from './harness-types';
+import { peerClientIdsSharingRawDb } from './lifecycle';
 import type { SyncHarness } from './scenario-system';
 
 /**

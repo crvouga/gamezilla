@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import { destinationsFromInternals, destinationsFromPublicApi, hasFastDestinations } from '@pkgs/chess-board-core-shared/destinations';
+import {
+  destinationsFromInternals,
+  destinationsFromPublicApi,
+  hasFastDestinations,
+} from '@pkgs/chess-board-core-shared/destinations';
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { assertProperty } from '@pkgs/property-shared/assert-property';

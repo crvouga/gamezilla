@@ -1,6 +1,6 @@
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import { runWithInfisicalSecrets } from './cli-run';
 import type { SecretsEnvs } from '@pkgs/secret-provider-shared/local-secrets-cache';
+import { runWithInfisicalSecrets } from './cli-run';
 
 export type RunWithSecretsOptions = {
   readonly repoRoot: string;

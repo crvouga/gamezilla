@@ -1,5 +1,9 @@
 import { expect } from 'bun:test';
-import { chooseCustomGameWithKeyboard, listenToCustomGame, readCustomGameHeard } from '@libs/chess-custom-game-harness/custom-game-accessibility';
+import {
+  chooseCustomGameWithKeyboard,
+  listenToCustomGame,
+  readCustomGameHeard,
+} from '@libs/chess-custom-game-harness/custom-game-accessibility';
 import { readCustomGameName } from '@libs/chess-custom-game-harness/custom-game-names';
 import { customGameStartable } from '@libs/chess-custom-game-shared/custom-game-state';
 import { Then, When } from '@libs/harness/define';

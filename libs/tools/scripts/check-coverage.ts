@@ -20,8 +20,8 @@ import {
 import { join } from 'node:path';
 import type { FileCoverage } from './lcov';
 import { formatLcov, mergeInto, parseLcov } from './lcov';
-import { listPackagePlans } from './packages';
 import type { PackagePlan } from './packages';
+import { listPackagePlans } from './packages';
 import type { CoverageSummary, ReportMeta } from './report';
 import { formatDuration, renderReport, summarize } from './report';
 

@@ -71,12 +71,12 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
       - name: Plan all owners once
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-plan.ts
       - name: Export immutable plan
         id: plan
         run: bun run libs/tools/scripts/check-plan-transfer.ts --export
       - name: Build shared prerequisites and warm their cache
-        run: bun run libs/secrets-server/src/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARDS"
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARDS"
       - name: Transfer prerequisite outputs
         uses: actions/upload-artifact@v6
         with:
@@ -123,7 +123,7 @@ jobs:
         timeout-minutes: 25
         env:
           CHECK_SHARD: ${{ matrix.shard }}
-        run: bun run libs/secrets-server/src/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$CHECK_SHARD"
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -181,7 +181,7 @@ jobs:
         run: bun run libs/tools/scripts/check-stage-transfer.ts
       - name: check
         timeout-minutes: 25
-        run: bun run libs/secrets-server/src/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$((CHECK_SHARDS + 1))"
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$CHECK_CONCURRENCY" bun run libs/tools/scripts/check-shard-run.ts "$((CHECK_SHARDS + 1))"
       - name: Upload queryable trace artifacts
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6
@@ -254,7 +254,7 @@ jobs:
       - name: Transfer raw evidence without exposing signed URLs
         run: bun run libs/tools/scripts/check-artifact-download.ts check-evidence- .cache/check-ci/transfers
       - name: Aggregate and publish one batch
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/tools/scripts/check-reports.ts
       - name: Retain sanitized planning and timing details
         if: always() && !cancelled()
         uses: actions/upload-artifact@v6

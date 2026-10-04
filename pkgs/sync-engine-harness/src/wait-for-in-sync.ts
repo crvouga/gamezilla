@@ -2,10 +2,14 @@ import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/schedul
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { reconcileOptimisticPeerMarkers } from '@pkgs/sync-engine-client/optimistic-peer-rows';
 import type { HarnessClient } from './client';
-import type { HarnessDomainPack } from './harness-domain-pack';
 import { RELIABLE_FAULTS } from './faults';
-import { checkPostInSyncInvariants, isClosedDatabaseError, isDbOpen } from './invariants';
+import type { HarnessDomainPack } from './harness-domain-pack';
 import type { InvariantViolation } from './invariant-tracker';
+import {
+  checkPostInSyncInvariants,
+  isClosedDatabaseError,
+  isDbOpen,
+} from './invariants';
 import type { NetEffectRegistry } from './net-effect';
 import type { SyncNetwork } from './network';
 import type { HarnessServer } from './server';

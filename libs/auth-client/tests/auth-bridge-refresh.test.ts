@@ -1,12 +1,11 @@
 import { beforeAll, describe, expect, mock, test } from 'bun:test';
+import type { AuthBridgeRefreshDeps } from '@libs/auth-client/auth-bridge-refresh';
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SecureStorage } from '@pkgs/secure-storage-shared/interface';
 import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
-import type { AuthBridgeRefreshDeps } from '@libs/auth-client/auth-bridge-refresh';
 
 mock.module('./collect-device-snapshot', () => ({
   collectDeviceSnapshot: () => ({}),
@@ -74,7 +73,9 @@ describe('AuthBridgeRefresh unauthorized recovery', () => {
   let SessionCapabilityStore: typeof import('@libs/auth-shared/session-capability').SessionCapabilityStore;
 
   beforeAll(async () => {
-    ({ AuthBridgeRefresh } = await import('@libs/auth-client/auth-bridge-refresh'));
+    ({ AuthBridgeRefresh } = await import(
+      '@libs/auth-client/auth-bridge-refresh'
+    ));
     ({ SessionCapabilityStore } = await import(
       '@libs/auth-shared/session-capability'
     ));
@@ -154,7 +155,9 @@ describe('AuthBridgeRefresh new sign-in', () => {
   let SessionCapabilityStore: typeof import('@libs/auth-shared/session-capability').SessionCapabilityStore;
 
   beforeAll(async () => {
-    ({ AuthBridgeRefresh } = await import('@libs/auth-client/auth-bridge-refresh'));
+    ({ AuthBridgeRefresh } = await import(
+      '@libs/auth-client/auth-bridge-refresh'
+    ));
     ({ SessionCapabilityStore } = await import(
       '@libs/auth-shared/session-capability'
     ));
@@ -262,7 +265,9 @@ describe('AuthBridgeRefresh new sign-in', () => {
   });
 
   test('a lost connection holds the sign-in until it is back', async () => {
-    const { HttpNetworkError } = await import('@pkgs/http-client-shared/http-network-error');
+    const { HttpNetworkError } = await import(
+      '@pkgs/http-client-shared/http-network-error'
+    );
     const store = createSecureStorageStore(new InMemorySecureStorage());
     let online = false;
     let attempts = 0;
@@ -307,7 +312,9 @@ describe('AuthBridgeRefresh local-first account bind', () => {
   let AuthBridgeRefresh: typeof import('@libs/auth-client/auth-bridge-refresh').AuthBridgeRefresh;
 
   beforeAll(async () => {
-    ({ AuthBridgeRefresh } = await import('@libs/auth-client/auth-bridge-refresh'));
+    ({ AuthBridgeRefresh } = await import(
+      '@libs/auth-client/auth-bridge-refresh'
+    ));
   });
 
   test('network failure still binds a minted local account id', async () => {
@@ -365,11 +372,15 @@ describe('AuthBridgeRefresh waits for origin availability', () => {
   let AuthBridgeRefresh: typeof import('@libs/auth-client/auth-bridge-refresh').AuthBridgeRefresh;
 
   beforeAll(async () => {
-    ({ AuthBridgeRefresh } = await import('@libs/auth-client/auth-bridge-refresh'));
+    ({ AuthBridgeRefresh } = await import(
+      '@libs/auth-client/auth-bridge-refresh'
+    ));
   });
 
   test('network failure retries after availability, not after 3 delays', async () => {
-    const { HttpNetworkError } = await import('@pkgs/http-client-shared/http-network-error');
+    const { HttpNetworkError } = await import(
+      '@pkgs/http-client-shared/http-network-error'
+    );
     const store = createSecureStorageStore(new InMemorySecureStorage());
     let available = false;
     let release: () => void = () => undefined;

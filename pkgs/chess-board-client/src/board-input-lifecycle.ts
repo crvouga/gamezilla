@@ -1,7 +1,7 @@
+import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { type Accessor, createEffect, on } from 'solid-js';
 import type { BoardController } from './chess-board-controller';
 import type { BoardPointer } from './chess-board-pointer';
-import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 /** A gesture belongs to the position, orientation and geometry it started on. */
 export function watchBoardInput(
   props: ChessBoardProps,

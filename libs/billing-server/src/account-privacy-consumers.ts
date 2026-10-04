@@ -1,13 +1,13 @@
-import { accountWithdrawalChanged } from '@libs/feature-shared/account-privacy';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
-import { Outbox } from '@pkgs/outbox-shared/outbox';
-import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import sql from '@pkgs/sql-shared/sql';
 import { closeAccountMembership } from '@libs/billing-shared/account-privacy';
 import {
   eraseExpiredPaymentEvidence,
   paymentRetentionEnded,
 } from '@libs/billing-shared/payment-evidence';
+import { accountWithdrawalChanged } from '@libs/feature-shared/account-privacy';
+import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
+import { Outbox } from '@pkgs/outbox-shared/outbox';
+import sql from '@pkgs/sql-shared/sql';
 import { settleDeletedAccountPayments } from './settle-deleted-payments';
 
 export function registerBillingPrivacyConsumers(

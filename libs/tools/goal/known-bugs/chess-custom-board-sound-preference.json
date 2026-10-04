@@ -1,4 +1,4 @@
 {
   "summary": "The Custom Game board omitted an explicit sound choice, failing the public board contract and ignoring the app sound preference. Bind board sounds to the injected preference so muting applies to Custom Games.",
-  "regressionTest": "libs/chess-shared-server/tests/board-contract.test.ts"
+  "regressionTest": "libs/tools/scripts/board-sound-contract.test.ts"
 }

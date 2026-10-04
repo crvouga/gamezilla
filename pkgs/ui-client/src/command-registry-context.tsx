@@ -10,9 +10,11 @@
  */
 
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
-import type { Kv } from '@pkgs/kv-shared/interface';
 import { useKvOptional } from '@pkgs/kv-client/solid';
+import type { Kv } from '@pkgs/kv-shared/interface';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
+import type { HistorySnapshot } from '@pkgs/ui-shared/history-store';
+import { HistoryStore } from '@pkgs/ui-shared/history-store';
 import {
   type Accessor,
   createContext,
@@ -22,17 +24,15 @@ import {
   untrack,
   useContext,
 } from 'solid-js';
-import { useKeyboardShortcutsEnabled } from './use-document-shortcuts';
 import {
   DEFAULT_OPEN_SHORTCUTS,
   useRegistryDocumentShortcuts,
 } from './command-registry-shortcuts';
 import type { CommandRegistrySnapshot } from './command-registry-store';
 import { CommandRegistryStore } from './command-registry-store';
-import type { HistorySnapshot } from '@pkgs/ui-shared/history-store';
-import { HistoryStore } from '@pkgs/ui-shared/history-store';
 import type { CommandId } from './types';
 import { isCommandEnabled, isCommandVisible } from './types';
+import { useKeyboardShortcutsEnabled } from './use-document-shortcuts';
 
 export type CommandRegistryProviderProps = {
   children: JSX.Element;

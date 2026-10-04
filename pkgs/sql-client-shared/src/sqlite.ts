@@ -3,10 +3,10 @@
  */
 
 import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
-import type { SqlClient } from './interface';
 import { rowToDumpValues } from './cell-codec';
-import { SQL_DATA_DUMP_VERSION } from './types';
+import type { SqlClient } from './interface';
 import type { SqlDataDump, SqlDataDumpOptions, SqlTableDump } from './types';
+import { SQL_DATA_DUMP_VERSION } from './types';
 
 export async function listSqliteUserTables(
   client: SqlClient

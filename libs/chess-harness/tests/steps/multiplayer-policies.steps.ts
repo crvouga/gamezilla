@@ -6,21 +6,32 @@ import {
   subscribeToPlus,
 } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
-import { showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
-import { readActivePuzzleId, readPuzzleDisplayFen, readStatsElo } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
 import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerRating, multiplayerText, multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS, PUZZLE_RATING_RD_MIN } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import {
+  multiplayerRating,
+  multiplayerText,
+  multiplayerView,
+} from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  readActivePuzzleId,
+  readPuzzleDisplayFen,
+  readStatsElo,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
+import {
+  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  PUZZLE_RATING_RD_MIN,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import {
   blockPerson,
   openPersonFromSearch,
 } from '@libs/friends-harness/person-actions';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { focusActor } from '@libs/harness/shell-actions';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { multiplayerPeople } from './multiplayer-people';

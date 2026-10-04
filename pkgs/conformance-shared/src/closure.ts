@@ -19,7 +19,12 @@
 
 import type { ConformanceManifest } from './manifest';
 import type { EvidenceMap, ProofWorld, SpecFile } from './proofs';
-import { lineProblems, MAPPED_SECTIONS, specsOfKind, tableProblems } from './proofs';
+import {
+  lineProblems,
+  MAPPED_SECTIONS,
+  specsOfKind,
+  tableProblems,
+} from './proofs';
 
 export type DecisionFacts = {
   /** The spec file the decision is in. */

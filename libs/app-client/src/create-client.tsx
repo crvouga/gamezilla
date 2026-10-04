@@ -21,14 +21,16 @@ import {
   type RouteSectionProps,
 } from '@solidjs/router';
 import { type Component, type JSX, Show, untrack } from 'solid-js';
-
-import { buildRouteTable } from './route-table';
-import { buildAppRoutes } from './routes';
-import type { AppComposition, LoadComposedFeatures } from './app-features-context';
+import type {
+  AppComposition,
+  LoadComposedFeatures,
+} from './app-features-context';
 import { AppCompositionProvider } from './app-features-context';
 import type { ClientEnv } from './client-env';
 import { ClientEnvProvider } from './client-env-context';
 import { ProductApp } from './product-app';
+import { buildRouteTable } from './route-table';
+import { buildAppRoutes } from './routes';
 import type { AppSyncEnginePool } from './sync-engine-pool';
 import { createAppSyncEnginePool } from './sync-engine-pool';
 

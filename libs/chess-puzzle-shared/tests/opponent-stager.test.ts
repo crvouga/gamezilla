@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { PUZZLE_OPENING_PREVIEW_MS, PUZZLE_OPPONENT_UNLOCK_BUFFER_MS, PUZZLE_PIECE_MOVE_MS, PUZZLE_REPLY_PREVIEW_MS, PUZZLE_SOLUTION_STEP_MS } from '@libs/chess-puzzle-shared/chess-puzzle-opponent-stage';
+import {
+  PUZZLE_OPENING_PREVIEW_MS,
+  PUZZLE_OPPONENT_UNLOCK_BUFFER_MS,
+  PUZZLE_PIECE_MOVE_MS,
+  PUZZLE_REPLY_PREVIEW_MS,
+  PUZZLE_SOLUTION_STEP_MS,
+} from '@libs/chess-puzzle-shared/chess-puzzle-opponent-stage';
 import { fenAtSolveIdx } from '@libs/chess-puzzle-shared/chess-puzzle-step';
-import { createPuzzleOpponentStager } from '@libs/chess-puzzle-shared/opponent-stager';
 import type { OpponentStagerInput } from '@libs/chess-puzzle-shared/opponent-stager';
+import { createPuzzleOpponentStager } from '@libs/chess-puzzle-shared/opponent-stager';
 import type { Timers } from '@pkgs/clock-shared/types';
 
 /** Minimal deterministic timers: run callbacks in due order on `advance`. */

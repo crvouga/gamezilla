@@ -2,11 +2,9 @@
   "name": "@pkgs/db-indexes-postgres-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
     "test:contract": "bun test tests/postgres.contract.test.ts"
   },
   "dependencies": {},
@@ -20,5 +18,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness"
 }

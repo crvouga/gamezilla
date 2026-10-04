@@ -1,8 +1,11 @@
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 
-import type { TelemetryOptions, TelemetryRuntime } from '@pkgs/observability-shared/options';
-import { createProviderConfig } from '@pkgs/observability-shared/provider-options';
+import type {
+  TelemetryOptions,
+  TelemetryRuntime,
+} from '@pkgs/observability-runtime-shared/options';
+import { createProviderConfig } from '@pkgs/observability-runtime-shared/provider-options';
 
 export const CONTEXT_CAPABILITY = 'async-context' as const;
 

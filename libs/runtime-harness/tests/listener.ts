@@ -5,8 +5,6 @@
  * keyboard is.
  */
 
-import type { ProductHarness } from '@libs/harness/harness';
-import { scenarioAction } from '@libs/harness/actor-ui';
 import {
   actorPage,
   keyboardElement,
@@ -14,11 +12,17 @@ import {
   keyboardToStart,
   placeOf,
 } from '@libs/harness/actor-page';
+import { scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
 import { accessibleName } from '@pkgs/a11y-shared/accessible-name';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
-import { controlsIn, describeControl, keyboardStops } from '@pkgs/a11y-shared/controls';
-import { isHiddenFromAt } from '@pkgs/a11y-shared/visibility';
+import {
+  controlsIn,
+  describeControl,
+  keyboardStops,
+} from '@pkgs/a11y-shared/controls';
 import { roleOf } from '@pkgs/a11y-shared/roles';
+import { isHiddenFromAt } from '@pkgs/a11y-shared/visibility';
 import { useKeyboard } from './people';
 
 /** The person opens the app and listens to it instead of looking. */

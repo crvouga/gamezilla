@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { Button } from './button';
-import { ExampleRoot } from './example-root';
 import { Card } from './card';
+import { ExampleRoot } from './example-root';
 
 export default function CardExample(): JSX.Element {
   return (

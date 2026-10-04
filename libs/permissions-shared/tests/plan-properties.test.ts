@@ -4,10 +4,13 @@
  * samples at fixed points.
  */
 import { describe, expect, test } from 'bun:test';
-import type { AccessInputs, SubscriptionSnapshot } from '@libs/permissions-shared/access-facts';
-import { ROLE } from '@libs/permissions-shared/permission-catalog';
+import type {
+  AccessInputs,
+  SubscriptionSnapshot,
+} from '@libs/permissions-shared/access-facts';
 import { readSubscriptionSnapshot } from '@libs/permissions-shared/access-facts';
 import { resolvePlanRole } from '@libs/permissions-shared/access-model';
+import { ROLE } from '@libs/permissions-shared/permission-catalog';
 import type { MembershipStatus } from '@pkgs/billing-shared/membership';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

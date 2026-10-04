@@ -3,11 +3,17 @@
 import { describe, expect, test } from 'bun:test';
 import { AppLogo } from '@pkgs/ui-client/app-logo';
 import type { AppRouter } from '@pkgs/ui-client/app-router';
-import { AppRouterProvider, StaticAppRouterProvider, useLocalSearchParams, usePathname, useRouter } from '@pkgs/ui-client/app-router';
+import {
+  AppRouterProvider,
+  StaticAppRouterProvider,
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+} from '@pkgs/ui-client/app-router';
 import { BrandIcon } from '@pkgs/ui-client/brand-icon';
 import { ComposeProviders } from '@pkgs/ui-client/compose-providers';
-import { hrefToPath } from '@pkgs/ui-shared/href';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
+import { hrefToPath } from '@pkgs/ui-shared/href';
 import { createMemoryHistory, MemoryRouter, Route } from '@solidjs/router';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';

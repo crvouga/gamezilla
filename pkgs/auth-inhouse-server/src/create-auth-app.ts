@@ -1,5 +1,5 @@
-import { Hono } from 'hono';
 import { SYNTHETIC_MONITOR_CODE_PATH } from '@pkgs/auth-inhouse-shared/synthetic-monitor';
+import { Hono } from 'hono';
 import { handleAppleNotification } from './apple-notification-handler';
 import {
   handleGetSession,
@@ -7,10 +7,7 @@ import {
   handleSignOut,
   handleSignOutAll,
 } from './auth-route-handlers';
-import type {
-  AuthAppCtx,
-  CreateAuthAppDeps,
-} from './create-auth-app-types';
+import type { AuthAppCtx, CreateAuthAppDeps } from './create-auth-app-types';
 import {
   handleCreateSeparate,
   handleLinkTicket,

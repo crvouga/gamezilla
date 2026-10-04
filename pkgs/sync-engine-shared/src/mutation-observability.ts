@@ -1,5 +1,5 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
 import type { Link } from '@opentelemetry/api';
+import { ATTR } from '@pkgs/observability-shared/attributes';
 import { linkFromTraceparent } from '@pkgs/observability-shared/correlation';
 
 /** Link a replay/upload span to the interaction that created an offline mutation. */

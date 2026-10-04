@@ -10,18 +10,18 @@
  */
 
 import { createMemo, type JSX, Show } from 'solid-js';
-import { useActionBarChrome } from './action-bar-chrome';
 import { ActionBar } from './action-bar';
+import { useActionBarChrome } from './action-bar-chrome';
 import { BackIconButton } from './back-icon-button';
-import { useScreenTitleContext } from './screen-title-context';
-import { TopBar } from './top-bar';
-import { TopBarTitle } from './top-bar-title';
 import {
   deriveHeaderLayout,
   hasScreenBaseActions,
   partitionScreenBaseActions,
 } from './screen-base-logic';
 import type { ScreenBaseHeaderProps } from './screen-base-types';
+import { useScreenTitleContext } from './screen-title-context';
+import { TopBar } from './top-bar';
+import { TopBarTitle } from './top-bar-title';
 import { useBreadcrumbClick } from './use-breadcrumb-click';
 
 function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {

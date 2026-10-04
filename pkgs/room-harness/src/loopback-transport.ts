@@ -1,7 +1,14 @@
-import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room-shared/transport';
-import { ROOM_WIRE_KIND } from '@pkgs/room-shared/wire';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
 import type { RoomServer } from '@pkgs/room-server/room-server';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from '@pkgs/room-shared/transport';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
+import { ROOM_WIRE_KIND } from '@pkgs/room-shared/wire';
 import type { RoomEdgeFaultController } from './edge-faults';
 import type { HarnessRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';

@@ -14,17 +14,22 @@
  * found on mount).
  */
 
+import {
+  authSessionError,
+  isAuthSessionSignedIn,
+} from '@libs/auth-shared/session-snapshot';
+import {
+  resolveSignInReturnHref,
+  SignInPendingStore,
+} from '@libs/auth-shared/sign-in-pending-parse';
 import type { AuthSessionState } from '@pkgs/auth-shared/auth-session-state';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
-import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage-client/solid';
+import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { usePathname } from '@pkgs/ui-client/app-router';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-
 import { useAuthClientPort } from './auth-client-provider';
-import { authSessionError, isAuthSessionSignedIn } from '@libs/auth-shared/session-snapshot';
-import { resolveSignInReturnHref, SignInPendingStore } from '@libs/auth-shared/sign-in-pending-parse';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
 export type SignInPhase = 'idle' | 'loading' | 'success' | 'error';

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { encodeNdjsonFrame } from '@pkgs/ndjson-shared/encode';
 import { isNdjsonFrame, NdjsonStreamDecoder } from '@pkgs/ndjson-shared/decode';
+import { encodeNdjsonFrame } from '@pkgs/ndjson-shared/encode';
 import type { NdjsonFrame } from '@pkgs/ndjson-shared/frames';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

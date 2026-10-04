@@ -9,18 +9,22 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createMemo, type JSX, Show, untrack } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import type { Href } from '@pkgs/ui-shared/href';
+import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import { useRouter } from './app-router';
 import { CatalogDetail } from './catalog-detail';
 import { CatalogDetailNav } from './catalog-detail-nav';
+import {
+  componentRegistry,
+  registryEntries,
+  toCatalogItems,
+} from './component-registry';
 import { EmptyState } from './empty-state';
 import { ScreenBase } from './screen-base';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
-import { componentRegistry, registryEntries, toCatalogItems } from './component-registry';
 
 export type ExplorerDetailProps = {
   /** Registry entry id (see {@link ComponentEntry.id}). */

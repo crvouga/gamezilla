@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { renderTokensCss } from '@pkgs/ui-shared/css-vars';
 import { ThemeProvider, useTheme } from '@pkgs/ui-client/theme-context';
+import { renderTokensCss } from '@pkgs/ui-shared/css-vars';
 import { render } from '@solidjs/testing-library';
 import { createSignal, type JSX, Show } from 'solid-js';
 

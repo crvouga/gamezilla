@@ -2,6 +2,7 @@ import type { Assert } from '@pkgs/assert-shared/assert';
 import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
 import { isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import { RoomCacheInvalidated } from '@pkgs/room-shared/cache-invalidation';
+import type { QueuedCommand } from '@pkgs/room-shared/core-storage';
 import { plainDeepEqual } from '@pkgs/room-shared/plain-deep-equal';
 import type {
   HandleResult,
@@ -14,7 +15,6 @@ import type {
 } from '@pkgs/room-shared/types';
 import { roomAttrNamespace } from './room-meta';
 import type { OptimisticEffectSession } from './room-optimistic-effects';
-import type { QueuedCommand } from '@pkgs/room-shared/core-storage';
 
 /**
  * Mutable engine bookkeeping for one {@link RoomClient}. Plain record, mutated

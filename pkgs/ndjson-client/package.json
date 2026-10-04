@@ -2,7 +2,6 @@
   "name": "@pkgs/ndjson-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -21,5 +20,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

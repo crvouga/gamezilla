@@ -5,8 +5,8 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { AppleProvider, AppleProviderConfig } from './apple-oauth';
 import { createAppleProvider } from './apple-oauth';
-import { createGoogleProvider } from './google-oauth';
 import type { GoogleProviderConfig } from './google-oauth';
+import { createGoogleProvider } from './google-oauth';
 import type { OauthProviderAdapter } from './provider-identity';
 
 export type OauthProvidersConfig = {

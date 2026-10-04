@@ -1,7 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { authRelayTargets, envHostnames, envOrigins, sharedIdentities } from '@libs/infra-shared/env-file';
+import {
+  authRelayTargets,
+  envHostnames,
+  envOrigins,
+  sharedIdentities,
+} from '@libs/infra-shared/env-file';
 import { ENV_FILES } from '@libs/infra-shared/envs';
 import { GLOBAL } from '@libs/infra-shared/global';
 import { envResourceNames } from '@libs/infra-shared/naming';

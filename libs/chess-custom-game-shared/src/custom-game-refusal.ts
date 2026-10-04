@@ -2,8 +2,13 @@ import type {
   CustomGameChoice,
   CustomGameOperation,
 } from './custom-game-choice';
-import { CUSTOM_GAME_SIDES, customGamePersonSide, customGameStartable, customGameTerminal } from './custom-game-state';
 import type { CustomGame } from './custom-game-state';
+import {
+  CUSTOM_GAME_SIDES,
+  customGamePersonSide,
+  customGameStartable,
+  customGameTerminal,
+} from './custom-game-state';
 
 export const CUSTOM_GAME_CREATOR_OPERATIONS: readonly CustomGameOperation[] = [
   'create',

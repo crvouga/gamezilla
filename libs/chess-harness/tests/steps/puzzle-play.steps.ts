@@ -6,18 +6,53 @@
 
 import { expect } from 'bun:test';
 
-import { castlePuzzleKing, choosePuzzlePromotion, leavePuzzleToChessMenu, openPuzzleFromSpaceNoWait, pickUpPuzzlePiece, playPuzzleMove, playUntilSolved, playWrongPuzzleMove, pressPuzzleNext, pressPuzzleNextIfVisible, pressPuzzleNextTwice, requestPuzzleHint, retryPuzzle, returnToPuzzleScreen, revealPuzzleSolution, setPuzzleAutoAdvance, showPuzzleSolutionLine, skipPuzzle } from '@libs/chess-puzzle-harness/chess-actions';
-import { readPuzzleBoardDestinations, readPuzzleBoardPieceAt, readPuzzleBoardProbe, readPuzzleHaptics, readPuzzlePromotionPending, readPuzzlePrompt } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import { isPuzzleOfflineNoticeVisible, isPuzzleSolved, readActivePuzzleId, readPuzzleDebug, readPuzzleHintStage, readPuzzleSpectator, readPuzzleStatus, readPuzzleStatusKind } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  castlePuzzleKing,
+  choosePuzzlePromotion,
+  leavePuzzleToChessMenu,
+  openPuzzleFromSpaceNoWait,
+  pickUpPuzzlePiece,
+  playPuzzleMove,
+  playUntilSolved,
+  playWrongPuzzleMove,
+  pressPuzzleNext,
+  pressPuzzleNextIfVisible,
+  pressPuzzleNextTwice,
+  requestPuzzleHint,
+  retryPuzzle,
+  returnToPuzzleScreen,
+  revealPuzzleSolution,
+  setPuzzleAutoAdvance,
+  showPuzzleSolutionLine,
+  skipPuzzle,
+} from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  readPuzzleBoardDestinations,
+  readPuzzleBoardPieceAt,
+  readPuzzleBoardProbe,
+  readPuzzleHaptics,
+  readPuzzlePromotionPending,
+  readPuzzlePrompt,
+} from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
+import {
+  isPuzzleOfflineNoticeVisible,
+  isPuzzleSolved,
+  readActivePuzzleId,
+  readPuzzleDebug,
+  readPuzzleHintStage,
+  readPuzzleSpectator,
+  readPuzzleStatus,
+  readPuzzleStatusKind,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import { focusActor } from '@libs/harness/shell-actions';
 import { restoreNetwork } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import { createSpace } from '@libs/spaces-harness/space-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';

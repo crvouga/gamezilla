@@ -1,5 +1,5 @@
-import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
 
 /**
  * {@link Keyword} for a cached structured LLM response. The content hash

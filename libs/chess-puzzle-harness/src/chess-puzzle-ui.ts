@@ -2,8 +2,8 @@ import { actorUi, pollUntil } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { ownSpaceCard, waitActiveSpace } from '@libs/spaces-harness/space-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
+import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { Chess } from 'chess.js';
 
 const WAIT_MS = 15_000;

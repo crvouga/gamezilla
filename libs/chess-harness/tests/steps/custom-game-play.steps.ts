@@ -1,8 +1,11 @@
 import { expect } from 'bun:test';
 import { changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { readCustomGameSeconds, readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
+import {
+  readCustomGameSeconds,
+  readCustomGameTime,
+} from '@libs/chess-custom-game-harness/custom-game-clocks';
 import { customGameChess } from '@libs/chess-custom-game-shared/custom-game-position';
+import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
 import { customGameTimeLeft } from '@libs/chess-custom-game-shared/custom-game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { customSide } from './custom-game-choices.steps';

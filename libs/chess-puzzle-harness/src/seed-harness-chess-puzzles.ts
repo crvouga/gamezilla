@@ -9,12 +9,12 @@
  */
 
 import { join } from 'node:path';
+import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
-import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
 
 const LOAD_FILE_KEY = 'chess-puzzles.harness.csv';
 

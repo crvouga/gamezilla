@@ -3,9 +3,8 @@ import {
   type JsonSchemaType,
   McpServer,
 } from '@modelcontextprotocol/server';
-import type { TraceStore } from '@pkgs/observability-shared/types';
-
 import { createObservabilityMcpTools } from '@pkgs/observability-mcp-shared/observability-mcp';
+import type { TraceStore } from '@pkgs/observability-shared/types';
 
 type TraceIdInput = { readonly traceId: string };
 type TestIdInput = { readonly testId: string };

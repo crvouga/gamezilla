@@ -60,7 +60,9 @@ function definitionRows(
 ): readonly string[] {
   return [...definitions]
     .sort(
-      (a, b) => a.kind.localeCompare(b.kind) || a.text.localeCompare(b.text)
+      (a, b) =>
+        (a.kind < b.kind ? -1 : a.kind > b.kind ? 1 : 0) ||
+        (a.text < b.text ? -1 : a.text > b.text ? 1 : 0)
     )
     .map(
       (d) =>

@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
-import { decidePuzzleSessionStart, shouldDeferPuzzleAttemptPlacement, shouldReclaimPuzzleHost } from '@libs/chess-puzzle-shared/session-start-policy';
 import type { PuzzleSessionStartInput } from '@libs/chess-puzzle-shared/session-start-policy';
+import {
+  decidePuzzleSessionStart,
+  shouldDeferPuzzleAttemptPlacement,
+  shouldReclaimPuzzleHost,
+} from '@libs/chess-puzzle-shared/session-start-policy';
 
 const READY: PuzzleSessionStartInput = {
   identityReady: true,

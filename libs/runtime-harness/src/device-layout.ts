@@ -1,8 +1,4 @@
-import {
-  actorUi,
-  ensureActor,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
+import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { openSettings } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';

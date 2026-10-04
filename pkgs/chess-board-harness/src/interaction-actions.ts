@@ -1,8 +1,11 @@
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import type { BoardWorld } from './board-world';
-import { BLACK_CAPTURE_PROMOTION, WHITE_PROMOTION } from './interaction-fixtures';
 import type { PromotionName } from './interaction-fixtures';
+import {
+  BLACK_CAPTURE_PROMOTION,
+  WHITE_PROMOTION,
+} from './interaction-fixtures';
 
 export const PROMOTION_KINDS = {
   queen: 'q',

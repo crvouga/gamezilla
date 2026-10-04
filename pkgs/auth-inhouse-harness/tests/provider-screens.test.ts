@@ -5,10 +5,16 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import type {
+  HeadlessButton,
+  HeadlessForm,
+} from '@pkgs/auth-inhouse-client/headless-form';
 
-import { formSubmitBody, parseForms } from '@pkgs/auth-inhouse-client/headless-form';
-import type { HeadlessButton, HeadlessForm } from '@pkgs/auth-inhouse-client/headless-form';
+import {
+  formSubmitBody,
+  parseForms,
+} from '@pkgs/auth-inhouse-client/headless-form';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
 const ORIGIN = 'https://idp.test';

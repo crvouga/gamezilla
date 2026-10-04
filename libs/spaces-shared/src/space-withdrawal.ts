@@ -1,4 +1,7 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import type { MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
 

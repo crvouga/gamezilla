@@ -4,14 +4,14 @@
  */
 
 import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
-import BetterSqlite3 from 'better-sqlite3';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-shared/connection-pragmas';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import BetterSqlite3 from 'better-sqlite3';
 
 /**
  * better-sqlite3 rejects `boolean` / `undefined`. Domain SQL binds JS booleans

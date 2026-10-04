@@ -1,8 +1,8 @@
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import type { BoardWorld } from './board-world';
-import { mountPair, observePairInput } from './pair-world';
 import type { PairSide } from './pair-world';
+import { mountPair, observePairInput } from './pair-world';
 import { REPLACEMENT } from './positions';
 
 export const preparePair = defineAction({

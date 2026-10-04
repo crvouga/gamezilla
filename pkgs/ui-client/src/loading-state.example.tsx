@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { SchemePreview } from './scheme-preview';
 import { LoadingState } from './loading-state';
+import { SchemePreview } from './scheme-preview';
 
 export default function LoadingStateExample(): JSX.Element {
   return (

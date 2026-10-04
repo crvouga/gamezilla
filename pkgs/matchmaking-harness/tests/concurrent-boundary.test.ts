@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { exampleAppSchema, NameAttr, RatingAttr, ratingWithin } from '@pkgs/matchmaking-harness/attrs';
 import type { MatchmakingHarnessBackend } from '@pkgs/matchmaking-harness/api';
+import {
+  exampleAppSchema,
+  NameAttr,
+  RatingAttr,
+  ratingWithin,
+} from '@pkgs/matchmaking-harness/attrs';
 import { openHarnessStore } from '@pkgs/matchmaking-harness/store';
 import type { MatchmakingImplSqlOptions } from '@pkgs/matchmaking-sql-server/matchmaking';
 import { MatchmakingImplSql } from '@pkgs/matchmaking-sql-server/matchmaking';

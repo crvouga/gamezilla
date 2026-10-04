@@ -12,17 +12,20 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { type JSX, Show } from 'solid-js';
+import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
 
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { CONTENT_EDGE_PADDING_STEP, useContentEdgePadding } from './content-edge-padding';
+import { type JSX, Show } from 'solid-js';
+import { CatalogDetailNav } from './catalog-detail-nav';
+import {
+  CONTENT_EDGE_PADDING_STEP,
+  useContentEdgePadding,
+} from './content-edge-padding';
 import { EmptyState } from './empty-state';
 import { ScreenLargeTitle } from './screen-large-title';
-import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 import { ScrollView } from './scroll-view';
-import { CatalogDetailNav } from './catalog-detail-nav';
-import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
+import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
 export type CatalogDetailProps = {
   items: readonly CatalogItem[];

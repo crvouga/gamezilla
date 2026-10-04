@@ -1,6 +1,9 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 
-import type { UploadBatch, UploadRow } from '@pkgs/sync-engine-shared/upload-batch';
+import type {
+  UploadBatch,
+  UploadRow,
+} from '@pkgs/sync-engine-shared/upload-batch';
 
 function parseUploadRow(item: unknown): UploadRow {
   assert.record(item, 'upload row must be object');

@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { setupPuzzleStart } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
-import { fenAtSolveIdx, nextForwardSolveIdx, prevSolveIdx, resolveSeekSolveIdx } from '@libs/chess-puzzle-shared/chess-puzzle-step';
+import {
+  fenAtSolveIdx,
+  nextForwardSolveIdx,
+  prevSolveIdx,
+  resolveSeekSolveIdx,
+} from '@libs/chess-puzzle-shared/chess-puzzle-step';
 
 const VALID_FEN = '4k3/8/8/8/8/8/4P3/4K2R b - - 0 1';
 const VALID_MOVES = 'e8d7 e1f2 d7e6 f2e3';

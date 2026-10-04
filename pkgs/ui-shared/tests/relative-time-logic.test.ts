@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { RELATIVE_TIME_TICK_MS, relativeTimeParts } from '@pkgs/ui-shared/relative-time-format';
+import {
+  RELATIVE_TIME_TICK_MS,
+  relativeTimeParts,
+} from '@pkgs/ui-shared/relative-time-format';
 
 const T0 = Date.UTC(2024, 0, 1, 12, 0, 0);
 const iso = (ms: number) => new Date(ms).toISOString();

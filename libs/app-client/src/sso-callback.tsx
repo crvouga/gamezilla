@@ -1,10 +1,13 @@
 /** @jsxImportSource solid-js */
 import { useAuthClientPort } from '@libs/auth-client/auth-client-provider';
-import { readSignInPendingSync, signInReturnHrefFromPending } from '@libs/auth-shared/sign-in-pending-parse';
+import {
+  readSignInPendingSync,
+  signInReturnHrefFromPending,
+} from '@libs/auth-shared/sign-in-pending-parse';
 import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock-client/solid';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
 import { useRouter } from '@pkgs/ui-client/app-router';
+import { LoadingState } from '@pkgs/ui-client/loading-state';
 import type { JSX } from 'solid-js';
 import { onMount } from 'solid-js';
 

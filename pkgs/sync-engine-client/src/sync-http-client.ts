@@ -1,6 +1,9 @@
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
-import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import type { Timers } from '@pkgs/clock-shared/types';
+import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 import type {
   MutationUploadResult,
   MutationUploadRow,

@@ -1,22 +1,44 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type {
+  ChessPuzzleAutoAdvance,
+  ChessPuzzleFeedConfig,
+  ChessPuzzleFeedHistoryFilter,
+  ChessPuzzleFeedMode,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import {
+  chessPuzzleFeedConfigFingerprint,
+  clampPuzzleFeedAutoOffset,
+  clampPuzzleFeedRating,
+  encodeChessPuzzleFeedConfig,
+  PUZZLE_FEED_AUTO_OFFSET_MAX,
+  PUZZLE_FEED_AUTO_OFFSET_MIN,
+  PUZZLE_FEED_AUTO_OFFSET_STEP,
+  PUZZLE_FEED_RATING_MAX,
+  PUZZLE_FEED_RATING_MIN,
+  resolveEffectivePuzzleRating,
+} from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
+import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import {
+  CHESS_PUZZLE_THEMES,
+  isChessPuzzleTheme,
+} from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useDecision } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Combobox } from '@pkgs/ui-client/combobox';
-import { ModalBody, ModalButton, ModalFooter } from '@pkgs/ui-client/modal-parts';
+import {
+  ModalBody,
+  ModalButton,
+  ModalFooter,
+} from '@pkgs/ui-client/modal-parts';
 import { NumberStepper } from '@pkgs/ui-client/number-stepper';
 import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
 import { SegmentedControl } from '@pkgs/ui-client/segmented-control';
 import { createEffect, createMemo, type JSX, Show } from 'solid-js';
-
-import type { ChessPuzzleAutoAdvance, ChessPuzzleFeedConfig, ChessPuzzleFeedHistoryFilter, ChessPuzzleFeedMode } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { chessPuzzleFeedConfigFingerprint, clampPuzzleFeedAutoOffset, clampPuzzleFeedRating, encodeChessPuzzleFeedConfig, PUZZLE_FEED_AUTO_OFFSET_MAX, PUZZLE_FEED_AUTO_OFFSET_MIN, PUZZLE_FEED_AUTO_OFFSET_STEP, PUZZLE_FEED_RATING_MAX, PUZZLE_FEED_RATING_MIN, resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
-import { CHESS_PUZZLE_THEMES, isChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
-import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import { createFeedSettingsDraft } from './create-feed-settings-draft';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';

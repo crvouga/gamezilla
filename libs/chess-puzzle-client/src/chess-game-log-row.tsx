@@ -1,10 +1,13 @@
+import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Trans } from '@lingui/solid/macro';
-import { ChevronRightIcon, CircleCheckIcon, XIcon } from '@pkgs/ui-client/icons';
+import {
+  ChevronRightIcon,
+  CircleCheckIcon,
+  XIcon,
+} from '@pkgs/ui-client/icons';
 import { useRelativeTimeLabel } from '@pkgs/ui-client/relative-time';
 import { useTheme } from '@pkgs/ui-client/theme-context';
 import type { JSX } from 'solid-js';
-
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;

@@ -2,17 +2,11 @@
   "name": "@pkgs/glob-match-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
       "default": "./src/index.js"
-    },
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    }
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -29,5 +23,6 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

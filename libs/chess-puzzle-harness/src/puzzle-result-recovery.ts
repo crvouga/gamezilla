@@ -6,10 +6,14 @@ import {
   localAccountIdOf,
 } from '@libs/harness/identity';
 import { bringToFront, partitioned } from '@libs/harness/observations';
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import { playUntilSolved, retryPuzzle, showChessStatsScreen } from './chess-actions';
 import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
+import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import {
+  playUntilSolved,
+  retryPuzzle,
+  showChessStatsScreen,
+} from './chess-actions';
 import { readRecoveryStats } from './puzzle-recovery-stats';
 
 export const closePuzzleApp = scenarioAction({

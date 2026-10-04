@@ -2,7 +2,10 @@ import { expect, test } from 'bun:test';
 import { resolve } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { createUIQualityChecker, setup } from '@pkgs/ui-quality-check-server/api';
+import {
+  createUIQualityChecker,
+  setup,
+} from '@pkgs/ui-quality-check-server/api';
 
 test('explicit offline setup retries corrupt installations and rejects unpinned checkpoints', async () => {
   // regression: ui-quality-setup-corrupt-repair — existing broken graph/weights, supplied local checkpoint.

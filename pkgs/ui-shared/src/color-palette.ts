@@ -7,7 +7,7 @@ import type { ColorPalette } from './colors-types';
  * than the fill so it stays readable on the canvas. White on that lighter
  * blue would fail, so solid buttons do not use it.
  *
- * Retune here, then `bun run --filter @pkgs/ui-server tokens:generate`.
+ * Retune here, then `bun run --filter @pkgs/ui-client tokens:generate`.
  * Every text/fill pair below is at least 4.5:1.
  */
 export const COLOR_PALETTE: ColorPalette = {

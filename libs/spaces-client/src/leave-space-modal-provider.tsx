@@ -1,8 +1,8 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { createContext, createSignal, type JSX, useContext } from 'solid-js';
-import { useSpaceCan } from './use-space-can';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useLeaveSpace } from './use-leave-space';
+import { useSpaceCan } from './use-space-can';
 
 export type RequestLeaveSpaceOptions = {
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */

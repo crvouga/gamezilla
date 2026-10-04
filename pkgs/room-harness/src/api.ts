@@ -1,19 +1,21 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
-import type { RoomCommandPayload, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
-import type { RoomServer } from '@pkgs/room-server/room-server';
 import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import type { RoomServer } from '@pkgs/room-server/room-server';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 import type { RoomCrashEvent } from './edge-faults';
 import type { RoomHarnessClient, RoomHarnessNode } from './handles';
 import type { RoomInvariantViolation } from './invariants';
-import type {
-  HarnessRoomNetwork,
-  RoomHarnessNet,
-} from './network';
+import type { HarnessRoomNetwork, RoomHarnessNet } from './network';
 import type {
   NeverOptions,
   UntilPredicate,

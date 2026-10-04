@@ -1,8 +1,8 @@
 import { useAuth } from '@libs/auth-client/auth-client-provider';
+import { decidePrivacyAccess } from '@libs/permissions-shared/privacy-permission';
 import { useClock } from '@pkgs/clock-client/solid';
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { decidePrivacyAccess } from '@libs/permissions-shared/privacy-permission';
 
 export function usePrivacyDecision(): (
   action: string,

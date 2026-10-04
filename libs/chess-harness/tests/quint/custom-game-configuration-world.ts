@@ -3,12 +3,12 @@ import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-acti
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import {
   returnToTabs,
   signInWithGoogle,
   signInWithGoogleAsAccount,
 } from '@libs/harness/auth-actions';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
 import { customFact, customSpace } from '../steps/custom-game-world';
 

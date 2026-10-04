@@ -9,9 +9,8 @@ import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-client/badge';
 import { CheckIcon } from '@pkgs/ui-client/icons';
 import { For, type JSX, Match, Show, Switch } from 'solid-js';
-
-import { formatMinorUnits } from './billing-view-model';
 import type { PriceSummary } from './billing-view-model';
+import { formatMinorUnits } from './billing-view-model';
 
 function PriceTile(props: {
   readonly price: PriceSummary;

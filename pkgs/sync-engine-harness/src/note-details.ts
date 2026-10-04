@@ -8,10 +8,9 @@
 
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import sql from '@pkgs/sql-shared/sql';
-
-import { rows } from './sync-observations';
 import { requireClient } from './regression-support';
 import type { SyncHarness } from './scenario-system';
+import { rows } from './sync-observations';
 
 function dbOf(s: SyncHarness, nodeId: string) {
   return nodeId === 'server' ? s.server.db : requireClient(s, nodeId).db;

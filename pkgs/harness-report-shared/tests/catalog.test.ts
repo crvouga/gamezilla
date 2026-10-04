@@ -1,7 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-
-import { arrangeCatalog, catalogCounts, catalogParams } from '@pkgs/harness-report-shared/catalog';
-import type { CatalogEntity, CatalogQuery } from '@pkgs/harness-report-shared/catalog';
+import type {
+  CatalogEntity,
+  CatalogQuery,
+} from '@pkgs/harness-report-shared/catalog';
+import {
+  arrangeCatalog,
+  catalogCounts,
+  catalogParams,
+} from '@pkgs/harness-report-shared/catalog';
 
 function entity(
   patch: Partial<CatalogEntity> & Pick<CatalogEntity, 'id' | 'title'>

@@ -140,19 +140,19 @@ export function ensureRuntimeImports(text: string, filePath = ''): string {
 function isPkgsUiSrc(filePath: string): boolean {
   const normalized = filePath.replace(/\\/g, '/');
   return (
-    normalized.includes('/pkgs/ui/src/') ||
-    normalized.startsWith('pkgs/ui/src/')
+    normalized.includes('/pkgs/ui-client/src/') ||
+    normalized.startsWith('pkgs/ui-client/src/')
   );
 }
 
 function relModule(filePath: string, targetFromSrc: string): string {
   const normalized = filePath.replace(/\\/g, '/');
-  const marker = 'pkgs/ui/src/';
+  const marker = 'pkgs/ui-client/src/';
   const idx = normalized.indexOf(marker);
   invariant(idx >= 0, 'relModule requires pkgs/ui/src path');
   const fromFile = normalized.slice(idx + marker.length);
   const depth = fromFile.split('/').length - 1;
-  const prefix = depth === 0 ? './/' : '../'.repeat(depth);
+  const prefix = depth === 0 ? './' : '../'.repeat(depth);
   return `${prefix}${targetFromSrc}`;
 }
 

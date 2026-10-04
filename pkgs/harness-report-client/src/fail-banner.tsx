@@ -1,6 +1,5 @@
-import { Show } from 'solid-js';
-
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
+import { Show } from 'solid-js';
 
 /** Failure summary pinned above the stage, with a jump to the failed frame. */
 export function FailBanner(props: {

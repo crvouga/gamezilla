@@ -1,10 +1,16 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-
-import sql, { join, raw } from '@pkgs/sql-shared/sql';
 import type { Sql } from '@pkgs/sql-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-shared/sql';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
-import { isSqlMapCastType, markSqlMapBuiltinsRegistered, registerSqlMapCast, registerSqlMapCollation, registerSqlMapFn, registerSqlMapOp } from './sql-map-registry';
-import type { SqlMapCompileCtx, } from './sql-map-registry';
+import type { SqlMapCompileCtx } from './sql-map-registry';
+import {
+  isSqlMapCastType,
+  markSqlMapBuiltinsRegistered,
+  registerSqlMapCast,
+  registerSqlMapCollation,
+  registerSqlMapFn,
+  registerSqlMapOp,
+} from './sql-map-registry';
 
 const INTERVAL_RE =
   /^[0-9]+ (day|days|hour|hours|minute|minutes|second|seconds|week|weeks|month|months|year|years)$/i;

@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { SPACES_TABLES } from './tables';
-import { SPACES_TOPIC_MAP } from './topic-map';
 import { SPACES_PRIVACY } from './account-privacy';
 import { SPACE_QUERIES } from './queries';
+import { SPACES_TABLES } from './tables';
+import { SPACES_TOPIC_MAP } from './topic-map';
 
 export const SPACES_FEATURE = defineFeature({
   name: 'spaces',

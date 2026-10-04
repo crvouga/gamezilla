@@ -1,12 +1,21 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { bulk, empty, ident, join } from '@pkgs/sql-shared/sql';
 import type { Sql } from '@pkgs/sql-shared/sql';
-import { compileFrom, compileGroupBy, compileHaving, compileJoins, compileLimitOffset, compileReturning, compileSelectList, compileWhere } from './sql-map-clauses';
-import { compileOrderBy } from './sql-map-order';
+import sql, { bulk, empty, ident, join } from '@pkgs/sql-shared/sql';
+import {
+  compileFrom,
+  compileGroupBy,
+  compileHaving,
+  compileJoins,
+  compileLimitOffset,
+  compileReturning,
+  compileSelectList,
+  compileWhere,
+} from './sql-map-clauses';
 import { compileOnConflict } from './sql-map-conflict';
 import { compileExpr, wireCompileQuery } from './sql-map-expr';
 import { columnIdent } from './sql-map-ident';
 import { SQL_MAP_LIST_SEP } from './sql-map-list-sep';
+import { compileOrderBy } from './sql-map-order';
 import type { InsertValue, Query } from './sql-map-types';
 import { compileForUpdate, compileUnion, compileWith } from './sql-map-with';
 

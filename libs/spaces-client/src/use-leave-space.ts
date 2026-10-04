@@ -1,5 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { leaveSpaceMutation } from '@libs/spaces-shared/leave-space-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useLeaveSpace() {
   const mutationClient = useMutationClient();

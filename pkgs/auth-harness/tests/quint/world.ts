@@ -10,8 +10,8 @@
 
 import type { AuthSurface } from '@pkgs/auth-harness/types';
 import type { Run } from '@pkgs/harness-shared/run-types';
-import { setQuintWorld } from '@pkgs/quint-shared/registry';
 import type { TraceContext } from '@pkgs/quint-shared/registry';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
 
 export type SignInTraceWorld = {
   readonly ctx: TraceContext;

@@ -18,14 +18,22 @@ import {
   Switch,
 } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
-import { addCellAfter, duplicateCell, encodeNotebookDoc, moveCell, removeCell, setCellSql, toggleLive } from './notebook-doc';
 import type { SqlNotebookCell, SqlNotebookDoc } from './notebook-doc';
+import {
+  addCellAfter,
+  duplicateCell,
+  encodeNotebookDoc,
+  moveCell,
+  removeCell,
+  setCellSql,
+  toggleLive,
+} from './notebook-doc';
 import type { SqlCellRun } from './run-sql-cell';
 import { runSqlCell } from './run-sql-cell';
-import type { CellInsertApi } from './sql-cell-types';
 import { SqlCell } from './sql-cell';
-import { detectSqlDialect } from './sql-dialect';
+import type { CellInsertApi } from './sql-cell-types';
 import type { SqlDialect } from './sql-dialect';
+import { detectSqlDialect } from './sql-dialect';
 import { SqlNotebookToolbar } from './sql-notebook-toolbar';
 import { SqlSchemaDrawer } from './sql-schema-drawer';
 import type { NotebookDocSetter } from './use-notebook-doc';

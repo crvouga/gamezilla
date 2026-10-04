@@ -1,10 +1,13 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { MutationModal, resolveMutationSurfaceClose } from '@pkgs/ui-client/mutation-modal';
 import type { MutationStateTransition } from '@pkgs/ui-client/mutation-lifecycle';
 import { useMutationLifecycle } from '@pkgs/ui-client/mutation-lifecycle';
+import {
+  MutationModal,
+  resolveMutationSurfaceClose,
+} from '@pkgs/ui-client/mutation-modal';
+import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { mustQuery, renderUi } from './render';

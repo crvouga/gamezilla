@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `Avatar` -- circular avatar primitive.
  *
@@ -24,16 +25,16 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
-import { createMemo, type JSX, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { bestOnColor } from '@pkgs/ui-shared/contrast';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
-import { useThemeTokens } from './theme-context';
-import type { IconComponent } from './create-icon';
-import styles from './avatar.module.css';
 import { svgToDataUri } from '@pkgs/ui-shared/svg-data-uri';
+import { createMemo, type JSX, Match, Switch } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
+import styles from './avatar.module.css';
+import type { IconComponent } from './create-icon';
+import { useThemeTokens } from './theme-context';
 
 /** Minimal enclosing ring on every avatar face. */
 export const AVATAR_BORDER_WIDTH = 1;

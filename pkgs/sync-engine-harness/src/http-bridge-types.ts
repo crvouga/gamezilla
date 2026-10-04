@@ -1,10 +1,10 @@
+import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import type {
   MutationUploadResult,
   MutationUploadRow,
 } from '@pkgs/sync-engine-client/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine-client/subscription-runtime';
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
 
 /** Request body without routing metadata (client fills `replyTo`). */
 export type HarnessHttpRequestBody =

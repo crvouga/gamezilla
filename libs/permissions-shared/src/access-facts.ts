@@ -1,6 +1,15 @@
-import type { AccessMoment, MembershipStanding } from '@pkgs/billing-shared/precedence';
-import { governingMembership, isMembershipLive, membershipAccessLapsesAtMs, membershipGrantsAccess, readMembershipStatus } from '@pkgs/billing-shared/precedence';
 import type { MembershipStatus } from '@pkgs/billing-shared/membership';
+import type {
+  AccessMoment,
+  MembershipStanding,
+} from '@pkgs/billing-shared/precedence';
+import {
+  governingMembership,
+  isMembershipLive,
+  membershipAccessLapsesAtMs,
+  membershipGrantsAccess,
+  readMembershipStatus,
+} from '@pkgs/billing-shared/precedence';
 
 import type { Facts } from '@pkgs/permissions-shared/facts';
 

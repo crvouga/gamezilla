@@ -1,4 +1,8 @@
-import { Columns2Icon, PaintbrushIcon, SquareStackIcon } from '@pkgs/ui-client/icons';
+import {
+  Columns2Icon,
+  PaintbrushIcon,
+  SquareStackIcon,
+} from '@pkgs/ui-client/icons';
 import { RegisterCommand } from '@pkgs/ui-client/register-command';
 import { useThemePreference } from '@pkgs/ui-client/theme-preference';
 import type { JSX } from 'solid-js';

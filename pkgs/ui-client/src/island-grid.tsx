@@ -4,11 +4,11 @@
  * `span`); a vertical stack on compact.
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { cssGap } from '@pkgs/ui-shared/css-px';
 import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
+import type { JSX } from 'solid-js';
 import { useLayoutMode } from './use-layout-mode';
 
 export type IslandGridColumns = 2 | 3;

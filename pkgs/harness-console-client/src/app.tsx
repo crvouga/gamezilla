@@ -1,12 +1,12 @@
-import type { JSX } from 'solid-js';
 import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared/ports';
+import type { JSX } from 'solid-js';
 import { ClientLayoutPreferenceProvider } from './client-layout-preference';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
-import { ProductHarnessScreen } from './product-harness-screen';
-import { useProductHarnessSession } from './use-product-harness-session';
 import { NotebookStoreProvider } from './notebook-store-context';
+import { ProductHarnessScreen } from './product-harness-screen';
 import { appShellSx } from './tokens';
+import { useProductHarnessSession } from './use-product-harness-session';
 
 /**
  * Harness screen root — a flat sibling of the product app, no chrome of

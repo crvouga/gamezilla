@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { createEvidenceUploader } from '@pkgs/feedback-client/upload-evidence';
 import { FeedbackController } from '@pkgs/feedback-client/controller';
-import { createFeedbackHttpApp } from '@pkgs/feedback-server/feedback-http-app';
+import { createEvidenceUploader } from '@pkgs/feedback-client/upload-evidence';
 import { FakeIssueReporter } from '@pkgs/feedback-server/fake-issue-reporter';
+import { createFeedbackHttpApp } from '@pkgs/feedback-server/feedback-http-app';
 import { FileSystemIssueReporter } from '@pkgs/feedback-server/filesystem-issue-reporter';
 import type { FeedbackReport } from '@pkgs/feedback-shared/types';
 import { readBytes } from '@pkgs/object-store-shared/helpers';

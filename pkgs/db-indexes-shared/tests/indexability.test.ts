@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { analyzeIndexability, assertIndexableWorkload } from '@pkgs/db-indexes-shared/indexability';
 import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
+import {
+  analyzeIndexability,
+  assertIndexableWorkload,
+} from '@pkgs/db-indexes-shared/indexability';
 import { pkSchemaIndexes } from '@pkgs/db-indexes-shared/schema-coverage';
+import type { WorkloadManifest } from '@pkgs/db-indexes-shared/types';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-import type { WorkloadManifest } from '@pkgs/db-indexes-shared/types';
 
 function stmt(sql: string) {
   return {

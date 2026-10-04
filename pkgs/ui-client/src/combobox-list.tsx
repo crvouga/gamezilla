@@ -1,22 +1,23 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * Option list for {@link Combobox}: a windowed {@link VirtualList} exposed as
  * `role="listbox"` whose rows are `role="option"` buttons with
  * `aria-selected`. The highlighted row (keyboard) is tinted and kept in view.
  */
 
-import { createEffect, type JSX, on, Show } from 'solid-js';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { CheckIcon } from './icons';
-import { VirtualList } from './virtual-list';
-import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
 import { isValueSelected } from '@pkgs/ui-shared/combobox-selection';
 import type {
   ComboboxOption,
   ComboboxRenderOption,
   ComboboxValue,
 } from '@pkgs/ui-shared/combobox-types';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
+import { createEffect, type JSX, on, Show } from 'solid-js';
+import { CheckIcon } from './icons';
+import { VirtualList } from './virtual-list';
 
 /** Every option row is at least this tall (pointer target). */
 export const COMBOBOX_OPTION_MIN_HEIGHT = 44;

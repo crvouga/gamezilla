@@ -1,12 +1,11 @@
 import { test } from 'bun:test';
-
-import type { RunModelOptions } from './bun-test';
 import { decodeItfTrace } from '@pkgs/quint-shared/itf';
-import { decide } from './model-evidence';
-import type { RecordObligation } from './model-evidence';
 import type { QuintBinding } from '@pkgs/quint-shared/registry';
 import { quintWorld } from '@pkgs/quint-shared/registry';
 import { replayTrace } from '@pkgs/quint-shared/replay';
+import type { RunModelOptions } from './bun-test';
+import type { RecordObligation } from './model-evidence';
+import { decide } from './model-evidence';
 
 /** Pinned histories share the model's world, assertions, evidence and sharding. */
 export function registerRegressionTraces(input: {

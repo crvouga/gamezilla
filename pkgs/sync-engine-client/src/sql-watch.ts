@@ -1,5 +1,5 @@
-import type { Sql } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Sql } from '@pkgs/sql-shared/sql';
 
 import type { TableChangeBus } from './table-change-bus';
 

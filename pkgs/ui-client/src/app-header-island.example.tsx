@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
+import { AppHeaderIsland } from './app-header-island';
 import { AppLogo } from './app-logo';
 import { ExampleRoot } from './example-root';
 import { Gamepad2Icon, SearchIcon, UserIcon } from './icons';
-import { AppHeaderIsland } from './app-header-island';
 
 export default function AppHeaderIslandExample(): JSX.Element {
   return (

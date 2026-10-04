@@ -10,8 +10,8 @@ import type {
   PointerButton,
   TapPosition,
 } from '@pkgs/ui-testing-shared/driver';
-import { ensureElementLayout, pointFromRatio } from './dom-layout';
 import type { LayoutProvider } from './dom-layout';
+import { ensureElementLayout, pointFromRatio } from './dom-layout';
 
 type Point = { readonly x: number; readonly y: number };
 

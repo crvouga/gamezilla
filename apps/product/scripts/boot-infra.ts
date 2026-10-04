@@ -5,7 +5,13 @@
 import { join } from 'node:path';
 import { startAedesServer } from '@pkgs/aedes-server/start';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import { S3_ACCESS_KEY_ID, S3_BUCKET, S3_REGION, S3_SECRET_ACCESS_KEY, startS3Server } from '@pkgs/s3-server/s3-server';
+import {
+  S3_ACCESS_KEY_ID,
+  S3_BUCKET,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
+  startS3Server,
+} from '@pkgs/s3-server/s3-server';
 
 import { runLocalMigrate } from '../../server/scripts/run-local-postgres-migrate';
 import { runLocalSeed } from '../../server/scripts/run-local-postgres-seed';

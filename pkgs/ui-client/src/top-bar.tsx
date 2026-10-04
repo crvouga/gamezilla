@@ -7,10 +7,13 @@
  * `centerPosition="flex"` to keep it in flow instead.
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { getTopBarContentHeight, TOP_BAR_CONTENT_HEIGHT_MOBILE } from './action-bar-chrome';
+import { type JSX, Show } from 'solid-js';
+import {
+  getTopBarContentHeight,
+  TOP_BAR_CONTENT_HEIGHT_MOBILE,
+} from './action-bar-chrome';
 import { useThemeLayout } from './theme-context';
 
 export const TOP_BAR_CONTENT_HEIGHT = TOP_BAR_CONTENT_HEIGHT_MOBILE;

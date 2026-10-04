@@ -1,10 +1,10 @@
 import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
-import { DefineBackButton } from './spaces-nav-context';
-import { closeSpaceDetail } from './space-routes';
 import { SpaceActiveLayout } from './space-active-layout';
-import { SpaceSessionUiProvider } from './space-session-ui-context';
+import { closeSpaceDetail } from './space-routes';
 import type { SpaceSessionUiValue } from './space-session-ui-context';
+import { SpaceSessionUiProvider } from './space-session-ui-context';
+import { DefineBackButton } from './spaces-nav-context';
 
 export type SpaceDetailInitialLoadingProps = {
   spaceId: string;

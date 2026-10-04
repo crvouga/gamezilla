@@ -1,7 +1,8 @@
 // @io-wall-ok
-import { assert } from '@pkgs/assert-shared/singleton';
-import { setHotAssertsEnabled } from '@pkgs/assert-shared/hot-asserts';
+
 import { BrowserCrashHandler } from '@pkgs/assert-crash-browser-client/crash-handler-browser';
+import { setHotAssertsEnabled } from '@pkgs/assert-shared/hot-asserts';
+import { assert } from '@pkgs/assert-shared/singleton';
 import { wallTimers } from '@pkgs/clock-shared/wall';
 import { polyfillBuffer } from '@pkgs/polyfill-shared/buffer';
 

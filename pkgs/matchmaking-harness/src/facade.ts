@@ -5,18 +5,24 @@
 import type { JsonValue } from '@pkgs/harness-shared/json';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import type { MatchmakingDevice } from '@pkgs/matchmaking-shared/device';
-import type { DistanceFormula, JoinInput, JoinResult, LeaveResult, UpdateFormulasResult } from '@pkgs/matchmaking-shared/types';
 import type { SearchRequest } from '@pkgs/matchmaking-shared/identity';
 import type { TickResult } from '@pkgs/matchmaking-shared/matchmaking';
+import type {
+  DistanceFormula,
+  JoinInput,
+  JoinResult,
+  LeaveResult,
+  UpdateFormulasResult,
+} from '@pkgs/matchmaking-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { Hono } from 'hono';
 import type { HarnessReplica, MatchmakingHarnessRuntime } from './api';
-import { bootReplicaOnStore } from './boot-replica';
 import type { ReplicaBootConfig } from './boot-replica';
+import { bootReplicaOnStore } from './boot-replica';
 import { refreshDevices } from './devices';
-import { buildHarnessReplica, joinOnReplica, resolveReplica } from './handles';
 import type { ReplicaOps } from './handles';
+import { buildHarnessReplica, joinOnReplica, resolveReplica } from './handles';
 import type { MmReplicaBoot } from './node-kinds';
 
 /** Last result of each write action — read back through observations. */

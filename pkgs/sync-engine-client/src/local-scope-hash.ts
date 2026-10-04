@@ -1,12 +1,14 @@
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
-import { DEFAULT_QUERY_LIMIT } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryCtx, QueryDef } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 import { applyHardLimit } from '@pkgs/sync-engine-shared/apply-hard-limit';
 import { hashQueryTables } from '@pkgs/sync-engine-shared/canonical';
+import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  QueryCtx,
+  QueryDef,
+} from '@pkgs/sync-engine-shared/queries-types';
+import { DEFAULT_QUERY_LIMIT } from '@pkgs/sync-engine-shared/queries-types';
 import { parseStandardSchema } from '@pkgs/sync-engine-shared/standard-schema';
+import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 export async function computeLocalScopeHash(args: {
   readonly db: SqlClient;

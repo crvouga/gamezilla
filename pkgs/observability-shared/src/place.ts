@@ -1,5 +1,5 @@
-import type { NarrateSpan } from './narrate';
 import { ATTR } from './attributes';
+import type { NarrateSpan } from './narrate';
 
 export function splitPlace(place: string): {
   readonly city: string;

@@ -1,6 +1,6 @@
 import type { CheckpointAction, Property } from './effect';
-import type { Step } from './recording';
 import { memoRead, popMemoFrame, pushMemoFrame, snapshotMemo } from './memo';
+import type { Step } from './recording';
 
 export class PropertyViolation extends Error {
   readonly property: string;

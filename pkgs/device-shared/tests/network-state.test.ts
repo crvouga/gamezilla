@@ -1,7 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { createInMemoryNetworkStatePort, networkStateNone, networkStateWifi } from '@pkgs/device-shared/network-state';
 import type { NetworkState } from '@pkgs/device-shared/network-state';
-import { createWebNetworkStatePort, readWebNetworkState } from '@pkgs/device-shared/web-network-state';
+import {
+  createInMemoryNetworkStatePort,
+  networkStateNone,
+  networkStateWifi,
+} from '@pkgs/device-shared/network-state';
+import {
+  createWebNetworkStatePort,
+  readWebNetworkState,
+} from '@pkgs/device-shared/web-network-state';
 
 type Handler = () => void;
 

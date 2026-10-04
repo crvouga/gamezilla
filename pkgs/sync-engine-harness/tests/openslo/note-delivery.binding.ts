@@ -9,8 +9,8 @@
  */
 
 import type { Measurement } from '@pkgs/openslo-shared/evaluate';
-import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import type { MeasureContext } from '@pkgs/openslo-shared/registry';
+import { bindObjectives } from '@pkgs/openslo-shared/registry';
 import { exampleSystem } from '@pkgs/sync-engine-harness/example-app-system';
 import { noteArrivals } from './note-arrivals';
 

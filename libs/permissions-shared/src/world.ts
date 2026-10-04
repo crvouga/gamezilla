@@ -10,19 +10,24 @@
 
 import { ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
 import { CLIENT_CONFIG_TABLES } from '@libs/app-config-shared/tables';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
-import sql, { raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
-
+import type { CaseInput, Person } from './people';
+import {
+  DEVICE_ID,
+  identityFor,
+  membershipRowsFor,
+  paymentsOfferedOf,
+  personOf,
+} from './people';
 import type { AppLimit, AppPolicyKey } from './permission-catalog';
 import { PERMISSIONS_TABLES } from './tables';
-import type { CaseInput, Person } from './people';
-import { DEVICE_ID, identityFor, membershipRowsFor, paymentsOfferedOf, personOf } from './people';
 
 export type AppPolicy = PermissionPolicy<AppPolicyKey, AppLimit>;
 

@@ -29,8 +29,14 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { sourceImports } from './source-imports';
 
-export const CATEGORIES = ['client', 'server', 'isomorphic', 'harness'] as const;
+export const CATEGORIES = [
+  'client',
+  'server',
+  'isomorphic',
+  'harness',
+] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 const SUFFIX: Readonly<Record<string, Category>> = {
@@ -153,27 +159,34 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
 const WORKSPACE_SPECIFIER =
   /from\s+'(@(?:libs|pkgs)\/[a-z0-9-]+)(?:\/[^']*)?'|import\('(@(?:libs|pkgs)\/[a-z0-9-]+)(?:\/[^']*)?'\)/g;
 
-/** Runtime (non-type) module specifiers of a source file. */
-const RUNTIME_IMPORT =
-  /^\s*(?:import|export)\s+(?!type\b)(?:[^'";]*?\sfrom\s+)?'([^']+)'|import\('([^']+)'\)/gm;
-
 /** Category rules for one manifest, given its source texts. Pure, for tests. */
 export function categoryViolations(
   manifest: Manifest,
   options: {
     readonly tier: string;
     readonly hasSrc: boolean;
-    readonly sources: readonly { readonly path: string; readonly text: string }[];
+    readonly sources: readonly {
+      readonly path: string;
+      readonly text: string;
+    }[];
   }
 ): readonly string[] {
   const out: string[] = [];
   const name = manifest.name ?? '';
   const category = manifest.category as Category | undefined;
   if (category === undefined || !CATEGORIES.includes(category)) {
-    return [`package.json declares no category (one of ${CATEGORIES.join(', ')})`];
+    return [
+      `package.json declares no category (one of ${CATEGORIES.join(', ')})`,
+    ];
   }
-  if (options.tier !== 'apps' && options.hasSrc && categoryOfName(name) !== category) {
-    out.push(`${name} is ${category}, so its name ends in -${category === 'isomorphic' ? 'shared' : category}`);
+  if (
+    options.tier !== 'apps' &&
+    options.hasSrc &&
+    categoryOfName(name) !== category
+  ) {
+    out.push(
+      `${name} is ${category}, so its name ends in -${category === 'isomorphic' ? 'shared' : category}`
+    );
   }
   for (const field of ['dependencies', 'devDependencies'] as const) {
     for (const [dep, version] of Object.entries(manifest[field] ?? {})) {
@@ -184,22 +197,38 @@ export function categoryViolations(
         continue;
       }
       if (depCategory === 'harness' && category !== 'harness') {
-        out.push(`${field} names harness ${dep}: only a harness depends on a harness`);
+        out.push(
+          `${field} names harness ${dep}: only a harness depends on a harness`
+        );
         continue;
       }
-      if (field === 'dependencies' && !ALLOWED[category].includes(depCategory)) {
+      if (
+        field === 'dependencies' &&
+        !ALLOWED[category].includes(depCategory)
+      ) {
         out.push(`${category} package depends on ${depCategory} ${dep}`);
       }
     }
   }
-  if (category === 'isomorphic') {
-    for (const file of options.sources) {
-      for (const match of file.text.matchAll(RUNTIME_IMPORT)) {
-        const spec = match[1] ?? match[2] ?? '';
-        if (CLIENT_ONLY.test(spec) || SERVER_ONLY.test(spec)) {
-          out.push(`${file.path} loads ${spec}, which does not run everywhere`);
-        }
-      }
+  for (const file of options.sources) {
+    if (file.path.startsWith('src/') && file.path.slice(4).includes('/'))
+      out.push(
+        `${file.path}: src must be flat; split a vertical slice into its own package`
+      );
+    for (const reference of sourceImports(file.text)) {
+      const spec = reference.specifier;
+      const dep = /^(@(?:apps|libs|pkgs)\/[^/]+)/.exec(spec)?.[1];
+      const depCategory = dep === undefined ? undefined : categoryOfName(dep);
+      if (depCategory !== undefined && !ALLOWED[category].includes(depCategory))
+        out.push(
+          `${file.path}: ${category} source imports ${depCategory} ${dep}`
+        );
+      if (
+        category === 'isomorphic' &&
+        !reference.typeOnly &&
+        (CLIENT_ONLY.test(spec) || SERVER_ONLY.test(spec))
+      )
+        out.push(`${file.path} loads ${spec}, which does not run everywhere`);
     }
   }
   return out;
@@ -235,10 +264,13 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
   ];
   const broken: string[] = [];
   for (const dep of declared) {
-    if (rule.forbidden.has(familyOfDep(dep))) broken.push(`package.json declares ${dep}`);
+    if (rule.forbidden.has(familyOfDep(dep)))
+      broken.push(`package.json declares ${dep}`);
   }
   for (const file of sources) {
-    for (const match of readFileSync(file, 'utf8').matchAll(WORKSPACE_SPECIFIER)) {
+    for (const match of readFileSync(file, 'utf8').matchAll(
+      WORKSPACE_SPECIFIER
+    )) {
       const dep = match[1] ?? match[2];
       if (dep !== undefined && rule.forbidden.has(familyOfDep(dep))) {
         broken.push(`${file.slice(pkgDir.length + 1)} imports ${dep}`);

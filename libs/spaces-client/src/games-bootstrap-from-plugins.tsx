@@ -1,16 +1,15 @@
-import { useClock } from '@pkgs/clock-client/solid';
-import { useRandom } from '@pkgs/uuid-client/solid';
-import type { JSX } from 'solid-js';
-import { untrack } from 'solid-js';
-
 import type {
   GameClientDefinition,
   GameDefinition,
 } from '@libs/spaces-shared/game';
 import { composeSpaceRoomModule } from '@libs/spaces-shared/load-game-plugins';
+import { useClock } from '@pkgs/clock-client/solid';
+import { useRandom } from '@pkgs/uuid-client/solid';
+import type { JSX } from 'solid-js';
+import { untrack } from 'solid-js';
 import { GamesRegistryProvider } from './games-registry-context';
-import { SpaceModuleProvider } from './space-module-context';
 import type { SpaceRoomModule } from './space-module-context';
+import { SpaceModuleProvider } from './space-module-context';
 
 export type GamesBootstrapFromPluginsProps = {
   readonly games: readonly GameDefinition[];

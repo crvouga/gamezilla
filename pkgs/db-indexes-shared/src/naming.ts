@@ -2,8 +2,8 @@ import { sha256 } from '@noble/hashes/sha2.js';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
 import { assert } from '@pkgs/assert-shared/singleton';
 import { assertWithinLimit, LIMITS } from './limits';
-import { asOwnedIndexName } from './types';
 import type { IndexDefinition, OwnedIndexName } from './types';
+import { asOwnedIndexName } from './types';
 
 const OWNED_PREFIX = 'autoidx_';
 const OWNED_NAME_RE = /^autoidx_[a-z][a-z0-9_]{0,39}_[0-9a-f]{8}$/;

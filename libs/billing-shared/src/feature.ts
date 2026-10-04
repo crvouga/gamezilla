@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { BILLING_TABLES } from './tables';
-import { BILLING_TOPIC_MAP } from './topic-map';
 import { BILLING_PRIVACY } from './account-privacy';
 import { BILLING_QUERIES } from './queries';
+import { BILLING_TABLES } from './tables';
+import { BILLING_TOPIC_MAP } from './topic-map';
 
 export const BILLING_FEATURE = defineFeature({
   name: 'billing',

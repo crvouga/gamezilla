@@ -1,10 +1,12 @@
-import type { HttpClient } from '@pkgs/http-client-shared/types';
-
 import type { GoogleOauthEndpoints } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { IDP_PROVIDER_GOOGLE } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { pkceS256Challenge } from '@pkgs/auth-inhouse-shared/pkce';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
+import type {
+  OauthProviderAdapter,
+  ProviderIdentity,
+} from './provider-identity';
 import { claimFlag, claimString } from './provider-identity';
-import type { OauthProviderAdapter, ProviderIdentity } from './provider-identity';
 
 export type GoogleProviderConfig = {
   readonly clientId: string;

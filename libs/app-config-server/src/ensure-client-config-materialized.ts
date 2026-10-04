@@ -1,8 +1,11 @@
+import type { ClientConfigKeyId } from '@libs/app-config-shared/client-config-keys';
+import {
+  CLIENT_CONFIG_KEYS,
+  ClientConfigKey,
+} from '@libs/app-config-shared/client-config-keys';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { isEqual } from '@pkgs/equal-shared/is-equal';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { CLIENT_CONFIG_KEYS, ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
-import type { ClientConfigKeyId } from '@libs/app-config-shared/client-config-keys';
 import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {

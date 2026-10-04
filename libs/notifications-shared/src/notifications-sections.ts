@@ -1,7 +1,4 @@
-import type {
-  Notification,
-  NotificationSection,
-} from './notification';
+import type { Notification, NotificationSection } from './notification';
 
 function startOfLocalDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());

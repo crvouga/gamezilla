@@ -1,5 +1,5 @@
-import { INITIAL_SYNC_STATUS } from './sync-status';
 import type { SyncEngineStatus, SyncStatusSubscription } from './sync-status';
+import { INITIAL_SYNC_STATUS } from './sync-status';
 
 export type LocalSyncStatusStore = {
   readonly status: SyncStatusSubscription;

@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
-import sql from '@pkgs/sql-shared/sql';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
-
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import {
   defineOutboxConsumer,
   OutboxConsumerRegistry,
@@ -11,6 +10,9 @@ import {
 import { drainOutbox } from '@pkgs/outbox-shared/drain';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import { reconcileOutbox } from '@pkgs/outbox-shared/reconcile';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const ns = createMessageNamespace('outbox', 'test');
 

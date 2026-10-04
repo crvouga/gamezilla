@@ -1,11 +1,6 @@
 import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import { check, JOURNEY_WAIT_MS, openTab, tap } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
-import {
-  check,
-  JOURNEY_WAIT_MS,
-  openTab,
-  tap,
-} from './journey-gestures';
 
 export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   await openTab(ui, 'tab-chess');

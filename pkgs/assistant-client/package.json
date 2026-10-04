@@ -2,7 +2,6 @@
   "name": "@pkgs/assistant-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -24,7 +23,7 @@
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/bun-test-solid-client": "workspace:*"
-  }
+    "typescript": "catalog:"
+  },
+  "category": "client"
 }

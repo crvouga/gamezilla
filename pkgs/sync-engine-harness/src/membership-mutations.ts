@@ -1,6 +1,9 @@
 import sql from '@pkgs/sql-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
-import type { MutationDb, MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 

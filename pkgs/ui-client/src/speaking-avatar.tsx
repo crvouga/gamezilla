@@ -27,8 +27,12 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { booleanKvCodec } from '@pkgs/kv-shared/kv-state-codec';
 import { createKvState } from '@pkgs/kv-client/solid';
+import { booleanKvCodec } from '@pkgs/kv-shared/kv-state-codec';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { speakingAvatarSvg } from '@pkgs/ui-shared/speaking-avatar-svg';
+import { svgToDataUri } from '@pkgs/ui-shared/svg-data-uri';
 import {
   type Accessor,
   createMemo,
@@ -37,13 +41,9 @@ import {
   splitProps,
   untrack,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { svgToDataUri } from '@pkgs/ui-shared/svg-data-uri';
-import { SoundIndicator } from './sound-indicator';
 import type { SoundIndicatorState } from './sound-indicator';
+import { SoundIndicator } from './sound-indicator';
 import styles from './speaking-avatar.module.css';
-import { speakingAvatarSvg } from '@pkgs/ui-shared/speaking-avatar-svg';
 import { SpeechBubble } from './speech-bubble';
 
 const MUTED_ROW_KEY = asKeyword('ui/speaking-avatar-muted');

@@ -1,9 +1,8 @@
+import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
 import { createMemo, Show } from 'solid-js';
-
 import { useReport } from './report-context';
 import type { ReportNav } from './use-report-nav';
-import { catalogParams } from '@pkgs/harness-report-shared/catalog';
 
 function neighbor(
   tests: readonly HtmlReportTest[],

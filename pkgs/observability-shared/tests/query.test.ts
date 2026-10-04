@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
 import { assertTraceHasSpan } from '@pkgs/observability-shared/assert-trace';
 import { LocalExplorerTraceStore } from '@pkgs/observability-shared/local-explorer';
 import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';

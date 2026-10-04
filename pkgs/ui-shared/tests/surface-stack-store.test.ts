@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import {
+  SURFACE_STACK_BASE,
+  SURFACE_STACK_STEP,
+} from '@pkgs/ui-shared/constants';
 import { collectTabbable, nextTabStop } from '@pkgs/ui-shared/focus-trap-logic';
 import { createSurfaceStackStore } from '@pkgs/ui-shared/surface-stack-store';
-import { SURFACE_STACK_BASE, SURFACE_STACK_STEP } from '@pkgs/ui-shared/constants';
 
 describe('createSurfaceStackStore', () => {
   test('assigns monotonic z-indexes and restores a remounted underlay slot', () => {

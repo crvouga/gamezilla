@@ -5,9 +5,9 @@
  */
 
 import { useClientEnv } from '@libs/app-client/client-env-context';
-import { SpaceOpenRoomsProvider } from './space-open-rooms-context';
-import { RoomTransportFactoryProvider } from './room-transport-factory';
 import type { JSX } from 'solid-js';
+import { RoomTransportFactoryProvider } from './room-transport-factory';
+import { SpaceOpenRoomsProvider } from './space-open-rooms-context';
 
 export function AppSpaceRoomsProvider(props: {
   readonly children: JSX.Element;

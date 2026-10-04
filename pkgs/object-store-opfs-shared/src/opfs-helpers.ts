@@ -1,7 +1,7 @@
 /** Low-level OPFS helpers shared by {@link ./impl-opfs.ts}. */
 
-import { isNotFoundError } from './opfs';
 import type { OpfsDirHandle, OpfsFileHandle } from './opfs';
+import { isNotFoundError } from './opfs';
 
 export async function tryGetOpfsFile(
   dir: OpfsDirHandle,

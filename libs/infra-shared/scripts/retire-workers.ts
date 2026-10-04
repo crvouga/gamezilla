@@ -1,7 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — retire superseded code only after the live health gate.
 import { envFile } from '@libs/infra-shared/envs';
-import { assertWorkersRetirable, ROOM_CLASS } from '@libs/infra-shared/worker-lifecycle';
+import {
+  assertWorkersRetirable,
+  ROOM_CLASS,
+} from '@libs/infra-shared/worker-lifecycle';
 import type { RetirementResult } from '@libs/infra-shared/worker-retirement';
 import { retireWorker } from '@libs/infra-shared/worker-retirement';
 import { workerState } from './worker-state';

@@ -1,7 +1,7 @@
 // regression: auth-responses-missing-cors — a raw handler Response must carry CORS
 import { describe, expect, test } from 'bun:test';
-import { Hono } from 'hono';
 import { apiCors } from '@libs/app-shared/cors';
+import { Hono } from 'hono';
 
 describe('apiCors', () => {
   test('preserves JSON body and reflects Origin on POST', async () => {

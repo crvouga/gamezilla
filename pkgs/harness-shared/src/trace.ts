@@ -1,5 +1,5 @@
-import { canonicalJsonStringify } from './json';
 import type { JsonValue } from './json';
+import { canonicalJsonStringify } from './json';
 
 /** One entry in a Trace: a resolved Step or a Scheduler / Network event. */
 export type TraceRecord =

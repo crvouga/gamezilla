@@ -1,8 +1,12 @@
 import type { Run } from '@pkgs/harness-shared/run-types';
-import type { RoomCommandPayload } from '@pkgs/room-shared/types';
-import { dispatch } from '@pkgs/room-harness/room-actions';
-import { holdRoomChanges, pendingRoomChangeIds, stopAsRoomChangeCounts } from '@pkgs/room-harness/commit-recovery';
+import {
+  holdRoomChanges,
+  pendingRoomChangeIds,
+  stopAsRoomChangeCounts,
+} from '@pkgs/room-harness/commit-recovery';
 import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { dispatch } from '@pkgs/room-harness/room-actions';
+import type { RoomCommandPayload } from '@pkgs/room-shared/types';
 
 /** Queue the real choice, then stop after persistence and before confirmation. */
 export async function interruptedMatchChoice(

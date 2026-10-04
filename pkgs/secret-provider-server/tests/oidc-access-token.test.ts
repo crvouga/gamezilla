@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import { MINTED_TOKEN_EXPIRES_AT, resolveInfisicalAccessTokenForWrites } from '@pkgs/secret-provider-server/oidc-access-token';
+import {
+  MINTED_TOKEN_EXPIRES_AT,
+  resolveInfisicalAccessTokenForWrites,
+} from '@pkgs/secret-provider-server/oidc-access-token';
 
 /**
  * regression: infisical-ci-token-expired — the CI identity's token lives 10

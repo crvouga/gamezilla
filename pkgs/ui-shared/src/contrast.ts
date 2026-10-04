@@ -5,9 +5,12 @@
  * to `@pkgs/colors-shared`.
  */
 
-import { clamp01, rgba } from '@pkgs/colors-shared/types';
-import { contrastRatio as contrastRatioUnit, relativeLuminance as relativeLuminanceUnit } from '@pkgs/colors-shared/luminance';
+import {
+  contrastRatio as contrastRatioUnit,
+  relativeLuminance as relativeLuminanceUnit,
+} from '@pkgs/colors-shared/luminance';
 import type { Rgba } from '@pkgs/colors-shared/types';
+import { clamp01, rgba } from '@pkgs/colors-shared/types';
 
 import type { CssRgb8 } from './css-color';
 import { parseCssColor, rgb8ToRgba, rgbaToRgb8 } from './css-color';

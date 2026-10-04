@@ -7,13 +7,18 @@
 
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { Button } from '@pkgs/ui-client/button';
 import { ModalBackdrop } from '@pkgs/ui-client/modal-backdrop';
-import { ModalBody, ModalButton, ModalFooter, ModalHeader } from '@pkgs/ui-client/modal-parts';
 import { ModalContent } from '@pkgs/ui-client/modal-content';
+import {
+  ModalBody,
+  ModalButton,
+  ModalFooter,
+  ModalHeader,
+} from '@pkgs/ui-client/modal-parts';
 import { ModalRoot } from '@pkgs/ui-client/modal-root';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';

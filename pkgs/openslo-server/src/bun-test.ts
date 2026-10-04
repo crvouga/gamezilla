@@ -12,16 +12,22 @@
 
 import { describe, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
+import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
 import type { Obligation } from '@pkgs/conformance-shared/evidence';
 import { sha256 } from '@pkgs/conformance-shared/evidence';
-import { recordEvidence } from '@pkgs/conformance-server/evidence-store';
-
-import { bindingIssues, measureSlo, objectiveId } from '@pkgs/openslo-shared/check';
 import type { ObjectiveResult } from '@pkgs/openslo-shared/check';
+import {
+  bindingIssues,
+  measureSlo,
+  objectiveId,
+} from '@pkgs/openslo-shared/check';
 import type { Objective, OpenSloDoc, Slo } from '@pkgs/openslo-shared/model';
 import { parseOpenSlo } from '@pkgs/openslo-shared/parse';
 import type { ObjectivesBinding } from '@pkgs/openslo-shared/registry';
-import { objectiveSpecStem, objectivesBinding } from '@pkgs/openslo-shared/registry';
+import {
+  objectiveSpecStem,
+  objectivesBinding,
+} from '@pkgs/openslo-shared/registry';
 
 export type RunObjectiveOptions = {
   readonly packageName: string;

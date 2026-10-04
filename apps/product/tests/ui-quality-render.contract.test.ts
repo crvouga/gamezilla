@@ -1,11 +1,11 @@
 import { afterAll, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { snapshotFingerprint } from '../scripts/fingerprint';
-import { openSnapshotRenderer } from '../scripts/render';
 import { compileFrameCss } from '@libs/harness/wall-frame-css';
 import { compileCssModule } from '@pkgs/bun-test-solid-client/css-module';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import { snapshotFingerprint } from '../scripts/fingerprint';
+import { openSnapshotRenderer } from '../scripts/render';
 
 afterAll(() => Bun.WebView.closeAll());
 
@@ -17,9 +17,7 @@ test('the full report stylesheet preserves chess-cell children and flush-content
     return compileCssModule(path, readFileSync(path, 'utf8'));
   };
   const chess = module('pkgs/chess-board-client/src/chess-board.module.css');
-  const flush = module(
-    'pkgs/ui-client/src/content-edge-padding.module.css'
-  );
+  const flush = module('pkgs/ui-client/src/content-edge-padding.module.css');
   const view = new Bun.WebView({
     width: 390,
     height: 844,

@@ -9,10 +9,10 @@
  */
 
 import type { Run } from '@pkgs/harness-shared/run-types';
-import { setQuintWorld } from '@pkgs/quint-shared/registry';
 import type { TraceContext } from '@pkgs/quint-shared/registry';
-import { clientHash, serverHash } from '@pkgs/room-harness/observations';
+import { setQuintWorld } from '@pkgs/quint-shared/registry';
 import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { clientHash, serverHash } from '@pkgs/room-harness/observations';
 
 export type RoomTraceWorld = {
   readonly ctx: TraceContext;

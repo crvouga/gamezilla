@@ -5,10 +5,10 @@
 
 import type { Client } from '@libs/app-client/create-client';
 import { defineAction } from '@pkgs/harness-shared/define-action';
-import type { HarnessSql } from './sql-types';
-import { captureSystemSnapshot } from './system-snapshot';
-import type { SystemSnapshotCtx } from './system-snapshot';
 import type { ProductHarness } from './harness';
+import type { HarnessSql } from './sql-types';
+import type { SystemSnapshotCtx } from './system-snapshot';
+import { captureSystemSnapshot } from './system-snapshot';
 
 /** Dump server + client SQL / kv / rooms into `probes.snapshot`. */
 export const captureSnapshot = defineAction({

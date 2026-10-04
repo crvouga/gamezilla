@@ -4,12 +4,11 @@
  * exactly that space's buffered payloads, in order, once.
  */
 import { describe, expect, test } from 'bun:test';
-
-import { createSpaceOpenRoomsPending } from '@libs/spaces-shared/space-open-rooms-pending';
 import type { SpaceOpenRoomsPending } from '@libs/spaces-shared/space-open-rooms-pending';
+import { createSpaceOpenRoomsPending } from '@libs/spaces-shared/space-open-rooms-pending';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import type { RoomCommandPayload } from '@pkgs/room-shared/types';
+import fc from 'fast-check';
 
 type Model = { readonly queues: Map<string, number[]> };
 type Real = { readonly pending: SpaceOpenRoomsPending };

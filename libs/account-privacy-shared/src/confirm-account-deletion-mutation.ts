@@ -4,10 +4,7 @@ import { Outbox } from '@pkgs/outbox-shared/outbox';
 import sql from '@pkgs/sql-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { z } from 'zod';
-import {
-  eraseAccount,
-  withdrawAccount,
-} from './messages';
+import { eraseAccount, withdrawAccount } from './messages';
 
 export const confirmAccountDeletionMutation = defineMutation({
   name: 'confirmAccountDeletion',

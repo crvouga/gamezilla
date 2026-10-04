@@ -1,12 +1,11 @@
 import { originAvailabilityFor } from '@libs/app-client/origin-availability-for-env';
 import { defineAction } from '@pkgs/harness-shared/define-action';
-import { describeUiOp, performUiOp } from '@pkgs/ui-testing-shared/ui-op';
 import type { UiOp } from '@pkgs/ui-testing-shared/ui-op';
-
-import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
+import { describeUiOp, performUiOp } from '@pkgs/ui-testing-shared/ui-op';
 import { ensureActor } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { caps, partitioned } from './observations';
+import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 
 export const spawnActor = defineAction({
   name: 'spawnActor',

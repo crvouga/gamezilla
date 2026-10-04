@@ -1,5 +1,5 @@
-import type { JsonValue } from '@pkgs/harness-shared/json';
 import type { Read } from '@pkgs/harness-shared/effect';
+import type { JsonValue } from '@pkgs/harness-shared/json';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import type { SyncHarness } from './scenario-system';
 

@@ -4,15 +4,15 @@ import type { HarnessRoomGateway } from '@libs/harness/composition';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
+import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
 import { SelectGame } from '@libs/spaces-shared/games';
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
-import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { Message } from '@pkgs/message-shared/message';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 const SPACE_ID = 'space-1';
 const HOST = 'host-device';

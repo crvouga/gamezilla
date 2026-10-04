@@ -1,5 +1,5 @@
-import { EMPTY_PERF_SNAPSHOT } from './types';
 import type { PerfListener, PerfSampler } from './types';
+import { EMPTY_PERF_SNAPSHOT } from './types';
 
 type ListenerRegistration = {
   readonly listener: PerfListener;

@@ -1,13 +1,21 @@
-import type { CallbackResult, Membership, MembershipBilling, MembershipChange, OpenPortalInput, ReadCallbackInput, StartCheckoutInput, StartCheckoutResult } from '@pkgs/billing-shared/membership';
+import type {
+  CallbackResult,
+  Membership,
+  MembershipBilling,
+  MembershipChange,
+  OpenPortalInput,
+  ReadCallbackInput,
+  StartCheckoutInput,
+  StartCheckoutResult,
+} from '@pkgs/billing-shared/membership';
 import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-import Stripe from 'stripe';
-
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from '@pkgs/billing-stripe-shared/callback-events';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';
 import {
   STRIPE_PORTAL_CONFIGURATION_ID,
   STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
 } from '@pkgs/billing-stripe-shared/offer-reconcile';
+import Stripe from 'stripe';
 
 /** The adapter's id: it keys stored data, so it never changes. */
 export const STRIPE_PROVIDER = 'stripe';

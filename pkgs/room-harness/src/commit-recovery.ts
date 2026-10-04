@@ -1,6 +1,6 @@
 import { defineAction } from '@pkgs/harness-shared/define-action';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import type { RoomCommandPayload } from '@pkgs/room-shared/types';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import type { RoomHarness } from './harness';
 
 export type QueuedRoomChange = {

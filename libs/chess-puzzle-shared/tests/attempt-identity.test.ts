@@ -1,7 +1,11 @@
 import { expect, test } from 'bun:test';
 import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
+import {
+  ClearChessPuzzlePlay,
+  ResetChessPuzzlePlay,
+  StartChessPuzzlePlay,
+} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
-import { ClearChessPuzzlePlay, ResetChessPuzzlePlay, StartChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import type { RoomCommandPayload, RoomState } from '@pkgs/room-shared/types';
 
 const ChessModule = createChessModule(() => 0);

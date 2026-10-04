@@ -1,7 +1,4 @@
-import {
-  partition,
-  restoreActorConnection,
-} from '@libs/harness/actions';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   actorUi,
   ensureActor,

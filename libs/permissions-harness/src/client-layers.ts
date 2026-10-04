@@ -8,22 +8,28 @@
  * For tests and spec bindings only (a `root/` export).
  */
 
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
-
 import { useDecision } from '@libs/permissions-client/use-can';
 import { usePermissions } from '@libs/permissions-client/use-permissions';
-import { ACTION } from '@libs/permissions-shared/permission-catalog';
 import { grantKeyOf } from '@libs/permissions-shared/capabilities';
-import { clientGatingLayer } from './client';
-import { capabilityOf, identityFor, personOf } from '@libs/permissions-shared/people';
-import { insertStarted, startedEntries } from '@libs/permissions-shared/puzzle-ledger';
+import {
+  capabilityOf,
+  identityFor,
+  personOf,
+} from '@libs/permissions-shared/people';
+import { ACTION } from '@libs/permissions-shared/permission-catalog';
+import {
+  insertStarted,
+  startedEntries,
+} from '@libs/permissions-shared/puzzle-ledger';
 import {
   ACCESS_REASONS,
   DAILY_PUZZLE_LIMIT_REASONS,
   tableAnswer,
 } from '@libs/permissions-shared/reasons';
 import type { AppPolicy } from '@libs/permissions-shared/world';
+import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
+import { clientGatingLayer } from './client';
 
 type ClientOptions = {
   readonly tables: readonly TableDef[];

@@ -1,5 +1,5 @@
-import { raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { raw } from '@pkgs/sql-shared/sql';
 
 /** Each replay can roll back its own writes while the enclosing batch continues. */
 export function mutationSavepointClient(tx: SqlClient): SqlClient {

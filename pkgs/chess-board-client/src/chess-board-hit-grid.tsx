@@ -20,6 +20,7 @@ import type {
   RankChar,
   Square,
 } from '@pkgs/chess-board-core-shared/types';
+import { cellTransform } from '@pkgs/chess-board-shared/board-units';
 import {
   type Accessor,
   createMemo,
@@ -27,7 +28,6 @@ import {
   For,
   type JSX,
 } from 'solid-js';
-import { cellTransform } from '@pkgs/chess-board-shared/board-units';
 import styles from './chess-board.module.css';
 
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

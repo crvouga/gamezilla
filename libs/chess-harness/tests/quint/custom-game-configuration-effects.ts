@@ -1,15 +1,18 @@
 import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { CUSTOM_GAME_FOOLS_MATE, CUSTOM_GAME_REPETITION } from '@libs/chess-custom-game-harness/custom-game-histories';
+import {
+  CUSTOM_GAME_FOOLS_MATE,
+  CUSTOM_GAME_REPETITION,
+} from '@libs/chess-custom-game-harness/custom-game-histories';
 import { playCustomGameHistory } from '@libs/chess-custom-game-harness/custom-game-history';
 import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { restartApp } from '@libs/harness/actions';
 import {
   returnToTabs,
   signInWithGoogleAsAccount,
   signOut,
 } from '@libs/harness/auth-actions';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { openAccount } from '@libs/harness/shell-actions';
 import {
   openProfileEdit,

@@ -1,8 +1,13 @@
 import { expect, test } from 'bun:test';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
-import { AddOne, gameRoomModule, readTally, TallyChanged } from '@pkgs/room-harness/game-room';
-import { RoomServer } from '@pkgs/room-server/room-server';
 import { DurableObjectRoomStorage } from '@pkgs/room-adapter-durable-object-shared/storage';
+import {
+  AddOne,
+  gameRoomModule,
+  readTally,
+  TallyChanged,
+} from '@pkgs/room-harness/game-room';
+import { RoomServer } from '@pkgs/room-server/room-server';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import { MemoryKv } from './memory-kv';
 
 async function open(kv: MemoryKv) {

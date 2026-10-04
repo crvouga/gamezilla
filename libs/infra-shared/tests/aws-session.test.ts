@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { accountKeySession, awsAuthPlan, githubOidcUrl, parseAwsEnvCredentials, parseStsCredentials, stsSessionName } from '@libs/infra-shared/aws-session';
+import {
+  accountKeySession,
+  awsAuthPlan,
+  githubOidcUrl,
+  parseAwsEnvCredentials,
+  parseStsCredentials,
+  stsSessionName,
+} from '@libs/infra-shared/aws-session';
 
 const oidcEnv = {
   AWS_ROLE_ARN: 'arn:aws:iam::111111111111:role/gamezilla-github-deploy',

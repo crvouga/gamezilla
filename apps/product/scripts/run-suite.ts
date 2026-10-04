@@ -48,6 +48,6 @@ export async function runPbtSuite(args: RunSuiteArgs): Promise<RunSuiteResult> {
   return { ok, results, durationMs: Date.now() - started };
 }
 
-export const REPO_ROOT = join(import.meta.dirname, '../../../..');
+export const REPO_ROOT = join(import.meta.dirname, '../../..');
 export const DEFAULT_NUM_RUNS = 200;
 export const DEFAULT_SAMPLE_INTERRUPT_MS = 120_000;

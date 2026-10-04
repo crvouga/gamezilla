@@ -5,15 +5,27 @@
  */
 
 import { expect } from 'bun:test';
-import { clock, connection, lastError, liveReconnects } from '@pkgs/sync-engine-harness/sync-observations';
-import { colourNote, noteTags, tagNote } from '@pkgs/sync-engine-harness/note-details';
-import { liveNote, noteColor } from '@pkgs/sync-engine-harness/reads';
-import { netSet, restartWithSchema } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import { notesAllWithColorQuery } from '@pkgs/sync-engine-harness/hardening-fixtures';
+import {
+  colourNote,
+  noteTags,
+  tagNote,
+} from '@pkgs/sync-engine-harness/note-details';
+import { liveNote, noteColor } from '@pkgs/sync-engine-harness/reads';
 import { subscribe } from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  netSet,
+  restartWithSchema,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import {
+  clock,
+  connection,
+  lastError,
+  liveReconnects,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import { SETTLE_MS, writeNote } from './note-writes';
-import { app, clientId, ensureDevice, Given, Then, When } from './world';
 import type { Device, SyncWorld } from './world';
+import { app, clientId, ensureDevice, Given, Then, When } from './world';
 
 /** Slow but lossless: 60 ms ± 40 ms each way on every channel. */
 const SLOW = {

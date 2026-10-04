@@ -8,14 +8,21 @@
  * Paddle has no portal configuration API (the portal is configured in the
  * dashboard), so the offer's `portal` block does not apply here.
  */
-import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type {
+  OfferPriceSpec,
+  PlusMembershipOffer,
+} from '@pkgs/billing-shared/offer';
 import type { Logger } from '@pkgs/logger-shared/logger';
 
 import { PADDLE_CALLBACK_EVENTS } from './callback-events';
 import { PADDLE_CURRENCY_COUNTRIES } from './currency-countries';
 import type { PaddleApi } from './paddle-api';
+import type {
+  PaddleNotificationSetting,
+  PaddlePrice,
+  PaddleProduct,
+} from './wire';
 import { PADDLE_CUSTOM_DATA } from './wire';
-import type { PaddleNotificationSetting, PaddlePrice, PaddleProduct } from './wire';
 
 const TAG = 'paddle offer reconcile';
 const WEBHOOK_DESCRIPTION = 'Gamezilla plus membership projection';

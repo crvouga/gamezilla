@@ -1,6 +1,12 @@
 import { expect, test } from 'bun:test';
-import { BUNDLE_BYTES, bundleIndexKey, createBundleReader, publishBundle, readBundleIndex } from '@pkgs/harness-report-shared/bundle';
 import type { BundleEntry } from '@pkgs/harness-report-shared/bundle';
+import {
+  BUNDLE_BYTES,
+  bundleIndexKey,
+  createBundleReader,
+  publishBundle,
+  readBundleIndex,
+} from '@pkgs/harness-report-shared/bundle';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

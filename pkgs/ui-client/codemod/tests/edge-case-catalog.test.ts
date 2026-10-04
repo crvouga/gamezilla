@@ -4,8 +4,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { COVERED_IDS } from './catalog-coverage';
-import { CATALOG_IDS, EDGE_CASE_CATALOG } from './edge-case-catalog';
 import type { CatalogFamily } from './edge-case-catalog';
+import { CATALOG_IDS, EDGE_CASE_CATALOG } from './edge-case-catalog';
 
 const FAMILIES: readonly CatalogFamily[] = [
   'A',

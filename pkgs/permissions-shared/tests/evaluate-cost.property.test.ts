@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { can, checkLimit } from '@pkgs/permissions-shared/evaluate';
-import { createSubject } from '@pkgs/permissions-shared/subject';
 import { definePolicy } from '@pkgs/permissions-shared/policy';
+import { createSubject } from '@pkgs/permissions-shared/subject';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

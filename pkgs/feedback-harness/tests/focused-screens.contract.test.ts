@@ -1,5 +1,10 @@
 import { expect, test } from 'bun:test';
-import { feedbackAction, feedbackReportingSystem, readFeedbackView, wizardAction } from '@pkgs/feedback-harness/feedback';
+import {
+  feedbackAction,
+  feedbackReportingSystem,
+  readFeedbackView,
+  wizardAction,
+} from '@pkgs/feedback-harness/feedback';
 
 test('the composer is one writing surface without template controls', async () => {
   await using session = await feedbackReportingSystem.run({ seed: 424242 });

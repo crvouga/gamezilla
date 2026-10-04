@@ -1,8 +1,8 @@
+import type { ResolvedIdentity } from './identity-resolver';
+import type { LocalClock } from './local-clock';
+import { clockWindow, parseLocalClock } from './local-clock';
 import type { NarrateSpan } from './narrate';
 import { narrate } from './narrate';
-import type { ResolvedIdentity } from './identity-resolver';
-import { clockWindow, parseLocalClock } from './local-clock';
-import type { LocalClock } from './local-clock';
 import { placeFit, recordedDeviceTimeZone, recordedPlace } from './place';
 import type { TimeRange, Trace, TraceRef, TraceStore } from './types';
 

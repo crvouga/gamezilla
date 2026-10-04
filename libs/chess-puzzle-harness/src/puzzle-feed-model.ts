@@ -1,8 +1,16 @@
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { FeedAutoAdvance, FeedHistoryFilter, FeedMode } from './chess-puzzle-feed-ui';
-import { selectFeedAutoAdvance, selectFeedHistory, selectFeedMode } from './chess-puzzle-feed-ui';
+import type {
+  FeedAutoAdvance,
+  FeedHistoryFilter,
+  FeedMode,
+} from './chess-puzzle-feed-ui';
+import {
+  selectFeedAutoAdvance,
+  selectFeedHistory,
+  selectFeedMode,
+} from './chess-puzzle-feed-ui';
 
 type Choice = {
   mode: FeedMode;

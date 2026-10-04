@@ -3,10 +3,13 @@
 import { ExampleRoot } from '@pkgs/ui-client/example-root';
 import { IconButton } from '@pkgs/ui-client/icon-button';
 import { Trash2Icon } from '@pkgs/ui-client/icons';
-import { createSignal, type JSX } from 'solid-js';
 import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared/create-memory-page-loader';
+import type {
+  DataTableColumn,
+  DataTableOrderDir,
+} from '@pkgs/ui-devtools-shared/data-table-types';
+import { createSignal, type JSX } from 'solid-js';
 import { DataTable } from './data-table';
-import type { DataTableColumn, DataTableOrderDir } from '@pkgs/ui-devtools-shared/data-table-types';
 
 type DemoRow = {
   readonly id: string;

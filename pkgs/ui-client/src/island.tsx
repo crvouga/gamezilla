@@ -5,13 +5,13 @@
  * mobile spacing.
  */
 
-import { type JSX, Show, splitProps } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { ISLAND_PADDING_STEP } from '@pkgs/ui-shared/layout';
 import { spacingScale } from '@pkgs/ui-shared/scale';
-import { useLayoutMode } from './use-layout-mode';
+import { type JSX, Show, splitProps } from 'solid-js';
 import { ContentEdgePaddingProvider } from './content-edge-padding';
+import { useLayoutMode } from './use-layout-mode';
 
 export type IslandSpan = 1 | 2 | 3;
 

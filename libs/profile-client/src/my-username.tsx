@@ -4,8 +4,8 @@ import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
 import { useMyProfileId } from './public-use-my-profile-id';
-import { UserUsername } from './user-username';
 import type { UserUsernameProps } from './user-username';
+import { UserUsername } from './user-username';
 
 export type MyUsernameProps = Omit<UserUsernameProps, 'profileId' | 'dataSet'>;
 

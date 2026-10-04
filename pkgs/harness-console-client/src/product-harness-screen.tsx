@@ -1,3 +1,9 @@
+import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
+import type {
+  ProductHarnessActor,
+  ProductHarnessPaletteCommand,
+  ProductHarnessSession,
+} from '@pkgs/harness-console-shared/ports';
 import { CommandPalette } from '@pkgs/ui-client/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-client/command-registry-context';
 import { ErrorState } from '@pkgs/ui-client/error-state';
@@ -16,27 +22,32 @@ import {
   onCleanup,
   Switch,
 } from 'solid-js';
-import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
 import type {
-  ProductHarnessActor,
-  ProductHarnessPaletteCommand,
-  ProductHarnessSession,
-} from '@pkgs/harness-console-shared/ports';
+  DebuggerChromeNav,
+  PaneNavPatch,
+  PaneNavValue,
+} from './debugger-chrome';
+import { debuggerInstanceTabItem } from './debugger-chrome';
 import { DebuggerColumn } from './debugger-columns';
 import { DebuggerShell } from './debugger-shell';
-import { useHarnessConsoleLayout } from './use-harness-console-layout';
-import type { DebuggerChromeNav, PaneNavPatch, PaneNavValue } from './debugger-chrome';
-import { debuggerInstanceTabItem } from './debugger-chrome';
 import { ProductHarnessAppearanceCommands } from './product-harness-appearance-commands';
 import {
   ProductHarnessExitButton,
   ProductHarnessExitCommand,
 } from './product-harness-exit';
 import type { ProductHarnessClientColumnShellProps } from './product-harness-kind-pane';
-import { ProductHarnessKindPane, productHarnessInstancesForKind, productHarnessPaneKey, productHarnessViewsForKind, resolveProductHarnessInstanceId, resolveProductHarnessPane } from './product-harness-kind-pane';
+import {
+  ProductHarnessKindPane,
+  productHarnessInstancesForKind,
+  productHarnessPaneKey,
+  productHarnessViewsForKind,
+  resolveProductHarnessInstanceId,
+  resolveProductHarnessPane,
+} from './product-harness-kind-pane';
 import { ProductHarnessSnapshotChrome } from './product-harness-snapshot-chrome';
 import { ProductHarnessTopologyChrome } from './product-harness-topology-chrome';
 import { selectUnifiedNode } from './select-unified-node';
+import { useHarnessConsoleLayout } from './use-harness-console-layout';
 import type { ProductHarnessSessionState } from './use-product-harness-session';
 
 export function ProductHarnessScreen(props: {

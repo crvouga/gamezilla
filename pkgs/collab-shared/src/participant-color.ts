@@ -1,6 +1,6 @@
+import { hslToRgb } from '@pkgs/colors-shared/convert';
 import type { Hsla, Rgb } from '@pkgs/colors-shared/types';
 import { hsla } from '@pkgs/colors-shared/types';
-import { hslToRgb } from '@pkgs/colors-shared/convert';
 
 /**
  * Fixed, colorblind-considerate hue palette for collaborative participants.

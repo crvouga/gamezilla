@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
-import { discoverLatestLocalTraceSource } from '@pkgs/observability-cli-shared/source-discovery';
 import { parseArgs } from '@pkgs/observability-cli-shared/args';
-import { resolveRange } from '@pkgs/observability-cli-shared/time';
 import { runCommand } from '@pkgs/observability-cli-shared/commands';
+import { discoverLatestLocalTraceSource } from '@pkgs/observability-cli-shared/source-discovery';
+import { resolveRange } from '@pkgs/observability-cli-shared/time';
+import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
 
 function storeWith(line?: string): NdjsonTraceStore {
   const bytes = line === undefined ? undefined : new TextEncoder().encode(line);

@@ -1,17 +1,20 @@
 import { Handles } from '@libs/test-ids-shared/handles';
+import {
+  useAppFrameGlobalTrailing,
+  useSetAppFrameHeader,
+} from '@pkgs/ui-client/app-frame-chrome';
 import { AppHeaderIsland } from '@pkgs/ui-client/app-header-island';
-import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
 import { TopBar } from '@pkgs/ui-client/top-bar';
-import { useAppFrameGlobalTrailing, useSetAppFrameHeader } from '@pkgs/ui-client/app-frame-chrome';
 import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
+import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
 import type { JSX, ParentProps } from 'solid-js';
 import { Show } from 'solid-js';
-import { SpaceTitleText } from './space-title-text';
 import {
   SpaceChromeLeadingActionBar,
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
 import { useSpaceSessionUi } from './space-session-ui-context';
+import { SpaceTitleText } from './space-title-text';
 
 export type SpaceActiveLayoutProps = ParentProps;
 

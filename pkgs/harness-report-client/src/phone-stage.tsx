@@ -1,13 +1,23 @@
+import {
+  blobHeading,
+  formatBlobBody,
+} from '@pkgs/harness-report-shared/format';
+import type {
+  FlatFrame,
+  OrderedUiBlob,
+} from '@pkgs/harness-report-shared/frames';
+import {
+  blobText,
+  isUi,
+  orderedUiBlobs,
+} from '@pkgs/harness-report-shared/frames';
+import { showPress } from '@pkgs/harness-report-shared/hash';
+import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
 import type { ReportSnapshotBlob } from '@pkgs/harness-shared/report-types';
 import { createMemo, For, Show } from 'solid-js';
-import type { ReportNav } from './use-report-nav';
-import { blobHeading, formatBlobBody } from '@pkgs/harness-report-shared/format';
-import type { FlatFrame, OrderedUiBlob } from '@pkgs/harness-report-shared/frames';
-import { blobText, isUi, orderedUiBlobs } from '@pkgs/harness-report-shared/frames';
-import { showPress } from '@pkgs/harness-report-shared/hash';
-import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
 import { PhonePanel } from './phone-panel';
+import type { ReportNav } from './use-report-nav';
 
 function sameIds(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((id, i) => id === b[i]);

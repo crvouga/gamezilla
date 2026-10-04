@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { buildHighlightSegments, CODE_EDITOR_LINE_HEIGHT, countLines, editorFrameHeight } from '@pkgs/ui-shared/code-editor-highlight';
+import {
+  buildHighlightSegments,
+  CODE_EDITOR_LINE_HEIGHT,
+  countLines,
+  editorFrameHeight,
+} from '@pkgs/ui-shared/code-editor-highlight';
 import type { CodeToken } from '@pkgs/ui-shared/code-editor-types';
 
 describe('countLines / editorFrameHeight', () => {

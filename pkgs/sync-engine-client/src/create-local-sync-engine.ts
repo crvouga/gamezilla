@@ -1,45 +1,58 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import {
-  listUnackedWriteRejections,
-  mutationStatus,
-  pendingMutationCount,
-} from './mutation-status';
+import type { Sql } from '@pkgs/sql-shared/sql';
 import type {
   Mutation,
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
-import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
-import { createSqlWatch } from './sql-watch';
-import type { ScheduleNotify } from './sql-watch';
-import { createTableChangeBus } from './table-change-bus';
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
+import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
+import {
+  listUnackedWriteRejections,
+  mutationStatus,
+  pendingMutationCount,
+} from './mutation-status';
+import type { ScheduleNotify } from './sql-watch';
+import { createSqlWatch } from './sql-watch';
+import { createTableChangeBus } from './table-change-bus';
 import '@pkgs/sync-engine-shared/tiger-invariants';
+import type { Timers } from '@pkgs/clock-shared/types';
+import type { AppLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
 import { withFrameworkTopicMap } from '@pkgs/sync-engine-shared/framework-topic-map';
 import { isSqliteClosedError } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
-import type { AppLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
-import { attachPushIfConfigured } from './attach-configured-push';
-import type { SyncEnginePushOptions } from './attach-configured-push';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import type { Timers } from '@pkgs/clock-shared/types';
+import type { SyncEnginePushOptions } from './attach-configured-push';
+import { attachPushIfConfigured } from './attach-configured-push';
 import { readLastSyncedAtMs } from './last-synced';
+import type {
+  LocalDomainSchema,
+  LocalMigratePhase,
+} from './local-schema-migrate';
 import { clearLocalCache, migrateLocalSchema } from './local-schema-migrate';
-import type { LocalDomainSchema, LocalMigratePhase } from './local-schema-migrate';
-import { createLocalSyncStatusStore } from './local-sync-status';
 import type { LocalSyncStatusStore } from './local-sync-status';
+import { createLocalSyncStatusStore } from './local-sync-status';
 import { reapplyPendingAfterWipe } from './merge';
+import type {
+  MutationUploadResult,
+  MutationUploadRow,
+} from './mutation-upload-queue';
 import { MutationUploadQueue } from './mutation-upload-queue';
-import type { MutationUploadResult, MutationUploadRow } from './mutation-upload-queue';
-import { buildOptimisticFanout, createOutboundLiveBuffer, publishOptimisticFanout } from './optimistic-fanout';
 import type { OutboundLiveBuffer } from './optimistic-fanout';
+import {
+  buildOptimisticFanout,
+  createOutboundLiveBuffer,
+  publishOptimisticFanout,
+} from './optimistic-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
 import { createSubscribeQueries } from './subscribe-queries';
-import type { QueryRequest, QuerySubscription, QuerySubscriptionSpec } from './subscription-runtime';
+import type {
+  QueryRequest,
+  QuerySubscription,
+  QuerySubscriptionSpec,
+} from './subscription-runtime';
 import { SubscriptionRuntime } from './subscription-runtime';
 import type { SyncEngine } from './sync-engine-port';
 import { SyncApiAuthError } from './sync-http-client';

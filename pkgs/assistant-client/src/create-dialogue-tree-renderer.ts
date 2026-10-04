@@ -1,14 +1,21 @@
-import type { DialogueContext, DialogueLookupKey, DialogueTree } from '@pkgs/assistant-shared/types';
-import type { DialogueRng } from '@pkgs/assistant-shared/pick-variant';
-import { pickDialogueVariant, substituteDialogueText } from '@pkgs/assistant-shared/pick-variant';
-import type { Assistant } from '@pkgs/assistant-shared/engine';
 import type {
   AssistantAction,
   AssistantSpeakAction,
 } from '@pkgs/assistant-shared/action';
 import type { AssistantClock } from '@pkgs/assistant-shared/clock';
+import type { Assistant } from '@pkgs/assistant-shared/engine';
+import type { DialogueRng } from '@pkgs/assistant-shared/pick-variant';
+import {
+  pickDialogueVariant,
+  substituteDialogueText,
+} from '@pkgs/assistant-shared/pick-variant';
 import type { AssistantRenderer } from '@pkgs/assistant-shared/renderer';
 import { createSplitMix32, hashSeedString } from '@pkgs/assistant-shared/rng';
+import type {
+  DialogueContext,
+  DialogueLookupKey,
+  DialogueTree,
+} from '@pkgs/assistant-shared/types';
 import { emitAssistantSpeakingMessage } from './assistant-speaking-bridge';
 
 export type CreateAssistantDialogueTreeRendererDeps<TPayload> = {

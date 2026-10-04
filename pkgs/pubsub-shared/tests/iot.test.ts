@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { PubSubPublishError } from '@pkgs/pubsub-shared/pubsub-publish-error';
 import { createIotHttpPubSub } from '@pkgs/pubsub-shared/create-iot-http-pubsub';
-import { iotWireTopic } from '@pkgs/pubsub-shared/wire-topic';
+import { PubSubPublishError } from '@pkgs/pubsub-shared/pubsub-publish-error';
 import { signAws4 } from '@pkgs/pubsub-shared/sign-aws4';
+import { iotWireTopic } from '@pkgs/pubsub-shared/wire-topic';
 
 const EMPTY_SHA =
   'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';

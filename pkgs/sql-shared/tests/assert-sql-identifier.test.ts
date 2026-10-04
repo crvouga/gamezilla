@@ -1,6 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '@pkgs/assert-shared/singleton';
-import { assertSqlIdentifier, assertSqlPrefix } from '@pkgs/sql-shared/assert-sql-identifier';
+import {
+  assertSqlIdentifier,
+  assertSqlPrefix,
+} from '@pkgs/sql-shared/assert-sql-identifier';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
 function registerThrowingCrashHandlerForTests(): () => void {

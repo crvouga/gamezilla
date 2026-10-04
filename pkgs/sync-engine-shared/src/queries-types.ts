@@ -1,9 +1,8 @@
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { Sql } from '@pkgs/sql-shared/sql';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
-
-import type { QueryRow } from './v2';
 import type { QueryChannelsCtx } from './push-payload';
+import type { QueryRow } from './v2';
 
 /** Package default hard row budget when `limit` is omitted on a query. */
 export const DEFAULT_QUERY_LIMIT = 2000;

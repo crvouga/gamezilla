@@ -5,12 +5,12 @@
  */
 
 import type { Clock } from '@pkgs/clock-shared/types';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import {
   adaptMockingbirdPostgresAsPool,
   SqlClientImplMockingbirdPostgres,
 } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 export type OpenHarnessMockingbirdPostgresFromSeedArgs = {
   readonly seedBytes: Uint8Array;

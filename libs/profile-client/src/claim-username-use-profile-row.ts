@@ -1,9 +1,8 @@
+import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
+import { profileRowByIdSql } from '@libs/profile-shared/profile-row-sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
-
-import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
-import { profileRowByIdSql } from '@libs/profile-shared/profile-row-sql';
 
 export type ProfileRowState = {
   row: Accessor<ProfileRow | null>;

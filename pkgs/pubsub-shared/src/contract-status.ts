@@ -1,6 +1,4 @@
 import { expect, test } from 'bun:test';
-import type { PubSub } from './interface';
-import { PubSubNotSupportedError } from './pubsub-not-supported-error';
 import {
   awaitSubscriptionLive,
   collect,
@@ -11,6 +9,8 @@ import type {
   PubSubContractEnv,
   PubSubContractOptions,
 } from './contract-types';
+import type { PubSub } from './interface';
+import { PubSubNotSupportedError } from './pubsub-not-supported-error';
 
 function requireDisruptTransport(
   e: PubSubContractEnv

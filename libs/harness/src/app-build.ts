@@ -8,7 +8,10 @@
  */
 
 import type { ServerHttp } from '@libs/feature-shared/sync';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 
 export type HarnessAppBuild = 'current' | 'outdated';
 

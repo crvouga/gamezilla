@@ -2,7 +2,6 @@
   "name": "@pkgs/distributed-lock-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -25,5 +24,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "server"
 }

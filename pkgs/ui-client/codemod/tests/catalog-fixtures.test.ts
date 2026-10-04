@@ -8,8 +8,8 @@ import { checkCompleteness } from '../completeness-gate';
 import { mapSxRecord } from '../sx-mapping';
 import { transformFile } from '../transform';
 import { COVERED_IDS } from './catalog-coverage';
-import { CATALOG_FIXTURES } from './catalog-fixtures-data';
 import type { CatalogFixture } from './catalog-fixtures-data';
+import { CATALOG_FIXTURES } from './catalog-fixtures-data';
 
 const CLASS_HELPER_RE =
   /\b(?:cn|clsx|classnames|twMerge|twJoin|cx|cva|joinClass|sxStyle)\s*\(/;

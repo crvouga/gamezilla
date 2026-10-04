@@ -12,15 +12,21 @@ import {
   DMN_INPUT,
   spacePresenceOf,
 } from '@libs/permissions-shared/people';
+import type {
+  ServerCase,
+  ServerOperation,
+} from '@libs/permissions-shared/server';
 import { OperationRefused } from '@libs/permissions-shared/server';
-import type { ServerCase, ServerOperation } from '@libs/permissions-shared/server';
+import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
+import { SelectGame } from '@libs/spaces-shared/games';
+import {
+  spaceOpenSessionEntityId,
+  spaceUserEntityId,
+} from '@libs/spaces-shared/participation-ids';
+import { SPACES_TABLES } from '@libs/spaces-shared/tables';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { outboxEvents } from '@pkgs/outbox-shared/tables';
 import sql from '@pkgs/sql-shared/sql';
-import { SelectGame } from '@libs/spaces-shared/games';
-import { spaceOpenSessionEntityId, spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
-import { SPACES_TABLES } from '@libs/spaces-shared/tables';
-import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { answerOfRoomCommand } from './room-command-probe';
 

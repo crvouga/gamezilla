@@ -1,10 +1,13 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
+import { stampConnectionPlace } from '@libs/app-shared/stamp-connection-place';
 import { context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
-import { currentCorrelation, deserializeTraceContext } from '@pkgs/observability-shared/correlation';
+import { ATTR } from '@pkgs/observability-shared/attributes';
+import {
+  currentCorrelation,
+  deserializeTraceContext,
+} from '@pkgs/observability-shared/correlation';
 import { withSpan } from '@pkgs/observability-shared/span';
 import type { MiddlewareHandler } from 'hono';
 import { routePath } from 'hono/route';
-import { stampConnectionPlace } from '@libs/app-shared/stamp-connection-place';
 
 const requestTraceIds = new WeakMap<Request, string>();
 
@@ -41,8 +44,7 @@ export function createRequestTelemetryMiddleware(): MiddlewareHandler {
         },
         {
           [ATTR.HTTP_REQUEST_METHOD]: c.req.method,
-          [ATTR.CODE_FILE_PATH]:
-            'libs/app-server/src/request-telemetry.ts',
+          [ATTR.CODE_FILE_PATH]: 'libs/app-server/src/request-telemetry.ts',
           [ATTR.CODE_FUNCTION_NAME]: 'createRequestTelemetryMiddleware',
         },
         { kind: SpanKind.SERVER }

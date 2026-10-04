@@ -9,10 +9,10 @@
  * surface foreground when inserted — matching the label color.
  */
 
-import type { Component, JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
+import type { Component, JSX } from 'solid-js';
 import { useThemeTokens } from './theme-context';
 
 export type IconProps = {

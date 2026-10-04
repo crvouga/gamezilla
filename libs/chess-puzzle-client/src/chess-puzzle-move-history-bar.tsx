@@ -1,14 +1,19 @@
+import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
+import {
+  CHESS_PUZZLE_PLAY_STATUS,
+  ChessPuzzlePlayAttr,
+} from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { SeekChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
+import {
+  puzzleNavFromState,
+  resolvePuzzleNavTarget,
+} from '@libs/chess-puzzle-shared/puzzle-nav';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { createMemo, type JSX } from 'solid-js';
-
-import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
-import { puzzleNavFromState, resolvePuzzleNavTarget } from '@libs/chess-puzzle-shared/puzzle-nav';
-import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
-import { CHESS_PUZZLE_PLAY_STATUS, ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { SeekChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 

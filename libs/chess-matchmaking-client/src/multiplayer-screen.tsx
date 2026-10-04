@@ -1,11 +1,11 @@
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useDecision } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useLocalSearchParams } from '@pkgs/ui-client/app-router';
 import { ErrorState } from '@pkgs/ui-client/error-state';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { useLocalSearchParams } from '@pkgs/ui-client/app-router';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';

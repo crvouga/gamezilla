@@ -1,6 +1,6 @@
 import type { CreateId, Random } from './create-id';
-import { createSeededRng } from './seeded-rng';
 import type { SeededRng } from './seeded-rng';
+import { createSeededRng } from './seeded-rng';
 
 /** UUID-v4-shaped id mint from a [0, 1) random stream. */
 export function createSeededCreateId(random: Random): CreateId {

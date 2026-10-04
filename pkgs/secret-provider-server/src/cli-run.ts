@@ -1,17 +1,28 @@
 import { spawnSync } from 'node:child_process';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { which } from '@pkgs/os-server/command';
-import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
-import { isSecretsCacheStale, mergeSecretsIntoEnv, readSecretsCacheMap, readSecretsCacheMeta, secretsCacheRelPath, writeSecretsCacheMap, writeSecretsCacheMeta } from '@pkgs/secret-provider-shared/local-secrets-cache';
-import type { SecretsCacheEnv, SecretsEnvs } from '@pkgs/secret-provider-shared/local-secrets-cache';
-import { chmodLocalSecretsCacheFiles } from './wall-chmod-local-secrets-cache';
 import { INFISICAL_CLI_BIN } from '@pkgs/secret-provider-shared/defaults';
+import type {
+  SecretsCacheEnv,
+  SecretsEnvs,
+} from '@pkgs/secret-provider-shared/local-secrets-cache';
+import {
+  isSecretsCacheStale,
+  mergeSecretsIntoEnv,
+  readSecretsCacheMap,
+  readSecretsCacheMeta,
+  secretsCacheRelPath,
+  writeSecretsCacheMap,
+  writeSecretsCacheMeta,
+} from '@pkgs/secret-provider-shared/local-secrets-cache';
+import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared/resolve-endpoint';
+import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
 import {
   canFetchInfisicalSecrets,
   exportInfisicalSecretsMap,
 } from './export-secrets';
-import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared/resolve-endpoint';
+import { chmodLocalSecretsCacheFiles } from './wall-chmod-local-secrets-cache';
 
 function prepareChildEnv(): NodeJS.ProcessEnv {
   const childEnv: NodeJS.ProcessEnv = { ...process.env };
@@ -308,8 +319,8 @@ export async function runWithInfisicalSecrets(
   const { repoRoot, childArgs, nowMs, nowIso } = options;
   if (childArgs.length === 0) {
     console.error(
-      'usage: bun run libs/secrets-server/src/secrets-run.ts -- <command> [args…]\n' +
-        'example: bun run libs/secrets-server/src/secrets-run.ts -- turbo dev --ui=tui'
+      'usage: bun run libs/secrets-server/scripts/secrets-run.ts -- <command> [args…]\n' +
+        'example: bun run libs/secrets-server/scripts/secrets-run.ts -- turbo dev --ui=tui'
     );
     return 1;
   }

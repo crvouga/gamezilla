@@ -19,17 +19,17 @@ describe('spec ownership', () => {
         'specs/README.md',
         'docs/STEPS_CATALOG.md',
         'apps/product/STEPS_CATALOG.md',
-        'libs/chess/STEPS_CATALOG.md',
-        'libs/runtime/STEPS_CATALOG.md',
+        'libs/chess-harness/STEPS_CATALOG.md',
+        'libs/runtime-harness/STEPS_CATALOG.md',
         'pkgs/matchmaking-harness/STEPS_CATALOG.md',
       ],
     };
     expect(ownershipViolations([commit])).toEqual([]);
     expect(stagedViolations(commit.files)).toEqual([]);
     for (const file of [
-      'libs/chess/README.md',
-      'libs/chess/STEPS_CATALOG.md.ts',
-      'libs/chess/src/index.ts',
+      'libs/chess-harness/README.md',
+      'libs/chess-harness/STEPS_CATALOG.md.ts',
+      'libs/chess-harness/src/index.ts',
     ]) {
       expect(
         ownershipViolations([{ ...commit, files: [...commit.files, file] }])
@@ -44,7 +44,7 @@ describe('spec ownership', () => {
       'specs/README.md',
       'specs/chess/ubiquitous-language.yml',
       'specs/conformance.yaml',
-      'libs/chess/package.json',
+      'libs/chess-harness/package.json',
     ];
     expect(mergeStagedViolations(staged, staged, [])).toEqual([]);
     assertProperty(
@@ -215,7 +215,9 @@ describe('spec ownership', () => {
 
   test('recognizes every Gherkin file, wherever it is, and every file under specs/', () => {
     expect(isSpecFile('specs/friends/friend-remove.feature')).toBe(true);
-    expect(isSpecFile('libs/friends/features/remove.feature')).toBe(true);
+    expect(isSpecFile('libs/friends-harness/features/remove.feature')).toBe(
+      true
+    );
     expect(isSpecFile('specs/spaces/space-hosting.qnt')).toBe(true);
     expect(isSpecFile('pkgs/quint-server/tests/fixtures/door.qnt')).toBe(false);
     expect(isSpecFile('specs/README.md')).toBe(true);
@@ -224,12 +226,16 @@ describe('spec ownership', () => {
     expect(isSpecFile('specs/spaces/spaces.als')).toBe(true);
     expect(isSpecFile('specs/runtime/availability.openslo.yaml')).toBe(true);
     expect(isSpecFile('pkgs/dmn-server/tests/fixtures/access.dmn')).toBe(false);
-    expect(isSpecFile('libs/billing-harness/tests/dmn/access.binding.ts')).toBe(false);
+    expect(isSpecFile('libs/billing-harness/tests/dmn/access.binding.ts')).toBe(
+      false
+    );
     expect(isSpecFile('specs/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/glossary.yaml')).toBe(true);
     expect(isSpecFile('specs/billing/events.qnt')).toBe(true);
-    expect(isSpecFile('libs/billing/ubiquitous-language.yml')).toBe(false);
+    expect(isSpecFile('libs/billing-harness/ubiquitous-language.yml')).toBe(
+      false
+    );
   });
 
   test('requires feature-only spec commits', () => {

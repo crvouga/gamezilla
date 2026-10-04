@@ -1,10 +1,9 @@
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 import { finishPuzzleAsAppCloses } from '@libs/chess-puzzle-harness/puzzle-close-during-finish';
 import { viewPuzzleStatsAfterReturn } from '@libs/chess-puzzle-harness/puzzle-result-recovery';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given } from '@libs/harness/define';
-import type { PuzzleFinishName } from '@libs/harness/parameter-types';
+import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
 import { cutConnection } from '@libs/harness/platform';
+import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
 
 Given(
   '{actor} has finished the puzzle by {finish} as the app closes',

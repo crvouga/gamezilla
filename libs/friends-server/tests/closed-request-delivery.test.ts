@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { FRIENDS_TABLES } from '@libs/friends-shared/tables';
 import { friendRequestSentNotifyConsumer } from '@libs/friends-server/friends-outbox-consumers';
+import { FRIENDS_TABLES } from '@libs/friends-shared/tables';
 import { NOTIFICATIONS_TABLES } from '@libs/notifications-shared/tables';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';

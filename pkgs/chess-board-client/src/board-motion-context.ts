@@ -4,10 +4,12 @@
  * browser's own ({@link createWallMotionEnvironment}).
  */
 
-import { createContext, createSignal, onCleanup, useContext } from 'solid-js';
-
-import type { AnimateTransform, BoardMotionEnvironment } from '@pkgs/chess-board-shared/board-motion';
+import type {
+  AnimateTransform,
+  BoardMotionEnvironment,
+} from '@pkgs/chess-board-shared/board-motion';
 import { isLowEndDevice } from '@pkgs/chess-board-shared/board-motion';
+import { createContext, createSignal, onCleanup, useContext } from 'solid-js';
 
 const BoardMotionContext = createContext<BoardMotionEnvironment | undefined>(
   undefined

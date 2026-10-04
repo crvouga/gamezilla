@@ -1,8 +1,17 @@
-import { AddOne, ClaimOutOfTime, ClaimRoom, gameRoomModule, Move, StartMatch, TakeOne, TurnAway } from './game-room';
 import fc from 'fast-check';
 import type { DomainOp } from './actions';
-import type { RoomApp } from './scenario-app';
 import { domainOp } from './actions';
+import {
+  AddOne,
+  ClaimOutOfTime,
+  ClaimRoom,
+  gameRoomModule,
+  Move,
+  StartMatch,
+  TakeOne,
+  TurnAway,
+} from './game-room';
+import type { RoomApp } from './scenario-app';
 
 /** The time each player starts a pool-drawn match with, in ms. */
 const POOL_MATCH_MS = 5_000;

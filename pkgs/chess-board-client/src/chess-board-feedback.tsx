@@ -11,11 +11,19 @@ import type {
   CellFeedback,
   Square,
 } from '@pkgs/chess-board-core-shared/types';
-import { createMemo, For, type JSX, Show } from 'solid-js';
 import { BOARD_VIEW_BOX, fmtUnits } from '@pkgs/chess-board-shared/board-units';
-import styles from './chess-board.module.css';
-import { BADGE_FONT_SIZE, BADGE_RADIUS, BADGE_RING_WIDTH, feedbackBadges, GLYPH_PATHS_100, glyphStyle, TEXT_GLYPH } from '@pkgs/chess-board-shared/feedback-badge';
 import type { FeedbackBadge } from '@pkgs/chess-board-shared/feedback-badge';
+import {
+  BADGE_FONT_SIZE,
+  BADGE_RADIUS,
+  BADGE_RING_WIDTH,
+  feedbackBadges,
+  GLYPH_PATHS_100,
+  glyphStyle,
+  TEXT_GLYPH,
+} from '@pkgs/chess-board-shared/feedback-badge';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import styles from './chess-board.module.css';
 import { PaintToken } from './paint-token';
 
 export type ChessBoardFeedbackProps = {

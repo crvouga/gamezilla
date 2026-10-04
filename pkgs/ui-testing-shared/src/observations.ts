@@ -1,9 +1,9 @@
-import type { Action, PropertyDef } from '@pkgs/harness-shared/effect';
 import { defineAction } from '@pkgs/harness-shared/define-action';
+import type { Action, PropertyDef } from '@pkgs/harness-shared/effect';
 import type { Rng } from '@pkgs/harness-shared/rng';
 import type { Driver } from './driver';
-import { EMPTY_INVENTORY, hasInventory } from './inventory';
 import type { Inventory, InventoryItem } from './inventory';
+import { EMPTY_INVENTORY, hasInventory } from './inventory';
 
 export type Actor<S> = (s: S) => Driver | null;
 

@@ -3,10 +3,10 @@ import { Trans } from '@lingui/solid/macro';
 import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
-import { useSpaceCan } from './use-space-can';
 import { SpaceShareAddPeople } from './space-share-add-people';
 import { SpaceShareLinkSection } from './space-share-link-section';
 import { SpaceSharePeopleList } from './space-share-people-list';
+import { useSpaceCan } from './use-space-can';
 import { useSpaceUserEntries } from './use-space-user-entries';
 
 export type SpaceShareSheetProps = {

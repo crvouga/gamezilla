@@ -19,7 +19,12 @@ import type { ClassListEntry } from './transform-node';
 import { readExistingClass } from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 import type { ComponentConversion } from './transform-shared';
-import { convertBoxLike, dataSetFields, finish, readSxConversion } from './transform-shared';
+import {
+  convertBoxLike,
+  dataSetFields,
+  finish,
+  readSxConversion,
+} from './transform-shared';
 import { convertStack } from './transform-stack';
 import { convertText } from './transform-text';
 

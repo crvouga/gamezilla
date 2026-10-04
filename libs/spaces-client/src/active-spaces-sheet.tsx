@@ -3,10 +3,9 @@ import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import type { JSX } from 'solid-js';
 import { For } from 'solid-js';
+import { ActiveSpaceSheetRow } from './active-space-sheet-row';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from './leave-space-modal-provider';
-
-import { ActiveSpaceSheetRow } from './active-space-sheet-row';
 
 export type ActiveSpacesSheetProps = {
   spaceIds: readonly string[];

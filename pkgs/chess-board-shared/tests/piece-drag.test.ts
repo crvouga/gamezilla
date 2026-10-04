@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { cellAt, squareAt } from '@pkgs/chess-board-shared/board-box';
-import { avatarTransform, createHoverSquare, createPieceDrag, dragGeometry, handoverTransform, TOUCH_BASE_ANCHOR, TOUCH_ZOOM } from '@pkgs/chess-board-shared/piece-drag';
 import { xyToSquare } from '@pkgs/chess-board-core-shared/geometry';
+import { cellAt, squareAt } from '@pkgs/chess-board-shared/board-box';
+import {
+  avatarTransform,
+  createHoverSquare,
+  createPieceDrag,
+  dragGeometry,
+  handoverTransform,
+  TOUCH_BASE_ANCHOR,
+  TOUCH_ZOOM,
+} from '@pkgs/chess-board-shared/piece-drag';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

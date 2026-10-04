@@ -1,5 +1,5 @@
-import type { Ports, Runtime } from './runtime-types';
 import type { Awaitable } from './awaitable';
+import type { Ports, Runtime } from './runtime-types';
 
 export const RUNTIME_TAG = Symbol.for('dst.RuntimeDef');
 

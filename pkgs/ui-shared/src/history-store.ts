@@ -3,8 +3,8 @@
  * Framework-free; exposes `getSnapshot` / `subscribe` for Solid bridging.
  */
 
-import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Kv } from '@pkgs/kv-shared/interface';
 import { jsonKvCodec } from '@pkgs/kv-shared/kv-state-codec';
 

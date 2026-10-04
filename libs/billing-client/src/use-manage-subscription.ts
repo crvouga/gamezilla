@@ -1,10 +1,9 @@
 import { useConfigService } from '@libs/auth-client/config-service-context';
-import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
 import { useClientRequestAuth } from '@libs/auth-client/use-client-request-auth';
+import { clientAuthHeaders } from '@libs/auth-shared/client-request-auth';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 import { useOpenExternalUrl } from '@pkgs/ui-client/external-url';
-
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 
 /** Opens the provider's hosted portal so the person can manage their plan. */
 export function useManageSubscription(): () => Promise<void> {

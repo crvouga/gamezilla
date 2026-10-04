@@ -15,6 +15,9 @@
  * ```
  */
 
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { spacingScale } from '@pkgs/ui-shared/scale';
 import {
   createMemo,
   For,
@@ -22,10 +25,10 @@ import {
   children as resolveChildren,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { spacingScale } from '@pkgs/ui-shared/scale';
-import { CONTENT_EDGE_PADDING_STEP, useContentEdgePaddingStep } from './content-edge-padding';
+import {
+  CONTENT_EDGE_PADDING_STEP,
+  useContentEdgePaddingStep,
+} from './content-edge-padding';
 import { MENU_ROW_PX_STEP } from './menu-row';
 
 export type MenuListProps = {

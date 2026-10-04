@@ -1,11 +1,11 @@
 /** @jsxImportSource solid-js */
 import { useTimers } from '@pkgs/clock-client/solid';
 import { createSignal, type JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
-import { SchemePreview } from './scheme-preview';
-import { ChevronRightIcon } from './icons';
 import { Button } from './button';
 import type { ButtonIntent, ButtonVariant } from './button-face';
+import { ExampleRoot } from './example-root';
+import { ChevronRightIcon } from './icons';
+import { SchemePreview } from './scheme-preview';
 import { useMutationButton } from './use-mutation-button';
 
 const LOAD_DEMO_MS = 2000;

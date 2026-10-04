@@ -1,9 +1,15 @@
+import type { ChessPuzzleFeedHistoryFilter } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type {
+  PuzzleCandidateRow,
+  PuzzleExhaustedCandidateRow,
+} from '@libs/chess-puzzle-shared/next-puzzle-selection';
+
+import {
+  buildExhaustedPuzzleCandidatesSql,
+  buildPuzzleCandidatesSql,
+} from '@libs/chess-puzzle-shared/next-puzzle-selection';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import type { Accessor } from 'solid-js';
-
-import { buildExhaustedPuzzleCandidatesSql, buildPuzzleCandidatesSql } from '@libs/chess-puzzle-shared/next-puzzle-selection';
-import type { PuzzleCandidateRow, PuzzleExhaustedCandidateRow } from '@libs/chess-puzzle-shared/next-puzzle-selection';
-import type { ChessPuzzleFeedHistoryFilter } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 
 export type PuzzleCandidatesQueryArgs = {
   readonly rating: Accessor<number>;

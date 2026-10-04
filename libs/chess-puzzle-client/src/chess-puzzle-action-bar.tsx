@@ -1,8 +1,7 @@
 import { BottomActionBar } from '@pkgs/ui-client/bottom-action-bar';
 import { createMemo, type JSX } from 'solid-js';
-
-import { buildChessPuzzleActionBarItems } from './chess-puzzle-action-bar-items';
 import type { ChessPuzzleActionBarModel } from './chess-puzzle-action-bar-items';
+import { buildChessPuzzleActionBarItems } from './chess-puzzle-action-bar-items';
 
 export type ChessPuzzleActionBarProps = ChessPuzzleActionBarModel;
 

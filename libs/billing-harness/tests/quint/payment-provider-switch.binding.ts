@@ -8,15 +8,26 @@
  * the provider holding it) and where new checkouts go.
  */
 
-import { FIRST_PAYMENT_PROVIDER, observeMembership, openBilling, repeatProviderNews, SECOND_PAYMENT_PROVIDER, subscribeToPlus, switchPaymentProvider } from '@libs/billing-harness/billing-actions';
-import { checkoutProvider, governingMembership } from '@libs/billing-harness/billing-reads';
-import { focusActor } from '@libs/harness/shell-actions';
+import {
+  FIRST_PAYMENT_PROVIDER,
+  observeMembership,
+  openBilling,
+  repeatProviderNews,
+  SECOND_PAYMENT_PROVIDER,
+  subscribeToPlus,
+  switchPaymentProvider,
+} from '@libs/billing-harness/billing-actions';
+import {
+  checkoutProvider,
+  governingMembership,
+} from '@libs/billing-harness/billing-reads';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { accountIdOf } from '@libs/harness/identity';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const PEOPLE = ['alice', 'bob'] as const;
 

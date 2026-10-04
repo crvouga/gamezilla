@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import { MIGRATE_RECONCILE_CONFIG } from '@pkgs/db-indexes-shared/config';
-import { parseWithNodeSqlParser } from '@pkgs/db-indexes-shared/parse-node-sql';
-import { planIndexes } from '@pkgs/db-indexes-shared/plan';
 import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
 import { HarnessDb } from '@pkgs/db-indexes-harness/db';
+import { MIGRATE_RECONCILE_CONFIG } from '@pkgs/db-indexes-shared/config';
+import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
+import { parseWithNodeSqlParser } from '@pkgs/db-indexes-shared/parse-node-sql';
+import { planIndexes } from '@pkgs/db-indexes-shared/plan';
 
 const sql = `SELECT p.*
 FROM profile_deletion_receipts p

@@ -48,14 +48,14 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
+import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
 import { isSyntheticFeatureSource } from '@pkgs/gherkin-shared/tags';
 import { parseJunit } from '@pkgs/harness-shared/junit';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint-shared/stubs';
-import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness/report-ready';
-import { testFailureSpans } from '@libs/harness/test-failure-spans';
 import { CHECK_KINDS, isSpecPath, SPEC_GLOBS } from './spec-check-kinds';
 import type { Part, SpecUnit } from './spec-parts';
 import { partOf, specUnits } from './spec-parts';
@@ -230,7 +230,7 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
   }
   const out: string[] = [...writeCheckStubs(units)];
   const gherkinBridge = Bun.resolveSync(
-    '@pkgs/gherkin/bun-test',
+    '@pkgs/gherkin-server/bun-test',
     import.meta.dir
   );
   for (const { path: featurePath, slice } of features) {
@@ -250,7 +250,10 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);
   }
-  const quintBridge = Bun.resolveSync('@pkgs/quint/bun-test', import.meta.dir);
+  const quintBridge = Bun.resolveSync(
+    '@pkgs/quint-server/bun-test',
+    import.meta.dir
+  );
   for (const { path: specPath, slice } of models) {
     const specUri = relative(REPO_ROOT, specPath);
     const file = join(SPEC_STUB_DIR, modelStubFileName(specUri, slice));

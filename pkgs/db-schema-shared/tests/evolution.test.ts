@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import type { SchemaViolation } from '@pkgs/db-schema-shared/schema-evolution';
-import type { Snapshot } from '@pkgs/db-schema-shared/types';
-import { assertEvolvable, diffSnapshots } from '@pkgs/db-schema-shared/schema-evolution';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import type { SchemaViolation } from '@pkgs/db-schema-shared/schema-evolution';
+import {
+  assertEvolvable,
+  diffSnapshots,
+} from '@pkgs/db-schema-shared/schema-evolution';
+import type { Snapshot } from '@pkgs/db-schema-shared/types';
 
 function snap(input: Partial<Snapshot>): Snapshot {
   return {

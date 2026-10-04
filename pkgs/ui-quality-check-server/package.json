@@ -2,12 +2,8 @@
   "name": "@pkgs/ui-quality-check-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
-  "type": "module",
   "sideEffects": false,
-  "engines": {
-    "node": ">=22"
-  },
+  "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -44,5 +40,9 @@
     "esbuild": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "category": "server"
 }

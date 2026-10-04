@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
-import { DEFAULT_CLIENT_RUNTIME_CONFIG, parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
+import {
+  DEFAULT_CLIENT_RUNTIME_CONFIG,
+  parseClientConfigRows,
+} from '@libs/app-config-shared/parse-client-config';
 
 describe('parseClientConfigRows', () => {
   test('defaults when empty', () => {

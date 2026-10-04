@@ -1,24 +1,28 @@
-import { asSeededRng } from '@pkgs/harness-shared/rng';
-import type { NetworkFaults } from '@pkgs/harness-shared/network-state';
-import type { Ports, Runtime, Session } from '@pkgs/harness-shared/runtime-types';
 import type { System } from '@pkgs/harness-shared/define-system';
+import type { NetworkFaults } from '@pkgs/harness-shared/network-state';
+import { asSeededRng } from '@pkgs/harness-shared/rng';
+import type {
+  Ports,
+  Runtime,
+  Session,
+} from '@pkgs/harness-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { SyncHarnessRuntime } from './api';
-import { bootHarnessInfra, bootHarnessServer } from './harness-boot';
+import type { SyncArgs } from './args';
 import type { SyncBootDeps } from './boot-deps';
-import type { HarnessSessionQuery } from './harness-domain-pack';
 import { buildKitFacade } from './facade';
 import { RELIABLE_FAULTS } from './faults';
+import { bootHarnessInfra, bootHarnessServer } from './harness-boot';
+import type { HarnessSessionQuery } from './harness-domain-pack';
 import { toKernelFaults, wrapHarnessNetwork } from './network';
-import type { HarnessClientOpts } from './types';
 import type { SyncApp } from './scenario-app';
-import type { SyncArgs } from './args';
-import { createOwedRestart } from './scenario-system';
 import type { SyncHarness, SyncRuntime } from './scenario-system';
+import { createOwedRestart } from './scenario-system';
+import type { HarnessClientOpts } from './types';
 
 export const HARNESS_START_MS = 1_700_000_000_000;
 /** Post-topology settle window so clients finish initial hydration. */

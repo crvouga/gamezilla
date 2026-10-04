@@ -1,10 +1,9 @@
+import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/recommendations';
+import { formatRecommendedMove } from '@libs/chess-puzzle-shared/recommendations';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
 import { XIcon } from '@pkgs/ui-client/icons';
 import { type Accessor, For, type JSX, Show } from 'solid-js';
-
-import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/recommendations';
-import { formatRecommendedMove } from '@libs/chess-puzzle-shared/recommendations';
 
 /**
  * Who suggested which move, in their arrow colour. The viewer's own chip can

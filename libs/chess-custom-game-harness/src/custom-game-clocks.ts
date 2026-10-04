@@ -1,7 +1,7 @@
+import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { bringToFront } from '@libs/harness/observations';
-import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 
 export function readCustomGameTime(s: ProductHarness): number {
   return s.harness.clock.now();

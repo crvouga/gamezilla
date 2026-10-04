@@ -5,10 +5,7 @@ import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
 import { friendsActor } from './friends-actor';
-import {
-  FRIENDS_FORBIDDEN,
-  FRIENDS_NOT_FOUND,
-} from './friends-mutation-codes';
+import { FRIENDS_FORBIDDEN, FRIENDS_NOT_FOUND } from './friends-mutation-codes';
 import { FriendRequestClosed } from './friends-outbox-messages';
 
 type FriendRequestRow = {

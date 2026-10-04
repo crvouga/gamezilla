@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
 import type { ClientEnv } from '@libs/app-client/client-env';
 import { setOriginAvailability } from '@libs/app-client/origin-availability-for-env';
+import { restoreActorConnection, restoreNetwork } from '@libs/harness/actions';
 import { harnessClientServerFetch } from '@libs/harness/client-server-fetch';
+import type { ProductHarness } from '@libs/harness/harness';
 import { harnessPartitionedError } from '@libs/harness/net';
 import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness/server-nodes';
-import { restoreActorConnection, restoreNetwork } from '@libs/harness/actions';
-import type { ProductHarness } from '@libs/harness/harness';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 async function flush(): Promise<void> {

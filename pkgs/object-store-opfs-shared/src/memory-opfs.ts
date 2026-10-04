@@ -3,8 +3,8 @@
  * in-process harness host where no real OPFS exists.
  */
 
-import { notFoundError } from './opfs';
 import type { OpfsDirHandle, OpfsFileHandle } from './opfs';
+import { notFoundError } from './opfs';
 
 type DirNode = { readonly kind: 'dir'; readonly children: Map<string, Node> };
 type FileNode = { readonly kind: 'file'; bytes: Uint8Array };

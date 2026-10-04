@@ -5,10 +5,7 @@ import { LogInIcon, LogOutIcon } from '@pkgs/ui-client/icons';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { useHasAuthSession } from './access-facts';
-import {
-  useSignInModal,
-  useSignOutModal,
-} from './auth-modals-provider';
+import { useSignInModal, useSignOutModal } from './auth-modals-provider';
 
 const BUTTON_ICON_SIZE = 16;
 

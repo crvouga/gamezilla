@@ -7,7 +7,10 @@
  * Currency amounts are integer minor units (e.g. cents). PPP-tier amounts
  * approximate USD purchasing power for each region.
  */
-import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type {
+  OfferPriceSpec,
+  PlusMembershipOffer,
+} from '@pkgs/billing-shared/offer';
 
 export const PLUS_MEMBERSHIP_OFFER = {
   product: {

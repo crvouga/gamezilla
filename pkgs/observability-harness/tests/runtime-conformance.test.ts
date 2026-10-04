@@ -1,12 +1,23 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
-
+import {
+  CONTEXT_CAPABILITY as BROWSER_CONTEXT_CAPABILITY,
+  createBrowserTelemetry,
+  instrumentFetch,
+} from '@pkgs/observability-client/browser';
+import {
+  createNodeTelemetry,
+  CONTEXT_CAPABILITY as NODE_CONTEXT_CAPABILITY,
+} from '@pkgs/observability-server/node-node';
+import {
+  createWorkerTelemetry,
+  extractRequestContext,
+  injectRequestHeaders,
+  CONTEXT_CAPABILITY as WORKER_CONTEXT_CAPABILITY,
+} from '@pkgs/observability-server/worker-worker';
 import { ATTR } from '@pkgs/observability-shared/attributes';
-import { CONTEXT_CAPABILITY as BROWSER_CONTEXT_CAPABILITY, createBrowserTelemetry, instrumentFetch } from '@pkgs/observability-client/browser';
 import { withSpan } from '@pkgs/observability-shared/span';
-import { createNodeTelemetry, CONTEXT_CAPABILITY as NODE_CONTEXT_CAPABILITY } from '@pkgs/observability-server/node-node';
-import { createWorkerTelemetry, extractRequestContext, injectRequestHeaders, CONTEXT_CAPABILITY as WORKER_CONTEXT_CAPABILITY } from '@pkgs/observability-server/worker-worker';
 
 const BASE_OPTIONS = {
   serviceName: 'conformance',

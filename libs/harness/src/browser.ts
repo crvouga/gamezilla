@@ -15,9 +15,12 @@
  * link back to the app, the close button — returns to the app.
  */
 
-import type { ServerHttp } from '@libs/feature-shared/sync';
 import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
-import type { OpenAuthSession, OpenAuthSessionResult } from '@pkgs/auth-inhouse-client/auth-client-oauth';
+import type { ServerHttp } from '@libs/feature-shared/sync';
+import type {
+  OpenAuthSession,
+  OpenAuthSessionResult,
+} from '@pkgs/auth-inhouse-client/auth-client-oauth';
 import type { OpenExternalUrl } from '@pkgs/ui-client/external-url';
 import { type Accessor, createSignal } from 'solid-js';
 

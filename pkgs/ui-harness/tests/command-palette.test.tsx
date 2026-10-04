@@ -1,17 +1,23 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import type { Command } from '@pkgs/ui-client/types';
 import { CommandPalette } from '@pkgs/ui-client/command-palette';
 import { CommandPaletteTrigger } from '@pkgs/ui-client/command-palette-trigger';
-import { CommandRegistryProvider, useCommandRegistry } from '@pkgs/ui-client/command-registry-context';
-import { RegisterCommand, useRegisterCommands } from '@pkgs/ui-client/register-command';
+import {
+  CommandRegistryProvider,
+  useCommandRegistry,
+} from '@pkgs/ui-client/command-registry-context';
+import { KeyboardShortcutScope } from '@pkgs/ui-client/keyboard-shortcut-scope';
+import {
+  RegisterCommand,
+  useRegisterCommands,
+} from '@pkgs/ui-client/register-command';
+import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
+import type { Command } from '@pkgs/ui-client/types';
 import { useCommand } from '@pkgs/ui-client/use-command';
 import { useCommandPalette } from '@pkgs/ui-client/use-command-palette';
 import { useCommandPaletteShortcut } from '@pkgs/ui-client/use-command-palette-shortcut';
 import { isMacPlatform } from '@pkgs/ui-shared/match';
-import { KeyboardShortcutScope } from '@pkgs/ui-client/keyboard-shortcut-scope';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';

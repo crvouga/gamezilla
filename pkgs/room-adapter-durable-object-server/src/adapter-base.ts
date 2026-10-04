@@ -1,30 +1,43 @@
+import type { Span } from '@opentelemetry/api';
 import { Assert } from '@pkgs/assert-shared/assert';
 import { ATTR } from '@pkgs/observability-shared/attributes';
-import type { Span } from '@opentelemetry/api';
 import { serializeTraceContext } from '@pkgs/observability-shared/correlation';
-
-import { parseRoomModuleName } from '@pkgs/room-shared/types';
-import type { RoomCommandPayload, RoomEvent, RoomModuleName, RoomState } from '@pkgs/room-shared/types';
-import { decodeRoomGrants } from '@pkgs/room-server/grants-header';
-import { handleRoomService } from '@pkgs/room-server/handle-room-service';
-import { RoomServer } from '@pkgs/room-server/room-server';
-
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared/adapter-base-types';
-import { DoAlarmHub, openDoModuleSchedule } from '@pkgs/room-adapter-durable-object-shared/do-schedule';
-import { restoreHibernatedSockets, WS_CLOSE_SESSION_LOST } from './hibernation-restore';
-import type { WsMeta } from './hibernation-restore';
 import {
-  observeRoomError,
-  observeRoomMessage,
-  observeRoomUpgrade,
-} from './observability';
+  DoAlarmHub,
+  openDoModuleSchedule,
+} from '@pkgs/room-adapter-durable-object-shared/do-schedule';
 import {
   readRoomSocketAttachment,
   writeRoomSocketAttachment,
 } from '@pkgs/room-adapter-durable-object-shared/socket-attachment';
 import { roomDoKeyNs } from '@pkgs/room-adapter-durable-object-shared/storage-keys';
-import type { DurableObjectInstance, DurableObjectInstanceState, WebSocketUpgradeResponseInit } from '@pkgs/room-adapter-durable-object-shared/types';
+import type {
+  DurableObjectInstance,
+  DurableObjectInstanceState,
+  WebSocketUpgradeResponseInit,
+} from '@pkgs/room-adapter-durable-object-shared/types';
 import { newWebSocketPair } from '@pkgs/room-adapter-durable-object-shared/types';
+import { decodeRoomGrants } from '@pkgs/room-server/grants-header';
+import { handleRoomService } from '@pkgs/room-server/handle-room-service';
+import { RoomServer } from '@pkgs/room-server/room-server';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModuleName,
+  RoomState,
+} from '@pkgs/room-shared/types';
+import { parseRoomModuleName } from '@pkgs/room-shared/types';
+import type { WsMeta } from './hibernation-restore';
+import {
+  restoreHibernatedSockets,
+  WS_CLOSE_SESSION_LOST,
+} from './hibernation-restore';
+import {
+  observeRoomError,
+  observeRoomMessage,
+  observeRoomUpgrade,
+} from './observability';
 
 const crash: Assert = Assert.crash();
 

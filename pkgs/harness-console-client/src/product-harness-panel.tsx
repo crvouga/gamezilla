@@ -1,5 +1,7 @@
-import { Match, Show, Switch } from 'solid-js';
-import { coerceDebuggerView, defaultViewForKind } from '@pkgs/harness-console-shared/debugger-views';
+import {
+  coerceDebuggerView,
+  defaultViewForKind,
+} from '@pkgs/harness-console-shared/debugger-views';
 import type {
   ProductHarnessActor,
   ProductHarnessLoadBalancerNode,
@@ -8,15 +10,16 @@ import type {
   ProductHarnessSession,
   ProductHarnessSqlNode,
 } from '@pkgs/harness-console-shared/ports';
-import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
-import { SqlNotebookPane } from './sql-notebook-pane';
+import { Match, Show, Switch } from 'solid-js';
 import { ActorUrlFrame } from './actor-url-frame';
+import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { ProductHarnessCommandsPane } from './product-harness-commands-pane';
 import { ProductHarnessLoadBalancerPane } from './product-harness-lb-pane';
 import { ProductHarnessLogsPane } from './product-harness-logs-pane';
 import { ProductHarnessPubSubTopicsPane } from './product-harness-pubsub-topics-pane';
 import { ProductHarnessRoomDbPane } from './product-harness-room-db-pane';
 import { SolidActorHost } from './solid-actor-host';
+import { SqlNotebookPane } from './sql-notebook-pane';
 
 function hiddenWhen(active: boolean): string {
   return active ? 'flex' : 'none';

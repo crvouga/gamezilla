@@ -3,7 +3,10 @@ import {
   playOutcome,
   sliceCurrentPlay,
 } from './chess-puzzle-derive';
-import type { ChessPuzzleInteractionRow, ChessPuzzleOutcomeKind } from './chess-puzzle-interaction-entities';
+import type {
+  ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
+} from './chess-puzzle-interaction-entities';
 import { isOutcomeKind } from './chess-puzzle-interaction-entities';
 import { PUZZLE_RATING_DEFAULT } from './chess-puzzle-rating';
 import type { ChessPuzzleRatingEvent } from './chess-puzzle-rating-event';

@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
-import sql, { ident } from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import sql, { ident } from '@pkgs/sql-shared/sql';
 
 const TS = '2020-01-01T00:00:00.000Z';
 

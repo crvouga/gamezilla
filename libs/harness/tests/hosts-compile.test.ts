@@ -15,7 +15,7 @@ describe('product hosts', () => {
 
   test('the bun-webview host compiles for the bun target', async () => {
     const build = await Bun.build({
-      entrypoints: [`${import.meta.dir}/../src/hosts/bun-webview.ts`],
+      entrypoints: [`${import.meta.dir}/../src/bun-webview.ts`],
       target: 'bun',
       external: ['@apps/*', '@libs/*', '@pkgs/*'],
     });

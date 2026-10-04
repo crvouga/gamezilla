@@ -7,18 +7,31 @@
 
 import { expect } from 'bun:test';
 
-import { playNextSolutionMove, pressPuzzleNextIfVisible, suggestNonSolutionMove } from '@libs/chess-puzzle-harness/chess-actions';
-import { attemptHostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
+import {
+  playNextSolutionMove,
+  pressPuzzleNextIfVisible,
+  suggestNonSolutionMove,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import type { HostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
-import { isEmptyPoolVisible, isPuzzleSolved, readActivePuzzleId, readPuzzleDebug, readPuzzleDisplayFen, readPuzzlePickState, readPuzzleSpectator, readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import { attemptHostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
 import type { PuzzleSpectatorProbe } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  isEmptyPoolVisible,
+  isPuzzleSolved,
+  readActivePuzzleId,
+  readPuzzleDebug,
+  readPuzzleDisplayFen,
+  readPuzzlePickState,
+  readPuzzleSpectator,
+  readPuzzleStatus,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { joinSpaceFromLink } from '@libs/friends-harness/spaces.steps';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
 import { accountIdOf } from '@libs/harness/identity';
+import type { Actor } from '@libs/harness/parameter-types';
+import { focusActor } from '@libs/harness/shell-actions';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import {
   activePuzzle,
   rememberBoard,

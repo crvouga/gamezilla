@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { PuzzleIngestTally, partitionPuzzleBatch } from '@libs/chess-puzzle-server/puzzle-ingest';
+import {
+  PuzzleIngestTally,
+  partitionPuzzleBatch,
+} from '@libs/chess-puzzle-server/puzzle-ingest';
 import type { PuzzleTableRow } from '@libs/chess-puzzle-server/row';
 
 const FEN = '6k1/5p1p/1p4p1/p1bN1p2/2Pq1P2/1P5P/1P1Q2P1/7K w - - 1 32';

@@ -1,5 +1,5 @@
-import { type Accessor, createEffect, createSignal, untrack } from 'solid-js';
 import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { type Accessor, createEffect, createSignal, untrack } from 'solid-js';
 import type { ChessPuzzleFeedConfigSetter } from './chess-puzzle-feed-context';
 
 /** Each opening previews a copy; edits never write the account's saved choices. */

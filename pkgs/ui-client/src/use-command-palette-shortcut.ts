@@ -6,12 +6,12 @@
  */
 
 import type { Accessor } from 'solid-js';
-import { useDocumentShortcuts } from './use-document-shortcuts';
 import { useCommandRegistry } from './command-registry-context';
 import {
   DEFAULT_OPEN_SHORTCUTS,
   matchOpenShortcut,
 } from './command-registry-shortcuts';
+import { useDocumentShortcuts } from './use-document-shortcuts';
 
 export type CommandPaletteShortcutOptions = {
   /** Shortcut specs, e.g. `['mod+k']`. Defaults to `mod+k` / `mod+shift+p`. */

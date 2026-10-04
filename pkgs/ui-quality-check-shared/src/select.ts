@@ -1,7 +1,7 @@
 import type { ResolvedOptions } from './config';
 import type { ResultStats } from './result';
-import type { FrameQuality } from './ui-quality-check-types';
 import { fingerprint, isEmpty, similar } from './similarity';
+import type { FrameQuality } from './ui-quality-check-types';
 import type { DecodedFrame } from './video-types';
 
 export class FrameSelection {

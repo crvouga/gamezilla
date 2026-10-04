@@ -1,10 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-
-import { AUTH_SSO_CANCELLED_ERROR, AUTH_SSO_POPUP_BLOCKED_ERROR } from '@pkgs/auth-inhouse-client/auth-client-http';
-import { clearBearerOnUnauthorizedSession, createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
-import { createBearerTokenStore, createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import {
+  AUTH_SSO_CANCELLED_ERROR,
+  AUTH_SSO_POPUP_BLOCKED_ERROR,
+} from '@pkgs/auth-inhouse-client/auth-client-http';
 import type { OpenAuthSession } from '@pkgs/auth-inhouse-client/auth-client-oauth';
+import {
+  clearBearerOnUnauthorizedSession,
+  createInhouseAuthClient,
+} from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
+import {
+  createBearerTokenStore,
+  createInMemoryAuthClientStorage,
+} from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 
 const BASE_URL = 'http://auth.test';
 const CALLBACK = 'gamezilla://sso-callback';

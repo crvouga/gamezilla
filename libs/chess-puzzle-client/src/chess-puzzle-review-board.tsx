@@ -1,15 +1,14 @@
+import { puzzleNavIntentFromKey } from '@libs/chess-puzzle-shared/puzzle-nav';
+import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
 import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
 import { registerFeedbackContext } from '@pkgs/feedback-shared/context';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
 import { useDocumentShortcuts } from '@pkgs/ui-client/use-document-shortcuts';
 import { type JSX, onCleanup, Show } from 'solid-js';
-
-import { puzzleNavIntentFromKey } from '@libs/chess-puzzle-shared/puzzle-nav';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
 import { ChessPuzzleReviewTest } from './chess-puzzle-review-test';
-import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import type { PuzzleReviewBoardModel } from './use-puzzle-review-board';
 import { usePuzzleReviewBoard } from './use-puzzle-review-board';

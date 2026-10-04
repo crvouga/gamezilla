@@ -10,9 +10,12 @@
  */
 
 import type { DebuggerViewId } from '@pkgs/harness-console-shared/debugger-views';
-import { defaultViewForKind, VIEWS_BY_KIND } from '@pkgs/harness-console-shared/debugger-views';
-import { coerceHarnessChromeKind } from '@pkgs/harness-console-shared/node';
+import {
+  defaultViewForKind,
+  VIEWS_BY_KIND,
+} from '@pkgs/harness-console-shared/debugger-views';
 import type { HarnessChromeKind } from '@pkgs/harness-console-shared/node';
+import { coerceHarnessChromeKind } from '@pkgs/harness-console-shared/node';
 
 export type ConsoleKind = HarnessChromeKind;
 export type ConsoleView = DebuggerViewId;

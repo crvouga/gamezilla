@@ -2,7 +2,10 @@
 
 import { describe, expect, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-client/app-frame';
-import { AppFrameChromeProvider, useSetAppFrameHeader } from '@pkgs/ui-client/app-frame-chrome';
+import {
+  AppFrameChromeProvider,
+  useSetAppFrameHeader,
+} from '@pkgs/ui-client/app-frame-chrome';
 import { Island } from '@pkgs/ui-client/island';
 import { IslandGrid } from '@pkgs/ui-client/island-grid';
 import { TopBar } from '@pkgs/ui-client/top-bar';

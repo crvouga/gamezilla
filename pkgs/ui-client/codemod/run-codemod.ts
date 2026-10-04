@@ -9,8 +9,8 @@
  * every file parsed — a failed run leaves the tree byte-identical.
  */
 
-import { checkCompleteness } from './completeness-gate';
 import type { GateHit } from './completeness-gate';
+import { checkCompleteness } from './completeness-gate';
 import type { FileReport } from './report';
 import { summarize, toFileReport } from './report';
 import { invariant } from './tiger';

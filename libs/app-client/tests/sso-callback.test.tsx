@@ -1,14 +1,14 @@
 /** @jsxImportSource solid-js */
 import { afterEach, expect, test } from 'bun:test';
-import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
+import SsoCallbackRoute from '@libs/app-client/sso-callback';
 import { AuthClientProvider } from '@libs/auth-client/auth-client-provider';
 import { SIGN_IN_PENDING_KEY } from '@libs/auth-shared/auth-storage-keys';
-import SsoCallbackRoute from '@libs/app-client/sso-callback';
 import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
+import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
 import type { AppRouter } from '@pkgs/ui-client/app-router';
-import { hrefToPath } from '@pkgs/ui-shared/href';
 import { StaticAppRouterProvider } from '@pkgs/ui-client/app-router';
+import { hrefToPath } from '@pkgs/ui-shared/href';
 import { renderChrome } from './render-chrome';
 
 const savedPending = localStorage.getItem(SIGN_IN_PENDING_KEY);

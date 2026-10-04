@@ -1,14 +1,25 @@
 import { describe, expect, test } from 'bun:test';
-
-import { checkSpecs } from '@pkgs/gherkin-shared/check';
 import type { PackageSpecs } from '@pkgs/gherkin-shared/check';
+import { checkSpecs } from '@pkgs/gherkin-shared/check';
 import { extractStepImports, extractSteps } from '@pkgs/gherkin-shared/extract';
 import { parseFeature } from '@pkgs/gherkin-shared/parse';
-import { matchStep, parameterTypeRegistryFrom, stepsFor } from '@pkgs/gherkin-shared/registry';
-import { nearDuplicates, normalizeStepText, sameBehavior } from '@pkgs/gherkin-shared/similarity';
+import {
+  matchStep,
+  parameterTypeRegistryFrom,
+  stepsFor,
+} from '@pkgs/gherkin-shared/registry';
+import {
+  nearDuplicates,
+  normalizeStepText,
+  sameBehavior,
+} from '@pkgs/gherkin-shared/similarity';
 import { specSmells } from '@pkgs/gherkin-shared/smells';
 import { stubFileName, stubSource } from '@pkgs/gherkin-shared/stubs';
-import { domainOf, isSyntheticFeatureSource, tagFilter } from '@pkgs/gherkin-shared/tags';
+import {
+  domainOf,
+  isSyntheticFeatureSource,
+  tagFilter,
+} from '@pkgs/gherkin-shared/tags';
 
 describe('feature parsing', () => {
   test('folds feature tags and Background steps into outline examples', () => {

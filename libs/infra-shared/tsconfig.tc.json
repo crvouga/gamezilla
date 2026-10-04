@@ -6,7 +6,7 @@
   },
   "include": [
     "../../pkgs/ts-reset-shared/src/ts-reset.ts",
-    "../infra/tofu/**/*.mts",
+    "./tofu/**/*.mts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./tests/**/*.ts",
@@ -14,7 +14,5 @@
     "./scripts/**/*.ts",
     "./scripts/**/*.tsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

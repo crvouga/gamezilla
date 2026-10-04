@@ -5,13 +5,17 @@
  */
 
 import { describe, expect, it } from 'bun:test';
+import type { SpaceOpenRoomEntry } from '@libs/spaces-client/space-open-rooms-store';
+import {
+  SpaceOpenRoomsStoreProvider,
+  useSpaceOpenRoomEntry,
+  useSpaceOpenRooms,
+  useSpaceOpenRoomsRegistry,
+} from '@libs/spaces-client/space-open-rooms-store';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { RoomCommandPayload } from '@pkgs/room-shared/types';
 import { render, screen } from '@solidjs/testing-library';
 import { createEffect, type JSX } from 'solid-js';
-
-import type { SpaceOpenRoomEntry } from '@libs/spaces-client/space-open-rooms-store';
-import { SpaceOpenRoomsStoreProvider, useSpaceOpenRoomEntry, useSpaceOpenRooms, useSpaceOpenRoomsRegistry } from '@libs/spaces-client/space-open-rooms-store';
 
 function stubEntry(clientId: string): SpaceOpenRoomEntry {
   return {

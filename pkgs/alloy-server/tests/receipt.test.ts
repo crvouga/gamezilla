@@ -2,7 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { CommandResult } from '@pkgs/alloy-shared/receipt';
-import { commandVerdict, parseAlloyType, parseReceipt, solutionSummary } from '@pkgs/alloy-shared/receipt';
+import {
+  commandVerdict,
+  parseAlloyType,
+  parseReceipt,
+  solutionSummary,
+} from '@pkgs/alloy-shared/receipt';
 import { modelSigs, sigDeclarations } from '@pkgs/alloy-shared/sigs';
 
 const FIXTURES = join(import.meta.dir, 'fixtures');

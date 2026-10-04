@@ -2,7 +2,6 @@
   "name": "@libs/auth-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -31,5 +30,6 @@
     "@pkgs/sql-client-sqlite-server": "workspace:*",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "server"
 }

@@ -31,8 +31,12 @@ import { readKnownBugs } from '../goal/known-bugs';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
-import { dependencyClosure, scopedBiomeConfig, workspaceDeps } from './biome-scope';
 import type { WorkspacePackage } from './biome-scope';
+import {
+  dependencyClosure,
+  scopedBiomeConfig,
+  workspaceDeps,
+} from './biome-scope';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';

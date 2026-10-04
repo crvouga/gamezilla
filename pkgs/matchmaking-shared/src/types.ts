@@ -20,7 +20,10 @@
  * domain semantics through `data` and `formulas`.
  */
 
-import type { AttributeState, AttributeTag } from '@pkgs/attribute-shared/attribute';
+import type {
+  AttributeState,
+  AttributeTag,
+} from '@pkgs/attribute-shared/attribute';
 import type { OwnerRequest } from './identity';
 
 export type ParticipantStatus = 'waiting' | 'matched';

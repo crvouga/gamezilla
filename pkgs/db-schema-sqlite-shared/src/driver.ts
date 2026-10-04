@@ -3,8 +3,8 @@
 import { asPhysicalIdent } from '@pkgs/db-schema-shared/index-fingerprint';
 import { planClient } from '@pkgs/db-schema-shared/plan-client';
 import type { Schema } from '@pkgs/db-schema-shared/types';
-import sql, { ident, raw } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql, { ident, raw } from '@pkgs/sql-shared/sql';
 import { readSqliteCatalog } from './catalog';
 import { emitClientOperation } from './emit';
 

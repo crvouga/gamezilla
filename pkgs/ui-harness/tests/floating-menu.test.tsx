@@ -3,13 +3,16 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
 import { labelInName } from '@pkgs/a11y-shared/name-rules';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { ActionBar } from '@pkgs/ui-client/action-bar';
-import { FLOATING_MENU_DEFAULT_WIDTH, FloatingMenu } from '@pkgs/ui-client/floating-menu';
-import { FLOATING_MENU_ITEM_MIN_HEIGHT } from '@pkgs/ui-client/floating-menu-parts';
+import {
+  FLOATING_MENU_DEFAULT_WIDTH,
+  FloatingMenu,
+} from '@pkgs/ui-client/floating-menu';
 import type { FloatingMenuContent } from '@pkgs/ui-client/floating-menu-content';
+import { FLOATING_MENU_ITEM_MIN_HEIGHT } from '@pkgs/ui-client/floating-menu-parts';
 import { LogOutIcon, SettingsIcon, ShareIcon } from '@pkgs/ui-client/icons';
 import { OverflowMenuButton } from '@pkgs/ui-client/overflow-menu-button';
+import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';

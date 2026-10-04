@@ -9,9 +9,8 @@
  */
 
 import type { CreateRoomTransport } from '@libs/app-client/client-env';
-import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared/websocket-transport';
-
 import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared/space-room-url';
+import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared/websocket-transport';
 
 export const wallSpaceRoomTransport: CreateRoomTransport = (args) => {
   const topic = `space:${args.spaceId}`;

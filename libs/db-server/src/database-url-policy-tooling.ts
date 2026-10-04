@@ -1,10 +1,10 @@
+// @io-wall-ok — production database guard for CLI composition roots.
 import { join } from 'node:path';
+import { PRODUCT_CONFIG } from '@libs/db-shared/product-config';
 import { assertNonProdDatabaseUrlForTooling as assertToolingNonProd } from '@pkgs/database-url-policy-server/database-url-policy-tooling';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 
-import { PRODUCT_CONFIG } from '@libs/db-shared/product-config';
-
-const REPO_ROOT = join(import.meta.dirname, '..', '..', '..', '..');
+const REPO_ROOT = join(import.meta.dirname, '../../..', '..', '..', '..');
 
 const policyOptions = {
   productionHostnames: PRODUCT_CONFIG.postgres.productionHostnames,

@@ -1,14 +1,14 @@
+import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import { corruptUnknownPayload } from './corruption-faults';
 import type { EdgeFaultController } from './edge-faults';
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import type { SyncNetwork } from './network';
-import { createOfflineBuffers } from './pubsub-bridge-resend';
 import type { OfflineBuffers } from './pubsub-bridge-resend';
-import { createPeerPubSub } from './pubsub-peer';
+import { createOfflineBuffers } from './pubsub-bridge-resend';
 import type { PubSubPeer } from './pubsub-peer';
-import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
+import { createPeerPubSub } from './pubsub-peer';
 
 type PubWire = {
   readonly kind: 'pubsub';

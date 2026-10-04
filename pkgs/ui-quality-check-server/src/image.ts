@@ -1,5 +1,8 @@
+import type {
+  ImageInput,
+  RgbImage,
+} from '@pkgs/ui-quality-check-shared/detectors-types';
 import sharp from 'sharp';
-import type { ImageInput, RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
 import type { Files } from './files';
 import { readBytes } from './files';
 

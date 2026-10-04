@@ -1,11 +1,13 @@
+import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
+import {
+  resolveIsSignedIn,
+  resolveMyId,
+} from '@libs/auth-shared/resolve-client-identity';
+import { resolveHasAuthSession } from '@libs/auth-shared/session-capability';
 import { createSecureStorageItem } from '@pkgs/secure-storage-client/solid';
 import sql from '@pkgs/sql-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
-import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { resolveIsSignedIn, resolveMyId } from '@libs/auth-shared/resolve-client-identity';
-import { resolveHasAuthSession } from '@libs/auth-shared/session-capability';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 

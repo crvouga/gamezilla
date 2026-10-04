@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { useTimers } from '@pkgs/clock-client/solid';
 import type { JSX } from 'solid-js';
-import { useMutationButton } from './use-mutation-button';
 import { ExampleRoot } from './example-root';
 import { FloatingActionButton } from './floating-action-button';
+import { useMutationButton } from './use-mutation-button';
 
 const DEMO_MS = 900;
 

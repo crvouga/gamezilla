@@ -1,6 +1,3 @@
-import type { GameDefinition } from '@libs/spaces-shared/game';
-import type { RoomState } from '@pkgs/room-shared/types';
-
 import {
   CHESS_SCREEN,
   ChessMainMenuScreenAttr,
@@ -9,9 +6,17 @@ import {
   chessMainMenuCommandRouter,
   chessMainMenuEventReducer,
 } from '@libs/chess-shared/chess-main-menu';
-import { chessPuzzlePlayCmdNs, chessPuzzlePlayEvtNs } from './chess-puzzle-play-messages';
+import type { GameDefinition } from '@libs/spaces-shared/game';
+import type { RoomState } from '@pkgs/room-shared/types';
+import {
+  chessPuzzlePlayCmdNs,
+  chessPuzzlePlayEvtNs,
+} from './chess-puzzle-play-messages';
+import {
+  chessPuzzlePlayEventReducer,
+  chessPuzzlePlayInitialAttrs,
+} from './chess-puzzle-play-reducer';
 import { chessPuzzlePlayCommandRouter } from './chess-puzzle-play-router';
-import { chessPuzzlePlayEventReducer, chessPuzzlePlayInitialAttrs } from './chess-puzzle-play-reducer';
 export const CHESS_GAME_ID = 'chess';
 
 /**

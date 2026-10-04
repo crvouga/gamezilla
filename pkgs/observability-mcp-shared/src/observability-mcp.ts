@@ -1,5 +1,9 @@
 import { narrate } from '@pkgs/observability-shared/narrate';
-import type { TimeRange, TraceRef, TraceStore } from '@pkgs/observability-shared/types';
+import type {
+  TimeRange,
+  TraceRef,
+  TraceStore,
+} from '@pkgs/observability-shared/types';
 
 export type McpTextResult = {
   readonly content: [{ readonly type: 'text'; readonly text: string }];

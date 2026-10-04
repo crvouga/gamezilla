@@ -1,14 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { acceptsEventStream, eventStreamAcceptHeader } from '@pkgs/ndjson-client/accept-header';
+import {
+  acceptsEventStream,
+  eventStreamAcceptHeader,
+} from '@pkgs/ndjson-client/accept-header';
 import { collectIndexedNdjsonStream } from '@pkgs/ndjson-client/consume-stream';
 import { IndexedNdjsonStreamError } from '@pkgs/ndjson-client/stream-error';
 import { encodeNdjsonReadableStream } from '@pkgs/ndjson-server/encode-response';
 import { streamParallelIndexed } from '@pkgs/ndjson-server/stream-parallel';
 import { EVENT_STREAM_CONTENT_TYPE } from '@pkgs/ndjson-shared/content-type';
-import type { NdjsonErrorFrame, NdjsonFrame } from '@pkgs/ndjson-shared/frames';
 import { NdjsonStreamDecoder } from '@pkgs/ndjson-shared/decode';
-import { arbJsonValue } from '@pkgs/property-shared/json';
+import type { NdjsonErrorFrame, NdjsonFrame } from '@pkgs/ndjson-shared/frames';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { arbJsonValue } from '@pkgs/property-shared/json';
 import fc from 'fast-check';
 import { arbNdjsonFrame } from './ndjson-frame-arbitraries';
 

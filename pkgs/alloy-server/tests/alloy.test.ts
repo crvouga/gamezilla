@@ -10,7 +10,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ExecAlloyResult } from '@pkgs/alloy-server/alloy-cli';
 import { execAlloy } from '@pkgs/alloy-server/alloy-cli';
-import { auditSnapshots, illegalSnapshotReport } from '@pkgs/alloy-server/audit';
+import {
+  auditSnapshots,
+  illegalSnapshotReport,
+} from '@pkgs/alloy-server/audit';
 import { commandVerdict } from '@pkgs/alloy-shared/receipt';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
 

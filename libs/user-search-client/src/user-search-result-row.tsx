@@ -1,8 +1,7 @@
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client/user-username';
-import { type JSX, Show } from 'solid-js';
-
 import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
+import { type JSX, Show } from 'solid-js';
 
 export type UserSearchResultRowProps = {
   readonly user: UserSearchResult;

@@ -5,11 +5,11 @@
 
 import { openBilling } from '@libs/billing-harness/billing-actions';
 import { billingTier } from '@libs/billing-harness/billing-reads';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
-import { cutConnection, otherDevice } from '@libs/harness/platform';
 import { letTimePass } from '@libs/harness/actions';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { cutConnection, otherDevice } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SECOND_MS = 1_000;

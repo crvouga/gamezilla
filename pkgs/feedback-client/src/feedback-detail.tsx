@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { IconButton } from '@pkgs/ui-client/icon-button';
+import { SquarePenIcon, Trash2Icon } from '@pkgs/ui-client/icons';
 import { MarkdownContent } from '@pkgs/ui-client/markdown-content';
 import { MutationModal } from '@pkgs/ui-client/mutation-modal';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
-import { SquarePenIcon, Trash2Icon } from '@pkgs/ui-client/icons';
 import { type Accessor, createSignal, Show } from 'solid-js';
 import type { FeedbackController, FeedbackState } from './controller';
 

@@ -1,5 +1,8 @@
-import { assignParticipantColors, resolveParticipantColor } from '@pkgs/collab-shared/participant-color';
 import type { ParticipantColor } from '@pkgs/collab-shared/participant-color';
+import {
+  assignParticipantColors,
+  resolveParticipantColor,
+} from '@pkgs/collab-shared/participant-color';
 import { useNamedRoomRoster } from '@pkgs/room-client/room-clients-context';
 import { type Accessor, createMemo } from 'solid-js';
 

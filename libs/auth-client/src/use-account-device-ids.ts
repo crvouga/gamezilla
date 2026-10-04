@@ -1,6 +1,9 @@
 import sql from '@pkgs/sql-shared/sql';
 
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { useMyDeviceId } from './use-current-user';

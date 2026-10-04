@@ -1,11 +1,26 @@
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import { Move, readMatchStatus, readPlayerToMove, readTimeLeftSeconds, readWinner, StartMatch } from '@pkgs/room-harness/game-room';
-import type { Player } from '@pkgs/room-harness/game-room';
-import { addClient, connect, disconnect, dispatch, resumeNetwork, serverCrash, serverRestart } from '@pkgs/room-harness/room-actions';
-import { clock, serverCrashed } from '@pkgs/room-harness/observations';
-import { exampleSystem } from '@pkgs/room-harness/system';
 import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import type { Player } from '@pkgs/room-harness/game-room';
+import {
+  Move,
+  readMatchStatus,
+  readPlayerToMove,
+  readTimeLeftSeconds,
+  readWinner,
+  StartMatch,
+} from '@pkgs/room-harness/game-room';
+import { clock, serverCrashed } from '@pkgs/room-harness/observations';
 import { readServer } from '@pkgs/room-harness/read-state';
+import {
+  addClient,
+  connect,
+  disconnect,
+  dispatch,
+  resumeNetwork,
+  serverCrash,
+  serverRestart,
+} from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
 import { interruptedMatchChoice } from '../interrupted-match';
 import type { RoomTraceWorld } from './world';
 import { roomFingerprint, traceRoom } from './world';

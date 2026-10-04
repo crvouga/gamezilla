@@ -1,9 +1,9 @@
 import { asKeywordRecord } from '@pkgs/keyword-shared/keyword';
+import { pairMatch } from '@pkgs/matchmaking-shared/compatibility';
 import type { FormulaWire } from '@pkgs/matchmaking-shared/formula-wire';
 import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
-import { pairMatch } from '@pkgs/matchmaking-shared/compatibility';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import type { FormationPorts } from './match-pass';
 import {
   epochMs,

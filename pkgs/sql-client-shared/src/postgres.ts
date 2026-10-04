@@ -3,11 +3,11 @@
  */
 
 import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
+import { rowToDumpValues } from './cell-codec';
 import type { PostgresSqlClient } from './interface';
 import { quotePgIdent } from './postgres-db-scope';
-import { rowToDumpValues } from './cell-codec';
-import { SQL_DATA_DUMP_VERSION } from './types';
 import type { SqlDataDump, SqlDataDumpOptions, SqlTableDump } from './types';
+import { SQL_DATA_DUMP_VERSION } from './types';
 
 export async function listPostgresUserTables(
   client: PostgresSqlClient

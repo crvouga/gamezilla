@@ -3,8 +3,12 @@
  * disposed after the last step.
  */
 
-import { defineParameterType, setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
+import {
+  defineParameterType,
+  setWorld,
+  stepsFor,
+} from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import type { RoomHarness } from '@pkgs/room-harness/harness';
 

@@ -1,9 +1,18 @@
 import { describe, expect, test } from 'bun:test';
 
 import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
-import { AvatarSeedGenerator, configsEqual, createDefaultAvatarConfig, DEFAULT_AVATAR_STYLE, parseAvatarConfig, resolveAvatarSeed, serializeAvatarConfig, serializeDefaultAvatarConfig } from '@libs/profile-shared/avatar-config';
-import { arbJsonObject, arbJsonValue } from '@pkgs/property-shared/json';
+import {
+  AvatarSeedGenerator,
+  configsEqual,
+  createDefaultAvatarConfig,
+  DEFAULT_AVATAR_STYLE,
+  parseAvatarConfig,
+  resolveAvatarSeed,
+  serializeAvatarConfig,
+  serializeDefaultAvatarConfig,
+} from '@libs/profile-shared/avatar-config';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { arbJsonObject, arbJsonValue } from '@pkgs/property-shared/json';
 import fc from 'fast-check';
 
 const arbConfig: fc.Arbitrary<AvatarConfig> = fc.record({

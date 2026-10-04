@@ -9,12 +9,12 @@
  * ```
  */
 
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { BRAND_ICON_REGISTRY } from './brand-icon-registry';
+import type { JSX } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import type { BrandIconName } from './brand-icon-registry';
+import { BRAND_ICON_REGISTRY } from './brand-icon-registry';
 
 export type BrandIconProps = {
   name: BrandIconName;

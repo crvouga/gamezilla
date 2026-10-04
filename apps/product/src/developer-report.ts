@@ -1,13 +1,24 @@
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportSnapshotBlob, ReportStep, RunReportMeta } from '@pkgs/harness-shared/report-types';
-import { createSnapshotHost, paintSnapshotHost } from '@pkgs/harness-report-client/snapshot-surface';
-import { onReportKeyDown } from '@pkgs/harness-report-shared/keyboard';
-import { orderedUiBlobs, selectedFrame, testFrames } from '@pkgs/harness-report-shared/frames';
-import { parseHash } from '@pkgs/harness-report-shared/hash';
+import {
+  createSnapshotHost,
+  paintSnapshotHost,
+} from '@pkgs/harness-report-client/snapshot-surface';
+import {
+  orderedUiBlobs,
+  selectedFrame,
+  testFrames,
+} from '@pkgs/harness-report-shared/frames';
 import type { Route } from '@pkgs/harness-report-shared/hash';
+import { parseHash } from '@pkgs/harness-report-shared/hash';
 import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
+import { onReportKeyDown } from '@pkgs/harness-report-shared/keyboard';
+import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type {
+  ReportSnapshotBlob,
+  ReportStep,
+  RunReportMeta,
+} from '@pkgs/harness-shared/report-types';
 import { tools } from './developer-tools-state';
 export function reportMeta(
   title: string,
@@ -34,7 +45,10 @@ export function recordedReport(kind: string): HtmlReportTest {
       : kind === 'future'
         ? { bob: [3] }
         : { alice: [2], bob: [1, 3] };
-  const blobs: Record<string, import('@pkgs/harness-shared/bundle').HtmlReportBlob> = {};
+  const blobs: Record<
+    string,
+    import('@pkgs/harness-shared/bundle').HtmlReportBlob
+  > = {};
   const steps: ReportStep[] = [1, 2, 3].map((moment) => {
     const snapshots: ReportSnapshotBlob[] = [];
     for (const [actor, moments] of Object.entries(pictures)) {

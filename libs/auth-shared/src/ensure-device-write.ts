@@ -1,7 +1,6 @@
-import sql, { join, raw } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
-
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { Value } from '@pkgs/sql-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-shared/sql';
 import { managedInsertColumns } from '@pkgs/sync-engine-shared/managed-columns';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 

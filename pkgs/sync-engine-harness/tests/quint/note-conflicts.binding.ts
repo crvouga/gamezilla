@@ -1,12 +1,31 @@
 /** One note, three independent devices, and confirmations crossing later edits. */
 
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
-import { addClient, connect, disconnect, mutate, nudge, online as setOnline } from '@pkgs/sync-engine-harness/regression-actions';
-import { auth, httpFault, partition, restart, resumeNetwork } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import { deleteNote, setNote } from '@pkgs/sync-engine-harness/mutations';
-import { deviceOnlineSignal, lastMutationId, outcome, queuedEdits, rejections } from '@pkgs/sync-engine-harness/sync-observations';
 import { liveNote, liveNotes } from '@pkgs/sync-engine-harness/reads';
+import {
+  addClient,
+  connect,
+  disconnect,
+  mutate,
+  nudge,
+  online as setOnline,
+} from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  auth,
+  httpFault,
+  partition,
+  restart,
+  resumeNetwork,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import {
+  deviceOnlineSignal,
+  lastMutationId,
+  outcome,
+  queuedEdits,
+  rejections,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import type { NoteWorld } from './note-world';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;

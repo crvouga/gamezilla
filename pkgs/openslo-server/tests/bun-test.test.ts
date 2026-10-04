@@ -12,7 +12,8 @@ import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 import { runObjectiveSpec } from '@pkgs/openslo-server/bun-test';
 import './openslo/index';
 
-const SPEC_URI = 'pkgs/openslo-server/tests/fixtures/note-delivery.openslo.yaml';
+const SPEC_URI =
+  'pkgs/openslo-server/tests/fixtures/note-delivery.openslo.yaml';
 const REPORT_DIR = join(import.meta.dir, '../.cache/test-bridge');
 
 rmSync(REPORT_DIR, { recursive: true, force: true });

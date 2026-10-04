@@ -3,13 +3,16 @@
  * Uses mockingbird-postgres with pinned `dbScope` / `search_path`.
  */
 
-import { raw } from '@pkgs/sql-shared/sql';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import type {
+  PostgresSqlClient,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
 import {
   createPostgresDbScope,
   quotePgIdent,
 } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import { raw } from '@pkgs/sql-shared/sql';
 
 export type MockingbirdPostgresTestClientBundle = {
   readonly sqlClient: PostgresSqlClient;

@@ -9,12 +9,11 @@
  * For tests and spec bindings only (a `root/` export).
  */
 
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import { ACTION } from './permission-catalog';
+import sql from '@pkgs/sql-shared/sql';
 import type { CaseInput } from './people';
 import { countInput, DMN_INPUT } from './people';
+import { ACTION } from './permission-catalog';
 
 const DAY_MS = 86_400_000;
 

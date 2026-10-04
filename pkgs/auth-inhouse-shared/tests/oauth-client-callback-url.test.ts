@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { AUTH_NATIVE_SSO_CALLBACK_URL, oauthClientCallbackUrl } from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
+import {
+  AUTH_NATIVE_SSO_CALLBACK_URL,
+  oauthClientCallbackUrl,
+} from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
 
 describe('oauthClientCallbackUrl', () => {
   test('https origin becomes same-origin /sso-callback', () => {

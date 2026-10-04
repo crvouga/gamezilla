@@ -1,20 +1,12 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "check:models": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/specs/chess-board/*.qnt"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/specs/chess-board/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/specs/chess-board/**"]
     }
   }
 }

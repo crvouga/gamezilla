@@ -1,5 +1,5 @@
-import type { LogEntry } from './types';
 import type { ClientRoomStorage } from './core-storage';
+import type { LogEntry } from './types';
 
 /** Entries per persisted segment blob; bounds every append to O(segment). */
 export const COMMITTED_LOG_SEGMENT_SIZE = 128;

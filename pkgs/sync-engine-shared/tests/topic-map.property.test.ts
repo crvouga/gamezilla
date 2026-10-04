@@ -5,10 +5,19 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-import { defineTopicMap, subscribeTables, topicsFromHeldRows, topicsFromWriteCapture } from '@pkgs/sync-engine-shared/topic-map';
 import { filterPublishableImages } from '@pkgs/sync-engine-shared/row-image-guard';
-import type { TopicMap, TopicMapCtx, TopicMapEntry } from '@pkgs/sync-engine-shared/topic-map';
+import type {
+  TopicMap,
+  TopicMapCtx,
+  TopicMapEntry,
+} from '@pkgs/sync-engine-shared/topic-map';
+import {
+  defineTopicMap,
+  subscribeTables,
+  topicsFromHeldRows,
+  topicsFromWriteCapture,
+} from '@pkgs/sync-engine-shared/topic-map';
+import fc from 'fast-check';
 
 type Capture = Parameters<typeof topicsFromWriteCapture>[0]['capture'];
 type Row = Record<string, unknown>;

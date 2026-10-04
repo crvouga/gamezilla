@@ -8,8 +8,7 @@
  * loads only under `/space/*` (see README.md). Empty
  * registries cover non-space routes.
  */
-import { GamesBootstrapFromPlugins } from './games-bootstrap-from-plugins';
-import type { GamesBootstrapFromPluginsProps } from './games-bootstrap-from-plugins';
+
 import { useLocation } from '@solidjs/router';
 import {
   createEffect,
@@ -19,6 +18,8 @@ import {
   type JSX,
   Show,
 } from 'solid-js';
+import type { GamesBootstrapFromPluginsProps } from './games-bootstrap-from-plugins';
+import { GamesBootstrapFromPlugins } from './games-bootstrap-from-plugins';
 
 export type GameRegistry = Pick<
   GamesBootstrapFromPluginsProps,

@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { planFailureIsTransient, planReadFailed } from '@libs/infra-shared/plan-retry';
+import {
+  planFailureIsTransient,
+  planReadFailed,
+} from '@libs/infra-shared/plan-retry';
 
 describe('plan retry', () => {
   // regression: infra-plan-read-transient

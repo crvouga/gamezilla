@@ -6,18 +6,30 @@
  */
 
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { HtmlReportBlob, HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportTestStatus, RunReportMeta } from '@pkgs/harness-shared/report-types';
+import {
+  splitViewerTestId,
+  viewerTestId,
+} from '@pkgs/harness-report-shared/keys';
+import type {
+  CommitEvent,
+  CommitRecord,
+  SourceRecord,
+} from '@pkgs/harness-report-shared/protocol';
+import { SseDecoder } from '@pkgs/harness-report-shared/protocol';
+import type { ReportData } from '@pkgs/harness-report-shared/types';
+import type {
+  HtmlReportBlob,
+  HtmlReportTest,
+} from '@pkgs/harness-shared/bundle';
+import type {
+  ReportTestStatus,
+  RunReportMeta,
+} from '@pkgs/harness-shared/report-types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { type Accessor, batch, createSignal } from 'solid-js';
 import { createStore, produce, type SetStoreFunction } from 'solid-js/store';
-
-import type { ReportTestLoader, TestLoad } from './report-context';
-import type { ReportData } from '@pkgs/harness-report-shared/types';
 import type { ReportFetcher } from './fetcher';
-import { splitViewerTestId, viewerTestId } from '@pkgs/harness-report-shared/keys';
-import type { CommitEvent, CommitRecord, SourceRecord } from '@pkgs/harness-report-shared/protocol';
-import { SseDecoder } from '@pkgs/harness-report-shared/protocol';
+import type { ReportTestLoader, TestLoad } from './report-context';
 
 /** Wait before reconnecting a stream that failed. */
 const RETRY_MS = 3_000;

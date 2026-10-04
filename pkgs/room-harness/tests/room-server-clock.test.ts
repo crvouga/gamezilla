@@ -1,9 +1,5 @@
 import { expect, test } from 'bun:test';
-import {
-  addOneCommand,
-  connectPerson,
-  startServer,
-} from './server-rig';
+import { addOneCommand, connectPerson, startServer } from './server-rig';
 
 // regression: room-command-client-time
 test('the module and authorization receive server time despite an earlier client timestamp', async () => {

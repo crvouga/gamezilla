@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { containsBlockedTerm, normalizeForMatch } from '@pkgs/word-filter-shared/match';
+import {
+  containsBlockedTerm,
+  normalizeForMatch,
+} from '@pkgs/word-filter-shared/match';
 
 describe('normalizeForMatch', () => {
   test('folds case, leetspeak, accents and separators', () => {

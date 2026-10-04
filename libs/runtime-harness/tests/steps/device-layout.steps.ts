@@ -1,8 +1,13 @@
 import { expect } from 'bun:test';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { recall, remember } from '@libs/harness/spec-world';
-import { changeAvailableSpace, layoutControlsReachable, layoutPlaceAndPreferences, saveLayoutPreferences } from '@libs/runtime-harness/device-layout';
+import {
+  changeAvailableSpace,
+  layoutControlsReachable,
+  layoutPlaceAndPreferences,
+  saveLayoutPreferences,
+} from '@libs/runtime-harness/device-layout';
 
 Given('{actor} is using the app on a phone', async (w, actor: Actor) => {
   await w.s.apply(changeAvailableSpace, actor, 390, 844);

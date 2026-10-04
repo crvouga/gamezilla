@@ -1,19 +1,22 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { currentCorrelation, deserializeTraceContext } from '@pkgs/observability-shared/correlation';
-import { EVENT, events } from '@pkgs/observability-shared/events';
 import { SpanStatusCode, trace } from '@opentelemetry/api';
-import { withSpan } from '@pkgs/observability-shared/span';
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { mutationOriginLink } from '@pkgs/sync-engine-shared/mutation-observability';
-import { mutationAppliedId } from '@pkgs/sync-engine-shared/tables';
+import { ATTR } from '@pkgs/observability-shared/attributes';
 import {
-  parseStandardSchema,
-  schemaIssuesToFailures,
-} from '@pkgs/sync-engine-shared/standard-schema';
-import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
-import { isMutationError, mutationErrorToFailure } from '@pkgs/sync-engine-shared/failures';
+  currentCorrelation,
+  deserializeTraceContext,
+} from '@pkgs/observability-shared/correlation';
+import { EVENT, events } from '@pkgs/observability-shared/events';
+import { withSpan } from '@pkgs/observability-shared/span';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import {
+  isMutationError,
+  mutationErrorToFailure,
+} from '@pkgs/sync-engine-shared/failures';
+import {
+  managedInsertColumns,
+  managedUpdatedAtIso,
+} from '@pkgs/sync-engine-shared/managed-columns';
+import { mutationOriginLink } from '@pkgs/sync-engine-shared/mutation-observability';
 import type {
   MutationAuthorize,
   MutationEnv,
@@ -21,10 +24,13 @@ import type {
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
 import {
-  managedInsertColumns,
-  managedUpdatedAtIso,
-} from '@pkgs/sync-engine-shared/managed-columns';
+  parseStandardSchema,
+  schemaIssuesToFailures,
+} from '@pkgs/sync-engine-shared/standard-schema';
+import { mutationAppliedId } from '@pkgs/sync-engine-shared/tables';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
+import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { mapConstraintError } from './map-constraint-error';
 import { storedReplayVerdict } from './stored-replay-verdict';
 

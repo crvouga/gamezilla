@@ -1,3 +1,4 @@
+import { chessPuzzlesChannels } from '@libs/chess-shared/sync-topics';
 import sql from '@pkgs/sql-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { z } from 'zod';
@@ -5,7 +6,6 @@ import {
   PUZZLE_POOL_BAND_ROW_LIMIT,
   PUZZLE_POOL_RATING_CEILING,
 } from './chess-puzzle-feed-config';
-import { chessPuzzlesChannels } from '@libs/chess-shared/sync-topics';
 
 export const chessPuzzlePool = defineQuery({
   name: 'chessPuzzlePool',

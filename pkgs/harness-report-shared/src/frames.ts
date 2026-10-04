@@ -1,5 +1,9 @@
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportFrame, ReportSnapshotBlob, ReportStep } from '@pkgs/harness-shared/report-types';
+import type {
+  ReportFrame,
+  ReportSnapshotBlob,
+  ReportStep,
+} from '@pkgs/harness-shared/report-types';
 
 import type { Route } from './hash';
 

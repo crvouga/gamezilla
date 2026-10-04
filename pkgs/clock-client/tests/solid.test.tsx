@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider, useClock, useTimers } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { render, screen } from '@solidjs/testing-library';
 import { createSignal, onCleanup } from 'solid-js';
 

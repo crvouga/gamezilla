@@ -7,7 +7,19 @@
  * test (the random walk included) rather than a spec.
  */
 import { describe, expect, test } from 'bun:test';
-import { bumpEpoch, connect, corruptStore, fillPool, get, killTabAction, ownerId, ownerRows, put, sqlClientWeb, tabIdList } from '@pkgs/sql-client-harness/system';
+import {
+  bumpEpoch,
+  connect,
+  corruptStore,
+  fillPool,
+  get,
+  killTabAction,
+  ownerId,
+  ownerRows,
+  put,
+  sqlClientWeb,
+  tabIdList,
+} from '@pkgs/sql-client-harness/system';
 
 describe('sql-client web multi-tab system PBT', () => {
   test('check explores tabs, pool exhaustion, corruption, epochs', async () => {

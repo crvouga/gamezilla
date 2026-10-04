@@ -1,10 +1,10 @@
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { readFeedbackReport } from '@pkgs/feedback-shared/read-report';
 import type {
   FeedbackDocument,
   FeedbackWorkspacePort,
   FeedbackWorkspaceSnapshot,
 } from '@pkgs/feedback-shared/workspace';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 /** Platform journal adapter; the controller never reads browser storage. */
 export function createBrowserWorkspace(options: {

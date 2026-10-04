@@ -1,13 +1,13 @@
 import { expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
+import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { ChessPuzzleInteractionDb } from '@libs/chess-puzzle-client/chess-puzzle-interaction-db';
 import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { uniqueTables } from '@libs/permissions-shared/world';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 
 test('a failed result write leaves no half-finished attempt and retry counts once', async () => {

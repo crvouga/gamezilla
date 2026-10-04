@@ -3,9 +3,9 @@
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createCacheApiObjectStore } from '@pkgs/object-store-opfs-shared/impl-cache-api';
 import { createBrowserWorkspace } from './browser-workspace';
-import '@pkgs/tailwind/tailwind.css';
-import '@pkgs/ui/tokens.css';
-import '@pkgs/ui/base.css';
+import '@pkgs/tailwind-shared/tailwind.css';
+import '@pkgs/ui-client/tokens.css';
+import '@pkgs/ui-client/hosts.css';
 import { startFeedbackRuntime } from './feedback-runtime';
 import { HttpIssueReporter } from './http-issue-reporter';
 import { mountFeedback } from './mount-feedback';

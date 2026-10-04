@@ -1,13 +1,27 @@
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
-import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
-import { addClient, connect, disconnect, dispatch, serverCrash, serverRestart } from '@pkgs/room-harness/room-actions';
-import { deliverQueuedRoomChange, hearRoomChangeCounted, holdRoomChanges, pendingRoomChangeIds, roomChangeReceipts, stopAsRoomChangeCounts } from '@pkgs/room-harness/commit-recovery';
-import { exampleSystem } from '@pkgs/room-harness/system';
-import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { QueuedRoomChange } from '@pkgs/room-harness/commit-recovery';
-import { readServer } from '@pkgs/room-harness/read-state';
+import {
+  deliverQueuedRoomChange,
+  hearRoomChangeCounted,
+  holdRoomChanges,
+  pendingRoomChangeIds,
+  roomChangeReceipts,
+  stopAsRoomChangeCounts,
+} from '@pkgs/room-harness/commit-recovery';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
 import { serverCrashed } from '@pkgs/room-harness/observations';
+import { readServer } from '@pkgs/room-harness/read-state';
+import {
+  addClient,
+  connect,
+  disconnect,
+  dispatch,
+  serverCrash,
+  serverRestart,
+} from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
 import type { RoomTraceWorld } from './world';
 import { roomFingerprint, traceRoom } from './world';
 

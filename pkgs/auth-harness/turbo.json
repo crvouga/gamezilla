@@ -1,26 +1,15 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "check:models": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/auth/*.qnt"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/auth/*.qnt"]
     },
     "test:spec:0": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/auth/**"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/auth/**"]
     },
     "test": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/auth/*.qnt"
-      ]
+      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/auth/*.qnt"]
     }
   }
 }

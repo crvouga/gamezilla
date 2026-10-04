@@ -17,11 +17,14 @@ import type {
   Position,
   Square,
 } from '@pkgs/chess-board-core-shared/types';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
-
-import { BOARD_VIEW_BOX, CELL_UNITS, cellTransform } from '@pkgs/chess-board-shared/board-units';
-import styles from './chess-board.module.css';
+import {
+  BOARD_VIEW_BOX,
+  CELL_UNITS,
+  cellTransform,
+} from '@pkgs/chess-board-shared/board-units';
 import { bumpChessBoardRender } from '@pkgs/chess-board-shared/render-counts';
+import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import styles from './chess-board.module.css';
 import { HtmlPaintToken } from './paint-token';
 
 export type SquareWashKind = 'selected' | 'check' | 'premove' | 'last-move';

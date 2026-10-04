@@ -2,14 +2,19 @@ import { createAuthServerAdapter } from '@pkgs/auth-inhouse-server/create-auth-s
 import { reconcileIdpPostgres } from '@pkgs/auth-inhouse-server/reconcile-idp-postgres';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
 import type { Hono } from 'hono';
-
-import { APPLE_CLIENT_ID, AUTH_SYSTEM_BASE_URL, AUTH_SYSTEM_PATH_PREFIX, AUTH_SYSTEM_SECRET, buildExampleApp } from './relying-party';
 import { idpForUrl, startIdpNodes } from './providers';
+import {
+  APPLE_CLIENT_ID,
+  AUTH_SYSTEM_BASE_URL,
+  AUTH_SYSTEM_PATH_PREFIX,
+  AUTH_SYSTEM_SECRET,
+  buildExampleApp,
+} from './relying-party';
 import type { AuthFabric, AuthStore } from './types';
 
 function openSql(fabric: AuthFabric, seed: number): SqlClient {

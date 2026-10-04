@@ -3,10 +3,7 @@ import sql from '@pkgs/sql-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { z } from 'zod';
 import { spaceUserEntityId } from './participation-ids';
-import {
-  requireSpacePermission,
-  spaceIdArgs,
-} from './space-mutation-helpers';
+import { requireSpacePermission, spaceIdArgs } from './space-mutation-helpers';
 export const removeSpaceUserMutation = defineMutation({
   name: 'removeSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),

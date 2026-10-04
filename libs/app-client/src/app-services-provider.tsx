@@ -5,6 +5,7 @@
  * screens never need to guard on provider presence.
  */
 
+import { createAuthenticatedFetch } from '@libs/app-shared/create-authenticated-fetch';
 import { useClientRequestAuth } from '@libs/auth-client/use-client-request-auth';
 import { useHttpClient } from '@pkgs/http-client-client/solid';
 import { useKv } from '@pkgs/kv-client/solid';
@@ -13,7 +14,6 @@ import { ObjectStoreProvider } from '@pkgs/object-store-client/solid';
 import { TtsProvider } from '@pkgs/tts-client/solid';
 import type { JSX } from 'solid-js';
 import { useClientEnv } from './client-env-context';
-import { createAuthenticatedFetch } from '@libs/app-shared/create-authenticated-fetch';
 
 function AppLlm(props: { readonly children: JSX.Element }): JSX.Element {
   const env = useClientEnv();

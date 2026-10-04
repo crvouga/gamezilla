@@ -9,8 +9,14 @@ import '@libs/account-privacy-harness/privacy.steps';
 import '@libs/harness/platform';
 
 import { privacyTimePasses } from '@libs/account-privacy-harness/privacy-actions';
-import { makeMembershipPayment, pauseCancellation } from '@libs/billing-harness/account-privacy';
-import { openBilling, subscribeToPlus } from '@libs/billing-harness/billing-actions';
+import {
+  makeMembershipPayment,
+  pauseCancellation,
+} from '@libs/billing-harness/account-privacy';
+import {
+  openBilling,
+  subscribeToPlus,
+} from '@libs/billing-harness/billing-actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { Actor } from '@libs/harness/parameter-types';
 import { useHarnessWorld } from '@libs/harness/spec-world';

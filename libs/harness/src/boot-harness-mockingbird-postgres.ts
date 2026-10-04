@@ -15,7 +15,7 @@ import type { HarnessComposition } from './composition';
 import { compositionMigratePostgres } from './migrate-composition';
 import { harnessPostgresSeedFingerprintSource } from './postgres-seed-fingerprint';
 
-const REPO_ROOT = join(__dirname, '../../../..');
+const REPO_ROOT = join(__dirname, '../../..');
 
 /** The running package's cache: each test task writes only its own tree. */
 function cacheDir(): string {

@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-server/mockingbird-postgres-test-client';
+import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
+import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
 import { logicalTypeMatch } from '@pkgs/db-schema-shared/compatibility';
 import { defineSchema } from '@pkgs/db-schema-shared/define-schema';
 import { planServer } from '@pkgs/db-schema-shared/plan-server';
-import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
-import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
-import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-server/mockingbird-postgres-test-client';
 
 describe('postgres logical type vs physical catalog type', () => {
   test('logical integer matches bigint, not int4', () => {

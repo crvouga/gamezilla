@@ -37,10 +37,10 @@
  * `SET …` statements that need to persist across the seed's batches).
  *
  * Dev (secrets env `dev`, local `@pkgs/postgres-embedded` or resolved DATABASE_URL):
- *   SECRETS_ENV=dev bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @libs/chess-puzzle-server seed:puzzles
+ *   SECRETS_ENV=dev bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/chess-puzzle-server seed:puzzles
  *
  * Production (secrets env `prd`, `DATABASE_URL` → Postgres):
- *   SECRETS_ENV=prd bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @libs/chess-puzzle-server seed:puzzles
+ *   SECRETS_ENV=prd bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/chess-puzzle-server seed:puzzles
  *
  * Options: `--profile auto|fast|managed` (default `auto`), `--source`,
  *   `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,
@@ -51,33 +51,33 @@
  */
 
 import { join } from 'node:path';
+import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess-puzzle-shared/chess-puzzle-entities';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
-import { createLogger } from '@pkgs/logger-shared/logger';
 import type { Logger } from '@pkgs/logger-shared/logger';
+import { createLogger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
+import sql from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { CHESS_PUZZLE_LOAD_ENTITY_ID } from '@libs/chess-puzzle-shared/chess-puzzle-entities';
 import type { Cli } from './cli';
 import { parseCli } from './cli';
 import { PuzzleSnapshotIndexDeferral } from './defer-indexes';
-import { createSeedStats, PuzzleSeedFastPath } from './fast-path';
 import type { SeedStats } from './fast-path';
-import { formatProfileLabel, resolveSeedProfile } from './profile';
+import { createSeedStats, PuzzleSeedFastPath } from './fast-path';
 import type { ResolvedSeedProfile } from './profile';
+import { formatProfileLabel, resolveSeedProfile } from './profile';
 import { PuzzleIngestTally } from './puzzle-ingest';
 import type { IteratePuzzleRowsOptions } from './puzzle-row-iterator';
 import { PuzzleRowIterator } from './puzzle-row-iterator';
 import { PuzzleSeedReporter } from './reporter';
-import { PuzzleArchiveCache } from './streaming';
 import type { ResolvedSource } from './streaming';
+import { PuzzleArchiveCache } from './streaming';
 import { resolveToolingDatabaseUrl } from './tooling-database-url';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 type StreamContext = {
   cli: Cli;

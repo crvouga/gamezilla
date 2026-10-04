@@ -1,4 +1,8 @@
-import type { MembershipProviderEnv, MembershipProviderFetch, MembershipProviderModule } from '@pkgs/billing-shared/provider-module';
+import type {
+  MembershipProviderEnv,
+  MembershipProviderFetch,
+  MembershipProviderModule,
+} from '@pkgs/billing-shared/provider-module';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import { PLUS_MEMBERSHIP_OFFER } from './plus-membership-offer';
 import { readOfferCallbackUrl } from './read-offer-callback-url';
@@ -51,7 +55,7 @@ export async function syncBillingOffer(
   if (synced.length === 0) {
     const names = options.modules.flatMap((m) => m.secrets.map((s) => s.name));
     throw new Error(
-      `[billing sync] no billing provider credentials (${names.join(', ')}) — run under \`bun run libs/secrets-server/src/secrets-run.ts\``
+      `[billing sync] no billing provider credentials (${names.join(', ')}) — run under \`bun run libs/secrets-server/scripts/secrets-run.ts\``
     );
   }
 }

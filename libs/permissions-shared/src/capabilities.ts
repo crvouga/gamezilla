@@ -9,8 +9,8 @@
  * For tests and spec bindings only (a `root/` export).
  */
 
-import { ACTION, isQuotaAction, LIMIT, PERMISSION } from './permission-catalog';
 import type { AppGrantKey, AppLimit, AppPolicyKey } from './permission-catalog';
+import { ACTION, isQuotaAction, LIMIT, PERMISSION } from './permission-catalog';
 
 /** Everything the permission system decides about, by kind. */
 export type CatalogKey = AppPolicyKey | AppLimit;

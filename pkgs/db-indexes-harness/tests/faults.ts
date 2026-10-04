@@ -1,5 +1,5 @@
-import fc from 'fast-check';
 import type { HarnessFault } from '@pkgs/db-indexes-harness/db';
+import fc from 'fast-check';
 
 export type FaultScheduleItem = {
   readonly kind:

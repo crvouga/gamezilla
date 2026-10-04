@@ -3,10 +3,10 @@
 import { describe, expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
 import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
-import type { AudioPlaybackPort } from '@pkgs/sounds-shared/ports';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
+import type { AudioPlaybackPort } from '@pkgs/sounds-shared/ports';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { createSignal, Show } from 'solid-js';
 

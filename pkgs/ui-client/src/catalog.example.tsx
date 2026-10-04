@@ -1,9 +1,10 @@
 /** @jsxImportSource solid-js */
-import { createSignal, type JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
-import { CatalogDetail } from './catalog-detail';
+
 import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
+import { createSignal, type JSX } from 'solid-js';
+import { CatalogDetail } from './catalog-detail';
 import { CatalogList } from './catalog-list';
+import { ExampleRoot } from './example-root';
 
 const DEMO_ITEMS: readonly CatalogItem[] = [
   { id: 'button', label: 'Button', category: 'Inputs' },

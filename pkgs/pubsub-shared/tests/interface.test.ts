@@ -1,11 +1,19 @@
 import { describe, expect, test } from 'bun:test';
-import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { createNoopLogger } from '@pkgs/logger-shared/logger';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import { createInMemoryBus, createInMemoryPubSub, InMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
+import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import { runPubSubContractTests } from '@pkgs/pubsub-shared/contract';
-import { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from '@pkgs/pubsub-shared/payload';
+import {
+  createInMemoryBus,
+  createInMemoryPubSub,
+  InMemoryPubSub,
+} from '@pkgs/pubsub-shared/in-memory';
+import {
+  decodePayload,
+  encodePayload,
+  PAYLOAD_MAX_BYTES,
+} from '@pkgs/pubsub-shared/payload';
 import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
 
 const logger = createNoopLogger();

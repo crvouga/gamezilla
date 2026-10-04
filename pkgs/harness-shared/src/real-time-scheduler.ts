@@ -1,8 +1,8 @@
 // @io-wall-ok — wall-clock scheduler for realTimeRuntime
 import type { VirtualClock } from './clock';
-import type { TaskBody } from './scheduler-types';
 import type { Scheduler as VirtualScheduler } from './scheduler';
 import type { Scheduler } from './scheduler-api';
+import type { TaskBody } from './scheduler-types';
 
 /** Wall time passes at its own pace: it cannot jump ahead of the work. */
 function cannotSleep(): Promise<void> {

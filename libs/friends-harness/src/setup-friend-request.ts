@@ -1,7 +1,7 @@
-import { backToTabs } from '@libs/harness/shell-actions';
-import { signedInAccountOf } from '@libs/harness/identity';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
+import { signedInAccountOf } from '@libs/harness/identity';
+import { backToTabs } from '@libs/harness/shell-actions';
 import {
   openProfileEdit,
   setUsername,

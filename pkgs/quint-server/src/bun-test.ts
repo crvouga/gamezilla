@@ -13,21 +13,25 @@
 import { describe, test } from 'bun:test';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
-
-import { registerModelChecks } from './model-checks';
-import { decide, modelEvidence } from './model-evidence';
-import type { RecordObligation } from './model-evidence';
-import { DEFAULT_MAX_STEPS, DEFAULT_TRACES, quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
 import type { QuintBinding, TraceContext } from '@pkgs/quint-shared/registry';
-import { registerRegressionTraces } from './regression-tests';
+import {
+  DEFAULT_MAX_STEPS,
+  DEFAULT_TRACES,
+  quintBinding,
+  quintWorld,
+} from '@pkgs/quint-shared/registry';
 import {
   describeStep,
   replayTrace,
   replayTraceTwice,
   untakenActions,
 } from '@pkgs/quint-shared/replay';
-import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
+import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
+import { registerModelChecks } from './model-checks';
+import type { RecordObligation } from './model-evidence';
+import { decide, modelEvidence } from './model-evidence';
+import { registerRegressionTraces } from './regression-tests';
 import { simulate } from './simulate';
 
 export type RunModelOptions = {

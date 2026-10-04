@@ -2,7 +2,6 @@
   "name": "@pkgs/assert-crash-browser-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -19,5 +18,6 @@
     "@pkgs/assert-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "category": "client"
 }

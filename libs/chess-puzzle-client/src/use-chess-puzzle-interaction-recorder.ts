@@ -1,13 +1,12 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { hasPendingPlay } from '@libs/chess-puzzle-shared/chess-puzzle-derive';
+import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+import { CHESS_PUZZLE_INTERACTION_KIND } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+import { syncInteractionForRoomStatus } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-status-sync';
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import { useLogger } from '@pkgs/logger-client/solid';
 import { type Accessor, createEffect, untrack } from 'solid-js';
-
-import { hasPendingPlay } from '@libs/chess-puzzle-shared/chess-puzzle-derive';
-import { CHESS_PUZZLE_INTERACTION_KIND } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { syncInteractionForRoomStatus } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-status-sync';
 import { useChessPuzzleInteractionWrites } from './use-chess-puzzle-interaction-writes';
 
 export type InteractionRecorderArgs = {

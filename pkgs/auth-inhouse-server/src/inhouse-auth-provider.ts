@@ -5,12 +5,16 @@
  * along as {@link AuthProvider.handler}) and to keep its tables in the
  * product's Postgres (`idp_*`), but the product reads neither directly.
  */
-import type { AuthProvider, AuthProviderEnv, AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
-import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
-import { Hono } from 'hono';
 
 import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
 import { buildAuthTrustedOrigins } from '@pkgs/auth-inhouse-shared/trusted-origins';
+import type {
+  AuthProvider,
+  AuthProviderEnv,
+  AuthProviderModule,
+} from '@pkgs/auth-shared/auth-provider-module';
+import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
+import { Hono } from 'hono';
 import { createAuthApp } from './create-auth-app';
 import { createAuthServerAdapter } from './create-auth-server-adapter';
 import { readInhouseAuthConfig } from './inhouse-auth-config';

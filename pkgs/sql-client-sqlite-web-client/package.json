@@ -2,7 +2,6 @@
   "name": "@pkgs/sql-client-sqlite-web-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "type": "module",
   "exports": {
     "./*": [
@@ -28,5 +27,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

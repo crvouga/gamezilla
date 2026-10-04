@@ -1,11 +1,11 @@
 import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
 import { createSignal } from 'solid-js';
-import { closeSpaceDetail } from './space-routes';
+import { ActiveSpaceBody } from './active-space-body';
 import { useRequestEndSpace } from './end-space-modal-provider';
 import { useRequestLeaveSpace } from './leave-space-modal-provider';
 import { RenameSpaceModal } from './rename-space-modal';
-import { ActiveSpaceBody } from './active-space-body';
+import { closeSpaceDetail } from './space-routes';
 
 export type ActiveSpaceProps = {
   spaceId: string;

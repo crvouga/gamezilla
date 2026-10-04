@@ -32,7 +32,10 @@ import { fail } from './tofu-process';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const PKG_DIR = join(import.meta.dirname, '..');
-const SECRETS_RUN = join(REPO_ROOT, 'libs/secrets-server/src/secrets-run.ts');
+const SECRETS_RUN = join(
+  REPO_ROOT,
+  'libs/secrets-server/scripts/secrets-run.ts'
+);
 // secrets-run starts every child at the repo root, so scripts are passed by
 // absolute path.
 

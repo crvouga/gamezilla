@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { FRIENDS_TABLES } from '@libs/friends-shared/tables';
 import { FRIENDS_QUERIES } from '@libs/friends-shared/queries';
+import { FRIENDS_TABLES } from '@libs/friends-shared/tables';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import type { Sql } from '@pkgs/sql-shared/sql';

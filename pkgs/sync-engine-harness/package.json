@@ -2,7 +2,6 @@
   "name": "@pkgs/sync-engine-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "sideEffects": false,
   "exports": {
     "./*": [
@@ -11,10 +10,6 @@
       "./src/*.d.ts"
     ]
   },
-  "specDomains": [
-    "sync-engine"
-  ],
-  "specParts": 4,
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -55,5 +50,10 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness",
+  "specDomains": [
+    "sync-engine"
+  ],
+  "specParts": 4
 }

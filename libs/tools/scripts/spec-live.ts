@@ -6,8 +6,8 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { parseFeature } from '@pkgs/gherkin-shared/parse';
 import type { SpecFeature } from '@pkgs/gherkin-shared/parse';
+import { parseFeature } from '@pkgs/gherkin-shared/parse';
 import { SYNTHETIC_TAG } from '@pkgs/gherkin-shared/tags';
 import { isLiveObjectiveSource } from '@pkgs/openslo-shared/live';
 

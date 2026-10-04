@@ -1,10 +1,16 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
-import { SchemePreview } from './scheme-preview';
-import { ChevronRightIcon, LightbulbIcon, LogOutIcon, SettingsIcon, ShareIcon } from './icons';
 import { BottomActionBar } from './bottom-action-bar';
 import type { BottomActionBarItem } from './bottom-action-bar-types';
+import { ExampleRoot } from './example-root';
+import {
+  ChevronRightIcon,
+  LightbulbIcon,
+  LogOutIcon,
+  SettingsIcon,
+  ShareIcon,
+} from './icons';
+import { SchemePreview } from './scheme-preview';
 
 const noop = (): void => undefined;
 

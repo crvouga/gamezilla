@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import { openSettings } from '@libs/harness/shell-actions';
 import type { ProductHarness } from '@libs/harness/harness';
+import { openSettings } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { KvProvider } from '@pkgs/kv-client/solid';

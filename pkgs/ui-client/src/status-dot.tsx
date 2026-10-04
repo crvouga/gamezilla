@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `StatusDot` -- small colored circle indicating a status.
  *
@@ -10,9 +11,9 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
 
 export type StatusDotStatus = 'online' | 'offline' | 'warning' | 'pending';
 

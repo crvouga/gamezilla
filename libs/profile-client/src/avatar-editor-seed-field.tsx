@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
-import { CircleCheckIcon, CopyIcon, ShuffleIcon } from '@pkgs/ui-client/icons';
 import { IconButton } from '@pkgs/ui-client/icon-button';
+import { CircleCheckIcon, CopyIcon, ShuffleIcon } from '@pkgs/ui-client/icons';
 import { PickerSection } from '@pkgs/ui-client/picker-section';
 import { TextInput } from '@pkgs/ui-client/text-input';
 import type { JSX } from 'solid-js';

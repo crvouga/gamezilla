@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `SegmentedControl` -- horizontal tab-like mode switcher.
  *
@@ -21,9 +22,9 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
-import { For, type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { For, type JSX, Show } from 'solid-js';
 
 export type Segment<K extends string = string> = {
   key: K;

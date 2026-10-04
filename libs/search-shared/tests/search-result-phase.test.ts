@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { peopleSearchShowsAnswer, searchResultPhase } from '@libs/search-shared/search-result-phase';
+import {
+  peopleSearchShowsAnswer,
+  searchResultPhase,
+} from '@libs/search-shared/search-result-phase';
 
 const hidden = {
   loading: false,

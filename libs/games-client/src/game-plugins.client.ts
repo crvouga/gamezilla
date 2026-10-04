@@ -1,8 +1,10 @@
 import { chessGameClient } from '@libs/chess-client/chess-game-def';
-import type { GameClientDefinition } from '@libs/spaces-shared/game';
-import { assertGameRegistry, assertMatchingGameIds } from '@libs/spaces-shared/load-game-plugins';
-
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
+import type { GameClientDefinition } from '@libs/spaces-shared/game';
+import {
+  assertGameRegistry,
+  assertMatchingGameIds,
+} from '@libs/spaces-shared/load-game-plugins';
 
 /**
  * Client UI definitions for each game in {@link GAME_DEFINITIONS}.

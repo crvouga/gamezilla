@@ -4,9 +4,21 @@ import { redo, undo } from 'prosemirror-history';
 import type { Command } from 'prosemirror-state';
 import { For } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { IconButton } from './icon-button';
-import { BoldIcon, CodeIcon, Heading2Icon, ItalicIcon, LinkIcon, ListIcon, ListOrderedIcon, PilcrowIcon, QuoteIcon, RedoIcon, UndoIcon } from './icons';
 import { editorFormats } from './editor-commands';
+import { IconButton } from './icon-button';
+import {
+  BoldIcon,
+  CodeIcon,
+  Heading2Icon,
+  ItalicIcon,
+  LinkIcon,
+  ListIcon,
+  ListOrderedIcon,
+  PilcrowIcon,
+  QuoteIcon,
+  RedoIcon,
+  UndoIcon,
+} from './icons';
 
 const formatIcons = [
   BoldIcon,

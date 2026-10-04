@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import {
+  createHarnessIds,
+  createSeededCreateId,
+} from '@pkgs/uuid-shared/seeded-create-id';
 import { assertUuid, isUuid } from '@pkgs/uuid-shared/uuid';
-import { createHarnessIds, createSeededCreateId } from '@pkgs/uuid-shared/seeded-create-id';
 import { createUuidV7 } from '@pkgs/uuid-shared/uuid-v7';
 import fc from 'fast-check';
 

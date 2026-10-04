@@ -1,9 +1,8 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { ident, join } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { QueryRow } from './v2';
+import sql, { ident, join } from '@pkgs/sql-shared/sql';
 import { MAX_FANOUT_BYTES, MAX_FANOUT_ROWS } from './bounds';
+import type { QueryRow } from './v2';
 
 const MAX_SQLITE_VARS = 999;
 

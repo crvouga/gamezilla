@@ -15,6 +15,8 @@ export async function loadSolidDomSessionFactory(): Promise<MultiAppSolidDomSess
       'inProcessRuntime: Solid DOM session requires a `document` (bun:test preload installs happy-dom)'
     );
   }
-  const mod = await import('@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session');
+  const mod = await import(
+    '@pkgs/ui-testing-solid-dom-client/multi-app-solid-dom-session'
+  );
   return mod.createMultiAppSolidDomSession;
 }

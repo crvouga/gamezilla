@@ -5,10 +5,10 @@
  */
 
 import { APP_VERSION } from '@libs/app-shared/app-metadata';
-import { actorHtml, nodeText } from '@libs/harness/observations';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
-import { backToTabs, openSettings } from '@libs/harness/shell-actions';
 import type { ProductHarness } from '@libs/harness/harness';
+import { actorHtml, nodeText } from '@libs/harness/observations';
+import { backToTabs, openSettings } from '@libs/harness/shell-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 
 const WAIT_MS = 15_000;

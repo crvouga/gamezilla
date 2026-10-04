@@ -1,6 +1,6 @@
+import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
 import type { ProductHarness } from '@libs/harness/harness';
 import sql from '@pkgs/sql-shared/sql';
-import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
 
 /** The acknowledged game record, also retained when its space has ended. */
 export function readStoredCustomGames(s: ProductHarness, spaceId: string) {

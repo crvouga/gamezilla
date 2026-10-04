@@ -3,10 +3,7 @@ import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { OauthCallbackRelay } from './oauth-callback-relay';
-import type {
-  OauthProviders,
-  OauthProvidersConfig,
-} from './registry';
+import type { OauthProviders, OauthProvidersConfig } from './registry';
 import type { SyntheticMonitorConfig } from './synthetic-monitor';
 
 export type CreateAuthAppProviders = OauthProvidersConfig;

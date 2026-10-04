@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyCompletion, completeAt } from '@pkgs/harness-console-client/sql-completion';
+import {
+  applyCompletion,
+  completeAt,
+} from '@pkgs/harness-console-client/sql-completion';
 
 describe('completeAt', () => {
   const catalog = {

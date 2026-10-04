@@ -29,7 +29,9 @@
     "@pkgs/feedback-client": "workspace:*",
     "@pkgs/observability-client": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@pkgs/tailwind-shared": "workspace:*",
+    "@pkgs/ui-client": "workspace:*"
   },
   "devDependencies": {
     "@libs/app-config-shared": "workspace:*",
@@ -51,7 +53,8 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
-    "workbox-build": "catalog:"
+    "workbox-build": "catalog:",
+    "@pkgs/feedback-server": "workspace:*"
   },
   "category": "client"
 }

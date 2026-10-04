@@ -1,5 +1,5 @@
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { activePartitionId } from './tables';
 
 export async function lockPartition(

@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { Hono } from 'hono';
-import { createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse-client/in-process-open-auth-session';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
 import { googleEndpointsFor } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import { reconcileIdpPostgres } from '@pkgs/auth-inhouse-server/reconcile-idp-postgres';
+import { createInMemoryAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
+import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import { Hono } from 'hono';
 import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 
 const BASE_URL = 'http://harness.local';

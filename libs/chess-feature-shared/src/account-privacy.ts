@@ -1,10 +1,10 @@
-import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import { snapshotCustomGames } from '@libs/chess-custom-game-shared/custom-game-export';
 import {
   eraseMultiplayer,
   withdrawMultiplayer,
 } from '@libs/chess-matchmaking-shared/account-privacy';
-import { snapshotCustomGames } from '@libs/chess-custom-game-shared/custom-game-export';
+import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 
 const PERSONAL_TABLES = [
   'chess_multiplayer_players',

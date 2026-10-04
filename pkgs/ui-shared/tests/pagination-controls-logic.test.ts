@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { buildPaginationWindow, paginationWindowItemKey } from '@pkgs/ui-shared/build-pagination-window';
 import type { PaginationWindowItem } from '@pkgs/ui-shared/build-pagination-window';
+import {
+  buildPaginationWindow,
+  paginationWindowItemKey,
+} from '@pkgs/ui-shared/build-pagination-window';
 
 const pages = (items: readonly PaginationWindowItem[]) =>
   items.map((i) => (i.type === 'page' ? i.pageIndex : `…${i.id}`));

@@ -6,8 +6,8 @@
  */
 
 import type { Names } from '@libs/harness/snapshot-worlds';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 export type Pair = readonly [string, string];
 

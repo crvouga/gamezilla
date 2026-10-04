@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'bun:test';
 import { CombinedSecretStore } from '@pkgs/secret-store-shared/combined-secret-store';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
-import { wrapSecret, wrapSecretOptional } from '@pkgs/secret-store-shared/wrap-secret';
+import {
+  wrapSecret,
+  wrapSecretOptional,
+} from '@pkgs/secret-store-shared/wrap-secret';
 
 type WritableMockStore = SecretStore & {
   readonly writes: ReadonlyArray<{

@@ -2,7 +2,6 @@
   "name": "@pkgs/sync-engine-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "sideEffects": false,
   "exports": {
     "./*": [
@@ -39,5 +38,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

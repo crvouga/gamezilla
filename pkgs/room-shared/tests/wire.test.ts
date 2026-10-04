@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { parseClientToServerWire, parseServerToClientWire, ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import {
+  parseClientToServerWire,
+  parseServerToClientWire,
+  ROOM_WIRE_KIND,
+  WIRE_VERSION,
+} from '@pkgs/room-shared/wire';
 
 const entry = {
   seq: 1,

@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 
 import type { GameDefinition } from '@libs/spaces-shared/game';
-import { assertGameRegistry, assertMatchingGameIds, composeSpaceRoomModule } from '@libs/spaces-shared/load-game-plugins';
+import {
+  assertGameRegistry,
+  assertMatchingGameIds,
+  composeSpaceRoomModule,
+} from '@libs/spaces-shared/load-game-plugins';
 
 /** A game with no routers: the thinnest definition the registry accepts. */
 function dummyGame(id: string): GameDefinition {

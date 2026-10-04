@@ -1,6 +1,17 @@
 import type { CustomGameChoice } from './custom-game-choice';
-import { BOT_CUSTOM_GAME_SIDE, CLOSED_CUSTOM_GAME_SIDE, CUSTOM_GAME_SIDES, customGamePersonSide, newCustomGame, OPEN_CUSTOM_GAME_SIDE } from './custom-game-state';
-import type { CustomGame, CustomGameParticipant, CustomGameSide } from './custom-game-state';
+import type {
+  CustomGame,
+  CustomGameParticipant,
+  CustomGameSide,
+} from './custom-game-state';
+import {
+  BOT_CUSTOM_GAME_SIDE,
+  CLOSED_CUSTOM_GAME_SIDE,
+  CUSTOM_GAME_SIDES,
+  customGamePersonSide,
+  newCustomGame,
+  OPEN_CUSTOM_GAME_SIDE,
+} from './custom-game-state';
 
 export function replaceCustomGameSide(
   game: CustomGame,

@@ -1,11 +1,21 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared/create-memory-page-loader';
 import { DataTable } from '@pkgs/ui-devtools-client/data-table';
-import type { DataTableColumn, DataTableLoadPage } from '@pkgs/ui-devtools-shared/data-table-types';
-import { pageCacheKey, resolveColumnLayout } from '@pkgs/ui-devtools-shared/data-table-metrics';
-import { pageSelectionState, setPageKeysSelected, toggleSelectedKey } from '@pkgs/ui-devtools-shared/data-table-selection';
+import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared/create-memory-page-loader';
+import {
+  pageCacheKey,
+  resolveColumnLayout,
+} from '@pkgs/ui-devtools-shared/data-table-metrics';
+import {
+  pageSelectionState,
+  setPageKeysSelected,
+  toggleSelectedKey,
+} from '@pkgs/ui-devtools-shared/data-table-selection';
+import type {
+  DataTableColumn,
+  DataTableLoadPage,
+} from '@pkgs/ui-devtools-shared/data-table-types';
 import { fireEvent, screen, waitFor } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { renderUi } from './render';

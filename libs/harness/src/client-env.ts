@@ -3,10 +3,10 @@
  * it never holds a direct handle to a server instance.
  */
 
-import { setPendingSignupUsername } from '@libs/auth-shared/pending-signup-username';
 import type { ClientEnv } from '@libs/app-client/client-env';
 import { createInMemoryClientPorts } from '@libs/app-client/in-memory-client-ports';
 import { setOriginAvailability } from '@libs/app-client/origin-availability-for-env';
+import { setPendingSignupUsername } from '@libs/auth-shared/pending-signup-username';
 import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth-inhouse-shared/bearer-token-store';
@@ -22,16 +22,16 @@ import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-sto
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web-shared/impl-web';
 import { createSeededCreateId } from '@pkgs/uuid-shared/seeded-create-id';
 import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
-import type { HarnessComposition, HarnessRoomNode } from './composition';
-import { accountReadyDelayFetch } from './account-ready-delay';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
-import { appBuildFetch } from './app-build';
+import { accountReadyDelayFetch } from './account-ready-delay';
 import type { HarnessAppBuilds } from './app-build';
+import { appBuildFetch } from './app-build';
 import type { HarnessBillingProviders } from './billing';
-import { createHarnessBrowser } from './browser';
 import type { HarnessBrowser } from './browser';
+import { createHarnessBrowser } from './browser';
 import { harnessClientServerFetch } from './client-server-fetch';
 import { harnessClientSql } from './client-sql';
+import type { HarnessComposition, HarnessRoomNode } from './composition';
 import type { HarnessIdps } from './idp';
 import { harnessBrowserFetch } from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';

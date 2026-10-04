@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import type { AwsSession } from '@libs/infra-shared/aws-session';
-import { missingSecretsMessage, tofuEnvironment } from '@libs/infra-shared/tofu-command';
+import {
+  missingSecretsMessage,
+  tofuEnvironment,
+} from '@libs/infra-shared/tofu-command';
 
 const PATHS = { tofuDir: '/tofu', cacheDir: '/cache' };
 const foundation = { stack: 'foundation' as const, env: 'dev' };

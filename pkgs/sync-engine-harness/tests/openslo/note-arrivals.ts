@@ -8,14 +8,24 @@
  */
 
 import type { Run } from '@pkgs/harness-shared/run-types';
-import { addClient, mutate } from '@pkgs/sync-engine-harness/regression-actions';
-import { clock, subscribedTopics } from '@pkgs/sync-engine-harness/sync-observations';
-import { createSpace, joinSpace, setSpaceNote } from '@pkgs/sync-engine-harness/membership-mutations';
-import { hasTopic, liveNote } from '@pkgs/sync-engine-harness/reads';
-import { netSet } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
-import { roomTopic } from '@pkgs/sync-engine-harness/topics';
+import {
+  createSpace,
+  joinSpace,
+  setSpaceNote,
+} from '@pkgs/sync-engine-harness/membership-mutations';
 import { SPACE_MEMBERSHIP_SESSION } from '@pkgs/sync-engine-harness/membership-query';
+import { hasTopic, liveNote } from '@pkgs/sync-engine-harness/reads';
+import {
+  addClient,
+  mutate,
+} from '@pkgs/sync-engine-harness/regression-actions';
+import { netSet } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import type { SyncHarness } from '@pkgs/sync-engine-harness/scenario-system';
+import {
+  clock,
+  subscribedTopics,
+} from '@pkgs/sync-engine-harness/sync-observations';
+import { roomTopic } from '@pkgs/sync-engine-harness/topics';
 
 /** The same network model as "Notes arrive quickly". */
 const SLOW = {

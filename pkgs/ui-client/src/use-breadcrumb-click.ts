@@ -6,10 +6,10 @@
  * so screens driven purely by `onClick` never need an `AppRouterProvider`.
  */
 
-import { type Accessor, untrack } from 'solid-js';
 import type { Href } from '@pkgs/ui-shared/href';
-import { useBreadcrumbNav } from './use-breadcrumb-nav';
+import { type Accessor, untrack } from 'solid-js';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';
+import { useBreadcrumbNav } from './use-breadcrumb-nav';
 
 export type BreadcrumbClickResolver = (
   crumb: ScreenBaseBreadcrumb

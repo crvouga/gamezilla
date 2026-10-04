@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { LogEntry } from '@pkgs/room-shared/types';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared/client-storage';
+import type { LogEntry } from '@pkgs/room-shared/types';
 
 function entry(seq: number): LogEntry {
   return { seq, event: { type: 'evt/x' as never, payload: seq } };

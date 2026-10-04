@@ -1,6 +1,6 @@
 import { cliHttp } from './cli-io';
-import { requireNonEmpty, Secret } from './secret';
 import type { SecretInput } from './secret';
+import { requireNonEmpty, Secret } from './secret';
 
 /** Self-hosted Turborepo remote cache origin (no trailing slash). */
 export const DEFAULT_TURBO_API = 'https://turborepo.chrisvouga.dev';

@@ -3,8 +3,8 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { CURATED_SOUNDS } from './curate-mapping';
 import type { CuratedSound } from './curate-mapping';
+import { CURATED_SOUNDS } from './curate-mapping';
 
 const log = createLogger({ name: 'sounds:curate', now: wallClock.now });
 

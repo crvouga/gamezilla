@@ -1,5 +1,5 @@
-import { byKind, issue } from './shape-model';
 import type { ModelShapeIssue, ParsedModel } from './shape-model';
+import { byKind, issue } from './shape-model';
 
 /** Operators inside a parenthesized value cannot become action guards. */
 function outerExpression(source: string): string {

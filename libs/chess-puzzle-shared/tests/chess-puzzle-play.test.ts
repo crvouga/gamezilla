@@ -1,10 +1,27 @@
 import { describe, expect, test } from 'bun:test';
 import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
-import { CHESS_PUZZLE_PLAY_STATUS, ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ClearChessPuzzlePlay, ClearChessPuzzleRecommendation, ReclaimChessPuzzlePlay, RecommendChessPuzzleMove, RequestChessPuzzleHint, ResetChessPuzzlePlay, RevealChessPuzzleSolution, SeekChessPuzzlePlay, SkipChessPuzzlePlay, StartChessPuzzlePlay, StepBackChessPuzzlePlay, StepForwardChessPuzzlePlay, SubmitChessPuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+import {
+  CHESS_PUZZLE_PLAY_STATUS,
+  ChessPuzzlePlayAttr,
+} from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import {
+  ClearChessPuzzlePlay,
+  ClearChessPuzzleRecommendation,
+  ReclaimChessPuzzlePlay,
+  RecommendChessPuzzleMove,
+  RequestChessPuzzleHint,
+  ResetChessPuzzlePlay,
+  RevealChessPuzzleSolution,
+  SeekChessPuzzlePlay,
+  SkipChessPuzzlePlay,
+  StartChessPuzzlePlay,
+  StepBackChessPuzzlePlay,
+  StepForwardChessPuzzlePlay,
+  SubmitChessPuzzleMove,
+} from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { CHESS_PUZZLE_MAX_RECOMMENDATIONS } from '@libs/chess-puzzle-shared/recommendations';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 import type { RoomCommand, RoomState } from '@pkgs/room-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 
 const ChessModule = createChessModule(() => 0);
 

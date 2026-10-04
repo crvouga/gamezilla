@@ -1,7 +1,21 @@
 import { bindQuintModel, setQuintWorld } from '@pkgs/quint-shared/registry';
-
-import { addDetail, cellsMap, columnPick, copyDetail, createSafetyWorld, dropRefused, fillBlank, forgetRefused, renameRefused, resetSafetyWorld, retireDetail, retypeRefused, retypeTombstoneRefused, typePick } from './schema-safety-world';
 import type { SafetyWorld } from './schema-safety-world';
+import {
+  addDetail,
+  cellsMap,
+  columnPick,
+  copyDetail,
+  createSafetyWorld,
+  dropRefused,
+  fillBlank,
+  forgetRefused,
+  renameRefused,
+  resetSafetyWorld,
+  retireDetail,
+  retypeRefused,
+  retypeTombstoneRefused,
+  typePick,
+} from './schema-safety-world';
 
 setQuintWorld<SafetyWorld>({
   create: async () => createSafetyWorld(),

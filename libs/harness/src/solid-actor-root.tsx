@@ -10,10 +10,7 @@
  * It is also how the actor opens a link (`HarnessActor.openLink`).
  */
 
-import type {
-  Client,
-  ClientAppProps,
-} from '@libs/app-client/create-client';
+import type { Client, ClientAppProps } from '@libs/app-client/create-client';
 import { TestViewportProvider } from '@pkgs/ui-client/test-viewport';
 import type { MemoryHistory } from '@solidjs/router';
 import type { Component, JSX } from 'solid-js';

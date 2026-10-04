@@ -17,14 +17,20 @@ import type { FeatureClient } from '@libs/feature-client/client';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { FeatureServer, RoomGrantsCtx } from '@libs/feature-shared/server';
 import type { EnvTime } from '@libs/feature-shared/sync';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
 import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
-import type { CatalogAction, CatalogProperty } from '@pkgs/harness-shared/effect';
-import type { RoomActor, RoomState } from '@pkgs/room-shared/types';
+import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type {
+  CatalogAction,
+  CatalogProperty,
+} from '@pkgs/harness-shared/effect';
+import type {
+  RoomStorageTopicReplace,
+  RoomStorageTopicSnapshot,
+} from '@pkgs/room-adapter-memory-shared/room-storage';
 import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import type { RoomStorageTopicReplace, RoomStorageTopicSnapshot } from '@pkgs/room-adapter-memory-shared/room-storage';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { RoomActor, RoomState } from '@pkgs/room-shared/types';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 
 import type { ProductHarness } from './harness';
 

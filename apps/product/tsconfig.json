@@ -13,9 +13,6 @@
     "./vite.config.mts"
   ],
   "compilerOptions": {
-    "types": [
-      "bun",
-      "node"
-    ]
+    "types": ["bun", "node"]
   }
 }

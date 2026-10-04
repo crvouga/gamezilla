@@ -3,15 +3,18 @@
  * bindings by name — the same way a hosted auth service's adapter would read
  * its API keys. Nothing outside this package knows these names or shapes.
  */
-import { AuthProviderConfigError } from '@pkgs/auth-shared/auth-provider-module';
-import type { AuthProviderEnv } from '@pkgs/auth-shared/auth-provider-module';
 
-import type { AppleOauthEndpoints, GoogleOauthEndpoints } from '@pkgs/auth-inhouse-shared/auth-constants';
+import type {
+  AppleOauthEndpoints,
+  GoogleOauthEndpoints,
+} from '@pkgs/auth-inhouse-shared/auth-constants';
 import { GOOGLE_PRODUCTION_ENDPOINTS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
+import type { AuthProviderEnv } from '@pkgs/auth-shared/auth-provider-module';
+import { AuthProviderConfigError } from '@pkgs/auth-shared/auth-provider-module';
+import type { AppleProviderConfig } from './apple-oauth';
 import type { OauthCallbackRelay } from './oauth-callback-relay';
 import { STATE_TAG_PATTERN } from './oauth-callback-relay';
-import type { AppleProviderConfig } from './apple-oauth';
 import type { OauthProvidersConfig } from './registry';
 import type { SyntheticMonitorConfig } from './synthetic-monitor';
 

@@ -5,7 +5,10 @@
  */
 import { describe, expect, test } from 'bun:test';
 
-import { decideJoin, isSpaceHostActor } from '@libs/spaces-shared/space-participation-policy';
+import {
+  decideJoin,
+  isSpaceHostActor,
+} from '@libs/spaces-shared/space-participation-policy';
 
 const base = {
   visibility: 'public' as const,

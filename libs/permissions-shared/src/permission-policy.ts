@@ -1,9 +1,12 @@
-import { definePolicy } from '@pkgs/permissions-shared/policy';
 import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
+import { definePolicy } from '@pkgs/permissions-shared/policy';
 import type { QuotaGrant } from '@pkgs/permissions-shared/quota-window';
-
+import type {
+  AppLimit,
+  AppPermission,
+  AppPolicyKey,
+} from './permission-catalog';
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
-import type { AppLimit, AppPermission, AppPolicyKey } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
 export const PERMISSION_POLICY_VERSION = '2026-10-02.1';

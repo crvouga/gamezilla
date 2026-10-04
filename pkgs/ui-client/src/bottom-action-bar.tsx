@@ -7,8 +7,8 @@
  * chrome — no surface fill or hairline (page background shows through).
  */
 
-import { For, type JSX, Match, Switch } from 'solid-js';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { For, type JSX, Match, Switch } from 'solid-js';
 import {
   BottomActionBarAction,
   BottomActionBarButton,

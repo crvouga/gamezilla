@@ -2,7 +2,6 @@
   "name": "@pkgs/room-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -28,5 +27,6 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

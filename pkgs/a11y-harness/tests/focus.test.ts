@@ -1,7 +1,12 @@
 /** The sequential focus order on hand-picked pages (HTML § 6.6.3). */
 
 import { describe, expect, test } from 'bun:test';
-import { isFocusable, nextInFocusOrder, parseTabIndex, sequentialFocusOrder } from '@pkgs/a11y-shared/focus';
+import {
+  isFocusable,
+  nextInFocusOrder,
+  parseTabIndex,
+  sequentialFocusOrder,
+} from '@pkgs/a11y-shared/focus';
 import { byId, page } from './dom';
 
 function ids(elements: readonly Element[]): string[] {

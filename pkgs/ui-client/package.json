@@ -2,23 +2,25 @@
   "name": "@pkgs/ui-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
-  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
-    ]
+    ],
+    "./*.css": "./src/*.css"
   },
   "scripts": {
     "codemod": "bun run codemod/cli-io.ts",
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts && bun run tokens:check",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --parallel tests codemod/tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --parallel tests codemod/tests",
+    "tokens:check": "bun run scripts/generate-tokens-css.ts --check",
+    "tokens:generate": "bun run scripts/generate-tokens-css.ts"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -56,5 +58,6 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

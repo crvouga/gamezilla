@@ -7,20 +7,20 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { ErrorState } from './error-state';
-import { LoadingState } from './loading-state';
-import { ModalButton, ModalFooter } from './modal-parts';
-import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
 import type { ComboboxKeyEvent } from '@pkgs/ui-shared/combobox-key-nav';
-import { ComboboxList, comboboxOptionId } from './combobox-list';
-import { ComboboxSearch } from './combobox-search';
 import type {
   ComboboxOption,
   ComboboxRenderOption,
   ComboboxValue,
 } from '@pkgs/ui-shared/combobox-types';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
+import { type JSX, Show } from 'solid-js';
+import { ComboboxList, comboboxOptionId } from './combobox-list';
+import { ComboboxSearch } from './combobox-search';
+import { ErrorState } from './error-state';
+import { LoadingState } from './loading-state';
+import { ModalButton, ModalFooter } from './modal-parts';
 
 export type ComboboxBodyProps<T extends ComboboxValue> = {
   query: string;

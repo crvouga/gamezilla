@@ -1,10 +1,10 @@
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
+import { cliTimers } from '@libs/secrets-shared/cli-io';
+import type { SecretInput } from '@libs/secrets-shared/secret';
+import { Secret } from '@libs/secrets-shared/secret';
 import { assertNonProdDatabaseUrl } from '@pkgs/database-url-policy-shared/database-url-policy';
 import { pingPostgres } from '@pkgs/sql-client-postgres-server/ping';
-import { cliTimers } from '@libs/secrets-shared/cli-io';
-import { Secret } from '@libs/secrets-shared/secret';
-import type { SecretInput } from '@libs/secrets-shared/secret';
 import { fetchSecretFrom } from './secrets-io';
 
 const POSTGRES_URL_PREFIX = /^(postgres|postgresql):\/\//i;

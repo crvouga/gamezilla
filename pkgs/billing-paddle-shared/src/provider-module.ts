@@ -3,7 +3,10 @@
  * import from this package. They build, reconcile and register it exactly as
  * they do every other provider.
  */
-import type { MembershipProviderEnv, MembershipProviderModule } from '@pkgs/billing-shared/provider-module';
+import type {
+  MembershipProviderEnv,
+  MembershipProviderModule,
+} from '@pkgs/billing-shared/provider-module';
 
 import { reconcilePaddleOffer } from './offer-reconcile';
 import { PaddleApi, paddleOriginForApiKey } from './paddle-api';

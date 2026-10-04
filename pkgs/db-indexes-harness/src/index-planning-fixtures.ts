@@ -1,7 +1,7 @@
 import { MIGRATE_RECONCILE_CONFIG } from '@pkgs/db-indexes-shared/config';
 import type { WorkloadManifest } from '@pkgs/db-indexes-shared/types';
-import { SAFETY_CONFIG, safetyManifest } from './index-safety-fixtures';
 import type { SafetyFixture } from './index-safety-fixtures';
+import { SAFETY_CONFIG, safetyManifest } from './index-safety-fixtures';
 
 const ROWS: Readonly<Record<string, number>> = {
   'below row threshold': 9999,

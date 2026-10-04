@@ -4,9 +4,13 @@
  */
 import { readUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-
-import { DEV_SURFACE_BOOT_SOURCES, ENTRY_HTML, URL_LOADED_DIRS, VITE_MANIFEST } from './sw-policy';
 import type { OfflineShellInput } from './sw-policy';
+import {
+  DEV_SURFACE_BOOT_SOURCES,
+  ENTRY_HTML,
+  URL_LOADED_DIRS,
+  VITE_MANIFEST,
+} from './sw-policy';
 
 export const SW_FILE = 'sw.js';
 

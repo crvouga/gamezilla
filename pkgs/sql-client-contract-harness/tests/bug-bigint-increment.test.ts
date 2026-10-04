@@ -7,14 +7,14 @@
  * `@pkgs/sync-engine`'s `allocateTopicPushSeq` uses must keep working.
  */
 import { describe, expect, test } from 'bun:test';
+import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { raw } from '@pkgs/sql-shared/sql';
 import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { ALWAYS_FACTORIES, openBackend } from './registry';
+import { raw } from '@pkgs/sql-shared/sql';
 import { dropTables } from './drop-tables';
+import { ALWAYS_FACTORIES, openBackend } from './registry';
 import { assertWireSafeRows } from './wire-safety';
 
 describe('int8 counter upsert', () => {

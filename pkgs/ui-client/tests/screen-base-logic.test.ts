@@ -1,7 +1,20 @@
 import { describe, expect, test } from 'bun:test';
 import { SettingsIcon } from '@pkgs/ui-client/icons';
-import { bodyNeedsSafeBottom, buildBodyContentProps, deriveHeaderLayout, hasScreenBaseActions, isNavigableBreadcrumb, lastBreadcrumbTitle, partitionScreenBaseActions, screenBaseActionIntent, splitBreadcrumbTrail } from '@pkgs/ui-client/screen-base-logic';
-import type { ScreenBaseAction, ScreenBaseBreadcrumb } from '@pkgs/ui-client/screen-base-types';
+import {
+  bodyNeedsSafeBottom,
+  buildBodyContentProps,
+  deriveHeaderLayout,
+  hasScreenBaseActions,
+  isNavigableBreadcrumb,
+  lastBreadcrumbTitle,
+  partitionScreenBaseActions,
+  screenBaseActionIntent,
+  splitBreadcrumbTrail,
+} from '@pkgs/ui-client/screen-base-logic';
+import type {
+  ScreenBaseAction,
+  ScreenBaseBreadcrumb,
+} from '@pkgs/ui-client/screen-base-types';
 
 const noop = (): void => {};
 

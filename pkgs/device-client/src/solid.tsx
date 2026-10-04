@@ -1,11 +1,10 @@
 /** @jsxImportSource solid-js */
 /** Solid contexts for the device ports that screens read by hook. */
 
-import { defineContext } from '@pkgs/solid-context-client/define-context';
-import type { JSX, ParentProps } from 'solid-js';
-
 import type { ClipboardPort } from '@pkgs/device-shared/clipboard';
 import type { HapticsPort } from '@pkgs/device-shared/haptics';
+import { defineContext } from '@pkgs/solid-context-client/define-context';
+import type { JSX, ParentProps } from 'solid-js';
 
 const ClipboardContext = defineContext<ClipboardPort>('Clipboard');
 

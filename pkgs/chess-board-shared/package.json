@@ -2,11 +2,10 @@
   "name": "@pkgs/chess-board-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
-  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -26,11 +25,12 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/bun-test-solid-client": "workspace:*"
-  }
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
 }

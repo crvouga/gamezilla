@@ -1,8 +1,11 @@
-import { establishCustomGame, openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import {
+  establishCustomGame,
+  openCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-actions';
 import { readStoredCustomGames } from '@libs/chess-custom-game-harness/custom-game-stored';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
 import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
+import type { CustomGame } from '@libs/chess-custom-game-shared/custom-game-state';
 import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import {

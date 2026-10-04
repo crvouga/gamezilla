@@ -2,7 +2,6 @@
   "name": "@libs/auth-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -42,5 +41,6 @@
   "devDependencies": {
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

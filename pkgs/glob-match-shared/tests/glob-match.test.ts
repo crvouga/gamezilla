@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import glob from '@pkgs/glob-match-shared/index.d';
+import glob from '@pkgs/glob-match-shared';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

@@ -1,8 +1,8 @@
 import { useAuthClientPort } from '@libs/auth-client/auth-client-provider';
-import { SESSION_EXTERNAL_USER_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import { SESSION_EXTERNAL_USER_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { createSecureStorageItemOptional } from '@pkgs/secure-storage-client/solid';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import type { JSX, ParentProps } from 'solid-js';
 import { createEffect } from 'solid-js';
 

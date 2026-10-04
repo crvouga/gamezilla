@@ -7,17 +7,36 @@
  * run on SQLite, even ones on Postgres.
  */
 
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { accountsOnRecord, auth, awaitingProof, signedInUser } from '@pkgs/auth-harness/system';
-import { advanceClock, appleAccountDeleted, appleConsentRevoked, clearProviderFaults, confirmPendingLink, declinePendingLink, linkProvider, setOnline, setProviderFault, signIn, signOut, signOutEverywhere, stealBearer, unlinkProvider } from '@pkgs/auth-harness/actions';
 import type { ProviderStepArgs } from '@pkgs/auth-harness/actions';
+import {
+  advanceClock,
+  appleAccountDeleted,
+  appleConsentRevoked,
+  clearProviderFaults,
+  confirmPendingLink,
+  declinePendingLink,
+  linkProvider,
+  setOnline,
+  setProviderFault,
+  signIn,
+  signOut,
+  signOutEverywhere,
+  stealBearer,
+  unlinkProvider,
+} from '@pkgs/auth-harness/actions';
+import {
+  accountsOnRecord,
+  auth,
+  awaitingProof,
+  signedInUser,
+} from '@pkgs/auth-harness/system';
 import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
-
-import { accountNumber, traceAuth } from './world';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { SignInTraceWorld } from './world';
+import { accountNumber, traceAuth } from './world';
 
 const DEVICES: Readonly<Record<string, string>> = {
   phone: 'c0',

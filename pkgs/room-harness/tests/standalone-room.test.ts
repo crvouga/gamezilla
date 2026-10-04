@@ -5,10 +5,14 @@
 
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
-import { AddOne, gameRoomModule, readTally } from '@pkgs/room-harness/game-room';
 import { openLoopbackRoom } from '@pkgs/room-harness/boot-loopback';
+import {
+  AddOne,
+  gameRoomModule,
+  readTally,
+} from '@pkgs/room-harness/game-room';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const SETTLE_STEPS = 200;

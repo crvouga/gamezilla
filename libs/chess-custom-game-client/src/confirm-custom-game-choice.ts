@@ -1,12 +1,19 @@
-import type { Timers } from '@pkgs/clock-shared/types';
-import type { RoomClient, RoomCommandResult } from '@pkgs/room-client/room-client';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
 import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
 import {
   ChangeCustomGame,
   CustomGamesChanged,
 } from '@libs/chess-custom-game-shared/custom-game-commands';
+import type { Timers } from '@pkgs/clock-shared/types';
+import type {
+  RoomClient,
+  RoomCommandResult,
+} from '@pkgs/room-client/room-client';
+import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
 
 type CustomGameRoom = RoomClient<
   RoomState,

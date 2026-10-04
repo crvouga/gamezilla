@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `AppHeaderIsland` -- wide-only top chrome: logo | pill tabs | trailing.
  * Mounted via `AppFrame` `header`; not used on compact layouts. Flat hairline
@@ -14,16 +15,16 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { getTopBarContentHeight } from './action-bar-chrome';
-import { useThemeLayout } from './theme-context';
 import { useAppFrameGlobalTrailing } from './app-frame-chrome';
 import type {
   AppHeaderIslandItem,
   AppHeaderIslandProps,
 } from './app-header-island-types';
+import { useThemeLayout } from './theme-context';
 
 /** Pills keep a legal pointer target even though the caption is compact. */
 const PILL_MIN_HEIGHT = 44;

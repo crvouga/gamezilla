@@ -8,14 +8,32 @@
 import './custom-game-journey.steps';
 import './multiplayer-journey.steps';
 
-import { appBooted, expectGoogleHandOff, startGoogleSignIn } from './anonymous-gestures';
-import { endActiveSpace, hostSpace } from './journey-gestures';
-import { expectAvatarSeed, expectNoSearchResults, expectSignInOffered, saveAvatar, searchPeople, signOut } from './account-gestures';
-import { expectGamesOffered, expectInSpace, expectPuzzlePlayable, expectSpaceEnded, joinFromLink, startChessPuzzle } from './space-gestures';
-import { expectNextPuzzleReady, solveChessPuzzle } from './puzzle-gestures';
-import { expectPlusPrices, viewBillingPlans } from './billing-gestures';
-import type { JourneyBrowser, JourneyWorld } from './journey-types';
 import { hostLimit, stepsFor } from '@pkgs/gherkin-shared/registry';
+import {
+  expectAvatarSeed,
+  expectNoSearchResults,
+  expectSignInOffered,
+  saveAvatar,
+  searchPeople,
+  signOut,
+} from './account-gestures';
+import {
+  appBooted,
+  expectGoogleHandOff,
+  startGoogleSignIn,
+} from './anonymous-gestures';
+import { expectPlusPrices, viewBillingPlans } from './billing-gestures';
+import { endActiveSpace, hostSpace } from './journey-gestures';
+import type { JourneyBrowser, JourneyWorld } from './journey-types';
+import { expectNextPuzzleReady, solveChessPuzzle } from './puzzle-gestures';
+import {
+  expectGamesOffered,
+  expectInSpace,
+  expectPuzzlePlayable,
+  expectSpaceEnded,
+  joinFromLink,
+  startChessPuzzle,
+} from './space-gestures';
 
 const { Given, When, Then, Step } = stepsFor<JourneyWorld>();
 

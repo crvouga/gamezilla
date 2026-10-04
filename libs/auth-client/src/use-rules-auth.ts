@@ -1,6 +1,6 @@
-import { useIsAnon } from './access-facts';
 import type { AppRulesAuth } from '@libs/auth-shared/app-rules-auth';
 import { mapAppAuthToRulesAuth } from '@libs/auth-shared/map-app-auth-to-rules-auth';
+import { useIsAnon } from './access-facts';
 import { useMyAccountId, useMyDeviceId, useMyId } from './use-current-user';
 
 export function useRulesAuth(): AppRulesAuth {

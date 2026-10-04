@@ -4,9 +4,15 @@
  * every package's spec run). Default `test:spec` never calls this.
  */
 
-import { bootLocalStack } from '../../server/scripts/boot-local-stack';
-import { EMQX_API_KEY, EMQX_API_SECRET, EMQX_DASHBOARD_PORT, EMQX_JWT_SECRET, EMQX_WS_PORT } from '@pkgs/emqx-shared/ports';
+import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_DASHBOARD_PORT,
+  EMQX_JWT_SECRET,
+  EMQX_WS_PORT,
+} from '@pkgs/emqx-shared/ports';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { bootLocalStack } from '../../server/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 

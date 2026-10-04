@@ -1,4 +1,7 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import type { LogEntry } from './types';
 
 /** No personal identifier is carried by the cache-reset marker. */

@@ -3,10 +3,11 @@
  * the page, against the app's own client, through the test hook the web app
  * exposes (`@libs/client-app/shell/test-local-sql`).
  */
-import { TEST_LOCAL_SQL_GLOBAL } from '@libs/app-shared/test-local-sql';
+
 import type { TestLocalSql } from '@libs/app-shared/test-local-sql';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import { TEST_LOCAL_SQL_GLOBAL } from '@libs/app-shared/test-local-sql';
 import type { RunResult, SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { Sql } from '@pkgs/sql-shared/sql';
 
 type Evaluate = { evaluate(script: string): Promise<unknown> };
 

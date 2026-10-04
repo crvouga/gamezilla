@@ -4,11 +4,10 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createMemo, For, type JSX, Show } from 'solid-js';
-
-import { EmptyState } from './empty-state';
 import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
 import { groupCatalogItems } from '@pkgs/ui-shared/catalog-item';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import { EmptyState } from './empty-state';
 
 export type CatalogListRowsProps = {
   items: readonly CatalogItem[];

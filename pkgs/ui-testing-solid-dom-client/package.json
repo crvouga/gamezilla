@@ -2,7 +2,6 @@
   "name": "@pkgs/ui-testing-solid-dom-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "type": "module",
   "exports": {
     "./*": [
@@ -33,5 +32,6 @@
     "@typescript/native": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

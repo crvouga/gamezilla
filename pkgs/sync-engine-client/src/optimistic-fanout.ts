@@ -1,14 +1,16 @@
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { warnPush } from '@pkgs/sync-engine-shared/is-pubsub-closed-error';
+import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
 import { filterPublishableImages } from '@pkgs/sync-engine-shared/row-image-guard';
 import { fanoutRowsWithinCap } from '@pkgs/sync-engine-shared/select-fanout-rows';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import { topicMapCtxFromEnv, topicsFromWriteCapture } from '@pkgs/sync-engine-shared/topic-map';
+import {
+  topicMapCtxFromEnv,
+  topicsFromWriteCapture,
+} from '@pkgs/sync-engine-shared/topic-map';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
 
 /** Cap queued outbound optimistic publishes (Tiger bound). */

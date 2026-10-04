@@ -1,12 +1,26 @@
 /** Independent lost confirmations, held only after the actual first acceptance. */
 
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
-import { addClient, connect, disconnect, mutate, online as setOnline } from '@pkgs/sync-engine-harness/regression-actions';
-import { deviceOnlineSignal, lastMutationId, outcome } from '@pkgs/sync-engine-harness/sync-observations';
-import { httpFault, partition, resumeNetwork } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
-import { liveNote } from '@pkgs/sync-engine-harness/reads';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import { setNote } from '@pkgs/sync-engine-harness/mutations';
+import { liveNote } from '@pkgs/sync-engine-harness/reads';
+import {
+  addClient,
+  connect,
+  disconnect,
+  mutate,
+  online as setOnline,
+} from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  httpFault,
+  partition,
+  resumeNetwork,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import {
+  deviceOnlineSignal,
+  lastMutationId,
+  outcome,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import type { NoteWorld } from './note-world';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;

@@ -1,7 +1,6 @@
+import type { ProductHarnessMemoryHistory } from '@pkgs/harness-console-shared/ports';
 import type { Component as SolidComponent } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-
-import type { ProductHarnessMemoryHistory } from '@pkgs/harness-console-shared/ports';
 
 /**
  * Hosts a Solid product `App` inside the console (web). `Dynamic` remounts

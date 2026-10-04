@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { hostLimit } from '@pkgs/gherkin-shared/registry';
 import { recordStep } from '@libs/harness/spec-world';
+import { hostLimit } from '@pkgs/gherkin-shared/registry';
 
 /** A session whose `record` marks a step failed when its body throws, as the real one does. */
 function session() {

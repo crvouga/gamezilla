@@ -1,7 +1,13 @@
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { VirtualClock } from './clock';
 import type { DrainContext } from './scheduler-core';
-import { pushTask, runForDuration, runUntilPred, runUntilQuiescentHeap, sleepForDuration } from './scheduler-core';
+import {
+  pushTask,
+  runForDuration,
+  runUntilPred,
+  runUntilQuiescentHeap,
+  sleepForDuration,
+} from './scheduler-core';
 import type { Task, TaskBody } from './scheduler-types';
 import type { TraceRecorder } from './trace';
 

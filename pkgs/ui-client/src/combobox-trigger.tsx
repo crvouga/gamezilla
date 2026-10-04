@@ -8,13 +8,16 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
 
 import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { type JSX, Show } from 'solid-js';
+import type {
+  ComboboxOption,
+  ComboboxValue,
+} from '@pkgs/ui-shared/combobox-types';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
+import { ComboboxChips } from './combobox-chips';
 import { IconButton } from './icon-button';
 import { ChevronDownIcon, XIcon } from './icons';
-import { ComboboxChips } from './combobox-chips';
-import type { ComboboxOption, ComboboxValue } from '@pkgs/ui-shared/combobox-types';
 
 /** Minimum pointer target for the opener button. */
 export const COMBOBOX_TRIGGER_MIN_HEIGHT = 44;

@@ -1,10 +1,22 @@
 import { expect, test } from 'bun:test';
-import { openMultiplayerChess, refreshMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { multiplayerCommandReply, sendMultiplayerCommand } from '@libs/chess-harness/multiplayer-commands';
-import { givenOpponentSearch, pairChessOpponents } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
-import { multiplayerText, multiplayerView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { signInWithGoogle } from '@libs/harness/auth-actions';
+import {
+  multiplayerCommandReply,
+  sendMultiplayerCommand,
+} from '@libs/chess-harness/multiplayer-commands';
+import {
+  openMultiplayerChess,
+  refreshMultiplayerConnection,
+} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  givenOpponentSearch,
+  pairChessOpponents,
+} from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import {
+  multiplayerText,
+  multiplayerView,
+} from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { partition } from '@libs/harness/actions';
+import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { partitionLoadBalancer } from '@libs/harness/server-actions';
 import { openHarness } from './open-chess-harness';
 

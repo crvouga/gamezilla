@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-
-import { countLines, formatLcov, mergeInto, parseLcov } from './lcov';
 import type { FileCoverage, LcovRecord } from './lcov';
-import { listSourceFiles } from './packages';
+import { countLines, formatLcov, mergeInto, parseLcov } from './lcov';
 import type { PackagePlan } from './packages';
+import { listSourceFiles } from './packages';
 import { formatPercent, summarizePackage } from './report';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -52,7 +51,7 @@ describe('parseLcov', () => {
       'LH:1',
       'end_of_record',
       'TN:',
-      'SF:../assert/src/assert.ts',
+      'SF:../assert-shared/src/assert.ts',
       'DA:5,1',
       'LF:1',
       'LH:1',
@@ -145,7 +144,7 @@ describe('formatLcov', () => {
   test('writes repo-relative paths that reparse to the same files', () => {
     const index = indexOf(
       firstRecord(
-        'TN:\nSF:../assert/src/assert.ts\nDA:5,1\nend_of_record\n',
+        'TN:\nSF:../assert-shared/src/assert.ts\nDA:5,1\nend_of_record\n',
         EQUAL_DIR
       )
     );

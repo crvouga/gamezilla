@@ -1,11 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
+import { readEventStream } from '@pkgs/harness-report-client/remote-report';
+import {
+  commitIndexKey,
+  isKeySegment,
+  shaOfIndexKey,
+  splitViewerTestId,
+  viewerTestId,
+} from '@pkgs/harness-report-shared/keys';
 
 import type { CommitEvent } from '@pkgs/harness-report-shared/protocol';
-import { commitIndexKey, isKeySegment, shaOfIndexKey, splitViewerTestId, viewerTestId } from '@pkgs/harness-report-shared/keys';
 import { encodeSseEvent } from '@pkgs/harness-report-shared/protocol';
-import { readEventStream } from '@pkgs/harness-report-client/remote-report';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
 const arbSha = fc
   .array(fc.constantFrom(...'0123456789abcdef'), {

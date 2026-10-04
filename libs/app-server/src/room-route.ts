@@ -1,3 +1,5 @@
+import { requireRequestStore } from '@libs/app-shared/request-scope';
+import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { ANON_ID_HEADER } from '@libs/auth-shared/session-middleware';
 import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
@@ -6,8 +8,6 @@ import { injectRequestHeaders } from '@pkgs/observability-server/worker-worker';
 import { isUuid } from '@pkgs/uuid-shared/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import type { ApiHonoEnv } from '@libs/auth-shared/api-hono-env';
-import { requireRequestStore } from '@libs/app-shared/request-scope';
 
 /**
  * Header the room Durable Object adapter reads to learn the actor id for an

@@ -1,6 +1,7 @@
 // @io-wall-ok — schema contract CLI entry root (scripts/**).
-import { assertEvolvable } from '@pkgs/db-schema-shared/schema-evolution';
+
 import { appSchema } from '@libs/runtime-shared/app-schema';
+import { assertEvolvable } from '@pkgs/db-schema-shared/schema-evolution';
 import { readBaselineSnapshot, readSnapshotFile } from './schema-snapshot-file';
 
 function main(): void {

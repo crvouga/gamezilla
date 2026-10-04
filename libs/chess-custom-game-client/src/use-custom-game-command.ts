@@ -1,8 +1,8 @@
+import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
 import { useSpaceOpenRooms } from '@libs/spaces-client/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { createSignal, onCleanup } from 'solid-js';
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
 import { confirmCustomGameChoice } from './confirm-custom-game-choice';
 
 export function useCustomGameCommand() {

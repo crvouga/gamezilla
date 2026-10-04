@@ -8,10 +8,10 @@
 
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import type { JsonValue } from '@pkgs/harness-shared/json';
-import type { MatchmakingHarness } from './facade';
 import { NameAttr, RatingAttr, RegionAttr, ratingWithin } from './attrs';
-import { deviceAt, refreshDevices } from './devices';
 import type { PersonDevice } from './devices';
+import { deviceAt, refreshDevices } from './devices';
+import type { MatchmakingHarness } from './facade';
 
 export type WaitForMatchSpec = PersonDevice & {
   readonly rating: number;

@@ -2,7 +2,6 @@
   "name": "@pkgs/harness-report-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "type": "module",
   "exports": {
     "./*": [
@@ -34,5 +33,6 @@
     "fast-check": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "client"
 }

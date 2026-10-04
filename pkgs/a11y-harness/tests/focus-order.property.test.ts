@@ -4,12 +4,15 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { nextInFocusOrder, sequentialFocusOrder } from '@pkgs/a11y-shared/focus';
+import {
+  nextInFocusOrder,
+  sequentialFocusOrder,
+} from '@pkgs/a11y-shared/focus';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { page } from './dom';
-import { arbPage, build, walk } from './tree-arbitrary';
 import type { NodeSpec } from './tree-arbitrary';
+import { arbPage, build, walk } from './tree-arbitrary';
 
 const NATIVE = new Set([
   'button',

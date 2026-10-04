@@ -2,8 +2,8 @@
 import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 import { boundedOperation } from '@libs/infra-shared/bounded-operation';
-import { ENV_STACKS } from '@libs/infra-shared/tofu-command';
 import type { Stack } from '@libs/infra-shared/tofu-command';
+import { ENV_STACKS } from '@libs/infra-shared/tofu-command';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 
 const SCRIPT = join(import.meta.dirname, 'tofu.ts');

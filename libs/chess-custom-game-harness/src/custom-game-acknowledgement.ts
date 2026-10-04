@@ -1,8 +1,11 @@
+import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
+import {
+  ChangeCustomGame,
+  CustomGamesChanged,
+} from '@libs/chess-custom-game-shared/custom-game-commands';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { ApplySpaceMembership } from '@libs/spaces-shared/space-service-command';
-import { ChangeCustomGame, CustomGamesChanged } from '@libs/chess-custom-game-shared/custom-game-commands';
-import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';
 
 type Acknowledged = { commandId: string; choice: CustomGameChoice };
 const acknowledged = new WeakMap<ProductHarness, Map<string, Acknowledged>>();

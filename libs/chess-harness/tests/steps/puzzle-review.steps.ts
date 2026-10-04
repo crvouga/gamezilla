@@ -5,14 +5,31 @@
  */
 
 import { expect } from 'bun:test';
-import { openPuzzleReview, playUntilSolved, pressPuzzleReviewArrow, pressPuzzleReviewNav, swipePuzzleReview, tapPuzzleReviewMove } from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  openPuzzleReview,
+  playUntilSolved,
+  pressPuzzleReviewArrow,
+  pressPuzzleReviewNav,
+  swipePuzzleReview,
+  tapPuzzleReviewMove,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import type { LocalPuzzleRow } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { readLocalPuzzleRow, retireChessPuzzle } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { readPuzzleReviewFen, readPuzzleReviewMoveLabels, readPuzzleReviewProbe, readRenderedPuzzleReviewBoard, readSelectedMoveLabel, waitPuzzleReviewReady } from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
+import {
+  readLocalPuzzleRow,
+  retireChessPuzzle,
+} from '@libs/chess-puzzle-harness/chess-puzzle-data';
+import {
+  readPuzzleReviewFen,
+  readPuzzleReviewMoveLabels,
+  readPuzzleReviewProbe,
+  readRenderedPuzzleReviewBoard,
+  readSelectedMoveLabel,
+  waitPuzzleReviewReady,
+} from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import { canonicalReviewPosition } from '@libs/chess-puzzle-harness/puzzle-review-oracle';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import { markPuzzleSoundBoundary } from './puzzle-sound-evidence';

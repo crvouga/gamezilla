@@ -1,6 +1,5 @@
-import type { Context } from 'hono';
-
 import { AUTH_SET_TOKEN_HEADER } from '@pkgs/auth-inhouse-shared/auth-constants';
+import type { Context } from 'hono';
 import type { AuthAppCtx, CreateAuthAppDeps } from './create-auth-app-types';
 import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';

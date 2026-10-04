@@ -1,9 +1,9 @@
 import { join } from 'node:path';
 import type { ResolvedOptions } from '@pkgs/ui-quality-check-shared/config';
 import type { DetectorInfo } from '@pkgs/ui-quality-check-shared/detectors-types';
+import type { QualityResult } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import type { Files } from './files';
 import { hashBytes, hashFile, readJson, writeJson } from './files';
-import type { QualityResult } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 
 export async function resultKey(args: {
   files: Files;

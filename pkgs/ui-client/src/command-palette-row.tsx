@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `CommandPaletteRow` -- one command inside the palette listbox: icon,
  * fuzzy-highlighted title, subtitle, shortcut chips (or a spinner while
@@ -7,15 +8,15 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * `aria-selected` mirroring keyboard selection.
  */
 
-import { createMemo, type JSX, Show } from 'solid-js';
-import type { IconComponent } from './create-icon';
-import { Spinner } from './spinner';
-import { CommandPaletteKbd } from './command-palette-kbd';
-import { fuzzyMatch } from '@pkgs/ui-shared/fuzzy-match';
 import type { MatchRange } from '@pkgs/ui-shared/fuzzy-match';
+import { fuzzyMatch } from '@pkgs/ui-shared/fuzzy-match';
+import { createMemo, type JSX, Show } from 'solid-js';
+import { CommandPaletteKbd } from './command-palette-kbd';
+import type { IconComponent } from './create-icon';
 import { HighlightedText } from './highlighted-text';
-import { isCommandEnabled, normalizeShortcut } from './types';
+import { Spinner } from './spinner';
 import type { RegisteredCommand } from './types';
+import { isCommandEnabled, normalizeShortcut } from './types';
 
 export const COMMAND_PALETTE_ROW_MIN_HEIGHT = 44;
 

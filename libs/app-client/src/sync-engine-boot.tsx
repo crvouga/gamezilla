@@ -14,9 +14,9 @@
  */
 
 import { createMemo, type JSX, lazy, Match, Show, Switch } from 'solid-js';
+import { LocalDatabaseBootErrorScreen } from './boot-error-screen';
 import { BootLoadingShell } from './boot-loading-shell';
 import { useLocalIdentity } from './identity-context';
-import { LocalDatabaseBootErrorScreen } from './boot-error-screen';
 import { useSyncEngineBootViews } from './use-sync-engine-boot-views';
 
 /**

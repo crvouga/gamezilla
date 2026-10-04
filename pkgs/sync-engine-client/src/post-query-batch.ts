@@ -1,8 +1,9 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-
-import type { QueryRequestItem } from '@pkgs/sync-engine-shared/v2';
-import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 import { MAX_QUERY_BATCH } from '@pkgs/sync-engine-shared/bounds';
+import type {
+  QueryRequestItem,
+  QueryResponse,
+} from '@pkgs/sync-engine-shared/v2';
 import { validateWireQueryBatch } from './query-wire-validation';
 
 /** POST /query in protocol-sized chunks; validate response length per chunk. */

@@ -4,10 +4,21 @@
  * from a few choices, so a property can draw them.
  */
 
-import type { ClosureWorld, DecisionFacts } from '@pkgs/conformance-shared/closure';
+import type {
+  ClosureWorld,
+  DecisionFacts,
+} from '@pkgs/conformance-shared/closure';
 import type { Capability } from '@pkgs/conformance-shared/manifest';
-import { CONFORMANCE_KINDS, FAIL_STATES, REQUIREMENTS } from '@pkgs/conformance-shared/manifest';
-import type { ProofTable, SpecFile, SpecFileKind } from '@pkgs/conformance-shared/proofs';
+import {
+  CONFORMANCE_KINDS,
+  FAIL_STATES,
+  REQUIREMENTS,
+} from '@pkgs/conformance-shared/manifest';
+import type {
+  ProofTable,
+  SpecFile,
+  SpecFileKind,
+} from '@pkgs/conformance-shared/proofs';
 
 export type WorldShape = {
   /** Distinct context names; the first holds every non-behavior spec. */

@@ -3,16 +3,19 @@
  * Circle marks + the arrow layer for user / parent shapes.
  */
 
-import { chessBoardLayerTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { BoardShape } from '@pkgs/chess-board-core-shared/board-shapes';
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core-shared/probe';
 import type {
   BoardArrow,
   BoardOrientation,
   BoardTheme,
 } from '@pkgs/chess-board-core-shared/types';
+import {
+  BOARD_VIEW_BOX,
+  CELL_UNITS,
+  squareOrigin,
+} from '@pkgs/chess-board-shared/board-units';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
-
-import { BOARD_VIEW_BOX, CELL_UNITS, squareOrigin } from '@pkgs/chess-board-shared/board-units';
 import styles from './chess-board.module.css';
 import { ChessBoardArrows, resolveArrowColor } from './chess-board-arrows';
 import type { ShapePreview } from './chess-board-user-shapes';

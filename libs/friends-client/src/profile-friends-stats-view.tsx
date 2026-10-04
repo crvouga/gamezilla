@@ -3,8 +3,8 @@ import { Plural } from '@lingui/solid/macro';
 import { ChevronRightIcon } from '@pkgs/ui-client/icons';
 import { useTheme } from '@pkgs/ui-client/theme-context';
 import type { JSX } from 'solid-js';
-import { useFriends } from './use-friends';
 import { FriendsProfileRoute } from './friends-profile-routes';
+import { useFriends } from './use-friends';
 import { useFriendsProfileNavigation } from './use-friends-profile-chrome';
 
 const CHEVRON_SIZE = 18;

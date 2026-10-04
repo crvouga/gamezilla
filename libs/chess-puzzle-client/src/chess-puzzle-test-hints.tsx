@@ -1,7 +1,6 @@
-import type { Accessor, JSX } from 'solid-js';
-
 import { uciToSquares } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
 import { CHESS_PUZZLE_TEST_ENABLED } from '@libs/chess-puzzle-shared/chess-puzzle-test-enabled';
+import type { Accessor, JSX } from 'solid-js';
 
 export type ChessPuzzleTestHintsProps = {
   orientation: Accessor<'white' | 'black'>;

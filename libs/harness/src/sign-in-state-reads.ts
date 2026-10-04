@@ -1,8 +1,8 @@
 import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { HARNESS_APPLE_CLIENT_ID } from '@libs/feature-shared/harness-constants';
 import sql from '@pkgs/sql-shared/sql';
-import { harnessIdpAccountId } from './idp';
 import type { ProductHarness } from './harness';
+import { harnessIdpAccountId } from './idp';
 
 /** All product accounts, including ones whose devices have signed out. */
 export async function registeredAccounts(s: ProductHarness): Promise<string[]> {

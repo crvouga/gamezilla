@@ -6,7 +6,7 @@ import { evaluatePlanPolicy } from '@libs/infra-shared/plan-policy';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 
-const PKG = join(import.meta.dirname, '..');
+const PKG = join(import.meta.dirname, '../../infra-shared');
 const POLICY = join(PKG, 'policy');
 
 // The conftest pinned in mise.toml, whether or not mise is on PATH. Resolved

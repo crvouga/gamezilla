@@ -1,6 +1,10 @@
 import { expect } from 'bun:test';
-import { editorAction, feedbackAction, readEditorView } from '@pkgs/feedback-harness/feedback';
 import type { FeedbackReportingWorld } from '@pkgs/feedback-harness/feedback';
+import {
+  editorAction,
+  feedbackAction,
+  readEditorView,
+} from '@pkgs/feedback-harness/feedback';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

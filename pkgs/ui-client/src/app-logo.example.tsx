@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
+import { AppLogo } from './app-logo';
 import { ExampleRoot } from './example-root';
 import { SchemePreview } from './scheme-preview';
-import { AppLogo } from './app-logo';
 
 export default function AppLogoExample(): JSX.Element {
   return (

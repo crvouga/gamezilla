@@ -1,4 +1,7 @@
-import { attemptCustomGameChoice, changeCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import {
+  attemptCustomGameChoice,
+  changeCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-actions';
 import { CUSTOM_GAME_FOOLS_MATE } from '@libs/chess-custom-game-harness/custom-game-histories';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import type { CustomGameChoice } from '@libs/chess-custom-game-shared/custom-game-choice';

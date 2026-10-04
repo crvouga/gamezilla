@@ -1,9 +1,9 @@
-import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type {
   CreatedIssue,
   FeedbackReport,
   IssueReporter,
 } from '@pkgs/feedback-shared/types';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { reportMarkdown } from './report-files';
 
 /** GitHub credentials and repository selection stay entirely on the backend. */

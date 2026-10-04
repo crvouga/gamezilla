@@ -1,20 +1,20 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import type { GameClientDefinition } from '@libs/spaces-shared/game';
+import type { SelectedGameId } from '@libs/spaces-shared/games';
+import { GamesRoomAttr, SelectGame } from '@libs/spaces-shared/games';
 import { Trans } from '@lingui/solid/macro';
 import { FadeSwitch } from '@pkgs/ui-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-client/main-menu-screen';
 import type { JSX } from 'solid-js';
 import { createMemo, onMount, Show } from 'solid-js';
+import { useGamesRegistry } from './games-registry-context';
+import { useSpaceSessionUi } from './space-session-ui-context';
+import { useSpaceCan } from './use-space-can';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from './use-space-room-selector';
-import { useSpaceCan } from './use-space-can';
-import type { GameClientDefinition } from '@libs/spaces-shared/game';
-import { GamesRoomAttr, SelectGame } from '@libs/spaces-shared/games';
-import type { SelectedGameId } from '@libs/spaces-shared/games';
-import { useSpaceSessionUi } from './space-session-ui-context';
-import { useGamesRegistry } from './games-registry-context';
 
 function buildSpaceGameMenuItems(
   games: readonly GameClientDefinition[],

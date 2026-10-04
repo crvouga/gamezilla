@@ -1,7 +1,7 @@
+import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
 import { defaultMarkdownParser } from 'prosemirror-markdown';
 import type { EditorState } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
-import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
 import { cleanMarkdownNode } from './safe-markdown';
 
 export type EditorSuggestion = {

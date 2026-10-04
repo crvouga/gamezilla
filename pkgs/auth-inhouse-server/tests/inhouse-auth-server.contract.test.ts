@@ -3,15 +3,16 @@
  * (`@pkgs/auth/contract`). Built through its provider module over a record
  * of secrets, exactly as a composition root builds it.
  */
-import type { AuthServerContractHarness } from '@pkgs/auth-shared/auth-server-contract';
-import { describeAuthServerContract } from '@pkgs/auth-shared/auth-server-contract';
+
 import { IdentityLinker } from '@pkgs/auth-inhouse-server/identity-linker';
 import { IdpRepository } from '@pkgs/auth-inhouse-server/idp-repository';
-import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
+import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
+import type { AuthServerContractHarness } from '@pkgs/auth-shared/auth-server-contract';
+import { describeAuthServerContract } from '@pkgs/auth-shared/auth-server-contract';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
 
 const SECRET = 'contract-secret-contract-secret-contract';

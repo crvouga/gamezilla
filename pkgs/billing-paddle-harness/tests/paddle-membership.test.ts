@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import type { MembershipStatus } from '@pkgs/billing-shared/membership';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
-import { membershipStatusOf } from '@pkgs/billing-paddle-shared/membership-status';
-import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';
-import { paddleOriginForApiKey } from '@pkgs/billing-paddle-shared/paddle-api';
-import { signPaddlePayload, verifyPaddleSignature } from '@pkgs/billing-paddle-shared/signature';
 import { FakePaddle } from '@pkgs/billing-paddle-harness/fake-paddle';
+import { membershipStatusOf } from '@pkgs/billing-paddle-shared/membership-status';
+import { paddleOriginForApiKey } from '@pkgs/billing-paddle-shared/paddle-api';
+import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';
+import {
+  signPaddlePayload,
+  verifyPaddleSignature,
+} from '@pkgs/billing-paddle-shared/signature';
+import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
+import type { MembershipStatus } from '@pkgs/billing-shared/membership';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

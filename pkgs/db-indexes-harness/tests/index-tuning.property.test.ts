@@ -25,8 +25,25 @@
  * - tuning never touches the team's own index, however long it goes unused.
  */
 import { describe, expect, test } from 'bun:test';
-import { daysPass, declare, indexTuningSystem, keepOwnIndex, LOOKUPS, lastTuningChanges, retiringLookups, TUNING_CONFIG, teamIndexKept, tune, tunedLookups, use, usesByLookup } from '@pkgs/db-indexes-harness/index-tuning-system';
-import type { IndexTuning, Lookup } from '@pkgs/db-indexes-harness/index-tuning-system';
+import type {
+  IndexTuning,
+  Lookup,
+} from '@pkgs/db-indexes-harness/index-tuning-system';
+import {
+  daysPass,
+  declare,
+  indexTuningSystem,
+  keepOwnIndex,
+  LOOKUPS,
+  lastTuningChanges,
+  retiringLookups,
+  TUNING_CONFIG,
+  teamIndexKept,
+  tune,
+  tunedLookups,
+  use,
+  usesByLookup,
+} from '@pkgs/db-indexes-harness/index-tuning-system';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

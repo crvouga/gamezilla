@@ -1,11 +1,10 @@
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
-import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
-
 import type {
   ProductHarnessLogBuffer,
   ProductHarnessLogEntry,
 } from '@pkgs/harness-console-shared/ports';
+import { EmptyState } from '@pkgs/ui-client/empty-state';
+import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 /**
  * Live reverse-chrono log list backed by a product-harness ring buffer.

@@ -10,10 +10,7 @@
 import '../quint/friendship.binding';
 
 import { quintWalk } from '@libs/harness/quint-walk';
-import {
-  captureWorlds,
-  sharedWorlds,
-} from '@libs/harness/snapshot-worlds';
+import { captureWorlds, sharedWorlds } from '@libs/harness/snapshot-worlds';
 import { bindStructure } from '@pkgs/alloy-shared/registry';
 
 import { openHarness } from '../open-friends-harness';

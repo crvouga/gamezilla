@@ -1,10 +1,6 @@
 import { createMessageRouter } from '@pkgs/message-shared/router';
 import type { RoomState } from '@pkgs/room-shared/types';
 import {
-  clearRecommendation,
-  recommendMove,
-} from './recommendations';
-import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
 } from './chess-puzzle-play-attr';
@@ -29,6 +25,7 @@ import {
   decidePuzzleResult,
   startPuzzleResult,
 } from './chess-puzzle-result';
+import { clearRecommendation, recommendMove } from './recommendations';
 
 export const chessPuzzlePlayEventReducer = createMessageRouter<
   RoomState,

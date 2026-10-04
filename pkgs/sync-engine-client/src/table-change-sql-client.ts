@@ -1,5 +1,8 @@
+import type {
+  PreparedStatement,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
 import type { Sql } from '@pkgs/sql-shared/sql';
-import type { PreparedStatement, SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { TableChangeBus } from './table-change-bus';
 
 function changedTable(sqlText: string): string | null {

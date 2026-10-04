@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import {
+  canonicalRoomJson,
+  fnv1a64Hex,
+  hashRoomState,
+} from '@pkgs/room-shared/hash-room-state';
 import fc from 'fast-check';
-import { canonicalRoomJson, fnv1a64Hex, hashRoomState } from '@pkgs/room-shared/hash-room-state';
 
 /** Reference implementations (the previous, slower versions) kept for equivalence. */
 function referenceCanonical(value: unknown): string {

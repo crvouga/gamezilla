@@ -1,14 +1,12 @@
+import type { Timers } from '@pkgs/clock-shared/types';
 import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
-import type { PushMessage } from '@pkgs/sync-engine-shared/v2';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';
-import { subscribeTables } from '@pkgs/sync-engine-shared/topic-map';
+import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import type { Timers } from '@pkgs/clock-shared/types';
+import { subscribeTables } from '@pkgs/sync-engine-shared/topic-map';
+import type { PushMessage, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import type { MergeApplierDeps } from './merge';
 import type { SubscriptionRuntime } from './subscription-runtime';
 

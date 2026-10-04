@@ -5,8 +5,8 @@
  */
 // regression: grace-end-never-reached-open-screen
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider, createTimedValue } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { render } from '@solidjs/testing-library';
 import type { Accessor } from 'solid-js';
 

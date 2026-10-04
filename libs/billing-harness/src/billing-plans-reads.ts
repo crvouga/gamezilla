@@ -6,11 +6,7 @@
 
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
-import {
-  actorHtml,
-  nodeText,
-  visible,
-} from '@libs/harness/observations';
+import { actorHtml, nodeText, visible } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 
 import { providerTrialEndMs } from './billing-provider-driver';

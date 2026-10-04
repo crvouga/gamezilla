@@ -3,7 +3,10 @@
 import { describe, expect, test } from 'bun:test';
 import { Collapsible } from '@pkgs/ui-client/collapsible';
 import { ScreenLargeTitle } from '@pkgs/ui-client/screen-large-title';
-import { ScreenTitleProvider, useRequiredScreenTitleContext } from '@pkgs/ui-client/screen-title-context';
+import {
+  ScreenTitleProvider,
+  useRequiredScreenTitleContext,
+} from '@pkgs/ui-client/screen-title-context';
 import { useScreenTitleScroll } from '@pkgs/ui-client/use-screen-title-scroll';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';

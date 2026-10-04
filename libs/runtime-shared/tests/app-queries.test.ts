@@ -2,9 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { APP_QUERIES } from '@libs/runtime-shared/app-queries';
 import { appSchema } from '@libs/runtime-shared/app-schema';
 import { analyzeIndexability } from '@pkgs/db-indexes-shared/indexability';
-import { pkSchemaIndexes } from '@pkgs/db-indexes-shared/schema-coverage';
 import type { SchemaIndex } from '@pkgs/db-indexes-shared/schema-coverage';
-import { assertQueryRegistryIndexable, extractWorkload } from '@pkgs/sync-engine-shared/extract-workload';
+import { pkSchemaIndexes } from '@pkgs/db-indexes-shared/schema-coverage';
+import {
+  assertQueryRegistryIndexable,
+  extractWorkload,
+} from '@pkgs/sync-engine-shared/extract-workload';
 
 const CATALOG_TABLES = new Set<string>(['client_config']);
 

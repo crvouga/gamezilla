@@ -1,10 +1,31 @@
+import {
+  confirmOfferedPosition,
+  startUnusableBoard,
+  supplyUnusablePosition,
+} from '@pkgs/chess-board-harness/authority-actions';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginDrag, cancelDrag, closeBoard, configureBoard, finishAnimation, leaveActivity, movePiece, reduceMotion, replacePosition, resizeBoard, selectSquare, setupBoard, setVisibility } from '@pkgs/chess-board-harness/chess-board';
-import { CAPTURE } from '@pkgs/chess-board-harness/positions';
-import { confirmOfferedPosition, startUnusableBoard, supplyUnusablePosition } from '@pkgs/chess-board-harness/authority-actions';
+import {
+  beginDrag,
+  cancelDrag,
+  closeBoard,
+  configureBoard,
+  finishAnimation,
+  leaveActivity,
+  movePiece,
+  reduceMotion,
+  replacePosition,
+  resizeBoard,
+  selectSquare,
+  setupBoard,
+  setVisibility,
+} from '@pkgs/chess-board-harness/chess-board';
 import { finishEarlierAnimation } from '@pkgs/chess-board-harness/lifecycle-actions';
-import { lifecyclePosition, readLifecycle } from '@pkgs/chess-board-harness/lifecycle-reads';
+import {
+  lifecyclePosition,
+  readLifecycle,
+} from '@pkgs/chess-board-harness/lifecycle-reads';
 import { readModelFingerprint } from '@pkgs/chess-board-harness/model-evidence';
+import { CAPTURE } from '@pkgs/chess-board-harness/positions';
 import { supplyPremoveReply } from '@pkgs/chess-board-harness/premove-actions';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';

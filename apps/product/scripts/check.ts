@@ -2,12 +2,11 @@
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { REPORT_READY } from '@libs/harness/report-ready';
 import { wallClock } from '@pkgs/clock-shared/wall';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
-import config from './ui-quality/config.json';
+import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import { runVisualGate } from './gate';
 import type { SnapshotRenderer } from './render';
 import { openSnapshotRenderer } from './render';
@@ -17,6 +16,7 @@ import {
   writeToolingFailure,
 } from './report';
 import type { ArtifactManifest } from './types';
+import config from './ui-quality/config.json';
 
 const ROOT = resolve(import.meta.dir, '..');
 const INPUT = join(ROOT, '.cache/ui-quality-inputs');

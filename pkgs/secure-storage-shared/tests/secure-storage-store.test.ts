@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-
-import { createSecureStorageStore, writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
 import type { SecureStorage } from '@pkgs/secure-storage-shared/interface';
+import {
+  createSecureStorageStore,
+  writeSecureStorageItem,
+} from '@pkgs/secure-storage-shared/secure-storage-store';
 
 class InMemorySecureStorage implements SecureStorage {
   private readonly map = new Map<string, string>();

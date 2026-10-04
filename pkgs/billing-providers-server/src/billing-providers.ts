@@ -5,10 +5,14 @@
  * is an edit here plus configuration. Nothing else in the product imports a
  * provider package (the `import-billing-vendor` lint rule).
  */
-import { createMembershipProviders } from '@pkgs/billing-shared/providers';
-import type { MembershipProviderEnv, MembershipProviderModule } from '@pkgs/billing-shared/provider-module';
-import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+
 import { PADDLE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-paddle-shared/provider-module';
+import type {
+  MembershipProviderEnv,
+  MembershipProviderModule,
+} from '@pkgs/billing-shared/provider-module';
+import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import { createMembershipProviders } from '@pkgs/billing-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 

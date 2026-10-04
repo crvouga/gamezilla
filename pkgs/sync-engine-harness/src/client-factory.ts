@@ -1,25 +1,28 @@
 import { Database } from 'bun:sqlite';
+import type { Timers } from '@pkgs/clock-shared/types';
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { createControllableLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
-import type { Timers } from '@pkgs/clock-shared/types';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
+import { createControllableLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
 import type {
   Mutation,
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
-import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';
+import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
 import type { HarnessClient, HarnessClientLifecycle } from './client';
-import { createEngineFromParts, createMutationSide } from './client-factory-parts';
 import type { HarnessAuthControl } from './client-factory-parts';
+import {
+  createEngineFromParts,
+  createMutationSide,
+} from './client-factory-parts';
 import { decorateHarnessClient } from './decorate-harness-client';
-import type { HarnessPushChannels } from './harness-domain-pack';
 import type { EdgeFaultController } from './edge-faults';
+import type { HarnessPushChannels } from './harness-domain-pack';
 import type { HarnessHttpClient } from './http-bridge';
 import { createSerialSqlClient } from './serial-sql';
 import type { HarnessServer } from './server';

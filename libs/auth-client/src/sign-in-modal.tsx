@@ -10,8 +10,8 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
-import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
 import { AuthLinkRequiredError } from '@pkgs/auth-client/auth-link-required-error';
+import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import { ErrorState } from '@pkgs/ui-client/error-state';
 import { FadeSwitch } from '@pkgs/ui-client/fade-switch';

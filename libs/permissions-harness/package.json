@@ -2,7 +2,6 @@
   "name": "@libs/permissions-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -41,5 +40,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness"
 }

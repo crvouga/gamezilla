@@ -2,8 +2,9 @@
  * Server-authoritative room: shared types for client + server.
  * Tiger Style: invalid shapes surface as validation errors, not silent coercions.
  */
-import { asKeyword } from '@pkgs/keyword-shared/keyword';
+
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Message } from '@pkgs/message-shared/message';
 
 /**

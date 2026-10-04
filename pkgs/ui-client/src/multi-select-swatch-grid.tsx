@@ -5,12 +5,12 @@
  */
 
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import { arraysEqualAsSets } from '@pkgs/ui-shared/arrays-equal-as-sets';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
+import { createSignal, For, type JSX, Show } from 'solid-js';
 import { TextInput } from './text-input';
-import { arraysEqualAsSets } from '@pkgs/ui-shared/arrays-equal-as-sets';
 
 const DEFAULT_HEX = /^[0-9a-fA-F]{6}$/;
 

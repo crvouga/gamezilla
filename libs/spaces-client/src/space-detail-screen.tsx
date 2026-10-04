@@ -1,15 +1,15 @@
 import type { JSX } from 'solid-js';
 import { Match, Show, Switch } from 'solid-js';
-import { SpacesNavProvider } from './spaces-nav-context';
-import { SpaceRoomProvider } from './space-room-context';
-import { useSpaceRouteId } from './space-routes';
-import { useSpacePresence } from './public-use-space-presence';
-import { useSpaceByLink } from './use-space-by-link';
 import { ActiveSpace } from './active-space';
-import { SpaceEndedScreen } from './space-ended-screen';
-import { SpaceJoinPrompt } from './space-join-prompt';
+import { useSpacePresence } from './public-use-space-presence';
 import { useReopenLostHostSession } from './reopen-lost-host-session';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
+import { SpaceEndedScreen } from './space-ended-screen';
+import { SpaceJoinPrompt } from './space-join-prompt';
+import { SpaceRoomProvider } from './space-room-context';
+import { useSpaceRouteId } from './space-routes';
+import { SpacesNavProvider } from './spaces-nav-context';
+import { useSpaceByLink } from './use-space-by-link';
 
 /** Route entry point — reads `id` from the route and dispatches to atoms. */
 export function SpaceDetailScreen(): JSX.Element {

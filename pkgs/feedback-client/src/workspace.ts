@@ -1,4 +1,3 @@
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { EMPTY_FEEDBACK } from '@pkgs/feedback-shared/validation';
 import type {
   FeedbackDocument,
@@ -6,6 +5,7 @@ import type {
   FeedbackWorkspaceSnapshot,
   WizardStage,
 } from '@pkgs/feedback-shared/workspace';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 export class FeedbackWorkspace {
   private value: FeedbackWorkspaceSnapshot;
@@ -101,7 +101,9 @@ export class FeedbackWorkspace {
   stage(stage: WizardStage): void {
     this.patch({ stage });
   }
-  merge(reports: readonly import('@pkgs/feedback-shared/types').FeedbackReport[]): void {
+  merge(
+    reports: readonly import('@pkgs/feedback-shared/types').FeedbackReport[]
+  ): void {
     const documents = [...this.value.documents];
     for (const report of reports) {
       if (!documents.some((d) => d.report?.id === report.id))

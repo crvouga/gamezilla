@@ -6,16 +6,15 @@
  * injected timers; tests and harnesses pass their own.
  */
 
+import { createLazyPerfSampler } from '@libs/app-shared/create-lazy-perf-sampler';
+import type { PerfSampler } from '@libs/app-shared/types';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type JSX, untrack } from 'solid-js';
-
-import { createLazyPerfSampler } from '@libs/app-shared/create-lazy-perf-sampler';
 import {
   PerfHudPreferenceProvider,
   usePerfHudPreference,
 } from './perf-hud-preference';
 import { PerfSamplerProvider } from './perf-sampler-context';
-import type { PerfSampler } from '@libs/app-shared/types';
 
 function PerfHudGate(props: {
   readonly sampler: PerfSampler;

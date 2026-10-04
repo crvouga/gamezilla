@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'bun:test';
 import { CachingSecretStore } from '@pkgs/secret-store-shared/caching-secret-store';
-import { SecretMissingError } from '@pkgs/secret-store-shared/secret-missing-error';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
-import { wrapSecret, wrapSecretOptional } from '@pkgs/secret-store-shared/wrap-secret';
+import { SecretMissingError } from '@pkgs/secret-store-shared/secret-missing-error';
+import {
+  wrapSecret,
+  wrapSecretOptional,
+} from '@pkgs/secret-store-shared/wrap-secret';
 
 type CountingStore = SecretStore & {
   readonly counts: { g: number; o: number; m: number; om: number; s: number };

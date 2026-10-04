@@ -1,7 +1,6 @@
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
-
-import { buildHarnessClient } from './client-factory';
 import type { HarnessClient } from './client';
+import { buildHarnessClient } from './client-factory';
 import { createHarnessHttpClient } from './http-bridge';
 import { fireCrashIfArmed, wireMutateCrashArm } from './lifecycle';
 import { SERVER_HTTP } from './traffic';

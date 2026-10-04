@@ -1,9 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { ComposedDatabaseSeeder } from '@pkgs/db-migrate-shared/composed-database-seeder';
+import type {
+  DatabaseSeeder,
+  DatabaseSeederContext,
+} from '@pkgs/db-migrate-shared/database-seeder';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import { ComposedDatabaseSeeder } from '@pkgs/db-migrate-shared/composed-database-seeder';
-import type { DatabaseSeeder, DatabaseSeederContext } from '@pkgs/db-migrate-shared/database-seeder';
 
 function fakeCtx(): DatabaseSeederContext {
   return {

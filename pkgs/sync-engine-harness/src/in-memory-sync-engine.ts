@@ -3,19 +3,22 @@
 import { Database } from 'bun:sqlite';
 
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql, { raw } from '@pkgs/sql-shared/sql';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import { assertSqlIdentifier } from '@pkgs/sql-shared/assert-sql-identifier';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import { assertSqlIdentifier } from '@pkgs/sql-shared/assert-sql-identifier';
+import type { Sql } from '@pkgs/sql-shared/sql';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
-import { createSharedWatchRegistry } from '@pkgs/sync-engine-client/shared-watch-registry';
 import type { WatchSqlHandle } from '@pkgs/sync-engine-client/shared-watch-registry';
+import { createSharedWatchRegistry } from '@pkgs/sync-engine-client/shared-watch-registry';
 import { createSubscribeQueries } from '@pkgs/sync-engine-client/subscribe-queries';
 import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
+import type {
+  SyncEngineStatus,
+  SyncStatusSubscription,
+} from '@pkgs/sync-engine-client/sync-status';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client/sync-status';
-import type { SyncEngineStatus, SyncStatusSubscription } from '@pkgs/sync-engine-client/sync-status';
 
 function createStatusStore(): {
   readonly status: SyncStatusSubscription;

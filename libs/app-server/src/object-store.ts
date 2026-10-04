@@ -1,13 +1,13 @@
+import { ApiSecretName } from '@libs/app-shared/secret-names';
 import { appObjectStoreRootPrefix } from '@libs/db-shared/scope';
 import { REPORTS_ROOT_PREFIX } from '@pkgs/harness-report-shared/keys';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 import { S3SecretName } from '@pkgs/object-store-s3-shared/s3-config';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
-import { ApiSecretName } from '@libs/app-shared/secret-names';
 
 const S3_SECRET_NAMES = [
   S3SecretName.accessKeyId,
@@ -54,7 +54,7 @@ export async function createApiObjectStore(
     if (options.requireCredentials === true) {
       throw new Error(
         `S3 credentials required but missing: ${missing.join(', ')}. ` +
-          'Run under `bun run libs/secrets-server/src/secrets-run.ts` with SECRETS_ENV=dev.'
+          'Run under `bun run libs/secrets-server/scripts/secrets-run.ts` with SECRETS_ENV=dev.'
       );
     }
     log.warn('S3 credentials missing — using in-memory object store', {

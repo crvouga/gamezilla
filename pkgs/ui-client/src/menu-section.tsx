@@ -15,9 +15,9 @@
  * ```
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { MenuList } from './menu-list';
 
 export type MenuSectionProps = {

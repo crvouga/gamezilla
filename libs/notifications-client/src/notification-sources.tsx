@@ -13,10 +13,9 @@
  * sources has an empty inbox, which is a real state rather than a broken one.
  */
 
+import type { NotificationProvider } from '@libs/notifications-shared/notification-provider';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
-
-import type { NotificationProvider } from '@libs/notifications-shared/notification-provider';
 
 const NotificationSourcesContext = defineContext<
   Accessor<readonly NotificationProvider[]>

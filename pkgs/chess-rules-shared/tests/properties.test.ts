@@ -1,6 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { parseFen, START_FEN, serializeFen } from '@pkgs/chess-rules-shared/fen';
-import { applyUci, legalMoves, perft, uciFromSan } from '@pkgs/chess-rules-shared/moves';
+import {
+  parseFen,
+  START_FEN,
+  serializeFen,
+} from '@pkgs/chess-rules-shared/fen';
+import {
+  applyUci,
+  legalMoves,
+  perft,
+  uciFromSan,
+} from '@pkgs/chess-rules-shared/moves';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import { Chess } from 'chess.js';
 import fc from 'fast-check';

@@ -4,11 +4,11 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
+import { Volume2Icon, VolumeXIcon } from '@pkgs/ui-client/icons';
 import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { MenuSection } from '@pkgs/ui-client/menu-section';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { Switch } from '@pkgs/ui-client/switch';
-import { Volume2Icon, VolumeXIcon } from '@pkgs/ui-client/icons';
 import type { JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 

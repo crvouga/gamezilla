@@ -1,15 +1,15 @@
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
-import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { Timers } from '@pkgs/clock-shared/types';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
+import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { HarnessClient, HarnessClientDbBundle } from './client';
 import type { HarnessAuthStatus } from './client-factory-parts';
 import type { ClockSkewTable } from './clock-skew';
-import type { HarnessDomainPack } from './harness-domain-pack';
 import type { EdgeFaultController } from './edge-faults';
 import type { HarnessFaultOptions } from './faults';
+import type { HarnessDomainPack } from './harness-domain-pack';
 import type { SyncNetwork } from './network';
 import type { HarnessPubSubBroker } from './pubsub-bridge';
 import type { HarnessServer } from './server';

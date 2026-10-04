@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { chessGameRules } from '@pkgs/chess-board-core-shared/board-rules';
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
-import { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
 import type { BoardInteractionHooks } from '@pkgs/chess-board-core-shared/interaction';
+import { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
 
 function setup(fen?: string, interactive = true) {
   const events: string[] = [];

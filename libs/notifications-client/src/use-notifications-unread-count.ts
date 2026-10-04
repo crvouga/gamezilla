@@ -1,10 +1,9 @@
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { inboxUnreadCountSql } from '@libs/notifications-shared/notifications-queries';
 import { useCan } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-
 import { useNotificationsShell } from './notifications-provider-registry';
-import { inboxUnreadCountSql } from '@libs/notifications-shared/notifications-queries';
 
 export function useNotificationsUnreadCount(): Accessor<number> {
   const shell = useNotificationsShell();

@@ -1,9 +1,6 @@
-import { SECRETS } from './registry';
 import { activeEnvFile } from '@libs/secrets-shared/secret';
-import {
-  exportSecretsMapLive,
-  fetchSecret,
-} from './secrets-io';
+import { SECRETS } from './registry';
+import { exportSecretsMapLive, fetchSecret } from './secrets-io';
 
 export async function loadSecretsIntoEnv(): Promise<
   Array<{

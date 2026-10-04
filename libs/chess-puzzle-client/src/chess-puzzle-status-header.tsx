@@ -1,10 +1,9 @@
+import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
 import { Trans } from '@lingui/solid/macro';
 import { SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT } from '@pkgs/ui-client/speech-bubble';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
-
 import { ChessPuzzleStatusIcon } from './chess-puzzle-status-icons';
-import type { ChessPuzzleStatusKind } from '@libs/chess-puzzle-shared/status-kind';
 
 const HEADER_ROW_HEIGHT = SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT;
 

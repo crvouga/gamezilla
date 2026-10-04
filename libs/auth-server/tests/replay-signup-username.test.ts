@@ -3,8 +3,8 @@ import { resolveReplayUsername } from '@libs/auth-shared/replay-username';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 
 test('an account chooses a username independently of its provider subject', async () => {
   // regression: signup-username-provider-subject

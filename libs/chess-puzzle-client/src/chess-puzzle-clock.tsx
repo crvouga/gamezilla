@@ -1,8 +1,7 @@
+import { formatPuzzleClock } from '@libs/chess-puzzle-shared/puzzle-clock';
 import { ClockIcon } from '@pkgs/ui-client/icons';
 import type { Accessor, JSX } from 'solid-js';
 import { Show } from 'solid-js';
-
-import { formatPuzzleClock } from '@libs/chess-puzzle-shared/puzzle-clock';
 
 /** Elapsed solve time for the live attempt (`m:ss`), frozen once terminal. */
 export function ChessPuzzleClock(props: {

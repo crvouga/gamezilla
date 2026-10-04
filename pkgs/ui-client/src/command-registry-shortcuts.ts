@@ -3,13 +3,13 @@
  * shortcuts (`mod+k`, `mod+shift+p`) and per-command `shortcut` bindings.
  */
 
-import type { Accessor } from 'solid-js';
-import { matchesWebShortcut } from '@pkgs/ui-shared/match';
-import { useDocumentShortcuts } from './use-document-shortcuts';
 import type { WebKeyboardEventLike } from '@pkgs/ui-shared/match';
+import { matchesWebShortcut } from '@pkgs/ui-shared/match';
+import type { Accessor } from 'solid-js';
 import type { CommandRegistryStore } from './command-registry-store';
 import type { CommandId, RegisteredCommand } from './types';
 import { isCommandEnabled, isCommandVisible, normalizeShortcut } from './types';
+import { useDocumentShortcuts } from './use-document-shortcuts';
 
 export const DEFAULT_OPEN_SHORTCUTS: readonly string[] = [
   'mod+k',

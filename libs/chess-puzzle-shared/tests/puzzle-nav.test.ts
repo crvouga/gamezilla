@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { isPuzzleSeekAnimated, PUZZLE_FIRST_SOLVE_IDX, PUZZLE_NAV_INTENT, PUZZLE_SWIPE_THRESHOLD_PX, puzzleNavIntentFromKey, puzzleNavIntentFromSwipe, resolvePuzzleNavTarget } from '@libs/chess-puzzle-shared/puzzle-nav';
 import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
+import {
+  isPuzzleSeekAnimated,
+  PUZZLE_FIRST_SOLVE_IDX,
+  PUZZLE_NAV_INTENT,
+  PUZZLE_SWIPE_THRESHOLD_PX,
+  puzzleNavIntentFromKey,
+  puzzleNavIntentFromSwipe,
+  resolvePuzzleNavTarget,
+} from '@libs/chess-puzzle-shared/puzzle-nav';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

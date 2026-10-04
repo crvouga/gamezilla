@@ -11,8 +11,8 @@
 import { ConfigServiceProvider } from '@libs/auth-client/config-service-context';
 import { ClipboardProvider, HapticsProvider } from '@pkgs/device-client/solid';
 import { OriginAvailabilityProvider } from '@pkgs/http-client-client/solid';
-import { createLogger } from '@pkgs/logger-shared/logger';
 import { LoggerProvider } from '@pkgs/logger-client/solid';
+import { createLogger } from '@pkgs/logger-shared/logger';
 import {
   SecureStorageProvider,
   SecureStorageStoreProvider,

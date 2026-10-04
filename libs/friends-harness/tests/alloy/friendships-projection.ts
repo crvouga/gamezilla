@@ -12,10 +12,10 @@
  */
 
 import type { Names, World } from '@libs/harness/snapshot-worlds';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import { bothWays, named, sortedSet, storedPeople } from './stored-people';
+import sql from '@pkgs/sql-shared/sql';
 import type { Pair } from './stored-people';
+import { bothWays, named, sortedSet, storedPeople } from './stored-people';
 
 export type FriendsRows = {
   readonly friendships: readonly Pair[];

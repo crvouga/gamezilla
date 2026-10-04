@@ -20,19 +20,19 @@ import type {
   HarnessRoomNode,
 } from '@libs/harness/composition';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import type { Message } from '@pkgs/message-shared/message';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
-import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
-import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-shared/builtin';
-import type { RoomModule, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
-import { RoomServer } from '@pkgs/room-server/room-server';
-import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
-import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared/loopback-transport';
+import type { CreateRoomTransport } from '@libs/spaces-client/room-transport-factory';
 import type { GameDefinition } from '@libs/spaces-shared/game';
 import { composeSpaceRoomModule } from '@libs/spaces-shared/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
-import type { CreateRoomTransport } from '@libs/spaces-client/room-transport-factory';
+import type { Message } from '@pkgs/message-shared/message';
+import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared/loopback-transport';
+import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import { RoomServer } from '@pkgs/room-server/room-server';
+import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-shared/builtin';
+import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-shared/service-identity';
+import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
+import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type { RoomModule, RoomState } from '@pkgs/room-shared/types';
 
 type SpaceModule = RoomModule<RoomState, Message, Message, string>;
 

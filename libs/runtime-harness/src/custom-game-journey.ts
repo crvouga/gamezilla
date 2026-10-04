@@ -1,12 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { Driver } from '@pkgs/ui-testing-shared/driver';
 import { Chess } from 'chess.js';
-import {
-  check,
-  expectVisible,
-  JOURNEY_WAIT_MS,
-  tap,
-} from './journey-gestures';
+import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 
 async function openConnectedCustomGame(ui: Driver): Promise<void> {
   await tap(ui, Handles.gameMenuChess);

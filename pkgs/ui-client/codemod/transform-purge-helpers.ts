@@ -9,12 +9,14 @@
 
 import ts from 'typescript';
 import { getJsxAttr } from './transform-attrs';
-import {
-  CLASS_HELPER_NAMES,
-  classAttrs,
-} from './transform-class-peel';
-import { applyEdits, parse, pruneImports, syntaxErrors } from './transform-imports';
+import { CLASS_HELPER_NAMES, classAttrs } from './transform-class-peel';
 import type { SpanEdit } from './transform-imports';
+import {
+  applyEdits,
+  parse,
+  pruneImports,
+  syntaxErrors,
+} from './transform-imports';
 import type { ExistingClass } from './transform-node';
 
 const HELPER_NAME = new Set(CLASS_HELPER_NAMES);

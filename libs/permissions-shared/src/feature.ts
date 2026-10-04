@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { PERMISSIONS_TABLES } from './tables';
-import { PERMISSIONS_TOPIC_MAP } from './topic-map';
 import { PERMISSIONS_PRIVACY } from './account-privacy';
 import { PERMISSIONS_QUERIES } from './queries';
+import { PERMISSIONS_TABLES } from './tables';
+import { PERMISSIONS_TOPIC_MAP } from './topic-map';
 
 export const PERMISSIONS_FEATURE = defineFeature({
   name: 'permissions',

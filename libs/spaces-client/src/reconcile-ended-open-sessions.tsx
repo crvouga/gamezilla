@@ -1,11 +1,13 @@
 import { useDeviceId } from '@libs/auth-client/use-device-id';
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import { closeEndedOpenSessionsMutation } from '@libs/spaces-shared/close-ended-open-sessions-mutation';
 import { useTimers } from '@pkgs/clock-client/solid';
 import sql from '@pkgs/sql-shared/sql';
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { createEffect, onCleanup } from 'solid-js';
-
-import { closeEndedOpenSessionsMutation } from '@libs/spaces-shared/close-ended-open-sessions-mutation';
 
 type EndedSessionRow = {
   readonly space_id: string;

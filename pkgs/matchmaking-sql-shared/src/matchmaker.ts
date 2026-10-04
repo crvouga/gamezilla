@@ -7,30 +7,59 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { AttributeState } from '@pkgs/attribute-shared/attribute';
 import { assertKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import type { _MatchPassResult, DistanceFormula, JoinInput, JoinResult, LeaveResult, RadiusOptions, StatusResult, UpdateFormulasResult } from '@pkgs/matchmaking-shared/types';
-import { assertDataMatchesFormula, serializeFormula } from '@pkgs/matchmaking-shared/formula-wire';
-import { assertDistanceFormulasInput, resolveGroupSize } from '@pkgs/matchmaking-shared/join-helpers';
-import type { CurrentSearch, SearchRequest } from '@pkgs/matchmaking-shared/identity';
+import {
+  assertDataMatchesFormula,
+  serializeFormula,
+} from '@pkgs/matchmaking-shared/formula-wire';
+import type {
+  CurrentSearch,
+  SearchRequest,
+} from '@pkgs/matchmaking-shared/identity';
+import {
+  assertDistanceFormulasInput,
+  resolveGroupSize,
+} from '@pkgs/matchmaking-shared/join-helpers';
 import type { JoinInputRaw } from '@pkgs/matchmaking-shared/matchmaking';
 import { MATCHMAKING_MIN_GROUP_SIZE } from '@pkgs/matchmaking-shared/payload-limits';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import type {
+  _MatchPassResult,
+  DistanceFormula,
+  JoinInput,
+  JoinResult,
+  LeaveResult,
+  RadiusOptions,
+  StatusResult,
+  UpdateFormulasResult,
+} from '@pkgs/matchmaking-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import type { FormationPorts } from './match-pass';
 import { runFormation } from './match-pass';
 import { partitionSignatureFor, resolveGlobalRadius } from './matching';
-import type { ActivePartition, RunMatchPassesAcrossPartitionsOptions, RunMatchPassesAcrossPartitionsResult, RunMatchPassesOptions, RunMatchPassesResult, UpdateFormulasInputRaw } from './matchmaker-internals';
-import { assertMatchmakerOptionInvariants, assertPartitionSignature, epochMs } from './matchmaker-internals';
+import type {
+  ActivePartition,
+  RunMatchPassesAcrossPartitionsOptions,
+  RunMatchPassesAcrossPartitionsResult,
+  RunMatchPassesOptions,
+  RunMatchPassesResult,
+  UpdateFormulasInputRaw,
+} from './matchmaker-internals';
+import {
+  assertMatchmakerOptionInvariants,
+  assertPartitionSignature,
+  epochMs,
+} from './matchmaker-internals';
 import {
   activePartitionsQuery,
   prunePartitionsQuery,
   schemaFingerprintQuery,
 } from './matchmaker-queries';
 import { fingerprintForOptions } from './migrate';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
 import { changeAvailability, changeRestriction } from './owner-repository';
 import { canPair } from './pair-read';
 import { parallelMap } from './parallel-map';
-import { SearchCommands } from './search-commands';
 import type { SearchPorts } from './search-commands';
+import { SearchCommands } from './search-commands';
 import { readCurrent, readSearch } from './search-read';
 import { matchmakingTransaction } from './transaction';
 

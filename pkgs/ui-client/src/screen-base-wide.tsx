@@ -6,15 +6,13 @@
  * header island.
  */
 
-import { createMemo, type JSX, Show } from 'solid-js';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
-import { useActionBarChrome } from './action-bar-chrome';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { ActionBar } from './action-bar';
+import { useActionBarChrome } from './action-bar-chrome';
 import { ContentEdgePaddingProvider } from './content-edge-padding';
 import { Island } from './island';
-import { ScreenTitleProvider } from './screen-title-context';
-import { ScrollView } from './scroll-view';
 import {
   buildBodyContentProps,
   hasScreenBaseActions,
@@ -22,11 +20,17 @@ import {
   partitionScreenBaseActions,
   SCREEN_SCROLL_BOTTOM_PADDING,
 } from './screen-base-logic';
-import { primaryActionVisible, ScreenBasePrimaryButton, WithScreenBasePrimaryAction } from './screen-base-primary-action';
 import type { ScreenBasePrimaryActionRender } from './screen-base-primary-action';
+import {
+  primaryActionVisible,
+  ScreenBasePrimaryButton,
+  WithScreenBasePrimaryAction,
+} from './screen-base-primary-action';
 import type { ScreenBaseProps } from './screen-base-types';
 import { ScreenBreadcrumbTrail } from './screen-breadcrumb-trail';
 import { useScreenFocus } from './screen-focus';
+import { ScreenTitleProvider } from './screen-title-context';
+import { ScrollView } from './scroll-view';
 
 type BodyProps = Pick<ScreenBaseProps, 'content' | 'footer' | 'bottomBar'> & {
   scroll: boolean;

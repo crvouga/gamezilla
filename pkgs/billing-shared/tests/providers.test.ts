@@ -2,7 +2,10 @@ import { describe, expect, test } from 'bun:test';
 
 import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
 import type { MembershipBilling } from '@pkgs/billing-shared/membership';
-import { createMembershipProviders, membershipCallbackPath } from '@pkgs/billing-shared/providers';
+import {
+  createMembershipProviders,
+  membershipCallbackPath,
+} from '@pkgs/billing-shared/providers';
 
 function adapter(provider: string): MembershipBilling {
   const unused = () => Promise.reject(new Error('unused'));

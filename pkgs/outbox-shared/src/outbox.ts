@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import type { OutboxSendCtx, OutboxSendInput } from './types';
 

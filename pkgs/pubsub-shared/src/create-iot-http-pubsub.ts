@@ -1,11 +1,11 @@
-import { assertValidTopic } from './topic';
-import { encodePayload } from './payload';
 import type { PubSub, PubSubStatus } from './interface';
+import { encodePayload } from './payload';
 import { PubSubClosedError } from './pubsub-closed-error';
 import { PubSubNotSupportedError } from './pubsub-not-supported-error';
 import { PubSubPublishError } from './pubsub-publish-error';
-import type { Topic } from './topic';
 import { signAws4 } from './sign-aws4';
+import type { Topic } from './topic';
+import { assertValidTopic } from './topic';
 import { iotWireTopic } from './wire-topic';
 
 type FetchImpl = (

@@ -4,8 +4,8 @@
  * source the rest of the product uses for host/guest.
  */
 
-import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { useSpacePresence } from '@libs/spaces-client/public-use-space-presence';
+import { useSpaceRoomSessionId } from '@libs/spaces-client/space-room-context';
 import { type Accessor, createMemo } from 'solid-js';
 
 export type PuzzleSpaceRole = 'host' | 'guest' | 'unknown';

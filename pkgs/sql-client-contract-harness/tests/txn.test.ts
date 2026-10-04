@@ -1,10 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-import { ALWAYS_FACTORIES } from './registry';
 import { forEachBackendSample } from './for-each-backend';
+import {
+  arbRowForTable,
+  renderCreateTable,
+  renderInsert,
+  renderSelectAll,
+} from './program';
+import { ALWAYS_FACTORIES } from './registry';
 import { arbLogicalSchema } from './schema';
-import { arbRowForTable, renderCreateTable, renderInsert, renderSelectAll } from './program';
 import { assertWireSafeRows } from './wire-safety';
 
 describe('txn.pbt', () => {

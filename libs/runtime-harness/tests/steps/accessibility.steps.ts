@@ -5,10 +5,10 @@
  */
 
 import { expect } from 'bun:test';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import { onScreen, tabsVisible } from '@libs/harness/ui-reads';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
 import {
   comeBackFromSettings,
   moveKeyboardThroughPage,

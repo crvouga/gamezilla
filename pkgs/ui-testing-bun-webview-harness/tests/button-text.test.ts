@@ -12,8 +12,8 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { runInThisContext } from 'node:vm';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-host';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
+import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-host';
 
 beforeAll(() => {
   GlobalRegistrator.register();

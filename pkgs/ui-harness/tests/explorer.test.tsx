@@ -3,26 +3,26 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
-import { componentRegistry, registryEntries, registryGroups, toCatalogItems } from '@pkgs/ui-client/component-registry';
+import {
+  componentRegistry,
+  registryEntries,
+  registryGroups,
+  toCatalogItems,
+} from '@pkgs/ui-client/component-registry';
 import { ExplorerDetail } from '@pkgs/ui-client/explorer-detail';
 import { ExplorerList } from '@pkgs/ui-client/explorer-list';
 import { SchemePreview } from '@pkgs/ui-client/scheme-preview';
 import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
+import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
-const COMPONENTS_DIR = join(import.meta.dirname, '../src/components');
+const COMPONENTS_DIR = join(import.meta.dirname, '../../ui-client/src');
 
 function exampleFolders(): string[] {
-  return readdirSync(COMPONENTS_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .filter((d) =>
-      readdirSync(join(COMPONENTS_DIR, d.name)).some((f) =>
-        f.endsWith('.example.tsx')
-      )
-    )
-    .map((d) => d.name);
+  return readdirSync(COMPONENTS_DIR)
+    .filter((name) => name.endsWith('.example.tsx'))
+    .map((name) => name.slice(0, -'.example.tsx'.length));
 }
 
 const DEMO_ENTRIES: readonly ComponentEntry[] = [
@@ -47,11 +47,19 @@ const DEMO_ENTRIES: readonly ComponentEntry[] = [
 ];
 
 describe('componentRegistry', () => {
-  test('has one entry per component folder that ships an example', () => {
+  test('has one entry per flat component module that ships an example', async () => {
     const folders = exampleFolders();
     expect(Object.keys(componentRegistry)).toHaveLength(folders.length);
     for (const folder of folders) {
-      expect(componentRegistry[folder], folder).toBeDefined();
+      const example = (await import(`@pkgs/ui-client/${folder}.example`)) as {
+        default: ComponentEntry['Example'];
+      };
+      expect(
+        Object.values(componentRegistry).filter(
+          (entry) => entry.Example === example.default
+        ),
+        folder
+      ).toHaveLength(1);
     }
   });
 

@@ -7,26 +7,25 @@
  * system's to say.
  */
 
-import { useCurrentUser } from '@libs/auth-client/use-current-user';
 import { useClientConfig } from '@libs/app-config-client/use-client-config';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import { useCurrentUser } from '@libs/auth-client/use-current-user';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { useUnlock } from '@libs/permissions-client/unlock';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
-import type { Decision } from '@pkgs/permissions-shared/decision';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
+import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { useOpenExternalUrl } from '@pkgs/ui-client/external-url';
+import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
-
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import { useMyMembershipRow } from './use-my-membership-row';
-import { useManageSubscription } from './use-manage-subscription';
 import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
+import { useManageSubscription } from './use-manage-subscription';
+import { useMyMembershipRow } from './use-my-membership-row';
 import { useSubscribe } from './use-subscribe';
 
 function useBillingView(subscribe: Accessor<Decision>): Accessor<BillingView> {

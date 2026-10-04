@@ -1,11 +1,13 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared/bounds';
+import type {
+  MutationAuthorize,
+  MutationRegistry,
+} from '@pkgs/sync-engine-shared/mutations-types';
 
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
-import type { MutationAuthorize, MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { MutationRow, ReplayAuth, ReplayOutcome } from './replay-mutation';
 import { replayMutation } from './replay-mutation';
 

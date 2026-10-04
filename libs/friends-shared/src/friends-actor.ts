@@ -1,6 +1,9 @@
 import { requireInMutation } from '@libs/permissions-shared/mutation-permission';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import type { MutationDb, MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 
 /**
  * The acting user, once the permission system lets them use friends. A denial

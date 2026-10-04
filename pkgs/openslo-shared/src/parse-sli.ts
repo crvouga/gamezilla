@@ -6,7 +6,15 @@
 
 import type { MetricSource, RatioMetric, Sli, ThresholdMetric } from './model';
 import type { Cursor, Mapping } from './parse-fields';
-import { isMapping, readBoolean, readMapping, readMetadata, readOptionalString, readString, report } from './parse-fields';
+import {
+  isMapping,
+  readBoolean,
+  readMapping,
+  readMetadata,
+  readOptionalString,
+  readString,
+  report,
+} from './parse-fields';
 
 /** A whole SLI (`metadata` + `spec`), declared or inline. */
 export function readSli(

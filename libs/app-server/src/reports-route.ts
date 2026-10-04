@@ -19,15 +19,33 @@
  * environment reads the same store, so any deployment serves any commit.
  */
 
+import { apiCors } from '@libs/app-shared/cors';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { CommitEvent, TestEvent } from '@pkgs/harness-report-shared/protocol';
-import { commitEvents, listCommits, listSourceRecords, readCommit, readFrameBody, readFrameCss, readTestReport, testEvents } from '@pkgs/harness-report-shared/read';
-import { EVENT_STREAM_CONTENT_TYPE, encodeSseEvent } from '@pkgs/harness-report-shared/protocol';
-import { isCommitSha, isFramePath, isKeySegment } from '@pkgs/harness-report-shared/keys';
+import {
+  isCommitSha,
+  isFramePath,
+  isKeySegment,
+} from '@pkgs/harness-report-shared/keys';
+import type {
+  CommitEvent,
+  TestEvent,
+} from '@pkgs/harness-report-shared/protocol';
+import {
+  EVENT_STREAM_CONTENT_TYPE,
+  encodeSseEvent,
+} from '@pkgs/harness-report-shared/protocol';
+import {
+  commitEvents,
+  listCommits,
+  listSourceRecords,
+  readCommit,
+  readFrameBody,
+  readFrameCss,
+  readTestReport,
+  testEvents,
+} from '@pkgs/harness-report-shared/read';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { type Context, Hono } from 'hono';
-
-import { apiCors } from '@libs/app-shared/cors';
 
 /** Commits per page of `GET /reports`. */
 export const REPORTS_PAGE_SIZE = 30;

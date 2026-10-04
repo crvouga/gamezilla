@@ -22,7 +22,12 @@ import {
 import type { AssistantSignal } from './signals';
 import { readAssistantSignal } from './signals';
 import type { AssistantSnapshot } from './snapshot';
-import { deserializeSnapshotV1, makeSnapshot, serializeSnapshotV1, snapshotData } from './snapshot';
+import {
+  deserializeSnapshotV1,
+  makeSnapshot,
+  serializeSnapshotV1,
+  snapshotData,
+} from './snapshot';
 
 const SILENCE_TTL_MS = 500;
 

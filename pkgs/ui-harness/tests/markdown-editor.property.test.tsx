@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { MarkdownEditor } from '@pkgs/ui-client/markdown-editor';
 import { fireEvent } from '@solidjs/testing-library';
+import fc from 'fast-check';
 import { createSignal } from 'solid-js';
 import { renderUi } from './render';
 

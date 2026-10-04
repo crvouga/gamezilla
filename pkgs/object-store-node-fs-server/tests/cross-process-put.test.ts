@@ -18,7 +18,7 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-const WRITER = join(import.meta.dir, 'support/put-writer.ts');
+const WRITER = join(import.meta.dir, 'put-writer.ts');
 
 describe('ObjectStoreImplNodeFs across processes', () => {
   test('concurrent puts of one key from several processes all succeed', async () => {

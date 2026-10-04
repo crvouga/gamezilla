@@ -11,7 +11,6 @@ import { ValidationError } from '@pkgs/assert-shared/validation-error';
 import type { AttributeState } from '@pkgs/attribute-shared/attribute';
 import { assertKeywordRecord } from '@pkgs/keyword-shared/keyword';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { type Context, Hono, type MiddlewareHandler } from 'hono';
 import type {
   CategoricalTermWire,
   FormulaWire,
@@ -19,12 +18,16 @@ import type {
   PartitionTermWire,
   RadiusOptionsWire,
 } from '@pkgs/matchmaking-shared/formula-wire';
-import type { JoinInputRaw, Matchmaking } from '@pkgs/matchmaking-shared/matchmaking';
+import type {
+  JoinInputRaw,
+  Matchmaking,
+} from '@pkgs/matchmaking-shared/matchmaking';
 import {
   MATCHMAKING_MAX_GROUP_SIZE,
   MATCHMAKING_MIN_GROUP_SIZE,
   MATCHMAKING_PAYLOAD_LIMITS,
 } from '@pkgs/matchmaking-shared/payload-limits';
+import { type Context, Hono, type MiddlewareHandler } from 'hono';
 
 type LeaveBody = { readonly participantId: string; readonly requestId: string };
 

@@ -2,8 +2,8 @@ import { defineAction } from '@pkgs/harness-shared/define-action';
 import { defineProperty } from '@pkgs/harness-shared/define-property';
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
 import { defineSystem } from '@pkgs/harness-shared/define-system';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import { gen } from '@pkgs/harness-shared/fast-check';
+import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import {
   corruptHarnessOpfsStore,
   fillHarnessOpfsPool,
@@ -19,8 +19,8 @@ import {
   ownerTabId,
 } from './ownership';
 import { readToyRow, readToyRows, writeToyRow } from './toy-kv';
-import { boardOf, requireStore } from './types';
 import type { SqlClientWebBackend, SqlClientWebSurface } from './types';
+import { boardOf, requireStore } from './types';
 
 function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);

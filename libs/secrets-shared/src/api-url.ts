@@ -1,5 +1,5 @@
-import { requireNonEmpty, Secret } from './secret';
 import type { SecretInput } from './secret';
+import { requireNonEmpty, Secret } from './secret';
 
 async function validateApiOrigin(
   input: SecretInput,

@@ -8,6 +8,8 @@
  * `replace` to a fallback (see `useBreadcrumbNav`).
  */
 
+import type { Href, HrefObject } from '@pkgs/ui-shared/href';
+import { hrefToPath, normalizePath } from '@pkgs/ui-shared/href';
 import {
   useLocation,
   useNavigate,
@@ -22,8 +24,6 @@ import {
   untrack,
   useContext,
 } from 'solid-js';
-import type { Href, HrefObject } from '@pkgs/ui-shared/href';
-import { hrefToPath, normalizePath } from '@pkgs/ui-shared/href';
 
 export type AppRouter = {
   push: (href: Href | HrefObject) => void;

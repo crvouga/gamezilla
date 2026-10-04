@@ -1,5 +1,5 @@
-import { defineFeatureClient } from '@libs/feature-client/client';
 import type { FeatureRoute } from '@libs/feature-client/client';
+import { defineFeatureClient } from '@libs/feature-client/client';
 import { useLingui } from '@lingui/solid/macro';
 import { Gamepad2Icon } from '@pkgs/ui-client/icons';
 

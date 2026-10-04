@@ -4,14 +4,16 @@
  */
 
 import { expect } from 'bun:test';
-
-import { focusActor, openAccount } from '@libs/harness/shell-actions';
-import { signedInAccountOf } from '@libs/harness/identity';
-import { signedOutShown, signInMethodsShown } from '@libs/harness/sign-in-method-actions';
 import { signInWithApple, signOut } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Then, When } from '@libs/harness/define';
+import { signedInAccountOf } from '@libs/harness/identity';
+import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
+import { focusActor, openAccount } from '@libs/harness/shell-actions';
+import {
+  signedOutShown,
+  signInMethodsShown,
+} from '@libs/harness/sign-in-method-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, signedInAccountKey } from '@libs/harness/spec-world';
 

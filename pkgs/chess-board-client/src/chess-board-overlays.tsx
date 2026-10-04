@@ -5,8 +5,11 @@
  * builds, so production pays nothing for it.
  */
 
-import { buildChessBoardProbe, chessBoardProbeTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { ChessBoardProbeInteraction } from '@pkgs/chess-board-core-shared/probe';
+import {
+  buildChessBoardProbe,
+  chessBoardProbeTestId,
+} from '@pkgs/chess-board-core-shared/probe';
 import { COMPONENT_IDS_ENABLED } from '@pkgs/ui-shared/component-id';
 import type { Accessor, JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';

@@ -84,7 +84,8 @@
     "@pkgs/uuid-shared": "workspace:*",
     "@solidjs/router": "catalog:",
     "solid-js": "catalog:",
-    "stripe": "catalog:"
+    "stripe": "catalog:",
+    "@pkgs/observability-runtime-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
@@ -96,7 +97,11 @@
     "@pkgs/openslo-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@pkgs/gherkin-server": "workspace:*",
+    "@pkgs/alloy-server": "workspace:*",
+    "@pkgs/dmn-server": "workspace:*",
+    "@pkgs/openslo-server": "workspace:*"
   },
   "category": "harness"
 }

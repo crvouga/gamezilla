@@ -1,6 +1,6 @@
 import { pubsubIotSecretDefs } from '@libs/pubsub-shared/iot-secret-defs';
-import { Secret } from './secret';
 import type { SecretInput } from './secret';
+import { Secret } from './secret';
 
 function wrapDefs(): Secret[] {
   return pubsubIotSecretDefs.map((def) => {

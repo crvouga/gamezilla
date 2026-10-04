@@ -2,7 +2,6 @@
   "name": "@libs/chess-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -10,10 +9,6 @@
       "./src/*.d.ts"
     ]
   },
-  "specDomains": [
-    "chess"
-  ],
-  "specParts": 32,
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -106,5 +101,10 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness",
+  "specDomains": [
+    "chess"
+  ],
+  "specParts": 32
 }

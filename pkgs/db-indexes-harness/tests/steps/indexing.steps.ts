@@ -1,7 +1,17 @@
 import { expect } from 'bun:test';
-import type { IndexSafety } from '@pkgs/db-indexes-harness/index-safety-system';
-import { indexSafetySystem, resumeSafetyReconcile, runSafetyPlan, runSafetyReconcile, safetySnapshot, selectSafetyFixture, setRetirementAge, setRunBudget, setWriteInterruption } from '@pkgs/db-indexes-harness/index-safety-system';
 import { SAFETY_INDEX } from '@pkgs/db-indexes-harness/index-safety-fixtures';
+import type { IndexSafety } from '@pkgs/db-indexes-harness/index-safety-system';
+import {
+  indexSafetySystem,
+  resumeSafetyReconcile,
+  runSafetyPlan,
+  runSafetyReconcile,
+  safetySnapshot,
+  selectSafetyFixture,
+  setRetirementAge,
+  setRunBudget,
+  setWriteInterruption,
+} from '@pkgs/db-indexes-harness/index-safety-system';
 import { setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

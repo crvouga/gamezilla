@@ -1,5 +1,5 @@
-import { assert } from '@pkgs/assert-shared/singleton';
 import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
+import { assert } from '@pkgs/assert-shared/singleton';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import {

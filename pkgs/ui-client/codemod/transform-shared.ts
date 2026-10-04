@@ -6,8 +6,18 @@ import type ts from 'typescript';
 import type { StaticValue } from './mapping-types';
 import type { ObjectEntry } from './transform-attrs';
 import { convertDataSet, emitDataSetAttrs } from './transform-dataset';
-import type { ClassListEntry, ExistingClass, NodeConversion } from './transform-node';
-import { convertSxEntries, convertSxParts, readAsElement, readExistingClass, readSxAttr } from './transform-node';
+import type {
+  ClassListEntry,
+  ExistingClass,
+  NodeConversion,
+} from './transform-node';
+import {
+  convertSxEntries,
+  convertSxParts,
+  readAsElement,
+  readExistingClass,
+  readSxAttr,
+} from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 
 /** Prefixed style slot (`frame` → frameClass / frameClassList / frameStyle). */

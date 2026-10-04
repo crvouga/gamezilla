@@ -1,4 +1,7 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 
 const friendsOutboxNs = createMessageNamespace('friends', 'outbox');
 

@@ -2,7 +2,6 @@
   "name": "@libs/chess-custom-game-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -32,5 +31,6 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness"
 }

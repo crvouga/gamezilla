@@ -1,10 +1,9 @@
-import { ACTION } from '@libs/permissions-shared/permission-catalog';
-import type { Decision } from '@pkgs/permissions-shared/decision';
-import { usePermissions } from '@libs/permissions-client/use-permissions';
-import { useClock, useTimers } from '@pkgs/clock-client/solid';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
-
 import { ratedStartKey } from '@libs/chess-puzzle-shared/rated-start-key';
+import { usePermissions } from '@libs/permissions-client/use-permissions';
+import { ACTION } from '@libs/permissions-shared/permission-catalog';
+import { useClock, useTimers } from '@pkgs/clock-client/solid';
+import type { Decision } from '@pkgs/permissions-shared/decision';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 /** Consumes the rated-puzzle quota when a puzzle is started (§22.4). */
 export type RatedStartGate = {

@@ -2,8 +2,12 @@ import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-mi
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { HarnessClient } from './client';
-import type { EdgeFaultController, HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
+import type {
+  EdgeFaultController,
+  HarnessCrashEvent,
+  HarnessHttpFault,
+} from './edge-faults';
 import type { BootedHarnessKernel } from './types';
 
 export type RestartClientOpts = {

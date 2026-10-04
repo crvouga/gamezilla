@@ -1,5 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { endSpaceMutation } from '@libs/spaces-shared/end-space-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useEndSpace() {
   const mutationClient = useMutationClient();

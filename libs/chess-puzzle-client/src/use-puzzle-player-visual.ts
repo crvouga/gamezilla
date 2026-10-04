@@ -1,9 +1,8 @@
-import type { BoardArrow } from '@pkgs/chess-board-core-shared/types';
-import { type Accessor, createMemo } from 'solid-js';
-
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import { solutionArrows } from '@libs/chess-puzzle-shared/solve-projection';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { BoardArrow } from '@pkgs/chess-board-core-shared/types';
+import { type Accessor, createMemo } from 'solid-js';
 import { usePuzzlePlayerCellFeedback } from './use-puzzle-player-cell-feedback';
 import { usePuzzlePlayerPresentation } from './use-puzzle-player-presentation';
 

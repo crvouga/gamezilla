@@ -1,8 +1,10 @@
+import {
+  blobHeading,
+  formatBlobBody,
+} from '@pkgs/harness-report-shared/format';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
 import type { ReportSnapshotBlob } from '@pkgs/harness-shared/report-types';
 import { For } from 'solid-js';
-
-import { blobHeading, formatBlobBody } from '@pkgs/harness-report-shared/format';
 
 /** Raw text of the frame's non-UI snapshots, beside the phones. */
 export function SnapshotsAside(props: {

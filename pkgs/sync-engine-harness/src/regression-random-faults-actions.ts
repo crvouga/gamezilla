@@ -3,17 +3,16 @@
  * pressure. Companion to `regression-actions.ts` (client / data vocabulary).
  */
 
-import type { Action } from '@pkgs/harness-shared/effect';
 import { defineAction } from '@pkgs/harness-shared/define-action';
-
-import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
+import type { Action } from '@pkgs/harness-shared/effect';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
+import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { RestartClientOpts } from './lifecycle';
 import type { NetState } from './net-effect';
-import type { StoragePressureKind } from './storage-pressure';
-import type { HarnessTraffic } from './traffic';
 import { requireClient } from './regression-support';
 import type { SyncHarness } from './scenario-system';
+import type { StoragePressureKind } from './storage-pressure';
+import type { HarnessTraffic } from './traffic';
 
 export const netSet = defineAction({
   name: 'netSet',

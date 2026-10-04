@@ -1,7 +1,10 @@
 import { createHash } from 'node:crypto';
 import { readObjectBytes, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { QualityResult, UIQualityChecker } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import type {
+  QualityResult,
+  UIQualityChecker,
+} from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import type { SnapshotRenderer } from './render';
 import type {
   ArtifactManifest,

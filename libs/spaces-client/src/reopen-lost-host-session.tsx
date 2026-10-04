@@ -1,11 +1,10 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { shouldEnterOwnLiveSpace } from '@libs/spaces-shared/reopen-lost-host-session';
+import { isViewerSpaceHost } from '@libs/spaces-shared/resolve-space-presence';
 import sql from '@pkgs/sql-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createEffect } from 'solid-js';
-
-import { shouldEnterOwnLiveSpace } from '@libs/spaces-shared/reopen-lost-host-session';
 import { useSpacePresence } from './public-use-space-presence';
-import { isViewerSpaceHost } from '@libs/spaces-shared/resolve-space-presence';
 import { useJoinSpace } from './use-join-space';
 
 type HostRow = {

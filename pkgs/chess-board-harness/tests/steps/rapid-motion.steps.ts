@@ -1,7 +1,12 @@
 import { expect } from 'bun:test';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { prepareRapidCapture, RAPID_CAPTURE_FINAL, RAPID_CAPTURE_LINE, readSettledMotion } from '@pkgs/chess-board-harness/motion-setup';
 import { readActivityMoves } from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  prepareRapidCapture,
+  RAPID_CAPTURE_FINAL,
+  RAPID_CAPTURE_LINE,
+  readSettledMotion,
+} from '@pkgs/chess-board-harness/motion-setup';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

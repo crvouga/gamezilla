@@ -1,8 +1,14 @@
-import type { CurrentSearch, SearchRequest } from './identity';
-import type { DistanceFormula, JoinInput, JoinResult, LeaveResult, UpdateFormulasResult } from './types';
-import type { Matchmaking } from './matchmaking';
-import { DEFAULT_RADIUS_OPTIONS } from './types';
 import { expandingRadius } from './compatibility';
+import type { CurrentSearch, SearchRequest } from './identity';
+import type { Matchmaking } from './matchmaking';
+import type {
+  DistanceFormula,
+  JoinInput,
+  JoinResult,
+  LeaveResult,
+  UpdateFormulasResult,
+} from './types';
+import { DEFAULT_RADIUS_OPTIONS } from './types';
 
 export type DevicePorts = {
   readonly matchmaking: () => Pick<

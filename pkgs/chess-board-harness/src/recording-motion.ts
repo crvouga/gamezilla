@@ -6,9 +6,12 @@
  * left somewhere) logs as `hand`, an interpolated one as `mid`.
  */
 
-import type { AnimateTransform, BoardMotionEnvironment } from '@pkgs/chess-board-shared/board-motion';
 import { xyToSquare } from '@pkgs/chess-board-core-shared/geometry';
 import type { BoardOrientation } from '@pkgs/chess-board-core-shared/types';
+import type {
+  AnimateTransform,
+  BoardMotionEnvironment,
+} from '@pkgs/chess-board-shared/board-motion';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import { type Accessor, createSignal } from 'solid-js';
 

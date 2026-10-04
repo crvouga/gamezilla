@@ -90,7 +90,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
       - name: Remove unused branches and stale reports
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
 
   deploy-matrix:
     name: deploy:matrix
@@ -158,20 +158,20 @@ jobs:
 
       # Promote first: the fleet apply reads its state passphrase from shared.
       - name: promote shared secrets
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/secrets-server/src/secrets-reconcile-shared.ts promote
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/secrets-server/scripts/secrets-reconcile-shared.ts promote
 
       # The OAuth callback relay (auth.<zone>) forwards to every env file, so
       # it ships before any env deploys; the fleet apply then binds its
       # hostname (a custom domain needs its Worker to exist).
       - name: deploy auth relay
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @apps/auth-relay deploy
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @apps/auth-relay deploy
 
       - name: apply fleet
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @libs/infra-server apply:fleet
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server apply:fleet
 
       # Only now does every env import shared: drop the copies that shadow it.
       - name: prune shadowing copies
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/secrets-server/src/secrets-reconcile-shared.ts prune
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/secrets-server/scripts/secrets-reconcile-shared.ts prune
 
   deploy-standard:
     name: deploy:${{ matrix.env }}

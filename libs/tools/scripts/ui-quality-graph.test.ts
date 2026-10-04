@@ -14,7 +14,7 @@ test('the product proof starts bounded solver workers before native replay', () 
   );
   const stages = pkg.scripts['test:contract']!.split(' && ');
   expect(stages).toHaveLength(2);
-  expect(stages[0]).toContain('tests/quint/system/model-checks.test.ts');
+  expect(stages[0]).toContain('tests/quint/model-checks.test.ts');
   expect(stages[1]).toContain('tests/ui-quality-render.contract.test.ts');
   for (const stage of stages) {
     const workers = stage.match(/--max-concurrency (\d+)/)?.[1];

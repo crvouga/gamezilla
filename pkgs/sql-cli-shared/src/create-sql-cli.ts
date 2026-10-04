@@ -2,11 +2,11 @@ import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 
 import { registerDescribeTableCommand } from './describe-table';
 import { registerHelpCommand } from './help';
+import { interpolateTaggedTemplate } from './interpolate';
 import { registerListTablesCommand } from './list-tables';
+import { printSqlCliResult } from './print-result';
 import { registerRawSqlCommand } from './raw-sql';
 import { registerSummaryCommand } from './summary';
-import { interpolateTaggedTemplate } from './interpolate';
-import { printSqlCliResult } from './print-result';
 import type { SqlCliCommand, SqlCliFn, SqlCliResult } from './types';
 
 export type CreateSqlCliConfig = {

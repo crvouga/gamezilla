@@ -1,7 +1,6 @@
 import { finishCompetingPuzzleResults } from '@libs/chess-puzzle-harness/puzzle-competing-mates';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, When } from '@libs/harness/define';
-import type { PuzzleFinishName } from '@libs/harness/parameter-types';
+import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 
 Given(

@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+
 import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
+import { createContext, type JSX, untrack, useContext } from 'solid-js';
 
 /**
  * Fixed scroller rect for layout-less hosts (happy-dom unit tests, static

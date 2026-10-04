@@ -5,8 +5,8 @@
 
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { HarnessCorruptionVariant } from './corruption-faults';
-import { createPubsubFaultArms } from './edge-fault-pubsub';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
+import { createPubsubFaultArms } from './edge-fault-pubsub';
 
 export type HarnessCrashEvent =
   | 'afterNextSyncResponseDelivered'

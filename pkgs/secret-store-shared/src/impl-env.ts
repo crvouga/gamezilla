@@ -1,7 +1,5 @@
 import type { SecretStore } from './interface';
-import {
-  createRecordSecretStore,
-} from './record-secret-store';
+import { createRecordSecretStore } from './record-secret-store';
 
 /**
  * Runtime {@link SecretStore} backed by injected env bindings. The Worker,

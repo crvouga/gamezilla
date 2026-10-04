@@ -1,5 +1,8 @@
+import type {
+  QualityDetector,
+  RgbImage,
+} from '@pkgs/ui-quality-check-shared/detectors-types';
 import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
-import type { QualityDetector, RgbImage } from '@pkgs/ui-quality-check-shared/detectors-types';
 import type { VideoDecoder } from '@pkgs/ui-quality-check-shared/video-types';
 
 export function rgb(red: number): RgbImage {

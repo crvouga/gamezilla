@@ -7,14 +7,12 @@
   "include": [
     "../ts-reset-shared/src/ts-reset.ts",
     "../bun-test-solid-client/src/jest-dom.d.ts",
-    "../ui/codemod/**/*.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./tests/**/*.ts",
     "./tests/**/*.tsx",
-    "./codemod/**/*.ts"
+    "./codemod/**/*.ts",
+    "./scripts/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

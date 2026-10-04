@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
-import { isSpaceVisibility, parseSpaceVisibility, SPACE_VISIBILITIES } from '@libs/spaces-shared/space-visibility';
 import type { SpaceVisibility } from '@libs/spaces-shared/space-visibility';
+import {
+  isSpaceVisibility,
+  parseSpaceVisibility,
+  SPACE_VISIBILITIES,
+} from '@libs/spaces-shared/space-visibility';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

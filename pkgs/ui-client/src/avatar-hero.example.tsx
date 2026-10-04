@@ -2,9 +2,9 @@
 import { useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX } from 'solid-js';
 import { Avatar } from './avatar';
+import { AvatarHero } from './avatar-hero';
 import { ExampleRoot } from './example-root';
 import { ShuffleIcon } from './icons';
-import { AvatarHero } from './avatar-hero';
 
 const SAMPLE_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">

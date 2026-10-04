@@ -1,10 +1,10 @@
-import { applyConsoleNavPatch, parseConsoleNav } from './console-nav';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { openSettings } from '@libs/harness/shell-actions';
 import { harnessConsoleLayoutFromBreakpoint } from '@pkgs/harness-console-client/layout';
 import { resolveProductHarnessInstanceId } from '@pkgs/harness-console-client/product-harness-kind-pane';
 import { selectUnifiedNode } from '@pkgs/harness-console-client/select-unified-node';
+import { applyConsoleNavPatch, parseConsoleNav } from './console-nav';
 import { tools } from './developer-tools-state';
 export const provideWorldDevices = scenarioAction({
   name: 'provideWorldDevices',

@@ -8,8 +8,8 @@ import {
   chessBoardSquareTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
 } from '@pkgs/chess-board-core-shared/probe';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { screen } from '@solidjs/testing-library';

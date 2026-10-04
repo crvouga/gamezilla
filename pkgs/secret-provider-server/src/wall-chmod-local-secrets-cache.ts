@@ -2,7 +2,10 @@
 import { join } from 'node:path';
 import { wallOsFs } from '@pkgs/os-server/wall-os-fs';
 import type { SecretsCacheEnv } from '@pkgs/secret-provider-shared/local-secrets-cache';
-import { secretsCacheMetaRelPath, secretsCacheRelPath } from '@pkgs/secret-provider-shared/local-secrets-cache';
+import {
+  secretsCacheMetaRelPath,
+  secretsCacheRelPath,
+} from '@pkgs/secret-provider-shared/local-secrets-cache';
 
 const SECRET_FILE_MODE = 0o600;
 

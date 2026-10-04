@@ -12,15 +12,19 @@
  * Never pass a custom width through `style`.
  */
 
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { ModalSize } from '@pkgs/ui-shared/modal-size';
+import {
+  MODAL_CONTENT_MARGIN_STEP,
+  resolveModalLayoutMaxHeight,
+  resolveModalLayoutWidth,
+} from '@pkgs/ui-shared/modal-size';
+import { spacing } from '@pkgs/ui-shared/scale';
+import { type JSX, Show } from 'solid-js';
+import { ContentEdgePaddingProvider } from './content-edge-padding';
 import { OnColorReset } from './on-color-context';
 import { useThemeLayout } from './theme-context';
-import { MODAL_CONTENT_MARGIN_STEP, resolveModalLayoutMaxHeight, resolveModalLayoutWidth } from '@pkgs/ui-shared/modal-size';
-import type { ModalSize } from '@pkgs/ui-shared/modal-size';
-import { spacing } from '@pkgs/ui-shared/scale';
-import { ContentEdgePaddingProvider } from './content-edge-padding';
 
 /** Spacing-scale step for default {@link ModalContent} padding (`p: 5` → 20px). */
 export const MODAL_CONTENT_PADDING_STEP = 5;

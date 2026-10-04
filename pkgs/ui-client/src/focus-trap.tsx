@@ -6,9 +6,9 @@
  * (`role="dialog"`, `aria-modal`).
  */
 
-import { createEffect, type JSX, onCleanup, untrack } from 'solid-js';
 import { pushEscapeDismissHandler } from '@pkgs/ui-shared/escape-dismiss-stack';
 import { collectTabbable, nextTabStop } from '@pkgs/ui-shared/focus-trap-logic';
+import { createEffect, type JSX, onCleanup, untrack } from 'solid-js';
 
 export type FocusTrapProps = {
   /** When true, trap Tab focus inside the subtree. */

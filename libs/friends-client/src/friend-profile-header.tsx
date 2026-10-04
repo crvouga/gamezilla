@@ -1,7 +1,7 @@
+import type { FriendProfile } from '@libs/friends-shared/friends-types';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { JSX } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
-import type { FriendProfile } from '@libs/friends-shared/friends-types';
 
 export type FriendProfileHeaderProps = {
   readonly profile: FriendProfile;

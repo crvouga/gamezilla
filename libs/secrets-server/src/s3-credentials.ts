@@ -3,8 +3,12 @@ import {
   ListObjectsV2Command,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { requireHttpsUrl, requireNonEmpty, Secret } from '@libs/secrets-shared/secret';
 import type { SecretInput } from '@libs/secrets-shared/secret';
+import {
+  requireHttpsUrl,
+  requireNonEmpty,
+  Secret,
+} from '@libs/secrets-shared/secret';
 
 async function probeAppKeyAccess(input: SecretInput): Promise<void> {
   const accessKeyId = input.secrets.get('S3_ACCESS_KEY_ID')?.trim() ?? '';

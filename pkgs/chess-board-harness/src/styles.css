@@ -1,5 +1,5 @@
-@import "@pkgs/tailwind/tailwind.css";
-@import "@pkgs/ui/base.css";
+@import "@pkgs/tailwind-shared/tailwind.css";
+@import "@pkgs/ui-client/hosts.css";
 @source "../../**/*.{ts,tsx}";
 @source "../../../../ui/src/**/*.{ts,tsx}";
 

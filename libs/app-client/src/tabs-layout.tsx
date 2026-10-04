@@ -9,14 +9,13 @@
  * composed in contribute theirs, and a shell running one feature shows one.
  */
 
-import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
 import { usePathname, useRouter } from '@pkgs/ui-client/app-router';
+import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
 import type { RouteSectionProps } from '@solidjs/router';
 import { For, type JSX, Show, Suspense } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-
-import { AppTabBar } from './app-tab-bar';
 import { useAppFeatures } from './app-features-context';
+import { AppTabBar } from './app-tab-bar';
 
 export function TabsLayout(props: RouteSectionProps): JSX.Element {
   const mode = useLayoutMode();

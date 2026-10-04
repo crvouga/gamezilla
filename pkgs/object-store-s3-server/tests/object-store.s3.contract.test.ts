@@ -2,11 +2,17 @@
 // or a shared bucket injected by the environment.
 
 import { afterAll, describe, expect, test } from 'bun:test';
+import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store-shared/prefixes';
-import { S3_ACCESS_KEY_ID, S3_BUCKET, S3_REGION, S3_SECRET_ACCESS_KEY, startS3Server } from '@pkgs/s3-server/s3-server';
+import {
+  S3_ACCESS_KEY_ID,
+  S3_BUCKET,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
+  startS3Server,
+} from '@pkgs/s3-server/s3-server';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
-import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
 
 const handle = await startS3Server();
 const s3Config = {

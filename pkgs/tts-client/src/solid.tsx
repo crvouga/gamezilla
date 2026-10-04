@@ -4,6 +4,12 @@ import { useObjectStore } from '@pkgs/object-store-client/solid';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { useAudioPlaybackPort } from '@pkgs/sounds-client/solid';
+import type {
+  TtsAudioFormat,
+  TtsSynthesizeResponse,
+} from '@pkgs/tts-shared/tts-types';
+import type { Voice } from '@pkgs/tts-shared/tts-voice';
+import { DEFAULT_TTS_VOICE } from '@pkgs/tts-shared/tts-voice';
 import {
   type Accessor,
   createEffect,
@@ -15,17 +21,10 @@ import {
   type ParentProps,
   untrack,
 } from 'solid-js';
-
-import type {
-  TtsAudioFormat,
-  TtsSynthesizeResponse,
-} from '@pkgs/tts-shared/tts-types';
-import { DEFAULT_TTS_VOICE } from '@pkgs/tts-shared/tts-voice';
-import type { Voice } from '@pkgs/tts-shared/tts-voice';
 import { playSynthesized } from './play-synthesized';
 import { TtsClient } from './tts-client';
-import { createTtsPlayerController } from './tts-player-controller';
 import type { TtsPlayerSnapshot } from './tts-player-controller';
+import { createTtsPlayerController } from './tts-player-controller';
 
 type FetchFn = (
   input: RequestInfo | URL,

@@ -1,6 +1,6 @@
 import type { Logger } from '@pkgs/logger-shared/logger';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /**
  * `obs_read` is created by `planetscale_neki_role.obs_read` in

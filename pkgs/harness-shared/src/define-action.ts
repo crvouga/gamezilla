@@ -1,5 +1,10 @@
+import type {
+  Action,
+  ActionDef,
+  AppliedAction,
+  CheckpointAction,
+} from './effect';
 import { ACTION_TAG } from './effect';
-import type { Action, ActionDef, AppliedAction, CheckpointAction } from './effect';
 
 /**
  * `S` is contravariant on callbacks — callers bind via `defineSystem({ actions })`. Args tuple `A` is inferred from `act`'s parameters after `s`.

@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
-import { measureBoardBox, squareAt } from '@pkgs/chess-board-shared/board-box';
 import { normalizeBoardSize } from '@pkgs/chess-board-client/chess-board-controller';
-import { squareCenter, squareFromIndex } from '@pkgs/chess-board-core-shared/geometry';
+import {
+  squareCenter,
+  squareFromIndex,
+} from '@pkgs/chess-board-core-shared/geometry';
+import { measureBoardBox, squareAt } from '@pkgs/chess-board-shared/board-box';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

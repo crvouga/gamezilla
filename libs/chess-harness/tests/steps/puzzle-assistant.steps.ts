@@ -1,12 +1,23 @@
 import { expect } from 'bun:test';
 import { playPuzzleMove } from '@libs/chess-puzzle-harness/chess-actions';
 import { isPuzzleBoardInteractive } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import { failAssistantAudio, mutePuzzleAssistant, preferReducedMotion, readAssistantAudioFailures, readAssistantAudioPlaying, readAssistantAudioState, readPuzzleAssistant, readReducedMotionApplied, stepPuzzlePosition, unmutePuzzleAssistant } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
+import {
+  failAssistantAudio,
+  mutePuzzleAssistant,
+  preferReducedMotion,
+  readAssistantAudioFailures,
+  readAssistantAudioPlaying,
+  readAssistantAudioState,
+  readPuzzleAssistant,
+  readReducedMotionApplied,
+  stepPuzzlePosition,
+  unmutePuzzleAssistant,
+} from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
 import { deliverCompetingPuzzleMates } from '@libs/chess-puzzle-harness/puzzle-competing-mates';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import type { Actor } from '@libs/harness/parameter-types';
 import { cutConnection, otherDevice } from '@libs/harness/platform';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import { ASSISTANT_PUZZLES } from './assistant-fixtures';
 import {

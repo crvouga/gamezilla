@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
 import { BrandIcon } from './brand-icon';
+import { ExampleRoot } from './example-root';
 
 export default function BrandIconExample(): JSX.Element {
   return (

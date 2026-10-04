@@ -5,8 +5,8 @@
  */
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX, Show } from 'solid-js';
-import { ExampleRoot } from './example-root';
 import { CopyToClipboardField } from './copy-to-clipboard-field';
+import { ExampleRoot } from './example-root';
 
 export default function CopyToClipboardFieldExample(): JSX.Element {
   const { t } = useLingui();

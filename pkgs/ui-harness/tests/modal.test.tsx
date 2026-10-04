@@ -1,13 +1,18 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { Button } from '@pkgs/ui-client/button';
 import { ConfirmationModal } from '@pkgs/ui-client/confirmation-modal';
 import { ModalBackdrop } from '@pkgs/ui-client/modal-backdrop';
-import { ModalBody, ModalButton, ModalFooter, ModalHeader } from '@pkgs/ui-client/modal-parts';
 import { ModalContent } from '@pkgs/ui-client/modal-content';
+import {
+  ModalBody,
+  ModalButton,
+  ModalFooter,
+  ModalHeader,
+} from '@pkgs/ui-client/modal-parts';
 import { ModalRoot } from '@pkgs/ui-client/modal-root';
+import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import type { ModalSize } from '@pkgs/ui-shared/modal-size';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';

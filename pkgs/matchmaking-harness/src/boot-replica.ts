@@ -2,7 +2,10 @@
  * Build MatchmakingImplSql replicas sharing one store + harness clock.
  */
 
-import type { Matchmaking, MatchmakingTuning } from '@pkgs/matchmaking-shared/matchmaking';
+import type {
+  Matchmaking,
+  MatchmakingTuning,
+} from '@pkgs/matchmaking-shared/matchmaking';
 import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
 import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
 import { MatchmakingImplSql } from '@pkgs/matchmaking-sql-server/matchmaking';

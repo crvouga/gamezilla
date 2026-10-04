@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
 import { Collapsible } from './collapsible';
+import { ExampleRoot } from './example-root';
 
 export default function CollapsibleExample(): JSX.Element {
   return (

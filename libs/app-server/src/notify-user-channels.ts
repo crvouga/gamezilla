@@ -1,7 +1,7 @@
+import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 import { userTopic } from '@libs/feature-shared/sync';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 
 export type NotifyUserChannelsOptions = {
   readonly tables?: readonly string[];

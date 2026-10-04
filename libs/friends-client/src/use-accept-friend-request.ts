@@ -1,6 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-
 import { acceptFriendRequestMutation } from '@libs/friends-shared/accept-friend-request-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useAcceptFriendRequest() {
   const mutationClient = useMutationClient();

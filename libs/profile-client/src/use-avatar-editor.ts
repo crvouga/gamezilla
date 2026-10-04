@@ -1,10 +1,4 @@
 import { useDeviceId } from '@libs/auth-client/use-device-id';
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import type { Random } from '@pkgs/uuid-shared/create-id';
-import { useRandom } from '@pkgs/uuid-client/solid';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal } from 'solid-js';
 import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
 import {
   AvatarSeedGenerator,
@@ -14,11 +8,17 @@ import {
   resolveAvatarSeed,
   serializeAvatarConfig,
 } from '@libs/profile-shared/avatar-config';
-import { patchAvatarMutation } from '@libs/profile-shared/patch-avatar-mutation';
-import { getFieldsByTab } from '@libs/profile-shared/dicebear-schema';
 import type { SchemaField } from '@libs/profile-shared/dicebear-schema';
-import { isStyleKey } from '@libs/profile-shared/dicebear-styles';
+import { getFieldsByTab } from '@libs/profile-shared/dicebear-schema';
 import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
+import { isStyleKey } from '@libs/profile-shared/dicebear-styles';
+import { patchAvatarMutation } from '@libs/profile-shared/patch-avatar-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRandom } from '@pkgs/uuid-client/solid';
+import type { Random } from '@pkgs/uuid-shared/create-id';
+import type { Accessor } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useMyProfileId } from './patch-avatar-use-my-profile-id';
 import { useProfileRow } from './patch-avatar-use-profile-row';
 

@@ -3,8 +3,8 @@
  */
 
 import { hslaToRgba, rgbaToHsla } from './convert';
-import { clamp01, rgba } from './types';
 import type { Rgba } from './types';
+import { clamp01, rgba } from './types';
 
 /**
  * Shift lightness by `delta` (e.g. `-0.1` darkens). Hue, saturation, and

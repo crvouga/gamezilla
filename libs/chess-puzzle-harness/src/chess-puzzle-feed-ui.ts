@@ -3,16 +3,12 @@
  * history / mode segments, step the rating offset, and read the bar labels.
  */
 
-import {
-  actorUi,
-  pollUntil,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
-import type { ProductHarness } from '@libs/harness/harness';
-import { Handles } from '@libs/test-ids-shared/handles';
 import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
 import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import { isChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import type { ProductHarness } from '@libs/harness/harness';
+import { Handles } from '@libs/test-ids-shared/handles';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 250;

@@ -1,14 +1,13 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Message } from '@pkgs/message-shared/message';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import type { RoomEffect } from './types';
 import {
   CancelScheduleEffect,
   ROOM_SCHEDULER_IDENTITY,
   ScheduleEffect,
 } from './builtin';
 import type { RoomEffectContext, RoomEffectHandler } from './handler';
+import type { RoomEffect } from './types';
 
 export type PendingSchedule = {
   readonly id: string;

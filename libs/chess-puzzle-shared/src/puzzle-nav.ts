@@ -1,5 +1,5 @@
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import {
   nextForwardSolveIdx,
   prevSolveIdx,

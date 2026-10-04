@@ -1,8 +1,8 @@
 import type fc from 'fast-check';
 
 import type { HarnessDomainPack } from './harness-domain-pack';
-import type { RestartClientOpts } from './lifecycle';
 import type { SyncHarnessBase } from './harness-types';
+import type { RestartClientOpts } from './lifecycle';
 
 /** One app mutation from one client — the `domain` pool action's argument. */
 export type DomainOp = {

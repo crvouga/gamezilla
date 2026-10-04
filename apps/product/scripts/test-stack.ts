@@ -15,8 +15,8 @@
 import { join } from 'node:path';
 import { bootLocalhostStack } from './boot-stack';
 import { removeManifest } from './manifest';
-import { parseStackOptions } from './stack-options';
 import { runSpecSuites } from './spec-suites';
+import { parseStackOptions } from './stack-options';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const argv = process.argv.slice(2);

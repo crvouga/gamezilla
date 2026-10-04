@@ -1,10 +1,10 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type {
   CreatedIssue,
   FeedbackReport,
   FeedbackRepository,
 } from '@pkgs/feedback-shared/types';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 
 /** The client sees one domain API, never a filesystem path or vendor configuration. */
 export class HttpIssueReporter implements FeedbackRepository {

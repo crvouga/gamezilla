@@ -1,5 +1,3 @@
-import { deleteProductHarnessSnapshots, listProductHarnessSnapshots, loadProductHarnessSnapshot, purgeIncompatibleProductHarnessSnapshotsFromStore, saveProductHarnessSnapshot } from './product-harness-snapshots';
-import type { SnapshotSessionCtx } from './product-harness-snapshots';
 import { readEmbeddedHref } from '@libs/app-shared/embedded-href';
 import { ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -10,6 +8,14 @@ import { useSnapshotChromeState } from '@pkgs/harness-console-client/use-snapsho
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { createRoot, createSignal } from 'solid-js';
 import { tools } from './developer-tools-state';
+import type { SnapshotSessionCtx } from './product-harness-snapshots';
+import {
+  deleteProductHarnessSnapshots,
+  listProductHarnessSnapshots,
+  loadProductHarnessSnapshot,
+  purgeIncompatibleProductHarnessSnapshotsFromStore,
+  saveProductHarnessSnapshot,
+} from './product-harness-snapshots';
 
 async function snapshotContext(s: ProductHarness): Promise<SnapshotSessionCtx> {
   const lives = new Map(

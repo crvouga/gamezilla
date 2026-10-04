@@ -4,8 +4,9 @@
  * (without waking any query), so the stamp survives a restart and says how
  * long the device has gone without confirming what it holds.
  */
-import sql from '@pkgs/sql-shared/sql';
+
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /** Stamp `scopeHash` as confirmed by the server at `now`. */
 export async function stampScopeConfirmed(

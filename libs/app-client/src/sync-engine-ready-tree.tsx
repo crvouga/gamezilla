@@ -11,18 +11,22 @@
  */
 
 import { AuthModalsProvider } from '@libs/auth-client/auth-modals-provider';
-import { MutationClientProvider } from '@libs/auth-client/mutation-client-provider';
 import { AuthSyncBridge } from '@libs/auth-client/auth-sync-bridge';
+import { MutationClientProvider } from '@libs/auth-client/mutation-client-provider';
 import { SqlClientProvider } from '@pkgs/sql-client-client/solid';
-import { SyncEnginePaintGateProvider, SyncEngineProvider, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  SyncEnginePaintGateProvider,
+  SyncEngineProvider,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { type JSX, untrack } from 'solid-js';
-import { useAppFeatures } from './app-features-context';
 import { AppClientConfig } from './app-client-config';
+import { useAppFeatures } from './app-features-context';
 import { AppSignInCapabilities } from './app-sign-in-capabilities';
 import { AppUiProvider } from './app-ui-provider';
+import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { DeviceEntityBootstrap } from './device-bootstrap';
 import { SyncLocalDataActions } from './local-data-actions';
-import type { ReadySyncEngine } from './create-sync-engine-boot-state';
 import { SyncStatusLiveBridge } from './sync-status-context';
 
 function SyncStatusBridge(props: {

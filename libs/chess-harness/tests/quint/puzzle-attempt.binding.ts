@@ -6,20 +6,53 @@
  * reached the host's board.
  */
 
-import { leaveChessMenuToGameMenu, leavePuzzleToChessMenu, openPuzzleFromSpace, playNextSolutionMove, playUntilSolved, playWrongPuzzleMove, pressPuzzleNext, pressPuzzleNextTwice, reopenPuzzleFromChessMenu, requestPuzzleHint, retryPuzzle, revealPuzzleSolution, showPuzzleSolutionLine, skipPuzzle, suggestNonSolutionMove, tapPuzzleReviewMove } from '@libs/chess-puzzle-harness/chess-actions';
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
+import {
+  leaveChessMenuToGameMenu,
+  leavePuzzleToChessMenu,
+  openPuzzleFromSpace,
+  playNextSolutionMove,
+  playUntilSolved,
+  playWrongPuzzleMove,
+  pressPuzzleNext,
+  pressPuzzleNextTwice,
+  reopenPuzzleFromChessMenu,
+  requestPuzzleHint,
+  retryPuzzle,
+  revealPuzzleSolution,
+  showPuzzleSolutionLine,
+  skipPuzzle,
+  suggestNonSolutionMove,
+  tapPuzzleReviewMove,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import { attemptHostPuzzleCommand } from '@libs/chess-puzzle-harness/chess-puzzle-room-probe';
-import { closePuzzleSummary, readActivePuzzleId, readPuzzleStatus } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { chooseMovablePuzzlePiece, mutePuzzleAssistant, pressPuzzleRetryIfVisible, readPuzzleAssistant, stepPuzzlePosition, unmutePuzzleAssistant } from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
-import { readPuzzleControlAvailability, readPuzzleGuidance, readPuzzleRemainingToday, readPuzzleView } from '@libs/chess-puzzle-harness/puzzle-control-reads';
+import {
+  closePuzzleSummary,
+  readActivePuzzleId,
+  readPuzzleStatus,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  chooseMovablePuzzlePiece,
+  mutePuzzleAssistant,
+  pressPuzzleRetryIfVisible,
+  readPuzzleAssistant,
+  stepPuzzlePosition,
+  unmutePuzzleAssistant,
+} from '@libs/chess-puzzle-harness/puzzle-assistant-ui';
+import {
+  readPuzzleControlAvailability,
+  readPuzzleGuidance,
+  readPuzzleRemainingToday,
+  readPuzzleView,
+} from '@libs/chess-puzzle-harness/puzzle-control-reads';
 import { preparePuzzleModelPool } from '@libs/chess-puzzle-harness/puzzle-model-pool';
-import { focusActor } from '@libs/harness/shell-actions';
 import { partition, restartApp, restoreNetwork } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
 import {
   createSpace,
   joinFromPrompt,
   openSpaceLink,
+  returnToOwnSpace,
 } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared/itf';

@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `AppFrame` -- root shell. Compact: full-bleed column. Wide: flat background
  * with a max-width column and an optional header above the body.
@@ -10,13 +11,17 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * still aligns to {@link APP_MAX_WIDTH} inside `DismissibleBanner`.
  */
 
+import {
+  APP_FRAME_GUTTER_STEP,
+  APP_MAX_WIDTH,
+  ISLAND_GAP_STEP,
+} from '@pkgs/ui-shared/layout';
 import { type JSX, Show } from 'solid-js';
-import { APP_FRAME_GUTTER_STEP, APP_MAX_WIDTH, ISLAND_GAP_STEP } from '@pkgs/ui-shared/layout';
-import { useLayoutMode } from './use-layout-mode';
+import { useAppFrameHeader } from './app-frame-chrome';
 import { ContentEdgePaddingProvider } from './content-edge-padding';
 import { DismissibleBannerPortalProvider } from './dismissible-top-banner';
 import { ScreenFocusProvider } from './screen-focus';
-import { useAppFrameHeader } from './app-frame-chrome';
+import { useLayoutMode } from './use-layout-mode';
 
 export type AppFrameProps = {
   /** Wide-only header (e.g. `AppHeaderIsland`). Ignored on compact. */

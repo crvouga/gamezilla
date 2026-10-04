@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
 import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
-import { DRIVER_KEY_TO_USER_EVENT, escapeUserEventText, userEventKeyFromDom } from '@pkgs/ui-testing-solid-dom-shared/dom-keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
+import {
+  DRIVER_KEY_TO_USER_EVENT,
+  escapeUserEventText,
+  userEventKeyFromDom,
+} from '@pkgs/ui-testing-solid-dom-shared/dom-keys';
 
 describe('dom keys', () => {
   test('every portable key has a user-event descriptor', () => {

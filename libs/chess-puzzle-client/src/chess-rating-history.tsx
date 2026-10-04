@@ -1,9 +1,8 @@
+import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { useTheme } from '@pkgs/ui-client/theme-context';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-
-import type { ChessPuzzleGameLogEntry } from '@libs/chess-puzzle-shared/chess-puzzle-stats';
 
 /** How many of the latest rated puzzles the history lists. */
 const RATING_HISTORY_LENGTH = 10;

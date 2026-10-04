@@ -1,9 +1,14 @@
 import { expect } from 'bun:test';
-import { confirmMultiplayerCommand, findChessOpponent, moveMultiplayerPiece, openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import {
+  confirmMultiplayerCommand,
+  findChessOpponent,
+  moveMultiplayerPiece,
+  openMultiplayerChess,
+} from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { multiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
 import { actorHtml } from '@libs/harness/observations';
+import type { Actor } from '@libs/harness/parameter-types';
 import { multiplayerPeople } from './multiplayer-people';
 import { givenGame, sameBoards } from './multiplayer-world';
 

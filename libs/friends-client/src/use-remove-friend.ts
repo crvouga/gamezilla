@@ -1,6 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-
 import { removeFriendMutation } from '@libs/friends-shared/remove-friend-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useRemoveFriend() {
   const mutationClient = useMutationClient();

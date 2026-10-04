@@ -1,10 +1,12 @@
 import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
-
-import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
-import { assertLogicalObjectKey } from '@pkgs/object-store-shared/namespace-guard';
 import type { NodeFs } from '@pkgs/object-store-node-fs-shared/node-fs';
+import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
+import { assertLogicalObjectKey } from '@pkgs/object-store-shared/namespace-guard';
 
 const META_SUFFIX = '.meta.json';
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';

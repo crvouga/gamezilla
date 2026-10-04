@@ -1,14 +1,15 @@
 /** @jsxImportSource solid-js */
-import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { Button } from '@pkgs/ui-client/button';
-import { MarkdownEditor } from '@pkgs/ui-client/markdown-editor';
-import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
-import { SendIcon } from '@pkgs/ui-client/icons';
-import { TextInput } from '@pkgs/ui-client/text-input';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
-import { type Accessor, type JSX, Show } from 'solid-js';
+
 import { FEEDBACK_TEMPLATES } from '@pkgs/feedback-shared/templates';
 import type { FeedbackKind } from '@pkgs/feedback-shared/types';
+import { asLocalized } from '@pkgs/i18n-shared/localized-string';
+import { Button } from '@pkgs/ui-client/button';
+import { SendIcon } from '@pkgs/ui-client/icons';
+import { MarkdownEditor } from '@pkgs/ui-client/markdown-editor';
+import { TextInput } from '@pkgs/ui-client/text-input';
+import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import type { MarkdownEditorCommand } from '@pkgs/ui-shared/markdown-editor-types';
+import { type Accessor, type JSX, Show } from 'solid-js';
 import type { FeedbackController, FeedbackState } from './controller';
 import { EvidenceControls } from './evidence-controls';
 

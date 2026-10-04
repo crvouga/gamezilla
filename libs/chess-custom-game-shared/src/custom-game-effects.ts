@@ -1,7 +1,10 @@
-import { CancelScheduleEffect, ScheduleEffect } from '@pkgs/room-shared/builtin';
+import {
+  CancelScheduleEffect,
+  ScheduleEffect,
+} from '@pkgs/room-shared/builtin';
 import type { RoomEffect } from '@pkgs/room-shared/types';
-import type { CustomGame } from './custom-game-state';
 import { EndCustomGameOnTime, PlayCustomGameBot } from './custom-game-commands';
+import type { CustomGame } from './custom-game-state';
 
 const BOT_SCHEDULE = 'chess-custom:bot';
 const CLOCK_SCHEDULE = 'chess-custom:clock';

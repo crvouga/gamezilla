@@ -15,11 +15,11 @@
 
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { OpenHarness } from './open-harness';
+import sql from '@pkgs/sql-shared/sql';
 import type { ProductHarness } from './harness';
 import { accountIdOf, actorLocalSql } from './identity';
+import type { OpenHarness } from './open-harness';
 
 /** Stored id → the name a report shows for it. */
 export type Names = (id: string) => string;

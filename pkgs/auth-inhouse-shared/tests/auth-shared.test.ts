@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { pkceS256Challenge } from '@pkgs/auth-inhouse-shared/pkce';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
 import {
   buildAuthTrustedOrigins,
   isTrustedCallbackUrl,
 } from '@pkgs/auth-inhouse-shared/trusted-origins';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
 describe('auth shared PBT', () => {
   test('token hash is deterministic and secret-sensitive', async () => {

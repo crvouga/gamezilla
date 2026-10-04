@@ -9,16 +9,28 @@
  */
 
 import { assert } from '@pkgs/assert-shared/singleton';
-import { domainsFromTables, registerTables } from '@pkgs/db-schema-shared/register-tables';
-import type { Schema } from '@pkgs/db-schema-shared/types';
 import type { TableDef } from '@pkgs/db-schema-shared/define-table';
-import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
-import { defineTopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import type { Mutation, MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
+import {
+  domainsFromTables,
+  registerTables,
+} from '@pkgs/db-schema-shared/register-tables';
+import type { Schema } from '@pkgs/db-schema-shared/types';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
-import type { QueryDef, QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
+import type {
+  Mutation,
+  MutationAuthorize,
+  MutationRegistry,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { queryRegistry } from '@pkgs/sync-engine-shared/queries-registry';
-import type { TopicMap, TopicMapEntry } from '@pkgs/sync-engine-shared/topic-map';
+import type {
+  QueryDef,
+  QueryRegistry,
+} from '@pkgs/sync-engine-shared/queries-types';
+import type {
+  TopicMap,
+  TopicMapEntry,
+} from '@pkgs/sync-engine-shared/topic-map';
+import { defineTopicMap } from '@pkgs/sync-engine-shared/topic-map';
 import type { AccountPrivacyContribution } from './account-privacy';
 import type { FeatureManifest } from './manifest';
 

@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { FakeIssueReporter } from '@pkgs/feedback-server/fake-issue-reporter';
-import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 import { readFeedbackReport } from '@pkgs/feedback-shared/read-report';
+import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 
 test('the authoritative report has one canonical agent-readable shape', async () => {
   const { clock, timers } = createHarnessClock();

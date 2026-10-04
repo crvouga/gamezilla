@@ -1,12 +1,29 @@
 import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { clearBoardEvidence, pressBoardKey } from '@pkgs/chess-board-harness/options-actions';
-import { configureBoard, movePiece, readProbe, selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
+import {
+  configureBoard,
+  movePiece,
+  readProbe,
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { dragPiece } from '@pkgs/chess-board-harness/interaction-actions';
-import { PREMOVE_READY, readPremoves, supplyPremoveReply } from '@pkgs/chess-board-harness/premove-actions';
+import {
+  readActivityMoves,
+  readInteraction,
+  readPiece,
+} from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  clearBoardEvidence,
+  pressBoardKey,
+} from '@pkgs/chess-board-harness/options-actions';
+import {
+  PREMOVE_READY,
+  readPremoves,
+  supplyPremoveReply,
+} from '@pkgs/chess-board-harness/premove-actions';
 import { prepareTwoPremoves } from '@pkgs/chess-board-harness/premove-setup';
-import { readActivityMoves, readInteraction, readPiece } from '@pkgs/chess-board-harness/interaction-reads';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

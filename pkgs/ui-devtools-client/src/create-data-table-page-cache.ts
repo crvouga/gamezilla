@@ -1,4 +1,19 @@
 import { createAsync } from '@pkgs/async-client/solid';
+import { pageCacheKey } from '@pkgs/ui-devtools-shared/data-table-metrics';
+import type {
+  CacheMaps,
+  PageView,
+} from '@pkgs/ui-devtools-shared/data-table-page-load';
+import {
+  createCacheMaps,
+  ensurePageLoad,
+  entryToView,
+} from '@pkgs/ui-devtools-shared/data-table-page-load';
+import type {
+  DataTableLoadPage,
+  DataTableOrderDir,
+  DataTablePageCacheEntry,
+} from '@pkgs/ui-devtools-shared/data-table-types';
 import {
   type Accessor,
   createEffect,
@@ -7,15 +22,6 @@ import {
   on,
   untrack,
 } from 'solid-js';
-
-import { pageCacheKey } from '@pkgs/ui-devtools-shared/data-table-metrics';
-import type { CacheMaps, PageView } from '@pkgs/ui-devtools-shared/data-table-page-load';
-import { createCacheMaps, ensurePageLoad, entryToView } from '@pkgs/ui-devtools-shared/data-table-page-load';
-import type {
-  DataTableLoadPage,
-  DataTableOrderDir,
-  DataTablePageCacheEntry,
-} from '@pkgs/ui-devtools-shared/data-table-types';
 
 export type DataTablePageCache<T> = {
   readonly view: Accessor<PageView<T>>;

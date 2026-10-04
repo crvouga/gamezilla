@@ -1,12 +1,26 @@
 import './parameter-types';
 import { expect } from 'bun:test';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { dragPiece, dropHeldPiece, dropHeldPieceOutside } from '@pkgs/chess-board-harness/interaction-actions';
-import { PINNED_KNIGHT, ROOK_CHECK } from '@pkgs/chess-board-harness/interaction-fixtures';
-import type { PieceName, Side } from '@pkgs/chess-board-harness/interaction-fixtures';
-import { readActivityMoves, readInteraction, readPiece } from '@pkgs/chess-board-harness/interaction-reads';
-import { readBoard, readProbe } from '@pkgs/chess-board-harness/chess-board';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import { readBoard, readProbe } from '@pkgs/chess-board-harness/chess-board';
+import {
+  dragPiece,
+  dropHeldPiece,
+  dropHeldPieceOutside,
+} from '@pkgs/chess-board-harness/interaction-actions';
+import type {
+  PieceName,
+  Side,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  PINNED_KNIGHT,
+  ROOK_CHECK,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  readActivityMoves,
+  readInteraction,
+  readPiece,
+} from '@pkgs/chess-board-harness/interaction-reads';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

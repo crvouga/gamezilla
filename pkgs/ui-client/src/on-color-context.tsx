@@ -10,6 +10,8 @@
  * `text` / `textSecondary` / `icon` variables.
  */
 
+import type { OnColorSet } from '@pkgs/ui-shared/contrast';
+import { bestOnColor } from '@pkgs/ui-shared/contrast';
 import {
   type Accessor,
   createContext,
@@ -17,8 +19,6 @@ import {
   type JSX,
   useContext,
 } from 'solid-js';
-import { bestOnColor } from '@pkgs/ui-shared/contrast';
-import type { OnColorSet } from '@pkgs/ui-shared/contrast';
 import { useThemeTokens } from './theme-context';
 
 const OnColorContext = createContext<Accessor<OnColorSet | null>>();

@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { buildChessBoardProbe, chessBoardPaintToken, chessBoardProbeTestId, chessBoardSquareTestId, DEFAULT_CHESS_BOARD_TEST_ID, parseChessBoardPaint, parseChessBoardProbe } from '@pkgs/chess-board-core-shared/probe';
 import type { ChessBoardProbeInteraction } from '@pkgs/chess-board-core-shared/probe';
+import {
+  buildChessBoardProbe,
+  chessBoardPaintToken,
+  chessBoardProbeTestId,
+  chessBoardSquareTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+  parseChessBoardPaint,
+  parseChessBoardProbe,
+} from '@pkgs/chess-board-core-shared/probe';
 
 const IDLE: ChessBoardProbeInteraction = {
   interactive: true,

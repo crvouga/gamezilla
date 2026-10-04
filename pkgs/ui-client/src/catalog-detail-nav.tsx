@@ -9,14 +9,13 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createMemo, type JSX } from 'solid-js';
-
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { ChevronLeftIcon, ChevronRightIcon } from './icons';
-import type { IconComponent } from './create-icon';
 import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
 import { resolveCatalogNeighbor } from '@pkgs/ui-shared/catalog-item';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { createMemo, type JSX } from 'solid-js';
+import type { IconComponent } from './create-icon';
+import { ChevronLeftIcon, ChevronRightIcon } from './icons';
 
 const NAV_VISUAL_SIZE = 36;
 const NAV_HIT_SIZE = 44;

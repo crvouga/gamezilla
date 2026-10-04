@@ -1,3 +1,18 @@
+import { catalogParams } from '@pkgs/harness-report-shared/catalog';
+import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
+import {
+  frameHasUi,
+  neighborFailure,
+  selectedFrame,
+  testFrames,
+} from '@pkgs/harness-report-shared/frames';
+import {
+  showAside,
+  showPress,
+  viewMode,
+  zoomMode,
+} from '@pkgs/harness-report-shared/hash';
+import type { ReportData } from '@pkgs/harness-report-shared/types';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
 import {
   createEffect,
@@ -9,16 +24,6 @@ import {
 } from 'solid-js';
 import { useReport } from './report-context';
 import type { ReportNav } from './use-report-nav';
-import { catalogParams } from '@pkgs/harness-report-shared/catalog';
-import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
-import {
-  frameHasUi,
-  neighborFailure,
-  selectedFrame,
-  testFrames,
-} from '@pkgs/harness-report-shared/frames';
-import { showAside, showPress, viewMode, zoomMode } from '@pkgs/harness-report-shared/hash';
-import type { ReportData } from '@pkgs/harness-report-shared/types';
 
 type Command = {
   readonly id: string;

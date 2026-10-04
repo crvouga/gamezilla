@@ -10,14 +10,14 @@ import {
   openBilling,
   subscribeToPlus,
 } from '@libs/billing-harness/billing-actions';
-import { focusActor } from '@libs/harness/shell-actions';
-import { signInWithGoogle } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
-import { cutConnection } from '@libs/harness/platform';
-import { recall, remember } from '@libs/harness/spec-world';
 import { letTimePass, restartApp } from '@libs/harness/actions';
+import { signInWithGoogle } from '@libs/harness/auth-actions';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { cutConnection } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
+import type { HarnessWorld } from '@libs/harness/spec-world';
+import { recall, remember } from '@libs/harness/spec-world';
 import {
   closeSpaceMembers,
   createSpace,

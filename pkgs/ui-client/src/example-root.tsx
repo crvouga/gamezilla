@@ -10,9 +10,9 @@
  * `ClockProvider` (wall at the process root, harness in tests).
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
 
 export type ExampleRootProps = {
   children: JSX.Element;

@@ -1,12 +1,30 @@
+import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
-import { closeFeedSettings, increaseFeedCustomRating, increaseFeedOffset, openFeedSettings, selectFeedAutoAdvance, selectFeedHistory, selectFeedMode, selectFeedTheme } from './chess-puzzle-feed-ui';
-import type { FeedAutoAdvance, FeedHistoryFilter, FeedMode } from './chess-puzzle-feed-ui';
+import type {
+  FeedAutoAdvance,
+  FeedHistoryFilter,
+  FeedMode,
+} from './chess-puzzle-feed-ui';
+import {
+  closeFeedSettings,
+  increaseFeedCustomRating,
+  increaseFeedOffset,
+  openFeedSettings,
+  selectFeedAutoAdvance,
+  selectFeedHistory,
+  selectFeedMode,
+  selectFeedTheme,
+} from './chess-puzzle-feed-ui';
 import { readMsUntilNextUtcDay } from './chess-puzzle-ledger-data';
 import type { PuzzleNavControl } from './chess-puzzle-review-ui';
-import { pressPuzzleNavControl, pressPuzzleReviewKey, swipePuzzleReviewBoard, tapPuzzleReviewPly } from './chess-puzzle-review-ui';
+import {
+  pressPuzzleNavControl,
+  pressPuzzleReviewKey,
+  swipePuzzleReviewBoard,
+  tapPuzzleReviewPly,
+} from './chess-puzzle-review-ui';
 import {
   dragPuzzleUci,
   pickPuzzlePromotion,

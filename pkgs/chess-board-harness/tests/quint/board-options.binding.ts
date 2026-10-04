@@ -1,9 +1,20 @@
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginPreparedDrag, GREEN_CREAM, setAvailableWidth, setFixedWidth } from '@pkgs/chess-board-harness/options-actions';
-import { configureBoard, movePiece, replacePosition, selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { PREPARED_OPTIONS } from '@pkgs/chess-board-harness/prepared-positions';
+import {
+  configureBoard,
+  movePiece,
+  replacePosition,
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { readModelFingerprint } from '@pkgs/chess-board-harness/model-evidence';
+import {
+  beginPreparedDrag,
+  GREEN_CREAM,
+  setAvailableWidth,
+  setFixedWidth,
+} from '@pkgs/chess-board-harness/options-actions';
 import { readOptionsModel } from '@pkgs/chess-board-harness/options-model';
+import { PREPARED_OPTIONS } from '@pkgs/chess-board-harness/prepared-positions';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 

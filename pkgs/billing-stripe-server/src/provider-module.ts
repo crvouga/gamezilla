@@ -3,13 +3,23 @@
  * import from this package. They build, reconcile and register it exactly as
  * they do every other provider.
  */
-import type { MembershipProviderEnv, MembershipProviderModule } from '@pkgs/billing-shared/provider-module';
+import type {
+  MembershipProviderEnv,
+  MembershipProviderModule,
+} from '@pkgs/billing-shared/provider-module';
 
 import { reconcileStripeOffer } from '@pkgs/billing-stripe-shared/offer-reconcile';
 import { billingStripeSecretDefs } from '@pkgs/billing-stripe-shared/secret-defs';
-import { StripeBindingKeys, StripeSecretKeys } from '@pkgs/billing-stripe-shared/secret-keys';
-import { createStripeClient, createStripeMembershipBilling, STRIPE_PROVIDER } from './stripe-membership';
+import {
+  StripeBindingKeys,
+  StripeSecretKeys,
+} from '@pkgs/billing-stripe-shared/secret-keys';
 import type { StripeMembershipTransport } from './stripe-membership';
+import {
+  createStripeClient,
+  createStripeMembershipBilling,
+  STRIPE_PROVIDER,
+} from './stripe-membership';
 
 /** Stripe itself, or the simulated Stripe `STRIPE_API_ORIGIN` names. */
 async function transportOf(

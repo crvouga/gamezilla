@@ -1,10 +1,10 @@
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { ResolvedSecretsScope } from '@pkgs/secrets-config-shared/defaults';
-import { readSecretsConfig } from '@pkgs/secrets-config-server/secrets-scope';
-import { SECRETS_DEFAULTS } from '@pkgs/secrets-config-shared/defaults';
 import { INFISICAL_CLI_CONFIG_FILENAME } from '@pkgs/secret-provider-shared/defaults';
 import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared/resolve-endpoint';
+import { readSecretsConfig } from '@pkgs/secrets-config-server/secrets-scope';
+import type { ResolvedSecretsScope } from '@pkgs/secrets-config-shared/defaults';
+import { SECRETS_DEFAULTS } from '@pkgs/secrets-config-shared/defaults';
 
 /**
  * Ensure the Infisical CLI config file exists so bare `infisical` commands

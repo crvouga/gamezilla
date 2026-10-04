@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { HttpIssueReporter } from '@pkgs/feedback-client/http-issue-reporter';
-import { createFeedbackHttpApp } from '@pkgs/feedback-server/feedback-http-app';
-import { createFeedbackReportHandler } from '@pkgs/feedback-server/http-handler';
 import { FakeIssueReporter } from '@pkgs/feedback-server/fake-issue-reporter';
+import { createFeedbackHttpApp } from '@pkgs/feedback-server/feedback-http-app';
 import { GitHubIssueReporter } from '@pkgs/feedback-server/github-issue-reporter';
+import { createFeedbackReportHandler } from '@pkgs/feedback-server/http-handler';
 import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';

@@ -5,19 +5,36 @@
  */
 
 import { expect } from 'bun:test';
-import { finishPuzzleBy, playPuzzleResults, playUntilSolved } from '@libs/chess-puzzle-harness/chess-actions';
-import { isGameLogEmpty, readGameLogRowTitle, readStatsAccuracy, readStatsElo, readStatsPlayed, readStatsRatingHistory, readStatsRatingLabel, readStatsSolved } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  finishPuzzleBy,
+  playPuzzleResults,
+  playUntilSolved,
+} from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  isGameLogEmpty,
+  readGameLogRowTitle,
+  readStatsAccuracy,
+  readStatsElo,
+  readStatsPlayed,
+  readStatsRatingHistory,
+  readStatsRatingLabel,
+  readStatsSolved,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { seedPuzzleRating } from '@libs/chess-puzzle-harness/chess-rating-data';
 import { readPuzzleRatingHistoryDirections } from '@libs/chess-puzzle-harness/puzzle-rating-history-reads';
-import { PUZZLE_PROVISIONAL_RD, PUZZLE_RATING_DEFAULT, PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS, PUZZLE_RATING_RD_MIN } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  PUZZLE_PROVISIONAL_RD,
+  PUZZLE_RATING_DEFAULT,
+  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  PUZZLE_RATING_RD_MIN,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
-import type { PuzzleFinishName } from '@libs/harness/parameter-types';
-import { cutConnection, otherDevice } from '@libs/harness/platform';
-import { remember } from '@libs/harness/spec-world';
 import type { ProductHarness } from '@libs/harness/harness';
+import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
+import { cutConnection, otherDevice } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
+import type { HarnessWorld } from '@libs/harness/spec-world';
+import { remember } from '@libs/harness/spec-world';
 import {
   currentPuzzle,
   ensureStatsOpen,

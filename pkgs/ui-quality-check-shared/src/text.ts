@@ -1,5 +1,5 @@
-import type { BatchQualityResult } from './ui-quality-check-types';
 import { timestamp } from './result';
+import type { BatchQualityResult } from './ui-quality-check-types';
 
 export function textReport(batch: BatchQualityResult): string {
   const rows = ['UI Quality Check', ''];

@@ -1,13 +1,16 @@
 import { expect, test } from 'bun:test';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import { exampleAppSchema } from '@pkgs/sync-engine-harness/schema';
+import sql from '@pkgs/sql-shared/sql';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
+import { exampleAppSchema } from '@pkgs/sync-engine-harness/schema';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
-import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 
 test('a refused mutation rolls back its writes without discarding the other batch changes', async () => {
   // regression: sync-refused-write-left-domain-changes

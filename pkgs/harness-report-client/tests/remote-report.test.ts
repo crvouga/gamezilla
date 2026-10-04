@@ -1,28 +1,36 @@
 import { describe, expect, test } from 'bun:test';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { HarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { HttpClient } from '@pkgs/http-client-shared/types';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import { createRoot } from 'solid-js';
-
-import type { CommitEvent, TestEvent } from '@pkgs/harness-report-shared/protocol';
-import { commitEvents, listSourceRecords, readFrameBody, readTestReport, testEvents } from '@pkgs/harness-report-shared/read';
-import { encodeSseEvent } from '@pkgs/harness-report-shared/protocol';
-import { frameCssKey, isKeySegment } from '@pkgs/harness-report-shared/keys';
 import {
   createHttpReportFetcher,
   memoryReportCache,
   reportQueryClient,
 } from '@pkgs/harness-report-client/fetcher';
+import type { RemoteReport } from '@pkgs/harness-report-client/remote-report';
+import { createRemoteReport } from '@pkgs/harness-report-client/remote-report';
+import { frameCssKey, isKeySegment } from '@pkgs/harness-report-shared/keys';
+import type {
+  CommitEvent,
+  TestEvent,
+} from '@pkgs/harness-report-shared/protocol';
+import { encodeSseEvent } from '@pkgs/harness-report-shared/protocol';
 import {
   closeCommit,
   openCommit,
   publishSource,
   SPEC_RUN_ID,
 } from '@pkgs/harness-report-shared/publish';
-import { createRemoteReport } from '@pkgs/harness-report-client/remote-report';
-import type { RemoteReport } from '@pkgs/harness-report-client/remote-report';
+import {
+  commitEvents,
+  listSourceRecords,
+  readFrameBody,
+  readTestReport,
+  testEvents,
+} from '@pkgs/harness-report-shared/read';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { createRoot } from 'solid-js';
 import { exampleApp, put } from './example-app';
 
 const SHA = 'e'.repeat(40);

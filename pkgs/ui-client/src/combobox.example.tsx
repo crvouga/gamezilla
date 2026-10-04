@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX } from 'solid-js';
-import { ExampleRoot } from './example-root';
 import { Combobox } from './combobox';
+import { ExampleRoot } from './example-root';
 
 const FRUITS = [
   { label: 'Apple', value: 'apple', searchText: 'apple' },

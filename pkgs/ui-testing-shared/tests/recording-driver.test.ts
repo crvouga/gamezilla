@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import type { RecordStepMeta } from '@pkgs/harness-shared/report-types';
 import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
-import { describeUiOp, performUiOp } from '@pkgs/ui-testing-shared/ui-op';
 import { recordingDriver } from '@pkgs/ui-testing-shared/recording-driver';
 import type { StepRecorder } from '@pkgs/ui-testing-shared/step-recorder';
+import { describeUiOp, performUiOp } from '@pkgs/ui-testing-shared/ui-op';
 
 function fakeNode(log: string[], path: string[]): DriverNode {
   const node: DriverNode = {

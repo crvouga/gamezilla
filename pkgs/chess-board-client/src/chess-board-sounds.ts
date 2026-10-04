@@ -7,17 +7,17 @@
  */
 
 import type { ChessMoveSoundPlayer } from '@pkgs/chess-board-core-shared/move-sound';
-import type {
-  AudioPlaybackPort,
-  AudioPlayerHandle,
-} from '@pkgs/sounds-shared/ports';
-import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
-import type { PlayFromStartHandle } from '@pkgs/sounds-shared/play-from-start';
 import {
   createPlayFromStartHandles,
   useAudioPlaybackPort,
   warmAudioPlayers,
 } from '@pkgs/sounds-client/solid';
+import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
+import type { PlayFromStartHandle } from '@pkgs/sounds-shared/play-from-start';
+import type {
+  AudioPlaybackPort,
+  AudioPlayerHandle,
+} from '@pkgs/sounds-shared/ports';
 import { type Accessor, createEffect, onCleanup } from 'solid-js';
 
 const BOARD_SOUND_KEYS = [

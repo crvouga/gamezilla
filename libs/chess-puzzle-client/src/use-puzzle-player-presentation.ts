@@ -1,8 +1,8 @@
-import { type Accessor, createMemo } from 'solid-js';
-import { puzzleCommentary } from '@libs/chess-puzzle-shared/puzzle-commentary';
-import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
-import { chessPuzzleStatusKindFromState } from '@libs/chess-puzzle-shared/status-kind';
 import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
+import { puzzleCommentary } from '@libs/chess-puzzle-shared/puzzle-commentary';
+import { chessPuzzleStatusKindFromState } from '@libs/chess-puzzle-shared/status-kind';
+import { type Accessor, createMemo } from 'solid-js';
 
 export function usePuzzlePlayerPresentation(args: {
   puzzleId: Accessor<string>;

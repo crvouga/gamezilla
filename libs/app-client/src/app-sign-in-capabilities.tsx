@@ -1,8 +1,9 @@
 /** @jsxImportSource solid-js */
-import { SignInCapabilitiesProvider } from '@libs/auth-client/sign-in-capabilities-context';
+
 import { useClientConfig } from '@libs/app-config-client/use-client-config';
-import type { JSX } from 'solid-js';
 import { resolveSignInCapabilitiesReady } from '@libs/app-shared/resolve-sign-in-capabilities-ready';
+import { SignInCapabilitiesProvider } from '@libs/auth-client/sign-in-capabilities-context';
+import type { JSX } from 'solid-js';
 
 /**
  * Bridges synced `client_config` into auth sign-in method gating. Must render

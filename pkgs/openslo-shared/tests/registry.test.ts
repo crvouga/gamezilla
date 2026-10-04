@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { bindObjectives, objectiveSpecStem, objectivesBinding } from '@pkgs/openslo-shared/registry';
+import {
+  bindObjectives,
+  objectiveSpecStem,
+  objectivesBinding,
+} from '@pkgs/openslo-shared/registry';
 
 describe('the registry', () => {
   test('finds a binding by its spec stem', () => {

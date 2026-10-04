@@ -15,16 +15,28 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import type { IconComponent } from '@pkgs/ui-client/create-icon';
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-client/icons';
+import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import type {
+  JsonExpansionState,
+  JsonPath,
+} from '@pkgs/ui-devtools-shared/json-view-logic';
+import {
+  classifyValue,
+  collapseAllState,
+  expandAllState,
+  isContainer,
+  JSON_EXPANSION_INITIAL,
+  resolveExpanded,
+  safeStringify,
+  toggleExpansion,
+} from '@pkgs/ui-devtools-shared/json-view-logic';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import styles from './json-view.module.css';
-import { classifyValue, collapseAllState, expandAllState, isContainer, JSON_EXPANSION_INITIAL, resolveExpanded, safeStringify, toggleExpansion } from '@pkgs/ui-devtools-shared/json-view-logic';
-import type { JsonExpansionState, JsonPath } from '@pkgs/ui-devtools-shared/json-view-logic';
 import type { JsonViewCopy } from './json-view-node';
 import { JsonViewNode } from './json-view-node';
 

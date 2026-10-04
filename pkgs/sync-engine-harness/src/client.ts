@@ -1,9 +1,11 @@
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { createControllableLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
-import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
 import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
-import type { MutateResult, Mutation } from '@pkgs/sync-engine-shared/mutations-types';
+import type { SyncEngine } from '@pkgs/sync-engine-client/sync-engine-port';
+import type { createControllableLifecycle } from '@pkgs/sync-engine-shared/app-lifecycle';
+import type {
+  MutateResult,
+  Mutation,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import type { HarnessHttpClient } from './http-bridge';
 
 export type HarnessClientLifecycle = ReturnType<

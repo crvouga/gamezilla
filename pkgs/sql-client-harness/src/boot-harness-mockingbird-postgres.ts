@@ -14,13 +14,13 @@ import {
   writeUtf8,
 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import {
   adaptMockingbirdPostgresAsPool,
   SqlClientImplMockingbirdPostgres,
 } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 /** Bump when seed format / restore semantics change outside migrate source. */
 export const HARNESS_MOCKINGBIRD_POSTGRES_SEED_VERSION = 3;

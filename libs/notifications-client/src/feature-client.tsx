@@ -6,10 +6,10 @@
  */
 
 import { defineFeatureClient } from '@libs/feature-client/client';
-import { NotificationsTabIcon } from './notifications-tab-icon';
-import { NotificationsUnreadCountRoot } from './notifications-unread-count-chrome';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
+import { NotificationsTabIcon } from './notifications-tab-icon';
+import { NotificationsUnreadCountRoot } from './notifications-unread-count-chrome';
 
 /** Read inside the tab memo, so the label follows the active locale. */
 function notificationsTabLabel(): string {

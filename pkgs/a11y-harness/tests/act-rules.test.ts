@@ -5,9 +5,22 @@
 
 import { describe, expect, test } from 'bun:test';
 import type { ActRule } from '@pkgs/a11y-shared/act-rule';
-import { ariaHiddenNotFocusable, requiredContext, requiredOwned, requiredStates, validRole } from '@pkgs/a11y-shared/aria-rules';
+import {
+  ariaHiddenNotFocusable,
+  requiredContext,
+  requiredOwned,
+  requiredStates,
+  validRole,
+} from '@pkgs/a11y-shared/aria-rules';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared/audit';
-import { buttonName, formFieldName, imageName, labelInName, linkName, menuitemName } from '@pkgs/a11y-shared/name-rules';
+import {
+  buttonName,
+  formFieldName,
+  imageName,
+  labelInName,
+  linkName,
+  menuitemName,
+} from '@pkgs/a11y-shared/name-rules';
 import { byId, page } from './dom';
 
 type Outcome = 'passed' | 'failed' | 'inapplicable';

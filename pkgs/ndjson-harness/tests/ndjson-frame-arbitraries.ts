@@ -1,4 +1,9 @@
-import type { NdjsonEndFrame, NdjsonErrorFrame, NdjsonFrame, NdjsonResultFrame } from '@pkgs/ndjson-shared/frames';
+import type {
+  NdjsonEndFrame,
+  NdjsonErrorFrame,
+  NdjsonFrame,
+  NdjsonResultFrame,
+} from '@pkgs/ndjson-shared/frames';
 import { arbJsonObject, arbJsonValue } from '@pkgs/property-shared/json';
 import fc from 'fast-check';
 

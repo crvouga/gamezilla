@@ -47,17 +47,44 @@ import { defineProductSystem } from '@libs/harness/define-product-system';
 import './notebook.steps';
 import './recorded-moments.steps';
 import './report-navigation.steps';
-import { editNotebookQuestion, openNotebook, saveNotebookQuestion } from '@apps/product/developer-notebook';
-import { moveRecordedMoment, provideRecordedReport, selectRecordedMoment, showRecordedControl } from '@apps/product/developer-report';
+import {
+  editNotebookQuestion,
+  openNotebook,
+  saveNotebookQuestion,
+} from '@apps/product/developer-notebook';
+import {
+  moveRecordedMoment,
+  provideRecordedReport,
+  selectRecordedMoment,
+  showRecordedControl,
+} from '@apps/product/developer-report';
 
 import './release-check.steps';
-import { provideReleaseEvidence, runReleaseCheck } from '@apps/product/developer-release';
+import {
+  provideReleaseEvidence,
+  runReleaseCheck,
+} from '@apps/product/developer-release';
 
 import './checkpoints.steps';
-import { changeInvestigatedApp, checkpointOperation, investigatePeople, saveCheckpoint } from '@apps/product/developer-checkpoints';
+import {
+  changeInvestigatedApp,
+  checkpointOperation,
+  investigatePeople,
+  saveCheckpoint,
+} from '@apps/product/developer-checkpoints';
 
 import './report-catalog.steps';
-import { filterCatalog, openCatalog, openCompletedReport, provideCatalog } from '@apps/product/developer-catalog';
+import {
+  filterCatalog,
+  openCatalog,
+  openCompletedReport,
+  provideCatalog,
+} from '@apps/product/developer-catalog';
 
 import './test-world-views.steps';
-import { arrangeWorldDevices, chooseWorldDevice, giveDevicesDifferentPlaces, provideWorldDevices } from '@apps/product/developer-world-views';
+import {
+  arrangeWorldDevices,
+  chooseWorldDevice,
+  giveDevicesDifferentPlaces,
+  provideWorldDevices,
+} from '@apps/product/developer-world-views';

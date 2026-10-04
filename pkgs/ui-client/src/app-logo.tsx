@@ -10,10 +10,10 @@
  * ```
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
+import type { JSX } from 'solid-js';
 import { useThemeTokens } from './theme-context';
 
 export type AppLogoProps = {

@@ -1,6 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-
 import { unblockUserMutation } from '@libs/friends-shared/unblock-user-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useUnblockUser() {
   const mutationClient = useMutationClient();

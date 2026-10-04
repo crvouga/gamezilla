@@ -1,5 +1,8 @@
 import type { Schema } from '@pkgs/db-schema-shared/types';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client-shared/interface';
+import type {
+  PostgresSqlClient,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { PostgresDriverOptions } from './driver';
 import { postgres } from './driver';

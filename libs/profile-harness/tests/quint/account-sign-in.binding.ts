@@ -8,17 +8,29 @@
  * sign-in methods it shows).
  */
 
-import { abandonSignIn, signInWithProviderAs, signOut } from '@libs/harness/auth-actions';
-import { actorAppleEmail, actorEmail, localSignInMethodsOf, serverSignInMethodsOf, signedInAccountOf } from '@libs/harness/identity';
-import { connectSignInMethod, removeSignInMethod, signOutEverywhere } from '@libs/harness/sign-in-method-actions';
-import { focusActor } from '@libs/harness/shell-actions';
 import { partition, restoreNetwork } from '@libs/harness/actions';
-import { partitioned } from '@libs/harness/observations';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import {
+  abandonSignIn,
+  signInWithProviderAs,
+  signOut,
+} from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
 import {
+  actorAppleEmail,
+  actorEmail,
+  localSignInMethodsOf,
+  serverSignInMethodsOf,
+  signedInAccountOf,
+} from '@libs/harness/identity';
+import { partitioned } from '@libs/harness/observations';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
+import {
   awaitSignedOutScreen,
+  connectSignInMethod,
+  removeSignInMethod,
   showAccountScreen,
+  signOutEverywhere,
 } from '@libs/harness/sign-in-method-actions';
 import {
   deviceShowsSignedIn,
@@ -26,8 +38,8 @@ import {
   registeredAccounts,
 } from '@libs/harness/sign-in-state-reads';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const DEVICES = ['alice', 'bob'] as const;
 

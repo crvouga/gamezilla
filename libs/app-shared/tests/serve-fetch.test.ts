@@ -28,7 +28,8 @@ describe('serveFetch', () => {
     });
     const res = await fetch('http://harness.local/x');
     expect(res.status).toBe(500);
-    expect(await res.text()).toBe('boom');
+    const text = await res.text();
+    expect(text).toBe('boom');
   });
 
   test('recovers JSON from _bodyInit when stream body was wiped', async () => {
@@ -45,6 +46,7 @@ describe('serveFetch', () => {
       method: 'POST',
     });
     expect(res.status).toBe(200);
-    expect(JSON.parse(await res.text())).toEqual({ accountId: 'acc-1' });
+    const text = await res.text();
+    expect(JSON.parse(text)).toEqual({ accountId: 'acc-1' });
   });
 });

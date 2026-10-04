@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { WebClientStorage } from '@pkgs/room-adapter-web-shared/client-storage';
 import { COMMITTED_LOG_SEGMENT_SIZE } from '@pkgs/room-shared/segmented-committed-log';
 import type { LogEntry } from '@pkgs/room-shared/types';
-import { WebClientStorage } from '@pkgs/room-adapter-web-shared/client-storage';
 
 class MapStorage {
   readonly map = new Map<string, string>();

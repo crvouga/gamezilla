@@ -1,9 +1,10 @@
 /** @jsxImportSource solid-js */
+
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { defaultMarkdownParser, schema } from 'prosemirror-markdown';
 import { DOMSerializer } from 'prosemirror-model';
 import { createEffect } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import styles from './markdown-editor.module.css';
 import { cleanMarkdownNode } from './safe-markdown';
 

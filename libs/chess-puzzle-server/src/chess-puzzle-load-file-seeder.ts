@@ -5,15 +5,18 @@
  * validation pass and the same deduping bulk insert as the streaming seed.
  */
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { DatabaseSeeder, DatabaseSeederContext } from '@pkgs/db-migrate-shared/database-seeder';
+import type {
+  DatabaseSeeder,
+  DatabaseSeederContext,
+} from '@pkgs/db-migrate-shared/database-seeder';
 import { readUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { parse } from 'csv-parse/sync';
 import { PuzzleSeedFastPath } from './fast-path';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file-constants';
-import { PuzzleIngestTally } from './puzzle-ingest';
 import type { PuzzleSkipReason } from './puzzle-ingest';
+import { PuzzleIngestTally } from './puzzle-ingest';
 import type { PuzzleTableRow } from './row';
 
 const BATCH_SIZE = 250;

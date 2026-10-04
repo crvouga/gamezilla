@@ -1,8 +1,8 @@
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
 
 import { capturedSnapshot } from './observations';
-import { captureSnapshot } from './probes';
 import type { OpenHarness } from './open-harness';
+import { captureSnapshot } from './probes';
 
 export async function captureOpenHarnessSnapshot(
   s: OpenHarness,

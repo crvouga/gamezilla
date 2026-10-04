@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import { findPersonTrouble } from '@pkgs/observability-shared/person-trouble';
+import type { ResolvedIdentity } from '@pkgs/observability-shared/identity-resolver';
 import type { LocalClock } from '@pkgs/observability-shared/local-clock';
+import { parseLocalClock } from '@pkgs/observability-shared/local-clock';
 import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
 import { normalizePersonName } from '@pkgs/observability-shared/person-name';
 import type { PersonDirectory } from '@pkgs/observability-shared/person-trouble';
-import { parseLocalClock } from '@pkgs/observability-shared/local-clock';
-import type { ResolvedIdentity } from '@pkgs/observability-shared/identity-resolver';
+import { findPersonTrouble } from '@pkgs/observability-shared/person-trouble';
 
 const NOW_MS = Date.parse('2026-09-29T02:00:00.000Z');
 const CHRIS = 'user-chris';

@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { always, reachable, sometimes, unreachable } from '@pkgs/invariants-shared/assertions';
+import {
+  always,
+  reachable,
+  sometimes,
+  unreachable,
+} from '@pkgs/invariants-shared/assertions';
 import {
   bindInvariantSink,
   currentInvariantSink,

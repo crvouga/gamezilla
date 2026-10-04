@@ -1,12 +1,28 @@
 import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginDrag, configureBoard, readBoard, readProbe, selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { clearBoardEvidence, GREEN_CREAM, setAvailableWidth, setFixedWidth } from '@pkgs/chess-board-harness/options-actions';
-import { prepareFixedWidthPromotion } from '@pkgs/chess-board-harness/width-promotion-setup';
-import { readInteraction, readPiece, readPromotionChoices } from '@pkgs/chess-board-harness/interaction-reads';
-import { readOptions } from '@pkgs/chess-board-harness/options-reads';
 import { setupOfferedWhiteMove } from '@pkgs/chess-board-harness/authority-actions';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import {
+  beginDrag,
+  configureBoard,
+  readBoard,
+  readProbe,
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
+import {
+  readInteraction,
+  readPiece,
+  readPromotionChoices,
+} from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  clearBoardEvidence,
+  GREEN_CREAM,
+  setAvailableWidth,
+  setFixedWidth,
+} from '@pkgs/chess-board-harness/options-actions';
+import { readOptions } from '@pkgs/chess-board-harness/options-reads';
+import { prepareFixedWidthPromotion } from '@pkgs/chess-board-harness/width-promotion-setup';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

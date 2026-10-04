@@ -1,4 +1,7 @@
-import { friendshipStatusOf, localRows } from '@libs/friends-harness/relationship-reads';
+import {
+  friendshipStatusOf,
+  localRows,
+} from '@libs/friends-harness/relationship-reads';
 import { sharedRelationships } from '@libs/friends-harness/shared-relationship-reads';
 import { partition, restoreNetwork } from '@libs/harness/actions';
 /**
@@ -9,16 +12,28 @@ import { partition, restoreNetwork } from '@libs/harness/actions';
  * friends list and search render from.
  */
 
-import { acceptFriendRequest, addFriend, cancelFriendRequest, declineFriendRequest, removeFriend, unblockFriend } from '@libs/friends-harness/friends-actions';
-import { blockPerson, confirmFromProfile, declineFromProfile, openPersonFromSearch } from '@libs/friends-harness/person-actions';
-import { backToTabs, focusActor } from '@libs/harness/shell-actions';
+import {
+  acceptFriendRequest,
+  addFriend,
+  cancelFriendRequest,
+  declineFriendRequest,
+  removeFriend,
+  unblockFriend,
+} from '@libs/friends-harness/friends-actions';
+import {
+  blockPerson,
+  confirmFromProfile,
+  declineFromProfile,
+  openPersonFromSearch,
+} from '@libs/friends-harness/person-actions';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { accountIdOf } from '@libs/harness/identity';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;
 

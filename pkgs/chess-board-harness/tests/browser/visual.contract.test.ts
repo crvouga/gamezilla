@@ -1,5 +1,9 @@
 import { afterAll, beforeAll, expect, test } from 'bun:test';
-import { CAPTURE, CAPTURED, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
+import {
+  CAPTURE,
+  CAPTURED,
+  REPLACEMENT,
+} from '@pkgs/chess-board-harness/positions';
 import { openBrowserExample } from './browser-fixture';
 import type { Frame } from './frame-read';
 import { frameRead } from './frame-read';

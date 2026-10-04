@@ -1,11 +1,11 @@
 import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
+import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 import type { JSX } from 'solid-js';
 import { render } from 'solid-js/web';
 import type { LayoutProvider } from './dom-layout';
 import { ACTOR_ATTR } from './dom-query';
-import { createSolidDomRenderedApp } from './renderer-solid-dom';
 import type { UserEvent } from './renderer-solid-dom';
-import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
+import { createSolidDomRenderedApp } from './renderer-solid-dom';
 
 export type MountSolidAppOptions = {
   readonly document: Document;

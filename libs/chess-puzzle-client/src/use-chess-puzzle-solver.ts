@@ -1,3 +1,11 @@
+import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { SubmitChessPuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+import {
+  countMoveTokens,
+  nextSolutionUci,
+  projectSolveStatus,
+} from '@libs/chess-puzzle-shared/solve-projection';
+import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -5,15 +13,6 @@ import {
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { formatUci } from '@pkgs/chess-rules-shared/uci';
 import { type Accessor, createMemo } from 'solid-js';
-
-import {
-  countMoveTokens,
-  nextSolutionUci,
-  projectSolveStatus,
-} from '@libs/chess-puzzle-shared/solve-projection';
-import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { SubmitChessPuzzleMove } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
 function useChessPuzzlePlayRoomSelectors() {

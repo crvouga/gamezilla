@@ -4,11 +4,15 @@
  * module's id, and secrets that never collide.
  */
 import { describe, expect, test } from 'bun:test';
-import { isMembershipProviderId } from '@pkgs/billing-shared/providers';
-import type { MembershipProviderEnv } from '@pkgs/billing-shared/provider-module';
-import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
 import { PaddleSecretKeys } from '@pkgs/billing-paddle-shared/secret-keys';
-import { createConfiguredMembershipProviders, MEMBERSHIP_PROVIDER_MODULES, MembershipProviderConfigError } from '@pkgs/billing-providers-server/billing-providers';
+import {
+  createConfiguredMembershipProviders,
+  MEMBERSHIP_PROVIDER_MODULES,
+  MembershipProviderConfigError,
+} from '@pkgs/billing-providers-server/billing-providers';
+import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
+import type { MembershipProviderEnv } from '@pkgs/billing-shared/provider-module';
+import { isMembershipProviderId } from '@pkgs/billing-shared/providers';
 import { StripeSecretKeys } from '@pkgs/billing-stripe-shared/secret-keys';
 
 function env(secrets: Readonly<Record<string, string>>): MembershipProviderEnv {

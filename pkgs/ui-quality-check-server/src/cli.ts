@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { errorMessage } from '@pkgs/ui-quality-check-shared/errors';
 // @io-wall-ok — CLI process entrypoint.
 import { parseArguments } from '@pkgs/ui-quality-check-shared/arguments';
-import { executeCommand } from './commands';
+import { errorMessage } from '@pkgs/ui-quality-check-shared/errors';
 import { HELP } from '@pkgs/ui-quality-check-shared/help';
+import { executeCommand } from './commands';
 
 const cancellation = new AbortController();
 const cancel = () =>

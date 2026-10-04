@@ -10,8 +10,8 @@ import {
   resolveBindings,
 } from '../transform-collect';
 import { convertComponent } from '../transform-components';
-import { isConvertibleExport } from '../transform-kinds';
 import { parse } from '../transform-imports';
+import { isConvertibleExport } from '../transform-kinds';
 
 const files = process.argv.slice(2);
 for (const path of files) {

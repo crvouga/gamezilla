@@ -5,9 +5,9 @@
  * stub product API (`harness-server-fetch.ts`). No wall I/O.
  */
 
-import { createSecureStoreAuthClientStorage } from '@libs/app-shared/auth-client-storage';
 import type { ClientEnv } from '@libs/app-client/client-env';
 import { createInMemoryClientPorts } from '@libs/app-client/in-memory-client-ports';
+import { createSecureStoreAuthClientStorage } from '@libs/app-shared/auth-client-storage';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';

@@ -3,7 +3,10 @@
  * branded props. Import this module from the UI package entry so dependents
  * resolve the augmentation.
  */
+
 import type { I18n, MessageDescriptor } from '@lingui/core';
+import type {} from '@lingui/core/macro';
+import type {} from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import type { Accessor } from 'solid-js';
 

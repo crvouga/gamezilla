@@ -2,13 +2,18 @@
  * Session map notify / quiet batching + client teardown for product-harness.
  */
 
-import { makeProductHarnessRoomNode } from './product-harness-session-nodes';
 import type { Client } from '@libs/app-client/create-client';
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import type { Harness } from '@libs/harness/create-harness';
 import type { HarnessSql } from '@libs/harness/sql-types';
+import type {
+  ProductHarnessActor,
+  ProductHarnessLogBuffer,
+  ProductHarnessRoomNode,
+  ProductHarnessSqlNode,
+} from '@pkgs/harness-console-shared/ports';
 import type { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import type { ProductHarnessActor, ProductHarnessLogBuffer, ProductHarnessRoomNode, ProductHarnessSqlNode } from '@pkgs/harness-console-shared/ports';
+import { makeProductHarnessRoomNode } from './product-harness-session-nodes';
 
 export type SessionTeardownArgs = {
   readonly harness: Harness;

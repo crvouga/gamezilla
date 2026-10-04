@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import { createVirtualClock } from '@pkgs/harness-shared/clock';
-import { createScheduler } from '@pkgs/harness-shared/scheduler';
-import { createTraceRecorder } from '@pkgs/harness-shared/trace';
 import { createNetwork } from '@pkgs/harness-shared/network';
 import { RELIABLE_NETWORK } from '@pkgs/harness-shared/network-state';
+import { createScheduler } from '@pkgs/harness-shared/scheduler';
+import { createTraceRecorder } from '@pkgs/harness-shared/trace';
+import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 describe('Network contract', () => {
   test('local send delivers without RNG', async () => {

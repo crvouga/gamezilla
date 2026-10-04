@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { ReportFrame, ReportStep } from '@pkgs/harness-shared/report-types';
-
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
 import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
+import type {
+  ReportFrame,
+  ReportStep,
+} from '@pkgs/harness-shared/report-types';
 
 function frame(detail: string, kind = 'quint'): FlatFrame {
   const step: ReportStep = {

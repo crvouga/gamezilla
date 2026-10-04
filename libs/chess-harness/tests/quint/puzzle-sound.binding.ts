@@ -1,11 +1,30 @@
-import { openPuzzleByTheme, openPuzzleFromSpace, openPuzzleReview, playPuzzleMove, playUntilSolved, pressPuzzleReviewNav, showChessStatsScreen, tapPuzzleReviewMove } from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  openPuzzleByTheme,
+  openPuzzleFromSpace,
+  openPuzzleReview,
+  playPuzzleMove,
+  playUntilSolved,
+  pressPuzzleReviewNav,
+  showChessStatsScreen,
+  tapPuzzleReviewMove,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import { readPuzzleBoardSounds } from '@libs/chess-puzzle-harness/chess-board-audio';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { readPuzzleReviewProbe, readRenderedPuzzleReviewBoard } from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
+import {
+  readPuzzleReviewProbe,
+  readRenderedPuzzleReviewBoard,
+} from '@libs/chess-puzzle-harness/chess-puzzle-review-ui';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import { isPuzzleSolved, readActivePuzzleId, readPuzzleDebug } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  isPuzzleSolved,
+  readActivePuzzleId,
+  readPuzzleDebug,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import { configurePuzzleSounds, readPuzzleSoundsOn } from '@libs/chess-puzzle-harness/puzzle-sound-preference';
+import {
+  configurePuzzleSounds,
+  readPuzzleSoundsOn,
+} from '@libs/chess-puzzle-harness/puzzle-sound-preference';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { createSpace } from '@libs/spaces-harness/space-actions';

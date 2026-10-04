@@ -1,13 +1,13 @@
 import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
-import { LIMIT } from '@libs/permissions-shared/permission-catalog';
 import { useLimitDecision } from '@libs/permissions-client/use-can';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
 import {
   CASE_NOW_MS,
   countInput,
   factsOf,
 } from '@libs/permissions-shared/people';
+import { LIMIT } from '@libs/permissions-shared/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import { tableAnswer } from '@libs/permissions-shared/reasons';
 import {
   replayOperation,

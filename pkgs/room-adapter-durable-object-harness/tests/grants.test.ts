@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
-import { AddOne, gameRoomModule } from '@pkgs/room-harness/game-room';
 import { createDurableObjectAdapter } from '@pkgs/room-adapter-durable-object-server/adapter';
 import type { DurableObjectInstanceState } from '@pkgs/room-adapter-durable-object-shared/types';
+import { AddOne, gameRoomModule } from '@pkgs/room-harness/game-room';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
 import { MemoryKv } from './memory-kv';
 
 type Socket = { readonly ws: WebSocket; readonly sent: unknown[] };

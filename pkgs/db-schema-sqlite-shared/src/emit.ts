@@ -8,8 +8,14 @@ import type {
   CreateTableColumn,
 } from '@pkgs/db-schema-shared/operations';
 import { SQLITE_TYPE_SQL } from '@pkgs/db-schema-shared/type-map';
-import type { ColumnType, ReadonlyDeclaredSchema } from '@pkgs/db-schema-shared/types';
-import { MANAGED_IMPLICIT_COLUMN_NAMES, MANAGED_IMPLICIT_COLUMNS } from '@pkgs/db-schema-shared/types';
+import type {
+  ColumnType,
+  ReadonlyDeclaredSchema,
+} from '@pkgs/db-schema-shared/types';
+import {
+  MANAGED_IMPLICIT_COLUMN_NAMES,
+  MANAGED_IMPLICIT_COLUMNS,
+} from '@pkgs/db-schema-shared/types';
 import type { Sql } from '@pkgs/sql-shared/sql';
 import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
 

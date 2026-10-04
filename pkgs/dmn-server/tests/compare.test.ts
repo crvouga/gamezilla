@@ -8,7 +8,11 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { generateCases } from '@pkgs/dmn-shared/cases';
-import { bindingProblems, compareLayer, formatMismatches } from '@pkgs/dmn-shared/compare';
+import {
+  bindingProblems,
+  compareLayer,
+  formatMismatches,
+} from '@pkgs/dmn-shared/compare';
 import { parseDmn } from '@pkgs/dmn-shared/model';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 

@@ -11,12 +11,24 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import type { ProviderStepArgs } from '@pkgs/auth-harness/actions';
+import {
+  AUTH_FAULTS,
+  clearProviderFaults,
+  rotateProviderKeys,
+  setProviderFault,
+  signIn,
+  signOut,
+} from '@pkgs/auth-harness/actions';
+import {
+  accountsOnRecord,
+  auth,
+  lastOutcome,
+  signedInUser,
+} from '@pkgs/auth-harness/system';
+import type { AuthSurface } from '@pkgs/auth-harness/types';
 import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { AUTH_FAULTS, clearProviderFaults, rotateProviderKeys, setProviderFault, signIn, signOut } from '@pkgs/auth-harness/actions';
-import type { AuthSurface } from '@pkgs/auth-harness/types';
-import { accountsOnRecord, auth, lastOutcome, signedInUser } from '@pkgs/auth-harness/system';
-import type { ProviderStepArgs } from '@pkgs/auth-harness/actions';
 import type { Run } from '@pkgs/harness-shared/run-types';
 
 /** Booting the example app with its two providers costs ~0.3 s idle. */

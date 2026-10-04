@@ -2,7 +2,6 @@
   "name": "@pkgs/sync-engine-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "sideEffects": false,
   "exports": {
     "./*": [
@@ -35,5 +34,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "server"
 }

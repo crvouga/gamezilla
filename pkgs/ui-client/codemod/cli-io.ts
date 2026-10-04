@@ -48,14 +48,14 @@ const CONFLICT = 'sx-codemod: --write and --dry-run conflict — pick one';
  */
 export const DEFAULT_GLOBS: readonly string[] = [
   'apps/client/src',
-  'apps/product',
+  'apps/product/src',
   'libs',
-  'pkgs/ui/src',
-  'pkgs/ui/tests',
-  'pkgs/harness-console',
-  '.',
-  'pkgs/chess-board',
-  'pkgs/ui-testing-solid-dom',
+  'pkgs/ui-client/src',
+  'pkgs/ui-client/tests',
+  'pkgs/ui-harness/tests',
+  'pkgs/harness-console-client/src',
+  'pkgs/chess-board-client/src',
+  'pkgs/ui-testing-solid-dom-client/src',
 ];
 
 /** Parse argv. Pure; throws on ambiguous or unknown flags. */

@@ -2,7 +2,6 @@
   "name": "@libs/test-ids-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -18,5 +17,6 @@
   "devDependencies": {
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

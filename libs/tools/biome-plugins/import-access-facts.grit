@@ -1,7 +1,7 @@
 language js
 
 // Sign-in state is access input, and the permission system is its only
-// reader: `@libs/auth/public/access-facts` is imported by `libs/permissions`
+// reader: `@libs/auth-client/access-facts` is imported by `libs/permissions`
 // alone. Everything else asks `useCan` / `usePermissions` what the caller may
 // do and never learns whether they are signed in.
 // Matches every static import / export-from source, dynamic import() and
@@ -15,7 +15,7 @@ file($body) where {
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"]@libs/auth/public/access-facts['\"]$",
-    register_diagnostic(span=$src, message="Only @libs/permissions reads sign-in state. Gate with useCan / usePermissions / requireInMutation from @libs/permissions/public instead.", severity="error")
+    $src <: r"^['\"]@libs/auth-client/access-facts['\"]$",
+    register_diagnostic(span=$src, message="Only @libs/permissions reads sign-in state. Gate with useCan / usePermissions / requireInMutation from the @libs/permissions-* packages instead.", severity="error")
   }
 }

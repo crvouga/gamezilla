@@ -2,9 +2,13 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseReceipt } from '@pkgs/alloy-shared/receipt';
-import { modelSigs } from '@pkgs/alloy-shared/sigs';
 import type { SigInfo } from '@pkgs/alloy-shared/sigs';
-import { modelProblems, snapshotPredicate, snapshotProblems } from '@pkgs/alloy-shared/snapshot';
+import { modelSigs } from '@pkgs/alloy-shared/sigs';
+import {
+  modelProblems,
+  snapshotPredicate,
+  snapshotProblems,
+} from '@pkgs/alloy-shared/snapshot';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
 
 const FIXTURES = join(import.meta.dir, 'fixtures');

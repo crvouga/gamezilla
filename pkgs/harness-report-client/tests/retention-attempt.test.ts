@@ -1,9 +1,21 @@
 import { expect, test } from 'bun:test';
-import { readCommit, readTestReport, testEvents } from '@pkgs/harness-report-shared/read';
-import { closeCommit, openCommit, publishSource, SPEC_RUN_ID } from '@pkgs/harness-report-shared/publish';
 import { publicationStore } from '@pkgs/harness-report-shared/publication';
-import { reuseSource, sourceContentPrefix } from '@pkgs/harness-report-shared/source-content';
+import {
+  closeCommit,
+  openCommit,
+  publishSource,
+  SPEC_RUN_ID,
+} from '@pkgs/harness-report-shared/publish';
+import {
+  readCommit,
+  readTestReport,
+  testEvents,
+} from '@pkgs/harness-report-shared/read';
 import { pruneReports } from '@pkgs/harness-report-shared/retention';
+import {
+  reuseSource,
+  sourceContentPrefix,
+} from '@pkgs/harness-report-shared/source-content';
 import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import { exampleApp, put } from './example-app';

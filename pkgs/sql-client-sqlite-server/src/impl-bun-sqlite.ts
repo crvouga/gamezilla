@@ -1,14 +1,13 @@
 import { Database, type SQLQueryBindings } from 'bun:sqlite';
 import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PreparedStatement,
   RunResult,
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite-shared/connection-pragmas';
-
 import { createTransactionChain } from '@pkgs/sql-client-sqlite-shared/transaction-chain';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 
 export class SqlClientImplBunSqlite implements SqlClient {
   private readonly enqueueTxn = createTransactionChain();

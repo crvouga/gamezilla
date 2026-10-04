@@ -1,15 +1,15 @@
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import { gen } from '@pkgs/harness-shared/fast-check';
-import type { DistanceFormula } from '@pkgs/matchmaking-shared/types';
 import type { TickOptions } from '@pkgs/matchmaking-shared/matchmaking';
+import type { DistanceFormula } from '@pkgs/matchmaking-shared/types';
 import fc from 'fast-check';
 import type { HarnessJoinInput } from './api';
-import { LOBBY_ACTIONS } from './lobby';
 import type { MatchmakingHarness } from './facade';
 import { HARNESS_AUTH_HEADERS, harnessRequireAuth } from './http';
+import { LOBBY_ACTIONS } from './lobby';
 import { asJson, caps } from './observations';
-import { mmOf, targetRequest } from './refs';
 import type { ParticipantTarget } from './refs';
+import { mmOf, targetRequest } from './refs';
 
 export type JoinSpec = {
   readonly ref: string;

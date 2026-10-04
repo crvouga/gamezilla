@@ -1,4 +1,9 @@
-import type { RoomCommandPayload, RoomEvent, RoomModule, RoomState } from '@pkgs/room-shared/types';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomModule,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type fc from 'fast-check';
 
 import type { DomainOp } from './actions';

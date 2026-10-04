@@ -9,11 +9,11 @@
  * shared-state class of bug).
  */
 
-import type { ServerHttp } from '@libs/feature-shared/sync';
-import { composeFeatureServers } from '@libs/feature-shared/compose-server';
 import { createServer } from '@libs/app-server/create-server';
-import type { ServerEnv } from '@libs/app-shared/server-env';
 import { serveFetch } from '@libs/app-shared/serve-fetch';
+import type { ServerEnv } from '@libs/app-shared/server-env';
+import { composeFeatureServers } from '@libs/feature-shared/compose-server';
+import type { ServerHttp } from '@libs/feature-shared/sync';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-shared/room-service';
 import type { HarnessComposition } from './composition';

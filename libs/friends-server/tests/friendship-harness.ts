@@ -9,10 +9,13 @@ import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { outboxDeliveries, outboxEvents } from '@pkgs/outbox-shared/tables';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import type { MutationDb, MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import sql from '@pkgs/sql-shared/sql';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 

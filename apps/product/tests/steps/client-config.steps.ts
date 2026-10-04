@@ -7,12 +7,15 @@
  */
 
 import { expect } from 'bun:test';
-import { CLIENT_CONFIG_KEYS, ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
+import {
+  CLIENT_CONFIG_KEYS,
+  ClientConfigKey,
+} from '@libs/app-config-shared/client-config-keys';
 import type { ClientConfigDbRow } from '@libs/app-config-shared/parse-client-config';
 import { parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
-import sql from '@pkgs/sql-shared/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
+import sql from '@pkgs/sql-shared/sql';
 import { eventually, Then, WARMUP_MS } from './define';
 import type { LiveWorld } from './live-world';
 import { requireSecret } from './live-world';

@@ -11,7 +11,18 @@
 import { Database, Snapshot } from '@crvouga/mockingbird-service-postgres';
 import { assert } from '@pkgs/assert-shared/singleton';
 import { installMockingbirdPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install-mockingbird-postgres';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
+import { readLastInsertRowid } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
+import {
+  encodeMockingbirdPostgresSnapshotEnvelope,
+  parseMockingbirdPostgresSnapshotEnvelope,
+} from '@pkgs/sql-client-postgres-shared/mockingbird-postgres-snapshot';
+import { normalizePgInt8Rows } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
+import type {
+  Pool,
+  PoolClient,
+  QueryResult,
+} from '@pkgs/sql-client-postgres-shared/pg-types';
+import { repairMockingbirdPostgresPgmmBigintSlots } from '@pkgs/sql-client-postgres-shared/repair-pgmm-bigint-slots';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -19,16 +30,12 @@ import type {
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
 import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-shared/positional-params';
-import { createPostgresDbScope, quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
-import { readLastInsertRowid } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
 import {
-  encodeMockingbirdPostgresSnapshotEnvelope,
-  parseMockingbirdPostgresSnapshotEnvelope,
-} from '@pkgs/sql-client-postgres-shared/mockingbird-postgres-snapshot';
-import { normalizePgInt8Rows } from '@pkgs/sql-client-postgres-shared/normalize-pg-int8';
-import type { Pool, PoolClient, QueryResult } from '@pkgs/sql-client-postgres-shared/pg-types';
-import { repairMockingbirdPostgresPgmmBigintSlots } from '@pkgs/sql-client-postgres-shared/repair-pgmm-bigint-slots';
+  createPostgresDbScope,
+  quotePgIdent,
+} from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 
 type MockingbirdPostgresBind =
   | string

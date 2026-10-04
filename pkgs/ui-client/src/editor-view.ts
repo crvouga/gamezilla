@@ -1,3 +1,5 @@
+import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
+import type { MarkdownEditorProps } from '@pkgs/ui-shared/markdown-editor-types';
 import {
   defaultMarkdownParser,
   defaultMarkdownSerializer,
@@ -5,9 +7,7 @@ import {
 import { Fragment, type Node, Slice } from 'prosemirror-model';
 import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
 import { editorPlugins } from './editor-commands';
-import type { MarkdownEditorProps } from '@pkgs/ui-shared/markdown-editor-types';
 import { cleanMarkdownNode } from './safe-markdown';
 
 export function createMarkdownView(options: {

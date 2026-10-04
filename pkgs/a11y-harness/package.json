@@ -2,7 +2,6 @@
   "name": "@pkgs/a11y-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "sideEffects": false,
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -17,7 +16,7 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "happy-dom": "catalog:",
-    "typescript": "catalog:",
-    "@pkgs/bun-test-solid-client": "workspace:*"
-  }
+    "typescript": "catalog:"
+  },
+  "category": "harness"
 }

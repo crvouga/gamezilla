@@ -1,10 +1,15 @@
+import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
+import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
+import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
+import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
+import { CHESS_SERVER } from '@libs/chess-server/feature-server';
 import type { HarnessRoomNode } from '@libs/harness/composition';
-import {
-  capabilityOf,
-  spacePresenceOf,
-} from '@libs/permissions-shared/people';
+import { capabilityOf, spacePresenceOf } from '@libs/permissions-shared/people';
+import type {
+  ServerCase,
+  ServerOperation,
+} from '@libs/permissions-shared/server';
 import { OperationRefused } from '@libs/permissions-shared/server';
-import type { ServerCase, ServerOperation } from '@libs/permissions-shared/server';
 import { createInProcessRoomNode } from '@libs/spaces-harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import {
@@ -12,18 +17,13 @@ import {
   SPACE_ID,
   seedPlaceInSpace,
 } from '@libs/spaces-harness/space-decision-world';
+import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import { ApplySpaceMembership } from '@libs/spaces-shared/space-service-command';
-import { spaceRoomGrants } from '@libs/spaces-server/space-room-grants';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Message } from '@pkgs/message-shared/message';
 import sql from '@pkgs/sql-shared/sql';
-import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
-import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
-import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game-choice';
-import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
-import { CHESS_SERVER } from '@libs/chess-server/feature-server';
 
 const OTHER_HOST = 'someone-else';
 const PEER = 'another-participant';

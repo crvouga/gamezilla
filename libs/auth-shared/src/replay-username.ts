@@ -1,5 +1,5 @@
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /** Anonymous bootstrap cannot claim a signup handle; accounts may choose one. */
 export async function resolveReplayUsername(

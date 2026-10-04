@@ -1,18 +1,18 @@
+import type { Friend } from '@libs/friends-shared/friends-types';
 import { FriendLiveSpaceBadge } from '@libs/spaces-client/friend-live-space-badge';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { useRouter } from '@pkgs/ui-client/app-router';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
+import { UserPlusIcon } from '@pkgs/ui-client/icons';
 import { LoadingState } from '@pkgs/ui-client/loading-state';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { ScreenBodyVirtualList } from '@pkgs/ui-client/screen-body-virtual-list';
-import { UserPlusIcon } from '@pkgs/ui-client/icons';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
-import { useRouter } from '@pkgs/ui-client/app-router';
 import type { JSX } from 'solid-js';
 import { FriendUserRow } from './friend-user-row';
-import type { Friend } from '@libs/friends-shared/friends-types';
-import { useFriends } from './use-friends';
 import { FriendsPermissionGate } from './friends-permission-gate';
+import { useFriends } from './use-friends';
 
 function FriendsEmptyState(): JSX.Element {
   const { t } = useLingui();

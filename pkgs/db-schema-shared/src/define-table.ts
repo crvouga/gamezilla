@@ -1,5 +1,9 @@
-import { assertColumnType, parseTableColumnMap, validateColumnLifecycle } from './column-spec';
 import type { ColumnSpecInput } from './column-spec';
+import {
+  assertColumnType,
+  parseTableColumnMap,
+  validateColumnLifecycle,
+} from './column-spec';
 import { assertSnakeCaseIdent } from './snake-case';
 import type { DeclaredColumn, IndexDef, RetiredColumn } from './types';
 import { MANAGED_IMPLICIT_SET } from './types';

@@ -7,7 +7,9 @@ import { describe, expect, test } from 'bun:test';
  */
 describe('postgres port contract', () => {
   test('createPostgresPort is exported', async () => {
-    const mod = await import('@pkgs/db-indexes-postgres-shared/create-postgres-port');
+    const mod = await import(
+      '@pkgs/db-indexes-postgres-shared/create-postgres-port'
+    );
     expect(typeof mod.createPostgresPort).toBe('function');
   });
 });

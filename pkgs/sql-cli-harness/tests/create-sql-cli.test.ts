@@ -2,12 +2,11 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { raw } from '@pkgs/sql-shared/sql';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-
 import { attachToGlobal } from '@pkgs/sql-cli-shared/attach-to-global';
 import { createSqlCli } from '@pkgs/sql-cli-shared/create-sql-cli';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import { raw } from '@pkgs/sql-shared/sql';
 
 const usersSchema = registerTables([
   defineTable({

@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { SmartphoneIcon } from '@pkgs/ui-client/icons';
 import { useLocalSearchParams } from '@pkgs/ui-client/app-router';
+import { EmptyState } from '@pkgs/ui-client/empty-state';
+import { SmartphoneIcon } from '@pkgs/ui-client/icons';
+import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { AccountDeviceDetailBody } from './account-device-detail-body';

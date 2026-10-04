@@ -5,8 +5,8 @@ import { Gamepad2Icon } from '@pkgs/ui-client/icons';
 import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
-import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 import { useSpaceCommandLabel } from './use-space-command-label';
+import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
 export type SpaceJoinEndedStateProps = {
   spaceId: string;

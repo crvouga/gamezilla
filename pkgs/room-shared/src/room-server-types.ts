@@ -1,7 +1,6 @@
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { RoomEffectHandler } from './handler';
-import type { ClientToServerWire } from './wire';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from './wire';
+import type { RoomStorage } from './server-core-storage';
 import type {
   RoomActor,
   RoomCommand,
@@ -12,7 +11,8 @@ import type {
   RoomModule,
   RoomState,
 } from './types';
-import type { RoomStorage } from './server-core-storage';
+import type { ClientToServerWire } from './wire';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from './wire';
 
 export type RoomServerConfig<
   S extends RoomState,

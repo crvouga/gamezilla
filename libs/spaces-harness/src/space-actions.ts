@@ -1,8 +1,4 @@
-import {
-  actorUi,
-  ensureActor,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
+import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { Handles } from '@libs/test-ids-shared/handles';
 import {
   confirmSpaceMutation,

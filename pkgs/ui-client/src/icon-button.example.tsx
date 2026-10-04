@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { UserIcon } from './icons';
 import { IconButton, iconButtonAvatarContentSize } from './icon-button';
+import { UserIcon } from './icons';
 
 const AVATAR_BUTTON_SIZE = 40;
 

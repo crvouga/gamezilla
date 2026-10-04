@@ -1,16 +1,15 @@
+import { AccountDeviceMembership } from '@libs/auth-shared/account-device-membership';
 import { assertDeviceId } from '@libs/auth-shared/device-id';
-import { assertUuid } from '@pkgs/uuid-shared/uuid';
+import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
 import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
 import type { AuthUser } from '@pkgs/auth-shared/auth-user';
 import type { VerifiedSession } from '@pkgs/auth-shared/verified-session';
-import sql, { join, raw } from '@pkgs/sql-shared/sql';
-import type { Value } from '@pkgs/sql-shared/sql';
-
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
+import type { Value } from '@pkgs/sql-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-shared/sql';
 import { managedInsertColumns } from '@pkgs/sync-engine-shared/managed-columns';
-import { AccountDeviceMembership } from '@libs/auth-shared/account-device-membership';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import { assertUuid } from '@pkgs/uuid-shared/uuid';
 import { LinkedIdentityMirror } from './linked-identity-mirror';
 
 /**

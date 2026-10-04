@@ -1,10 +1,20 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { createQuery, useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
-import { type Accessor, createMemo } from 'solid-js';
-
-import { buildPuzzleBandCountSql, computeNextPuzzleLoading, PUZZLE_NEXT_MAX_BAND, pickNextPuzzle, puzzleSelectionHalfWindow, resolvePuzzlePickOffset } from '@libs/chess-puzzle-shared/next-puzzle-selection';
-import type { PuzzlePickSource } from '@libs/chess-puzzle-shared/next-puzzle-selection';
 import type { ChessPuzzleFeedHistoryFilter } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { PuzzlePickSource } from '@libs/chess-puzzle-shared/next-puzzle-selection';
+
+import {
+  buildPuzzleBandCountSql,
+  computeNextPuzzleLoading,
+  PUZZLE_NEXT_MAX_BAND,
+  pickNextPuzzle,
+  puzzleSelectionHalfWindow,
+  resolvePuzzlePickOffset,
+} from '@libs/chess-puzzle-shared/next-puzzle-selection';
+import {
+  createQuery,
+  useSyncEngine,
+} from '@pkgs/sync-engine-client/sync-engine-context';
+import { type Accessor, createMemo } from 'solid-js';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { useEffectivePuzzleRating } from './use-effective-puzzle-rating';

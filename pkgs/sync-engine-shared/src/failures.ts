@@ -1,5 +1,5 @@
-import { MutationError } from './mutations-types';
 import type { MutationFailure } from './mutations-types';
+import { MutationError } from './mutations-types';
 
 export function mutationErrorToFailure(
   e: MutationError,

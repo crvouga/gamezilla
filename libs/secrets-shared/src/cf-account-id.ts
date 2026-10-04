@@ -1,7 +1,7 @@
 import { cliHttp } from './cli-io';
 import { cfHeaders, HEX32_RE } from './cloudflare';
-import { Secret } from './secret';
 import type { SecretInput } from './secret';
+import { Secret } from './secret';
 
 async function validateCfAccountId(input: SecretInput): Promise<void> {
   const accountId = input.secretValue.trim();

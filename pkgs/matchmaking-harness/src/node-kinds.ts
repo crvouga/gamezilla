@@ -1,8 +1,8 @@
 import { asSeededRng } from '@pkgs/harness-shared/rng';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import type { MatchmakingHarnessBackend } from './api';
-import { bootReplicaOnStore } from './boot-replica';
 import type { ReplicaBootConfig } from './boot-replica';
+import { bootReplicaOnStore } from './boot-replica';
 import type { HarnessStore } from './store';
 import { openHarnessStore } from './store';
 

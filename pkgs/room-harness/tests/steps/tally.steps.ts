@@ -4,14 +4,23 @@
  */
 
 import { expect } from 'bun:test';
+import {
+  holdRoomChanges,
+  pendingRoomChangeIds,
+  stopAsRoomChangeCounts,
+} from '@pkgs/room-harness/commit-recovery';
 import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
-import { disconnect, dispatch, resumeNetwork, serverRestart } from '@pkgs/room-harness/room-actions';
-import { holdRoomChanges, pendingRoomChangeIds, stopAsRoomChangeCounts } from '@pkgs/room-harness/commit-recovery';
 import type { RoomHarness } from '@pkgs/room-harness/harness';
 import { readClient, readServer } from '@pkgs/room-harness/read-state';
+import {
+  disconnect,
+  dispatch,
+  resumeNetwork,
+  serverRestart,
+} from '@pkgs/room-harness/room-actions';
 import { everyone, SECOND_MS, settleEveryone } from './room.steps';
-import { Given, room, Then, When } from './world';
 import type { RoomWorld } from './world';
+import { Given, room, Then, When } from './world';
 
 /** How long "sees a tally" watches a person's app for a change. */
 const STILL_FOR_MS = 5 * SECOND_MS;

@@ -1,5 +1,10 @@
 import { expect, test } from 'bun:test';
-import { squareCenter, squareFromIndex, squareToXY, xyToSquare } from '@pkgs/chess-board-core-shared/geometry';
+import {
+  squareCenter,
+  squareFromIndex,
+  squareToXY,
+  xyToSquare,
+} from '@pkgs/chess-board-core-shared/geometry';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

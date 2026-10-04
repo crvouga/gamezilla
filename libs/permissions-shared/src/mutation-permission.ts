@@ -1,16 +1,15 @@
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import sql from '@pkgs/sql-shared/sql';
-import type { MutationDb, MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationDb,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 
 import type { AccessScope } from './decide-for-actor';
 import { decideForActor, decideLimitForActor } from './decide-for-actor';
-import type {
-  AppGrantKey,
-  AppLimit,
-  AppQuota,
-} from './permission-catalog';
 import { evaluateQuota } from './evaluate-quota';
+import type { AppGrantKey, AppLimit, AppQuota } from './permission-catalog';
 
 type MutationCtx = { readonly tx: MutationDb; readonly env: MutationEnv };
 

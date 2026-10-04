@@ -7,11 +7,11 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { componentDataAttrs, dataAttrs } from '@pkgs/ui-shared/component-id';
 import { spacingScale } from '@pkgs/ui-shared/scale';
+import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 export type TextInputProps = Omit<
   JSX.InputHTMLAttributes<HTMLInputElement>,

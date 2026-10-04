@@ -2,19 +2,21 @@
  * AuthBridge helpers: identity refresh + anon ensure with retries.
  */
 
+import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
+import { ensureAnonAuth } from '@libs/auth-shared/ensure-anon-auth-fetch';
+import {
+  isUnauthorizedRefreshError,
+  refreshAuth,
+} from '@libs/auth-shared/refresh-auth-fetch';
+import { shouldBindAnonUserAfterEnsure } from '@libs/auth-shared/resolve-client-identity';
+import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
+import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
 import { writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { shouldBindAnonUserAfterEnsure } from '@libs/auth-shared/resolve-client-identity';
-import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
 import { collectDeviceSnapshot } from './collect-device-snapshot';
-import { ensureAnonAuth } from '@libs/auth-shared/ensure-anon-auth-fetch';
-import { isUnauthorizedRefreshError, refreshAuth } from '@libs/auth-shared/refresh-auth-fetch';
 
 export type AuthBridgeLogger = {
   info: (msg: string, meta?: Record<string, unknown>) => void;

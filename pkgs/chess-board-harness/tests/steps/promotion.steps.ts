@@ -1,6 +1,10 @@
 import { expect } from 'bun:test';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { readActivityMoves, readInteraction, readPromotionChoices } from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  readActivityMoves,
+  readInteraction,
+  readPromotionChoices,
+} from '@pkgs/chess-board-harness/interaction-reads';
 import { readPromotionAccess } from '@pkgs/chess-board-harness/promotion-access';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';

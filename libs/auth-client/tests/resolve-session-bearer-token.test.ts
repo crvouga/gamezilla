@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
-
 import { SessionBearerTokenResolver } from '@libs/auth-client/resolve-session-bearer-token';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 

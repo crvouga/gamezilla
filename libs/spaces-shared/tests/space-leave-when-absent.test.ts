@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 
 import { openConformanceDb } from '@libs/permissions-shared/world';
+import { leaveSpaceMutation } from '@libs/spaces-shared/leave-space-mutation';
 import { spaceUserEntityId } from '@libs/spaces-shared/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces-shared/tables';
-import { leaveSpaceMutation } from '@libs/spaces-shared/leave-space-mutation';
 import { outboxEvents } from '@pkgs/outbox-shared/tables';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';

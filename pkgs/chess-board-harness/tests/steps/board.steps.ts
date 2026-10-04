@@ -1,10 +1,27 @@
 import { expect } from 'bun:test';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginDrag, cancelDrag, closeBoard, configureBoard, finishAnimation, leaveActivity, movePiece, readBoard, readProbe, readSlides, readSquare, reduceMotion, replacePosition, selectSquare, setupBoard, setVisibility } from '@pkgs/chess-board-harness/chess-board';
-import { CAPTURE, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
-import { confirmOfferedPosition } from '@pkgs/chess-board-harness/authority-actions';
-import { readEarlierCompletion } from '@pkgs/chess-board-harness/lifecycle-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import { confirmOfferedPosition } from '@pkgs/chess-board-harness/authority-actions';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import {
+  beginDrag,
+  cancelDrag,
+  closeBoard,
+  configureBoard,
+  finishAnimation,
+  leaveActivity,
+  movePiece,
+  readBoard,
+  readProbe,
+  readSlides,
+  readSquare,
+  reduceMotion,
+  replacePosition,
+  selectSquare,
+  setupBoard,
+  setVisibility,
+} from '@pkgs/chess-board-harness/chess-board';
+import { readEarlierCompletion } from '@pkgs/chess-board-harness/lifecycle-actions';
+import { CAPTURE, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

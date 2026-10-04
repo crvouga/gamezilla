@@ -5,7 +5,13 @@
  */
 import { spawnSync } from 'node:child_process';
 import type { AwsSession } from '@libs/infra-shared/aws-session';
-import { awsAuthPlan, githubOidcUrl, parseAwsEnvCredentials, parseStsCredentials, stsSessionName } from '@libs/infra-shared/aws-session';
+import {
+  awsAuthPlan,
+  githubOidcUrl,
+  parseAwsEnvCredentials,
+  parseStsCredentials,
+  stsSessionName,
+} from '@libs/infra-shared/aws-session';
 import { GLOBAL } from '@libs/infra-shared/global';
 
 export async function resolveAwsSession(

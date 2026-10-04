@@ -1,8 +1,7 @@
-import { focusActor } from '@libs/harness/shell-actions';
-import { partition } from '@libs/harness/actions';
-import { restoreActorConnection } from '@libs/harness/actions';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { focusActor } from '@libs/harness/shell-actions';
 import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
 import { finishPuzzleBy, playPuzzleMove } from './chess-actions';

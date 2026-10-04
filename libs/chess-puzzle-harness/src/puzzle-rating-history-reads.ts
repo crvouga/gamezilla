@@ -1,5 +1,5 @@
-import type { ProductHarness } from '@libs/harness/harness';
 import { PUZZLE_RATING_DEFAULT } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import type { ProductHarness } from '@libs/harness/harness';
 import { readStatsRatingHistory } from './chess-puzzle-ui';
 
 /** The increases and decreases drawn in the actual stats history. */

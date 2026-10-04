@@ -1,5 +1,10 @@
 import { expect, test } from 'bun:test';
-import { assertImageQuality, assertImagesQuality, checkImages, createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import {
+  assertImageQuality,
+  assertImagesQuality,
+  checkImages,
+  createUIQualityChecker,
+} from '@pkgs/ui-quality-check-server/api';
 import { UIQualityError } from '@pkgs/ui-quality-check-shared/errors';
 import { detector, options, rgb } from './support';
 

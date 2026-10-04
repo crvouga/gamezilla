@@ -1,10 +1,10 @@
 import { defineFeature } from '@libs/feature-shared/manifest';
-import { ACCOUNT_PRIVACY_TABLES } from './tables';
-import { ACCOUNT_PRIVACY_TOPIC_MAP } from './topic-map';
-import { downloadPersonalDataExport } from './download-personal-data-export-query';
+import { accountPrivacyGuard } from './account-privacy-guard';
 import { ownAccountPrivacy } from './account-privacy-query';
 import { deletionReceipts } from './deletion-receipts-query';
-import { accountPrivacyGuard } from './account-privacy-guard';
+import { downloadPersonalDataExport } from './download-personal-data-export-query';
+import { ACCOUNT_PRIVACY_TABLES } from './tables';
+import { ACCOUNT_PRIVACY_TOPIC_MAP } from './topic-map';
 
 export const ACCOUNT_PRIVACY_FEATURE = defineFeature({
   name: 'account-privacy',

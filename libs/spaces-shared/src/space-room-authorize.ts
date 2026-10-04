@@ -1,9 +1,9 @@
 import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import type { Message } from '@pkgs/message-shared/message';
-import type { RoomCommand } from '@pkgs/room-shared/types';
+import { isMessageEnvelope } from '@pkgs/message-shared/message';
 import { ROOM_SERVICE_GRANT } from '@pkgs/room-shared/service-identity';
+import type { RoomCommand } from '@pkgs/room-shared/types';
 import type { GameDefinition } from './game';
 import { SelectGame } from './games';
 import { AnnounceRenamed } from './space-log-messages';

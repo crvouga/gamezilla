@@ -1,7 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-
-import type { PuzzleRejectionReason, PuzzleValidation } from '@libs/chess-puzzle-shared/puzzle-validation';
-import { validateLichessPuzzleRow, validatePuzzleRecord, validateStoredPuzzleRow } from '@libs/chess-puzzle-shared/puzzle-records';
+import {
+  validateLichessPuzzleRow,
+  validatePuzzleRecord,
+  validateStoredPuzzleRow,
+} from '@libs/chess-puzzle-shared/puzzle-records';
+import type {
+  PuzzleRejectionReason,
+  PuzzleValidation,
+} from '@libs/chess-puzzle-shared/puzzle-validation';
 
 type Cells = {
   readonly id?: string;

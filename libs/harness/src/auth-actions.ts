@@ -6,8 +6,8 @@ import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import type { AppleAccountKind } from './identity';
 import { actorAppleEmail, actorEmail } from './identity';
-import { completeProviderSignIn } from './provider-walk';
 import type { ProviderAnswers } from './provider-walk';
+import { completeProviderSignIn } from './provider-walk';
 
 const WAIT_MS = 15_000;
 

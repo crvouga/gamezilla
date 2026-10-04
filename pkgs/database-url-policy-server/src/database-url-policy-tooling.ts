@@ -1,7 +1,7 @@
+import type { DatabaseUrlPolicyOptions } from '@pkgs/database-url-policy-shared/database-url-policy';
+import { assertNonProdDatabaseUrl } from '@pkgs/database-url-policy-shared/database-url-policy';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
 import { createToolingSecretStore } from '@pkgs/secret-provider-server/create-configured-secret-store';
-import { assertNonProdDatabaseUrl } from '@pkgs/database-url-policy-shared/database-url-policy';
-import type { DatabaseUrlPolicyOptions } from '@pkgs/database-url-policy-shared/database-url-policy';
 
 export type ToolingDatabaseUrlPolicyDeps = {
   readonly repoRoot: string;

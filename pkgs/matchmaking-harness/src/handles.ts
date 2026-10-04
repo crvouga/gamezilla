@@ -2,8 +2,11 @@
  * Participant + replica handle builders for the matchmaking harness surface.
  */
 
+import type {
+  Matchmaking,
+  TickOptions,
+} from '@pkgs/matchmaking-shared/matchmaking';
 import type { DistanceFormula } from '@pkgs/matchmaking-shared/types';
-import type { Matchmaking, TickOptions } from '@pkgs/matchmaking-shared/matchmaking';
 import type {
   HarnessJoinInput,
   HarnessParticipant,

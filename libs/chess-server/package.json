@@ -2,7 +2,6 @@
   "name": "@libs/chess-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -41,5 +40,6 @@
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "server"
 }

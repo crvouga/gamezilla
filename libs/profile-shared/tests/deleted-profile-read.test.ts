@@ -4,8 +4,8 @@ import { ProfileReadRepository } from '@libs/profile-shared/read-profile';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 
 test('a retained tombstone is absent from profile display reads', async () => {
   // regression: deleted-profile-display

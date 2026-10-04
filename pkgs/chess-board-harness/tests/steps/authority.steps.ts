@@ -1,12 +1,34 @@
 import { expect } from 'bun:test';
+import {
+  confirmOfferedPosition,
+  refuseOfferedMove,
+  setupMatedWhiteMove,
+  setupOfferedWhiteMove,
+  startUnusableBoard,
+  supplyBlackReply,
+  supplyUnusablePosition,
+} from '@pkgs/chess-board-harness/authority-actions';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { closeBoard, configureBoard, readProbe, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { confirmOfferedPosition, refuseOfferedMove, setupMatedWhiteMove, setupOfferedWhiteMove, startUnusableBoard, supplyBlackReply, supplyUnusablePosition } from '@pkgs/chess-board-harness/authority-actions';
-import { INITIAL } from '@pkgs/chess-board-harness/positions';
-import { OPENING_BOARD, readOpeningBoard } from '@pkgs/chess-board-harness/opening-actions';
-import { readActivityMoves, readAnnouncement, readInteraction, readPiece, readPromotionChoices } from '@pkgs/chess-board-harness/interaction-reads';
-import { readPromotionAccess } from '@pkgs/chess-board-harness/promotion-access';
+import {
+  closeBoard,
+  configureBoard,
+  readProbe,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { WHITE_PROMOTION } from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  readActivityMoves,
+  readAnnouncement,
+  readInteraction,
+  readPiece,
+  readPromotionChoices,
+} from '@pkgs/chess-board-harness/interaction-reads';
+import {
+  OPENING_BOARD,
+  readOpeningBoard,
+} from '@pkgs/chess-board-harness/opening-actions';
+import { INITIAL } from '@pkgs/chess-board-harness/positions';
+import { readPromotionAccess } from '@pkgs/chess-board-harness/promotion-access';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

@@ -1,3 +1,4 @@
+import { boardFrameSize } from '@libs/chess-puzzle-shared/chess-puzzle-board-frame-size';
 import {
   createEffect,
   createSignal,
@@ -5,8 +6,6 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
-
-import { boardFrameSize } from '@libs/chess-puzzle-shared/chess-puzzle-board-frame-size';
 
 /** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
 const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';

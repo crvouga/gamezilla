@@ -1,8 +1,18 @@
 import { createSignal, onCleanup } from 'solid-js';
-import { applyConsoleNavPatch, buildConsoleSearch, consoleNavEqual, parseConsoleNav } from './console-nav';
 import type { ConsoleNavPatch, ConsoleNavState } from './console-nav';
+import {
+  applyConsoleNavPatch,
+  buildConsoleSearch,
+  consoleNavEqual,
+  parseConsoleNav,
+} from './console-nav';
 import type { ConsoleNavHistoryMode } from './console-nav-real';
-import { readConsoleNavSearch, releaseConsoleFocus, subscribeConsoleNavPopState, writeConsoleNavUrl } from './console-nav-real';
+import {
+  readConsoleNavSearch,
+  releaseConsoleFocus,
+  subscribeConsoleNavPopState,
+  writeConsoleNavUrl,
+} from './console-nav-real';
 
 export type UseConsoleNavResult = {
   readonly state: ConsoleNavState;

@@ -4,16 +4,20 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth-client/use-fresh-auth-token';
+import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
 import { useKv } from '@pkgs/kv-client/solid';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
 import type { RoomClient } from '@pkgs/room-client/room-client';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
 import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
 import { createRoomSnapshot } from '@pkgs/room-client/room-signals';
+import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import { type Accessor, createMemo } from 'solid-js';
 import { useSpaceOpenRooms } from './space-open-rooms-store';
-import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
 import { useRoomResumeLiveness } from './use-room-resume-liveness';
 import { useSpaceRoomConnection } from './use-space-room-connection';
 

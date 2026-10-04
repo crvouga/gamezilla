@@ -1,7 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-
-import { CHESS_PUZZLE_MAX_RECOMMENDATIONS, clearRecommendation, formatRecommendedMove, parseRecommendations, recommendationArrows, recommendMove, sortedRecommendations } from '@libs/chess-puzzle-shared/recommendations';
 import type { ChessPuzzleRecommendationMap } from '@libs/chess-puzzle-shared/recommendations';
+import {
+  CHESS_PUZZLE_MAX_RECOMMENDATIONS,
+  clearRecommendation,
+  formatRecommendedMove,
+  parseRecommendations,
+  recommendationArrows,
+  recommendMove,
+  sortedRecommendations,
+} from '@libs/chess-puzzle-shared/recommendations';
 
 describe('puzzle recommendations', () => {
   test('inserts, replaces, sorts, and clears by member', () => {

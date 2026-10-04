@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 import { DefaultLockIdentityProvider } from '@pkgs/distributed-lock-server/default-lock-identity-provider';
 import { DistributedLockImplKv } from '@pkgs/distributed-lock-shared/impl-kv';
 import { LockHeldError } from '@pkgs/distributed-lock-shared/interface';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
+import { KvImplInMemory } from '@pkgs/kv-shared/impl-in-memory';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 

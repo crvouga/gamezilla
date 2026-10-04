@@ -1,8 +1,8 @@
-import type { HarnessAuthStatus } from './client-factory-parts';
 import type { HarnessClient } from './client';
+import type { HarnessAuthStatus } from './client-factory-parts';
 import { HARNESS_SERVER_NODE_ID } from './clock-skew';
-import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
+import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { RestartClientOpts } from './lifecycle';
 import type { BootedHarnessKernel } from './types';
 

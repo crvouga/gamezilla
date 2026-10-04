@@ -4,8 +4,8 @@ import { UserUsername } from '@libs/profile-client/user-username';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { groupRosterByParticipant } from '@pkgs/collab-shared/group-roster';
-import { PresenceRosterList } from '@pkgs/collab-ui-client/presence-roster-list';
 import type { PresenceRosterRow } from '@pkgs/collab-ui-client/presence-roster-list';
+import { PresenceRosterList } from '@pkgs/collab-ui-client/presence-roster-list';
 import { Badge } from '@pkgs/ui-client/badge';
 import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
@@ -13,8 +13,8 @@ import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useConnectedSpaceRoster } from './use-connected-space-roster';
-import { useSpaceParticipantColors } from './use-space-participant-colors';
 import { useMemberRole } from './use-member-role';
+import { useSpaceParticipantColors } from './use-space-participant-colors';
 
 export type SpaceMembersListModalProps = {
   spaceId: string;

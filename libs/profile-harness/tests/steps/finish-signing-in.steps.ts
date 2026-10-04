@@ -1,8 +1,8 @@
 /** How long signing in takes to finish once the provider says yes. */
 
 import { slowAccountReady } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 
 const SECOND_MS = 1_000;

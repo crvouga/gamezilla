@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { classifyHttpFetchError, isHttpAbortError } from '@pkgs/http-client-shared/errors';
+import {
+  classifyHttpFetchError,
+  isHttpAbortError,
+} from '@pkgs/http-client-shared/errors';
 import { HttpAbortError } from '@pkgs/http-client-shared/http-abort-error';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 

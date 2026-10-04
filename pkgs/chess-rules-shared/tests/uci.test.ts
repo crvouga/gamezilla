@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { formatUci, parseUci, tokenizeUciLine } from '@pkgs/chess-rules-shared/uci';
+import {
+  formatUci,
+  parseUci,
+  tokenizeUciLine,
+} from '@pkgs/chess-rules-shared/uci';
 
 describe('uci', () => {
   test('parses and formats plain and promotion moves', () => {

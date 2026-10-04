@@ -21,8 +21,8 @@
 import { alloyAtomId } from './atom-id';
 import type { FieldInfo } from './receipt';
 import type { SigInfo } from './sigs';
-import { isSubsetSig, resolveWorld } from './world';
 import type { Snapshot } from './world';
+import { isSubsetSig, resolveWorld } from './world';
 
 /**
  * What in the model keeps any snapshot from being pinned: `var` sigs and

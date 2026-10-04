@@ -3,13 +3,20 @@
  * steps use.
  */
 
+import {
+  returnToTabs,
+  signInWithApple,
+  signInWithGoogle,
+} from '@libs/harness/auth-actions';
+import type { OpenHarness } from '@libs/harness/open-harness';
 import { appleDeletesAccount } from '@libs/harness/provider-events-actions';
 import { focusActor } from '@libs/harness/shell-actions';
-import { returnToTabs, signInWithApple, signInWithGoogle } from '@libs/harness/auth-actions';
 import { signedOutShown } from '@libs/harness/sign-in-method-actions';
 import type { Scenario } from '@libs/harness/snapshot-worlds';
-import type { OpenHarness } from '@libs/harness/open-harness';
-import { openProfileEdit, setUsername } from '@libs/profile-harness/profile-actions';
+import {
+  openProfileEdit,
+  setUsername,
+} from '@libs/profile-harness/profile-actions';
 
 /** Apple telling the API about a deleted account can take this long to show. */
 const SIGNED_OUT_WAIT_MS = 150_000;

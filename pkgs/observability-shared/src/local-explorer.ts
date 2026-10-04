@@ -1,5 +1,5 @@
-import type { NarrateSpan } from './narrate';
 import { IndexedTraceStore } from './indexed';
+import type { NarrateSpan } from './narrate';
 import { spansFromDocument } from './normalize';
 
 export type QueryFetch = (

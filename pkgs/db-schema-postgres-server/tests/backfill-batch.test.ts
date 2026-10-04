@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
-import { createRecordingPostgresClient } from '@pkgs/db-schema-shared/fake-sql-client';
-import sql, { join } from '@pkgs/sql-shared/sql';
-import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
 import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-server/mockingbird-postgres-test-client';
+import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
+import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { createRecordingPostgresClient } from '@pkgs/db-schema-shared/fake-sql-client';
+import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import sql, { join } from '@pkgs/sql-shared/sql';
 
 const ROWS = 2500;
 const CHUNK = 500;

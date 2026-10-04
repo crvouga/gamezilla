@@ -4,7 +4,10 @@ import { join } from 'node:path';
 import type { EnvFile } from '@libs/infra-shared/env-file';
 import { parseEnvFile } from '@libs/infra-shared/env-file';
 import { ENV_FILES } from '@libs/infra-shared/envs';
-import { workflowEnvMatrix, workflowEnvOutputs } from '../../infra-shared/scripts/workflow-env-matrix';
+import {
+  workflowEnvMatrix,
+  workflowEnvOutputs,
+} from '../../infra-shared/scripts/workflow-env-matrix';
 
 const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.depot/workflows');
 

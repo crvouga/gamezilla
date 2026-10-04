@@ -2,21 +2,8 @@
  * Session façade over createHarness + room node + snapshot store.
  */
 
-import { captureCheckpoint, restoreCheckpoint } from './product-harness-checkpoint';
-import { createProductHarnessChessCommands } from './product-harness-chess-seed';
-import { buildSnapshotLoadCommands } from './product-harness-fault-commands';
-import { loggingFetch } from './product-harness-logging-fetch';
-import { makeProductHarnessPubSubNode } from './product-harness-session-nodes';
-import { addProductHarnessServer, bindLoadBalancerRouteLogs, makeProductHarnessLoadBalancerNode, refreshProductHarnessServers, removeProductHarnessServer } from './product-harness-session-servers';
-import { snapshotSessionMethods } from './product-harness-session-snapshot-api';
-import { detachClientsForSnapshotLoad, disposeSession, fireDomainWake, notify, refreshRoomMap, removeClient, runQuiet, wipeSession } from './product-harness-session-teardown';
-import type { SessionMaps } from './product-harness-session-teardown';
-import { deleteProductHarnessSnapshot, listProductHarnessSnapshots, loadProductHarnessSnapshot, PRODUCT_HARNESS_STICKY_SNAPSHOT_ID } from './product-harness-snapshots';
-import type { SnapshotSessionCtx } from './product-harness-snapshots';
-import { installProductHarnessStickyAutosave } from './product-harness-sticky-autosave';
 import type { Client } from '@libs/app-client/create-client';
 import { readEmbeddedHref } from '@libs/app-shared/embedded-href';
-import { harnessActorApp } from '@libs/harness/solid-actor-root';
 import type { HarnessBrowser } from '@libs/harness/browser';
 import { clearProductHarnessClientDurable } from '@libs/harness/client-durable';
 import type { Harness } from '@libs/harness/create-harness';
@@ -24,14 +11,56 @@ import {
   nextHarnessNodeId,
   normalizeHarnessNodeId,
 } from '@libs/harness/node-name';
+import { harnessActorApp } from '@libs/harness/solid-actor-root';
+import type {
+  ProductHarnessActor,
+  ProductHarnessLoadBalancerNode,
+  ProductHarnessMemoryHistory,
+  ProductHarnessPaletteCommand,
+  ProductHarnessSession,
+} from '@pkgs/harness-console-shared/ports';
 import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import type { ProductHarnessActor, ProductHarnessLoadBalancerNode, ProductHarnessMemoryHistory, ProductHarnessPaletteCommand, ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub-shared/in-memory';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 import { createMemoryHistory } from '@solidjs/router';
+import {
+  captureCheckpoint,
+  restoreCheckpoint,
+} from './product-harness-checkpoint';
+import { createProductHarnessChessCommands } from './product-harness-chess-seed';
+import { buildSnapshotLoadCommands } from './product-harness-fault-commands';
+import { loggingFetch } from './product-harness-logging-fetch';
+import { makeProductHarnessPubSubNode } from './product-harness-session-nodes';
+import {
+  addProductHarnessServer,
+  bindLoadBalancerRouteLogs,
+  makeProductHarnessLoadBalancerNode,
+  refreshProductHarnessServers,
+  removeProductHarnessServer,
+} from './product-harness-session-servers';
+import { snapshotSessionMethods } from './product-harness-session-snapshot-api';
+import type { SessionMaps } from './product-harness-session-teardown';
+import {
+  detachClientsForSnapshotLoad,
+  disposeSession,
+  fireDomainWake,
+  notify,
+  refreshRoomMap,
+  removeClient,
+  runQuiet,
+  wipeSession,
+} from './product-harness-session-teardown';
+import type { SnapshotSessionCtx } from './product-harness-snapshots';
+import {
+  deleteProductHarnessSnapshot,
+  listProductHarnessSnapshots,
+  loadProductHarnessSnapshot,
+  PRODUCT_HARNESS_STICKY_SNAPSHOT_ID,
+} from './product-harness-snapshots';
+import { installProductHarnessStickyAutosave } from './product-harness-sticky-autosave';
 
 const DEFAULT_CLIENT_IDS = ['client-a', 'client-b'] as const;
 

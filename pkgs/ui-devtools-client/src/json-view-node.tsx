@@ -10,11 +10,23 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-client/icons';
+import type {
+  JsonPath,
+  JsonValueKind,
+} from '@pkgs/ui-devtools-shared/json-view-logic';
+import {
+  classifyValue,
+  containerBrackets,
+  containerCount,
+  entriesOf,
+  formatContainerSummary,
+  formatLeafPreview,
+  isContainer,
+  stringifyForCopy,
+} from '@pkgs/ui-devtools-shared/json-view-logic';
 import type { ColorTokenName } from '@pkgs/ui-shared/colors-types';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import { classifyValue, containerBrackets, containerCount, entriesOf, formatContainerSummary, formatLeafPreview, isContainer, stringifyForCopy } from '@pkgs/ui-devtools-shared/json-view-logic';
-import type { JsonPath, JsonValueKind } from '@pkgs/ui-devtools-shared/json-view-logic';
 
 const INDENT_PX = 14;
 const ROW_PAD_Y = 2;

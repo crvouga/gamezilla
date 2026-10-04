@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import type { LoopbackRoomHost } from '@pkgs/room-adapter-memory-shared/loopback-transport';
 import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared/loopback-transport';
+import fc from 'fast-check';
 
 /** One outbound frame: how long the host takes (microtask yields) and whether it throws. */
 type Frame = {

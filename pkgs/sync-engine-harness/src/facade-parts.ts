@@ -3,19 +3,22 @@ import type { SyncHarnessRuntime } from './api';
 import { crashBrokerImpl, restartBrokerImpl } from './broker-restart';
 import type { HarnessClient } from './client';
 import { HARNESS_SERVER_NODE_ID } from './clock-skew';
-import { checkClientFrameworkInvariants, isClosedDatabaseError } from './invariants';
 import type { InvariantViolation } from './invariant-tracker';
-import { crashClientImpl, fireCrashIfArmed } from './lifecycle';
+import {
+  checkClientFrameworkInvariants,
+  isClosedDatabaseError,
+} from './invariants';
 import type { KitFaultApi } from './lifecycle';
+import { crashClientImpl, fireCrashIfArmed } from './lifecycle';
 import type { NetEffectRegistry } from './net-effect';
 import { createHarnessNet } from './net-effect';
 import { createHarnessNode } from './node';
-import { drainUntilInSyncImpl, recoverAllImpl } from './wait-for-in-sync';
 import { addClientImpl } from './ops-add-client';
 import { restartClientImpl, restartServerImpl } from './restart';
 import { unregisterKit } from './scenario-dispose-hook';
 import { tamperClientLocalStorage } from './storage-faults';
 import type { BootedHarnessKernel } from './types';
+import { drainUntilInSyncImpl, recoverAllImpl } from './wait-for-in-sync';
 
 export async function checkClientSeqs(
   clients: ReadonlyMap<string, HarnessClient>,

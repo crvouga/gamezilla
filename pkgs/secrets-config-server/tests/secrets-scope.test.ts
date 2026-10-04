@@ -4,13 +4,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-
-import { SECRETS_DEFAULTS } from '@pkgs/secrets-config-shared/defaults';
 import {
   readSecretsConfig,
   resolveSecretsConfigPath,
   resolveSecretsScope,
 } from '@pkgs/secrets-config-server/secrets-scope';
+import { SECRETS_DEFAULTS } from '@pkgs/secrets-config-shared/defaults';
 
 const ENV_NAMES = [
   'SECRETS_ADDR',

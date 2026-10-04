@@ -7,9 +7,9 @@ import { expect } from 'bun:test';
 
 import { searchUntilAddOffered } from '@libs/friends-harness/friends-actions';
 import { addFriendOffered } from '@libs/friends-harness/friends-ui-reads';
-import { backToTabs } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { backToTabs } from '@libs/harness/shell-actions';
 import {
   searchUntilNobody,
   searchUsername,

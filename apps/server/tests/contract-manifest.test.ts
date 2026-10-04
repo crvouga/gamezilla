@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { buildContractManifest, missingNames, readCommittedContractManifest } from '../scripts/contract-manifest';
+import {
+  buildContractManifest,
+  missingNames,
+  readCommittedContractManifest,
+} from '../scripts/contract-manifest';
 
 const committed = readCommittedContractManifest();
 const current = await buildContractManifest();

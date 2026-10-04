@@ -1,10 +1,13 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { Button } from './button';
+import type { DismissibleBannerPosition } from './dismissible-top-banner';
+import {
+  DismissibleBanner,
+  DismissibleBannerPortalProvider,
+} from './dismissible-top-banner';
 import { ExampleRoot } from './example-root';
 import { SegmentedControl } from './segmented-control';
-import { DismissibleBanner, DismissibleBannerPortalProvider } from './dismissible-top-banner';
-import type { DismissibleBannerPosition } from './dismissible-top-banner';
 
 const POSITION_SEGMENTS = [
   { key: 'top' as const, label: 'Top' },

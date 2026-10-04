@@ -1,7 +1,11 @@
-import { applyUci, legalMoves, positionStatus } from '@pkgs/chess-rules-shared/moves';
+import {
+  applyUci,
+  legalMoves,
+  positionStatus,
+} from '@pkgs/chess-rules-shared/moves';
 import { hangingPieces, knightForks } from '@pkgs/chess-rules-shared/tactics';
-import { chooseObservation } from './observation-policy';
 import type { ObservationKind } from './observation-policy';
+import { chooseObservation } from './observation-policy';
 
 export type CommentaryInput = {
   readonly puzzleId: string;

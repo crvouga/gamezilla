@@ -1,6 +1,6 @@
 import { schema as coreSchema } from '@dicebear/core';
-import { getStyleOrDefault } from './dicebear-styles';
 import type { StyleKey } from './dicebear-styles';
+import { getStyleOrDefault } from './dicebear-styles';
 
 /** Subset of JSON Schema props DiceBear uses for options. */
 type JsonSchemaProp = {

@@ -1,7 +1,13 @@
+import type {
+  ClientConfigDbRow,
+  ClientRuntimeConfig,
+} from '@libs/app-config-shared/parse-client-config';
+import {
+  DEFAULT_CLIENT_RUNTIME_CONFIG,
+  parseClientConfigRows,
+} from '@libs/app-config-shared/parse-client-config';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-import type { ClientConfigDbRow, ClientRuntimeConfig } from '@libs/app-config-shared/parse-client-config';
-import { DEFAULT_CLIENT_RUNTIME_CONFIG, parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
 import { clientConfigRowsQuery } from './client-config-queries';
 
 /**

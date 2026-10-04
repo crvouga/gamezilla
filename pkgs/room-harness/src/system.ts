@@ -1,12 +1,16 @@
 import { defineProperty } from '@pkgs/harness-shared/define-property';
 import { defineSystem } from '@pkgs/harness-shared/define-system';
-import { readOwner } from './game-room';
-import { bootRoomHarness, ROOM_LIBRARY_PROPERTIES, roomSystemCatalog } from './boot';
-import { ROOM_ARGS, ROOM_DRAW } from './args';
 import type { RoomArgs } from './args';
+import { ROOM_ARGS, ROOM_DRAW } from './args';
+import {
+  bootRoomHarness,
+  ROOM_LIBRARY_PROPERTIES,
+  roomSystemCatalog,
+} from './boot';
+import { exampleApp } from './example-app-app';
+import { readOwner } from './game-room';
 import type { RoomHarness } from './harness';
 import { serverCrashed } from './observations';
-import { exampleApp } from './example-app-app';
 
 /**
  * Once someone owns the room, ownership never moves — not across a newer

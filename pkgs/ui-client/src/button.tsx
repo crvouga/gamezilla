@@ -20,14 +20,18 @@
  * ```
  */
 
-import { createMemo, type JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import type { IconComponent } from './create-icon';
-import type { ButtonFeedback, ButtonIntent, ButtonVariant } from './button-face';
+import { createMemo, type JSX } from 'solid-js';
+import type {
+  ButtonFeedback,
+  ButtonIntent,
+  ButtonVariant,
+} from './button-face';
 import { buttonInteraction } from './button-face';
-import { BUTTON_SIZES, ButtonContent } from './button-parts';
 import type { ButtonSize, ButtonSizeSpec } from './button-parts';
+import { BUTTON_SIZES, ButtonContent } from './button-parts';
+import type { IconComponent } from './create-icon';
 
 export type ButtonProps = {
   title: JSX.Element;

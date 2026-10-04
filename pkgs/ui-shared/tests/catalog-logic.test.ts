@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import type { CatalogItem } from '@pkgs/ui-shared/catalog-item';
-import { filterCatalogItems, flattenCatalogItems, groupCatalogItems, resolveCatalogNeighbor } from '@pkgs/ui-shared/catalog-item';
+import {
+  filterCatalogItems,
+  flattenCatalogItems,
+  groupCatalogItems,
+  resolveCatalogNeighbor,
+} from '@pkgs/ui-shared/catalog-item';
 
 const ITEMS: readonly CatalogItem[] = [
   { id: 'btn', label: 'Button', category: 'Inputs' },

@@ -8,8 +8,8 @@
  */
 import { join } from 'node:path';
 import { GLOBAL } from '@libs/infra-shared/global';
-import { deployAuthRelayWorker } from '../../../libs/infra-server/scripts/worker-deploy';
 import { ok } from '@libs/secrets-server/fmt';
+import { deployAuthRelayWorker } from '../../../libs/infra-server/scripts/worker-deploy';
 
 deployAuthRelayWorker({ appDir: join(import.meta.dirname, '..') });
 ok('Auth relay Worker', `deployed as ${GLOBAL.auth_relay.worker}`);

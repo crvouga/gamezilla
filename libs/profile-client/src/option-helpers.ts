@@ -1,5 +1,8 @@
-import { getDefaultOptionsFromSchema, getFieldsForStyle } from '@libs/profile-shared/dicebear-schema';
 import type { SchemaField } from '@libs/profile-shared/dicebear-schema';
+import {
+  getDefaultOptionsFromSchema,
+  getFieldsForStyle,
+} from '@libs/profile-shared/dicebear-schema';
 import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
 
 export function buildThumbnailEnumOptions(

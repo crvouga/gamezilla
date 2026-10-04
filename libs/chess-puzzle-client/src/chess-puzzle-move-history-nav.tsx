@@ -1,10 +1,14 @@
-import { t } from '@lingui/core/macro';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from '@pkgs/ui-client/icons';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
-import { For, type JSX } from 'solid-js';
-
-import { PUZZLE_NAV_INTENT } from '@libs/chess-puzzle-shared/puzzle-nav';
 import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
+import { PUZZLE_NAV_INTENT } from '@libs/chess-puzzle-shared/puzzle-nav';
+import { t } from '@lingui/core/macro';
+import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+} from '@pkgs/ui-client/icons';
+import { For, type JSX } from 'solid-js';
 
 const ICON_SIZE = 14;
 

@@ -1,5 +1,10 @@
+import type {
+  FriendActionMutations,
+  FriendActionPillsProps,
+} from '@libs/friends-shared/friend-action-types';
 import type { JSX } from 'solid-js';
 import { createSignal } from 'solid-js';
+import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import { useAcceptFriendRequest } from './use-accept-friend-request';
 import { useCancelFriendRequest } from './use-cancel-friend-request';
 import { useDeclineFriendRequest } from './use-decline-friend-request';
@@ -8,11 +13,6 @@ import {
   useSendFriendRequest,
 } from './use-send-friend-request';
 import { useUnblockUser } from './use-unblock-user';
-import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
-import type {
-  FriendActionMutations,
-  FriendActionPillsProps,
-} from '@libs/friends-shared/friend-action-types';
 
 export function FriendActionPills(props: FriendActionPillsProps): JSX.Element {
   const sendFriendRequest = useSendFriendRequest();

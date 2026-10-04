@@ -5,8 +5,11 @@
  * `CallbackResult` of each comes from the tables below.
  */
 import { describe, expect, test } from 'bun:test';
-import type { CallbackResult, MembershipStatus } from '@pkgs/billing-shared/membership';
 import { CONTRACT_OFFER } from '@pkgs/billing-shared/contract-fixtures';
+import type {
+  CallbackResult,
+  MembershipStatus,
+} from '@pkgs/billing-shared/membership';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
 import Stripe from 'stripe';
 

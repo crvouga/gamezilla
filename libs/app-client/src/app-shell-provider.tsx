@@ -14,6 +14,7 @@
  * portal so it pushes content instead of covering it.
  */
 
+import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import {
   AudioPlaybackProvider,
@@ -22,11 +23,10 @@ import {
 } from '@pkgs/sounds-client/solid';
 import { SpinnerProvider } from '@pkgs/ui-client/spinner-context';
 import type { JSX } from 'solid-js';
-import { LocalPaintLatchProvider } from './local-paint-latch';
 import { useClientEnv } from './client-env-context';
-import { i18n } from '@lingui/core';
-import { PerfRoot } from './perf-root';
 import { DevicePortsProvider } from './device-ports-context';
+import { LocalPaintLatchProvider } from './local-paint-latch';
+import { PerfRoot } from './perf-root';
 
 export function AppShellProvider(props: {
   readonly children: JSX.Element;

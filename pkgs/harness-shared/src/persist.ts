@@ -33,7 +33,7 @@ export function upsertTestSummary(
 ): SuiteTestSummary[] {
   const next = tests.filter((t) => t.testId !== summary.testId);
   next.push(summary);
-  next.sort((a, b) => a.testId.localeCompare(b.testId));
+  next.sort((a, b) => (a.testId < b.testId ? -1 : a.testId > b.testId ? 1 : 0));
   return next;
 }
 

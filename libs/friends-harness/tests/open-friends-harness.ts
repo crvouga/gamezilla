@@ -1,11 +1,11 @@
 import { ACCOUNT_PRIVACY_HARNESS_SLICE } from '@libs/account-privacy-harness/account-privacy-harness-slice';
 import { BILLING_HARNESS_SLICE } from '@libs/billing-harness/billing-harness-slice';
 import { FRIENDS_HARNESS_SLICE } from '@libs/friends-harness/friends-harness-slice';
-import type { OpenHarness } from '@libs/harness/open-harness';
+import { defineProductSystem } from '@libs/harness/define-product-system';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
+import type { OpenHarness } from '@libs/harness/open-harness';
 import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
 import { composeHarnessSlices } from '@libs/harness/slices';
-import { defineProductSystem } from '@libs/harness/define-product-system';
 import { NOTIFICATIONS_HARNESS_SLICE } from '@libs/notifications-harness/notifications-harness-slice';
 import { PROFILE_HARNESS_SLICE } from '@libs/profile-harness/profile-harness-slice';
 import { SEARCH_HARNESS_SLICE } from '@libs/search-harness/search-harness-slice';

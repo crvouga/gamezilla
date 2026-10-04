@@ -1,10 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import type { MembershipStatus } from '@pkgs/billing-shared/membership';
+import type { MembershipStanding } from '@pkgs/billing-shared/precedence';
+import {
+  governingMembership,
+  membershipAccessLapsesAtMs,
+  membershipGrantsAccess,
+  outranksMembership,
+  readMembershipStatus,
+} from '@pkgs/billing-shared/precedence';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
-import type { MembershipStatus } from '@pkgs/billing-shared/membership';
-import { governingMembership, membershipAccessLapsesAtMs, membershipGrantsAccess, outranksMembership, readMembershipStatus } from '@pkgs/billing-shared/precedence';
-import type { MembershipStanding } from '@pkgs/billing-shared/precedence';
 
 const STATUSES: readonly (MembershipStatus | null)[] = [
   'active',

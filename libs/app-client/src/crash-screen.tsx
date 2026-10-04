@@ -1,6 +1,12 @@
 /** @jsxImportSource solid-js */
+
+import { reloadApp } from '@libs/app-shared/reload-app';
 import { Button } from '@pkgs/ui-client/button';
-import { CircleAlertIcon, RefreshCwIcon, RotateCcwIcon } from '@pkgs/ui-client/icons';
+import {
+  CircleAlertIcon,
+  RefreshCwIcon,
+  RotateCcwIcon,
+} from '@pkgs/ui-client/icons';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import {
   createSignal,
@@ -10,7 +16,6 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import { reloadApp } from '@libs/app-shared/reload-app';
 import { CrashCopyButton } from './crash-copy-button';
 
 const CRASH_TITLE = 'Something went wrong';

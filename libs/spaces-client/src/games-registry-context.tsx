@@ -1,3 +1,4 @@
+import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import {
   type Accessor,
   createContext,
@@ -6,7 +7,6 @@ import {
   untrack,
   useContext,
 } from 'solid-js';
-import type { GameClientDefinition } from '@libs/spaces-shared/game';
 
 const GamesRegistryContext = createContext<
   Accessor<readonly GameClientDefinition[]>

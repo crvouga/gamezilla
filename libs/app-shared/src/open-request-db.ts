@@ -1,6 +1,9 @@
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type {
+  PostgresSqlClient,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 export type RequestDbPostgres = {
   readonly kind: 'postgres';

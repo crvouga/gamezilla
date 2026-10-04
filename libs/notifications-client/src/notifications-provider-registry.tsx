@@ -1,4 +1,7 @@
 /** @jsxImportSource solid-js */
+
+import type { NotificationProvider } from '@libs/notifications-shared/notification-provider';
+import type { NotificationsClientDeps } from '@libs/notifications-shared/notifications-actions';
 import {
   type Accessor,
   createContext,
@@ -6,9 +9,6 @@ import {
   type JSX,
   useContext,
 } from 'solid-js';
-
-import type { NotificationProvider } from '@libs/notifications-shared/notification-provider';
-import type { NotificationsClientDeps } from '@libs/notifications-shared/notifications-actions';
 
 export type NotificationsShellContextValue = {
   readonly userId: string;

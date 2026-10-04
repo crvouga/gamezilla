@@ -8,17 +8,21 @@
  * scroller bleeds under the shell edge padding like `ScrollView`.
  */
 
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
+import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
 import {
   createVirtualizer,
   type VirtualItem,
   type Virtualizer,
 } from '@tanstack/solid-virtual';
 import { createMemo, For, type JSX, Show, splitProps, untrack } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
-import { requestsFlexFill, resolveFlushEdgeStyles, useContentEdgePadding } from './content-edge-padding';
+import {
+  requestsFlexFill,
+  resolveFlushEdgeStyles,
+  useContentEdgePadding,
+} from './content-edge-padding';
 import { useTestViewport } from './test-viewport';
-import type { VirtualListViewport } from '@pkgs/ui-shared/virtual-list-types';
 
 export type VirtualListProps<ItemT> = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,

@@ -14,8 +14,8 @@
  * Panes stack vertically for mobile-first readability.
  */
 
-import type { JSX } from 'solid-js';
 import type { ColorScheme } from '@pkgs/ui-shared/colors-types';
+import type { JSX } from 'solid-js';
 
 export type SchemePreviewProps = {
   children: JSX.Element;

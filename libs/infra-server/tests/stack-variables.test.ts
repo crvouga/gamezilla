@@ -3,7 +3,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra-shared/envs';
 import { GLOBAL } from '@libs/infra-shared/global';
-import { CREDENTIAL_ENV, GLOBAL_STACKS, STACKS } from '@libs/infra-shared/tofu-command';
+import {
+  CREDENTIAL_ENV,
+  GLOBAL_STACKS,
+  STACKS,
+} from '@libs/infra-shared/tofu-command';
 
 /**
  * `tofu validate` never sees variable values, so a stack that still requires

@@ -6,6 +6,14 @@
  */
 
 import type { Timers } from '@pkgs/clock-shared/types';
+import type {
+  CatalogEntity,
+  CatalogQuery,
+} from '@pkgs/harness-report-shared/catalog';
+import type {
+  CommitPage,
+  CommitRecord,
+} from '@pkgs/harness-report-shared/protocol';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import {
   createInfiniteQuery,
@@ -20,16 +28,19 @@ import {
   onMount,
   Show,
 } from 'solid-js';
-
-import { HarnessReportApp } from './report-app';
 import { CatalogSkeleton, EntityBrowser } from './entity-browser';
-import type { CatalogEntity, CatalogQuery } from '@pkgs/harness-report-shared/catalog';
-import { fmtDate } from '@pkgs/harness-report-shared/format';
-import { createHttpReportFetcher, memoryReportCache, ReportsUnavailable, reportQueryClient, reportQueryKey } from './fetcher';
 import type { ReportCache, ReportFetcher } from './fetcher';
+import {
+  createHttpReportFetcher,
+  memoryReportCache,
+  ReportsUnavailable,
+  reportQueryClient,
+  reportQueryKey,
+} from './fetcher';
+import { fmtDate } from './format-date';
 import { attachReportCache } from './persist';
-import type { CommitPage, CommitRecord } from '@pkgs/harness-report-shared/protocol';
 import { createRemoteReport } from './remote-report';
+import { HarnessReportApp } from './report-app';
 import '../styles.css';
 
 export type RemoteReportsAppProps = {

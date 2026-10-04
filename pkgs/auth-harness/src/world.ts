@@ -6,14 +6,13 @@
  * the world, not the system under test.
  */
 
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-
-import { APPLE_CLIENT_ID, GOOGLE_CLIENT_ID } from './relying-party';
+import type { SeenIdentity } from './model';
 import type { AuthIdp, ProviderFaults } from './providers';
 import { accountAt } from './providers';
-import type { SeenIdentity } from './model';
+import { APPLE_CLIENT_ID, GOOGLE_CLIENT_ID } from './relying-party';
 import type { AuthStore, ProviderAnswers } from './types';
 
 /** Allowed id_token skew at the relying party (see its JWKS verifier). */

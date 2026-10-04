@@ -1,8 +1,8 @@
-import type { MembershipProviderSecretDef } from '@pkgs/billing-shared/provider-module';
-import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
 import { cliHttp } from '@libs/secrets-shared/cli-io';
-import { requireNonEmpty, Secret } from '@libs/secrets-shared/secret';
 import type { SecretInput } from '@libs/secrets-shared/secret';
+import { requireNonEmpty, Secret } from '@libs/secrets-shared/secret';
+import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
+import type { MembershipProviderSecretDef } from '@pkgs/billing-shared/provider-module';
 
 function wrap(def: MembershipProviderSecretDef): Secret {
   return new Secret({

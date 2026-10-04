@@ -1,6 +1,6 @@
 import { pubsubEmqxSecretDefs } from '@libs/pubsub-shared/emqx-secret-defs';
-import { Secret } from './secret';
 import type { SecretInput } from './secret';
+import { Secret } from './secret';
 
 function wrapDefs(): Secret[] {
   return pubsubEmqxSecretDefs.map((def) => {

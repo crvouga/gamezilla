@@ -5,15 +5,21 @@
  */
 
 import { expect } from 'bun:test';
-
-import { leaveCheckout, openBilling, subscribeToPlus } from './billing-actions';
-import { billingButtonVisible, billingNotice, billingTier } from './billing-reads';
-import { focusActor } from '@libs/harness/shell-actions';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { spawnActor } from '@libs/harness/actions';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
+import { leaveCheckout, openBilling, subscribeToPlus } from './billing-actions';
+import {
+  billingButtonVisible,
+  billingNotice,
+  billingTier,
+} from './billing-reads';
 
 /** A settled tier lands a few virtual seconds after a write. */
 const SETTLE_MS = 6_000;

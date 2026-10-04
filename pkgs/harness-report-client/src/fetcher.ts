@@ -6,12 +6,14 @@
  * the query document.
  */
 
+import type {
+  CommitPage,
+  SourceRecord,
+} from '@pkgs/harness-report-shared/protocol';
 import type { HtmlReportBlob } from '@pkgs/harness-shared/bundle';
 import type { RunReport } from '@pkgs/harness-shared/report-types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { QueryClient } from '@tanstack/solid-query';
-
-import type { CommitPage, SourceRecord } from '@pkgs/harness-report-shared/protocol';
 
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;

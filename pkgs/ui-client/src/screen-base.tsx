@@ -17,10 +17,10 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import { useLayoutMode } from './use-layout-mode';
 import { ScreenBaseCompact } from './screen-base-compact';
 import type { ScreenBaseProps } from './screen-base-types';
 import { ScreenBaseWide } from './screen-base-wide';
+import { useLayoutMode } from './use-layout-mode';
 
 export function ScreenBase(props: ScreenBaseProps): JSX.Element {
   const mode = useLayoutMode();

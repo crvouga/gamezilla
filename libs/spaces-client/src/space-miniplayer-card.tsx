@@ -1,17 +1,17 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
-import { SpaceField, useSpaceColumn } from './use-space-column';
-import { SpaceCardGradientBox } from './space-card-gradient';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from './leave-space-modal-provider';
-import { SpaceHostAvatar } from './space-host-avatar';
 import { MiniplayerHostNameLine } from './miniplayer-host-name-line';
 import { MiniplayerLiveBadge } from './miniplayer-live-badge';
 import { MiniplayerMemberCountText } from './miniplayer-member-count-text';
 import { MiniplayerOpenSpacePressable } from './miniplayer-open-space-pressable';
 import { MiniplayerSpaceTitle } from './miniplayer-space-title';
+import { SpaceCardGradientBox } from './space-card-gradient';
 import { SpaceEndOrLeaveButton } from './space-end-or-leave-button';
+import { SpaceHostAvatar } from './space-host-avatar';
+import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceMiniplayerCardProps = {
   spaceId: string;

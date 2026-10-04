@@ -15,8 +15,8 @@
  * critical-path gate catches exactly that.
  */
 
-import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ComposedFeatureClients } from '@libs/feature-client/compose-client';
+import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 
 export type LoadComposedFeatures = () => Promise<ComposedFeatures>;

@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `ResponsiveSurface` -- overlay that uses a bottom sheet on compact layouts
  * and a centered modal on wide ones ({@link useLayoutMode}). Pass
@@ -22,21 +23,25 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * The sheet comes from {@link useBottomSheetHost} (web CSS sheet by default).
  */
 
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import type { ModalSize } from '@pkgs/ui-shared/modal-size';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { OnColorReset } from './on-color-context';
-import { useLayoutMode } from './use-layout-mode';
-import type { ModalSize } from '@pkgs/ui-shared/modal-size';
+import {
+  CONTENT_EDGE_PADDING_STEP,
+  ContentEdgePaddingProvider,
+  SURFACE_BOTTOM_PADDING_STEP,
+} from './content-edge-padding';
 import { useBottomSheetHost } from './context';
-import { CONTENT_EDGE_PADDING_STEP, ContentEdgePaddingProvider, SURFACE_BOTTOM_PADDING_STEP } from './content-edge-padding';
 import { ModalBackdrop } from './modal-backdrop';
 import { ModalContent, useModalContentMaxHeight } from './modal-content';
 import { ModalRoot } from './modal-root';
-import { ScrollView } from './scroll-view';
+import { OnColorReset } from './on-color-context';
 import { ResponsiveSurfaceHeader } from './responsive-surface-header';
+import { ScrollView } from './scroll-view';
 import type { ResponsiveSurfacePresentation } from './should-use-mobile-sheet';
 import { shouldUseMobileSheet } from './should-use-mobile-sheet';
+import { useLayoutMode } from './use-layout-mode';
 
 export type ResponsiveSurfaceProps = {
   visible: boolean;

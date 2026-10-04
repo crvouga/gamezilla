@@ -1,11 +1,14 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { withOpenTimeout } from './open-retry';
-import type { SqlOwner } from './sql-owner';
-import { workerScriptLoadError } from './worker-script-load-error';
 import type { SqliteWorkerOpenResult, SqliteWorkerPort } from './protocol';
-import { createSqliteWorkerRpc, createSqliteWorkerSqlClient } from './sqlite-worker-client';
+import type { SqlOwner } from './sql-owner';
 import type { SqliteWorkerRpc } from './sqlite-worker-client';
+import {
+  createSqliteWorkerRpc,
+  createSqliteWorkerSqlClient,
+} from './sqlite-worker-client';
+import { workerScriptLoadError } from './worker-script-load-error';
 
 /** A spawned dedicated worker: message port plus hard teardown. */
 export type SqliteWorkerHandle = SqliteWorkerPort & {

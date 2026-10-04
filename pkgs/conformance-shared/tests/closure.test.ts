@@ -3,9 +3,8 @@ import type { ClosureWorld } from '@pkgs/conformance-shared/closure';
 import { closureProblems } from '@pkgs/conformance-shared/closure';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
-import { closedWorld } from './fixtures/world';
 import type { WorldShape } from './fixtures/world';
+import { closedWorld } from './fixtures/world';
 
 const SHAPE: WorldShape = {
   contexts: ['spaces', 'chess'],

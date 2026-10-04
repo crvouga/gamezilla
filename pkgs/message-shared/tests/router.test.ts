@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'bun:test';
 import { ValidationError } from '@pkgs/assert-shared/validation-error';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { acceptUnknownPayload, createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
 import type { Message } from '@pkgs/message-shared/message';
-import { createComposedMessageRouter, createMessageRouter } from '@pkgs/message-shared/router';
+import {
+  acceptUnknownPayload,
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
+import {
+  createComposedMessageRouter,
+  createMessageRouter,
+} from '@pkgs/message-shared/router';
 
 describe('createMessageRouter', () => {
   it('dispatches to the handler for the registered tag type', () => {

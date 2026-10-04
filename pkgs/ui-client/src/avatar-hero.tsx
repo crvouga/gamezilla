@@ -8,9 +8,9 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 
 export type AvatarHeroAction = {
   onClick: () => void;

@@ -8,10 +8,14 @@
  * scrollbar sits flush with the frame.
  */
 
-import { type JSX, Show, splitProps } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
-import { requestsFlexFill, resolveFlushEdgeStyles, useContentEdgePadding } from './content-edge-padding';
+import { type JSX, Show, splitProps } from 'solid-js';
+import {
+  requestsFlexFill,
+  resolveFlushEdgeStyles,
+  useContentEdgePadding,
+} from './content-edge-padding';
 
 export type ScrollViewProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,

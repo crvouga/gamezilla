@@ -1,8 +1,8 @@
 import { test } from 'bun:test';
 import { defineTable } from '@pkgs/db-schema-shared/define-table';
 import sql, { raw } from '@pkgs/sql-shared/sql';
-import { applySchema, expectQuery, setup } from './sqlite-contract-helpers';
 import type { SqliteClientGetter } from './sqlite-contract-helpers';
+import { applySchema, expectQuery, setup } from './sqlite-contract-helpers';
 
 export function registerSqliteQueryTests(getClient: SqliteClientGetter): void {
   test('parameterized LIMIT / OFFSET', async () => {

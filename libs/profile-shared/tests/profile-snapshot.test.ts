@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test';
-import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import { ensureProfileMutation } from '@libs/profile-shared/ensure-profile-mutation';
 import { PROFILE_QUERIES } from '@libs/profile-shared/queries';
+import { PROFILE_TABLES } from '@libs/profile-shared/tables';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { Sql } from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import type { Sql } from '@pkgs/sql-shared/sql';
 import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 test('every profile snapshot carries the current username uniqueness value', async () => {

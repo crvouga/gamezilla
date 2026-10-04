@@ -6,12 +6,20 @@
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';
-import { avatarTransform, dragGeometry, TOUCH_ZOOM } from '@pkgs/chess-board-shared/piece-drag';
+import {
+  avatarTransform,
+  dragGeometry,
+  TOUCH_ZOOM,
+} from '@pkgs/chess-board-shared/piece-drag';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
-import { BOARD_PX, centerOf, mountBoard, mutationsDuring } from './board-fixture';
 import type { MountedBoard } from './board-fixture';
+import {
+  BOARD_PX,
+  centerOf,
+  mountBoard,
+  mutationsDuring,
+} from './board-fixture';
 
 let mounted: MountedBoard | undefined;
 

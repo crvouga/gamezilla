@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { EVENT } from '@pkgs/observability-shared/events';
-import { assertTraceHasSpan } from '@pkgs/observability-shared/assert-trace';
-import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
 import { parseArgs } from '@pkgs/observability-cli-shared/args';
 import { runCommand } from '@pkgs/observability-cli-shared/commands';
+import { assertTraceHasSpan } from '@pkgs/observability-shared/assert-trace';
+import { ATTR } from '@pkgs/observability-shared/attributes';
+import { EVENT } from '@pkgs/observability-shared/events';
+import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
 import {
   createGymFixtures,
   GYM_IDS,

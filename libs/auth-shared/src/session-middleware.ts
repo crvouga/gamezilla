@@ -1,14 +1,14 @@
-import type { AppAuthContext, AppClientContext } from './auth-context';
-import { buildAppAuthContext } from './auth-context';
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
 import type { Clock } from '@pkgs/clock-shared/types';
-import querySql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import querySql from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { assertDeviceId } from './device-id';
 import { AnonUserService } from './anon-user-service';
+import type { AppAuthContext, AppClientContext } from './auth-context';
+import { buildAppAuthContext } from './auth-context';
 import { BearerAuthResolver } from './bearer-resolve';
+import { assertDeviceId } from './device-id';
 
 /** Header carrying the install-scoped device id on HTTP / WebSocket requests. */
 export const ANON_ID_HEADER = 'x-anon-id';

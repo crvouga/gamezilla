@@ -26,8 +26,8 @@ import { join } from 'node:path';
 
 import type { CommandResult } from '@pkgs/alloy-shared/receipt';
 import { parseReceipt, solutionSummary } from '@pkgs/alloy-shared/receipt';
-import { modelSigs } from '@pkgs/alloy-shared/sigs';
 import type { SigInfo } from '@pkgs/alloy-shared/sigs';
+import { modelSigs } from '@pkgs/alloy-shared/sigs';
 
 /** Longer than any model or snapshot batch should take, even on a loaded CI box. */
 export const ALLOY_TIMEOUT_MS = 120_000;

@@ -1,7 +1,6 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-
-import { ident, join, raw } from '@pkgs/sql-shared/sql';
 import type { Sql } from '@pkgs/sql-shared/sql';
+import { ident, join, raw } from '@pkgs/sql-shared/sql';
 
 const STAR = '*';
 const DOT = '.';

@@ -1,15 +1,30 @@
-import { closePuzzleFeedSettings, openPuzzleFeedSettings, openPuzzleFromSpace } from '@libs/chess-puzzle-harness/chess-actions';
-import { returnToOwnSpace } from '@libs/spaces-harness/space-actions';
+import {
+  closePuzzleFeedSettings,
+  openPuzzleFeedSettings,
+  openPuzzleFromSpace,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import { discardFeedSettings } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
 import { readPuzzleControlAvailability } from '@libs/chess-puzzle-harness/puzzle-control-reads';
-import { previewPuzzleFeedChoice, readSavedFeedChoice } from '@libs/chess-puzzle-harness/puzzle-feed-model';
-import { partition, restartApp } from '@libs/harness/actions';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
-import { restoreActorConnection } from '@libs/harness/actions';
+import {
+  previewPuzzleFeedChoice,
+  readSavedFeedChoice,
+} from '@libs/chess-puzzle-harness/puzzle-feed-model';
+import {
+  partition,
+  restartApp,
+  restoreActorConnection,
+} from '@libs/harness/actions';
+import {
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
 import { bringToFront } from '@libs/harness/observations';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { focusActor } from '@libs/harness/shell-actions';
-import { createSpace } from '@libs/spaces-harness/space-actions';
+import {
+  createSpace,
+  returnToOwnSpace,
+} from '@libs/spaces-harness/space-actions';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import autoAdvanceTrace from './fixtures/puzzle-feed-auto-advance-save.itf.json';
 

@@ -12,24 +12,21 @@
  * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */
 
-import { EmbeddedHrefPersistence } from './embedded-href-persistence';
 import { OriginAvailabilityProvider } from '@pkgs/http-client-client/solid';
 import { AppFrame } from '@pkgs/ui-client/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-client/app-frame-chrome';
 import { AppRouterProvider } from '@pkgs/ui-client/app-router';
 import { type JSX, onCleanup, onMount, Show } from 'solid-js';
+import { useAppFeatures } from './app-features-context';
 import { AppHeaderGlobalMenu } from './app-header-global-menu';
 import { AppHeaderIslandHost } from './app-header-island';
-import { GlobalMenuIdentityRoot } from './global-menu-identity-context';
-import { useAppFeatures } from './app-features-context';
+import { AppProvidersOuter, AppProvidersSession } from './app-providers';
+import { AppThemeProvider } from './app-theme-provider';
 import { BootPaintGate } from './boot-paint-gate';
 import { useClientEnv } from './client-env-context';
+import { EmbeddedHrefPersistence } from './embedded-href-persistence';
+import { GlobalMenuIdentityRoot } from './global-menu-identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
-import {
-  AppProvidersOuter,
-  AppProvidersSession,
-} from './app-providers';
-import { AppThemeProvider } from './app-theme-provider';
 import { RootErrorBoundary } from './root-error-boundary';
 import { SyncStatusRoot } from './sync-status-context';
 

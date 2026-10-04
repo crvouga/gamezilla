@@ -1,9 +1,9 @@
-import { type JSX, Show } from 'solid-js';
+import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 
 import type { ChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
 import { formatSanNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
-import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
 import { CHESS_PUZZLE_TEST_ENABLED } from '@libs/chess-puzzle-shared/chess-puzzle-test-enabled';
+import { type JSX, Show } from 'solid-js';
 
 type HistoryPlyChipProps = {
   ply: PuzzleHistoryPly;

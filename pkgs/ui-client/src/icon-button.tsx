@@ -28,14 +28,14 @@
  */
 
 import { useTimers } from '@pkgs/clock-client/solid';
-import { children, type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { OnColorProvider } from './on-color-context';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
+import { children, type JSX, Show } from 'solid-js';
+import { OnColorProvider } from './on-color-context';
 import { useThemeTokens } from './theme-context';
-import { Tooltip, useTooltipTrigger } from './tooltip';
 import type { TooltipPlacement } from './tooltip';
+import { Tooltip, useTooltipTrigger } from './tooltip';
 
 export type IconButtonVariant = 'icon' | 'avatar';
 

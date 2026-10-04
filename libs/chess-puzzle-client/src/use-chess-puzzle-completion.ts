@@ -1,11 +1,10 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { type Accessor, createMemo } from 'solid-js';
-
-import { derivePuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
+import { derivePuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
+import { type Accessor, createMemo } from 'solid-js';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { useChessPuzzleRatingEvents } from './use-chess-puzzle-rating-events';
 

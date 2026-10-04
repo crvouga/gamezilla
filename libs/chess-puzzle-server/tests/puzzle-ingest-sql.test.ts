@@ -9,9 +9,9 @@ import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-s
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 
 const HEADER =
   'PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags';

@@ -8,21 +8,21 @@
 
 import { render } from 'solid-js/web';
 
-import '@pkgs/tailwind/tailwind.css';
-import '@pkgs/ui/tokens.css';
-import '@pkgs/ui/base.css';
-import {
-  APP_VERSION,
-  getCommitHash,
-  hasCommitProvenance,
-} from '@libs/app-shared/app-metadata';
-import { createClient } from '@libs/app-client/create-client';
+import '@pkgs/tailwind-shared/tailwind.css';
+import '@pkgs/ui-client/tokens.css';
+import '@pkgs/ui-client/hosts.css';
 import {
   browserObservabilityIdentity,
   installBrowserObsHelper,
   setBrowserSessionId,
 } from '@libs/app-client/browser-identity';
+import { createClient } from '@libs/app-client/create-client';
 import { wallClientEnv } from '@libs/app-client/wall-client-env';
+import {
+  APP_VERSION,
+  getCommitHash,
+  hasCommitProvenance,
+} from '@libs/app-shared/app-metadata';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
 import { wallSpaceRoomTransport } from '@libs/spaces-client/wall-room-transport';
 import { setMutationCorrelationIdentity } from '@pkgs/sync-engine-shared/interaction-correlation';

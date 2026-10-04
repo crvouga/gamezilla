@@ -11,12 +11,22 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds-client/solid';
-import type { OverflowMenuAction, OverflowMenuHeader } from '@pkgs/ui-client/overflow-menu-button';
-import { OverflowMenuButton } from '@pkgs/ui-client/overflow-menu-button';
-import { PaintbrushIcon, ServerIcon, SettingsIcon, UserIcon, Volume2Icon, VolumeXIcon } from '@pkgs/ui-client/icons';
-import { StatusDot } from '@pkgs/ui-client/status-dot';
-import type { StatusDotStatus } from '@pkgs/ui-client/status-dot';
 import { useRouter } from '@pkgs/ui-client/app-router';
+import {
+  PaintbrushIcon,
+  ServerIcon,
+  SettingsIcon,
+  UserIcon,
+  Volume2Icon,
+  VolumeXIcon,
+} from '@pkgs/ui-client/icons';
+import type {
+  OverflowMenuAction,
+  OverflowMenuHeader,
+} from '@pkgs/ui-client/overflow-menu-button';
+import { OverflowMenuButton } from '@pkgs/ui-client/overflow-menu-button';
+import type { StatusDotStatus } from '@pkgs/ui-client/status-dot';
+import { StatusDot } from '@pkgs/ui-client/status-dot';
 import { useThemePreference } from '@pkgs/ui-client/theme-preference';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 

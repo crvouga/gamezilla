@@ -1,6 +1,6 @@
 import type { HttpClient } from '@pkgs/http-client-shared/types';
-import { findPersonTrouble } from '@pkgs/observability-shared/person-trouble';
 import { normalizePersonName } from '@pkgs/observability-shared/person-name';
+import { findPersonTrouble } from '@pkgs/observability-shared/person-trouble';
 import { TempoTraceStore } from '@pkgs/observability-shared/tempo';
 import type { PersonPlant } from './person-trouble-document';
 import { personTroubleDocument } from './person-trouble-document';

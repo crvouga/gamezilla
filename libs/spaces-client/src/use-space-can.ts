@@ -1,5 +1,5 @@
-import type { AppPermission } from '@libs/permissions-shared/permission-catalog';
 import { useCan } from '@libs/permissions-client/use-can';
+import type { AppPermission } from '@libs/permissions-shared/permission-catalog';
 import type { Accessor } from 'solid-js';
 
 import { useSpacePresence } from './public-use-space-presence';

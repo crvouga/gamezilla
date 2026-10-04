@@ -8,9 +8,13 @@
  * provider's wire, and the assertions are identical for all of them.
  */
 import { describe, expect, test } from 'bun:test';
-
-import { CONTRACT_EXPECTED, CONTRACT_OFFER, CONTRACT_PERIOD_END_MS, CONTRACT_SITUATIONS } from './contract-fixtures';
 import type { ContractSituation } from './contract-fixtures';
+import {
+  CONTRACT_EXPECTED,
+  CONTRACT_OFFER,
+  CONTRACT_PERIOD_END_MS,
+  CONTRACT_SITUATIONS,
+} from './contract-fixtures';
 import type { MembershipBilling, ReadCallbackInput } from './membership';
 import { isMembershipProviderId } from './providers';
 

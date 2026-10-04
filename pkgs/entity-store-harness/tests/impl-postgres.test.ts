@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 import { EntityStoreImplPostgres } from '@pkgs/entity-store-shared/impl-postgres';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 const adapters = createHarnessAdapters({ seed: 1 });
 

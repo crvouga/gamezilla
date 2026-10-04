@@ -4,15 +4,35 @@
  * out by hand, plus properties over arbitrary (including unreadable) rows.
  */
 import { describe, expect, test } from 'bun:test';
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import type { BillingNotice, BillingPrimaryAction, BillingTier, BillingViewInput, MembershipState } from '@libs/billing-client/billing-view-model';
-import { buildBillingView, formatMinorUnits, summarizeOffer } from '@libs/billing-client/billing-view-model';
+import type {
+  BillingNotice,
+  BillingPrimaryAction,
+  BillingTier,
+  BillingViewInput,
+  MembershipState,
+} from '@libs/billing-client/billing-view-model';
+import {
+  buildBillingView,
+  formatMinorUnits,
+  summarizeOffer,
+} from '@libs/billing-client/billing-view-model';
 import type { MembershipRow } from '@libs/billing-shared/membership-row';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
-import { CALLERS, DAY, inputFor, MEMBER_KINDS, NOW, PAST_END, PERIOD_END, ROW_KINDS, row, UNLOCK_LABEL } from './billing-matrix';
 import type { Caller, RowKind } from './billing-matrix';
+import {
+  CALLERS,
+  DAY,
+  inputFor,
+  MEMBER_KINDS,
+  NOW,
+  PAST_END,
+  PERIOD_END,
+  ROW_KINDS,
+  row,
+  UNLOCK_LABEL,
+} from './billing-matrix';
 
 const KINDS = Object.keys(ROW_KINDS) as RowKind[];
 

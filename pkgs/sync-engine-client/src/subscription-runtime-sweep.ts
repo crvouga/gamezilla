@@ -1,12 +1,14 @@
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { QueryRequestItem } from '@pkgs/sync-engine-shared/v2';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
+import type {
+  QueryRequestItem,
+  QueryResponse,
+} from '@pkgs/sync-engine-shared/v2';
 import { stampScopeConfirmed } from './last-synced';
 import { computeLocalScopeHash } from './local-scope-hash';
-import { applyFullMerge, detachScope } from './merge';
 import type { MergeApplierDeps } from './merge';
+import { applyFullMerge, detachScope } from './merge';
 import { postQueryBatch } from './post-query-batch';
 import { loadScopeBasis, requestCacheKeys } from './subscription-cache-keys';
 

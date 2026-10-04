@@ -16,14 +16,13 @@
  * methods to the user's devices.
  */
 
-import type { Context } from 'hono';
-
 import { IDP_PROVIDER_APPLE } from '@pkgs/auth-inhouse-shared/auth-constants';
+import type { Context } from 'hono';
+import type { AppleNotification } from './apple-notifications';
+import { verifyAppleNotification } from './apple-notifications';
 import type { AuthAppCtx } from './create-auth-app-types';
 import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
-import type { AppleNotification } from './apple-notifications';
-import { verifyAppleNotification } from './apple-notifications';
 import { syncUserProfile } from './user-profile-sync';
 
 type ApplyResult =

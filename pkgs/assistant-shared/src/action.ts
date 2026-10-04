@@ -1,5 +1,5 @@
-import type { DialogueLookupKey } from './types';
 import type { Intent } from './intents';
+import type { DialogueLookupKey } from './types';
 
 export type AssistantAction =
   | {

@@ -10,10 +10,13 @@
  * window or not.
  */
 import { describe, expect, test } from 'bun:test';
-import { ROLE } from '@libs/permissions-shared/permission-catalog';
-import { readSubscriptionSnapshot, resolveAccessFacts } from '@libs/permissions-shared/access-facts';
-import { resolvePlanRole } from '@libs/permissions-shared/access-model';
 import type { SubscriptionRow } from '@libs/permissions-shared/access-facts';
+import {
+  readSubscriptionSnapshot,
+  resolveAccessFacts,
+} from '@libs/permissions-shared/access-facts';
+import { resolvePlanRole } from '@libs/permissions-shared/access-model';
+import { ROLE } from '@libs/permissions-shared/permission-catalog';
 
 const NOW = Date.parse('2026-09-21T12:00:00.000Z');
 const DAY = 86_400_000;

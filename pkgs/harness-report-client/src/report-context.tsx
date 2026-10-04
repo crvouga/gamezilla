@@ -1,6 +1,5 @@
-import { createContext, type ParentProps, useContext } from 'solid-js';
-
 import type { ReportData } from '@pkgs/harness-report-shared/types';
+import { createContext, type ParentProps, useContext } from 'solid-js';
 
 /**
  * Where a lazily loaded test stands. `ready` means the timeline is in;

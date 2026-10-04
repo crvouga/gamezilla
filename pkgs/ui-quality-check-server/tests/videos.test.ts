@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { assertVideoQuality, checkVideos, createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import {
+  assertVideoQuality,
+  checkVideos,
+  createUIQualityChecker,
+} from '@pkgs/ui-quality-check-server/api';
 import { decoder, detector, options, rgb } from './support';
 
 const frames = (values: readonly number[]) =>

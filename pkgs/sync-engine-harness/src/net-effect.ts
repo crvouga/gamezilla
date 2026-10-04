@@ -1,8 +1,8 @@
 import type { HarnessFaultOptions } from './faults';
 import { RELIABLE_FAULTS } from './faults';
 import type { SyncNetwork } from './network';
-import { BROKER, liveEndpoint, SERVER_HTTP, syncEndpoint } from './traffic';
 import type { HarnessTraffic } from './traffic';
+import { BROKER, liveEndpoint, SERVER_HTTP, syncEndpoint } from './traffic';
 
 export type NetState = 'ok' | 'hold' | 'down' | Partial<HarnessFaultOptions>;
 

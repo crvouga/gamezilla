@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-client/button';
@@ -6,7 +7,6 @@ import { ChevronRightIcon } from '@pkgs/ui-client/icons';
 import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
 import type { Accessor, JSX } from 'solid-js';
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { useChessPuzzleRatingAnimation } from './use-chess-puzzle-rating-animation';

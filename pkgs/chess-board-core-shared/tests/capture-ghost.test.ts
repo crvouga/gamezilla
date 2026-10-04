@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { buildCaptureGhost, captureGhostForTransition, captureVictimSquare, resolveCaptureMove } from '@pkgs/chess-board-core-shared/capture-ghost';
+import {
+  buildCaptureGhost,
+  captureGhostForTransition,
+  captureVictimSquare,
+  resolveCaptureMove,
+} from '@pkgs/chess-board-core-shared/capture-ghost';
 import { positionFromChess } from '@pkgs/chess-board-core-shared/position';
 import { Chess } from 'chess.js';
 

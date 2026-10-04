@@ -1,8 +1,3 @@
-import type { Clock } from '@pkgs/clock-shared/types';
-import sql from '@pkgs/sql-shared/sql';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
 import {
   AUTH_LINK_TICKET_TTL_MS,
   AUTH_OAUTH_STATE_TTL_MS,
@@ -10,6 +5,10 @@ import {
 } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { pkceCodeVerifier } from '@pkgs/auth-inhouse-shared/pkce';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
+import type { Clock } from '@pkgs/clock-shared/types';
+import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { tagState } from './oauth-callback-relay';
 
 export type IdpUserRow = {

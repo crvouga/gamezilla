@@ -1,11 +1,7 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-
-import {
-  emptyObjectSchema,
-  parseStandardSchema,
-} from './standard-schema';
-import { DEFAULT_QUERY_LIMIT } from './queries-types';
 import type { QueryCtx, QueryDef, QueryDefInput } from './queries-types';
+import { DEFAULT_QUERY_LIMIT } from './queries-types';
+import { emptyObjectSchema, parseStandardSchema } from './standard-schema';
 import type { QueryRow } from './v2';
 
 /**

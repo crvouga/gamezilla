@@ -8,17 +8,20 @@
  * it beside a reference model of the tuning rules.
  */
 
+import type { Config } from '@pkgs/db-indexes-shared/config';
+import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
+import { isOwnedName } from '@pkgs/db-indexes-shared/naming';
+import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
+import type {
+  ReconcileReport,
+  WorkloadManifest,
+} from '@pkgs/db-indexes-shared/types';
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import { defineProperty } from '@pkgs/harness-shared/define-property';
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
 import { defineSystem } from '@pkgs/harness-shared/define-system';
 import type { Session } from '@pkgs/harness-shared/runtime-types';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
-import type { Config } from '@pkgs/db-indexes-shared/config';
-import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import { isOwnedName } from '@pkgs/db-indexes-shared/naming';
-import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
-import type { ReconcileReport, WorkloadManifest } from '@pkgs/db-indexes-shared/types';
 import { createHarnessClock } from './clock';
 import { HarnessDb } from './db';
 import { checkInvariantsAsync } from './invariants';

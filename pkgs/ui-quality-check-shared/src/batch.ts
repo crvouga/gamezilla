@@ -1,4 +1,7 @@
-import type { BatchQualityResult, QualityResult } from './ui-quality-check-types';
+import type {
+  BatchQualityResult,
+  QualityResult,
+} from './ui-quality-check-types';
 
 export async function mapBounded<T, R>(
   inputs: readonly T[],

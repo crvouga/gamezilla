@@ -1,6 +1,10 @@
-import type { PgStatementStat, PgStatsResult, PgStatsSource } from '@pkgs/observability-shared/pg-stats';
-import sql from '@pkgs/sql-shared/sql';
+import type {
+  PgStatementStat,
+  PgStatsResult,
+  PgStatsSource,
+} from '@pkgs/observability-shared/pg-stats';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 const MAX_STATEMENTS = 100;
 

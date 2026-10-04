@@ -5,11 +5,10 @@
  */
 
 import { defineFeature } from '@libs/feature-shared/manifest';
-
-import { AUTH_TABLES } from './tables';
-import { AUTH_TOPIC_MAP } from './topic-map';
 import { AUTH_PRIVACY } from './account-privacy';
 import { AUTH_QUERIES } from './queries';
+import { AUTH_TABLES } from './tables';
+import { AUTH_TOPIC_MAP } from './topic-map';
 
 export const AUTH_FEATURE = defineFeature({
   name: 'auth',

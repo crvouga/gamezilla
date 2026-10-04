@@ -2,7 +2,6 @@
   "name": "@libs/chess-matchmaking-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -35,5 +34,6 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness"
 }

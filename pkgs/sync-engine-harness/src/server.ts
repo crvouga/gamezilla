@@ -1,22 +1,24 @@
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { pruneMutationArtifacts } from '@pkgs/sync-engine-server/prune-mutation-artifacts';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
-import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
-import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
-import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
-import { createMonotonicCheckpoint } from '@pkgs/sync-engine-shared/commit-checkpoint';
+import { pruneMutationArtifacts } from '@pkgs/sync-engine-server/prune-mutation-artifacts';
 import type { MonotonicCheckpoint } from '@pkgs/sync-engine-shared/commit-checkpoint';
+import { createMonotonicCheckpoint } from '@pkgs/sync-engine-shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '@pkgs/sync-engine-shared/framework-topic-map';
+import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
+import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
+import { withFrameworkMutations } from '@pkgs/sync-engine-shared/with-framework-mutations';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { EdgeFaultController } from './edge-faults';
 import type { HarnessHttpServerHandlers } from './http-bridge-types';
 import { openHarnessSqliteServer } from './open-harness-sqlite';
+import type {
+  HarnessServerAuth,
+  HarnessServerHandlerCtx,
+} from './server-handlers';
 import { createHandleMutations, createHandleQuery } from './server-handlers';
-import type { HarnessServerAuth, HarnessServerHandlerCtx } from './server-handlers';
 
 export type HarnessServer = {
   readonly db: SqlClient;

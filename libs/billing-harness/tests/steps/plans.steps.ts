@@ -7,12 +7,21 @@
 
 import { expect } from 'bun:test';
 
-import { runFreeTrialToDaysLeft, switchPlusInterval } from '@libs/billing-harness/billing-actions';
-import { freeTrialEndDay, freeTrialOffered, freeTrialShown, offeredNewCard, planShown } from '@libs/billing-harness/billing-plans-reads';
+import {
+  runFreeTrialToDaysLeft,
+  switchPlusInterval,
+} from '@libs/billing-harness/billing-actions';
 import type { PlanShown } from '@libs/billing-harness/billing-plans-reads';
+import {
+  freeTrialEndDay,
+  freeTrialOffered,
+  freeTrialShown,
+  offeredNewCard,
+  planShown,
+} from '@libs/billing-harness/billing-plans-reads';
 import { billingNotice } from '@libs/billing-harness/billing-reads';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 
 const MONTHLY = 'subscription_monthly';

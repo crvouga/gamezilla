@@ -12,20 +12,24 @@
  * connection waits until the device has noticed, as a person would.
  */
 
-import { focusActor } from '@libs/harness/shell-actions';
 import { partition, restoreNetwork } from '@libs/harness/actions';
-import { partitioned } from '@libs/harness/observations';
 import { returnToTabs, signInWithGoogle } from '@libs/harness/auth-actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
-import { leaveUsernameEditor, openProfileEdit, submitUsername } from '@libs/profile-harness/profile-actions';
+import { partitioned } from '@libs/harness/observations';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
+import {
+  leaveUsernameEditor,
+  openProfileEdit,
+  submitUsername,
+} from '@libs/profile-harness/profile-actions';
 import { readUsernameSaveFace } from '@libs/profile-harness/profile-ui-reads';
 import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile-shared/username';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import sql from '@pkgs/sql-shared/sql';
 
 const SIGNED_IN = ['alice', 'bob'] as const;

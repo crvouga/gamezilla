@@ -19,8 +19,8 @@ import type {
   UsageInfo,
 } from '@pkgs/db-indexes-shared/types';
 import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
-import { unsafe } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { unsafe } from '@pkgs/sql-shared/sql';
 import {
   isConcurrentlyUnsupportedError,
   renderCreateIndexSql,

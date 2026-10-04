@@ -1,11 +1,10 @@
-import { defineSystem } from '@pkgs/harness-shared/define-system';
-import { bootRoomHarness, roomSystemCatalog } from '@pkgs/room-harness/boot';
-import { ROOM_ARGS, ROOM_DRAW } from '@pkgs/room-harness/args';
-import type { RoomApp } from '@pkgs/room-harness/scenario-app';
-import type { RoomArgs } from '@pkgs/room-harness/args';
-import type { RoomHarness } from '@pkgs/room-harness/harness';
-
 import { createChessModule } from '@libs/chess-puzzle-shared/chess-module';
+import { defineSystem } from '@pkgs/harness-shared/define-system';
+import type { RoomArgs } from '@pkgs/room-harness/args';
+import { ROOM_ARGS, ROOM_DRAW } from '@pkgs/room-harness/args';
+import { bootRoomHarness, roomSystemCatalog } from '@pkgs/room-harness/boot';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
+import type { RoomApp } from '@pkgs/room-harness/scenario-app';
 
 const ChessModule = createChessModule(() => 0);
 

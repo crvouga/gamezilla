@@ -1,6 +1,6 @@
+import { FRAMEWORK_MUTATIONS } from './acknowledge-write-rejection';
 import { mutationRegistry } from './mutations-registry';
 import type { Mutation, MutationRegistry } from './mutations-types';
-import { FRAMEWORK_MUTATIONS } from './acknowledge-write-rejection';
 
 /** Merge product mutations with framework mutations (idempotent by name). */
 export function withFrameworkMutations(

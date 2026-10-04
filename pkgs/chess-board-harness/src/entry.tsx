@@ -3,19 +3,19 @@
 import './styles.css';
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
+import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
+import { ChessBoardBenchPage } from '@pkgs/chess-board-client/chess-board-bench-page';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { createRoot, createSignal, Show } from 'solid-js';
 import { render } from 'solid-js/web';
-import { ChessBoardBenchPage } from '@pkgs/chess-board-client/chess-board-bench-page';
-import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
-import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
+import { installMotionPreference } from './motion-preference';
 import { INITIAL } from './positions';
 import { createRecordingAudio } from './recording-audio';
-import { installMotionPreference } from './motion-preference';
 
 const [config, setConfig] = createRoot(() =>
   createSignal<ChessBoardProps>({

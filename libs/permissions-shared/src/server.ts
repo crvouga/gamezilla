@@ -20,24 +20,30 @@ import type { TableDef } from '@pkgs/db-schema-shared/define-table';
 import type { DecisionOutput } from '@pkgs/dmn-shared/evaluate';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 import type { DenialReason } from '@pkgs/permissions-shared/policy';
-import type { Sql } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Mutation, MutationAuthorize, MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
+import type { Sql } from '@pkgs/sql-shared/sql';
+import type {
+  Mutation,
+  MutationAuthorize,
+  MutationEnv,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
-import { queryRequires } from './query-permission';
-import { MUTATION_ACTIONS } from './mutation-actions';
-import type {
-  AppGrantKey,
-  AppPermission,
-} from './permission-catalog';
 import { authorizeAppMutation } from './authorize-app-mutation';
-import { requirePermission } from './require-permission';
-import { CASE_NOW_MS, personOf } from './people';
+import { MUTATION_ACTIONS } from './mutation-actions';
 import type { CaseInput } from './people';
+import { CASE_NOW_MS, personOf } from './people';
+import type { AppGrantKey, AppPermission } from './permission-catalog';
+import { queryRequires } from './query-permission';
 import type { ReasonWords } from './reasons';
+import { requirePermission } from './require-permission';
 import type { AppPolicy } from './world';
-import { mutationEnvFor, openConformanceDb, seedAccess, storedRows } from './world';
+import {
+  mutationEnvFor,
+  openConformanceDb,
+  seedAccess,
+  storedRows,
+} from './world';
 
 /**
  * The server refused an operation that is not a mutation: an HTTP route

@@ -1,18 +1,17 @@
-import type { CatalogSnapshot } from './define-snapshot';
-import type { ExploreOptions, ReplayOptions, Report } from './explore';
-import type { RandomActionsReport } from './run-types';
-import type { Run } from './run-types';
-import type { RunOptions } from './run';
-import type { Session } from './runtime-types';
 import type { Awaitable } from './awaitable';
 import { buildRegistry } from './build-registry';
 import type { RuntimeDef } from './define-runtime';
+import type { CatalogSnapshot } from './define-snapshot';
 import type { CatalogAction, CatalogProperty } from './effect';
 import { SYSTEM_TAG } from './effect';
+import type { ExploreOptions, ReplayOptions, Report } from './explore';
 import type { Gen } from './gen';
 import type { Recording } from './recording';
-import { attachSystemRegistry } from './registry';
 import type { SystemCore } from './registry';
+import { attachSystemRegistry } from './registry';
+import type { RunOptions } from './run';
+import type { RandomActionsReport, Run } from './run-types';
+import type { Session } from './runtime-types';
 
 export type System<S, Args = void> = SystemCore<S, Args> & {
   run(opts: RunOptions<S, Args>): Promise<Run<S>>;

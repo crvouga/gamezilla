@@ -6,13 +6,16 @@ import {
 } from '@libs/billing-harness/billing-actions';
 import { membershipShown } from '@libs/billing-harness/billing-reads';
 import { openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
-import { attemptCustomGameBoundary, readCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
+import {
+  attemptCustomGameBoundary,
+  readCustomGameBoundary,
+} from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
+import { focusActor } from '@libs/harness/shell-actions';
 import { openSpaceLink } from '@libs/spaces-harness/space-actions';
 import { customPeople, customScreen, customSpace } from './custom-game-world';
 

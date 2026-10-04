@@ -80,7 +80,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ matrix.env }}
       - name: Remove unused branches and stale reports
-        run: bun run libs/secrets-server/src/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
+        run: bun run libs/secrets-server/scripts/secrets-run.ts -- bun run libs/harness/scripts/report-cleanup.ts --apply --branches
 
   health-matrix:
     name: health:matrix

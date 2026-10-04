@@ -5,15 +5,15 @@
  */
 
 import { Trans, useLingui } from '@lingui/solid/macro';
-import type { SyncEngineStatus } from '@pkgs/sync-engine-client/sync-status';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
+import type { SyncEngineStatus } from '@pkgs/sync-engine-client/sync-status';
 import { Button } from '@pkgs/ui-client/button';
+import { RefreshCwIcon } from '@pkgs/ui-client/icons';
 import { MenuRow } from '@pkgs/ui-client/menu-row';
 import { MenuSection } from '@pkgs/ui-client/menu-section';
-import { RefreshCwIcon } from '@pkgs/ui-client/icons';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { StatusDot } from '@pkgs/ui-client/status-dot';
 import type { StatusDotStatus } from '@pkgs/ui-client/status-dot';
+import { StatusDot } from '@pkgs/ui-client/status-dot';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
 import { useSyncStatus } from './sync-status-context';

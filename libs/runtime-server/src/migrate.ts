@@ -14,19 +14,19 @@
 
 import { join } from 'node:path';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/db-server/database-url-policy-tooling';
-import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { readDevVarsDatabaseUrl } from '@libs/db-server/dev-vars';
 import {
   isPostgresTransientMigrateError,
   transientMigrateRetryReason,
 } from '@libs/db-server/migrate-transient-errors';
 import { fetchSecret } from '@libs/db-server/secret-io';
+import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { isProductionEnv } from '@libs/infra-shared/env-file';
 import { envFile, PRODUCTION_ENV_NAMES } from '@libs/infra-shared/envs';
 import { assert } from '@pkgs/assert-shared/singleton';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
-import { createLogger } from '@pkgs/logger-shared/logger';
 import type { Logger } from '@pkgs/logger-shared/logger';
+import { createLogger } from '@pkgs/logger-shared/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
 import { createScriptSecretStore } from '@pkgs/secret-store-shared/create-script-secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
@@ -34,7 +34,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import { pingPostgres } from '@pkgs/sql-client-postgres-server/ping';
 import { reconcilePostgres } from './reconcile-postgres';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 /** Composition root: migrate CLI / in-process migrate owns wall I/O. */
 const now = wallClock.now;

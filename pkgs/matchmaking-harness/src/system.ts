@@ -1,18 +1,18 @@
-import { asSeededRng } from '@pkgs/harness-shared/rng';
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
 import { defineSystem } from '@pkgs/harness-shared/define-system';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import { gen } from '@pkgs/harness-shared/fast-check';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import { asSeededRng } from '@pkgs/harness-shared/rng';
+import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import type { MatchmakingTuning } from '@pkgs/matchmaking-shared/matchmaking';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
 import type { RadiusOptions } from '@pkgs/matchmaking-shared/types';
 import fc from 'fast-check';
-import type { MatchmakingHarnessBackend } from './api';
-import type { ReplicaBootConfig } from './boot-replica';
-import { exampleAppSchema } from './attrs';
 import { MATCHMAKING_ACTIONS } from './actions';
-import { buildMatchmakingHarness } from './facade';
+import type { MatchmakingHarnessBackend } from './api';
+import { exampleAppSchema } from './attrs';
+import type { ReplicaBootConfig } from './boot-replica';
 import type { MatchmakingHarness } from './facade';
+import { buildMatchmakingHarness } from './facade';
 import { startReplica, startStore } from './node-kinds';
 import { replicasAgree } from './observations';
 

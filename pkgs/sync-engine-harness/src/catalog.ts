@@ -1,7 +1,7 @@
 import type { HarnessAuthStatus } from './client-factory-parts';
 import type { HarnessCorruptionVariant } from './corruption-faults';
-import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
+import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { HarnessTraffic } from './traffic';
 
 export const CLIENT_IDS = ['c0', 'c1', 'c2'] as const;

@@ -1,4 +1,7 @@
-import type { DurableObjectKvStorage, DurableObjectKvTransaction } from '@pkgs/room-adapter-durable-object-shared/types';
+import type {
+  DurableObjectKvStorage,
+  DurableObjectKvTransaction,
+} from '@pkgs/room-adapter-durable-object-shared/types';
 
 /** A persistence port with rollback and literal interrupted-write boundaries. */
 export class MemoryKv implements DurableObjectKvStorage {

@@ -6,7 +6,10 @@ const FOUNDATION = join(
   import.meta.dirname,
   '../../infra-shared/tofu/stacks/foundation/terraform.tf'
 );
-const DATABASE = join(import.meta.dirname, '../../infra-shared/tofu/modules/database/main.tf');
+const DATABASE = join(
+  import.meta.dirname,
+  '../../infra-shared/tofu/modules/database/main.tf'
+);
 const IMPORTS = join(
   import.meta.dirname,
   '../../infra-shared/tofu/stacks/foundation/imports.tf'
@@ -19,7 +22,10 @@ const AWS_CI = join(
   import.meta.dirname,
   '../../infra-shared/tofu/modules/aws-ci-identity/main.tf'
 );
-const BOOTSTRAP = join(import.meta.dirname, '../../infra-shared/tofu/stacks/bootstrap/main.tf');
+const BOOTSTRAP = join(
+  import.meta.dirname,
+  '../../infra-shared/tofu/stacks/bootstrap/main.tf'
+);
 const HEALTH_WORKFLOW = join(
   import.meta.dirname,
   '../../../.depot/workflows/health.yml'
@@ -83,7 +89,10 @@ describe('foundation bootstrap', () => {
 // regression: depot-variable-creation-race
 test('the four native CI variables share one sequential provisioning operation', () => {
   const native = readFileSync(
-    join(import.meta.dirname, '../../infra-shared/tofu/stacks/bootstrap/depot-ci.tf'),
+    join(
+      import.meta.dirname,
+      '../../infra-shared/tofu/stacks/bootstrap/depot-ci.tf'
+    ),
     'utf8'
   );
   const provision = native.slice(native.indexOf('resource "terraform_data"'));

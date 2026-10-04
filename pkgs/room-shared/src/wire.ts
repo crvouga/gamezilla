@@ -1,6 +1,11 @@
 import { isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import { isMessageEnvelope } from '@pkgs/message-shared/message';
-import type { LogEntry, RoomActor, RoomCommandPayload, RoomError } from './types';
+import type {
+  LogEntry,
+  RoomActor,
+  RoomCommandPayload,
+  RoomError,
+} from './types';
 import { ROOM_ERROR_TYPE, ROOM_ERROR_TYPES } from './types';
 
 export const WIRE_VERSION = 1 as const;

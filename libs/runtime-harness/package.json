@@ -2,7 +2,6 @@
   "name": "@libs/runtime-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -10,11 +9,6 @@
       "./src/*.d.ts"
     ]
   },
-  "specDomains": [
-    "runtime",
-    "journeys"
-  ],
-  "specParts": 15,
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -72,5 +66,11 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness",
+  "specDomains": [
+    "runtime",
+    "journeys"
+  ],
+  "specParts": 15
 }

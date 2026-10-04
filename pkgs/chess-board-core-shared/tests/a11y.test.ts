@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { describePosition, speakMove } from '@pkgs/chess-board-core-shared/speak-move';
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
+import {
+  describePosition,
+  speakMove,
+} from '@pkgs/chess-board-core-shared/speak-move';
 
 describe('speakMove', () => {
   test('quiet, capture, check, castle', () => {

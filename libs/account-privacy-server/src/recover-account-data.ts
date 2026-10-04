@@ -2,8 +2,8 @@ import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
 import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient, SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 

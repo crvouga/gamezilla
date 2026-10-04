@@ -1,8 +1,8 @@
 import type { ClientEnv } from '@libs/app-client/client-env';
 import type { Client } from '@libs/app-client/create-client';
 import { createClient } from '@libs/app-client/create-client';
-import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
 import type { ServerEnv } from '@libs/app-shared/server-env';
+import { HARNESS_SERVER_URL } from '@libs/feature-shared/harness-constants';
 import { assert } from '@pkgs/assert-shared/singleton';
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
 import type { MembershipProviders } from '@pkgs/billing-shared/providers';
@@ -13,30 +13,49 @@ import { InMemoryLlmProvider } from '@pkgs/llm-server/in-memory-llm-provider';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import { createInMemoryBus, createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
+import {
+  createInMemoryBus,
+  createInMemoryPubSub,
+} from '@pkgs/pubsub-shared/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';
 import { InMemoryTtsProvider } from '@pkgs/tts-server/in-memory-tts-provider';
-import type { HarnessComposition, HarnessRoomNode } from './composition';
-import { compositionMigratePostgres } from './migrate-composition';
-import { createHarnessAccountReadyDelays } from './account-ready-delay';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
-import { createHarnessAppBuilds } from './app-build';
+import { createHarnessAccountReadyDelays } from './account-ready-delay';
 import type { HarnessAppBuild, HarnessAppBuilds } from './app-build';
+import { createHarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
-import { harnessMembershipBilling, openHarnessBillingProviders } from './billing';
+import {
+  harnessMembershipBilling,
+  openHarnessBillingProviders,
+} from './billing';
 import type { HarnessBrowser } from './browser';
 import { makeHarnessClientEnv } from './client-env';
 import { createHarnessClientNamespaces } from './client-namespace';
+import type { HarnessComposition, HarnessRoomNode } from './composition';
 import type { AppleClientKeys, HarnessIdps } from './idp';
-import { addHarnessIdpAccounts, createHarnessIdps, HARNESS_APPLE_IDP_ID, harnessAppleClientKeys, harnessIdpFetchFrom, harnessIdpSecrets } from './idp';
-import { createHarnessLoadBalancer } from './load-balancer';
+import {
+  addHarnessIdpAccounts,
+  createHarnessIdps,
+  HARNESS_APPLE_IDP_ID,
+  harnessAppleClientKeys,
+  harnessIdpFetchFrom,
+  harnessIdpSecrets,
+} from './idp';
 import type { HarnessLoadBalancer } from './load-balancer';
+import { createHarnessLoadBalancer } from './load-balancer';
+import { compositionMigratePostgres } from './migrate-composition';
 import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
-import { createHarnessServerNodes, HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import type { HarnessServerNodes, Server } from './server-nodes';
+import {
+  createHarnessServerNodes,
+  HARNESS_PRIMARY_SERVER_ID,
+} from './server-nodes';
+import {
+  openFreshHarnessServerSql,
+  openHarnessServerSqlFromSeedBytes,
+} from './sql';
 import type { HarnessSql } from './sql-types';
-import { openFreshHarnessServerSql, openHarnessServerSqlFromSeedBytes } from './sql';
 import { sharedSqlClient } from './sql-types';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */

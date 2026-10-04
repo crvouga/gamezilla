@@ -8,8 +8,14 @@
 
 import type { ColorTokens } from '@pkgs/ui-shared/colors-types';
 import type { ElevationLevel } from '@pkgs/ui-shared/scale';
+import type {
+  SxCompileOptions,
+  SxInput,
+  SxProps,
+  SxRadius,
+  SxTransform,
+} from './legacy-sx-props';
 import { flattenSx } from './legacy-sx-props';
-import type { SxCompileOptions, SxInput, SxProps, SxRadius, SxTransform } from './legacy-sx-props';
 import {
   resolveColor,
   resolveFontSize,

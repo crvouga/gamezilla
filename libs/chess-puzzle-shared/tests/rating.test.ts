@@ -1,5 +1,21 @@
 import { describe, expect, test } from 'bun:test';
-import { applyPuzzleAttemptRating, DEFAULT_PUZZLE_RATING_STATE, formatPuzzleRating, isProvisionalPuzzleRating, PUZZLE_PROVISIONAL_RD, PUZZLE_RATING_DEFAULT, PUZZLE_RATING_DEFAULT_RD, PUZZLE_RATING_MAX, PUZZLE_RATING_MIN, PUZZLE_RATING_RD_MAX, PUZZLE_RATING_RD_MIN, PUZZLE_SCORE_PERMILLE, puzzleOpponentRd, puzzleScorePermille, readPuzzleRatingState } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import {
+  applyPuzzleAttemptRating,
+  DEFAULT_PUZZLE_RATING_STATE,
+  formatPuzzleRating,
+  isProvisionalPuzzleRating,
+  PUZZLE_PROVISIONAL_RD,
+  PUZZLE_RATING_DEFAULT,
+  PUZZLE_RATING_DEFAULT_RD,
+  PUZZLE_RATING_MAX,
+  PUZZLE_RATING_MIN,
+  PUZZLE_RATING_RD_MAX,
+  PUZZLE_RATING_RD_MIN,
+  PUZZLE_SCORE_PERMILLE,
+  puzzleOpponentRd,
+  puzzleScorePermille,
+  readPuzzleRatingState,
+} from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import { chessPuzzleRatingEventId } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';

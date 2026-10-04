@@ -50,4 +50,4 @@ export const HARNESS_CHESS_PUZZLE_IDS: readonly string[] =
  * The chess puzzle CSV fixtures (`libs/chess-puzzle-harness/fixtures/*.harness.csv`). Node-only:
  * under a browser bundle there is no module directory.
  */
-export const HARNESS_CHESS_FIXTURES_DIR = `${import.meta.dirname}/../../fixtures`;
+export const HARNESS_CHESS_FIXTURES_DIR = `${import.meta.dirname}/../fixtures`;

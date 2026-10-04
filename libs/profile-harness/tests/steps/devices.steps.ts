@@ -1,13 +1,17 @@
 /** The devices signed into an account. */
 
 import { expect } from 'bun:test';
-import { openAccount } from '@libs/harness/shell-actions';
 import { signOut } from '@libs/harness/auth-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
+import { openAccount } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
-import { currentDeviceMarked, devicesShown, openDevices } from '@libs/profile-harness/account-devices';
+import {
+  currentDeviceMarked,
+  devicesShown,
+  openDevices,
+} from '@libs/profile-harness/account-devices';
 
 const SECOND_MS = 1_000;
 const LIST_WAIT_MS = 15_000;

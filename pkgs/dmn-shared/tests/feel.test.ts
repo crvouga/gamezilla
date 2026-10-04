@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import type { FeelValue, UnaryTest } from '@pkgs/dmn-shared/feel';
-import { matches, numericEndpoints, parseLiteral, parseUnaryTests } from '@pkgs/dmn-shared/feel';
+import {
+  matches,
+  numericEndpoints,
+  parseLiteral,
+  parseUnaryTests,
+} from '@pkgs/dmn-shared/feel';
 
 function tests(text: string): UnaryTest {
   const parsed = parseUnaryTests(text);

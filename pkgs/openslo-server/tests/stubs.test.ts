@@ -13,7 +13,8 @@ import { readEvidence } from '@pkgs/conformance-server/evidence-store';
 import { sloStubFileName, sloStubSource } from '@pkgs/openslo-shared/stubs';
 
 const PACKAGE_DIR = join(import.meta.dir, '..');
-const SPEC_URI = 'pkgs/openslo-server/tests/fixtures/note-delivery.openslo.yaml';
+const SPEC_URI =
+  'pkgs/openslo-server/tests/fixtures/note-delivery.openslo.yaml';
 
 describe('stub names', () => {
   test.each([

@@ -1,8 +1,8 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
-import { scenarioAction } from '@libs/harness/actor-ui';
-import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
 import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
+import { scenarioAction } from '@libs/harness/actor-ui';
+import { answerOfRoomCommand } from '@libs/spaces-harness/room-command-probe';
 
 /** Acquire a legal historical position through the real server's move boundary. */
 export const playCustomGameHistory = scenarioAction({

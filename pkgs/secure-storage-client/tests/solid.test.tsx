@@ -1,9 +1,12 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
+import {
+  createSecureStorageItem,
+  SecureStorageStoreProvider,
+} from '@pkgs/secure-storage-client/solid';
 import type { SecureStorage } from '@pkgs/secure-storage-shared/interface';
 import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
-import { createSecureStorageItem, SecureStorageStoreProvider } from '@pkgs/secure-storage-client/solid';
 import { render, screen, waitFor } from '@solidjs/testing-library';
 import { type JSX, untrack } from 'solid-js';
 

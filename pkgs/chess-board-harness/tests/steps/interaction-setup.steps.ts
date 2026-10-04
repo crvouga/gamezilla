@@ -1,11 +1,21 @@
 import { expect } from 'bun:test';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { CHECK_IN_ONE, CHECKMATED, MATE_IN_ONE, MATING_CAPTURE, MOVABLE, PINNED_KNIGHT, ROOK_CHECK, STALEMATE_IN_ONE, STALEMATED } from '@pkgs/chess-board-harness/interaction-fixtures';
-import type { PieceName } from '@pkgs/chess-board-harness/interaction-fixtures';
-import { readPiece } from '@pkgs/chess-board-harness/interaction-reads';
-import { setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { setupOfferedWhiteMove } from '@pkgs/chess-board-harness/authority-actions';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
+import { setupOfferedWhiteMove } from '@pkgs/chess-board-harness/authority-actions';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import { setupBoard } from '@pkgs/chess-board-harness/chess-board';
+import type { PieceName } from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  CHECK_IN_ONE,
+  CHECKMATED,
+  MATE_IN_ONE,
+  MATING_CAPTURE,
+  MOVABLE,
+  PINNED_KNIGHT,
+  ROOK_CHECK,
+  STALEMATE_IN_ONE,
+  STALEMATED,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
+import { readPiece } from '@pkgs/chess-board-harness/interaction-reads';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

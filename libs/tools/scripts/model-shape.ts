@@ -6,8 +6,8 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
+import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { maintenanceVocabulary } from './spec-glossary';
 import { REPO_ROOT, SPECS_DIR } from './spec-packages';
 

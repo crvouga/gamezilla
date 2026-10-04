@@ -15,7 +15,7 @@ than restating it.
 
 - **Access is decided only by `@libs/permissions`.** Feature gates, usage limits, upsells and "sign in to…" prompts all come from a permission decision: `useCan` / `useDecision` / `usePermissions` on the client, `requireInMutation` / `decideInMutation` in mutation bodies, `requirePermission` in server routes. What a denial unlocks is policy config (`unlockRefs`), rendered by `DenialSurface` or run by `useUnlock` — never a feature's own branch. No product code outside auth, billing and permissions reads `isAnon` / `isSignedIn`, imports `@libs/auth/public/access-facts`, queries `is_anon` / `billing_subscriptions`, or names a role or plan (`@libs/permissions/root/access-model` is for tests and the policy root only). The shell chrome shows identity, never a tier. Account-only actions deny anonymous subjects through a policy restriction (`reason: 'requires_account'`). CI: `import-access-facts.grit`, `import-access-model.grit`, `no-access-state-vocabulary.grit`, `no-tier-vocabulary*.grit`.
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness`, `@apps/product`, package `src/harness/`, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness-shared` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness-shared/README.md`](pkgs/harness-shared/README.md)); reports go object store → API → client: CI publishes to the shared reports store, `/api/reports` streams it, and the reports screen (`/reports`, `@pkgs/harness-report`) renders it — never a report tab inside the harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness`, `@apps/product`, `-harness` packages, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness-shared` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness-shared/README.md`](pkgs/harness-shared/README.md)); reports go object store → API → client: CI publishes to the shared reports store, `/api/reports` streams it, and the reports screen (`/reports`, `@pkgs/harness-report`) renders it — never a report tab inside the harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
 
 - **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated (gitignored) step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`). Check: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
 
@@ -41,7 +41,7 @@ than restating it.
 
 - **Three-layer DI.** Only `SqlClient` and the injected ports are long-lived. Use-case classes take `(db, ports)` and open transactions for writes (reads pass `db` as `SqlTx`). Repositories / services / publishers / handlers take `SqlTx` (`Pick` of `query` / `run`) plus ports and are constructed on demand inside the use case. Factory functions `(tx, ports) => …` are the wiring escape hatch; no `*Container` or registry classes (`no-di-container.grit`). `defineMutation` / `defineQuery` handlers and Solid hooks stay as they are.
 
-- **Test layout.** Package tests live in `tests/` (sibling of `src/`); colocate `module.test.ts` only next to public entrypoints. Every test is black-box against the package `exports` — no deep `src/` imports. Harness code lives in `src/harness/` exported as `./harness`, or in a sibling `-harness` package (`@pkgs/room-harness`, `@pkgs/auth-harness`, …). `bun test` is the only runner (`no-vitest.grit`); Solid / DOM tests run with `--conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload`.
+- **Test layout.** Package tests live in `tests/` (sibling of `src/`); colocate `module.test.ts` only next to public entrypoints. Every test is black-box against the package `exports` — no deep `src/` imports. Harness code lives in a sibling `-harness` package (`@pkgs/room-harness`, `@pkgs/auth-harness`, …). `bun test` is the only runner (`no-vitest.grit`); Solid / DOM tests run with `--conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload`.
 
 ## Debugging
 
@@ -56,14 +56,13 @@ credentials: [`README.md`](README.md#correctness-machinery).
 ## `@pkgs/ui` design system
 
 `@pkgs/ui` is the only design-system surface: every component, prop type,
-hook and theme helper is in-house under `pkgs/ui/src/components/**`,
-re-exported from `pkgs/ui/src/index.ts` (`import { Button, Text, useTheme }
-from '@pkgs/ui'`). No adapter layer, no third-party UI library.
+hook and theme helper is in-house under `pkgs/ui-client/src/*`,
+re-exported from individual module exports (`import { Button }
+from '@pkgs/ui-client/button'`). No adapter layer, no third-party UI library.
 
-**Adding a component:** `pkgs/ui/src/components/<name>/<name>.tsx` plus an
-`index.ts`, exported from `pkgs/ui/src/components/index.ts`; style with
-`class` / `classList` / `style`; set `data-*` on the root via
-`dataAttrs({ component: '<PascalName>', ... })`.
+**Adding a component:** `pkgs/ui-client/src/<name>.tsx`, exported through the
+package's `./*` mapping; style with `class` / `classList` / `style`; set
+`data-*` on the root via `dataAttrs({ component: '<PascalName>', ... })`.
 
 **DOM identifiers:** every host exposes `data-component="<Name>"`, and
 `ScreenBase` requires `screenId` (`data-screen`); both are stripped from
@@ -234,7 +233,7 @@ test:max`: sidecars from `@pkgs/postgres-embedded`, `@pkgs/s3-server`,
 | Tier | Path | Contains | May import |
 | --- | --- | --- | --- |
 | Apps | `apps/` (`@apps/`) | deployed surfaces (`server`, `room-server`), the `product` super-app, standalone `client` | apps, libs, pkgs |
-| Libs | `libs/` (`@libs/`) | product code: features, shells, platform, `runtime`, `tools` | pkgs, plus other libs' `public/` |
+| Libs | `libs/` (`@libs/`) | product code: features, shells, platform, `runtime`, `tools` | pkgs, plus other libs’ exported modules |
 | Pkgs | `pkgs/` (`@pkgs/`) | agnostic utilities, frameworks, dev infra | pkgs only |
 
 `pkgs/` must work in any monorepo: no `gamezilla`, `@libs/*` or product
@@ -243,31 +242,14 @@ composition root (`@libs/runtime`, the one package that knows every feature)
 fit together, and how to add a feature, is
 [`README.md`](README.md#repository).
 
-A product lib is organized by use case, so one directory traces a request
-from client to server to database:
+Packages split by vertical slice and then runtime, with flat `src/` modules.
+The layout, explicit categories, import matrix and test ownership are defined
+in [`README.md`](README.md#repository). Follow that layout for both libs and
+framework packages. Do not recreate `use-cases/`, `shared/`, `root/`, `public/`
+or component subdirectories. Import package modules through `./*` exports.
 
-```
-libs/<feature>/src/
-  use-cases/<use-case>/
-    client/     # that request's hook + its own confirm UI
-    shared/     # its defineMutation / defineQuery / validation
-    server/     # its REST / outbox consumer
-  shared/       # domain primitives (types, repos, RoomModule, schema)
-  root/         # feature manifest, screens and chrome composing many use cases
-  harness/      # actions, reads and slices for its specs
-  public/       # what other libs may import
-```
-
-Omit empty `client/` / `server/`. Package `exports` are `./public/*`,
-`./root/*` (and `./harness/*`) only — never `use-cases/` or `shared/`. Other
-libs import `@libs/<pkg>/public/…`; apps and tests may also import `root/`.
-Use cases never import other use cases, `root/` or `public/`. Prefer relative
-imports inside a package. Exempt from this tree: `@libs/db`, `@libs/secrets`,
-`@libs/games`, `@libs/runtime`, `@libs/test-ids-shared`, `@libs/tools`.
-
-`pkgs/` use `src/{client,server,shared}/`, or a flat `"./*"` export for
-micro-packages. Package scripts live in `<pkg>/scripts/` (include
-`./scripts/**/*.ts` in `tsconfig.tc.json` and the root `tsconfig.json`).
+Package scripts live in `<pkg>/scripts/` (include `./scripts/**/*.ts` in
+`tsconfig.tc.json` and the root `tsconfig.json`).
 Package type-checking uses `tsconfig.tc.json` (`tsc --noEmit -p
 ./tsconfig.tc.json`), never a package `tsconfig.json` — that would steal files
 from the root project and break cross-package rename (exception:
@@ -278,10 +260,7 @@ each probed in `libs/tools/scripts/import-boundaries.test.ts`, plus
 `noImportCycles` and `noUndeclaredDependencies`):
 
 - the tier pyramid above;
-- `shared/` never imports `client/` or `server/`, and a product lib's
-  `shared/` never imports `use-cases/`, `root/` or `public/`;
-- `client/` and `server/` never import each other; `apps/client` reaches no
-  `server/`, `apps/server` no `client/`;
+- runtime categories and flat source layout from the repository briefing;
 - `@apps/server` source is isomorphic: platform engines (`pg`, `node:*`) only
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.

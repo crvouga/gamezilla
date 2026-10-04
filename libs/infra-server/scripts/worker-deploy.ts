@@ -15,8 +15,14 @@ import { join } from 'node:path';
 import type { EnvFile } from '@libs/infra-shared/env-file';
 import { envFile } from '@libs/infra-shared/envs';
 import { GLOBAL } from '@libs/infra-shared/global';
-import { renderAuthRelayWranglerConfig, renderWranglerConfig } from '@libs/infra-shared/wrangler';
-import type { WorkerResources, WranglerConfig } from '@libs/infra-shared/wrangler';
+import type {
+  WorkerResources,
+  WranglerConfig,
+} from '@libs/infra-shared/wrangler';
+import {
+  renderAuthRelayWranglerConfig,
+  renderWranglerConfig,
+} from '@libs/infra-shared/wrangler';
 
 export function activeEnvFile(): EnvFile {
   const name = (process.env['SECRETS_ENV'] ?? '').trim();

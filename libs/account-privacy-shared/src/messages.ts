@@ -1,4 +1,7 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 
 export type PrivacyAccount = { readonly accountId: string };
 const namespace = createMessageNamespace('profile', 'privacy');

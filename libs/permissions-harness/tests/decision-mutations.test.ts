@@ -6,16 +6,29 @@
  * shipped system, compared the same way, reports none.
  */
 import { describe, expect, test } from 'bun:test';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
-import { ROLE } from '@libs/permissions-shared/permission-catalog';
-import { accessApplicationLayer, dailyPuzzleLimitApplicationLayer, hostingLimitApplicationLayer, spaceRolesApplicationLayer } from '@libs/permissions-shared/application';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
-import { accessClientLayer, dailyPuzzleLimitClientLayer } from '@libs/permissions-harness/client-layers';
-import { queryGuardOperation, routeGuardOperation } from '@libs/permissions-shared/server';
-import { accessServerLayer, dailyPuzzleLimitServerLayer } from '@libs/permissions-shared/server-layers';
-import type { AppPolicy } from '@libs/permissions-shared/world';
+import {
+  accessClientLayer,
+  dailyPuzzleLimitClientLayer,
+} from '@libs/permissions-harness/client-layers';
+import {
+  accessApplicationLayer,
+  dailyPuzzleLimitApplicationLayer,
+  hostingLimitApplicationLayer,
+  spaceRolesApplicationLayer,
+} from '@libs/permissions-shared/application';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
+import { PERMISSION, ROLE } from '@libs/permissions-shared/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
+import {
+  queryGuardOperation,
+  routeGuardOperation,
+} from '@libs/permissions-shared/server';
+import {
+  accessServerLayer,
+  dailyPuzzleLimitServerLayer,
+} from '@libs/permissions-shared/server-layers';
+import type { AppPolicy } from '@libs/permissions-shared/world';
 import { generateCases } from '@pkgs/dmn-shared/cases';
 import { compareLayer } from '@pkgs/dmn-shared/compare';
 import type { DmnDecision } from '@pkgs/dmn-shared/model';

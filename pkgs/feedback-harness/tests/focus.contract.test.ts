@@ -1,5 +1,10 @@
 import { expect, test } from 'bun:test';
-import { editFeedbackAnswer, feedbackAction, feedbackReportingSystem, readFeedbackAnswer } from '@pkgs/feedback-harness/feedback';
+import {
+  editFeedbackAnswer,
+  feedbackAction,
+  feedbackReportingSystem,
+  readFeedbackAnswer,
+} from '@pkgs/feedback-harness/feedback';
 
 // regression: feedback-typing-steals-focus
 test('typing in feedback answers retains focus', async () => {

@@ -1,6 +1,9 @@
-import fc from 'fast-check';
 import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import type { WorkloadManifest, WorkloadQuery } from '@pkgs/db-indexes-shared/types';
+import type {
+  WorkloadManifest,
+  WorkloadQuery,
+} from '@pkgs/db-indexes-shared/types';
+import fc from 'fast-check';
 import type { GenSchema } from './schema';
 import { genSchema } from './schema';
 import { genStatement } from './statement-ast';

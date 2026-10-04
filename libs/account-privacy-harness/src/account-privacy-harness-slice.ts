@@ -1,7 +1,7 @@
-import type { HarnessSlice } from '@libs/harness/slices';
 import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy-client/feature-client';
-import { ACCOUNT_PRIVACY_FEATURE } from '@libs/account-privacy-shared/feature';
 import { createAccountPrivacyServer } from '@libs/account-privacy-server/feature-server';
+import { ACCOUNT_PRIVACY_FEATURE } from '@libs/account-privacy-shared/feature';
+import type { HarnessSlice } from '@libs/harness/slices';
 import {
   askForExport,
   cancelDeletion,

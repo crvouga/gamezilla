@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { fenConsistencyError, isSamePosition, parseFen, positionPartOf, START_FEN, serializeFen, sideToMoveOf } from '@pkgs/chess-rules-shared/fen';
+import {
+  fenConsistencyError,
+  isSamePosition,
+  parseFen,
+  positionPartOf,
+  START_FEN,
+  serializeFen,
+  sideToMoveOf,
+} from '@pkgs/chess-rules-shared/fen';
 
 function errorField(fen: string): string | null {
   const result = parseFen(fen);

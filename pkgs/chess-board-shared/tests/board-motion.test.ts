@@ -1,5 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { DEFAULT_MOVE_DURATION_MS, isLowEndDevice, MAX_SETTLE_DURATION_MS, resolveMotionPolicy, settleDurationMs } from '@pkgs/chess-board-shared/board-motion';
+import {
+  DEFAULT_MOVE_DURATION_MS,
+  isLowEndDevice,
+  MAX_SETTLE_DURATION_MS,
+  resolveMotionPolicy,
+  settleDurationMs,
+} from '@pkgs/chess-board-shared/board-motion';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

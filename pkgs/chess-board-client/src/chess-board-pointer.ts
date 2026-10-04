@@ -16,19 +16,29 @@
  *   pressed during a left drag cancels the drag (the piece springs back).
  */
 
+import { brushFromModifiers } from '@pkgs/chess-board-core-shared/board-shapes';
 import type { BoardInteraction } from '@pkgs/chess-board-core-shared/interaction';
-import type { BoardOrientation, Square } from '@pkgs/chess-board-core-shared/types';
-import { type Accessor, batch } from 'solid-js';
+import type {
+  BoardOrientation,
+  Square,
+} from '@pkgs/chess-board-core-shared/types';
 import type { BoardBox } from '@pkgs/chess-board-shared/board-box';
-import { createBoardBoxCache, squareAt, toBoardPoint } from '@pkgs/chess-board-shared/board-box';
+import {
+  createBoardBoxCache,
+  squareAt,
+  toBoardPoint,
+} from '@pkgs/chess-board-shared/board-box';
 import type { MotionPolicy } from '@pkgs/chess-board-shared/board-motion';
 import { settleDurationMs } from '@pkgs/chess-board-shared/board-motion';
 import type { Haptics } from '@pkgs/chess-board-shared/chess-board-haptics';
-import { brushFromModifiers } from '@pkgs/chess-board-core-shared/board-shapes';
-import type { UserShapes } from './chess-board-user-shapes';
 import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
-import type { HoverSquare, PieceDrag } from '@pkgs/chess-board-shared/piece-drag';
+import type {
+  HoverSquare,
+  PieceDrag,
+} from '@pkgs/chess-board-shared/piece-drag';
 import type { PointerSession } from '@pkgs/chess-board-shared/pointer-session';
+import { type Accessor, batch } from 'solid-js';
+import type { UserShapes } from './chess-board-user-shapes';
 
 export type BoardPointerArgs = {
   readonly boardPx: Accessor<number>;

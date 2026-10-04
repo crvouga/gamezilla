@@ -12,9 +12,9 @@ import { join } from 'node:path';
 import type { JourneyBrowser } from '@libs/runtime-harness/journey-types';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared/bun-webview-driver';
 
 const NAVIGATION_POLL_MS = 250;

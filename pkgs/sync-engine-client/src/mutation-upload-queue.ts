@@ -1,20 +1,24 @@
+import { SpanStatusCode } from '@opentelemetry/api';
 import { assert } from '@pkgs/assert-shared/singleton';
-import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
+import type { Timers } from '@pkgs/clock-shared/types';
 import { isHttpAbortError } from '@pkgs/http-client-shared/errors';
+import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 import { ATTR } from '@pkgs/observability-shared/attributes';
 import { events } from '@pkgs/observability-shared/events';
-import { SpanStatusCode } from '@opentelemetry/api';
 import { withSpan } from '@pkgs/observability-shared/span';
-import sql, { join } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { clearOptimisticRowsForMutation } from './optimistic-own-rows';
-import type { MutationBatchResponse, MutationRequestItem, MutationVerdict } from '@pkgs/sync-engine-shared/v2';
-import type { TableChangeBus } from './table-change-bus';
+import sql, { join } from '@pkgs/sql-shared/sql';
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared/bounds';
 import { mutationOriginLink } from '@pkgs/sync-engine-shared/mutation-observability';
-import type { Timers } from '@pkgs/clock-shared/types';
 import { recordPushApplied } from '@pkgs/sync-engine-shared/push-applied';
+import type {
+  MutationBatchResponse,
+  MutationRequestItem,
+  MutationVerdict,
+} from '@pkgs/sync-engine-shared/v2';
+import { clearOptimisticRowsForMutation } from './optimistic-own-rows';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
+import type { TableChangeBus } from './table-change-bus';
 
 const BATCH_LIMIT = MAX_MUTATIONS_BATCH;
 const MAX_SQLITE_VARS = 999;

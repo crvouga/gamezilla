@@ -1,10 +1,10 @@
 /** @jsxImportSource solid-js */
 import { Button } from '@pkgs/ui-client/button';
 import { CloseIconButton } from '@pkgs/ui-client/close-icon-button';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
-import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
 import { useThemeLayout } from '@pkgs/ui-client/theme-context';
+import { useLayoutMode } from '@pkgs/ui-client/use-layout-mode';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { onCleanup, onMount, Show } from 'solid-js';
 import type { FeedbackController } from './controller';
 import { FeedbackPanel } from './feedback-panel';

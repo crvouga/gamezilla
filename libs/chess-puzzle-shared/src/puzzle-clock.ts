@@ -4,8 +4,8 @@
  * callers pass `nowMs` from the injected `Clock`.
  */
 
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 
 /** The clock ticks (and shows) while the attempt is live. */
 export function isPuzzleClockRunning(

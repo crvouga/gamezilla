@@ -1,7 +1,7 @@
-import type { SyncApp } from './scenario-app';
 import { exampleDomainOpArbs, exampleServerOpArbs } from './domain-arbs';
 import { exampleDomainPack } from './example-app-domain-pack';
 import { insertCatalogNote } from './insert-catalog-note';
+import type { SyncApp } from './scenario-app';
 import type { ExampleSchemaVariant } from './schema-variants';
 import { exampleRestartOptsForVariant } from './schema-variants';
 import { seedLargeCatalogNotes } from './seed-large-catalog';

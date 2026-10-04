@@ -1,9 +1,8 @@
+import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { useLingui } from '@lingui/solid/macro';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
-
-import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
 
 type FriendUserMenuAction = {
   readonly id: string;

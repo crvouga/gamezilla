@@ -3,18 +3,11 @@ import { activeSpan } from '@pkgs/observability-shared/span';
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import type { Hono } from 'hono';
-
 import type {
   MutationAuthorize,
   MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared/mutations-types';
-import { processMutationsBatch } from './process-mutations-batch';
-import type { MutationRow } from './replay-mutation';
-import type { AuthErrorBody, QueryRow } from '@pkgs/sync-engine-shared/v2';
-import { MAX_MUTATIONS_BATCH, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
 import {
   fanoutRowsWithinCap,
@@ -22,15 +15,27 @@ import {
   selectFanoutRows,
 } from '@pkgs/sync-engine-shared/select-fanout-rows';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import { topicMapCtxFromEnv, topicsFromWriteCapture } from '@pkgs/sync-engine-shared/topic-map';
+import {
+  topicMapCtxFromEnv,
+  topicsFromWriteCapture,
+} from '@pkgs/sync-engine-shared/topic-map';
+import type { AuthErrorBody, QueryRow } from '@pkgs/sync-engine-shared/v2';
+import {
+  MAX_MUTATIONS_BATCH,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import type { Hono } from 'hono';
 import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { mutationSavepointClient } from './mutation-savepoint-client';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
-import { resolveRequestSql } from './resolve-request-sql';
+import { processMutationsBatch } from './process-mutations-batch';
+import type { MutationRow } from './replay-mutation';
 import type { SyncSqlVariables } from './resolve-request-sql';
+import { resolveRequestSql } from './resolve-request-sql';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 

@@ -4,14 +4,14 @@ import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
 import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
 import { HarnessDb } from '@pkgs/db-indexes-harness/db';
+import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
+import { reconcileIndexes } from '@pkgs/db-indexes-shared/reconcile';
 import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 
 const REMOTE_DB_TIMEOUT_MS = 30_000;
 const TEST_SCHEMA = 'db_indexes_contract';
@@ -41,7 +41,9 @@ describe('postgres port contract', () => {
     expect(new URL(DATABASE_URL).hostname).toBe('127.0.0.1');
   });
   test('createPostgresPort is exported', async () => {
-    const mod = await import('@pkgs/db-indexes-postgres-shared/create-postgres-port');
+    const mod = await import(
+      '@pkgs/db-indexes-postgres-shared/create-postgres-port'
+    );
     expect(typeof mod.createPostgresPort).toBe('function');
   });
 
@@ -134,7 +136,9 @@ describe('postgres live differential', () => {
   test(
     'createPostgresPort round-trip with real DATABASE_URL',
     async () => {
-      const { createPostgresPort } = await import('@pkgs/db-indexes-postgres-shared/create-postgres-port');
+      const { createPostgresPort } = await import(
+        '@pkgs/db-indexes-postgres-shared/create-postgres-port'
+      );
       const clock = createHarnessClock(0);
       const dbScope = createPostgresDbScope(TEST_SCHEMA);
       const opened = await openPgClient({

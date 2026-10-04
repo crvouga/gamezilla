@@ -1,6 +1,5 @@
-import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { SCHEMA_EPOCH } from '@pkgs/sync-engine-client/local-schema';
-import type { RestartClientOpts } from './lifecycle';
+import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import {
   exampleLocalSchemaExtraColumn,
   exampleLocalSchemaExtraTable,
@@ -9,10 +8,8 @@ import {
   setTag,
   tagsAllQuery,
 } from './hardening-fixtures';
-import {
-  exampleMutationRegistry,
-  exampleQueryRegistry,
-} from './registries';
+import type { RestartClientOpts } from './lifecycle';
+import { exampleMutationRegistry, exampleQueryRegistry } from './registries';
 
 export type ExampleSchemaVariant =
   | 'baseline'

@@ -1,8 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { Assert } from '@pkgs/assert-shared/assert';
 import { asKeyword, isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
-import { acceptUnknownPayload, createMessageNamespace, isMessageEnvelope, isPlainRecord } from '@pkgs/message-shared/message';
 import type { Message } from '@pkgs/message-shared/message';
+import {
+  acceptUnknownPayload,
+  createMessageNamespace,
+  isMessageEnvelope,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {

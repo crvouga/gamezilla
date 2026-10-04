@@ -3,9 +3,8 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { MutationModal } from '@pkgs/ui-client/mutation-modal';
 import { TextInput } from '@pkgs/ui-client/text-input';
 import { createEffect, createSignal, type JSX } from 'solid-js';
-
-import { SpaceField, useSpaceColumn } from './use-space-column';
 import { useRenameSpace } from './use-rename-space';
+import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type RenameSpaceModalProps = {
   spaceId: string;

@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { CHECK_AFTER_PRIMARY_MS, createMoveSoundScheduler, GAME_END_AFTER_CHECK_MS, PROMOTE_AFTER_CAPTURE_MS, planMoveSounds } from '@pkgs/chess-board-core-shared/move-sound';
 import type { ChessMoveSoundPlayer } from '@pkgs/chess-board-core-shared/move-sound';
+import {
+  CHECK_AFTER_PRIMARY_MS,
+  createMoveSoundScheduler,
+  GAME_END_AFTER_CHECK_MS,
+  PROMOTE_AFTER_CAPTURE_MS,
+  planMoveSounds,
+} from '@pkgs/chess-board-core-shared/move-sound';
 import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 

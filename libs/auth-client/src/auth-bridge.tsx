@@ -1,3 +1,17 @@
+import {
+  LAST_LOCAL_ACCOUNT_ID_KEY,
+  SESSION_EXPIRES_AT_KEY,
+  SESSION_TOKEN_KEY,
+} from '@libs/auth-shared/auth-storage-keys';
+import {
+  shouldClearAccountOnExternalUserChange,
+  shouldClearCapabilityOnBaSignedOut,
+} from '@libs/auth-shared/resolve-client-identity';
+import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
+import {
+  authSessionError,
+  isAuthSessionSignedIn,
+} from '@libs/auth-shared/session-snapshot';
 import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
 import type { AuthSessionState } from '@pkgs/auth-shared/auth-session-state';
 import { useTimers } from '@pkgs/clock-client/solid';
@@ -6,11 +20,11 @@ import {
   useOptionalOriginAvailability,
 } from '@pkgs/http-client-client/solid';
 import { useLogger } from '@pkgs/logger-client/solid';
-import { writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
 import {
   createSecureStorageItem,
   useSecureStorageStore,
 } from '@pkgs/secure-storage-client/solid';
+import { writeSecureStorageItem } from '@pkgs/secure-storage-shared/secure-storage-store';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import { useCreateId } from '@pkgs/uuid-client/solid';
 import {
@@ -21,28 +35,14 @@ import {
   onCleanup,
   type ParentProps,
 } from 'solid-js';
+import type { AuthBridgeRefreshDeps } from './auth-bridge-refresh';
+import { AuthBridgeRefresh } from './auth-bridge-refresh';
 import { useAuthClientPort } from './auth-client-provider';
-import {
-  LAST_LOCAL_ACCOUNT_ID_KEY,
-  SESSION_EXPIRES_AT_KEY,
-  SESSION_TOKEN_KEY,
-} from '@libs/auth-shared/auth-storage-keys';
 import { useConfigService } from './config-service-context';
-import {
-  shouldClearAccountOnExternalUserChange,
-  shouldClearCapabilityOnBaSignedOut,
-} from '@libs/auth-shared/resolve-client-identity';
-import { SessionCapabilityStore } from '@libs/auth-shared/session-capability';
-import {
-  authSessionError,
-  isAuthSessionSignedIn,
-} from '@libs/auth-shared/session-snapshot';
+import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
 import { useFreshAuthToken } from './use-fresh-auth-token';
-import { AuthBridgeRefresh } from './auth-bridge-refresh';
-import type { AuthBridgeRefreshDeps } from './auth-bridge-refresh';
-import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 
 function normalizeExpiresAt(raw: unknown): string | null {
   if (raw instanceof Date) return raw.toISOString();

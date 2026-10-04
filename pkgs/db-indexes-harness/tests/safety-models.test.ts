@@ -1,10 +1,10 @@
 // @io-wall-ok — test entry reads models and invokes the bundled Quint checker.
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import type { QuintBinding } from '@pkgs/quint-shared/registry';
-import { untakenActions } from '@pkgs/quint-shared/replay';
 import { simulate } from '@pkgs/quint-server/simulate';
 import { typecheck } from '@pkgs/quint-server/typecheck';
+import type { QuintBinding } from '@pkgs/quint-shared/registry';
+import { untakenActions } from '@pkgs/quint-shared/replay';
 import { interruptionCoverage, retirementCoverage } from './quint/coverage';
 import { interruptionBinding } from './quint/interruption';
 import { retirementBinding } from './quint/retirement';

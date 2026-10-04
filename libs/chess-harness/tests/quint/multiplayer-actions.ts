@@ -2,15 +2,35 @@ import {
   confirmDeletion,
   runPrivacyJobs,
 } from '@libs/account-privacy-harness/privacy-actions';
-import { openMultiplayerChess, setMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { controlledMultiplayerCommand, multiplayerMatchFact, receiveMultiplayerMatch } from '@libs/chess-harness/multiplayer-events';
+import {
+  controlledMultiplayerCommand,
+  multiplayerMatchFact,
+  receiveMultiplayerMatch,
+} from '@libs/chess-harness/multiplayer-events';
+import {
+  openMultiplayerChess,
+  setMultiplayerConnection,
+} from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { multiplayerFingerprint } from '@libs/chess-matchmaking-harness/multiplayer-fingerprint';
-import { multiplayerView, storedMultiplayerSnapshot } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { signInWithGoogle, signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
+import {
+  multiplayerView,
+  storedMultiplayerSnapshot,
+} from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import {
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+} from '@libs/harness/auth-actions';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Picks } from '@pkgs/quint-shared/registry';
-import { PLAY_LINES, PLAY_PEOPLE, playActor, playFacts, playId, playRequest } from './multiplayer-world';
 import type { PlayTrace } from './multiplayer-world';
+import {
+  PLAY_LINES,
+  PLAY_PEOPLE,
+  playActor,
+  playFacts,
+  playId,
+  playRequest,
+} from './multiplayer-world';
 
 export async function initPlay(w: PlayTrace) {
   const owners = new Map<string, string>();

@@ -20,8 +20,8 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from './portal-host-frame';
 import type { PortalHostFrame } from './portal-host-frame';
+import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from './portal-host-frame';
 
 export type OverlayPortalApi = {
   /** Host layer element; `undefined` until the provider has mounted. */

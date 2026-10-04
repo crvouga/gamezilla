@@ -4,14 +4,21 @@ import { SpaceSeatLeft } from '@libs/spaces-shared/space-members-messages';
 import type { Message } from '@pkgs/message-shared/message';
 import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
 import { replaceCustomGameSide } from './custom-game-configuration';
+import { changedCustomGames } from './custom-game-handler';
 import {
   customGameWinOrDraw,
   expireCustomGame,
   finishCustomGame,
 } from './custom-game-play';
-import { CUSTOM_GAME_SIDES, CustomGamesAttr, customGamePersonSide, customGameTerminal, OPEN_CUSTOM_GAME_SIDE, otherCustomGameSide } from './custom-game-state';
 import type { CustomGame } from './custom-game-state';
-import { changedCustomGames } from './custom-game-handler';
+import {
+  CUSTOM_GAME_SIDES,
+  CustomGamesAttr,
+  customGamePersonSide,
+  customGameTerminal,
+  OPEN_CUSTOM_GAME_SIDE,
+  otherCustomGameSide,
+} from './custom-game-state';
 
 function departingCustomGame(
   game: CustomGame,

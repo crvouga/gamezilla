@@ -8,7 +8,11 @@
 import type ts from 'typescript';
 import { getJsxAttr } from './transform-attrs';
 import { tagName } from './transform-collect';
-import type { ClassListEntry, ExistingClass, StyleEntry } from './transform-node';
+import type {
+  ClassListEntry,
+  ExistingClass,
+  StyleEntry,
+} from './transform-node';
 import { readExistingClass } from './transform-node';
 import { peelPropSpreads } from './transform-peel';
 import type { ComponentConversion, PrefixedSlot } from './transform-shared';

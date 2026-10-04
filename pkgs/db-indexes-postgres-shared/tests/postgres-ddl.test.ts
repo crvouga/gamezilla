@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
 import {
   isConcurrentlyUnsupportedError,
   renderCreateIndexSql,
   renderDropIndexSql,
 } from '@pkgs/db-indexes-postgres-shared/render-ddl';
+import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
 
 const def = {
   table: 'notes',

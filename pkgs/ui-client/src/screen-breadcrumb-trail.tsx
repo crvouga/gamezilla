@@ -9,9 +9,9 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createMemo, For, type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { createMemo, For, type JSX, Show } from 'solid-js';
 import { ChevronRightIcon } from './icons';
 import { splitBreadcrumbTrail } from './screen-base-logic';
 import type { ScreenBaseBreadcrumb } from './screen-base-types';

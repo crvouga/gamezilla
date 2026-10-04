@@ -5,9 +5,9 @@
  * offline devices, provider-side account changes and provider faults.
  */
 
-import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import { gen } from '@pkgs/harness-shared/fast-check';
 import fc from 'fast-check';
@@ -25,8 +25,8 @@ import {
   declinePendingFlow,
   signInFlow,
 } from './client-flows';
-import type { ProviderFaults } from './providers';
 import { migrateAuthSchema } from './nodes';
+import type { ProviderFaults } from './providers';
 import type { AuthSurface, ProviderAnswers } from './types';
 import { requireActor } from './types';
 import {

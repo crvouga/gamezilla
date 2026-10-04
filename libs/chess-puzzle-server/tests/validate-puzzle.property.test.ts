@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { validateLichessPuzzleRow } from '@libs/chess-puzzle-shared/puzzle-records';
 import { partitionPuzzleBatch } from '@libs/chess-puzzle-server/puzzle-ingest';
 import { puzzleTableRowOf } from '@libs/chess-puzzle-server/row';
+import { validateLichessPuzzleRow } from '@libs/chess-puzzle-shared/puzzle-records';
 import { START_FEN, sideToMoveOf } from '@pkgs/chess-rules-shared/fen';
 import { legalMovesOf, playUci } from '@pkgs/chess-rules-shared/moves';
 import { assertProperty } from '@pkgs/property-shared/assert-property';

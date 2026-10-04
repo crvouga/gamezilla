@@ -1,6 +1,6 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /** One provider membership change, resolved onto an account. */
 export type MembershipProjection = {

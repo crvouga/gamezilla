@@ -1,6 +1,11 @@
 import { resolveBackfillSql } from './backfill';
 import type { ClassifiedDelta } from './compatibility';
-import { classifyDelta, desiredColumns, findColumn, retiredColumnsOf } from './compatibility';
+import {
+  classifyDelta,
+  desiredColumns,
+  findColumn,
+  retiredColumnsOf,
+} from './compatibility';
 import { POSTGRES_CAPS } from './dialect-caps';
 import {
   asPackageIndexName,

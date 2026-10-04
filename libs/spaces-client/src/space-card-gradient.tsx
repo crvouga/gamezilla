@@ -1,6 +1,6 @@
+import { useTheme } from '@pkgs/ui-client/theme-context';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { useTheme } from '@pkgs/ui-client/theme-context';
 import type { JSX } from 'solid-js';
 
 export const SPACE_CARD_BORDER_RADIUS = 16;

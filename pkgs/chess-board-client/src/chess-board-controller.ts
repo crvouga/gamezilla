@@ -5,7 +5,28 @@
  */
 
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
-import type { BoardOrientation, Square } from '@pkgs/chess-board-core-shared/types';
+import type {
+  BoardOrientation,
+  Square,
+} from '@pkgs/chess-board-core-shared/types';
+import type { MotionPolicy } from '@pkgs/chess-board-shared/board-motion';
+import { resolveMotionPolicy } from '@pkgs/chess-board-shared/board-motion';
+import type { BoardColorScheme } from '@pkgs/chess-board-shared/board-theme';
+import {
+  defaultBoardTheme,
+  mergeBoardTheme,
+} from '@pkgs/chess-board-shared/board-theme';
+import { createBoardHaptics } from '@pkgs/chess-board-shared/chess-board-haptics';
+import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
+import { defaultCursorSquare } from '@pkgs/chess-board-shared/keyboard-nav';
+import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
+import { createPieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
+import {
+  createHoverSquare,
+  createPieceDrag,
+} from '@pkgs/chess-board-shared/piece-drag';
+import type { PointerSession } from '@pkgs/chess-board-shared/pointer-session';
+import { createPointerSession } from '@pkgs/chess-board-shared/pointer-session';
 import type { Timers } from '@pkgs/clock-shared/types';
 import {
   type Accessor,
@@ -16,27 +37,15 @@ import {
   untrack,
 } from 'solid-js';
 import { watchBoardInput } from './board-input-lifecycle';
-import type { MotionPolicy } from '@pkgs/chess-board-shared/board-motion';
-import { resolveMotionPolicy } from '@pkgs/chess-board-shared/board-motion';
 import { useBoardMotionEnvironment } from './board-motion-context';
-import type { BoardColorScheme } from '@pkgs/chess-board-shared/board-theme';
-import { defaultBoardTheme, mergeBoardTheme } from '@pkgs/chess-board-shared/board-theme';
 import styles from './chess-board.module.css';
-import { createBoardHaptics } from '@pkgs/chess-board-shared/chess-board-haptics';
 import { createBoardKeyHandler } from './chess-board-keys';
 import { BoardPointer } from './chess-board-pointer';
 import { createChessBoardSounds } from './chess-board-sounds';
-import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
-import { createUserShapes } from './chess-board-user-shapes';
 import type { UserShapes } from './chess-board-user-shapes';
+import { createUserShapes } from './chess-board-user-shapes';
 import type { ChessBoardModel } from './create-chess-board-model';
 import { createChessBoardModel } from './create-chess-board-model';
-import { defaultCursorSquare } from '@pkgs/chess-board-shared/keyboard-nav';
-import { createPieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
-import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
-import { createHoverSquare, createPieceDrag } from '@pkgs/chess-board-shared/piece-drag';
-import { createPointerSession } from '@pkgs/chess-board-shared/pointer-session';
-import type { PointerSession } from '@pkgs/chess-board-shared/pointer-session';
 
 export type BoardController = {
   readonly model: ChessBoardModel;

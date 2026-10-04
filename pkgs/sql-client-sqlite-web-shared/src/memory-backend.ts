@@ -1,5 +1,5 @@
-import { Oo1SqlClient, openMemoryDb } from './oo1-sql-client';
 import type { Sqlite3Static } from './oo1-sql-client';
+import { Oo1SqlClient, openMemoryDb } from './oo1-sql-client';
 import type { SqliteWorkerBackend } from './sqlite-worker-host';
 
 export const MEMORY_VFS_NAME = 'memdb';

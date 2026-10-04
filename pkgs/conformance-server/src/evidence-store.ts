@@ -21,8 +21,15 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 
-import type { EvidenceRecord, Obligation } from '@pkgs/conformance-shared/evidence';
-import { evidenceKey, isEvidenceRecord, sha256 } from '@pkgs/conformance-shared/evidence';
+import type {
+  EvidenceRecord,
+  Obligation,
+} from '@pkgs/conformance-shared/evidence';
+import {
+  evidenceKey,
+  isEvidenceRecord,
+  sha256,
+} from '@pkgs/conformance-shared/evidence';
 
 export function evidenceDir(reportDir: string): string {
   return join(reportDir, 'evidence');

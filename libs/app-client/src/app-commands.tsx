@@ -11,11 +11,16 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { feedbackCommand } from '@pkgs/feedback-client/feedback-command';
-import type { Command } from '@pkgs/ui-client/types';
-import { GaugeIcon, MonitorPlayIcon, PaintbrushIcon, ScrollTextIcon } from '@pkgs/ui-client/icons';
-import { useRegisterCommands } from '@pkgs/ui-client/register-command';
 import { useRouter } from '@pkgs/ui-client/app-router';
+import {
+  GaugeIcon,
+  MonitorPlayIcon,
+  PaintbrushIcon,
+  ScrollTextIcon,
+} from '@pkgs/ui-client/icons';
+import { useRegisterCommands } from '@pkgs/ui-client/register-command';
 import { useThemePreference } from '@pkgs/ui-client/theme-preference';
+import type { Command } from '@pkgs/ui-client/types';
 import type { JSX } from 'solid-js';
 
 import { useEmbeddedApp } from './embedded-app-context';

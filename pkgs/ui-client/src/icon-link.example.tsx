@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from './example-root';
-import { ChevronLeftIcon, HouseIcon } from './icons';
 import { IconLink } from './icon-link';
+import { ChevronLeftIcon, HouseIcon } from './icons';
 
 export default function IconLinkExample(): JSX.Element {
   return (

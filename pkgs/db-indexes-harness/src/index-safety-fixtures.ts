@@ -1,7 +1,11 @@
 import type { Config } from '@pkgs/db-indexes-shared/config';
 import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
 import { ownedIndexName } from '@pkgs/db-indexes-shared/naming';
-import type { IndexInfo, OwnedMeta, WorkloadManifest } from '@pkgs/db-indexes-shared/types';
+import type {
+  IndexInfo,
+  OwnedMeta,
+  WorkloadManifest,
+} from '@pkgs/db-indexes-shared/types';
 import type { HarnessDbOptions } from './db';
 
 export const SAFETY_DAY_MS = 86_400_000;

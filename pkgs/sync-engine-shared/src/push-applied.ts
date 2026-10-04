@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { join } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql, { join } from '@pkgs/sql-shared/sql';
 
 import { managedUpdatedAtIso } from './managed-columns';
 import { topicRowId } from './tables';

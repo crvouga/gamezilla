@@ -11,13 +11,13 @@ import type {
   ScreenBaseActionLike,
 } from './action-bar-logic';
 import { screenBaseActionToActionBarItem } from './action-bar-logic';
-import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 import type {
   BodyContentProps,
   ScreenBaseAction,
   ScreenBaseActionType,
   ScreenBaseBreadcrumb,
 } from './screen-base-types';
+import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
 
 /** Scroll inset below body content (px). */
 export const SCREEN_SCROLL_BOTTOM_PADDING = 24;

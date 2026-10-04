@@ -16,6 +16,10 @@ import type {
   PieceCode,
   Square,
 } from '@pkgs/chess-board-core-shared/types';
+import type { MotionPolicy } from '@pkgs/chess-board-shared/board-motion';
+import { cellTransform } from '@pkgs/chess-board-shared/board-units';
+import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
+import { bumpChessBoardRender } from '@pkgs/chess-board-shared/render-counts';
 import {
   type Accessor,
   createEffect,
@@ -26,13 +30,8 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
-
-import type { MotionPolicy } from '@pkgs/chess-board-shared/board-motion';
-import { cellTransform } from '@pkgs/chess-board-shared/board-units';
 import styles from './chess-board.module.css';
-import { bumpChessBoardRender } from '@pkgs/chess-board-shared/render-counts';
 import { HtmlPaintToken } from './paint-token';
-import type { PieceAnimator } from '@pkgs/chess-board-shared/piece-animator';
 
 export type PremoveGhost = {
   readonly to: Square;

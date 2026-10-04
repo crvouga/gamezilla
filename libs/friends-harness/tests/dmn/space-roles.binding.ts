@@ -13,12 +13,17 @@
  *   read from the synced space rows (the space open on the device).
  */
 
+import { clientGatingLayer } from '@libs/permissions-harness/client';
 import { spaceRolesApplicationLayer } from '@libs/permissions-shared/application';
 import { grantKeyOf } from '@libs/permissions-shared/capabilities';
-import { clientGatingLayer } from '@libs/permissions-harness/client';
 import { capabilityOf } from '@libs/permissions-shared/people';
-import { allOperations, replayOperation, serverEnforcementLayer } from '@libs/permissions-shared/server';
 import type { ServerOperation } from '@libs/permissions-shared/server';
+import {
+  allOperations,
+  replayOperation,
+  serverEnforcementLayer,
+} from '@libs/permissions-shared/server';
+import { useSpaceCan } from '@libs/spaces-client/use-space-can';
 import {
   chooseGame,
   SPACE_ID,
@@ -26,7 +31,6 @@ import {
   seedPlaceInSpace,
   seedPlaceInSpaceOnDevice,
 } from '@libs/spaces-harness/space-decision-world';
-import { useSpaceCan } from '@libs/spaces-client/use-space-can';
 import { addSpaceUserMutation } from '@libs/spaces-shared/add-space-user-mutation';
 import { endSpaceMutation } from '@libs/spaces-shared/end-space-mutation';
 import { leaveSpaceMutation } from '@libs/spaces-shared/leave-space-mutation';

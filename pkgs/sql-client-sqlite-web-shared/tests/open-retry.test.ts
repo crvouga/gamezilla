@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import type { Logger } from '@pkgs/logger-shared/logger';
+import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import {
   isLikelyOpfsLockError,
   openWithWaitRetry,

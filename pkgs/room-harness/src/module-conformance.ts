@@ -1,18 +1,37 @@
 import { defineSystem } from '@pkgs/harness-shared/define-system';
-import type { RoomCommand, RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
+import type {
+  RoomCommand,
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 import { createSeededRng } from '@pkgs/uuid-shared/seeded-rng';
+import type { RoomArgs } from './args';
+import { ROOM_ARGS, ROOM_DRAW } from './args';
 import { assertHashCanonical } from './assert-hash-canonical';
 import { assertTotality } from './assert-totality';
-import { expectInSync } from './expect-in-sync';
-import type { ModuleConformanceArgs } from './module-conformance-types';
-import { addClient, connect, disconnect, dispatch, pauseNetwork, resumeNetwork } from './room-actions';
 import { bootRoomHarness, ROOM_VIRTUAL_RUNTIME } from './boot';
-import { clientHash, clientState, clock, seed as seedOf, serverHash, serverState } from './observations';
-import { ROOM_ARGS, ROOM_DRAW } from './args';
-import type { RoomApp } from './scenario-app';
-import type { RoomArgs } from './args';
+import { expectInSync } from './expect-in-sync';
 import type { RoomHarness } from './harness';
+import type { ModuleConformanceArgs } from './module-conformance-types';
+import {
+  clientHash,
+  clientState,
+  clock,
+  seed as seedOf,
+  serverHash,
+  serverState,
+} from './observations';
+import {
+  addClient,
+  connect,
+  disconnect,
+  dispatch,
+  pauseNetwork,
+  resumeNetwork,
+} from './room-actions';
+import type { RoomApp } from './scenario-app';
 
 function assertDomainValid<S extends RoomState>(
   label: string,

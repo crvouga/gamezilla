@@ -2,7 +2,10 @@
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client/solid';
-import { OVERLAY_PORTAL_Z_INDEX, OverlayPortalProvider } from '@pkgs/ui-client/overlay-portal';
+import {
+  OVERLAY_PORTAL_Z_INDEX,
+  OverlayPortalProvider,
+} from '@pkgs/ui-client/overlay-portal';
 import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { createSignal, onCleanup } from 'solid-js';

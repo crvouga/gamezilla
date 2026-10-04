@@ -8,12 +8,16 @@
  */
 
 import { join } from 'node:path';
-
-import { execAlloy, probeSigs } from './alloy-cli';
 import type { SigInfo } from '@pkgs/alloy-shared/sigs';
 import { stripAlloyComments } from '@pkgs/alloy-shared/sigs';
-import { modelProblems, renderSnapshot, snapshotPredicate, snapshotProblems } from '@pkgs/alloy-shared/snapshot';
+import {
+  modelProblems,
+  renderSnapshot,
+  snapshotPredicate,
+  snapshotProblems,
+} from '@pkgs/alloy-shared/snapshot';
 import type { Snapshot } from '@pkgs/alloy-shared/world';
+import { execAlloy, probeSigs } from './alloy-cli';
 
 export type SnapshotVerdict = {
   readonly label: string;

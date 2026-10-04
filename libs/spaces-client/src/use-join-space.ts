@@ -1,6 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-
 import { joinSpaceMutation } from '@libs/spaces-shared/join-space-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useJoinSpace() {
   const mutationClient = useMutationClient();

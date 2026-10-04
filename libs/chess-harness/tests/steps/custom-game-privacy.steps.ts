@@ -1,5 +1,8 @@
 import { expect } from 'bun:test';
-import { attemptCustomGameBoundary, readCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
+import {
+  attemptCustomGameBoundary,
+  readCustomGameBoundary,
+} from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';
 import { Given, Then } from '@libs/harness/define';
 import { openSpaceLink } from '@libs/spaces-harness/space-actions';

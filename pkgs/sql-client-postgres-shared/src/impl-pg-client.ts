@@ -4,7 +4,6 @@
  * across requests.
  */
 
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import type {
   PostgresSqlClient,
   PreparedStatement,
@@ -12,6 +11,7 @@ import type {
   SqlClient,
 } from '@pkgs/sql-client-shared/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-shared/sql';
 import {
   createPgSessionClient,
   pgQueryRows,

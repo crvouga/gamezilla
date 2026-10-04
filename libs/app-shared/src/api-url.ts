@@ -5,9 +5,9 @@
  * production API unless `VITE_ALLOW_PRODUCTION_API_URL=1`.
  */
 
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
 import { APP_IDENTITY } from '@libs/auth-shared/app-identity';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
-import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
 import { assert } from '@pkgs/assert-shared/singleton';
 
 type ViteEnv = {

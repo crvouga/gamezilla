@@ -1,3 +1,8 @@
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import {
+  isPuzzleClockRunning,
+  puzzleElapsedMs,
+} from '@libs/chess-puzzle-shared/puzzle-clock';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
 import {
   type Accessor,
@@ -6,12 +11,6 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
-
-import {
-  isPuzzleClockRunning,
-  puzzleElapsedMs,
-} from '@libs/chess-puzzle-shared/puzzle-clock';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 
 const TICK_MS = 250;
 

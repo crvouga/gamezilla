@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { HttpFetch } from '@pkgs/http-client-shared/types';
-
 import {
   isUnauthorizedRefreshError,
   RefreshAuthError,
   refreshAuth,
 } from '@libs/auth-shared/refresh-auth-fetch';
+import type { HttpFetch } from '@pkgs/http-client-shared/types';
 
 describe('isUnauthorizedRefreshError', () => {
   test('true for 401 / 403 RefreshAuthError', () => {

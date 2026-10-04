@@ -28,7 +28,8 @@
     "@pkgs/quint-server": "workspace:*",
     "@pkgs/quint-shared": "workspace:*",
     "fast-check": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "typescript": "catalog:"
   },
   "category": "harness"
 }

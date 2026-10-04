@@ -1,9 +1,8 @@
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
-import { createRng } from './rng';
-import type { Rng } from './rng';
-
 import type { Gen } from './gen';
+import type { Rng } from './rng';
+import { createRng } from './rng';
 
 /**
  * pure-rand-compatible RandomGenerator over our Rng, so every fast-check

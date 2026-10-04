@@ -5,8 +5,8 @@
  * Tests/CI boot `@pkgs/postgres-embedded` then migrate via `@libs/runtime`.
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
 import { migratePostgresApp } from '@libs/runtime-server/migrate';
+import { assert } from '@pkgs/assert-shared/singleton';
 
 const wait = process.argv.includes('--wait');
 const databaseUrlFlag = process.argv.find((arg) =>

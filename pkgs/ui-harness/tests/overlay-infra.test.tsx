@@ -4,10 +4,20 @@ import { describe, expect, mock, test } from 'bun:test';
 import { FadeSwitch } from '@pkgs/ui-client/fade-switch';
 import { FocusTrap } from '@pkgs/ui-client/focus-trap';
 import { KeyboardShortcutScope } from '@pkgs/ui-client/keyboard-shortcut-scope';
-import { OverlayPortal, OverlayPortalProvider } from '@pkgs/ui-client/overlay-portal';
-import { SURFACE_STACK_BASE, SURFACE_STACK_STEP } from '@pkgs/ui-shared/constants';
-import { SurfaceStackProvider, SurfaceStackSlot, useIsTopSurface } from '@pkgs/ui-client/surface-stack';
+import {
+  OverlayPortal,
+  OverlayPortalProvider,
+} from '@pkgs/ui-client/overlay-portal';
+import {
+  SurfaceStackProvider,
+  SurfaceStackSlot,
+  useIsTopSurface,
+} from '@pkgs/ui-client/surface-stack';
 import { useDocumentShortcuts } from '@pkgs/ui-client/use-document-shortcuts';
+import {
+  SURFACE_STACK_BASE,
+  SURFACE_STACK_STEP,
+} from '@pkgs/ui-shared/constants';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';

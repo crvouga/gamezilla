@@ -1,12 +1,11 @@
+import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
 import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
 import type { AuthUser } from '@pkgs/auth-shared/auth-user';
 import type { VerifiedSession } from '@pkgs/auth-shared/verified-session';
 import type { Clock } from '@pkgs/clock-shared/types';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
 import { identityJson } from './identity-handlers';
 import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';

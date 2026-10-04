@@ -7,16 +7,27 @@
 
 import { expect } from 'bun:test';
 
-import { cancelPlus, observeMembership, openBilling, payWithNewCard, providerEvent, resumePlus, switchPlusInterval } from '@libs/billing-harness/billing-actions';
+import {
+  cancelPlus,
+  observeMembership,
+  openBilling,
+  payWithNewCard,
+  providerEvent,
+  resumePlus,
+  switchPlusInterval,
+} from '@libs/billing-harness/billing-actions';
 import type { BillingObserveKind } from '@libs/billing-harness/billing-provider-driver';
-import { currentPlan, membershipShown } from '@libs/billing-harness/billing-reads';
 import type { MembershipShown } from '@libs/billing-harness/billing-reads';
+import {
+  currentPlan,
+  membershipShown,
+} from '@libs/billing-harness/billing-reads';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Step, Then, When } from '@libs/harness/define';
+import { nodeText } from '@libs/harness/observations';
+import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember } from '@libs/harness/spec-world';
-import { nodeText } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
 
 const MONTHLY = 'subscription_monthly';

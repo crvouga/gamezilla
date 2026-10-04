@@ -1,9 +1,9 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import { assertKeywordRecord } from '@pkgs/keyword-shared/keyword';
-import type { LogEntry } from '@pkgs/room-shared/types';
 import type { CommandDedupOutcome } from '@pkgs/room-shared/server-core-storage';
-import { DO_KV_MULTI_KEY_LIMIT, dedupKey, eventKey } from './storage-keys';
+import type { LogEntry } from '@pkgs/room-shared/types';
 import type { RoomDoKeyNs } from './storage-keys';
+import { DO_KV_MULTI_KEY_LIMIT, dedupKey, eventKey } from './storage-keys';
 import type {
   DurableObjectKvStorage,
   DurableObjectKvTransaction,

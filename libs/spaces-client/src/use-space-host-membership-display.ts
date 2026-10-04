@@ -1,8 +1,7 @@
 import { useMyDeviceId, useMyId } from '@libs/auth-client/use-current-user';
-import { type Accessor, createMemo } from 'solid-js';
-
-import { SpaceField, useSpaceColumn } from './use-space-column';
 import { resolveSpaceHostProfileId } from '@libs/spaces-shared/resolve-space-host-profile-id';
+import { type Accessor, createMemo } from 'solid-js';
+import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export type SpaceHostMembershipDisplay = {
   readonly deviceId: string;

@@ -1,9 +1,16 @@
 import type { ConfigService } from '@libs/auth-shared/config-service-types';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import { createSyncHttpClient, } from '@pkgs/sync-engine-client/sync-http-client';
-import type { GetFreshAuthToken, SyncClientAuth, SyncHttpFetch } from '@pkgs/sync-engine-client/sync-http-client';
-import type { MutationUploadResult, MutationUploadRow } from '@pkgs/sync-engine-client/mutation-upload-queue';
+import type {
+  MutationUploadResult,
+  MutationUploadRow,
+} from '@pkgs/sync-engine-client/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine-client/subscription-runtime';
+import type {
+  GetFreshAuthToken,
+  SyncClientAuth,
+  SyncHttpFetch,
+} from '@pkgs/sync-engine-client/sync-http-client';
+import { createSyncHttpClient } from '@pkgs/sync-engine-client/sync-http-client';
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';
 export type SyncApiFetch = SyncHttpFetch;
 

@@ -11,10 +11,8 @@ import {
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
 } from '@libs/secrets-shared/auth-secrets';
-import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from '@libs/secrets-shared/cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from '@libs/secrets-shared/cf-api-token';
-import { DATABASE_URL } from './db-url';
 import {
   FEEDBACK_GITHUB_REPOSITORY,
   FEEDBACK_GITHUB_TOKEN,
@@ -29,6 +27,17 @@ import {
   TOFU_STATE_SECRET_ACCESS_KEY,
 } from '@libs/secrets-shared/infra-secrets';
 import {
+  EMQX_JWT_SECRET,
+  EMQX_WSS_URL,
+} from '@libs/secrets-shared/pubsub-emqx-secrets';
+import { IOT_SECRETS } from '@libs/secrets-shared/pubsub-iot-secrets';
+import { REPORTS_SECRETS } from '@libs/secrets-shared/reports-credentials';
+import type { Secret } from '@libs/secrets-shared/secret';
+import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared/tts-secrets';
+import { TURBO_API, TURBO_TOKEN } from '@libs/secrets-shared/turbo-token';
+import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
+import { DATABASE_URL } from './db-url';
+import {
   GRAFANA_CLOUD_API_TOKEN,
   OBS_READONLY_DATABASE_URL,
   OBS_TEMPO_TOKEN,
@@ -38,9 +47,6 @@ import {
   OBSERVABILITY_COLLECTOR_URL,
   OBSERVABILITY_COLLECTOR_USER,
 } from './observability-secrets';
-import { EMQX_JWT_SECRET, EMQX_WSS_URL } from '@libs/secrets-shared/pubsub-emqx-secrets';
-import { IOT_SECRETS } from '@libs/secrets-shared/pubsub-iot-secrets';
-import { REPORTS_SECRETS } from '@libs/secrets-shared/reports-credentials';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
@@ -48,9 +54,6 @@ import {
   S3_REGION,
   S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
-import type { Secret } from '@libs/secrets-shared/secret';
-import { ELEVEN_LABS_API_KEY } from '@libs/secrets-shared/tts-secrets';
-import { TURBO_API, TURBO_TOKEN } from '@libs/secrets-shared/turbo-token';
 
 /**
  * Exhaustive registry of every secret. Keys in the store that are not listed

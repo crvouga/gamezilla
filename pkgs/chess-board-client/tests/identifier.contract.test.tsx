@@ -2,14 +2,14 @@
 import { expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client/render';
 import { ChessBoard } from '@pkgs/chess-board-client/chess-board';
-import type { Move } from '@pkgs/chess-board-core-shared/types';
 import {
   chessBoardProbeTestId,
   chessBoardSquareTestId,
   parseChessBoardProbe,
 } from '@pkgs/chess-board-core-shared/probe';
-import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import type { Move } from '@pkgs/chess-board-core-shared/types';
 import { ClockProvider } from '@pkgs/clock-client/solid';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client/solid';
 import { ThemeProvider } from '@pkgs/ui-client/theme-context';
 import { Chess } from 'chess.js';

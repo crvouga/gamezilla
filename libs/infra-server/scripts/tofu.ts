@@ -28,12 +28,27 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { envFile } from '@libs/infra-shared/envs';
-import { evaluatePlanPolicy } from '@libs/infra-shared/plan-policy';
 import type { PlanJson } from '@libs/infra-shared/plan-policy';
-import { planFailureIsTransient, planReadFailed } from '@libs/infra-shared/plan-retry';
+import { evaluatePlanPolicy } from '@libs/infra-shared/plan-policy';
+import {
+  planFailureIsTransient,
+  planReadFailed,
+} from '@libs/infra-shared/plan-retry';
 import { redactInfraOutput } from '@libs/infra-shared/redact-output';
-import { applyArgs, destroyPlanArgs, fleetEnvResources, GLOBAL_STACKS, initArgs, missingSecretsMessage, planArgs, STACKS, showArgs, stateBackendExists, tofuEnvironment } from '@libs/infra-shared/tofu-command';
 import type { Stack, Target, TofuPaths } from '@libs/infra-shared/tofu-command';
+import {
+  applyArgs,
+  destroyPlanArgs,
+  fleetEnvResources,
+  GLOBAL_STACKS,
+  initArgs,
+  missingSecretsMessage,
+  planArgs,
+  STACKS,
+  showArgs,
+  stateBackendExists,
+  tofuEnvironment,
+} from '@libs/infra-shared/tofu-command';
 import { resolveAwsSession } from './aws-session';
 import {
   dropLocalBackend,

@@ -1,18 +1,19 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * Rows inside {@link FloatingMenu}: header block, tappable item, divider.
  * Internal to the menu; only the content spec types are public.
  */
 
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import type { TextVariant } from './text';
 import type {
   FloatingMenuHeaderSpec,
   FloatingMenuItemRow,
 } from './floating-menu-content';
+import type { TextVariant } from './text';
 
 /** Every menu row is at least this tall (pointer target). */
 export const FLOATING_MENU_ITEM_MIN_HEIGHT = 44;

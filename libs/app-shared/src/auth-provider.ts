@@ -1,11 +1,13 @@
-import type { AuthProvider, AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
+import type {
+  AuthProvider,
+  AuthProviderModule,
+} from '@pkgs/auth-shared/auth-provider-module';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
-import { requireRequestStore } from './request-scope';
 import type { DeploymentProtection } from './env';
+import { requireRequestStore } from './request-scope';
 import { ApiSecretName } from './secret-names';
 import { resolveWebClientOrigin } from './web-client-origin';
 

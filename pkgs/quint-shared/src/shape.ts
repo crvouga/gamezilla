@@ -15,8 +15,16 @@
 
 import { assignmentShapeIssues } from './shape-assignment';
 import { offlineShapeIssues } from './shape-connectivity';
-import { byKind, closureText, indexByName, issue, mentions, parseModel, reachableFrom } from './shape-model';
 import type { Item, ModelShapeIssue, ParsedModel } from './shape-model';
+import {
+  byKind,
+  closureText,
+  indexByName,
+  issue,
+  mentions,
+  parseModel,
+  reachableFrom,
+} from './shape-model';
 
 function isTrivialInvariant(body: string): boolean {
   const eq = body.indexOf('=');
@@ -213,5 +221,8 @@ export function modelShapeIssues(
     ...profileIssues,
     ...assignmentShapeIssues(model),
     ...(profile === 'offline-first' ? offlineShapeIssues(model) : []),
-  ].sort((a, b) => a.line - b.line || a.code.localeCompare(b.code));
+  ].sort(
+    (a, b) =>
+      a.line - b.line || (a.code < b.code ? -1 : a.code > b.code ? 1 : 0)
+  );
 }

@@ -6,11 +6,11 @@
  * an unverified one are not the same claim, and linking depends on that.
  */
 
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
-import sql, { raw } from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { isoFromMs } from './idp-repository';
 import type { ProviderIdentity } from './provider-identity';

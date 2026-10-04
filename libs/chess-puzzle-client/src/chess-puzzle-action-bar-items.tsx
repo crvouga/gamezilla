@@ -1,13 +1,18 @@
-import { Trans } from '@lingui/solid/macro';
-import type { BottomActionBarItem } from '@pkgs/ui-client/bottom-action-bar-types';
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon, LightbulbIcon, RotateCcwIcon } from '@pkgs/ui-client/icons';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
-import type { JSX } from 'solid-js';
-
-import { buildChessPuzzleActionBarPlan } from '@libs/chess-puzzle-shared/action-bar-plan';
 import type { ChessPuzzleActionBarSlot } from '@libs/chess-puzzle-shared/action-bar-plan';
+import { buildChessPuzzleActionBarPlan } from '@libs/chess-puzzle-shared/action-bar-plan';
 import type { HintStage } from '@libs/chess-puzzle-shared/hint-stage';
 import type { SolveStatus } from '@libs/chess-puzzle-shared/solve-status';
+import { Trans } from '@lingui/solid/macro';
+import type { BottomActionBarItem } from '@pkgs/ui-client/bottom-action-bar-types';
+import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsRightIcon,
+  LightbulbIcon,
+  RotateCcwIcon,
+} from '@pkgs/ui-client/icons';
+import type { JSX } from 'solid-js';
 
 export type ChessPuzzleActionBarModel = {
   status: SolveStatus;

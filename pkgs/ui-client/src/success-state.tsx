@@ -17,15 +17,15 @@
  * ```
  */
 
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 import { Button } from './button';
-import { CircleCheckIcon } from './icons';
 import type { IconComponent } from './create-icon';
-import { StateBlock } from './state-block';
+import { CircleCheckIcon } from './icons';
 import type { StateBlockVariant } from './state-block';
+import { StateBlock } from './state-block';
 
 export type SuccessStateAction = {
   label: JSX.Element;

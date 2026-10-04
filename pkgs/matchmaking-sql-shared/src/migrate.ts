@@ -9,16 +9,19 @@ import { assert } from '@pkgs/assert-shared/singleton';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconcile-postgres-schema';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { isNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
 import { MatchmakingSchemaDriftError } from '@pkgs/matchmaking-shared/errors';
-import { installPostgresSqliteCompat, isPostgresSqlClient } from '@pkgs/postgres-sqlite-compat-shared/install';
-import sql from '@pkgs/sql-shared/sql';
-import { getUnderlyingSqlClient } from '@pkgs/sql-client-shared/impl-agnostic';
-import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
 import {
-  MATCHMAKING_SCHEMA_STATE_ID,
-  matchmakingSchema,
-} from './tables';
+  installPostgresSqliteCompat,
+  isPostgresSqlClient,
+} from '@pkgs/postgres-sqlite-compat-shared/install';
+import { getUnderlyingSqlClient } from '@pkgs/sql-client-shared/impl-agnostic';
+import type {
+  PostgresSqlClient,
+  SqlClient,
+} from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
+import { MATCHMAKING_SCHEMA_STATE_ID, matchmakingSchema } from './tables';
 
 export type MigrateOptions = {
   readonly sqlClient: SqlClient;

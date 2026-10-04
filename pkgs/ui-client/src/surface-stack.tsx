@@ -7,6 +7,12 @@
  */
 
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
+import { SURFACE_STACK_BASE } from '@pkgs/ui-shared/constants';
+import type {
+  SurfaceStackSnapshot,
+  SurfaceStackStore,
+} from '@pkgs/ui-shared/surface-stack-store';
+import { createSurfaceStackStore } from '@pkgs/ui-shared/surface-stack-store';
 import {
   type Accessor,
   createContext,
@@ -18,11 +24,8 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from './portal-host-frame';
 import type { PortalHostFrame } from './portal-host-frame';
-import { SURFACE_STACK_BASE } from '@pkgs/ui-shared/constants';
-import { createSurfaceStackStore } from '@pkgs/ui-shared/surface-stack-store';
-import type { SurfaceStackSnapshot, SurfaceStackStore } from '@pkgs/ui-shared/surface-stack-store';
+import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from './portal-host-frame';
 
 export type SurfaceStackApi = {
   readonly store: SurfaceStackStore;

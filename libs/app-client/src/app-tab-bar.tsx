@@ -7,14 +7,13 @@
  * `.safe-bottom` class in `styles/base.css` (never inline `env()`).
  */
 
+import { isAppTabActive } from '@libs/app-shared/is-app-tab-active';
 import { getTopBarContentHeight } from '@pkgs/ui-client/action-bar-chrome';
 import { useThemeLayout } from '@pkgs/ui-client/theme-context';
 import { For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-
 import type { AppTabSpec } from './app-tabs';
 import { useAppTabs } from './app-tabs';
-import { isAppTabActive } from '@libs/app-shared/is-app-tab-active';
 
 const TAB_ICON_SIZE = 24;
 const TAB_VERTICAL_PADDING = 5;

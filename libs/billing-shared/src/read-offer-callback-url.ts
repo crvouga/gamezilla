@@ -1,7 +1,7 @@
 import type { MembershipProviderEnv } from '@pkgs/billing-shared/provider-module';
 import { membershipCallbackPath } from '@pkgs/billing-shared/providers';
-import { BILLING_API_ORIGIN_SECRET } from './secret-names';
 import { PLUS_MEMBERSHIP_OFFER } from './plus-membership-offer';
+import { BILLING_API_ORIGIN_SECRET } from './secret-names';
 
 /**
  * Absolute URL provider `provider` must POST subscription callbacks to, or

@@ -8,17 +8,23 @@
  * (or the manifest without the product) fails here.
  */
 import { describe, expect, test } from 'bun:test';
-import { PERMISSION, QUOTA_ACTIONS } from '@libs/permissions-shared/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
-import { CAPABILITY_KEYS, capabilityKey, catalogKeys } from '@libs/permissions-shared/capabilities';
-import { DMN_INPUT } from '@libs/permissions-shared/people';
+import {
+  CAPABILITY_KEYS,
+  capabilityKey,
+  catalogKeys,
+} from '@libs/permissions-shared/capabilities';
 import { MUTATION_ACTIONS } from '@libs/permissions-shared/mutation-actions';
+import { DMN_INPUT } from '@libs/permissions-shared/people';
+import {
+  PERMISSION,
+  QUOTA_ACTIONS,
+} from '@libs/permissions-shared/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import type { DmnDecision } from '@pkgs/dmn-shared/model';
 import { decide } from '@pkgs/permissions-shared/decision';
 import { resolveSubject } from '@pkgs/permissions-shared/resolve';
-
-import { allDecisions, manifestCapabilities } from './specs';
 import type { ManifestCapability } from './specs';
+import { allDecisions, manifestCapabilities } from './specs';
 
 function sorted(values: Iterable<string>): string[] {
   return [...values].sort();

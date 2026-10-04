@@ -23,6 +23,8 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client/solid';
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import {
   createEffect,
   createSignal,
@@ -31,13 +33,11 @@ import {
   Show,
 } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { Button } from './button';
 import type { IconComponent } from './create-icon';
 import { XIcon } from './icons';
-import { StateBlock } from './state-block';
 import type { StateBlockVariant } from './state-block';
+import { StateBlock } from './state-block';
 
 export type ErrorStateRetry = {
   label?: JSX.Element | undefined;

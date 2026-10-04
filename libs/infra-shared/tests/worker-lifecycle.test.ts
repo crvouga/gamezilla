@@ -1,7 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { ENV_FILES } from '@libs/infra-shared/envs';
-import { assertRoomNamespacePreserved, assertWorkersRetirable, ROOM_CLASS, ROOM_MIGRATION_TAG, roomMigrations } from '@libs/infra-shared/worker-lifecycle';
 import type { WorkerNamespace } from '@libs/infra-shared/worker-lifecycle';
+import {
+  assertRoomNamespacePreserved,
+  assertWorkersRetirable,
+  ROOM_CLASS,
+  ROOM_MIGRATION_TAG,
+  roomMigrations,
+} from '@libs/infra-shared/worker-lifecycle';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

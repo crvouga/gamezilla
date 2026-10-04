@@ -1,12 +1,21 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
-import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
+import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
+import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
+import {
+  USER_SEARCH_DEBOUNCE_MS,
+  USER_SEARCH_MAX_RESULTS,
+} from '@libs/user-search-shared/user-search-types';
 import { useTimers } from '@pkgs/clock-client/solid';
 import type { Sql } from '@pkgs/sql-shared/sql';
 import sql from '@pkgs/sql-shared/sql';
-import { createQuery, useSyncEngine, useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngine,
+  useSyncEngineInstance,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import { UsersIcon } from '@pkgs/ui-client/icons';
 import {
   type Accessor,
@@ -17,8 +26,6 @@ import {
   type JSX,
   onCleanup,
 } from 'solid-js';
-import { USER_SEARCH_DEBOUNCE_MS, USER_SEARCH_MAX_RESULTS } from '@libs/user-search-shared/user-search-types';
-import type { UserSearchResult } from '@libs/user-search-shared/user-search-types';
 
 type SearchHitRow = {
   readonly id: string;

@@ -3,8 +3,11 @@
  */
 
 import type { HarnessRoomNode } from '@libs/harness/composition';
+import type {
+  ProductHarnessPubSubNode,
+  ProductHarnessRoomNode,
+} from '@pkgs/harness-console-shared/ports';
 import type { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import type { ProductHarnessPubSubNode, ProductHarnessRoomNode } from '@pkgs/harness-console-shared/ports';
 import type { InMemoryBus } from '@pkgs/pubsub-shared/in-memory';
 
 export function makeProductHarnessRoomNode(

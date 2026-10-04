@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-
-import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
-import type { ModelShapeCode } from '@pkgs/quint-shared/shape-model';
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
+import type { ModelShapeCode } from '@pkgs/quint-shared/shape-model';
+import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 
 const SOUND = `
 // Alice and Bob each have a tally. Without a connection, one's own add waits.

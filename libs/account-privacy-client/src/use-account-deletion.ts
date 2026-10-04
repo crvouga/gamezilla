@@ -1,12 +1,12 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import { confirmAccountDeletionMutation } from '@libs/account-privacy-shared/confirm-account-deletion-mutation';
 import { useSignOut } from '@libs/auth-client/use-sign-out';
+import { usePermissions } from '@libs/permissions-client/use-permissions';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import { usePermissions } from '@libs/permissions-client/use-permissions';
 import sql from '@pkgs/sql-shared/sql';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createMemo, createSignal } from 'solid-js';
-import { confirmAccountDeletionMutation } from '@libs/account-privacy-shared/confirm-account-deletion-mutation';
 
 export function useAccountDeletion() {
   const permissions = usePermissions();

@@ -1,7 +1,10 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 import sql from '@pkgs/sql-shared/sql';
-
-import { createQuery, useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
+import {
+  createQuery,
+  useSyncEngineInstance,
+} from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   type Accessor,
   createEffect,
@@ -10,8 +13,6 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-
-import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
 
 function readStringArray(raw: unknown): readonly string[] {
   if (typeof raw === 'string') {

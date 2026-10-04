@@ -1,5 +1,5 @@
-import { bindQuintModel, setQuintWorld } from '@pkgs/quint-shared/registry';
 import type { QuintWorld } from '@pkgs/quint-shared/registry';
+import { bindQuintModel, setQuintWorld } from '@pkgs/quint-shared/registry';
 import { interruptionBinding, interruptionWorld } from './interruption';
 import { retirementBinding, retirementWorld } from './retirement';
 

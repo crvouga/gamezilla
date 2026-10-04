@@ -5,6 +5,11 @@
  * listener API into a tracked signal.
  */
 
+import type { PerfSampler, PerfSnapshot } from '@libs/app-shared/types';
+import {
+  createNoopPerfSampler,
+  EMPTY_PERF_SNAPSHOT,
+} from '@libs/app-shared/types';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import {
   type Accessor,
@@ -14,9 +19,6 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-
-import { createNoopPerfSampler, EMPTY_PERF_SNAPSHOT } from '@libs/app-shared/types';
-import type { PerfSampler, PerfSnapshot } from '@libs/app-shared/types';
 
 const PerfSamplerContext = defineContext<PerfSampler>('PerfSampler');
 

@@ -1,9 +1,9 @@
+import { appendPuzzleInteractionMutation } from '@libs/chess-puzzle-shared/append-puzzle-interaction-mutation';
+import type { AppendPuzzleInteractionInput } from '@libs/chess-puzzle-shared/append-puzzle-interaction-write';
+import type { ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import type { MutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import { appendPuzzleInteractionMutation } from '@libs/chess-puzzle-shared/append-puzzle-interaction-mutation';
-import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
-import type { ChessPuzzleOutcomeKind } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
-import type { AppendPuzzleInteractionInput } from '@libs/chess-puzzle-shared/append-puzzle-interaction-write';
 
 function mutationRejected(
   mutation: string,

@@ -87,7 +87,7 @@ export function renderConfigs(
 
 function checkHookScripts(errors: string[]): void {
   for (const hook of HOOKS) {
-    const path = hookCommand(hook).slice('.//'.length);
+    const path = hookCommand(hook).slice('./'.length);
     try {
       accessSync(join(ROOT, path), constants.X_OK);
     } catch {

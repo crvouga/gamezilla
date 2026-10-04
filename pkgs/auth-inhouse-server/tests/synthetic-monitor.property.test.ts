@@ -2,13 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
 import { SYNTHETIC_MONITOR_USER } from '@pkgs/auth-inhouse-server/synthetic-monitor';
-import { requestSyntheticMonitorRedirect, SYNTHETIC_MONITOR_CODE_PATH } from '@pkgs/auth-inhouse-shared/synthetic-monitor';
+import {
+  requestSyntheticMonitorRedirect,
+  SYNTHETIC_MONITOR_CODE_PATH,
+} from '@pkgs/auth-inhouse-shared/synthetic-monitor';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-shared/sql';
+import fc from 'fast-check';
 import { Hono } from 'hono';
 
 const API = 'https://api.gamezilla.app';

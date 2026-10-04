@@ -5,19 +5,66 @@
  */
 
 import { expect } from 'bun:test';
-import { bumpPuzzleFeedCustomRating, bumpPuzzleFeedOffset, closePuzzleFeedSettings, closePuzzleFeedSettingsNoWait, includePlayedPuzzles, leaveChessStatsScreen, openPuzzleFeedSettings, pressPuzzleNext, returnToPuzzleScreen, setPuzzleFeedHistory, setPuzzleFeedMode, setPuzzleFeedTheme, showChessStatsScreen, solvePuzzlesDaily, solvePuzzlesInARow } from '@libs/chess-puzzle-harness/chess-actions';
-import { ingestChessPuzzleCsv, readServerPuzzles, retireChessPuzzle } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { discardFeedSettings, isFeedSignInInviteVisible, puzzleThemeNamed, readFeedHistoryLabel, readFeedModalPool, readFeedModalTargetRating, readFeedOffsetValue, readFeedTargetLabel } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
+import {
+  bumpPuzzleFeedCustomRating,
+  bumpPuzzleFeedOffset,
+  closePuzzleFeedSettings,
+  closePuzzleFeedSettingsNoWait,
+  includePlayedPuzzles,
+  leaveChessStatsScreen,
+  openPuzzleFeedSettings,
+  pressPuzzleNext,
+  returnToPuzzleScreen,
+  setPuzzleFeedHistory,
+  setPuzzleFeedMode,
+  setPuzzleFeedTheme,
+  showChessStatsScreen,
+  solvePuzzlesDaily,
+  solvePuzzlesInARow,
+} from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  ingestChessPuzzleCsv,
+  readServerPuzzles,
+  retireChessPuzzle,
+} from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import type { FeedHistoryFilter } from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
-import { isEmptyPoolVisible, isPuzzleUnratedNoticeVisible, readActivePuzzleId, readPuzzleDebug, readStatsElo } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
-import { playPuzzleFeedPass, readExcludedFeedPassPuzzles, readPuzzleFeedPass, readPuzzleFeedPassOrder } from '@libs/chess-puzzle-harness/puzzle-feed-pass';
-import { FEED_POOL_IDS, FULL_INGEST_ROWS, ingestCsv, SELECTION_CSV, SELECTION_GROUPS, STANDARD_PUZZLE_IDS } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+import {
+  discardFeedSettings,
+  isFeedSignInInviteVisible,
+  puzzleThemeNamed,
+  readFeedHistoryLabel,
+  readFeedModalPool,
+  readFeedModalTargetRating,
+  readFeedOffsetValue,
+  readFeedTargetLabel,
+} from '@libs/chess-puzzle-harness/chess-puzzle-feed-ui';
+import {
+  isEmptyPoolVisible,
+  isPuzzleUnratedNoticeVisible,
+  readActivePuzzleId,
+  readPuzzleDebug,
+  readStatsElo,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  playPuzzleFeedPass,
+  readExcludedFeedPassPuzzles,
+  readPuzzleFeedPass,
+  readPuzzleFeedPassOrder,
+} from '@libs/chess-puzzle-harness/puzzle-feed-pass';
 import type { IngestRow } from '@libs/chess-puzzle-harness/puzzle-fixtures';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
+import {
+  FEED_POOL_IDS,
+  FULL_INGEST_ROWS,
+  ingestCsv,
+  SELECTION_CSV,
+  SELECTION_GROUPS,
+  STANDARD_PUZZLE_IDS,
+} from '@libs/chess-puzzle-harness/puzzle-fixtures';
 import { Given, Then, When } from '@libs/harness/define';
-import type { HarnessWorld } from '@libs/harness/spec-world';
+import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import {
   joinFromPrompt,

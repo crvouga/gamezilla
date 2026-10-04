@@ -9,8 +9,8 @@
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 /** The quota a rated puzzle start consumes. */
 const PUZZLE_START_QUOTA = 'puzzle.rated.solve';

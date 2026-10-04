@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
-import type { AssistantRenderer } from '@pkgs/assistant-shared/renderer';
-import { createAssistant } from '@pkgs/assistant-shared/engine';
-import { defineCandidate } from '@pkgs/assistant-shared/candidates';
-import { defineSignal } from '@pkgs/assistant-shared/signals';
 import type { GameAdapter } from '@pkgs/assistant-shared/adapter';
+import { defineCandidate } from '@pkgs/assistant-shared/candidates';
+import { createAssistant } from '@pkgs/assistant-shared/engine';
 import { INTENT } from '@pkgs/assistant-shared/intents';
+import type { AssistantRenderer } from '@pkgs/assistant-shared/renderer';
+import { defineSignal } from '@pkgs/assistant-shared/signals';
 import { createTestClock } from './test-clock';
 
 const noopRenderer: AssistantRenderer = { render(): void {} };

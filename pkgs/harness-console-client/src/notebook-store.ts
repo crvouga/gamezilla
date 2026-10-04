@@ -1,8 +1,7 @@
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-
-import { decodeNotebookDoc, encodeNotebookDoc } from './notebook-doc';
 import type { SqlNotebookDoc } from './notebook-doc';
+import { decodeNotebookDoc, encodeNotebookDoc } from './notebook-doc';
 
 export type NotebookStore = {
   load(nodeId: string): Promise<SqlNotebookDoc | null>;

@@ -1,7 +1,10 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { MAIN_MENU_SCREEN_MAX_WIDTH, MainMenuScreen } from '@pkgs/ui-client/main-menu-screen';
+import {
+  MAIN_MENU_SCREEN_MAX_WIDTH,
+  MainMenuScreen,
+} from '@pkgs/ui-client/main-menu-screen';
 import { resolveNeutralGradient } from '@pkgs/ui-shared/main-menu-gradient';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';

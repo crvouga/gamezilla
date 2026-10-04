@@ -1,7 +1,6 @@
+import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import type { Accessor } from 'solid-js';
-
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 
 /** Replace the feed config, or patch it from the current one. */
 export type ChessPuzzleFeedConfigSetter = (

@@ -1,7 +1,7 @@
+import type { WebKeyboardEventLike } from '@pkgs/ui-shared/match';
+import { toWebKeyboardEventLike } from '@pkgs/ui-shared/match';
 import { type Accessor, createEffect, onCleanup } from 'solid-js';
 import { useKeyboardShortcutScopeOptional } from './keyboard-shortcut-scope';
-import { toWebKeyboardEventLike } from '@pkgs/ui-shared/match';
-import type { WebKeyboardEventLike } from '@pkgs/ui-shared/match';
 
 export function useKeyboardShortcutsEnabled(
   enabled: Accessor<boolean>

@@ -707,7 +707,7 @@ export function List(props: { dataSet?: never; class?: string }) {
       `class={["box row", props.class].filter(Boolean).join(' ')}`
     );
     expect(result.text).toContain('{...dataAttrs(');
-    expect(result.text).toContain("from '../../component-id'");
+    expect(result.text).toContain("from './component-id'");
     expect(result.text).not.toContain('<Box');
     expect(result.text).not.toContain('joinClass');
     expect(result.text).not.toContain("from '../box'");

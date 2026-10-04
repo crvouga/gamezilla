@@ -1,10 +1,21 @@
 import { expect } from 'bun:test';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { CAPTURE, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
-import { clearBoardEvidence } from '@pkgs/chess-board-harness/options-actions';
-import { closeBoard, configureBoard, movePiece, readBoard, replacePosition, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { finishEarlierAnimation, readCurrentArrivals, readEarlierCompletion } from '@pkgs/chess-board-harness/lifecycle-actions';
+import {
+  closeBoard,
+  configureBoard,
+  movePiece,
+  readBoard,
+  replacePosition,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
+import {
+  finishEarlierAnimation,
+  readCurrentArrivals,
+  readEarlierCompletion,
+} from '@pkgs/chess-board-harness/lifecycle-actions';
 import { readLifecycle } from '@pkgs/chess-board-harness/lifecycle-reads';
+import { clearBoardEvidence } from '@pkgs/chess-board-harness/options-actions';
+import { CAPTURE, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

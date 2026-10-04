@@ -1,8 +1,8 @@
 // @io-wall-ok — benchmark composition root; measurements are separate from quality results.
 
+import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import { createUIQualityChecker } from './api';
 import { discoverInputs, inputKind } from './discover';
-import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import { localClock, localFiles, runtimeMetrics } from './wall-io';
 
 export async function benchmark(

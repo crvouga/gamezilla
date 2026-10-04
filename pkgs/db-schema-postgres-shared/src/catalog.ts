@@ -7,10 +7,10 @@ import type {
   IntrospectedTable,
   ReadonlyDeclaredSchema,
 } from '@pkgs/db-schema-shared/types';
-import sql, { raw } from '@pkgs/sql-shared/sql';
-import type { Sql } from '@pkgs/sql-shared/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client-shared/interface';
 import { quotePgIdent } from '@pkgs/sql-client-shared/postgres-db-scope';
+import type { Sql } from '@pkgs/sql-shared/sql';
+import sql, { raw } from '@pkgs/sql-shared/sql';
 
 async function readDeclaredPostgresTables(
   client: PostgresSqlClient,

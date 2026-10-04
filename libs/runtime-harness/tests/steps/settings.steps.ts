@@ -1,10 +1,18 @@
 /** Settings that stick: the appearance, sounds, and which version this is. */
 
 import { expect } from 'bun:test';
-import { openSettings } from '@libs/harness/shell-actions';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import { APP_VERSION_INSTALLED, appearanceShown, chooseTheme, openAbout, soundShownInSettings, turnSoundsOff, versionShownInAbout } from '@libs/runtime-harness/app-settings';
+import type { Actor } from '@libs/harness/parameter-types';
+import { openSettings } from '@libs/harness/shell-actions';
+import {
+  APP_VERSION_INSTALLED,
+  appearanceShown,
+  chooseTheme,
+  openAbout,
+  soundShownInSettings,
+  turnSoundsOff,
+  versionShownInAbout,
+} from '@libs/runtime-harness/app-settings';
 
 Given('{actor} has chosen the dark theme', async (w, actor: Actor) => {
   await w.s.apply(chooseTheme, actor, 'dark');

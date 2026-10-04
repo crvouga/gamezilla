@@ -1,4 +1,7 @@
-import type { PieceName, Side } from '@pkgs/chess-board-harness/interaction-fixtures';
+import type {
+  PieceName,
+  Side,
+} from '@pkgs/chess-board-harness/interaction-fixtures';
 import { defineParameterType } from '@pkgs/gherkin-shared/registry';
 
 defineParameterType({

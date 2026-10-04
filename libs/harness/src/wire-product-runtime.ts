@@ -5,12 +5,11 @@
 
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
 import type { StepRecorder } from '@pkgs/ui-testing-shared/step-recorder';
-
-import type { ActorEntry } from './launch-actor';
-import { closeActorEntry, launchActor } from './launch-actor';
 import type { ProductHarness, ProductRuntime } from './harness';
 import { productExtra } from './harness';
 import { actorEmail } from './identity';
+import type { ActorEntry } from './launch-actor';
+import { closeActorEntry, launchActor } from './launch-actor';
 import { ensureStackIdpAccounts } from './stack-idp-accounts';
 
 export type WireProductRuntimeOptions = {

@@ -1,7 +1,19 @@
 import { describe, expect, test } from 'bun:test';
 import { envFile } from '@libs/infra-shared/envs';
-import { assertRoomNamespacePreserved, assertWorkersRetirable, ROOM_ARCHIVE_CLASS, ROOM_ARCHIVE_TAG, ROOM_CLASS, ROOM_MIGRATION_TAG, ROOM_TRANSFER_TAG, roomMigrations } from '@libs/infra-shared/worker-lifecycle';
-import type { RoomMigration, WorkerNamespace } from '@libs/infra-shared/worker-lifecycle';
+import type {
+  RoomMigration,
+  WorkerNamespace,
+} from '@libs/infra-shared/worker-lifecycle';
+import {
+  assertRoomNamespacePreserved,
+  assertWorkersRetirable,
+  ROOM_ARCHIVE_CLASS,
+  ROOM_ARCHIVE_TAG,
+  ROOM_CLASS,
+  ROOM_MIGRATION_TAG,
+  ROOM_TRANSFER_TAG,
+  roomMigrations,
+} from '@libs/infra-shared/worker-lifecycle';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { unstable_getDurableObjectClassNameToUseSQLiteMap } from 'wrangler';

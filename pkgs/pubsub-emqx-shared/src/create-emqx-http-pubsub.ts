@@ -1,10 +1,10 @@
-import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
-import { encodePayload } from '@pkgs/pubsub-shared/payload';
 import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
+import { encodePayload } from '@pkgs/pubsub-shared/payload';
 import { PubSubClosedError } from '@pkgs/pubsub-shared/pubsub-closed-error';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-shared/pubsub-not-supported-error';
 import { PubSubPublishError } from '@pkgs/pubsub-shared/pubsub-publish-error';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
+import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
 
 export type EmqxHttpPubSubOptions = {
   apiBaseUrl: string;

@@ -1,9 +1,8 @@
+import type { FriendActionMutations } from '@libs/friends-shared/friend-action-types';
+import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
 import type { Accessor, JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
-
-import type { FriendshipStatus } from '@libs/friends-shared/friends-types';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
-import type { FriendActionMutations } from '@libs/friends-shared/friend-action-types';
 
 export function FriendActionPillsForStatus(props: {
   status: FriendshipStatus;

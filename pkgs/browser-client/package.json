@@ -2,7 +2,6 @@
   "name": "@pkgs/browser-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -15,5 +14,6 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "category": "client"
 }

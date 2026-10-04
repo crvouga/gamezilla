@@ -1,7 +1,7 @@
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { VirtualClock } from './clock';
-import { createScheduler as createVirtualSchedulerInner } from './scheduler';
 import type { Scheduler as VirtualScheduler } from './scheduler';
+import { createScheduler as createVirtualSchedulerInner } from './scheduler';
 import type { TraceRecorder } from './trace';
 
 export type TaskBody = () => void | Promise<void>;

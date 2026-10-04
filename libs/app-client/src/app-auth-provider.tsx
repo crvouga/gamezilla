@@ -1,5 +1,5 @@
-import { AuthClientProvider } from '@libs/auth-client/auth-client-provider';
 import { AuthBridge } from '@libs/auth-client/auth-bridge';
+import { AuthClientProvider } from '@libs/auth-client/auth-client-provider';
 import type { JSX } from 'solid-js';
 
 import { useClientEnv } from './client-env-context';

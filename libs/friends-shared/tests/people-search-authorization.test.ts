@@ -9,10 +9,7 @@
 import { describe, expect, test } from 'bun:test';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { FRIENDS_QUERIES } from '@libs/friends-shared/queries';
-import {
-  CASE_NOW_MS,
-  identityFor,
-} from '@libs/permissions-shared/people';
+import { CASE_NOW_MS, identityFor } from '@libs/permissions-shared/people';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import type { Sql } from '@pkgs/sql-shared/sql';
 

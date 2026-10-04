@@ -2,7 +2,6 @@
   "name": "@libs/app-client",
   "version": "0.0.0",
   "private": true,
-  "category": "client",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -79,7 +78,8 @@
     "@solidjs/router": "catalog:",
     "solid-js": "catalog:",
     "web-vitals": "catalog:",
-    "workbox-window": "catalog:"
+    "workbox-window": "catalog:",
+    "@pkgs/git-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/a11y-shared": "workspace:*",
@@ -89,5 +89,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
-  }
+  },
+  "category": "client"
 }

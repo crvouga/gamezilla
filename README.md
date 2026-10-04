@@ -150,22 +150,51 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 | `@libs/games` | Registry of game plugins. Chess is the only entry. |
 | `@libs/observability` | Product telemetry wiring. |
 
-A product lib is one use case deep:
+Packages split by vertical slice first, then by runtime. Both `libs/` and
+`pkgs/` use flat source modules:
 
 ```text
-libs/<feature>/src/
-  use-cases/<use-case>/{client,shared,server}/
-  shared/          domain types, repos, RoomModule, schema
-  root/            feature manifest, screens, chrome
-  harness/         spec actions and reads
-  public/          what other libs may import
+libs/chess-puzzle-client/src/puzzle-screen.tsx
+libs/chess-puzzle-shared/src/start-puzzle-mutation.ts
+libs/chess-puzzle-server/src/seed.ts
+libs/chess-puzzle-harness/src/puzzle-system.ts
+libs/chess-puzzle-harness/tests/puzzle.test.ts
 ```
 
-Package `exports` are `./public/*`, `./root/*`, and `./harness/*`. Use cases do not import other use cases, `root/`, or `public/`. `shared/` does not import `client/`, `server/`, `use-cases/`, `root/`, or `public/`. Client and server do not import each other.
+The paths above illustrate the layout. A package has `src/`, `tests/`, and
+`scripts/` only as needed. `src/` stays flat: no `root/`, `public/`, `shared/`,
+`use-cases/`, component folders, or directory index barrels. Split an independent
+use case into another package instead. Export individual modules as `./*`;
+import them as `@libs/chess-puzzle-shared/start-puzzle-mutation`. Use relative
+imports inside the package. Do not create empty packages for unused layers.
 
-Adding a feature: package under `libs/<name>/`, `defineTable` schema, `defineFeature` manifest, one line in `APP_FEATURES`, and client/server manifests if it has UI or routes. A feature exports up to three manifests, folded by the same functions in production and in tests: `FeatureManifest` (tables, topics, queries, mutations), `FeatureClient` (routes, chrome), `FeatureServer` (HTTP, outbox, pubsub).
+Every manifest explicitly declares `category`. Runtime packages use:
 
-Where a test goes: one feature's behavior stays in that feature's `tests/`, booting only the slices it needs. A test that spans features belongs in the full composition (`@libs/runtime`). `tests/harness/` holds composition only, never a `*.test.ts`. No spec lives in `apps/`. A framework package (`@pkgs/sync-engine`, `@pkgs/room`, `@pkgs/matchmaking`, …) is tested through one kitchen-sink example app under `src/harness/example-app/` (or `tests/example-app/`). A new capability grows that app. It does not fork a second fixture.
+| Category | Suffix | May import |
+| --- | --- | --- |
+| `client` | `-client` | client, isomorphic |
+| `server` | `-server` | server, isomorphic |
+| `isomorphic` | `-shared` | isomorphic |
+
+Test composition uses the separate `harness` category (`-harness`), which may
+compose all three runtimes. Production packages cannot depend on harness
+packages. Tests and tooling may use other runtimes in `devDependencies`;
+production `src/` imports still obey their category, regardless of which
+manifest field declares the dependency. `package-boundaries.ts` enforces these
+rules in each package's cached lint, including source imports and flatness.
+
+A feature exports manifests from the corresponding packages: `FeatureManifest`
+(tables, topics, queries, mutations), `FeatureClient` (routes, chrome), and
+`FeatureServer` (HTTP, outbox, pubsub). The `runtime` family composes these;
+`app` and `feature` packages stay independent of individual features.
+
+Tests live in the package that owns their runtime. Pure tests accompany shared
+modules, browser tests accompany client modules, and server tests accompany
+server modules. Tests that compose runtimes live in the slice's harness
+package; tests spanning product features live in `@libs/runtime-harness`.
+Framework behavior is tested through one kitchen-sink example app in the
+framework's harness package, with flat example modules. Test consumers import
+package exports, never another package's source paths.
 
 Known cross-feature table reads, still debt: `permissions` reads `billing_subscriptions` (so billing reruns every feature spec); `spaces` reads `friends_friendships` (spaces specs live in `@libs/friends`); `search` reads friends' search query and `friends_blocks` (people search lives in `@libs/friends`). Prefer a port the composition root fills.
 
@@ -236,7 +265,7 @@ branch after main changes and rerunning Check; no merge queue is added.
 To review drift from the repository root:
 
 ```bash
-SECRETS_ENV=prd bun run libs/secrets-server/src/secrets-run.ts -- bun run --filter @libs/infra-server plan:bootstrap
+SECRETS_ENV=prd bun run libs/secrets-server/scripts/secrets-run.ts -- bun run --filter @libs/infra-server plan:bootstrap
 bun run infra:bootstrap # review and restore through the guarded apply path
 ```
 

@@ -8,12 +8,11 @@
  * one style per pointer event with no framework work.
  */
 
+import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { useTheme } from '@pkgs/ui-client/theme-context';
 import type { JSX } from 'solid-js';
-
 import { createBoardController } from './chess-board-controller';
-import type { ChessBoardProps } from '@pkgs/chess-board-shared/chess-board-types';
 import { ChessBoardView } from './chess-board-view';
 
 export function ChessBoard(props: ChessBoardProps): JSX.Element {

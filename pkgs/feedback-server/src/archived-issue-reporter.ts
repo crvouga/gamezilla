@@ -1,10 +1,10 @@
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import type {
   CreatedIssue,
   FeedbackReport,
   FeedbackRepository,
 } from '@pkgs/feedback-shared/types';
+import { readBytes } from '@pkgs/object-store-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import { FileSystemIssueReporter } from './filesystem-issue-reporter';
 import type { GitHubIssueReporter } from './github-issue-reporter';
 

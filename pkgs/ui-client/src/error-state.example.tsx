@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
+import { ErrorState } from './error-state';
 import { ExampleRoot } from './example-root';
 import { SchemePreview } from './scheme-preview';
-import { ErrorState } from './error-state';
 
 function SectionLabel(props: { label: string }): JSX.Element {
   return (

@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  emitServerOperation,
+  FORBIDDEN_SERVER_DDL,
+} from '@pkgs/db-schema-postgres-shared/emit';
+import {
   asSchemaIdent,
   fingerprintForIndexDef,
 } from '@pkgs/db-schema-shared/index-fingerprint';
-import { SERVER_OPERATION_KINDS } from '@pkgs/db-schema-shared/operations';
 import type { ServerOperation } from '@pkgs/db-schema-shared/operations';
-import { emitServerOperation, FORBIDDEN_SERVER_DDL } from '@pkgs/db-schema-postgres-shared/emit';
+import { SERVER_OPERATION_KINDS } from '@pkgs/db-schema-shared/operations';
 
 const operations: readonly ServerOperation[] = [
   {

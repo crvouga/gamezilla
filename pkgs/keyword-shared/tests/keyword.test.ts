@@ -4,8 +4,17 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { Assert } from '@pkgs/assert-shared/assert';
-import { asKeyword, CLOJURE_NAMESPACED_KEYWORD_REGEX, isNamespacedKeyword, joinKeywordSegments, KEYWORD_MAX_LENGTH, KEYWORD_NAMESPACE_MAX_SEGMENTS, KEYWORD_SEGMENT_MAX_LENGTH, KEYWORD_SEGMENT_MIN_LENGTH } from '@pkgs/keyword-shared/keyword';
 import type { JoinDot, Keyword } from '@pkgs/keyword-shared/keyword';
+import {
+  asKeyword,
+  CLOJURE_NAMESPACED_KEYWORD_REGEX,
+  isNamespacedKeyword,
+  joinKeywordSegments,
+  KEYWORD_MAX_LENGTH,
+  KEYWORD_NAMESPACE_MAX_SEGMENTS,
+  KEYWORD_SEGMENT_MAX_LENGTH,
+  KEYWORD_SEGMENT_MIN_LENGTH,
+} from '@pkgs/keyword-shared/keyword';
 
 let disposeTestCrashHandler: () => void;
 beforeAll(() => {

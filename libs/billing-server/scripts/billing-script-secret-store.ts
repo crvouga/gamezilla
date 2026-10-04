@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
 import { createWritableScriptSecretStore } from '@pkgs/secret-provider-server/create-configured-secret-store';
-import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import { createCachingSecretStore } from '@pkgs/secret-store-shared/caching-secret-store';
+import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 

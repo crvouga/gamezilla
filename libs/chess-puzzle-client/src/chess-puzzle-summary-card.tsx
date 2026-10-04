@@ -1,8 +1,7 @@
+import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-
 import { ChessPuzzleRatingDelta } from './chess-puzzle-rating-delta';
-import type { PuzzleCompletion } from '@libs/chess-puzzle-shared/completion';
 
 function StreakBadge(props: { streak: number }): JSX.Element {
   return (

@@ -1,5 +1,5 @@
-import { findBudgetOverruns, formatBudgetOverruns } from './check-budget';
 import type { readLatestRunSummary } from './check-budget';
+import { findBudgetOverruns, formatBudgetOverruns } from './check-budget';
 import { redactSecrets } from './check-shard-stream';
 import type { CheckPlan } from './check-shards';
 import { validateShardResult } from './check-shards';

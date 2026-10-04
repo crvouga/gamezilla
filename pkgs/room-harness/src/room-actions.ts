@@ -1,13 +1,10 @@
-import type { Action } from '@pkgs/harness-shared/effect';
 import { defineAction } from '@pkgs/harness-shared/define-action';
+import type { Action } from '@pkgs/harness-shared/effect';
 import { gen } from '@pkgs/harness-shared/fast-check';
 import fc from 'fast-check';
+import type { DomainOp } from './actions';
 import type { RoomCrashEvent } from './edge-faults';
 import { HARNESS_PBT_CRASH_EVENTS } from './edge-faults';
-import type { RoomFaultProfile, RoomNetSetArg } from './network';
-import { ROOM_SERVER_ENDPOINT, roomClientEndpoint } from './network';
-import type { DomainOp } from './actions';
-import type { RoomApp } from './scenario-app';
 import { NET_FAULT_PROFILES } from './faults';
 import type { RoomHarness } from './harness';
 import type { MalformedMessageInjectKind } from './malformed-messages';
@@ -15,6 +12,8 @@ import {
   buildMalformedMessageRaw,
   MALFORMED_MESSAGE_INJECT_KINDS,
 } from './malformed-messages';
+import type { RoomFaultProfile, RoomNetSetArg } from './network';
+import { ROOM_SERVER_ENDPOINT, roomClientEndpoint } from './network';
 import {
   caps,
   clientIds,
@@ -29,6 +28,7 @@ import {
   serverCrashed,
 } from './observations';
 import { prepareClientsForInSync } from './play';
+import type { RoomApp } from './scenario-app';
 
 type AddClientSpec = {
   readonly id: string;

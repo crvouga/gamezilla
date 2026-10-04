@@ -1,7 +1,10 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { modelTemporalProperties, verifyTemporal } from '@pkgs/quint-server/temporal';
+import {
+  modelTemporalProperties,
+  verifyTemporal,
+} from '@pkgs/quint-server/temporal';
 
 const FIXTURES = join(import.meta.dir, 'fixtures');
 const OUT = join(import.meta.dir, '../.cache/test-temporal');

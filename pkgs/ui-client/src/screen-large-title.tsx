@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
-import type { JSX } from 'solid-js';
+
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
 import { useScreenTitleContext } from './screen-title-context';
 
 export type ScreenLargeTitleProps = {

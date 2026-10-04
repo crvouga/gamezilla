@@ -1,6 +1,6 @@
 import type { Message } from '@pkgs/message-shared/message';
-import type { RoomState } from '@pkgs/room-shared/types';
 import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { RoomState } from '@pkgs/room-shared/types';
 
 type RoomNamespace = {
   idFromName(topic: string): object;

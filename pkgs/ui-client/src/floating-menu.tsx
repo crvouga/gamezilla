@@ -14,6 +14,10 @@
  * outside click, and item selection all close the menu.
  */
 
+import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { pushEscapeDismissHandler } from '@pkgs/ui-shared/escape-dismiss-stack';
+import { nextMenuItemIndex } from '@pkgs/ui-shared/floating-menu-keyboard';
 import {
   createEffect,
   createMemo,
@@ -24,27 +28,31 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { OnColorReset } from './on-color-context';
-import { useThemeLayout } from './theme-context';
-import { pushEscapeDismissHandler } from '@pkgs/ui-shared/escape-dismiss-stack';
-import type { LayoutRect } from './portal-host-frame';
-import { measureHostFrame, windowRectToHostLocal } from './portal-host-frame';
-import { SurfaceStackSlot, useIsTopSurface, useSurfaceStackHostFrame } from './surface-stack';
 import type {
   FloatingMenuContent,
   FloatingMenuItemRow,
 } from './floating-menu-content';
 import { estimateFloatingMenuHeight } from './floating-menu-estimate-height';
-import { nextMenuItemIndex } from '@pkgs/ui-shared/floating-menu-keyboard';
 import {
   FloatingMenuDivider,
   FloatingMenuHeader,
   FloatingMenuItem,
 } from './floating-menu-parts';
+import type {
+  FloatingMenuInsets,
+  FloatingMenuPlacement,
+  FloatingMenuPosition,
+} from './floating-menu-position';
 import { computeFloatingMenuPosition } from './floating-menu-position';
-import type { FloatingMenuInsets, FloatingMenuPlacement, FloatingMenuPosition } from './floating-menu-position';
+import { OnColorReset } from './on-color-context';
+import type { LayoutRect } from './portal-host-frame';
+import { measureHostFrame, windowRectToHostLocal } from './portal-host-frame';
+import {
+  SurfaceStackSlot,
+  useIsTopSurface,
+  useSurfaceStackHostFrame,
+} from './surface-stack';
+import { useThemeLayout } from './theme-context';
 
 export const FLOATING_MENU_DEFAULT_WIDTH = 260;
 

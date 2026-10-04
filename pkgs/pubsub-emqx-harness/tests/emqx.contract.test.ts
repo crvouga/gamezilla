@@ -5,17 +5,25 @@ import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
-import { EMQX_API_KEY, EMQX_API_SECRET, EMQX_MQTT_PASS, EMQX_MQTT_USER } from '@pkgs/emqx-shared/ports';
 import { isolatedEmqxPorts } from '@pkgs/emqx-server/free-ports';
 import { startEmqxServer } from '@pkgs/emqx-server/start';
+import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_MQTT_PASS,
+  EMQX_MQTT_USER,
+} from '@pkgs/emqx-shared/ports';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import type { PubSubContractEnv } from '@pkgs/pubsub-shared/contract-types';
-import { runPubSubContractTests } from '@pkgs/pubsub-shared/contract';
 import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx-shared/create-emqx-http-pubsub';
-import { createEmqxPubSub, EMQX_PUBSUB_QOS } from '@pkgs/pubsub-emqx-shared/create-emqx-pubsub';
+import {
+  createEmqxPubSub,
+  EMQX_PUBSUB_QOS,
+} from '@pkgs/pubsub-emqx-shared/create-emqx-pubsub';
 import { getEmqxClientId } from '@pkgs/pubsub-emqx-shared/emqx-client-id';
 import { randomClientIdSuffix } from '@pkgs/pubsub-emqx-shared/reconnect-backoff';
+import { runPubSubContractTests } from '@pkgs/pubsub-shared/contract';
+import type { PubSubContractEnv } from '@pkgs/pubsub-shared/contract-types';
 
 const API_KEY = EMQX_API_KEY;
 const API_SECRET = EMQX_API_SECRET;

@@ -1,8 +1,7 @@
-import sql, { ident } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-
-import type { QueryRow } from './v2';
+import sql, { ident } from '@pkgs/sql-shared/sql';
 import type { TopicMap, TopicMapCtx } from './topic-map';
+import type { QueryRow } from './v2';
 
 /**
  * Drop local post-images that a topic-map `rowImage.publish` vetoes.

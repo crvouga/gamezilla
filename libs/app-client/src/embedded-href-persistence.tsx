@@ -4,11 +4,10 @@
  * spawn (and snapshot remount with seeded history) restores the same path.
  */
 
+import { writeEmbeddedHref } from '@libs/app-shared/embedded-href';
 import { useKv } from '@pkgs/kv-client/solid';
 import { useLocation } from '@solidjs/router';
 import { createEffect, type JSX, on } from 'solid-js';
-
-import { writeEmbeddedHref } from '@libs/app-shared/embedded-href';
 
 function locationHref(pathname: string, search: string, hash: string): string {
   return `${pathname}${search}${hash}`;

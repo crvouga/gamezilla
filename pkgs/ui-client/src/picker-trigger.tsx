@@ -6,10 +6,14 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { type JSX, Show } from 'solid-js';
 import { colorVar } from '@pkgs/ui-shared/css-vars';
+import type {
+  PickerOption,
+  PickerSize,
+  PickerValue,
+} from '@pkgs/ui-shared/picker-types';
+import { type JSX, Show } from 'solid-js';
 import { ChevronDownIcon } from './icons';
-import type { PickerOption, PickerSize, PickerValue } from '@pkgs/ui-shared/picker-types';
 
 /** Minimum pointer target for the default-size trigger. */
 export const PICKER_TRIGGER_MIN_HEIGHT = 44;

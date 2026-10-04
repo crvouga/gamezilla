@@ -2,11 +2,10 @@
   "name": "@pkgs/ui-devtools-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
-  "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -27,5 +26,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

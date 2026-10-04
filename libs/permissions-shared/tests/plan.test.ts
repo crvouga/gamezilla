@@ -1,8 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import type { AccessInputs } from '@libs/permissions-shared/access-facts';
-import { governingSubscription, readSubscriptionSnapshot } from '@libs/permissions-shared/access-facts';
-import { ROLE } from '@libs/permissions-shared/permission-catalog';
+import {
+  governingSubscription,
+  readSubscriptionSnapshot,
+} from '@libs/permissions-shared/access-facts';
 import { resolvePlanRole } from '@libs/permissions-shared/access-model';
+import { ROLE } from '@libs/permissions-shared/permission-catalog';
 
 const GRACE_MS = 7 * 24 * 60 * 60 * 1000;
 

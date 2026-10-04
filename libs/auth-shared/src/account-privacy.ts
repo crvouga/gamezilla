@@ -1,5 +1,8 @@
 import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
 import sql from '@pkgs/sql-shared/sql';
 

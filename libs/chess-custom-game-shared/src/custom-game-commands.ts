@@ -2,10 +2,7 @@ import { createMessageNamespace } from '@pkgs/message-shared/message';
 import { z } from 'zod';
 import type { CustomGameChoice } from './custom-game-choice';
 import { customGameChoiceSchema } from './custom-game-choice';
-import {
-  customGameSideSchema,
-  customGamesSchema,
-} from './custom-game-state';
+import { customGameSideSchema, customGamesSchema } from './custom-game-state';
 
 export const customGameCmdNs = createMessageNamespace('chess-custom-cmd');
 export const ChangeCustomGame = customGameCmdNs(

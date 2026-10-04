@@ -1,8 +1,4 @@
-import {
-  actorUi,
-  pollUntil,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared/user-search-types';

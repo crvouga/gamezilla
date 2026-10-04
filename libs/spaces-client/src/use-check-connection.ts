@@ -1,10 +1,9 @@
-import { useTimers } from '@pkgs/clock-client/solid';
-import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
-
 import {
   CONNECTION_CHECK_BUDGET_MS,
   onlineAfterRefresh,
 } from '@libs/spaces-shared/answer-connection';
+import { useTimers } from '@pkgs/clock-client/solid';
+import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
 
 /**
  * Spaces are live and shared, so starting or joining one needs the server.

@@ -1,5 +1,5 @@
-import type { OpenHarness } from '@libs/harness/open-harness';
 import type { OpenHarnessOptions } from '@libs/harness/mode';
+import type { OpenHarness } from '@libs/harness/open-harness';
 import { openHarness as openSystemHarness } from '@libs/harness/open-harness';
 import { APP_SYSTEM } from '@libs/runtime-harness/app-composition';
 

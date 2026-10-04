@@ -1,13 +1,21 @@
 import { expect } from 'bun:test';
-import { askForExport, cancelDeletion, confirmDeletion, openPrivacy, privacyTimePasses, proveAccount, reviewDeletion } from './privacy-actions';
-import { privacyStatus, privacyText } from './privacy-reads';
+import { restoreActorConnection } from '@libs/harness/actions';
+import { Given, Then, When } from '@libs/harness/define';
 import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
-import { Given, Then, When } from '@libs/harness/define';
 import { cutConnection, otherDevice } from '@libs/harness/platform';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { recall, remember, signedInAccountKey } from '@libs/harness/spec-world';
-import { restoreActorConnection } from '@libs/harness/actions';
+import {
+  askForExport,
+  cancelDeletion,
+  confirmDeletion,
+  openPrivacy,
+  privacyTimePasses,
+  proveAccount,
+  reviewDeletion,
+} from './privacy-actions';
+import { privacyStatus, privacyText } from './privacy-reads';
 
 async function recentAccount(w: HarnessWorld, actor: Actor) {
   await w.s.apply(proveAccount, actor);

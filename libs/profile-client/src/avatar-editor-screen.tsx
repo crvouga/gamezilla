@@ -1,21 +1,25 @@
+import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
+import type { SchemaField } from '@libs/profile-shared/dicebear-schema';
+import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
+import {
+  isStyleKey,
+  STYLE_KEYS,
+  styleLabel,
+} from '@libs/profile-shared/dicebear-styles';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { AvatarHero } from '@pkgs/ui-client/avatar-hero';
 import { Combobox } from '@pkgs/ui-client/combobox';
-import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
 import { ConfirmationModal } from '@pkgs/ui-client/confirmation-modal';
 import { FormActionsFooter } from '@pkgs/ui-client/form-actions-footer';
 import { MultiSelectSwatchGrid } from '@pkgs/ui-client/multi-select-swatch-grid';
 import { PickerSection } from '@pkgs/ui-client/picker-section';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { Skeleton } from '@pkgs/ui-client/skeleton';
+import type { ComboboxOption } from '@pkgs/ui-shared/combobox-types';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
-import type { AvatarConfig } from '@libs/profile-shared/avatar-config';
 import { AvatarEditorSeedField } from './avatar-editor-seed-field';
-import type { SchemaField } from '@libs/profile-shared/dicebear-schema';
-import { isStyleKey, STYLE_KEYS, styleLabel } from '@libs/profile-shared/dicebear-styles';
-import type { StyleKey } from '@libs/profile-shared/dicebear-styles';
 import {
   buildThumbnailEnumOptions,
   humanizeOptionKey,

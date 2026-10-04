@@ -6,13 +6,13 @@
  * trigger button shows the current option and opens the option listbox.
  */
 
-import type { JSX } from 'solid-js';
-import { Picker } from './picker';
 import type {
   PickerOption,
   PickerProps,
   PickerValue,
 } from '@pkgs/ui-shared/picker-types';
+import type { JSX } from 'solid-js';
+import { Picker } from './picker';
 
 export type SelectOption<T extends PickerValue = string> = PickerOption<T>;
 

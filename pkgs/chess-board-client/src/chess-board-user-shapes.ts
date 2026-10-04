@@ -4,7 +4,10 @@
  * Drawing the same shape again erases it ({@link toggleShape}).
  */
 
-import type { BoardShape, ShapeBrush } from '@pkgs/chess-board-core-shared/board-shapes';
+import type {
+  BoardShape,
+  ShapeBrush,
+} from '@pkgs/chess-board-core-shared/board-shapes';
 import { toggleShape } from '@pkgs/chess-board-core-shared/board-shapes';
 import type { BoardArrow, Square } from '@pkgs/chess-board-core-shared/types';
 import { type Accessor, createMemo, createSignal } from 'solid-js';

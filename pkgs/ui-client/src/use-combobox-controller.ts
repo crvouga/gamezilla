@@ -5,13 +5,6 @@
  */
 
 import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-} from 'solid-js';
-import {
   clampHighlightedIndex,
   filterComboboxOptions,
 } from '@pkgs/ui-shared/combobox-filter';
@@ -28,6 +21,13 @@ import type {
   ComboboxProps,
   ComboboxValue,
 } from '@pkgs/ui-shared/combobox-types';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+} from 'solid-js';
 
 export type ComboboxController<T extends ComboboxValue> = {
   multiple: Accessor<boolean>;

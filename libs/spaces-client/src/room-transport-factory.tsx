@@ -2,13 +2,13 @@
  * Injectable room transport factory. Production defaults to WebSocket;
  * `@libs/harness` injects loopback.
  */
-import type { Timers } from '@pkgs/clock-shared/types';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
-import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared/websocket-transport';
-import type { Random } from '@pkgs/uuid-shared/create-id';
-import { createContext, type JSX, useContext } from 'solid-js';
 
 import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared/space-room-url';
+import type { Timers } from '@pkgs/clock-shared/types';
+import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared/websocket-transport';
+import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type { Random } from '@pkgs/uuid-shared/create-id';
+import { createContext, type JSX, useContext } from 'solid-js';
 
 export type CreateRoomTransportArgs = {
   readonly spaceId: string;

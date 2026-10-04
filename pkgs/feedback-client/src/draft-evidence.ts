@@ -1,8 +1,8 @@
+import type { EvidenceFile } from '@pkgs/feedback-shared/types';
+import type { SavedEvidence } from '@pkgs/feedback-shared/workspace';
 import { readBytes } from '@pkgs/object-store-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import type { EvidenceFile } from '@pkgs/feedback-shared/types';
-import type { SavedEvidence } from '@pkgs/feedback-shared/workspace';
 
 export class DraftEvidence {
   constructor(

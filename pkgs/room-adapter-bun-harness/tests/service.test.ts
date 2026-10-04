@@ -1,8 +1,12 @@
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { RoomState } from '@pkgs/room-shared/types';
-import { AddOne, gameRoomModule, readTally } from '@pkgs/room-harness/game-room';
 import { createBunRoomHost } from '@pkgs/room-adapter-bun-server/bun-room-host';
+import {
+  AddOne,
+  gameRoomModule,
+  readTally,
+} from '@pkgs/room-harness/game-room';
+import type { RoomState } from '@pkgs/room-shared/types';
 
 // regression: localhost-room-service-upgrade
 test('private service commands use the same authoritative room as sockets and deduplicate delivery', async () => {

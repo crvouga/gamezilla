@@ -2,7 +2,6 @@
   "name": "@pkgs/room-harness",
   "version": "0.0.0",
   "private": true,
-  "category": "harness",
   "exports": {
     "./*": [
       "./src/*.ts",
@@ -10,10 +9,6 @@
       "./src/*.d.ts"
     ]
   },
-  "specDomains": [
-    "room"
-  ],
-  "specParts": 1,
   "scripts": {
     "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -45,5 +40,10 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "harness",
+  "specDomains": [
+    "room"
+  ],
+  "specParts": 1
 }

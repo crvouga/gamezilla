@@ -1,17 +1,18 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * One card row of `MainMenuScreen`: title, optional caption, and a trailing
  * chevron / selection check. Interactive rows are pressable surface cards.
  */
 
-import { createMemo, type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { useThemeTokens } from './theme-context';
+import { resolveNeutralGradient } from '@pkgs/ui-shared/main-menu-gradient';
+import { createMemo, type JSX, Show } from 'solid-js';
 import { GradientBox } from './gradient-box';
 import { ChevronRightIcon, CircleCheckIcon } from './icons';
-import { resolveNeutralGradient } from '@pkgs/ui-shared/main-menu-gradient';
+import { useThemeTokens } from './theme-context';
 
 export type MainMenuItem = {
   /** Stable id for list keys. */

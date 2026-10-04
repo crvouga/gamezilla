@@ -11,7 +11,10 @@
 import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { FailedTestTrace } from './workflow-observability';
-import { failedTestTraceMarkdown, failedTestTracesFromNdjson } from './workflow-observability';
+import {
+  failedTestTraceMarkdown,
+  failedTestTracesFromNdjson,
+} from './workflow-observability';
 
 function iconFor(result: string): string {
   switch (result) {

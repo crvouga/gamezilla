@@ -1,10 +1,9 @@
+import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 import { Button } from '@pkgs/ui-client/button';
 import { EmptyState } from '@pkgs/ui-client/empty-state';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
 import { For, Show } from 'solid-js';
-
-import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 
 /**
  * Runtime-registered server commands (seed, etc.). Faults live in the palette (⌘K).

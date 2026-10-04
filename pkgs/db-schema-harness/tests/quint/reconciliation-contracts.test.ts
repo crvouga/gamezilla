@@ -3,10 +3,14 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseFeature } from '@pkgs/gherkin-shared/parse';
-import { quintNames } from '@pkgs/quint-shared/names';
-import { modelInvariants, QUINT_CLI, simulate } from '@pkgs/quint-server/simulate';
+import {
+  modelInvariants,
+  QUINT_CLI,
+  simulate,
+} from '@pkgs/quint-server/simulate';
 import { typecheck } from '@pkgs/quint-server/typecheck';
 import { verify } from '@pkgs/quint-server/verify';
+import { quintNames } from '@pkgs/quint-shared/names';
 
 // Specification validity only. These checks never stand in for adapter conformance.
 const MODEL_TIMEOUT_MS = 120_000;
@@ -16,7 +20,11 @@ const FEATURES = ['SERVER_RECONCILIATION', 'CLIENT_RECOVERY', 'SCHEMA_INDEXES'];
 describe('reconciliation contract syntax', () => {
   for (const name of FEATURES) {
     test(name, () => {
-      const path = join(import.meta.dir, '../../../db-schema-shared/docs', `${name}.md`);
+      const path = join(
+        import.meta.dir,
+        '../../../db-schema-shared/docs',
+        `${name}.md`
+      );
       const feature = parseFeature(
         readFileSync(path, 'utf8').match(/```gherkin\n([\s\S]*?)\n```/)?.[1] ??
           '',

@@ -10,15 +10,12 @@
  * default glyph.
  */
 
-import { useSessionAccountEmail } from '@libs/auth-client/use-current-user';
 import {
   BOOT_GLOBAL_MENU_IDENTITY,
   useGlobalMenuIdentityPublisher,
 } from '@libs/app-client/global-menu-identity-context';
+import { useSessionAccountEmail } from '@libs/auth-client/use-current-user';
 import { parseAvatarConfig } from '@libs/profile-shared/avatar-config';
-import { DeviceAvatar } from './device-avatar';
-import { useMyProfileId } from './public-use-my-profile-id';
-import { useProfileColumn } from './use-profile-column';
 import {
   type Accessor,
   createEffect,
@@ -27,6 +24,9 @@ import {
   onCleanup,
   Show,
 } from 'solid-js';
+import { DeviceAvatar } from './device-avatar';
+import { useMyProfileId } from './public-use-my-profile-id';
+import { useProfileColumn } from './use-profile-column';
 
 function PublishIdentity(props: {
   readonly profileId: string | null;

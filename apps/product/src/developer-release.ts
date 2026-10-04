@@ -1,7 +1,7 @@
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import { checkRelease } from '@pkgs/conformance-shared/release-check';
 import type { ReleaseEvidence } from '@pkgs/conformance-shared/release-check';
+import { checkRelease } from '@pkgs/conformance-shared/release-check';
 import { tools } from './developer-tools-state';
 export const provideReleaseEvidence = scenarioAction({
   name: 'provideReleaseEvidence',

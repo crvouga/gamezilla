@@ -1,8 +1,11 @@
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { unsafe } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { unsafe } from '@pkgs/sql-shared/sql';
 
-import { SYNC_ENGINE_MUTATIONS, syncEngineLocalSchema } from '@pkgs/sync-engine-shared/tables';
+import {
+  SYNC_ENGINE_MUTATIONS,
+  syncEngineLocalSchema,
+} from '@pkgs/sync-engine-shared/tables';
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
 export const SCHEMA_EPOCH = 12;

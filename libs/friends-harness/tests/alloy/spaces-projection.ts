@@ -27,11 +27,11 @@
 
 import type { Names, World } from '@libs/harness/snapshot-worlds';
 import { sharedLiveSpaceIdsSql } from '@libs/spaces-client/my-live-space-seat-sql';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 import { friendsRows } from './friendships-projection';
-import { bothWays, named, sortedSet, storedPeople } from './stored-people';
 import type { Pair } from './stored-people';
+import { bothWays, named, sortedSet, storedPeople } from './stored-people';
 
 type SpaceRow = {
   readonly id: string;

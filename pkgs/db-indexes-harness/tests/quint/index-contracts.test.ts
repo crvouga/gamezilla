@@ -3,10 +3,14 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseFeature } from '@pkgs/gherkin-shared/parse';
-import { quintNames } from '@pkgs/quint-shared/names';
-import { modelInvariants, QUINT_CLI, simulate } from '@pkgs/quint-server/simulate';
+import {
+  modelInvariants,
+  QUINT_CLI,
+  simulate,
+} from '@pkgs/quint-server/simulate';
 import { typecheck } from '@pkgs/quint-server/typecheck';
 import { verify } from '@pkgs/quint-server/verify';
+import { quintNames } from '@pkgs/quint-shared/names';
 
 // Specification validity only. No reconciler or database is exercised here.
 const MODEL_TIMEOUT_MS = 120_000;

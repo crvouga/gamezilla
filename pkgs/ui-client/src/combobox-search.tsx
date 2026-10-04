@@ -6,11 +6,11 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import { type JSX, onMount } from 'solid-js';
+import type { ComboboxKeyEvent } from '@pkgs/ui-shared/combobox-key-nav';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
+import { type JSX, onMount } from 'solid-js';
 import { SearchIcon } from './icons';
 import { TextInput } from './text-input';
-import type { ComboboxKeyEvent } from '@pkgs/ui-shared/combobox-key-nav';
 
 export type ComboboxSearchProps = {
   value: string;

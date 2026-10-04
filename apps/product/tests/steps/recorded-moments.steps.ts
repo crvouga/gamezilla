@@ -1,5 +1,13 @@
 import { expect } from 'bun:test';
-import { provideRecordedReport, selectRecordedMoment, shownControlResult, shownMoment, shownObservations, shownPicture, showRecordedControl } from '@apps/product/developer-report';
+import {
+  provideRecordedReport,
+  selectRecordedMoment,
+  shownControlResult,
+  shownMoment,
+  shownObservations,
+  shownPicture,
+  showRecordedControl,
+} from '@apps/product/developer-report';
 import { Given, Then, When } from '@libs/harness/define';
 
 Given(

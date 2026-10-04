@@ -7,7 +7,11 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { BillingApp } from '@libs/billing-server/billing-app';
-import type { CallbackResult, MembershipBilling, MembershipChange } from '@pkgs/billing-shared/membership';
+import type {
+  CallbackResult,
+  MembershipBilling,
+  MembershipChange,
+} from '@pkgs/billing-shared/membership';
 import { createMembershipProviders } from '@pkgs/billing-shared/providers';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';

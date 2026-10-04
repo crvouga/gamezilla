@@ -1,6 +1,11 @@
 /** Builders for parsed SLIs, SLOs and objectives, for evaluation tests. */
 
-import type { Objective, Sli, Slo, TimeWindow } from '@pkgs/openslo-shared/model';
+import type {
+  Objective,
+  Sli,
+  Slo,
+  TimeWindow,
+} from '@pkgs/openslo-shared/model';
 
 const source = { type: 'product', spec: { event: 'note saved' } };
 

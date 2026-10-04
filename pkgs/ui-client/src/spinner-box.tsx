@@ -14,11 +14,11 @@
  * ```
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { Spinner } from './spinner';
+import type { JSX } from 'solid-js';
 import type { SpinnerProps } from './spinner';
+import { Spinner } from './spinner';
 
 export type SpinnerBoxProps = {
   /** Extra classes on the centering wrapper. */

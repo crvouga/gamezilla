@@ -1,7 +1,7 @@
-import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
 import type { ChessPuzzleInteractionKind } from './chess-puzzle-interaction-entities';
-import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
+import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from './chess-puzzle-play-attr';
 
 type AppendInteraction = (
   kind: ChessPuzzleInteractionKind,

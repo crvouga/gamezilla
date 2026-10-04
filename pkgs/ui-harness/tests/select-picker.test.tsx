@@ -2,12 +2,18 @@
 
 import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { filterPickerOptions, isTypeAheadKey, nextPickerOptionIndex, pickerOptionText, typeAheadIndex } from '@pkgs/ui-shared/picker-logic';
 import { Picker } from '@pkgs/ui-client/picker';
-import type { PickerOption } from '@pkgs/ui-shared/picker-types';
 import { PickerSection } from '@pkgs/ui-client/picker-section';
 import { Select } from '@pkgs/ui-client/select';
+import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
+import {
+  filterPickerOptions,
+  isTypeAheadKey,
+  nextPickerOptionIndex,
+  pickerOptionText,
+  typeAheadIndex,
+} from '@pkgs/ui-shared/picker-logic';
+import type { PickerOption } from '@pkgs/ui-shared/picker-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';

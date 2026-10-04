@@ -6,13 +6,14 @@
  * property, and JSON, HTML and PNG snapshots — so a test that needs a
  * variation configures it (extra `properties`) instead of forking it.
  */
-import type { CatalogProperty } from '@pkgs/harness-shared/effect';
+
 import { defineAction } from '@pkgs/harness-shared/define-action';
 import { defineProperty } from '@pkgs/harness-shared/define-property';
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
 import { defineSnapshot } from '@pkgs/harness-shared/define-snapshot';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
 import type { System } from '@pkgs/harness-shared/define-system';
+import { defineSystem } from '@pkgs/harness-shared/define-system';
+import type { CatalogProperty } from '@pkgs/harness-shared/effect';
 import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 
 export type ExampleApp = {

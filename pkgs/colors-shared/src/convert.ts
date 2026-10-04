@@ -2,8 +2,8 @@
  * RGB ↔ HSL conversions. Channels in `[0, 1]`; hue in degrees `[0, 360)`.
  */
 
-import { clamp01, hsl, hsla, rgb, rgba, wrapHue } from './types';
 import type { Hsl, Hsla, Rgb, Rgba } from './types';
+import { clamp01, hsl, hsla, rgb, rgba, wrapHue } from './types';
 
 function hueToRgbComponent(p: number, q: number, t: number): number {
   let tt = t;

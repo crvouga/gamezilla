@@ -1,6 +1,5 @@
-import type { Clock, Timers } from '@pkgs/clock-shared/types';
-
 import type { AssistantClock } from '@pkgs/assistant-shared/clock';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
 
 export function createSystemClock(args: {
   readonly clock: Clock;

@@ -1,3 +1,7 @@
+import {
+  HOSTED_SIGN_IN_UNAVAILABLE_REASON,
+  NO_SIGN_IN_METHODS_REASON,
+} from '@libs/auth-shared/auth-errors';
 import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import { useLogger } from '@pkgs/logger-client/solid';
@@ -11,10 +15,6 @@ import {
   on,
   useContext,
 } from 'solid-js';
-import {
-  HOSTED_SIGN_IN_UNAVAILABLE_REASON,
-  NO_SIGN_IN_METHODS_REASON,
-} from '@libs/auth-shared/auth-errors';
 import { useConfigService } from './config-service-context';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInModal } from './sign-in-modal';

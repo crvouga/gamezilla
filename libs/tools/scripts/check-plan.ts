@@ -4,8 +4,8 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
 import { cacheDiagnostics } from './check-cache-diagnostics';
-import { balanceShards, planWarnings } from './check-shards';
 import type { CheckTask } from './check-shards';
+import { balanceShards, planWarnings } from './check-shards';
 import { readTaskCosts } from './check-task-costs';
 import { estimateTask, shardSummary } from './check-task-estimates';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
@@ -14,8 +14,12 @@ import {
   turboChildEnv,
   writePlatformCacheKey,
 } from './turbo-ci-run';
-import { planFromDryRun, resolveRemoteHits, wallRemoteHas } from './turbo-preflight';
 import type { RunPlan } from './turbo-preflight';
+import {
+  planFromDryRun,
+  resolveRemoteHits,
+  wallRemoteHas,
+} from './turbo-preflight';
 
 const ROOT = join(import.meta.dirname, '../../..');
 const DIRECTORY = join(ROOT, '.cache/check-ci');

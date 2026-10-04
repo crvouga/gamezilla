@@ -10,8 +10,8 @@ import type { Domain, TypeRef } from './domain';
 import type { FeelValue, UnaryTest } from './feel';
 import type { Issues } from './model-table';
 import { readTable } from './model-table';
-import { childElements, locate, parseXml, textOf, XmlError } from './xml';
 import type { XmlElement } from './xml';
+import { childElements, locate, parseXml, textOf, XmlError } from './xml';
 
 export type HitPolicy = 'UNIQUE' | 'FIRST' | 'ANY' | 'PRIORITY';
 

@@ -1,15 +1,15 @@
 import { createSeededCreateId } from '@pkgs/uuid-shared/seeded-create-id';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { SyncBootDeps } from './boot-deps';
-import { createClockSkewTable, } from './clock-skew';
-import type { HarnessDomainPack } from './harness-domain-pack';
+import { createClockSkewTable } from './clock-skew';
 import type { EdgeFaultController } from './edge-faults';
 import type { HarnessFaultOptions } from './faults';
 import { DST_FAULTS, RELIABLE_FAULTS, sampleFaultOptions } from './faults';
+import type { HarnessDomainPack } from './harness-domain-pack';
 import type { SyncNetwork } from './network';
 import { createHarnessPubSubBroker } from './pubsub-bridge';
 import { BROKER } from './traffic';
-import type { ClientMeta, HarnessClientOpts, } from './types';
+import type { ClientMeta, HarnessClientOpts } from './types';
 
 export function resolveBootDomain(
   clientOpts: HarnessClientOpts

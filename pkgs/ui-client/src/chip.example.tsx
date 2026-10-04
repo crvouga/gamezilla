@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal, For, type JSX } from 'solid-js';
+import { Chip } from './chip';
 import { ExampleRoot } from './example-root';
 import { SchemePreview } from './scheme-preview';
-import { Chip } from './chip';
 
 const tags = ['Solid', 'TypeScript', 'Vite', 'Design System', 'UI'];
 

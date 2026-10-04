@@ -1,9 +1,9 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import { Parser } from 'node-sql-parser';
 import { assertWithinLimit, LIMITS } from './limits';
-import type { AccessPath, ParsedStatement } from './types';
 import type { AstNode, ColumnScope } from './parse-sql-scope';
 import { asNode, fromRelations, scopedColumn } from './parse-sql-scope';
+import type { AccessPath, ParsedStatement } from './types';
 
 type Dialect = 'PostgreSQL' | 'Sqlite';
 

@@ -15,8 +15,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import * as fc from 'fast-check';
 import { CSS_VAR_COLORS, cssVarElevation } from '@pkgs/ui-shared/css-vars';
+import * as fc from 'fast-check';
 import { sxToCss } from '../legacy-sx-to-css';
 import { compileStaticTransform } from '../sx-map-effect';
 import { mapSxRecord } from '../sx-mapping';

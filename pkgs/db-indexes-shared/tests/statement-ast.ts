@@ -1,6 +1,6 @@
 import { assert } from '@pkgs/assert-shared/singleton';
-import fc from 'fast-check';
 import type { AccessPath } from '@pkgs/db-indexes-shared/types';
+import fc from 'fast-check';
 import type { GenSchema, GenTable } from './schema';
 
 export type StatementAst = {

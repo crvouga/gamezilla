@@ -10,15 +10,20 @@
 import type { TableDef } from '@pkgs/db-schema-shared/define-table';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared/mutations-types';
-
-import { ACTION } from './permission-catalog';
-import { consumeQuotaMutation } from './consume-quota-mutation';
 import { grantKeyOf } from './capabilities';
+import { consumeQuotaMutation } from './consume-quota-mutation';
 import { capabilityOf, identityFor, personOf } from './people';
+import { ACTION } from './permission-catalog';
 import { insertStarted, startedEntries } from './puzzle-ledger';
 import { DAILY_PUZZLE_LIMIT_REASONS } from './reasons';
-import { allOperations, authorizeOperation, mutationsDeclaring, replayOperation, serverEnforcementLayer } from './server';
 import type { ServerCase, ServerOperation } from './server';
+import {
+  allOperations,
+  authorizeOperation,
+  mutationsDeclaring,
+  replayOperation,
+  serverEnforcementLayer,
+} from './server';
 import type { AppPolicy } from './world';
 
 export type AccessServerOptions = {

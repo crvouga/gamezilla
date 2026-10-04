@@ -1,9 +1,9 @@
 language js
 
-// `@libs/permissions/root/access-model` holds the access model's internals —
+// `@libs/permissions-shared/access-model` holds the access model's internals —
 // roles, plans, the facts they are resolved from, the shipped policy. Tests
 // and the root that materializes the policy may import it; product code gates
-// through `@libs/permissions/public` and so can never branch on a plan.
+// through `the @libs/permissions-* packages` and so can never branch on a plan.
 // Matches every static import / export-from source, dynamic import() and
 // require() specifier.
 // Perf: a whole-file substring test gates the tree walk. Every match must
@@ -15,7 +15,7 @@ file($body) where {
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"]@libs/permissions/root/access-model['\"]$",
-    register_diagnostic(span=$src, message="Roles, plans and access facts are private to @libs/permissions. Gate with useCan / usePermissions / requireInMutation from @libs/permissions/public.", severity="error")
+    $src <: r"^['\"]@libs/permissions-shared/access-model['\"]$",
+    register_diagnostic(span=$src, message="Roles, plans and access facts are private to @libs/permissions. Gate with useCan / usePermissions / requireInMutation from the @libs/permissions-* packages.", severity="error")
   }
 }

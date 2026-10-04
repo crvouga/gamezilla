@@ -1,3 +1,4 @@
+import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import { corruptJsonString } from './corruption-faults';
 import type { EdgeFaultController, HarnessHttpFault } from './edge-faults';
 import type {
@@ -5,7 +6,6 @@ import type {
   HarnessHttpResponse,
   HarnessHttpServerHandlers,
 } from './http-bridge-types';
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
 import type { SyncNetwork } from './network';
 import { classifyEndpoint } from './traffic';
 

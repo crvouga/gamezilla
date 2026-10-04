@@ -1,8 +1,8 @@
 import { fetchWithRetry } from '@pkgs/async-shared/fetch-with-retry';
 import { cliHttp, cliTimers } from './cli-io';
 import { cfHeaders, probeCfPermission } from './cloudflare';
-import { Secret } from './secret';
 import type { SecretInput } from './secret';
+import { Secret } from './secret';
 
 async function probeAccountPermissions(
   headers: Record<string, string>,

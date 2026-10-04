@@ -1,11 +1,11 @@
-import type { Ports, Runtime } from '@pkgs/harness-shared/runtime-types';
 import { realTimeRuntime } from '@pkgs/harness-shared/real-time-runtime';
+import type { Ports, Runtime } from '@pkgs/harness-shared/runtime-types';
 import type { HarnessComposition } from './composition';
-import type { HarnessSql } from './sql-types';
-import { openHarnessServerSqlFromSeedBytes } from './sql';
-import { sharedSqlClient } from './sql-types';
 import type { ProductExtra } from './ports';
 import { ensureRealStack } from './real-stack';
+import { openHarnessServerSqlFromSeedBytes } from './sql';
+import type { HarnessSql } from './sql-types';
+import { sharedSqlClient } from './sql-types';
 
 export type BunWebviewRuntimeOptions = {
   readonly composition: HarnessComposition;
@@ -37,9 +37,7 @@ async function openSeededServerSql(
 
 function postgresHandle(pg: {
   readonly sqlClient: Awaited<
-    ReturnType<
-      typeof import('./boot-harness-postgres').bootHarnessPostgres
-    >
+    ReturnType<typeof import('./boot-harness-postgres').bootHarnessPostgres>
   >['sqlClient'];
   stop(): Promise<void>;
 }): HarnessSql {
@@ -57,9 +55,7 @@ function postgresHandle(pg: {
 }
 
 async function openRealPostgresSql(): Promise<HarnessSql> {
-  const { bootHarnessPostgres } = await import(
-    './boot-harness-postgres'
-  );
+  const { bootHarnessPostgres } = await import('./boot-harness-postgres');
   await ensureRealStack();
   return postgresHandle(await bootHarnessPostgres());
 }
@@ -69,9 +65,7 @@ async function openStackExtra(): Promise<
   Pick<ProductExtra, 'sql' | 'ui' | 'http'>
 > {
   const { readStackAddresses } = await import('./stack-manifest');
-  const { bootHarnessPostgres } = await import(
-    './boot-harness-postgres'
-  );
+  const { bootHarnessPostgres } = await import('./boot-harness-postgres');
   const addresses = await readStackAddresses();
   process.env['VITE_API_URL'] = addresses.apiOrigin;
   return {

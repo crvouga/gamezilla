@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js';
-import { SpaceLiveBadge } from './space-live-badge';
 import { SpaceHostAvatar } from './space-host-avatar';
 import { SpaceHostNameText } from './space-host-name-text';
+import { SpaceLiveBadge } from './space-live-badge';
 import { SpaceTitleText } from './space-title-text';
 
 export type SpaceSummaryHeaderProps = {

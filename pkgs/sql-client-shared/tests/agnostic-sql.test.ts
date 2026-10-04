@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import sql from '@pkgs/sql-shared/sql';
 import {
   assertAgnosticSql,
   findAgnosticSqlBan,
@@ -7,6 +6,7 @@ import {
 } from '@pkgs/sql-client-shared/agnostic-sql';
 import { SqlClientImplAgnostic } from '@pkgs/sql-client-shared/impl-agnostic';
 import { createInMemorySqlClient } from '@pkgs/sql-client-shared/impl-in-memory';
+import sql from '@pkgs/sql-shared/sql';
 
 describe('assertAgnosticSql', () => {
   test('allows portable SQL', () => {

@@ -1,10 +1,19 @@
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
-
-import { isBoardSquare } from './recommendations';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
 import type { ChessPuzzlePlayStatus } from './chess-puzzle-play-attr';
-import { isNonEmptyString, isNonNegativeInteger, isNullOrNonEmptyString, isNullOrNonNegativeInteger, isOrientation, isStatus } from './chess-puzzle-play-attr';
+import {
+  isNonEmptyString,
+  isNonNegativeInteger,
+  isNullOrNonEmptyString,
+  isNullOrNonNegativeInteger,
+  isOrientation,
+  isStatus,
+} from './chess-puzzle-play-attr';
+import { isBoardSquare } from './recommendations';
 
 function validateStartPayload(
   payload: unknown

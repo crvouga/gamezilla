@@ -1,14 +1,13 @@
-import { DenialSurface } from '@libs/permissions-client/denial-surface';
-import type { Decision } from '@pkgs/permissions-shared/decision';
-import { Trans } from '@lingui/solid/macro';
-import { Button } from '@pkgs/ui-client/button';
-import { ClockIcon, SearchIcon, WifiOffIcon } from '@pkgs/ui-client/icons';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { type JSX, Show } from 'solid-js';
-
-import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
 import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { puzzleFeedHasNarrowingFilters } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
+import { DenialSurface } from '@libs/permissions-client/denial-surface';
+import { Trans } from '@lingui/solid/macro';
+import type { Decision } from '@pkgs/permissions-shared/decision';
+import { Button } from '@pkgs/ui-client/button';
+import { EmptyState } from '@pkgs/ui-client/empty-state';
+import { ClockIcon, SearchIcon, WifiOffIcon } from '@pkgs/ui-client/icons';
+import { type JSX, Show } from 'solid-js';
 
 export type ChessPuzzleEmptyPoolStateProps = {
   /** `'empty'`, `'offline'`, `'limited'` or `'waiting'`; `loading` never renders. */

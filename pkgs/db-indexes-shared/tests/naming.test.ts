@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { isPrefixCovered } from '@pkgs/db-indexes-shared/consolidate';
 import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
-import { definitionsEqual, ownedIndexName } from '@pkgs/db-indexes-shared/naming';
+import {
+  definitionsEqual,
+  ownedIndexName,
+} from '@pkgs/db-indexes-shared/naming';
 import type { Candidate, IndexDefinition } from '@pkgs/db-indexes-shared/types';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
 const arbCol = fc
   .stringMatching(/^[a-z][a-z0-9_]{0,15}$/)

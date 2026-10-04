@@ -7,9 +7,9 @@
  */
 
 import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
-import { focusActor } from '@libs/harness/shell-actions';
-import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import { partition, restoreNetwork } from '@libs/harness/actions';
+import type { QuintHarnessWorld } from '@libs/harness/quint-world';
+import { focusActor } from '@libs/harness/shell-actions';
 import {
   closeSpaceMembers,
   createSpace,
@@ -30,8 +30,8 @@ import {
 } from '@libs/spaces-harness/spaces-ui-reads';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 const PEOPLE = ['alice', 'bob'] as const;
 

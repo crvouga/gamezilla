@@ -6,12 +6,24 @@
  */
 
 import type { Domain, TypeRef } from './domain';
-import { fitsType, inDomain, parseDomain, renderDomain, TYPE_REFS } from './domain';
-import { equalityLiterals, parseLiteral, parseUnaryTests, renderFeelValue, usesOrder } from './feel';
+import {
+  fitsType,
+  inDomain,
+  parseDomain,
+  renderDomain,
+  TYPE_REFS,
+} from './domain';
 import type { FeelValue, UnaryTest } from './feel';
+import {
+  equalityLiterals,
+  parseLiteral,
+  parseUnaryTests,
+  renderFeelValue,
+  usesOrder,
+} from './feel';
 import type { DmnInput, DmnOutput, DmnRule, HitPolicy } from './model';
-import { childElements, textOf } from './xml';
 import type { XmlElement } from './xml';
+import { childElements, textOf } from './xml';
 
 export type Issues = {
   readonly list: string[];

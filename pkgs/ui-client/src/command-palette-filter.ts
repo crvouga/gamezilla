@@ -4,8 +4,8 @@
  * the rest grouped by category.
  */
 
-import { fuzzyMatch } from '@pkgs/ui-shared/fuzzy-match';
 import type { MatchRange } from '@pkgs/ui-shared/fuzzy-match';
+import { fuzzyMatch } from '@pkgs/ui-shared/fuzzy-match';
 import type { CommandGroup, RegisteredCommand } from './types';
 import { commandSearchText, isCommandVisible } from './types';
 

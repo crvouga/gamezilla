@@ -1,13 +1,13 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
-import { type Accessor, createMemo } from 'solid-js';
+import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import {
   buildPuzzleMatchedCountSql,
   buildPuzzleTotalCountSql,
   PUZZLE_NEXT_MAX_BAND,
 } from '@libs/chess-puzzle-shared/next-puzzle-selection';
-import type { ChessPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
+import { type Accessor, createMemo } from 'solid-js';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 export type ChessPuzzleFeedPoolStats = {

@@ -5,12 +5,11 @@
  * Tap to expand secondary metrics; "Hide" turns the preference off.
  */
 
+import type { PerfSnapshot } from '@libs/app-shared/types';
 import { InFlowBanner } from '@pkgs/ui-client/dismissible-top-banner';
 import { createSignal, type JSX, Show } from 'solid-js';
-
 import { usePerfHudPreference } from './perf-hud-preference';
 import { createPerfSnapshot } from './perf-sampler-context';
-import type { PerfSnapshot } from '@libs/app-shared/types';
 
 function fpsColor(fps: number): string {
   if (fps >= 58) return '#22c55e';

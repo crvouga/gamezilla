@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import type { CommandDedupOutcome } from '@pkgs/room-shared/server-core-storage';
 import type { LogEntry } from '@pkgs/room-shared/types';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import type { CommandDedupOutcome } from '@pkgs/room-shared/server-core-storage';
-import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import fc from 'fast-check';
 
 const EVENT_TYPE = asKeyword('test/event');
 

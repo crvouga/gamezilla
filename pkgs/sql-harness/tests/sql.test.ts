@@ -1,7 +1,15 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { inspect } from 'node:util';
 import { assert } from '@pkgs/assert-shared/singleton';
-import sql, { bulk, empty, ident, join, raw, Sql, unsafe } from '@pkgs/sql-shared/sql';
+import sql, {
+  bulk,
+  empty,
+  ident,
+  join,
+  raw,
+  Sql,
+  unsafe,
+} from '@pkgs/sql-shared/sql';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
 function registerThrowingCrashHandlerForTests(): () => void {

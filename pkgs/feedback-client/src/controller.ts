@@ -1,6 +1,5 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import { feedbackContextProviders } from '@pkgs/feedback-shared/context';
 import { collectDiagnostics } from '@pkgs/feedback-shared/diagnostics';
 import {
   createFeedbackBody,
@@ -18,9 +17,16 @@ import type {
   FeedbackReport,
   FeedbackRepository,
 } from '@pkgs/feedback-shared/types';
-import { EMPTY_FEEDBACK, feedbackErrors } from '@pkgs/feedback-shared/validation';
-import type { FeedbackWorkspacePort, WizardStage } from '@pkgs/feedback-shared/workspace';
-import { feedbackContextProviders } from '@pkgs/feedback-shared/context';
+import {
+  EMPTY_FEEDBACK,
+  feedbackErrors,
+} from '@pkgs/feedback-shared/validation';
+import type {
+  FeedbackWorkspacePort,
+  WizardStage,
+} from '@pkgs/feedback-shared/workspace';
+import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { DraftEvidence } from './draft-evidence';
 import { createReproductionRecorder } from './recording';
 import type { RecordingPort } from './recording-types';

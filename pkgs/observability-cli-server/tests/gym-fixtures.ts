@@ -1,10 +1,13 @@
-import type { ObjectStore, StoredObject } from '@pkgs/object-store-shared/interface';
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import type { Attributes } from '@pkgs/observability-shared/attributes';
-import { addEvent, EVENT } from '@pkgs/observability-shared/events';
-import { createNodeTelemetry } from '@pkgs/observability-server/node-node';
-import { NdjsonSpanExporter } from '@pkgs/observability-shared/ndjson-exporter';
+import type {
+  ObjectStore,
+  StoredObject,
+} from '@pkgs/object-store-shared/interface';
+import { NdjsonSpanExporter } from '@pkgs/observability-runtime-shared/ndjson-exporter';
 import type { NodeTelemetry } from '@pkgs/observability-server/node-node';
+import { createNodeTelemetry } from '@pkgs/observability-server/node-node';
+import type { Attributes } from '@pkgs/observability-shared/attributes';
+import { ATTR } from '@pkgs/observability-shared/attributes';
+import { addEvent, EVENT } from '@pkgs/observability-shared/events';
 
 const START_MS = Date.parse('2026-09-22T12:00:00.000Z');
 

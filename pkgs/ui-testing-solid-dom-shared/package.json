@@ -2,7 +2,6 @@
   "name": "@pkgs/ui-testing-solid-dom-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "type": "module",
   "exports": {
     "./*": [
@@ -23,5 +22,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }

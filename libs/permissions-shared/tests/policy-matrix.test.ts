@@ -4,11 +4,21 @@
  * limit. Any policy change shows up as a diff of this table.
  */
 import { describe, expect, test } from 'bun:test';
-import { ACTION, isQuotaAction, LIMIT, PERMISSION } from '@libs/permissions-shared/permission-catalog';
+import {
+  ACTION,
+  isQuotaAction,
+  LIMIT,
+  PERMISSION,
+} from '@libs/permissions-shared/permission-catalog';
 import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import { decide } from '@pkgs/permissions-shared/decision';
 import type { Facts } from '@pkgs/permissions-shared/facts';
-import { limitsOf, permissionsOf, quotasOf, resolveSubject } from '@pkgs/permissions-shared/resolve';
+import {
+  limitsOf,
+  permissionsOf,
+  quotasOf,
+  resolveSubject,
+} from '@pkgs/permissions-shared/resolve';
 
 const PLANS: Readonly<Record<'guest' | 'free' | 'paid', Facts>> = {
   guest: { auth: 'anonymous', membership: 'none' },

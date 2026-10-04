@@ -19,13 +19,13 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
-import { useThemeTokens } from './theme-context';
+import type { JSX } from 'solid-js';
 import styles from './spinner.module.css';
 import { useSharedSpinnerDelay } from './spinner-context';
+import { useThemeTokens } from './theme-context';
 
 export type SpinnerSize = 'small' | 'medium' | 'large' | number;
 

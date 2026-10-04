@@ -1,10 +1,24 @@
-import { CodeIcon, DatabaseIcon, PaintbrushIcon, RadioIcon, ShuffleIcon, TerminalIcon } from '@pkgs/ui-client/icons';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
-import type { TabStripItem } from '@pkgs/ui-devtools-client/tab-strip-types';
-
 import type { DebuggerViewId } from '@pkgs/harness-console-shared/debugger-views';
-import { coerceHarnessNodeKind, formatHarnessNodeLabel, HARNESS_CHROME_KINDS, HARNESS_NODE_LABELS } from '@pkgs/harness-console-shared/node';
-import type { HarnessChromeKind, HarnessNodeKind } from '@pkgs/harness-console-shared/node';
+import type {
+  HarnessChromeKind,
+  HarnessNodeKind,
+} from '@pkgs/harness-console-shared/node';
+import {
+  coerceHarnessNodeKind,
+  formatHarnessNodeLabel,
+  HARNESS_CHROME_KINDS,
+  HARNESS_NODE_LABELS,
+} from '@pkgs/harness-console-shared/node';
+import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import {
+  CodeIcon,
+  DatabaseIcon,
+  PaintbrushIcon,
+  RadioIcon,
+  ShuffleIcon,
+  TerminalIcon,
+} from '@pkgs/ui-client/icons';
+import type { TabStripItem } from '@pkgs/ui-devtools-client/tab-strip-types';
 import { harnessNodeIcon } from './node-chrome';
 
 export type PaneNavValue = {

@@ -1,10 +1,15 @@
 import { expect } from 'bun:test';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { focusOtherActivityControl, prepareArrivingMate, prepareClosedOptimisticBoard, readOtherActivityFocus } from '@pkgs/chess-board-harness/opening-actions';
 import { readBoard, setupBoard } from '@pkgs/chess-board-harness/chess-board';
+import type { Side } from '@pkgs/chess-board-harness/interaction-fixtures';
 import { readCompletedFeedback } from '@pkgs/chess-board-harness/interaction-reads';
 import { readFirstKeyboardSquare } from '@pkgs/chess-board-harness/keyboard-model';
-import type { Side } from '@pkgs/chess-board-harness/interaction-fixtures';
+import {
+  focusOtherActivityControl,
+  prepareArrivingMate,
+  prepareClosedOptimisticBoard,
+  readOtherActivityFocus,
+} from '@pkgs/chess-board-harness/opening-actions';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

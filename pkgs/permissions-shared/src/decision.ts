@@ -1,7 +1,12 @@
-import type { DenialReason, PolicyVersion, UiTreatment, UnlockEntry } from './policy';
+import type {
+  DenialReason,
+  PolicyVersion,
+  UiTreatment,
+  UnlockEntry,
+} from './policy';
 import { policyVersionOf } from './policy';
-import { quotaWindowBounds } from './quota-window';
 import type { WindowBounds } from './quota-window';
+import { quotaWindowBounds } from './quota-window';
 import {
   limitsOf,
   permissionsOf,

@@ -2,11 +2,14 @@ import { expect, test } from 'bun:test';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
-import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
-import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
+import { syncEngineServerSchema } from '@pkgs/sync-engine-shared/tables';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 import { z } from 'zod';
 
 // regression: sync-rejected-retry-verdict

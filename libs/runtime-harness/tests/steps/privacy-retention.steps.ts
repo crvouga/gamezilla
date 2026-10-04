@@ -1,7 +1,17 @@
 import { expect } from 'bun:test';
-import type { Actor } from '@libs/harness/parameter-types';
 import { Given, Then, When } from '@libs/harness/define';
-import { followTrail, prepareRecoveryCopy, recordTrail, recoverApp, recoveredAccountProfile, recoveredAccountUsable, recoveredPersonalData, trailPreservation, trailRead } from '@libs/runtime-harness/privacy-retention';
+import type { Actor } from '@libs/harness/parameter-types';
+import {
+  followTrail,
+  prepareRecoveryCopy,
+  recordTrail,
+  recoverApp,
+  recoveredAccountProfile,
+  recoveredAccountUsable,
+  recoveredPersonalData,
+  trailPreservation,
+  trailRead,
+} from '@libs/runtime-harness/privacy-retention';
 
 Given(
   "a recovery copy has {actor}'s active account and personal data",

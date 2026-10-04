@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, expect, test } from 'bun:test';
-import { BOARD_PERF_BUDGETS } from '@pkgs/chess-board-shared/chess-board-bench';
 import { CAPTURE } from '@pkgs/chess-board-harness/positions';
+import { BOARD_PERF_BUDGETS } from '@pkgs/chess-board-shared/chess-board-bench';
 import { Chess } from 'chess.js';
 import { openBrowserExample } from './browser-fixture';
 

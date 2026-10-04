@@ -3,8 +3,8 @@ import { expect, test } from 'bun:test';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { simulate } from '@pkgs/quint-server/simulate';
+import type { QuintValue } from '@pkgs/quint-shared/itf';
 
 // regression: chess-model-deleted-game-access
 test('Dave loses his private game after deleting his account while Bob keeps the win', () => {

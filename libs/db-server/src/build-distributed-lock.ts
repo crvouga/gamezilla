@@ -1,3 +1,4 @@
+import { cliClock, cliCreateId } from '@libs/db-shared/cli-io';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { DefaultLockIdentityProvider } from '@pkgs/distributed-lock-server/default-lock-identity-provider';
 import { DistributedLockImplKv } from '@pkgs/distributed-lock-shared/impl-kv';
@@ -5,9 +6,8 @@ import type { DistributedLock } from '@pkgs/distributed-lock-shared/interface';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { raw } from '@pkgs/sql-shared/sql';
 import { SqlClientImplBunPostgres as SqlClientImplPostgresTcp } from '@pkgs/sql-client-postgres-server/impl-bun-postgres';
-import { cliClock, cliCreateId } from '@libs/db-shared/cli-io';
+import { raw } from '@pkgs/sql-shared/sql';
 import { resolveDatabaseUrl } from './postgres-ping-source';
 
 export interface DistributedLockConnection {

@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { applyConsoleNavPatch, buildConsoleSearch, coerceView, DEFAULT_CONSOLE_NAV, DEFAULT_HARNESS_NAV, parseConsoleNav, resolvePaneNav } from '@apps/product/console-nav';
+import {
+  applyConsoleNavPatch,
+  buildConsoleSearch,
+  coerceView,
+  DEFAULT_CONSOLE_NAV,
+  DEFAULT_HARNESS_NAV,
+  parseConsoleNav,
+  resolvePaneNav,
+} from '@apps/product/console-nav';
 
 describe('parseConsoleNav', () => {
   test('defaults when search empty', () => {

@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 
-import { isReportsPath, reportsPathFor, reportsPathSha } from '@apps/product/reports-path';
+import {
+  isReportsPath,
+  reportsPathFor,
+  reportsPathSha,
+} from '@apps/product/reports-path';
 
 const SHA = 'b'.repeat(40);
 

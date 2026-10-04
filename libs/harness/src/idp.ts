@@ -20,7 +20,6 @@ import {
   type OAuthRuntime,
   type OAuthRuntimeOptions,
 } from '@crvouga/mockingbird-service-oauth';
-import type { ServerHttp } from '@libs/feature-shared/sync';
 import {
   HARNESS_APPLE_CLIENT_ID,
   HARNESS_APPLE_IDP_URL,
@@ -32,6 +31,7 @@ import {
   HARNESS_IDP_URL,
   HARNESS_SERVER_URL,
 } from '@libs/feature-shared/harness-constants';
+import type { ServerHttp } from '@libs/feature-shared/sync';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import type { Clock } from '@pkgs/clock-shared/types';
 

@@ -8,13 +8,23 @@
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';
+import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
+import { AddOne, readTally } from '@pkgs/room-harness/game-room';
 import { MAX_PENDING_OUTBOUND_COMMANDS } from '@pkgs/room-shared/bounds';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
 import { WIRE_VERSION } from '@pkgs/room-shared/wire';
-import { AddOne, readTally } from '@pkgs/room-harness/game-room';
-import { ACTOR, change, commandId, committed, nextSeq, openClient, sentCommands, tallyEntry, welcome } from './client-rig';
 import type { ClientRig } from './client-rig';
+import {
+  ACTOR,
+  change,
+  commandId,
+  committed,
+  nextSeq,
+  openClient,
+  sentCommands,
+  tallyEntry,
+  welcome,
+} from './client-rig';
 import { CountingClientStorage } from './memory-storage';
 
 const open: ClientRig[] = [];

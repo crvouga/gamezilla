@@ -1,9 +1,8 @@
-import type { HarnessSlice } from '@libs/harness/slices';
-
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { BILLING_CLIENT } from '@libs/billing-client/feature-client';
-import { BILLING_FEATURE } from '@libs/billing-shared/feature';
 import { createBillingServer } from '@libs/billing-server/feature-server';
+import { BILLING_FEATURE } from '@libs/billing-shared/feature';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
+import type { HarnessSlice } from '@libs/harness/slices';
 import {
   agePaymentRetention,
   makeMembershipPayment,

@@ -1,12 +1,21 @@
 import { expect } from 'bun:test';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginPersonalArrow, cancelPersonalArrow, clearActivityAnnotations, drawPersonalArrow, finishPersonalArrow, supplyActivityArrows, supplyActivitySquares, togglePersonalCircle } from '@pkgs/chess-board-harness/annotation-actions';
-import { configureBoard } from '@pkgs/chess-board-harness/chess-board';
-import { prepareAnnotations } from '@pkgs/chess-board-harness/annotation-setup';
+import {
+  beginPersonalArrow,
+  cancelPersonalArrow,
+  clearActivityAnnotations,
+  drawPersonalArrow,
+  finishPersonalArrow,
+  supplyActivityArrows,
+  supplyActivitySquares,
+  togglePersonalCircle,
+} from '@pkgs/chess-board-harness/annotation-actions';
 import { readAnnotations } from '@pkgs/chess-board-harness/annotation-reads';
-import { readOptions } from '@pkgs/chess-board-harness/options-reads';
+import { prepareAnnotations } from '@pkgs/chess-board-harness/annotation-setup';
+import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
+import { configureBoard } from '@pkgs/chess-board-harness/chess-board';
 import { selectSquareWithKeyboard } from '@pkgs/chess-board-harness/keyboard-actions';
+import { readOptions } from '@pkgs/chess-board-harness/options-reads';
 import { stepsFor } from '@pkgs/gherkin-shared/registry';
 import type { Run } from '@pkgs/harness-shared/run-types';
 

@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import sql from '@pkgs/sql-shared/sql';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 import { migrateLocalSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness/local-schema';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
-import { LIVE_ROW_SQL, softDeleteById } from '@pkgs/sync-engine-shared/soft-delete';
 import type { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
+import {
+  LIVE_ROW_SQL,
+  softDeleteById,
+} from '@pkgs/sync-engine-shared/soft-delete';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import { z } from 'zod';
 

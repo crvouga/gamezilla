@@ -1,10 +1,10 @@
 import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { HarnessClient } from './client';
 import type { InvariantViolation } from './invariant-tracker';
 import type { HarnessNet } from './net-effect';
 import type { SyncNetwork } from './network';
 import type { HarnessNode } from './node';
-import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { HarnessServer } from './server';
 import type { LocalStorageTamper } from './storage-faults';
 import type { StoragePressureKind } from './storage-pressure';

@@ -6,11 +6,11 @@ import { MutationModal } from '@pkgs/ui-client/mutation-modal';
 import { ScreenBase } from '@pkgs/ui-client/screen-base';
 import { useParams } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
-import { useAccountDeletion } from './use-account-deletion';
-import { ExportDownload } from './export-download';
-import { useAccountPrivacy } from './use-account-privacy';
 import { ExportChoice } from './export-choice';
+import { ExportDownload } from './export-download';
 import { PrivacyExplanation } from './privacy-explanation';
+import { useAccountDeletion } from './use-account-deletion';
+import { useAccountPrivacy } from './use-account-privacy';
 
 export function PrivacyScreen(): JSX.Element {
   const { t } = useLingui();

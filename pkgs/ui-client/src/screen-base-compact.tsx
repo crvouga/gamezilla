@@ -12,12 +12,9 @@
  * Pass `largeTitle` for a body heading that reveals in the TopBar after scroll.
  */
 
-import { type JSX, Show } from 'solid-js';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { type JSX, Show } from 'solid-js';
 import { useAppFrameGlobalTrailing } from './app-frame-chrome';
-import { ScreenTitleProvider } from './screen-title-context';
-import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
-import { useScreenTitleScroll } from './use-screen-title-scroll';
 import { ScreenBaseCompactBody } from './screen-base-compact-body';
 import { ScreenBaseHeader } from './screen-base-header';
 import { lastBreadcrumbTitle } from './screen-base-logic';
@@ -25,6 +22,9 @@ import type { ScreenBasePrimaryActionRender } from './screen-base-primary-action
 import { WithScreenBasePrimaryAction } from './screen-base-primary-action';
 import type { ScreenBaseProps } from './screen-base-types';
 import { useScreenFocus } from './screen-focus';
+import { ScreenTitleProvider } from './screen-title-context';
+import type { ScreenTitleScrollProps } from './use-screen-title-scroll';
+import { useScreenTitleScroll } from './use-screen-title-scroll';
 
 type ShellProps = ScreenBaseProps & {
   primary: ScreenBasePrimaryActionRender | undefined;

@@ -10,15 +10,20 @@
  */
 
 import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
-import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
 import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { apiUrl, buildOauthLaunchUrl, postJson } from './auth-client-http';
-import { codeOrThrow, exchangeCode, persistSessionFromResponse, runOauthSession } from './auth-client-oauth';
 import type { SignInCtx } from './auth-client-oauth';
+import {
+  codeOrThrow,
+  exchangeCode,
+  persistSessionFromResponse,
+  runOauthSession,
+} from './auth-client-oauth';
 
 /** Refresh the ticket this long before the server would reject it. */
 const TICKET_MARGIN_MS = 60_000;

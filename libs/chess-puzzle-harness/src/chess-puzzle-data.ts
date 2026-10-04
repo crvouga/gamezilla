@@ -5,6 +5,7 @@
  * the play screen renders.
  */
 
+import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
 import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
@@ -12,9 +13,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
+import sql from '@pkgs/sql-shared/sql';
 
 const INGEST_KEY = 'ingest.csv';
 

@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { arrowDashArray, arrowGeometry, arrowSvgPaths, arrowThicknessPx, boardArrowGeometry, knightCorner } from '@pkgs/chess-board-core-shared/arrow-geometry';
+import {
+  arrowDashArray,
+  arrowGeometry,
+  arrowSvgPaths,
+  arrowThicknessPx,
+  boardArrowGeometry,
+  knightCorner,
+} from '@pkgs/chess-board-core-shared/arrow-geometry';
 
 const BOARD = 320; // cell = 40
 

@@ -12,9 +12,7 @@ import type {
   Schema,
   Snapshot,
 } from './types';
-import type {
-  SchemaInput,
-} from './validate-schema-types';
+import type { SchemaInput } from './validate-schema-types';
 
 function deepFreeze<T>(value: T): T {
   if (value === null || typeof value !== 'object') return value;

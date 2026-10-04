@@ -6,7 +6,8 @@
  * adapter package, this line, and the client adapter the wall and harness
  * `ClientEnv`s build.
  */
-import type { AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
+
 import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-provider';
+import type { AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
 
 export const APP_AUTH_PROVIDER: AuthProviderModule = INHOUSE_AUTH_PROVIDER;

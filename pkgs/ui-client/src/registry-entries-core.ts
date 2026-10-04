@@ -2,6 +2,9 @@
  * Explorer entries: Foundation / Brand / Layout / Icons / Inputs.
  * Split from `registry-entries-display.ts` to keep each file under the size cap.
  */
+
+import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
+import { entry } from '@pkgs/ui-shared/component-entry';
 import ActionBarExample from './action-bar.example';
 import AppFrameExample from './app-frame.example';
 import AppHeaderIslandExample from './app-header-island.example';
@@ -40,8 +43,6 @@ import TextInputExample from './text-input.example';
 import TextLinkExample from './text-link.example';
 import ThemeTokensExample from './theme-tokens.example';
 import TooltipExample from './tooltip.example';
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
-import { entry } from '@pkgs/ui-shared/component-entry';
 
 const FOUNDATION = 'Foundation';
 const LAYOUT = 'Layout';

@@ -1,11 +1,8 @@
 import { repeatCustomGameAcknowledgement } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
+import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
-import {
-  partition,
-  restoreActorConnection,
-} from '@libs/harness/actions';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import {
   competeConfiguration,
   configurationChoice,

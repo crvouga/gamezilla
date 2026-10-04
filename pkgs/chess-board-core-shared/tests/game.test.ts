@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { ChessGame } from '@pkgs/chess-board-core-shared/game';
 import { indexFromSquare } from '@pkgs/chess-board-core-shared/geometry';
-import { applyUci, boardOrientationFromFen, uciFromMove } from '@pkgs/chess-board-core-shared/uci';
+import {
+  applyUci,
+  boardOrientationFromFen,
+  uciFromMove,
+} from '@pkgs/chess-board-core-shared/uci';
 import { parseUci } from '@pkgs/chess-rules-shared/uci';
 import { Chess } from 'chess.js';
 

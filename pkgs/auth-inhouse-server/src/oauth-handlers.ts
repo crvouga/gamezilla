@@ -9,17 +9,17 @@
  * answers with JSON.
  */
 
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
-import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import type { Context } from 'hono';
 import { AUTH_CALLBACK_PARAM } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { isTrustedCallbackUrl } from '@pkgs/auth-inhouse-shared/trusted-origins';
+import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { Context } from 'hono';
 import { repo } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';
-import { IdentityLinker } from './identity-linker';
 import type { LinkOutcome } from './identity-linker';
+import { IdentityLinker } from './identity-linker';
 import type { OauthStateRow } from './idp-repository';
 import { PendingLinkRepository } from './pending-link-repository';
 import type {

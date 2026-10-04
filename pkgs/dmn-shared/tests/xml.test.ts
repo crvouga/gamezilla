@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { childElements, parseXml, textOf, XmlError } from '@pkgs/dmn-shared/xml';
 import type { XmlElement } from '@pkgs/dmn-shared/xml';
+import {
+  childElements,
+  parseXml,
+  textOf,
+  XmlError,
+} from '@pkgs/dmn-shared/xml';
 
 function errorOf(source: string): XmlError {
   try {

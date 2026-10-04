@@ -1,12 +1,24 @@
 import { describe, expect, test } from 'bun:test';
 
-import { decide, decideLimit, decideQuota, grantedBy, quotaWindowOf, resolveUnlockRef, treatmentOf } from '@pkgs/permissions-shared/decision';
+import {
+  decide,
+  decideLimit,
+  decideQuota,
+  grantedBy,
+  quotaWindowOf,
+  resolveUnlockRef,
+  treatmentOf,
+} from '@pkgs/permissions-shared/decision';
 import type { Facts } from '@pkgs/permissions-shared/facts';
 import { factsHash, matchesPredicate } from '@pkgs/permissions-shared/facts';
-import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
-import { paramsOf, quotasOf, resolveSubject } from '@pkgs/permissions-shared/resolve';
 import { parsePolicy } from '@pkgs/permissions-shared/parse';
+import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
 import { policyAt } from '@pkgs/permissions-shared/policy';
+import {
+  paramsOf,
+  quotasOf,
+  resolveSubject,
+} from '@pkgs/permissions-shared/resolve';
 
 const POLICY: PermissionPolicy = {
   version: 'v2',

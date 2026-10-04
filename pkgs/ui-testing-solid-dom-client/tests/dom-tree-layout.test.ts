@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { Window } from 'happy-dom';
 import { layoutDomTree } from '@pkgs/ui-testing-solid-dom-client/dom-tree-layout';
+import { Window } from 'happy-dom';
 
 describe('layoutDomTree', () => {
   test('places header overflow trigger on the trailing edge', () => {

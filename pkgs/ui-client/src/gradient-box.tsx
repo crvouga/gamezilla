@@ -4,15 +4,15 @@
  * contrast-safe on-color set (defaults to `onPrimary`) via `OnColorProvider`.
  */
 
-import { createMemo, type JSX, splitProps } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
-import { bestOnColor, ON_DARK } from '@pkgs/ui-shared/contrast';
-import { OnColorProvider } from './on-color-context';
 import type { OnColorSet } from '@pkgs/ui-shared/contrast';
-import { useThemeTokens } from './theme-context';
+import { bestOnColor, ON_DARK } from '@pkgs/ui-shared/contrast';
 import type { GradientPoint } from '@pkgs/ui-shared/gradient-css';
 import { linearGradientCss } from '@pkgs/ui-shared/gradient-css';
+import { createMemo, type JSX, splitProps } from 'solid-js';
+import { OnColorProvider } from './on-color-context';
+import { useThemeTokens } from './theme-context';
 
 export type GradientBoxProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,

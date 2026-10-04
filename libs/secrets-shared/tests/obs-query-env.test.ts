@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { fillUnsetEnv, OBS_QUERY_KEYS, productionQueryRequested } from '@libs/secrets-shared/obs-query-env';
+import {
+  fillUnsetEnv,
+  OBS_QUERY_KEYS,
+  productionQueryRequested,
+} from '@libs/secrets-shared/obs-query-env';
 
 describe('production query credentials', () => {
   test('only a prod or tempo source asks for production credentials', () => {

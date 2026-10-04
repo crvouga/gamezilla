@@ -1,6 +1,12 @@
-import { createMessageNamespace, isPlainRecord } from '@pkgs/message-shared/message';
+import {
+  createMessageNamespace,
+  isPlainRecord,
+} from '@pkgs/message-shared/message';
 import type { RoomServicePort } from '@pkgs/room-shared/room-service';
-import type { MutationAuthorize, MutationCtx } from '@pkgs/sync-engine-shared/mutations-types';
+import type {
+  MutationAuthorize,
+  MutationCtx,
+} from '@pkgs/sync-engine-shared/mutations-types';
 
 export type AccountWithdrawal = { readonly accountId: string };
 export const accountWithdrawalChanged = createMessageNamespace(

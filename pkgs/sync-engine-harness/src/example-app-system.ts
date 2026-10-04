@@ -1,16 +1,15 @@
 import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
 import { defineSystem } from '@pkgs/harness-shared/define-system';
 import { gen } from '@pkgs/harness-shared/fast-check';
-
+import type { SyncArgs } from './args';
+import { arbSyncArgs } from './args';
+import { exampleApp } from './example-app-app';
 import { DST_FAULTS } from './faults';
 import { toKernelFaults } from './network';
-import { arbSyncArgs } from './args';
 import { createSyncHarness, syncVirtual } from './scenario-boot';
+import type { SyncHarness } from './scenario-system';
 import { SYNC_POOL_ACTIONS } from './sync-actions';
 import { SYNC_PROPERTY_DEFS } from './sync-properties';
-import type { SyncArgs } from './args';
-import type { SyncHarness } from './scenario-system';
-import { exampleApp } from './example-app-app';
 
 /** Runtime name for the mild fixed reorder / loss profile ({@link DST_FAULTS}). */
 export const EXAMPLE_DST_FAULTS_HOST = 'virtual-dst-faults';

@@ -1,28 +1,33 @@
 import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import type { Topic } from '@pkgs/pubsub-shared/topic';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { CreateId } from '@pkgs/uuid-shared/create-id';
-
 import type { MutationUploadResult } from '@pkgs/sync-engine-client/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine-client/subscription-runtime';
-import type { MutationEnv, MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
-import { processMutationsBatch } from '@pkgs/sync-engine-server/process-mutations-batch';
-import type { MutationRow } from '@pkgs/sync-engine-server/replay-mutation';
-import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
-import type { QueryResponse, QueryRow } from '@pkgs/sync-engine-shared/v2';
-import { runQuery } from '@pkgs/sync-engine-server/run-query';
 import { allocateTopicPushSeqs } from '@pkgs/sync-engine-server/allocate-topic-push-seq';
 import { mutationSavepointClient } from '@pkgs/sync-engine-server/mutation-savepoint-client';
 import { publishPushMessages } from '@pkgs/sync-engine-server/notify-channels';
+import { processMutationsBatch } from '@pkgs/sync-engine-server/process-mutations-batch';
+import type { MutationRow } from '@pkgs/sync-engine-server/replay-mutation';
+import { runQuery } from '@pkgs/sync-engine-server/run-query';
+import type {
+  MutationEnv,
+  MutationRegistry,
+} from '@pkgs/sync-engine-shared/mutations-types';
 import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared/partition-fanout-rows';
+import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 import {
   fanoutRowsWithinCap,
   mergeAffectedRows,
   selectFanoutRows,
 } from '@pkgs/sync-engine-shared/select-fanout-rows';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
-import { topicMapCtxFromEnv, topicsFromWriteCapture } from '@pkgs/sync-engine-shared/topic-map';
+import {
+  topicMapCtxFromEnv,
+  topicsFromWriteCapture,
+} from '@pkgs/sync-engine-shared/topic-map';
+import type { QueryResponse, QueryRow } from '@pkgs/sync-engine-shared/v2';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared/write-capture';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { HarnessHandleMutationsOpts } from './http-bridge-types';
 
 export type HarnessServerAuth = {

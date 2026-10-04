@@ -2,14 +2,14 @@
   "name": "@pkgs/feedback-server",
   "version": "0.0.0",
   "private": true,
-  "category": "server",
   "type": "module",
   "exports": {
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*.d.ts"
-    ]
+    ],
+    "./vite": "./src/vite.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -20,10 +20,10 @@
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/feedback-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*"
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/object-store-node-fs-server": "workspace:*"
   },
   "devDependencies": {
-    "@pkgs/object-store-node-fs-server": "workspace:*",
     "@pkgs/os-server": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
@@ -31,5 +31,6 @@
     "fast-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
-  }
+  },
+  "category": "server"
 }

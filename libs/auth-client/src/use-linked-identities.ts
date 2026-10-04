@@ -4,8 +4,8 @@
  * provider) by `/identity/refresh`, so this is ordinary synced data.
  */
 
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 import sql from '@pkgs/sql-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';

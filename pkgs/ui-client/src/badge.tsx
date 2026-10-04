@@ -9,11 +9,11 @@
  * ```
  */
 
-import { createMemo, type JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { bestOnColor } from '@pkgs/ui-shared/contrast';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
+import { createMemo, type JSX } from 'solid-js';
 import { useThemeTokens } from './theme-context';
 
 export type BadgeIntent =

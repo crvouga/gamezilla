@@ -4,6 +4,13 @@
  * Paddle run. Nothing in the port knows about any of them.
  */
 
+import type { ContractSituation } from '@pkgs/billing-shared/contract-fixtures';
+import {
+  CONTRACT_ENDED_AT_MS,
+  CONTRACT_NOW_MS,
+  CONTRACT_OFFER,
+  CONTRACT_PERIOD_END_MS,
+} from '@pkgs/billing-shared/contract-fixtures';
 import type {
   CallbackResult,
   MembershipBilling,
@@ -13,9 +20,11 @@ import type {
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing-shared/membership';
-import { CONTRACT_ENDED_AT_MS, CONTRACT_NOW_MS, CONTRACT_OFFER, CONTRACT_PERIOD_END_MS } from '@pkgs/billing-shared/contract-fixtures';
-import type { ContractSignature, ContractSubscription, MembershipBillingContractHarness } from '@pkgs/billing-shared/membership-billing-contract';
-import type { ContractSituation } from '@pkgs/billing-shared/contract-fixtures';
+import type {
+  ContractSignature,
+  ContractSubscription,
+  MembershipBillingContractHarness,
+} from '@pkgs/billing-shared/membership-billing-contract';
 import { describeMembershipBillingContract } from '@pkgs/billing-shared/membership-billing-contract';
 
 /** The other provider's own words for a plan's state. */

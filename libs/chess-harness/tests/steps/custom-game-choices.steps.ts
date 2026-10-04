@@ -1,5 +1,8 @@
 import { expect } from 'bun:test';
-import { changeCustomGame, openCustomGame } from '@libs/chess-custom-game-harness/custom-game-actions';
+import {
+  changeCustomGame,
+  openCustomGame,
+} from '@libs/chess-custom-game-harness/custom-game-actions';
 import { attemptCustomGameBoundary } from '@libs/chess-custom-game-harness/custom-game-boundary';
 import { readCustomGameIdentity } from '@libs/chess-custom-game-harness/custom-game-identity';
 import { readCustomGameProbe } from '@libs/chess-custom-game-harness/custom-game-ui';

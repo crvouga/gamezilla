@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `MainMenuScreen` -- centered card-list main menu: optional title / subtitle /
  * helper, a vertical stack of pressable surface cards, and an optional footer.
@@ -18,12 +19,12 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
-import { For, type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { ScrollView } from './scroll-view';
+import { For, type JSX, Show } from 'solid-js';
 import type { MainMenuItem } from './main-menu-item-row';
 import { MainMenuItemRow } from './main-menu-item-row';
 import { MainMenuScreenHeader } from './main-menu-screen-header';
+import { ScrollView } from './scroll-view';
 
 export type MainMenuScreenProps = {
   title?: JSX.Element | undefined;

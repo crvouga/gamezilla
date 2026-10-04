@@ -5,15 +5,65 @@
  * `folders`, `members`, `rejections`, `unsent`) back out of the harness.
  */
 
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { HarnessHttpFault } from '@pkgs/sync-engine-harness/edge-faults';
-import { addClient, clearLocalData, connect, disconnect, foreground, mutate, mutateWhileFull, nudge, online } from '@pkgs/sync-engine-harness/regression-actions';
-import { addPeerEngine, auth, brokerCrash, brokerRestart, crash, crashAt, failNextOpen, httpFault, netSet, partition, publishFault, pubsubFault, restart, restartWithSchema, resumeNetwork, serverOp, serverPrune, skewClock, tamperLocalStorage } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
-import { clientIds, deviceCanSynchronize, lastMutationId, outcome, queuedEdits, rejections } from '@pkgs/sync-engine-harness/sync-observations';
-import { createSpace, joinSpace, leaveSpace } from '@pkgs/sync-engine-harness/membership-mutations';
-import { deleteFolder, deleteNote, setFolder, setNote } from '@pkgs/sync-engine-harness/mutations';
-import { liveFolders, liveNotes, spaceMembers } from '@pkgs/sync-engine-harness/reads';
+import {
+  createSpace,
+  joinSpace,
+  leaveSpace,
+} from '@pkgs/sync-engine-harness/membership-mutations';
+import {
+  deleteFolder,
+  deleteNote,
+  setFolder,
+  setNote,
+} from '@pkgs/sync-engine-harness/mutations';
+import {
+  liveFolders,
+  liveNotes,
+  spaceMembers,
+} from '@pkgs/sync-engine-harness/reads';
+import {
+  addClient,
+  clearLocalData,
+  connect,
+  disconnect,
+  foreground,
+  mutate,
+  mutateWhileFull,
+  nudge,
+  online,
+} from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  addPeerEngine,
+  auth,
+  brokerCrash,
+  brokerRestart,
+  crash,
+  crashAt,
+  failNextOpen,
+  httpFault,
+  netSet,
+  partition,
+  publishFault,
+  pubsubFault,
+  restart,
+  restartWithSchema,
+  resumeNetwork,
+  serverOp,
+  serverPrune,
+  skewClock,
+  tamperLocalStorage,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
+import {
+  clientIds,
+  deviceCanSynchronize,
+  lastMutationId,
+  outcome,
+  queuedEdits,
+  rejections,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import type { NoteWorld } from './note-world';
 
 const PEOPLE = ['alice', 'bob', 'carol'] as const;

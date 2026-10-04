@@ -5,7 +5,11 @@
  */
 
 import type { HtmlReportBlob } from '@pkgs/harness-shared/bundle';
-import type { ReportTestStatus, RunReport, RunReportMeta } from '@pkgs/harness-shared/report-types';
+import type {
+  ReportTestStatus,
+  RunReport,
+  RunReportMeta,
+} from '@pkgs/harness-shared/report-types';
 
 /** `running` until the run that publishes the commit closes it. */
 export type CommitState = 'running' | 'complete';

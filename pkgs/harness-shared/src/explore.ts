@@ -1,16 +1,20 @@
-import { createRng } from './rng';
+import { disposeMonitors } from './checkpoint';
 import { isRuntimeDef } from './define-runtime';
 import type { Action, CatalogAction, CatalogProperty } from './effect';
 import type { Gen } from './gen';
+import { randomActions } from './random-actions';
 import type { Recording, Step } from './recording';
 import { parseRecording, RECORDING_VERSION } from './recording';
-import type { ActionSlice, RuntimeOption, SystemCore as System } from './registry';
+import type {
+  ActionSlice,
+  RuntimeOption,
+  SystemCore as System,
+} from './registry';
 import { getSystemRegistry, resolveActions } from './registry';
-import { disposeMonitors } from './checkpoint';
-import type { RandomActionsReport } from './run-types';
-import { randomActions } from './random-actions';
-import { getRunInternal } from './run-types';
+import { createRng } from './rng';
 import { run } from './run';
+import type { RandomActionsReport } from './run-types';
+import { getRunInternal } from './run-types';
 
 export class ExploreFailedError extends Error {
   readonly report: Report;

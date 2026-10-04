@@ -5,6 +5,9 @@
  * their own env (`tests/support/harness-client-env.ts`).
  */
 
+import { getServerBaseUrl } from '@libs/app-shared/api-url';
+import { createSecureStoreAuthClientStorage } from '@libs/app-shared/auth-client-storage';
+import { getMainSqliteDbName } from '@libs/app-shared/main-sqlite-db-name';
 import { createInhouseAuthClient } from '@pkgs/auth-inhouse-client/create-inhouse-auth-client';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
@@ -22,14 +25,13 @@ import { createInMemoryPubSub } from '@pkgs/pubsub-shared/in-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
 import { createWebSecureStorage } from '@pkgs/secure-storage-web-shared/impl-web';
 import { createWebAudioPlaybackPort } from '@pkgs/sounds-shared/web-audio-playback-port';
-import { pendingInteractionRequestTraceparent, runInInteractionRequestContext } from '@pkgs/sync-engine-shared/interaction-correlation';
-
-import { getServerBaseUrl } from '@libs/app-shared/api-url';
-import { createSecureStoreAuthClientStorage } from '@libs/app-shared/auth-client-storage';
+import {
+  pendingInteractionRequestTraceparent,
+  runInInteractionRequestContext,
+} from '@pkgs/sync-engine-shared/interaction-correlation';
 import type { ClientEnv, CreateRoomTransport } from './client-env';
 import { createNoopDevMenuPort } from './client-env';
 import { setOriginAvailability } from './origin-availability-for-env';
-import { getMainSqliteDbName } from '@libs/app-shared/main-sqlite-db-name';
 import { webDevicePorts } from './test-device-ports';
 import { createWallOpenAuthSession } from './wall-open-auth-session';
 
@@ -104,9 +106,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     // Dynamic: keeps the web SQLite client (worker transport, OPFS recovery)
     // off first load; it is only needed once the sync engine opens.
     openSqlClient: async (openArgs) => {
-      const { openMainSqlClient } = await import(
-        './open-main-sql-client'
-      );
+      const { openMainSqlClient } = await import('./open-main-sql-client');
       return openMainSqlClient(
         openArgs?.userId ?? 'pending',
         wallTimers,

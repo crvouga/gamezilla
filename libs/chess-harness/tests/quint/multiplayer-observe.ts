@@ -2,8 +2,13 @@ import { multiplayerDeviceViews } from '@libs/chess-matchmaking-harness/multipla
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
 import type { QuintValue } from '@pkgs/quint-shared/itf';
 import { variant } from '@pkgs/quint-shared/itf';
-import { PLAY_PEOPLE, PLAY_PLACES, playFacts, playPerson } from './multiplayer-world';
 import type { PlayTrace } from './multiplayer-world';
+import {
+  PLAY_PEOPLE,
+  PLAY_PLACES,
+  playFacts,
+  playPerson,
+} from './multiplayer-world';
 
 function resultOf(
   game: MultiplayerGame | null,

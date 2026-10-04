@@ -13,10 +13,10 @@
  *   button does), refused locally with the same reason.
  */
 
-import { hostingLimitApplicationLayer } from '@libs/permissions-shared/application';
 import { clientGatingLayer } from '@libs/permissions-harness/client';
-import { HOSTING_LIMIT_REASONS } from '@libs/permissions-shared/reasons';
+import { hostingLimitApplicationLayer } from '@libs/permissions-shared/application';
 import type { ReasonWords } from '@libs/permissions-shared/reasons';
+import { HOSTING_LIMIT_REASONS } from '@libs/permissions-shared/reasons';
 import {
   replayOperation,
   serverEnforcementLayer,
@@ -27,8 +27,8 @@ import {
 } from '@libs/spaces-harness/space-decision-world';
 import { createSpaceMutation } from '@libs/spaces-shared/create-space-mutation';
 import { bindDecisions } from '@pkgs/dmn-shared/registry';
-import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
+import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 
 const ANOTHER = { spaceId: 'another-space' };
 

@@ -2,7 +2,10 @@ import { expect, test } from 'bun:test';
 import { relative, resolve } from 'node:path';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { checkImage, createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
+import {
+  checkImage,
+  createUIQualityChecker,
+} from '@pkgs/ui-quality-check-server/api';
 import { detector, options } from './support';
 
 const store = createNodeFsObjectStore({

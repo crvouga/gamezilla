@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'bun:test';
-
-import { SecretMissingError } from '@pkgs/secret-store-shared/secret-missing-error';
-import { SecretStoreRequestError } from '@pkgs/secret-store-shared/secret-store-request-error';
 import { createEnvSecretStore } from '@pkgs/secret-store-shared/impl-env';
 import {
   createRecordSecretStore,
   RecordSecretStore,
 } from '@pkgs/secret-store-shared/record-secret-store';
+import { SecretMissingError } from '@pkgs/secret-store-shared/secret-missing-error';
+import { SecretStoreRequestError } from '@pkgs/secret-store-shared/secret-store-request-error';
 
 describe('RecordSecretStore', () => {
   it('returns trimmed redacted secrets', async () => {

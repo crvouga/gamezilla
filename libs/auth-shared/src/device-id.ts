@@ -1,5 +1,3 @@
-
-
 import { assertUuid } from '@pkgs/uuid-shared/uuid';
 
 /**

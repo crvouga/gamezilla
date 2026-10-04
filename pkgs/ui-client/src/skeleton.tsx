@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `Skeleton` -- static loading placeholder (no shimmer loop by design).
  *
@@ -9,9 +10,9 @@ import { cssPx } from '@pkgs/ui-shared/css-px';
  * ```
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { JSX } from 'solid-js';
 
 export type SkeletonProps = {
   width?: number | `${number}%` | undefined;

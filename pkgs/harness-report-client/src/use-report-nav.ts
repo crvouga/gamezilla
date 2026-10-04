@@ -1,10 +1,8 @@
-import type { Accessor } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
-
 import type { FlatFrame } from '@pkgs/harness-report-shared/frames';
 import { selectedFrame, testFrames } from '@pkgs/harness-report-shared/frames';
-import { buildHash, parseHash } from '@pkgs/harness-report-shared/hash';
 import type { Route } from '@pkgs/harness-report-shared/hash';
+import { buildHash, parseHash } from '@pkgs/harness-report-shared/hash';
+import { onReportKeyDown } from '@pkgs/harness-report-shared/keyboard';
 import type { ReportData } from '@pkgs/harness-report-shared/types';
 import {
   cancelHashWrite,
@@ -12,7 +10,8 @@ import {
   startPlayTimer,
   stopPlayTimer,
 } from '@pkgs/harness-report-shared/wall';
-import { onReportKeyDown } from '@pkgs/harness-report-shared/keyboard';
+import type { Accessor } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 
 export type ReportNav = {
   route: Accessor<Route>;

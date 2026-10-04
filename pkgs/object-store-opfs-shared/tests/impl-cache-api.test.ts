@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
-import type { CacheLike, CacheStorageLike } from '@pkgs/object-store-opfs-shared/impl-cache-api';
+import type {
+  CacheLike,
+  CacheStorageLike,
+} from '@pkgs/object-store-opfs-shared/impl-cache-api';
 import { createCacheApiObjectStore } from '@pkgs/object-store-opfs-shared/impl-cache-api';
+import { runObjectStoreContractTests } from '@pkgs/object-store-shared/object-store-contract';
 
 /** Minimal in-memory Cache API (keyed by request URL). */
 function createMemoryCacheStorage(): CacheStorageLike & {

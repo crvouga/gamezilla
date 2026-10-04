@@ -1,9 +1,22 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
-import type { Decision } from '@pkgs/permissions-shared/decision';
+import { widenPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { ClearChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
+import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
+
+import {
+  decidePuzzlePlacement,
+  resolvePuzzlePickState,
+} from '@libs/chess-puzzle-shared/pick-state';
+import {
+  CHESS_SCREEN,
+  SetChessMainMenuScreen,
+} from '@libs/chess-shared/chess-main-menu';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
+import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
   type Accessor,
@@ -11,13 +24,6 @@ import {
   createMemo,
   createSignal,
 } from 'solid-js';
-
-import { decidePuzzlePlacement, resolvePuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
-import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
-import { CHESS_SCREEN, SetChessMainMenuScreen } from '@libs/chess-shared/chess-main-menu';
-import { widenPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import { ClearChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import type { ChessPuzzleTestLoadingStatusProps } from './chess-puzzle-test-loading-status';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';

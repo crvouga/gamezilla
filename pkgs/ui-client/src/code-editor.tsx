@@ -12,6 +12,23 @@
  * ```
  */
 
+import type { HighlightSegment } from '@pkgs/ui-shared/code-editor-highlight';
+import {
+  buildHighlightSegments,
+  CODE_EDITOR_DEFAULT_MIN_LINES,
+  CODE_EDITOR_FONT_SIZE,
+  CODE_EDITOR_LINE_HEIGHT,
+  CODE_EDITOR_PAD,
+  editorFrameHeight,
+} from '@pkgs/ui-shared/code-editor-highlight';
+import type {
+  CodeEditorProps,
+  CodeSelection,
+  CodeTokenKind,
+} from '@pkgs/ui-shared/code-editor-types';
+import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { colorVar } from '@pkgs/ui-shared/css-vars';
+import { spacingScale } from '@pkgs/ui-shared/scale';
 import {
   createMemo,
   createSignal,
@@ -20,19 +37,9 @@ import {
   Show,
   splitProps,
 } from 'solid-js';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
-import { colorVar } from '@pkgs/ui-shared/css-vars';
-import { spacingScale } from '@pkgs/ui-shared/scale';
+import styles from './code-editor.module.css';
 import { useThemeTokens } from './theme-context';
 import { useDocumentShortcuts } from './use-document-shortcuts';
-import styles from './code-editor.module.css';
-import { buildHighlightSegments, CODE_EDITOR_DEFAULT_MIN_LINES, CODE_EDITOR_FONT_SIZE, CODE_EDITOR_LINE_HEIGHT, CODE_EDITOR_PAD, editorFrameHeight } from '@pkgs/ui-shared/code-editor-highlight';
-import type { HighlightSegment } from '@pkgs/ui-shared/code-editor-highlight';
-import type {
-  CodeEditorProps,
-  CodeSelection,
-  CodeTokenKind,
-} from '@pkgs/ui-shared/code-editor-types';
 
 const TOKEN_CLASS: Record<CodeTokenKind, string | undefined> = {
   keyword: styles['tokKeyword'],

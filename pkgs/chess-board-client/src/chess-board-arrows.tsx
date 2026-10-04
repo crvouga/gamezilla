@@ -17,9 +17,11 @@ import type {
   BoardOrientation,
   BoardTheme,
 } from '@pkgs/chess-board-core-shared/types';
+import {
+  BOARD_UNITS,
+  BOARD_VIEW_BOX,
+} from '@pkgs/chess-board-shared/board-units';
 import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
-
-import { BOARD_UNITS, BOARD_VIEW_BOX } from '@pkgs/chess-board-shared/board-units';
 import styles from './chess-board.module.css';
 import type { ShapePreview } from './chess-board-user-shapes';
 import { PaintToken } from './paint-token';

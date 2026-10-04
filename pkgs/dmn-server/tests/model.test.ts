@@ -2,9 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseDmn } from '@pkgs/dmn-shared/model';
-
-import { dmnTable } from './fixtures/table';
 import type { TableSpec } from './fixtures/table';
+import { dmnTable } from './fixtures/table';
 
 const ACCESS = readFileSync(
   join(import.meta.dir, 'fixtures/access.dmn'),

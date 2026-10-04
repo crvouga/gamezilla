@@ -6,7 +6,6 @@
  */
 
 import type { ReportStepHit } from '@pkgs/harness-shared/report-types';
-import type { DriverKey } from './keys';
 import type {
   AssertionOptions,
   Driver,
@@ -20,8 +19,9 @@ import type {
   WaitTextCondition,
 } from './driver';
 import { isWaitTextCondition } from './driver';
-import { hasInventory } from './inventory';
 import { formatTestIdPath } from './format';
+import { hasInventory } from './inventory';
+import type { DriverKey } from './keys';
 import type { StepRecorder } from './step-recorder';
 
 export type RecordingDriverOptions = {

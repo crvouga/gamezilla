@@ -1,15 +1,15 @@
 import { assert } from '@pkgs/assert-shared/singleton';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Hono } from 'hono';
+import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
 
 import type { AuthErrorBody } from '@pkgs/sync-engine-shared/v2';
-import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
-import { runQuery } from './run-query';
+import type { Hono } from 'hono';
 import { isAuthErrorBody } from './auth-error';
-import { parseQueryBatchBody } from './parse-batch-body';
 import type { QueryBatchItem } from './parse-batch-body';
-import { resolveRequestSql } from './resolve-request-sql';
+import { parseQueryBatchBody } from './parse-batch-body';
 import type { SyncSqlVariables } from './resolve-request-sql';
+import { resolveRequestSql } from './resolve-request-sql';
+import { runQuery } from './run-query';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 

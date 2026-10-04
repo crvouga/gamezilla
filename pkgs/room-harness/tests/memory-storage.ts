@@ -1,4 +1,7 @@
-import type { ClientRoomStorage, QueuedCommand } from '@pkgs/room-shared/core-storage';
+import type {
+  ClientRoomStorage,
+  QueuedCommand,
+} from '@pkgs/room-shared/core-storage';
 import type { LogEntry } from '@pkgs/room-shared/types';
 
 /** Test double with op counters so tests can assert persistence cost/order. */

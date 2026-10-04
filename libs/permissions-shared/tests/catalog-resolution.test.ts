@@ -1,11 +1,18 @@
 import { describe, expect, test } from 'bun:test';
-import { ACTION, isQuotaAction } from '@libs/permissions-shared/permission-catalog';
-import type { AppAction } from '@libs/permissions-shared/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import { resolveAccessFacts } from '@libs/permissions-shared/access-facts';
+import type { AppAction } from '@libs/permissions-shared/permission-catalog';
+import {
+  ACTION,
+  isQuotaAction,
+} from '@libs/permissions-shared/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
 import { decide, decideQuota } from '@pkgs/permissions-shared/decision';
 import type { Facts } from '@pkgs/permissions-shared/facts';
-import { permissionsOf, quotasOf, resolveSubject } from '@pkgs/permissions-shared/resolve';
+import {
+  permissionsOf,
+  quotasOf,
+  resolveSubject,
+} from '@pkgs/permissions-shared/resolve';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 

@@ -1,5 +1,19 @@
-import { daysPass, declare, indexTuningSystem, keepOwnIndex, retiringLookups, teamIndexKept, tune, tunedLookups, use, usesByLookup } from '@pkgs/db-indexes-harness/index-tuning-system';
-import type { IndexTuning, Lookup } from '@pkgs/db-indexes-harness/index-tuning-system';
+import type {
+  IndexTuning,
+  Lookup,
+} from '@pkgs/db-indexes-harness/index-tuning-system';
+import {
+  daysPass,
+  declare,
+  indexTuningSystem,
+  keepOwnIndex,
+  retiringLookups,
+  teamIndexKept,
+  tune,
+  tunedLookups,
+  use,
+  usesByLookup,
+} from '@pkgs/db-indexes-harness/index-tuning-system';
 import type { Run } from '@pkgs/harness-shared/run-types';
 import type { QuintBinding, QuintWorld } from '@pkgs/quint-shared/registry';
 

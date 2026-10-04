@@ -1,6 +1,11 @@
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
-import type { Deliver, EndpointId, Network, NetworkFaults } from './network-state';
+import type {
+  Deliver,
+  EndpointId,
+  Network,
+  NetworkFaults,
+} from './network-state';
 import type { Rng } from './rng';
 import type { Scheduler } from './scheduler-api';
 import type { TraceRecorder } from './trace';

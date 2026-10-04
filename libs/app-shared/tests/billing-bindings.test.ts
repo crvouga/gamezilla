@@ -1,5 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { ConfigurationError, resolveCheckoutProvider } from '@libs/app-shared/env';
+import {
+  ConfigurationError,
+  resolveCheckoutProvider,
+} from '@libs/app-shared/env';
 
 describe('resolveCheckoutProvider', () => {
   test('the named provider, when it is configured', () => {

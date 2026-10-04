@@ -1,13 +1,10 @@
 import { expect, test } from 'bun:test';
-import { collectArtifacts } from '../scripts/collect';
-import { runVisualGate } from '../scripts/gate';
-import { snapshotDocument } from '../scripts/render';
-import { failureSummary, writeQualityReports, writeToolingFailure } from '../scripts/report';
-import sources from '../scripts/ui-quality/sources.json';
-import type { ArtifactManifest } from '../scripts/types';
-import { readFrameBody, readTestReport } from '@pkgs/harness-report-shared/read';
 import { sourceId } from '@pkgs/harness-report-shared/keys';
 import { publishSource } from '@pkgs/harness-report-shared/publish';
+import {
+  readFrameBody,
+  readTestReport,
+} from '@pkgs/harness-report-shared/read';
 import {
   readObjectBytes,
   readUtf8,
@@ -15,9 +12,22 @@ import {
 } from '@pkgs/object-store-shared/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import type { ImageInput } from '@pkgs/ui-quality-check-shared/detectors-types';
-import type { QualityResult, UIQualityChecker } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import type {
+  QualityResult,
+  UIQualityChecker,
+} from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
+import fc from 'fast-check';
+import { collectArtifacts } from '../scripts/collect';
+import { runVisualGate } from '../scripts/gate';
+import { snapshotDocument } from '../scripts/render';
+import {
+  failureSummary,
+  writeQualityReports,
+  writeToolingFailure,
+} from '../scripts/report';
+import type { ArtifactManifest } from '../scripts/types';
+import sources from '../scripts/ui-quality/sources.json';
 
 const createMemObjectStore = () => new ObjectStoreImplInMemory();
 

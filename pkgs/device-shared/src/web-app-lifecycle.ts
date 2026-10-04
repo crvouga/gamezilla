@@ -5,7 +5,10 @@
  * {@link ./wall-web-device.ts} binds the real globals.
  */
 
-import type { AppLifecycle, AppLifecycleEvent } from '@pkgs/sync-engine-shared/app-lifecycle';
+import type {
+  AppLifecycle,
+  AppLifecycleEvent,
+} from '@pkgs/sync-engine-shared/app-lifecycle';
 
 export type WebDocumentLike = {
   readonly visibilityState: 'visible' | 'hidden' | string;

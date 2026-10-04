@@ -1,8 +1,14 @@
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type {
+  SqliteWorkerOpenResult,
+  SqliteWorkerOps,
+  SqliteWorkerPort,
+  SqliteWorkerRequest,
+  SqliteWorkerResponse,
+} from './protocol';
+import { isSqliteWorkerRequest } from './protocol';
 import { serializeError } from './rpc';
 import { sqlFromWire } from './sql-wire';
-import { isSqliteWorkerRequest } from './protocol';
-import type { SqliteWorkerOpenResult, SqliteWorkerOps, SqliteWorkerPort, SqliteWorkerRequest, SqliteWorkerResponse } from './protocol';
 
 /** A live SQLite connection the worker serves requests against. */
 export type SqliteWorkerDatabase = SqlClient & {

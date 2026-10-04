@@ -1,6 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { awaitRpcResponse, createRpcIdFactory, isLeaderLostError, leaderLostError, RPC_ERROR_TIMEOUT, rehydrateError, serializeError, serializeSql, settleRpcResponse } from '@pkgs/sql-client-sqlite-web-shared/rpc';
 import type { PendingRpc } from '@pkgs/sql-client-sqlite-web-shared/rpc';
+import {
+  awaitRpcResponse,
+  createRpcIdFactory,
+  isLeaderLostError,
+  leaderLostError,
+  RPC_ERROR_TIMEOUT,
+  rehydrateError,
+  serializeError,
+  serializeSql,
+  settleRpcResponse,
+} from '@pkgs/sql-client-sqlite-web-shared/rpc';
 
 describe('web rpc', () => {
   test('serializeSql copies sql + values (CloneSafe wire)', () => {

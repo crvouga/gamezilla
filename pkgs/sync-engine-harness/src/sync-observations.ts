@@ -1,13 +1,13 @@
 import type { JsonValue } from '@pkgs/harness-shared/json';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql from '@pkgs/sql-shared/sql';
 
 import { mutationStatus } from '@pkgs/sync-engine-client/mutation-status';
 import type { HarnessClient } from './client';
 import { isClosedDatabaseError } from './invariants';
+import type { SyncHarness } from './scenario-system';
 import { SERVER_HTTP, syncEndpoint } from './traffic';
 import { checkDomainInSync } from './wait-for-in-sync';
-import type { SyncHarness } from './scenario-system';
 
 export function clientIds(s: SyncHarness): string[] {
   return [...s.clients.keys()].sort();

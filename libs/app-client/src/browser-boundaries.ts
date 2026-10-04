@@ -1,9 +1,16 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { addEvent, EVENT } from '@pkgs/observability-shared/events';
 import { context, SpanStatusCode } from '@opentelemetry/api';
-import { currentCorrelation, deserializeTraceContext } from '@pkgs/observability-shared/correlation';
+import { ATTR } from '@pkgs/observability-shared/attributes';
+import {
+  currentCorrelation,
+  deserializeTraceContext,
+} from '@pkgs/observability-shared/correlation';
+import { addEvent, EVENT } from '@pkgs/observability-shared/events';
 import { startSpan } from '@pkgs/observability-shared/span';
-import { clearPendingInteractionCorrelation, setInteractionRequestRunner, setPendingInteractionCorrelation } from '@pkgs/sync-engine-shared/interaction-correlation';
+import {
+  clearPendingInteractionCorrelation,
+  setInteractionRequestRunner,
+  setPendingInteractionCorrelation,
+} from '@pkgs/sync-engine-shared/interaction-correlation';
 import { recordRecentTraceId } from './browser-identity';
 
 type InteractionOutcome = 'navigation' | 'mutation' | 'request' | 'no_op';
@@ -18,8 +25,7 @@ export function setBrowserTraceFlush(flush: () => Promise<void>): void {
 function reportError(error: unknown, source: string): string | undefined {
   const exception = error instanceof Error ? error : new Error(String(error));
   const span = startSpan('client.error', {
-    [ATTR.CODE_FILE_PATH]:
-      'libs/app-shared/src/browser-boundaries.ts',
+    [ATTR.CODE_FILE_PATH]: 'libs/app-shared/src/browser-boundaries.ts',
     [ATTR.CODE_FUNCTION_NAME]: source,
   });
   span.recordException(exception);
@@ -83,8 +89,7 @@ function startInteraction(event: Event): void {
     {
       [ATTR.APP_INTERACTION_TYPE]: isSubmit ? 'submit' : 'click',
       [ATTR.APP_INTERACTION_TARGET]: stableTarget(event.target),
-      [ATTR.CODE_FILE_PATH]:
-        'libs/app-shared/src/browser-boundaries.ts',
+      [ATTR.CODE_FILE_PATH]: 'libs/app-shared/src/browser-boundaries.ts',
       [ATTR.CODE_FUNCTION_NAME]: 'startInteraction',
     }
   );
@@ -120,8 +125,7 @@ function recordRouteChange(): void {
     [ATTR.APP_INTERACTION_TYPE]: 'route',
     [ATTR.APP_INTERACTION_TARGET]: 'window:history',
     [ATTR.APP_INTERACTION_OUTCOME]: 'navigation',
-    [ATTR.CODE_FILE_PATH]:
-      'libs/app-shared/src/browser-boundaries.ts',
+    [ATTR.CODE_FILE_PATH]: 'libs/app-shared/src/browser-boundaries.ts',
     [ATTR.CODE_FUNCTION_NAME]: 'recordRouteChange',
   });
   recordRecentTraceId(span.spanContext().traceId);

@@ -6,10 +6,10 @@
  */
 
 import { createEffect, For, type JSX, on, Show } from 'solid-js';
-import { ScrollView } from './scroll-view';
 import type { PaletteRow } from './command-palette-filter';
 import { CommandPaletteRow } from './command-palette-row';
 import { CommandPaletteSection } from './command-palette-section';
+import { ScrollView } from './scroll-view';
 
 export const COMMAND_PALETTE_LIST_MAX_HEIGHT = 320;
 

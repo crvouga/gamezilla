@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { getManifestVolume } from '@pkgs/sounds-shared/sound-volumes';
 import { soundManifest } from '@pkgs/sounds-shared/manifest';
+import { getManifestVolume } from '@pkgs/sounds-shared/sound-volumes';
 
 describe('sound volumes', () => {
   test('the volume table matches every manifest entry', () => {

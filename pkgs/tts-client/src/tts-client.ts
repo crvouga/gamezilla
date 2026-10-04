@@ -2,7 +2,10 @@ import type { ObjectStore } from '@pkgs/object-store-shared/interface';
 
 import { normalizeTextForTts } from '@pkgs/tts-shared/normalize-text-for-tts';
 import { ttsCacheKey } from '@pkgs/tts-shared/tts-cache-key';
-import type { TtsSynthesizeRequest, TtsSynthesizeResponse } from '@pkgs/tts-shared/tts-types';
+import type {
+  TtsSynthesizeRequest,
+  TtsSynthesizeResponse,
+} from '@pkgs/tts-shared/tts-types';
 import { ttsContentTypeFor } from '@pkgs/tts-shared/tts-types';
 import { ttsProviderIdForVoice } from '@pkgs/tts-shared/tts-voice';
 import { TtsClientError } from './tts-client-error';

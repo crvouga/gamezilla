@@ -10,14 +10,21 @@
 
 import { describe, test } from 'bun:test';
 import type { Layer } from '@pkgs/conformance-shared/evidence';
-import { recordScenario } from './evidence';
-import { formatScenarioFailure, undefinedStepSnippet } from '@pkgs/gherkin-shared/failure';
 import type { StepOutcome } from '@pkgs/gherkin-shared/failure';
-import { parseFeature } from '@pkgs/gherkin-shared/parse';
+import {
+  formatScenarioFailure,
+  undefinedStepSnippet,
+} from '@pkgs/gherkin-shared/failure';
 import type { SpecScenario, SpecStep } from '@pkgs/gherkin-shared/parse';
-import { isHostLimit, matchStep, worldLifecycle } from '@pkgs/gherkin-shared/registry';
+import { parseFeature } from '@pkgs/gherkin-shared/parse';
 import type { ScenarioContext, StepMatch } from '@pkgs/gherkin-shared/registry';
+import {
+  isHostLimit,
+  matchStep,
+  worldLifecycle,
+} from '@pkgs/gherkin-shared/registry';
 import { tagFilter } from '@pkgs/gherkin-shared/tags';
+import { recordScenario } from './evidence';
 
 export type RunFeatureOptions = {
   readonly packageName: string;

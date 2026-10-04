@@ -12,11 +12,11 @@
  * surface layer) so this fill expands to the viewport.
  */
 
-import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-shared/component-id';
 import { cssGap } from '@pkgs/ui-shared/css-px';
 import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-shared/modal-size';
+import type { JSX } from 'solid-js';
 
 export type ModalBackdropProps = {
   /** Fired on click outside the content (when `dismissOnBackdrop`). */

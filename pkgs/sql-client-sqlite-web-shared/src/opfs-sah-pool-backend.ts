@@ -1,6 +1,6 @@
 import { assertDatabaseName } from '@pkgs/sql-shared/assert-database-name';
-import { Oo1SqlClient } from './oo1-sql-client';
 import type { Sqlite3Static, WasmDatabase } from './oo1-sql-client';
+import { Oo1SqlClient } from './oo1-sql-client';
 import type {
   SqliteWorkerBackend,
   SqliteWorkerOpenedDatabase,

@@ -8,22 +8,24 @@
  */
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
-
-import { PROFILE_TABLES } from '@libs/profile-shared/tables';
-import { USERNAME_CHANGE_COOLDOWN_MS, validateUsername } from '@libs/profile-shared/username';
-import type { UsernameValidationError } from '@libs/profile-shared/username';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import { ensureProfileMutation } from '@libs/profile-shared/ensure-profile-mutation';
+import { PROFILE_TABLES } from '@libs/profile-shared/tables';
+import type { UsernameValidationError } from '@libs/profile-shared/username';
+import {
+  USERNAME_CHANGE_COOLDOWN_MS,
+  validateUsername,
+} from '@libs/profile-shared/username';
 import { registerTables } from '@pkgs/db-schema-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-shared/sql';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
+import fc from 'fast-check';
 
 const T0 = Date.parse('2026-09-01T00:00:00.000Z');
 const USERS = ['u1', 'u2'] as const;

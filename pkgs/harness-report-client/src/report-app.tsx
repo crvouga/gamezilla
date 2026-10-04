@@ -1,12 +1,12 @@
+import type { ReportData } from '@pkgs/harness-report-shared/types';
 import { createMemo, Show } from 'solid-js';
 import { CommandPalette } from './command-palette';
 import { Header } from './header';
 import { HelpModal } from './help-modal';
-import type { ReportData } from '@pkgs/harness-report-shared/types';
 import { ListView } from './list-view';
-import { TestView } from './test-view';
-import { ReportProvider } from './report-context';
 import type { ReportTestLoader } from './report-context';
+import { ReportProvider } from './report-context';
+import { TestView } from './test-view';
 import { useReportNav } from './use-report-nav';
 import '../styles.css';
 

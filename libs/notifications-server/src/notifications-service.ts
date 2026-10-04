@@ -1,12 +1,12 @@
+import type { Notification } from '@libs/notifications-shared/notification';
+import type {
+  DeactivateNotificationInput,
+  PublishNotificationInput,
+} from '@libs/notifications-shared/publish-types';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
-import type { Notification } from '@libs/notifications-shared/notification';
-import {
-  deactivateNotification,
-  publishNotification,
-} from './publish';
-import type { DeactivateNotificationInput, PublishNotificationInput } from '@libs/notifications-shared/publish-types';
+import { deactivateNotification, publishNotification } from './publish';
 
 export type NotificationsCtx = {
   readonly tx: SqlTx;

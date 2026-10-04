@@ -1,9 +1,16 @@
+import type {
+  SecretStore,
+  SecretStoreGetInit,
+  SecretStoreSetInit,
+} from '@pkgs/secret-store-shared/interface';
 import { SecretBlankError } from '@pkgs/secret-store-shared/secret-blank-error';
 import { SecretMissingError } from '@pkgs/secret-store-shared/secret-missing-error';
-import type { SecretStore, SecretStoreGetInit, SecretStoreSetInit } from '@pkgs/secret-store-shared/interface';
 import { SecretStoreParseError } from '@pkgs/secret-store-shared/secret-store-parse-error';
 import { SecretStoreRequestError } from '@pkgs/secret-store-shared/secret-store-request-error';
-import { wrapSecret, wrapSecretOptional } from '@pkgs/secret-store-shared/wrap-secret';
+import {
+  wrapSecret,
+  wrapSecretOptional,
+} from '@pkgs/secret-store-shared/wrap-secret';
 import type { SecretString } from '@pkgs/secret-string-shared/secret-string';
 
 export type InfisicalFetch = (

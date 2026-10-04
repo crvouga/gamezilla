@@ -1,13 +1,8 @@
-import {
-  actorUi,
-  pollUntil,
-  scenarioAction,
-} from '@libs/harness/actor-ui';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { peopleSearchShowsAnswer } from '@libs/search-shared/search-result-phase';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { USER_SEARCH_DEBOUNCE_MS } from '@libs/user-search-shared/user-search-types';
-
-import { peopleSearchShowsAnswer } from '@libs/search-shared/search-result-phase';
 
 const WAIT_MS = 10_000;
 

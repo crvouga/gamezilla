@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
-import { createScheduler } from '@pkgs/harness-shared/scheduler';
 import { createVirtualClock } from '@pkgs/harness-shared/clock';
+import { createScheduler } from '@pkgs/harness-shared/scheduler';
+import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 
 /**
  * A wait must measure simulated progress, not the host's spare capacity.

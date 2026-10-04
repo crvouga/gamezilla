@@ -4,9 +4,19 @@
  */
 
 import { expect } from 'bun:test';
-import { brokerCrash, brokerRestart, netSet, pubsubFault } from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import { DST_FAULTS } from '@pkgs/sync-engine-harness/faults';
-import { goesBack, liveNote, liveNotes, noteBodies } from '@pkgs/sync-engine-harness/reads';
+import {
+  goesBack,
+  liveNote,
+  liveNotes,
+  noteBodies,
+} from '@pkgs/sync-engine-harness/reads';
+import {
+  brokerCrash,
+  brokerRestart,
+  netSet,
+  pubsubFault,
+} from '@pkgs/sync-engine-harness/regression-random-faults-actions';
 import { lastMutationFailures } from '@pkgs/sync-engine-harness/sync-observations';
 import { NOTES_ALL_TOPIC } from '@pkgs/sync-engine-harness/topics';
 import {
@@ -16,8 +26,8 @@ import {
   writeAnnouncement,
   writeNote,
 } from './note-writes';
-import { app, ensureDevice, Given, Then, When } from './world';
 import type { SyncWorld } from './world';
+import { app, ensureDevice, Given, Then, When } from './world';
 
 /** How long "does not see" holds once things have settled. */
 const QUIET_MS = 3_000;

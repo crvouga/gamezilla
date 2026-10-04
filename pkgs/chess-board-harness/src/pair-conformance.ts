@@ -2,8 +2,8 @@ import { auditTree } from '@pkgs/a11y-shared/audit';
 import { defineProperty } from '@pkgs/harness-shared/define-property';
 import { Chess } from 'chess.js';
 import type { BoardWorld } from './board-world';
-import { currentPair } from './pair-world';
 import type { PairApp } from './pair-world';
+import { currentPair } from './pair-world';
 
 function checkBoard(w: BoardWorld, app: PairApp) {
   if (app.closed()) {

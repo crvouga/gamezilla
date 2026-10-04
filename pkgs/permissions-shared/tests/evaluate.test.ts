@@ -1,12 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-
-import { can, checkLimit } from '@pkgs/permissions-shared/evaluate';
-import { createSubject } from '@pkgs/permissions-shared/subject';
-import { defineCatalog } from '@pkgs/permissions-shared/catalog';
-import { definePolicy } from '@pkgs/permissions-shared/policy';
-import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
-import { permissionsOf } from '@pkgs/permissions-shared/resolve';
 import type { RoleId } from '@pkgs/permissions-shared/catalog';
+import { defineCatalog } from '@pkgs/permissions-shared/catalog';
+import { can, checkLimit } from '@pkgs/permissions-shared/evaluate';
+import type { PermissionPolicy } from '@pkgs/permissions-shared/policy';
+import { definePolicy } from '@pkgs/permissions-shared/policy';
+import { permissionsOf } from '@pkgs/permissions-shared/resolve';
+import { createSubject } from '@pkgs/permissions-shared/subject';
 
 const PERMISSION = defineCatalog({
   friendsUse: 'friends:use',

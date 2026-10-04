@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared/assert-property';
-import fc from 'fast-check';
 import { compareNames } from '@pkgs/db-indexes-shared/compare';
 import { planIndexes } from '@pkgs/db-indexes-shared/plan';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import { genSchemaWithManifest } from './manifest';
 import { fixedClock, RecordingPort } from './recording-port';
 
@@ -83,7 +83,9 @@ describe('analyzer determinism PBT', () => {
   });
 
   test('introspect name order does not affect plan', async () => {
-    const { fingerprintSql } = await import('@pkgs/db-indexes-shared/fingerprint');
+    const { fingerprintSql } = await import(
+      '@pkgs/db-indexes-shared/fingerprint'
+    );
     const sql = 'SELECT id FROM notes WHERE user_id = ?';
     const manifest = {
       version: 1 as const,

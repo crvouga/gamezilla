@@ -5,13 +5,19 @@
  */
 
 import { expect } from 'bun:test';
-import { lastMutationFailures, lastMutationId, lastMutationOk, lastMutationSettled, outcome } from '@pkgs/sync-engine-harness/sync-observations';
-import { liveNote } from '@pkgs/sync-engine-harness/reads';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
+import { liveNote } from '@pkgs/sync-engine-harness/reads';
 import { startMutate } from '@pkgs/sync-engine-harness/regression-actions';
+import {
+  lastMutationFailures,
+  lastMutationId,
+  lastMutationOk,
+  lastMutationSettled,
+  outcome,
+} from '@pkgs/sync-engine-harness/sync-observations';
 import { SETTLE_MS } from './note-writes';
-import { app, ensureDevice, Given, Then, When } from './world';
 import type { SyncWorld } from './world';
+import { app, ensureDevice, Given, Then, When } from './world';
 
 async function writeChecked(
   w: SyncWorld,

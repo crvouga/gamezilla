@@ -4,8 +4,8 @@
  * code never branches on breakpoints for chrome.
  */
 
-import type { Accessor } from 'solid-js';
 import type { BreakpointName } from '@pkgs/ui-shared/breakpoints';
+import type { Accessor } from 'solid-js';
 import { useThemeLayout } from './theme-context';
 
 export type LayoutMode = 'compact' | 'wide';

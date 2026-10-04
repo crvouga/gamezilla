@@ -1,3 +1,5 @@
+import { resolveSessionReplayAuth } from '@libs/app-shared/query-auth';
+import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import { authorizeAppMutation } from '@libs/permissions-shared/authorize-app-mutation';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
@@ -6,8 +8,6 @@ import type { PubSub } from '@pkgs/pubsub-shared/interface';
 import { PubSubNotSupportedError } from '@pkgs/pubsub-shared/pubsub-not-supported-error';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine-server/create-sync-app';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
-import { resolveSessionReplayAuth } from '@libs/app-shared/query-auth';
 
 function openRequestSqlClient(): SqlClient {
   const requestStore = apiRequestAsyncLocalStorage.getStore();

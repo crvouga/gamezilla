@@ -1,3 +1,4 @@
+import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared/space-room-module-name';
 import type { AnyRoomClient } from '@pkgs/room-client/room-clients-context';
 import { RoomClientsProvider } from '@pkgs/room-client/room-clients-context';
 import {
@@ -9,9 +10,10 @@ import {
   onCleanup,
   useContext,
 } from 'solid-js';
-
-import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared/space-room-module-name';
-import { useSpaceOpenRoomEntry, useSpaceOpenRooms } from './space-open-rooms-store';
+import {
+  useSpaceOpenRoomEntry,
+  useSpaceOpenRooms,
+} from './space-open-rooms-store';
 
 export type SpaceRoomProviderProps = {
   readonly spaceId: string | Accessor<string>;

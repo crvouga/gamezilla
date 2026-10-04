@@ -4,8 +4,16 @@
  * one granting the most — never simply the newest, or a late callback about
  * a membership that ended at one provider would hide a live one at another.
  */
-import type { AccessMoment, MembershipStanding } from '@pkgs/billing-shared/precedence';
-import { governingMembership, membershipAccessLapsesAtMs, membershipGrantsAccess, readMembershipStatus } from '@pkgs/billing-shared/precedence';
+import type {
+  AccessMoment,
+  MembershipStanding,
+} from '@pkgs/billing-shared/precedence';
+import {
+  governingMembership,
+  membershipAccessLapsesAtMs,
+  membershipGrantsAccess,
+  readMembershipStatus,
+} from '@pkgs/billing-shared/precedence';
 
 /** The stored columns precedence reads (text status, ISO period end). */
 export type StandingColumns = {

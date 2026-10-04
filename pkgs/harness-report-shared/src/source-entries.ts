@@ -1,6 +1,6 @@
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportStep } from '@pkgs/harness-shared/report-types';
 import { testFrameKey } from '@pkgs/harness-shared/keys';
+import type { ReportStep } from '@pkgs/harness-shared/report-types';
 import type { BundleEntry } from './bundle';
 import { remoteTestFileKey, remoteTestReportKey } from './keys';
 import type { PublishSourceArgs } from './publish';

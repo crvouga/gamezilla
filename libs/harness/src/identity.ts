@@ -7,12 +7,11 @@
 import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { HARNESS_AUTH_SECRET } from '@libs/feature-shared/harness-constants';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
-import sql from '@pkgs/sql-shared/sql';
 import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-
-import { harnessIdpEmail } from './idp';
+import sql from '@pkgs/sql-shared/sql';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
+import { harnessIdpEmail } from './idp';
 
 /** The Google address the person behind `actorId` signs in with. */
 export function actorEmail(s: ProductHarness, actorId: string): string {

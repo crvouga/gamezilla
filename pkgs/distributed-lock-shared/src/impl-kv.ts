@@ -3,7 +3,12 @@ import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
-import type { DistributedLock, LockHandle, LockIdentityProvider, LockInfo } from './interface';
+import type {
+  DistributedLock,
+  LockHandle,
+  LockIdentityProvider,
+  LockInfo,
+} from './interface';
 import { LockHeldError } from './interface';
 
 const Lock = createAttrNamespace('lock', 'info');

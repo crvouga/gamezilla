@@ -8,11 +8,11 @@
 import { useTimers } from '@pkgs/clock-client/solid';
 import { createSignal, type JSX, onCleanup, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { IconButton } from './icon-button';
-import { CircleCheckIcon } from './icons';
-import type { IconComponent } from './create-icon';
 import { ActionBarLabeledControl } from './action-bar-labeled-control';
 import type { ActionBarIconItem } from './action-bar-logic';
+import type { IconComponent } from './create-icon';
+import { IconButton } from './icon-button';
+import { CircleCheckIcon } from './icons';
 
 export const ACTION_BAR_FEEDBACK_RESET_MS = 2000;
 

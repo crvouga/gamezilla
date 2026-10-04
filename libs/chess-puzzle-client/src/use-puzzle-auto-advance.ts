@@ -1,9 +1,8 @@
+import { puzzleAutoAdvanceDelayMs } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
+import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type Accessor, createEffect, onCleanup } from 'solid-js';
-
-import { puzzleAutoAdvanceDelayMs } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
-import { CHESS_PUZZLE_PLAY_STATUS } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
-import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 
 /**

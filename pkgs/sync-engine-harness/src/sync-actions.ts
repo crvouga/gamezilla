@@ -7,18 +7,14 @@
  * `regression-actions.ts` / `regression-random-faults-actions.ts`.
  */
 
-import type { Action, ArgsSampler, CatalogAction } from '@pkgs/harness-shared/effect';
 import { defineAction } from '@pkgs/harness-shared/define-action';
+import type {
+  Action,
+  ArgsSampler,
+  CatalogAction,
+} from '@pkgs/harness-shared/effect';
 import { gen } from '@pkgs/harness-shared/fast-check';
 import fc from 'fast-check';
-import type { HarnessAuthStatus } from './client-factory-parts';
-import type { HarnessSessionQuery } from './harness-domain-pack';
-import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
-import type { HarnessPubsubFault } from './edge-fault-pubsub';
-import type { LocalStorageTamper } from './storage-faults';
-import type { StoragePressureKind } from './storage-pressure';
-import type { HarnessTraffic } from './traffic';
-import type { DomainOp, ServerOp } from './scenario-app';
 import {
   AUTH_STATUSES,
   CORRUPTION_VARIANTS,
@@ -32,6 +28,10 @@ import {
   STORAGE_PRESSURES,
   STORAGE_TAMPERS,
 } from './catalog';
+import type { HarnessAuthStatus } from './client-factory-parts';
+import type { HarnessPubsubFault } from './edge-fault-pubsub';
+import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
+import type { HarnessSessionQuery } from './harness-domain-pack';
 import {
   forgetOwedRestart,
   isExpectedRestartFault,
@@ -43,8 +43,12 @@ import {
   restoreAllNetwork,
   restoreNetworkForIdle,
 } from './pool-support';
-import { clientIds, partitioned } from './sync-observations';
+import type { DomainOp, ServerOp } from './scenario-app';
 import type { SyncHarness } from './scenario-system';
+import type { LocalStorageTamper } from './storage-faults';
+import type { StoragePressureKind } from './storage-pressure';
+import { clientIds, partitioned } from './sync-observations';
+import type { HarnessTraffic } from './traffic';
 
 type Awaitable<T> = T | Promise<T>;
 

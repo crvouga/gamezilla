@@ -1,7 +1,7 @@
 import type { NameLookup } from '@pkgs/observability-shared/identity-resolver';
 import { normalizePersonName } from '@pkgs/observability-shared/person-name';
-import sql, { ident } from '@pkgs/sql-shared/sql';
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import sql, { ident } from '@pkgs/sql-shared/sql';
 
 type IdRow = { readonly id: string };
 

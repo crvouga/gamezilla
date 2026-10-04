@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { SpaceCardGradientBox } from './space-card-gradient';
-import { SpaceSummaryHeader } from './space-summary-header';
 import { SpaceGuestSection } from './space-guest-section';
+import { SpaceSummaryHeader } from './space-summary-header';
 
 export type SpaceJoinLiveBodyProps = {
   spaceId: string;

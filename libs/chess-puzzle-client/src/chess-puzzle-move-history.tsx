@@ -1,12 +1,11 @@
+import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
+import type { ChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
+import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
 import { ScrollView } from '@pkgs/ui-client/scroll-view';
 import { createEffect, createSignal, For, type JSX, Show } from 'solid-js';
-
-import type { ChessMoveNotation } from '@libs/chess-puzzle-shared/chess-puzzle-notation';
-import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
-import { ChessPuzzleMoveNav } from './chess-puzzle-move-history-nav';
 import type { ChessPuzzleMoveNavProps } from './chess-puzzle-move-history-nav';
+import { ChessPuzzleMoveNav } from './chess-puzzle-move-history-nav';
 import { HistoryPlyCluster } from './chess-puzzle-move-history-ply';
-import { puzzleSwipeHandlers } from '@libs/chess-puzzle-shared/puzzle-swipe-handlers';
 
 const ROW_HEIGHT = 28;
 

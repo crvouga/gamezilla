@@ -1,15 +1,37 @@
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { ArrowAppearance, FeedbackAppearance } from '@pkgs/chess-board-harness/annotation-appearance';
+import {
+  beginPersonalArrow,
+  cancelPersonalArrow,
+  clearActivityAnnotations,
+  finishPersonalArrow,
+  supplyActivityArrows,
+  supplyActivitySquares,
+  togglePersonalCircle,
+} from '@pkgs/chess-board-harness/annotation-actions';
+import type {
+  ArrowAppearance,
+  FeedbackAppearance,
+} from '@pkgs/chess-board-harness/annotation-appearance';
+import {
+  chooseActivityArrow,
+  supplyFeedbackMarks,
+} from '@pkgs/chess-board-harness/annotation-appearance';
+import {
+  beginArrowObservation,
+  readAnnotationModel,
+} from '@pkgs/chess-board-harness/annotation-model';
 import type { BoardWorld } from '@pkgs/chess-board-harness/board-world';
-import { beginArrowObservation, readAnnotationModel } from '@pkgs/chess-board-harness/annotation-model';
-import { beginPersonalArrow, cancelPersonalArrow, clearActivityAnnotations, finishPersonalArrow, supplyActivityArrows, supplyActivitySquares, togglePersonalCircle } from '@pkgs/chess-board-harness/annotation-actions';
-import { chooseActivityArrow, supplyFeedbackMarks } from '@pkgs/chess-board-harness/annotation-appearance';
-import { configureBoard, readProbe, selectSquare, setupBoard } from '@pkgs/chess-board-harness/chess-board';
-import { INITIAL, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
+import {
+  configureBoard,
+  readProbe,
+  selectSquare,
+  setupBoard,
+} from '@pkgs/chess-board-harness/chess-board';
 import { readModelFingerprint } from '@pkgs/chess-board-harness/model-evidence';
+import { INITIAL, REPLACEMENT } from '@pkgs/chess-board-harness/positions';
 import type { Run } from '@pkgs/harness-shared/run-types';
-import { bindQuintModel } from '@pkgs/quint-shared/registry';
 import type { QuintBinding } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
 
 function observeArrowInputs(actions: QuintBinding<Run<BoardWorld>>['actions']) {
   return Object.fromEntries(

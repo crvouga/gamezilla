@@ -1,13 +1,14 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '@pkgs/ui-shared/css-px';
+
 /**
  * `TypingDots` -- chat "..." indicator. Three static dots (no keyframe loop).
  */
 
-import { For, type JSX } from 'solid-js';
 import { resolveColor } from '@pkgs/ui-shared/resolve-color';
-import { useThemeTokens } from './theme-context';
+import { For, type JSX } from 'solid-js';
 import styles from './speaking-avatar.module.css';
+import { useThemeTokens } from './theme-context';
 
 const DOT_SIZE = 6;
 const DOT_GAP_STEP = 1;

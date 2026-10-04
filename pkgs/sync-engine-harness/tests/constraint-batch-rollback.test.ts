@@ -4,7 +4,10 @@ import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
 import { createSyncApp } from '@pkgs/sync-engine-server/create-sync-app';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
-import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '@pkgs/sync-engine-shared/v2';
+import {
+  SYNC_PROTOCOL_HEADER,
+  SYNC_PROTOCOL_VERSION,
+} from '@pkgs/sync-engine-shared/v2';
 import { z } from 'zod';
 import { openRollbackHost } from './postgres-rollback-host';
 

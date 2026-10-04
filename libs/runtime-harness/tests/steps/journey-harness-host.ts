@@ -6,14 +6,16 @@
  */
 
 import { setMultiplayerConnection } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { actorUi, scenarioAction } from '@libs/harness/actor-ui';
 import { restartApp, spawnActor } from '@libs/harness/actions';
+import { actorUi, ensureActor, scenarioAction } from '@libs/harness/actor-ui';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
-import type { HarnessWorld } from '@libs/harness/spec-world';
-import { ensureActor } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import { confirmSignedIn } from '@libs/runtime-harness/journey-gestures';
-import type { JourneyGestures, JourneyHost } from '@libs/runtime-harness/journey-types';
+import type {
+  JourneyGestures,
+  JourneyHost,
+} from '@libs/runtime-harness/journey-types';
 import { spaceLinkFromLocation } from '@libs/runtime-harness/journey-types';
 
 const HOST = 'alice';

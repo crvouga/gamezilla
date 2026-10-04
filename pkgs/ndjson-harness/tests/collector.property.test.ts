@@ -4,8 +4,8 @@ import { IndexedNdjsonCollector } from '@pkgs/ndjson-client/indexed-collector';
 import { IndexedNdjsonStreamError } from '@pkgs/ndjson-client/stream-error';
 import { encodeNdjsonFrame } from '@pkgs/ndjson-shared/encode';
 import type { NdjsonErrorFrame, NdjsonFrame } from '@pkgs/ndjson-shared/frames';
-import { arbJsonValue } from '@pkgs/property-shared/json';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
+import { arbJsonValue } from '@pkgs/property-shared/json';
 import fc from 'fast-check';
 import {
   arbNdjsonFrame,

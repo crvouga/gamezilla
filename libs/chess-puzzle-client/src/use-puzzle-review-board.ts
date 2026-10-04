@@ -1,18 +1,27 @@
+import type { ChessPuzzleOrientation } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
+import { setupPuzzleStart } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
+import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
+import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
+import {
+  fenAtSolveIdx,
+  puzzleTokensLength,
+} from '@libs/chess-puzzle-shared/chess-puzzle-step';
+import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
+import {
+  isPuzzleSeekAnimated,
+  PUZZLE_FIRST_SOLVE_IDX,
+  resolvePuzzleNavTarget,
+} from '@libs/chess-puzzle-shared/puzzle-nav';
+import {
+  ChessMainMenuScreenAttr,
+  SeekChessPuzzleReview,
+} from '@libs/chess-shared/chess-main-menu';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
-
-import { isPuzzleSeekAnimated, PUZZLE_FIRST_SOLVE_IDX, resolvePuzzleNavTarget } from '@libs/chess-puzzle-shared/puzzle-nav';
-import type { PuzzleNavIntent } from '@libs/chess-puzzle-shared/puzzle-nav';
-import { ChessMainMenuScreenAttr, SeekChessPuzzleReview } from '@libs/chess-shared/chess-main-menu';
-import type { ChessPuzzleOrientation } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
-import { setupPuzzleStart } from '@libs/chess-puzzle-shared/chess-puzzle-fsm';
-import type { PuzzleHistoryPly } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
-import { buildPuzzleMoveHistory } from '@libs/chess-puzzle-shared/chess-puzzle-move-history';
-import { fenAtSolveIdx, puzzleTokensLength } from '@libs/chess-puzzle-shared/chess-puzzle-step';
 
 export type PuzzleReviewBoardModel = {
   readonly ready: Accessor<boolean>;

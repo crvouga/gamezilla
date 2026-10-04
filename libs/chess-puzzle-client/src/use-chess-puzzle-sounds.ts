@@ -1,10 +1,10 @@
-import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
 import {
   createAudioPlayer,
   createPlayFromStartHandles,
   useSoundsPreference,
   warmAudioPlayers,
 } from '@pkgs/sounds-client/solid';
+import { chessSoundUrls } from '@pkgs/sounds-shared/chess-sound-urls';
 import { createEffect, on } from 'solid-js';
 
 const PUZZLE_SOUND_KEYS = [

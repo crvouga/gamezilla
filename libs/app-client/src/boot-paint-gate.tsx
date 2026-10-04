@@ -6,9 +6,9 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
+import { useAppFrameGlobalTrailing } from '@pkgs/ui-client/app-frame-chrome';
 import { LoadingState } from '@pkgs/ui-client/loading-state';
 import { TopBar } from '@pkgs/ui-client/top-bar';
-import { useAppFrameGlobalTrailing } from '@pkgs/ui-client/app-frame-chrome';
 import { type JSX, Show } from 'solid-js';
 
 import { useLocalPaintLatch } from './local-paint-latch';

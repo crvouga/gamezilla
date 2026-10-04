@@ -5,7 +5,10 @@
  */
 
 import { toDisplayFileRank } from '@pkgs/chess-board-core-shared/geometry';
-import type { BoardOrientation, Square } from '@pkgs/chess-board-core-shared/types';
+import type {
+  BoardOrientation,
+  Square,
+} from '@pkgs/chess-board-core-shared/types';
 
 export type BoardBox = {
   readonly left: number;

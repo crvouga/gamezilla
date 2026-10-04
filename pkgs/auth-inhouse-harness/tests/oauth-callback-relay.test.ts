@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse-client/in-process-open-auth-session';
 import { createAuthApp } from '@pkgs/auth-inhouse-server/create-auth-app';
-import { createOauthCallbackRelayApp, parseRelayTargets } from '@pkgs/auth-inhouse-server/oauth-callback-relay';
 import { googleEndpointsFor } from '@pkgs/auth-inhouse-server/inhouse-auth-config';
 import type { OauthCallbackRelay } from '@pkgs/auth-inhouse-server/oauth-callback-relay';
+import {
+  createOauthCallbackRelayApp,
+  parseRelayTargets,
+} from '@pkgs/auth-inhouse-server/oauth-callback-relay';
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';

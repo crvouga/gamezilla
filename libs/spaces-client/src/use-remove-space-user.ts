@@ -1,6 +1,5 @@
-import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
-
 import { removeSpaceUserMutation } from '@libs/spaces-shared/remove-space-user-mutation';
+import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 
 export function useRemoveSpaceUser() {
   const mutationClient = useMutationClient();

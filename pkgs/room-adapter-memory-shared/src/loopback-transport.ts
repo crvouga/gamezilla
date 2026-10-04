@@ -1,4 +1,7 @@
-import type { ClientTransport, ClientTransportHandlers } from '@pkgs/room-shared/transport';
+import type {
+  ClientTransport,
+  ClientTransportHandlers,
+} from '@pkgs/room-shared/transport';
 import type { RoomActor } from '@pkgs/room-shared/types';
 /**
  * Minimal server surface for in-process loopback. {@link RoomServer} satisfies

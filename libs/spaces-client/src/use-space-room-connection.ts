@@ -1,15 +1,20 @@
 import type { ConfigService } from '@libs/auth-shared/config-service-types';
-import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
 import { useClock, useTimers } from '@pkgs/clock-client/solid';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Kv } from '@pkgs/kv-shared/interface';
-import type { Logger } from '@pkgs/logger-shared/logger';
 import { useLogger } from '@pkgs/logger-client/solid';
-import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type { Logger } from '@pkgs/logger-shared/logger';
 import type { RoomClient } from '@pkgs/room-client/room-client';
-import type { RoomCommandPayload, RoomEvent, RoomState } from '@pkgs/room-shared/types';
+import type { ClientTransport } from '@pkgs/room-shared/transport';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client/sync-engine-context';
-import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import { useCreateId, useRandom } from '@pkgs/uuid-client/solid';
+import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
 import {
   type Accessor,
   createEffect,
@@ -18,7 +23,6 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js';
-import { useSpaceModule } from './space-module-context';
 import type { CreateSpaceRoomResult } from './create-space-room';
 import { SpaceRoomFactory } from './create-space-room';
 import { useCreateRoomTransport } from './room-transport-factory';
@@ -26,7 +30,7 @@ import {
   hostingLanded,
   useSpaceHostingsInFlight,
 } from './space-hostings-in-flight';
-import type { SpaceRoomConnectionBootstrap } from '@libs/spaces-shared/space-room-connection-bootstrap';
+import { useSpaceModule } from './space-module-context';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 

@@ -4,10 +4,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import { SqlClientImplAgnostic } from '@pkgs/sql-client-shared/impl-agnostic';
-import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
+import { SqlClientImplAgnostic } from '@pkgs/sql-client-shared/impl-agnostic';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { HarnessStore } from './store';
 
 export async function openLiveStore(): Promise<HarnessStore> {

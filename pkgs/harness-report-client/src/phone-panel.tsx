@@ -1,5 +1,10 @@
+import { blobDataUrl } from '@pkgs/harness-report-shared/frames';
+import { PHONE_H, PHONE_W, zoomScale } from '@pkgs/harness-report-shared/phone';
 import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import type { ReportSnapshotBlob, ReportStepHit } from '@pkgs/harness-shared/report-types';
+import type {
+  ReportSnapshotBlob,
+  ReportStepHit,
+} from '@pkgs/harness-shared/report-types';
 import {
   createEffect,
   createSignal,
@@ -9,10 +14,8 @@ import {
   untrack,
 } from 'solid-js';
 import { useReport } from './report-context';
-import { blobDataUrl } from '@pkgs/harness-report-shared/frames';
-import { PHONE_H, PHONE_W, zoomScale } from '@pkgs/harness-report-shared/phone';
-import { createSnapshotHost, paintSnapshotHost } from './snapshot-surface';
 import type { HitResult } from './snapshot-surface';
+import { createSnapshotHost, paintSnapshotHost } from './snapshot-surface';
 
 type PanelProps = {
   test: HtmlReportTest;

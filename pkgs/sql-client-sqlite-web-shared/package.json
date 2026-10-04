@@ -2,7 +2,6 @@
   "name": "@pkgs/sql-client-sqlite-web-shared",
   "version": "0.0.0",
   "private": true,
-  "category": "isomorphic",
   "type": "module",
   "exports": {
     "./*": [
@@ -29,5 +28,6 @@
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
-  }
+  },
+  "category": "isomorphic"
 }
