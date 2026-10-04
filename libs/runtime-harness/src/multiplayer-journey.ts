@@ -6,10 +6,33 @@ export async function openMultiplayerJourney(ui: Driver): Promise<void> {
   await openTab(ui, 'tab-chess');
 }
 
+const SURFACE_POLLS = 10;
+const SURFACE_SETTLE_MS = JOURNEY_WAIT_MS / SURFACE_POLLS;
+
+/**
+ * Wait for the screen to offer Find or the guest's invitation. Checking the
+ * invitation once, before the screen has decided, falls through to a Find
+ * that never comes.
+ */
+async function guestInvited(ui: Driver): Promise<boolean> {
+  for (let poll = 0; poll < SURFACE_POLLS; poll += 1) {
+    if (await ui.get('multiplayer-access-denial').isVisible()) return true;
+    try {
+      await ui
+        .get('multiplayer-find')
+        .expect.visible({ timeoutMs: SURFACE_SETTLE_MS });
+      return false;
+    } catch {
+      // Still loading, or the invitation is showing instead.
+    }
+  }
+  return ui.get('multiplayer-access-denial').isVisible();
+}
+
 export async function startMultiplayerSearch(ui: Driver): Promise<void> {
   await openMultiplayerJourney(ui);
   // The permission surface is the guest's invitation; no command is offered.
-  if (await ui.get('multiplayer-access-denial').isVisible()) return;
+  if (await guestInvited(ui)) return;
   await tap(ui, 'multiplayer-find');
 }
 
