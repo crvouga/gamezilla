@@ -4,15 +4,15 @@
  * Compose {@link DatabaseSeeder} units here (same pattern as migrations).
  */
 
-import { ChessPuzzleLoadFileSeeder } from '@libs/chess/root/server/seed-chess-puzzles/chess-puzzle-load-file-seeder';
-import { appPostgresDbScope } from '@libs/db/public/scope';
-import { wallClock } from '@pkgs/clock';
-import { ComposedDatabaseSeeder } from '@pkgs/db-migrate';
-import { createLogger } from '@pkgs/logger';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
-import { createPgPool } from '@pkgs/sql-client-postgres/connect';
+import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
+import { appPostgresDbScope } from '@libs/db-shared/scope';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { ComposedDatabaseSeeder } from '@pkgs/db-migrate-shared/composed-database-seeder';
+import { createLogger } from '@pkgs/logger-shared/logger';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 
 const fs = wallNodeFs();
 const chessRoot = new URL('../../../libs/chess', import.meta.url).pathname;

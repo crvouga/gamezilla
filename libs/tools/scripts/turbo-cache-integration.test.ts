@@ -82,7 +82,11 @@ async function invoke(
     [turbo, 'run', 'build', '--framework-inference=false', ...args],
     {
       cwd: root,
-      env: { ...process.env, ...env },
+      env: {
+        ...process.env,
+        ...env,
+        TURBO_CACHE_DIR: join(root, '.turbo/cache'),
+      },
       stdout: 'pipe',
       stderr: 'pipe',
     }
@@ -111,6 +115,7 @@ async function hashes(
   );
 }
 
+// regression: nested-turbo-cache-isolation
 // regression: check-cache-write-only-override
 // regression: check-model-cache-runtime-artifacts
 test('real Turbo restores remote outputs and invalidates only changed inputs and dependents', async () => {
@@ -143,6 +148,7 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     expect(product.tasks['test:contract']!.outputs).toEqual(modelOutputs);
     fixture(root);
     const env = {
+      TURBO_CACHE_DIR: join(root, 'parent-cache'),
       TURBO_API: server.url.origin,
       TURBO_TOKEN: sentinel,
       TURBO_TEAM: 'fixture',

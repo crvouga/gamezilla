@@ -1,4 +1,4 @@
 {
   "summary": "An int8 counter upsert (`n = n + 1`) mixed a JS number and a bigint inside mockingbird-postgres and threw, so every second push on a topic failed. Fixed in the engine; allocateTopicPushSeq also uses the portable `CAST(1 AS BIGINT)`.",
-  "regressionTest": "pkgs/sql-client-contract/tests/bug-bigint-increment.test.ts"
+  "regressionTest": "pkgs/sql-client-contract-harness/tests/bug-bigint-increment.test.ts"
 }

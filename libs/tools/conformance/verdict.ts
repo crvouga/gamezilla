@@ -1,4 +1,4 @@
-import { checkRelease } from '@pkgs/conformance/release-check';
+import { checkRelease } from '@pkgs/conformance-shared/release-check';
 /**
  * The two verdicts of `bun run conformance` and how they are printed and
  * recorded (strategy §§ 13, 23.11, 25.3). Pure: `conformance-report.ts`
@@ -11,8 +11,8 @@ import { checkRelease } from '@pkgs/conformance/release-check';
  * evidence map names for it. There is no third status.
  */
 
-import type { EvidenceRecord, Layer } from '@pkgs/conformance/evidence';
-import type { ProofTable } from '@pkgs/conformance/proofs';
+import type { EvidenceRecord, Layer } from '@pkgs/conformance-shared/evidence';
+import type { ProofTable } from '@pkgs/conformance-shared/proofs';
 
 import type { LineResult } from './evaluate';
 

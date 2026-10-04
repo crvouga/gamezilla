@@ -3,7 +3,7 @@ import type {
   RoomEvent,
   RoomModule,
   RoomState,
-} from '@pkgs/room';
+} from '@pkgs/room-shared/types';
 
 /**
  * M2: rebuild each state with shuffled key insertion order; hashes must match.

@@ -1,0 +1,30 @@
+{
+  "name": "@pkgs/sql-client-sqlite-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "better-sqlite3": "catalog:"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

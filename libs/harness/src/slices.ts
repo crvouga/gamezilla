@@ -8,25 +8,29 @@
  * order production composes them in, whatever order a suite lists them.
  */
 
-import { AUTH_FEATURE } from '@libs/auth/root/feature';
-import { CLIENT_CONFIG_FEATURE } from '@libs/client-config/root/feature';
-import type { FeatureClient } from '@libs/feature/public/client';
-import { composeFeatures } from '@libs/feature/public/compose';
-import type { FeatureManifest } from '@libs/feature/public/manifest';
-import type { FeatureServer } from '@libs/feature/public/server';
-import type { EnvTime } from '@libs/feature/public/sync';
-import { PERMISSIONS_FEATURE } from '@libs/permissions/root/feature';
-import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
-import type { CatalogAction, CatalogProperty } from '@pkgs/harness';
-import type { RoomServicePort } from '@pkgs/room/server';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import { CLIENT_CONFIG_FEATURE } from '@libs/app-config-shared/feature';
+import { AUTH_FEATURE } from '@libs/auth-shared/feature';
+import type { FeatureClient } from '@libs/feature-client/client';
+import { composeFeatures } from '@libs/feature-shared/compose';
+import type { FeatureManifest } from '@libs/feature-shared/manifest';
+import type { FeatureServer } from '@libs/feature-shared/server';
+import type { EnvTime } from '@libs/feature-shared/sync';
+import { PERMISSIONS_FEATURE } from '@libs/permissions-shared/feature';
+import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type {
+  CatalogAction,
+  CatalogProperty,
+} from '@pkgs/harness-shared/effect';
+import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import { withHome } from './bare-home-client';
 import type {
   HarnessComposition,
   HarnessRoomGateway,
   HarnessRoomNode,
 } from './composition';
-import type { ProductHarness } from './system/harness';
+import type { ProductHarness } from './harness';
 
 export type HarnessSlice = {
   readonly name: SliceName;

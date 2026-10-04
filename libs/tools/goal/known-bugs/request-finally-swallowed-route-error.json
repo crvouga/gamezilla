@@ -1,4 +1,4 @@
 {
   "summary": "The harness request database middleware returned from finally, suppressing route exceptions and returning empty HTTP 200 bodies.",
-  "regressionTest": "libs/server-app/tests/request-db-error.test.ts"
+  "regressionTest": "libs/app-server/tests/request-db-error.test.ts"
 }

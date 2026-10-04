@@ -1,14 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import worker from '@apps/auth-relay';
-import { authRelayOrigin, envOrigins } from '@libs/infra/public/env-file';
-import { ENV_FILES } from '@libs/infra/public/envs';
-import { GLOBAL } from '@libs/infra/public/global';
-import {
-  renderAuthRelayWranglerConfig,
-  type WranglerConfig,
-} from '@libs/infra/public/wrangler';
+import worker from '@apps/auth-relay/worker';
+import { authRelayOrigin, envOrigins } from '@libs/infra-shared/env-file';
+import { ENV_FILES } from '@libs/infra-shared/envs';
+import { GLOBAL } from '@libs/infra-shared/global';
+import type { WranglerConfig } from '@libs/infra-shared/wrangler';
+import { renderAuthRelayWranglerConfig } from '@libs/infra-shared/wrangler';
 
 const base = Bun.TOML.parse(
   readFileSync(join(import.meta.dirname, '../wrangler.toml'), 'utf8')

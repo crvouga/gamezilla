@@ -2,7 +2,7 @@
 
 import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 
 /**
  * Local `wrangler dev` for preview/check with short-startup retries.

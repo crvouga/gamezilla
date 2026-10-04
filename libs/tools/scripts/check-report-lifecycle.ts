@@ -2,7 +2,7 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { reportTask } from '@libs/harness/ci/report-ready';
+import { reportTask } from '@libs/harness/report-ready';
 import type { RunPlan } from './turbo-preflight';
 
 const ROOT = join(import.meta.dirname, '../../..');

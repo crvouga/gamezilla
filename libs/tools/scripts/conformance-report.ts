@@ -32,20 +32,17 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { closureProblems } from '@pkgs/conformance/closure';
-import { type EvidenceRecord, sha256 } from '@pkgs/conformance/evidence';
-import { readEvidence } from '@pkgs/conformance/evidence-store';
-import { modelTemporalProperties } from '@pkgs/quint/temporal';
-
-import {
-  evaluateLines,
-  type ReportInput,
-  type ReportSpec,
-} from '../conformance/evaluate';
+import { readEvidence } from '@pkgs/conformance-server/evidence-store';
+import { closureProblems } from '@pkgs/conformance-shared/closure';
+import type { EvidenceRecord } from '@pkgs/conformance-shared/evidence';
+import { sha256 } from '@pkgs/conformance-shared/evidence';
+import { modelTemporalProperties } from '@pkgs/quint-server/temporal';
+import type { ReportInput, ReportSpec } from '../conformance/evaluate';
+import { evaluateLines } from '../conformance/evaluate';
 import { EVIDENCE_MAP, RELEASE_GATE_TASKS } from '../conformance/evidence-map';
 import { gateVerdicts } from '../conformance/gate-verdicts';
+import type { ConformanceReport } from '../conformance/verdict';
 import {
-  type ConformanceReport,
   decideVerdict,
   renderVerdict,
   specRevision,

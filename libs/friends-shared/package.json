@@ -1,0 +1,40 @@
+{
+  "name": "@libs/friends-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/feature-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/user-search-shared": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/matchmaking-sql-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/billing-shared": "workspace:*",
+    "@libs/profile-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

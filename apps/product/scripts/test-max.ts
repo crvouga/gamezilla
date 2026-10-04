@@ -39,7 +39,7 @@ try {
   code = runSpecSuites(
     {
       ...process.env,
-      HARNESS_PRELOAD: `${pkgRoot}/src/harness/setup/real-stack-preload.ts`,
+      HARNESS_PRELOAD: `${pkgRoot}/src/real-stack-preload.ts`,
     },
     process.argv.slice(2)
   );

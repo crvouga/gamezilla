@@ -1,12 +1,8 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
-import {
-  type DepotTarget,
-  type DepotWorkflow,
-  selectWorkflow,
-  startWorkflow,
-  watchWorkflow,
-} from './workflow-depot';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
+import type { DepotTarget, DepotWorkflow } from './workflow-depot';
+import { selectWorkflow, startWorkflow, watchWorkflow } from './workflow-depot';
 
 const SHA = '2a2bda778fd0e66af2a74c7e02ecea6fb80c8956';
 const TARGET: DepotTarget = {

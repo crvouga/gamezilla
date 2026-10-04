@@ -10,7 +10,7 @@ useDefault = true
 # `generic-api-key` rule score it. Only that exact id shape, only in the env
 # files, is allowed; a real secret in these files is still caught.
 [[allowlists]]
-description = "Cloudflare resource ids in libs/infra/tofu env files"
-paths = ['''(?:^|/)libs/infra/tofu/envs/[a-z0-9-]+\.tfvars\.json$''']
+description = "Cloudflare resource ids in libs/infra-shared/tofu env files"
+paths = ['''(?:^|/)libs/infra-shared/tofu/envs/[a-z0-9-]+\.tfvars\.json$''']
 regexes = ['''"[a-z_]+":\s*"[0-9a-f]{32}/[0-9a-f]{32,40}"''']
 regexTarget = "line"

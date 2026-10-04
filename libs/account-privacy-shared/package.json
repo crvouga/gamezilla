@@ -1,0 +1,33 @@
+{
+  "name": "@libs/account-privacy-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/feature-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

@@ -43,7 +43,7 @@ export function campaignTaskProblems(input: CampaignTasks): readonly string[] {
   };
   for (const [task, files] of Object.entries(checks)) {
     for (const file of files) {
-      const path = `tests/quint/${input.domain}/${file}`;
+      const path = `tests/quint/${file}`;
       if (!input.scripts[task]?.includes(path)) {
         problems.push(`${input.dir}/package.json: ${task} must run ${path}`);
       }

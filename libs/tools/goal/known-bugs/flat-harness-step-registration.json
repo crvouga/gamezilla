@@ -1,0 +1,4 @@
+{
+  "summary": "Step modules flattened into harness src must be registered by their owning suite, not only by importing suites.",
+  "regressionTest": "libs/profile-harness/tests/step-registration.test.ts"
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@pkgs/sync-engine-server",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "catalog:",
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/observability-shared": "workspace:*",
+    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "hono": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/quint-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

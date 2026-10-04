@@ -1,4 +1,4 @@
 {
   "summary": "mockingbird-postgres returned bigint for domain integer (physical bigint) columns, so the product harness's hydrate died with `Cannot convert BigInt to number`. Fixed by normalizing int8 values through decimal text.",
-  "regressionTest": "pkgs/sql-client-contract/tests/bug-bigint-int8.test.ts"
+  "regressionTest": "pkgs/sql-client-contract-harness/tests/bug-bigint-int8.test.ts"
 }

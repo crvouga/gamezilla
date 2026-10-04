@@ -5,8 +5,8 @@
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { wallClock } from '@pkgs/clock';
-import { createLogger } from '@pkgs/logger';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { createLogger } from '@pkgs/logger-shared/logger';
 
 const require = createRequire(import.meta.url);
 

@@ -1,4 +1,4 @@
 {
   "summary": "The configuration binding compared the visible host-only creation denial with a different canonical model phrase. Translate the observed host-creation denial to the model's creator-authority vocabulary without changing admission.",
-  "regressionTest": "libs/chess/tests/quint/custom-game.binding.ts"
+  "regressionTest": "libs/chess-harness/tests/quint/custom-game.binding.ts"
 }

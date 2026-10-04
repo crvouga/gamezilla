@@ -44,6 +44,6 @@ file($body) where {
       r"(?s).*\bis_anon\b.*",
       r"(?s).*\bbilling_subscriptions\b.*"
     },
-    register_diagnostic(span=$n, message="Sign-in state and membership are read only by auth, billing and @libs/permissions. Gate with useCan / usePermissions / requireInMutation from @libs/permissions/public.", severity="error")
+    register_diagnostic(span=$n, message="Sign-in state and membership are read only by auth, billing and @libs/permissions. Gate with useCan / usePermissions / requireInMutation from the @libs/permissions-* packages.", severity="error")
   }
 }

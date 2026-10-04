@@ -1,4 +1,4 @@
-import type { VirtualScheduler } from '@pkgs/harness';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
 
 /** Poll target for room kit wait helpers — predicates only. */
 export type UntilPredicate = () => boolean | Promise<boolean>;

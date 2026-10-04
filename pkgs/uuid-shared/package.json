@@ -1,0 +1,29 @@
+{
+  "name": "@pkgs/uuid-shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "isomorphic"
+}

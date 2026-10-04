@@ -5,32 +5,35 @@
  * `_`-prefixed faults are the harness's fault injections.
  */
 
-import { asKeyword } from '@pkgs/keyword';
-import { type QuintValue, variant } from '@pkgs/quint/itf';
-import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
-import { AddOne, readTally, TakeOne } from '@pkgs/room/harness';
+import { asKeyword } from '@pkgs/keyword-shared/keyword';
+import type { QuintValue } from '@pkgs/quint-shared/itf';
+import { variant } from '@pkgs/quint-shared/itf';
+import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import { AddOne, readTally, TakeOne } from '@pkgs/room-harness/game-room';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { clock } from '@pkgs/room-harness/observations';
+import { readServer } from '@pkgs/room-harness/read-state';
 import {
   addClient,
   armCrashAt,
-  clock,
-  commandWire,
   connect,
   crash,
   disconnect,
   dispatch,
-  exampleSystem,
-  expectInSync,
   injectToServer,
   pauseNetwork,
-  type RoomHarness,
-  readServer,
   restart,
   resumeNetwork,
   serverCrash,
   serverRestart,
   takeOver,
-} from '@pkgs/room-harness';
-import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
+} from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import { commandWire } from '@pkgs/room-harness/wire-helpers';
+import type { RoomTraceWorld } from './world';
+import { roomFingerprint, traceRoom } from './world';
 
 const PEOPLE = ['alice', 'bob'] as const;
 

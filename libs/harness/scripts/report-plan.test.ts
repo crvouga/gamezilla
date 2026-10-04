@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
-import { readCommit } from '@pkgs/harness-report';
-import { openCommit, publishSource } from '@pkgs/harness-report/remote/publish';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
+import { openCommit, publishSource } from '@pkgs/harness-report-shared/publish';
+import { readCommit } from '@pkgs/harness-report-shared/read';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
 import {
   createReportPlan,
   finishReport,

@@ -1,4 +1,4 @@
 {
   "summary": "The default map encoding exceeded the existing 120-second budget for index-reconciliation.qnt at ten steps. Opt this supported reference model into array-encoded maps, preserving every invariant and the full bound.",
-  "regressionTest": "pkgs/db-indexes/tests/quint/index-contracts.test.ts"
+  "regressionTest": "pkgs/db-indexes-harness/tests/quint/index-contracts.test.ts"
 }

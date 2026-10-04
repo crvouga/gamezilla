@@ -4,7 +4,9 @@
  * adding to the tally; the model's state read back from the room.
  */
 
-import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
+import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
 import {
   AddOne,
   ClaimRoom,
@@ -12,17 +14,17 @@ import {
   readTally,
   readTurnedAway,
   TurnAway,
-} from '@pkgs/room/harness';
+} from '@pkgs/room-harness/game-room';
+import { readServer } from '@pkgs/room-harness/read-state';
 import {
   addClient,
   connect,
   disconnect,
   dispatch,
-  exampleSystem,
-  expectInSync,
-  readServer,
-} from '@pkgs/room-harness';
-import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
+} from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import type { RoomTraceWorld } from './world';
+import { roomFingerprint, traceRoom } from './world';
 
 const PEOPLE = ['alice', 'bob', 'eve'] as const;
 

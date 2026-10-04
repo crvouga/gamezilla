@@ -2,11 +2,8 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  measureCheck,
-  measureShardLog,
-  type NativeTiming,
-} from './check-benchmark-measure';
+import type { NativeTiming } from './check-benchmark-measure';
+import { measureCheck, measureShardLog } from './check-benchmark-measure';
 import { distribution } from './check-benchmark-stats';
 import { imbalance } from './check-shards';
 

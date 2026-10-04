@@ -1,4 +1,4 @@
-import type { AuthProviderModule } from '@pkgs/auth/server';
+import type { AuthProviderModule } from '@pkgs/auth-shared/auth-provider-module';
 /**
  * What a simulation boots: which bounded contexts, and what each of them needs
  * from the host.
@@ -12,23 +12,27 @@ import type { AuthProviderModule } from '@pkgs/auth/server';
  * change.
  */
 
-import type { ClientEnv } from '@libs/client-app/shell/client-env';
-import type { FeatureClient } from '@libs/feature/public/client';
-import type { ComposedFeatures } from '@libs/feature/public/compose';
-import type { FeatureServer, RoomGrantsCtx } from '@libs/feature/public/server';
-import type { EnvTime } from '@libs/feature/public/sync';
-import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
-import type { CatalogAction, CatalogProperty } from '@pkgs/harness';
-import type { RoomActor, RoomState } from '@pkgs/room';
-import type { RoomServicePort } from '@pkgs/room/server';
+import type { ClientEnv } from '@libs/app-client/client-env';
+import type { FeatureClient } from '@libs/feature-client/client';
+import type { ComposedFeatures } from '@libs/feature-shared/compose';
+import type { FeatureServer, RoomGrantsCtx } from '@libs/feature-shared/server';
+import type { EnvTime } from '@libs/feature-shared/sync';
+import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type { MembershipProviders } from '@pkgs/billing-shared/providers';
+import type {
+  CatalogAction,
+  CatalogProperty,
+} from '@pkgs/harness-shared/effect';
 import type {
   RoomStorageTopicReplace,
   RoomStorageTopicSnapshot,
-} from '@pkgs/room-adapter-memory';
-import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
+} from '@pkgs/room-adapter-memory-shared/room-storage';
+import type { RoomServicePort } from '@pkgs/room-shared/room-service';
+import type { RoomActor, RoomState } from '@pkgs/room-shared/types';
+import type { Pool } from '@pkgs/sql-client-postgres-shared/pg-types';
+import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 
-import type { ProductHarness } from './system/harness';
+import type { ProductHarness } from './harness';
 
 /** Server-side migrate of a fresh harness Postgres (mockingbird-postgres or embedded). */
 export type MigrateHarnessPostgres = (args: {

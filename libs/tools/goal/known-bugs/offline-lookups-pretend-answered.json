@@ -1,4 +1,4 @@
 {
   "summary": "Check run 36974271617 failed the offline people search and invite-link scenarios: HttpNetworkError resolved parameterized queries' waitForFirstSync, clearing search's pending state and marking an unanswered invite missing. Settle failed network attempts only for session startup queries; parameterized lookups remain pending until the server answers and still complete after reconnection.",
-  "regressionTest": "pkgs/sync-engine/tests/offline-query-readiness.test.ts"
+  "regressionTest": "pkgs/sync-engine-harness/tests/offline-query-readiness.test.ts"
 }

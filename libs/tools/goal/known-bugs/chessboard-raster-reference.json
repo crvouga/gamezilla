@@ -1,4 +1,4 @@
 {
   "summary": "A fresh-position raster reference reused the board model and piece nodes, allowing the same stale rendered state on both sides of a comparison.",
-  "regressionTest": "pkgs/chess-board/tests/browser/visual.contract.test.ts"
+  "regressionTest": "pkgs/chess-board-harness/tests/browser/visual.contract.test.ts"
 }

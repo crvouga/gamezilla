@@ -14,9 +14,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { wallClock } from '@pkgs/clock';
-import { createLogger } from '@pkgs/logger';
-import { run } from '@pkgs/os/command';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { createLogger } from '@pkgs/logger-shared/logger';
+import { run } from '@pkgs/os-server/command';
 
 const log = createLogger({ name: 'client:pwa-assets', now: wallClock.now });
 
@@ -25,7 +25,7 @@ const PWA_ASSET_GENERATOR = 'pwa-asset-generator@8.1.4';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientRoot = join(__dirname, '..');
-const iconSource = join(clientRoot, 'src/assets/images/icon.png');
+const iconSource = join(clientRoot, 'src/icon.png');
 const publicDir = join(clientRoot, 'public');
 /**
  * PWA assets live under `public/pwa/` (not `public/generated/pwa/`) so they

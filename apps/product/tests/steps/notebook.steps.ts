@@ -8,8 +8,9 @@ import {
   savedNotebook,
   saveNotebookQuestion,
   shownNotebook,
-} from '@apps/product/harness/developer-notebook';
-import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
+} from '@apps/product/developer-notebook';
+import { Given, Then, When } from '@libs/harness/define';
+import type { Actor } from '@libs/harness/parameter-types';
 
 Given(
   "{actor}'s phone has a saved data notebook question about her friends",

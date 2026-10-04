@@ -5,13 +5,12 @@
  * runs the same analysis against the real `dist/`.
  */
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
-
+import type { OfflineShellInput } from './sw-policy';
 import {
   analyzeOfflineShell,
   keepInPrecache,
-  type OfflineShellInput,
   offlineShellFailures,
   parseChunkImports,
   parseEntryHtml,

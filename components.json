@@ -1,9 +1,9 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
   "tailwind": {
-    "css": "pkgs/tailwind/src/lint.css"
+    "css": "pkgs/tailwind-shared/src/lint.css"
   },
   "aliases": {
-    "ui": "./pkgs/ui/src/components"
+    "ui": "./pkgs/ui-client/src"
   }
 }

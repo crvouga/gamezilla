@@ -1,4 +1,4 @@
 {
   "summary": "Adding privacy decisions caused every mounted permission conformance probe to throw because its auth client provider was absent. Ordinary grant hooks now initialize privacy dependencies only for privacy actions, and conformance mounts the auth port alongside its existing providers.",
-  "regressionTest": "libs/permissions/tests/privacy-client-provider.test.ts"
+  "regressionTest": "libs/permissions-harness/tests/privacy-client-provider.test.ts"
 }

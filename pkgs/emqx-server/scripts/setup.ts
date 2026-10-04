@@ -4,7 +4,7 @@
  * directory it is pointed at, so this only prepares the default one.
  */
 import { join } from 'node:path';
-import { ensureEmqxDataDir } from '../src/start';
+import { ensureEmqxDataDir } from '@pkgs/emqx-server/start';
 
 const APP_DIR = join(import.meta.dirname, '..');
 const DATA_DIR = join(APP_DIR, 'data');

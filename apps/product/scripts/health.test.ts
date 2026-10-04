@@ -2,10 +2,10 @@ import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { parseFeature } from '@pkgs/gherkin/parse';
+import { parseFeature } from '@pkgs/gherkin-shared/parse';
+import type { Environment } from './health';
 import {
   allSpecs,
-  type Environment,
   HOST_LIMITS,
   healthTestArguments,
   healthTestEnvironment,
@@ -39,7 +39,7 @@ test('health loads its live entry and constructs the real S3 transport', () => {
   mkdirSync(resolve(import.meta.dir, '../.cache'), { recursive: true });
   writeFileSync(
     fixture,
-    "import '../tests/steps/index';\nimport { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';\nimport { expect, test } from 'bun:test';\ntest('live entry and S3 transport load', () => {\n  expect(process.env['SECRETS_ENV']).toBe('dev');\n  expect(createS3ObjectStore({ endpoint: 'http://127.0.0.1:1', bucket: 'health-loader', region: 'us-east-1', accessKeyId: 'local', secretAccessKey: 'local', rootPrefix: 'health-loader/', http: { fetch: async () => { throw new Error('constructing a transport cannot request HTTP'); } } })).toBeDefined();\n});\n"
+    "import '../tests/steps/index';\nimport { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';\nimport { expect, test } from 'bun:test';\ntest('live entry and S3 transport load', () => {\n  expect(process.env['SECRETS_ENV']).toBe('dev');\n  expect(createS3ObjectStore({ endpoint: 'http://127.0.0.1:1', bucket: 'health-loader', region: 'us-east-1', accessKeyId: 'local', secretAccessKey: 'local', rootPrefix: 'health-loader/', http: { fetch: async () => { throw new Error('constructing a transport cannot request HTTP'); } } })).toBeDefined();\n});\n"
   );
   try {
     const result = spawnSync(
@@ -237,10 +237,10 @@ test('live health avoids local UI steps while local specs preload the macro load
     'utf8'
   );
   expect(
-    developer.indexOf("import '@pkgs/bun-test-solid/preload'")
+    developer.indexOf("import '@pkgs/bun-test-solid-client/preload'")
   ).toBeLessThan(developer.indexOf('import { openHarness }'));
   expect(local).toContain("import './live-index'");
   expect(live).toContain('useLiveWorld()');
-  expect(live).not.toContain('@pkgs/bun-test-solid/preload');
+  expect(live).not.toContain('@pkgs/bun-test-solid-client/preload');
   expect(live).not.toContain('@libs/harness/');
 });

@@ -1,4 +1,4 @@
-import { REPORT_READY, reportTask } from '@libs/harness/ci/report-ready';
+import { REPORT_READY, reportTask } from '@libs/harness/report-ready';
 
 export type ReportPublisher = {
   line(line: string): void;

@@ -3,7 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/worker.ts"
+    ".": "./src/worker.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
   },
   "scripts": {
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
@@ -13,15 +18,16 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@libs/infra": "workspace:*",
-    "@libs/secrets": "workspace:*",
-    "@pkgs/auth-inhouse": "workspace:*",
+    "@pkgs/auth-inhouse-server": "workspace:*",
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@libs/infra-shared": "workspace:*",
+    "@libs/secrets-server": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:",
     "wrangler": "catalog:"
-  }
+  },
+  "category": "server"
 }

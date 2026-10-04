@@ -10,7 +10,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { REPORT_READY } from '@libs/harness/ci/report-ready';
+import { REPORT_READY } from '@libs/harness/report-ready';
 import { createReportPublisher } from './check-report-stream';
 
 const TASK = '@libs/example#test:spec:0';
@@ -68,48 +68,56 @@ async function run(
 }
 
 // regression: report-uncached-task-hash
-test('real Turbo streams completed, restored and uncached reports exactly once, including red suites', async () => {
-  const root = mkdtempSync(join(tmpdir(), 'check-report-turbo-'));
-  try {
-    const pkg = join(root, 'packages/example');
-    mkdirSync(pkg, { recursive: true });
-    writeFileSync(
-      join(root, 'package.json'),
-      JSON.stringify({
-        name: 'fixture',
-        private: true,
-        packageManager: `bun@${Bun.version}`,
-        workspaces: ['packages/*'],
-      })
-    );
-    writeFileSync(join(root, 'bun.lock'), '');
-    writeFileSync(
-      join(root, 'turbo.json'),
-      JSON.stringify({
-        tasks: {
-          'test:spec:0': { inputs: ['emit.ts'], outputs: ['report.ready'] },
-        },
-      })
-    );
-    writeFileSync(
-      join(pkg, 'package.json'),
-      JSON.stringify({
-        name: '@libs/example',
-        scripts: { 'test:spec:0': 'bun run emit.ts' },
-      })
-    );
-    const source = `import { writeFileSync } from 'node:fs';\nwriteFileSync('report.ready', 'complete');\nconsole.log('${REPORT_READY}');\n`;
-    writeFileSync(join(pkg, 'emit.ts'), source);
-    expect(await run(root)).toEqual({ status: 0, published: [TASK] });
-    rmSync(join(pkg, 'report.ready'));
-    expect(await run(root)).toEqual({ status: 0, published: [TASK] });
-    expect(await run(root, 'local:w')).toEqual({
-      status: 0,
-      published: [TASK],
-    });
-    writeFileSync(join(pkg, 'emit.ts'), `${source}process.exit(1);\n`);
-    expect(await run(root)).toEqual({ status: 1, published: [TASK] });
-  } finally {
-    rmSync(root, { recursive: true, force: true });
+// regression: tooling-check-subprocess-timeouts
+test.each(['completed', 'restored', 'uncached', 'red'])(
+  'real Turbo publishes a %s report exactly once',
+  async (mode) => {
+    const root = mkdtempSync(join(tmpdir(), 'check-report-turbo-'));
+    try {
+      const pkg = join(root, 'packages/example');
+      mkdirSync(pkg, { recursive: true });
+      writeFileSync(
+        join(root, 'package.json'),
+        JSON.stringify({
+          name: 'fixture',
+          private: true,
+          packageManager: `bun@${Bun.version}`,
+          workspaces: ['packages/*'],
+        })
+      );
+      writeFileSync(join(root, 'bun.lock'), '');
+      writeFileSync(
+        join(root, 'turbo.json'),
+        JSON.stringify({
+          tasks: {
+            'test:spec:0': { inputs: ['emit.ts'], outputs: ['report.ready'] },
+          },
+        })
+      );
+      writeFileSync(
+        join(pkg, 'package.json'),
+        JSON.stringify({
+          name: '@libs/example',
+          scripts: { 'test:spec:0': 'bun run emit.ts' },
+        })
+      );
+      const source = `import { writeFileSync } from 'node:fs';\nwriteFileSync('report.ready', 'complete');\nconsole.log('${REPORT_READY}');\n`;
+      writeFileSync(
+        join(pkg, 'emit.ts'),
+        mode === 'red' ? `${source}process.exit(1);\n` : source
+      );
+      if (mode === 'restored') {
+        expect(await run(root)).toEqual({ status: 0, published: [TASK] });
+        rmSync(join(pkg, 'report.ready'));
+      }
+      expect(
+        await run(root, mode === 'uncached' ? 'local:w' : 'local:rw')
+      ).toEqual({
+        status: mode === 'red' ? 1 : 0,
+        published: [TASK],
+      });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   }
-});
+);

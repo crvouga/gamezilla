@@ -2,16 +2,12 @@
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import {
-  freePostgresPort,
-  startEmbeddedPostgres,
-} from '@pkgs/postgres-embedded';
-import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
-import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import {
-  createPgPool,
-  ensurePostgresSchema,
-} from '@pkgs/sql-client-postgres/connect';
+import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
+import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
+import { ensurePostgresSchema } from '@pkgs/sql-client-postgres-shared/ensure-schema';
+import { SqlClientImplAgnostic } from '@pkgs/sql-client-shared/impl-agnostic';
+import { createPostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
 import type { HarnessStore } from './store';
 
 export async function openLiveStore(): Promise<HarnessStore> {

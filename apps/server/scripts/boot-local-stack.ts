@@ -3,17 +3,17 @@
  * Boot loopback Postgres + Mockingbird S3 + EMQX for CI / fidelity-max tests.
  * Not used by `bun dev`.
  */
-import { wallClock, wallTimers } from '@pkgs/clock';
-import { startEmqxServer } from '@pkgs/emqx-server';
-import { createGlobalHttpClient } from '@pkgs/http-client';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
+import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
+import { startEmqxServer } from '@pkgs/emqx-server/start';
+import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
+import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
   S3_REGION,
   S3_SECRET_ACCESS_KEY,
   startS3Server,
-} from '@pkgs/s3-server';
+} from '@pkgs/s3-server/s3-server';
 
 import { runLocalMigrate } from './run-local-postgres-migrate';
 import { runLocalSeed } from './run-local-postgres-seed';

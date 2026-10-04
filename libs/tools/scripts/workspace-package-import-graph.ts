@@ -71,7 +71,7 @@ export type PackageInfo = {
   dir: string;
   /** Tier derived from the parent directory, not the `name` field. */
   tier: Tier;
-  /** Full scoped name as declared in `package.json` (e.g. `@pkgs/assert`). */
+  /** Full scoped name as declared in `package.json` (e.g. `@pkgs/assert-shared`). */
   scopedName: string;
 };
 

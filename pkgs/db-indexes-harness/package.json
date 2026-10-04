@@ -1,0 +1,41 @@
+{
+  "name": "@pkgs/db-indexes-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/1"
+  },
+  "dependencies": {
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/db-indexes-shared": "workspace:*",
+    "@pkgs/harness-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/quint-server": "workspace:*",
+    "@pkgs/quint-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "specDomains": [
+    "db-indexes"
+  ],
+  "specParts": 1
+}

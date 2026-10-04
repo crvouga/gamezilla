@@ -1,4 +1,4 @@
 {
   "summary": "Offline, once the rating crossed a band edge the feed waited forever for rating bands that could not download. Fixed: offline it falls back to the puzzles on the device.",
-  "regressionTest": "libs/chess/tests/puzzle-session/next-puzzle-selection.test.ts"
+  "regressionTest": "libs/chess-puzzle-shared/tests/next-puzzle-selection.test.ts"
 }

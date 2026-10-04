@@ -1,0 +1,44 @@
+{
+  "name": "@pkgs/feedback-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+  },
+  "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/feedback-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/i18n-shared": "workspace:*",
+    "@pkgs/object-store-opfs-shared": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "solid-js": "catalog:",
+    "@pkgs/tailwind-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "category": "client"
+}

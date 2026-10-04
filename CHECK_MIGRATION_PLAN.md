@@ -129,7 +129,7 @@ uploads are never exposed as complete; every expected source is accounted for.
 ### 3. Make reuse compatible with report expiry and cutover
 
 - [ ] Replace the bucket-wide age rule with prefix-specific rules declared in
-  `libs/infra/tofu/stacks/fleet/main.tf` and its existing configuration.
+  `libs/infra-shared/tofu/stacks/fleet/main.tf` and its existing configuration.
   The current blanket expiry would delete reused content before newer commit
   references expire.
 - [ ] Use retention generations: for a commit retention period R, write/reuse
@@ -237,7 +237,7 @@ them. Human review and merge follow the repository's existing workflow.
 | Change | Depends on | Main paths |
 | --- | --- | --- |
 | Depot baseline and cache configuration | Runner migration commit | `.github/`, `libs/tools/scripts/`, `libs/secrets/` |
-| Report reuse, expiry, and coordinated cutover | Baseline | `pkgs/harness-report/`, `libs/harness/`, `libs/infra/tofu/` |
+| Report reuse, expiry, and coordinated cutover | Baseline | `pkgs/harness-report/`, `libs/harness/`, `libs/infra-shared/tofu/` |
 | One-job Check and task-completion publication | Report cutover | `.github/workflows/check.yml`, `libs/tools/scripts/`, `libs/harness/scripts/` |
 | Cold-task splitting and setup tuning | Depot costs and one-job baseline | Owning packages, `turbo.json`, `.github/actions/setup/` |
 | Full latency acceptance | All implementation changes | Automated workflow results and package checks |

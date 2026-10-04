@@ -1,0 +1,33 @@
+{
+  "name": "@pkgs/object-store-s3-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
+    "test:contract": "bun test tests/object-store.s3.contract.test.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@pkgs/object-store-s3-shared": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/s3-server": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

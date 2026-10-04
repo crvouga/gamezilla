@@ -1,0 +1,23 @@
+{
+  "name": "@pkgs/db-indexes-postgres-harness",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test:contract": "bun test tests/postgres.contract.test.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@pkgs/db-indexes-harness": "workspace:*",
+    "@pkgs/db-indexes-postgres-shared": "workspace:*",
+    "@pkgs/db-indexes-shared": "workspace:*",
+    "@pkgs/postgres-embedded-server": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness"
+}

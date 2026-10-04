@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": [
-    "../../pkgs/ts-reset/src/index.ts",
+    "../../pkgs/ts-reset-shared/src/ts-reset.ts",
     "./src/**/*.ts",
     "./src/**/*.d.ts",
     "./scripts/**/*.ts",

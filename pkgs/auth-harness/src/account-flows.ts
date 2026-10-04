@@ -3,8 +3,9 @@
  * method, sign out here, sign out everywhere — predicted, then checked.
  */
 
-import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
-import { AUTH_LINK_TICKET_TTL_MS } from '@pkgs/auth-inhouse/shared';
+import { AUTH_LINK_TICKET_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
+import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
 
 import { runClient } from './actor';
 import { expectOutcome, sessionUserOf, violate } from './checks';

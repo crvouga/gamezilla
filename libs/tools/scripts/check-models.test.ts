@@ -2,10 +2,11 @@ import { describe, expect, test } from 'bun:test';
 import {
   DEFAULT_VERIFY_STEPS,
   DEFAULT_VERIFY_TIMEOUT_MS,
-} from '@pkgs/quint/registry';
+} from '@pkgs/quint-shared/registry';
 
 import {
   modelChecks,
+  modelChecksFromBindings,
   modelEncodingOf,
   verifyStepsOf,
   verifyTimeoutOf,
@@ -38,14 +39,24 @@ describe('verifyTimeoutOf', () => {
 
 describe('modelChecks', () => {
   test('only the matching binding opts into separate induction', () => {
-    const checks = specPackages().flatMap(modelChecks);
+    // regression: tools-test-unhashed-model-bindings
+    const checks = modelChecksFromBindings(
+      ['specs/chess/multiplayer.qnt', 'specs/chess/custom-game.qnt'],
+      new Map([
+        [
+          'multiplayer',
+          "model: 'multiplayer', inductiveInvariant: '_proof', separateInduction: true",
+        ],
+        ['custom-game', "model: 'custom-game', inductiveInvariant: '_proof'"],
+      ])
+    );
     expect(
       checks
         .filter((check) => check.separateInduction)
         .map((check) => check.specUri)
-    ).toEqual(['specs/matchmaking/matching.qnt']);
+    ).toEqual(['specs/chess/multiplayer.qnt']);
     expect(
-      checks.find((check) => check.specUri === 'specs/chess/multiplayer.qnt')
+      checks.find((check) => check.specUri === 'specs/chess/custom-game.qnt')
         ?.separateInduction
     ).toBeUndefined();
   });
@@ -70,14 +81,18 @@ describe('modelChecks', () => {
 
   test("checks only the package's own models, at their bindings' bounds", () => {
     // regression: model-check-refusal-recovery-expectation
-    const friends = specPackages().find((pkg) => pkg.dir === 'libs/friends');
+    const friends = specPackages().find(
+      (pkg) => pkg.dir === 'libs/friends-harness'
+    );
     expect(friends).toBeDefined();
     if (friends === undefined) return;
     const checks = modelChecks(friends);
     expect(checks.map((check) => check.specUri)).toEqual(
       [...friends.models].sort()
     );
-    const sync = specPackages().find((pkg) => pkg.dir === 'pkgs/sync-engine');
+    const sync = specPackages().find(
+      (pkg) => pkg.dir === 'pkgs/sync-engine-harness'
+    );
     expect(sync === undefined ? [] : modelChecks(sync)).toEqual([
       {
         specUri: 'specs/sync-engine/note-conflicts.qnt',
@@ -104,5 +119,19 @@ describe('modelChecks', () => {
         timeoutMs: DEFAULT_VERIFY_TIMEOUT_MS,
       },
     ]);
+  });
+});
+
+// regression: custom-game-array-encoding-timeout
+test('custom-game default encoding retains the full induction and original deadline', () => {
+  const [check] = modelChecks({
+    dir: 'libs/chess-harness',
+    models: ['specs/chess/custom-game.qnt'],
+  });
+  expect(check).toEqual({
+    specUri: 'specs/chess/custom-game.qnt',
+    steps: 4,
+    inductiveInvariant: '_inductive',
+    timeoutMs: 240_000,
   });
 });

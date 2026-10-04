@@ -3,8 +3,8 @@ import type {
   RoomEvent,
   RoomModule,
   RoomState,
-} from '@pkgs/room';
-import type { SeededRng } from '@pkgs/uuid';
+} from '@pkgs/room-shared/types';
+import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 export type GenCtx<S extends RoomState> = {
   readonly rng: SeededRng;

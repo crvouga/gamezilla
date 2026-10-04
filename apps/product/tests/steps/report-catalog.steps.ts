@@ -8,8 +8,8 @@ import {
   openCatalog,
   openCompletedReport,
   provideCatalog,
-} from '@apps/product/harness/developer-catalog';
-import { Given, Then, When } from '@libs/harness/spec/define';
+} from '@apps/product/developer-catalog';
+import { Given, Then, When } from '@libs/harness/define';
 
 Given(
   'two versions of the app have different completed test runs',

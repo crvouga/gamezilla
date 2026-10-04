@@ -5,27 +5,26 @@
  * and the status each phone shows.
  */
 
-import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
+import type { Picks } from '@pkgs/quint-shared/registry';
+import { bindQuintModel } from '@pkgs/quint-shared/registry';
+import { expectInSync } from '@pkgs/room-harness/expect-in-sync';
+import type { Player } from '@pkgs/room-harness/game-room';
 import {
   ClaimOutOfTime,
   Move,
-  type Player,
   readMatchStatus,
   readPlayerToMove,
   readTimeLeftSeconds,
   readWinner,
   StartMatch,
-} from '@pkgs/room/harness';
-import {
-  addClient,
-  clock,
-  dispatch,
-  exampleSystem,
-  expectInSync,
-  type RoomHarness,
-  readServer,
-} from '@pkgs/room-harness';
-import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
+} from '@pkgs/room-harness/game-room';
+import type { RoomHarness } from '@pkgs/room-harness/harness';
+import { clock } from '@pkgs/room-harness/observations';
+import { readServer } from '@pkgs/room-harness/read-state';
+import { addClient, dispatch } from '@pkgs/room-harness/room-actions';
+import { exampleSystem } from '@pkgs/room-harness/system';
+import type { RoomTraceWorld } from './world';
+import { roomFingerprint, traceRoom } from './world';
 
 const PLAYERS = ['white', 'black'] as const satisfies readonly Player[];
 const SECOND_MS = 1_000;

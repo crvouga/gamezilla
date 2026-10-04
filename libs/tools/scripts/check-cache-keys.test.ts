@@ -16,7 +16,7 @@ const config = JSON.parse(
   readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
 ) as {
   globalPassThroughEnv: string[];
-  tasks: { build: { inputs: string[]; outputs: string[]; env: string[] } };
+  tasks: Record<string, { inputs: string[]; outputs: string[]; env: string[] }>;
 };
 function fixture(): string {
   const root = mkdtempSync(join(tmpdir(), 'check-cache-keys-'));
@@ -40,11 +40,11 @@ function fixture(): string {
       globalPassThroughEnv: config.globalPassThroughEnv,
       tasks: {
         build: {
-          inputs: config.tasks.build.inputs.filter(
+          inputs: config.tasks['build']!.inputs.filter(
             (input: string) => !input.startsWith('$TURBO_ROOT$')
           ),
-          outputs: config.tasks.build.outputs,
-          env: config.tasks.build.env,
+          outputs: config.tasks['build']!.outputs,
+          env: config.tasks['build']!.env,
         },
         consume: { dependsOn: ['build'] },
         independent: {},
@@ -119,7 +119,7 @@ test('literal volatile Vite metadata is excluded while real source remains hashe
     ).toBe(false);
     writeFileSync(join(root, 'source.ts'), 'export const value = 2;\n');
     expect(dry(root, ['build'])[0]!.hash).not.toBe(first.hash);
-    expect(config.tasks.build.outputs).toContain('dist/**');
+    expect(config.tasks['build']!.outputs).toContain('dist/**');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -148,4 +148,134 @@ test('miss diagnostics distinguish absent artifacts, network failures, disabled 
   expect(reasons[1]).toContain('connectivity');
   expect(reasons[2]).toContain('explicitly disables');
   expect(reasons[3]).toContain('not performed');
+});
+
+// regression: ui-quality-window-preprocessing-timeout
+test.each([
+  'source',
+  'test',
+  'platform',
+  'arch',
+  'bun',
+  'chrome',
+  'FC_SEED',
+  'PBT_NUM_RUNS',
+  'PBT_RANDOM',
+  'unchanged',
+])('test verdict key tracks %s', (change) => {
+  const root = fixture();
+  try {
+    const packagePath = join(root, 'package.json');
+    const manifest = JSON.parse(readFileSync(packagePath, 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+    manifest.scripts['test'] = 'bun test tests';
+    writeFileSync(packagePath, JSON.stringify(manifest));
+    writeFileSync(
+      join(root, 'turbo.json'),
+      JSON.stringify({
+        tasks: {
+          test: {
+            inputs: config.tasks['test']!.inputs,
+            env: config.tasks['test']!.env,
+            outputs: [],
+          },
+        },
+      })
+    );
+    mkdirSync(join(root, 'tests'));
+    const testPath = join(root, 'tests/window-inference.test.ts');
+    writeFileSync(testPath, 'test("window scores", () => {});');
+    const keyPath = join(root, 'turbo-platform-key.json');
+    const platform = {
+      platform: 'darwin',
+      arch: 'arm64',
+      bun: '1.4.2',
+      chrome: '154',
+    };
+    writeFileSync(keyPath, JSON.stringify(platform));
+    const initial = dry(root, ['test'])[0]!;
+    expect(Object.keys(initial.inputs)).toContain('source.ts');
+    expect(Object.keys(initial.inputs)).toContain(
+      'tests/window-inference.test.ts'
+    );
+    expect(Object.keys(initial.inputs)).toContain('turbo-platform-key.json');
+    const env: NodeJS.ProcessEnv = {};
+    if (change === 'source')
+      writeFileSync(join(root, 'source.ts'), 'export const value = 2;');
+    else if (change === 'test')
+      writeFileSync(
+        testPath,
+        'test("window scores", () => { throw Error(); });'
+      );
+    else if (change in platform)
+      writeFileSync(
+        keyPath,
+        JSON.stringify({ ...platform, [change]: 'changed' })
+      );
+    else if (change !== 'unchanged')
+      env[change] = change === 'PBT_RANDOM' ? '1' : '7';
+    const updated = dry(root, ['test'], env)[0]!.hash;
+    if (change === 'unchanged') expect(updated).toBe(initial.hash);
+    else expect(updated).not.toBe(initial.hash);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// regression: tools-test-unhashed-model-bindings
+test.each([
+  'libs/chess-harness/tests/quint/multiplayer.binding.ts',
+  'specs/chess/multiplayer.qnt',
+  'libs/chess-harness/package.json',
+  'libs/chess-harness/turbo.json',
+  'libs/profile-harness/src/username.steps.ts',
+  '.depot/actions/setup/action.yml',
+  'apps/product/scripts/ui-quality/sources.json',
+])('repository tooling verdict invalidates on %s', (path) => {
+  const root = fixture();
+  const local = JSON.parse(
+    readFileSync(join(import.meta.dirname, '../turbo.json'), 'utf8')
+  ) as {
+    tasks: { test: { inputs: string[] } };
+  };
+  const inputs = local.tasks.test.inputs.flatMap((input) =>
+    input === '$TURBO_EXTENDS$'
+      ? config.tasks['@libs/tools#test']!.inputs
+      : [input]
+  );
+  try {
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({
+        name: 'fixture',
+        packageManager: `bun@${Bun.version}`,
+        workspaces: ['libs/tools'],
+      })
+    );
+    mkdirSync(join(root, 'libs/tools'), { recursive: true });
+    writeFileSync(
+      join(root, 'libs/tools/package.json'),
+      JSON.stringify({
+        name: '@libs/tools',
+        scripts: { build: 'echo verified' },
+      })
+    );
+    writeFileSync(join(root, 'bun.lock'), '');
+    writeFileSync(
+      join(root, 'turbo.json'),
+      JSON.stringify({
+        tasks: {
+          build: { inputs, outputs: [] },
+        },
+      })
+    );
+    const before = dry(root, ['@libs/tools#build'])[0]!.hash;
+    const absolute = join(root, path);
+    mkdirSync(join(absolute, '..'), { recursive: true });
+    writeFileSync(absolute, path.endsWith('.json') ? '{}' : 'changed binding');
+    expect(dry(root, ['@libs/tools#build'])[0]!.hash, path).not.toBe(before);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

@@ -10,19 +10,13 @@
  * and an Apple account at one verified address.
  */
 
-import type { OauthProviderId } from '@pkgs/auth/shared';
-import {
-  type AuthSurface,
-  auth,
-  type ProviderAnswers,
-  type ProviderStepArgs,
-} from '@pkgs/auth-harness';
-import {
-  type ScenarioContext,
-  setWorld,
-  stepsFor,
-} from '@pkgs/gherkin/registry';
-import type { Run } from '@pkgs/harness';
+import type { ProviderStepArgs } from '@pkgs/auth-harness/actions';
+import { auth } from '@pkgs/auth-harness/system';
+import type { AuthSurface, ProviderAnswers } from '@pkgs/auth-harness/types';
+import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { ScenarioContext } from '@pkgs/gherkin-shared/registry';
+import { setWorld, stepsFor } from '@pkgs/gherkin-shared/registry';
+import type { Run } from '@pkgs/harness-shared/run-types';
 
 const DEVICE_COUNT = 4;
 

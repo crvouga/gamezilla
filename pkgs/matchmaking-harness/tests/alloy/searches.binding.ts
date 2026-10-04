@@ -1,13 +1,14 @@
 // @io-wall-ok — draws traces with the pinned checker into this spec run's report directory.
 import { join } from 'node:path';
-import { bindStructure } from '@pkgs/alloy/registry';
-import type { Snapshot } from '@pkgs/alloy/snapshot';
-import { storedSearches } from '@pkgs/matchmaking-harness';
-import { quintBinding, quintWorld } from '@pkgs/quint/registry';
-import { replayTrace } from '@pkgs/quint/replay';
-import { simulate } from '@pkgs/quint/simulate';
+import { bindStructure } from '@pkgs/alloy-shared/registry';
+import type { Snapshot } from '@pkgs/alloy-shared/world';
+import { storedSearches } from '@pkgs/matchmaking-harness/stored-searches';
+import { simulate } from '@pkgs/quint-server/simulate';
+import { quintBinding, quintWorld } from '@pkgs/quint-shared/registry';
+import { replayTrace } from '@pkgs/quint-shared/replay';
 import '../quint/index';
-import { type MatchmakingTraceWorld, traceMatchmaking } from '../quint/world';
+import type { MatchmakingTraceWorld } from '../quint/world';
+import { traceMatchmaking } from '../quint/world';
 import { projectSearches } from './searches-project';
 
 async function snapshots(): Promise<readonly Snapshot[]> {

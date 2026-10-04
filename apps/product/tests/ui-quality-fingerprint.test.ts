@@ -1,9 +1,10 @@
 import { expect, test } from 'bun:test';
-import { collectArtifacts } from '@apps/product/ui-quality/collect';
-import { snapshotFingerprint } from '@apps/product/ui-quality/fingerprint';
-import { writeUtf8 } from '@pkgs/object-store/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { assertProperty, fc } from '@pkgs/property';
+import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
+import { collectArtifacts } from '../scripts/collect';
+import { snapshotFingerprint } from '../scripts/fingerprint';
 
 // regression: ui-quality-ci-snapshot-volume — 101,035 references / 30,355 raw documents exceeded CI's deadline.
 test('metadata-only variations collapse without discarding origins or visible content', async () => {

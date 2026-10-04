@@ -1,15 +1,15 @@
 import { expect } from 'bun:test';
-import type { Run } from '@pkgs/harness';
-import type { RoomState } from '@pkgs/room';
+import type { Run } from '@pkgs/harness-shared/run-types';
+import type { RoomState } from '@pkgs/room-shared/types';
+import type { RoomHarness } from './harness';
 import {
   clientHash,
   clientState,
   connected,
   lastRejection,
-  type RoomHarness,
   serverHash,
   serverState,
-} from './scenario';
+} from './observations';
 
 export async function readServer(s: Run<RoomHarness>): Promise<RoomState> {
   return (await s.read(serverState)) as RoomState;

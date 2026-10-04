@@ -1,0 +1,59 @@
+{
+  "name": "@pkgs/sync-engine-harness",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "check:models": "bun run ../../libs/tools/scripts/check-models.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts",
+    "test:spec:0": "bun run ../../libs/harness/scripts/test-spec.ts --part 0/4",
+    "test:spec:1": "bun run ../../libs/harness/scripts/test-spec.ts --part 1/4",
+    "test:spec:2": "bun run ../../libs/harness/scripts/test-spec.ts --part 2/4",
+    "test:spec:3": "bun run ../../libs/harness/scripts/test-spec.ts --part 3/4"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/harness-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "fast-check": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/db-schema-postgres-shared": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
+    "@pkgs/openslo-shared": "workspace:*",
+    "@pkgs/postgres-embedded-server": "workspace:*",
+    "@pkgs/quint-shared": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-sqlite-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness",
+  "specDomains": [
+    "sync-engine"
+  ],
+  "specParts": 4
+}

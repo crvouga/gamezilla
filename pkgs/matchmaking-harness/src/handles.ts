@@ -3,10 +3,10 @@
  */
 
 import type {
-  DistanceFormula,
   Matchmaking,
   TickOptions,
-} from '@pkgs/matchmaking/interface';
+} from '@pkgs/matchmaking-shared/matchmaking';
+import type { DistanceFormula } from '@pkgs/matchmaking-shared/types';
 import type {
   HarnessJoinInput,
   HarnessParticipant,

@@ -6,10 +6,10 @@
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { wallClock } from '@pkgs/clock';
-import { createLogger } from '@pkgs/logger';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { createLogger } from '@pkgs/logger-shared/logger';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 
 import { readDistGraph } from './dist-graph';
 import {

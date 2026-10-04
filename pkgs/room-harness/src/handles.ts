@@ -1,10 +1,10 @@
+import type { RoomClient } from '@pkgs/room-client/room-client';
 import type {
-  RoomClient,
   RoomCommandPayload,
   RoomError,
   RoomEvent,
   RoomState,
-} from '@pkgs/room';
+} from '@pkgs/room-shared/types';
 export type RoomHarnessClient<
   S extends RoomState = RoomState,
   C extends RoomCommandPayload = RoomCommandPayload,

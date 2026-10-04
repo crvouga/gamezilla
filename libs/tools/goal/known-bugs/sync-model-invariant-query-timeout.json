@@ -1,4 +1,4 @@
 {
   "summary": "At its existing one-step bound, note-replication.qnt exhausted 240 seconds checking every invariant independently for each transition. Check invariants after the complete transition choice, preserving every reachable state and retaining default map encoding for higher-order models.",
-  "regressionTest": "pkgs/sync-engine/tests/default-model-search.test.ts"
+  "regressionTest": "pkgs/sync-engine-server/tests/default-model-search.test.ts"
 }

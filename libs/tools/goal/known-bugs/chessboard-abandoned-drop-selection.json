@@ -1,4 +1,4 @@
 {
   "summary": "A genuinely traveled drag returned to e2 or dropped outside reselected the source as if it were a tap. Abandoned drags clear selection; stationary presses retain tap semantics.",
-  "regressionTest": "pkgs/chess-board/tests/pointer-session.test.ts"
+  "regressionTest": "pkgs/chess-board-shared/tests/pointer-session.test.ts"
 }

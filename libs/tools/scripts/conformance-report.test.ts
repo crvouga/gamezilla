@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import type { EvidenceRecord, Obligation } from '@pkgs/conformance/evidence';
-
-import {
-  evaluateLines,
-  type ReportInput,
-  type ReportSpec,
-} from '../conformance/evaluate';
+import type {
+  EvidenceRecord,
+  Obligation,
+} from '@pkgs/conformance-shared/evidence';
+import type { ReportInput, ReportSpec } from '../conformance/evaluate';
+import { evaluateLines } from '../conformance/evaluate';
 import { EVIDENCE_MAP } from '../conformance/evidence-map';
 import type { LineId } from '../conformance/lines';
 import {

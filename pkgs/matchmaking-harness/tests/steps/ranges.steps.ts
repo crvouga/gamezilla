@@ -1,14 +1,15 @@
 import { expect } from 'bun:test';
+import { deviceRange } from '@pkgs/matchmaking-harness/devices';
 import {
   changeRange,
-  deviceRange,
-  lastUpdate,
   repeatChange,
   stopWaiting,
   timePasses,
-} from '@pkgs/matchmaking-harness';
+} from '@pkgs/matchmaking-harness/lobby';
+import { lastUpdate } from '@pkgs/matchmaking-harness/observations';
 import { waitsForMatch } from './matchmaking.steps';
-import { Given, type MatchmakingWorld, Then, When } from './world';
+import type { MatchmakingWorld } from './world';
+import { Given, Then, When } from './world';
 
 Given(
   '{actor} is waiting with a range of {int} points',

@@ -1,4 +1,4 @@
 {
   "summary": "Induction spent its time limit expanding an implication already proven by named conjuncts in the candidate. Use Quint AST conjunction elimination for those exact properties; still prove the full candidate initially and under every step, and retain solver implications for every other requested property.",
-  "regressionTest": "pkgs/quint/tests/induction-targets.test.ts"
+  "regressionTest": "pkgs/quint-server/tests/induction-targets.test.ts"
 }

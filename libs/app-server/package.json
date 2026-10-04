@@ -1,0 +1,65 @@
+{
+  "name": "@libs/app-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-config-server": "workspace:*",
+    "@libs/app-config-shared": "workspace:*",
+    "@libs/app-shared": "workspace:*",
+    "@libs/auth-server": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
+    "@libs/db-shared": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/pubsub-server": "workspace:*",
+    "@libs/pubsub-shared": "workspace:*",
+    "@opentelemetry/api": "catalog:",
+    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/auth-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/harness-report-shared": "workspace:*",
+    "@pkgs/http-client-shared": "workspace:*",
+    "@pkgs/kv-postgres-shared": "workspace:*",
+    "@pkgs/llm-openai-server": "workspace:*",
+    "@pkgs/logger-shared": "workspace:*",
+    "@pkgs/object-store-s3-server": "workspace:*",
+    "@pkgs/object-store-s3-shared": "workspace:*",
+    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/observability-server": "workspace:*",
+    "@pkgs/observability-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/secret-store-shared": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@pkgs/tts-elevenlabs-server": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/db-schema-shared": "workspace:*",
+    "@pkgs/db-schema-sqlite-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

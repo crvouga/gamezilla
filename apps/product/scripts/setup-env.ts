@@ -3,16 +3,20 @@ import { execFileSync } from 'node:child_process';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/public/local-api-origin';
+import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared/local-preview-api-origin';
 import {
   assertTigerPolicyForResolvedApiOrigin,
-  DEFAULT_LOCAL_PREVIEW_API_ORIGIN,
   PRODUCTION_API_HTTP_HOSTNAMES,
   productionApiUrlTigerExceptionEnabled,
-} from '@libs/client-app/config/api-servers';
-import { assert } from '@pkgs/assert';
-import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
-import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';
+} from '@libs/app-shared/api-servers';
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth-shared/local-api-origin';
+import { assert } from '@pkgs/assert-shared/singleton';
+import {
+  assertCommitDateIso,
+  COMMIT_HASH_HEX_REGEX,
+} from '@pkgs/git-shared/git';
+import { createScriptSecretStore } from '@pkgs/secret-store-shared/create-script-secret-store';
+import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 
 const productRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(productRoot, '.env.local');

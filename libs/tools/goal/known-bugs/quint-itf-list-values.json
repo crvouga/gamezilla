@@ -1,4 +1,4 @@
 {
   "summary": "ITF decoding rejects ordered lists emitted by Quint, preventing promotion and premove trace replay.",
-  "regressionTest": "pkgs/quint/tests/itf-list.test.ts"
+  "regressionTest": "pkgs/quint-shared/tests/itf-list.test.ts"
 }

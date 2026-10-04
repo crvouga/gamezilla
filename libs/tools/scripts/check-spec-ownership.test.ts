@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty, fc } from '@pkgs/property';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 
 import {
   isSpecFile,
@@ -18,17 +19,17 @@ describe('spec ownership', () => {
         'specs/README.md',
         'docs/STEPS_CATALOG.md',
         'apps/product/STEPS_CATALOG.md',
-        'libs/chess/STEPS_CATALOG.md',
-        'libs/runtime/STEPS_CATALOG.md',
+        'libs/chess-harness/STEPS_CATALOG.md',
+        'libs/runtime-harness/STEPS_CATALOG.md',
         'pkgs/matchmaking-harness/STEPS_CATALOG.md',
       ],
     };
     expect(ownershipViolations([commit])).toEqual([]);
     expect(stagedViolations(commit.files)).toEqual([]);
     for (const file of [
-      'libs/chess/README.md',
-      'libs/chess/STEPS_CATALOG.md.ts',
-      'libs/chess/src/index.ts',
+      'libs/chess-harness/README.md',
+      'libs/chess-harness/STEPS_CATALOG.md.ts',
+      'libs/chess-harness/src/index.ts',
     ]) {
       expect(
         ownershipViolations([{ ...commit, files: [...commit.files, file] }])
@@ -43,7 +44,7 @@ describe('spec ownership', () => {
       'specs/README.md',
       'specs/chess/ubiquitous-language.yml',
       'specs/conformance.yaml',
-      'libs/chess/package.json',
+      'libs/chess-harness/package.json',
     ];
     expect(mergeStagedViolations(staged, staged, [])).toEqual([]);
     assertProperty(
@@ -77,7 +78,7 @@ describe('spec ownership', () => {
         ),
         fc.constantFrom(
           'libs/tools/scripts/check-plan.ts',
-          'pkgs/quint/src/verify.ts'
+          'pkgs/quint-server/src/verify.ts'
         ),
         (spec, implementation) => {
           expect(
@@ -214,21 +215,27 @@ describe('spec ownership', () => {
 
   test('recognizes every Gherkin file, wherever it is, and every file under specs/', () => {
     expect(isSpecFile('specs/friends/friend-remove.feature')).toBe(true);
-    expect(isSpecFile('libs/friends/features/remove.feature')).toBe(true);
+    expect(isSpecFile('libs/friends-harness/features/remove.feature')).toBe(
+      true
+    );
     expect(isSpecFile('specs/spaces/space-hosting.qnt')).toBe(true);
-    expect(isSpecFile('pkgs/quint/tests/fixtures/door.qnt')).toBe(false);
+    expect(isSpecFile('pkgs/quint-server/tests/fixtures/door.qnt')).toBe(false);
     expect(isSpecFile('specs/README.md')).toBe(true);
     expect(isSpecFile('specs/conformance.yaml')).toBe(true);
     expect(isSpecFile('specs/billing/access.dmn')).toBe(true);
     expect(isSpecFile('specs/spaces/spaces.als')).toBe(true);
     expect(isSpecFile('specs/runtime/availability.openslo.yaml')).toBe(true);
-    expect(isSpecFile('pkgs/dmn/tests/fixtures/access.dmn')).toBe(false);
-    expect(isSpecFile('libs/billing/tests/dmn/access.binding.ts')).toBe(false);
+    expect(isSpecFile('pkgs/dmn-server/tests/fixtures/access.dmn')).toBe(false);
+    expect(isSpecFile('libs/billing-harness/tests/dmn/access.binding.ts')).toBe(
+      false
+    );
     expect(isSpecFile('specs/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/glossary.yaml')).toBe(true);
     expect(isSpecFile('specs/billing/events.qnt')).toBe(true);
-    expect(isSpecFile('libs/billing/ubiquitous-language.yml')).toBe(false);
+    expect(isSpecFile('libs/billing-harness/ubiquitous-language.yml')).toBe(
+      false
+    );
   });
 
   test('requires feature-only spec commits', () => {
@@ -256,7 +263,7 @@ describe('spec ownership', () => {
     expect(
       stagedViolations([
         'specs/friends/friend-remove.feature',
-        'libs/friends/tests/steps/friends.steps.ts',
+        'libs/friends-harness/src/friends.steps.ts',
       ])
     ).toHaveLength(1);
     expect(stagedViolations(['specs/friends/friend-remove.feature'])).toEqual(
@@ -265,7 +272,7 @@ describe('spec ownership', () => {
     expect(
       stagedViolations([
         'specs/conformance.yaml',
-        'libs/billing/tests/dmn/access.binding.ts',
+        'libs/billing-harness/tests/dmn/access.binding.ts',
       ])
     ).toHaveLength(1);
     expect(

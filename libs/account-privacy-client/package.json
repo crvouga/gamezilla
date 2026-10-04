@@ -1,0 +1,37 @@
+{
+  "name": "@libs/account-privacy-client",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@libs/account-privacy-shared": "workspace:*",
+    "@libs/auth-client": "workspace:*",
+    "@libs/feature-client": "workspace:*",
+    "@libs/permissions-client": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/permissions-shared": "workspace:*",
+    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
+    "@pkgs/ui-client": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client"
+}

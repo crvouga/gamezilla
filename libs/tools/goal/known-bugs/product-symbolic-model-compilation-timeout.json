@@ -1,4 +1,4 @@
 {
   "summary": "Open: Check run 36977052636 shard 0 timed out symbolic identity, replication, access, multiplayer and privacy checks at 120,000ms, then reached the 1,200s shard deadline. The literal offline-replication model with its existing three-client symbolic bound and two transitions also times out in isolation: Snowcat finishes but InlinePass does not. Disabling polymorphic inference does not resolve it. Requires compiler/model optimization that preserves the declared bounds, transitions and invariants; the checks remain enabled and failing.",
-  "regressionTest": "apps/product/tests/quint/system/model-checks.test.ts"
+  "regressionTest": "apps/product/tests/quint/model-checks.test.ts"
 }

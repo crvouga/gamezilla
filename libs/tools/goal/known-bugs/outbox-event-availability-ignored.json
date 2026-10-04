@@ -1,4 +1,4 @@
 {
   "summary": "Deliveries ignored the event availability time, immediately running future work including 30-day erasure. Deliveries now inherit the event deadline.",
-  "regressionTest": "pkgs/outbox/src/outbox.test.ts"
+  "regressionTest": "pkgs/outbox-harness/tests/outbox.test.ts"
 }

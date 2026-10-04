@@ -4,20 +4,19 @@
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import type {
-  LeaveResult,
-  UpdateFormulasResult,
-} from '@pkgs/matchmaking/interface';
+import { leave, updateFormulas } from '@pkgs/matchmaking-harness/actions';
+import { ratingWithin } from '@pkgs/matchmaking-harness/attrs';
+import { registerTestCrashHandler } from '@pkgs/matchmaking-harness/crash-handler';
 import {
   lastLeave,
   lastUpdate,
-  leave,
-  matchmaking,
-  ratingWithin,
-  registerTestCrashHandler,
   statusById,
-  updateFormulas,
-} from '@pkgs/matchmaking-harness';
+} from '@pkgs/matchmaking-harness/observations';
+import { matchmaking } from '@pkgs/matchmaking-harness/system';
+import type {
+  LeaveResult,
+  UpdateFormulasResult,
+} from '@pkgs/matchmaking-shared/types';
 
 /** A participant id nobody ever joined with. */
 const NOBODY = '00000000-0000-0000-0000-000000000000';

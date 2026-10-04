@@ -1,0 +1,317 @@
+/* Host class resets for design-system HTML (`box`, `text`, `clickable`, …).
+ *
+ * Lives in `@layer components` so Tailwind `@layer utilities` (`flex-row`,
+ * `p-4`, …) can override defaults like `flex-direction: column` / `padding: 0`.
+ * Unlayered rules beat layered utilities in the cascade.
+ *
+ * Import once from the app entry: `import '@pkgs/ui-client/hosts.css'`.
+ * `skin.css` is the component paint (buttons, chips, badges) — same layer.
+ */
+
+@import "../skin.css";
+@import "../../ui-shared/src/fonts.css";
+
+@layer components {
+  .card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--ui-color-border);
+    border-radius: 14px;
+    background: var(--ui-elevation-1);
+  }
+
+  .divider {
+    width: 100%;
+    border-bottom: 1px solid var(--ui-color-border);
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 solid transparent;
+  }
+
+  .text {
+    display: block;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    white-space: pre-wrap;
+    /* Prefer wrap at spaces; only break mid-word when a single token cannot
+       fit. Headings override to `normal` so tight flex children truncate
+       (line-clamp) instead of letter-wrapping ("P u z z l e"). */
+    overflow-wrap: break-word;
+    word-break: normal;
+    text-decoration: none;
+    font-family: var(--ui-font-sans);
+    font-size: var(--ui-font-size-base);
+    line-height: var(--ui-leading-base);
+    font-weight: 400;
+    /* Theme foreground — do not route through `--ui-on-fg` here. That var is
+       set by OnColorProvider for icon/JS consumers; when it was applied to
+       `.text` via fallback, invalid or light-scheme concrete values painted
+       dark labels on dark surfaces after the sx→class migration. */
+    color: var(--ui-color-text);
+  }
+
+  .textBodyBold {
+    font-weight: 600;
+  }
+
+  .textCaption {
+    font-size: var(--ui-font-size-xs);
+    line-height: var(--ui-leading-xs);
+    letter-spacing: 0.01em;
+    color: var(--ui-color-text-secondary);
+  }
+
+  .textLabel {
+    font-family: var(--ui-font-display);
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
+    font-weight: 600;
+  }
+
+  .textTitle,
+  .textSubtitle,
+  .textHeading,
+  .textNavigationTitle {
+    font-family: var(--ui-font-display);
+    overflow-wrap: normal;
+    letter-spacing: -0.03em;
+  }
+
+  .textTitle {
+    font-size: var(--ui-font-size-4xl);
+    line-height: var(--ui-leading-4xl);
+    font-weight: 800;
+  }
+
+  .textSubtitle {
+    font-size: var(--ui-font-size-xl);
+    line-height: var(--ui-leading-xl);
+    font-weight: 800;
+  }
+
+  .textHeading {
+    font-size: var(--ui-font-size-2xl);
+    line-height: var(--ui-leading-2xl);
+    font-weight: 800;
+  }
+
+  .textNavigationTitle {
+    font-size: var(--ui-font-size-lg);
+    line-height: var(--ui-leading-lg);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .textLink {
+    font-family: var(--ui-font-display);
+    font-weight: 700;
+    color: var(--ui-color-tint);
+  }
+
+  .textMono {
+    font-family: var(--ui-font-mono);
+    font-size: var(--ui-font-size-sm);
+    line-height: var(--ui-leading-sm);
+  }
+
+  .clickable {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0 solid transparent;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: inherit;
+    appearance: none;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    outline: none;
+  }
+
+  .clickable:disabled {
+    cursor: default;
+  }
+
+  .clickable:focus-visible {
+    outline: 2px solid var(--ui-color-focus-ring);
+    outline-offset: 3px;
+  }
+
+  /* Tint feedback: overlay layered above children. */
+  .clickableTint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: transparent;
+    transition: background-color 0ms;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .clickableTint:not(:disabled):hover::after {
+      background: var(--ui-color-interactive-hover);
+    }
+  }
+
+  .clickableTint:not(:disabled):active::after {
+    background: var(--ui-color-interactive-press);
+  }
+
+  .clickableOpacity {
+    transition: opacity 0ms;
+  }
+
+  .clickableOpacity:not(:disabled):active {
+    opacity: 0.7;
+  }
+
+  .scroll {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: auto;
+  }
+
+  .scrollHorizontal {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .scrollHideBar {
+    scrollbar-width: none;
+  }
+
+  .scrollHideBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollContent {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .scrollContentHorizontal {
+    flex-direction: row;
+  }
+
+  .input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    appearance: none;
+    outline: none;
+    font: inherit;
+    color: var(--ui-color-text);
+    background: var(--ui-color-surface);
+    border: 1px solid var(--ui-color-outline);
+    border-radius: var(--ui-radius-lg);
+    transition: border-color 0ms;
+  }
+
+  .input::placeholder {
+    color: var(--ui-color-text-secondary);
+  }
+
+  .input:focus-visible {
+    border-color: var(--ui-color-tint);
+    box-shadow: 0 0 0 1px var(--ui-color-tint);
+  }
+
+  .inputError,
+  .inputError:focus-visible {
+    border-color: var(--ui-color-destructive);
+    box-shadow: none;
+  }
+
+  .inputTextarea {
+    resize: vertical;
+  }
+
+  /* A field with a `<datalist>` gets WebKit's native suggestions arrow. Keep
+     the control (clicking it still opens the list) but paint the design
+     system's chevron-down (Lucide `m6 9 6 6 6-6`) in the icon token. */
+  .input[list]::-webkit-calendar-picker-indicator {
+    width: 20px;
+    height: 20px;
+    margin-left: 8px;
+    cursor: pointer;
+    opacity: 1;
+    background: var(--ui-color-icon);
+    -webkit-mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  .switchTrack {
+    transition: background-color 0ms;
+  }
+
+  .switchThumb {
+    transition: transform 0ms;
+  }
+
+  /* Safe-area insets (notch / home indicator). Classes because happy-dom and
+     some inline-style sanitizers drop `env()` values. */
+  .safeTop {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safeBottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but
+     its direct children are interactive again. */
+  .boxNone {
+    pointer-events: none;
+  }
+
+  .boxNone > * {
+    pointer-events: auto;
+  }
+}

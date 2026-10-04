@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import type { AppWorkerEnv } from '@apps/product/worker';
 import worker, {
-  type AppWorkerEnv,
   RoomServerDurableObject,
   RoomStorageArchive,
 } from '@apps/product/worker';

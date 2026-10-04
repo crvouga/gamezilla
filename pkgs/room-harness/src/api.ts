@@ -1,31 +1,26 @@
-import type { Clock, Timers } from '@pkgs/clock';
-import type { Session, VirtualScheduler } from '@pkgs/harness';
+import type { Clock, Timers } from '@pkgs/clock-shared/types';
+import type { Session } from '@pkgs/harness-shared/runtime-types';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import type { RoomServer } from '@pkgs/room-server/room-server';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomModule,
   RoomState,
-} from '@pkgs/room';
-import type { RoomServer } from '@pkgs/room/server';
-import type { InMemoryRoomStorage } from '@pkgs/room-adapter-memory';
-import type { CreateId, SeededRng } from '@pkgs/uuid';
+} from '@pkgs/room-shared/types';
+import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 
 import type { RoomCrashEvent } from './edge-faults';
 import type { RoomHarnessClient, RoomHarnessNode } from './handles';
 import type { RoomInvariantViolation } from './invariants';
-import type {
-  HarnessRoomNetwork,
-  RoomHarnessNet,
-  RoomNetEffect,
-  RoomNetSetArg,
-} from './network';
+import type { HarnessRoomNetwork, RoomHarnessNet } from './network';
 import type {
   NeverOptions,
   UntilPredicate,
   WaitUntilOptions,
 } from './wait-until';
-
-export type { RoomHarnessClient, RoomHarnessNode } from './handles';
 
 /** Kernel ports the kit needs, derived from a DST `Session`. */
 export type RoomHarnessRuntimeDeps = {
@@ -108,7 +103,3 @@ export type OpenRoomHarnessArgs<
   /** Share storage across systems for multi-topic isolation tests. */
   readonly storage?: InMemoryRoomStorage;
 };
-
-export type { RoomCrashEvent } from './edge-faults';
-export type { RoomInvariantViolation } from './invariants';
-export type { RoomNetEffect, RoomNetSetArg };

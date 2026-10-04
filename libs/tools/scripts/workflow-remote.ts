@@ -3,10 +3,10 @@
 /** `bun check`, `bun health`, `bun deploy`: sync, run on Depot and await the verdict. */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { type GitSyncOptions, gitSync, parseGitSyncArgs } from './git-sync';
+import type { GitSyncOptions } from './git-sync';
+import { gitSync, parseGitSyncArgs } from './git-sync';
+import type { DepotTarget, DepotWorkflow } from './workflow-depot';
 import {
-  type DepotTarget,
-  type DepotWorkflow,
   listWorkflows,
   selectWorkflow,
   startWorkflow,
@@ -15,11 +15,11 @@ import {
 
 const DEV_ENV_FILE = join(
   import.meta.dirname,
-  '../../infra/tofu/envs/dev.tfvars.json'
+  '../../infra-shared/tofu/envs/dev.tfvars.json'
 );
 const GLOBAL_FILE = join(
   import.meta.dirname,
-  '../../infra/tofu/global.tfvars.json'
+  '../../infra-shared/tofu/global.tfvars.json'
 );
 const TRUNK = 'main';
 

@@ -1,15 +1,13 @@
-import {
-  defineAction,
-  defineProperty,
-  defineRuntime,
-  defineSystem,
-  virtualTimeRuntime,
-} from '@pkgs/harness';
-import { gen } from '@pkgs/harness/fast-check';
+import { defineAction } from '@pkgs/harness-shared/define-action';
+import { defineProperty } from '@pkgs/harness-shared/define-property';
+import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
+import { defineSystem } from '@pkgs/harness-shared/define-system';
+import { gen } from '@pkgs/harness-shared/fast-check';
+import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
 import {
   corruptHarnessOpfsStore,
   fillHarnessOpfsPool,
-} from '@pkgs/sql-client-sqlite-web/owners/harness-opfs-sql-owner';
+} from '@pkgs/sql-client-sqlite-web-shared/harness-opfs-sql-owner';
 import fc from 'fast-check';
 import { startStore, startTab } from './nodes';
 import { persistImage } from './owners';
@@ -21,12 +19,8 @@ import {
   ownerTabId,
 } from './ownership';
 import { readToyRow, readToyRows, writeToyRow } from './toy-kv';
-import {
-  boardOf,
-  requireStore,
-  type SqlClientWebBackend,
-  type SqlClientWebSurface,
-} from './types';
+import type { SqlClientWebBackend, SqlClientWebSurface } from './types';
+import { boardOf, requireStore } from './types';
 
 function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
@@ -243,5 +237,3 @@ export const sqlClientWeb = defineSystem<SqlClientWebSurface, SqlClientWebArgs>(
     properties: [inSync],
   }
 );
-
-export type { SqlClientWebSurface };

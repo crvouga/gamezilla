@@ -1,0 +1,32 @@
+/* Shared Tailwind entry — import from `@pkgs/tailwind-shared/tailwind.css`. */
+@import "tailwindcss";
+
+/* Design-token colors (`bg-surface`, `text-text-secondary`, …). MUST be
+   imported here so the Tailwind compiler sees `@theme` — a separate Vite
+   `import '@pkgs/ui/theme.css'` injects raw `@theme` into the browser (no-op)
+   and never generates the utilities. */
+@import "../../ui-client/codemod/theme.css";
+
+/* Scan every workspace tier. Paths are relative to this stylesheet. */
+@source "../../../apps";
+@source "../../../libs";
+@source "../../../pkgs";
+
+/* Standalone SPAs compile their own stylesheet (`source(none)` + local
+   `@source`), and their built bundles are embedded as `*.generated.ts`
+   strings. Scanning either ships their utilities on the app's critical path. */
+@source not "../../../**/*.generated.ts";
+
+/* The repo themes with `[data-theme]` (see `@pkgs/ui` tokens.css), not
+   `prefers-color-scheme`, so route `dark:` through the same attribute.
+
+   Nested ThemeProviders (console vs harness client) isolate via host
+   `data-theme` + CSS variables (`bg-background`, `text-text`, …). Prefer those
+   under nested themes: this `dark:` matcher still matches any dark ancestor
+   (Tailwind 4.3 does not hoist `@scope … to ([data-theme])` in custom
+   variants). Product sources do not use `dark:` today. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@utility color-scheme-system {
+  color-scheme: light dark;
+}

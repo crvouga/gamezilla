@@ -6,11 +6,11 @@
  */
 
 import { join } from 'node:path';
-import { assert } from '@pkgs/assert';
+import { assert } from '@pkgs/assert-shared/singleton';
 import { file } from 'bun';
 
 import { previewStackReadyResponse } from './preview-stack-ready';
-import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
+import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.d';
 
 const CALLBACK_COOP = 'same-origin-allow-popups';
 

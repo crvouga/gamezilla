@@ -1,44 +1,40 @@
-import { asSeededRng, type Session } from '@pkgs/harness';
-import {
-  createTimerScheduleStack,
-  type RoomCommandPayload,
-  type RoomEvent,
-  type RoomState,
-} from '@pkgs/room';
-import { RoomServer } from '@pkgs/room/server';
-import {
-  InMemoryClientStorage,
-  InMemoryRoomStorage,
-} from '@pkgs/room-adapter-memory';
+import { asSeededRng } from '@pkgs/harness-shared/rng';
+import type { Session } from '@pkgs/harness-shared/runtime-types';
+import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared/client-storage';
+import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared/room-storage';
+import { RoomServer } from '@pkgs/room-server/room-server';
+import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
+import type {
+  RoomCommandPayload,
+  RoomEvent,
+  RoomState,
+} from '@pkgs/room-shared/types';
 import type {
   OpenRoomHarnessArgs,
-  RoomHarnessClient,
   RoomHarnessRuntime,
   RoomHarnessRuntimeDeps,
 } from './api';
+import type { RoomKernel } from './clients';
 import {
   attachClient,
   buildRoomHarnessClient,
   crashClientSync,
   destroyClient,
-  type RoomKernel,
   restartClient,
   softDisconnectClient,
   softReconnectClient,
 } from './clients';
 import { createRoomEdgeFaultController } from './edge-faults';
 import { assembleRoomHarnessRuntime } from './facade';
+import type { RoomHarnessClient } from './handles';
 import { checkRoomInvariants } from './invariants';
-import {
-  type HarnessRoomNetwork,
-  MILD_ROOM_FAULTS,
-  wrapRoomNetwork,
-} from './network';
+import type { HarnessRoomNetwork } from './network';
+import { MILD_ROOM_FAULTS, wrapRoomNetwork } from './network';
 import { SerialQueue } from './serial-queue';
+import type { RoomHarnessClientSlot } from './wait-for-idle';
 import {
   drainRoomHarness,
   foldServerDomainState,
-  type RoomHarnessClientSlot,
   recoverAllRoom,
   serverDomainHash,
 } from './wait-for-idle';

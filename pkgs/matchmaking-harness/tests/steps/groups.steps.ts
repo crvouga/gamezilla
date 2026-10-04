@@ -1,11 +1,12 @@
 import { expect } from 'bun:test';
+import { changeRange } from '@pkgs/matchmaking-harness/lobby';
 import {
-  changeRange,
   pairAllowed,
   participantIds,
-} from '@pkgs/matchmaking-harness';
+} from '@pkgs/matchmaking-harness/observations';
 import { standing, waitsForMatch } from './matchmaking.steps';
-import { Given, type MatchmakingWorld, Then } from './world';
+import type { MatchmakingWorld } from './world';
+import { Given, Then } from './world';
 
 async function group(
   w: MatchmakingWorld,

@@ -42,7 +42,7 @@ describe('specLocationProblems', () => {
             text: 'module friendship {}',
           },
           {
-            path: 'pkgs/quint/tests/fixtures/door.qnt',
+            path: 'pkgs/quint-server/tests/fixtures/door.qnt',
             text: '// @spec-meta — parser fixture\nmodule door {}',
           },
         ],
@@ -86,26 +86,29 @@ describe('specLocationProblems', () => {
       specLocationProblems(
         [
           {
-            path: 'libs/friends/tests/friend.feature',
+            path: 'libs/friends-harness/tests/friend.feature',
             text: 'Feature: Friends',
           },
-          { path: 'libs/friends/src/friendship.qnt', text: '// @spec-meta' },
           {
-            path: 'libs/friends/tests/friendship.qnt',
+            path: 'libs/friends-harness/src/friendship.qnt',
+            text: '// @spec-meta',
+          },
+          {
+            path: 'libs/friends-harness/tests/friendship.qnt',
             text: 'module friendship {}',
           },
           {
-            path: 'libs/friends/tests/both.qnt',
+            path: 'libs/friends-harness/tests/both.qnt',
             text: '// @spec-meta\n// @spec-interpretation',
           },
         ],
         domains
       )
     ).toEqual([
-      'libs/friends/tests/friend.feature: Gherkin product specifications live in specs/<domain>/',
-      'libs/friends/src/friendship.qnt: Quint outside specs/ is allowed only as test machinery under tests/',
-      'libs/friends/tests/friendship.qnt: begin with exactly one of "// @spec-meta" or "// @spec-interpretation"',
-      'libs/friends/tests/both.qnt: begin with exactly one of "// @spec-meta" or "// @spec-interpretation"',
+      'libs/friends-harness/tests/friend.feature: Gherkin product specifications live in specs/<domain>/',
+      'libs/friends-harness/src/friendship.qnt: Quint outside specs/ is allowed only as test machinery under tests/',
+      'libs/friends-harness/tests/friendship.qnt: begin with exactly one of "// @spec-meta" or "// @spec-interpretation"',
+      'libs/friends-harness/tests/both.qnt: begin with exactly one of "// @spec-meta" or "// @spec-interpretation"',
     ]);
   });
 

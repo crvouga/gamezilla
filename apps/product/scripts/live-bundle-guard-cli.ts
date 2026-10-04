@@ -5,9 +5,9 @@ import {
   assertLiveClientBuildEnv,
   LiveBundleGuard,
   productionClientApiOrigin,
-} from '@libs/client-config/public/live-client-bundle-guard';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+} from '@libs/app-config-shared/live-client-bundle-guard';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
 
 const productRoot = join(fileURLToPath(import.meta.url), '..', '..');
 const fs = wallNodeFs();

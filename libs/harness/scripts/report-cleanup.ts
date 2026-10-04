@@ -3,14 +3,14 @@
 import {
   planReportRetention,
   pruneReports,
-} from '@pkgs/harness-report/remote/retention';
-import { capture } from '@pkgs/os';
-import {
-  type BranchCleanupPort,
-  type CleanupBranch,
-  type CleanupPull,
-  cleanupBranches,
+} from '@pkgs/harness-report-shared/retention';
+import { capture } from '@pkgs/os-server/command';
+import type {
+  BranchCleanupPort,
+  CleanupBranch,
+  CleanupPull,
 } from './branch-cleanup';
+import { cleanupBranches } from './branch-cleanup';
 import { reportsStore } from './report-store';
 
 type GithubBranch = {

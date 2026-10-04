@@ -77,7 +77,7 @@ describe('decouplingProblems (D1)', () => {
   test('a file path in a Quint comment is reported once', () => {
     const errors = problems(
       'specs/sync-engine/note-replication.qnt',
-      '// sees after a quiet moment. The binding is\n// `pkgs/sync-engine/tests/quint/note-replication.binding.ts`.'
+      '// sees after a quiet moment. The binding is\n// `pkgs/sync-engine-harness/tests/quint/note-replication.binding.ts`.'
     );
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain(
@@ -112,9 +112,9 @@ describe('decouplingProblems (D1)', () => {
       'specs/runtime/availability.openslo.yaml',
       'specs/conformance.yaml',
     ]) {
-      expect(problems(path, '# bound in libs/billing/tests/dmn')).toHaveLength(
-        1
-      );
+      expect(
+        problems(path, '# bound in libs/billing-harness/tests/dmn')
+      ).toHaveLength(1);
     }
     expect(
       problems('specs/billing/refunds.qnt', '// see access.dmn and spaces.als')
@@ -122,7 +122,7 @@ describe('decouplingProblems (D1)', () => {
     expect(
       problems(
         'specs/README.md',
-        'specs/<context>/<table>.dmn is bound in tests/dmn/ of @libs/billing'
+        'specs/<context>/<table>.dmn is bound in tests/dmn/ of @libs/billing-harness'
       )
     ).toEqual([]);
   });

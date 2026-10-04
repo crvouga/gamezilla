@@ -246,7 +246,7 @@ export default defineConfig({
   settings: {
     shadcn: {
       componentImports: ['^@pkgs/ui$'],
-      note: 'Use the Tailwind theme in pkgs/tailwind/src/tailwind.css and the components exported by @pkgs/ui.',
+      note: 'Use the Tailwind theme in pkgs/tailwind-shared/src/tailwind.css and the components exported by @pkgs/ui.',
     },
   },
   rules: {
@@ -301,7 +301,7 @@ export default defineConfig({
     {
       // Provider logos must retain their official brand colors rather than
       // adapting to the product theme.
-      files: ['pkgs/ui/src/components/brand-icon/svg/brand-logos.tsx'],
+      files: ['pkgs/ui-client/src/brand-logos.tsx'],
       rules: { 'shadcn/no-raw-colors': 'off' },
     },
   ],

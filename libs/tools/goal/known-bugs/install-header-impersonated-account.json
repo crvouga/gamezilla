@@ -1,4 +1,4 @@
 {
   "summary": "An install header without a verified bearer could authenticate its signed-in account owner.",
-  "regressionTest": "libs/auth/tests/session-device-proof.test.ts"
+  "regressionTest": "libs/auth-server/tests/session-device-proof.test.ts"
 }

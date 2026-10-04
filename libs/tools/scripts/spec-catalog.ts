@@ -13,12 +13,12 @@ import { dirname, join } from 'node:path';
 import {
   renderCatalogIndex,
   renderPackageCatalog,
-} from '@pkgs/gherkin/catalog';
-import type { ExtractedStep } from '@pkgs/gherkin/extract';
+} from '@pkgs/gherkin-shared/catalog';
+import type { ExtractedStep } from '@pkgs/gherkin-shared/extract';
+import type { SpecPackage } from './spec-packages';
 import {
   importedSteps,
   REPO_ROOT,
-  type SpecPackage,
   sharedSteps,
   specPackages,
 } from './spec-packages';

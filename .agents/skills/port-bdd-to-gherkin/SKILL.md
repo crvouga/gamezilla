@@ -1,6 +1,6 @@
 ---
 name: port-bdd-to-gherkin
-description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / spec / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
+description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness-shared` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / spec / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
 ---
 
 # Port legacy harness tests to Gherkin + Quint
@@ -52,7 +52,7 @@ Sort every legacy `test(...)` into exactly one destination:
 | Stateful internals: convergence, exactly-once, idempotent replay, rebase order, fault recovery, fanout caps | **Quint model** in `specs/<domain>/`, over the package's public observables (see step 2) |
 | Standing `defineProperty` checks on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
 | Same-seed-twice determinism of a product harness | **The model's `fingerprint`** in its Quint binding: the runner replays the longest trace twice and compares |
-| Hash canonicality, `@pkgs/harness` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
+| Hash canonicality, `@pkgs/harness-shared` / `harness-report` / `sql-client-harness` self-tests | **Stay code tests**, as framework contracts |
 | Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads ([`README.md`](../../../README.md#correctness-machinery)) |
 | A past bug | A scenario tagged `@regression:<id>` if the bug was observable behavior. Otherwise an example regression test |
 

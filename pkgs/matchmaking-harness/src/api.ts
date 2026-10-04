@@ -3,15 +3,17 @@
  */
 
 import type {
+  Matchmaking,
+  TickOptions,
+  TickResult,
+} from '@pkgs/matchmaking-shared/matchmaking';
+import type {
   DistanceFormula,
   JoinInput,
   LeaveResult,
-  Matchmaking,
   StatusResult,
-  TickOptions,
-  TickResult,
   UpdateFormulasResult,
-} from '@pkgs/matchmaking/interface';
+} from '@pkgs/matchmaking-shared/types';
 export type HarnessJoinInput = Omit<JoinInput, 'ownerId' | 'requestId'> & {
   readonly ownerId?: string;
   readonly requestId?: string;

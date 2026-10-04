@@ -2,11 +2,11 @@
 /** `specs/billing/payments.feature`: billing keys per environment. */
 
 import { expect } from 'bun:test';
-import { isProductionEnv } from '@libs/infra/public/env-file';
-import { SECRETS } from '@libs/secrets/shared/secrets/registry';
-import { validateSecretOrError } from '@libs/secrets/shared/secrets/secret';
-import { PaddleSecretKeys } from '@pkgs/billing-paddle/secret-keys';
-import { StripeSecretKeys } from '@pkgs/billing-stripe/secret-keys';
+import { isProductionEnv } from '@libs/infra-shared/env-file';
+import { SECRETS } from '@libs/secrets-server/registry';
+import { validateSecretOrError } from '@libs/secrets-shared/secret';
+import { PaddleSecretKeys } from '@pkgs/billing-paddle-shared/secret-keys';
+import { StripeSecretKeys } from '@pkgs/billing-stripe-shared/secret-keys';
 import { Then } from './define';
 import { liveSecretOrEmpty, liveSecrets } from './live-secrets';
 

@@ -1,4 +1,4 @@
 {
   "summary": "createAsyncRunner: a cancelled run settling late deleted the newer run's in-flight entry for the same key, so the next run started a duplicate operation. Fixed by evicting only the entry the settling run owns.",
-  "regressionTest": "pkgs/async/tests/async-runner.test.ts"
+  "regressionTest": "pkgs/async-shared/tests/async-runner.test.ts"
 }

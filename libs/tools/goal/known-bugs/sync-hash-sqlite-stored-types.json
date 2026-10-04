@@ -1,4 +1,4 @@
 {
   "summary": "The server hashed a scope's Postgres rows (booleans, jsonb objects and scalars) while the client re-hashed the same rows read back from SQLite (1, JSON text, and a jsonb scalar in a TEXT column read back as text), so ownUser, ownProfile and clientConfig never read as in sync. Every sweep healed them with a refetch, sweeps ran back to back, and \"New space\" hung on \"Opening…\" in production. Fixed: both sides hash each value as the client's SQLite stores it, as text.",
-  "regressionTest": "pkgs/sync-engine/tests/query-not-modified.test.ts"
+  "regressionTest": "pkgs/sync-engine-server/tests/query-not-modified.test.ts"
 }

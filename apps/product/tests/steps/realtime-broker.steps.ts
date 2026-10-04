@@ -2,17 +2,17 @@
 /** `specs/spaces/live-updates.feature`. */
 
 import { expect } from 'bun:test';
-import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
-import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
-import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
-import { wallClock } from '@pkgs/clock';
-import { COMMITTED_EMQX_CREDENTIALS } from '@pkgs/emqx-server/ports';
-import type { HttpClient } from '@pkgs/http-client';
+import { ClientConfigKey } from '@libs/app-config-shared/client-config-keys';
+import { parseClientConfigRows } from '@libs/app-config-shared/parse-client-config';
+import { PubsubSecretName as Name } from '@libs/pubsub-shared/secret-names';
+import { wallClock } from '@pkgs/clock-shared/wall';
+import { COMMITTED_EMQX_CREDENTIALS } from '@pkgs/emqx-shared/ports';
+import type { HttpClient } from '@pkgs/http-client-shared/types';
 import {
   createIotHttpPubSub,
   iotEndpointHost,
-  probeIotDataPlane,
-} from '@pkgs/pubsub/iot';
+} from '@pkgs/pubsub-shared/create-iot-http-pubsub';
+import { probeIotDataPlane } from '@pkgs/pubsub-shared/probe-iot-data-plane';
 import { awaitApiAnswered, liveRows } from './client-config.steps';
 import { eventually, Then } from './define';
 import { liveSecret } from './live-secrets';

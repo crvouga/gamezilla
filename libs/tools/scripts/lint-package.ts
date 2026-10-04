@@ -31,10 +31,10 @@ import { readKnownBugs } from '../goal/known-bugs';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
+import type { WorkspacePackage } from './biome-scope';
 import {
   dependencyClosure,
   scopedBiomeConfig,
-  type WorkspacePackage,
   workspaceDeps,
 } from './biome-scope';
 import { macrosOutsideCatalog } from './lingui-scope';

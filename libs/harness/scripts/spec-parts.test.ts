@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import type { SpecUnit } from './spec-parts';
 import {
   CHECK_WEIGHT,
   MODEL_SLICES,
   MODEL_WEIGHT,
   partOf,
   SLICE_SCENARIOS,
-  type SpecUnit,
   specUnits,
   specWeight,
 } from './spec-parts';

@@ -1,0 +1,4 @@
+{
+  "summary": "The unchanged custom-game induction exceeded its 240-second deadline with the optional fun-arrays SMT encoding during local Check. The default encoding proved the same complete candidate in 113 seconds versus 147–162 seconds for arrays. Remove the opt-in without changing the model, candidate, bound or deadline.",
+  "regressionTest": "libs/tools/scripts/check-models.test.ts"
+}

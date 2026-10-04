@@ -1,4 +1,4 @@
 {
   "summary": "A repository import plan with code_security { status = disabled } and secret_scanning_non_provider_patterns { status = disabled } proposed both additions even though GitHub reported both disabled. integrations/github 6.13.0 advertises the blocks in its schema but calculateSecurityAndAnalysis and flattenSecurityAndAnalysis omit them, so every apply would leave perpetual drift. Omit these unsupported fields and document the limitation while managing the supported security settings.",
-  "regressionTest": "libs/infra/tests/repository-policy.test.ts"
+  "regressionTest": "libs/infra-server/tests/repository-policy.test.ts"
 }

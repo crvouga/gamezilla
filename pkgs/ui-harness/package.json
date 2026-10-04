@@ -1,0 +1,37 @@
+{
+  "name": "@pkgs/ui-harness",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
+  },
+  "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@solidjs/router": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/a11y-shared": "workspace:*",
+    "@pkgs/bun-test-solid-client": "workspace:*",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/i18n-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-shared": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "harness"
+}

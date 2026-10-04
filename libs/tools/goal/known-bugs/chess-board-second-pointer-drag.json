@@ -1,4 +1,4 @@
 {
   "summary": "Board move / up handlers ignored `pointerId`: a second finger steered the dragged piece and its release ended the drag as a drop on the second finger's square. Fixed by binding each press to its pointer id.",
-  "regressionTest": "pkgs/chess-board/tests/chess-board-input.test.tsx"
+  "regressionTest": "pkgs/chess-board-client/tests/chess-board-input.test.tsx"
 }

@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
-import { harnessClientServerFetch } from '@libs/harness/fabric/client-server-fetch';
-import { harnessPartitionedError } from '@libs/harness/fabric/net';
-import { createHarnessClock } from '@pkgs/clock';
-import { HttpNetworkError } from '@pkgs/http-client';
+import { harnessClientServerFetch } from '@libs/harness/client-server-fetch';
+import { harnessPartitionedError } from '@libs/harness/net';
+import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
 
 test('an offline account request fails as a network error and can resume after health recovers', async () => {
   // regression: harness-offline-account-recovery

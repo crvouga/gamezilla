@@ -10,8 +10,8 @@ import { REPO_ROOT } from './spec-packages';
 describe('Quint spec campaigns', () => {
   const campaign = { dir: 'apps/product', domain: 'system' };
   const scripts = {
-    test: 'bun test tests/quint/system/simulation.test.ts tests/quint/system/effectiveness.test.ts',
-    'test:contract': 'bun test tests/quint/system/model-checks.test.ts',
+    test: 'bun test tests/quint/simulation.test.ts tests/quint/effectiveness.test.ts',
+    'test:contract': 'bun test tests/quint/model-checks.test.ts',
   };
   const inputs = [
     '$TURBO_ROOT$/specs/system/**',
@@ -45,13 +45,13 @@ describe('Quint spec campaigns', () => {
     expect(
       campaignTaskProblems({
         ...campaign,
-        scripts: { test: 'bun test tests/quint/system/simulation.test.ts' },
+        scripts: { test: 'bun test tests/quint/simulation.test.ts' },
         tasks,
         sources: ['specs/friends'],
       })
     ).toEqual([
-      'apps/product/package.json: test must run tests/quint/system/effectiveness.test.ts',
-      'apps/product/package.json: test:contract must run tests/quint/system/model-checks.test.ts',
+      'apps/product/package.json: test must run tests/quint/effectiveness.test.ts',
+      'apps/product/package.json: test:contract must run tests/quint/model-checks.test.ts',
     ]);
   });
 

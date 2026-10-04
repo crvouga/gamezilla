@@ -2,10 +2,10 @@
 /** `specs/runtime/stored-files.feature`. */
 
 import { expect } from 'bun:test';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import { envResourceNames } from '@libs/infra/public/naming';
-import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
-import { S3SecretName } from '@pkgs/object-store-s3/s3-config';
+import { PRODUCT_CONFIG } from '@libs/db-shared/product-config';
+import { envResourceNames } from '@libs/infra-shared/naming';
+import { createS3ObjectStore } from '@pkgs/object-store-s3-server/impl-s3';
+import { S3SecretName } from '@pkgs/object-store-s3-shared/s3-config';
 import { Then } from './define';
 import { requireSecret } from './live-world';
 

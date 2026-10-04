@@ -11,7 +11,8 @@ import { join } from 'node:path';
 import { createCheckPlan } from './check-plan';
 import { restorePlan } from './check-plan-transfer';
 import { restoreReportOutputs } from './check-report-restore';
-import { type CheckPlan, imbalance } from './check-shards';
+import type { CheckPlan } from './check-shards';
+import { imbalance } from './check-shards';
 import { turboChildEnv } from './turbo-ci-run';
 
 const ROOT = join(import.meta.dirname, '../../..');
