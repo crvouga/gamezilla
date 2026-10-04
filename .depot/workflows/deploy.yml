@@ -199,6 +199,11 @@ jobs:
       - id: setup
         uses: ./.depot/actions/setup
 
+      # Check fingerprints this Chrome into turbo-platform-key.json, a hash
+      # input of every test and model check. Without it each task misses the
+      # cache Check filled and reruns here on a small runner.
+      - uses: ./.depot/actions/visual-renderer
+
       - uses: ./.depot/actions/secrets-auth
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -260,6 +265,11 @@ jobs:
 
       - id: setup
         uses: ./.depot/actions/setup
+
+      # Check fingerprints this Chrome into turbo-platform-key.json, a hash
+      # input of every test and model check. Without it each task misses the
+      # cache Check filled and reruns here on a small runner.
+      - uses: ./.depot/actions/visual-renderer
 
       - uses: ./.depot/actions/secrets-auth
         with:
