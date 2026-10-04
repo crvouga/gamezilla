@@ -105,6 +105,8 @@ bindQuintModel<MatchmakingTraceWorld>({
   maxSteps: 160,
   inductiveInvariant: '_proof',
   separateInduction: true,
+  // Its pairUp case alone takes about 200 s; the whole proof about 235 s.
+  verifyTimeoutMs: 480_000,
   actions: {
     init: async (w) => {
       w.harness = await matchmaking.run({
