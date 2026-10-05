@@ -2,9 +2,9 @@ import { join } from 'node:path';
 
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file-constants';
 
-/** `@libs/chess` package root when resolved from this module (Node only). */
+/** `@libs/chess-puzzle-server` package root when resolved from this module. */
 export function chessPackageRootFromLoadFileModule(): string {
-  return join(import.meta.dirname, '../../chess-puzzle-client/src');
+  return join(import.meta.dirname, '..');
 }
 
 export function resolveChessPuzzlesLoadFilePath(

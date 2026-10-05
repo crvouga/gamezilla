@@ -1,4 +1,4 @@
-/** Path relative to the `@libs/chess` package root. */
+/** Path relative to the `@libs/chess-puzzle-server` package root. */
 export const CHESS_PUZZLES_LOAD_FILE_RELATIVE =
   'scripts/fixtures/chess-puzzles.load.csv';
 
