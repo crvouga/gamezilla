@@ -259,6 +259,38 @@ describe('the team checks of one environment, from Depot CI', () => {
     });
   });
 
+  // regression: health-history-inline-workflow-path
+  test('an inline Check workflow without a path does not prevent counting Health checks', async () => {
+    const f = fakeDepot(hourlyRuns(['success']));
+    const http: HttpClient = {
+      fetch: async (input, init) => {
+        if (String(input).endsWith('/GetRunStatus'))
+          return Response.json({
+            workflows: [
+              {
+                workflowId: '31fg9907r7',
+                status: 'finished',
+                name: 'Check · manual',
+              },
+              {
+                workflowId: '1',
+                workflowPath: 'health.yml',
+                name: 'Health · schedule',
+              },
+            ],
+          });
+        return f.http.fetch(input, init);
+      },
+    };
+    expect(
+      await healthCheckEvents(source(http), { env: 'prd', ...WINDOW })
+    ).toEqual({ kind: 'events', events: [{ atMs: NOW_MS, good: true }] });
+    expect(f.asked).not.toContainEqual({
+      method: 'GetWorkflow',
+      body: { workflowId: '31fg9907r7' },
+    });
+  });
+
   test('a refused request fails the measure', async () => {
     const { http } = fakeDepot(hourlyRuns(['success']));
     const refused = healthCheckEvents(
