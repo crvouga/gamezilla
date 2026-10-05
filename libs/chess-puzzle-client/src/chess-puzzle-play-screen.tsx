@@ -21,6 +21,7 @@ import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
 import type { PuzzlePlayBoardChrome } from './chess-puzzle-play-layout';
 import { PuzzlePlayLayout } from './chess-puzzle-play-layout';
 import { ChessPuzzleRecommendationLegend } from './chess-puzzle-recommendation-legend';
+import { ChessPuzzleShareLink } from './chess-puzzle-share-link';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { ChessPuzzleTestHints } from './chess-puzzle-test-hints';
 import { ChessPuzzleTestLoadingStatus } from './chess-puzzle-test-loading-status';
@@ -181,6 +182,9 @@ function PuzzlePlayerChrome(props: {
                   <ChessPuzzleClock elapsedMs={p.clockElapsedMs} />
                   <Show when={p.isSpectator()}>
                     <SpectatorIndicator />
+                  </Show>
+                  <Show when={!p.isSpectator() && p.puzzleId()} keyed>
+                    {(puzzleId) => <ChessPuzzleShareLink puzzleId={puzzleId} />}
                   </Show>
                 </>
               }

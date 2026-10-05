@@ -20,6 +20,7 @@
     "@libs/billing-client": "workspace:*",
     "@libs/chess-matchmaking-client": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
+    "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/feature-client": "workspace:*",
     "@libs/friends-client": "workspace:*",
     "@libs/games-client": "workspace:*",

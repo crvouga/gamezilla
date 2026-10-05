@@ -1,17 +1,19 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
 import { widenPuzzleFeedConfig } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
+import type { ChessPuzzlePlayStatus } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import { ChessPuzzlePlayAttr } from '@libs/chess-puzzle-shared/chess-puzzle-play-attr';
 import { ClearChessPuzzlePlay } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
-
 import {
   decidePuzzlePlacement,
   resolvePuzzlePickState,
 } from '@libs/chess-puzzle-shared/pick-state';
+import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
 } from '@libs/chess-root-shared/chess-main-menu';
+import { useUnlock } from '@libs/permissions-client/unlock';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -19,16 +21,27 @@ import {
 import type { Decision } from '@pkgs/permissions-shared/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import {
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+} from '@pkgs/ui-root-client/app-router';
+import {
   type Accessor,
+  batch,
   createEffect,
   createMemo,
   createSignal,
+  untrack,
 } from 'solid-js';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import type { ChessPuzzleTestLoadingStatusProps } from './chess-puzzle-test-loading-status';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
-import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
+import {
+  useChessPuzzleRatingEvents,
+  useIsPuzzleAlreadyRated,
+} from './use-chess-puzzle-rating-events';
 import { useNextPuzzleId } from './use-next-puzzle-id';
+import { isFinishedPuzzleStatus } from './use-puzzle-player-handlers';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
 import type { RatedStartGate } from './use-rated-start-gate';
 import { useRatedStartGate } from './use-rated-start-gate';
@@ -57,6 +70,13 @@ type PuzzlePlacement = {
   readyGeneration: Accessor<number>;
   startNonce: Accessor<number>;
   onRequestNext: () => void;
+  /**
+   * Put `puzzleId` (from a puzzle link) on the board as a new attempt,
+   * unless it is there already and not `over`.
+   */
+  requestLinked: (puzzleId: string, over: boolean) => void;
+  /** A linked puzzle could not start (its denial is the gate's). */
+  linkedDenied: Accessor<boolean>;
   next: ReturnType<typeof useNextPuzzleId>;
 };
 
@@ -74,6 +94,12 @@ function usePuzzlePlacement(args: {
   clearRoomPuzzle: () => void;
 }): PuzzlePlacement {
   const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
+  const [linked, setLinked] = createSignal<string | null>(null);
+  const ratingEvents = useChessPuzzleRatingEvents();
+  /** A puzzle that already moved the rating: its repeat starts free. */
+  const alreadyRated = (puzzleId: string): boolean =>
+    ratingEvents().some((event) => event.puzzleId === puzzleId);
+  const [linkedDenied, setLinkedDenied] = createSignal(false);
   const [attemptSeed, setAttemptSeed] = createSignal(0);
   const [readyGeneration, setReadyGeneration] = createSignal(0);
   const [startNonce, setStartNonce] = createSignal(0);
@@ -103,20 +129,30 @@ function usePuzzlePlacement(args: {
       nextLoading: next.loading(),
       placedSeed: placedAttemptRef.current,
       canPick: args.canPick(),
+      linked: linked(),
     });
     if (decision.kind === 'place' && decision.armStart) {
       if (gatedSeedRef.current === seed) return;
       gatedSeedRef.current = seed;
-      void args.gate.start(decision.puzzleId).then((allowed) => {
+      // An unrated repeat uses no rated-puzzle start.
+      const start = untrack(() => alreadyRated(decision.puzzleId))
+        ? Promise.resolve(true)
+        : args.gate.start(decision.puzzleId);
+      void start.then((allowed) => {
         if (attemptSeed() !== seed) return;
-        if (allowed) {
-          setActivePuzzleId(decision.puzzleId);
-          commitAttempt(seed, true);
-          return;
-        }
-        placedAttemptRef.current = seed;
-        setActivePuzzleId(null);
-        args.clearRoomPuzzle();
+        batch(() => {
+          const wasLinked = decision.puzzleId === untrack(linked);
+          if (wasLinked) setLinked(null);
+          setLinkedDenied(wasLinked && !allowed);
+          if (allowed) {
+            setActivePuzzleId(decision.puzzleId);
+            commitAttempt(seed, true);
+            return;
+          }
+          placedAttemptRef.current = seed;
+          setActivePuzzleId(null);
+          args.clearRoomPuzzle();
+        });
       });
     } else if (decision.kind === 'place') {
       setActivePuzzleId(decision.puzzleId);
@@ -133,8 +169,78 @@ function usePuzzlePlacement(args: {
     readyGeneration,
     startNonce,
     onRequestNext: () => setAttemptSeed((s) => s + 1),
+    requestLinked: (puzzleId, over) => {
+      const onBoard = untrack(activePuzzleId) === puzzleId;
+      // The linked puzzle already being solved stays as it is.
+      if (onBoard && !over) return;
+      args.clearRoomPuzzle();
+      batch(() => {
+        // A finished attempt at it gives way to a fresh one.
+        if (onBoard) setActivePuzzleId(null);
+        setLinked(puzzleId);
+        setAttemptSeed((s) => s + 1);
+      });
+    },
+    linkedDenied,
     next,
   };
+}
+
+/**
+ * A linked puzzle the day's allowance cannot start runs the denial's way
+ * forward at once (signing in, for a guest), as the policy names it.
+ */
+function useUnlockDeniedLink(args: {
+  linkedDenied: Accessor<boolean>;
+  denial: Accessor<Decision | null>;
+}): void {
+  const unlock = useUnlock();
+  createEffect(() => {
+    const denial = args.denial();
+    if (!args.linkedDenied() || denial === null) return;
+    untrack(() => unlock.run(denial));
+  });
+}
+
+/**
+ * A space opened from a puzzle link (`?puzzle=<id>`) puts that puzzle on the
+ * driver's board, then drops the request from the address so moving on
+ * serves the feed again and reopening the link changes nothing.
+ */
+function useLinkedPuzzleRequest(args: {
+  canPick: Accessor<boolean>;
+  roomStatus: Accessor<ChessPuzzlePlayStatus>;
+  requestLinked: (puzzleId: string, over: boolean) => void;
+}): void {
+  const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
+  const pathname = usePathname();
+  const router = useRouter();
+  createEffect(() => {
+    const linked = params()[LINKED_PUZZLE_PARAM];
+    if (linked === undefined || linked.length === 0 || !args.canPick()) return;
+    untrack(() => {
+      args.requestLinked(linked, isFinishedPuzzleStatus(args.roomStatus()));
+      router.replace(pathname());
+    });
+  });
+}
+
+/** Puzzle links: place the linked puzzle, and unlock a denied one. */
+function useLinkedPuzzles(args: {
+  canPick: Accessor<boolean>;
+  placement: PuzzlePlacement;
+  denial: Accessor<Decision | null>;
+}): void {
+  const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
+  useUnlockDeniedLink({
+    linkedDenied: args.placement.linkedDenied,
+    denial: args.denial,
+  });
+  useLinkedPuzzleRequest({
+    canPick: args.canPick,
+    roomStatus,
+    requestLinked: args.placement.requestLinked,
+  });
 }
 
 export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
@@ -156,6 +262,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     clearRoomPuzzle: () => dispatch(ClearChessPuzzlePlay({})),
   });
   requestNextRef.current = placement.onRequestNext;
+  useLinkedPuzzles({ canPick, placement, denial: gate.denial });
   const { next } = placement;
 
   const backToChessRoot = (): void => {

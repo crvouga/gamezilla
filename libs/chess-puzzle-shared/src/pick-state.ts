@@ -46,6 +46,8 @@ export type PuzzlePlacementArgs = {
   readonly placedSeed: number;
   /** False for spectators: they only ever follow the room's puzzle. */
   readonly canPick: boolean;
+  /** A puzzle a puzzle link asked for, until it is placed. */
+  readonly linked?: string | null | undefined;
 };
 
 export type PuzzlePlacementDecision =
@@ -57,18 +59,25 @@ export type PuzzlePlacementDecision =
     }
   | { readonly kind: 'drop' };
 
+/** A watcher only ever follows the room's puzzle. */
+function decideAsWatcher(a: PuzzlePlacementArgs): PuzzlePlacementDecision {
+  if (a.room !== null && a.room !== a.active) {
+    return { kind: 'place', puzzleId: a.room, armStart: false };
+  }
+  if (a.room === null && a.active !== null) {
+    return { kind: 'drop' };
+  }
+  return { kind: 'none' };
+}
+
 /** Pure placement rule for one reactive tick (see the screen effect). */
 export function decidePuzzlePlacement(
   a: PuzzlePlacementArgs
 ): PuzzlePlacementDecision {
-  if (!a.canPick) {
-    if (a.room !== null && a.room !== a.active) {
-      return { kind: 'place', puzzleId: a.room, armStart: false };
-    }
-    if (a.room === null && a.active !== null) {
-      return { kind: 'drop' };
-    }
-    return { kind: 'none' };
+  if (!a.canPick) return decideAsWatcher(a);
+  const linked = a.linked ?? null;
+  if (linked !== null && linked !== a.active) {
+    return { kind: 'place', puzzleId: linked, armStart: true };
   }
   if (a.active === null) {
     if (a.seed === 0 && a.room !== null) {

@@ -8,6 +8,22 @@ export function spaceDetailHref(spaceId: string): string {
   return `/space/${spaceId}`;
 }
 
+/** Query parameter a space opens with to start playing a game at once. */
+export const SPACE_GAME_PARAM = 'game';
+
+/**
+ * `/space/:id` opening straight into `game` for its host; `extra` carries
+ * what the game itself is asked to open (a puzzle, …).
+ */
+export function spaceGameHref(
+  spaceId: string,
+  game: string,
+  extra: Readonly<Record<string, string>> = {}
+): string {
+  const query = new URLSearchParams({ [SPACE_GAME_PARAM]: game, ...extra });
+  return `${spaceDetailHref(spaceId)}?${query.toString()}`;
+}
+
 /** Normalize a dynamic `id` route param. */
 export function normalizeSpaceRouteParam(
   id: string | string[] | undefined

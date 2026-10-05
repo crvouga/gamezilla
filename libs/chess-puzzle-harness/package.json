@@ -26,6 +26,7 @@
     "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/clock-client": "workspace:*",
     "@pkgs/device-shared": "workspace:*",
+    "@pkgs/gherkin-shared": "workspace:*",
     "@pkgs/glicko2-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/kv-root-client": "workspace:*",

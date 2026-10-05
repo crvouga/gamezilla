@@ -58,7 +58,9 @@
     "@libs/chess-matchmaking-client": "workspace:*",
     "@libs/chess-matchmaking-harness": "workspace:*",
     "@libs/chess-matchmaking-shared": "workspace:*",
+    "@libs/chess-puzzle-client": "workspace:*",
     "@libs/chess-puzzle-harness": "workspace:*",
+    "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-server": "workspace:*",
     "@libs/harness": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
@@ -76,7 +78,6 @@
   "devDependencies": {
     "@libs/billing-harness": "workspace:*",
     "@libs/billing-shared": "workspace:*",
-    "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-client": "workspace:*",
     "@libs/friends-harness": "workspace:*",
     "@libs/notifications-harness": "workspace:*",

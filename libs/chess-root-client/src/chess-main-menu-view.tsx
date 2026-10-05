@@ -4,6 +4,8 @@ import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-sc
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
 import { ChessStatsScreen } from '@libs/chess-puzzle-client/chess-stats-screen';
 import { ReconcilePuzzleResult } from '@libs/chess-puzzle-client/reconcile-puzzle-result';
+import { useIsPuzzleDriver } from '@libs/chess-puzzle-client/use-puzzle-space-role';
+import { LINKED_PUZZLE_PARAM } from '@libs/chess-puzzle-shared/puzzle-link';
 import type { ChessMainMenuScreen } from '@libs/chess-root-shared/chess-main-menu';
 import {
   CHESS_SCREEN,
@@ -20,12 +22,15 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-root-client/app-router';
+import {
+  useLocalSearchParams,
+  useRouter,
+} from '@pkgs/ui-root-client/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client/fade-switch';
 import type { MainMenuItem } from '@pkgs/ui-root-client/main-menu-item-row';
 import { MainMenuScreen } from '@pkgs/ui-root-client/main-menu-screen';
 import type { JSX } from 'solid-js';
-import { Match, Switch } from 'solid-js';
+import { createEffect, Match, Switch, untrack } from 'solid-js';
 
 export type ChessMainMenuProps = {
   onBackToGames: () => void;
@@ -65,8 +70,24 @@ function ChessScreenContent(props: {
   );
 }
 
+/** A space opened from a puzzle link goes straight to the puzzle screen. */
+function useOpenLinkedPuzzleScreen(screen: () => ChessMainMenuScreen): void {
+  const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
+  const isDriver = useIsPuzzleDriver();
+  const dispatch = useSpaceRoomDispatch();
+  createEffect(() => {
+    const linked = params()[LINKED_PUZZLE_PARAM];
+    if (linked === undefined || !isDriver()) return;
+    if (screen() === CHESS_SCREEN.puzzle) return;
+    untrack(() =>
+      dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.puzzle }))
+    );
+  });
+}
+
 function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
   const screen = useSpaceRoomSelector(ChessMainMenuScreenAttr.screen.from);
+  useOpenLinkedPuzzleScreen(screen);
 
   return (
     <FadeSwitch stateKey={screen()}>

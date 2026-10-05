@@ -75,6 +75,31 @@ describe('derivePuzzleRatingChange', () => {
     ).toEqual({ kind: 'unrated' });
   });
 
+  // regression: puzzle-link-repeat-same-instant
+  test('a repeat started the instant the rated play ended is unrated', () => {
+    expect(
+      derivePuzzleRatingChange({
+        puzzleId: 'p1',
+        interactions: [
+          row('started', T1),
+          row('solved', T2),
+          row('started', T2),
+        ],
+        ratingEvents: [event(T2, 1500, 1510)],
+      })
+    ).toEqual({ kind: 'unrated' });
+  });
+
+  test('a first play solved at once still shows its rating change', () => {
+    expect(
+      derivePuzzleRatingChange({
+        puzzleId: 'p1',
+        interactions: [row('started', T2), row('solved', T2)],
+        ratingEvents: [event(T2, 1500, 1510)],
+      })
+    ).toEqual({ kind: 'rated', delta: 10 });
+  });
+
   test("another puzzle's rating event never counts", () => {
     expect(
       derivePuzzleRatingChange({

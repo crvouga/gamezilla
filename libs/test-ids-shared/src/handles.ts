@@ -360,6 +360,12 @@ export const Handles = {
   chessPuzzleFeedPuzzleThemes: 'chess-puzzle-feed-puzzle-themes',
   /** The puzzle's live region: what someone listening to the app hears. */
   chessPuzzleAnnouncement: 'chess-puzzle-announcement',
+  /** "Share puzzle link" on the puzzle screen. */
+  chessPuzzleShareLink: 'chess-puzzle-share-link',
+  /** A puzzle link's screen while it opens, or why it cannot. */
+  chessPuzzleLinkScreen: 'chess-puzzle-link-screen',
+  /** A puzzle link to a retired puzzle: it is no longer available. */
+  chessPuzzleLinkUnavailable: 'chess-puzzle-link-unavailable',
 } as const;
 
 export type Handle = {

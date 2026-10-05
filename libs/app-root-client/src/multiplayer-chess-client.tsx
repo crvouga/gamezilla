@@ -8,8 +8,10 @@ function chessTabLabel(): string {
   return t`Chess`;
 }
 
+/** Chess's tab and routes; `routes` adds chess's other screens (puzzle links). */
 export function createMultiplayerChessClient(
-  component: FeatureRoute['component']
+  component: FeatureRoute['component'],
+  routes: readonly FeatureRoute[] = []
 ) {
   return defineFeatureClient({
     name: 'chess',
@@ -34,6 +36,7 @@ export function createMultiplayerChessClient(
         component,
         tab: true,
       },
+      ...routes,
     ],
   });
 }

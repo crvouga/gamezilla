@@ -5,7 +5,10 @@
  */
 
 import type { ChessPuzzleInteractionRow } from './chess-puzzle-interaction-entities';
-import { CHESS_PUZZLE_INTERACTION_KIND } from './chess-puzzle-interaction-entities';
+import {
+  CHESS_PUZZLE_INTERACTION_KIND,
+  isOutcomeKind,
+} from './chess-puzzle-interaction-entities';
 import type { ChessPuzzleRatingEvent } from './chess-puzzle-rating-event';
 import { ratingEventDelta } from './chess-puzzle-rating-event';
 import { compareCodeUnit } from './code-unit-compare';
@@ -23,18 +26,27 @@ export function derivePuzzleRatingChange(args: {
 }): PuzzleRatingChange {
   const event = args.ratingEvents.find((e) => e.puzzleId === args.puzzleId);
   if (event === undefined) return { kind: 'none' };
+  const rows = args.interactions.filter((r) => r.puzzleId === args.puzzleId);
+  const starts = rows.filter(
+    (r) => r.kind === CHESS_PUZZLE_INTERACTION_KIND.started
+  );
   let playStart: string | null = null;
-  for (const row of args.interactions) {
-    if (
-      row.puzzleId === args.puzzleId &&
-      row.kind === CHESS_PUZZLE_INTERACTION_KIND.started &&
-      (playStart === null || compareCodeUnit(row.at, playStart) > 0)
-    ) {
+  for (const row of starts) {
+    if (playStart === null || compareCodeUnit(row.at, playStart) > 0) {
       playStart = row.at;
     }
   }
-  if (playStart !== null && compareCodeUnit(event.at, playStart) < 0) {
-    return { kind: 'unrated' };
-  }
+  if (playStart === null) return rated(event);
+  const start = playStart;
+  if (compareCodeUnit(event.at, start) < 0) return { kind: 'unrated' };
+  // A play only starts once the one before it has its outcome, so a later
+  // start at the very instant an earlier play ended is still a repeat.
+  const endedBefore = rows.some(
+    (r) => isOutcomeKind(r.kind) && compareCodeUnit(r.at, start) <= 0
+  );
+  return starts.length > 1 && endedBefore ? { kind: 'unrated' } : rated(event);
+}
+
+function rated(event: ChessPuzzleRatingEvent): PuzzleRatingChange {
   return { kind: 'rated', delta: ratingEventDelta(event) };
 }
