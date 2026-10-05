@@ -18,7 +18,6 @@
     "@libs/account-privacy-client": "workspace:*",
     "@libs/app-root-client": "workspace:*",
     "@libs/billing-client": "workspace:*",
-    "@libs/chess-matchmaking-client": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
     "@libs/feature-client": "workspace:*",
     "@libs/friends-client": "workspace:*",

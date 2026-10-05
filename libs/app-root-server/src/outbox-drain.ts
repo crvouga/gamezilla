@@ -6,7 +6,7 @@ import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import { drainOutbox } from '@pkgs/outbox-shared/drain';
+import { type DrainOutboxDeps, drainOutbox } from '@pkgs/outbox-shared/drain';
 import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
@@ -47,7 +47,7 @@ export async function drainAndNotifyOutbox(args: {
   readonly eventIds?: readonly string[];
 }): Promise<number> {
   const captures: ReturnType<typeof wrapMutationDb>[] = [];
-  const result = await drainOutbox({
+  const result = await drainDueOutbox({
     db: args.db,
     clock: args.clock,
     createId: args.createId,
@@ -89,4 +89,19 @@ export async function drainAndNotifyOutbox(args: {
     now: args.clock.now,
   });
   return result.processed;
+}
+
+/** Each pass commits before following events are delivered. In particular, a
+ * match formed by one consumer is durable before its room receives the board.
+ * Bound the causal work so a request cannot drain an endless event chain. */
+async function drainDueOutbox(deps: DrainOutboxDeps) {
+  const notifyUserIds = new Set<string>();
+  let processed = 0;
+  for (let pass = 0; pass < 8; pass++) {
+    const result = await drainOutbox(deps);
+    processed += result.processed;
+    for (const id of result.notifyUserIds) notifyUserIds.add(id);
+    if (result.processed === 0) break;
+  }
+  return { processed, notifyUserIds: [...notifyUserIds] };
 }

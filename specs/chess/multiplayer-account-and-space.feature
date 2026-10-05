@@ -1,7 +1,7 @@
 @domain:chess
 Feature: Multiplayer chess follows the account across other changes
   When a person changes their account or leaves a space, they want their
-  private game kept honestly, so its ownership follows the account.
+  game kept honestly, so its ownership follows the account.
 
   Rule: Signing out on one device does not stop the account's accepted search
 
@@ -12,9 +12,10 @@ Feature: Multiplayer chess follows the account across other changes
 
     Scenario: A signed-out device cannot continue account-only play
       Given Alice signed out on her phone during a multiplayer game with Bob
+      And Alice is hosting a space
       When Alice finds a chess opponent on her phone
       Then Alice is invited to sign in
-      And Alice cannot see the account's private multiplayer game on her phone
+      And Alice cannot see the account's multiplayer game on her phone
 
   Rule: A multiplayer opponent's current username is shown
     No counter-example: changing a username changes the name shown, never the matched person or game.
@@ -25,11 +26,12 @@ Feature: Multiplayer chess follows the account across other changes
       Then Bob sees his opponent's username is "alice_atlas"
       And Bob keeps his same multiplayer game with Alice
 
-  Rule: Spaces and friendships do not own the private multiplayer game
+  Rule: Spaces and friendships do not own the multiplayer game
     No counter-example: space and friendship changes never express a move, resignation or account deletion.
 
-    Scenario: Ending a space keeps the person's private multiplayer game
+    Scenario: Returning in another space keeps the person's multiplayer game
       Given Alice ended her space while playing multiplayer chess with Bob
+      And Alice is hosting another space
       When Alice opens multiplayer chess
       Then Alice keeps her same multiplayer game with Bob
 

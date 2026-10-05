@@ -106,7 +106,8 @@ export async function resignation(w: HarnessWorld, actor: string) {
 export async function refusal(w: HarnessWorld, actor: string, code: string) {
   const reply = (await w.s.read(multiplayerCommandReply, actor))!;
   expect(reply.result.ok).toBe(false);
-  if (!reply.result.ok) expect(reply.result.failures[0]?.code).toBe(code);
+  if (!reply.result.ok)
+    expect(reply.result.failures[0]).toMatchObject({ code });
 }
 export async function winner(w: HarnessWorld, actor: string, reason?: string) {
   const owner = await w.s.read(accountIdOf, actor);

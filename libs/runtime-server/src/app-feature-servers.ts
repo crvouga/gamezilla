@@ -10,7 +10,7 @@
 
 import { createAccountPrivacyServer } from '@libs/account-privacy-server/feature-server';
 import { createBillingServer } from '@libs/billing-server/feature-server';
-import { CHESS_SERVER } from '@libs/chess-root-server/feature-server';
+import { createChessServer } from '@libs/chess-root-server/feature-server';
 import type { FeatureServer } from '@libs/feature-shared/server';
 import { FRIENDS_SERVER } from '@libs/friends-server/feature-server';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications-server/feature-server';
@@ -30,7 +30,7 @@ export function appFeatureServers(
   return [
     createAccountPrivacyServer(APP.accountPrivacy, deps.rooms),
     createSpacesServer(deps.rooms),
-    CHESS_SERVER,
+    createChessServer(deps.rooms),
     // Friends registers the inbox actions its deliveries carry, so it is
     // composed before the inbox that serves them.
     FRIENDS_SERVER,

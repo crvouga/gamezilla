@@ -66,6 +66,9 @@ export function composeRoomModules(
   games: readonly GameDefinition[],
   now: () => number,
   random: Random
-): readonly [RoomModule<RoomState, Message, Message, string>] {
-  return [composeSpaceRoomModule(games, now, random)] as const;
+): readonly RoomModule<RoomState, Message, Message, string>[] {
+  return [
+    composeSpaceRoomModule(games, now, random),
+    ...games.flatMap((game) => game.matchRooms ?? []),
+  ];
 }

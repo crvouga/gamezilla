@@ -14,13 +14,23 @@ export function MultiplayerBoard(props: {
   readonly onMove: (uci: string) => Promise<void>;
 }): JSX.Element {
   const sounds = useSoundsPreference();
-  const white = () => props.game.white_id === props.myId;
+  const participant = () =>
+    props.game.white_id === props.myId || props.game.black_id === props.myId;
+  const canMove = () =>
+    participant() &&
+    props.connected &&
+    !props.moving &&
+    props.game.outcome === 'ongoing' &&
+    props.game.turn === props.myId;
+  const white = () => props.game.white_id === props.myId || !participant();
   const opponent = useProfileRow(() =>
     white() ? props.game.black_id : props.game.white_id
   );
   const opponentName = () => opponent.row()?.username || 'Deleted account';
   const description = createMemo(() =>
-    props.game.outcome === 'ongoing' ? (
+    !participant() ? (
+      <Trans>Watching multiplayer chess.</Trans>
+    ) : props.game.outcome === 'ongoing' ? (
       white() ? (
         <Trans>You are White.</Trans>
       ) : (
@@ -40,6 +50,7 @@ export function MultiplayerBoard(props: {
       data-component="MultiplayerBoard"
       data-testid="multiplayer-game"
       data-game-id={props.game.id}
+      data-can-move={String(canMove())}
       data-revision={props.game.revision}
       data-fen={props.game.fen}
       data-outcome={props.game.outcome}
@@ -55,7 +66,10 @@ export function MultiplayerBoard(props: {
         data-testid="multiplayer-announcement"
       >
         {description()}
-        <Show when={props.game.outcome === 'ongoing'}>
+        <Show when={!participant() && props.game.outcome !== 'ongoing'}>
+          <MultiplayerWatcherResult game={props.game} />
+        </Show>
+        <Show when={props.game.outcome === 'ongoing' && participant()}>
           {props.game.turn === props.myId ? (
             <Trans>Your turn.</Trans>
           ) : (
@@ -74,12 +88,7 @@ export function MultiplayerBoard(props: {
           fen={props.game.fen}
           fenSyncKey={props.syncKey}
           orientation={white() ? 'white' : 'black'}
-          interactive={
-            props.connected &&
-            !props.moving &&
-            props.game.outcome === 'ongoing' &&
-            props.game.turn === props.myId
-          }
+          interactive={canMove()}
           premoves={false}
           sound={!sounds.muted()}
           onMove={(move) => {
@@ -89,5 +98,24 @@ export function MultiplayerBoard(props: {
         />
       </div>
     </div>
+  );
+}
+
+function MultiplayerWatcherResult(props: {
+  readonly game: MultiplayerGame;
+}): JSX.Element {
+  const whiteProfile = useProfileRow(() => props.game.white_id);
+  const blackProfile = useProfileRow(() => props.game.black_id);
+  const winnerName = () =>
+    (props.game.outcome === 'white' ? whiteProfile : blackProfile).row()
+      ?.username || 'Deleted account';
+  return (
+    <span data-component="MultiplayerWatcherResult">
+      {props.game.outcome === 'draw' ? (
+        <Trans>The multiplayer game is drawn.</Trans>
+      ) : (
+        <Trans>{winnerName()} won the multiplayer game.</Trans>
+      )}
+    </span>
   );
 }

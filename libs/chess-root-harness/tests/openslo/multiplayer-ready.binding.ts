@@ -2,11 +2,11 @@ import {
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
-import { pairChessOpponents } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import type { MeasureContext } from '@pkgs/openslo-shared/registry';
 import { bindObjectives } from '@pkgs/openslo-shared/registry';
@@ -14,11 +14,13 @@ import { openHarness } from '../open-chess-harness';
 
 async function gameReadyTime(context: MeasureContext) {
   await using s = await openHarness('multiplayer-ready-objective');
-  for (const actor of ['alice', 'bob']) await s.apply(signInWithGoogle, actor);
+  for (const actor of ['alice', 'bob']) {
+    await s.apply(signInWithGoogle, actor);
+    await s.apply(givenMultiplayerSpace, actor);
+  }
   await s.apply(findChessOpponent, 'alice');
   const beganAtMs = await s.read((world) => world.harness.clock.now());
   await s.apply(findChessOpponent, 'bob');
-  await s.apply(pairChessOpponents);
   await s.until(
     async (world) => {
       const first = (await multiplayerView(world, 'alice')).game;

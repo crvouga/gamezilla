@@ -7,7 +7,6 @@ import {
   expectMultiplayerWin,
   expectNoMultiplayerGame,
   expectSharedMultiplayerGame,
-  openMultiplayerJourney,
   prepareMultiplayerPair,
   prepareUnfinishedMultiplayerGame,
   resignMultiplayerJourney,
@@ -69,9 +68,8 @@ When(
   '{actor} opens multiplayer chess with a connection again',
   async (w, actor: Actor) => {
     await w.journey.online();
-    await device(w.journey, actor)(
-      'openMultiplayerJourney',
-      openMultiplayerJourney
+    await device(w.journey, actor)('openAcceptedMultiplayerGame', (ui) =>
+      ui.get('multiplayer-game').expect.visible({ timeoutMs: 20_000 })
     );
   }
 );

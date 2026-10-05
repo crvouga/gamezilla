@@ -27,6 +27,7 @@
     "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "hono": "catalog:"
   },

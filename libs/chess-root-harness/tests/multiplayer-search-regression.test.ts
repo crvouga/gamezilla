@@ -11,6 +11,7 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
@@ -24,6 +25,7 @@ import { openHarness } from './open-chess-harness';
 test('a literal accepted opponent request reaches its owner through ordinary sync', async () => {
   await using s = await openHarness('accepted-opponent-request');
   await s.apply(signInWithGoogle, 'alice');
+  await s.apply(givenMultiplayerSpace, 'alice');
   await s.apply(givenOpponentSearch, 'alice', 'request-1');
   await s.until(
     async (world) =>
@@ -38,7 +40,9 @@ test('a literal accepted opponent request reaches its owner through ordinary syn
 test('an offline White device retains its accepted board and refuses e2e4 without a deferred move', async () => {
   await using s = await openHarness('offline-white-e2e4');
   await s.apply(signInWithGoogle, 'alice');
+  await s.apply(givenMultiplayerSpace, 'alice');
   await s.apply(signInWithGoogle, 'bob');
+  await s.apply(givenMultiplayerSpace, 'bob');
   await s.apply(givenOpponentSearch, 'alice', 'phone-1');
   await s.advanceTime(1);
   await s.apply(givenOpponentSearch, 'bob', 'phone-1');

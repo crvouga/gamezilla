@@ -1,4 +1,4 @@
-// A matchmaking match gives its two people one private, untimed chess game.
+// A matchmaking match gives its two people one shared, untimed chess game.
 // The game owns the sides, moves and result, never the pairing algorithm.
 // Either side assignment is permitted. People cannot search while their game
 // is unfinished. Repeating the same match keeps the same game.
@@ -233,7 +233,7 @@ module multiplayer {
     turn.get(d) == _lastTurn.get(d), playOutcome.get(d) == _lastOutcome.get(d),
     lookingForOpponent.get(d) == _lastSeeking.get(d),
   })
-  /// Deleted accounts never keep searching or access a private game on return.
+  /// Deleted accounts never keep searching or access a game on return.
   val invDeletedCannotPlay = PEOPLE.forall(p => not(_accounts.contains(p)) implies and {
     not(_seeking.contains(p)), _current.get(p) == 0, not(_unfinished(p)),
   })

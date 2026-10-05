@@ -29,7 +29,8 @@ test('destroying a room during admission prevents a late connection', async () =
     }
   );
   const transport = node.createTransport({
-    spaceId: 'friday',
+    topic: 'space:friday',
+    module: 'space',
     identity: 'alice',
     installId: 'alice-device',
     clientId: 'alice-tab',

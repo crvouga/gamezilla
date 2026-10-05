@@ -13,7 +13,7 @@ import { apiUrlToRoomWebSocketUrl } from '@libs/spaces-shared/space-room-url';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared/websocket-transport';
 
 export const wallSpaceRoomTransport: CreateRoomTransport = (args) => {
-  const topic = `space:${args.spaceId}`;
+  const topic = args.topic;
   return new WebSocketRoomTransport({
     timers: args.timers,
     random: args.random,
@@ -22,6 +22,7 @@ export const wallSpaceRoomTransport: CreateRoomTransport = (args) => {
       return apiUrlToRoomWebSocketUrl({
         apiUrl: args.apiUrl,
         topic,
+        module: args.module,
         sessionToken: token,
         installId: args.installId,
         clientId: args.clientId,

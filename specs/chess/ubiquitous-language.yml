@@ -48,6 +48,7 @@ terms:
     from: friends
   - term: leave
     from: spaces
+    model: [leaveSpace]
   - term: end a space
     from: spaces
   - term: sign in
@@ -70,6 +71,7 @@ terms:
     model: [spaceHost]
   - term: join
     from: spaces
+    model: [joinSpace]
   - term: space link
     from: spaces
   - term: lobby
@@ -443,12 +445,13 @@ terms:
 
   - term: watcher
     definition: >-
-      Someone in a space watching its Custom Game or the host's puzzle.
+      Someone in a space watching its Custom Game, multiplayer game or the host's puzzle.
       In a Custom Game they have no accepted side and cannot move pieces. Their board agrees with
       the host's, even after arriving mid-puzzle or losing the connection. A
       watcher may make a suggestion but never drives the puzzle and is never
       rated for it.
     forms: [watch, watches, watched, watching]
+    model: [shownMoves, shownWinner, canMove]
     avoid: [spectator, viewer, observer]
 
   - term: suggestion
@@ -582,8 +585,10 @@ terms:
 
   - term: multiplayer chess
     definition: >-
-      A private, untimed game of ordinary chess between two people with
-      accounts. It is separate from the puzzle a space is playing. Each
+      An untimed game of ordinary chess between two people with
+      accounts, played exclusively within spaces. People in either space
+      may watch the same game, including guests, but only its matched people
+      may move or resign. Each
       person can have one unfinished multiplayer game, across all devices.
       White starts; the people see their side, opponent and the same board.
       Either assignment of White and Black is allowed and remains fixed.
@@ -593,7 +598,7 @@ terms:
 
   - term: find a chess opponent
     definition: >-
-      Ask matchmaking for another person available for an untimed multiplayer
+      From a space, ask matchmaking for another person available for an untimed multiplayer
       game. Everyone starts with a multiplayer rating of 1500, separate from
       puzzle ratings. This game is unrated: its result never changes either
       rating. The rating range grows as matchmaking defines it. Blocking in
@@ -611,8 +616,9 @@ terms:
 
   - term: open multiplayer chess
     definition: >-
-      See the person's current opponent search or most recent multiplayer
-      game. Coming back or opening it on another device never starts a
+      Within a space, see the person's current opponent search or most recent multiplayer
+      game. A space can watch its host's multiplayer game, including a game
+      against someone in another space. Coming back or opening it on another device never starts a
       second game. After a result, the person may ask for a new opponent.
     forms: [opens multiplayer chess, returns to multiplayer chess]
     model: [openMultiplayer]
