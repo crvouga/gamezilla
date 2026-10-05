@@ -34,6 +34,12 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/db-indexes-postgres#test:contract': 600,
   '@pkgs/kv-postgres#test:contract': 600,
   '@pkgs/object-store-s3#test:contract': 600,
+  // One induction proof (`matching.qnt`, declared `verifyTimeoutMs` 480 s)
+  // measured 330 s alone and 358 s as a task on a 12-core laptop.
+  '@pkgs/matchmaking-root-harness#check:models': 480,
+  // Thirteen Apalache proofs held to two at a time (2-core CI runners time
+  // out above that): 303 s alone, 362 s as a task on a 12-core laptop.
+  '@apps/product#test:contract': 420,
   // Every @synthetic feature and specs/journeys/ scenario, one feature file per
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the
