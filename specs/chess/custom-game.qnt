@@ -87,8 +87,9 @@ module custom_game {
   var _cutOffStarts: Person -> int
   var _cutOffOutcome: Person -> str
   var _cutOffDrawofferedby: Person -> str
-  /// Bookkeeping: the sides that have moved in the active game.
-  var _moved: Set[Side]
+  /// Bookkeeping: moves played in the active game, counted 0, 1, then 2 and 3 alternating;
+  /// an even count means White is to move and 2 or more means both sides have moved.
+  var _moves: int
   /// Bookkeeping: people whose draw offer was declined and who have not moved since.
   var _declinedOffers: Set[Person]
   /// Bookkeeping: who has blocked whom, as (blocker, blocked person).
@@ -166,7 +167,7 @@ module custom_game {
     else if (c == "offer" and (g.white.kind != "person" or g.black.kind != "person")) "draw agreement needs two people"
     else if (c == "offer" and declined.contains(sender)) "offer again after moving"
     else if (c == "cancel" and sender != "alice" and (g.status != "active" or g.white.kind != "person" or g.black.kind != "person")) "only the creator"
-    else if (c == "cancel" and sender != "alice" and _moved == SIDES) "resign instead"
+    else if (c == "cancel" and sender != "alice" and _moves >= 2) "resign instead"
     else ""
   }
 
@@ -202,10 +203,10 @@ module custom_game {
     else g
 
   action _update(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool): bool =
-    _updateAll(g, offline, members, signedOut, reasons, fresh, _moved, _declinedOffers, _blocks, _blockIgnored)
+    _updateAll(g, offline, members, signedOut, reasons, fresh, _moves, _declinedOffers, _blocks, _blockIgnored)
 
-  action _updateAll(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool, moved: Set[Side], declined: Set[Person], blocks: Set[(Person, Person)], blockIgnored: bool): bool = all {
-    _moved' = if (g.status == "active") moved else Set(),
+  action _updateAll(g: CustomGame, offline: Set[Person], members: Set[Person], signedOut: Set[Person], reasons: Person -> str, fresh: bool, moves: int, declined: Set[Person], blocks: Set[(Person, Person)], blockIgnored: bool): bool = all {
+    _moves' = if (g.status == "active") moves else 0,
     _declinedOffers' = if (g.status == "active") declined else Set(),
     _blocks' = blocks,
     _blockIgnored' = blockIgnored,
@@ -252,7 +253,7 @@ module custom_game {
   action _acceptChoice(actor: Person, c: str, side: Side, person: Person, minutes: int, increment: int): bool = {
     val changed = _next(customGame,actor,c,side,person,minutes,increment)
     _updateAll(changed,_offline,_members,_signedOut,refusal.set(actor,""), changed != customGame and Set("create","rematch").contains(c),
-      _moved, _declinedAfter(customGame,c,_declinedOffers), _blocks, _blockIgnored or _crossesBlock(c,actor,person))
+      _moves, _declinedAfter(customGame,c,_declinedOffers), _blocks, _blockIgnored or _crossesBlock(c,actor,person))
   }
 
   pure val _BEGIN = {..._INITIAL, status: "configuring", creator: "alice", white: {kind: "person", person: "alice"}}
@@ -288,7 +289,7 @@ module custom_game {
       drawOfferedByShown' = DEVICES.mapBy(p => if (p == "carol") _INITIAL.drawOfferedBy else g.drawOfferedBy),
       refusal' = DEVICES.mapBy(_ => ""),
       _offline' = Set(), _members' = Set("alice","bob"), _spaceEnded' = false, _signedOut' = Set(),
-      _moved' = Set(), _declinedOffers' = Set(), _blocks' = blocks, _blockIgnored' = false,
+      _moves' = 0, _declinedOffers' = Set(), _blocks' = blocks, _blockIgnored' = false,
       _frozen' = if (g.starts == 1) _config(g) else _config(_INITIAL), _sealed' = false,
       _cutOffStatus' = DEVICES.mapBy(_ => _INITIAL.status),
       _cutOffCreator' = DEVICES.mapBy(_ => _INITIAL.creator),
@@ -383,23 +384,23 @@ module custom_game {
     result == "white wins on time" implies _connectedPerson(customGame.white.person),
     _update({...customGame, status: "completed", outcome: result, drawOfferedBy: ""}, _offline, _members,_signedOut, refusal, false),
   }
-  /// A participant or bot plays a legal move for its side, White first; chess
-  /// decides which move and the play model follows the turns. A move clears a
+  /// A participant or bot plays a legal move for the side to move, White first and
+  /// then in turn; chess decides which move. A move clears a
   /// waiting draw offer and lets the mover offer a draw again.
   action _sideMoves(side: Side): bool = {
     val mover = _side(customGame,side)
     all {
       customGame.status == "active",
-      side == "white" or _moved.contains("white"),
+      side == (if (_moves % 2 == 0) "white" else "black"),
       mover.kind == "bot" or (mover.kind == "person" and _connectedPerson(mover.person)),
       _updateAll({...customGame, drawOfferedBy: ""},_offline,_members,_signedOut,refusal,false,
-        _moved.union(Set(side)),_declinedOffers.exclude(Set(mover.person)),_blocks,_blockIgnored),
+        if (_moves < 3) _moves + 1 else 2,_declinedOffers.exclude(Set(mover.person)),_blocks,_blockIgnored),
     }
   }
   /// Someone blocks another person. A block changes no side and never ends a game under way.
   action _personBlocks(blocker: Person, blocked: Person): bool = all {
     _BLOCK_PAIRS.contains((blocker,blocked)),
-    _updateAll(customGame,_offline,_members,_signedOut,refusal,false,_moved,_declinedOffers,_blocks.union(Set((blocker,blocked))),_blockIgnored),
+    _updateAll(customGame,_offline,_members,_signedOut,refusal,false,_moves,_declinedOffers,_blocks.union(Set((blocker,blocked))),_blockIgnored),
   }
   /// A disconnected person retains their last picture, with no delayed choices.
   action _loseConnection(actor: Person): bool = all {
@@ -443,7 +444,7 @@ module custom_game {
     val crossed = (firstReason == "" and _crossesBlock(command,actor,person)) or (secondReason == "" and _crossesBlock(otherCommand,other,person))
     val fresh = (first != customGame and Set("create","rematch").contains(command)) or (second != first and Set("create","rematch").contains(otherCommand))
     _updateAll(second,_offline,_members,_signedOut,refusal.set(actor,firstReason).set(other,secondReason),fresh,
-      _moved,secondDeclined,_blocks,_blockIgnored or crossed)
+      _moves,secondDeclined,_blocks,_blockIgnored or crossed)
   }
 
   /// Every expressible refused choice leaves the agreed game intact.
@@ -565,7 +566,7 @@ module custom_game {
   /// An offline person keeps their last picture during remote choices.
   val invOfflineKeepsPicture = DEVICES.forall(p => _offline.contains(p) implies statusShown.get(p) == _cutOffStatus.get(p) and creatorShown.get(p) == _cutOffCreator.get(p) and whiteShown.get(p) == _cutOffWhite.get(p) and blackShown.get(p) == _cutOffBlack.get(p) and readyShown.get(p) == _cutOffReady.get(p) and minutesShown.get(p) == _cutOffMinutes.get(p) and incrementShown.get(p) == _cutOffIncrement.get(p) and startsShown.get(p) == _cutOffStarts.get(p) and outcomeShown.get(p) == _cutOffOutcome.get(p) and drawOfferedByShown.get(p) == _cutOffDrawofferedby.get(p))
   /// Moves and declined draw offers belong only to an active game.
-  val invMovesOnlyWhileActive = (_moved != Set() or _declinedOffers != Set()) implies customGame.status == "active"
+  val invMovesOnlyWhileActive = (_moves != 0 or _declinedOffers != Set()) implies customGame.status == "active"
   /// Someone whose draw offer was declined cannot offer again before moving.
   val invNoRepeatedOffer = customGame.drawOfferedBy == "" or not(_declinedOffers.contains(customGame.drawOfferedBy))
   /// No invitation or claim ever crosses a block with the creator.
@@ -616,7 +617,7 @@ module custom_game {
     _offline.in(DEVICES.powerset()), _members.in(PEOPLE.powerset()), _signedOut.in(DEVICES.powerset()),
     _frozen.in(tuples(_PARTICIPANTS,_PARTICIPANTS,TIMES,INCREMENTS)),
     _sealed.in(Set(false,true)), _spaceEnded.in(Set(false,true)),
-    _moved.in(SIDES.powerset()), _declinedOffers.in(PEOPLE.powerset()),
+    _moves.in(0.to(3)), _declinedOffers.in(PEOPLE.powerset()),
     _blocks.in(_BLOCK_PAIRS.powerset()), _blockIgnored.in(Set(false,true)),
     _spaceEnded == not(_members.contains("alice")),
     _sealed == _terminal(customGame),
