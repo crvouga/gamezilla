@@ -5,23 +5,19 @@
  * mark the latch. The global action menu stays on a `TopBar` during the gate.
  */
 
-import { useLingui } from '@lingui/solid/macro';
 import { useAppFrameGlobalTrailing } from '@pkgs/ui-root-client/app-frame-chrome';
-import { LoadingState } from '@pkgs/ui-root-client/loading-state';
 import { TopBar } from '@pkgs/ui-root-client/top-bar';
 import { type JSX, Show } from 'solid-js';
 
+import { BootLoadingShell } from './boot-loading-shell';
 import { useLocalPaintLatch } from './local-paint-latch';
 
 function BootPaintGateFallback(): JSX.Element {
-  const { t } = useLingui();
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
     <div class="box flex-1 min-h-0" data-component="BootPaintGate">
       <TopBar trailing={globalTrailing()} />
-      <div class="box flex-1 min-h-0 items-center justify-center bg-background">
-        <LoadingState size="large" caption={t`Downloading…`} />
-      </div>
+      <BootLoadingShell />
     </div>
   );
 }

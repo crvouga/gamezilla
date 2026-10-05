@@ -3,87 +3,85 @@
  * named icons from `@pkgs/ui`, never from `lucide-solid` directly.
  */
 
-import {
-  Activity,
-  ArrowUpLeft,
-  Bell,
-  Bold,
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  CircleAlert,
-  CircleCheck,
-  Clock,
-  Code,
-  Columns2,
-  Copy,
-  CreditCard,
-  Database,
-  DoorOpen,
-  Ellipsis,
-  Eye,
-  EyeOff,
-  FlaskConical,
-  Gamepad2,
-  Gauge,
-  Heading2,
-  Heart,
-  House,
-  Info,
-  Italic,
-  KeyRound,
-  Lightbulb,
-  Link,
-  List,
-  ListChecks,
-  ListOrdered,
-  LogIn,
-  LogOut,
-  Mail,
-  Menu,
-  Monitor,
-  MonitorPlay,
-  Moon,
-  Paintbrush,
-  Paperclip,
-  Pause,
-  Pilcrow,
-  Play,
-  Plus,
-  Quote,
-  Radio,
-  Redo,
-  RefreshCw,
-  RotateCcw,
-  RotateCcwClock,
-  Save,
-  ScrollText,
-  Search,
-  Send,
-  Server,
-  Settings,
-  Share,
-  Shuffle,
-  SlidersHorizontal,
-  Smartphone,
-  SquarePen,
-  SquareStack,
-  Sun,
-  Terminal,
-  Trash,
-  Undo,
-  User,
-  UserPlus,
-  Users,
-  Volume2,
-  VolumeX,
-  Wifi,
-  WifiOff,
-  X,
-} from 'lucide-solid';
+import Activity from 'lucide-solid/icons/activity';
+import ArrowUpLeft from 'lucide-solid/icons/arrow-up-left';
+import Bell from 'lucide-solid/icons/bell';
+import Bold from 'lucide-solid/icons/bold';
+import Check from 'lucide-solid/icons/check';
+import ChevronDown from 'lucide-solid/icons/chevron-down';
+import ChevronLeft from 'lucide-solid/icons/chevron-left';
+import ChevronRight from 'lucide-solid/icons/chevron-right';
+import ChevronsLeft from 'lucide-solid/icons/chevrons-left';
+import ChevronsRight from 'lucide-solid/icons/chevrons-right';
+import CircleAlert from 'lucide-solid/icons/circle-alert';
+import CircleCheck from 'lucide-solid/icons/circle-check';
+import Clock from 'lucide-solid/icons/clock';
+import Code from 'lucide-solid/icons/code';
+import Columns2 from 'lucide-solid/icons/columns-2';
+import Copy from 'lucide-solid/icons/copy';
+import CreditCard from 'lucide-solid/icons/credit-card';
+import Database from 'lucide-solid/icons/database';
+import DoorOpen from 'lucide-solid/icons/door-open';
+import Ellipsis from 'lucide-solid/icons/ellipsis';
+import Eye from 'lucide-solid/icons/eye';
+import EyeOff from 'lucide-solid/icons/eye-off';
+import FlaskConical from 'lucide-solid/icons/flask-conical';
+import Gamepad2 from 'lucide-solid/icons/gamepad-2';
+import Gauge from 'lucide-solid/icons/gauge';
+import Heading2 from 'lucide-solid/icons/heading-2';
+import Heart from 'lucide-solid/icons/heart';
+import House from 'lucide-solid/icons/house';
+import Info from 'lucide-solid/icons/info';
+import Italic from 'lucide-solid/icons/italic';
+import KeyRound from 'lucide-solid/icons/key-round';
+import Lightbulb from 'lucide-solid/icons/lightbulb';
+import Link from 'lucide-solid/icons/link';
+import List from 'lucide-solid/icons/list';
+import ListChecks from 'lucide-solid/icons/list-checks';
+import ListOrdered from 'lucide-solid/icons/list-ordered';
+import LogIn from 'lucide-solid/icons/log-in';
+import LogOut from 'lucide-solid/icons/log-out';
+import Mail from 'lucide-solid/icons/mail';
+import Menu from 'lucide-solid/icons/menu';
+import Monitor from 'lucide-solid/icons/monitor';
+import MonitorPlay from 'lucide-solid/icons/monitor-play';
+import Moon from 'lucide-solid/icons/moon';
+import Paintbrush from 'lucide-solid/icons/paintbrush';
+import Paperclip from 'lucide-solid/icons/paperclip';
+import Pause from 'lucide-solid/icons/pause';
+import Pilcrow from 'lucide-solid/icons/pilcrow';
+import Play from 'lucide-solid/icons/play';
+import Plus from 'lucide-solid/icons/plus';
+import Quote from 'lucide-solid/icons/quote';
+import Radio from 'lucide-solid/icons/radio';
+import Redo from 'lucide-solid/icons/redo';
+import RefreshCw from 'lucide-solid/icons/refresh-cw';
+import RotateCcw from 'lucide-solid/icons/rotate-ccw';
+import RotateCcwClock from 'lucide-solid/icons/rotate-ccw-clock';
+import Save from 'lucide-solid/icons/save';
+import ScrollText from 'lucide-solid/icons/scroll-text';
+import Search from 'lucide-solid/icons/search';
+import Send from 'lucide-solid/icons/send';
+import Server from 'lucide-solid/icons/server';
+import Settings from 'lucide-solid/icons/settings';
+import Share from 'lucide-solid/icons/share';
+import Shuffle from 'lucide-solid/icons/shuffle';
+import SlidersHorizontal from 'lucide-solid/icons/sliders-horizontal';
+import Smartphone from 'lucide-solid/icons/smartphone';
+import SquarePen from 'lucide-solid/icons/square-pen';
+import SquareStack from 'lucide-solid/icons/square-stack';
+import Sun from 'lucide-solid/icons/sun';
+import Terminal from 'lucide-solid/icons/terminal';
+import Trash from 'lucide-solid/icons/trash';
+import Undo from 'lucide-solid/icons/undo';
+import User from 'lucide-solid/icons/user';
+import UserPlus from 'lucide-solid/icons/user-plus';
+import Users from 'lucide-solid/icons/users';
+import Volume2 from 'lucide-solid/icons/volume-2';
+import VolumeX from 'lucide-solid/icons/volume-x';
+import Wifi from 'lucide-solid/icons/wifi';
+import WifiOff from 'lucide-solid/icons/wifi-off';
+import X from 'lucide-solid/icons/x';
 
 import { createIcon } from './create-icon';
 export const CreditCardIcon = createIcon(CreditCard);

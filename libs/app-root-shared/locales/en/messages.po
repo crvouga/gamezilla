@@ -1012,10 +1012,6 @@ msgstr "Download readable summary"
 msgid "Download reusable detail"
 msgstr "Download reusable detail"
 
-#: libs/app-root-client/src/boot-paint-gate.tsx
-msgid "Downloading…"
-msgstr "Downloading…"
-
 #: libs/chess-custom-game-client/src/custom-game-error.tsx
 msgid "Draw agreement is available between two people."
 msgstr "Draw agreement is available between two people."

@@ -41,6 +41,7 @@ import {
 import { modelShapeIssues } from '@pkgs/quint-shared/shape';
 import { formatModelShapeIssue } from '@pkgs/quint-shared/shape-model';
 import { withModelWorkspace } from './model-check-workspace';
+import { withSolverSlot } from './solver-slots';
 import type { SpecPackage } from './spec-packages';
 import { REPO_ROOT, specPackages } from './spec-packages';
 
@@ -198,16 +199,16 @@ async function checkModel(
   const invariants = modelInvariants(text);
   const properties = modelTemporalProperties(text);
   const outName = check.specUri.replace(/\W+/g, '-');
-  const result =
+  const result = await withSolverSlot(() =>
     properties.length > 0
-      ? await verifyTemporal({
+      ? verifyTemporal({
           specPath,
           properties,
           invariants,
           outDir: join(run.reportDir, 'tlc', outName),
           timeoutMs: check.timeoutMs,
         })
-      : await verify({
+      : verify({
           specPath,
           invariants,
           maxSteps: check.steps,
@@ -220,7 +221,8 @@ async function checkModel(
             : { inductiveInvariant: check.inductiveInvariant }),
           outDir: join(run.reportDir, 'apalache', outName),
           timeoutMs: check.timeoutMs,
-        });
+        })
+  );
   const strategy = modelStrategy(check, properties);
   const states =
     result.ok && 'statesExplored' in result && 'searchDepth' in result

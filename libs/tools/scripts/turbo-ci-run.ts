@@ -24,8 +24,9 @@
  *   (plus their `dependsOn` closure, same hashes), after the closure's remote
  *   hits are prefetched in parallel into the local cache — so `--concurrency`
  *   slots go to real work, not ~400 serialized cross-country cache restores.
- * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise one task per four available
- *   CPUs (at least one), reserving capacity for nested native workers.
+ * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise every available CPU
+ *   minus the model solvers' reserve. Proofs take machine-wide slots
+ *   (`solver-slots.ts`) instead of throttling every task to their needs.
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
  *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
  *   a task's output until it finishes, so a heartbeat prints every 2 min.
@@ -77,6 +78,7 @@ import type { ReportTaskIdentity } from './check-report-stream';
 import { killProcessTree } from './kill-process-tree';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
+import { solverSlots } from './solver-slots';
 import type { RunPlan } from './turbo-preflight';
 import {
   dryRunPlan,
@@ -225,9 +227,15 @@ export function resolveCacheFlag(
   return DEFAULT_CACHE;
 }
 
-/** Reserve four solver workers plus compiler and runtime capacity per task. */
-export function defaultCheckConcurrency(cpus: number): number {
-  return Math.max(1, Math.floor(cpus / 6));
+/**
+ * Every core but one per solver slot runs a task; the solvers gate themselves
+ * machine-wide (`solver-slots.ts`). Nearly every task is one core of work.
+ */
+export function defaultCheckConcurrency(
+  cpus: number,
+  slots: number = solverSlots(process.env, cpus)
+): number {
+  return Math.max(1, cpus - slots);
 }
 
 function resolveConcurrency(): string {
