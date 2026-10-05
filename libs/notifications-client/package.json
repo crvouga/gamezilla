@@ -16,6 +16,7 @@
   "dependencies": {
     "@libs/auth-client": "workspace:*",
     "@libs/feature-client": "workspace:*",
+    "@libs/moderation-client": "workspace:*",
     "@libs/moderation-shared": "workspace:*",
     "@libs/notifications-shared": "workspace:*",
     "@libs/permissions-client": "workspace:*",

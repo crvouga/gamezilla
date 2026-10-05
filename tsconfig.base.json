@@ -103,6 +103,7 @@
       "@libs/permissions-shared/*": ["./libs/permissions-shared/src/*"],
       "@libs/profile-client/*": ["./libs/profile-client/src/*"],
       "@libs/profile-harness/*": ["./libs/profile-harness/src/*"],
+      "@libs/moderation-client/*": ["./libs/moderation-client/src/*"],
       "@libs/moderation-shared/*": ["./libs/moderation-shared/src/*"],
       "@libs/profile-shared/*": ["./libs/profile-shared/src/*"],
       "@libs/pubsub-server/*": ["./libs/pubsub-server/src/*"],

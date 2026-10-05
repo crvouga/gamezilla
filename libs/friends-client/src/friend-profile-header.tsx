@@ -1,4 +1,5 @@
 import type { FriendProfile } from '@libs/friends-shared/friends-types';
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared/display';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { JSX } from 'solid-js';
@@ -14,8 +15,13 @@ export type FriendProfileHeaderProps = {
 export function FriendProfileHeader(
   props: FriendProfileHeaderProps
 ): JSX.Element {
+  const moderation = useModeration();
   const handle = createMemo(() => {
-    const label = usernameLabel(props.profile.username, props.profile.userId);
+    const label = usernameLabel(
+      moderation(),
+      props.profile.username,
+      props.profile.userId
+    );
     return label.length > 0 ? label : props.profile.userId.slice(0, 8);
   });
 

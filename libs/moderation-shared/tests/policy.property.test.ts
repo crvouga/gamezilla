@@ -1,9 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 
 import { usernameLabel } from '@libs/moderation-shared/display';
-import { moderation } from '@libs/moderation-shared/policy';
+import {
+  createAppModeration,
+  SHIPPED_TEAM_RULES,
+} from '@libs/moderation-shared/policy';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
+
+const moderation = createAppModeration(SHIPPED_TEAM_RULES);
 
 const USERNAME_ALPHABET = /^[a-zA-Z0-9_]+$/;
 
@@ -19,7 +24,7 @@ describe('the product policy agrees with itself at every level', () => {
       'refused username ⇒ shown as an alias',
       fc.property(arbText, fc.uuid(), (name, profileId) => {
         if (moderation.checkWrite('username', name).allowed) return;
-        const label = usernameLabel(name, profileId);
+        const label = usernameLabel(moderation, name, profileId);
         expect(label).not.toBe(`@${name}`);
         expect(label).not.toMatch(USERNAME_ALPHABET);
       })

@@ -1,4 +1,4 @@
-import { moderation } from '@libs/moderation-shared/policy';
+import { allowedInMutation } from '@libs/moderation-shared/mutation-content';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
@@ -20,7 +20,7 @@ export const renameSpaceMutation = defineMutation({
       message: 'Only the host can rename this space.',
     });
     const nextTitle = title.trim();
-    if (!moderation.checkWrite('spaceTitle', nextTitle).allowed) {
+    if (!allowedInMutation(env, 'spaceTitle', nextTitle)) {
       throw new MutationError(
         'SPACE_TITLE_NOT_ALLOWED',
         'That space name is not allowed.'

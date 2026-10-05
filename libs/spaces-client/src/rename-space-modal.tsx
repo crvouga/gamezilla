@@ -1,9 +1,15 @@
-import { moderation } from '@libs/moderation-shared/policy';
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
-import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  Show,
+} from 'solid-js';
 import { useRenameSpace } from './use-rename-space';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 
@@ -23,6 +29,7 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
   const { t } = useLingui();
   const persistedTitle = useSpaceColumn(() => props.spaceId, SpaceField.title);
   const renameSpace = useRenameSpace();
+  const moderation = useModeration();
   const [value, setValue] = createSignal<string>('');
 
   createEffect(() => {
@@ -33,7 +40,7 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
 
   // As-you-type moderation: the same policy the rename mutation enforces.
   const refused = createMemo(
-    () => !moderation.checkWrite('spaceTitle', value().trim()).allowed
+    () => !moderation().checkWrite('spaceTitle', value().trim()).allowed
   );
 
   const operation = async (): Promise<void> => {
@@ -53,18 +60,28 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
       errorTitle={<Trans>Couldn't rename space</Trans>}
       stackId="rename-space"
       submitDataSet={{ testid: Handles.spaceRenameConfirm }}
+      cancelDataSet={{ testid: Handles.spaceRenameCancel }}
       dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
     >
       <TextInput
         label={<Trans>Space name</Trans>}
         value={value()}
         onChangeText={(next) => setValue(() => next)}
-        error={refused() ? t`That space name is not allowed` : undefined}
+        invalid={refused()}
         placeholder={t`Give your space a name`}
         autofocus
         autocapitalize="words"
         dataSet={{ testid: Handles.spaceRenameInput }}
       />
+      <Show when={refused()}>
+        <p
+          class="text textCaption text-destructive"
+          role="alert"
+          data-testid={Handles.spaceRenameNotAllowed}
+        >
+          <Trans>That space name is not allowed</Trans>
+        </p>
+      </Show>
     </MutationModal>
   );
 }

@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { displayNotification } from '@libs/notifications-client/notification-display';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
@@ -149,10 +150,13 @@ export function FriendRequestDecisionModal(
   props: FriendRequestDecisionModalProps
 ): JSX.Element {
   const router = useRouter();
+  const moderation = useModeration();
   const profile = createMemo(() =>
     profileFromFriendRequestNotification(props.interaction)
   );
-  const title = createMemo(() => displayNotification(props.interaction).title);
+  const title = createMemo(
+    () => displayNotification(moderation(), props.interaction).title
+  );
 
   const onViewProfile = () => {
     props.onClose();

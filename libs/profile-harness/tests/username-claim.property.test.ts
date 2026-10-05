@@ -8,6 +8,10 @@
  */
 import { Database } from 'bun:sqlite';
 import { describe, expect, test } from 'bun:test';
+import {
+  createAppModeration,
+  SHIPPED_TEAM_RULES,
+} from '@libs/moderation-shared/policy';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import { ensureProfileMutation } from '@libs/profile-shared/ensure-profile-mutation';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
@@ -27,6 +31,8 @@ import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 import fc from 'fast-check';
 
+const moderation = createAppModeration(SHIPPED_TEAM_RULES);
+
 const T0 = Date.parse('2026-09-01T00:00:00.000Z');
 const USERS = ['u1', 'u2'] as const;
 type User = (typeof USERS)[number];
@@ -45,6 +51,7 @@ function env(actorId: string, nowMs: number): MutationEnv {
     isAnon: false,
     now: () => new Date(nowMs),
     createId: () => `${actorId}-${nowMs}`,
+    contentRules: moderation,
   };
 }
 
@@ -105,7 +112,7 @@ describe('ensureProfile username bootstrap', () => {
           const rows = await readProfiles(db);
           expect(rows).toHaveLength(actorIds.length);
           for (const row of rows) {
-            expect(validateUsername(row.username)).toBeNull();
+            expect(validateUsername(row.username, moderation)).toBeNull();
             expect(row.username_norm).toBe(row.username.toLowerCase());
           }
           const norms = new Set(rows.map((r) => r.username_norm));
@@ -135,7 +142,7 @@ function other(user: User): User {
 /** The claim rules: validate, no-op on re-claim, cooldown, then uniqueness. */
 function modelClaim(m: Model, user: User, raw: string): string {
   const name = raw.trim().toLowerCase();
-  const invalid = validateUsername(name);
+  const invalid = validateUsername(name, moderation);
   if (invalid !== null) return VALIDATION_CODES[invalid];
   const mine = m.held.get(user) as Held;
   if (mine.username === name) return 'ok';

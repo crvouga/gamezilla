@@ -1,4 +1,8 @@
 import { expect, test } from 'bun:test';
+import {
+  createAppModeration,
+  SHIPPED_TEAM_RULES,
+} from '@libs/moderation-shared/policy';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import { ensureProfileMutation } from '@libs/profile-shared/ensure-profile-mutation';
 import { PROFILE_QUERIES } from '@libs/profile-shared/queries';
@@ -21,6 +25,7 @@ test('every profile snapshot carries the current username uniqueness value', asy
     isAnon: false,
     now: () => new Date(1_700_000_000_000),
     createId: () => 'unused',
+    contentRules: createAppModeration(SHIPPED_TEAM_RULES),
   };
   try {
     await ensureProfileMutation.run({ tx: db, env }, { username: 'alice_old' });

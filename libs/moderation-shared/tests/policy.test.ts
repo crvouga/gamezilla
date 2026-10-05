@@ -2,8 +2,13 @@ import { describe, expect, test } from 'bun:test';
 
 import { moderationAlias } from '@libs/moderation-shared/alias';
 import { spaceTitleText, usernameLabel } from '@libs/moderation-shared/display';
-import { moderation } from '@libs/moderation-shared/policy';
+import {
+  createAppModeration,
+  SHIPPED_TEAM_RULES,
+} from '@libs/moderation-shared/policy';
 import { isReservedName } from '@libs/moderation-shared/reserved-name-check';
+
+const moderation = createAppModeration(SHIPPED_TEAM_RULES);
 
 describe('username policy', () => {
   test('refuses profanity, disguised or not, from either word list', () => {
@@ -36,13 +41,15 @@ describe('username policy', () => {
   });
 
   test('a stored refused name is shown as a stable alias, never as a handle', () => {
-    const label = usernameLabel('sh1thead_99', 'profile-1');
+    const label = usernameLabel(moderation, 'sh1thead_99', 'profile-1');
     expect(label).toBe(moderationAlias('profile-1'));
-    expect(label).toBe(usernameLabel('sh1thead_99', 'profile-1'));
+    expect(label).toBe(usernameLabel(moderation, 'sh1thead_99', 'profile-1'));
     expect(label).toContain(' ');
     expect(label.startsWith('@')).toBe(false);
-    expect(usernameLabel('alice_one', 'profile-1')).toBe('@alice_one');
-    expect(usernameLabel('', 'profile-1')).toBe('');
+    expect(usernameLabel(moderation, 'alice_one', 'profile-1')).toBe(
+      '@alice_one'
+    );
+    expect(usernameLabel(moderation, '', 'profile-1')).toBe('');
   });
 
   test('aliases are themselves clean and never a valid username', () => {
@@ -75,9 +82,11 @@ describe('space title policy', () => {
   });
 
   test('a stored refused title is hidden so the default title shows', () => {
-    expect(spaceTitleText('shit show', 's1')).toBeNull();
-    expect(spaceTitleText('Friday puzzles', 's1')).toBe('Friday puzzles');
-    expect(spaceTitleText(null, 's1')).toBeNull();
-    expect(spaceTitleText('', 's1')).toBeNull();
+    expect(spaceTitleText(moderation, 'shit show', 's1')).toBeNull();
+    expect(spaceTitleText(moderation, 'Friday puzzles', 's1')).toBe(
+      'Friday puzzles'
+    );
+    expect(spaceTitleText(moderation, null, 's1')).toBeNull();
+    expect(spaceTitleText(moderation, '', 's1')).toBeNull();
   });
 });

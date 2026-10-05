@@ -1,5 +1,7 @@
 import type { FriendProfile } from '@libs/friends-shared/friends-types';
-import { usernameLabel } from '@libs/moderation-shared/display';
+import { useModeration } from '@libs/moderation-client/moderation-context';
+import { usernameLabel, usernameText } from '@libs/moderation-shared/display';
+import type { AppModeration } from '@libs/moderation-shared/policy';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
@@ -10,26 +12,33 @@ export type FriendUserRowProps = {
   readonly profile: FriendProfile;
   readonly onPress?: (() => void) | undefined;
   readonly trailing?: JSX.Element;
-  /** When true, sets the friends-list DST handle from `profile.username`. */
+  /**
+   * When true, sets the friends-list DST handle from the name the row shows
+   * (a stand-in name when the username is no longer allowed).
+   */
   readonly friendsListHandle?: boolean;
   /** DST handle for the pressable identity, when not a friends-list row. */
   readonly pressTestID?: string | undefined;
 };
 
-function profileLabel(profile: FriendProfile): string {
-  const label = usernameLabel(profile.username, profile.userId);
+function profileLabel(
+  moderation: AppModeration,
+  profile: FriendProfile
+): string {
+  const label = usernameLabel(moderation, profile.username, profile.userId);
   return label.length > 0 ? label : profile.userId.slice(0, 8);
 }
 
 function FriendUserRowIdentity(props: {
   readonly profile: FriendProfile;
 }): JSX.Element {
+  const moderation = useModeration();
   return (
     <>
       <FriendProfileAvatar profile={props.profile} size={44} />
       <div class="box flex-1 min-w-0 gap-0.5">
         <p class="text textBodyBold line-clamp-1">
-          {profileLabel(props.profile)}
+          {profileLabel(moderation(), props.profile)}
         </p>
       </div>
     </>
@@ -37,9 +46,13 @@ function FriendUserRowIdentity(props: {
 }
 
 export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
+  const moderation = useModeration();
+  const shownName = createMemo(() =>
+    usernameText(moderation(), props.profile.username, props.profile.userId)
+  );
   const rowTestID = createMemo(() =>
-    props.friendsListHandle === true && props.profile.username.length > 0
-      ? Handles.friendsListRow(props.profile.username)
+    props.friendsListHandle === true && shownName().length > 0
+      ? Handles.friendsListRow(shownName())
       : props.pressTestID
   );
 

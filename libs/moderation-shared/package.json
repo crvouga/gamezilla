@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/moderation-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/word-filter-shared": "workspace:*",
     "unique-names-generator": "catalog:"
   },

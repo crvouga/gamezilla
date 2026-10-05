@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { Trans } from '@lingui/solid/macro';
 import {
   useLocalSearchParams,
@@ -22,9 +23,27 @@ import {
 import { useFriendshipStatus } from './use-friendship-status';
 import { useRemoveFriend } from './use-remove-friend';
 
+/** Profile › the person, named as moderation lets them be shown. */
+function useFriendUserBreadcrumbs(
+  userProfile: ReturnType<typeof useFriendUserProfile>,
+  userId: () => string
+) {
+  const nav = useBreadcrumbNav();
+  const moderation = useModeration();
+  return createMemo(() => [
+    { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
+    {
+      name: friendUserBreadcrumbName(
+        moderation(),
+        userProfile.profile(),
+        userId()
+      ),
+    },
+  ]);
+}
+
 function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const router = useRouter();
-  const nav = useBreadcrumbNav();
   const userId = () => props.userId;
   const status = useFriendshipStatus(userId);
   const requestIds = useFriendRequestIdsForUser(userId);
@@ -63,10 +82,7 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       dataSet: action.dataSet,
     }));
   });
-  const breadcrumbs = createMemo(() => [
-    { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
-    { name: friendUserBreadcrumbName(userProfile.profile(), props.userId) },
-  ]);
+  const breadcrumbs = useFriendUserBreadcrumbs(userProfile, userId);
 
   return (
     <ScreenBase

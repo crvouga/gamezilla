@@ -1,3 +1,4 @@
+import { shippedModerationRules } from '@libs/moderation-shared/moderation-rules';
 import { openMainSqlClient } from './open-main-sql-client';
 // @io-wall-ok — browser / production ClientEnv composition root.
 /**
@@ -137,6 +138,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     },
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId),
     mutationSuccessHoldMs: 900,
+    moderation: shippedModerationRules(),
   };
   setOriginAvailability(env, availability);
   return env;

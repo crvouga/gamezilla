@@ -1,4 +1,6 @@
 import { useMyId } from '@libs/auth-client/use-current-user';
+import { useModeration } from '@libs/moderation-client/moderation-context';
+import { displayUsername } from '@libs/moderation-shared/display';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { useCan, useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
@@ -89,6 +91,7 @@ export function useDebouncedUserSearchEffect(
   const timers = useTimers();
   const sync = useSyncEngineInstance();
   const engine = useSyncEngine();
+  const moderation = useModeration();
   const [debouncedQuery, setDebouncedQuery] = createSignal('');
   const [awaitingSync, setAwaitingSync] = createSignal(false);
 
@@ -139,9 +142,14 @@ export function useDebouncedUserSearchEffect(
   });
 
   const { rows } = createQuery(() => searchHitsSql(myId(), debouncedQuery()));
+  // A username that is no longer allowed is never found: the person is not
+  // searchable by it, on any device, the moment the team stops allowing it.
   const results = createMemo(() =>
     rows()
       .filter((row) => row.id.length > 0)
+      .filter(
+        (row) => !displayUsername(moderation(), row.username, row.id).masked
+      )
       .map(mapSearchHit)
   );
 

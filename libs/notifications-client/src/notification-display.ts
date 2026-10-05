@@ -2,6 +2,7 @@ import {
   displayUsername,
   usernameLabel,
 } from '@libs/moderation-shared/display';
+import type { AppModeration } from '@libs/moderation-shared/policy';
 import type { Notification } from '@libs/notifications-shared/notification';
 
 type UsernameSnapshot = {
@@ -18,6 +19,7 @@ const HANDLE_CHAR = /[\p{L}\p{N}_.-]/u;
  * shown now. Only names the policy masks are returned.
  */
 function maskedUsernames(
+  moderation: AppModeration,
   payload: Notification['payload']
 ): readonly UsernameSnapshot[] {
   const out: UsernameSnapshot[] = [];
@@ -27,8 +29,8 @@ function maskedUsernames(
     const role = key.slice(0, -USERNAME_KEY_SUFFIX.length);
     const userId = payload[`${role}UserId`];
     if (typeof userId !== 'string' || userId.length === 0) continue;
-    if (!displayUsername(raw, userId).masked) continue;
-    out.push({ raw, label: usernameLabel(raw, userId) });
+    if (!displayUsername(moderation, raw, userId).masked) continue;
+    out.push({ raw, label: usernameLabel(moderation, raw, userId) });
   }
   return out;
 }
@@ -62,8 +64,11 @@ function moderateText(
  * a name masked after the notification was sent shows its alias. Stored
  * notifications are never rewritten; returns `interaction` when unchanged.
  */
-export function displayNotification(interaction: Notification): Notification {
-  const snapshots = maskedUsernames(interaction.payload);
+export function displayNotification(
+  moderation: AppModeration,
+  interaction: Notification
+): Notification {
+  const snapshots = maskedUsernames(moderation, interaction.payload);
   if (snapshots.length === 0) return interaction;
   return {
     ...interaction,

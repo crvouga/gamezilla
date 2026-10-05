@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { spaceTitleText } from '@libs/moderation-shared/display';
 import type { TextVariant } from '@pkgs/ui-root-client/text';
 import type { JSX } from 'solid-js';
@@ -19,8 +20,9 @@ export type SpaceTitleTextProps = {
  */
 export function SpaceTitleText(props: SpaceTitleTextProps): JSX.Element {
   const storedTitle = useSpaceColumn(props.spaceId, SpaceField.title);
+  const moderation = useModeration();
   const customTitle = createMemo(() =>
-    spaceTitleText(storedTitle(), props.spaceId)
+    spaceTitleText(moderation(), storedTitle(), props.spaceId)
   );
   return (
     <Show

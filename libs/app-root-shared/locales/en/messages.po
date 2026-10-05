@@ -1989,6 +1989,7 @@ msgid "OS"
 msgstr "OS"
 
 #: libs/profile-client/src/profile-handle-screen.tsx
+#: libs/profile-client/src/stand-in-notice.tsx
 msgid "Other people see you as {alias} until you choose a new username"
 msgstr "Other people see you as {alias} until you choose a new username"
 

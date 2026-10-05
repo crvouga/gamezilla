@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared/display';
 import type { TextVariant } from '@pkgs/ui-root-client/text';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
@@ -51,8 +52,11 @@ function UserUsernameInner(props: {
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const username = useProfileColumn(() => props.profileId, 'username');
+  const moderation = useModeration();
   const label = createMemo(() =>
-    usernameLabel(username(), props.profileId, { withAt: props.withAt })
+    usernameLabel(moderation(), username(), props.profileId, {
+      withAt: props.withAt,
+    })
   );
   return (
     <p

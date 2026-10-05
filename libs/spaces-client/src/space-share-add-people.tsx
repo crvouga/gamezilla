@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import {
@@ -20,13 +21,14 @@ export function SpaceShareAddPeople(props: {
   const add = useAddSpaceUser();
   const [query, setQuery] = createSignal('');
   const search = useDebouncedUserSearchEffect(query);
+  const moderation = useModeration();
 
   const options = createMemo((): ComboboxOption[] =>
     search.results
       .filter((profile) => !props.listedIds.has(profile.userId))
       .map((profile) => ({
         value: profile.userId,
-        label: usernameText(profile.username, profile.userId),
+        label: usernameText(moderation(), profile.username, profile.userId),
         // Search matches what was typed against the stored handle.
         searchText: profile.username,
         preview: <UserProfileAvatar profileId={profile.userId} size={32} />,

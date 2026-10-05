@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type {
   NotificationAction,
@@ -259,6 +260,7 @@ export type NotificationCardDefaultProps = {
 export function NotificationCardDefault(
   props: NotificationCardDefaultProps
 ): JSX.Element {
+  const moderation = useModeration();
   const hasInlineActions = createMemo(
     () =>
       (props.showInlineActions ?? true) && props.interaction.actions.length > 0
@@ -273,7 +275,9 @@ export function NotificationCardDefault(
         : props.onOpen
   );
   // Copy as the reader may see it now (snapshot usernames moderated).
-  const shown = createMemo(() => displayNotification(props.interaction));
+  const shown = createMemo(() =>
+    displayNotification(moderation(), props.interaction)
+  );
   const textPress = createMemo<(() => void) | undefined>(() =>
     rowPress() === undefined && props.onOpen !== undefined
       ? props.onOpen

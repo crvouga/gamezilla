@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
 import sql from '@pkgs/sql-root-shared/sql';
 
@@ -21,6 +22,7 @@ export function useSpaceUserEntries(spaceId: string): {
   readonly entries: Accessor<readonly SpaceUserEntry[]>;
   readonly isLoading: Accessor<boolean>;
 } {
+  const moderation = useModeration();
   const query = createQuery(
     () => sql<SpaceUserRow>`
       SELECT a.user_id, p.username, p.avatar_config
@@ -33,7 +35,7 @@ export function useSpaceUserEntries(spaceId: string): {
   const entries = createMemo(() =>
     query.rows().map((row) => ({
       userId: row.user_id,
-      username: usernameText(row.username, row.user_id),
+      username: usernameText(moderation(), row.username, row.user_id),
       avatarConfig: row.avatar_config,
     }))
   );

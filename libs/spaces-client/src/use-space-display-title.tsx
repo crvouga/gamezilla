@@ -1,4 +1,5 @@
 import { useMyDeviceId, useMyId } from '@libs/auth-client/use-current-user';
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { spaceTitleText, usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { resolveSpaceFallbackTitleParts } from '@libs/spaces-shared/resolve-space-fallback-title-parts';
@@ -30,16 +31,25 @@ export function useSpaceDisplayTitle(
   const hostId = useSpaceColumn(spaceId, SpaceField.hostId);
   const hostRow = useProfileRow(hostProfileId);
   const myRow = useProfileRow(() => (myId().length > 0 ? myId() : null));
+  const moderation = useModeration();
   const hostUsername = createMemo(() => {
     const id = hostProfileId();
-    return id === null ? null : usernameText(hostRow.row()?.username, id);
+    return id === null
+      ? null
+      : usernameText(moderation(), hostRow.row()?.username, id);
   });
   const myUsername = createMemo(() =>
-    myId().length > 0 ? usernameText(myRow.row()?.username, myId()) : null
+    myId().length > 0
+      ? usernameText(moderation(), myRow.row()?.username, myId())
+      : null
   );
 
   return createMemo(() => {
-    const title = spaceTitleText(customTitle(), resolvedSpaceId());
+    const title = spaceTitleText(
+      moderation(),
+      customTitle(),
+      resolvedSpaceId()
+    );
     if (title !== null && title.length > 0) {
       return title;
     }

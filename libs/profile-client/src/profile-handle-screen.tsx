@@ -1,5 +1,4 @@
-import { displayUsername } from '@libs/moderation-shared/display';
-import { moderation } from '@libs/moderation-shared/policy';
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -15,6 +14,7 @@ import type { Accessor, JSX } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
 import { useProfileRow } from './claim-username-use-profile-row';
+import { useStandInName } from './use-stand-in-name';
 
 function useSyncedUsername(row: Accessor<ProfileRow | null>) {
   const [value, setValue] = createSignal('');
@@ -42,30 +42,28 @@ function useSyncedUsername(row: Accessor<ProfileRow | null>) {
 
 /**
  * As-you-type moderation (the first level of the shared policy): a draft the
- * policy refuses is flagged before saving; a saved name the policy now masks
- * tells its owner what everyone else sees instead. The saved name is kept.
+ * rules refuse is flagged before saving — saving it is refused all the same,
+ * and says so; a saved name the rules no longer allow tells its owner which
+ * stand-in name everyone sees instead. The saved name is kept.
  */
 function useUsernameModeration(
   value: Accessor<string>,
   row: Accessor<ProfileRow | null>
 ) {
   const { t } = useLingui();
-  const draftRefused = createMemo(
-    () =>
-      !moderation.checkWrite('username', value().trim().toLowerCase()).allowed
-  );
+  const moderation = useModeration();
+  const standIn = useStandInName(row);
   const error = createMemo(() =>
-    draftRefused() ? t`That username is not allowed` : undefined
+    moderation().checkWrite('username', value().trim().toLowerCase()).allowed
+      ? undefined
+      : t`That username is not allowed`
   );
   const helperText = createMemo(() => {
-    const current = row();
-    if (current === null) return undefined;
-    const shown = displayUsername(current.username, current.id);
-    if (!shown.masked || shown.text === null) return undefined;
-    const alias = shown.text;
+    const alias = standIn();
+    if (alias === null) return undefined;
     return t`Other people see you as ${alias} until you choose a new username`;
   });
-  return { draftRefused, error, helperText };
+  return { error, helperText };
 }
 
 function ProfileHandleScreenBody(props: {
@@ -175,7 +173,7 @@ export function ProfileHandleScreen(): JSX.Element {
             },
             operation: save,
             get disabled() {
-              return profileId() === null || usernameModeration.draftRefused();
+              return profileId() === null;
             },
             dataSet: { testid: Handles.profileUsernameSave },
           }}

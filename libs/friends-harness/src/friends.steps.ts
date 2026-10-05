@@ -17,6 +17,7 @@ import {
   openProfileEdit,
   setUsername,
 } from '@libs/profile-harness/profile-actions';
+import { standInNameOf } from '@libs/profile-harness/profile-ui-reads';
 import { searchUsername } from '@libs/search-harness/search-actions';
 import {
   peopleSearchOpen,
@@ -215,6 +216,18 @@ Then(
   async (w, actor: Actor, person: string, seconds: number) => {
     await w.s.apply(openFriendsList, actor);
     await w.s.until((surf) => friendRowVisible(surf, actor, person), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then(
+  "{actor}'s friends list shows {actor} under a stand-in name within {int} seconds",
+  async (w, actor: Actor, friend: Actor, seconds: number) => {
+    const standIn = await w.s.read(standInNameOf, friend);
+    if (standIn === null) throw new Error(`${friend} has no profile yet`);
+    await w.s.apply(openFriendsList, actor);
+    await w.s.until((surf) => friendRowVisible(surf, actor, standIn), {
       maxMs: seconds * SECOND_MS,
     });
   }

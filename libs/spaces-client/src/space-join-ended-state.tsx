@@ -1,3 +1,4 @@
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -26,10 +27,13 @@ export function SpaceJoinEndedState(
     return id !== undefined && id.length > 0 ? id : null;
   });
   const hostRow = useProfileRow(hostProfileId);
+  const moderation = useModeration();
   const body = createMemo(() => {
     const id = hostProfileId();
     const username =
-      id === null ? '' : usernameText(hostRow.row()?.username, id);
+      id === null
+        ? ''
+        : usernameText(moderation(), hostRow.row()?.username, id);
     const label = spaceLabel();
     if (username.length > 0) {
       return t`${label} · hosted by ${username}`;

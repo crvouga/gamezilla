@@ -15,6 +15,7 @@ import {
   useGlobalMenuIdentityPublisher,
 } from '@libs/app-root-client/global-menu-identity-context';
 import { useSessionAccountEmail } from '@libs/auth-client/use-current-user';
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared/display';
 import { parseAvatarConfig } from '@libs/profile-shared/avatar-config';
 import {
@@ -35,6 +36,7 @@ function PublishIdentity(props: {
   readonly avatarConfigRaw: Accessor<string | null>;
 }): JSX.Element {
   const publish = useGlobalMenuIdentityPublisher();
+  const moderation = useModeration();
   const email = useSessionAccountEmail();
   const avatarConfig = createMemo(() =>
     parseAvatarConfig(props.avatarConfigRaw())
@@ -47,7 +49,9 @@ function PublishIdentity(props: {
     const username = props.username();
     publish({
       usernameLabel:
-        profileId === null ? null : usernameLabel(username, profileId),
+        profileId === null
+          ? null
+          : usernameLabel(moderation(), username, profileId),
       email: email(),
       avatar: (size) => (
         <DeviceAvatar

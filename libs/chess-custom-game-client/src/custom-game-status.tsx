@@ -6,7 +6,9 @@ import {
   customGameStartable,
   customGameTimeLeft,
 } from '@libs/chess-custom-game-shared/custom-game-state';
+import { useModeration } from '@libs/moderation-client/moderation-context';
 import { usernameText } from '@libs/moderation-shared/display';
+import type { AppModeration } from '@libs/moderation-shared/policy';
 import { useProfileColumn } from '@libs/profile-client/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
@@ -15,8 +17,12 @@ import { createMemo, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /** Moderated name for display, or `null` while it is unknown. */
-function shownName(username: string | null, profileId: string): string | null {
-  const text = usernameText(username, profileId);
+function shownName(
+  moderation: AppModeration,
+  username: string | null,
+  profileId: string
+): string | null {
+  const text = usernameText(moderation, username, profileId);
   return text.length > 0 ? text : null;
 }
 
@@ -99,18 +105,19 @@ export function CustomGameStatus(props: {
   const blackId = () => props.model.current()?.black.person ?? '';
   const whiteName = useProfileColumn(whiteId, 'username');
   const blackName = useProfileColumn(blackId, 'username');
+  const moderation = useModeration();
   const description = createMemo(() => {
     const game = props.model.current();
     if (game === null) return t`No Custom Game.`;
     const white = participantName(
       game,
       'white',
-      shownName(whiteName(), whiteId())
+      shownName(moderation(), whiteName(), whiteId())
     );
     const black = participantName(
       game,
       'black',
-      shownName(blackName(), blackId())
+      shownName(moderation(), blackName(), blackId())
     );
     const state = gameStateDescription(game);
     return t`White: ${white}. Black: ${black}. ${state}`;
