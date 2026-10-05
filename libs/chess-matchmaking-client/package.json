@@ -36,7 +36,6 @@
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
-    "@pkgs/uuid-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {
