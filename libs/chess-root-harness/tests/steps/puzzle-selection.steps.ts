@@ -5,7 +5,10 @@
 
 import { expect } from 'bun:test';
 import { readServerPuzzles } from '@libs/chess-puzzle-harness/chess-puzzle-data';
-import { readStatsElo } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  readActivePuzzleId,
+  readStatsElo,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import {
   GOOD_PUZZLE,
   retireEveryPuzzle,
@@ -13,6 +16,7 @@ import {
 import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { remember } from '@libs/harness/spec-world';
 import { reopenSpaceLink } from '@libs/spaces-harness/space-actions';
@@ -24,7 +28,9 @@ import {
   required,
   servedPuzzle,
   servedPuzzleId,
+  SETTLE_MS,
   stock,
+  takeUpDevice,
 } from './puzzle-world';
 
 /** Memo key: the stocked puzzle's id by its rating. */
@@ -116,6 +122,7 @@ Then(
 When('{actor} opens puzzles on their other device', async (w, actor: Actor) => {
   const device = otherDevice(actor);
   const link = required(await w.s.read(readSpaceLink, actor), 'a space');
+  takeUpDevice(w, actor, device);
   await w.s.apply(reopenSpaceLink, device, link);
 });
 
@@ -123,6 +130,12 @@ Then(
   '{actor} is not offered that puzzle on their other device',
   async (w, actor: Actor) => {
     const played = currentPuzzle(w, actor);
-    expect(await servedPuzzleId(w, otherDevice(actor))).not.toBe(played);
+    const device = otherDevice(actor);
+    await w.s.apply(focusActor, device);
+    const onBoard = await w.s.until(
+      (surf) => readActivePuzzleId(surf, device),
+      { maxMs: SETTLE_MS, pred: (id) => id !== null }
+    );
+    expect(onBoard).not.toBe(played);
   }
 );

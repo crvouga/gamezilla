@@ -63,6 +63,7 @@ import {
   currentPuzzle,
   ensureOnPuzzle,
   enterNamedPuzzle,
+  deviceInHand,
   enterPuzzles,
   previousPuzzle,
   promotionPiece,
@@ -205,7 +206,9 @@ Given(
 );
 
 Then('{actor} has a puzzle on the board', async (w, actor: Actor) => {
-  expect(await w.s.read(readActivePuzzleId, actor)).not.toBeNull();
+  const device = deviceInHand(w, actor);
+  await w.s.apply(focusActor, device);
+  expect(await w.s.read(readActivePuzzleId, device)).not.toBeNull();
 });
 
 Then(

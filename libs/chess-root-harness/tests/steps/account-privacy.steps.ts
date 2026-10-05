@@ -8,10 +8,11 @@ import {
   readStatsSolved,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { Given, Then } from '@libs/harness/define';
-import { signedInAccountOf } from '@libs/harness/identity';
+import { localAccountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
+import { deviceShowsSignedIn } from '@libs/harness/sign-in-state-reads';
 import { recall, signedInAccountKey } from '@libs/harness/spec-world';
 import { SECOND_MS } from './puzzle-world';
 
@@ -72,12 +73,21 @@ Then(
 Then(
   "{actor}'s game log cannot show the deleted account's attempts",
   async (w, actor: Actor) => {
-    // A device back online first learns the account is gone.
+    // The device first stops being the deleted account (signed out, or
+    // signed in to another one): a device back online learns the account is
+    // gone when it next checks its session, within the time deletion allows.
     const deleted = recall(w, signedInAccountKey(actor));
-    await w.s.until((surf) => signedInAccountOf(surf, actor), {
-      maxMs: RECONNECT_MS,
-      pred: (account) => account !== deleted,
-    });
+    await w.s.until(
+      async (surf) =>
+        (await deviceShowsSignedIn(surf, actor))
+          ? await localAccountIdOf(surf, actor)
+          : 'signed out',
+      {
+        maxMs: RECONNECT_MS,
+        pred: (account) => account !== null && account !== deleted,
+      }
+    );
+    await w.s.apply(focusActor, actor);
     await w.s.apply(showChessStatsScreen, actor);
     expect(await w.s.read(isGameLogEmpty, actor)).toBe(true);
   }

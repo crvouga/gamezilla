@@ -72,6 +72,7 @@ import {
   ensureOnPuzzle,
   ensureStatsOpen,
   focusFeed,
+  puzzleOnBoard,
   recalled,
   required,
   SECOND_MS,
@@ -139,9 +140,18 @@ async function retireFeedPool(w: HarnessWorld): Promise<void> {
 }
 
 Given('the puzzle pool holds just three puzzles', async (w) => {
-  await retireFeedPool(w);
+  // A puzzle already on someone's board stays one of the three, so what
+  // the board shows is part of the pool the scenario describes.
+  const onBoard = puzzleOnBoard(w);
+  const kept =
+    onBoard !== null && FEED_POOL_IDS.includes(onBoard)
+      ? [...STANDARD_PUZZLE_IDS.slice(0, 2), onBoard]
+      : [...STANDARD_PUZZLE_IDS];
+  for (const id of [...FEED_POOL_IDS, ...STANDARD_PUZZLE_IDS]) {
+    if (!kept.includes(id)) await w.s.apply(retireChessPuzzle, id);
+  }
   const pool = (await w.s.read(readServerPuzzles)).map((row) => row.id);
-  expect(pool).toEqual([...STANDARD_PUZZLE_IDS]);
+  expect(pool).toEqual(kept.sort());
 });
 
 Given('the team has added seven puzzles, five of them broken', async (w) => {

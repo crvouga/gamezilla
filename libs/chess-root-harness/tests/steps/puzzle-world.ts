@@ -54,6 +54,20 @@ export function recalledOr<T>(w: HarnessWorld, key: string, fallback: T): T {
   return w.memo.has(key) ? (w.memo.get(key) as T) : fallback;
 }
 
+// ------------------------------------------------------------ the device
+
+const deviceKey = (actor: Actor) => `deviceInHand:${actor}`;
+
+/** Note that the actor now uses `device` (theirs, or their other device). */
+export function takeUpDevice(w: HarnessWorld, actor: Actor, device: string) {
+  remember(w, deviceKey(actor), device);
+}
+
+/** The device the actor last acted on: their own unless a step moved them. */
+export function deviceInHand(w: HarnessWorld, actor: Actor): string {
+  return recalledOr<string>(w, deviceKey(actor), actor);
+}
+
 // ------------------------------------------------------------ the puzzle on
 
 const currentKey = (actor: Actor) => `puzzle:${actor}`;
@@ -105,6 +119,11 @@ export function previousPuzzle(w: HarnessWorld, actor: Actor): string | null {
 /** Whose puzzle a step means when it names no one: the last one tracked. */
 export function lastPlayer(w: HarnessWorld): Actor {
   return recalled<Actor>(w, LAST_PLAYER);
+}
+
+/** The puzzle last seen on anyone's board, or null before any was. */
+export function puzzleOnBoard(w: HarnessWorld): string | null {
+  return recalledOr<string | null>(w, LAST_PUZZLE, null);
 }
 
 /** The puzzle a step names without naming whose it is. */
