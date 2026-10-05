@@ -85,10 +85,28 @@ function StartupShell(): JSX.Element {
       aria-label="Starting Gamezilla"
       data-startup-shell
     >
-      <span class="startup-shell-mark" aria-hidden="true">
-        G
-      </span>
-      <span>Starting…</span>
+      <svg class="startup-shell-spinner" viewBox="0 0 48 48" aria-hidden="true">
+        <circle
+          cx="24"
+          cy="24"
+          r="21.5"
+          stroke="currentColor"
+          stroke-width="5"
+          fill="none"
+          opacity="0.25"
+        />
+        <circle
+          cx="24"
+          cy="24"
+          r="21.5"
+          stroke="currentColor"
+          stroke-width="5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-dasharray="33.77 101.32"
+        />
+      </svg>
+      <span class="startup-shell-caption">Starting…</span>
     </div>
   );
 }

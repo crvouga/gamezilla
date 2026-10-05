@@ -21,34 +21,48 @@
       color-scheme: dark;
     }
 
+    /* Mirrors the in-app BootLoadingShell (LoadingState size="large" +
+       caption) so boot shows one loading state from first paint to ready. */
     .startup-shell {
       align-items: center;
       display: flex;
       flex-direction: column;
-      font: 500 0.875rem/1.5 ui-sans-serif, system-ui, sans-serif;
-      gap: 0.75rem;
+      font: 500 0.875rem/1.5 Nunito, ui-sans-serif, system-ui, sans-serif;
+      gap: 0.5rem;
       inset: 0;
       justify-content: center;
       position: fixed;
     }
 
+    .startup-shell-spinner {
+      animation: startup-spin 900ms linear infinite;
+      color: hsl(213, 92%, 68%);
+      height: 48px;
+      width: 48px;
+    }
+
+    .startup-shell-caption {
+      color: hsl(215, 6%, 70%);
+      font-size: 12px;
+      letter-spacing: 0.01em;
+      line-height: 18px;
+    }
+
+    .startup-shell-failed {
+      gap: 0.75rem;
+    }
+
     .startup-shell-mark {
       align-items: center;
-      animation: startup-pulse 1.2s ease-in-out infinite alternate;
       background: #26262d;
-      border: 1px solid #3a3a44;
+      border: 1px solid #9b3d47;
       border-radius: 0.75rem;
+      color: #ffb4bd;
       display: flex;
       font-size: 1.125rem;
       height: 3rem;
       justify-content: center;
       width: 3rem;
-    }
-
-    .startup-shell-failed .startup-shell-mark {
-      animation: none;
-      border-color: #9b3d47;
-      color: #ffb4bd;
     }
 
     .startup-shell-guidance {
@@ -73,16 +87,21 @@
       padding: 0.625rem 1rem;
     }
 
-    @keyframes startup-pulse {
+    @keyframes startup-spin {
       to {
-        opacity: 0.55;
-        transform: scale(0.96);
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes startup-pulse {
+      50% {
+        opacity: 0.45;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .startup-shell-mark {
-        animation: none;
+      .startup-shell-spinner {
+        animation: startup-pulse 1600ms ease-in-out infinite;
       }
     }
   </style>
@@ -181,8 +200,12 @@
 
   <div id="root">
     <div class="startup-shell" role="status" aria-label="Starting Gamezilla" data-startup-shell>
-      <span class="startup-shell-mark" aria-hidden="true">G</span>
-      <span>Starting…</span>
+      <svg class="startup-shell-spinner" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="21.5" stroke="currentColor" stroke-width="5" fill="none" opacity="0.25" />
+        <circle cx="24" cy="24" r="21.5" stroke="currentColor" stroke-width="5" fill="none"
+          stroke-linecap="round" stroke-dasharray="33.77 101.32" />
+      </svg>
+      <span class="startup-shell-caption">Starting…</span>
     </div>
   </div>
   <script type="module" src="/src/root.ts"></script>
