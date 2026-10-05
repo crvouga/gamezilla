@@ -6,7 +6,7 @@ Feature: Multiplayer chess is played and watched within spaces
   Rule: Finding an opponent and playing multiplayer chess requires a space
 
     Scenario: A host finds an opponent from the space's chess choices
-      Given Alice has a free account and a connection
+      Given Alice is signed in
       And Alice is hosting a space
       When Alice finds a chess opponent
       Then Alice is looking for a chess opponent
