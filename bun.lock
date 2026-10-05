@@ -916,6 +916,7 @@
       "name": "@libs/chess-matchmaking-harness",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/app-root-server": "workspace:*",
         "@libs/auth-shared": "workspace:*",
         "@libs/chess-matchmaking-shared": "workspace:*",
         "@libs/harness": "workspace:*",
@@ -1238,6 +1239,7 @@
         "@pkgs/assert-root-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
         "@pkgs/uuid-shared": "workspace:*",
         "hono": "catalog:",
       },

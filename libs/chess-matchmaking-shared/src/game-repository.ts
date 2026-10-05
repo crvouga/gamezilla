@@ -4,9 +4,9 @@ import {
 } from '@pkgs/matchmaking-sql-shared/owner-repository';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
+import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import type { MultiplayerGame } from './game';
-import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { publishMatchGame } from './publish-match-game';
 
 export class MultiplayerGameRepository {
@@ -54,15 +54,13 @@ export class MultiplayerGameRepository {
     return game;
   }
 
-  async save(
-    game: MultiplayerGame,
-    env: MutationEnv
-  ): Promise<void> {
+  async save(game: MultiplayerGame, env: MutationEnv): Promise<void> {
     const nowMs = (env.serverNow ?? env.now)().getTime();
     await this.tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${game.fen}, pgn = ${game.pgn},
       revision = ${game.revision}, turn = ${game.turn}, outcome = ${game.outcome}, reason = ${game.reason},
       updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);
-    if (env.serverNow !== undefined) await publishMatchGame({ tx: this.tx, env }, game);
+    if (env.serverNow !== undefined)
+      await publishMatchGame({ tx: this.tx, env }, game);
     if (env.serverNow !== undefined && game.outcome !== 'ongoing') {
       for (const ownerId of [game.white_id, game.black_id])
         await changeAvailability(this.tx, { ownerId, available: true, nowMs });

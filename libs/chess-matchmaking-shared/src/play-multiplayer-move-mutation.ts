@@ -2,15 +2,16 @@ import { requireInMutation } from '@libs/permissions-shared/mutation-permission'
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { z } from 'zod';
-import { requireMultiplayerParticipant } from './multiplayer-space-access';
 import { playMultiplayerMove } from './game';
 import { MultiplayerGameRepository } from './game-repository';
+import { requireMultiplayerParticipant } from './multiplayer-space-access';
 
 export const playMultiplayerMoveMutation = defineMutation({
   name: 'playMultiplayerMove',
   requiresOnline: true,
   pendingUx: 'pending',
-  args: z.object({ spaceId: z.string().min(1),
+  args: z.object({
+    spaceId: z.string().min(1),
     gameId: z.string().min(1),
     requestId: z.string().min(1),
     revision: z.number().int().nonnegative(),

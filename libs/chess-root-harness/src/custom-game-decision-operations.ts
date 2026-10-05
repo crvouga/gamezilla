@@ -159,7 +159,8 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
           const ctx = { db: c.db, topic, actor, nowMs: c.nowMs };
           return [
             ...((await spaceRoomGrants(ctx)) ?? []),
-            ...((await createChessServer(node.services).roomGrants?.(ctx)) ?? []),
+            ...((await createChessServer(node.services).roomGrants?.(ctx)) ??
+              []),
           ];
         },
       },

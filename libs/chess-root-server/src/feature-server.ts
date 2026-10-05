@@ -1,5 +1,3 @@
-import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
-import { multiplayerRoomGrants, registerMatchRoomConsumers } from './multiplayer-room-server';
 import { CUSTOM_GAME_GRANT_KEYS } from '@libs/chess-custom-game-shared/custom-game-permissions';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
 import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
@@ -8,6 +6,11 @@ import { defineFeatureServer } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
 import { storedSpacePresence } from '@libs/spaces-shared/stored-space-presence';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared/define-consumer';
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import {
+  multiplayerRoomGrants,
+  registerMatchRoomConsumers,
+} from './multiplayer-room-server';
 import { createPuzzleManagementApp } from './puzzle-management-route';
 
 async function customGameRoomGrants(
@@ -33,26 +36,28 @@ async function customGameRoomGrants(
 }
 
 export function createChessServer(rooms: RoomServicePort) {
- return defineFeatureServer({
-  name: 'chess',
-  routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
-  roomGrants: async (ctx) => [...await customGameRoomGrants(ctx), ...await multiplayerRoomGrants(ctx)],
-  registerOutbox(registry) {
-    registerMatchRoomConsumers(registry, rooms);
-    registry.register(
-      defineOutboxConsumer({
-        id: 'chess.form-opponent-match',
-        on: OpponentRequested,
-        async handler(ctx) {
-          const ids = await formChessMatches(ctx.tx, {
-            nowMs: ctx.clock.now(),
-            createId: ctx.createId,
-          });
-          return { notifyUserIds: ids };
-        },
-      })
-    );
-  },
-});
-
+  return defineFeatureServer({
+    name: 'chess',
+    routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
+    roomGrants: async (ctx) => [
+      ...(await customGameRoomGrants(ctx)),
+      ...(await multiplayerRoomGrants(ctx)),
+    ],
+    registerOutbox(registry) {
+      registerMatchRoomConsumers(registry, rooms);
+      registry.register(
+        defineOutboxConsumer({
+          id: 'chess.form-opponent-match',
+          on: OpponentRequested,
+          async handler(ctx) {
+            const ids = await formChessMatches(ctx.tx, {
+              nowMs: ctx.clock.now(),
+              createId: ctx.createId,
+            });
+            return { notifyUserIds: ids };
+          },
+        })
+      );
+    },
+  });
 }

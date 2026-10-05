@@ -54,7 +54,10 @@ export function useMultiplayerControls(
       return;
     }
     accept(
-      await client.mutate(findChessOpponentMutation, { spaceId: data.spaceId() ?? '', requestId: createId() })
+      await client.mutate(findChessOpponentMutation, {
+        spaceId: data.spaceId() ?? '',
+        requestId: createId(),
+      })
     );
   };
   const stop = async () =>

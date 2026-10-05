@@ -76,7 +76,7 @@ export const attemptCustomGameBoundary = scenarioAction({
       let disclosed = false;
       const transport = node.createTransport({
         topic: `space:${args.spaceId}`,
-    module: 'space',
+        module: 'space',
         identity,
         installId,
         clientId: env.createId(),

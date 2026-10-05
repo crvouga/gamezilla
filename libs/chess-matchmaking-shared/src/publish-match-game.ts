@@ -3,6 +3,12 @@ import type { OutboxSendCtx } from '@pkgs/outbox-shared/types';
 import type { MultiplayerGame } from './game';
 import { MultiplayerGameChanged } from './match-room';
 
-export async function publishMatchGame(ctx: OutboxSendCtx, game: MultiplayerGame): Promise<void> {
-  await new Outbox(ctx).send({ id: ctx.env.createId(), message: MultiplayerGameChanged(game) });
+export async function publishMatchGame(
+  ctx: OutboxSendCtx,
+  game: MultiplayerGame
+): Promise<void> {
+  await new Outbox(ctx).send({
+    id: ctx.env.createId(),
+    message: MultiplayerGameChanged(game),
+  });
 }

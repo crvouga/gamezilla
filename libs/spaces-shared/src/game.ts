@@ -2,9 +2,9 @@ import type { AppGrantKey } from '@libs/permissions-shared/permission-catalog';
 import type { Message, MessageNamespace } from '@pkgs/message-shared/message';
 import type { MessageRouter } from '@pkgs/message-shared/router';
 import type {
-  RoomModule,
   HandleResult,
   RoomEffect,
+  RoomModule,
   RoomState,
 } from '@pkgs/room-root-shared/types';
 import type { Random } from '@pkgs/uuid-shared/create-id';
@@ -43,7 +43,12 @@ export type GameDefinition = {
   /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */
   readonly id: string;
   /** Independent rooms shared by spaces playing a matched game. */
-  readonly matchRooms?: readonly RoomModule<RoomState, Message, Message, string>[];
+  readonly matchRooms?: readonly RoomModule<
+    RoomState,
+    Message,
+    Message,
+    string
+  >[];
   /** Command sub-routers this game contributes (one per namespace). */
   readonly commandRouters: readonly GameRouterEntry<
     GameCommandContext,
@@ -90,8 +95,6 @@ export type GameClientMenuProps = {
  */
 export type GameClientDefinition = {
   readonly id: string;
-  /** Independent rooms shared by spaces playing a matched game. */
-  readonly matchRooms?: readonly RoomModule<RoomState, Message, Message, string>[];
   /** Display title shown in the games picker (localized string or node). */
   readonly title: JSX.Element | string;
   /** One-line description under the title in the games picker. */

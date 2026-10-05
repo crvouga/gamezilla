@@ -1,10 +1,13 @@
+import {
+  CHESS_SCREEN,
+  SetChessMainMenuScreen,
+} from '@libs/chess-root-shared/chess-main-menu';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { useDecision } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
-import { Trans } from '@lingui/solid/macro';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces-client/use-space-room-selector';
-import { CHESS_SCREEN, SetChessMainMenuScreen } from '@libs/chess-root-shared/chess-main-menu';
+import { Trans } from '@lingui/solid/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client/sync-engine-context';
 import { ErrorState } from '@pkgs/ui-root-client/error-state';
 import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
@@ -18,9 +21,19 @@ function MultiplayerContent(props: {
   readonly data: ReturnType<typeof useMultiplayerData>;
   readonly controls: ReturnType<typeof useMultiplayerControls>;
 }): JSX.Element {
-  const decision = useDecision(PERMISSION.chessMultiplayerWatch, () => ({ spacePresence: props.data.hostId() === props.data.myId() ? 'host' : props.data.hostId() ? 'guest' : null }));
+  const decision = useDecision(PERMISSION.chessMultiplayerWatch, () => ({
+    spacePresence:
+      props.data.hostId() === props.data.myId()
+        ? 'host'
+        : props.data.hostId()
+          ? 'guest'
+          : null,
+  }));
   const searchDecision = useDecision(PERMISSION.matchmakingView);
-  const access = () => props.data.game() !== null || props.data.hostId() !== props.data.myId() ? decision() : searchDecision();
+  const access = () =>
+    props.data.game() !== null || props.data.hostId() !== props.data.myId()
+      ? decision()
+      : searchDecision();
   const sync = useSyncEngine();
   return (
     <div class="box gap-4" data-component="MultiplayerContent">
@@ -71,13 +84,18 @@ function MultiplayerContent(props: {
             />
           )}
         </Show>
-        <Show when={props.data.game() === null && props.data.search() === null && !props.data.loading()}>
-          <p role="status" data-testid="multiplayer-unavailable"><Trans>No multiplayer game is available to you.</Trans></p>
+        <Show
+          when={
+            props.data.game() === null &&
+            props.data.search() === null &&
+            !props.data.loading()
+          }
+        >
+          <p role="status" data-testid="multiplayer-unavailable">
+            <Trans>No multiplayer game is available to you.</Trans>
+          </p>
         </Show>
-        <MultiplayerControls
-          data={props.data}
-          controls={props.controls}
-        />
+        <MultiplayerControls data={props.data} controls={props.controls} />
       </Show>
     </div>
   );
@@ -87,8 +105,19 @@ export default function MultiplayerScreen(): JSX.Element {
   const data = useMultiplayerData();
   const controls = useMultiplayerControls(data);
   const dispatch = useSpaceRoomDispatch();
-  return <>
-    <DefineBackButton onPress={() => dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))} />
-    <ScreenBase screenId="chess-multiplayer" breadcrumbs={[]} scroll content={() => <MultiplayerContent data={data} controls={controls} />} />
-  </>;
+  return (
+    <>
+      <DefineBackButton
+        onPress={() =>
+          dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }))
+        }
+      />
+      <ScreenBase
+        screenId="chess-multiplayer"
+        breadcrumbs={[]}
+        scroll
+        content={() => <MultiplayerContent data={data} controls={controls} />}
+      />
+    </>
+  );
 }

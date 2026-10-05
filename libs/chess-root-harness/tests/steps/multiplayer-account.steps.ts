@@ -19,7 +19,7 @@ import {
   openProfileEdit,
   setUsername,
 } from '@libs/profile-harness/profile-actions';
-import { endSpace } from '@libs/spaces-harness/space-actions';
+import { closeSpaceScreen, endSpace } from '@libs/spaces-harness/space-actions';
 import { multiplayerPeople } from './multiplayer-people';
 import { gameOf, givenGame, sameBoards } from './multiplayer-world';
 
@@ -141,6 +141,7 @@ Given(
   async (w, actor: Actor, opponent: Actor) => {
     await setupFriendsPair(w.s, actor, opponent);
     await givenGame(w, actor, opponent);
+    await w.s.apply(closeSpaceScreen, actor);
     await w.s.apply(removeFriend, actor, opponent);
     expect((await gameOf(w, actor)).outcome).toBe('ongoing');
   }

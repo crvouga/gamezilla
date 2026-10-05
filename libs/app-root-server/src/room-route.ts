@@ -92,7 +92,10 @@ export function createRoomApp(
     }
     const clientId = parseClientId(c.req.raw);
     const stub = ns.get(ns.idFromName(topic));
-    if (topic.startsWith('chess-match:') && !grants.includes(PERMISSION.chessMultiplayerWatch))
+    if (
+      topic.startsWith('chess-match:') &&
+      !grants.includes(PERMISSION.chessMultiplayerWatch)
+    )
       return c.json({ error: 'not in a match space' }, 403);
     const headers = new Headers(c.req.raw.headers);
     injectRequestHeaders(headers);

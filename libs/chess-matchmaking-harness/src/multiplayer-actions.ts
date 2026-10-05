@@ -1,4 +1,3 @@
-import { multiplayerSpaceId } from './multiplayer-spaces';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   actorUi,
@@ -11,6 +10,8 @@ import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { multiplayerClient } from './multiplayer-client';
 import { multiplayerView } from './multiplayer-reads';
+import { multiplayerSpaceId } from './multiplayer-spaces';
+import { multiplayerWatcherBoard } from './multiplayer-watchers';
 
 /** Ask the ordinary query transport to observe the changed network. */
 export const refreshMultiplayerConnection = scenarioAction({
@@ -52,9 +53,11 @@ export const openMultiplayerChess = scenarioAction({
     const spaceId = await multiplayerSpaceId(s, actor);
     if (spaceId === null) return;
     const path = await s.actors.get(actor)!.currentPath();
-    if (!path.includes(spaceId)) await s.actors.get(actor)!.openLink(`/space/${spaceId}`);
+    if (!path.includes(spaceId))
+      await s.actors.get(actor)!.openLink(`/space/${spaceId}`);
     await s.session.waitForIdle();
-    if (await ui.get('game-menu-chess').isVisible()) await ui.get('game-menu-chess').tap();
+    if (await ui.get('game-menu-chess').isVisible())
+      await ui.get('game-menu-chess').tap();
     if (await ui.get('chess-menu-multiplayer').isVisible()) {
       if (keyboard) await ui.get('chess-menu-multiplayer').key('enter');
       else await ui.get('chess-menu-multiplayer').tap();
@@ -64,6 +67,12 @@ export const openMultiplayerChess = scenarioAction({
       s,
       async () => {
         if (await ui.get('multiplayer-access-denial').isVisible()) return true;
+        const rendered = await multiplayerWatcherBoard(s, actor);
+        if (
+          rendered.gameId !== null &&
+          (gameId === undefined || rendered.gameId === gameId)
+        )
+          return true;
         const view = await multiplayerView(s, actor);
         const target =
           gameId !== undefined

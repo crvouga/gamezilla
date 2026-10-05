@@ -19,8 +19,8 @@
     "@pkgs/message-shared": "workspace:*",
     "@pkgs/pubsub-root-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
-    "@pkgs/sql-root-shared": "workspace:*"
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

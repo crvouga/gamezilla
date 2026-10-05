@@ -14,7 +14,8 @@ export function MultiplayerBoard(props: {
   readonly onMove: (uci: string) => Promise<void>;
 }): JSX.Element {
   const sounds = useSoundsPreference();
-  const participant = () => props.game.white_id === props.myId || props.game.black_id === props.myId;
+  const participant = () =>
+    props.game.white_id === props.myId || props.game.black_id === props.myId;
   const white = () => props.game.white_id === props.myId || !participant();
   const opponent = useProfileRow(() =>
     white() ? props.game.black_id : props.game.white_id

@@ -1,8 +1,8 @@
-import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { deviceMutationEnv } from '@libs/auth-shared/device-mutation-env';
 import { CHESS_MUTATIONS } from '@libs/chess-feature-shared/mutations';
 import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
+import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { ensureActor, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { awaitMutationVerdict } from '@pkgs/sync-engine-client/await-mutation-verdict';
@@ -43,7 +43,10 @@ export const sendMultiplayerCommand = scenarioAction({
         engine.notifyLocalMutation(def, args, capture);
       },
     });
-    const args = { spaceId: await multiplayerSpaceId(s, actor) ?? 'no-space', ...command.args };
+    const args = {
+      spaceId: (await multiplayerSpaceId(s, actor)) ?? 'no-space',
+      ...command.args,
+    };
     let result: MutateResult | null = null;
     let failure: unknown;
     void client.mutate(mutation as Mutation<unknown>, args).then(

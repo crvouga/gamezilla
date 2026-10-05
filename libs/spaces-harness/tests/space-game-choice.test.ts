@@ -61,8 +61,7 @@ function send(db: SqlClient, person: string, payload: Message) {
   };
   const node = createInProcessRoomNode(env, { games: [], gateway });
   return answerOfRoomCommand(node, {
-    topic: `space:${SPACE_ID}`,
-    module: 'space',
+    spaceId: SPACE_ID,
     identity: person,
     installId: person,
     payload,

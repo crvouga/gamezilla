@@ -15,6 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
+    "@pkgs/room-root-shared": "workspace:*",
     "@libs/app-root-shared": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-custom-game-shared": "workspace:*",

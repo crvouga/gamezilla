@@ -179,9 +179,11 @@ function buildLoopbackTransport(
       topic: entry.server.topic,
       actor: actorOf(args),
     });
-    const admissionKey = args.module === 'space' ? PERMISSION.spacesLeave : PERMISSION.chessMultiplayerWatch;
-    if (!grants.includes(admissionKey))
-      throw new Error('not in the space');
+    const admissionKey =
+      args.module === 'space'
+        ? PERMISSION.spacesLeave
+        : PERMISSION.chessMultiplayerWatch;
+    if (!grants.includes(admissionKey)) throw new Error('not in the space');
   });
 }
 
@@ -201,11 +203,7 @@ export function createInProcessRoomNode(
   const topics = new Map<string, TopicEntry>();
   const listeners = new Set<() => void>();
   let disposed = false;
-  const modules = composeRoomModules(
-    games,
-    () => env.clock.now(),
-    env.random
-  );
+  const modules = composeRoomModules(games, () => env.clock.now(), env.random);
 
   const notify = () => {
     for (const listener of [...listeners]) {
@@ -220,7 +218,7 @@ export function createInProcessRoomNode(
   const getOrCreate = (topic: string): TopicEntry => {
     const existing = topics.get(topic);
     if (existing !== undefined) return existing;
-    const module = modules.find(item => topic.startsWith(`${item.name}:`));
+    const module = modules.find((item) => topic.startsWith(`${item.name}:`));
     if (module === undefined) throw new Error(`Unknown room topic ${topic}`);
     const entry = createTopicEntry(topic, env, module, games);
     topics.set(topic, entry);

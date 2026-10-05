@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@libs/chess-custom-game-client": "workspace:*",
+    "@libs/chess-matchmaking-client": "workspace:*",
     "@libs/chess-puzzle-client": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
@@ -23,8 +24,7 @@
     "@libs/spaces-shared": "workspace:*",
     "@lingui/solid": "catalog:",
     "@pkgs/ui-root-client": "workspace:*",
-    "solid-js": "catalog:",
-    "@libs/chess-matchmaking-client": "workspace:*"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

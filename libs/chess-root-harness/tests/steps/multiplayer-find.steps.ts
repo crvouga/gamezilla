@@ -1,4 +1,3 @@
-import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { expect } from 'bun:test';
 import {
   confirmMultiplayerCommand,
@@ -13,6 +12,7 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -50,7 +50,8 @@ Given(
 );
 When('{actor} finds a chess opponent', async (w, actor: Actor) => {
   w.memo.set('multiplayer:acted', true);
-  if (await w.s.read(multiplayerSpaceId, actor) === null) await command(w, actor, 'findChessOpponent', { spaceId: 'no-space' });
+  if ((await w.s.read(multiplayerSpaceId, actor)) === null)
+    await command(w, actor, 'findChessOpponent', { spaceId: 'no-space' });
   else await w.s.apply(findChessOpponent, actor);
 });
 When(

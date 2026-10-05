@@ -7,8 +7,8 @@ import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import sql from '@pkgs/sql-root-shared/sql';
 import { Chess } from 'chess.js';
 import { MultiplayerGameRepository } from './game-repository';
-import { CHESS_OPPONENT_POOL, CHESS_SEARCH_RADIUS } from './search-config';
 import { publishMatchGame } from './publish-match-game';
+import { CHESS_OPPONENT_POOL, CHESS_SEARCH_RADIUS } from './search-config';
 import { projectOpponentSearch } from './search-projection';
 
 /** Invoked inside the reusable package's formation transaction. */
@@ -39,7 +39,10 @@ export async function acceptChessMatch(
     VALUES (${fact.matchId}, ${fact.matchId}, ${white.ownerId}, ${black.ownerId}, ${new Chess().fen()},
       ${''}, ${0}, ${white.ownerId}, ${'ongoing'}, ${null}, ${iso}, ${iso}, ${null})`);
   const game = await games.owned(fact.matchId, white.ownerId);
-  await publishMatchGame({ tx, env: { now: () => new Date(nowMs), createId } }, game);
+  await publishMatchGame(
+    { tx, env: { now: () => new Date(nowMs), createId } },
+    game
+  );
   for (const person of fact.participants) {
     await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
       VALUES (${person.ownerId}, ${person.ownerId}, ${fact.matchId}, ${iso}, ${iso}, ${null})

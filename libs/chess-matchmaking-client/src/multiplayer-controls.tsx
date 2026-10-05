@@ -22,7 +22,11 @@ export function MultiplayerControls(props: {
   });
   return (
     <div class="box gap-4" data-component="MultiplayerControls">
-      <Show when={props.data.participant() && props.data.game()?.outcome === 'ongoing'}>
+      <Show
+        when={
+          props.data.participant() && props.data.game()?.outcome === 'ongoing'
+        }
+      >
         <Button
           title={<Trans>Resign multiplayer chess</Trans>}
           onClick={() => setConfirm('resign')}
@@ -43,11 +47,13 @@ export function MultiplayerControls(props: {
         <p role="status" data-testid="multiplayer-waiting">
           <Trans>Looking for a chess opponent.</Trans>
         </p>
-        <Button
-          title={<Trans>Stop finding an opponent</Trans>}
-          onClick={() => setConfirm('stop')}
-          dataSet={{ testid: 'multiplayer-stop' }}
-        />
+        <Show when={props.data.hostId() === props.data.myId()}>
+          <Button
+            title={<Trans>Stop finding an opponent</Trans>}
+            onClick={() => setConfirm('stop')}
+            dataSet={{ testid: 'multiplayer-stop' }}
+          />
+        </Show>
       </Show>
       <MutationModal
         visible={confirm() !== null}

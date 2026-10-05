@@ -1,5 +1,5 @@
-import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
 import { CustomGameScreen } from '@libs/chess-custom-game-client/custom-game-screen';
+import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
 import { ChessPuzzleFeedProvider } from '@libs/chess-puzzle-client/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from '@libs/chess-puzzle-client/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from '@libs/chess-puzzle-client/chess-puzzle-review-screen';
@@ -124,7 +124,8 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
       title: <Trans>Multiplayer chess</Trans>,
       caption: <Trans>Find an opponent and watch together</Trans>,
       dataSet: { testid: 'chess-menu-multiplayer' },
-      onClick: () => dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.multiplayer })),
+      onClick: () =>
+        dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.multiplayer })),
     },
     {
       key: 'settings',
