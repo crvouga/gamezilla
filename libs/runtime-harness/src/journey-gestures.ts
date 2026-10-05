@@ -159,6 +159,10 @@ async function releaseLeftoverHostedSpaces(ui: Driver): Promise<void> {
   await showSpaces(ui);
   if (!(await ui.get(Handles.spacesHostingCount).isVisible())) return;
   const card = Handles.spaceCard(await hostUsername(ui));
+  await showSpaces(ui);
+  // The count has answered, but each card also loads its host's profile.
+  // Missing card text while that query hydrates is not an empty lobby.
+  await expectVisible(ui, card);
   for (let released = 0; released < LEFTOVER_HOST_LIMIT; released += 1) {
     await showSpaces(ui);
     if (!(await ui.get(card).isVisible())) return;

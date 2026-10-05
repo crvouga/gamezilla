@@ -13,7 +13,7 @@ import { createMemo, createSignal, For, Show } from 'solid-js';
 import { SpaceCard } from './space-card';
 import { openSpaceDetail } from './space-routes';
 import type { SpacesNotice } from './spaces-notices';
-import { SpacesAttemptNotice, SpacesHostingCount } from './spaces-notices';
+import { SpacesAttemptNotice, SpacesLobbyContent } from './spaces-notices';
 import { useCheckConnection } from './use-check-connection';
 import { useCreateSpace } from './use-create-space';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
@@ -150,14 +150,10 @@ export function SpacesScreen(): JSX.Element {
             </div>
           }
         >
-          <div
-            class={`box gap-3 ${bodyClass}`}
-            data-testid={Handles.spacesListReady}
-          >
-            <SpacesHostingCount />
+          <SpacesLobbyContent class={`box gap-3 ${bodyClass}`}>
             <SpacesAttemptNotice notice={attempt.notice()} />
             <SpacesList onCreateSpace={onCreateSpace} />
-          </div>
+          </SpacesLobbyContent>
         </Show>
       )}
     />
