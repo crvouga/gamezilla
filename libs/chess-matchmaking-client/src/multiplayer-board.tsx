@@ -14,13 +14,16 @@ export function MultiplayerBoard(props: {
   readonly onMove: (uci: string) => Promise<void>;
 }): JSX.Element {
   const sounds = useSoundsPreference();
-  const white = () => props.game.white_id === props.myId;
+  const participant = () => props.game.white_id === props.myId || props.game.black_id === props.myId;
+  const white = () => props.game.white_id === props.myId || !participant();
   const opponent = useProfileRow(() =>
     white() ? props.game.black_id : props.game.white_id
   );
   const opponentName = () => opponent.row()?.username || 'Deleted account';
   const description = createMemo(() =>
-    props.game.outcome === 'ongoing' ? (
+    !participant() ? (
+      <Trans>Watching multiplayer chess.</Trans>
+    ) : props.game.outcome === 'ongoing' ? (
       white() ? (
         <Trans>You are White.</Trans>
       ) : (
@@ -55,7 +58,7 @@ export function MultiplayerBoard(props: {
         data-testid="multiplayer-announcement"
       >
         {description()}
-        <Show when={props.game.outcome === 'ongoing'}>
+        <Show when={props.game.outcome === 'ongoing' && participant()}>
           {props.game.turn === props.myId ? (
             <Trans>Your turn.</Trans>
           ) : (
@@ -75,6 +78,7 @@ export function MultiplayerBoard(props: {
           fenSyncKey={props.syncKey}
           orientation={white() ? 'white' : 'black'}
           interactive={
+            participant() &&
             props.connected &&
             !props.moving &&
             props.game.outcome === 'ongoing' &&

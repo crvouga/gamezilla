@@ -162,7 +162,7 @@ When(
   "{actor} opens {actor}'s multiplayer game",
   async (w, outsider: Actor, owner: Actor) => {
     const game = await gameOf(w, owner);
-    await multiplayerPeople(w, [outsider]);
+    if (!w.memo.get(`multiplayer:watcher:${outsider}`)) await multiplayerPeople(w, [outsider]);
     await w.s.apply(openMultiplayerChess, outsider, game.id);
   }
 );
@@ -170,7 +170,7 @@ When(
   "{actor} plays e2 to e4 in {actor}'s multiplayer game",
   async (w, outsider: Actor, owner: Actor) => {
     const game = await gameOf(w, owner);
-    await multiplayerPeople(w, [outsider]);
+    if (!w.memo.get(`multiplayer:watcher:${outsider}`)) await multiplayerPeople(w, [outsider]);
     await command(w, outsider, 'playMultiplayerMove', {
       gameId: game.id,
       revision: game.revision,

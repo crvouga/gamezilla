@@ -72,7 +72,8 @@ export const finishPuzzleAsAppCloses = scenarioAction({
     const env = await s.harness.client(actor);
     const frames: unknown[] = [];
     const transport = s.harness.roomNode.createTransport({
-      spaceId,
+      topic: `space:${spaceId}`,
+      module: 'space',
       apiUrl: '',
       identity,
       installId: `${actor}-finish`,

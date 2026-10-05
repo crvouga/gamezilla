@@ -157,6 +157,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.spacesLeave,
         PERMISSION.chessCustomJoin,
         PERMISSION.chessCustomWatch,
+        PERMISSION.chessMultiplayerWatch,
         PERMISSION.chessCustomPlay,
       ],
     },

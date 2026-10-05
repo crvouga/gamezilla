@@ -28,7 +28,9 @@
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "chess.js": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@libs/spaces-shared": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

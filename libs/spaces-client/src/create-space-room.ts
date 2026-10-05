@@ -86,7 +86,8 @@ export class SpaceRoomFactory {
       this.random
     );
     const transport = (createTransport ?? ((args) => wsFactory.create(args)))({
-      spaceId,
+      topic,
+      module: module.name,
       apiUrl,
       identity: myId,
       installId,

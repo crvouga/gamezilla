@@ -48,7 +48,8 @@ export async function answerOfRoomCommand(
   const commandId = args.commandId;
   const frames: Frame[] = [];
   const transport = node.createTransport({
-    spaceId: args.spaceId,
+    topic: `space:${args.spaceId}`,
+    module: 'space',
     apiUrl: '',
     identity: args.identity,
     installId: args.installId,

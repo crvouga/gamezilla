@@ -23,7 +23,8 @@
     "@libs/spaces-shared": "workspace:*",
     "@lingui/solid": "catalog:",
     "@pkgs/ui-root-client": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@libs/chess-matchmaking-client": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

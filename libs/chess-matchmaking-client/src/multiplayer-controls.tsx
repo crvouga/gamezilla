@@ -9,7 +9,6 @@ import type { useMultiplayerData } from './use-multiplayer-data';
 export function MultiplayerControls(props: {
   readonly controls: ReturnType<typeof useMultiplayerControls>;
   readonly data: ReturnType<typeof useMultiplayerData>;
-  readonly requestedGame: string | undefined;
 }): JSX.Element {
   const [confirm, setConfirm] = createSignal<'stop' | 'resign' | null>(null);
   const begin = useMutationButton({
@@ -23,7 +22,7 @@ export function MultiplayerControls(props: {
   });
   return (
     <div class="box gap-4" data-component="MultiplayerControls">
-      <Show when={props.data.game()?.outcome === 'ongoing'}>
+      <Show when={props.data.participant() && props.data.game()?.outcome === 'ongoing'}>
         <Button
           title={<Trans>Resign multiplayer chess</Trans>}
           onClick={() => setConfirm('resign')}
@@ -33,7 +32,7 @@ export function MultiplayerControls(props: {
       <Show
         when={props.data.search()?.standing === 'waiting'}
         fallback={
-          <Show when={props.requestedGame === undefined}>
+          <Show when={props.data.hostId() === props.data.myId()}>
             <Button
               {...begin.buttonProps}
               dataSet={{ testid: 'multiplayer-find' }}

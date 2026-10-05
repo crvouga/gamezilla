@@ -22,7 +22,7 @@ import type {
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { CreateRoomTransport } from '@libs/spaces-client/room-transport-factory';
 import type { GameDefinition } from '@libs/spaces-shared/game';
-import { composeSpaceRoomModule } from '@libs/spaces-shared/load-game-plugins';
+import { composeRoomModules } from '@libs/spaces-shared/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared/space-room-authorize';
 import type { Message } from '@pkgs/message-shared/message';
 import { LoopbackRoomTransport } from '@pkgs/room-adapter-memory-shared/loopback-transport';
@@ -179,7 +179,8 @@ function buildLoopbackTransport(
       topic: entry.server.topic,
       actor: actorOf(args),
     });
-    if (!grants.includes(PERMISSION.spacesLeave))
+    const admissionKey = args.module === 'space' ? PERMISSION.spacesLeave : PERMISSION.chessMultiplayerWatch;
+    if (!grants.includes(admissionKey))
       throw new Error('not in the space');
   });
 }
@@ -200,7 +201,7 @@ export function createInProcessRoomNode(
   const topics = new Map<string, TopicEntry>();
   const listeners = new Set<() => void>();
   let disposed = false;
-  const module = composeSpaceRoomModule(
+  const modules = composeRoomModules(
     games,
     () => env.clock.now(),
     env.random
@@ -219,6 +220,8 @@ export function createInProcessRoomNode(
   const getOrCreate = (topic: string): TopicEntry => {
     const existing = topics.get(topic);
     if (existing !== undefined) return existing;
+    const module = modules.find(item => topic.startsWith(`${item.name}:`));
+    if (module === undefined) throw new Error(`Unknown room topic ${topic}`);
     const entry = createTopicEntry(topic, env, module, games);
     topics.set(topic, entry);
     notify();
@@ -264,7 +267,7 @@ export function createInProcessRoomNode(
     },
     createTransport: (args) => {
       if (disposed) throw new Error('RoomServerApp: disposed');
-      return buildLoopbackTransport(env, getOrCreate(`space:${args.spaceId}`), {
+      return buildLoopbackTransport(env, getOrCreate(args.topic), {
         args,
         gateway,
       });

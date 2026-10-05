@@ -2,7 +2,7 @@ import type { CustomGameInput } from '@libs/chess-custom-game-shared/custom-game
 import { ChangeCustomGame } from '@libs/chess-custom-game-shared/custom-game-commands';
 import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
 import { chessGameShared } from '@libs/chess-feature-shared/chess-game';
-import { CHESS_SERVER } from '@libs/chess-root-server/feature-server';
+import { createChessServer } from '@libs/chess-root-server/feature-server';
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import { capabilityOf, spacePresenceOf } from '@libs/permissions-shared/people';
 import type {
@@ -159,7 +159,7 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
           const ctx = { db: c.db, topic, actor, nowMs: c.nowMs };
           return [
             ...((await spaceRoomGrants(ctx)) ?? []),
-            ...((await CHESS_SERVER.roomGrants?.(ctx)) ?? []),
+            ...((await createChessServer(node.services).roomGrants?.(ctx)) ?? []),
           ];
         },
       },
@@ -174,7 +174,8 @@ export const performCustomGameDecision: ServerOperation = async (c) => {
     if (input !== null) await choice(w, memberIdOf(c), input);
     else {
       const transport = node.createTransport({
-        spaceId: SPACE_ID,
+        topic: `space:${SPACE_ID}`,
+        module: 'space',
         identity: memberIdOf(c),
         installId: c.env.deviceId,
         clientId: nextId(),

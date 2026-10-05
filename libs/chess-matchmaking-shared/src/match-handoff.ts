@@ -8,13 +8,15 @@ import sql from '@pkgs/sql-root-shared/sql';
 import { Chess } from 'chess.js';
 import { MultiplayerGameRepository } from './game-repository';
 import { CHESS_OPPONENT_POOL, CHESS_SEARCH_RADIUS } from './search-config';
+import { publishMatchGame } from './publish-match-game';
 import { projectOpponentSearch } from './search-projection';
 
 /** Invoked inside the reusable package's formation transaction. */
 export async function acceptChessMatch(
   tx: SqlTx,
   fact: MatchFormation,
-  nowMs: number
+  nowMs: number,
+  createId: () => string
 ): Promise<void> {
   assert.ok(fact.participants.length === 2, 'a chess match has two people');
   const white = fact.participants[0]!;
@@ -36,6 +38,8 @@ export async function acceptChessMatch(
     (id, match_id, white_id, black_id, fen, pgn, revision, turn, outcome, reason, created_at, updated_at, deleted_at)
     VALUES (${fact.matchId}, ${fact.matchId}, ${white.ownerId}, ${black.ownerId}, ${new Chess().fen()},
       ${''}, ${0}, ${white.ownerId}, ${'ongoing'}, ${null}, ${iso}, ${iso}, ${null})`);
+  const game = await games.owned(fact.matchId, white.ownerId);
+  await publishMatchGame({ tx, env: { now: () => new Date(nowMs), createId } }, game);
   for (const person of fact.participants) {
     await tx.run(sql`INSERT INTO chess_multiplayer_players (id, owner_id, game_id, created_at, updated_at, deleted_at)
       VALUES (${person.ownerId}, ${person.ownerId}, ${fact.matchId}, ${iso}, ${iso}, ${null})
@@ -62,7 +66,7 @@ export function formChessMatches(
     radius: CHESS_SEARCH_RADIUS,
     restrictionsFor: opponentRestrictions,
     onFormed: async (transaction, fact) => {
-      await acceptChessMatch(transaction, fact, ports.nowMs);
+      await acceptChessMatch(transaction, fact, ports.nowMs, ports.createId);
       owners.push(...fact.participants.map((person) => person.ownerId));
     },
   }).then(() => owners);

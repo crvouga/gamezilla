@@ -19,7 +19,7 @@ import {
   openProfileEdit,
   setUsername,
 } from '@libs/profile-harness/profile-actions';
-import { createSpace, endSpace } from '@libs/spaces-harness/space-actions';
+import { endSpace } from '@libs/spaces-harness/space-actions';
 import { multiplayerPeople } from './multiplayer-people';
 import { gameOf, givenGame, sameBoards } from './multiplayer-world';
 
@@ -81,7 +81,7 @@ Then(
   }
 );
 Then(
-  "{actor} cannot see the account's private multiplayer game on her phone",
+  "{actor} cannot see the account's multiplayer game on her phone",
   async (w, actor: Actor) => {
     expect((await w.s.read(multiplayerView, actor)).game).toBeNull();
     expect(
@@ -132,7 +132,7 @@ Given(
   '{actor} ended her space while playing multiplayer chess with {actor}',
   async (w, actor: Actor, opponent: Actor) => {
     await givenGame(w, actor, opponent);
-    await w.s.apply(createSpace, actor);
+    await w.s.apply(openMultiplayerChess, actor);
     await w.s.apply(endSpace, actor);
   }
 );

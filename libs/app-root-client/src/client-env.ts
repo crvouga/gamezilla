@@ -29,7 +29,8 @@ import type { CreateId, Random } from '@pkgs/uuid-shared/create-id';
  * factory module still carries context helpers.
  */
 export type CreateRoomTransportArgs = {
-  readonly spaceId: string;
+  readonly topic: string;
+  readonly module: string;
   readonly apiUrl: string;
   /** Member actor id (`accountId ?? deviceId`) — room identity + roster. */
   readonly identity: string;

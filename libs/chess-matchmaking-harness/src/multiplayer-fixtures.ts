@@ -1,3 +1,5 @@
+import { multiplayerSpaceId } from './multiplayer-spaces';
+import { publishMatchGame } from '@libs/chess-matchmaking-shared/publish-match-game';
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
 import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
@@ -55,7 +57,8 @@ export const givenOpponentSearch = scenarioAction<
   name: 'givenOpponentSearch',
   act: (s, actor: string, requestId = s.session.ports.createId()) =>
     multiplayerFixture(s, actor, async (tx, env) => {
-      await findChessOpponentMutation.run({ tx, env }, { requestId });
+      const spaceId = await multiplayerSpaceId(s, actor);
+      await findChessOpponentMutation.run({ tx, env }, { requestId, spaceId: spaceId ?? 'no-space' });
       return [env.actorId];
     }),
 });
@@ -78,6 +81,8 @@ export const givenMultiplayerPosition = scenarioAction({
     multiplayerFixture(s, actor, async (tx, env) => {
       await tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${fen}, pgn = ${''},
         turn = ${env.actorId}, updated_at = ${env.now().toISOString()} WHERE id = ${gameId}`);
+      const game = (await tx.query(sql<import('@libs/chess-matchmaking-shared/game').MultiplayerGame>`SELECT id, white_id, black_id, fen, pgn, revision, turn, outcome, reason FROM chess_multiplayer_games WHERE id = ${gameId}`))[0]!;
+      await publishMatchGame({ tx, env }, game);
       return (
         await tx.query(
           sql<{

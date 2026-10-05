@@ -29,7 +29,15 @@
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/ui-root-client": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "@libs/spaces-client": "workspace:*",
+    "@pkgs/clock-client": "workspace:*",
+    "@pkgs/room-root-client": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "@pkgs/kv-root-client": "workspace:*",
+    "@libs/chess-root-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

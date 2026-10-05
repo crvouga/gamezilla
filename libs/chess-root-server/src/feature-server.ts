@@ -1,3 +1,5 @@
+import type { RoomServicePort } from '@pkgs/room-root-shared/room-service';
+import { multiplayerRoomGrants, registerMatchRoomConsumers } from './multiplayer-room-server';
 import { CUSTOM_GAME_GRANT_KEYS } from '@libs/chess-custom-game-shared/custom-game-permissions';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
 import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
@@ -30,11 +32,13 @@ async function customGameRoomGrants(
   return grants;
 }
 
-export const CHESS_SERVER = defineFeatureServer({
+export function createChessServer(rooms: RoomServicePort) {
+ return defineFeatureServer({
   name: 'chess',
   routes: (ctx) => createPuzzleManagementApp(ctx.clock, ctx.createId),
-  roomGrants: customGameRoomGrants,
+  roomGrants: async (ctx) => [...await customGameRoomGrants(ctx), ...await multiplayerRoomGrants(ctx)],
   registerOutbox(registry) {
+    registerMatchRoomConsumers(registry, rooms);
     registry.register(
       defineOutboxConsumer({
         id: 'chess.form-opponent-match',
@@ -50,3 +54,5 @@ export const CHESS_SERVER = defineFeatureServer({
     );
   },
 });
+
+}

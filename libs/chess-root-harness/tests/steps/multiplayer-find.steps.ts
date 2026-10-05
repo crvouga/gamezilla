@@ -1,3 +1,4 @@
+import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { expect } from 'bun:test';
 import {
   confirmMultiplayerCommand,
@@ -49,7 +50,8 @@ Given(
 );
 When('{actor} finds a chess opponent', async (w, actor: Actor) => {
   w.memo.set('multiplayer:acted', true);
-  await w.s.apply(findChessOpponent, actor);
+  if (await w.s.read(multiplayerSpaceId, actor) === null) await command(w, actor, 'findChessOpponent', { spaceId: 'no-space' });
+  else await w.s.apply(findChessOpponent, actor);
 });
 When(
   'a matchmaking match is formed for {actor} and {actor}',

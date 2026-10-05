@@ -26,8 +26,7 @@ export async function withdrawMultiplayer(ctx: MutationCtx): Promise<void> {
           turn: '',
           reason: 'account deletion',
         },
-        nowMs,
-        ctx.env.serverNow !== undefined
+        ctx.env
       );
   }
   if (ctx.env.serverNow !== undefined) {

@@ -11,12 +11,14 @@ import {
 } from '@libs/chess-custom-game-shared/custom-game-router';
 import { reactCustomGameToSpaceEvent } from '@libs/chess-custom-game-shared/custom-game-space-events';
 import { CustomGamesAttr } from '@libs/chess-custom-game-shared/custom-game-state';
+import { matchRoomModule } from '@libs/chess-matchmaking-shared/match-room';
 import { chessPuzzleGame } from '@libs/chess-puzzle-shared/chess-game';
 import type { GameDefinition } from '@libs/spaces-shared/game';
 
 /** Chess composes puzzles and Custom Games into the space's one room. */
 export const chessGameShared: GameDefinition = {
   ...chessPuzzleGame,
+  matchRooms: [matchRoomModule],
   recoverEffects: (state) =>
     customGameEffects(CustomGamesAttr.from(state).current),
   reactToSpaceEvent: reactCustomGameToSpaceEvent,

@@ -1,3 +1,4 @@
+import { multiplayerSpaceId } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
 import {
   multiplayerFixture,
@@ -34,7 +35,7 @@ export const controlledMultiplayerCommand = scenarioAction({
     const mutation = (await app.mutations())[command.name];
     if (mutation === undefined)
       throw new Error(`Unknown command ${command.name}`);
-    const parsed = await mutation.args['~standard'].validate(command.args);
+    const parsed = await mutation.args['~standard'].validate({ spaceId: await multiplayerSpaceId(s, actor) ?? 'no-space', ...command.args });
     if (parsed.issues !== undefined)
       throw new Error('Invalid multiplayer command');
     await multiplayerFixture(s, actor, async (tx, serverEnv) => {
@@ -69,7 +70,7 @@ export const receiveMultiplayerMatch = scenarioAction({
   name: 'receiveMultiplayerMatch',
   act: (s, fact: MatchFormation) =>
     multiplayerTransaction(s, fact.participants[0]!.ownerId, async (tx) => {
-      await acceptChessMatch(tx, fact, s.harness.clock.now());
+      await acceptChessMatch(tx, fact, s.harness.clock.now(), s.harness.server.createId);
       return fact.participants.map((p) => p.ownerId);
     }),
 });
