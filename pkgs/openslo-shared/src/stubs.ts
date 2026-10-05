@@ -14,7 +14,7 @@ export type SloStubInput = {
   readonly specUri: string;
   /** Absolute path of the package's openslo entry (`tests/openslo/index.ts`). */
   readonly entry: string;
-  /** Absolute path of the bun:test bridge module (`@pkgs/openslo/bun-test`). */
+  /** Absolute path of the bun:test bridge module (`@pkgs/openslo-server/bun-test`). */
   readonly bridge: string;
   /** Absolute path of the package's report bucket. */
   readonly reportDir: string;

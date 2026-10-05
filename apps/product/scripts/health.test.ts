@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
+import { writeFeatureStubs, writeSloStubs } from '@apps/product/scripts/health';
 import { parseFeature } from '@pkgs/gherkin-shared/parse';
 import type { Environment } from './health';
 import {
@@ -26,6 +34,44 @@ const STANDARD: Environment = {
   production: false,
   observability: true,
 };
+
+// regression: health-stale-spec-bridge-paths
+test('health generates feature and objective stubs with resolvable declared bridges', () => {
+  const stubDir = mkdtempSync(join(tmpdir(), 'health-spec-bridges-'));
+  const dirs = { stubDir, reportDir: join(stubDir, 'report') };
+  try {
+    const featureStubs = writeFeatureStubs(
+      STANDARD,
+      [join(REPO_ROOT, 'specs/runtime/serving-people.feature')],
+      dirs
+    );
+    const objectiveStubs = writeSloStubs(
+      [join(REPO_ROOT, 'specs/runtime/availability.openslo.yaml')],
+      dirs
+    );
+    const manifest = JSON.parse(
+      readFileSync(join(import.meta.dir, '../package.json'), 'utf8')
+    ) as { readonly devDependencies: Readonly<Record<string, string>> };
+    for (const [stubs, packageName] of [
+      [featureStubs, '@pkgs/gherkin-server'],
+      [objectiveStubs, '@pkgs/openslo-server'],
+    ] as const) {
+      expect(stubs).toHaveLength(1);
+      const source = readFileSync(
+        resolve(import.meta.dir, '..', stubs[0] ?? ''),
+        'utf8'
+      );
+      expect(source).toContain(
+        JSON.stringify(
+          Bun.resolveSync(`${packageName}/bun-test`, import.meta.dir)
+        )
+      );
+      expect(manifest.devDependencies[packageName]).toBe('workspace:*');
+    }
+  } finally {
+    rmSync(stubDir, { recursive: true, force: true });
+  }
+});
 
 // regression: multiplayer-journey-parameter-registration
 test('health loads its live entry and constructs the real S3 transport', () => {

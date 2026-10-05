@@ -273,12 +273,16 @@ function freshDirs(dirs: RunDirs): void {
   }
 }
 
-function writeFeatureStubs(
+export function writeFeatureStubs(
   env: Environment,
-  features: readonly string[]
+  features: readonly string[],
+  dirs: RunDirs
 ): readonly string[] {
-  const { stubDir, reportDir } = FEATURE_DIRS;
-  const bridge = Bun.resolveSync('@pkgs/gherkin/bun-test', import.meta.dir);
+  const { stubDir, reportDir } = dirs;
+  const bridge = Bun.resolveSync(
+    '@pkgs/gherkin-server/bun-test',
+    import.meta.dir
+  );
   return features.flatMap((featurePath) => {
     const featureUri = relative(REPO_ROOT, featurePath);
     const skips = hostSkips(env, featureUri);
@@ -301,7 +305,10 @@ function writeFeatureStubs(
   });
 }
 
-function writeSloStubs(objectives: readonly string[]): readonly string[] {
+export function writeSloStubs(
+  objectives: readonly string[],
+  dirs: RunDirs
+): readonly string[] {
   if (objectives.length === 0) return [];
   if (!existsSync(SLO_ENTRY)) {
     console.error(
@@ -309,8 +316,11 @@ function writeSloStubs(objectives: readonly string[]): readonly string[] {
     );
     process.exit(1);
   }
-  const { stubDir, reportDir } = OBJECTIVE_DIRS;
-  const bridge = Bun.resolveSync('@pkgs/openslo/bun-test', import.meta.dir);
+  const { stubDir, reportDir } = dirs;
+  const bridge = Bun.resolveSync(
+    '@pkgs/openslo-server/bun-test',
+    import.meta.dir
+  );
   return objectives.map((specPath) => {
     const specUri = relative(REPO_ROOT, specPath);
     const file = join(stubDir, sloStubFileName(specUri));
@@ -352,8 +362,8 @@ function writeStubs(cli: Cli, offers: Environment): readonly string[] {
   }
   freshDirs(cli.objectives ? OBJECTIVE_DIRS : FEATURE_DIRS);
   return cli.objectives
-    ? writeSloStubs(selection.specs)
-    : writeFeatureStubs(offers, selection.specs);
+    ? writeSloStubs(selection.specs, OBJECTIVE_DIRS)
+    : writeFeatureStubs(offers, selection.specs, FEATURE_DIRS);
 }
 
 function applyTarget(target: string | undefined): void {
