@@ -129,33 +129,35 @@ test('live health runs server adapters without the local DOM harness conditions'
 });
 
 // regression: health-journeys-share-monitor-account
-test('one live scenario releases the monitor before the next uses it', () => {
+test('live feature files use one runner for the shared monitor', () => {
   const dir = mkdtempSync(join(tmpdir(), 'health-monitor-'));
-  const fixture = join(dir, 'monitor.test.ts');
-  writeFileSync(
-    fixture,
-    `
-import { expect, test } from 'bun:test';
-let hosting = false;
-test.each(['host a space', 'start a puzzle'])('%s', async () => {
-  expect(hosting).toBe(false);
-  hosting = true;
-  try {
-    for (let turn = 0; turn < 100; turn++) await Promise.resolve();
-  } finally {
-    hosting = false;
-  }
+  const runners = join(dir, 'runners.txt');
+  const fixtures = ['host-space', 'join-from-link'].map((scenario) => {
+    const file = join(dir, `${scenario}.test.ts`);
+    writeFileSync(
+      file,
+      `
+import { test } from 'bun:test';
+import { appendFileSync } from 'node:fs';
+test(${JSON.stringify(scenario)}, async () => {
+  appendFileSync(${JSON.stringify(runners)}, String(process.pid) + '\\n');
+  for (let turn = 0; turn < 500_000; turn++) await Promise.resolve();
 });
 `
-  );
+    );
+    return file;
+  });
   try {
     const result = spawnSync(
       process.execPath,
-      healthTestArguments(parseCli([]), [fixture]),
+      healthTestArguments(parseCli([]), fixtures),
       { encoding: 'utf8' }
     );
     expect(result.status, result.stdout + result.stderr).toBe(0);
     expect(result.stderr).toContain('2 pass');
+    const processes = readFileSync(runners, 'utf8').trim().split('\n');
+    expect(processes).toHaveLength(2);
+    expect(new Set(processes).size).toBe(1);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
