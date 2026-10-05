@@ -173,6 +173,37 @@ describe('§8 ratePuzzleAttempt', () => {
     expect(events[0]?.outcome).toBe('solved');
   });
 
+  test('two devices finishing one attempt differently count the first to arrive, once', async () => {
+    for (const [first, second] of [
+      ['solved', 'failed'],
+      ['failed', 'solved'],
+    ] as const) {
+      const db = await openDb();
+      const score = (outcome: 'solved' | 'failed') =>
+        outcome === 'solved'
+          ? PUZZLE_SCORE_PERMILLE.win
+          : PUZZLE_SCORE_PERMILLE.loss;
+      // Each device uploads its own result for the same puzzle; whichever
+      // reaches the account first is the one that counts.
+      await rate(db, {
+        ...SOLVED_P1,
+        attemptKey: 'phone-p1',
+        outcome: first,
+        scorePermille: score(first),
+      });
+      await rate(db, {
+        ...SOLVED_P1,
+        attemptKey: 'laptop-p1',
+        outcome: second,
+        scorePermille: score(second),
+        atMs: SOLVED_P1.atMs + 1000,
+      });
+      const events = await readEvents(db);
+      expect(events).toHaveLength(1);
+      expect(events[0]?.outcome).toBe(first);
+    }
+  });
+
   test('a batch replayed out of order still rates each puzzle exactly once', async () => {
     const forward = await openDb();
     const shuffled = await openDb();
