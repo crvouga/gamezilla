@@ -1,38 +1,39 @@
 @domain:chess
 Feature: Find someone to play multiplayer chess
   When a person wants to play ordinary chess against another person, they
-  want a compatible opponent and one lasting game, so matchmaking gives
-  both people the same private multiplayer game.
+  want a compatible chess opponent and one lasting game, so matchmaking gives
+  both people the same private multiplayer game at the time control they
+  chose.
 
   Rule: Finding a chess opponent needs an account and a connection
 
-    Scenario: A free account can find an opponent
+    Scenario: A free account can find a chess opponent
       Given Alice has a free account and a connection
-      When Alice finds a chess opponent
+      When Alice finds a chess opponent for 5+0
       Then Alice is looking for a chess opponent
 
     Scenario: A guest is invited to sign in
       Given Alice is a guest
-      When Alice finds a chess opponent
+      When Alice finds a chess opponent for 5+0
       Then Alice is invited to sign in
       And Alice is not looking for a chess opponent
 
-    Scenario: An offline account cannot ask for an opponent
+    Scenario: An offline account cannot ask for a chess opponent
       Given Alice has an account without a connection
-      When Alice finds a chess opponent
+      When Alice finds a chess opponent for 5+0
       Then Alice is told finding an opponent needs a connection
       And Alice is not looking for a chess opponent
 
-  Rule: A person cannot seek a second opponent while a game is unfinished
+  Rule: A person cannot seek a second chess opponent while a multiplayer game is unfinished
 
-    Scenario: A person may find a new opponent after their multiplayer game is over
+    Scenario: A person may find a chess opponent again after their multiplayer game is over
       Given Alice's multiplayer game with Bob is over
-      When Alice finds a chess opponent
+      When Alice finds a chess opponent for 5+0
       Then Alice is looking for a chess opponent
 
     Scenario: Another device cannot seek a second unfinished game
       Given Alice has an unfinished multiplayer game with Bob
-      When Alice finds a chess opponent on another device
+      When Alice finds a chess opponent for 5+0 on another device
       Then Alice is told to finish her multiplayer game first
       And Alice keeps her multiplayer game with Bob
 
@@ -40,7 +41,7 @@ Feature: Find someone to play multiplayer chess
     No counter-example: opening the accepted match never asks for a new match or another game.
 
     Scenario: A matched pair receive opposite sides of the same new game
-      Given Alice and Bob are looking for chess opponents
+      Given Alice and Bob are looking for 5+0 chess opponents
       When a matchmaking match is formed for Alice and Bob
       Then Alice and Bob have the same multiplayer game
       And one is White and the other is Black
@@ -66,7 +67,7 @@ Feature: Find someone to play multiplayer chess
 
   Rule: Stopping an opponent search keeps any game already formed
 
-    Scenario: A waiting person can stop finding an opponent
+    Scenario: A waiting person can stop finding a chess opponent
       Given Alice is looking for a chess opponent
       When Alice stops finding a chess opponent
       Then Alice is not looking for a chess opponent

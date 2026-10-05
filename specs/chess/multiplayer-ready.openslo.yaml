@@ -1,4 +1,5 @@
-# Two compatible accounts should quickly be able to play the same game.
+# Two compatible accounts looking for the same time control should quickly
+# be able to play the same game.
 apiVersion: openslo/v1
 kind: SLI
 metadata:
@@ -7,15 +8,18 @@ metadata:
 spec:
   description: >-
     The time from the second compatible person beginning to find an opponent
-    until both online people see their one multiplayer game ready to play.
+    at the same time control until both online people see their one
+    multiplayer game ready to play.
   thresholdMetric:
     metricSource:
       type: product
       spec:
         measures: >-
           The time, in thousandths of a second, between two compatible
-          accounts being available for a multiplayer game and both seeing
-          that game's board, sides and first turn.
+          accounts being available for a multiplayer game at the same time
+          control and both seeing that game's board, colours, multiplayer
+          opponent and rating, time control, both multiplayer clocks and
+          first turn.
 ---
 apiVersion: openslo/v1
 kind: SLO

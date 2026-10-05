@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="unfinished-game-limit-decisions" name="The unfinished multiplayer game limit" namespace="https://gamezilla.dev/decisions">
   <decision id="unfinished-game-limit" name="May this account start another multiplayer game?">
-    <description>An account may seek a new multiplayer game only after its earlier game is over. The account requirement is decided separately by access. Free accounts and Plus members have the same limit of one unfinished game.</description>
+    <description>An account may seek a new multiplayer game only after its earlier game is over or aborted; a game that is over or aborted no longer counts as unfinished. The account requirement is decided separately by access. Free accounts and Plus members have the same limit of one unfinished game.</description>
     <decisionTable id="unfinished-game-limit-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>

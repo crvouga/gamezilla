@@ -1,7 +1,7 @@
 @domain:chess
 Feature: Keep a private multiplayer game after time away
   When a person goes away from their game, they want to find the accepted
-  board and result on return, so the game stays lasting and private.
+  board and multiplayer result on return, so the game stays lasting and private.
 
   Rule: An offline device keeps its last known board and the game unfinished
 
@@ -11,13 +11,13 @@ Feature: Keep a private multiplayer game after time away
       Then Alice is told multiplayer moves need a connection
       And Alice's phone keeps its last known multiplayer board
 
-    Scenario: Returning after an opponent's move shows the accepted board
+    Scenario: Returning after Bob's multiplayer move shows the accepted board
       Given Alice's phone was offline when Bob's multiplayer move e7 to e5 was accepted
       When Alice's phone comes back online for multiplayer chess
       Then Alice and Bob see the same multiplayer board with two moves
       And Alice has the multiplayer turn
 
-    Scenario: Returning after resignation shows the accepted result
+    Scenario: Returning after Bob resigns shows the accepted multiplayer result
       Given Alice's phone was offline when Bob resigned multiplayer chess
       When Alice's phone comes back online for multiplayer chess
       Then Alice sees she won the multiplayer game
@@ -53,7 +53,7 @@ Feature: Keep a private multiplayer game after time away
       Then Alice is not looking for a chess opponent
       And Bob cannot be matched with Alice's deleted account
 
-    Scenario: Deleting an account preserves the other person's game result
+    Scenario: Deleting an account preserves the other person's multiplayer result
       Given Alice has an unfinished multiplayer game with Bob
       When Alice confirms account deletion
       Then Bob sees he won the multiplayer game
