@@ -26,11 +26,10 @@ import {
 /** What the person hears: the screen's live announcement, once it says `phrase`. */
 async function hears(w: HarnessWorld, actor: string, phrase: string) {
   await w.s.apply(openMultiplayerChess, actor);
-  await w.s.until(
-    async (s) =>
-      (
-        (await shownMultiplayerText(s, actor, 'multiplayer-announcement')) ?? ''
-      ).includes(phrase)
+  await w.s.until(async (s) =>
+    (
+      (await shownMultiplayerText(s, actor, 'multiplayer-announcement')) ?? ''
+    ).includes(phrase)
   );
   expect(
     await w.s.read(shownMultiplayerText, actor, 'multiplayer-announcement')
@@ -168,7 +167,11 @@ Then(
   '{actor} hears she was matched with {actor}, his blitz rating, the time control and her colour',
   async (w, actor: Actor, opponent: Actor) => {
     const control = String(w.memo.get(`multiplayer:searching:${actor}`));
-    await hears(w, actor, `Matched with ${opponent}, rated 1500?, at ${control}.`);
+    await hears(
+      w,
+      actor,
+      `Matched with ${opponent}, rated 1500?, at ${control}.`
+    );
     await hears(w, actor, 'You are');
   }
 );

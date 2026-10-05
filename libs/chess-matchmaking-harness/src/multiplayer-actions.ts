@@ -1,3 +1,4 @@
+import { timeControlKey } from '@libs/chess-matchmaking-shared/time-control';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import {
   actorUi,
@@ -8,7 +9,6 @@ import {
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import { timeControlKey } from '@libs/chess-matchmaking-shared/time-control';
 import { multiplayerClient } from './multiplayer-client';
 import {
   forgetMultiplayerReply,

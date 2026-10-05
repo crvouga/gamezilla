@@ -36,13 +36,17 @@ async function matchedAs(
 
 Then(
   '{actor} sees {actor} as her multiplayer opponent at {word}, with his blitz rating {string} and her colour',
-  (w, viewer: Actor, opponent: Actor, timeControl: string, rating: string) =>
-    matchedAs(w, viewer, opponent, { timeControl, rating })
+  (
+    w,
+    ...[viewer, opponent, timeControl, rating]: [Actor, Actor, string, string]
+  ) => matchedAs(w, viewer, opponent, { timeControl, rating })
 );
 Then(
   '{actor} sees {actor} as his multiplayer opponent at {word}, with her blitz rating {string} and his colour',
-  (w, viewer: Actor, opponent: Actor, timeControl: string, rating: string) =>
-    matchedAs(w, viewer, opponent, { timeControl, rating })
+  (
+    w,
+    ...[viewer, opponent, timeControl, rating]: [Actor, Actor, string, string]
+  ) => matchedAs(w, viewer, opponent, { timeControl, rating })
 );
 Then('{actor} is not shown a multiplayer opponent', async (w, actor: Actor) => {
   await w.s.apply(openMultiplayerChess, actor);
@@ -95,7 +99,9 @@ Then(
   async (w, black: Actor, white: Actor) => {
     const whiteId = await ownerOf(w, white);
     const blackId = await ownerOf(w, black);
-    const fresh = (game: { white_id: string; black_id: string; outcome: string } | null) =>
+    const fresh = (
+      game: { white_id: string; black_id: string; outcome: string } | null
+    ) =>
       game?.white_id === whiteId &&
       game.black_id === blackId &&
       game.outcome === 'ongoing';

@@ -1,4 +1,6 @@
 import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
+import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
+import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   multiplayerFixture,
   multiplayerTransaction,
@@ -12,8 +14,6 @@ import type { MatchFormation } from '@pkgs/matchmaking-sql-shared/match-pass';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared/search-read';
 import sql from '@pkgs/sql-root-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
-import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 
 /**
  * The downstream model controls when an upstream fact arrives. Its commands

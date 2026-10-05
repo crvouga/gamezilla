@@ -3,8 +3,8 @@ import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-o
 import { MultiplayerGameRepository } from '@libs/chess-matchmaking-shared/game-repository';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
 import { scheduleMultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
-import { CHESS_SEARCH_RADIUS } from '@libs/chess-matchmaking-shared/search-config';
 import { MultiplayerRatingRepository } from '@libs/chess-matchmaking-shared/rating-repository';
+import { CHESS_SEARCH_RADIUS } from '@libs/chess-matchmaking-shared/search-config';
 import type { MultiplayerSpeed } from '@libs/chess-matchmaking-shared/time-control';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
@@ -86,9 +86,7 @@ export const pairChessOpponents = scenarioAction<
       formChessMatches(tx, {
         nowMs: s.harness.clock.now(),
         createId: s.harness.server.createId,
-        ...(firstIsWhite === undefined
-          ? {}
-          : { tieBreak: () => firstIsWhite }),
+        ...(firstIsWhite === undefined ? {} : { tieBreak: () => firstIsWhite }),
       })
     ),
 });
@@ -145,12 +143,19 @@ async function gamePeople(tx: SqlTx, gameId: string, nowMs: number) {
  * with this much time on each clock; the next move still uses the real
  * command.
  */
-export const givenMultiplayerPosition = scenarioAction<
-  [actor: string, gameId: string, fen: string, clockMs?: number]
->({
+export const givenMultiplayerPosition = scenarioAction({
   name: 'givenMultiplayerPosition',
-  act: (s, actor: string, gameId: string, fen: string, clockMs?: number) =>
+  act: (
+    s,
+    actor: string,
+    position: {
+      readonly gameId: string;
+      readonly fen: string;
+      readonly clockMs?: number;
+    }
+  ) =>
     multiplayerFixture(s, actor, async (tx, env) => {
+      const { gameId, fen, clockMs } = position;
       const nowMs = env.now().getTime();
       await tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${fen}, pgn = ${''},
         turn = ${env.actorId}, revision = ${2}, clock_at_ms = ${nowMs},
@@ -163,8 +168,17 @@ export const givenMultiplayerPosition = scenarioAction<
 /** Time left on one side's clock, that side to move, its clock running from now. */
 export const givenMultiplayerClock = scenarioAction({
   name: 'givenMultiplayerClock',
-  act: (s, actor: string, gameId: string, side: 'white' | 'black', ms: number) =>
+  act: (
+    s,
+    actor: string,
+    clock: {
+      readonly gameId: string;
+      readonly side: 'white' | 'black';
+      readonly ms: number;
+    }
+  ) =>
     multiplayerFixture(s, actor, async (tx, env) => {
+      const { gameId, side, ms } = clock;
       const nowMs = env.now().getTime();
       await tx.run(
         side === 'white'

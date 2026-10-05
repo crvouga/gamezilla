@@ -142,9 +142,18 @@ export async function acceptedMoves(w: HarnessWorld, moves: readonly string[]) {
   const [white, black] = pairOf(w);
   const start = (await gameOf(w, white)).revision;
   for (let n = 0; n < moves.length; n++) {
-    const reply = await move(w, (start + n) % 2 === 0 ? white : black, moves[n]!);
+    const reply = await move(
+      w,
+      (start + n) % 2 === 0 ? white : black,
+      moves[n]!
+    );
     expect(reply.result.ok).toBe(true);
-    await sameBoards(w, white, black, (game) => game.revision === start + n + 1);
+    await sameBoards(
+      w,
+      white,
+      black,
+      (game) => game.revision === start + n + 1
+    );
   }
 }
 

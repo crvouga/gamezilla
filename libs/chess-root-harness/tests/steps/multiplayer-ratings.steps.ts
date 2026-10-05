@@ -42,7 +42,11 @@ async function shownRating(w: HarnessWorld, actor: string, speed: string) {
 async function shownGames(w: HarnessWorld, actor: string, speed: string) {
   await w.s.apply(openMultiplayerChess, actor);
   return (
-    await w.s.read(shownMultiplayerText, actor, `multiplayer-rating-${speed}-games`)
+    await w.s.read(
+      shownMultiplayerText,
+      actor,
+      `multiplayer-rating-${speed}-games`
+    )
   )?.trim();
 }
 
@@ -57,8 +61,11 @@ async function ratingUntil(
   await w.s.until(async (s) =>
     ok(
       (
-        (await shownMultiplayerText(s, actor, `multiplayer-rating-${speed}-value`)) ??
-        ''
+        (await shownMultiplayerText(
+          s,
+          actor,
+          `multiplayer-rating-${speed}-value`
+        )) ?? ''
       ).trim()
     )
   );
@@ -67,11 +74,13 @@ async function ratingUntil(
 
 const points = (shown: string) => Number(shown.replace('?', ''));
 
-Given('{actor} has a blitz rating of {int}', (w, actor: Actor, rating: number) =>
-  settledRating(w, actor, 'blitz', rating)
+Given(
+  '{actor} has a blitz rating of {int}',
+  (w, actor: Actor, rating: number) => settledRating(w, actor, 'blitz', rating)
 );
-Given('{actor} has a rapid rating of {int}', (w, actor: Actor, rating: number) =>
-  settledRating(w, actor, 'rapid', rating)
+Given(
+  '{actor} has a rapid rating of {int}',
+  (w, actor: Actor, rating: number) => settledRating(w, actor, 'rapid', rating)
 );
 Given(
   '{actor} has a blitz rating of {int} and a rapid rating of {int}',
@@ -95,13 +104,21 @@ Given(
   (w, a: Actor, b: Actor, timeControl: string) =>
     givenBegunGame(w, a, b, timeControl)
 );
-Then('{actor} sees her blitz rating without the "?"', async (w, actor: Actor) => {
-  expect(
-    await ratingUntil(w, actor, 'blitz', (shown) => shown !== '' && !shown.endsWith('?'))
-  ).not.toContain('?');
-});
 Then(
-  "{actor}'s blitz rating is still shown with the \"?\"",
+  '{actor} sees her blitz rating without the "?"',
+  async (w, actor: Actor) => {
+    expect(
+      await ratingUntil(
+        w,
+        actor,
+        'blitz',
+        (shown) => shown !== '' && !shown.endsWith('?')
+      )
+    ).not.toContain('?');
+  }
+);
+Then(
+  '{actor}\'s blitz rating is still shown with the "?"',
   async (w, actor: Actor) => {
     expect(await shownRating(w, actor, 'blitz')).toEndWith('?');
   }
@@ -131,11 +148,13 @@ async function stillRated(
 ) {
   expect(points(await shownRating(w, actor, speed))).toBe(rating);
 }
-Then("{actor}'s blitz rating is still {int}", (w, actor: Actor, rating: number) =>
-  stillRated(w, actor, 'blitz', rating)
+Then(
+  "{actor}'s blitz rating is still {int}",
+  (w, actor: Actor, rating: number) => stillRated(w, actor, 'blitz', rating)
 );
-Then("{actor}'s rapid rating is still {int}", (w, actor: Actor, rating: number) =>
-  stillRated(w, actor, 'rapid', rating)
+Then(
+  "{actor}'s rapid rating is still {int}",
+  (w, actor: Actor, rating: number) => stillRated(w, actor, 'rapid', rating)
 );
 Then(
   '{actor} still has {int} rated multiplayer game at {word}',

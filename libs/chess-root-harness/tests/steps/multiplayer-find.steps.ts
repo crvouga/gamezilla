@@ -20,15 +20,23 @@ import { multiplayerPeople } from './multiplayer-people';
 import { command, gameCommand, refusal, searchFor } from './multiplayer-world';
 
 async function looking(w: HarnessWorld, actor: string, timeControl?: string) {
-  const matches = (search: { standing: string; time_control: string | null } | null) =>
+  const matches = (
+    search: { standing: string; time_control: string | null } | null
+  ) =>
     search?.standing === 'waiting' &&
     (timeControl === undefined || search.time_control === timeControl);
-  await w.s.until(async (s) => matches((await multiplayerView(s, actor)).search));
+  await w.s.until(async (s) =>
+    matches((await multiplayerView(s, actor)).search)
+  );
   expect(matches((await w.s.read(multiplayerView, actor)).search)).toBe(true);
 }
 
 /** Before anything happened in the scenario this builds the search; afterwards it checks it. */
-async function searchStep(w: HarnessWorld, actor: string, timeControl?: string) {
+async function searchStep(
+  w: HarnessWorld,
+  actor: string,
+  timeControl?: string
+) {
   if (!w.memo.get('multiplayer:acted')) {
     await multiplayerPeople(w, [actor]);
     await searchFor(w, actor, timeControl ?? '5+0');

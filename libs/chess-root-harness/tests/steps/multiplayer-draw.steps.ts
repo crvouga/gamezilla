@@ -74,7 +74,12 @@ Then(
   '{actor} sees the multiplayer game is drawn by agreement',
   async (w, actor: Actor) => {
     const device = String(w.memo.get(`multiplayer:other:${actor}`) ?? actor);
-    const game = await sameBoards(w, actor, device, (g) => g.outcome === 'draw');
+    const game = await sameBoards(
+      w,
+      actor,
+      device,
+      (g) => g.outcome === 'draw'
+    );
     expect(game.reason).toBe('agreement');
   }
 );
@@ -121,7 +126,10 @@ Given(
     const position = POSITIONS[boundary];
     if (position === undefined)
       throw new Error(`Unknown draw boundary ${boundary}`);
-    await w.s.apply(givenMultiplayerPosition, a, game.id, position[0]);
+    await w.s.apply(givenMultiplayerPosition, a, {
+      gameId: game.id,
+      fen: position[0],
+    });
     await sameBoards(w, a, b, (g) => g.fen === position[0]);
     w.memo.set('multiplayer:boundary-move', [a, position[1]]);
   }

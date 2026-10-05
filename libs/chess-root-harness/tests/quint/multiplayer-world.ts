@@ -50,7 +50,9 @@ export function playId(w: PlayTrace, number: number): string {
 export function playNumberOf(w: PlayTrace, gameId: string): number {
   const rematch = gameId.startsWith('rematch:');
   const matchId = rematch ? gameId.slice('rematch:'.length) : gameId;
-  const fact = [...playFacts(w)].find(([, f]) => f.formation.matchId === matchId);
+  const fact = [...playFacts(w)].find(
+    ([, f]) => f.formation.matchId === matchId
+  );
   if (fact === undefined) return -1;
   return rematch ? fact[0] + REMATCH_OFFSET : fact[0];
 }

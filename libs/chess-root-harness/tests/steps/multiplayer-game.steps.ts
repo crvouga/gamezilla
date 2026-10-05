@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import type { MultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
-import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { shownMultiplayerText } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import { passMultiplayerTime } from '@libs/chess-matchmaking-harness/multiplayer-time';
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
@@ -189,11 +189,14 @@ async function moveListSeen(w: HarnessWorld, actor: string, moves: string) {
   await w.s.apply(openMultiplayerChess, actor);
   await w.s.until(
     async (s) =>
-      (await shownMultiplayerText(s, actor, 'multiplayer-move-list'))?.trim() ===
-      moves
+      (
+        await shownMultiplayerText(s, actor, 'multiplayer-move-list')
+      )?.trim() === moves
   );
   expect(
-    (await w.s.read(shownMultiplayerText, actor, 'multiplayer-move-list'))?.trim()
+    (
+      await w.s.read(shownMultiplayerText, actor, 'multiplayer-move-list')
+    )?.trim()
   ).toBe(moves);
 }
 
@@ -202,7 +205,10 @@ async function bothSeeMoveList(w: HarnessWorld, moves: string) {
 }
 
 Then('both people see the multiplayer move list {string}', bothSeeMoveList);
-Then('both people still see the multiplayer move list {string}', bothSeeMoveList);
+Then(
+  'both people still see the multiplayer move list {string}',
+  bothSeeMoveList
+);
 Then(
   '{actor} sees the multiplayer move list {string}',
   (w, actor: Actor, moves: string) =>

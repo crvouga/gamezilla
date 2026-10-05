@@ -1,9 +1,14 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { deviceMutationEnv } from '@libs/auth-shared/device-mutation-env';
 import { MULTIPLAYER_MUTATIONS } from '@libs/chess-matchmaking-shared/multiplayer-mutations';
-import { actorUi, ensureActor, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
-import { actorHtml } from '@libs/harness/observations';
+import {
+  actorUi,
+  ensureActor,
+  pollUntil,
+  scenarioAction,
+} from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
+import { actorHtml } from '@libs/harness/observations';
 import { awaitMutationVerdict } from '@pkgs/sync-engine-client/await-mutation-verdict';
 import { createMutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
 import type {
@@ -90,9 +95,17 @@ export async function multiplayerRefusalCode(
   const reply = multiplayerCommandReply(s, actor);
   if (reply !== null)
     return reply.result.ok ? null : (reply.result.failures[0]?.code ?? null);
-  if (!(await (await actorUi(s, actor)).get('multiplayer-command-denial').isVisible()))
+  if (
+    !(await (
+      await actorUi(s, actor)
+    )
+      .get('multiplayer-command-denial')
+      .isVisible())
+  )
     return null;
   const html = (await actorHtml(s, actor)) ?? '';
-  const tag = html.match(/<[^>]*data-testid="multiplayer-command-denial"[^>]*>/)?.[0];
+  const tag = html.match(
+    /<[^>]*data-testid="multiplayer-command-denial"[^>]*>/
+  )?.[0];
   return tag?.match(/data-reason="([^"]+)"/)?.[1] ?? null;
 }

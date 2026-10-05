@@ -42,7 +42,10 @@ export function projectMultiplayer(rows: Stored, label: string): Snapshot {
       'PlayGame.rematchOf': games.flatMap((g) =>
         g.rematch_of === null ? [] : [[g.id, g.rematch_of]]
       ),
-      'PlayGame.timeControl': games.map((g) => [g.id, `time:${g.time_control}`]),
+      'PlayGame.timeControl': games.map((g) => [
+        g.id,
+        `time:${g.time_control}`,
+      ]),
       'PlayGame.whiteSide': games.map((g) => [g.id, g.white_id]),
       'PlayGame.blackSide': games.map((g) => [g.id, g.black_id]),
       'PlayGame.playBoard': games.map((g) => [g.id, `board:${g.id}`]),

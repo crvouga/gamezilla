@@ -26,14 +26,13 @@ import type { PlayTrace } from './multiplayer-world';
 
 bindQuintModel<PlayTrace>({
   model: 'multiplayer',
-  traces: 8,
-  maxSteps: 40,
+  traces: 64,
+  maxSteps: 120,
   timeoutMs: 300_000,
   // Nineteen actions over three people's six devices: Apalache explores two
   // steps from every reachable start within the models check's deadline.
   verifySteps: 2,
   verifyTimeoutMs: 480_000,
-  encoding: 'fun-arrays',
   regressions: [
     // regression: chess-deletion-refreshes-connected-devices
     {

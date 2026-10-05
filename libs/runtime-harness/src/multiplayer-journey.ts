@@ -174,7 +174,10 @@ export async function prepareUnfinishedMultiplayerGame(
 ): Promise<void> {
   await prepareMultiplayerPair(host);
   await host.act('startMultiplayerSearch', startMultiplayerSearch('5+0'));
-  await host.actAsGuest('startMultiplayerSearch', startMultiplayerSearch('5+0'));
+  await host.actAsGuest(
+    'startMultiplayerSearch',
+    startMultiplayerSearch('5+0')
+  );
   await expectSharedMultiplayerGame(host, 5000);
   await openWithE4AndE5(host);
 }

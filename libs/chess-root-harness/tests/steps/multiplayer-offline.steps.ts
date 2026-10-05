@@ -10,7 +10,12 @@ import type { Actor } from '@libs/harness/parameter-types';
 import type { HarnessWorld } from '@libs/harness/spec-world';
 import { disconnectMultiplayer } from './multiplayer-connection';
 import { multiplayerPeople } from './multiplayer-people';
-import { givenOverGame, ownerOf, refusal, searchFor } from './multiplayer-world';
+import {
+  givenOverGame,
+  ownerOf,
+  refusal,
+  searchFor,
+} from './multiplayer-world';
 
 Given(
   '{actor} is looking for a {word} chess opponent and her phone is offline',
@@ -27,8 +32,9 @@ Given(
     await disconnectMultiplayer(w, actor);
   }
 );
-Then('{actor} is told multiplayer chess needs a connection', (w, actor: Actor) =>
-  refusal(w, actor, 'OFFLINE')
+Then(
+  '{actor} is told multiplayer chess needs a connection',
+  (w, actor: Actor) => refusal(w, actor, 'OFFLINE')
 );
 Then(
   '{actor} sees she is still looking for a {word} chess opponent',
@@ -69,7 +75,10 @@ Then(
 Then(
   '{actor} cannot find a new opponent or offer a multiplayer rematch',
   (w, actor: Actor) =>
-    notOffered(w, actor, ['multiplayer-new-opponent', 'multiplayer-offer-rematch'])
+    notOffered(w, actor, [
+      'multiplayer-new-opponent',
+      'multiplayer-offer-rematch',
+    ])
 );
 
 Given(

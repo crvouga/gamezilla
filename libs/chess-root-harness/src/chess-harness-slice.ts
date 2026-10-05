@@ -3,6 +3,7 @@ import { CUSTOM_GAME_HARNESS_ACTIONS } from '@libs/chess-custom-game-harness/cus
 import { CHESS_FEATURE } from '@libs/chess-feature-shared/feature';
 import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
 import { MULTIPLAYER_HARNESS_ACTIONS } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   awaitChessMatch,
   givenMultiplayerClock,
@@ -17,7 +18,6 @@ import { seedChessPuzzlesForHarness } from '@libs/chess-puzzle-harness/chess-har
 import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness/chess-properties';
 import { CHESS_SERVER } from '@libs/chess-root-server/feature-server';
 import type { HarnessSlice } from '@libs/harness/slices';
-import { sendMultiplayerCommand } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
   controlledMultiplayerCommand,
   receiveMultiplayerMatch,

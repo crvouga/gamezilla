@@ -19,7 +19,10 @@ async function gameCommand(
 ) {
   await s.apply(sendMultiplayerCommand, actor, {
     name,
-    args: { requestId: `${name}-${actor}-${String(args['uci'] ?? '')}`, ...args },
+    args: {
+      requestId: `${name}-${actor}-${String(args['uci'] ?? '')}`,
+      ...args,
+    },
   });
 }
 
@@ -32,7 +35,9 @@ async function snapshots(): Promise<readonly Snapshot[]> {
   await using s = await openHarness('legal-multiplayer-worlds');
   const worlds: Snapshot[] = [];
   const keep = async (label: string) =>
-    worlds.push(projectMultiplayer(await s.read(storedMultiplayerSnapshot), label));
+    worlds.push(
+      projectMultiplayer(await s.read(storedMultiplayerSnapshot), label)
+    );
   for (const actor of ['alice', 'bob', 'carol', 'dave'])
     await s.apply(signInWithGoogle, actor);
   await s.apply(givenOpponentSearch, 'alice', '5+0', 'first');
@@ -58,7 +63,9 @@ async function snapshots(): Promise<readonly Snapshot[]> {
     throw new Error('The real resignation was not accepted');
   await keep('one honest result');
   await gameCommand(s, 'bob', 'offerMultiplayerRematch', { gameId: first.id });
-  await gameCommand(s, 'alice', 'acceptMultiplayerRematch', { gameId: first.id });
+  await gameCommand(s, 'alice', 'acceptMultiplayerRematch', {
+    gameId: first.id,
+  });
   if ((await latest(s)).rematch_of !== first.id)
     throw new Error('The real rematch was not accepted');
   await keep('a rematch with swapped colours at the same time control');

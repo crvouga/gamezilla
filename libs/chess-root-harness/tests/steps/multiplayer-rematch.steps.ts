@@ -53,9 +53,9 @@ Given(
     expect(
       (await gameCommand(w, actor, 'offerMultiplayerRematch')).result.ok
     ).toBe(true);
-    expect((await gameCommand(w, actor, 'findNewChessOpponent')).result.ok).toBe(
-      true
-    );
+    expect(
+      (await gameCommand(w, actor, 'findNewChessOpponent')).result.ok
+    ).toBe(true);
     await bothBoards(w, (g) => (g.rematch_offer_by ?? '') === '');
   }
 );
@@ -91,14 +91,20 @@ Then('{actor} is offered a multiplayer rematch', async (w, actor: Actor) => {
   await bothBoards(w, (g) => g.rematch_offer_by === by);
   expect(await rematchOfferBy(w)).toBe(by);
 });
-Then('{actor} is still offered a multiplayer rematch', async (w, actor: Actor) => {
-  expect(await rematchOfferBy(w)).toBe(await ownerOf(w, otherOf(w, actor)));
-});
-Then('{actor} is not offered a multiplayer rematch', async (w, actor: Actor) => {
-  expect(await rematchOfferBy(w)).not.toBe(
-    await ownerOf(w, otherOf(w, actor))
-  );
-});
+Then(
+  '{actor} is still offered a multiplayer rematch',
+  async (w, actor: Actor) => {
+    expect(await rematchOfferBy(w)).toBe(await ownerOf(w, otherOf(w, actor)));
+  }
+);
+Then(
+  '{actor} is not offered a multiplayer rematch',
+  async (w, actor: Actor) => {
+    expect(await rematchOfferBy(w)).not.toBe(
+      await ownerOf(w, otherOf(w, actor))
+    );
+  }
+);
 Then('neither person is offered a multiplayer rematch', async (w) => {
   await bothBoards(w, (g) => (g.rematch_offer_by ?? '') === '');
   expect(await rematchOfferBy(w)).toBe('');
@@ -107,8 +113,9 @@ Then(
   '{actor} is told an aborted multiplayer game has no multiplayer rematch',
   (w, actor: Actor) => refusal(w, actor, 'CHESS_NO_REMATCH_AFTER_ABORT')
 );
-Then('{actor} is told the multiplayer game is not over yet', (w, actor: Actor) =>
-  refusal(w, actor, 'CHESS_GAME_NOT_OVER')
+Then(
+  '{actor} is told the multiplayer game is not over yet',
+  (w, actor: Actor) => refusal(w, actor, 'CHESS_GAME_NOT_OVER')
 );
 Then(
   '{actor} is told {actor} is already playing another multiplayer game',

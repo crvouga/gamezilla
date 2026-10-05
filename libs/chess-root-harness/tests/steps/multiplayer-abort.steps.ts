@@ -39,10 +39,18 @@ Then('both people still see the multiplayer game was aborted', async (w) => {
     'aborted'
   );
 });
-Then('{actor} sees the multiplayer game was aborted', async (w, actor: Actor) => {
-  const game = await sameBoards(w, actor, actor, (g) => g.outcome === 'aborted');
-  expect(game.outcome).toBe('aborted');
-});
+Then(
+  '{actor} sees the multiplayer game was aborted',
+  async (w, actor: Actor) => {
+    const game = await sameBoards(
+      w,
+      actor,
+      actor,
+      (g) => g.outcome === 'aborted'
+    );
+    expect(game.outcome).toBe('aborted');
+  }
+);
 Then(
   '{actor} is told the multiplayer game can no longer be aborted',
   (w, actor: Actor) => refusal(w, actor, 'CHESS_ABORT_TOO_LATE')

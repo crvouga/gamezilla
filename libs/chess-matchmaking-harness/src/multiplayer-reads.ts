@@ -99,7 +99,11 @@ export async function shownMultiplayerClock(
   actor: string,
   side: 'white' | 'black'
 ): Promise<number | null> {
-  const text = await shownMultiplayerText(s, actor, `multiplayer-${side}-clock`);
+  const text = await shownMultiplayerText(
+    s,
+    actor,
+    `multiplayer-${side}-clock`
+  );
   const parts = /^(\d+):(\d{2})$/.exec(text?.trim() ?? '');
   if (parts === null) return null;
   return Number(parts[1]) * 60 + Number(parts[2]);
