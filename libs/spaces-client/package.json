@@ -52,10 +52,15 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@lingui/core": "catalog:",
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/keyword-shared": "workspace:*",
+    "@pkgs/property-shared": "workspace:*",
+    "@pkgs/secure-storage-root-client": "workspace:*",
+    "@pkgs/secure-storage-root-shared": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client"

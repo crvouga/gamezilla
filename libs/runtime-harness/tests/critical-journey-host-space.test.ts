@@ -28,6 +28,7 @@ type World = {
   overflow: boolean;
   endInOverflow: boolean;
   profileReady: boolean;
+  cardReady: boolean;
   readonly taps: string[];
 };
 
@@ -44,7 +45,12 @@ function tabVisible(world: World, id: string): boolean | undefined {
     return world.screen === 'spaces' && world.listReady && world.spacesLeft > 0;
   }
   if (id === Handles.spaceCard(HOST)) {
-    return world.screen === 'spaces' && world.listReady && world.spacesLeft > 0;
+    return (
+      world.screen === 'spaces' &&
+      world.listReady &&
+      world.spacesLeft > 0 &&
+      world.cardReady
+    );
   }
   if (id === Handles.profileDisplayUsername) {
     return world.screen === 'profile' && world.profileReady;
@@ -130,6 +136,7 @@ function node(world: World, id: string): DriverNode {
       visible: () => {
         // Waiting for the list is what settles it, the way sync does.
         if (id === Handles.spacesListReady) world.listReady = true;
+        if (id === Handles.spaceCard(HOST)) world.cardReady = true;
         // A lazy profile route may render after the tab tap returns.
         if (id === Handles.profileDisplayUsername) world.profileReady = true;
         assertState('visible');
@@ -171,6 +178,7 @@ function driver(
     overflow: false,
     endInOverflow,
     profileReady,
+    cardReady: true,
     taps: [],
   };
   const ui: Driver = {
@@ -208,6 +216,16 @@ function expectJoinedThenEnded(
 }
 
 describe('hostSpace', () => {
+  // regression: journey-leftover-card-profile-hydration
+  test('waits for a hosted card whose profile is still hydrating', async () => {
+    const { ui, world } = driver(1);
+    world.cardReady = false;
+    await hostSpace(ui);
+    expectJoinedThenEnded(world.taps, 1);
+    expect(world.spacesLeft).toBe(0);
+    expect(world.created).toBe(true);
+  });
+
   // regression: journey-end-space-in-overflow
   test('ends a leftover through the overflow menu before hosting', async () => {
     const { ui, world } = driver(1, true, true);
