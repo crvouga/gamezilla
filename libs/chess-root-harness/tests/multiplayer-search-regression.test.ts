@@ -14,7 +14,7 @@ import {
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
-} from '@libs/chess-root-harness/multiplayer-commands';
+} from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import { partition } from '@libs/harness/actions';
 import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { partitionLoadBalancer } from '@libs/harness/server-actions';
@@ -24,7 +24,7 @@ import { openHarness } from './open-chess-harness';
 test('a literal accepted opponent request reaches its owner through ordinary sync', async () => {
   await using s = await openHarness('accepted-opponent-request');
   await s.apply(signInWithGoogle, 'alice');
-  await s.apply(givenOpponentSearch, 'alice', 'request-1');
+  await s.apply(givenOpponentSearch, 'alice', '5+0', 'request-1');
   await s.until(
     async (world) =>
       (await multiplayerView(world, 'alice')).search?.standing === 'waiting'
@@ -39,9 +39,9 @@ test('an offline White device retains its accepted board and refuses e2e4 withou
   await using s = await openHarness('offline-white-e2e4');
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(signInWithGoogle, 'bob');
-  await s.apply(givenOpponentSearch, 'alice', 'phone-1');
+  await s.apply(givenOpponentSearch, 'alice', '5+0', 'phone-1');
   await s.advanceTime(1);
-  await s.apply(givenOpponentSearch, 'bob', 'phone-1');
+  await s.apply(givenOpponentSearch, 'bob', '5+0', 'phone-1');
   await s.apply(pairChessOpponents);
   await s.until(
     async (world) => (await multiplayerView(world, 'alice')).game !== null

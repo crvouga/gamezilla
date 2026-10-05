@@ -16,6 +16,7 @@ export class Outbox {
     assert.ok(input.message.type.length > 0, 'outbox message type required');
     const nowIso = this.ctx.env.now().toISOString();
     const payloadJson = JSON.stringify(input.message.payload);
+    const availableIso = input.availableAt?.toISOString() ?? nowIso;
     await this.ctx.tx.run(sql`
       INSERT INTO outbox_events (
         id, type, payload, created_at, updated_at, deleted_at, available_at
@@ -27,7 +28,7 @@ export class Outbox {
         ${nowIso},
         ${nowIso},
         ${null},
-        ${nowIso}
+        ${availableIso}
       )
       ON CONFLICT (id) DO NOTHING
     `);

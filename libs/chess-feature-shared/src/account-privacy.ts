@@ -10,6 +10,7 @@ const PERSONAL_TABLES = [
   'chess_multiplayer_players',
   'chess_opponent_searches',
   'chess_multiplayer_commands',
+  'chess_multiplayer_ratings',
   'chess_puzzle_profiles',
   'chess_puzzle_interactions',
   'chess_puzzle_rating_events',

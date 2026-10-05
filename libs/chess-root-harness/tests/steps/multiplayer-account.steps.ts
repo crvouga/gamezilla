@@ -4,11 +4,12 @@ import {
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import { givenOpponentSearch } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
+import type { MultiplayerSearchView } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
+import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { removeFriend } from '@libs/friends-harness/friends-actions';
 import { setupFriendsPair } from '@libs/friends-harness/setup-friends-pair';
 import { signInWithGoogleAsAccount, signOut } from '@libs/harness/auth-actions';
@@ -60,9 +61,12 @@ When(
     await w.s.apply(openMultiplayerChess, `${actor}_computer`);
   }
 );
-When('{actor} finds a chess opponent on her phone', async (w, actor: Actor) => {
-  await w.s.apply(findChessOpponent, actor);
-});
+When(
+  '{actor} finds a chess opponent for {word} on her phone',
+  async (w, actor: Actor, timeControl: string) => {
+    await w.s.apply(findChessOpponent, actor, timeControl);
+  }
+);
 Then(
   '{actor} is looking for her same chess opponent',
   async (w, actor: Actor) => {
@@ -72,11 +76,7 @@ Then(
         (await multiplayerView(s, device)).search?.standing === 'waiting'
     );
     expect((await w.s.read(multiplayerView, device)).search).toEqual(
-      w.memo.get('multiplayer:original-search') as {
-        search_id: string;
-        standing: string;
-        match_id: string | null;
-      }
+      w.memo.get('multiplayer:original-search') as MultiplayerSearchView
     );
   }
 );

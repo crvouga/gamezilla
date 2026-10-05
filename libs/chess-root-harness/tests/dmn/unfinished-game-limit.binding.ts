@@ -54,6 +54,7 @@ bindDecisions({
       operationFor: () =>
         replayOperation(findChessOpponentMutation, () => ({
           requestId: 'another-game',
+          timeControl: '5+0',
         })),
     }),
     'client gating': clientGatingLayer({

@@ -15,9 +15,9 @@ import { openHarness } from '../open-chess-harness';
 async function gameReadyTime(context: MeasureContext) {
   await using s = await openHarness('multiplayer-ready-objective');
   for (const actor of ['alice', 'bob']) await s.apply(signInWithGoogle, actor);
-  await s.apply(findChessOpponent, 'alice');
+  await s.apply(findChessOpponent, 'alice', '5+0');
   const beganAtMs = await s.read((world) => world.harness.clock.now());
-  await s.apply(findChessOpponent, 'bob');
+  await s.apply(findChessOpponent, 'bob', '5+0');
   await s.apply(pairChessOpponents);
   await s.until(
     async (world) => {

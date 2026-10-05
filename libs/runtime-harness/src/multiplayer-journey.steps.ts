@@ -8,6 +8,7 @@ import {
   expectNoMultiplayerGame,
   expectSharedMultiplayerGame,
   openMultiplayerJourney,
+  openWithE4AndE5,
   prepareMultiplayerPair,
   prepareUnfinishedMultiplayerGame,
   resignMultiplayerJourney,
@@ -32,11 +33,24 @@ Given(
 Given('{actor} is a guest on a fresh device', (w) =>
   w.journey.open('anonymous')
 );
-Given('{actor} is finding a multiplayer chess opponent', (w, actor: Actor) =>
-  device(w.journey, actor)('startMultiplayerSearch', startMultiplayerSearch)
+Given(
+  '{actor} is finding a {word} multiplayer chess opponent',
+  (w, actor: Actor, timeControl: string) =>
+    device(w.journey, actor)(
+      'startMultiplayerSearch',
+      startMultiplayerSearch(timeControl)
+    )
 );
-When('{actor} starts finding a multiplayer chess opponent', (w, actor: Actor) =>
-  device(w.journey, actor)('startMultiplayerSearch', startMultiplayerSearch)
+When(
+  '{actor} starts finding a {word} multiplayer chess opponent',
+  (w, actor: Actor, timeControl: string) =>
+    device(w.journey, actor)(
+      'startMultiplayerSearch',
+      startMultiplayerSearch(timeControl)
+    )
+);
+When('White and Black open with e4 and e5 in multiplayer chess', (w) =>
+  openWithE4AndE5(w.journey)
 );
 Then(
   'Alice and Bob have the same multiplayer chess game within {int} seconds',

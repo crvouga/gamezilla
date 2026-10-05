@@ -1,8 +1,8 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import { deviceMutationEnv } from '@libs/auth-shared/device-mutation-env';
-import { CHESS_MUTATIONS } from '@libs/chess-feature-shared/mutations';
-import { multiplayerClient } from '@libs/chess-matchmaking-harness/multiplayer-client';
-import { ensureActor, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { MULTIPLAYER_MUTATIONS } from '@libs/chess-matchmaking-shared/multiplayer-mutations';
+import { actorUi, ensureActor, pollUntil, scenarioAction } from '@libs/harness/actor-ui';
+import { actorHtml } from '@libs/harness/observations';
 import type { ProductHarness } from '@libs/harness/harness';
 import { awaitMutationVerdict } from '@pkgs/sync-engine-client/await-mutation-verdict';
 import { createMutationClient } from '@pkgs/sync-engine-client/create-mutation-client';
@@ -10,6 +10,7 @@ import type {
   MutateResult,
   Mutation,
 } from '@pkgs/sync-engine-shared/mutations-types';
+import { multiplayerClient } from './multiplayer-client';
 
 export type MultiplayerCommand = {
   readonly name: string;
@@ -26,7 +27,7 @@ export const sendMultiplayerCommand = scenarioAction({
   act: async (s, actor: string, command: MultiplayerCommand) => {
     await ensureActor(s, actor);
     const { live, env, owner, engine } = await multiplayerClient(s, actor);
-    const mutation = CHESS_MUTATIONS.find((m) => m.name === command.name);
+    const mutation = MULTIPLAYER_MUTATIONS.find((m) => m.name === command.name);
     if (mutation === undefined)
       throw new Error(`Unknown chess command ${command.name}`);
     const client = createMutationClient({
@@ -71,4 +72,27 @@ export const sendMultiplayerCommand = scenarioAction({
 
 export function multiplayerCommandReply(s: ProductHarness, actor: string) {
   return results.get(s)?.get(actor) ?? null;
+}
+
+/** A UI gesture starts afresh: an earlier command's verdict no longer speaks for it. */
+export function forgetMultiplayerReply(s: ProductHarness, actor: string): void {
+  results.get(s)?.delete(actor);
+}
+
+/**
+ * The refusal a person was last given on this device: the verdict of their
+ * last command, or the reason on the denial the screen shows.
+ */
+export async function multiplayerRefusalCode(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const reply = multiplayerCommandReply(s, actor);
+  if (reply !== null)
+    return reply.result.ok ? null : (reply.result.failures[0]?.code ?? null);
+  if (!(await (await actorUi(s, actor)).get('multiplayer-command-denial').isVisible()))
+    return null;
+  const html = (await actorHtml(s, actor)) ?? '';
+  const tag = html.match(/<[^>]*data-testid="multiplayer-command-denial"[^>]*>/)?.[0];
+  return tag?.match(/data-reason="([^"]+)"/)?.[1] ?? null;
 }

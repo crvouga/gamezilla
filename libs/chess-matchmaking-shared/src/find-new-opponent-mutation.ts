@@ -1,0 +1,25 @@
+import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
+import { z } from 'zod';
+import { beginChessSearch } from './chess-search';
+import { MultiplayerGameRepository } from './game-repository';
+
+/** From a game that is over or aborted, look again at its time control in one step. */
+export const findNewChessOpponentMutation = defineMutation({
+  name: 'findNewChessOpponent',
+  requiresOnline: true,
+  pendingUx: 'pending',
+  args: z.object({
+    requestId: z.string().min(1),
+    gameId: z.string().min(1),
+  }),
+  async run(ctx, args) {
+    const game = await new MultiplayerGameRepository(ctx.tx).owned(
+      args.gameId,
+      ctx.env.actorId
+    );
+    await beginChessSearch(ctx, {
+      requestId: args.requestId,
+      timeControl: game.time_control ?? '',
+    });
+  },
+});

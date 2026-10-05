@@ -1,6 +1,9 @@
 import { CUSTOM_GAME_GRANT_KEYS } from '@libs/chess-custom-game-shared/custom-game-permissions';
+import { scheduleFormationRetry } from '@libs/chess-matchmaking-shared/formation-retry';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
+import { MultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
 import { OpponentRequested } from '@libs/chess-matchmaking-shared/opponent-requested';
+import { settleDueGame } from '@libs/chess-matchmaking-shared/settle-due-game';
 import type { RoomGrantsCtx } from '@libs/feature-shared/server';
 import { defineFeatureServer } from '@libs/feature-shared/server';
 import { decideOnServer } from '@libs/permissions-server/decide-on-server';
@@ -44,6 +47,21 @@ export const CHESS_SERVER = defineFeatureServer({
             nowMs: ctx.clock.now(),
             createId: ctx.createId,
           });
+          await scheduleFormationRetry(ctx.tx, ctx.clock.now());
+          return { notifyUserIds: ids };
+        },
+      })
+    );
+    registry.register(
+      defineOutboxConsumer({
+        id: 'chess.settle-multiplayer-deadline',
+        on: MultiplayerDeadline,
+        async handler(ctx, payload) {
+          const ids = await settleDueGame(
+            ctx.tx,
+            payload.gameId,
+            ctx.clock.now()
+          );
           return { notifyUserIds: ids };
         },
       })

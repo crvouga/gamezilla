@@ -15,6 +15,7 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload --preload @libs/harness/preload tests"
   },
   "dependencies": {
+    "@libs/app-root-server": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/harness": "workspace:*",
@@ -23,6 +24,7 @@
     "@pkgs/matchmaking-sql-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
     "@pkgs/sync-engine-server": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*"
   },

@@ -1,6 +1,11 @@
 import { accountMutationEnv } from '@libs/auth-shared/account-mutation-env';
 import { findChessOpponentMutation } from '@libs/chess-matchmaking-shared/find-opponent-mutation';
+import { MultiplayerGameRepository } from '@libs/chess-matchmaking-shared/game-repository';
 import { formChessMatches } from '@libs/chess-matchmaking-shared/match-handoff';
+import { scheduleMultiplayerDeadline } from '@libs/chess-matchmaking-shared/multiplayer-deadline';
+import { CHESS_SEARCH_RADIUS } from '@libs/chess-matchmaking-shared/search-config';
+import { MultiplayerRatingRepository } from '@libs/chess-matchmaking-shared/rating-repository';
+import type { MultiplayerSpeed } from '@libs/chess-matchmaking-shared/time-control';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { signedInAccountOf } from '@libs/harness/identity';
@@ -50,41 +55,147 @@ export async function multiplayerTransaction(
 }
 
 export const givenOpponentSearch = scenarioAction<
-  [actor: string, requestId?: string]
+  [actor: string, timeControl?: string, requestId?: string]
 >({
   name: 'givenOpponentSearch',
-  act: (s, actor: string, requestId = s.session.ports.createId()) =>
+  act: (
+    s,
+    actor: string,
+    timeControl = '5+0',
+    requestId = s.session.ports.createId()
+  ) =>
     multiplayerFixture(s, actor, async (tx, env) => {
-      await findChessOpponentMutation.run({ tx, env }, { requestId });
+      await findChessOpponentMutation.run(
+        { tx, env },
+        { requestId, timeControl }
+      );
       return [env.actorId];
     }),
 });
 
-export const pairChessOpponents = scenarioAction<[actor?: string]>({
+/**
+ * The formation pass. `firstIsWhite` fixes the chance that settles equal
+ * colour balances, for a setup that names the colours.
+ */
+export const pairChessOpponents = scenarioAction<
+  [actor?: string, firstIsWhite?: boolean]
+>({
   name: 'pairChessOpponents',
-  act: (s, actor = 'alice') =>
+  act: (s, actor = 'alice', firstIsWhite?: boolean) =>
     multiplayerFixture(s, actor, (tx) =>
       formChessMatches(tx, {
         nowMs: s.harness.clock.now(),
         createId: s.harness.server.createId,
+        ...(firstIsWhite === undefined
+          ? {}
+          : { tieBreak: () => firstIsWhite }),
       })
     ),
 });
 
-/** A legal pre-existing position; its next move still uses the real command. */
-export const givenMultiplayerPosition = scenarioAction({
+/** The changed game keeps its deadline for the scheduled sweep, as every write does. */
+/** The longest a search waits before its range reaches the maximum. */
+const LONGEST_RANGE_WAIT_MS =
+  ((CHESS_SEARCH_RADIUS.maxRadius - CHESS_SEARCH_RADIUS.baseRadius) /
+    CHESS_SEARCH_RADIUS.radiusGrowthPerSecond) *
+    1000 +
+  1000;
+
+/**
+ * Matchmaking forms the match of these two waiting people as soon as their
+ * growing ranges allow: a formation pass each second until it does.
+ */
+export const awaitChessMatch = scenarioAction<
+  [first: string, second: string, firstIsWhite?: boolean]
+>({
+  name: 'awaitChessMatch',
+  act: async (s, first: string, second: string, firstIsWhite?: boolean) => {
+    const people = [
+      await signedInAccountOf(s, first),
+      await signedInAccountOf(s, second),
+    ];
+    for (let waited = 0; waited <= LONGEST_RANGE_WAIT_MS; waited += 1000) {
+      let formed: readonly string[] = [];
+      await multiplayerFixture(s, first, async (tx) => {
+        formed = await formChessMatches(tx, {
+          nowMs: s.harness.clock.now(),
+          createId: s.harness.server.createId,
+          ...(firstIsWhite === undefined
+            ? {}
+            : { tieBreak: () => firstIsWhite }),
+        });
+        return formed;
+      });
+      if (people.every((id) => id !== null && formed.includes(id))) return;
+      await s.session.advanceTime(1000);
+    }
+    throw new Error(`No chess match formed for ${first} and ${second}`);
+  },
+});
+
+async function gamePeople(tx: SqlTx, gameId: string, nowMs: number) {
+  const game = await new MultiplayerGameRepository(tx).byId(gameId);
+  if (game === null) throw new Error(`No multiplayer game ${gameId}`);
+  await scheduleMultiplayerDeadline(tx, game, nowMs);
+  return [game.white_id, game.black_id];
+}
+
+/**
+ * A legal pre-existing position after both first moves, the actor to move,
+ * with this much time on each clock; the next move still uses the real
+ * command.
+ */
+export const givenMultiplayerPosition = scenarioAction<
+  [actor: string, gameId: string, fen: string, clockMs?: number]
+>({
   name: 'givenMultiplayerPosition',
-  act: (s, actor: string, gameId: string, fen: string) =>
+  act: (s, actor: string, gameId: string, fen: string, clockMs?: number) =>
     multiplayerFixture(s, actor, async (tx, env) => {
+      const nowMs = env.now().getTime();
       await tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${fen}, pgn = ${''},
-        turn = ${env.actorId}, updated_at = ${env.now().toISOString()} WHERE id = ${gameId}`);
-      return (
-        await tx.query(
-          sql<{
-            white_id: string;
-            black_id: string;
-          }>`SELECT white_id, black_id FROM chess_multiplayer_games WHERE id = ${gameId}`
-        )
-      ).flatMap((game) => [game.white_id, game.black_id]);
+        turn = ${env.actorId}, revision = ${2}, clock_at_ms = ${nowMs},
+        white_ms = COALESCE(${clockMs ?? null}, white_ms), black_ms = COALESCE(${clockMs ?? null}, black_ms),
+        updated_at = ${env.now().toISOString()} WHERE id = ${gameId}`);
+      return gamePeople(tx, gameId, nowMs);
+    }),
+});
+
+/** Time left on one side's clock, that side to move, its clock running from now. */
+export const givenMultiplayerClock = scenarioAction({
+  name: 'givenMultiplayerClock',
+  act: (s, actor: string, gameId: string, side: 'white' | 'black', ms: number) =>
+    multiplayerFixture(s, actor, async (tx, env) => {
+      const nowMs = env.now().getTime();
+      await tx.run(
+        side === 'white'
+          ? sql`UPDATE chess_multiplayer_games SET white_ms = ${ms}, clock_at_ms = ${nowMs} WHERE id = ${gameId}`
+          : sql`UPDATE chess_multiplayer_games SET black_ms = ${ms}, clock_at_ms = ${nowMs} WHERE id = ${gameId}`
+      );
+      return gamePeople(tx, gameId, nowMs);
+    }),
+});
+
+/** A multiplayer rating at one speed, with this many rated games behind it. */
+export const givenMultiplayerRating = scenarioAction({
+  name: 'givenMultiplayerRating',
+  act: (
+    s,
+    actor: string,
+    speed: MultiplayerSpeed,
+    rating: { readonly rating: number; readonly games: number }
+  ) =>
+    multiplayerFixture(s, actor, async (tx, env) => {
+      await new MultiplayerRatingRepository(tx).write(
+        env.actorId,
+        speed,
+        {
+          rating: rating.rating,
+          ratingDeviation: rating.games > 0 ? 80 : 350,
+          volatilityMicros: 60_000,
+          games: rating.games,
+        },
+        env.now().getTime()
+      );
+      return [env.actorId];
     }),
 });

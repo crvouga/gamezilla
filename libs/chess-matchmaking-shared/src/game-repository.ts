@@ -3,9 +3,14 @@ import {
   lockOwners,
 } from '@pkgs/matchmaking-sql-shared/owner-repository';
 import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
-import sql from '@pkgs/sql-root-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-root-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
-import type { MultiplayerGame } from './game';
+import type { MultiplayerGame } from './game-state';
+import { MULTIPLAYER_GAME_COLUMNS } from './game-state';
+import { scheduleMultiplayerDeadline } from './multiplayer-deadline';
+import { rateFinishedGame } from './rate-finished-game';
+
+const COLUMNS = raw(MULTIPLAYER_GAME_COLUMNS.join(', '));
 
 export class MultiplayerGameRepository {
   constructor(private readonly tx: SqlTx) {}
@@ -16,6 +21,19 @@ export class MultiplayerGameRepository {
     }>`SELECT id FROM chess_multiplayer_games
       WHERE (white_id = ${ownerId} OR black_id = ${ownerId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
     return rows.length;
+  }
+
+  /** Finished games as White minus finished games as Black; aborted games do not count. */
+  async colourBalance(ownerId: string): Promise<number> {
+    const rows = await this.tx.query(sql<{
+      white_id: string;
+    }>`SELECT white_id FROM chess_multiplayer_games
+      WHERE (white_id = ${ownerId} OR black_id = ${ownerId})
+        AND outcome IN (${join(['white', 'black', 'draw'])}) AND deleted_at IS NULL`);
+    return rows.reduce(
+      (balance, row) => balance + (row.white_id === ownerId ? 1 : -1),
+      0
+    );
   }
 
   async owned(
@@ -35,13 +53,18 @@ export class MultiplayerGameRepository {
     return game;
   }
 
+  async byId(gameId: string): Promise<MultiplayerGame | null> {
+    const rows = await this.tx.query(sql<MultiplayerGame>`SELECT ${COLUMNS}
+      FROM chess_multiplayer_games WHERE id = ${gameId} AND deleted_at IS NULL`);
+    return rows[0] ?? null;
+  }
+
   private async readOwned(
     gameId: string,
     ownerId: string
   ): Promise<MultiplayerGame> {
-    const rows =
-      await this.tx.query(sql<MultiplayerGame>`SELECT id, white_id, black_id, fen, pgn,
-      revision, turn, outcome, reason FROM chess_multiplayer_games
+    const rows = await this.tx.query(sql<MultiplayerGame>`SELECT ${COLUMNS}
+      FROM chess_multiplayer_games
       WHERE id = ${gameId} AND (white_id = ${ownerId} OR black_id = ${ownerId}) AND deleted_at IS NULL`);
     const game = rows[0];
     if (game === undefined)
@@ -52,18 +75,32 @@ export class MultiplayerGameRepository {
     return game;
   }
 
+  /**
+   * Writes the game's new state. A game that just ended frees both people
+   * for matchmaking, and a finished one moves both ratings for its speed
+   * once; an unfinished one keeps a deadline for the scheduled sweep.
+   */
   async save(
-    game: MultiplayerGame,
+    before: MultiplayerGame,
+    after: MultiplayerGame,
     nowMs: number,
     server: boolean
-  ): Promise<void> {
+  ): Promise<MultiplayerGame> {
+    const ended = before.outcome === 'ongoing' && after.outcome !== 'ongoing';
+    const game =
+      server && ended ? await rateFinishedGame(this.tx, after, nowMs) : after;
     await this.tx.run(sql`UPDATE chess_multiplayer_games SET fen = ${game.fen}, pgn = ${game.pgn},
       revision = ${game.revision}, turn = ${game.turn}, outcome = ${game.outcome}, reason = ${game.reason},
+      white_ms = ${game.white_ms}, black_ms = ${game.black_ms}, clock_at_ms = ${game.clock_at_ms},
+      draw_offer_by = ${game.draw_offer_by}, rematch_offer_by = ${game.rematch_offer_by},
+      white_rating_diff = ${game.white_rating_diff}, black_rating_diff = ${game.black_rating_diff},
       updated_at = ${new Date(nowMs).toISOString()} WHERE id = ${game.id}`);
-    if (server && game.outcome !== 'ongoing') {
+    if (!server) return game;
+    if (ended)
       for (const ownerId of [game.white_id, game.black_id])
         await changeAvailability(this.tx, { ownerId, available: true, nowMs });
-    }
+    await scheduleMultiplayerDeadline(this.tx, game, nowMs);
+    return game;
   }
 
   async repeated(

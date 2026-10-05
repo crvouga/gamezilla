@@ -1,8 +1,5 @@
 import { expect } from 'bun:test';
-import {
-  findChessOpponent,
-  openMultiplayerChess,
-} from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { openMultiplayerChess } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
   givenOpponentSearch,
   pairChessOpponents,
@@ -11,8 +8,7 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
-import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
+import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { Given, Then, When } from '@libs/harness/define';
 import { accountIdOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
@@ -25,6 +21,7 @@ import {
   acceptedMoves,
   command,
   gameOf,
+  givenBegunGame,
   givenGame,
   move,
   refusal,
@@ -39,15 +36,6 @@ Given(
     await disconnectMultiplayer(w, actor);
   }
 );
-When(
-  '{actor} finds a chess opponent on another device',
-  async (w, actor: Actor) => {
-    const device = `${actor}_computer`;
-    await w.s.apply(signInWithGoogleAsAccount, device, actor);
-    await w.s.apply(findChessOpponent, device);
-    w.memo.set(`multiplayer:other:${actor}`, device);
-  }
-);
 Then(
   '{actor} is told finding an opponent needs a connection',
   async (w, actor: Actor) => {
@@ -57,18 +45,6 @@ Then(
     expect(
       await w.s.read(multiplayerText, actor, 'multiplayer-error')
     ).toContain('needs a connection');
-  }
-);
-Then(
-  '{actor} is told to finish her multiplayer game first',
-  async (w, actor: Actor) => {
-    expect(
-      await w.s.read(
-        multiplayerText,
-        String(w.memo.get(`multiplayer:other:${actor}`)),
-        'multiplayer-command-denial'
-      )
-    ).toContain('Finish');
   }
 );
 Then('{actor} is told she has no opponent search to stop', (w, actor: Actor) =>
@@ -96,7 +72,7 @@ Given(
 Given(
   "{actor}'s phone was offline when {actor} resigned multiplayer chess",
   async (w, offline: Actor, opponent: Actor) => {
-    await givenGame(w, offline, opponent);
+    await givenBegunGame(w, offline, opponent);
     await disconnectMultiplayer(w, offline);
     expect((await resignation(w, opponent)).result.ok).toBe(true);
   }

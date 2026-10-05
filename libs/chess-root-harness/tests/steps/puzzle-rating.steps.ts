@@ -28,8 +28,10 @@ import {
   PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
   PUZZLE_RATING_RD_MIN,
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
+import { signInWithGoogle } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';
+import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor, PuzzleFinishName } from '@libs/harness/parameter-types';
 import { cutConnection, otherDevice } from '@libs/harness/platform';
 import { focusActor } from '@libs/harness/shell-actions';
@@ -121,6 +123,9 @@ Given(
 Given(
   "{actor}'s puzzle rating has settled at {int}",
   async (w, actor: Actor, rating: number) => {
+    // A rating belongs to an account.
+    if ((await w.s.read(signedInAccountOf, actor)) === null)
+      await w.s.apply(signInWithGoogle, actor);
     // As settled as a rating gets: the deviation at its floor.
     await w.s.apply(seedPuzzleRating, actor, {
       rating,

@@ -9,6 +9,8 @@ import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { type JSX, Show } from 'solid-js';
 import { MultiplayerBoard } from './multiplayer-board';
 import { MultiplayerControls } from './multiplayer-controls';
+import { MultiplayerRatings } from './multiplayer-ratings';
+import { useDeadlineSettle } from './use-deadline-settle';
 import { useMultiplayerControls } from './use-multiplayer-controls';
 import { useMultiplayerData } from './use-multiplayer-data';
 
@@ -19,6 +21,11 @@ function MultiplayerContent(props: {
 }): JSX.Element {
   const decision = useDecision(PERMISSION.matchmakingView);
   const sync = useSyncEngine();
+  useDeadlineSettle({
+    game: props.data.game,
+    online: () => sync.status().online,
+    settle: props.controls.settle,
+  });
   return (
     <div class="box gap-4" data-component="MultiplayerContent">
       <Show
@@ -84,6 +91,7 @@ function MultiplayerContent(props: {
           controls={props.controls}
           requestedGame={props.requestedGame}
         />
+        <MultiplayerRatings ratings={props.data.ratings()} />
       </Show>
     </div>
   );

@@ -44,4 +44,6 @@ export type OutboxConsumerDef<P = unknown> = {
 export type OutboxSendInput = {
   readonly id: string;
   readonly message: Message;
+  /** Deliver no earlier than this; default now. */
+  readonly availableAt?: Date;
 };

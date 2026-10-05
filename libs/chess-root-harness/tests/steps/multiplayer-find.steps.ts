@@ -1,11 +1,11 @@
 import { expect } from 'bun:test';
 import {
-  confirmMultiplayerCommand,
   findChessOpponent,
   openMultiplayerChess,
 } from '@libs/chess-matchmaking-harness/multiplayer-actions';
+import { multiplayerRefusalCode } from '@libs/chess-matchmaking-harness/multiplayer-commands';
 import {
-  givenOpponentSearch,
+  awaitChessMatch,
   pairChessOpponents,
 } from '@libs/chess-matchmaking-harness/multiplayer-fixtures';
 import {
@@ -15,9 +15,29 @@ import {
 import { signInWithGoogleAsAccount } from '@libs/harness/auth-actions';
 import { Given, Step, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
-
+import type { HarnessWorld } from '@libs/harness/spec-world';
 import { multiplayerPeople } from './multiplayer-people';
-import { command } from './multiplayer-world';
+import { command, gameCommand, refusal, searchFor } from './multiplayer-world';
+
+async function looking(w: HarnessWorld, actor: string, timeControl?: string) {
+  const matches = (search: { standing: string; time_control: string | null } | null) =>
+    search?.standing === 'waiting' &&
+    (timeControl === undefined || search.time_control === timeControl);
+  await w.s.until(async (s) => matches((await multiplayerView(s, actor)).search));
+  expect(matches((await w.s.read(multiplayerView, actor)).search)).toBe(true);
+}
+
+/** Before anything happened in the scenario this builds the search; afterwards it checks it. */
+async function searchStep(w: HarnessWorld, actor: string, timeControl?: string) {
+  if (!w.memo.get('multiplayer:acted')) {
+    await multiplayerPeople(w, [actor]);
+    await searchFor(w, actor, timeControl ?? '5+0');
+  } else await looking(w, actor, timeControl);
+}
+
+function acted(w: HarnessWorld) {
+  w.memo.set('multiplayer:acted', true);
+}
 
 Given(
   '{actor} has a free account and a connection',
@@ -25,56 +45,85 @@ Given(
     await multiplayerPeople(w, [actor]);
   }
 );
-Step('{actor} is looking for a chess opponent', async (w, actor: Actor) => {
-  if (!w.memo.get('multiplayer:acted')) {
-    await multiplayerPeople(w, [actor]);
-    await w.s.apply(givenOpponentSearch, actor);
-  } else {
-    await w.s.until(
-      async (s) =>
-        (await multiplayerView(s, actor)).search?.standing === 'waiting'
-    );
-    expect((await w.s.read(multiplayerView, actor)).search?.standing).toBe(
-      'waiting'
-    );
-  }
-});
+Step('{actor} is looking for a chess opponent', (w, actor: Actor) =>
+  searchStep(w, actor)
+);
+Step(
+  '{actor} is looking for a {word} chess opponent',
+  (w, actor: Actor, timeControl: string) => searchStep(w, actor, timeControl)
+);
+Then(
+  '{actor} is still looking for a {word} chess opponent',
+  (w, actor: Actor, timeControl: string) => looking(w, actor, timeControl)
+);
 Given(
-  '{actor} and {actor} are looking for chess opponents',
-  async (w, first: Actor, second: Actor) => {
+  '{actor} and {actor} are looking for {word} chess opponents',
+  async (w, first: Actor, second: Actor, timeControl: string) => {
     await multiplayerPeople(w, [first, second]);
-    for (const actor of [first, second])
-      await w.s.apply(givenOpponentSearch, actor);
+    await searchFor(w, first, timeControl);
+    await w.s.advanceTime(1);
+    await searchFor(w, second, timeControl);
   }
 );
-When('{actor} finds a chess opponent', async (w, actor: Actor) => {
-  w.memo.set('multiplayer:acted', true);
-  await w.s.apply(findChessOpponent, actor);
+Given(
+  '{actor} is the only person looking for a {word} chess opponent',
+  async (w, actor: Actor, timeControl: string) => {
+    await multiplayerPeople(w, [actor]);
+    await searchFor(w, actor, timeControl);
+  }
+);
+When(
+  '{actor} finds a chess opponent for {word}',
+  async (w, actor: Actor, timeControl: string) => {
+    acted(w);
+    await w.s.apply(findChessOpponent, actor, timeControl);
+  }
+);
+When(
+  '{actor} finds a chess opponent for {word} on another device',
+  async (w, actor: Actor, timeControl: string) => {
+    acted(w);
+    const device = `${actor}_computer`;
+    await w.s.apply(signInWithGoogleAsAccount, device, actor);
+    w.memo.set(`multiplayer:other:${actor}`, device);
+    await w.s.apply(findChessOpponent, device, timeControl);
+  }
+);
+When('{actor} finds a new opponent', async (w, actor: Actor) => {
+  acted(w);
+  await gameCommand(w, actor, 'findNewChessOpponent');
 });
+/**
+ * Matchmaking forms a match of the two named people. A match of two people
+ * means both asked; one the scenario left without a search joins the
+ * other's time control as part of that formation.
+ */
 When(
   'a matchmaking match is formed for {actor} and {actor}',
-  async (w, _first: Actor, _second: Actor) => {
-    w.memo.set('multiplayer:acted', true);
-    await w.s.apply(pairChessOpponents);
+  async (w, first: Actor, second: Actor) => {
+    acted(w);
+    const control = w.memo.get(`multiplayer:searching:${first}`);
+    if (!w.memo.has(`multiplayer:searching:${second}`)) {
+      await multiplayerPeople(w, [second]);
+      await searchFor(w, second, String(control ?? '5+0'));
+    }
+    await w.s.apply(awaitChessMatch, first, second);
   }
 );
 When('matchmaking pairs people up', async (w) => {
-  w.memo.set('multiplayer:acted', true);
+  acted(w);
   await w.s.apply(pairChessOpponents);
 });
 When('{actor} opens multiplayer chess', async (w, actor: Actor) => {
-  w.memo.set('multiplayer:acted', true);
+  acted(w);
   await w.s.apply(openMultiplayerChess, actor);
 });
 When('{actor} stops finding a chess opponent', async (w, actor: Actor) => {
-  w.memo.set('multiplayer:acted', true);
-  const search = (await w.s.read(multiplayerView, actor)).search;
-  if (search?.standing === 'waiting')
-    await w.s.apply(confirmMultiplayerCommand, actor, 'stop');
-  else
-    await command(w, actor, 'stopFindingChessOpponent', {
-      searchId: search?.search_id ?? 'no-search',
-    });
+  acted(w);
+  const view = await w.s.read(multiplayerView, actor);
+  await command(w, actor, 'stopFindingChessOpponent', {
+    searchId: view.search?.search_id ?? 'no-search',
+  });
 });
 When(
   '{actor} opens multiplayer chess on another device',
@@ -83,7 +132,7 @@ When(
     await w.s.apply(signInWithGoogleAsAccount, device, actor);
     await w.s.apply(openMultiplayerChess, device);
     w.memo.set(`multiplayer:other:${actor}`, device);
-    w.memo.set('multiplayer:acted', true);
+    acted(w);
   }
 );
 Then(
@@ -131,5 +180,22 @@ Then(
         search?.search_id
     );
     expect((await w.s.read(multiplayerView, device)).search).toEqual(search);
+  }
+);
+Then(
+  '{actor} is told {word} is not an offered time control',
+  (w, actor: Actor) => refusal(w, actor, 'CHESS_TIME_CONTROL_NOT_OFFERED')
+);
+Then(
+  '{actor} is told she is already looking for a chess opponent',
+  (w, actor: Actor) => refusal(w, actor, 'CHESS_ALREADY_LOOKING')
+);
+Then(
+  '{actor} is told to finish her multiplayer game first',
+  async (w, actor: Actor) => {
+    const device = String(w.memo.get(`multiplayer:other:${actor}`) ?? actor);
+    expect(await w.s.read(multiplayerRefusalCode, device)).toBe(
+      'limit_reached'
+    );
   }
 );
