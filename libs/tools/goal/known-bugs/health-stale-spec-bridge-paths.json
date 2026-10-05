@@ -1,0 +1,4 @@
+{
+  "summary": "Health stub generation resolved the removed @pkgs/gherkin/bun-test and @pkgs/openslo/bun-test paths after the bridges moved into their server packages, so Deploy health and Health objectives failed before running scenarios. Resolve the server bridge exports and declare both packages in @apps/product.",
+  "regressionTest": "apps/product/scripts/health.test.ts"
+}

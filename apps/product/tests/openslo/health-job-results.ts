@@ -17,6 +17,19 @@ export type HealthChecksQuery = {
   readonly startMs: number;
   readonly endMs: number;
 };
+
+/** The automatic DEPOT_TOKEN can only access the current job attempt. */
+export function healthHistoryToken(
+  vars: Readonly<Record<string, string | undefined>>
+): string {
+  const token = vars['DEPOT_ORG_TOKEN']?.trim() ?? '';
+  if (token.length === 0) {
+    throw new Error(
+      'DEPOT_ORG_TOKEN is missing — seed a Depot organization API token in the shared secrets environment; the automatic DEPOT_TOKEN cannot read Health history'
+    );
+  }
+  return token;
+}
 type Run = { readonly runId: string; readonly createdAt: string };
 type RunsPage = {
   readonly runs: readonly Run[];

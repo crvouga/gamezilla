@@ -13,7 +13,7 @@ export type StubInput = {
   readonly featureUri: string;
   /** Absolute path of the steps entry module. */
   readonly stepsEntry: string;
-  /** Absolute path of the bun:test bridge module (`@pkgs/gherkin/bun-test`). */
+  /** Absolute path of the bun:test bridge module (`@pkgs/gherkin-server/bun-test`). */
   readonly bridge: string;
   /** Scenario names the host cannot run (`RunFeatureOptions.skip`). */
   readonly skip?: readonly string[] | undefined;

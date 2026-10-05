@@ -4,8 +4,14 @@ import { join } from 'node:path';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { checkObjectiveSpec } from '@pkgs/openslo-shared/check';
 import { objectiveSpecStem } from '@pkgs/openslo-shared/registry';
+import { assertProperty } from '@pkgs/property-shared/assert-property';
+import fc from 'fast-check';
 import type { DepotSource } from './health-job-results';
-import { HEALTH_WORKFLOW_FILE, healthCheckEvents } from './health-job-results';
+import {
+  HEALTH_WORKFLOW_FILE,
+  healthCheckEvents,
+  healthHistoryToken,
+} from './health-job-results';
 
 const SPEC_PATH = join(
   import.meta.dir,
@@ -115,6 +121,37 @@ function hourlyRuns(conclusions: readonly string[]) {
 }
 
 describe('the team checks of one environment, from Depot CI', () => {
+  // regression: health-history-job-token-unauthorized
+  test('a job-scoped token cannot substitute for organization history credentials', () => {
+    expect(() =>
+      healthHistoryToken({ DEPOT_TOKEN: 'job-attempt-token' })
+    ).toThrow('DEPOT_ORG_TOKEN is missing');
+    expect(
+      healthHistoryToken({
+        DEPOT_TOKEN: 'job-attempt-token',
+        DEPOT_ORG_TOKEN: 'org-token',
+      })
+    ).toBe('org-token');
+  });
+
+  test('history always uses the supplied organization token regardless of the job token', () => {
+    assertProperty(
+      'history uses organization credentials regardless of the job token',
+      fc.property(
+        fc.string().filter((token) => token.trim().length > 0),
+        fc.option(fc.string(), { nil: undefined }),
+        (orgToken, jobToken) => {
+          expect(
+            healthHistoryToken({
+              DEPOT_ORG_TOKEN: orgToken,
+              DEPOT_TOKEN: jobToken,
+            })
+          ).toBe(orgToken.trim());
+        }
+      )
+    );
+  });
+
   test('each finished check of the environment in the window is one event, good when it succeeded', async () => {
     const at = NOW_MS - DAY_MS;
     const { http } = fakeDepot(

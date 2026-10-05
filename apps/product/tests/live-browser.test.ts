@@ -1,11 +1,20 @@
 import { expect, test } from 'bun:test';
+import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import {
+  EVIDENCE_DIR,
   emulateOffline,
   openDevice,
   waitForCachedShell,
 } from '@apps/product/live-browser';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
+
+// regression: health-journey-evidence-outside-package
+test('live journey evidence lives in the package directory uploaded by CI', () => {
+  expect(EVIDENCE_DIR).toBe(
+    join(import.meta.dir, '../.cache/critical-journeys')
+  );
+});
 
 // regression: health-macos-offline-network
 // regression: health-offline-existing-room-socket

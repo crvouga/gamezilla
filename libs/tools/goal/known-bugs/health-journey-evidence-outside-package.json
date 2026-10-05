@@ -1,0 +1,4 @@
+{
+  "summary": "Live journey failures wrote evidence into apps/.cache instead of apps/product/.cache, so Health and Deploy uploaded no artifacts.",
+  "regressionTest": "apps/product/tests/live-browser.test.ts"
+}

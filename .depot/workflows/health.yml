@@ -161,13 +161,23 @@ jobs:
     permissions:
       contents: read
       actions: read
+      id-token: write
     env:
       ENVS: ${{ needs.health-matrix.outputs.all }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - uses: ./.depot/actions/setup
+
+      # DEPOT_ORG_TOKEN is shared by every environment. The automatic
+      # DEPOT_TOKEN only authorizes the current job attempt, not its history.
+      - uses: ./.depot/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: ${{ fromJSON(needs.health-matrix.outputs.all)[0] }}
 
       # Every env is checked even when one misses its objectives.
       - name: health:objectives

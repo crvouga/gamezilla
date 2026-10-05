@@ -13,6 +13,7 @@ import {
 } from '@libs/secrets-shared/auth-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from '@libs/secrets-shared/cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from '@libs/secrets-shared/cf-api-token';
+import { DEPOT_ORG_TOKEN } from '@libs/secrets-shared/depot-secrets';
 import {
   FEEDBACK_GITHUB_REPOSITORY,
   FEEDBACK_GITHUB_TOKEN,
@@ -60,6 +61,7 @@ import {
  * are reported, never deleted (a human-entered value cannot be recovered).
  */
 export const SECRETS: readonly Secret[] = [
+  DEPOT_ORG_TOKEN,
   FEEDBACK_GITHUB_TOKEN,
   FEEDBACK_GITHUB_REPOSITORY,
   CLOUDFLARE_API_TOKEN,

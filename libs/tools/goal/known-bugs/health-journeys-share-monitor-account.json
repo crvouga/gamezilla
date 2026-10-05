@@ -1,0 +1,4 @@
+{
+  "summary": "Parallel live Health journeys competed for the synthetic-monitor account's single hosting slot and cleared one another's Chrome storage. Run live scenarios serially so each completes its cleanup before the next starts.",
+  "regressionTest": "apps/product/scripts/health.test.ts"
+}

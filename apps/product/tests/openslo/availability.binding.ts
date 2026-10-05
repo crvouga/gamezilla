@@ -5,7 +5,7 @@ import { envFile } from '@libs/infra-shared/envs';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { bindObjectives } from '@pkgs/openslo-shared/registry';
-import { healthCheckEvents } from './health-job-results';
+import { healthCheckEvents, healthHistoryToken } from './health-job-results';
 
 function required(name: string): string {
   const value = process.env[name]?.trim() ?? '';
@@ -28,7 +28,7 @@ bindObjectives({
           apiUrl:
             process.env['DEPOT_API_URL']?.trim() || 'https://api.depot.dev',
           repository: required('GITHUB_REPOSITORY'),
-          token: required('DEPOT_TOKEN'),
+          token: healthHistoryToken(process.env),
           orgId: required('DEPOT_ORG_ID'),
         },
         {

@@ -1,0 +1,4 @@
+{
+  "summary": "Health objectives used Depot's automatic job-attempt token for organization-wide ListRuns, which returned HTTP 401. Use a separately registered organization token loaded from shared secrets.",
+  "regressionTest": "apps/product/tests/openslo/health-job-results.test.ts"
+}
