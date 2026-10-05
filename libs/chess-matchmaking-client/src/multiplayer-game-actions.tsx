@@ -102,7 +102,10 @@ export function MultiplayerGameActions(props: {
   readonly onConfirm: (kind: 'abort' | 'resign') => void;
 }): JSX.Element {
   return (
-    <div class="box flex-row flex-wrap gap-2" data-component="MultiplayerGameActions">
+    <div
+      class="box flex-row flex-wrap gap-2"
+      data-component="MultiplayerGameActions"
+    >
       <Show when={props.game.outcome === 'ongoing'}>
         <Show
           when={bothHaveMoved(props.game)}
@@ -120,7 +123,11 @@ export function MultiplayerGameActions(props: {
             dataSet={{ testid: 'multiplayer-resign' }}
           />
         </Show>
-        <DrawActions game={props.game} myId={props.myId} controls={props.controls} />
+        <DrawActions
+          game={props.game}
+          myId={props.myId}
+          controls={props.controls}
+        />
       </Show>
       <Show when={props.game.outcome !== 'ongoing' && !props.looking}>
         <Show when={isFinished(props.game.outcome)}>

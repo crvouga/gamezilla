@@ -1,7 +1,12 @@
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { Chess } from 'chess.js';
 
-export type MultiplayerOutcome = 'ongoing' | 'white' | 'black' | 'draw' | 'aborted';
+export type MultiplayerOutcome =
+  | 'ongoing'
+  | 'white'
+  | 'black'
+  | 'draw'
+  | 'aborted';
 
 export type MultiplayerGame = {
   readonly id: string;
@@ -59,7 +64,9 @@ export function multiplayerBoard(game: Pick<MultiplayerGame, 'fen' | 'pgn'>) {
 }
 
 /** Both people have made their first move: clocks run, aborting ends. */
-export function bothHaveMoved(game: Pick<MultiplayerGame, 'revision'>): boolean {
+export function bothHaveMoved(
+  game: Pick<MultiplayerGame, 'revision'>
+): boolean {
   return game.revision >= 2;
 }
 
@@ -84,4 +91,3 @@ export function requireUnfinished(game: MultiplayerGame): void {
   if (game.outcome !== 'ongoing')
     throw new MutationError('CHESS_GAME_OVER', 'The multiplayer game is over.');
 }
-

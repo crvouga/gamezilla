@@ -46,7 +46,9 @@ export const TIME_CONTROLS: readonly TimeControl[] = [
 
 export const DEFAULT_TIME_CONTROL = '5+0';
 
-export function timeControlOf(id: string | null | undefined): TimeControl | null {
+export function timeControlOf(
+  id: string | null | undefined
+): TimeControl | null {
   return TIME_CONTROLS.find((c) => c.id === id) ?? null;
 }
 

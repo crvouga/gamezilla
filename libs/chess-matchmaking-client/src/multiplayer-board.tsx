@@ -70,7 +70,9 @@ export function MultiplayerBoard(props: {
         opponentRating={opponentRating()}
       />
       <RatingChange
-        diff={white() ? props.game.white_rating_diff : props.game.black_rating_diff}
+        diff={
+          white() ? props.game.white_rating_diff : props.game.black_rating_diff
+        }
       />
       <div class="box w-full max-w-lg self-center">
         <ChessBoard

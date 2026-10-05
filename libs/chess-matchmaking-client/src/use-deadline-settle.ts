@@ -1,12 +1,7 @@
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game-state';
 import { multiplayerDeadlineMs } from '@libs/chess-matchmaking-shared/multiplayer-clock';
 import { createTimedValue, useTimers } from '@pkgs/clock-client/solid';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 const RETRY_MS = 2000;
 

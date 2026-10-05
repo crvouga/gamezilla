@@ -14,7 +14,10 @@ export function MultiplayerWaiting(props: {
   const seconds = createTimedValue(
     (now) => {
       const at = offlineSince() ?? now;
-      return Math.max(0, Math.floor((at - (props.search.joined_at_ms ?? at)) / 1000));
+      return Math.max(
+        0,
+        Math.floor((at - (props.search.joined_at_ms ?? at)) / 1000)
+      );
     },
     (value) =>
       offlineSince() === null

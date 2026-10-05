@@ -8,7 +8,10 @@ import { settleMultiplayerClock } from './multiplayer-clock';
 import { projectOpponentSearch } from './search-projection';
 
 /** Before both people have moved the game is aborted; afterwards it is given up. */
-function withdrawnGame(game: MultiplayerGame, actorId: string): MultiplayerGame {
+function withdrawnGame(
+  game: MultiplayerGame,
+  actorId: string
+): MultiplayerGame {
   if (!bothHaveMoved(game))
     return endMultiplayerGame(game, 'aborted', 'account deletion');
   return endMultiplayerGame(

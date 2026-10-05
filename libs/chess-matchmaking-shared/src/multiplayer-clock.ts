@@ -23,7 +23,9 @@ type ClockFields = Pick<
   | 'clock_at_ms'
 >;
 
-export function sideToMove(game: Pick<MultiplayerGame, 'fen'>): MultiplayerSide {
+export function sideToMove(
+  game: Pick<MultiplayerGame, 'fen'>
+): MultiplayerSide {
   return game.fen.split(' ')[1] === 'b' ? 'black' : 'white';
 }
 

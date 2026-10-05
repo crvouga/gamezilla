@@ -43,10 +43,7 @@ function requireWaitingOffer(game: MultiplayerGame, actorId: string): void {
       'Only your multiplayer opponent may answer your multiplayer rematch offer.'
     );
   if (game.rematch_offer_by !== otherPerson(game, actorId))
-    refuse(
-      'CHESS_REMATCH_ENDED',
-      'The multiplayer rematch offer has ended.'
-    );
+    refuse('CHESS_REMATCH_ENDED', 'The multiplayer rematch offer has ended.');
 }
 
 /** Neither person may be looking for an opponent or have moved on to another game. */
@@ -72,10 +69,7 @@ async function requireBothFree(
       'Your multiplayer opponent is already looking for a chess opponent.'
     );
   if ((await currentGameOf(tx, people.actorId)) !== game.id)
-    refuse(
-      'CHESS_REMATCH_ENDED',
-      'The multiplayer rematch offer has ended.'
-    );
+    refuse('CHESS_REMATCH_ENDED', 'The multiplayer rematch offer has ended.');
 }
 
 /** The same two people at the same time control, colours swapped, no search. */
@@ -107,7 +101,10 @@ async function decideRematch(
   else requireWaitingOffer(game, actorId);
   if (answer === 'decline') return { ...game, rematch_offer_by: '' };
   await requireBothFree(ctx.tx, game, { actorId, nowMs });
-  if (answer === 'accept' || game.rematch_offer_by === otherPerson(game, actorId))
+  if (
+    answer === 'accept' ||
+    game.rematch_offer_by === otherPerson(game, actorId)
+  )
     return startRematch(ctx.tx, game, nowMs);
   return { ...game, rematch_offer_by: actorId };
 }

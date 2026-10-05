@@ -38,7 +38,6 @@ export function MultiplayerFindPanel(props: {
         <For each={TIME_CONTROLS}>
           {(control) => (
             <Chip
-              // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- Chip sets aria-checked from `selected` when role is radio
               role="radio"
               label={
                 <>
