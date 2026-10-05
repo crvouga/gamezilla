@@ -16,10 +16,17 @@ export function MultiplayerBoard(props: {
   const sounds = useSoundsPreference();
   const participant = () =>
     props.game.white_id === props.myId || props.game.black_id === props.myId;
-  const canMove = () => participant() && props.connected && !props.moving && props.game.outcome === 'ongoing' && props.game.turn === props.myId;
+  const canMove = () =>
+    participant() &&
+    props.connected &&
+    !props.moving &&
+    props.game.outcome === 'ongoing' &&
+    props.game.turn === props.myId;
   const whiteProfile = useProfileRow(() => props.game.white_id);
   const blackProfile = useProfileRow(() => props.game.black_id);
-  const winnerName = () => (props.game.outcome === 'white' ? whiteProfile : blackProfile).row()?.username || 'Deleted account';
+  const winnerName = () =>
+    (props.game.outcome === 'white' ? whiteProfile : blackProfile).row()
+      ?.username || 'Deleted account';
   const white = () => props.game.white_id === props.myId || !participant();
   const opponent = useProfileRow(() =>
     white() ? props.game.black_id : props.game.white_id
@@ -65,7 +72,11 @@ export function MultiplayerBoard(props: {
       >
         {description()}
         <Show when={!participant() && props.game.outcome !== 'ongoing'}>
-          {props.game.outcome === 'draw' ? <Trans>The multiplayer game is drawn.</Trans> : <Trans>{winnerName()} won the multiplayer game.</Trans>}
+          {props.game.outcome === 'draw' ? (
+            <Trans>The multiplayer game is drawn.</Trans>
+          ) : (
+            <Trans>{winnerName()} won the multiplayer game.</Trans>
+          )}
         </Show>
         <Show when={props.game.outcome === 'ongoing' && participant()}>
           {props.game.turn === props.myId ? (

@@ -37,12 +37,15 @@ export async function multiplayerWatcherBoard(
   const html = await ui.snapshotHtml();
   const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
   return {
+    standaloneOffered: await ui.get('tab-chess').isVisible(),
     gameId: tag?.match(/data-game-id="([^"]+)"/)?.[1] ?? null,
     fen: tag?.match(/data-fen="([^"]+)"/)?.[1] ?? null,
     revision: Number(tag?.match(/data-revision="([^"]+)"/)?.[1] ?? -1),
     outcome: tag?.match(/data-outcome="([^"]+)"/)?.[1] ?? null,
     canMove: tag?.match(/data-can-move="([^"]+)"/)?.[1] === 'true',
-    announcement: await ui.get('multiplayer-announcement').text(),
+    announcement: (await ui.get('multiplayer-announcement').isVisible())
+      ? await ui.get('multiplayer-announcement').text()
+      : null,
     canResign: await ui.get('multiplayer-resign').isVisible(),
     watching:
       (await ui.get('multiplayer-announcement').isVisible()) &&

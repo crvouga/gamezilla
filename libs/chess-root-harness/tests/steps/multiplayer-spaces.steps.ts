@@ -83,11 +83,14 @@ Then(
 );
 Then('{actor} cannot move multiplayer pieces', watcher);
 
-Then('{actor} sees {actor} won the multiplayer game', async (w, watcher: Actor, winner: Actor) => {
-  const board = await w.s.read(multiplayerWatcherBoard, watcher);
-  expect(board.outcome).toBe('white');
-  expect(board.announcement).toContain(`${winner} won the multiplayer game.`);
-});
+Then(
+  '{actor} sees {actor} won the multiplayer game',
+  async (w, watcher: Actor, winner: Actor) => {
+    const board = await w.s.read(multiplayerWatcherBoard, watcher);
+    expect(board.outcome).toBe('white');
+    expect(board.announcement).toContain(`${winner} won the multiplayer game.`);
+  }
+);
 Then('{actor} has no multiplayer board', async (w, actor: Actor) => {
   expect((await w.s.read(multiplayerWatcherBoard, actor)).gameId).toBeNull();
 });

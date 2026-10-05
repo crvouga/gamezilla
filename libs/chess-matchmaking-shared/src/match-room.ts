@@ -68,7 +68,19 @@ export const matchRoomModule: RoomModule<RoomState, Message, Message, string> =
           (current.outcome !== 'ongoing' && game.outcome === 'ongoing'))
       )
         return { ok: true, events: [] };
-      return { ok: true, events: [MultiplayerGameChanged(game)] };
+      const published =
+        current === null
+          ? game
+          : {
+              ...game,
+              white_id: current.white_id.startsWith('deleted:')
+                ? current.white_id
+                : game.white_id,
+              black_id: current.black_id.startsWith('deleted:')
+                ? current.black_id
+                : game.black_id,
+            };
+      return { ok: true, events: [MultiplayerGameChanged(published)] };
     },
     reduce(state, event) {
       return MultiplayerGameChanged.is(event)

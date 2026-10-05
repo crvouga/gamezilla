@@ -17,7 +17,9 @@ export async function multiplayerSpaceId(
   }>`SELECT s.id FROM spaces AS s
     LEFT JOIN spaces_users AS u ON u.space_id = s.id AND u.user_id = ${id} AND u.deleted_at IS NULL
     WHERE (s.host_member_id = ${id} OR u.id IS NOT NULL) AND s.ended_at IS NULL AND s.deleted_at IS NULL ORDER BY s.id`);
-  return rows[0]?.id ?? null;
+  const path = await s.actors.get(actor)?.currentPath();
+  const current = path?.match(/\/space\/([^/?]+)/)?.[1];
+  return rows.find((row) => row.id === current)?.id ?? rows[0]?.id ?? null;
 }
 
 /** Given setup: supply the space required for all multiplayer play. */
