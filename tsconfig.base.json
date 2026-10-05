@@ -283,7 +283,6 @@
       "@pkgs/object-store-opfs-shared/*": [
         "./pkgs/object-store-opfs-shared/src/*"
       ],
-      "@pkgs/object-store-s3-server/*": ["./pkgs/object-store-s3-server/src/*"],
       "@pkgs/object-store-s3-shared/*": ["./pkgs/object-store-s3-shared/src/*"],
       "@pkgs/object-store-root-shared/*": [
         "./pkgs/object-store-root-shared/src/*"

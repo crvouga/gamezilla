@@ -17,7 +17,7 @@ published package versions; a green `bun check` remains the release decision.
 | OAuth / Stripe | Existing Mockingbird integrations retained | `@pkgs/auth-root-harness`, `@pkgs/billing-stripe-harness`, local product stack |
 | Paddle | Existing in-house fake remains pending vendor API coverage | Mockingbird 1.3.0 returns 404 for [portal sessions #327](https://github.com/crvouga/mockingbird/issues/327) and [notification settings #328](https://github.com/crvouga/mockingbird/issues/328); both are pinned in `pkgs/billing-paddle-harness/tests/mockingbird-gaps.test.ts` |
 | OpenAI | Harness now uses the production OpenAI adapter against Mockingbird 0.1.0; local stack starts a mock server and overrides its key/base URL | Scripted structured-response integration check passes. Configure synthetic models/scripts rather than expecting semantic inference |
-| S3 | Existing local Mockingbird service retained; harness now routes the real S3 adapter to an isolated in-process Mockingbird runtime | Bun browser-condition SDK initialization fails before a request reaches the mock; pinned by `aws-sdk-s3-bun-browser-conditions.json`. This is a client-loader issue, not an alleged Mockingbird parity defect |
+| S3 | Existing local Mockingbird service retained; harness routes the real S3 adapter to an isolated in-process Mockingbird runtime | Binary round-trip and isolation regression now passes under Bun browser conditions. Install generates the adapter's browser bundle; Bun selects it through conditional package exports. The production Worker and ordinary Node/Bun imports retain the source adapter |
 | MQTT / EMQX | Aedes/local EMQX and the harness bus still require replacement | No published Mockingbird MQTT package; [#316](https://github.com/crvouga/mockingbird/issues/316) specifies MQTT 5, TCP/WS, JWT ACLs and session buffering |
 | AWS IoT | Production publisher still needs a vendor-compatible mock | [#323](https://github.com/crvouga/mockingbird/issues/323) specifies SigV4 HTTP Publish and MQTT behavior |
 | ElevenLabs | Harness TTS stub still requires replacement | No published mock; [#322](https://github.com/crvouga/mockingbird/issues/322) specifies actual audio formats and errors |
@@ -85,12 +85,15 @@ not automatically imported; the first Mockingbird database starts fresh.
 ## Automated validation
 
 - `bun run --filter @apps/product test`: 184 passed, zero failed.
-- New Postgres listener/restart checks: two passed. The four SQL catalog/DDL
+- New Postgres listener/restart checks: two passed. The eight SQL catalog/DDL
   regression checks remain red on Mockingbird 2.3.0.
 - Postgres client tests: ten passed. Its wire contracts: six passed, two failed
   on startup `search_path` handling.
 - Server KV contracts: five passed against in-process Mockingbird Postgres.
-- OpenAI adapter check: passed. S3 adapter check: failed during SDK construction.
+- OpenAI and S3 adapter checks: both passed under the harness's browser conditions.
+- S3 adapter typecheck and lint passed; its six unit/property checks and ten
+  wire contracts passed. The Postgres schema package's import-order lint
+  failure is corrected and its lint passes.
 - Full application reconciliation, Postgres schema/index/concurrency contracts
   and the two new Paddle API checks remain red on the documented gaps.
 - Type checks passed for the new Postgres packages and the affected product,
@@ -98,8 +101,7 @@ not automatically imported; the first Mockingbird database starts fresh.
   harness packages. Package lint, naming and whitespace checks passed.
 
 No green full `bun check` verdict is claimed. The migration cannot complete
-until the missing services and wire behavior are available and the S3 client
-loads correctly under the harness's browser conditions.
+until the missing services and wire behavior are available.
 
 ## Recheck after upstream releases
 

@@ -11,9 +11,9 @@ import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconci
 import { defineSchema } from '@pkgs/db-schema-root-shared/define-schema';
 import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
+import { databaseUrlFor } from '@pkgs/postgres-local-shared/ports';
 import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
 import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
-import { databaseUrlFor } from '@pkgs/postgres-local-shared/ports';
 import {
   createPgPool,
   openPgClient,
