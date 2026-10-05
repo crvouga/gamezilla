@@ -1,4 +1,3 @@
-import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import {
   confirmDeletion,
   runPrivacyJobs,
@@ -12,6 +11,7 @@ import {
   multiplayerView,
   storedMultiplayerSnapshot,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
+import { givenMultiplayerSpace } from '@libs/chess-matchmaking-harness/multiplayer-spaces';
 import {
   controlledMultiplayerCommand,
   multiplayerMatchFact,

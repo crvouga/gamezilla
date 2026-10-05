@@ -9,8 +9,8 @@ import { Outbox } from '@pkgs/outbox-shared/outbox';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { z } from 'zod';
-import { requireMultiplayerSpace } from './multiplayer-space-access';
 import { MultiplayerGameRepository } from './game-repository';
+import { requireMultiplayerSpace } from './multiplayer-space-access';
 import { OpponentRequested } from './opponent-requested';
 import {
   CHESS_OPPONENT_POOL,

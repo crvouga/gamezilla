@@ -39,8 +39,14 @@ When(
     await w.s.apply(joinMultiplayerSpace, watcher, host);
   }
 );
-Then('{actor} is told multiplayer chess needs a space', (w, actor: Actor) =>
-  refusal(w, actor, 'CHESS_SPACE_REQUIRED')
+Then(
+  '{actor} is told multiplayer chess needs a space',
+  async (w, actor: Actor) => {
+    await refusal(w, actor, 'CHESS_SPACE_REQUIRED');
+    expect(
+      (await w.s.read(multiplayerWatcherBoard, actor)).standaloneOffered
+    ).toBe(false);
+  }
 );
 Then(
   '{actor} is told only the matched people can move multiplayer pieces',
