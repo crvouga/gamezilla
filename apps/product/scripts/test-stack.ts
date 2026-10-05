@@ -6,7 +6,7 @@
  * The highest-fidelity product run available locally: every package's spec
  * suite, against one stack.
  *
- * Nothing is stubbed at the process boundary: real Postgres, real object
+ * Nothing is stubbed at the process boundary: Mockingbird Postgres, real object
  * store, real broker, a real simulated Google on its own origin, N real API
  * instances behind a real round-robin balancer, and a real browser per actor.
  * Every port is OS-assigned, so several of these can run at once.

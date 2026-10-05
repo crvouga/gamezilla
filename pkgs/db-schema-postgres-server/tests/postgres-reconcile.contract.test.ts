@@ -1,5 +1,5 @@
-// Legacy NOT NULL, int4, and managed defaults reconcile on real Postgres.
-// mockingbird-postgres rejects ALTER COLUMN SET NOT NULL.
+// Legacy NOT NULL, int4, and managed defaults reconcile over the Postgres wire.
+// Mockingbird gaps are tracked in libs/tools/MOCKINGBIRD_MIGRATION.md.
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -11,9 +11,9 @@ import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared/reconci
 import { defineSchema } from '@pkgs/db-schema-root-shared/define-schema';
 import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
 import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
-import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
-import { databaseUrlFor } from '@pkgs/postgres-embedded-shared/ports';
+import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
+import { databaseUrlFor } from '@pkgs/postgres-local-shared/ports';
 import {
   createPgPool,
   openPgClient,
@@ -28,7 +28,7 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
   const testSchema = `contract_${randomUUID().replace(/-/g, '_')}`;
   const dataDir = join(tmpdir(), `pg-reconcile-contract-${randomUUID()}`);
   beforeAll(async () => {
-    const pg = await startEmbeddedPostgres({
+    const pg = await startMockingbirdPostgres({
       dataDir,
       port: await freePostgresPort(),
     });

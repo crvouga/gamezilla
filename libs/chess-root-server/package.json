@@ -39,7 +39,7 @@
     "@pkgs/db-schema-postgres-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
     "@pkgs/object-store-root-shared": "workspace:*",
-    "@pkgs/postgres-embedded-server": "workspace:*",
+    "@pkgs/postgres-mockingbird-server": "workspace:*",
     "@pkgs/sql-client-postgres-server": "workspace:*",
     "@pkgs/sql-client-postgres-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",

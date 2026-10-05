@@ -1,4 +1,4 @@
-// Cached index contracts use a private embedded Postgres, never an injected database.
+// Cached index contracts use a private Mockingbird Postgres, never an injected database.
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -8,15 +8,15 @@ import { createHarnessClock } from '@pkgs/db-indexes-root-harness/clock';
 import { HarnessDb } from '@pkgs/db-indexes-root-harness/db';
 import { fingerprintSql } from '@pkgs/db-indexes-root-shared/fingerprint';
 import { reconcileIndexes } from '@pkgs/db-indexes-root-shared/reconcile';
-import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import { openPgClient } from '@pkgs/sql-client-postgres-server/connect';
 import { createPostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 
 const REMOTE_DB_TIMEOUT_MS = 30_000;
 const TEST_SCHEMA = 'db_indexes_contract';
 
-const pg = await startEmbeddedPostgres({
+const pg = await startMockingbirdPostgres({
   port: await freePostgresPort(),
   dataDir: join(tmpdir(), `pg-idx-contract-${randomUUID()}`),
 });

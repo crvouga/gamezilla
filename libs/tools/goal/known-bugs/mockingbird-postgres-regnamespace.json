@@ -1,0 +1,4 @@
+{
+  "summary": "Mockingbird Postgres 2.3.0 lacks regnamespace casts used by KV table catalog queries; upstream issue #329.",
+  "regressionTest": "pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts"
+}

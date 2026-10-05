@@ -8,10 +8,8 @@ import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse-server/inhouse-auth-pr
 import type { MembershipProviders } from '@pkgs/billing-root-shared/providers';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { Session } from '@pkgs/harness-root-shared/runtime-types';
-import { KvImplInMemory } from '@pkgs/kv-root-shared/impl-in-memory';
-import { InMemoryLlmProvider } from '@pkgs/llm-root-server/in-memory-llm-provider';
+import { KvImplPostgres } from '@pkgs/kv-postgres-shared/impl-postgres';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import {
   createInMemoryBus,
@@ -44,6 +42,8 @@ import {
 import type { HarnessLoadBalancer } from './load-balancer';
 import { createHarnessLoadBalancer } from './load-balancer';
 import { compositionMigratePostgres } from './migrate-composition';
+import { createHarnessLlm } from './mockingbird-llm';
+import { createHarnessObjectStore } from './mockingbird-object-store';
 import { createHarnessNet } from './net';
 import { createHarnessRooms } from './room-services';
 import type { HarnessServerNodes, Server } from './server-nodes';
@@ -67,7 +67,7 @@ export type CreateHarnessOptions = {
   readonly composition: HarnessComposition;
   /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
-  /** Real-mode host injects embedded Postgres; product-harness uses sqlBackend server SQL. */
+  /** Real-mode host injects Mockingbird Postgres; product-harness uses sqlBackend server SQL. */
   readonly serverSql?: HarnessSql;
   /**
    * Post-migrate server seed bytes (PGMM). When set (and
@@ -162,25 +162,26 @@ type SharedServerServices = {
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
 };
 
-function buildSharedServerServices(
-  serverSql: HarnessSql,
-  appleKeys: AppleClientKeys,
-  auth: ServerEnv['auth']
-): SharedServerServices {
+function buildSharedServerServices(args: {
+  readonly serverSql: HarnessSql;
+  readonly appleKeys: AppleClientKeys;
+  readonly auth: ServerEnv['auth'];
+  readonly clock: Clock;
+}): SharedServerServices {
   const secrets = createRecordSecretStore({
     DATABASE_URL: HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL,
     API_URL: HARNESS_SERVER_URL,
-    ...harnessIdpSecrets(appleKeys),
+    ...harnessIdpSecrets(args.appleKeys),
   });
   return {
-    kv: new KvImplInMemory(),
-    blob: new ObjectStoreImplInMemory(),
+    kv: new KvImplPostgres(args.serverSql.sqlClient, () => args.clock.now()),
+    blob: createHarnessObjectStore(args.clock),
     tts: new InMemoryTtsProvider(),
-    llm: new InMemoryLlmProvider(),
+    llm: createHarnessLlm({ clock: args.clock }).provider,
     secrets,
     // The simulated deployment signs in through the in-house IdP.
-    auth,
-    sqlClient: sharedSqlClient(serverSql.sqlClient),
+    auth: args.auth,
+    sqlClient: sharedSqlClient(args.serverSql.sqlClient),
   };
 }
 
@@ -294,11 +295,12 @@ async function bootHarnessKernel(
     toApi: () => loadBalancer.fetchFrom(HARNESS_APPLE_IDP_ID),
   });
   const serverSql = await openServerSql(session, opts);
-  const shared = buildSharedServerServices(
+  const shared = buildSharedServerServices({
     serverSql,
     appleKeys,
-    composition.authProvider ?? INHOUSE_AUTH_PROVIDER
-  );
+    auth: composition.authProvider ?? INHOUSE_AUTH_PROVIDER,
+    clock: session.ports.clock,
+  });
   const billing = await openHarnessBillingProviders({
     offer: composition.billingOffer,
     clock: session.ports.clock,

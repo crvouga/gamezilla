@@ -18,6 +18,7 @@
     "@pkgs/billing-paddle-shared": "workspace:*"
   },
   "devDependencies": {
+    "@crvouga/mockingbird-service-paddle": "catalog:",
     "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",

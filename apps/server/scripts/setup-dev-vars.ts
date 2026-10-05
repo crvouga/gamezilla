@@ -19,7 +19,7 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared/ports';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs-server/repo-tree-store';
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
 import { resolveSecretsScope } from '@pkgs/secrets-config-server/secrets-scope';
 import { DEV_VARS_PATH, encodeDevVarValue } from './dev-vars';
 
@@ -148,7 +148,7 @@ async function main(): Promise<void> {
   const written = new Set<string>(['SECRETS_ENV', 'API_URL', 'DATABASE_URL']);
 
   process.stdout.write(
-    '[setup-dev-vars] DATABASE_URL → loopback embedded Postgres (Infisical ignored).\n'
+    '[setup-dev-vars] DATABASE_URL → loopback Mockingbird Postgres (Infisical ignored).\n'
   );
 
   for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_SECRETS)) {

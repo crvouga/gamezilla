@@ -4,8 +4,8 @@ import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { freePostgresPort } from '@pkgs/postgres-embedded-server/free-port';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { freePostgresPort } from '@pkgs/postgres-mockingbird-server/free-port';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import {
   createPgPool,
   isLoopbackPostgresUrl,
@@ -20,7 +20,7 @@ const TEST_SCHEMA = 'gamezilla_test_scope';
 const REMOTE_DB_TIMEOUT_MS = 30_000;
 const dbScope = createPostgresDbScope(TEST_SCHEMA);
 
-const pg = await startEmbeddedPostgres({
+const pg = await startMockingbirdPostgres({
   port: await freePostgresPort(),
   dataDir: join(tmpdir(), `pg-contract-${randomUUID()}`),
 });
@@ -68,6 +68,7 @@ describe('postgres-connect (DATABASE_URL contract)', () => {
     REMOTE_DB_TIMEOUT_MS
   );
 
+  // regression: mockingbird-postgres-startup-search-path
   test(
     'ensurePostgresSchema creates the schema and is idempotent',
     async () => {

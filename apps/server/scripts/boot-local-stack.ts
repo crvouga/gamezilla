@@ -6,7 +6,7 @@
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { startEmqxServer } from '@pkgs/emqx-server/start';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded-server/start';
+import { startMockingbirdPostgres } from '@pkgs/postgres-mockingbird-server/start';
 import {
   S3_ACCESS_KEY_ID,
   S3_BUCKET,
@@ -24,7 +24,7 @@ export type LocalStackHandle = {
 };
 
 export async function bootLocalStack(): Promise<LocalStackHandle> {
-  const postgres = await startEmbeddedPostgres();
+  const postgres = await startMockingbirdPostgres();
   const s3 = await startS3Server();
   const emqx = await startEmqxServer({
     clock: wallClock,

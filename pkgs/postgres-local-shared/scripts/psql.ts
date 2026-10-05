@@ -1,4 +1,4 @@
-import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
+import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared/ports';
 
 const proc = Bun.spawn(['psql', LOCAL_DATABASE_URL], {
   stdin: 'inherit',

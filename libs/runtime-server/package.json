@@ -16,7 +16,8 @@
     "migrate": "bun run scripts/migrate-cli.ts --wait",
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts' tests",
+    "test:contract": "bun test tests/mockingbird-reconcile.contract.test.ts"
   },
   "dependencies": {
     "@libs/account-privacy-server": "workspace:*",
@@ -59,6 +60,7 @@
   "devDependencies": {
     "@pkgs/database-url-policy-shared": "workspace:*",
     "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/postgres-mockingbird-server": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
