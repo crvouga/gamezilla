@@ -8,7 +8,7 @@ import type { Message } from '@pkgs/message-shared/message';
 import { AddOne, gameRoomModule } from '@pkgs/room-root-harness/game-room';
 import { RoomServer } from '@pkgs/room-root-server/room-server';
 import type { RoomServerConfig } from '@pkgs/room-root-shared/room-server-types';
-import type { RoomState } from '@pkgs/room-root-shared/types';
+import type { RoomModule, RoomState } from '@pkgs/room-root-shared/types';
 import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
 import { CountingRoomStorage } from './counting-room-storage';
 import { testPorts } from './ports';
@@ -28,6 +28,7 @@ export type ServerRig = {
 
 export type StartServerOpts = {
   readonly storage?: CountingRoomStorage;
+  readonly module?: RoomModule<RoomState, Message, Message, string>;
   readonly authorize?: RoomServerConfig<
     RoomState,
     Message,
@@ -42,7 +43,7 @@ export async function startServer(
   const storage = opts.storage ?? new CountingRoomStorage();
   const server = new RoomServer<RoomState, Message, Message, string>({
     topic: 'room:1',
-    module: gameRoomModule,
+    module: opts.module ?? gameRoomModule,
     storage,
     clock: testPorts().clock,
     ...(opts.authorize !== undefined ? { authorize: opts.authorize } : {}),

@@ -44,6 +44,7 @@ export function customGamePermission(
     case 'offer':
     case 'agree':
     case 'reject':
+    case 'claimWin':
       return PERMISSION.chessCustomPlay;
     default:
       return PERMISSION.chessCustomConfigure;

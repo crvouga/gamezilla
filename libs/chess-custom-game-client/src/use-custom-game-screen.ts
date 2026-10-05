@@ -16,7 +16,10 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
-import { spaceSeatMemberIds } from '@libs/spaces-shared/space-members-messages';
+import {
+  SpaceMembersRoomAttr,
+  spaceSeatMemberIds,
+} from '@libs/spaces-shared/space-members-messages';
 import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import { createMemo } from 'solid-js';
 import { useCustomGameCommand } from './use-custom-game-command';
@@ -30,6 +33,7 @@ export function useCustomGameScreen() {
   const games = useSpaceRoomSelector(CustomGamesAttr.from);
   const current = createMemo(() => games().current);
   const members = useSpaceRoomSelector(spaceSeatMemberIds);
+  const away = useSpaceRoomSelector(SpaceMembersRoomAttr.away.from);
   const connected = useSpaceRoomSelector(
     (s) => RoomMetaAttr.isConnected.from(s) && RoomMetaAttr.isSynced.from(s)
   );
@@ -62,6 +66,10 @@ export function useCustomGameScreen() {
       const game = current();
       return game === null ? null : customGamePersonSide(game, myId());
     }),
+    /** The people in the space who are away, each with since when. */
+    away,
+    /** Since when a person in the space has been away, or `null` while present. */
+    awaySince: (person: string): number | null => away()[person] ?? null,
     watchDecision: useSpaceDecision(scope, PERMISSION.chessCustomWatch),
     canCreate: useSpaceCan(scope, PERMISSION.chessCustomCreate),
     canConfigure: useSpaceCan(scope, PERMISSION.chessCustomConfigure),

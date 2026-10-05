@@ -66,8 +66,12 @@ export const customGameSchema = z
       'black wins by checkmate',
       'white wins on time',
       'black wins on time',
+      'white wins because black stayed away',
+      'black wins because white stayed away',
     ]),
     drawOfferedBy: z.string(),
+    /** People whose draw offer was declined and who have not moved since. */
+    declinedOffers: z.array(z.string()).default([]),
   })
   .strict();
 export type CustomGame = z.infer<typeof customGameSchema>;
@@ -108,6 +112,7 @@ export function newCustomGame(id: string, creator: string): CustomGame {
     moves: [],
     outcome: '',
     drawOfferedBy: '',
+    declinedOffers: [],
   };
 }
 

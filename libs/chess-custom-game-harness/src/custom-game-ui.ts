@@ -11,6 +11,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 export type CustomGameProbe = CustomGames & {
   readonly myId: string;
   readonly mySide: 'white' | 'black' | null;
+  /** People in the space who are away, each with since when (room time). */
+  readonly away: Readonly<Record<string, number>>;
   readonly error: string;
   readonly connected: boolean;
   readonly settled: number;

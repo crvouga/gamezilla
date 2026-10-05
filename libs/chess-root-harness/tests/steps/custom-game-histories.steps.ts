@@ -1,5 +1,9 @@
 import { readCustomGameTime } from '@libs/chess-custom-game-harness/custom-game-clocks';
 import {
+  CUSTOM_GAME_BEFORE_CASTLING,
+  CUSTOM_GAME_BEFORE_EN_PASSANT,
+  CUSTOM_GAME_BEFORE_PROMOTION,
+  CUSTOM_GAME_CASTLING_THROUGH_CHECK,
   CUSTOM_GAME_FIFTY,
   CUSTOM_GAME_FOOLS_MATE,
   CUSTOM_GAME_MATERIAL,
@@ -48,6 +52,30 @@ async function historicalGame(
 Given(
   "{actor} has an active Custom Game after White's e4",
   async (w, host: string) => historicalGame(w, host, ['e2e4'])
+);
+Given(
+  "{actor} has an active Custom Game after White's e4 and Black's e5",
+  async (w, host: string) => historicalGame(w, host, ['e2e4', 'e7e5'])
+);
+Given(
+  '{actor} has an active Custom Game one move before White promotes on e8',
+  async (w, host: string) =>
+    historicalGame(w, host, CUSTOM_GAME_BEFORE_PROMOTION)
+);
+Given(
+  '{actor} has an active Custom Game one move before White castles kingside',
+  async (w, host: string) =>
+    historicalGame(w, host, CUSTOM_GAME_BEFORE_CASTLING)
+);
+Given(
+  '{actor} has an active Custom Game one move before White captures en passant on d6',
+  async (w, host: string) =>
+    historicalGame(w, host, CUSTOM_GAME_BEFORE_EN_PASSANT)
+);
+Given(
+  "{actor} has an active Custom Game where White's king would castle through check",
+  async (w, host: string) =>
+    historicalGame(w, host, CUSTOM_GAME_CASTLING_THROUGH_CHECK)
 );
 Given(
   "{actor} has a completed Custom Game after White's e4",

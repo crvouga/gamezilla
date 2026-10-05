@@ -1,4 +1,5 @@
 import { repeatCustomGameAcknowledgement } from '@libs/chess-custom-game-harness/custom-game-acknowledgement';
+import type { CustomGameSide } from '@libs/chess-custom-game-shared/custom-game-state';
 import { partition, restoreActorConnection } from '@libs/harness/actions';
 import type { QuintHarnessWorld } from '@libs/harness/quint-world';
 import type { Picks } from '@pkgs/quint-shared/registry';
@@ -19,6 +20,10 @@ import {
   finishConfiguration,
 } from './custom-game-configuration-effects';
 import { observeConfiguration } from './custom-game-configuration-observe';
+import {
+  configurationBlocks,
+  configurationSideMoves,
+} from './custom-game-configuration-play';
 import {
   configurationLink,
   configurationPerson,
@@ -99,7 +104,11 @@ bindQuintModel<QuintHarnessWorld>({
     },
   ],
   actions: {
-    init: (w, picks) => prepareConfiguration(w, String(picks['beginning'])),
+    init: async (w, picks) => {
+      await prepareConfiguration(w, String(picks['beginning']));
+      for (const pair of picks['blocks'] as ReadonlySet<readonly string[]>)
+        await configurationBlocks(w, String(pair[0]), String(pair[1]));
+    },
     createGame: choose('create'),
     rematch: choose('rematch'),
     takeSide: choose('take'),
@@ -123,6 +132,16 @@ bindQuintModel<QuintHarnessWorld>({
     acceptDraw: choose('agree'),
     declineDraw: choose('reject'),
     _finishGame: (w, picks) => finishConfiguration(w, String(picks['result'])),
+    _sideMoves: (w, picks) =>
+      configurationSideMoves(w, String(picks['side']) as CustomGameSide),
+    _personBlocks: (w, picks) =>
+      configurationBlocks(
+        w,
+        String(picks['actor']) === 'alice-other'
+          ? 'alice'
+          : String(picks['actor']),
+        String(picks['person'])
+      ),
     _loseConnection: async (w, picks) => {
       const actor = String(picks['actor']);
       await w.s.apply(partition, actor);

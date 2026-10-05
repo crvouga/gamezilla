@@ -8,7 +8,7 @@ import { expect } from 'bun:test';
 import { returnToTabs } from '@libs/harness/auth-actions';
 import { Given, Then, When } from '@libs/harness/define';
 import type { ProductHarness } from '@libs/harness/harness';
-import { accountIdOf } from '@libs/harness/identity';
+import { accountIdOf, signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -22,7 +22,11 @@ import {
   peopleSearchOpen,
   searchNeedsAccount,
 } from '@libs/search-harness/search-ui-reads';
-import { joinFromPrompt } from '@libs/spaces-harness/space-actions';
+import {
+  closeSpaceScreen,
+  joinFromPrompt,
+} from '@libs/spaces-harness/space-actions';
+import { activeSpaceVisible } from '@libs/spaces-harness/spaces-ui-reads';
 import {
   acceptFriendRequest,
   cancelFriendRequest,
@@ -61,7 +65,8 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from './person-actions';
-import { setupFriendRequest } from './setup-friend-request';
+import { setupBlock } from './setup-block';
+import { prepareNamedFriend, setupFriendRequest } from './setup-friend-request';
 import { setupFriendsPair } from './setup-friends-pair';
 
 const SECOND_MS = 1_000;
@@ -424,6 +429,11 @@ async function block(
   actor: Actor,
   other: Actor
 ): Promise<void> {
+  // Someone looking at a space steps out of it (staying in it) to search.
+  await w.s.apply(focusActor, actor);
+  if (await w.s.read(activeSpaceVisible, actor))
+    await w.s.apply(closeSpaceScreen, actor);
+  await w.s.apply(backToTabs, actor);
   await w.s.apply(openPersonFromSearch, actor, other);
   await w.s.apply(blockPerson, actor, other);
 }
@@ -433,7 +443,11 @@ When('{actor} blocks {actor}', async (w, actor: Actor, other: Actor) => {
 });
 
 Given('{actor} has blocked {actor}', async (w, actor: Actor, other: Actor) => {
-  await block(w, actor, other);
+  // Only a named account can be found and blocked; someone the scenario has
+  // not met yet becomes one first.
+  if ((await w.s.read(signedInAccountOf, other)) === null)
+    await prepareNamedFriend(w.s, other);
+  await w.s.apply(setupBlock, actor, other);
 });
 
 When(

@@ -38,6 +38,7 @@ import {
   spaceMembersEvtNs,
 } from './space-members-messages';
 import {
+  spacePresenceCommand,
   spaceServiceCmdNs,
   spaceServiceCommandRouter,
 } from './space-service-command';
@@ -186,5 +187,7 @@ export function createSpaceModule(
     hash(state: RoomState): string {
       return hashRoomState(state);
     },
+
+    presenceCommand: spacePresenceCommand,
   };
 }

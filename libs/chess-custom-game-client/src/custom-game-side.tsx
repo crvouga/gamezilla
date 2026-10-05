@@ -16,6 +16,20 @@ function CustomGameInvitation(props: SideProps): JSX.Element {
     props.model.current()?.[props.side].person === props.model.myId();
   return (
     <div class="box flex-row gap-2 flex-wrap">
+      <Show when={mine()}>
+        <p role="status" data-testid={`chess-custom-${props.side}-invitation`}>
+          <UserUsername
+            profileId={props.model.current()?.creator ?? ''}
+            withAt={false}
+          />{' '}
+          <Show
+            when={props.side === 'white'}
+            fallback={<Trans>invites you to play Black.</Trans>}
+          >
+            <Trans>invites you to play White.</Trans>
+          </Show>
+        </p>
+      </Show>
       <Show when={mine() && props.model.canJoin()}>
         <CustomGameAction
           title={<Trans>Accept</Trans>}

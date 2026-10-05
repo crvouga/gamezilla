@@ -9,7 +9,7 @@ import type {
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-05.1';
+export const PERMISSION_POLICY_VERSION = '2026-10-05.2';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -159,6 +159,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.chessCustomWatch,
         PERMISSION.chessMultiplayerWatch,
         PERMISSION.chessCustomPlay,
+        PERMISSION.chessCustomCancel,
       ],
     },
     [ROLE.spaceHost]: {
@@ -173,7 +174,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.chessCustomInvite,
         PERMISSION.chessCustomBot,
         PERMISSION.chessCustomStart,
-        PERMISSION.chessCustomCancel,
       ],
     },
   },

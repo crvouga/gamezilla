@@ -1,3 +1,4 @@
+import { customGameCancelRefusal } from '@libs/chess-custom-game-shared/custom-game-refusal';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import { Trans } from '@lingui/solid/macro';
@@ -91,7 +92,11 @@ function CustomGameContent(props: {
     props.model.current()?.status === 'configuring' ||
     props.model.current()?.status === 'active';
   return (
-    <div class="box gap-4 p-4" data-component="CustomGameContent">
+    <div
+      class="box gap-4 p-4"
+      data-component="CustomGameContent"
+      data-testid="chess-custom-content"
+    >
       <CustomGameStatus model={props.model} />
       <CustomGameError reason={props.model.error()} />
       <Show
@@ -103,7 +108,14 @@ function CustomGameContent(props: {
         <CustomGameConfirm
           model={props.model}
           operation="cancel"
-          available={unfinished() && props.model.canCancel()}
+          available={
+            unfinished() &&
+            props.model.canCancel() &&
+            customGameCancelRefusal(
+              props.model.current()!,
+              props.model.myId()
+            ) === ''
+          }
         />
         <CustomGameConfirm
           model={props.model}

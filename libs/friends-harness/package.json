@@ -95,7 +95,9 @@
     "@libs/user-search-shared": "workspace:*",
     "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/quint-shared": "workspace:*",
-    "@pkgs/sql-root-shared": "workspace:*"
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-client": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*"
   },
   "devDependencies": {
     "@libs/account-privacy-harness": "workspace:*",
@@ -107,8 +109,6 @@
     "@pkgs/bun-test-solid-client": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
-    "@pkgs/sync-engine-client": "workspace:*",
-    "@pkgs/sync-engine-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

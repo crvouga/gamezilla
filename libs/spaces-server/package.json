@@ -19,6 +19,7 @@
     "@libs/permissions-server": "workspace:*",
     "@libs/spaces-shared": "workspace:*",
     "@pkgs/attribute-shared": "workspace:*",
+    "@pkgs/message-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
     "@pkgs/room-root-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",

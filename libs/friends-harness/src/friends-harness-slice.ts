@@ -10,6 +10,7 @@ import {
 import { FRIENDS_HARNESS_ACTIONS } from './friends-actions';
 import { PERSON_HARNESS_ACTIONS } from './person-actions';
 import { acceptShownRequest, keepShownRequest } from './privacy-actions';
+import { setupBlock } from './setup-block';
 
 /** Friends in a harness: requests, the list, block / remove, search's pills. */
 export const FRIENDS_HARNESS_SLICE: HarnessSlice = {
@@ -25,5 +26,6 @@ export const FRIENDS_HARNESS_SLICE: HarnessSlice = {
     tryDeletedDeviceJoin,
     openDeletedProfile,
     ...PERSON_HARNESS_ACTIONS,
+    setupBlock,
   ],
 };
