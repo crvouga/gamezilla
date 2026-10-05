@@ -21,6 +21,7 @@
     "@libs/harness": "workspace:*",
     "@libs/spaces-harness": "workspace:*",
     "@libs/test-ids-shared": "workspace:*",
+    "@pkgs/a11y-shared": "workspace:*",
     "@pkgs/chess-board-core-shared": "workspace:*",
     "@pkgs/chess-rules-shared": "workspace:*",
     "@pkgs/clock-client": "workspace:*",

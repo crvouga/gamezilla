@@ -2,6 +2,8 @@ import { formatPuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-ratin
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 
+const HIDDEN_RATING = '\u2007'.repeat(4);
+
 export type ChessPuzzleRatingChipProps = {
   rating: number;
   /** §8: append the "?" marker while the rating is still provisional. */
@@ -17,11 +19,15 @@ export function ChessPuzzleRatingChip(
 ): JSX.Element {
   const isPrimary = () =>
     props.variant === undefined || props.variant === 'primary';
+  // A hidden chip keeps its width with figure spaces, so it says nothing
+  // to anyone, on screen or listening.
   const label = () =>
-    formatPuzzleRating({
-      rating: props.rating,
-      provisional: props.provisional === true,
-    });
+    props.invisible === true
+      ? HIDDEN_RATING
+      : formatPuzzleRating({
+          rating: props.rating,
+          provisional: props.provisional === true,
+        });
 
   return (
     <div

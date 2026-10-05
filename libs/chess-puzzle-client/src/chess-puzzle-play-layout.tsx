@@ -63,6 +63,8 @@ export type PuzzlePlayLayoutProps = {
   recommendationLegend?: JSX.Element;
   testHints?: JSX.Element;
   testLoadingStatus?: JSX.Element;
+  /** The live region someone listening to the app hears. */
+  announcement?: JSX.Element;
 };
 
 /** Solved, solution shown or skipped: nothing more to play on this puzzle. */
@@ -231,6 +233,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
       data-screen="chess-puzzle-play"
     >
       <DefineBackButton onPress={props.backToRoot} />
+      {props.announcement}
       {props.testLoadingStatus}
       <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
       <CelebrationLayer

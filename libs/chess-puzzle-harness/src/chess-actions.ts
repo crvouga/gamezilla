@@ -66,6 +66,11 @@ import {
   pressPuzzleSummaryNext as tapPuzzleSummaryNext,
   waitPuzzleHintStage,
 } from './chess-puzzle-ui';
+import {
+  listenToTheApp,
+  playPuzzleMoveWithKeyboard,
+  usePuzzleControlWithKeyboard,
+} from './puzzle-keyboard';
 
 export const openPuzzleFromSpace = scenarioAction({
   name: 'openPuzzleFromSpace',
@@ -586,6 +591,9 @@ export const solvePuzzlesDaily = scenarioAction({
 
 /** Registered on every system that composes this feature. */
 export const CHESS_HARNESS_ACTIONS = [
+  listenToTheApp,
+  playPuzzleMoveWithKeyboard,
+  usePuzzleControlWithKeyboard,
   openPuzzleFromSpace,
   openPuzzleFromSpaceNoWait,
   playUntilSolved,

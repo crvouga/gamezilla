@@ -226,11 +226,15 @@ export function ChessPuzzleFeedBar(
     <button
       class="clickable clickableTint self-stretch min-w-0 shrink-0"
       data-testid="chess-puzzle-feed-summary"
-      aria-label={`${feedAccessibleLabel(config(), effectiveRating())} ${allowance.label()}`.trim()}
       type="button"
       onClick={props.onOpenFeedSettings}
       role="button"
     >
+      {/* The whole feed in words; the visible labels follow it, so the
+          button's name says everything the bar shows (WCAG 2.5.3). */}
+      <span class="sr-only" data-testid="chess-puzzle-feed-description">
+        {`${feedAccessibleLabel(config(), effectiveRating())} ${allowance.label()}`.trim()}
+      </span>
       <ScrollView
         horizontal
         flushEdge={false}

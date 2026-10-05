@@ -14,6 +14,7 @@ import { SpeakingAvatar } from '@pkgs/ui-root-client/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client/spectator-indicator';
 import { useLayoutMode } from '@pkgs/ui-root-client/use-layout-mode';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
+import { ChessPuzzleAnnouncement } from './chess-puzzle-announcement';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleClock } from './chess-puzzle-clock';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
@@ -212,6 +213,18 @@ function PuzzlePlayerChrome(props: {
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={p.completion}
       testHints={<PuzzlePlayerTestHints p={p} />}
+      announcement={
+        <ChessPuzzleAnnouncement
+          status={p.status}
+          moves={p.movesStr}
+          solveIdx={p.solveIdx}
+          solverSide={p.orientation}
+          hintStage={p.hintStage}
+          fen={p.displayFen}
+          hintSquare={p.expectedFromSquare}
+          completion={p.completion}
+        />
+      }
     />
   );
 }

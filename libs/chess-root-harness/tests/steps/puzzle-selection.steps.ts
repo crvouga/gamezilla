@@ -26,9 +26,9 @@ import {
   ensureStatsOpen,
   recalled,
   required,
+  SETTLE_MS,
   servedPuzzle,
   servedPuzzleId,
-  SETTLE_MS,
   stock,
   takeUpDevice,
 } from './puzzle-world';

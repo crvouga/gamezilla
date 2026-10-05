@@ -358,6 +358,8 @@ export const Handles = {
   chessPuzzleFeedRatingChange: 'chess-puzzle-feed-rating-change',
   /** The feed bar's themes of the puzzle on the board, once it is over. */
   chessPuzzleFeedPuzzleThemes: 'chess-puzzle-feed-puzzle-themes',
+  /** The puzzle's live region: what someone listening to the app hears. */
+  chessPuzzleAnnouncement: 'chess-puzzle-announcement',
 } as const;
 
 export type Handle = {
