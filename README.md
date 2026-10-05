@@ -463,7 +463,7 @@ Live Health scenarios run serially: the synthetic-monitor account and Chrome sto
 
 Health authenticates AWS with its read-only role on a named branch. Use `depot ci dispatch --workflow health.yml --repo gamezilla-org/gamezilla --ref <branch>` for infrastructure health evidence: an inline `depot ci run` uses a commit SHA as its ref, which does not match the branch trust policy. This does not grant a branch deployment access.
 
-Health objectives read Depot history with `DEPOT_ORG_TOKEN`, an organization API token seeded once in the shared Infisical environment. The objectives job loads it through the same secrets-auth action as the environment checks. Depot's automatic `DEPOT_TOKEN` only authorizes the current job attempt and cannot read history. Missing history credentials fail the objective with a setup error; they never count as passing checks.
+Health objectives run on `main` (scheduled or manual), so the rolling historical deficit is reported there rather than on a fix's PR. Branch Health runs still probe every environment. Objectives read Depot history with `DEPOT_ORG_TOKEN`, an organization API token seeded once in the shared Infisical environment. The objectives job loads it through the same secrets-auth action as the environment checks. Depot's automatic `DEPOT_TOKEN` only authorizes the current job attempt and cannot read history. Missing history credentials fail the objective with a setup error; they never count as passing checks.
 
 Debug with `bun obs` before adding logs. Exit `0` found, `1` no match, `2` usage, `3` store unreachable. `--json` is for programs.
 
