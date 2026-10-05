@@ -31,9 +31,7 @@ import { render } from 'solid-js/web';
 import { HARNESS_PATH } from './console-nav-real';
 import './polyfill-entry';
 import { isReportsPath } from './reports-path';
-import { RootApp } from './root-app';
 import './styles.css';
-import { wallConsoleEnv } from './wall-console-env';
 
 const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
@@ -51,11 +49,6 @@ function redirectedToHarness(): boolean {
   if (!new URLSearchParams(search).has(HARNESS_FLAG)) return false;
   window.location.replace(HARNESS_PATH);
   return true;
-}
-
-function HarnessBoot(): JSX.Element {
-  const env = wallConsoleEnv();
-  return <RootApp env={env} />;
 }
 
 function AppBoot(): JSX.Element {
@@ -80,6 +73,21 @@ const ReportsScreen = lazy(async () => ({
   default: (await import('./reports-screen')).ReportsScreen,
 }));
 
+const HarnessBoot = lazy(async () => ({
+  default: (await import('./harness-boot')).HarnessBoot,
+}));
+
+function StartupShell(): JSX.Element {
+  return (
+    <div class="startup-shell" role="status" aria-label="Starting Gamezilla">
+      <span class="startup-shell-mark" aria-hidden="true">
+        G
+      </span>
+      <span>Starting…</span>
+    </div>
+  );
+}
+
 type Surface = 'app' | 'harness' | 'reports';
 
 function surfaceAt(pathname: string): Surface {
@@ -100,10 +108,12 @@ function Boot(): JSX.Element {
   return (
     <Switch fallback={<AppBoot />}>
       <Match when={surface() === 'harness'}>
-        <HarnessBoot />
+        <Suspense fallback={<StartupShell />}>
+          <HarnessBoot />
+        </Suspense>
       </Match>
       <Match when={surface() === 'reports'}>
-        <Suspense>
+        <Suspense fallback={<StartupShell />}>
           <ReportsScreen />
         </Suspense>
       </Match>
@@ -112,5 +122,6 @@ function Boot(): JSX.Element {
 }
 
 if (!redirectedToHarness()) {
+  root.replaceChildren();
   render(() => <Boot />, root);
 }

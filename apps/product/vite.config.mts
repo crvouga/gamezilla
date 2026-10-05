@@ -65,6 +65,16 @@ export default defineConfig(({ mode }) => {
     server: {
       port: DEV_PORT,
       strictPort: true,
+      warmup: {
+        clientFiles: [
+          './src/root.ts',
+          './src/main.tsx',
+          './src/styles.css',
+          '../../pkgs/feedback-client/src/wall.ts',
+          '../../pkgs/tailwind-shared/src/tailwind.css',
+          '../../pkgs/ui-root-client/src/hosts.css',
+        ],
+      },
       ...(FROZEN ? { hmr: false, watch: null } : {}),
     },
     preview: {

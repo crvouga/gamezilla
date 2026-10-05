@@ -5,12 +5,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#101014" />
+  <style>
+    html,
+    body,
+    #root {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    html,
+    body {
+      background: #101014;
+      color: #f5f6f8;
+      color-scheme: dark;
+    }
+
+    .startup-shell {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      font: 500 0.875rem/1.5 ui-sans-serif, system-ui, sans-serif;
+      gap: 0.75rem;
+      inset: 0;
+      justify-content: center;
+      position: fixed;
+    }
+
+    .startup-shell-mark {
+      align-items: center;
+      animation: startup-pulse 1.2s ease-in-out infinite alternate;
+      background: #26262d;
+      border: 1px solid #3a3a44;
+      border-radius: 0.75rem;
+      display: flex;
+      font-size: 1.125rem;
+      height: 3rem;
+      justify-content: center;
+      width: 3rem;
+    }
+
+    @keyframes startup-pulse {
+      to {
+        opacity: 0.55;
+        transform: scale(0.96);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .startup-shell-mark {
+        animation: none;
+      }
+    }
+  </style>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <title>Gamezilla</title>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <div class="startup-shell" role="status" aria-label="Starting Gamezilla">
+      <span class="startup-shell-mark" aria-hidden="true">G</span>
+      <span>Starting…</span>
+    </div>
+  </div>
   <script type="module" src="./src/root.ts"></script>
 </body>
 

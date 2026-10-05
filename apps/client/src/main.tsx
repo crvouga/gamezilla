@@ -84,4 +84,5 @@ window.addEventListener('pagehide', () => {
   void observability.telemetry.then((runtime) => runtime.forceFlush());
 });
 
+root.replaceChildren();
 render(() => <client.App />, root);
