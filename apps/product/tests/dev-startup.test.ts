@@ -30,6 +30,14 @@ describe('development client startup', () => {
     expect(icons).toContain("from 'lucide-solid/icons/activity'");
   });
 
+  test("uses the browser Buffer package instead of Vite's Node stub", () => {
+    // regression: browser-buffer-builtin-externalized
+    const polyfill = source('pkgs/polyfill-shared/src/buffer.ts');
+
+    expect(polyfill).toContain("from 'buffer/index.js'");
+    expect(polyfill).not.toMatch(/from ['"]buffer['"]/);
+  });
+
   test('prewarms the expensive first-load transforms', () => {
     for (const app of ['client', 'product']) {
       const config = source(`apps/${app}/vite.config.mts`);

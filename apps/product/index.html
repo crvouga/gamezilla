@@ -44,6 +44,34 @@
       width: 3rem;
     }
 
+    .startup-shell-failed .startup-shell-mark {
+      animation: none;
+      border-color: #9b3d47;
+      color: #ffb4bd;
+    }
+
+    .startup-shell-guidance {
+      color: #aaabb3;
+    }
+
+    .startup-shell-detail {
+      color: #ffb4bd;
+      max-width: min(40rem, calc(100vw - 2rem));
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+
+    .startup-shell-reload {
+      background: #f5f6f8;
+      border: 0;
+      border-radius: 0.5rem;
+      color: #101014;
+      cursor: pointer;
+      font: inherit;
+      margin-top: 0.25rem;
+      padding: 0.625rem 1rem;
+    }
+
     @keyframes startup-pulse {
       to {
         opacity: 0.55;
@@ -63,7 +91,7 @@
 
 <body>
   <div id="root">
-    <div class="startup-shell" role="status" aria-label="Starting Gamezilla">
+    <div class="startup-shell" role="status" aria-label="Starting Gamezilla" data-startup-shell>
       <span class="startup-shell-mark" aria-hidden="true">G</span>
       <span>Starting…</span>
     </div>

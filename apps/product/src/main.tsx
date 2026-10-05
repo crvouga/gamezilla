@@ -79,7 +79,12 @@ const HarnessBoot = lazy(async () => ({
 
 function StartupShell(): JSX.Element {
   return (
-    <div class="startup-shell" role="status" aria-label="Starting Gamezilla">
+    <div
+      class="startup-shell"
+      role="status"
+      aria-label="Starting Gamezilla"
+      data-startup-shell
+    >
       <span class="startup-shell-mark" aria-hidden="true">
         G
       </span>

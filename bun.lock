@@ -4501,6 +4501,9 @@
     "pkgs/polyfill-shared": {
       "name": "@pkgs/polyfill-shared",
       "version": "0.0.0",
+      "dependencies": {
+        "buffer": "catalog:",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
