@@ -23,7 +23,7 @@ const VIEWPORT = { width: 390, height: 844 } as const;
 /** Uploaded by the Health and Deploy workflows when a journey fails. */
 export const EVIDENCE_DIR = join(
   import.meta.dir,
-  '../../.cache/critical-journeys'
+  '../.cache/critical-journeys'
 );
 
 export type LiveTarget = {
