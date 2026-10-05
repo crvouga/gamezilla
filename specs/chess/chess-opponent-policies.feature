@@ -36,11 +36,12 @@ Feature: Chess opponents respect the person's other choices
 
   Rule: Multiplayer chess is separate from puzzles in a space
 
-    Scenario: Looking for an opponent keeps the space's puzzle as it was
+    Scenario: Returning after looking for an opponent keeps the space's puzzle as it was
       Given Alice and Bob are playing a puzzle in a space
       When Alice finds a chess opponent
+      Then Alice is looking for a chess opponent
+      When Alice returns to the puzzle in the space
       Then Bob keeps the same puzzle in the space
-      And Alice is looking for a chess opponent
 
     Scenario: A multiplayer result does not move a puzzle rating
       Given Alice has a puzzle rating of 1700 and an unfinished multiplayer game
