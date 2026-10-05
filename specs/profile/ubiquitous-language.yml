@@ -1,6 +1,7 @@
 # The ubiquitous language of Identity: every word its specs use for who a
 # person is to the product. Other contexts borrow the published terms (guest,
-# account, sign in, sign out, sign-in method, username, avatar, profile) with
+# account, sign in, sign out, sign-in method, username, avatar, profile, no
+# longer allowed, stand-in name, stop allowing, start allowing) with
 # `from: profile`; see the context map.
 context: Identity
 purpose: >-
@@ -117,7 +118,7 @@ terms:
       for everyone else. Every newcomer gets one of their own.
     forms: [usernames, username's]
     avoid: [handle, display name, nickname, screen name]
-    model: [username, usernameOnDevice, Username]
+    model: [username, usernameOnDevice, Username, shownName]
     published: true
 
   - term: avatar
@@ -293,7 +294,50 @@ terms:
       change.
     forms: [refused username changes, username change is refused, username change refused]
     avoid: [rejected, invalid username]
-    model: [UsernameTaken, ChangedRecently, RefusedOffline]
+    model: [UsernameTaken, ChangedRecently, RefusedOffline, NotAllowed]
+
+  - term: no longer allowed
+    definition: >-
+      Said of a username saved before the rules stopped allowing it. The
+      person keeps it: it is never changed or taken away, and nobody else
+      sees it. Everyone, that person included, sees a stand-in name for it,
+      and the person is told so until they rename themselves. Saving it again
+      is refused as not allowed.
+    avoid: [banned, flagged, censored, moderated]
+    model: [notAllowed]
+    published: true
+
+  - term: stop allowing
+    definition: >-
+      The team changing the rules so a name is no longer allowed. Names
+      already saved are kept, never rewritten, and shown differently on every
+      device at once, even one without a connection: a username shows as its
+      person's stand-in name. Each context that borrows this says how its own
+      names show.
+    forms: [stops allowing, stopped allowing, has stopped allowing]
+    avoid: [ban, block a name]
+    model: [stopAllowing]
+    published: true
+
+  - term: start allowing
+    definition: >-
+      The team changing the rules back so a name it stopped allowing is
+      allowed again. A name kept while it was not allowed is shown as it was,
+      at once.
+    forms: [starts allowing, started allowing]
+    model: [startAllowing]
+    published: true
+
+  - term: stand-in name
+    definition: >-
+      The name everyone sees in place of a username that is no longer
+      allowed: made-up words and a number ("Brave Tiger 482"), never written
+      with @. It is the same every time for that person and goes away once
+      they rename themselves.
+    forms: [stand-in names]
+    avoid: [alias, placeholder name, fake name, hidden name]
+    model: [STAND_INS]
+    published: true
 
   - term: draft
     definition: >-

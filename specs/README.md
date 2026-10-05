@@ -1114,6 +1114,7 @@ terms and import only their `events.qnt`:
 ```text
 Identity ──► Billing, Spaces, Friends, Chess, App, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
 Identity ──► Billing, Spaces, Friends, Chess, App (account deletion, personal data, retention, recently proven account)
+Identity ──► Friends (no longer allowed, stand-in name, stop allowing), Spaces (username, rename themselves, stand-in name, stop allowing, start allowing)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
@@ -1131,7 +1132,7 @@ Published language:
 
 | Context | Published terms | `events.qnt` |
 | --- | --- | --- |
-| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
+| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple, personal data, account deletion, personal-data export, retention, recently proven account, no longer allowed, stand-in name, stop allowing, start allowing | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged`, `AccountDeletionConfirmed` |
 | Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |

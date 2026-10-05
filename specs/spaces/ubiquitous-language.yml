@@ -156,6 +156,24 @@ terms:
       The host gives their space a new name. Everyone in the space, and every
       friend whose lobby lists it, sees the new name.
     forms: [renames the space, renamed the space, rename the space]
+    model: [rename, lastRename, RenameResult, NoRename, NameSaved, NameNotAllowed]
+
+  - term: space name
+    definition: >-
+      What a space is called: the name its host gave it, or, without one,
+      the host's name as everyone sees it, their username or their stand-in
+      name, followed by "'s space" (the space is then named after its host). A name that is not allowed is refused and the space
+      keeps the name it had.
+    forms: [space names, named after]
+    model: [spaceName, givenName, NAMED_AFTER_HOST]
+
+  - term: no longer allowed
+    definition: >-
+      Said of a space name given before the rules stopped allowing it. The
+      host keeps it, but everyone sees the space named after its host, as if
+      it had never been given a name.
+    avoid: [banned, flagged, censored, moderated]
+    model: [notAllowed]
 
   - term: invited to Plus
     definition: >-
@@ -211,3 +229,15 @@ terms:
   - term: friend
     from: friends
     model: [friend]
+  - term: username
+    from: profile
+  - term: rename themselves
+    from: profile
+  - term: stand-in name
+    from: profile
+  - term: stop allowing
+    from: profile
+    model: [stopAllowing]
+  - term: start allowing
+    from: profile
+    model: [startAllowing]
