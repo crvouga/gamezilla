@@ -27,7 +27,7 @@ published package versions; a green `bun check` remains the release decision.
 
 | Missing behavior | Upstream issue | Pinned regression |
 | --- | --- | --- |
-| Startup `options=-c search_path=...` | [#317](https://github.com/crvouga/mockingbird/issues/317) | `pkgs/sql-client-postgres-server/tests/postgres.contract.test.ts` |
+| Startup `options=-c search_path=...` (Bun driver; node-pg pools explicitly pin each new session) | [#317](https://github.com/crvouga/mockingbird/issues/317) | `pkgs/sql-client-postgres-server/tests/postgres.contract.test.ts` |
 | `ALTER COLUMN SET NOT NULL` | [#318](https://github.com/crvouga/mockingbird/issues/318) | `pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts` |
 | `ALTER COLUMN SET DEFAULT` | [#319](https://github.com/crvouga/mockingbird/issues/319) | `pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts` |
 | `pg_stat_user_tables` | [#320](https://github.com/crvouga/mockingbird/issues/320) | `pkgs/postgres-mockingbird-server/tests/ddl-gaps.test.ts` |
@@ -87,8 +87,13 @@ not automatically imported; the first Mockingbird database starts fresh.
 - `bun run --filter @apps/product test`: 184 passed, zero failed.
 - New Postgres listener/restart checks: two passed. The eight SQL catalog/DDL
   regression checks remain red on Mockingbird 2.3.0.
-- Postgres client tests: ten passed. Its wire contracts: six passed, two failed
-  on startup `search_path` handling.
+- Postgres client tests: ten passed; typecheck and lint passed. Its wire
+  contracts: eight passed, one failed on Bun startup `search_path` handling.
+  `createPgPool` now installs its documented awaited `onConnect` schema pin;
+  the new concurrent-checkout regression passes. The Bun contract owns a
+  separate wire server so earlier node-pg tests cannot hide its startup gap.
+  Matchmaking's tests pass the schema pin and now expose `i.indisvalid` instead
+  (22 passed, four failed).
 - Server KV contracts: five passed against in-process Mockingbird Postgres.
 - OpenAI and S3 adapter checks: both passed under the harness's browser conditions.
 - S3 adapter typecheck and lint passed; its six unit/property checks and ten

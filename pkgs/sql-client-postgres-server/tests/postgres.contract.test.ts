@@ -118,6 +118,37 @@ describe('postgres-connect (DATABASE_URL contract)', () => {
     REMOTE_DB_TIMEOUT_MS
   );
 
+  // regression: postgres-pool-missing-schema-hook
+  test('new pooled sessions are pinned before concurrent checkout', async () => {
+    const { pool, sqlClient } = createPgPool({
+      connectionString: databaseUrl,
+      dbScope,
+      max: 3,
+    });
+    try {
+      await ensurePostgresSchema(sqlClient, dbScope);
+      const clients = await Promise.all([
+        pool.connect(),
+        pool.connect(),
+        pool.connect(),
+      ]);
+      try {
+        const results = await Promise.all(
+          clients.map((client) =>
+            client.query('SELECT current_schema() AS current_schema')
+          )
+        );
+        expect(results.map((result) => result.rows[0]?.current_schema)).toEqual(
+          [TEST_SCHEMA, TEST_SCHEMA, TEST_SCHEMA]
+        );
+      } finally {
+        for (const client of clients) client.release();
+      }
+    } finally {
+      await pool.end();
+    }
+  });
+
   test(
     'openPgClient pins the session and can self-bootstrap the schema',
     async () => {
@@ -140,10 +171,15 @@ describe('postgres-connect (DATABASE_URL contract)', () => {
     REMOTE_DB_TIMEOUT_MS
   );
 
+  // regression: postgres-bun-contract-shared-session-state
   test(
-    'SqlClientImplBunPostgres pins every query on Neon pooler URLs',
+    'SqlClientImplBunPostgres pins every query to its schema',
     async () => {
-      const sqlClient = SqlClientImplBunPostgres.connect(databaseUrl, dbScope);
+      const bunPg = await startMockingbirdPostgres({
+        port: 0,
+        dataDir: join(tmpdir(), `pg-bun-contract-${randomUUID()}`),
+      });
+      const sqlClient = SqlClientImplBunPostgres.connect(bunPg.url, dbScope);
       try {
         await sqlClient.connect();
         await ensurePostgresSchema(sqlClient, dbScope);
@@ -156,7 +192,11 @@ describe('postgres-connect (DATABASE_URL contract)', () => {
           expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
         }
       } finally {
-        await sqlClient.disconnect();
+        try {
+          await sqlClient.disconnect();
+        } finally {
+          await bunPg.stop();
+        }
       }
     },
     REMOTE_DB_TIMEOUT_MS
