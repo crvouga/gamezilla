@@ -1122,7 +1122,7 @@ App      ──► Developer tools (address, version of the app, keyboard, contr
 Developer tools ──► App (the testing tool)
 Friends, Spaces ──► Developer tools (friend, space)
 Matchmaking ──► Chess (a complete matchmaking match)
-Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess)
+Chess    ──► Journeys (a game of chess, a puzzle, multiplayer chess, a Custom Game)
 Room, Sync engine: stand alone; Matchmaking publishes complete matches to Chess (Sync engine's "shared space" is not a Spaces space)
 Database indexing: stands alone; publishes no product terms or events
 ```
@@ -1135,7 +1135,7 @@ Published language:
 | Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans, payment record | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
 | Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
 | Friends (`friends`) | friend, friends list, people search, block someone | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
-| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result | — |
+| Chess (`chess`) | game, chess, board, puzzle, solve, multiplayer chess, multiplayer result, Custom Game, Custom Game move list | — |
 | App (`runtime`) | Settings, tabs, address, version of the app, trail, run into trouble, keyboard, control, place in the app | — |
 | Developer tools (`developer-tools`) | the testing tool | — |
 | Matchmaking (`matchmaking`) | matchmaking match, pair people up | `MatchmakingEvent`: `MatchFormed` |

@@ -29,6 +29,22 @@ Feature: Offer a draw in a Custom Game
       When Alice declines the draw in the Custom Game
       Then Alice is told only the other participant may decline a draw
 
+  Rule: After a declined offer, the person who offered may offer again only after their next move
+
+    Scenario: Offering again before moving is refused
+      Given Alice has an active Custom Game between Alice as White and Bob as Black
+      And Bob has declined Alice's draw offer in the Custom Game
+      When Alice offers a draw in the Custom Game
+      Then Alice is told she may offer a draw again after her next move
+      And Neither person is offered a draw in the Custom Game
+
+    Scenario: Offering again after moving reaches the other participant
+      Given Alice has an active Custom Game between Alice as White and Bob as Black
+      And Bob has declined Alice's draw offer in the Custom Game
+      And Alice has since played e2-e4 in the Custom Game
+      When Alice offers a draw in the Custom Game
+      Then Bob is offered a draw in the Custom Game
+
   Rule: A legal move clears a waiting draw offer
 
     Scenario: Black's reply clears White's offer
@@ -45,6 +61,7 @@ Feature: Offer a draw in a Custom Game
       And Bob is offered a draw in the Custom Game
 
   Rule: A repeated position three times completes the game as a draw
+    No counter-example: a repetition comes from the moves played, not a choice anyone makes; the second repetition shows play continuing.
 
     Scenario: The third repetition ends the game
       Given Alice has a Custom Game one move before the third repetition
