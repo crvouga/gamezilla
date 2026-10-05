@@ -20,8 +20,6 @@
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/harness": "workspace:*",
     "@pkgs/chess-board-core-shared": "workspace:*",
-    "@pkgs/keyword-shared": "workspace:*",
-    "@pkgs/matchmaking-sql-shared": "workspace:*",
     "@pkgs/sql-client-root-shared": "workspace:*",
     "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
