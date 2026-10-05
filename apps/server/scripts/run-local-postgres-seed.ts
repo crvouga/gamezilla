@@ -5,6 +5,7 @@
  */
 
 import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzle-load-file-seeder';
+import { chessPackageRootFromLoadFileModule } from '@libs/chess-puzzle-server/load-file';
 import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { ComposedDatabaseSeeder } from '@pkgs/db-migrate-shared/composed-database-seeder';
@@ -15,7 +16,10 @@ import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded-shared/ports';
 import { createPgPool } from '@pkgs/sql-client-postgres-server/connect';
 
 const fs = wallNodeFs();
-const chessRoot = new URL('../../../libs/chess', import.meta.url).pathname;
+
+export function localChessPuzzleLoadFileRoot(): string {
+  return chessPackageRootFromLoadFileModule();
+}
 
 /** `databaseUrl` defaults to the shared local cluster; a stack passes its own. */
 export async function runLocalSeed(
@@ -34,7 +38,7 @@ export async function runLocalSeed(
     databaseSeeder.register(
       new ChessPuzzleLoadFileSeeder({
         loadFileStore: createNodeFsObjectStore({
-          rootDir: chessRoot,
+          rootDir: localChessPuzzleLoadFileRoot(),
           fs,
           layout: 'tree',
         }),
