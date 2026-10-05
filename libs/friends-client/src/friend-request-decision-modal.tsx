@@ -1,3 +1,4 @@
+import { displayNotification } from '@libs/notifications-client/notification-display';
 import type { Notification } from '@libs/notifications-shared/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared/notification-action';
 import { Handles } from '@libs/test-ids-shared/handles';
@@ -151,6 +152,7 @@ export function FriendRequestDecisionModal(
   const profile = createMemo(() =>
     profileFromFriendRequestNotification(props.interaction)
   );
+  const title = createMemo(() => displayNotification(props.interaction).title);
 
   const onViewProfile = () => {
     props.onClose();
@@ -181,7 +183,7 @@ export function FriendRequestDecisionModal(
           <Show when={profile().userId.length > 0}>
             <FriendProfileAvatar profile={profile()} size={64} />
           </Show>
-          <p class="text textBodyBold text-center">{props.interaction.title}</p>
+          <p class="text textBodyBold text-center">{title()}</p>
         </div>
       </ModalBody>
       <ModalFooter>

@@ -1,4 +1,5 @@
 import type { FriendProfile } from '@libs/friends-shared/friends-types';
+import { usernameLabel } from '@libs/moderation-shared/display';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
@@ -15,9 +16,9 @@ export type FriendUserRowProps = {
   readonly pressTestID?: string | undefined;
 };
 
-function usernameLabel(profile: FriendProfile): string {
-  if (profile.username.length > 0) return `@${profile.username}`;
-  return profile.userId.slice(0, 8);
+function profileLabel(profile: FriendProfile): string {
+  const label = usernameLabel(profile.username, profile.userId);
+  return label.length > 0 ? label : profile.userId.slice(0, 8);
 }
 
 function FriendUserRowIdentity(props: {
@@ -28,7 +29,7 @@ function FriendUserRowIdentity(props: {
       <FriendProfileAvatar profile={props.profile} size={44} />
       <div class="box flex-1 min-w-0 gap-0.5">
         <p class="text textBodyBold line-clamp-1">
-          {usernameLabel(props.profile)}
+          {profileLabel(props.profile)}
         </p>
       </div>
     </>

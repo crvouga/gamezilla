@@ -1,4 +1,5 @@
 import type { MultiplayerGame } from '@libs/chess-matchmaking-shared/game';
+import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { Trans } from '@lingui/solid/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client/chess-board';
@@ -23,10 +24,11 @@ export function MultiplayerBoard(props: {
     props.game.outcome === 'ongoing' &&
     props.game.turn === props.myId;
   const white = () => props.game.white_id === props.myId || !participant();
-  const opponent = useProfileRow(() =>
-    white() ? props.game.black_id : props.game.white_id
-  );
-  const opponentName = () => opponent.row()?.username || 'Deleted account';
+  const opponentId = () =>
+    white() ? props.game.black_id : props.game.white_id;
+  const opponent = useProfileRow(opponentId);
+  const opponentName = () =>
+    usernameText(opponent.row()?.username, opponentId()) || 'Deleted account';
   const description = createMemo(() =>
     !participant() ? (
       <Trans>Watching multiplayer chess.</Trans>
@@ -106,9 +108,12 @@ function MultiplayerWatcherResult(props: {
 }): JSX.Element {
   const whiteProfile = useProfileRow(() => props.game.white_id);
   const blackProfile = useProfileRow(() => props.game.black_id);
-  const winnerName = () =>
-    (props.game.outcome === 'white' ? whiteProfile : blackProfile).row()
-      ?.username || 'Deleted account';
+  const winnerName = () => {
+    const whiteWon = props.game.outcome === 'white';
+    const winner = (whiteWon ? whiteProfile : blackProfile).row();
+    const winnerId = whiteWon ? props.game.white_id : props.game.black_id;
+    return usernameText(winner?.username, winnerId) || 'Deleted account';
+  };
   return (
     <span data-component="MultiplayerWatcherResult">
       {props.game.outcome === 'draw' ? (

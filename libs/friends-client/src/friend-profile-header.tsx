@@ -1,6 +1,8 @@
 import type { FriendProfile } from '@libs/friends-shared/friends-types';
+import { usernameLabel } from '@libs/moderation-shared/display';
 import { Handles } from '@libs/test-ids-shared/handles';
 import type { JSX } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 
 export type FriendProfileHeaderProps = {
@@ -12,10 +14,10 @@ export type FriendProfileHeaderProps = {
 export function FriendProfileHeader(
   props: FriendProfileHeaderProps
 ): JSX.Element {
-  const handle = () =>
-    props.profile.username.length > 0
-      ? `@${props.profile.username}`
-      : props.profile.userId.slice(0, 8);
+  const handle = createMemo(() => {
+    const label = usernameLabel(props.profile.username, props.profile.userId);
+    return label.length > 0 ? label : props.profile.userId.slice(0, 8);
+  });
 
   return (
     <div class="box items-center gap-2 self-stretch">

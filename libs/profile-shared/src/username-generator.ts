@@ -1,4 +1,4 @@
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
+import { moderation } from '@libs/moderation-shared/policy';
 import {
   adjectives,
   animals,
@@ -23,7 +23,7 @@ function generateOnce(seed: number | string | undefined): string {
 /**
  * Single-token username: capitalized adjective + animal + 3-digit number
  * (e.g. `BraveTiger482`). Pass `seed` for deterministic output in tests /
- * collision retries (`seed + attempt`). Candidates the content filter refuses
+ * collision retries (`seed + attempt`). Candidates the moderation policy refuses
  * are regenerated from a derived seed.
  */
 export function generateRandomUsername(seed?: number | string): string {
@@ -33,7 +33,7 @@ export function generateRandomUsername(seed?: number | string): string {
         ? seed
         : `${String(seed)}:${String(attempt)}`
     );
-    if (!containsBlockedTerm(candidate)) return candidate;
+    if (moderation.checkWrite('username', candidate).allowed) return candidate;
   }
   return generateOnce(seed);
 }

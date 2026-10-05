@@ -24,6 +24,8 @@ import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
 
+import { displayNotification } from './notification-display';
+
 const ROW_VERTICAL_PADDING = 4;
 const LEADING_SIZE = 48;
 
@@ -270,6 +272,8 @@ export function NotificationCardDefault(
         ? undefined
         : props.onOpen
   );
+  // Copy as the reader may see it now (snapshot usernames moderated).
+  const shown = createMemo(() => displayNotification(props.interaction));
   const textPress = createMemo<(() => void) | undefined>(() =>
     rowPress() === undefined && props.onOpen !== undefined
       ? props.onOpen
@@ -284,11 +288,11 @@ export function NotificationCardDefault(
         'padding-bottom': `${ROW_VERTICAL_PADDING * 4}px`,
       }}
     >
-      {props.leading ?? <DefaultLeading interaction={props.interaction} />}
+      {props.leading ?? <DefaultLeading interaction={shown()} />}
       <Show
         when={textPress()}
         keyed
-        fallback={<InteractionRowText interaction={props.interaction} />}
+        fallback={<InteractionRowText interaction={shown()} />}
       >
         {(press) => (
           <button
@@ -296,7 +300,7 @@ export function NotificationCardDefault(
             type="button"
             onClick={press}
           >
-            <InteractionRowText interaction={props.interaction} />
+            <InteractionRowText interaction={shown()} />
           </button>
         )}
       </Show>

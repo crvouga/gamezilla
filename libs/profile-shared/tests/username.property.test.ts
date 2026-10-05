@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-
+import { moderation } from '@libs/moderation-shared/policy';
 import {
   canChangeUsername,
   normalizeUsername,
@@ -9,7 +9,6 @@ import {
   validateUsername,
 } from '@libs/profile-shared/username';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
 import fc from 'fast-check';
 
 const ALPHABET = [
@@ -60,7 +59,7 @@ describe('validateUsername', () => {
         expect(name.length).toBeGreaterThanOrEqual(USERNAME_MIN_LENGTH);
         expect(name.length).toBeLessThanOrEqual(USERNAME_MAX_LENGTH);
         expect(isInAlphabet(name)).toBe(true);
-        expect(containsBlockedTerm(name)).toBe(false);
+        expect(moderation.checkWrite('username', name).allowed).toBe(true);
       })
     );
   });
@@ -76,7 +75,7 @@ describe('validateUsername', () => {
               ? 'too_short'
               : name.length > USERNAME_MAX_LENGTH
                 ? 'too_long'
-                : containsBlockedTerm(name)
+                : !moderation.checkWrite('username', name).allowed
                   ? 'blocked'
                   : null;
         expect(validateUsername(name)).toBe(expected);

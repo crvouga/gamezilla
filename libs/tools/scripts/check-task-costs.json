@@ -716,5 +716,11 @@
   "@pkgs/vite-workspace-resolver-server#test": 1,
   "@pkgs/word-filter-shared#lint": 1,
   "@pkgs/word-filter-shared#tc": 1,
-  "@pkgs/word-filter-shared#test": 1
+  "@pkgs/word-filter-shared#test": 1,
+  "@libs/moderation-shared#lint": 1,
+  "@libs/moderation-shared#tc": 1,
+  "@libs/moderation-shared#test": 1,
+  "@pkgs/moderation-shared#lint": 1,
+  "@pkgs/moderation-shared#tc": 1,
+  "@pkgs/moderation-shared#test": 1
 }

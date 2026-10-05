@@ -1,7 +1,10 @@
+import { displayUsername } from '@libs/moderation-shared/display';
+import { moderation } from '@libs/moderation-shared/policy';
 import { claimUsernameMutation } from '@libs/profile-shared/claim-username-mutation';
 import type { ProfileRow } from '@libs/profile-shared/profile-row-sql';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client/app-router';
 import { FormActionsFooter } from '@pkgs/ui-root-client/form-actions-footer';
@@ -9,7 +12,7 @@ import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { Accessor, JSX } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
 import { useProfileRow } from './claim-username-use-profile-row';
 
@@ -37,10 +40,40 @@ function useSyncedUsername(row: Accessor<ProfileRow | null>) {
   return [value, setValue] as const;
 }
 
+/**
+ * As-you-type moderation (the first level of the shared policy): a draft the
+ * policy refuses is flagged before saving; a saved name the policy now masks
+ * tells its owner what everyone else sees instead. The saved name is kept.
+ */
+function useUsernameModeration(
+  value: Accessor<string>,
+  row: Accessor<ProfileRow | null>
+) {
+  const { t } = useLingui();
+  const draftRefused = createMemo(
+    () =>
+      !moderation.checkWrite('username', value().trim().toLowerCase()).allowed
+  );
+  const error = createMemo(() =>
+    draftRefused() ? t`That username is not allowed` : undefined
+  );
+  const helperText = createMemo(() => {
+    const current = row();
+    if (current === null) return undefined;
+    const shown = displayUsername(current.username, current.id);
+    if (!shown.masked || shown.text === null) return undefined;
+    const alias = shown.text;
+    return t`Other people see you as ${alias} until you choose a new username`;
+  });
+  return { draftRefused, error, helperText };
+}
+
 function ProfileHandleScreenBody(props: {
   class?: string | undefined;
   value: Accessor<string>;
   setValue: (v: string) => void;
+  error: Accessor<LocalizedString | undefined>;
+  helperText: Accessor<LocalizedString | undefined>;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -50,6 +83,8 @@ function ProfileHandleScreenBody(props: {
         aria-label={t`Username`}
         value={props.value()}
         onChangeText={props.setValue}
+        error={props.error()}
+        helperText={props.helperText()}
         placeholder={t`your_handle`}
         autocapitalize="none"
         autocorrect="off"
@@ -92,6 +127,7 @@ export function ProfileHandleScreen(): JSX.Element {
   const profileId = useMyProfileId();
   const { row } = useProfileRow(profileId);
   const [value, setValue] = useSyncedUsername(row);
+  const usernameModeration = useUsernameModeration(value, row);
   const nav = useBreadcrumbNav();
   const mutationClient = useMutationClient();
   const [lastError, setLastError] = createSignal<{
@@ -139,7 +175,7 @@ export function ProfileHandleScreen(): JSX.Element {
             },
             operation: save,
             get disabled() {
-              return profileId() === null;
+              return profileId() === null || usernameModeration.draftRefused();
             },
             dataSet: { testid: Handles.profileUsernameSave },
           }}
@@ -150,6 +186,8 @@ export function ProfileHandleScreen(): JSX.Element {
           class={bodyClass}
           value={value}
           setValue={setValue}
+          error={usernameModeration.error}
+          helperText={usernameModeration.helperText}
         />
       )}
     />

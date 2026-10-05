@@ -6,12 +6,19 @@ import {
   customGameStartable,
   customGameTimeLeft,
 } from '@libs/chess-custom-game-shared/custom-game-state';
+import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileColumn } from '@libs/profile-client/use-profile-column';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import { createMemo, type JSX, Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
+
+/** Moderated name for display, or `null` while it is unknown. */
+function shownName(username: string | null, profileId: string): string | null {
+  const text = usernameText(username, profileId);
+  return text.length > 0 ? text : null;
+}
 
 function participantName(
   game: CustomGame,
@@ -88,19 +95,23 @@ export function CustomGameClock(props: {
 export function CustomGameStatus(props: {
   model: CustomGameScreenModel;
 }): JSX.Element {
-  const whiteName = useProfileColumn(
-    () => props.model.current()?.white.person ?? '',
-    'username'
-  );
-  const blackName = useProfileColumn(
-    () => props.model.current()?.black.person ?? '',
-    'username'
-  );
+  const whiteId = () => props.model.current()?.white.person ?? '';
+  const blackId = () => props.model.current()?.black.person ?? '';
+  const whiteName = useProfileColumn(whiteId, 'username');
+  const blackName = useProfileColumn(blackId, 'username');
   const description = createMemo(() => {
     const game = props.model.current();
     if (game === null) return t`No Custom Game.`;
-    const white = participantName(game, 'white', whiteName());
-    const black = participantName(game, 'black', blackName());
+    const white = participantName(
+      game,
+      'white',
+      shownName(whiteName(), whiteId())
+    );
+    const black = participantName(
+      game,
+      'black',
+      shownName(blackName(), blackId())
+    );
     const state = gameStateDescription(game);
     return t`White: ${white}. Black: ${black}. ${state}`;
   });

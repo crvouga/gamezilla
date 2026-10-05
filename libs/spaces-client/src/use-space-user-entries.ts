@@ -1,3 +1,4 @@
+import { usernameText } from '@libs/moderation-shared/display';
 import sql from '@pkgs/sql-root-shared/sql';
 
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
@@ -5,6 +6,7 @@ import { type Accessor, createMemo } from 'solid-js';
 
 export type SpaceUserEntry = {
   readonly userId: string;
+  /** Username as others may see it (moderated; masked names are aliases). */
   readonly username: string;
   readonly avatarConfig: string | null;
 };
@@ -31,7 +33,7 @@ export function useSpaceUserEntries(spaceId: string): {
   const entries = createMemo(() =>
     query.rows().map((row) => ({
       userId: row.user_id,
-      username: row.username ?? '',
+      username: usernameText(row.username, row.user_id),
       avatarConfig: row.avatar_config,
     }))
   );

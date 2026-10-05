@@ -1,8 +1,9 @@
+import { moderation } from '@libs/moderation-shared/policy';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import { TextInput } from '@pkgs/ui-root-client/text-input';
-import { createEffect, createSignal, type JSX } from 'solid-js';
+import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
 import { useRenameSpace } from './use-rename-space';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 
@@ -30,6 +31,11 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
     }
   });
 
+  // As-you-type moderation: the same policy the rename mutation enforces.
+  const refused = createMemo(
+    () => !moderation.checkWrite('spaceTitle', value().trim()).allowed
+  );
+
   const operation = async (): Promise<void> => {
     await renameSpace(props.spaceId, value());
   };
@@ -41,6 +47,7 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
       title={<Trans>Rename space</Trans>}
       submitLabel={<Trans>Save</Trans>}
       operation={operation}
+      submitDisabled={refused()}
       loadingLabel={<Trans>Saving…</Trans>}
       successTitle={<Trans>Space renamed</Trans>}
       errorTitle={<Trans>Couldn't rename space</Trans>}
@@ -52,6 +59,7 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
         label={<Trans>Space name</Trans>}
         value={value()}
         onChangeText={(next) => setValue(() => next)}
+        error={refused() ? t`That space name is not allowed` : undefined}
         placeholder={t`Give your space a name`}
         autofocus
         autocapitalize="words"

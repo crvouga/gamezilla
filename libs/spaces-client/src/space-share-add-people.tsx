@@ -1,3 +1,4 @@
+import { usernameText } from '@libs/moderation-shared/display';
 import { UserProfileAvatar } from '@libs/profile-client/user-profile-avatar';
 import {
   UserSearchDenied,
@@ -25,7 +26,8 @@ export function SpaceShareAddPeople(props: {
       .filter((profile) => !props.listedIds.has(profile.userId))
       .map((profile) => ({
         value: profile.userId,
-        label: profile.username,
+        label: usernameText(profile.username, profile.userId),
+        // Search matches what was typed against the stored handle.
         searchText: profile.username,
         preview: <UserProfileAvatar profileId={profile.userId} size={32} />,
       }))

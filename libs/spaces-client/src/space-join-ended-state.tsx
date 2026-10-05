@@ -1,3 +1,4 @@
+import { usernameText } from '@libs/moderation-shared/display';
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { EmptyState } from '@pkgs/ui-root-client/empty-state';
@@ -26,9 +27,11 @@ export function SpaceJoinEndedState(
   });
   const hostRow = useProfileRow(hostProfileId);
   const body = createMemo(() => {
-    const username = hostRow.row()?.username ?? null;
+    const id = hostProfileId();
+    const username =
+      id === null ? '' : usernameText(hostRow.row()?.username, id);
     const label = spaceLabel();
-    if (username !== null && username.length > 0) {
+    if (username.length > 0) {
       return t`${label} · hosted by ${username}`;
     }
     return label;

@@ -18,6 +18,7 @@
     "@libs/auth-client": "workspace:*",
     "@libs/chess-matchmaking-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
+    "@libs/moderation-shared": "workspace:*",
     "@libs/permissions-client": "workspace:*",
     "@libs/permissions-shared": "workspace:*",
     "@libs/profile-client": "workspace:*",

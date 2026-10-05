@@ -1,3 +1,4 @@
+import { usernameLabel } from '@libs/moderation-shared/display';
 import type { TextVariant } from '@pkgs/ui-root-client/text';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
@@ -12,13 +13,14 @@ export type UserUsernameProps = {
   variant?: TextVariant | undefined;
   class?: string | undefined;
   numberOfLines?: number | undefined;
-  /** When true, prefix with `@`. Default true. */
+  /** When true, prefix with `@` (never on a masked alias). Default true. */
   withAt?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 
 /**
- * Renders the persisted username for a profile id from SQLite.
+ * Renders the persisted username for a profile id from SQLite, as the
+ * moderation policy lets others see it (a masked name shows its alias).
  * Returns `null` when no profile id is supplied; renders an empty `Text` when
  * the row hasn't synced (so layout positioning stays stable).
  */
@@ -49,14 +51,9 @@ function UserUsernameInner(props: {
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const username = useProfileColumn(() => props.profileId, 'username');
-  const label = createMemo(() => {
-    const value = username();
-    return value === null || value.length === 0
-      ? ''
-      : props.withAt
-        ? `@${value}`
-        : value;
-  });
+  const label = createMemo(() =>
+    usernameLabel(username(), props.profileId, { withAt: props.withAt })
+  );
   return (
     <p
       class="text min-w-0"

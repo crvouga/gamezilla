@@ -15,6 +15,7 @@ import {
   useGlobalMenuIdentityPublisher,
 } from '@libs/app-root-client/global-menu-identity-context';
 import { useSessionAccountEmail } from '@libs/auth-client/use-current-user';
+import { usernameLabel } from '@libs/moderation-shared/display';
 import { parseAvatarConfig } from '@libs/profile-shared/avatar-config';
 import {
   type Accessor,
@@ -42,8 +43,11 @@ function PublishIdentity(props: {
   // inside the menu — rather than closing over the value at publish time. The
   // avatar then follows an edit without this effect having to republish.
   createEffect(() => {
+    const profileId = props.profileId;
+    const username = props.username();
     publish({
-      username: props.username(),
+      usernameLabel:
+        profileId === null ? null : usernameLabel(username, profileId),
       email: email(),
       avatar: (size) => (
         <DeviceAvatar

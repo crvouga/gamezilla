@@ -1,4 +1,4 @@
-import { containsBlockedTerm } from '@pkgs/word-filter-shared/match';
+import { moderation } from '@libs/moderation-shared/policy';
 
 export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_MAX_LENGTH = 32;
@@ -24,7 +24,7 @@ export function validateUsername(raw: string): UsernameValidationError | null {
   if (username.length < USERNAME_MIN_LENGTH) return 'too_short';
   if (username.length > USERNAME_MAX_LENGTH) return 'too_long';
   if (!USERNAME_PATTERN.test(username)) return 'invalid_format';
-  if (containsBlockedTerm(username)) return 'blocked';
+  if (!moderation.checkWrite('username', username).allowed) return 'blocked';
   return null;
 }
 export function canChangeUsername(
