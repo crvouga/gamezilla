@@ -30,7 +30,10 @@ type FakeJob = {
 };
 
 /** Recorded native API pages, workflow details and every job attempt. */
-function fakeDepot(runs: ReadonlyMap<number, readonly FakeJob[]>): {
+function fakeDepot(
+  runs: ReadonlyMap<number, readonly FakeJob[]>,
+  otherWorkflows: readonly Record<string, unknown>[] = []
+): {
   readonly http: HttpClient;
   readonly asked: { method: string; body: Record<string, unknown> }[];
 } {
@@ -51,6 +54,7 @@ function fakeDepot(runs: ReadonlyMap<number, readonly FakeJob[]>): {
     if (method === 'GetRunStatus')
       return {
         workflows: [
+          ...otherWorkflows,
           {
             workflowId: body['runId'],
             workflowPath: `.depot/workflows/${HEALTH_WORKFLOW_FILE}`,
@@ -261,34 +265,46 @@ describe('the team checks of one environment, from Depot CI', () => {
 
   // regression: health-history-inline-workflow-path
   test('an inline Check workflow without a path does not prevent counting Health checks', async () => {
-    const f = fakeDepot(hourlyRuns(['success']));
-    const http: HttpClient = {
-      fetch: async (input, init) => {
-        if (String(input).endsWith('/GetRunStatus'))
-          return Response.json({
-            workflows: [
-              {
-                workflowId: '31fg9907r7',
-                status: 'finished',
-                name: 'Check · manual',
-              },
-              {
-                workflowId: '1',
-                workflowPath: 'health.yml',
-                name: 'Health · schedule',
-              },
-            ],
-          });
-        return f.http.fetch(input, init);
-      },
-    };
+    const f = fakeDepot(hourlyRuns(['success']), [
+      { workflowId: '31fg9907r7', status: 'finished', name: 'Check · manual' },
+    ]);
     expect(
-      await healthCheckEvents(source(http), { env: 'prd', ...WINDOW })
+      await healthCheckEvents(source(f.http), { env: 'prd', ...WINDOW })
     ).toEqual({ kind: 'events', events: [{ atMs: NOW_MS, good: true }] });
     expect(f.asked).not.toContainEqual({
       method: 'GetWorkflow',
       body: { workflowId: '31fg9907r7' },
     });
+  });
+
+  test('unrelated workflows with optional metadata leave Health measurements unchanged', async () => {
+    await assertProperty(
+      'unrelated workflows cannot affect Health measurements',
+      fc.asyncProperty(
+        fc.record({
+          workflowPath: fc.option(
+            fc
+              .string()
+              .filter(
+                (path) => path.split('/').at(-1) !== HEALTH_WORKFLOW_FILE
+              ),
+            { nil: undefined }
+          ),
+          name: fc.option(
+            fc.string().filter((name) => name !== 'Health'),
+            { nil: undefined }
+          ),
+        }),
+        async (metadata) => {
+          const f = fakeDepot(hourlyRuns(['success']), [
+            { workflowId: 'other', ...metadata },
+          ]);
+          expect(
+            await healthCheckEvents(source(f.http), { env: 'prd', ...WINDOW })
+          ).toEqual({ kind: 'events', events: [{ atMs: NOW_MS, good: true }] });
+        }
+      )
+    );
   });
 
   test('a refused request fails the measure', async () => {
