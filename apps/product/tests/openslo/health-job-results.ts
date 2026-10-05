@@ -45,8 +45,8 @@ type Job = {
 };
 type Workflow = {
   readonly workflowId: string;
-  readonly workflowPath: string;
-  readonly name: string;
+  readonly workflowPath?: string;
+  readonly name?: string;
 };
 
 async function rpc<T>(
@@ -104,7 +104,7 @@ async function runJobs(source: DepotSource, run: Run): Promise<readonly Job[]> {
   const jobs: Job[] = [];
   for (const workflow of status.workflows ?? []) {
     if (
-      workflow.workflowPath.split('/').at(-1) !== HEALTH_WORKFLOW_FILE &&
+      workflow.workflowPath?.split('/').at(-1) !== HEALTH_WORKFLOW_FILE &&
       workflow.name !== 'Health'
     )
       continue;

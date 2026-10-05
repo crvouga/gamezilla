@@ -1,0 +1,4 @@
+{
+  "summary": "Depot omits workflowPath for inline Check workflows. The Health history reader crashed on Check · manual workflow 31fg9907r7 instead of ignoring it and measuring the Health checks.",
+  "regressionTest": "apps/product/tests/openslo/health-job-results.test.ts"
+}
