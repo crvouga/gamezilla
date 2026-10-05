@@ -1,0 +1,87 @@
+import { describe, expect, test } from 'bun:test';
+import type { ChessPuzzleInteractionRow } from '@libs/chess-puzzle-shared/chess-puzzle-interaction-entities';
+import type { ChessPuzzleRatingEvent } from '@libs/chess-puzzle-shared/chess-puzzle-rating-event';
+import { derivePuzzleRatingChange } from '@libs/chess-puzzle-shared/rating-change';
+
+function row(
+  kind: ChessPuzzleInteractionRow['kind'],
+  at: string
+): ChessPuzzleInteractionRow {
+  return {
+    puzzleId: 'p1',
+    kind,
+    solveIdx: 0,
+    uci: null,
+    correct: null,
+    puzzleRating: 1500,
+    at,
+  };
+}
+
+function event(
+  at: string,
+  before: number,
+  after: number
+): ChessPuzzleRatingEvent {
+  return {
+    puzzleId: 'p1',
+    puzzleRating: 1500,
+    outcome: after > before ? 'solved' : 'failed',
+    scorePermille: after > before ? 1000 : 0,
+    ratingBefore: before,
+    ratingAfter: after,
+    ratingDeviationBefore: 80,
+    ratingDeviationAfter: 78,
+    at,
+  };
+}
+
+const T1 = '2026-10-05T10:00:00.000Z';
+const T2 = '2026-10-05T10:01:00.000Z';
+const T3 = '2026-10-05T10:02:00.000Z';
+
+describe('derivePuzzleRatingChange', () => {
+  test('nothing to show before the outcome is decided', () => {
+    expect(
+      derivePuzzleRatingChange({
+        puzzleId: 'p1',
+        interactions: [row('started', T1)],
+        ratingEvents: [],
+      })
+    ).toEqual({ kind: 'none' });
+  });
+
+  test('the outcome of this play shows its rating change', () => {
+    expect(
+      derivePuzzleRatingChange({
+        puzzleId: 'p1',
+        interactions: [row('started', T1), row('failed', T2)],
+        ratingEvents: [event(T2, 1500, 1488)],
+      })
+    ).toEqual({ kind: 'rated', delta: -12 });
+  });
+
+  test('a repeat of a puzzle rated in an earlier play is unrated', () => {
+    expect(
+      derivePuzzleRatingChange({
+        puzzleId: 'p1',
+        interactions: [
+          row('started', T1),
+          row('solved', T1),
+          row('started', T3),
+        ],
+        ratingEvents: [event(T2, 1500, 1510)],
+      })
+    ).toEqual({ kind: 'unrated' });
+  });
+
+  test("another puzzle's rating event never counts", () => {
+    expect(
+      derivePuzzleRatingChange({
+        puzzleId: 'p2',
+        interactions: [],
+        ratingEvents: [event(T2, 1500, 1510)],
+      })
+    ).toEqual({ kind: 'none' });
+  });
+});

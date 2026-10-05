@@ -8,8 +8,19 @@ import {
   readStatsSolved,
 } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import { Given, Then } from '@libs/harness/define';
+import { signedInAccountOf } from '@libs/harness/identity';
 import type { Actor } from '@libs/harness/parameter-types';
-import { recall } from '@libs/harness/spec-world';
+import { otherDevice } from '@libs/harness/platform';
+import { focusActor } from '@libs/harness/shell-actions';
+import { recall, signedInAccountKey } from '@libs/harness/spec-world';
+import { SECOND_MS } from './puzzle-world';
+
+/**
+ * How long a device back online may take to learn its account was deleted
+ * when a step names no time: as long as account deletion gives a returning
+ * device to be signed out (150 seconds).
+ */
+const RECONNECT_MS = 150_000;
 
 Given(
   '{actor} had a settled puzzle rating on the deleted account',
@@ -24,6 +35,32 @@ Given(
     expect(recall(w, 'deleted-puzzle-solved')).toBeGreaterThan(0);
   }
 );
+Given("{actor}'s deleted account had saved a custom feed target", async (w) => {
+  expect(recall(w, 'deleted-feed-target')).toMatchObject({ mode: 'custom' });
+});
+
+Then(
+  "{actor}'s other device cannot show the deleted account's puzzle rating, game log or stats within {int} seconds",
+  async (w, actor: Actor, seconds: number) => {
+    const device = otherDevice(actor);
+    await w.s.apply(focusActor, device);
+    await w.s.apply(showChessStatsScreen, device);
+    // A new solver's stats: no rating earned, no attempt logged or counted.
+    await w.s.until(
+      async (surf) => ({
+        label: await readStatsRatingLabel(surf, device),
+        played: await readStatsPlayed(surf, device),
+        empty: await isGameLogEmpty(surf, device),
+      }),
+      {
+        maxMs: seconds * SECOND_MS,
+        pred: (shown) =>
+          shown.label === '1500?' && shown.played === 0 && shown.empty,
+      }
+    );
+  }
+);
+
 Then(
   "{actor}'s puzzle rating is 1500 and has not settled",
   async (w, actor: Actor) => {
@@ -35,6 +72,12 @@ Then(
 Then(
   "{actor}'s game log cannot show the deleted account's attempts",
   async (w, actor: Actor) => {
+    // A device back online first learns the account is gone.
+    const deleted = recall(w, signedInAccountKey(actor));
+    await w.s.until((surf) => signedInAccountOf(surf, actor), {
+      maxMs: RECONNECT_MS,
+      pred: (account) => account !== deleted,
+    });
     await w.s.apply(showChessStatsScreen, actor);
     expect(await w.s.read(isGameLogEmpty, actor)).toBe(true);
   }

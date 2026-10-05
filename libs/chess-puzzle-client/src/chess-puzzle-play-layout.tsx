@@ -45,6 +45,7 @@ export type PuzzlePlayLayoutProps = {
   boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
   puzzleId?: string;
   puzzleRating?: number;
+  puzzleThemes?: readonly string[];
   status: Accessor<SolveStatus>;
   hintStage: Accessor<HintStage>;
   canGoBack: Accessor<boolean>;
@@ -64,6 +65,11 @@ export type PuzzlePlayLayoutProps = {
   testLoadingStatus?: JSX.Element;
 };
 
+/** Solved, solution shown or skipped: nothing more to play on this puzzle. */
+function isPuzzleOver(status: SolveStatus): boolean {
+  return status === 'solved' || status === 'revealed' || status === 'skipped';
+}
+
 function puzzleRatingOrUndef(rating: number | undefined): number | undefined {
   if (rating !== undefined && rating > 0) return rating;
   return undefined;
@@ -74,6 +80,8 @@ function PuzzlePlayFeed(props: PlayChromeProps): JSX.Element {
     <ChessPuzzleFeedBar
       puzzleId={props.layout.puzzleId}
       rating={puzzleRatingOrUndef(props.layout.puzzleRating)}
+      themes={props.layout.puzzleThemes}
+      over={isPuzzleOver(props.layout.status())}
       onOpenFeedSettings={props.openFeedSettings}
     />
   );

@@ -160,6 +160,7 @@ function PuzzlePlayerChrome(props: {
       backToRoot={p.backToRoot}
       puzzleId={p.puzzleId()}
       puzzleRating={p.rating()}
+      puzzleThemes={p.themes()}
       spectator={p.isSpectator}
       assistant={
         <SpeakingAvatar

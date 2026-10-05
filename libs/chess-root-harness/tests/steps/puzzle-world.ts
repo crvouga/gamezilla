@@ -12,8 +12,20 @@ import {
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness/chess-puzzle-data';
 import { readPuzzlePlayerId } from '@libs/chess-puzzle-harness/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness/chess-puzzle-solve-ui';
-import { readActivePuzzleId } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import type { PuzzleTestDebug } from '@libs/chess-puzzle-harness/chess-puzzle-ui';
+import {
+  isPuzzlePlayScreenVisible,
+  readActivePuzzleId,
+  readPuzzleDebug,
+} from '@libs/chess-puzzle-harness/chess-puzzle-ui';
 import type { NamedPuzzle } from '@libs/chess-puzzle-harness/puzzle-fixtures';
+import type { StockedPuzzle } from '@libs/chess-puzzle-harness/puzzle-pool-stock';
+import {
+  GOOD_PUZZLE,
+  stockedPuzzleId,
+  stockPuzzles,
+} from '@libs/chess-puzzle-harness/puzzle-pool-stock';
+import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared/chess-puzzle-themes';
 import type { Actor } from '@libs/harness/parameter-types';
 import { backToTabs, focusActor } from '@libs/harness/shell-actions';
 import type { HarnessWorld } from '@libs/harness/spec-world';
@@ -100,6 +112,9 @@ export function lastPuzzle(w: HarnessWorld): string {
   return recalled<string>(w, LAST_PUZZLE);
 }
 
+/** Memo key: the puzzles the actor failed, in the order played. */
+export const failedPuzzlesKey = (actor: Actor) => `failedPuzzles:${actor}`;
+
 // ------------------------------------------------------------------ owners
 
 const ownerKey = (actor: Actor) => `puzzleOwner:${actor}`;
@@ -134,6 +149,93 @@ export async function enterPuzzles(
   }
   await w.s.apply(openPuzzleFromSpace, actor);
   return trackPuzzle(w, actor);
+}
+
+/** Bring the puzzle feed into view for a `Then` that reads it. */
+export async function focusFeed(w: HarnessWorld, actor: Actor): Promise<void> {
+  await w.s.apply(focusActor, actor);
+  if (!(await w.s.read(isPuzzlePlayScreenVisible, actor))) {
+    await enterPuzzles(w, actor);
+  }
+}
+
+/**
+ * A `Given` that needs a puzzle on the board builds it: open puzzles unless
+ * an earlier step already put the actor on one.
+ */
+export async function ensureOnPuzzle(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<void> {
+  if (!w.memo.has(currentKey(actor))) await enterPuzzles(w, actor);
+}
+
+/** The puzzle the feed puts on `device`'s board, once there is one. */
+export async function servedPuzzle(
+  w: HarnessWorld,
+  device: string,
+  pred: (debug: PuzzleTestDebug) => boolean = () => true
+): Promise<PuzzleTestDebug> {
+  await w.s.apply(focusActor, device);
+  return required(
+    await w.s.until(async (surf) => readPuzzleDebug(surf, device), {
+      maxMs: SETTLE_MS,
+      pred: (debug) => debug?.status === 'solving' && pred(debug),
+    }),
+    `a puzzle on ${device}'s board`
+  );
+}
+
+/** The id of the puzzle the feed puts on `device`'s board. */
+export async function servedPuzzleId(
+  w: HarnessWorld,
+  device: string
+): Promise<string> {
+  await servedPuzzle(w, device);
+  return required(await w.s.read(readActivePuzzleId, device), 'a puzzle id');
+}
+
+// ------------------------------------------------------------ stocking
+
+const STOCKED_COUNT = 'stockedPuzzleCount';
+
+/**
+ * Themes no seeded puzzle carries, one per stocked puzzle a scenario opens
+ * by theme, so narrowing the feed to it serves exactly that puzzle.
+ */
+const OPENING_THEMES: readonly ChessPuzzleTheme[] = [
+  'xRayAttack',
+  'interference',
+  'attraction',
+  'deflection',
+  'capturingDefender',
+  'intermezzo',
+];
+
+/** Stock `puzzles` after any stocked earlier in the scenario; their ids. */
+export async function stock(
+  w: HarnessWorld,
+  puzzles: readonly StockedPuzzle[]
+): Promise<readonly string[]> {
+  const first = recalledOr<number>(w, STOCKED_COUNT, 0);
+  await w.s.apply(stockPuzzles, puzzles, first);
+  remember(w, STOCKED_COUNT, first + puzzles.length);
+  return puzzles.map((_, i) => stockedPuzzleId(first + i));
+}
+
+/** Stock one good puzzle rated `rating` and put it on the actor's board. */
+export async function enterStockedPuzzle(
+  w: HarnessWorld,
+  actor: Actor,
+  rating: number
+): Promise<string> {
+  const index = recalledOr<number>(w, STOCKED_COUNT, 0);
+  const theme = required(OPENING_THEMES[index], 'a theme to open it by');
+  const [id = ''] = await stock(w, [
+    { ...GOOD_PUZZLE, rating, themes: [theme] },
+  ]);
+  await enterNamedPuzzle(w, actor, { id, theme, csv: null });
+  return id;
 }
 
 // ------------------------------------------------------- the board before

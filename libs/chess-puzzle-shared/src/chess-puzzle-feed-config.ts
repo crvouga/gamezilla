@@ -33,6 +33,11 @@ export const PUZZLE_FEED_BAND_SPREAD = 1;
  * Bands × limit is the local pool a fresh device downloads for one rating.
  */
 export const PUZZLE_POOL_BAND_ROW_LIMIT = 1500;
+/**
+ * Rows of the nearest-puzzles hydrate (`chessPuzzleNearest`): the fallback
+ * when the bands around the target hold no unplayed puzzle.
+ */
+export const PUZZLE_POOL_NEAREST_ROW_LIMIT = 100;
 /** Highest rating accepted by the pool query params. */
 export const PUZZLE_POOL_RATING_CEILING = 4000;
 
@@ -248,6 +253,18 @@ export function chessPuzzlePoolRangeForBand(
       PUZZLE_POOL_RATING_CEILING
     ),
   };
+}
+
+/**
+ * The rating the nearest-puzzles hydrate centres on: the middle of
+ * `rating`'s band, so per-solve drift inside a band never re-subscribes.
+ */
+export function chessPuzzleNearestRating(rating: number): number {
+  const band = chessPuzzleSyncRatingBands(rating)[PUZZLE_FEED_BAND_SPREAD];
+  const range = chessPuzzlePoolRangeForBand(
+    band ?? Math.floor(Math.max(0, rating) / PUZZLE_RATING_BAND_SIZE)
+  );
+  return Math.round((range.ratingMin + range.ratingMax) / 2);
 }
 
 /** Pool subscription params for every band around `rating`. */

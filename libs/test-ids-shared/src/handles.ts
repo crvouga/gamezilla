@@ -264,15 +264,22 @@ export const Handles = {
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
   chessPuzzleSummaryClose: 'chess-puzzle-summary-close',
+  /** The result panel's rating change ("+12", "-8") or "Unrated". */
+  chessPuzzleSummaryDelta: 'chess-puzzle-summary-delta',
+  /** The result panel's "Puzzle rating 1458": the puzzle's own rating. */
+  chessPuzzleSummaryPuzzleRating: 'chess-puzzle-summary-puzzle-rating',
   /** Board-well block shown when the feed has no puzzle to place. */
   chessPuzzleEmptyPool: 'chess-puzzle-empty-pool',
   /** Secondary "Adjust feed" button under the exhausted-pool block. */
   chessPuzzleEmptyPoolAdjust: 'chess-puzzle-empty-pool-adjust',
+  /** The empty feed's reason: "Failed" chosen with no failed attempts. */
+  chessPuzzleEmptyPoolNoFailed: 'chess-puzzle-empty-pool-no-failed',
   chessPuzzleFeedSummary: 'chess-puzzle-feed-summary',
   /** Feed bar: "Auto · 1200" / "Custom · 1500" target label. */
   chessPuzzleFeedTargetLabel: 'chess-puzzle-feed-target-label',
   /** Feed bar: history filter label (Any / Unseen / Seen / Failed). */
   chessPuzzleFeedHistoryLabel: 'chess-puzzle-feed-history-label',
+  chessPuzzleFeedThemesLabel: 'chess-puzzle-feed-themes-label',
   chessPuzzleFeedThemeTrigger: 'chess-puzzle-feed-theme-trigger',
   chessPuzzleFeedThemeSearch: 'chess-puzzle-feed-theme-search',
   chessPuzzleFeedThemeDone: 'chess-puzzle-feed-theme-done',
@@ -292,6 +299,8 @@ export const Handles = {
   chessPuzzleFeedOffsetValue: 'chess-puzzle-feed-offset-value',
   chessPuzzleFeedCustomRatingIncrease:
     'chess-puzzle-feed-custom-rating-increase',
+  chessPuzzleFeedCustomRatingDecrease:
+    'chess-puzzle-feed-custom-rating-decrease',
   chessPuzzleFeedCustomRatingValue: 'chess-puzzle-feed-custom-rating-value',
   chessPuzzleFeedTarget: 'chess-puzzle-feed-target',
   chessPuzzleFeedPool: 'chess-puzzle-feed-pool',
@@ -303,6 +312,9 @@ export const Handles = {
   /** Game-log row title ("Solved · 1275" / "Abandoned · 1275"). */
   chessGameLogRowTitle: (puzzleId: string) =>
     `chess-game-log-row-${puzzleId}-title`,
+  /** A game log row's rating change ("+12", "-8") or "Unrated". */
+  chessGameLogRowChange: (puzzleId: string) =>
+    `chess-game-log-row-${puzzleId}-change`,
   chessPuzzleMoveHistory: 'chess-puzzle-move-history',
   chessPuzzleActionHint: 'chess-puzzle-action-hint',
   chessPuzzleActionNext: 'chess-puzzle-action-next',
@@ -342,6 +354,10 @@ export const Handles = {
   chessPuzzleOffline: 'chess-puzzle-offline',
   /** The feed bar's "Unrated" label on a repeat of an already-rated puzzle. */
   chessPuzzleFeedUnratedLabel: 'chess-puzzle-feed-unrated-label',
+  /** The feed bar's rating change for the puzzle on the board ("+12"). */
+  chessPuzzleFeedRatingChange: 'chess-puzzle-feed-rating-change',
+  /** The feed bar's themes of the puzzle on the board, once it is over. */
+  chessPuzzleFeedPuzzleThemes: 'chess-puzzle-feed-puzzle-themes',
 } as const;
 
 export type Handle = {

@@ -27,6 +27,7 @@ export function ChessPuzzleRatingChip(
     <div
       class="box px-2 py-1 rounded-sm shrink-0"
       classList={{ invisible: props.invisible === true }}
+      aria-hidden={props.invisible === true ? true : undefined}
       style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
       {...dataAttrs(
         props.testID !== undefined ? { testid: props.testID } : undefined

@@ -48,6 +48,45 @@ function WaitingBlock(): JSX.Element {
   );
 }
 
+/**
+ * "Failed" with no theme: the window falls back to every synced puzzle, so
+ * an empty feed means no puzzle was ever failed.
+ */
+function isEmptyForNoFailedAttempts(config: ChessPuzzleFeedConfig): boolean {
+  return config.historyFilter === 'failed' && config.themes.length === 0;
+}
+
+function ExhaustedBody(props: { config: ChessPuzzleFeedConfig }): JSX.Element {
+  return (
+    <Show
+      when={!isEmptyForNoFailedAttempts(props.config)}
+      fallback={
+        <span data-testid="chess-puzzle-empty-pool-no-failed">
+          <Trans>
+            You have no failed puzzles yet. Puzzles you fail show here to try
+            again.
+          </Trans>
+        </span>
+      }
+    >
+      <Show
+        when={puzzleFeedHasNarrowingFilters(props.config)}
+        fallback={
+          <Trans>
+            Nothing synced near this rating yet. Change the target rating to
+            keep playing.
+          </Trans>
+        }
+      >
+        <Trans>
+          You have played every puzzle that matches your history and theme
+          filters. Include played puzzles or adjust the feed.
+        </Trans>
+      </Show>
+    </Show>
+  );
+}
+
 function ExhaustedBlock(props: {
   config: ChessPuzzleFeedConfig;
   onIncludeAllPuzzles: () => void;
@@ -59,22 +98,7 @@ function ExhaustedBlock(props: {
       <EmptyState
         icon={SearchIcon}
         title={<Trans>No puzzles match your feed</Trans>}
-        body={
-          <Show
-            when={canWiden()}
-            fallback={
-              <Trans>
-                Nothing synced near this rating yet. Change the target rating to
-                keep playing.
-              </Trans>
-            }
-          >
-            <Trans>
-              You have played every puzzle that matches your history and theme
-              filters. Include played puzzles or adjust the feed.
-            </Trans>
-          </Show>
-        }
+        body={<ExhaustedBody config={props.config} />}
         action={
           canWiden()
             ? {

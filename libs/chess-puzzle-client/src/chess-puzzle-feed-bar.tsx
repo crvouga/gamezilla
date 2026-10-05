@@ -5,15 +5,17 @@ import type {
 } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { resolveEffectivePuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-feed-config';
 import { formatChessPuzzleThemeLabel } from '@libs/chess-puzzle-shared/chess-puzzle-theme-label';
+import { derivePuzzleRatingChange } from '@libs/chess-puzzle-shared/rating-change';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
+import { usePuzzleInteractions } from './chess-puzzle-play-queries';
 import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
-import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
+import { useChessPuzzleRatingEvents } from './use-chess-puzzle-rating-events';
 import { usePuzzleAllowance } from './use-puzzle-allowance';
 
 /** Puzzle ratings are 400–3000: four tabular digits, padded with figure space. */
@@ -22,6 +24,10 @@ const RATING_SLOT_DIGITS = 4;
 export type ChessPuzzleFeedBarProps = {
   puzzleId?: string | undefined;
   rating?: number | undefined;
+  /** The puzzle's themes, shown once the puzzle is over. */
+  themes?: readonly string[] | undefined;
+  /** The puzzle is over: its own rating and themes may show. */
+  over?: boolean | undefined;
   onOpenFeedSettings: () => void;
 };
 
@@ -83,6 +89,78 @@ const LABEL =
   'text textCaption line-clamp-1 shrink-0 whitespace-nowrap text-text-secondary';
 const NUMERIC_LABEL = `${LABEL} tabular-nums`;
 
+function formatSignedDelta(delta: number): string {
+  return delta > 0 ? `+${delta}` : String(delta);
+}
+
+/**
+ * What the puzzle on the board did to the rating (§8): this play's rating
+ * change once its outcome is decided, or "Unrated" for a repeat (§9).
+ */
+function FeedBarRatingChange(props: { puzzleId: string }): JSX.Element {
+  const events = useChessPuzzleRatingEvents();
+  const interactions = usePuzzleInteractions(() => props.puzzleId);
+  const change = createMemo(() =>
+    derivePuzzleRatingChange({
+      puzzleId: props.puzzleId,
+      interactions: interactions.rows(),
+      ratingEvents: events(),
+    })
+  );
+  const delta = (): number | null => {
+    const current = change();
+    return current.kind === 'rated' ? current.delta : null;
+  };
+  return (
+    <>
+      <Show when={change().kind === 'unrated'}>
+        <FeedBarSep />
+        <p class={LABEL} data-testid="chess-puzzle-feed-unrated-label">
+          {<Trans>Unrated</Trans>}
+        </p>
+      </Show>
+      <Show when={delta()} keyed>
+        {(value) => (
+          <>
+            <FeedBarSep />
+            <p
+              class={NUMERIC_LABEL}
+              data-testid="chess-puzzle-feed-rating-change"
+            >
+              {formatSignedDelta(value)}
+            </p>
+          </>
+        )}
+      </Show>
+    </>
+  );
+}
+
+/** The puzzle's own rating and themes: hidden until the puzzle is over. */
+function FeedBarPuzzleFacts(props: {
+  rating: number;
+  themes: readonly string[];
+  over: boolean;
+}): JSX.Element {
+  const shown = (): boolean => props.over && props.rating > 0;
+  return (
+    <>
+      <ChessPuzzleRatingChip
+        rating={shown() ? props.rating : 0}
+        variant="muted"
+        invisible={!shown()}
+        testID="chess-puzzle-board-elo"
+      />
+      <Show when={props.over && props.themes.length > 0}>
+        <FeedBarSep />
+        <p class={LABEL} data-testid="chess-puzzle-feed-puzzle-themes">
+          {props.themes.map(formatChessPuzzleThemeLabel).join(', ')}
+        </p>
+      </Show>
+    </>
+  );
+}
+
 /**
  * Filter labels paint only after the saved config is in. Until then the
  * id and rating slots already hold their final width, so this block
@@ -111,7 +189,9 @@ function FeedBarFilters(props: {
         {historyFilterLabel(props.config.historyFilter)}
       </p>
       <FeedBarSep />
-      <p class={LABEL}>{themesSummary(props.config.themes)}</p>
+      <p class={LABEL} data-testid="chess-puzzle-feed-themes-label">
+        {themesSummary(props.config.themes)}
+      </p>
       <FeedBarSep />
       <p class={NUMERIC_LABEL}>
         <Trans>
@@ -128,8 +208,6 @@ export function ChessPuzzleFeedBar(
   const myId = useMyId();
   const allowance = usePuzzleAllowance();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
-  // §9: an exhausted-pool re-serve is played again but never re-rated (§8).
-  const alreadyRated = useIsPuzzleAlreadyRated(() => props.puzzleId ?? '');
   const feed = useChessPuzzleFeedState();
   const config = feed.config;
   const pool = useChessPuzzleFeedPoolStats(config);
@@ -139,10 +217,6 @@ export function ChessPuzzleFeedBar(
       profileRating: profileRating(),
     })
   );
-  const showPuzzleRating = (): boolean =>
-    props.rating !== undefined && (props.rating ?? 0) > 0;
-  const puzzleRating = (): number =>
-    showPuzzleRating() ? (props.rating ?? 0) : 0;
   const idLabel = (): string =>
     props.puzzleId !== undefined && props.puzzleId.length > 0
       ? props.puzzleId
@@ -170,18 +244,13 @@ export function ChessPuzzleFeedBar(
           {idLabel()}
         </p>
         <FeedBarSep />
-        <ChessPuzzleRatingChip
-          rating={puzzleRating()}
-          variant="muted"
-          invisible={!showPuzzleRating()}
-          testID="chess-puzzle-board-elo"
+        <FeedBarPuzzleFacts
+          rating={props.rating ?? 0}
+          themes={props.themes ?? []}
+          over={props.over === true}
         />
-        <Show when={alreadyRated()}>
-          <FeedBarSep />
-          <p class={LABEL} data-testid="chess-puzzle-feed-unrated-label">
-            {<Trans>Unrated</Trans>}
-          </p>
-        </Show>
+        {/* §9: a re-serve is played again but never re-rated (§8). */}
+        <FeedBarRatingChange puzzleId={props.puzzleId ?? ''} />
         <Show when={feed.configReady()}>
           <FeedBarFilters
             config={config()}

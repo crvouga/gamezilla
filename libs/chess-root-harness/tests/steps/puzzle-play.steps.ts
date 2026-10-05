@@ -61,6 +61,7 @@ import {
   activePuzzle,
   boardBefore,
   currentPuzzle,
+  ensureOnPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
   previousPuzzle,
@@ -237,6 +238,7 @@ When('{actor} solves the puzzle', async (w, actor: Actor) => {
 });
 
 Given('{actor} has solved the puzzle', async (w, actor: Actor) => {
+  await ensureOnPuzzle(w, actor);
   await solve(w, actor);
 });
 
