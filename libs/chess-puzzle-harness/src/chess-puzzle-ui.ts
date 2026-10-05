@@ -746,8 +746,8 @@ async function enterOrStartSpace(
   const card = await ownSpaceCard(s, actorId);
   if (card !== null) {
     await ui.get(card).tap({ timeoutMs: WAIT_MS });
-    // Another device of the host goes in through the join prompt.
-    await ui.get(Handles.spaceJoin).tap({ timeoutMs: WAIT_MS });
+    // A host enters their own live space automatically, on any device.
+    await waitActiveSpace(s, actorId);
     return;
   }
   await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
