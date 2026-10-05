@@ -39,6 +39,10 @@ export async function multiplayerWatcherBoard(
   return {
     gameId: tag?.match(/data-game-id="([^"]+)"/)?.[1] ?? null,
     fen: tag?.match(/data-fen="([^"]+)"/)?.[1] ?? null,
+    revision: Number(tag?.match(/data-revision="([^"]+)"/)?.[1] ?? -1),
+    outcome: tag?.match(/data-outcome="([^"]+)"/)?.[1] ?? null,
+    canMove: tag?.match(/data-can-move="([^"]+)"/)?.[1] === 'true',
+    announcement: await ui.get('multiplayer-announcement').text(),
     canResign: await ui.get('multiplayer-resign').isVisible(),
     watching:
       (await ui.get('multiplayer-announcement').isVisible()) &&
