@@ -12,6 +12,7 @@ Feature: Multiplayer chess follows the account across other changes
 
     Scenario: A signed-out device cannot continue account-only play
       Given Alice signed out on her phone during a multiplayer game with Bob
+      And Alice is hosting a space
       When Alice finds a chess opponent on her phone
       Then Alice is invited to sign in
       And Alice cannot see the account's multiplayer game on her phone

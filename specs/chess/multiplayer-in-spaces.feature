@@ -6,7 +6,8 @@ Feature: Multiplayer chess is played and watched within spaces
   Rule: Finding an opponent and playing multiplayer chess requires a space
 
     Scenario: A host finds an opponent from the space's chess choices
-      Given Alice is hosting a space
+      Given Alice has a free account and a connection
+      And Alice is hosting a space
       When Alice finds a chess opponent
       Then Alice is looking for a chess opponent
 
@@ -19,7 +20,7 @@ Feature: Multiplayer chess is played and watched within spaces
       And Alice is not looking for a chess opponent
 
   Rule: Guests in either space watch the same multiplayer game
-    No counter-example: watchers follow the accepted game without becoming its matched people.
+    No counter-example: every guest in either space can watch its host's accepted game.
 
     @regression:chess-matchmaking-space-watchers
     Scenario: Guests in different spaces see the accepted multiplayer move
@@ -55,3 +56,18 @@ Feature: Multiplayer chess is played and watched within spaces
       Given Alice and Bob have a multiplayer game in different spaces
       When Carol opens Alice's multiplayer game
       Then Carol is told no multiplayer game is available to her
+
+  Rule: Guests see the multiplayer result only while in either space
+
+    Scenario: A guest sees the result shared by the matched people
+      Given Alice and Bob have a multiplayer game in different spaces
+      And Carol is a guest watching Alice's multiplayer game
+      When Bob resigns multiplayer chess
+      Then Carol sees Alice won the multiplayer game
+      And Carol cannot move multiplayer pieces
+
+    Scenario: A guest who leaves no longer sees the multiplayer board
+      Given Alice and Bob have a multiplayer game in different spaces
+      And Carol is a guest watching Alice's multiplayer game
+      When Carol leaves the space
+      Then Carol has no multiplayer board
