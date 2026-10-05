@@ -414,6 +414,7 @@ describe('turbo check/deploy graph invariants', () => {
     // dist and replaced the content-hashed asset before an upload stream read it.
     expect(tasks['@apps/product#deploy']?.dependsOn).toEqual([
       '@libs/runtime-server#migrate',
+      '@libs/chess-puzzle-server#initialize:catalog',
       '@apps/server#check:api',
       '@apps/product#check:offline-shell',
       '@apps/product#check:worker-bundle',
