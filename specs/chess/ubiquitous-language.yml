@@ -22,7 +22,9 @@ terms:
     model: [PlayDevice]
   - term: connection
     from: kernel
-    model: [loseConnection, comeBackOnline, connectionReturns]
+    model: [online, loseConnection, comeBackOnline, connectionReturns]
+  - term: environment
+    from: kernel
   - term: block someone
     from: friends
   - term: account deletion
@@ -174,8 +176,27 @@ terms:
     definition: >-
       The team putting new puzzles into the puzzle pool. Only good puzzles
       get in; broken ones are turned away.
-    forms: [adds puzzles, added puzzles, has added, the team added]
+    forms:
+      - adds puzzles
+      - added puzzles
+      - adding puzzles
+      - started adding puzzles
+      - finishes adding puzzles
+      - finished adding puzzles
+      - fails to add puzzles
+      - failed to add puzzles
+      - tries to add puzzles
+      - offered to add puzzles
+      - can add puzzles
+      - allowed to add puzzles
+      - puzzles were added
     avoid: [import, ingest, puzzle file]
+    model:
+      - PuzzleLoading
+      - puzzleLoading
+      - addPuzzles
+      - finishAddingPuzzles
+      - failAddingPuzzles
 
   - term: broken puzzle
     definition: >-

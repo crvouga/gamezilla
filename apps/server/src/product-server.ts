@@ -25,6 +25,7 @@ import {
   readDeploymentProtection,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
+  readPuzzleManagerAccountIds,
   resolveCheckoutProvider,
   workerEnvToSecretRecord,
 } from '@libs/app-root-shared/env';
@@ -308,6 +309,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     secrets: secretStore,
     auth: APP_AUTH_PROVIDER,
     protection: readDeploymentProtection(env),
+    puzzleManagerAccountIds: readPuzzleManagerAccountIds(env),
     serverUrl,
     observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
     observabilityCollectorToken:

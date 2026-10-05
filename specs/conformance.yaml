@@ -53,6 +53,7 @@ product:
     - { id: play puzzles, context: chess, decided by: access }
     - { id: customize the puzzle feed, context: chess, decided by: access }
     - { id: start a rated puzzle, context: chess, decided by: daily-puzzle-limit }
+    - { id: add puzzles, context: chess, decided by: puzzle-management-access }
     - { id: create a Custom Game, context: chess, decided by: custom-game-access }
     - { id: configure a Custom Game, context: chess, decided by: custom-game-access }
     - { id: invite a Custom Game participant, context: chess, decided by: custom-game-access }

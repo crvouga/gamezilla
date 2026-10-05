@@ -1,4 +1,9 @@
 import { createMultiplayerChessClient } from '@libs/app-root-client/multiplayer-chess-client';
+import {
+  defineFeatureClient,
+  type FeatureClient,
+} from '@libs/feature-client/client';
+import { lazy } from 'solid-js';
 /**
  * The client half of the composition root: which bounded contexts this
  * product's UI runs, and in what order they nest.
@@ -12,7 +17,6 @@ import { createMultiplayerChessClient } from '@libs/app-root-client/multiplayer-
 
 import { ACCOUNT_PRIVACY_CLIENT } from '@libs/account-privacy-client/feature-client';
 import { BILLING_CLIENT } from '@libs/billing-client/feature-client';
-import type { FeatureClient } from '@libs/feature-client/client';
 import { FRIENDS_CLIENT } from '@libs/friends-client/feature-client';
 import { NOTIFICATIONS_CLIENT } from '@libs/notifications-client/feature-client';
 import { PROFILE_CLIENT } from '@libs/profile-client/feature-client';
@@ -36,6 +40,24 @@ const SPACES_CLIENT = createSpacesClient({
   },
 });
 
+const PUZZLE_MANAGEMENT_CLIENT = defineFeatureClient({
+  name: 'puzzle-management',
+  routes: [
+    {
+      path: '/more/puzzles',
+      load: () =>
+        import('@libs/chess-puzzle-client/puzzle-management-screen').then(
+          (module) => ({ default: module.PuzzleManagementScreen })
+        ),
+    },
+  ],
+  settings: lazy(() =>
+    import('@libs/chess-puzzle-client/puzzle-management-settings').then(
+      (module) => ({ default: module.PuzzleManagementSettings })
+    )
+  ),
+});
+
 export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   // Profile is outermost: a space's room roster reads the local profile, so
   // the profile provider has to be above the room provider.
@@ -51,4 +73,5 @@ export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   NOTIFICATIONS_CLIENT,
   SEARCH_CLIENT,
   BILLING_CLIENT,
+  PUZZLE_MANAGEMENT_CLIENT,
 ];

@@ -43,6 +43,7 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.chessMultiplayerPlay,
   PERMISSION.chessMultiplayerResign,
   PERMISSION.puzzlesCustomizeFeed,
+  PERMISSION.puzzlesManage,
 ];
 
 /**
@@ -147,6 +148,10 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       },
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },
+    [ROLE.puzzleManager]: {
+      when: { accountId: [] },
+      permissions: [PERMISSION.puzzlesManage],
+    },
     [ROLE.spaceMember]: {
       permissions: [
         PERMISSION.spacesLeave,
@@ -229,6 +234,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
+    [PERMISSION.puzzlesManage]: SIGN_UP_UNLOCK,
     [LIMIT.hostedSpaces]: {
       // Guests and free accounts alike: hosting more is what Plus is for.
       limit_reached: {
@@ -249,3 +255,19 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     },
   },
 });
+
+/** The policy materialized for one environment's puzzle-management team. */
+export function permissionPolicyForPuzzleManagers(
+  accountIds: readonly string[]
+): PermissionPolicy<AppPolicyKey, AppLimit> {
+  return definePolicy<AppPolicyKey, AppLimit>({
+    ...DEFAULT_PERMISSION_POLICY,
+    roles: {
+      ...DEFAULT_PERMISSION_POLICY.roles,
+      [ROLE.puzzleManager]: {
+        when: { accountId: [...new Set(accountIds)].sort() },
+        permissions: [PERMISSION.puzzlesManage],
+      },
+    },
+  });
+}

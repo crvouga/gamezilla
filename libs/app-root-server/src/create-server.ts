@@ -21,7 +21,7 @@ import type { AuthContext } from '@libs/auth-shared/types';
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
 import type { ComposedFeatures } from '@libs/feature-shared/compose';
 import type { ComposedFeatureServers } from '@libs/feature-shared/compose-server';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared/permission-policy';
+import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared/permission-policy';
 import { setHttpPubSubOverride } from '@libs/pubsub-server/create-http-pubsub-from-secret-store';
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
 import { SpanStatusCode } from '@opentelemetry/api';
@@ -217,6 +217,7 @@ async function buildDesiredClientConfig(args: {
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
+  readonly puzzleManagerAccountIds: readonly string[];
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
   const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
@@ -233,7 +234,9 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    permissionPolicy: DEFAULT_PERMISSION_POLICY,
+    permissionPolicy: permissionPolicyForPuzzleManagers(
+      args.puzzleManagerAccountIds
+    ),
     billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
 }
@@ -497,6 +500,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
     billingConfigured: billing !== null,
     ttsConfigured: tts.configured,
     llmConfigured: llm.configured,
+    puzzleManagerAccountIds: env.puzzleManagerAccountIds ?? [],
     ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
   });
 

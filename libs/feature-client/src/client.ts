@@ -60,6 +60,8 @@ export type FeatureClient = {
    * strip). Rendered in feature order, above the tab bar.
    */
   readonly tabsDock?: Component;
+  /** Environment-management rows rendered on the shell settings screen. */
+  readonly settings?: Component;
 };
 
 export function defineFeatureClient(client: FeatureClient): FeatureClient {

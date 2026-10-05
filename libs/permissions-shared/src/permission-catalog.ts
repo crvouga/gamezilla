@@ -18,6 +18,7 @@ export const PERMISSION = defineCatalog({
   chessMultiplayerResign: 'chess:multiplayer-resign',
   puzzlesPlay: 'puzzles:play',
   puzzlesCustomizeFeed: 'puzzles:customize-feed',
+  puzzlesManage: 'puzzles:manage',
   chessCustomCreate: 'chess:custom-create',
   chessCustomConfigure: 'chess:custom-configure',
   chessCustomInvite: 'chess:custom-invite',
@@ -79,6 +80,7 @@ export const ROLE = defineCatalog({
   planGuest: 'plan:guest',
   planFree: 'plan:free',
   planPaid: 'plan:paid',
+  puzzleManager: 'puzzle:manager',
   spaceMember: 'space:member',
   spaceHost: 'space:host',
 });

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@libs/auth-client": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
     "@libs/chess-puzzle-shared": "workspace:*",
     "@libs/chess-root-shared": "workspace:*",
     "@libs/permissions-client": "workspace:*",
@@ -33,6 +34,7 @@
     "@pkgs/collab-root-shared": "workspace:*",
     "@pkgs/device-client": "workspace:*",
     "@pkgs/feedback-shared": "workspace:*",
+    "@pkgs/http-client-client": "workspace:*",
     "@pkgs/logger-client": "workspace:*",
     "@pkgs/permissions-shared": "workspace:*",
     "@pkgs/room-root-client": "workspace:*",

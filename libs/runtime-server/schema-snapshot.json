@@ -1,5 +1,5 @@
 {
-  "release": 9,
+  "release": 10,
   "snapshot": {
     "tables": {
       "auth_account_devices": {
@@ -106,8 +106,15 @@
       },
       "chess_puzzle_load": {
         "cursor": "text",
+        "error": "text",
+        "failed_rows": "integer",
         "finished_at": "timestamp",
-        "source_etag": "text"
+        "inserted_rows": "integer",
+        "object_key": "text",
+        "processed_rows": "integer",
+        "requested_by": "text",
+        "source_etag": "text",
+        "status": "text"
       },
       "chess_puzzle_profiles": {
         "last_interaction_at": "timestamp",

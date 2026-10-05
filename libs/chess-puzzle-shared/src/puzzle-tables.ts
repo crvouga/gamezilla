@@ -34,6 +34,13 @@ export const chessPuzzleLoad = defineTable({
     source_etag: 'text',
     cursor: 'text',
     finished_at: 'timestamp',
+    status: 'text',
+    requested_by: 'text',
+    object_key: 'text',
+    processed_rows: 'integer',
+    inserted_rows: 'integer',
+    failed_rows: 'integer',
+    error: 'text',
   },
 });
 

@@ -92,8 +92,8 @@
         "@apps/server": "workspace:*",
         "@crvouga/mockingbird-service-oauth": "catalog:",
         "@crvouga/mockingbird-service-stripe": "catalog:",
-        "@libs/app-root-client": "workspace:*",
         "@libs/app-config-shared": "workspace:*",
+        "@libs/app-root-client": "workspace:*",
         "@libs/app-root-server": "workspace:*",
         "@libs/app-root-shared": "workspace:*",
         "@libs/chess-puzzle-harness": "workspace:*",
@@ -339,86 +339,6 @@
         "typescript": "catalog:",
       },
     },
-    "libs/app-root-client": {
-      "name": "@libs/app-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/app-config-client": "workspace:*",
-        "@libs/app-config-shared": "workspace:*",
-        "@libs/app-root-shared": "workspace:*",
-        "@libs/auth-client": "workspace:*",
-        "@libs/auth-shared": "workspace:*",
-        "@libs/feature-client": "workspace:*",
-        "@libs/feature-shared": "workspace:*",
-        "@libs/permissions-client": "workspace:*",
-        "@libs/permissions-shared": "workspace:*",
-        "@libs/test-ids-shared": "workspace:*",
-        "@lingui/core": "catalog:",
-        "@lingui/solid": "catalog:",
-        "@opentelemetry/api": "catalog:",
-        "@pkgs/auth-inhouse-client": "workspace:*",
-        "@pkgs/auth-inhouse-shared": "workspace:*",
-        "@pkgs/auth-root-shared": "workspace:*",
-        "@pkgs/browser-client": "workspace:*",
-        "@pkgs/clock-client": "workspace:*",
-        "@pkgs/clock-shared": "workspace:*",
-        "@pkgs/device-client": "workspace:*",
-        "@pkgs/device-shared": "workspace:*",
-        "@pkgs/feedback-client": "workspace:*",
-        "@pkgs/feedback-shared": "workspace:*",
-        "@pkgs/git-shared": "workspace:*",
-        "@pkgs/harness-console-client": "workspace:*",
-        "@pkgs/http-client-client": "workspace:*",
-        "@pkgs/http-client-shared": "workspace:*",
-        "@pkgs/keyword-shared": "workspace:*",
-        "@pkgs/kv-root-client": "workspace:*",
-        "@pkgs/kv-root-shared": "workspace:*",
-        "@pkgs/kv-web-client": "workspace:*",
-        "@pkgs/llm-root-client": "workspace:*",
-        "@pkgs/logger-client": "workspace:*",
-        "@pkgs/logger-shared": "workspace:*",
-        "@pkgs/object-store-root-client": "workspace:*",
-        "@pkgs/object-store-opfs-client": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/observability-root-shared": "workspace:*",
-        "@pkgs/pubsub-aedes-shared": "workspace:*",
-        "@pkgs/pubsub-emqx-shared": "workspace:*",
-        "@pkgs/pubsub-root-shared": "workspace:*",
-        "@pkgs/room-root-shared": "workspace:*",
-        "@pkgs/secure-storage-root-client": "workspace:*",
-        "@pkgs/secure-storage-root-shared": "workspace:*",
-        "@pkgs/secure-storage-web-client": "workspace:*",
-        "@pkgs/solid-context-client": "workspace:*",
-        "@pkgs/sounds-client": "workspace:*",
-        "@pkgs/sounds-shared": "workspace:*",
-        "@pkgs/sql-client-root-client": "workspace:*",
-        "@pkgs/sql-client-root-shared": "workspace:*",
-        "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
-        "@pkgs/sql-client-sqlite-web-client": "workspace:*",
-        "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
-        "@pkgs/sql-root-shared": "workspace:*",
-        "@pkgs/sync-engine-client": "workspace:*",
-        "@pkgs/sync-engine-shared": "workspace:*",
-        "@pkgs/tts-root-client": "workspace:*",
-        "@pkgs/ui-root-client": "workspace:*",
-        "@pkgs/ui-root-shared": "workspace:*",
-        "@pkgs/uuid-client": "workspace:*",
-        "@pkgs/uuid-shared": "workspace:*",
-        "@solidjs/router": "catalog:",
-        "solid-js": "catalog:",
-        "web-vitals": "catalog:",
-        "workbox-window": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/a11y-shared": "workspace:*",
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "libs/app-config-client": {
       "name": "@libs/app-config-client",
       "version": "0.0.0",
@@ -469,6 +389,86 @@
         "typescript": "catalog:",
       },
     },
+    "libs/app-root-client": {
+      "name": "@libs/app-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/app-config-client": "workspace:*",
+        "@libs/app-config-shared": "workspace:*",
+        "@libs/app-root-shared": "workspace:*",
+        "@libs/auth-client": "workspace:*",
+        "@libs/auth-shared": "workspace:*",
+        "@libs/feature-client": "workspace:*",
+        "@libs/feature-shared": "workspace:*",
+        "@libs/permissions-client": "workspace:*",
+        "@libs/permissions-shared": "workspace:*",
+        "@libs/test-ids-shared": "workspace:*",
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@opentelemetry/api": "catalog:",
+        "@pkgs/auth-inhouse-client": "workspace:*",
+        "@pkgs/auth-inhouse-shared": "workspace:*",
+        "@pkgs/auth-root-shared": "workspace:*",
+        "@pkgs/browser-client": "workspace:*",
+        "@pkgs/clock-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/device-client": "workspace:*",
+        "@pkgs/device-shared": "workspace:*",
+        "@pkgs/feedback-client": "workspace:*",
+        "@pkgs/feedback-shared": "workspace:*",
+        "@pkgs/git-shared": "workspace:*",
+        "@pkgs/harness-console-client": "workspace:*",
+        "@pkgs/http-client-client": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
+        "@pkgs/keyword-shared": "workspace:*",
+        "@pkgs/kv-root-client": "workspace:*",
+        "@pkgs/kv-root-shared": "workspace:*",
+        "@pkgs/kv-web-client": "workspace:*",
+        "@pkgs/llm-root-client": "workspace:*",
+        "@pkgs/logger-client": "workspace:*",
+        "@pkgs/logger-shared": "workspace:*",
+        "@pkgs/object-store-opfs-client": "workspace:*",
+        "@pkgs/object-store-root-client": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/observability-root-shared": "workspace:*",
+        "@pkgs/pubsub-aedes-shared": "workspace:*",
+        "@pkgs/pubsub-emqx-shared": "workspace:*",
+        "@pkgs/pubsub-root-shared": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
+        "@pkgs/secure-storage-root-client": "workspace:*",
+        "@pkgs/secure-storage-root-shared": "workspace:*",
+        "@pkgs/secure-storage-web-client": "workspace:*",
+        "@pkgs/solid-context-client": "workspace:*",
+        "@pkgs/sounds-client": "workspace:*",
+        "@pkgs/sounds-shared": "workspace:*",
+        "@pkgs/sql-client-root-client": "workspace:*",
+        "@pkgs/sql-client-root-shared": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
+        "@pkgs/sql-client-sqlite-web-client": "workspace:*",
+        "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/sync-engine-client": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
+        "@pkgs/tts-root-client": "workspace:*",
+        "@pkgs/ui-root-client": "workspace:*",
+        "@pkgs/ui-root-shared": "workspace:*",
+        "@pkgs/uuid-client": "workspace:*",
+        "@pkgs/uuid-shared": "workspace:*",
+        "@solidjs/router": "catalog:",
+        "solid-js": "catalog:",
+        "web-vitals": "catalog:",
+        "workbox-window": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/a11y-shared": "workspace:*",
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+    },
     "libs/app-root-server": {
       "name": "@libs/app-root-server",
       "version": "0.0.0",
@@ -492,9 +492,9 @@
         "@pkgs/kv-postgres-shared": "workspace:*",
         "@pkgs/llm-openai-server": "workspace:*",
         "@pkgs/logger-shared": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/object-store-s3-server": "workspace:*",
         "@pkgs/object-store-s3-shared": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/observability-root-server": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
@@ -779,28 +779,6 @@
         "typescript": "catalog:",
       },
     },
-    "libs/chess-root-client": {
-      "name": "@libs/chess-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/chess-custom-game-client": "workspace:*",
-        "@libs/chess-puzzle-client": "workspace:*",
-        "@libs/chess-puzzle-shared": "workspace:*",
-        "@libs/chess-root-shared": "workspace:*",
-        "@libs/chess-shared-client": "workspace:*",
-        "@libs/spaces-client": "workspace:*",
-        "@libs/spaces-shared": "workspace:*",
-        "@lingui/solid": "catalog:",
-        "@pkgs/ui-root-client": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "libs/chess-custom-game-client": {
       "name": "@libs/chess-custom-game-client",
       "version": "0.0.0",
@@ -816,8 +794,8 @@
         "@libs/spaces-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
-        "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
+        "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/room-root-client": "workspace:*",
@@ -891,64 +869,6 @@
         "@pkgs/sql-root-shared": "workspace:*",
       },
       "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/pg": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "libs/chess-root-harness": {
-      "name": "@libs/chess-root-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@libs/account-privacy-harness": "workspace:*",
-        "@libs/app-root-client": "workspace:*",
-        "@libs/auth-shared": "workspace:*",
-        "@libs/chess-custom-game-harness": "workspace:*",
-        "@libs/chess-custom-game-shared": "workspace:*",
-        "@libs/chess-feature-shared": "workspace:*",
-        "@libs/chess-matchmaking-client": "workspace:*",
-        "@libs/chess-matchmaking-harness": "workspace:*",
-        "@libs/chess-matchmaking-shared": "workspace:*",
-        "@libs/chess-puzzle-harness": "workspace:*",
-        "@libs/chess-root-server": "workspace:*",
-        "@libs/harness": "workspace:*",
-        "@libs/permissions-shared": "workspace:*",
-        "@libs/spaces-harness": "workspace:*",
-        "@libs/spaces-server": "workspace:*",
-        "@libs/spaces-shared": "workspace:*",
-        "@libs/test-ids-shared": "workspace:*",
-        "@pkgs/clock-shared": "workspace:*",
-        "@pkgs/matchmaking-sql-shared": "workspace:*",
-        "@pkgs/message-shared": "workspace:*",
-        "@pkgs/sql-root-shared": "workspace:*",
-        "@pkgs/sync-engine-client": "workspace:*",
-        "@pkgs/sync-engine-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@libs/billing-harness": "workspace:*",
-        "@libs/billing-shared": "workspace:*",
-        "@libs/chess-root-client": "workspace:*",
-        "@libs/chess-puzzle-shared": "workspace:*",
-        "@libs/friends-harness": "workspace:*",
-        "@libs/notifications-harness": "workspace:*",
-        "@libs/permissions-client": "workspace:*",
-        "@libs/permissions-harness": "workspace:*",
-        "@libs/profile-harness": "workspace:*",
-        "@libs/search-harness": "workspace:*",
-        "@libs/spaces-client": "workspace:*",
-        "@pkgs/alloy-shared": "workspace:*",
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@pkgs/chess-board-core-shared": "workspace:*",
-        "@pkgs/db-schema-sqlite-shared": "workspace:*",
-        "@pkgs/dmn-shared": "workspace:*",
-        "@pkgs/openslo-shared": "workspace:*",
-        "@pkgs/outbox-shared": "workspace:*",
-        "@pkgs/permissions-shared": "workspace:*",
-        "@pkgs/quint-server": "workspace:*",
-        "@pkgs/quint-shared": "workspace:*",
-        "@pkgs/room-root-shared": "workspace:*",
-        "@pkgs/sql-client-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",
@@ -1039,6 +959,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth-client": "workspace:*",
+        "@libs/auth-shared": "workspace:*",
         "@libs/chess-puzzle-shared": "workspace:*",
         "@libs/chess-root-shared": "workspace:*",
         "@libs/permissions-client": "workspace:*",
@@ -1048,13 +969,14 @@
         "@libs/test-ids-shared": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
-        "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
+        "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/chess-rules-shared": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/collab-root-shared": "workspace:*",
         "@pkgs/device-client": "workspace:*",
         "@pkgs/feedback-shared": "workspace:*",
+        "@pkgs/http-client-client": "workspace:*",
         "@pkgs/logger-client": "workspace:*",
         "@pkgs/permissions-shared": "workspace:*",
         "@pkgs/room-root-client": "workspace:*",
@@ -1200,16 +1122,104 @@
         "typescript": "catalog:",
       },
     },
+    "libs/chess-root-client": {
+      "name": "@libs/chess-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/chess-custom-game-client": "workspace:*",
+        "@libs/chess-puzzle-client": "workspace:*",
+        "@libs/chess-puzzle-shared": "workspace:*",
+        "@libs/chess-root-shared": "workspace:*",
+        "@libs/chess-shared-client": "workspace:*",
+        "@libs/spaces-client": "workspace:*",
+        "@libs/spaces-shared": "workspace:*",
+        "@lingui/solid": "catalog:",
+        "@pkgs/ui-root-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/chess-root-harness": {
+      "name": "@libs/chess-root-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/account-privacy-harness": "workspace:*",
+        "@libs/app-root-client": "workspace:*",
+        "@libs/auth-shared": "workspace:*",
+        "@libs/chess-custom-game-harness": "workspace:*",
+        "@libs/chess-custom-game-shared": "workspace:*",
+        "@libs/chess-feature-shared": "workspace:*",
+        "@libs/chess-matchmaking-client": "workspace:*",
+        "@libs/chess-matchmaking-harness": "workspace:*",
+        "@libs/chess-matchmaking-shared": "workspace:*",
+        "@libs/chess-puzzle-harness": "workspace:*",
+        "@libs/chess-root-server": "workspace:*",
+        "@libs/harness": "workspace:*",
+        "@libs/permissions-shared": "workspace:*",
+        "@libs/spaces-harness": "workspace:*",
+        "@libs/spaces-server": "workspace:*",
+        "@libs/spaces-shared": "workspace:*",
+        "@libs/test-ids-shared": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/matchmaking-sql-shared": "workspace:*",
+        "@pkgs/message-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
+        "@pkgs/sync-engine-client": "workspace:*",
+        "@pkgs/sync-engine-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@libs/billing-harness": "workspace:*",
+        "@libs/billing-shared": "workspace:*",
+        "@libs/chess-puzzle-shared": "workspace:*",
+        "@libs/chess-root-client": "workspace:*",
+        "@libs/friends-harness": "workspace:*",
+        "@libs/notifications-harness": "workspace:*",
+        "@libs/permissions-client": "workspace:*",
+        "@libs/permissions-harness": "workspace:*",
+        "@libs/profile-harness": "workspace:*",
+        "@libs/search-harness": "workspace:*",
+        "@libs/spaces-client": "workspace:*",
+        "@pkgs/alloy-shared": "workspace:*",
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/chess-board-core-shared": "workspace:*",
+        "@pkgs/db-schema-sqlite-shared": "workspace:*",
+        "@pkgs/dmn-shared": "workspace:*",
+        "@pkgs/openslo-shared": "workspace:*",
+        "@pkgs/outbox-shared": "workspace:*",
+        "@pkgs/permissions-shared": "workspace:*",
+        "@pkgs/quint-server": "workspace:*",
+        "@pkgs/quint-shared": "workspace:*",
+        "@pkgs/room-root-shared": "workspace:*",
+        "@pkgs/sql-client-root-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "libs/chess-root-server": {
       "name": "@libs/chess-root-server",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/app-root-shared": "workspace:*",
+        "@libs/auth-shared": "workspace:*",
         "@libs/chess-custom-game-shared": "workspace:*",
         "@libs/chess-matchmaking-shared": "workspace:*",
+        "@libs/chess-puzzle-server": "workspace:*",
         "@libs/feature-shared": "workspace:*",
         "@libs/permissions-server": "workspace:*",
+        "@libs/permissions-shared": "workspace:*",
         "@libs/spaces-shared": "workspace:*",
+        "@pkgs/assert-root-shared": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
+        "@pkgs/uuid-shared": "workspace:*",
+        "hono": "catalog:",
       },
       "devDependencies": {
         "@libs/billing-shared": "workspace:*",
@@ -1218,6 +1228,7 @@
         "@libs/permissions-shared": "workspace:*",
         "@pkgs/db-schema-postgres-shared": "workspace:*",
         "@pkgs/db-schema-root-shared": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/postgres-embedded-server": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
         "@pkgs/sql-client-postgres-shared": "workspace:*",
@@ -1514,8 +1525,8 @@
       "dependencies": {
         "@crvouga/mockingbird-service-oauth": "catalog:",
         "@crvouga/mockingbird-service-stripe": "catalog:",
-        "@libs/app-root-client": "workspace:*",
         "@libs/app-config-shared": "workspace:*",
+        "@libs/app-root-client": "workspace:*",
         "@libs/app-root-server": "workspace:*",
         "@libs/app-root-shared": "workspace:*",
         "@libs/auth-shared": "workspace:*",
@@ -1551,9 +1562,9 @@
         "@pkgs/matchmaking-sql-shared": "workspace:*",
         "@pkgs/object-store-node-fs-server": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-root-server": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
+        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/os-server": "workspace:*",
         "@pkgs/outbox-shared": "workspace:*",
         "@pkgs/postgres-embedded-shared": "workspace:*",
@@ -1566,9 +1577,9 @@
         "@pkgs/secure-storage-root-shared": "workspace:*",
         "@pkgs/secure-storage-web-client": "workspace:*",
         "@pkgs/sounds-shared": "workspace:*",
-        "@pkgs/sql-client-root-harness": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
         "@pkgs/sql-client-postgres-shared": "workspace:*",
+        "@pkgs/sql-client-root-harness": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
@@ -2000,6 +2011,7 @@
         "@libs/app-root-client": "workspace:*",
         "@libs/billing-client": "workspace:*",
         "@libs/chess-matchmaking-client": "workspace:*",
+        "@libs/chess-puzzle-client": "workspace:*",
         "@libs/feature-client": "workspace:*",
         "@libs/friends-client": "workspace:*",
         "@libs/games-client": "workspace:*",
@@ -2550,22 +2562,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/async-root-client": {
-      "name": "@pkgs/async-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/async-root-shared": "workspace:*",
-        "@pkgs/solid-context-client": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/async-local-harness": {
       "name": "@pkgs/async-local-harness",
       "version": "0.0.0",
@@ -2580,6 +2576,22 @@
       "name": "@pkgs/async-local-shared",
       "version": "0.0.0",
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/async-root-client": {
+      "name": "@pkgs/async-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/async-root-shared": "workspace:*",
+        "@pkgs/solid-context-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2614,53 +2626,12 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/auth-root-client": {
-      "name": "@pkgs/auth-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/auth-root-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/auth-root-harness": {
-      "name": "@pkgs/auth-root-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@crvouga/mockingbird-service-oauth": "catalog:",
-        "@pkgs/auth-root-client": "workspace:*",
-        "@pkgs/auth-inhouse-client": "workspace:*",
-        "@pkgs/auth-inhouse-server": "workspace:*",
-        "@pkgs/auth-inhouse-shared": "workspace:*",
-        "@pkgs/auth-root-shared": "workspace:*",
-        "@pkgs/harness-root-shared": "workspace:*",
-        "@pkgs/http-client-shared": "workspace:*",
-        "@pkgs/sql-client-postgres-server": "workspace:*",
-        "@pkgs/sql-client-root-shared": "workspace:*",
-        "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
-        "@pkgs/sql-root-shared": "workspace:*",
-        "fast-check": "catalog:",
-        "hono": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@pkgs/gherkin-shared": "workspace:*",
-        "@pkgs/quint-server": "workspace:*",
-        "@pkgs/quint-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/auth-inhouse-client": {
       "name": "@pkgs/auth-inhouse-client",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/auth-root-client": "workspace:*",
         "@pkgs/auth-inhouse-shared": "workspace:*",
+        "@pkgs/auth-root-client": "workspace:*",
         "@pkgs/auth-root-shared": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
         "@pkgs/http-client-shared": "workspace:*",
@@ -2733,6 +2704,47 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/auth-root-client": {
+      "name": "@pkgs/auth-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/auth-root-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/auth-root-harness": {
+      "name": "@pkgs/auth-root-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@crvouga/mockingbird-service-oauth": "catalog:",
+        "@pkgs/auth-inhouse-client": "workspace:*",
+        "@pkgs/auth-inhouse-server": "workspace:*",
+        "@pkgs/auth-inhouse-shared": "workspace:*",
+        "@pkgs/auth-root-client": "workspace:*",
+        "@pkgs/auth-root-shared": "workspace:*",
+        "@pkgs/harness-root-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
+        "@pkgs/sql-client-postgres-server": "workspace:*",
+        "@pkgs/sql-client-root-shared": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
+        "fast-check": "catalog:",
+        "hono": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/gherkin-shared": "workspace:*",
+        "@pkgs/quint-server": "workspace:*",
+        "@pkgs/quint-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2887,6 +2899,23 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/chess-board-core-shared": {
+      "name": "@pkgs/chess-board-core-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/chess-rules-shared": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/ui-testing-root-shared": "workspace:*",
+        "chess.js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/chess-board-root-client": {
       "name": "@pkgs/chess-board-root-client",
       "version": "0.0.0",
@@ -2914,23 +2943,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/chess-board-core-shared": {
-      "name": "@pkgs/chess-board-core-shared",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/chess-rules-shared": "workspace:*",
-        "@pkgs/clock-shared": "workspace:*",
-        "@pkgs/ui-testing-root-shared": "workspace:*",
-        "chess.js": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/property-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/chess-board-root-harness": {
       "name": "@pkgs/chess-board-root-harness",
       "version": "0.0.0",
@@ -2938,8 +2950,8 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/a11y-shared": "workspace:*",
-        "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/chess-board-core-shared": "workspace:*",
+        "@pkgs/chess-board-root-client": "workspace:*",
         "@pkgs/chess-board-root-shared": "workspace:*",
         "@pkgs/clock-client": "workspace:*",
         "@pkgs/clock-shared": "workspace:*",
@@ -3116,32 +3128,12 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/db-indexes-root-harness": {
-      "name": "@pkgs/db-indexes-root-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/assert-root-shared": "workspace:*",
-        "@pkgs/clock-shared": "workspace:*",
-        "@pkgs/db-indexes-root-shared": "workspace:*",
-        "@pkgs/harness-root-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@pkgs/gherkin-shared": "workspace:*",
-        "@pkgs/property-shared": "workspace:*",
-        "@pkgs/quint-server": "workspace:*",
-        "@pkgs/quint-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/db-indexes-postgres-harness": {
       "name": "@pkgs/db-indexes-postgres-harness",
       "version": "0.0.0",
       "devDependencies": {
-        "@pkgs/db-indexes-root-harness": "workspace:*",
         "@pkgs/db-indexes-postgres-shared": "workspace:*",
+        "@pkgs/db-indexes-root-harness": "workspace:*",
         "@pkgs/db-indexes-root-shared": "workspace:*",
         "@pkgs/postgres-embedded-server": "workspace:*",
         "@pkgs/sql-client-postgres-server": "workspace:*",
@@ -3164,6 +3156,26 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/db-indexes-root-harness": {
+      "name": "@pkgs/db-indexes-root-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert-root-shared": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/db-indexes-root-shared": "workspace:*",
+        "@pkgs/harness-root-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/gherkin-shared": "workspace:*",
+        "@pkgs/property-shared": "workspace:*",
+        "@pkgs/quint-server": "workspace:*",
+        "@pkgs/quint-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3226,19 +3238,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/db-schema-root-harness": {
-      "name": "@pkgs/db-schema-root-harness",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@pkgs/db-schema-root-shared": "workspace:*",
-        "@pkgs/gherkin-shared": "workspace:*",
-        "@pkgs/quint-server": "workspace:*",
-        "@pkgs/quint-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/db-schema-postgres-server": {
       "name": "@pkgs/db-schema-postgres-server",
       "version": "0.0.0",
@@ -3268,6 +3267,19 @@
         "@pkgs/sql-root-shared": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/db-schema-root-harness": {
+      "name": "@pkgs/db-schema-root-harness",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/db-schema-root-shared": "workspace:*",
+        "@pkgs/gherkin-shared": "workspace:*",
+        "@pkgs/quint-server": "workspace:*",
+        "@pkgs/quint-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -3637,9 +3649,9 @@
         "@pkgs/object-store-root-shared": "workspace:*",
         "@pkgs/sql-client-root-shared": "workspace:*",
         "@pkgs/sql-root-shared": "workspace:*",
-        "@pkgs/ui-root-client": "workspace:*",
         "@pkgs/ui-devtools-client": "workspace:*",
         "@pkgs/ui-devtools-shared": "workspace:*",
+        "@pkgs/ui-root-client": "workspace:*",
         "@pkgs/ui-root-shared": "workspace:*",
         "@pkgs/uuid-client": "workspace:*",
         "solid-js": "catalog:",
@@ -3790,26 +3802,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/kv-root-client": {
-      "name": "@pkgs/kv-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/clock-client": "workspace:*",
-        "@pkgs/keyword-shared": "workspace:*",
-        "@pkgs/kv-root-shared": "workspace:*",
-        "@pkgs/logger-shared": "workspace:*",
-        "@pkgs/solid-context-client": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@pkgs/clock-shared": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/kv-postgres-harness": {
       "name": "@pkgs/kv-postgres-harness",
       "version": "0.0.0",
@@ -3837,6 +3829,26 @@
         "@pkgs/sql-root-shared": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/kv-root-client": {
+      "name": "@pkgs/kv-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-client": "workspace:*",
+        "@pkgs/keyword-shared": "workspace:*",
+        "@pkgs/kv-root-shared": "workspace:*",
+        "@pkgs/logger-shared": "workspace:*",
+        "@pkgs/solid-context-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -3873,21 +3885,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/llm-root-client": {
-      "name": "@pkgs/llm-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/http-client-shared": "workspace:*",
-        "@pkgs/kv-root-shared": "workspace:*",
-        "@pkgs/llm-root-shared": "workspace:*",
-        "@pkgs/solid-context-client": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/llm-openai-server": {
       "name": "@pkgs/llm-openai-server",
       "version": "0.0.0",
@@ -3914,6 +3911,21 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/llm-root-client": {
+      "name": "@pkgs/llm-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/http-client-shared": "workspace:*",
+        "@pkgs/kv-root-shared": "workspace:*",
+        "@pkgs/llm-root-shared": "workspace:*",
+        "@pkgs/solid-context-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -4142,20 +4154,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/object-store-root-client": {
-      "name": "@pkgs/object-store-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/solid-context-client": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/object-store-node-fs-server": {
       "name": "@pkgs/object-store-node-fs-server",
       "version": "0.0.0",
@@ -4203,13 +4201,36 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/object-store-root-client": {
+      "name": "@pkgs/object-store-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/solid-context-client": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/object-store-root-shared": {
+      "name": "@pkgs/object-store-root-shared",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/object-store-s3-server": {
       "name": "@pkgs/object-store-s3-server",
       "version": "0.0.0",
       "dependencies": {
         "@aws-sdk/client-s3": "catalog:",
-        "@pkgs/object-store-s3-shared": "workspace:*",
         "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/object-store-s3-shared": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property-shared": "workspace:*",
@@ -4236,15 +4257,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/object-store-root-shared": {
-      "name": "@pkgs/object-store-root-shared",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/observability-cli-server": {
       "name": "@pkgs/observability-cli-server",
       "version": "0.0.0",
@@ -4259,8 +4271,8 @@
       },
       "devDependencies": {
         "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-root-server": "workspace:*",
+        "@pkgs/observability-runtime-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -4276,39 +4288,6 @@
         "@pkgs/sql-root-shared": "workspace:*",
       },
       "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/observability-root-client": {
-      "name": "@pkgs/observability-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@opentelemetry/api": "catalog:",
-        "@opentelemetry/instrumentation": "catalog:",
-        "@opentelemetry/instrumentation-fetch": "catalog:",
-        "@opentelemetry/sdk-trace-web": "catalog:",
-        "@pkgs/observability-runtime-shared": "workspace:*",
-        "@pkgs/observability-root-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/observability-root-harness": {
-      "name": "@pkgs/observability-root-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@opentelemetry/api": "catalog:",
-        "@opentelemetry/sdk-trace-base": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/observability-root-client": "workspace:*",
-        "@pkgs/observability-root-server": "workspace:*",
-        "@pkgs/observability-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -4342,18 +4321,34 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/observability-runtime-shared": {
-      "name": "@pkgs/observability-runtime-shared",
+    "pkgs/observability-root-client": {
+      "name": "@pkgs/observability-root-client",
       "version": "0.0.0",
       "dependencies": {
         "@opentelemetry/api": "catalog:",
-        "@opentelemetry/exporter-trace-otlp-http": "catalog:",
-        "@opentelemetry/resources": "catalog:",
-        "@opentelemetry/sdk-trace-base": "catalog:",
-        "@pkgs/object-store-root-shared": "workspace:*",
+        "@opentelemetry/instrumentation": "catalog:",
+        "@opentelemetry/instrumentation-fetch": "catalog:",
+        "@opentelemetry/sdk-trace-web": "catalog:",
         "@pkgs/observability-root-shared": "workspace:*",
+        "@pkgs/observability-runtime-shared": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/observability-root-harness": {
+      "name": "@pkgs/observability-root-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@opentelemetry/api": "catalog:",
+        "@opentelemetry/sdk-trace-base": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/observability-root-client": "workspace:*",
+        "@pkgs/observability-root-server": "workspace:*",
+        "@pkgs/observability-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -4367,8 +4362,8 @@
         "@opentelemetry/context-async-hooks": "catalog:",
         "@opentelemetry/sdk-trace-base": "catalog:",
         "@opentelemetry/sdk-trace-node": "catalog:",
-        "@pkgs/observability-runtime-shared": "workspace:*",
         "@pkgs/observability-root-shared": "workspace:*",
+        "@pkgs/observability-runtime-shared": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/object-store-root-shared": "workspace:*",
@@ -4385,6 +4380,23 @@
         "@opentelemetry/api": "catalog:",
         "@opentelemetry/semantic-conventions": "catalog:",
         "@pkgs/object-store-root-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/observability-runtime-shared": {
+      "name": "@pkgs/observability-runtime-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@opentelemetry/api": "catalog:",
+        "@opentelemetry/exporter-trace-otlp-http": "catalog:",
+        "@opentelemetry/resources": "catalog:",
+        "@opentelemetry/sdk-trace-base": "catalog:",
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/observability-root-shared": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -5086,20 +5098,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/sql-client-root-client": {
-      "name": "@pkgs/sql-client-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/solid-context-client": "workspace:*",
-        "@pkgs/sql-client-root-shared": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/sql-client-contract-harness": {
       "name": "@pkgs/sql-client-contract-harness",
       "version": "0.0.0",
@@ -5121,33 +5119,6 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/sql-client-root-harness": {
-      "name": "@pkgs/sql-client-root-harness",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/clock-shared": "workspace:*",
-        "@pkgs/db-schema-root-shared": "workspace:*",
-        "@pkgs/db-schema-sqlite-shared": "workspace:*",
-        "@pkgs/harness-root-shared": "workspace:*",
-        "@pkgs/logger-shared": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/sql-client-postgres-server": "workspace:*",
-        "@pkgs/sql-client-postgres-shared": "workspace:*",
-        "@pkgs/sql-client-root-shared": "workspace:*",
-        "@pkgs/sql-client-sqlite-root-server": "workspace:*",
-        "@pkgs/sql-client-sqlite-web-client": "workspace:*",
-        "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
-        "@pkgs/sql-root-shared": "workspace:*",
-        "better-sqlite3": "catalog:",
-        "fast-check": "catalog:",
-      },
-      "devDependencies": {
-        "@types/better-sqlite3": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -5184,6 +5155,47 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/sql-client-root-client": {
+      "name": "@pkgs/sql-client-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/solid-context-client": "workspace:*",
+        "@pkgs/sql-client-root-shared": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/sql-client-root-harness": {
+      "name": "@pkgs/sql-client-root-harness",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/db-schema-root-shared": "workspace:*",
+        "@pkgs/db-schema-sqlite-shared": "workspace:*",
+        "@pkgs/harness-root-shared": "workspace:*",
+        "@pkgs/logger-shared": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/sql-client-postgres-server": "workspace:*",
+        "@pkgs/sql-client-postgres-shared": "workspace:*",
+        "@pkgs/sql-client-root-shared": "workspace:*",
+        "@pkgs/sql-client-sqlite-root-server": "workspace:*",
+        "@pkgs/sql-client-sqlite-web-client": "workspace:*",
+        "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
+        "better-sqlite3": "catalog:",
+        "fast-check": "catalog:",
+      },
+      "devDependencies": {
+        "@types/better-sqlite3": "catalog:",
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -5306,17 +5318,6 @@
         "vite": "catalog:",
       },
     },
-    "pkgs/sql-root-harness": {
-      "name": "@pkgs/sql-root-harness",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@pkgs/assert-root-shared": "workspace:*",
-        "@pkgs/sql-root-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/sql-map-shared": {
       "name": "@pkgs/sql-map-shared",
       "version": "0.0.0",
@@ -5325,6 +5326,17 @@
         "@pkgs/sql-root-shared": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/sql-root-harness": {
+      "name": "@pkgs/sql-root-harness",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/assert-root-shared": "workspace:*",
+        "@pkgs/sql-root-shared": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -5511,27 +5523,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/tts-root-client": {
-      "name": "@pkgs/tts-root-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/http-client-client": "workspace:*",
-        "@pkgs/object-store-root-client": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/solid-context-client": "workspace:*",
-        "@pkgs/sounds-client": "workspace:*",
-        "@pkgs/sounds-shared": "workspace:*",
-        "@pkgs/tts-root-shared": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/tts-elevenlabs-server": {
       "name": "@pkgs/tts-elevenlabs-server",
       "version": "0.0.0",
@@ -5562,6 +5553,27 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/tts-root-client": {
+      "name": "@pkgs/tts-root-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/http-client-client": "workspace:*",
+        "@pkgs/object-store-root-client": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/solid-context-client": "workspace:*",
+        "@pkgs/sounds-client": "workspace:*",
+        "@pkgs/sounds-shared": "workspace:*",
+        "@pkgs/tts-root-shared": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/tts-root-server": {
       "name": "@pkgs/tts-root-server",
       "version": "0.0.0",
@@ -5581,6 +5593,78 @@
       "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/ui-devtools-client": {
+      "name": "@pkgs/ui-devtools-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@lingui/core": "catalog:",
+        "@lingui/solid": "catalog:",
+        "@pkgs/async-root-client": "workspace:*",
+        "@pkgs/ui-devtools-shared": "workspace:*",
+        "@pkgs/ui-root-client": "workspace:*",
+        "@pkgs/ui-root-shared": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/bun-test-solid-client": "workspace:*",
+        "@pkgs/clock-client": "workspace:*",
+        "@pkgs/clock-shared": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/ui-devtools-shared": {
+      "name": "@pkgs/ui-devtools-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/ui-root-shared": "workspace:*",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/ui-quality-check-server": {
+      "name": "@pkgs/ui-quality-check-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared": "workspace:*",
+        "@pkgs/http-client-shared": "workspace:*",
+        "@pkgs/object-store-node-fs-server": "workspace:*",
+        "@pkgs/object-store-root-shared": "workspace:*",
+        "@pkgs/os-server": "workspace:*",
+        "@pkgs/ui-quality-check-shared": "workspace:*",
+        "ffmpeg-static": "5.3.0",
+        "onnxruntime-node": "1.30.0",
+        "sharp": "0.35.5",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "esbuild": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/ui-quality-check-shared": {
+      "name": "@pkgs/ui-quality-check-shared",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -5626,41 +5710,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/ui-devtools-client": {
-      "name": "@pkgs/ui-devtools-client",
-      "version": "0.0.0",
-      "dependencies": {
-        "@lingui/core": "catalog:",
-        "@lingui/solid": "catalog:",
-        "@pkgs/async-root-client": "workspace:*",
-        "@pkgs/ui-root-client": "workspace:*",
-        "@pkgs/ui-devtools-shared": "workspace:*",
-        "@pkgs/ui-root-shared": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@pkgs/bun-test-solid-client": "workspace:*",
-        "@pkgs/clock-client": "workspace:*",
-        "@pkgs/clock-shared": "workspace:*",
-        "@solidjs/testing-library": "catalog:",
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/ui-devtools-shared": {
-      "name": "@pkgs/ui-devtools-shared",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/ui-root-shared": "workspace:*",
-        "solid-js": "catalog:",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/ui-root-harness": {
       "name": "@pkgs/ui-root-harness",
       "version": "0.0.0",
@@ -5684,43 +5733,6 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/ui-quality-check-server": {
-      "name": "@pkgs/ui-quality-check-server",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/clock-shared": "workspace:*",
-        "@pkgs/http-client-shared": "workspace:*",
-        "@pkgs/object-store-node-fs-server": "workspace:*",
-        "@pkgs/object-store-root-shared": "workspace:*",
-        "@pkgs/os-server": "workspace:*",
-        "@pkgs/ui-quality-check-shared": "workspace:*",
-        "ffmpeg-static": "5.3.0",
-        "onnxruntime-node": "1.30.0",
-        "sharp": "0.35.5",
-      },
-      "devDependencies": {
-        "@pkgs/property-shared": "workspace:*",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@typescript/native": "catalog:",
-        "esbuild": "catalog:",
-        "fast-check": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "pkgs/ui-quality-check-shared": {
-      "name": "@pkgs/ui-quality-check-shared",
-      "version": "0.0.0",
-      "dependencies": {
-        "@pkgs/clock-shared": "workspace:*",
-      },
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -6628,13 +6640,13 @@
 
     "@libs/account-privacy-shared": ["@libs/account-privacy-shared@workspace:libs/account-privacy-shared"],
 
-    "@libs/app-root-client": ["@libs/app-root-client@workspace:libs/app-root-client"],
-
     "@libs/app-config-client": ["@libs/app-config-client@workspace:libs/app-config-client"],
 
     "@libs/app-config-server": ["@libs/app-config-server@workspace:libs/app-config-server"],
 
     "@libs/app-config-shared": ["@libs/app-config-shared@workspace:libs/app-config-shared"],
+
+    "@libs/app-root-client": ["@libs/app-root-client@workspace:libs/app-root-client"],
 
     "@libs/app-root-server": ["@libs/app-root-server@workspace:libs/app-root-server"],
 
@@ -6654,8 +6666,6 @@
 
     "@libs/billing-shared": ["@libs/billing-shared@workspace:libs/billing-shared"],
 
-    "@libs/chess-root-client": ["@libs/chess-root-client@workspace:libs/chess-root-client"],
-
     "@libs/chess-custom-game-client": ["@libs/chess-custom-game-client@workspace:libs/chess-custom-game-client"],
 
     "@libs/chess-custom-game-harness": ["@libs/chess-custom-game-harness@workspace:libs/chess-custom-game-harness"],
@@ -6663,8 +6673,6 @@
     "@libs/chess-custom-game-shared": ["@libs/chess-custom-game-shared@workspace:libs/chess-custom-game-shared"],
 
     "@libs/chess-feature-shared": ["@libs/chess-feature-shared@workspace:libs/chess-feature-shared"],
-
-    "@libs/chess-root-harness": ["@libs/chess-root-harness@workspace:libs/chess-root-harness"],
 
     "@libs/chess-matchmaking-client": ["@libs/chess-matchmaking-client@workspace:libs/chess-matchmaking-client"],
 
@@ -6679,6 +6687,10 @@
     "@libs/chess-puzzle-server": ["@libs/chess-puzzle-server@workspace:libs/chess-puzzle-server"],
 
     "@libs/chess-puzzle-shared": ["@libs/chess-puzzle-shared@workspace:libs/chess-puzzle-shared"],
+
+    "@libs/chess-root-client": ["@libs/chess-root-client@workspace:libs/chess-root-client"],
+
+    "@libs/chess-root-harness": ["@libs/chess-root-harness@workspace:libs/chess-root-harness"],
 
     "@libs/chess-root-server": ["@libs/chess-root-server@workspace:libs/chess-root-server"],
 
@@ -7010,19 +7022,15 @@
 
     "@pkgs/assistant-shared": ["@pkgs/assistant-shared@workspace:pkgs/assistant-shared"],
 
-    "@pkgs/async-root-client": ["@pkgs/async-root-client@workspace:pkgs/async-root-client"],
-
     "@pkgs/async-local-harness": ["@pkgs/async-local-harness@workspace:pkgs/async-local-harness"],
 
     "@pkgs/async-local-shared": ["@pkgs/async-local-shared@workspace:pkgs/async-local-shared"],
 
+    "@pkgs/async-root-client": ["@pkgs/async-root-client@workspace:pkgs/async-root-client"],
+
     "@pkgs/async-root-shared": ["@pkgs/async-root-shared@workspace:pkgs/async-root-shared"],
 
     "@pkgs/attribute-shared": ["@pkgs/attribute-shared@workspace:pkgs/attribute-shared"],
-
-    "@pkgs/auth-root-client": ["@pkgs/auth-root-client@workspace:pkgs/auth-root-client"],
-
-    "@pkgs/auth-root-harness": ["@pkgs/auth-root-harness@workspace:pkgs/auth-root-harness"],
 
     "@pkgs/auth-inhouse-client": ["@pkgs/auth-inhouse-client@workspace:pkgs/auth-inhouse-client"],
 
@@ -7031,6 +7039,10 @@
     "@pkgs/auth-inhouse-server": ["@pkgs/auth-inhouse-server@workspace:pkgs/auth-inhouse-server"],
 
     "@pkgs/auth-inhouse-shared": ["@pkgs/auth-inhouse-shared@workspace:pkgs/auth-inhouse-shared"],
+
+    "@pkgs/auth-root-client": ["@pkgs/auth-root-client@workspace:pkgs/auth-root-client"],
+
+    "@pkgs/auth-root-harness": ["@pkgs/auth-root-harness@workspace:pkgs/auth-root-harness"],
 
     "@pkgs/auth-root-shared": ["@pkgs/auth-root-shared@workspace:pkgs/auth-root-shared"],
 
@@ -7052,9 +7064,9 @@
 
     "@pkgs/bun-test-solid-client": ["@pkgs/bun-test-solid-client@workspace:pkgs/bun-test-solid-client"],
 
-    "@pkgs/chess-board-root-client": ["@pkgs/chess-board-root-client@workspace:pkgs/chess-board-root-client"],
-
     "@pkgs/chess-board-core-shared": ["@pkgs/chess-board-core-shared@workspace:pkgs/chess-board-core-shared"],
+
+    "@pkgs/chess-board-root-client": ["@pkgs/chess-board-root-client@workspace:pkgs/chess-board-root-client"],
 
     "@pkgs/chess-board-root-harness": ["@pkgs/chess-board-root-harness@workspace:pkgs/chess-board-root-harness"],
 
@@ -7080,11 +7092,11 @@
 
     "@pkgs/database-url-policy-shared": ["@pkgs/database-url-policy-shared@workspace:pkgs/database-url-policy-shared"],
 
-    "@pkgs/db-indexes-root-harness": ["@pkgs/db-indexes-root-harness@workspace:pkgs/db-indexes-root-harness"],
-
     "@pkgs/db-indexes-postgres-harness": ["@pkgs/db-indexes-postgres-harness@workspace:pkgs/db-indexes-postgres-harness"],
 
     "@pkgs/db-indexes-postgres-shared": ["@pkgs/db-indexes-postgres-shared@workspace:pkgs/db-indexes-postgres-shared"],
+
+    "@pkgs/db-indexes-root-harness": ["@pkgs/db-indexes-root-harness@workspace:pkgs/db-indexes-root-harness"],
 
     "@pkgs/db-indexes-root-shared": ["@pkgs/db-indexes-root-shared@workspace:pkgs/db-indexes-root-shared"],
 
@@ -7094,11 +7106,11 @@
 
     "@pkgs/db-migrate-shared": ["@pkgs/db-migrate-shared@workspace:pkgs/db-migrate-shared"],
 
-    "@pkgs/db-schema-root-harness": ["@pkgs/db-schema-root-harness@workspace:pkgs/db-schema-root-harness"],
-
     "@pkgs/db-schema-postgres-server": ["@pkgs/db-schema-postgres-server@workspace:pkgs/db-schema-postgres-server"],
 
     "@pkgs/db-schema-postgres-shared": ["@pkgs/db-schema-postgres-shared@workspace:pkgs/db-schema-postgres-shared"],
+
+    "@pkgs/db-schema-root-harness": ["@pkgs/db-schema-root-harness@workspace:pkgs/db-schema-root-harness"],
 
     "@pkgs/db-schema-root-shared": ["@pkgs/db-schema-root-shared@workspace:pkgs/db-schema-root-shared"],
 
@@ -7168,21 +7180,21 @@
 
     "@pkgs/keyword-shared": ["@pkgs/keyword-shared@workspace:pkgs/keyword-shared"],
 
-    "@pkgs/kv-root-client": ["@pkgs/kv-root-client@workspace:pkgs/kv-root-client"],
-
     "@pkgs/kv-postgres-harness": ["@pkgs/kv-postgres-harness@workspace:pkgs/kv-postgres-harness"],
 
     "@pkgs/kv-postgres-shared": ["@pkgs/kv-postgres-shared@workspace:pkgs/kv-postgres-shared"],
+
+    "@pkgs/kv-root-client": ["@pkgs/kv-root-client@workspace:pkgs/kv-root-client"],
 
     "@pkgs/kv-root-shared": ["@pkgs/kv-root-shared@workspace:pkgs/kv-root-shared"],
 
     "@pkgs/kv-web-client": ["@pkgs/kv-web-client@workspace:pkgs/kv-web-client"],
 
-    "@pkgs/llm-root-client": ["@pkgs/llm-root-client@workspace:pkgs/llm-root-client"],
-
     "@pkgs/llm-openai-server": ["@pkgs/llm-openai-server@workspace:pkgs/llm-openai-server"],
 
     "@pkgs/llm-openai-shared": ["@pkgs/llm-openai-shared@workspace:pkgs/llm-openai-shared"],
+
+    "@pkgs/llm-root-client": ["@pkgs/llm-root-client@workspace:pkgs/llm-root-client"],
 
     "@pkgs/llm-root-server": ["@pkgs/llm-root-server@workspace:pkgs/llm-root-server"],
 
@@ -7214,8 +7226,6 @@
 
     "@pkgs/ndjson-shared": ["@pkgs/ndjson-shared@workspace:pkgs/ndjson-shared"],
 
-    "@pkgs/object-store-root-client": ["@pkgs/object-store-root-client@workspace:pkgs/object-store-root-client"],
-
     "@pkgs/object-store-node-fs-server": ["@pkgs/object-store-node-fs-server@workspace:pkgs/object-store-node-fs-server"],
 
     "@pkgs/object-store-node-fs-shared": ["@pkgs/object-store-node-fs-shared@workspace:pkgs/object-store-node-fs-shared"],
@@ -7224,29 +7234,31 @@
 
     "@pkgs/object-store-opfs-shared": ["@pkgs/object-store-opfs-shared@workspace:pkgs/object-store-opfs-shared"],
 
+    "@pkgs/object-store-root-client": ["@pkgs/object-store-root-client@workspace:pkgs/object-store-root-client"],
+
+    "@pkgs/object-store-root-shared": ["@pkgs/object-store-root-shared@workspace:pkgs/object-store-root-shared"],
+
     "@pkgs/object-store-s3-server": ["@pkgs/object-store-s3-server@workspace:pkgs/object-store-s3-server"],
 
     "@pkgs/object-store-s3-shared": ["@pkgs/object-store-s3-shared@workspace:pkgs/object-store-s3-shared"],
-
-    "@pkgs/object-store-root-shared": ["@pkgs/object-store-root-shared@workspace:pkgs/object-store-root-shared"],
 
     "@pkgs/observability-cli-server": ["@pkgs/observability-cli-server@workspace:pkgs/observability-cli-server"],
 
     "@pkgs/observability-cli-shared": ["@pkgs/observability-cli-shared@workspace:pkgs/observability-cli-shared"],
 
-    "@pkgs/observability-root-client": ["@pkgs/observability-root-client@workspace:pkgs/observability-root-client"],
-
-    "@pkgs/observability-root-harness": ["@pkgs/observability-root-harness@workspace:pkgs/observability-root-harness"],
-
     "@pkgs/observability-mcp-server": ["@pkgs/observability-mcp-server@workspace:pkgs/observability-mcp-server"],
 
     "@pkgs/observability-mcp-shared": ["@pkgs/observability-mcp-shared@workspace:pkgs/observability-mcp-shared"],
 
-    "@pkgs/observability-runtime-shared": ["@pkgs/observability-runtime-shared@workspace:pkgs/observability-runtime-shared"],
+    "@pkgs/observability-root-client": ["@pkgs/observability-root-client@workspace:pkgs/observability-root-client"],
+
+    "@pkgs/observability-root-harness": ["@pkgs/observability-root-harness@workspace:pkgs/observability-root-harness"],
 
     "@pkgs/observability-root-server": ["@pkgs/observability-root-server@workspace:pkgs/observability-root-server"],
 
     "@pkgs/observability-root-shared": ["@pkgs/observability-root-shared@workspace:pkgs/observability-root-shared"],
+
+    "@pkgs/observability-runtime-shared": ["@pkgs/observability-runtime-shared@workspace:pkgs/observability-runtime-shared"],
 
     "@pkgs/openslo-server": ["@pkgs/openslo-server@workspace:pkgs/openslo-server"],
 
@@ -7344,15 +7356,15 @@
 
     "@pkgs/sql-cli-shared": ["@pkgs/sql-cli-shared@workspace:pkgs/sql-cli-shared"],
 
-    "@pkgs/sql-client-root-client": ["@pkgs/sql-client-root-client@workspace:pkgs/sql-client-root-client"],
-
     "@pkgs/sql-client-contract-harness": ["@pkgs/sql-client-contract-harness@workspace:pkgs/sql-client-contract-harness"],
-
-    "@pkgs/sql-client-root-harness": ["@pkgs/sql-client-root-harness@workspace:pkgs/sql-client-root-harness"],
 
     "@pkgs/sql-client-postgres-server": ["@pkgs/sql-client-postgres-server@workspace:pkgs/sql-client-postgres-server"],
 
     "@pkgs/sql-client-postgres-shared": ["@pkgs/sql-client-postgres-shared@workspace:pkgs/sql-client-postgres-shared"],
+
+    "@pkgs/sql-client-root-client": ["@pkgs/sql-client-root-client@workspace:pkgs/sql-client-root-client"],
+
+    "@pkgs/sql-client-root-harness": ["@pkgs/sql-client-root-harness@workspace:pkgs/sql-client-root-harness"],
 
     "@pkgs/sql-client-root-shared": ["@pkgs/sql-client-root-shared@workspace:pkgs/sql-client-root-shared"],
 
@@ -7368,9 +7380,9 @@
 
     "@pkgs/sql-client-sqlite-web-shared": ["@pkgs/sql-client-sqlite-web-shared@workspace:pkgs/sql-client-sqlite-web-shared"],
 
-    "@pkgs/sql-root-harness": ["@pkgs/sql-root-harness@workspace:pkgs/sql-root-harness"],
-
     "@pkgs/sql-map-shared": ["@pkgs/sql-map-shared@workspace:pkgs/sql-map-shared"],
+
+    "@pkgs/sql-root-harness": ["@pkgs/sql-root-harness@workspace:pkgs/sql-root-harness"],
 
     "@pkgs/sql-root-shared": ["@pkgs/sql-root-shared@workspace:pkgs/sql-root-shared"],
 
@@ -7392,27 +7404,27 @@
 
     "@pkgs/ts-reset-shared": ["@pkgs/ts-reset-shared@workspace:pkgs/ts-reset-shared"],
 
-    "@pkgs/tts-root-client": ["@pkgs/tts-root-client@workspace:pkgs/tts-root-client"],
-
     "@pkgs/tts-elevenlabs-server": ["@pkgs/tts-elevenlabs-server@workspace:pkgs/tts-elevenlabs-server"],
 
     "@pkgs/tts-elevenlabs-shared": ["@pkgs/tts-elevenlabs-shared@workspace:pkgs/tts-elevenlabs-shared"],
+
+    "@pkgs/tts-root-client": ["@pkgs/tts-root-client@workspace:pkgs/tts-root-client"],
 
     "@pkgs/tts-root-server": ["@pkgs/tts-root-server@workspace:pkgs/tts-root-server"],
 
     "@pkgs/tts-root-shared": ["@pkgs/tts-root-shared@workspace:pkgs/tts-root-shared"],
 
-    "@pkgs/ui-root-client": ["@pkgs/ui-root-client@workspace:pkgs/ui-root-client"],
-
     "@pkgs/ui-devtools-client": ["@pkgs/ui-devtools-client@workspace:pkgs/ui-devtools-client"],
 
     "@pkgs/ui-devtools-shared": ["@pkgs/ui-devtools-shared@workspace:pkgs/ui-devtools-shared"],
 
-    "@pkgs/ui-root-harness": ["@pkgs/ui-root-harness@workspace:pkgs/ui-root-harness"],
-
     "@pkgs/ui-quality-check-server": ["@pkgs/ui-quality-check-server@workspace:pkgs/ui-quality-check-server"],
 
     "@pkgs/ui-quality-check-shared": ["@pkgs/ui-quality-check-shared@workspace:pkgs/ui-quality-check-shared"],
+
+    "@pkgs/ui-root-client": ["@pkgs/ui-root-client@workspace:pkgs/ui-root-client"],
+
+    "@pkgs/ui-root-harness": ["@pkgs/ui-root-harness@workspace:pkgs/ui-root-harness"],
 
     "@pkgs/ui-root-shared": ["@pkgs/ui-root-shared@workspace:pkgs/ui-root-shared"],
 

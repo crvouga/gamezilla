@@ -34,6 +34,7 @@ export const CAPABILITY_KEYS = {
   'start another multiplayer game': LIMIT.unfinishedMultiplayerGames,
   'play puzzles': PERMISSION.puzzlesPlay,
   'customize the puzzle feed': PERMISSION.puzzlesCustomizeFeed,
+  'add puzzles': PERMISSION.puzzlesManage,
   'start a rated puzzle': ACTION.puzzleRatedSolve,
   'create a space': PERMISSION.spacesCreate,
   'join a space': PERMISSION.spacesJoin,
