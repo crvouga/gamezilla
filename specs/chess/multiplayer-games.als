@@ -1,4 +1,4 @@
-// Every accepted chess matchmaking match has one complete private game.
+// Every accepted chess matchmaking match has one complete shared game.
 // Earlier games remain history; a person has at most one unfinished game.
 sig PlayPerson { currentPlay: lone PlayGame }
 sig MatchmakingMatch { matchedPeople: some PlayPerson }

@@ -1,7 +1,7 @@
 @domain:chess
-Feature: Keep a private multiplayer game after time away
+Feature: Keep a multiplayer game after time away
   When a person goes away from their game, they want to find the accepted
-  board and result on return, so the game stays lasting and private.
+  board and result on return, so the game stays lasting within spaces.
 
   Rule: An offline device keeps its last known board and the game unfinished
 
@@ -27,7 +27,7 @@ Feature: Keep a private multiplayer game after time away
       When Alice's phone loses its multiplayer connection
       Then Alice and Bob keep the unfinished multiplayer game
 
-  Rule: Only the two matched people can see or act on the private game
+  Rule: Only people in either space can see the game and only matched people can act
 
     Scenario: A matched person opens their board
       Given Alice has an unfinished multiplayer game with Bob

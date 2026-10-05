@@ -2,7 +2,7 @@
 Feature: Find someone to play multiplayer chess
   When a person wants to play ordinary chess against another person, they
   want a compatible opponent and one lasting game, so matchmaking gives
-  both people the same private multiplayer game.
+  both people the same multiplayer game.
 
   Rule: Finding a chess opponent needs an account and a connection
 
