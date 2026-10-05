@@ -8,19 +8,19 @@ Feature: Multiplayer ratings for each speed
 
     Scenario: A blitz rating loses its "?" once it settles
       Given Alice's blitz rating is one rated multiplayer game from settling
-      And Alice has an unfinished 3+2 multiplayer game with Bob
+      And Alice is White and Bob is Black in a 3+2 multiplayer game after e4 and e5
       When Bob resigns multiplayer chess
       Then Alice sees her blitz rating without the "?"
 
     Scenario: A new account's blitz rating still shows the "?" after one multiplayer result
-      Given Alice and Bob have new accounts and a 5+0 multiplayer game
+      Given Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5
       When Bob resigns multiplayer chess
       Then Alice's blitz rating is still shown with the "?"
 
   Rule: Every finished multiplayer game moves both people's rating for its speed exactly once
 
     Background:
-      Given Alice and Bob have new accounts and a 5+0 multiplayer game
+      Given Alice and Bob have new accounts and a 5+0 multiplayer game after e4 and e5
 
     Scenario: A multiplayer win between two new accounts raises one rating as much as it lowers the other
       When Bob resigns multiplayer chess
@@ -41,14 +41,14 @@ Feature: Multiplayer ratings for each speed
   Rule: A multiplayer result never moves the multiplayer rating of another speed
 
     Scenario: A rapid game moves the rapid rating and leaves blitz alone
-      Given Alice and Bob have new accounts and a 10+5 multiplayer game
+      Given Alice and Bob have new accounts and a 10+5 multiplayer game after e4 and e5
       When Bob resigns multiplayer chess
       Then Alice sees her rapid rating rise above 1500
       And Alice's blitz rating is still 1500
 
     Scenario: A blitz multiplayer result cannot move a rapid rating
       Given Alice has a rapid rating of 1700
-      And Alice has an unfinished 5+0 multiplayer game with Bob
+      And Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       When Bob resigns multiplayer chess
       Then Alice's rapid rating is still 1700
 

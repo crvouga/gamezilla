@@ -43,6 +43,7 @@ Feature: Chess opponents respect the person's other choices
       And Alice is looking for a chess opponent
 
     Scenario: A multiplayer result does not move a puzzle rating
-      Given Alice has a puzzle rating of 1700 and an unfinished multiplayer game
+      Given Alice's puzzle rating has settled at 1700
+      And Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       When Alice resigns multiplayer chess
       Then Alice's puzzle rating is still 1700

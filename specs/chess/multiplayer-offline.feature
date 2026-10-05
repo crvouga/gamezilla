@@ -12,7 +12,8 @@ Feature: Multiplayer chess needs a connection to change anything
       Then Alice's phone keeps its last known multiplayer board
 
     Scenario: An offline person cannot resign
-      Given Alice has a new multiplayer game and her phone is offline
+      Given Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+      And Alice's phone is offline
       When Alice resigns multiplayer chess
       Then Alice is told multiplayer chess needs a connection
       And the multiplayer game is still unfinished

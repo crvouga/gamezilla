@@ -9,13 +9,14 @@
 // Neither multiplayer clock runs until both people have made their first
 // move. White has 30 seconds from the start for it, and Black 30 seconds from
 // White's first move; missing it aborts the game. Either person may abort
-// until both have moved. After that only the side to move spends time, each
-// legal move adds the increment to the person who made it, and running out
-// of time loses. Every finished game counts once toward both people's rated
-// multiplayer games at its speed; an aborted game counts for nobody. A draw
-// offer waits for the other person, and their move declines it. After a
-// finished game either person may offer a rematch: a new game at the same
-// time control with colours swapped, without a new search.
+// until both have moved, and resigning waits until then; confirming account
+// deletion before then aborts the game too. After that only the side to move
+// spends time, each legal move adds the increment to the person who made it,
+// and running out of time loses. Every finished game counts once toward both
+// people's rated multiplayer games at its speed; an aborted game counts for
+// nobody. A draw offer waits for the other person, and their move declines
+// it. After a finished game either person may offer a rematch: a new game at
+// the same time control with colours swapped, without a new search.
 //
 // Three people each have two devices. Two matchmaking matches, and a rematch
 // of each, show competing devices, moves for an earlier board, old
@@ -333,10 +334,13 @@ module multiplayer {
     }
   }
 
-  /// Either person can resign this unfinished game; old resignations stay old.
+  /// Once both people have made their first move, either person can resign
+  /// this unfinished game; before that they abort instead. Old resignations stay old.
   action resignPlay(device: PlayDevice, number: int): bool = {
     val g = _games.get(number)
-    val resigns = _canAct(device) and _current.get(device.person) == number and g.outcome == OngoingPlay
+    val resigns = and {
+      _canAct(device), _current.get(device.person) == number, g.outcome == OngoingPlay, g.moves >= 2,
+    }
     _show(if (resigns) _record(_now, number, { ...g, outcome: WonPlay(_other(g, device.person)) }) else _now)
   }
 
@@ -427,12 +431,14 @@ module multiplayer {
     _show(if (declines) { ..._now, games: _games.set(number, { ...g, rematchBy: NOBODY }) } else _now)
   }
 
-  /// Confirmed account deletion stops searching, gives up unfinished play
-  /// and ends any rematch offer.
+  /// Confirmed account deletion stops searching, aborts a game in which
+  /// both people have not yet moved, gives up other unfinished play and
+  /// ends any rematch offer.
   action deletePlayAccount(person: str): bool = {
     val n = _current.get(person)
     val g = _games.get(n)
-    val given = if (_unfinished(person)) _record(_now, n, { ...g, outcome: WonPlay(_other(g, person)) })
+    val given = if (_unfinished(person) and g.moves < 2) _record(_now, n, { ...g, outcome: AbortedPlay })
+      else if (_unfinished(person)) _record(_now, n, { ...g, outcome: WonPlay(_other(g, person)) })
       else { ..._now, games: _games.set(n, { ...g, rematchBy: NOBODY }) }
     _show({ ...given,
       current: _current.set(person, 0), seeking: _seeking.set(person, NONE),
@@ -517,7 +523,8 @@ module multiplayer {
     _unfinished(p) implies _seeking.get(p) == NONE,
   })
   /// A winner is one of the two people, nobody moves once a game is over,
-  /// and only a game in which both people have not yet moved is aborted.
+  /// only a game in which both people have not yet moved is aborted, and
+  /// nobody wins a game before both people have moved.
   val invHonestResult = NUMBERS.forall(n => {
     val g = _games.get(n)
     and {
@@ -525,6 +532,7 @@ module multiplayer {
         g.outcome == AbortedPlay or g.outcome == WonPlay(g.white) or g.outcome == WonPlay(g.black),
       g.outcome != OngoingPlay implies _turn(g) == NOBODY,
       g.outcome == AbortedPlay implies g.moves < 2,
+      (g.outcome == WonPlay(g.white) or g.outcome == WonPlay(g.black)) implies g.moves >= 2,
     }
   })
   /// Every search and game has an offered time control; a rematch follows a

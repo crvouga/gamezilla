@@ -741,8 +741,9 @@ terms:
       End a multiplayer game before both people have made their first move.
       It has no winner, moves nobody's multiplayer rating, and frees both
       people to find a chess opponent again; it has no rematch. Either person
-      may abort until both have moved, and afterwards may resign instead.
-      Missing the first move aborts the game too.
+      may abort until both have moved, and only afterwards may resign.
+      Missing the first move, or confirming account deletion before both
+      people have moved, aborts the game too.
     forms:
       - aborts the multiplayer game
       - aborted the multiplayer game
@@ -831,10 +832,13 @@ terms:
 
   - term: resign multiplayer chess
     definition: >-
-      Give up the unfinished multiplayer game. Either person may resign
-      regardless of turn; repeating the same resignation keeps its result.
-      Confirming account deletion gives up that person's unfinished game
-      and stops their opponent search before their account disappears.
+      Give up the unfinished multiplayer game once both people have made
+      their first move; before that, resigning is refused and the person is
+      told to abort the multiplayer game instead. From then on either person
+      may resign regardless of turn; repeating the same resignation keeps
+      its result. Confirming account deletion gives up that person's
+      unfinished game, or aborts it if both people have not yet moved, and
+      stops their opponent search before their account disappears.
     forms: [resigns multiplayer chess, resigned multiplayer chess]
     model: [resignPlay]
 

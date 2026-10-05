@@ -27,6 +27,25 @@ Feature: Abort a multiplayer game before it begins
       Then Alice is told the multiplayer game is over
       And both people still see Alice won the multiplayer game
 
+  Rule: Resigning is refused until both people have made their first move, and the person is told to abort instead
+
+    Scenario: Black cannot resign before either person has moved
+      Given Alice is White and Bob is Black in a new multiplayer game
+      When Bob resigns multiplayer chess
+      Then Bob is told to abort the multiplayer game instead
+      And the multiplayer game is still unfinished
+
+    Scenario: Black cannot resign after only White's first move
+      Given Alice's multiplayer move e2 to e4 was accepted
+      When Bob resigns multiplayer chess
+      Then Bob is told to abort the multiplayer game instead
+      And the multiplayer game is still unfinished
+
+    Scenario: Black may resign once both people have moved
+      Given Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
+      When Bob resigns multiplayer chess
+      Then both people see Alice won the multiplayer game
+
   Rule: Missing the first move aborts the multiplayer game
 
     Scenario: White misses the first move after 30 seconds

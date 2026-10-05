@@ -7,9 +7,10 @@ Feature: A matchmaking pair play a lasting multiplayer game
 
     Scenario: Two accounts are matched and can finish their multiplayer game
       Given Alice and Bob have accounts on fresh devices
-      And Alice is finding a multiplayer chess opponent
-      When Bob starts finding a multiplayer chess opponent
+      And Alice is finding a 5+0 multiplayer chess opponent
+      When Bob starts finding a 5+0 multiplayer chess opponent
       Then Alice and Bob have the same multiplayer chess game within 5 seconds
+      When White and Black open with e4 and e5 in multiplayer chess
       When Bob resigns multiplayer chess
       Then both people see Alice won the multiplayer game
 
@@ -21,6 +22,6 @@ Feature: A matchmaking pair play a lasting multiplayer game
 
     Scenario: A guest reaches the account invitation without starting a search
       Given Alice is a guest on a fresh device
-      When Alice starts finding a multiplayer chess opponent
+      When Alice starts finding a 5+0 multiplayer chess opponent
       Then Alice is invited to sign in
       And Alice has no multiplayer chess game

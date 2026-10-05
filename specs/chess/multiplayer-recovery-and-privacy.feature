@@ -45,7 +45,7 @@ Feature: Keep a private multiplayer game after time away
       Then Carol is told no multiplayer game is available to her
       And Alice and Bob keep the same multiplayer board
 
-  Rule: Confirmed account deletion stops searching and gives up unfinished play
+  Rule: Confirmed account deletion stops searching, aborts a game not yet begun and otherwise gives up unfinished play
 
     Scenario: Deleting an account removes its opponent search
       Given Alice is looking for a chess opponent
@@ -53,8 +53,14 @@ Feature: Keep a private multiplayer game after time away
       Then Alice is not looking for a chess opponent
       And Bob cannot be matched with Alice's deleted account
 
+    Scenario: Deleting an account before both first moves aborts the game
+      Given Alice is White and Bob is Black in a new 5+0 multiplayer game
+      When Alice confirms account deletion
+      Then Bob sees the multiplayer game was aborted
+      And neither person's blitz rating has moved
+
     Scenario: Deleting an account preserves the other person's multiplayer result
-      Given Alice has an unfinished multiplayer game with Bob
+      Given Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       When Alice confirms account deletion
       Then Bob sees he won the multiplayer game
       And Bob is not shown Alice's deleted personal details

@@ -40,10 +40,10 @@ Feature: Play the same multiplayer board together
       Then Alice is told her multiplayer board has changed
       And both multiplayer boards still show two moves
 
-  Rule: Either person may resign an unfinished game
+  Rule: Once both people have made their first move, either person may resign an unfinished game
 
     Scenario: A person resigns outside their turn
-      Given Alice is White and Bob is Black in a new multiplayer game
+      Given Alice is White and Bob is Black in a 5+0 multiplayer game after e4 and e5
       When Bob resigns multiplayer chess
       Then both people see Alice won the multiplayer game
 

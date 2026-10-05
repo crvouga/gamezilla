@@ -12,8 +12,8 @@ Feature: Play multiplayer chess without a mouse or sight
       Then Alice is looking for a chess opponent
 
     Scenario: A person using the keyboard can move a piece and resign
-      Given Alice is White in a new multiplayer game and is using the keyboard alone
-      When Alice plays e2 to e4 as a multiplayer move with the keyboard
+      Given Alice is White after e4 and e5 in a 5+0 multiplayer game and is using the keyboard alone
+      When Alice plays g1 to f3 as a multiplayer move with the keyboard
       Then Bob has the multiplayer turn
       And Alice can resign multiplayer chess with the keyboard
 
@@ -67,6 +67,6 @@ Feature: Play multiplayer chess without a mouse or sight
       Then Alice hears Bob offered her a multiplayer rematch
 
     Scenario: A listener hears an accepted multiplayer result
-      Given Alice is listening to her unfinished multiplayer game with Bob
+      Given Alice is listening to her 5+0 multiplayer game with Bob after e4 and e5
       When Bob resigns multiplayer chess
       Then Alice hears she won the multiplayer game
