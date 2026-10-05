@@ -1,6 +1,7 @@
 import { createMultiplayerChessClient } from '@libs/app-root-client/multiplayer-chess-client';
 import { CUSTOM_GAME_HARNESS_ACTIONS } from '@libs/chess-custom-game-harness/custom-game-actions';
 import { CHESS_FEATURE } from '@libs/chess-feature-shared/feature';
+import MultiplayerScreen from '@libs/chess-matchmaking-client/multiplayer-screen';
 import { MULTIPLAYER_HARNESS_ACTIONS } from '@libs/chess-matchmaking-harness/multiplayer-actions';
 import {
   givenMultiplayerPosition,
@@ -25,9 +26,7 @@ import {
 export const CHESS_HARNESS_SLICE: HarnessSlice = {
   name: 'chess',
   feature: CHESS_FEATURE,
-  client: createMultiplayerChessClient(
-    () => import('@libs/chess-matchmaking-client/multiplayer-screen')
-  ),
+  client: createMultiplayerChessClient(MultiplayerScreen),
   server: () => CHESS_SERVER,
   seedServer: seedChessPuzzlesForHarness,
   actions: [

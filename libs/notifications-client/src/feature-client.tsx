@@ -1,3 +1,5 @@
+import NotificationsScreen from './notifications';
+import { AppNotificationsProvider } from './notifications-provider';
 /** @jsxImportSource solid-js */
 /**
  * What notifications contributes to a client app: the inbox screen and tab,
@@ -23,7 +25,7 @@ export const NOTIFICATIONS_CLIENT = defineFeatureClient({
     {
       path: '/notifications',
       tab: true,
-      load: () => import('./notifications'),
+      component: NotificationsScreen,
     },
   ],
   tabs: [
@@ -37,8 +39,5 @@ export const NOTIFICATIONS_CLIENT = defineFeatureClient({
     },
   ],
   chrome: NotificationsUnreadCountRoot,
-  session: () =>
-    import('./notifications-provider').then((m) => ({
-      default: m.AppNotificationsProvider,
-    })),
+  session: AppNotificationsProvider,
 });

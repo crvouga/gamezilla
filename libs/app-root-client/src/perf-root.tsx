@@ -1,3 +1,4 @@
+import { createWallPerfSampler } from './wall';
 /** @jsxImportSource solid-js */
 /**
  * Wires preference + sampler under the app shell. The HUD banner portals into
@@ -6,7 +7,6 @@
  * injected timers; tests and harnesses pass their own.
  */
 
-import { createLazyPerfSampler } from '@libs/app-root-shared/create-lazy-perf-sampler';
 import type { PerfSampler } from '@libs/app-root-shared/types';
 import { useTimers } from '@pkgs/clock-client/solid';
 import { type JSX, untrack } from 'solid-js';
@@ -36,11 +36,7 @@ export function PerfRoot(props: {
   const timers = useTimers();
   // Composition-root configuration: read once, not tracked.
   const sampler =
-    untrack(() => props.sampler) ??
-    createLazyPerfSampler(async () => {
-      const { createWallPerfSampler } = await import('./wall');
-      return createWallPerfSampler({ timers });
-    });
+    untrack(() => props.sampler) ?? createWallPerfSampler({ timers });
   return (
     <PerfHudPreferenceProvider>
       <PerfHudGate sampler={sampler}>{props.children}</PerfHudGate>

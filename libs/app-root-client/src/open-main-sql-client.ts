@@ -1,8 +1,8 @@
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 /**
  * Browser local SQLite: multi-tab-safe OPFS broker from
  * `@pkgs/sql-client-sqlite-web`. Local sync schema migration runs after open.
- * Loaded on demand from `wall-client-env` so the web SQLite client stays off
- * first load; database naming lives in `./main-sqlite-db-name`.
+ * Database naming lives in `./main-sqlite-db-name`.
  */
 
 import { getMainSqliteDbName } from '@libs/app-root-shared/main-sqlite-db-name';
@@ -30,17 +30,8 @@ export async function openMainSqlClient(
   }
 }
 
-/**
- * A connected in-memory SQLite client for when the OPFS cache is unusable.
- * Imported on demand: this module is on the boot path and the in-memory
- * engine is ~80 KB gzip that only the failure path needs. Every fallback
- * goes through here — one static import anywhere in the client graph lets
- * the bundler co-locate shared helpers into that chunk and pull it eager.
- */
+/** A connected disposable cache when OPFS is unavailable. */
 export async function openDisposableSqlClient(): Promise<SqlClient> {
-  const { SqlClientImplMockingbirdSqlite } = await import(
-    '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite'
-  );
   const client = SqlClientImplMockingbirdSqlite.open();
   await client.connect();
   return client;

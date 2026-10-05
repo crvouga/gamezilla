@@ -5,9 +5,7 @@
  * every environment shares). The localhost stack reads it from its API. A
  * Vite server still aimed at the wrangler preview origin reads it from the
  * page origin, because that server does not start wrangler.
- * Loaded as its own lazy chunk, so the wall client
- * never downloads the viewer, and isolated from the product: no sync engine,
- * no product chrome.
+ * Imported at startup and mounted independently of product chrome.
  */
 
 import { getServerBaseUrl } from '@libs/app-root-shared/api-url';

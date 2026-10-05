@@ -1,3 +1,4 @@
+import { FRIENDS_MUTATIONS } from './mutations';
 /**
  * The friends feature's manifest — everything the composition root needs to
  * fold this bounded context into an app, and the only thing about friends
@@ -24,5 +25,5 @@ export const FRIENDS_FEATURE = defineFeature({
   // of the local database warm.
   sessionQueries: ['friendships', 'friendRequests', 'userBlocks'],
   queries: FRIENDS_QUERIES,
-  mutations: async () => (await import('./mutations')).FRIENDS_MUTATIONS,
+  mutations: async () => FRIENDS_MUTATIONS,
 });

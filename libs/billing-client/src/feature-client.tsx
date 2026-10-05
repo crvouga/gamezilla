@@ -1,3 +1,4 @@
+import { BillingScreen } from './billing-screen';
 /** @jsxImportSource solid-js */
 /**
  * What billing contributes to a client app: the membership screen. Nothing
@@ -11,8 +12,7 @@ export const BILLING_CLIENT = defineFeatureClient({
   routes: [
     {
       path: '/more/billing',
-      load: () =>
-        import('./billing-screen').then((m) => ({ default: m.BillingScreen })),
+      component: BillingScreen,
     },
   ],
 });

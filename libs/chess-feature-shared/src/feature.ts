@@ -1,3 +1,4 @@
+import { CHESS_MUTATIONS } from './mutations';
 /**
  * The chess feature's manifest — everything the composition root needs to
  * fold this bounded context into an app, and the only thing about chess
@@ -26,5 +27,5 @@ export const CHESS_FEATURE = defineFeature({
     'chessPuzzleRatingEvents',
   ],
   queries: CHESS_QUERIES,
-  mutations: async () => (await import('./mutations')).CHESS_MUTATIONS,
+  mutations: async () => CHESS_MUTATIONS,
 });

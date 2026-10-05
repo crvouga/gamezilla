@@ -19,13 +19,13 @@ describe('development client startup', () => {
     }
   });
 
-  test('keeps optional surfaces and the Lucide barrel off the cold graph', () => {
+  test('eagerly loads surfaces and uses individual Lucide icons', () => {
     const main = source('apps/product/src/main.tsx');
     const icons = source('pkgs/ui-root-client/src/icons.ts');
 
     expect(main).not.toMatch(/from ['"]\.\/root-app['"]/);
     expect(main).not.toMatch(/from ['"]\.\/wall-console-env['"]/);
-    expect(main).toContain("import('./harness-boot')");
+    expect(main).toContain("from './harness-boot'");
     expect(icons).not.toMatch(/from ['"]lucide-solid['"]/);
     expect(icons).toContain("from 'lucide-solid/icons/activity'");
   });

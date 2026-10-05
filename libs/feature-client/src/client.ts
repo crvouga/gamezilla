@@ -5,20 +5,15 @@
  * Kept in its own module because the data manifest is folded on the server
  * too, and nothing in a Worker should pull Solid or the design system.
  *
- * Route loaders are thunks, so listing a feature's routes costs a few
- * closures — the screens themselves stay on their own chunks, which is what
- * the lazy bundle budgets are measured against.
  */
 
 import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import type { Component, JSX } from 'solid-js';
 
-export type FeatureRouteModule = { readonly default: Component };
-
 export type FeatureRoute = {
   /** `@solidjs/router` path pattern (`:param` segments). */
   readonly path: string;
-  readonly load: () => Promise<FeatureRouteModule>;
+  readonly component: Component;
   /** Renders inside the tabs layout (bottom tab bar on compact). */
   readonly tab?: true | undefined;
 };
@@ -36,24 +31,13 @@ export type FeatureTab = {
 
 export type FeatureProvider = Component<{ readonly children: JSX.Element }>;
 
-export type FeatureProviderModule = { readonly default: FeatureProvider };
-
-/**
- * A feature's client half.
- *
- * The two provider slots differ in what they may assume, and in when they
- * load. `chrome` mounts above the local-database gate: it paints before
- * SQLite is open, must not read synced data, and is imported eagerly, so keep
- * it small. `session` mounts inside the ready sync tree where queries and the
- * mutation client exist; it is a thunk, because that is where a feature's
- * mutation and query graphs live and none of that may reach the entry chunk.
- */
+/** A feature's screens and providers, imported before the app mounts. */
 export type FeatureClient = {
   readonly name: string;
   readonly routes: readonly FeatureRoute[];
   readonly tabs?: readonly FeatureTab[];
   readonly chrome?: FeatureProvider;
-  readonly session?: () => Promise<FeatureProviderModule>;
+  readonly session?: FeatureProvider;
   /**
    * Docked between the tab body and the tab bar — the place a feature keeps a
    * persistent control that outlives navigation (a now-playing bar, a call

@@ -32,7 +32,7 @@ export type TopicMapFor<TableName extends string> = {
   readonly [K in TableName]?: TopicMapEntry;
 };
 
-/** A feature's writes, loaded on demand. */
+/** A feature's eagerly imported writes, composed asynchronously. */
 export type LoadMutations = () => Promise<readonly Mutation<unknown>[]>;
 
 export type FeatureManifest<
@@ -68,12 +68,7 @@ export type FeatureManifest<
    * which of its reads are session-scoped rather than the shell guessing.
    */
   readonly sessionQueries?: readonly string[];
-  /**
-   * Writes, behind a thunk. Mutation bodies pull the feature's whole domain
-   * layer, so they stay on their own chunk boundary: the client loads them
-   * with its first sync engine, and a slice harness loads only what the
-   * features under test declared.
-   */
+  /** Writes composed asynchronously from eagerly imported definitions. */
   readonly mutations: LoadMutations;
   readonly accountPrivacy?: AccountPrivacyContribution;
   readonly accountPrivacyGuard?: AccountPrivacyGuard;

@@ -13,18 +13,12 @@
  * blank white screen.
  */
 
-import { createMemo, type JSX, lazy, Match, Show, Switch } from 'solid-js';
+import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import { LocalDatabaseBootErrorScreen } from './boot-error-screen';
 import { BootLoadingShell } from './boot-loading-shell';
 import { useLocalIdentity } from './identity-context';
+import ReadyEngineTree from './sync-engine-ready-tree';
 import { useSyncEngineBootViews } from './use-sync-engine-boot-views';
-
-/**
- * Engine provider tree (`@pkgs/sync-engine/solid` + mutation client). Lazy so
- * the SQL AST parser stays out of the initial chunk; preloaded with the engine
- * so it is resolved by the time the boot state flips to `ready`.
- */
-const ReadyEngineTree = lazy(() => import('./sync-engine-ready-tree'));
 
 function SyncEngineBootWithUser(props: {
   readonly userId: string;
@@ -33,7 +27,6 @@ function SyncEngineBootWithUser(props: {
 }): JSX.Element {
   const views = useSyncEngineBootViews({
     userId: () => props.userId,
-    preloadReadyTree: () => ReadyEngineTree.preload(),
   });
 
   return (

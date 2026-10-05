@@ -5,8 +5,11 @@
  * runs the same analysis against the real `dist/`.
  */
 import { describe, expect, test } from 'bun:test';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
+import { readDistGraph } from './dist-graph';
 import type { OfflineShellInput } from './sw-policy';
 import {
   analyzeOfflineShell,
@@ -306,4 +309,22 @@ describe('offline-shell properties', () => {
       })
     );
   });
+});
+
+// regression: eager-offline-graph
+test('precaches the eager entry graph without requiring separate surface chunks', async () => {
+  const store = new ObjectStoreImplInMemory();
+  await writeUtf8(
+    store,
+    'index.html',
+    '<script type="module" src="/assets/main.js"></script>'
+  );
+  await writeUtf8(store, 'assets/main.js', 'export const app = {};');
+  await writeUtf8(store, 'sql-workers/sqlite3.wasm', 'wasm');
+  const graph = await readDistGraph(store);
+  expect(wallReachable(graph)).toEqual([
+    'assets/main.js',
+    'index.html',
+    'sql-workers/sqlite3.wasm',
+  ]);
 });

@@ -1,4 +1,0 @@
-{
-  "summary": "The disabled performance HUD eagerly bundled its browser sampler and web-vitals attribution into the client boot path, leaving the cross-platform bundle budget without enough headroom. Fixed by loading the sampler only when the HUD is enabled.",
-  "regressionTest": "libs/app-root-shared/tests/create-lazy-perf-sampler.test.ts"
-}

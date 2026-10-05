@@ -1,3 +1,4 @@
+import { PROFILE_MUTATIONS } from './mutations';
 /**
  * The profile feature's manifest — everything the composition root needs to
  * fold this bounded context into an app, and the only thing about profile
@@ -19,5 +20,5 @@ export const PROFILE_FEATURE = defineFeature({
   // of the local database warm.
   sessionQueries: ['ownProfile'],
   queries: PROFILE_QUERIES,
-  mutations: async () => (await import('./mutations')).PROFILE_MUTATIONS,
+  mutations: async () => PROFILE_MUTATIONS,
 });

@@ -38,7 +38,6 @@ function useMayOpenDbAfterPaint(): Accessor<boolean> {
 function useSyncBootPromise(args: {
   readonly userId: Accessor<string>;
   readonly mayOpenDb: Accessor<boolean>;
-  readonly preloadReadyTree: () => Promise<unknown>;
 }): Accessor<Promise<ReadySyncEngine>> {
   const env = useClientEnv();
   const loadApp = useAppData();
@@ -87,15 +86,13 @@ function useSyncBootPromise(args: {
           }
         : {}),
     });
-    return Promise.all([
-      engine,
-      pool.mutationRegistry(),
-      args.preloadReadyTree(),
-    ]).then(async ([resolved, registry]) => {
-      await resolved.connect();
-      exposeLocalSqlForTests(resolved.db);
-      return { engine: resolved, registry };
-    });
+    return Promise.all([engine, pool.mutationRegistry()]).then(
+      async ([resolved, registry]) => {
+        await resolved.connect();
+        exposeLocalSqlForTests(resolved.db);
+        return { engine: resolved, registry };
+      }
+    );
   });
 }
 
@@ -111,7 +108,6 @@ export type SyncEngineBootViews = {
  */
 export function useSyncEngineBootViews(args: {
   readonly userId: Accessor<string>;
-  readonly preloadReadyTree: () => Promise<unknown>;
 }): SyncEngineBootViews {
   const timers = useTimers();
   const log = useLogger('sync-engine-boot');
@@ -120,7 +116,6 @@ export function useSyncEngineBootViews(args: {
   const bootPromise = useSyncBootPromise({
     userId: args.userId,
     mayOpenDb,
-    preloadReadyTree: args.preloadReadyTree,
   });
 
   const boot = createSyncEngineBootState({

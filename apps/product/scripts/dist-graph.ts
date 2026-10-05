@@ -5,12 +5,7 @@
 import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { OfflineShellInput } from './sw-policy';
-import {
-  DEV_SURFACE_BOOT_SOURCES,
-  ENTRY_HTML,
-  URL_LOADED_DIRS,
-  VITE_MANIFEST,
-} from './sw-policy';
+import { ENTRY_HTML, URL_LOADED_DIRS } from './sw-policy';
 
 export const SW_FILE = 'sw.js';
 
@@ -23,19 +18,6 @@ async function requireUtf8(store: ObjectStore, key: string): Promise<string> {
   const text = await readUtf8(store, key);
   if (text === null) throw new Error(`dist/${key} is missing — build first`);
   return text;
-}
-
-/** The built chunk for a source module, from Vite's `.vite/manifest.json`. */
-export function manifestChunkFor(manifestJson: string, source: string): string {
-  const manifest = JSON.parse(manifestJson) as Record<
-    string,
-    { readonly file?: string }
-  >;
-  const file = manifest[source]?.file;
-  if (file === undefined) {
-    throw new Error(`${VITE_MANIFEST} has no chunk for ${source}`);
-  }
-  return file;
 }
 
 async function sizeOf(store: ObjectStore, key: string): Promise<number> {
@@ -61,14 +43,11 @@ export async function readDistGraph(
       )
     )
   );
-  const manifest = await requireUtf8(store, VITE_MANIFEST);
   return {
     files,
     chunkSources,
     indexHtml: await requireUtf8(store, ENTRY_HTML),
-    excludedRoots: DEV_SURFACE_BOOT_SOURCES.map((source) =>
-      manifestChunkFor(manifest, source)
-    ),
+    excludedRoots: [],
     extraRoots: keys.filter(
       (key) =>
         URL_LOADED_DIRS.some((dir) => key.startsWith(dir)) && !isDotfile(key)

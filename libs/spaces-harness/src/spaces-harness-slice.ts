@@ -22,11 +22,10 @@ export function spacesHarnessSlice(registry: {
     name: 'spaces',
     feature: SPACES_FEATURE,
     client: createSpacesClient({
-      loadGameRegistry: () =>
-        Promise.resolve({
-          games: [...registry.games],
-          clients: [...registry.clients],
-        }),
+      registry: {
+        games: [...registry.games],
+        clients: [...registry.clients],
+      },
     }),
     server: (deps) => createSpacesServer(deps.rooms),
     roomNode: (env, gateway) =>

@@ -1,3 +1,6 @@
+import FriendUserScreen from './friend-user';
+import ProfileFriendsScreen from './profile-friends';
+import SessionProvider from './session-provider';
 /** @jsxImportSource solid-js */
 /**
  * What friends contributes to a client app: the friends list and the other
@@ -15,12 +18,12 @@ export const FRIENDS_CLIENT = defineFeatureClient({
   routes: [
     {
       path: '/profile/friends',
-      load: () => import('./profile-friends'),
+      component: ProfileFriendsScreen,
     },
     {
       path: '/profile/user/:userId',
-      load: () => import('./friend-user'),
+      component: FriendUserScreen,
     },
   ],
-  session: () => import('./session-provider'),
+  session: SessionProvider,
 });

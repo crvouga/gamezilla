@@ -8,7 +8,9 @@ function chessTabLabel(): string {
   return t`Chess`;
 }
 
-export function createMultiplayerChessClient(load: FeatureRoute['load']) {
+export function createMultiplayerChessClient(
+  component: FeatureRoute['component']
+) {
   return defineFeatureClient({
     name: 'chess',
     tabs: [
@@ -24,12 +26,12 @@ export function createMultiplayerChessClient(load: FeatureRoute['load']) {
     routes: [
       {
         path: '/chess/multiplayer',
-        load,
+        component,
         tab: true,
       },
       {
         path: '/chess/multiplayer/:gameId',
-        load,
+        component,
         tab: true,
       },
     ],
