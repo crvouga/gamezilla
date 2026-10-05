@@ -1,7 +1,7 @@
 import {
   CHESS_PUZZLE_OBJECT_KEY,
-  type PuzzleLoadJob,
   PUZZLE_LOAD_STATUS,
+  type PuzzleLoadJob,
 } from '@libs/chess-puzzle-shared/puzzle-load-job';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type {
@@ -11,6 +11,9 @@ import type {
 import type { SqlClient } from '@pkgs/sql-client-shared/interface';
 import sql from '@pkgs/sql-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
+import { PuzzleLoadAlreadyRunningError } from './puzzle-load-already-running-error';
+
+export { PuzzleLoadAlreadyRunningError } from './puzzle-load-already-running-error';
 
 const ROWS_PER_POSTGRES_BATCH = 500;
 const MAX_ROW_CHARACTERS = 1_000_000;
@@ -33,8 +36,6 @@ type BatchResult = {
   inserted: number;
   rejected: number;
 };
-
-export class PuzzleLoadAlreadyRunningError extends Error {}
 
 function publicJob(row: StoredJobRow): PuzzleLoadJob {
   if (
@@ -91,7 +92,7 @@ async function startJob(args: {
         status, requested_by, object_key, processed_rows, inserted_rows,
         failed_rows, error
       ) VALUES (
-        ${args.id}, ${args.nowIso}, ${args.nowIso}, '', NULL, NULL,
+        ${args.id}, ${args.nowIso}, ${args.nowIso}, 'pending', NULL, NULL,
         ${PUZZLE_LOAD_STATUS.adding}, ${args.actorId},
         ${CHESS_PUZZLE_OBJECT_KEY}, 0, 0, 0, NULL
       )
@@ -224,6 +225,12 @@ export class PuzzleLoadJobService {
       if (object === null) {
         throw new Error(`Puzzle object not found: ${CHESS_PUZZLE_OBJECT_KEY}`);
       }
+      await this.db.run(sql<void>`
+        UPDATE chess_puzzle_load
+        SET source_etag = ${`bytes:${String(object.size)}`},
+            updated_at = ${startedAt}
+        WHERE id = ${jobId} AND deleted_at IS NULL
+      `);
       const totals: BatchResult = { processed: 0, inserted: 0, rejected: 0 };
       let batch: string[] = [];
       for await (const line of objectLines(object)) {

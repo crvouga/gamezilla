@@ -19,7 +19,7 @@ function JobResult(props: { readonly job: PuzzleLoadJob }): JSX.Element {
         </Trans>
       </p>
       <Show when={props.job.error !== null}>
-        <p class="text text-danger">{props.job.error}</p>
+        <p class="text text-destructive">{props.job.error}</p>
       </Show>
     </div>
   );
@@ -42,7 +42,11 @@ export function PuzzleManagementScreen(): JSX.Element {
       .finally(() => setLoading(false));
   });
   const start = async (): Promise<void> => {
-    setJob(await api.start());
+    const result = await api.start();
+    setJob(result);
+    if (result.status === 'failed') {
+      throw new Error(result.error ?? t`Adding puzzles failed`);
+    }
   };
   return (
     <ScreenBase
@@ -66,7 +70,7 @@ export function PuzzleManagementScreen(): JSX.Element {
             </p>
           </Show>
           <Show when={loadError()} keyed>
-            {(message) => <p class="text text-danger">{message}</p>}
+            {(message) => <p class="text text-destructive">{message}</p>}
           </Show>
           <Show when={job()} keyed>
             {(value) => <JobResult job={value} />}

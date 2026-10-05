@@ -43,6 +43,7 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.chessMultiplayerPlay,
   PERMISSION.chessMultiplayerResign,
   PERMISSION.puzzlesCustomizeFeed,
+  PERMISSION.puzzlesManage,
 ];
 
 /**
@@ -233,6 +234,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
+    [PERMISSION.puzzlesManage]: SIGN_UP_UNLOCK,
     [LIMIT.hostedSpaces]: {
       // Guests and free accounts alike: hosting more is what Plus is for.
       limit_reached: {

@@ -123,7 +123,9 @@ export function resolveAccessFacts(inputs: AccessInputs): Facts {
   const live = subscription !== null && isMembershipLive(subscription.status);
   return {
     auth: inputs.signedIn ? 'verified' : 'anonymous',
-    accountId: inputs.signedIn ? (inputs.accountId ?? null) : null,
+    ...(inputs.accountId === undefined
+      ? {}
+      : { accountId: inputs.signedIn ? inputs.accountId : null }),
     membership: member ? 'active' : 'none',
     subscription: live ? 'live' : 'none',
     billing: inputs.billingEnabled ? 'on' : 'off',

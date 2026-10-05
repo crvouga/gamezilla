@@ -32,8 +32,8 @@ import { useThemePreference } from '@pkgs/ui-client/theme-preference';
 import type { Href } from '@pkgs/ui-shared/href';
 import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { usePerfHudPreference } from './perf-hud-preference';
 import { useAppFeatures } from './app-features-context';
+import { usePerfHudPreference } from './perf-hud-preference';
 
 const ROW_ICON_SIZE = 20;
 

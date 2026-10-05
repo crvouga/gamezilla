@@ -18,8 +18,7 @@ const dev = configuredDev && {
     name: configuredDev.worker.name,
     transfer_rooms_from: configuredDev.worker.transfer_rooms_from,
     retire: configuredDev.worker.retire,
-    puzzle_manager_account_ids:
-      configuredDev.worker.puzzle_manager_account_ids,
+    puzzle_manager_account_ids: configuredDev.worker.puzzle_manager_account_ids,
   },
 };
 const prd = ENV_FILES['prd'];

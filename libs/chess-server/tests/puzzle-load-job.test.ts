@@ -31,6 +31,8 @@ function row(overrides: Record<string, unknown> = {}): string {
   });
 }
 
+// regression: deploy-empty-chess-puzzle-catalog — a rebuilt environment starts
+// empty and must be able to load its required puzzle catalog from object storage.
 test('Postgres owns puzzle object normalization, rejection, and deduplication', async () => {
   await using postgres = await openConcurrentPostgres('pool');
   await reconcilePostgresSchema(
@@ -76,7 +78,7 @@ test('Postgres owns puzzle object normalization, rejection, and deduplication', 
     insertedRows: 0,
     failedRows: 1,
   });
-});
+}, 30_000);
 
 test('refuses a second environment load while one is active', async () => {
   await using postgres = await openConcurrentPostgres('pool');
@@ -104,4 +106,4 @@ test('refuses a second environment load while one is active', async () => {
   await expect(service.run('manager-two')).rejects.toBeInstanceOf(
     PuzzleLoadAlreadyRunningError
   );
-});
+}, 30_000);

@@ -241,6 +241,10 @@ msgstr "Activity"
 msgid "Add"
 msgstr "Add"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Add every puzzle in chess/puzzles.ndjson from this environment's object store. PostgreSQL validates and adds the rows in batches."
+msgstr "Add every puzzle in chess/puzzles.ndjson from this environment's object store. PostgreSQL validates and adds the rows in batches."
+
 #: libs/friends-client/src/friend-action-status-renderers.tsx
 msgid "Add Friend"
 msgstr "Add Friend"
@@ -253,6 +257,18 @@ msgstr "Add hex (6 chars, no #)"
 msgid "Add people"
 msgstr "Add people"
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Add puzzles"
+msgstr "Add puzzles"
+
+#: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
+msgid "Add puzzles from this environment's object store"
+msgstr "Add puzzles from this environment's object store"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Add puzzles to this environment?"
+msgstr "Add puzzles to this environment?"
+
 #: pkgs/ui-devtools-client/src/tab-strip.tsx
 msgid "Add tab"
 msgstr "Add tab"
@@ -260,6 +276,10 @@ msgstr "Add tab"
 #: pkgs/ui-client/src/combobox-trigger.tsx
 msgid "Add…"
 msgstr "Add…"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Adding puzzles failed"
+msgstr "Adding puzzles failed"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "Adjust feed"
@@ -1046,6 +1066,10 @@ msgstr "End space?"
 #: libs/spaces-client/src/leave-space-confirm-modal.tsx
 msgid "Ending space…"
 msgstr "Ending space…"
+
+#: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
+msgid "Environment"
+msgstr "Environment"
 
 #: pkgs/ui-client/src/text-input.example.tsx
 msgid "Error state"
@@ -2121,6 +2145,13 @@ msgstr "Pricing"
 msgid "Private spaces only sync for people you add here."
 msgstr "Private spaces only sync for people you add here."
 
+#. placeholder {0}: props.job.processedRows
+#. placeholder {1}: props.job.insertedRows
+#. placeholder {2}: props.job.failedRows
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Processed {0}; added {1}; rejected {2}."
+msgstr "Processed {0}; added {1}; rejected {2}."
+
 #: libs/app-client/src/about-screen.tsx
 msgid "Production"
 msgstr "Production"
@@ -2161,6 +2192,10 @@ msgstr "Puzzle feed"
 msgid "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 msgstr "Puzzle feed. {mode} target {rating}. History: {history}. Themes: {themes}. {advance}."
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Puzzle load finished"
+msgstr "Puzzle load finished"
+
 #: libs/chess-puzzle-client/src/chess-puzzle-summary-card.tsx
 msgid "Puzzle rating {puzzleRating}"
 msgstr "Puzzle rating {puzzleRating}"
@@ -2180,6 +2215,11 @@ msgstr "Puzzle stats"
 #: libs/chess-puzzle-client/src/chess-puzzle-review-screen.tsx
 msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+#: libs/chess-puzzle-client/src/puzzle-management-settings.tsx
+msgid "Puzzles"
+msgstr "Puzzles"
 
 #: libs/chess-puzzle-client/src/chess-puzzle-empty-pool-state.tsx
 msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
@@ -2210,6 +2250,10 @@ msgstr "Rating offset"
 #: libs/chess-client/src/chess-main-menu-view.tsx
 msgid "Rating trend and game log"
 msgstr "Rating trend and game log"
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Reading the latest result…"
+msgstr "Reading the latest result…"
 
 #: libs/chess-custom-game-client/src/custom-game-side.tsx
 #: libs/spaces-client/src/spaces-screen.tsx
@@ -2517,6 +2561,7 @@ msgstr "Sessions"
 #: libs/auth-client/src/account-devices-screen.tsx
 #: libs/auth-client/src/account-screen.tsx
 #: libs/chess-client/src/chess-main-menu-view.tsx
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
 #: libs/chess-shared-client/src/chess-settings-screen.tsx
 msgid "Settings"
 msgstr "Settings"
@@ -2844,6 +2889,11 @@ msgstr "Stats"
 msgid "Status"
 msgstr "Status"
 
+#. placeholder {0}: props.job.status
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "Status: {0}"
+msgstr "Status: {0}"
+
 #: libs/chess-matchmaking-client/src/multiplayer-controls.tsx
 msgid "Stop finding an opponent"
 msgstr "Stop finding an opponent"
@@ -2983,6 +3033,10 @@ msgstr "The board changed. Review the current turn."
 msgid "The choice could not be confirmed. Try again."
 msgstr "The choice could not be confirmed. Try again."
 
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "The current environment's object is processed into its puzzle pool. Existing puzzles are kept."
+msgstr "The current environment's object is processed into its puzzle pool. Existing puzzles are kept."
+
 #: libs/account-privacy-client/src/export-choice.tsx
 msgid "The export could not be requested."
 msgstr "The export could not be requested."
@@ -3006,6 +3060,10 @@ msgstr "The host hasn't started a puzzle yet."
 #: libs/spaces-client/src/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
+
+#: libs/chess-puzzle-client/src/puzzle-management-screen.tsx
+msgid "The latest PostgreSQL result is shown on this screen."
+msgstr "The latest PostgreSQL result is shown on this screen."
 
 #: libs/spaces-client/src/space-join-prompt.tsx
 msgid "The link may be wrong, or the space may never have existed."

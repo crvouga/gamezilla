@@ -72,6 +72,8 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.chessMultiplayerResign, 'deny', 'allow', 'allow'],
   [PERMISSION.puzzlesPlay, 'allow', 'allow', 'allow'],
   [PERMISSION.puzzlesCustomizeFeed, 'deny', 'allow', 'allow'],
+  // Environment configuration, never a plan, grants management.
+  [PERMISSION.puzzlesManage, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesCreate, 'allow', 'allow', 'allow'],
   [PERMISSION.spacesJoin, 'allow', 'allow', 'allow'],
   // Space roles grant these by presence, never a plan.

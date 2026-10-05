@@ -157,7 +157,8 @@ export function readPuzzleManagerAccountIds(
       'PUZZLE_MANAGER_ACCOUNT_IDS must be a JSON array of non-empty strings'
     );
   }
-  return [...new Set(parsed.map((value) => value.trim()))].sort();
+  const accountIds = parsed as string[];
+  return [...new Set(accountIds.map((value) => value.trim()))].sort();
 }
 
 /** Rendered per env by `@libs/infra` from the env file's `billing.provider`. */
