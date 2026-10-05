@@ -12,7 +12,10 @@ const PACKAGE_ROOT = join(import.meta.dir, '..');
 
 /** Every checked-in puzzle fixture CSV the seeders load (§35 job input). */
 const FIXTURE_CSVS = [
-  join(PACKAGE_ROOT, 'scripts/fixtures/chess-puzzles.load.csv'),
+  join(
+    PACKAGE_ROOT,
+    '../chess-puzzle-server/scripts/fixtures/chess-puzzles.load.csv'
+  ),
   join(
     PACKAGE_ROOT,
     '../chess-puzzle-server/scripts/fixtures/lichess-puzzles-sample.csv'
