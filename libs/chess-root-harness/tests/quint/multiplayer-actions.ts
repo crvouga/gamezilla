@@ -40,6 +40,8 @@ export async function initPlay(w: PlayTrace) {
     await w.s.apply(givenMultiplayerSpace, person);
     owners.set((await w.s.read(accountIdOf, person))!, person);
     await w.s.apply(signInWithGoogleAsAccount, `${person}_computer`, person);
+    await w.s.apply(givenMultiplayerSpace, `${person}_computer`);
+    await w.s.apply(openMultiplayerChess, `${person}_computer`);
   }
   w.memo.set('play:owners', owners);
 }
