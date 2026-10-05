@@ -13,7 +13,10 @@ import {
   multiplayerText,
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
-import { showChessStatsScreen } from '@libs/chess-puzzle-harness/chess-actions';
+import {
+  returnToPuzzleScreen,
+  showChessStatsScreen,
+} from '@libs/chess-puzzle-harness/chess-actions';
 import {
   readActivePuzzleId,
   readPuzzleDisplayFen,
@@ -29,7 +32,7 @@ import {
   openPersonFromSearch,
 } from '@libs/friends-harness/person-actions';
 import { prepareNamedFriend } from '@libs/friends-harness/setup-friend-request';
-import { Given, Then } from '@libs/harness/define';
+import { Given, Then, When } from '@libs/harness/define';
 import type { Actor } from '@libs/harness/parameter-types';
 import { focusActor } from '@libs/harness/shell-actions';
 import { joinViaLink } from '@libs/spaces-harness/space-actions';
@@ -124,6 +127,9 @@ Given(
     ]);
   }
 );
+When('{actor} returns to the puzzle in the space', async (w, actor: Actor) => {
+  await w.s.apply(returnToPuzzleScreen, actor);
+});
 Then('{actor} keeps the same puzzle in the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
   expect([

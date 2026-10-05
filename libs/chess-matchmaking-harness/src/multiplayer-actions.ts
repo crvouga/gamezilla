@@ -9,6 +9,7 @@ import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared/probe';
 import type { Square } from '@pkgs/chess-board-core-shared/types';
 import { multiplayerClient } from './multiplayer-client';
+import { reachMultiplayerChoices } from './multiplayer-navigation';
 import { multiplayerView } from './multiplayer-reads';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 import { multiplayerWatcherBoard } from './multiplayer-watchers';
@@ -56,23 +57,7 @@ export const openMultiplayerChess = scenarioAction({
     if (!path.includes(spaceId))
       await s.actors.get(actor)!.openLink(`/space/${spaceId}`);
     await s.session.waitForIdle();
-    const surface = await pollUntil(
-      s,
-      async () => {
-        for (const target of [
-          'game-menu-chess',
-          'chess-menu-multiplayer',
-          'multiplayer-game',
-          'multiplayer-waiting',
-          'multiplayer-find',
-          'multiplayer-access-denial',
-          'multiplayer-unavailable',
-        ])
-          if (await ui.get(target).isVisible()) return target;
-        return null;
-      },
-      { maxMs: 5000, description: 'the space chess choices' }
-    );
+    const surface = await reachMultiplayerChoices(s, actor);
     if (surface === 'game-menu-chess') {
       await ui.get('game-menu-chess').tap();
       await ui.get('chess-menu-multiplayer').expect.visible();
