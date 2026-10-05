@@ -16,8 +16,8 @@ import {
   reuseSource,
   sourceContentPrefix,
 } from '@pkgs/harness-report-shared/source-content';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { exampleApp, put } from './example-app';
 
 const OLD = 'a'.repeat(40);

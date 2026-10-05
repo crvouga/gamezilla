@@ -4,18 +4,18 @@ import { isMessageEnvelope, isPlainRecord } from '@pkgs/message-shared/message';
 import {
   CancelScheduleEffect,
   ScheduleEffect,
-} from '@pkgs/room-shared/builtin';
-import type { RoomEffectHandler } from '@pkgs/room-shared/handler';
+} from '@pkgs/room-root-shared/builtin';
+import type { RoomEffectHandler } from '@pkgs/room-root-shared/handler';
 import type {
   PendingSchedule,
   ScheduleWakePort,
-} from '@pkgs/room-shared/schedule-runtime';
+} from '@pkgs/room-root-shared/schedule-runtime';
 import {
   createScheduleEffectHandler,
   fireDueSchedules,
   ScheduleRuntime,
-} from '@pkgs/room-shared/schedule-runtime';
-import type { RoomEffect, RoomModuleName } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/schedule-runtime';
+import type { RoomEffect, RoomModuleName } from '@pkgs/room-root-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { roomDoKeyNs, scheduleKey } from './storage-keys';
 import type { DurableObjectKvStorage } from './types';

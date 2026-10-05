@@ -1,4 +1,4 @@
-import { unsafe } from '@pkgs/sql-shared/sql';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 
 import type { BootedHarnessKernel } from './types';
 

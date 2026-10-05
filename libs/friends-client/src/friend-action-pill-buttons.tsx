@@ -2,9 +2,9 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client/solid';
 import type { SoundId } from '@pkgs/sounds-shared/sound-id';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
-import { Button } from '@pkgs/ui-client/button';
-import type { MutationStateTransition } from '@pkgs/ui-client/mutation-lifecycle';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import type { JSX } from 'solid-js';
 
 function usePillSounds(

@@ -1,7 +1,7 @@
 import { SEARCH_HISTORY_LIMIT } from '@libs/search-shared/search-types';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
-import { createKvState } from '@pkgs/kv-client/solid';
-import { jsonKvCodec } from '@pkgs/kv-shared/kv-state-codec';
+import { createKvState } from '@pkgs/kv-root-client/solid';
+import { jsonKvCodec } from '@pkgs/kv-root-shared/kv-state-codec';
 
 const SEARCH_HISTORY_KEY = asKeyword('search/history');
 const SEARCH_HISTORY_VALUE_ATTR = asKeyword('search/value');

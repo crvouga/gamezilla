@@ -20,16 +20,16 @@ import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offe
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { FakePaddle } from '@pkgs/billing-paddle-harness/fake-paddle';
 import { PaddleMembershipBilling } from '@pkgs/billing-paddle-shared/paddle-membership';
-import type { MembershipBilling } from '@pkgs/billing-shared/membership';
-import { createMembershipProviders } from '@pkgs/billing-shared/providers';
+import type { MembershipBilling } from '@pkgs/billing-root-shared/membership';
+import { createMembershipProviders } from '@pkgs/billing-root-shared/providers';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { createNoopLogger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { Hono } from 'hono';
 
 const NOW = Date.parse('2026-09-21T12:00:00.000Z');

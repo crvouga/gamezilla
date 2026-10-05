@@ -34,7 +34,7 @@ import { compareLayer } from '@pkgs/dmn-shared/compare';
 import type { DmnDecision } from '@pkgs/dmn-shared/model';
 import type { DecisionLayer } from '@pkgs/dmn-shared/registry';
 import type { RoleSpec } from '@pkgs/permissions-shared/policy';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import { billingSubscriptionsFixture } from './billing-fixture';
 import { decisionAt } from './specs';

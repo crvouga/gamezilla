@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe } from 'bun:test';
-import { runKvContractTests } from '@pkgs/kv-shared/kv-contract';
+import { runKvContractTests } from '@pkgs/kv-root-shared/kv-contract';
 import { KvImplWeb } from '@pkgs/kv-web-client/impl-kv-web';
 
 function createLocalStoragePolyfill(): Storage {

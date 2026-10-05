@@ -7,13 +7,13 @@
 import type {
   AccessMoment,
   MembershipStanding,
-} from '@pkgs/billing-shared/precedence';
+} from '@pkgs/billing-root-shared/precedence';
 import {
   governingMembership,
   membershipAccessLapsesAtMs,
   membershipGrantsAccess,
   readMembershipStatus,
-} from '@pkgs/billing-shared/precedence';
+} from '@pkgs/billing-root-shared/precedence';
 
 /** The stored columns precedence reads (text status, ISO period end). */
 export type StandingColumns = {

@@ -1,4 +1,4 @@
-import { indexFingerprintName } from '@pkgs/db-schema-shared/index-fingerprint';
+import { indexFingerprintName } from '@pkgs/db-schema-root-shared/index-fingerprint';
 
 /**
  * Physical unique index on `profile.username_norm`. Mutations that write the

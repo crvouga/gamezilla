@@ -1,11 +1,11 @@
 import { createSpaceOpenRoomsPending } from '@libs/spaces-shared/space-open-rooms-pending';
 import { SpaceOpenSessionStore } from '@libs/spaces-shared/space-open-session-store';
-import type { RoomClient } from '@pkgs/room-client/room-client';
+import type { RoomClient } from '@pkgs/room-root-client/room-client';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import {
   type Accessor,

@@ -4,7 +4,7 @@ import {
   isPlainRecord,
 } from '@pkgs/message-shared/message';
 import { createMessageRouter } from '@pkgs/message-shared/router';
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 
 import type { GameCommandContext, GameDefinition } from './game';
 

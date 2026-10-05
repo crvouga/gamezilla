@@ -1,6 +1,6 @@
-import type { JunitCase } from '@pkgs/harness-shared/junit';
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import type { NarrateSpan } from '@pkgs/observability-shared/narrate';
+import type { JunitCase } from '@pkgs/harness-root-shared/junit';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import type { NarrateSpan } from '@pkgs/observability-root-shared/narrate';
 
 export type TestFailureSpanOptions = {
   readonly buildSha: string;

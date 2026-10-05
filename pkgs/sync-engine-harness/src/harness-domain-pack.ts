@@ -1,5 +1,5 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';

@@ -1,5 +1,5 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { DEVICE_ID_KEY, SESSION_TOKEN_KEY } from './auth-storage-keys';

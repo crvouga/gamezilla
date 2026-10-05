@@ -21,11 +21,11 @@
     "@libs/user-search-shared": "workspace:*",
     "@lingui/solid": "catalog:",
     "@pkgs/keyword-shared": "workspace:*",
-    "@pkgs/kv-client": "workspace:*",
-    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/kv-root-client": "workspace:*",
+    "@pkgs/kv-root-shared": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

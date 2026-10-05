@@ -5,8 +5,8 @@ import type {
   SpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 
-import type { IdentitySource } from '@pkgs/observability-shared/identity';
-import { stampIdentity } from '@pkgs/observability-shared/identity';
+import type { IdentitySource } from '@pkgs/observability-root-shared/identity';
+import { stampIdentity } from '@pkgs/observability-root-shared/identity';
 
 export class IdentitySpanProcessor implements SpanProcessor {
   readonly #identity: IdentitySource;

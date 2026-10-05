@@ -1,6 +1,6 @@
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export type HarnessPuzzleLoad = {
   readonly status: 'ready' | 'adding' | 'finished' | 'failed';

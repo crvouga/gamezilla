@@ -10,25 +10,25 @@ import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import type { HarnessClockBundle } from '@pkgs/clock-shared/harness-clock';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { Button } from '@pkgs/ui-client/button';
-import { ModalBackdrop } from '@pkgs/ui-client/modal-backdrop';
-import { ModalContent } from '@pkgs/ui-client/modal-content';
+import { Button } from '@pkgs/ui-root-client/button';
+import { ModalBackdrop } from '@pkgs/ui-root-client/modal-backdrop';
+import { ModalContent } from '@pkgs/ui-root-client/modal-content';
 import {
   ModalBody,
   ModalButton,
   ModalFooter,
   ModalHeader,
-} from '@pkgs/ui-client/modal-parts';
-import { ModalRoot } from '@pkgs/ui-client/modal-root';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { TextInput } from '@pkgs/ui-client/text-input';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
+} from '@pkgs/ui-root-client/modal-parts';
+import { ModalRoot } from '@pkgs/ui-root-client/modal-root';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
+import { TextInput } from '@pkgs/ui-root-client/text-input';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
 import { createSignal, type JSX, Show } from 'solid-js';
 
 const COMPACT = { width: 390, height: 844 };
 
-/** Lingui + harness clock + theme, like `pkgs/ui-harness/tests/render.tsx`. */
+/** Lingui + harness clock + theme, like `pkgs/ui-root-harness/tests/render.tsx`. */
 export function DemoProviders(props: {
   harness: HarnessClockBundle;
   children: JSX.Element;

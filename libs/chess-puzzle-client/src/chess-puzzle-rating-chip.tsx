@@ -1,5 +1,5 @@
 import { formatPuzzleRating } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 
 export type ChessPuzzleRatingChipProps = {

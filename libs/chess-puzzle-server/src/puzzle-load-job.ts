@@ -7,9 +7,9 @@ import type { Clock } from '@pkgs/clock-shared/types';
 import type {
   ObjectStore,
   StoredObject,
-} from '@pkgs/object-store-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+} from '@pkgs/object-store-root-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { PuzzleLoadAlreadyRunningError } from './puzzle-load-already-running-error';
 

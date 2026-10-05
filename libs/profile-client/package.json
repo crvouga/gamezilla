@@ -15,7 +15,7 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client/preload tests"
   },
   "dependencies": {
-    "@libs/app-client": "workspace:*",
+    "@libs/app-root-client": "workspace:*",
     "@libs/auth-client": "workspace:*",
     "@libs/auth-shared": "workspace:*",
     "@libs/feature-client": "workspace:*",
@@ -24,11 +24,11 @@
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/clock-client": "workspace:*",
-    "@pkgs/secure-storage-client": "workspace:*",
+    "@pkgs/secure-storage-root-client": "workspace:*",
     "@pkgs/solid-context-client": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "solid-js": "catalog:"

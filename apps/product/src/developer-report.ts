@@ -13,12 +13,12 @@ import type { Route } from '@pkgs/harness-report-shared/hash';
 import { parseHash } from '@pkgs/harness-report-shared/hash';
 import { stateFrameHtml } from '@pkgs/harness-report-shared/html-frame';
 import { onReportKeyDown } from '@pkgs/harness-report-shared/keyboard';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import type {
   ReportSnapshotBlob,
   ReportStep,
   RunReportMeta,
-} from '@pkgs/harness-shared/report-types';
+} from '@pkgs/harness-root-shared/report-types';
 import { tools } from './developer-tools-state';
 export function reportMeta(
   title: string,
@@ -47,7 +47,7 @@ export function recordedReport(kind: string): HtmlReportTest {
         : { alice: [2], bob: [1, 3] };
   const blobs: Record<
     string,
-    import('@pkgs/harness-shared/bundle').HtmlReportBlob
+    import('@pkgs/harness-root-shared/bundle').HtmlReportBlob
   > = {};
   const steps: ReportStep[] = [1, 2, 3].map((moment) => {
     const snapshots: ReportSnapshotBlob[] = [];

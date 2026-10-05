@@ -4,7 +4,7 @@ import { reportTask } from '@libs/harness/report-ready';
 import { closeCommit } from '@pkgs/harness-report-shared/publish';
 import type { SourceIdentity } from '@pkgs/harness-report-shared/source-content';
 import { reportGeneration } from '@pkgs/harness-report-shared/source-content';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { reuseReportTask, verifyPublications } from './report-task-publish';
 
 export type ReportPlan = {

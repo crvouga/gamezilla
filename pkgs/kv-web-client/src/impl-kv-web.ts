@@ -1,11 +1,11 @@
-import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
+import { hotAssert } from '@pkgs/assert-root-shared/hot-asserts';
 import type { Keyword } from '@pkgs/keyword-shared/keyword';
 import { assertNamespacedKeyword } from '@pkgs/keyword-shared/keyword';
 import {
   assertKvRecord,
   parseKvRecordFromUnknown,
-} from '@pkgs/kv-shared/assert-kv-record';
-import type { Kv, KvRecord } from '@pkgs/kv-shared/interface';
+} from '@pkgs/kv-root-shared/assert-kv-record';
+import type { Kv, KvRecord } from '@pkgs/kv-root-shared/interface';
 import { KvImplWebTx } from './impl-kv-web-tx';
 
 function assertKvKey(key: string): asserts key is Keyword {

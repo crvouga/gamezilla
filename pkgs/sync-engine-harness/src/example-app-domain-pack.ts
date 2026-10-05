@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { unsafe } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 import { checkAllClientsConverged } from './converge';
 import type { HarnessDomainPack } from './harness-domain-pack';
 import { exampleLocalSchema } from './local-schema';

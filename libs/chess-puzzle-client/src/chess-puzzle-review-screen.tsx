@@ -4,17 +4,17 @@ import {
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
   SetChessSelectedReviewPuzzle,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import { DefineBackButton } from '@libs/spaces-client/spaces-nav-context';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces-client/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { MAIN_MENU_SCREEN_MAX_WIDTH } from '@pkgs/ui-client/main-menu-screen';
-import { MainMenuScreenHeader } from '@pkgs/ui-client/main-menu-screen-header';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { MAIN_MENU_SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client/main-menu-screen';
+import { MainMenuScreenHeader } from '@pkgs/ui-root-client/main-menu-screen-header';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createMemo, type JSX, Show } from 'solid-js';
 import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';

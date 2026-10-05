@@ -1,8 +1,11 @@
 import { Trans } from '@lingui/solid/macro';
-import { useLocalSearchParams, useRouter } from '@pkgs/ui-client/app-router';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
-import type { ScreenBaseAction } from '@pkgs/ui-client/screen-base-types';
-import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
+import {
+  useLocalSearchParams,
+  useRouter,
+} from '@pkgs/ui-root-client/app-router';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
+import type { ScreenBaseAction } from '@pkgs/ui-root-client/screen-base-types';
+import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal, Show } from 'solid-js';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';

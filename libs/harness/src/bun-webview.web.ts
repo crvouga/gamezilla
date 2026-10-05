@@ -1,4 +1,4 @@
-import type { Ports, Runtime } from '@pkgs/harness-shared/runtime-types';
+import type { Ports, Runtime } from '@pkgs/harness-root-shared/runtime-types';
 
 import type { BunWebviewRuntimeOptions } from './bun-webview';
 import type { ProductExtra } from './ports';

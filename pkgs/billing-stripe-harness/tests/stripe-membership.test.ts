@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import type { MembershipStatus } from '@pkgs/billing-shared/membership';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type { MembershipStatus } from '@pkgs/billing-root-shared/membership';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { StripeTestMode } from '@pkgs/billing-stripe-harness/stripe-test-mode';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe-server/stripe-membership';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared/membership-status';

@@ -2,13 +2,13 @@
  * Roster list: one row per connected client.
  */
 
-import type { ParticipantColor } from '@pkgs/collab-shared/participant-color';
+import type { ParticipantColor } from '@pkgs/collab-root-shared/participant-color';
 import type { LocalizedString } from '@pkgs/i18n-shared/localized-string';
-import type { RoomActor } from '@pkgs/room-shared/types';
-import { List, ListItem } from '@pkgs/ui-client/list';
-import { StatusDot } from '@pkgs/ui-client/status-dot';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
+import type { RoomActor } from '@pkgs/room-root-shared/types';
+import { List, ListItem } from '@pkgs/ui-root-client/list';
+import { StatusDot } from '@pkgs/ui-root-client/status-dot';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { For, type JSX } from 'solid-js';
 
 import { ParticipantColorRing } from './participant-color-ring';

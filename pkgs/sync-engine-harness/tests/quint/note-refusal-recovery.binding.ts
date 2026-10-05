@@ -1,6 +1,6 @@
 import type { Picks } from '@pkgs/quint-shared/registry';
 import { bindQuintModel } from '@pkgs/quint-shared/registry';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { pendingNote } from '@pkgs/sync-engine-harness/mutations';
 import { liveNote } from '@pkgs/sync-engine-harness/reads';
 import {

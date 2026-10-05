@@ -7,9 +7,9 @@ import {
   type TracerConfig,
 } from '@opentelemetry/sdk-trace-base';
 
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { installLogEventBridge } from '@pkgs/observability-shared/log';
-import { createAllowlistRedactor } from '@pkgs/observability-shared/redaction';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { installLogEventBridge } from '@pkgs/observability-root-shared/log';
+import { createAllowlistRedactor } from '@pkgs/observability-root-shared/redaction';
 import { IdentitySpanProcessor } from './identity-span-processor';
 import type { TelemetryOptions } from './options';
 import { RedactingSpanProcessor } from './redacting-span-processor';

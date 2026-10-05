@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { Assert } from '@pkgs/assert-shared/assert';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { Assert } from '@pkgs/assert-root-shared/assert';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import {
   asKeyword,
   assertKeyword,

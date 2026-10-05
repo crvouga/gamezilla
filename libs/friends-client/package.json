@@ -32,10 +32,10 @@
     "@pkgs/http-client-client": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
     "@pkgs/sounds-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "@pkgs/uuid-client": "workspace:*",
     "solid-js": "catalog:"
   },

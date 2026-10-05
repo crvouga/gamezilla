@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createInMemorySyncEngine } from '@pkgs/sync-engine-harness/in-memory-sync-engine';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness/local-schema';
 

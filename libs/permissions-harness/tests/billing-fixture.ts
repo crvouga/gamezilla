@@ -1,4 +1,4 @@
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
 
 /**
  * Shape of billing's synced membership table (the access resolver reads it;

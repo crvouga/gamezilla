@@ -15,7 +15,7 @@ import { removeFriendMutation } from '@libs/friends-shared/remove-friend-mutatio
 import { sendFriendRequestMutation } from '@libs/friends-shared/send-friend-request-mutation';
 import { unblockUserMutation } from '@libs/friends-shared/unblock-user-mutation';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import fc from 'fast-check';
 import type { RunnableMutation } from './friendship-harness';
 import {

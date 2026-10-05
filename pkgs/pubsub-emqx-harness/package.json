@@ -16,7 +16,7 @@
     "@pkgs/http-client-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "@pkgs/pubsub-emqx-shared": "workspace:*",
-    "@pkgs/pubsub-shared": "workspace:*",
+    "@pkgs/pubsub-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "mqtt": "catalog:",

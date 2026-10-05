@@ -2,8 +2,8 @@ import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Plural, Trans } from '@lingui/solid/macro';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import { WifiOffIcon } from '@pkgs/ui-client/icons';
-import { Notice } from '@pkgs/ui-client/notice';
+import { WifiOffIcon } from '@pkgs/ui-root-client/icons';
+import { Notice } from '@pkgs/ui-root-client/notice';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 import { useHostedSpaceCount } from './use-hosted-space-count';

@@ -20,7 +20,7 @@
     "@pkgs/conformance-shared": "workspace:*",
     "@pkgs/dmn-shared": "workspace:*",
     "@pkgs/gherkin-shared": "workspace:*",
-    "@pkgs/observability-shared": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/openslo-shared": "workspace:*",
     "@pkgs/os-server": "workspace:*",
     "@pkgs/os-shared": "workspace:*",

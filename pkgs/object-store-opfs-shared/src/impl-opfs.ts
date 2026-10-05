@@ -8,12 +8,12 @@
  * store is testable against {@link ./memory-opfs.ts createMemoryOpfsRoot()}.
  */
 
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreWithPrefix } from '@pkgs/object-store-root-shared/impl-with-prefix';
 import type {
   ObjectStore,
   StoredObject,
-} from '@pkgs/object-store-shared/interface';
+} from '@pkgs/object-store-root-shared/interface';
 import type { KeyParts } from './key-parts';
 import { assertBaseDir, sortKeys, splitKey } from './key-parts';
 import type { OpfsDirHandle, OpfsRootProvider } from './opfs';

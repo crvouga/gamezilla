@@ -3,10 +3,10 @@ import { AnonUserService } from '@libs/auth-shared/anon-user-service';
 import { appAuth } from '@libs/auth-shared/auth-context';
 import { SessionAuth } from '@libs/auth-shared/session-middleware';
 import { AUTH_TABLES } from '@libs/auth-shared/tables';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createHarnessAdapters } from '@pkgs/uuid-shared/harness-adapters';
 
 test('stale deletion proof is rejected after the install gains a new anonymous owner; fresh proof works', async () => {

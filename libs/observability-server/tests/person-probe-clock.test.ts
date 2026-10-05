@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { personProbeClock } from '@libs/observability-server/person-trouble-document';
-import { parseLocalClock } from '@pkgs/observability-shared/local-clock';
+import { parseLocalClock } from '@pkgs/observability-root-shared/local-clock';
 
 const REFERENCE = '6:33 in the evening Mountain time';
 

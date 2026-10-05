@@ -1,5 +1,5 @@
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared/scheduler';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { reconcileOptimisticPeerMarkers } from '@pkgs/sync-engine-client/optimistic-peer-rows';
 import type { HarnessClient } from './client';
 import { RELIABLE_FAULTS } from './faults';

@@ -1,4 +1,4 @@
 {
   "summary": "A room change iterated the live subscription set, so a reactive listener that unsubscribed and resubscribed was revisited indefinitely. Snapshot listeners per change and skip removed listeners, deferring new subscriptions to the next notification.",
-  "regressionTest": "pkgs/room-harness/tests/room-client.contract.test.ts"
+  "regressionTest": "pkgs/room-root-harness/tests/room-client.contract.test.ts"
 }

@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 
 /** Shared topic so all example-app harness clients receive the same push stream. */
 export const NOTES_ALL_TOPIC = 'user:notes-all' as Topic;

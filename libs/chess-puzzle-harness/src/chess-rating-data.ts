@@ -4,7 +4,7 @@
 
 import { scenarioAction } from '@libs/harness/actor-ui';
 import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 /**
  * Give a signed-in actor an earlier puzzle rating, on the server and in the

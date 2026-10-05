@@ -19,13 +19,16 @@ import { pollUntil, scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf } from '@libs/harness/identity';
 import { readSpaceLink } from '@libs/spaces-harness/spaces-ui-reads';
-import { newCommandId } from '@pkgs/room-shared/ids';
-import type { RoomCommandPayload, RoomError } from '@pkgs/room-shared/types';
+import { newCommandId } from '@pkgs/room-root-shared/ids';
+import type {
+  RoomCommandPayload,
+  RoomError,
+} from '@pkgs/room-root-shared/types';
 import {
   parseServerToClientWire,
   ROOM_WIRE_KIND,
   WIRE_VERSION,
-} from '@pkgs/room-shared/wire';
+} from '@pkgs/room-root-shared/wire';
 import { readPuzzleDebug } from './chess-puzzle-ui';
 
 const WAIT_MS = 15_000;

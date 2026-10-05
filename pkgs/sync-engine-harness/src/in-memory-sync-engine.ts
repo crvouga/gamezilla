@@ -3,11 +3,11 @@
 import { Database } from 'bun:sqlite';
 
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
-import { assertSqlIdentifier } from '@pkgs/sql-shared/assert-sql-identifier';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
+import { assertSqlIdentifier } from '@pkgs/sql-root-shared/assert-sql-identifier';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { WatchSqlHandle } from '@pkgs/sync-engine-client/shared-watch-registry';

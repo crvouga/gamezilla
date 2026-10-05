@@ -1,6 +1,6 @@
 import type { Square } from '@pkgs/chess-board-core-shared/types';
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
 
 import {
   CHESS_PUZZLE_PLAY_STATUS,

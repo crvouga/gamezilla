@@ -1,10 +1,10 @@
-import type { RoomIdentityErasure } from '@pkgs/room-shared/room-service';
-import { eraseRoomIdentity } from '@pkgs/room-shared/room-service';
+import type { RoomIdentityErasure } from '@pkgs/room-root-shared/room-service';
+import { eraseRoomIdentity } from '@pkgs/room-root-shared/room-service';
 import type {
   CommandDedupOutcome,
   RoomStorage,
-} from '@pkgs/room-shared/server-core-storage';
-import type { LogEntry } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/server-core-storage';
+import type { LogEntry } from '@pkgs/room-root-shared/types';
 
 type TopicState = {
   entries: LogEntry[];

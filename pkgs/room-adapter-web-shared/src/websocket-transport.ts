@@ -1,9 +1,9 @@
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type {
   ClientTransport,
   ClientTransportHandlers,
-} from '@pkgs/room-shared/transport';
+} from '@pkgs/room-root-shared/transport';
 import type { Random } from '@pkgs/uuid-shared/create-id';
 import type { HeartbeatTimers } from './heartbeat';
 import {

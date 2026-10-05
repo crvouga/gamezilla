@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { SqlMutationTraceIndex } from '@pkgs/observability-cli-shared/sql-mutation-trace-index';
 import { SqlPgStatsSource } from '@pkgs/observability-cli-shared/sql-pg-stats';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 
 function queryClient(
   query: (statement: string) => Promise<readonly Record<string, unknown>[]>

@@ -1,13 +1,15 @@
 // @io-wall-ok — platform entrypoint; feedback never imports product bootstrap
 
-import type { ApiWorkerEnv } from '@libs/app-shared/env';
+import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import type {
   ExecutionContext,
   ExportedHandler,
   ScheduledController,
-} from '@libs/app-shared/worker-handler';
+} from '@libs/app-root-shared/worker-handler';
 import { FEEDBACK_PATH } from '@pkgs/feedback-server/http-handler';
 import { handleRootFeedbackReport } from './root-feedback-boot';
+
+export { RoomServerDurableObject } from './room';
 
 export default {
   async fetch(

@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
-import { PaginationControls } from '@pkgs/ui-client/pagination-controls';
+import { PaginationControls } from '@pkgs/ui-root-client/pagination-controls';
 import { type JSX, Show } from 'solid-js';
 
 export function DataTablePagination(props: {

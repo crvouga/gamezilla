@@ -3,11 +3,11 @@
  * (`in-process` / `bun-webview`) of a {@link defineProductSystem} system.
  */
 
-import type { Client } from '@libs/app-client/create-client';
+import type { Client } from '@libs/app-root-client/create-client';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 import { harnessNodeTimers } from './actor-overrides';
 import type { Harness } from './create-harness';
 import type { ProductSystem } from './define-product-system';

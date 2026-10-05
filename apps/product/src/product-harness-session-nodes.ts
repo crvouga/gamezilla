@@ -8,7 +8,7 @@ import type {
   ProductHarnessRoomNode,
 } from '@pkgs/harness-console-shared/ports';
 import type { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import type { InMemoryBus } from '@pkgs/pubsub-shared/in-memory';
+import type { InMemoryBus } from '@pkgs/pubsub-root-shared/in-memory';
 
 export function makeProductHarnessRoomNode(
   topic: string,

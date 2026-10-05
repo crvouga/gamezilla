@@ -13,7 +13,7 @@
 import {
   BOOT_GLOBAL_MENU_IDENTITY,
   useGlobalMenuIdentityPublisher,
-} from '@libs/app-client/global-menu-identity-context';
+} from '@libs/app-root-client/global-menu-identity-context';
 import { useSessionAccountEmail } from '@libs/auth-client/use-current-user';
 import { parseAvatarConfig } from '@libs/profile-shared/avatar-config';
 import {

@@ -6,7 +6,7 @@ import type {
   ProductHarnessPaletteCommand,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared/ports';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { createProductHarnessChessCommands } from './product-harness-chess-seed';
 import {
   buildProductHarnessPaletteCommands,

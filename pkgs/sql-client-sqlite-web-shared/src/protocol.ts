@@ -1,4 +1,4 @@
-import type { RunResult } from '@pkgs/sql-client-shared/interface';
+import type { RunResult } from '@pkgs/sql-client-root-shared/interface';
 import type { SerializedError, SqlWire } from './rpc';
 
 /**

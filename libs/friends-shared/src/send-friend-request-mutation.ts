@@ -1,5 +1,5 @@
 import { Outbox } from '@pkgs/outbox-shared/outbox';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import type {
   MutationDb,

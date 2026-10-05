@@ -1,6 +1,6 @@
-import type { TextVariant } from '@pkgs/ui-client/text';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import type { TextVariant } from '@pkgs/ui-root-client/text';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 

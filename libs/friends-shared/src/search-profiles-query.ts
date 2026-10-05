@@ -5,7 +5,7 @@ import {
   USER_SEARCH_RATE_LIMIT,
   USER_SEARCH_RATE_WINDOW_MS,
 } from '@libs/user-search-shared/user-search-types';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { z } from 'zod';
 

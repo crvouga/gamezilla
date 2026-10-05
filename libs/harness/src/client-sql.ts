@@ -1,4 +1,4 @@
-import type { ClientEnv } from '@libs/app-client/client-env';
+import type { ClientEnv } from '@libs/app-root-client/client-env';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { OpenSqlClient } from '@libs/feature-shared/sync';
 import { openFreshHarnessClientSql } from './sql';

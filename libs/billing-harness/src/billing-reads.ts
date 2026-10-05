@@ -10,8 +10,8 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
 import { actorHtml, nodeText } from '@libs/harness/observations';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 /** Raw row shape; `cancel_at_period_end` is 0/1 on SQLite and a bool on PG. */
 type MembershipRowRaw = {

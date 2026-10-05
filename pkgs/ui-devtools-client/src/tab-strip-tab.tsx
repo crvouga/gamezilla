@@ -9,7 +9,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { XIcon } from '@pkgs/ui-client/icons';
+import { XIcon } from '@pkgs/ui-root-client/icons';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import styles from './tab-strip.module.css';

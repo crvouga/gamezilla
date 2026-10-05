@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import { SYNC_ENGINE_WRITE_REJECTIONS } from './tables';
 import type { TopicMap } from './topic-map';
 import { defineTopicMap } from './topic-map';

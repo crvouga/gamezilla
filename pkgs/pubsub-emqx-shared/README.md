@@ -1,6 +1,6 @@
 # `@pkgs/pubsub-emqx`
 
-EMQX adapter for `@pkgs/pubsub-shared`. Two factories, **one** returned type (`PubSub`):
+EMQX adapter for `@pkgs/pubsub-root-shared`. Two factories, **one** returned type (`PubSub`):
 
 - `createEmqxPubSub` — full-duplex MQTT over WebSocket (client environments).
 - `createEmqxHttpPubSub` — publish-only HTTP (Cloudflare Workers / stateless servers).
@@ -9,7 +9,7 @@ EMQX adapter for `@pkgs/pubsub-shared`. Two factories, **one** returned type (`P
 
 Local broker for tests, harnesses, and the laptop stack: `@pkgs/emqx-server`
 (ports 8083 / 18083, the EMQX release pinned in `mise.toml`). Deployed
-invalidation is AWS IoT Core (`@pkgs/pubsub-shared/iot`); this package remains the
+invalidation is AWS IoT Core (`@pkgs/pubsub-root-shared/iot`); this package remains the
 local HTTP and WebSocket adapter.
 
 Operators / broker should configure:
@@ -23,7 +23,7 @@ Operators / broker should configure:
   - `mqtt.max_mqueue_len` (cap offline queue length)
 - Adapter publishes/subscribes at **QoS 1**, `retain: false`, MQTT **5**, `cleanStart: false`, stable `clientId` (= `clientIdPrefix`)
 
-Topics use `@pkgs/pubsub-shared`'s grammar. The JWT ACL grants subscribe and
+Topics use `@pkgs/pubsub-root-shared`'s grammar. The JWT ACL grants subscribe and
 publish on the actor's topic set; server pushes use the HTTP publish API.
 
 ## Offline session behavior
@@ -88,7 +88,7 @@ bus.close();
 
 `bun run --filter @pkgs/pubsub-emqx-harness test:contract`
 (`../pubsub-emqx-harness/tests/emqx.contract.test.ts`) boots `@pkgs/emqx-server` on isolated ports
-and runs the `@pkgs/pubsub-shared` contract suite against it (`EMQX_TEST_*` env
+and runs the `@pkgs/pubsub-root-shared` contract suite against it (`EMQX_TEST_*` env
 points it at another broker). `disruptTransport` uses
 `DELETE /api/v5/clients/{clientid}` to exercise reconnect + session resume /
 re-SUBSCRIBE.

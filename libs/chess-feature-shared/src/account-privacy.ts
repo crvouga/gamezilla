@@ -4,7 +4,7 @@ import {
   withdrawMultiplayer,
 } from '@libs/chess-matchmaking-shared/account-privacy';
 import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
-import sql, { raw } from '@pkgs/sql-shared/sql';
+import sql, { raw } from '@pkgs/sql-root-shared/sql';
 
 const PERSONAL_TABLES = [
   'chess_multiplayer_players',

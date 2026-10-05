@@ -7,7 +7,7 @@ import { createFeedbackReporting } from '@pkgs/feedback-shared/reporting';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
 
 const store = createNodeFsObjectStore({
   rootDir: resolve(import.meta.dirname, '../../../.feedback'),

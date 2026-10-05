@@ -11,7 +11,7 @@
  * ids.
  */
 
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
 import type { HarnessIdpProvider } from './idp';

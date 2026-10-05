@@ -8,10 +8,10 @@ import type {
   AuthClientStorage,
   BearerTokenStore,
 } from '@pkgs/auth-inhouse-shared/bearer-token-store';
-import type { SignInOptions } from '@pkgs/auth-shared/auth-client-port';
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
-import type { AuthSessionStore } from '@pkgs/auth-shared/auth-session-state';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { SignInOptions } from '@pkgs/auth-root-shared/auth-client-port';
+import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
+import type { AuthSessionStore } from '@pkgs/auth-root-shared/auth-session-state';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 import type { SessionBody } from './auth-client-http';

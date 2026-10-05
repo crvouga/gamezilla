@@ -9,7 +9,7 @@ import {
   pressBackUntilVisible,
 } from '@libs/harness/driver-gestures';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 
 /**
  * Wall-time budget for one step against production (network round trips,

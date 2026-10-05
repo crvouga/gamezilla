@@ -7,9 +7,9 @@
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Message } from '@pkgs/message-shared/message';
-import type { RoomError } from '@pkgs/room-shared/types';
-import { ROOM_ERROR_TYPE } from '@pkgs/room-shared/types';
-import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-shared/wire';
+import type { RoomError } from '@pkgs/room-root-shared/types';
+import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared/types';
+import { ROOM_WIRE_KIND, WIRE_VERSION } from '@pkgs/room-root-shared/wire';
 
 export type RoomAnswer =
   | { readonly kind: 'committed' }

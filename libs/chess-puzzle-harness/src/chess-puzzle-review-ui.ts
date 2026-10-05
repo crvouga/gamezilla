@@ -8,7 +8,7 @@ import { actorUi, pollUntil } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { ChessBoardFlows } from '@pkgs/chess-board-core-shared/flows';
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
+import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
 
 const WAIT_MS = 15_000;
 const POLL_MS = 100;

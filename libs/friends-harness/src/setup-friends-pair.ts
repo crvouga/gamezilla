@@ -1,6 +1,6 @@
 import { returnToTabs } from '@libs/harness/auth-actions';
 import type { ProductHarness } from '@libs/harness/harness';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 import { acceptFriendRequest, openFriendsList } from './friends-actions';
 import { friendRowVisible } from './friends-ui-reads';
 import { setupFriendRequest } from './setup-friend-request';

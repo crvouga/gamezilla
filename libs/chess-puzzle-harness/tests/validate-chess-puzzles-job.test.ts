@@ -5,8 +5,8 @@ import { ChessPuzzleValidationJob } from '@libs/chess-puzzle-server/chess-puzzle
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { createLogger } from '@pkgs/logger-shared/logger';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 const PACKAGE_ROOT = join(import.meta.dir, '..');
 

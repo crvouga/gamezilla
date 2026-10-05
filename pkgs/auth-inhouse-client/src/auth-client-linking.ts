@@ -9,12 +9,12 @@
  * first and accepts the popup-blocker risk that brings.
  */
 
-import { AuthFlowError } from '@pkgs/auth-client/auth-flow-error';
-import type { AuthErrorCode } from '@pkgs/auth-shared/auth-error-code';
-import { AUTH_ERROR } from '@pkgs/auth-shared/auth-error-code';
-import type { AuthIdentity } from '@pkgs/auth-shared/auth-identity';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { isOauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import { AuthFlowError } from '@pkgs/auth-root-client/auth-flow-error';
+import type { AuthErrorCode } from '@pkgs/auth-root-shared/auth-error-code';
+import { AUTH_ERROR } from '@pkgs/auth-root-shared/auth-error-code';
+import type { AuthIdentity } from '@pkgs/auth-root-shared/auth-identity';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { isOauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import type { Clock } from '@pkgs/clock-shared/types';
 import { apiUrl, buildOauthLaunchUrl, postJson } from './auth-client-http';
 import type { SignInCtx } from './auth-client-oauth';

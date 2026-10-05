@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import { ScreenBase } from '@pkgs/ui-client/screen-base';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { ScreenBase } from '@pkgs/ui-root-client/screen-base';
 import type { JSX } from 'solid-js';
 import { AccountDevicesCard } from './account-devices-card';
 import { useMyAccountId } from './use-current-user';

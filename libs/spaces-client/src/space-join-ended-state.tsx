@@ -1,8 +1,8 @@
 import { useProfileRow } from '@libs/profile-client/public-use-profile-row';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { Gamepad2Icon } from '@pkgs/ui-client/icons';
-import { useBreadcrumbNav } from '@pkgs/ui-client/use-breadcrumb-nav';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { Gamepad2Icon } from '@pkgs/ui-root-client/icons';
+import { useBreadcrumbNav } from '@pkgs/ui-root-client/use-breadcrumb-nav';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 import { useSpaceCommandLabel } from './use-space-command-label';

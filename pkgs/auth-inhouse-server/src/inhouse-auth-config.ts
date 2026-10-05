@@ -10,8 +10,8 @@ import type {
 } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { GOOGLE_PRODUCTION_ENDPOINTS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { IDP_PROVIDER_LABEL } from '@pkgs/auth-inhouse-shared/provider-label';
-import type { AuthProviderEnv } from '@pkgs/auth-shared/auth-provider-module';
-import { AuthProviderConfigError } from '@pkgs/auth-shared/auth-provider-module';
+import type { AuthProviderEnv } from '@pkgs/auth-root-shared/auth-provider-module';
+import { AuthProviderConfigError } from '@pkgs/auth-root-shared/auth-provider-module';
 import type { AppleProviderConfig } from './apple-oauth';
 import type { OauthCallbackRelay } from './oauth-callback-relay';
 import { STATE_TAG_PATTERN } from './oauth-callback-relay';

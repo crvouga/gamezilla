@@ -1,4 +1,4 @@
-import type { RenderedApp } from '@pkgs/ui-testing-shared/render-adapter';
+import type { RenderedApp } from '@pkgs/ui-testing-root-shared/render-adapter';
 import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 import type { JSX } from 'solid-js';
 import { render } from 'solid-js/web';

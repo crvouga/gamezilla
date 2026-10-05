@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 /** RFC 9562 UUID pattern, including time-ordered UUIDv7. */
 export const UUID_REGEX =

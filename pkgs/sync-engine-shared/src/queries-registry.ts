@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { QueryDef, QueryRegistry } from './queries-types';
 import { validateQueryChannels } from './validate-topics';
 

@@ -10,7 +10,7 @@ import {
 import { reconcileIdpSqlite } from '@pkgs/auth-inhouse-server/reconcile-idp-sqlite';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse-shared/oauth-client-callback-url';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
 import { ALICE_EMAIL, simulatedGoogle } from './simulated-google';
 

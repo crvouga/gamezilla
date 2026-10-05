@@ -8,13 +8,13 @@
  * `composeFeatures(APP_FEATURES)` differ only in the argument.
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { TableDef } from '@pkgs/db-schema-shared/define-table';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { TableDef } from '@pkgs/db-schema-root-shared/define-table';
 import {
   domainsFromTables,
   registerTables,
-} from '@pkgs/db-schema-shared/register-tables';
-import type { Schema } from '@pkgs/db-schema-shared/types';
+} from '@pkgs/db-schema-root-shared/register-tables';
+import type { Schema } from '@pkgs/db-schema-root-shared/types';
 import { mutationRegistry } from '@pkgs/sync-engine-shared/mutations-registry';
 import type {
   Mutation,

@@ -5,7 +5,7 @@
  * field); this is the one shape linking and sign-in reason about.
  */
 
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 
 export type ProviderIdentity = {
   readonly provider: OauthProviderId;

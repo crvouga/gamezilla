@@ -2,22 +2,22 @@ import {
   asPhysicalIdent,
   asSchemaIdent,
   rebuildOldTableIdent,
-} from '@pkgs/db-schema-shared/index-fingerprint';
+} from '@pkgs/db-schema-root-shared/index-fingerprint';
 import type {
   ClientOperation,
   CreateTableColumn,
-} from '@pkgs/db-schema-shared/operations';
-import { SQLITE_TYPE_SQL } from '@pkgs/db-schema-shared/type-map';
+} from '@pkgs/db-schema-root-shared/operations';
+import { SQLITE_TYPE_SQL } from '@pkgs/db-schema-root-shared/type-map';
 import type {
   ColumnType,
   ReadonlyDeclaredSchema,
-} from '@pkgs/db-schema-shared/types';
+} from '@pkgs/db-schema-root-shared/types';
 import {
   MANAGED_IMPLICIT_COLUMN_NAMES,
   MANAGED_IMPLICIT_COLUMNS,
-} from '@pkgs/db-schema-shared/types';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql, { ident, join, raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/db-schema-root-shared/types';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql, { ident, join, raw } from '@pkgs/sql-root-shared/sql';
 
 function sqliteTypeOf(col: {
   type: ColumnType;

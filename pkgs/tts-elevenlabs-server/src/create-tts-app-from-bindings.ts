@@ -1,10 +1,10 @@
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import { ObjectStorePrefix } from '@pkgs/object-store-shared/prefixes';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import { ObjectStorePrefix } from '@pkgs/object-store-root-shared/prefixes';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 import { ElevenLabsTtsProvider } from '@pkgs/tts-elevenlabs-shared/elevenlabs-tts-provider';
-import type { TtsRequireAuth } from '@pkgs/tts-server/tts-routes';
-import { createTtsApp } from '@pkgs/tts-server/tts-routes';
-import type { TtsProvider } from '@pkgs/tts-shared/tts-provider';
+import type { TtsRequireAuth } from '@pkgs/tts-root-server/tts-routes';
+import { createTtsApp } from '@pkgs/tts-root-server/tts-routes';
+import type { TtsProvider } from '@pkgs/tts-root-shared/tts-provider';
 import { Hono } from 'hono';
 
 export const TtsSecretName = {

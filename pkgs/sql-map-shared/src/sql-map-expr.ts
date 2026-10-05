@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { ensureSqlMapBuiltins } from './sql-map-builtins';
 import { columnIdent } from './sql-map-ident';
 import type { SqlMapCompileCtx } from './sql-map-registry';

@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import type { HarnessServer } from './server';
 import { NOTES_ALL_TOPIC } from './topics';

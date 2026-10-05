@@ -1,4 +1,4 @@
-import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-client/content-edge-padding';
+import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui-root-client/content-edge-padding';
 import type { JSX } from 'solid-js';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from './leave-space-modal-provider';

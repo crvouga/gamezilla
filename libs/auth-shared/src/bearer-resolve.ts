@@ -1,7 +1,7 @@
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { assertUuid } from '@pkgs/uuid-shared/uuid';
 import { AnonUserService } from './anon-user-service';

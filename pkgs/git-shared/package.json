@@ -14,7 +14,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/assert-shared": "workspace:*"
+    "@pkgs/assert-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -1,7 +1,7 @@
-import { originAvailabilityFor } from '@libs/app-client/origin-availability-for-env';
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import type { UiOp } from '@pkgs/ui-testing-shared/ui-op';
-import { describeUiOp, performUiOp } from '@pkgs/ui-testing-shared/ui-op';
+import { originAvailabilityFor } from '@libs/app-root-client/origin-availability-for-env';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import type { UiOp } from '@pkgs/ui-testing-root-shared/ui-op';
+import { describeUiOp, performUiOp } from '@pkgs/ui-testing-root-shared/ui-op';
 import { ensureActor } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { caps, partitioned } from './observations';

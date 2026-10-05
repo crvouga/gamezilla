@@ -1,4 +1,4 @@
 {
   "summary": "Navigating between screens (opening Settings from the account menu, coming back) dropped keyboard focus to the start of the page (WCAG 2.4.3). Fixed in ScreenBase/AppFrame: the next screen takes focus on its title, or back on the control the person left it from.",
-  "regressionTest": "pkgs/ui-harness/tests/screen-focus.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness/tests/screen-focus.test.tsx"
 }

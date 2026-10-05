@@ -6,7 +6,7 @@
 import type {
   MembershipProviderEnv,
   MembershipProviderModule,
-} from '@pkgs/billing-shared/provider-module';
+} from '@pkgs/billing-root-shared/provider-module';
 
 import { reconcilePaddleOffer } from './offer-reconcile';
 import { PaddleApi, paddleOriginForApiKey } from './paddle-api';

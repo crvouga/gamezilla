@@ -11,7 +11,7 @@ import { appPostgresDbScope } from '@libs/db-shared/scope';
 import { migrateHarnessPostgres } from '@libs/runtime-server/migrate-harness-postgres';
 import { appSchema } from '@libs/runtime-shared/app-schema';
 import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres-server/impl-mockingbird-postgres';
-import { unsafe } from '@pkgs/sql-shared/sql';
+import { unsafe } from '@pkgs/sql-root-shared/sql';
 
 function declaredIntegerColumns(): { table: string; column: string }[] {
   const snapshot = appSchema.snapshot();

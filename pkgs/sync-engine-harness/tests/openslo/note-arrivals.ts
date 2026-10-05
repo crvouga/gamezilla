@@ -7,7 +7,7 @@
  * clock, from the write until the note shows on that person's device.
  */
 
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 import {
   createSpace,
   joinSpace,

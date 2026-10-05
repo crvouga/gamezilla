@@ -1,6 +1,6 @@
 # `@pkgs/billing-paddle`
 
-The Paddle Billing adapter for the membership port (`@pkgs/billing-shared`). The
+The Paddle Billing adapter for the membership port (`@pkgs/billing-root-shared`). The
 counterpart of `@pkgs/billing-stripe`, and the only place a Paddle status
 name, event name or custom-data key exists. It talks to Paddle's REST API
 (`Paddle-Version: 1`) over an injected `fetch`, with no SDK, so it runs the

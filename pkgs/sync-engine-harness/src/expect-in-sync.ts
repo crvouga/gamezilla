@@ -1,6 +1,6 @@
 import { expect } from 'bun:test';
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import type { Run } from '@pkgs/harness-shared/run-types';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 import { recoverAll } from './regression-actions';
 import type { SyncHarness } from './scenario-system';
 import { inSync } from './sync-observations';

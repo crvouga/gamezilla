@@ -1,6 +1,6 @@
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 import { AccountProvisioningService } from './account-provisioning';

@@ -1,7 +1,7 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { queryRequires } from '@libs/permissions-shared/query-permission';
 import { profilesByIds } from '@libs/profile-shared/profiles-by-ids-query';
-import sql, { join } from '@pkgs/sql-shared/sql';
+import sql, { join } from '@pkgs/sql-root-shared/sql';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 
 export const chessMultiplayerSession = defineQuery({

@@ -1,6 +1,6 @@
-import { runDbSchemaContractTests } from '@pkgs/db-schema-shared/contract-suite';
+import { runDbSchemaContractTests } from '@pkgs/db-schema-root-shared/contract-suite';
 import { sqlite } from '@pkgs/db-schema-sqlite-shared/driver';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 
 runDbSchemaContractTests({
   name: 'mockingbird-sqlite',

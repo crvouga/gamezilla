@@ -1,5 +1,5 @@
-import { readObjectBytes } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readObjectBytes } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createStaticFileHandler } from './static-file-server';
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {

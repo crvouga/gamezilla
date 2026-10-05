@@ -1,10 +1,10 @@
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import type {
   TtsProvider,
   TtsSynthesizeInput,
   TtsSynthesizeOutput,
-} from '@pkgs/tts-shared/tts-provider';
-import { TtsProviderError } from '@pkgs/tts-shared/tts-provider';
+} from '@pkgs/tts-root-shared/tts-provider';
+import { TtsProviderError } from '@pkgs/tts-root-shared/tts-provider';
 
 const ELEVEN_LABS_BASE_URL = 'https://api.elevenlabs.io/v1';
 

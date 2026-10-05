@@ -14,8 +14,8 @@
 
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import type { Hono } from 'hono';
 

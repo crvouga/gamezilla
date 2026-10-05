@@ -1,15 +1,15 @@
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import type {
   ClientRoomStorage,
   QueuedCommand,
-} from '@pkgs/room-shared/core-storage';
+} from '@pkgs/room-root-shared/core-storage';
 import type {
   CommittedLogBlobs,
   CommittedLogManifest,
   SegmentedCommittedLog,
-} from '@pkgs/room-shared/segmented-committed-log';
-import { createSegmentedCommittedLog } from '@pkgs/room-shared/segmented-committed-log';
-import type { LogEntry } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/segmented-committed-log';
+import { createSegmentedCommittedLog } from '@pkgs/room-root-shared/segmented-committed-log';
+import type { LogEntry } from '@pkgs/room-root-shared/types';
 
 const crash: Assert = Assert.crash();
 

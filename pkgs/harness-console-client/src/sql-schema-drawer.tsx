@@ -1,4 +1,4 @@
-import { Collapsible } from '@pkgs/ui-client/collapsible';
+import { Collapsible } from '@pkgs/ui-root-client/collapsible';
 import { For, type JSX, Show } from 'solid-js';
 
 import type { SchemaIndex } from './use-schema-index';

@@ -1,7 +1,7 @@
 import { BILLING_CUSTOMER_LINK_PREFIX } from '@libs/auth-shared/external-account-providers';
 import { parseMetadataEmail } from '@libs/auth-shared/linked-account-providers';
 import { resolveMyId } from '@libs/auth-shared/resolve-client-identity';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { useHasAuthSession } from './access-facts';

@@ -1,5 +1,5 @@
 import { acceptFriendRequestMutation } from '@libs/friends-shared/accept-friend-request-mutation';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { MutationEnv } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 

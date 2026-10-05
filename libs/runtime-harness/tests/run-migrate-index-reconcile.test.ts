@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { runMigrateIndexReconcile } from '@libs/runtime-server/run-migrate-index-reconcile';
-import { createHarnessClock } from '@pkgs/db-indexes-harness/clock';
-import { HarnessDb } from '@pkgs/db-indexes-harness/db';
-import { fingerprintSql } from '@pkgs/db-indexes-shared/fingerprint';
+import { createHarnessClock } from '@pkgs/db-indexes-root-harness/clock';
+import { HarnessDb } from '@pkgs/db-indexes-root-harness/db';
+import { fingerprintSql } from '@pkgs/db-indexes-root-shared/fingerprint';
 import { createLogger } from '@pkgs/logger-shared/logger';
 
 function silentLogger() {

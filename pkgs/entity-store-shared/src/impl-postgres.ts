@@ -3,8 +3,8 @@
  * (`entityStoreSchema`) — not product appSchema / sync.
  */
 
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 import { entityStoreId } from './entity-id';
 import type {

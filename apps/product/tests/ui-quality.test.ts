@@ -9,8 +9,8 @@ import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
-} from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+} from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import type { ImageInput } from '@pkgs/ui-quality-check-shared/detectors-types';
 import type {

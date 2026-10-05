@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { AttributeState } from '@pkgs/attribute-shared/attribute';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 

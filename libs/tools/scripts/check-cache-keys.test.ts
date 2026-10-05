@@ -225,10 +225,10 @@ test.each([
 
 // regression: tools-test-unhashed-model-bindings
 test.each([
-  'libs/chess-harness/tests/quint/multiplayer.binding.ts',
+  'libs/chess-root-harness/tests/quint/multiplayer.binding.ts',
   'specs/chess/multiplayer.qnt',
-  'libs/chess-harness/package.json',
-  'libs/chess-harness/turbo.json',
+  'libs/chess-root-harness/package.json',
+  'libs/chess-root-harness/turbo.json',
   'libs/profile-harness/src/username.steps.ts',
   '.depot/actions/setup/action.yml',
   'apps/product/scripts/ui-quality/sources.json',

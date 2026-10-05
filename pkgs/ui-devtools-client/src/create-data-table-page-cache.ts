@@ -1,4 +1,4 @@
-import { createAsync } from '@pkgs/async-client/solid';
+import { createAsync } from '@pkgs/async-root-client/solid';
 import { pageCacheKey } from '@pkgs/ui-devtools-shared/data-table-metrics';
 import type {
   CacheMaps,

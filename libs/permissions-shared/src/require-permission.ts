@@ -1,6 +1,6 @@
 import type { AppAuth } from '@libs/auth-shared/auth-context';
 import { UnauthorizedError } from '@libs/auth-shared/unauthorized-error';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import { decideForActor } from './decide-for-actor';
 import type { AppPermission } from './permission-catalog';

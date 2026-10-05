@@ -17,7 +17,7 @@ not compose leaves it cached.
 
 | Suite | Composes | Why it is where it is |
 | --- | --- | --- |
-| `libs/chess-harness/tests` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
+| `libs/chess-root-harness/tests` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
 | `libs/friends-harness/tests` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
 | `libs/profile-harness/tests` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
 | `libs/billing-harness/tests` | billing | the membership lifecycle through the payment provider node |
@@ -52,7 +52,7 @@ Each feature exports its slice (manifest, client, server, actions, reads,
 properties, seeds, room host, browser pages) from `@libs/<feature>/harness/*`.
 `composeHarnessSlices` adds the platform (auth, client-config, permissions) and
 folds in production's order. Run one package's suite with
-`bun run --filter @libs/chess-harness test:spec`, one spec with
+`bun run --filter @libs/chess-root-harness test:spec`, one spec with
 `bun run spec specs/chess/puzzle-play.feature`.
 
 ## Hosts

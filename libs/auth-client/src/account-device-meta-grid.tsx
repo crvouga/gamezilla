@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import type { JSX } from 'solid-js';
 import { AccountDeviceAppText } from './account-device-app-text';
 import { AccountDeviceCreatedText } from './account-device-created-text';

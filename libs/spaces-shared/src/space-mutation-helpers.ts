@@ -1,6 +1,6 @@
 import { decideInMutation } from '@libs/permissions-shared/mutation-permission';
 import type { AppPermission } from '@libs/permissions-shared/permission-catalog';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type {
   MutationDb,
   MutationEnv,

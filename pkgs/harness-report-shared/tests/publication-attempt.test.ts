@@ -10,8 +10,8 @@ import {
   readCommit,
   readFrameCss,
 } from '@pkgs/harness-report-shared/read';
-import { readBytes } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { readBytes } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 const SHA = 'a'.repeat(40);
 const opening = {

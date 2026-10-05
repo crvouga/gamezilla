@@ -1,5 +1,5 @@
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import type { VerifiedSession } from '@pkgs/auth-shared/verified-session';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { VerifiedSession } from '@pkgs/auth-root-shared/verified-session';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
 
 export const AUTH_SSO_CANCELLED_ERROR =

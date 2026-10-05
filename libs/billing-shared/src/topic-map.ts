@@ -1,4 +1,4 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
 import type { TopicMap } from '@pkgs/sync-engine-shared/topic-map';
 
 export const BILLING_TOPIC_MAP = {

@@ -1,7 +1,7 @@
-import { testFrameKey, testReportKey } from '@pkgs/harness-shared/keys';
-import type { RunReportMeta } from '@pkgs/harness-shared/report-types';
-import { writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { testFrameKey, testReportKey } from '@pkgs/harness-root-shared/keys';
+import type { RunReportMeta } from '@pkgs/harness-root-shared/report-types';
+import { writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { recordedReport } from './developer-report';
 
 export async function catalogSource(metas: readonly RunReportMeta[]) {

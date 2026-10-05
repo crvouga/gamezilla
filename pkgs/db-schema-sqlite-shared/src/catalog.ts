@@ -1,13 +1,13 @@
 // @sql-vendor-ok — SQLite schema reconcile uses PRAGMA table_info / index_*.
 
-import { normalizeSqliteType } from '@pkgs/db-schema-shared/type-map';
+import { normalizeSqliteType } from '@pkgs/db-schema-root-shared/type-map';
 import type {
   IntrospectedCatalog,
   IntrospectedIndex,
   IntrospectedTable,
-} from '@pkgs/db-schema-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { raw } from '@pkgs/sql-shared/sql';
+} from '@pkgs/db-schema-root-shared/types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 function quoteSqliteIdent(name: string): string {
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {

@@ -1,11 +1,11 @@
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
-import { decodePayload, encodePayload } from '@pkgs/pubsub-shared/payload';
-import { PubSubClosedError } from '@pkgs/pubsub-shared/pubsub-closed-error';
-import { PubSubPublishError } from '@pkgs/pubsub-shared/pubsub-publish-error';
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import { assertValidTopic } from '@pkgs/pubsub-shared/topic';
+import type { PubSub, PubSubStatus } from '@pkgs/pubsub-root-shared/interface';
+import { decodePayload, encodePayload } from '@pkgs/pubsub-root-shared/payload';
+import { PubSubClosedError } from '@pkgs/pubsub-root-shared/pubsub-closed-error';
+import { PubSubPublishError } from '@pkgs/pubsub-root-shared/pubsub-publish-error';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import { assertValidTopic } from '@pkgs/pubsub-root-shared/topic';
 import mqtt, { type IClientOptions, type MqttClient } from 'mqtt';
 import { rememberMqttClientId } from './mqtt-client-id';
 import { fullJitterDelayMs } from './reconnect-backoff';

@@ -3,7 +3,7 @@
  * built-in `componentRegistry`; an explorer that wants them passes these as
  * (part of) its `entries`.
  */
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
+import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
 import DataTableExample from './data-table.example';
 import JsonViewExample from './json-view.example';
 import TabStripExample from './tab-strip.example';

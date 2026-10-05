@@ -1,5 +1,5 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { MAX_MUTATIONS_BATCH } from '@pkgs/sync-engine-shared/bounds';
 import type {
   MutationAuthorize,

@@ -5,7 +5,7 @@
  */
 import { join } from 'node:path';
 
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { createNodeFsObjectStore } from './impl-node-fs';
 import { wallNodeFs } from './wall-node-fs';
 

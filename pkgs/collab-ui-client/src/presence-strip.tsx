@@ -2,11 +2,11 @@
  * Presence strip: one face per connected client, ringed in participant color.
  */
 
-import type { ParticipantColor } from '@pkgs/collab-shared/participant-color';
-import type { RoomActor } from '@pkgs/room-shared/types';
-import { AvatarGroup } from '@pkgs/ui-client/avatar-group';
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
+import type { ParticipantColor } from '@pkgs/collab-root-shared/participant-color';
+import type { RoomActor } from '@pkgs/room-root-shared/types';
+import { AvatarGroup } from '@pkgs/ui-root-client/avatar-group';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
 import { For, type JSX } from 'solid-js';
 
 import { ParticipantColorRing } from './participant-color-ring';

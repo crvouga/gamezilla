@@ -1,5 +1,5 @@
-import { ChessBoardBenchPage } from '@pkgs/chess-board-client/chess-board-bench-page';
-import type { ComponentEntry } from '@pkgs/ui-shared/component-entry';
+import { ChessBoardBenchPage } from '@pkgs/chess-board-root-client/chess-board-bench-page';
+import type { ComponentEntry } from '@pkgs/ui-root-shared/component-entry';
 import ChessBoardExample from './chess-board-example';
 
 export const CHESS_COMPONENT_ENTRIES: readonly ComponentEntry[] = [

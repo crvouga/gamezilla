@@ -1,10 +1,10 @@
 import { useCan } from '@libs/permissions-client/use-can';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Trans } from '@lingui/solid/macro';
-import { useRouter } from '@pkgs/ui-client/app-router';
-import { DatabaseIcon } from '@pkgs/ui-client/icons';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
+import { DatabaseIcon } from '@pkgs/ui-root-client/icons';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { type JSX, Show } from 'solid-js';
 
 export function PuzzleManagementSettings(): JSX.Element {

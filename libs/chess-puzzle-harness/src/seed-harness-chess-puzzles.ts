@@ -13,7 +13,7 @@ import { ChessPuzzleLoadFileSeeder } from '@libs/chess-puzzle-server/chess-puzzl
 import { createLogger } from '@pkgs/logger-shared/logger';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import { createHarnessIds } from '@pkgs/uuid-shared/seeded-create-id';
 
 const LOAD_FILE_KEY = 'chess-puzzles.harness.csv';

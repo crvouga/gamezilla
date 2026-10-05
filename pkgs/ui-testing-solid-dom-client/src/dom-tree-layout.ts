@@ -4,7 +4,7 @@
  * measure anchors (FloatingMenu, etc.) place panels under their triggers.
  */
 
-import type { ElementLayout } from '@pkgs/ui-testing-shared/driver';
+import type { ElementLayout } from '@pkgs/ui-testing-root-shared/driver';
 import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared/snapshot-frame';
 import { ELEMENT_LAYOUT_EVENT } from './dom-layout';
 

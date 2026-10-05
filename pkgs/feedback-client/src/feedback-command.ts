@@ -1,4 +1,4 @@
-import type { Command } from '@pkgs/ui-client/types';
+import type { Command } from '@pkgs/ui-root-client/types';
 import { requestFeedback } from './open-feedback';
 
 export function feedbackCommand(labels: {

@@ -8,7 +8,7 @@ import { createNoopLogger } from '@pkgs/logger-shared/logger';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
-} from '@pkgs/pubsub-shared/in-memory';
+} from '@pkgs/pubsub-root-shared/in-memory';
 
 test('a cut event connection drops live changes and signals recovery', async () => {
   // regression: product-harness-offline-events-leak

@@ -1,5 +1,5 @@
-import { Assert } from '@pkgs/assert-shared/assert';
-import { hotAssert } from '@pkgs/assert-shared/hot-asserts';
+import { Assert } from '@pkgs/assert-root-shared/assert';
+import { hotAssert } from '@pkgs/assert-root-shared/hot-asserts';
 import type {
   Message,
   MessageNamespace,

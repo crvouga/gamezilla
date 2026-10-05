@@ -1,6 +1,6 @@
 import { billingCustomerLinkProvider } from '@libs/auth-shared/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth-shared/external-account-repository';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 /**

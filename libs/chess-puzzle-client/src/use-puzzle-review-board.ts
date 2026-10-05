@@ -15,7 +15,7 @@ import {
 import {
   ChessMainMenuScreenAttr,
   SeekChessPuzzleReview,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,

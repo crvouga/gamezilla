@@ -1,7 +1,7 @@
 import type { GameCommandContext } from '@libs/spaces-shared/game';
 import { createAttrNamespace } from '@pkgs/attribute-shared/attribute';
 import { createMessageRouter } from '@pkgs/message-shared/router';
-import type { HandleResult, RoomState } from '@pkgs/room-shared/types';
+import type { HandleResult, RoomState } from '@pkgs/room-root-shared/types';
 import { z } from 'zod';
 import {
   ChangeCustomGame,

@@ -1,7 +1,7 @@
 import { LegalPreservation } from '@libs/account-privacy-server/legal-preservation';
 import { scenarioAction } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 function preservation(s: ProductHarness) {
   return new LegalPreservation(s.harness.serverSql.sqlClient, {

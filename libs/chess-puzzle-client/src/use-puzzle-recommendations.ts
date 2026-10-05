@@ -9,7 +9,7 @@ import type { BoardArrow } from '@pkgs/chess-board-core-shared/types';
 import {
   assignParticipantColors,
   resolveParticipantColor,
-} from '@pkgs/collab-shared/participant-color';
+} from '@pkgs/collab-root-shared/participant-color';
 import { type Accessor, createMemo } from 'solid-js';
 
 /**

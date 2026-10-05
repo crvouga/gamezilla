@@ -1,4 +1,4 @@
-import { chessGameClient } from '@libs/chess-client/chess-game-def';
+import { chessGameClient } from '@libs/chess-root-client/chess-game-def';
 import { GAME_DEFINITIONS } from '@libs/games-shared/game-plugins';
 import type { GameClientDefinition } from '@libs/spaces-shared/game';
 import {

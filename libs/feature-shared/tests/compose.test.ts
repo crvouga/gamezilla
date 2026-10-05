@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { composeFeatures } from '@libs/feature-shared/compose';
 import type { FeatureManifest } from '@libs/feature-shared/manifest';
 import { defineFeature } from '@libs/feature-shared/manifest';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
 import { defineMutation } from '@pkgs/sync-engine-shared/define-mutation';
 import { defineQuery } from '@pkgs/sync-engine-shared/define-query';
 import { z } from 'zod';

@@ -9,8 +9,8 @@ import type {
   DatabaseSeeder,
   DatabaseSeederContext,
 } from '@pkgs/db-migrate-shared/database-seeder';
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { parse } from 'csv-parse/sync';
 import { PuzzleSeedFastPath } from './fast-path';

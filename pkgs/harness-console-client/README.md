@@ -9,6 +9,6 @@ the SQL notebook.
 - **Ports:** `HarnessConsolePorts` — product app + product-harness boot are
   injected by `@apps/product`; this package never imports apps/libs/test.
 
-Test reports are **not** browsed here. `@pkgs/harness-shared` captures run timelines
+Test reports are **not** browsed here. `@pkgs/harness-root-shared` captures run timelines
 (`defineSnapshot` / `run({ report })`); `@pkgs/harness-report` streams them
 into the host's reports screen (`/reports`); see `libs/harness/README.md`.

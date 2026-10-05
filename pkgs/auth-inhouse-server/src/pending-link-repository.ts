@@ -6,8 +6,8 @@
 import { AUTH_PENDING_LINK_TTL_MS } from '@pkgs/auth-inhouse-shared/auth-constants';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared/token-hash';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { isoFromMs } from './idp-repository';
 import type { ProviderIdentity } from './provider-identity';

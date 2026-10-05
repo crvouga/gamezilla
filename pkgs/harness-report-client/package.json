@@ -19,7 +19,7 @@
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
     "@pkgs/harness-report-shared": "workspace:*",
-    "@pkgs/harness-shared": "workspace:*",
+    "@pkgs/harness-root-shared": "workspace:*",
     "@pkgs/http-client-shared": "workspace:*",
     "@tanstack/query-persist-client-core": "catalog:",
     "@tanstack/solid-query": "catalog:",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
     "@pkgs/property-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -1,8 +1,8 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import querySql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import querySql from '@pkgs/sql-root-shared/sql';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 import { AnonUserService } from './anon-user-service';
 import type { AppAuthContext, AppClientContext } from './auth-context';

@@ -3,7 +3,7 @@
  * compile-time brand checks. The general laws live in keyword.property.test.ts.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { Assert } from '@pkgs/assert-shared/assert';
+import { Assert } from '@pkgs/assert-root-shared/assert';
 import type { JoinDot, Keyword } from '@pkgs/keyword-shared/keyword';
 import {
   asKeyword,

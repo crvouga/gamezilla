@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { createEmptyNotebook } from '@pkgs/harness-console-client/notebook-doc';
 import { createNotebookStore } from '@pkgs/harness-console-client/notebook-store';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 describe('notebook-store', () => {
   test('load save clear', async () => {

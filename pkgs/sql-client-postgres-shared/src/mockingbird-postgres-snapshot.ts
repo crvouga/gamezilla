@@ -1,4 +1,4 @@
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 const PGMM_MAGIC0 = 0x50; // P
 const PGMM_MAGIC1 = 0x47; // G

@@ -1,5 +1,5 @@
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared/scheduler';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { MutationRegistry } from '@pkgs/sync-engine-shared/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared/queries-types';
@@ -85,7 +85,7 @@ export type AddClientArgs = {
   readonly existingDb?: HarnessClientDbBundle;
 };
 
-/** Virtual clock used by the harness scheduler (see `@pkgs/harness-shared` `VirtualClock`). */
+/** Virtual clock used by the harness scheduler (see `@pkgs/harness-root-shared` `VirtualClock`). */
 export type HarnessClock = VirtualScheduler['clock'];
 
 /** Clock, network, broker, and in-memory SQLite server for a harness surface. */

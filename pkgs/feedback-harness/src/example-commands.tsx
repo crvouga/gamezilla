@@ -4,15 +4,15 @@ import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client/solid';
 import { feedbackCommand } from '@pkgs/feedback-client/feedback-command';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import { Button } from '@pkgs/ui-client/button';
-import { CommandPalette } from '@pkgs/ui-client/command-palette';
-import { CommandRegistryProvider } from '@pkgs/ui-client/command-registry-context';
-import { OverlayPortalProvider } from '@pkgs/ui-client/overlay-portal';
-import { useRegisterCommands } from '@pkgs/ui-client/register-command';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
-import { ThemeProvider } from '@pkgs/ui-client/theme-context';
-import { useCommandPalette } from '@pkgs/ui-client/use-command-palette';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import { Button } from '@pkgs/ui-root-client/button';
+import { CommandPalette } from '@pkgs/ui-root-client/command-palette';
+import { CommandRegistryProvider } from '@pkgs/ui-root-client/command-registry-context';
+import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
+import { useRegisterCommands } from '@pkgs/ui-root-client/register-command';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
+import { ThemeProvider } from '@pkgs/ui-root-client/theme-context';
+import { useCommandPalette } from '@pkgs/ui-root-client/use-command-palette';
 import { render } from 'solid-js/web';
 
 function Commands() {

@@ -26,7 +26,7 @@ async function dispatch(
   res: ServerResponse,
   options: {
     reporter: FileSystemIssueReporter;
-    store: import('@pkgs/object-store-shared/interface').ObjectStore;
+    store: import('@pkgs/object-store-root-shared/interface').ObjectStore;
   }
 ): Promise<void> {
   const origin = `http://${req.headers.host ?? 'localhost'}`;

@@ -1,12 +1,12 @@
 import { isAbsolute, join, resolve } from 'node:path';
 import { Readable, Transform } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { Clock } from '@pkgs/clock-shared/types';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 const ZST_NAME = 'lichess_db_puzzle.csv.zst';
 const MANIFEST_NAME = 'manifest.json';

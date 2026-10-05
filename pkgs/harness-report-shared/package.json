@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/harness-shared": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*"
+    "@pkgs/harness-root-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/property-shared": "workspace:*",

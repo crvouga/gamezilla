@@ -6,9 +6,9 @@ import {
 import {
   asSchemaIdent,
   fingerprintForIndexDef,
-} from '@pkgs/db-schema-shared/index-fingerprint';
-import type { ServerOperation } from '@pkgs/db-schema-shared/operations';
-import { SERVER_OPERATION_KINDS } from '@pkgs/db-schema-shared/operations';
+} from '@pkgs/db-schema-root-shared/index-fingerprint';
+import type { ServerOperation } from '@pkgs/db-schema-root-shared/operations';
+import { SERVER_OPERATION_KINDS } from '@pkgs/db-schema-root-shared/operations';
 
 const operations: readonly ServerOperation[] = [
   {

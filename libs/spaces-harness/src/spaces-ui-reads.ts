@@ -2,7 +2,7 @@ import { actorUi } from '@libs/harness/actor-ui';
 import type { ProductHarness } from '@libs/harness/harness';
 import { actorLocalSql } from '@libs/harness/identity';
 import { Handles } from '@libs/test-ids-shared/handles';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export async function lobbyCardVisible(
   s: ProductHarness,

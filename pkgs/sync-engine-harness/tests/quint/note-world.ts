@@ -4,7 +4,7 @@
  * the time a person would give it.
  */
 
-import type { Run } from '@pkgs/harness-shared/run-types';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
 import { setQuintWorld } from '@pkgs/quint-shared/registry';
 import { exampleSystem } from '@pkgs/sync-engine-harness/example-app-system';
 import type { SyncHarness } from '@pkgs/sync-engine-harness/scenario-system';

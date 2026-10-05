@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { ValidationError } from '@pkgs/assert-shared/validation-error';
+import { ValidationError } from '@pkgs/assert-root-shared/validation-error';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import type { Message } from '@pkgs/message-shared/message';
 import {

@@ -1,4 +1,4 @@
-import { defineProperty } from '@pkgs/harness-shared/define-property';
+import { defineProperty } from '@pkgs/harness-root-shared/define-property';
 import type { SyncHarness } from './scenario-system';
 import {
   inSync,

@@ -6,7 +6,10 @@ import {
   StartChessPuzzlePlay,
 } from '@libs/chess-puzzle-shared/chess-puzzle-play-messages';
 import { ChessPuzzleResultAttr } from '@libs/chess-puzzle-shared/chess-puzzle-result';
-import type { RoomCommandPayload, RoomState } from '@pkgs/room-shared/types';
+import type {
+  RoomCommandPayload,
+  RoomState,
+} from '@pkgs/room-root-shared/types';
 
 const ChessModule = createChessModule(() => 0);
 

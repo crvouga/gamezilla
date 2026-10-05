@@ -9,8 +9,8 @@ import {
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import type { HttpClient } from '@pkgs/http-client-shared/types';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import sql from '@pkgs/sql-root-shared/sql';
 import fc from 'fast-check';
 import { Hono } from 'hono';
 

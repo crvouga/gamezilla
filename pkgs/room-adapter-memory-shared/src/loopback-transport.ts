@@ -1,8 +1,8 @@
 import type {
   ClientTransport,
   ClientTransportHandlers,
-} from '@pkgs/room-shared/transport';
-import type { RoomActor } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/transport';
+import type { RoomActor } from '@pkgs/room-root-shared/types';
 /**
  * Minimal server surface for in-process loopback. {@link RoomServer} satisfies
  * this without a client→server import (the `import-client-not-server` Biome rule).

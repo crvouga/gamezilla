@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import type { OfferPriceSpec } from '@pkgs/billing-shared/offer';
+import type { OfferPriceSpec } from '@pkgs/billing-root-shared/offer';
 import {
   decidePriceReconcile,
   normalizeCurrencyOptions,

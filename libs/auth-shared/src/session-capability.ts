@@ -3,7 +3,7 @@
  * external user id. Steady-state chrome reads these; IdP only mints.
  */
 
-import type { SecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 
 import {
   SESSION_EXPIRES_AT_KEY,

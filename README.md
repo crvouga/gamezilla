@@ -170,13 +170,16 @@ imports inside the package. Do not create empty packages for unused layers.
 
 Every manifest explicitly declares `category`. Runtime packages use:
 
-| Category | Suffix | May import |
-| --- | --- | --- |
-| `client` | `-client` | client, isomorphic |
-| `server` | `-server` | server, isomorphic |
-| `isomorphic` | `-shared` | isomorphic |
+| Category | Suffix | Root form | May import |
+| --- | --- | --- | --- |
+| `client` | `-client` | `-root-client` | client, isomorphic |
+| `server` | `-server` | `-root-server` | server, isomorphic |
+| `isomorphic` | `-shared` | `-root-shared` | isomorphic |
 
-Test composition uses the separate `harness` category (`-harness`), which may
+When a package joins more-specific packages with the same prefix, `root`
+precedes its runtime suffix so the runtime stays last (for example,
+`@libs/chess-root-client` beside `@libs/chess-puzzle-client`). Test composition
+uses the separate `harness` category (`-harness` or `-root-harness`), which may
 compose all three runtimes. Production packages cannot depend on harness
 packages. Tests and tooling may use other runtimes in `devDependencies`;
 production `src/` imports still obey their category, regardless of which
@@ -213,9 +216,9 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 | HTTP | `@pkgs/http-client` |
 | Ids and randomness | `@pkgs/uuid` (`createId`, `random`) |
 | Auth port | `@pkgs/auth`; vendor `@pkgs/auth-inhouse` |
-| Billing port | `@pkgs/billing-shared`; vendors stripe and paddle, listed only in `@pkgs/billing-providers-server` |
+| Billing port | `@pkgs/billing-root-shared`; vendors stripe and paddle, listed only in `@pkgs/billing-providers-server` |
 | Object storage | `@pkgs/object-store`; S3/R2 `@pkgs/object-store-s3`; browser OPFS `@pkgs/object-store-opfs-shared` |
-| Pubsub | `@pkgs/pubsub-shared`; MQTT `@pkgs/pubsub-mqtt` |
+| Pubsub | `@pkgs/pubsub-root-shared`; MQTT `@pkgs/pubsub-mqtt` |
 | Key-value | `@pkgs/kv` |
 | Spec languages | `@pkgs/gherkin`, `@pkgs/quint`, `@pkgs/dmn`, `@pkgs/alloy`, `@pkgs/openslo` |
 | Property tests | `@pkgs/property-shared` (`assertProperty` only) |
@@ -224,7 +227,7 @@ Known cross-feature table reads, still debt: `permissions` reads `billing_subscr
 | Rating math | `@pkgs/glicko2-shared` |
 | i18n | Lingui (`@pkgs/i18n-shared`). Catalogs compile to `libs/client-app`. |
 | Observability | `@pkgs/observability`, CLI `@pkgs/observability-cli` (`bun obs`) |
-| Assert-and-crash | `@pkgs/assert-shared` |
+| Assert-and-crash | `@pkgs/assert-root-shared` |
 
 UI is Solid. Components run once; reactivity tracks. Read `props.x` in the component body (never destructure props). Style with `class` / `classList` and `@pkgs/ui` tokens. `style` is only for dynamic values classes cannot express. `data-component` and `data-screen` exist for tests and are stripped from production bundles. `data-testid` ships in every build because live journeys drive the real bundle by it. Mutation weight picks the widget: `MutationModal` for confirm-first actions, `useMutationButton` for lightweight actions, `FormActionsFooter` for screen forms.
 

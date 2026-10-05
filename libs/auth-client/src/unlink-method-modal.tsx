@@ -2,9 +2,9 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 import { useLogger } from '@pkgs/logger-client/solid';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import type { JSX } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';

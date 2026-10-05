@@ -4,24 +4,24 @@
  * @internal
  */
 
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import type { AttributeState } from '@pkgs/attribute-shared/attribute';
 import { assertKeywordRecord } from '@pkgs/keyword-shared/keyword';
 import {
   assertDataMatchesFormula,
   serializeFormula,
-} from '@pkgs/matchmaking-shared/formula-wire';
+} from '@pkgs/matchmaking-root-shared/formula-wire';
 import type {
   CurrentSearch,
   SearchRequest,
-} from '@pkgs/matchmaking-shared/identity';
+} from '@pkgs/matchmaking-root-shared/identity';
 import {
   assertDistanceFormulasInput,
   resolveGroupSize,
-} from '@pkgs/matchmaking-shared/join-helpers';
-import type { JoinInputRaw } from '@pkgs/matchmaking-shared/matchmaking';
-import { MATCHMAKING_MIN_GROUP_SIZE } from '@pkgs/matchmaking-shared/payload-limits';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+} from '@pkgs/matchmaking-root-shared/join-helpers';
+import type { JoinInputRaw } from '@pkgs/matchmaking-root-shared/matchmaking';
+import { MATCHMAKING_MIN_GROUP_SIZE } from '@pkgs/matchmaking-root-shared/payload-limits';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-root-shared/schema';
 import type {
   _MatchPassResult,
   DistanceFormula,
@@ -31,8 +31,8 @@ import type {
   RadiusOptions,
   StatusResult,
   UpdateFormulasResult,
-} from '@pkgs/matchmaking-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+} from '@pkgs/matchmaking-root-shared/types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { FormationPorts } from './match-pass';
 import { runFormation } from './match-pass';
 import { partitionSignatureFor, resolveGlobalRadius } from './matching';

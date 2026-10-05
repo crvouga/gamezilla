@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Plural } from '@lingui/solid/macro';
-import { ChevronRightIcon } from '@pkgs/ui-client/icons';
-import { useTheme } from '@pkgs/ui-client/theme-context';
+import { ChevronRightIcon } from '@pkgs/ui-root-client/icons';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import type { JSX } from 'solid-js';
 import { FriendsProfileRoute } from './friends-profile-routes';
 import { useFriends } from './use-friends';

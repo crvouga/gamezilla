@@ -16,9 +16,9 @@
   "dependencies": {
     "@libs/app-config-shared": "workspace:*",
     "@lingui/solid": "catalog:",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

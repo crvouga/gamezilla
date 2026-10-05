@@ -1,5 +1,5 @@
-import type { FormulaWire } from '@pkgs/matchmaking-shared/formula-wire';
-import type { MatchmakingSchema } from '@pkgs/matchmaking-shared/schema';
+import type { FormulaWire } from '@pkgs/matchmaking-root-shared/formula-wire';
+import type { MatchmakingSchema } from '@pkgs/matchmaking-root-shared/schema';
 
 export const CHESS_OPPONENT_POOL = 'chess.casual';
 export const CHESS_SEARCH_SCHEMA: MatchmakingSchema = {

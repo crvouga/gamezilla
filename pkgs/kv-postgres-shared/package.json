@@ -15,13 +15,13 @@
     "test:contract": "bun test tests/postgres-storage-knobs.test.ts"
   },
   "dependencies": {
-    "@pkgs/assert-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
     "@pkgs/db-schema-postgres-shared": "workspace:*",
     "@pkgs/keyword-shared": "workspace:*",
-    "@pkgs/kv-shared": "workspace:*",
+    "@pkgs/kv-root-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*"
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

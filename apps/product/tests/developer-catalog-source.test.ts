@@ -2,9 +2,9 @@ import { expect, test } from 'bun:test';
 import { catalogSource } from '@apps/product/developer-catalog-source';
 import { reportMeta } from '@apps/product/developer-report';
 import { publishSource } from '@pkgs/harness-report-shared/publish';
-import { testFrameKey } from '@pkgs/harness-shared/keys';
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { testFrameKey } from '@pkgs/harness-root-shared/keys';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 
 // regression: report-catalog-fixture-missing-snapshots
 test('catalog source includes snapshots for every published test', async () => {

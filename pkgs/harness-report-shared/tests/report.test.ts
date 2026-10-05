@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { fileLabel, fmtMs } from '@pkgs/harness-report-shared/format';
 import { orderedUiBlobs, testFrames } from '@pkgs/harness-report-shared/frames';
 import { buildHash, parseHash } from '@pkgs/harness-report-shared/hash';
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 
 describe('hash', () => {
   test('round-trips list and test routes', () => {

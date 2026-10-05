@@ -3,8 +3,8 @@ import { FRIENDS_QUERIES } from '@libs/friends-shared/queries';
 import { FRIENDS_TABLES } from '@libs/friends-shared/tables';
 import { openConformanceDb } from '@libs/permissions-shared/world';
 import { PROFILE_TABLES } from '@libs/profile-shared/tables';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 test('friend profiles carry the same username uniqueness value as own profiles', async () => {

@@ -13,13 +13,13 @@
   "devDependencies": {
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/observability-server": "workspace:*",
-    "@pkgs/observability-shared": "workspace:*",
+    "@pkgs/observability-root-server": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*",
     "@pkgs/room-adapter-durable-object-server": "workspace:*",
     "@pkgs/room-adapter-durable-object-shared": "workspace:*",
-    "@pkgs/room-harness": "workspace:*",
-    "@pkgs/room-server": "workspace:*",
-    "@pkgs/room-shared": "workspace:*",
+    "@pkgs/room-root-harness": "workspace:*",
+    "@pkgs/room-root-server": "workspace:*",
+    "@pkgs/room-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

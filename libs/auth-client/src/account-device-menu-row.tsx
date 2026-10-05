@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import { ChevronRightIcon, SmartphoneIcon } from '@pkgs/ui-client/icons';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
+import { ChevronRightIcon, SmartphoneIcon } from '@pkgs/ui-root-client/icons';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';

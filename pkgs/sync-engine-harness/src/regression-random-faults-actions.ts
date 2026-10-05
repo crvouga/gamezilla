@@ -3,8 +3,8 @@
  * pressure. Companion to `regression-actions.ts` (client / data vocabulary).
  */
 
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import type { Action } from '@pkgs/harness-shared/effect';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import type { Action } from '@pkgs/harness-root-shared/effect';
 import type { HarnessPubsubFault } from './edge-fault-pubsub';
 import type { HarnessCrashEvent, HarnessHttpFault } from './edge-faults';
 import type { RestartClientOpts } from './lifecycle';

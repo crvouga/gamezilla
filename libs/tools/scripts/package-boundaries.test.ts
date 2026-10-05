@@ -10,8 +10,8 @@ const lib = { tier: 'libs', hasSrc: true, sources: [] };
 describe('package categories', () => {
   test('the name spells the category', () => {
     expect(categoryOfName('@libs/chess-puzzle-client')).toBe('client');
-    expect(categoryOfName('@libs/chess-shared-server')).toBe('server');
-    expect(categoryOfName('@pkgs/sql-client-shared')).toBe('isomorphic');
+    expect(categoryOfName('@libs/chess-root-server')).toBe('server');
+    expect(categoryOfName('@pkgs/sql-client-root-shared')).toBe('isomorphic');
     expect(categoryOfName('@libs/harness')).toBe('harness');
     expect(categoryOfName('@pkgs/glicko2')).toBeUndefined();
   });
@@ -102,9 +102,9 @@ describe('package categories', () => {
   test('families group a feature across its slices', () => {
     expect(familyOf('@libs/chess-puzzle-client')).toBe('chess');
     expect(familyOf('@libs/app-config-shared')).toBe('app-config');
-    expect(familyOf('@libs/app-client')).toBe('app');
+    expect(familyOf('@libs/app-root-client')).toBe('app');
     expect(familyOf('@libs/user-search-client')).toBe('user-search');
-    expect(familyOf('@pkgs/ui-client')).toBeUndefined();
+    expect(familyOf('@pkgs/ui-root-client')).toBeUndefined();
   });
 });
 

@@ -1,6 +1,6 @@
-import { assert } from '@pkgs/assert-shared/singleton';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { bulk, ident, join } from '@pkgs/sql-shared/sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql, { bulk, ident, join } from '@pkgs/sql-root-shared/sql';
 import {
   optimisticPeerRowId,
   SYNC_ENGINE_OPTIMISTIC_PEER_ROWS,

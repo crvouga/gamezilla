@@ -7,13 +7,13 @@ import type { Timers } from '@pkgs/clock-shared/types';
 import type {
   RoomClient,
   RoomCommandResult,
-} from '@pkgs/room-client/room-client';
-import { RoomMetaAttr } from '@pkgs/room-client/room-meta';
+} from '@pkgs/room-root-client/room-client';
+import { RoomMetaAttr } from '@pkgs/room-root-client/room-meta';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomState,
-} from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
 
 type CustomGameRoom = RoomClient<
   RoomState,

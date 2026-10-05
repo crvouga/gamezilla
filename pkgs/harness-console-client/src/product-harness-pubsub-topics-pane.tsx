@@ -1,7 +1,7 @@
 import { useTimers } from '@pkgs/clock-client/solid';
 import type { ProductHarnessPubSubNode } from '@pkgs/harness-console-shared/ports';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ScrollView } from '@pkgs/ui-client/scroll-view';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ScrollView } from '@pkgs/ui-root-client/scroll-view';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 /**

@@ -6,9 +6,9 @@ import {
   readMatchStatus,
   readWinner,
   StartMatch,
-} from '@pkgs/room-harness/game-room';
-import { RoomServer } from '@pkgs/room-server/room-server';
-import { createTimerScheduleStack } from '@pkgs/room-shared/timer-schedule-stack';
+} from '@pkgs/room-root-harness/game-room';
+import { RoomServer } from '@pkgs/room-root-server/room-server';
+import { createTimerScheduleStack } from '@pkgs/room-root-shared/timer-schedule-stack';
 import { MemoryKv } from './memory-kv';
 
 test('an interrupted timeout can finish without a player reconnecting', async () => {

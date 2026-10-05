@@ -5,9 +5,9 @@ import {
   PlayIcon,
   SearchIcon,
   WifiOffIcon,
-} from '@pkgs/ui-client/icons';
-import { Spinner } from '@pkgs/ui-client/spinner';
-import { useTheme } from '@pkgs/ui-client/theme-context';
+} from '@pkgs/ui-root-client/icons';
+import { Spinner } from '@pkgs/ui-root-client/spinner';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import type { JSX } from 'solid-js';
 import { ChessPuzzleStatusBadge } from './chess-puzzle-status-badge';
 

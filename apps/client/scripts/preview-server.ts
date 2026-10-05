@@ -6,7 +6,7 @@
  */
 
 import { join } from 'node:path';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { file } from 'bun';
 
 import { previewStackReadyResponse } from './preview-stack-ready';

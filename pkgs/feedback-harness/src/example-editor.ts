@@ -1,4 +1,4 @@
-import type { Session } from '@pkgs/harness-shared/runtime-types';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 
 export function createExampleEditor(session: Session) {
   const field = () => {

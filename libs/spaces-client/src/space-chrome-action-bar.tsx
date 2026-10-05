@@ -1,10 +1,10 @@
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import { ActionBar } from '@pkgs/ui-client/action-bar';
-import { useActionBarChrome } from '@pkgs/ui-client/action-bar-chrome';
-import type { ActionBarItem } from '@pkgs/ui-client/action-bar-logic';
-import { iconButtonAvatarContentSize } from '@pkgs/ui-client/icon-button';
+import { ActionBar } from '@pkgs/ui-root-client/action-bar';
+import { useActionBarChrome } from '@pkgs/ui-root-client/action-bar-chrome';
+import type { ActionBarItem } from '@pkgs/ui-root-client/action-bar-logic';
+import { iconButtonAvatarContentSize } from '@pkgs/ui-root-client/icon-button';
 import {
   ChevronLeftIcon,
   DoorOpenIcon,
@@ -12,7 +12,7 @@ import {
   ShareIcon,
   SquarePenIcon,
   XIcon,
-} from '@pkgs/ui-client/icons';
+} from '@pkgs/ui-root-client/icons';
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
 import { SpaceMembersListModal } from './space-members-list-modal';

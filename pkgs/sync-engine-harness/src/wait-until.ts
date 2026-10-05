@@ -1,5 +1,5 @@
-import type { Network } from '@pkgs/harness-shared/network-state';
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { Network } from '@pkgs/harness-root-shared/network-state';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared/scheduler';
 
 import type { HarnessPollablePromise } from './decorate-harness-client';
 

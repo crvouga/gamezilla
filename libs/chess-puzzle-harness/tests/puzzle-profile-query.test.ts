@@ -15,10 +15,10 @@ import {
 } from '@libs/chess-puzzle-shared/chess-puzzle-rating';
 import { ratePuzzleAttemptMutation } from '@libs/chess-puzzle-shared/rate-puzzle-attempt-mutation';
 import { uniqueTables } from '@libs/permissions-shared/world';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import type { QueryRow } from '@pkgs/sync-engine-shared/v2';
 
 const OWNER = 'user_1';

@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationVerdict } from './mutation-status';
 import { mutationVerdict } from './mutation-status';
 import type { SyncEngine } from './sync-engine-port';

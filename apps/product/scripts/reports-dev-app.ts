@@ -1,6 +1,6 @@
 // @io-wall-ok — Vite dev middleware composition root for `/api/reports`
-import { createReportsObjectStore } from '@libs/app-server/object-store';
-import { createReportsApp } from '@libs/app-server/reports-route';
+import { createReportsObjectStore } from '@libs/app-root-server/object-store';
+import { createReportsApp } from '@libs/app-root-server/reports-route';
 import { wallClock, wallTimers } from '@pkgs/clock-shared/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared/global';
 import { RecordSecretStore } from '@pkgs/secret-store-shared/record-secret-store';

@@ -2,17 +2,17 @@ import { describe, expect, test } from 'bun:test';
 import { createMockingbirdPostgresTestClient } from '@pkgs/db-schema-postgres-server/mockingbird-postgres-test-client';
 import { readPostgresCatalog } from '@pkgs/db-schema-postgres-shared/catalog';
 import { postgres } from '@pkgs/db-schema-postgres-shared/driver';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { planClient } from '@pkgs/db-schema-shared/plan-client';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { planClient } from '@pkgs/db-schema-root-shared/plan-client';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { readSqliteCatalog } from '@pkgs/db-schema-sqlite-shared/catalog';
 import { sqlite } from '@pkgs/db-schema-sqlite-shared/driver';
-import { raw } from '@pkgs/sql-shared/sql';
+import { raw } from '@pkgs/sql-root-shared/sql';
 
 describe('db-schema roundtrip PBT pins', () => {
   test('sqlite: apply then re-plan is empty', async () => {
     const { SqlClientImplMockingbirdSqlite } = await import(
-      '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite'
+      '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite'
     );
     const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
@@ -54,7 +54,7 @@ describe('db-schema roundtrip PBT pins', () => {
         harness.sqlClient,
         schema._declared
       );
-      const plan = await import('@pkgs/db-schema-shared/plan-server').then(
+      const plan = await import('@pkgs/db-schema-root-shared/plan-server').then(
         (m) => m.planServer(schema._declared, catalog)
       );
       expect(plan.ok).toBe(true);
@@ -69,7 +69,7 @@ describe('db-schema roundtrip PBT pins', () => {
 describe('db-schema data-loss pins', () => {
   test('sqlite rebuild preserves row ids and live columns', async () => {
     const { SqlClientImplMockingbirdSqlite } = await import(
-      '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite'
+      '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite'
     );
     const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
@@ -111,7 +111,7 @@ describe('db-schema data-loss pins', () => {
 
   test('renamedFrom copies values without data loss', async () => {
     const { SqlClientImplMockingbirdSqlite } = await import(
-      '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite'
+      '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite'
     );
     const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();

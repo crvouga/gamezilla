@@ -1,4 +1,4 @@
-import { MenuRow } from '@pkgs/ui-client/menu-row';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
 import type { JSX } from 'solid-js';
 
 export type AccountDeviceMetaPairProps = {

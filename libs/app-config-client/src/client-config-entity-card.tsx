@@ -1,6 +1,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { MenuRow } from '@pkgs/ui-client/menu-row';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
+import { MenuRow } from '@pkgs/ui-root-client/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import type { JSX } from 'solid-js';
 import { useClientConfig } from './use-client-config';
 

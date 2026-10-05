@@ -1,4 +1,4 @@
-import type { MembershipProviderSecretDef } from '@pkgs/billing-shared/provider-module';
+import type { MembershipProviderSecretDef } from '@pkgs/billing-root-shared/provider-module';
 
 import { StripeSecretKeys } from './secret-keys';
 

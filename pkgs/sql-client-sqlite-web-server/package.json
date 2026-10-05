@@ -17,8 +17,8 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-client-sqlite-server": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*",
     "@pkgs/sql-client-sqlite-web-shared": "workspace:*",
     "@sqlite.org/sqlite-wasm": "catalog:"
   },

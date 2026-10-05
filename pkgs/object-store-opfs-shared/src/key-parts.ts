@@ -1,4 +1,4 @@
-import { assertLogicalObjectKey } from '@pkgs/object-store-shared/namespace-guard';
+import { assertLogicalObjectKey } from '@pkgs/object-store-root-shared/namespace-guard';
 
 export type KeyParts = {
   readonly parentSegments: readonly string[];

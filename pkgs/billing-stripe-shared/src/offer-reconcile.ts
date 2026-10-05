@@ -12,7 +12,7 @@ import type {
   CancellationReason,
   OfferPriceSpec,
   PlusMembershipOffer,
-} from '@pkgs/billing-shared/offer';
+} from '@pkgs/billing-root-shared/offer';
 import type { Logger } from '@pkgs/logger-shared/logger';
 import type Stripe from 'stripe';
 

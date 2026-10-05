@@ -1,6 +1,6 @@
 import { SESSION_TOKEN_KEY } from '@libs/auth-shared/auth-storage-keys';
-import type { GetFreshTokenOptions } from '@pkgs/auth-shared/auth-client-port';
-import { createSecureStorageItem } from '@pkgs/secure-storage-client/solid';
+import type { GetFreshTokenOptions } from '@pkgs/auth-root-shared/auth-client-port';
+import { createSecureStorageItem } from '@pkgs/secure-storage-root-client/solid';
 import type { Accessor } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';
 

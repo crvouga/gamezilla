@@ -9,7 +9,8 @@ import {
   HARNESS_CHROME_KINDS,
   HARNESS_NODE_LABELS,
 } from '@pkgs/harness-console-shared/node';
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import type { TabStripItem } from '@pkgs/ui-devtools-client/tab-strip-types';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import {
   CodeIcon,
   DatabaseIcon,
@@ -17,8 +18,7 @@ import {
   RadioIcon,
   ShuffleIcon,
   TerminalIcon,
-} from '@pkgs/ui-client/icons';
-import type { TabStripItem } from '@pkgs/ui-devtools-client/tab-strip-types';
+} from '@pkgs/ui-root-client/icons';
 import { harnessNodeIcon } from './node-chrome';
 
 export type PaneNavValue = {

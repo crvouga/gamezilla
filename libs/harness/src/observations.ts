@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { ElementLayout } from '@pkgs/ui-testing-shared/driver';
-import { ElementNotFoundError } from '@pkgs/ui-testing-shared/element-not-found-error';
-import type { Actor } from '@pkgs/ui-testing-shared/observations';
+import type { ElementLayout } from '@pkgs/ui-testing-root-shared/driver';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared/element-not-found-error';
+import type { Actor } from '@pkgs/ui-testing-root-shared/observations';
 import type { ProductHarness } from './harness';
 import { nodeAt } from './ui-nodes';
 

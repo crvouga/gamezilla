@@ -6,10 +6,10 @@ import type {
   SpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 
-import type { Attributes } from '@pkgs/observability-shared/attributes';
-import type { TelemetryEnvironment } from '@pkgs/observability-shared/deployment-environment';
-import type { IdentitySource } from '@pkgs/observability-shared/identity';
-import type { AttributeRedactor } from '@pkgs/observability-shared/redaction';
+import type { Attributes } from '@pkgs/observability-root-shared/attributes';
+import type { TelemetryEnvironment } from '@pkgs/observability-root-shared/deployment-environment';
+import type { IdentitySource } from '@pkgs/observability-root-shared/identity';
+import type { AttributeRedactor } from '@pkgs/observability-root-shared/redaction';
 
 export type TelemetryOptions = {
   readonly serviceName: string;

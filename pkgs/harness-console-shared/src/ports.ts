@@ -3,8 +3,8 @@
  */
 
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { Component as SolidComponent } from 'solid-js';
 
 import type { HarnessCheckpoint } from './checkpoint';

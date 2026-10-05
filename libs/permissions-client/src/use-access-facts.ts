@@ -12,7 +12,7 @@ import {
 } from '@libs/permissions-shared/access-facts';
 import { createTimedValue } from '@pkgs/clock-client/solid';
 import type { Facts } from '@pkgs/permissions-shared/facts';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import {
   createQuery,
   useSyncEngine,

@@ -11,8 +11,8 @@
   "devDependencies": {
     "@pkgs/message-shared": "workspace:*",
     "@pkgs/outbox-shared": "workspace:*",
-    "@pkgs/sql-client-sqlite-server": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-server": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

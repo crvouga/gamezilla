@@ -4,7 +4,7 @@ import { REPORT_READY } from '@libs/harness/report-ready';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
 import { createUIQualityChecker } from '@pkgs/ui-quality-check-server/api';
 import type { CheckerOptions } from '@pkgs/ui-quality-check-shared/ui-quality-check-types';
 import { runVisualGate } from './gate';

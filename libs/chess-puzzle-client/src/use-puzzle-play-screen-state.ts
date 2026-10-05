@@ -11,7 +11,7 @@ import {
 import {
   CHESS_SCREEN,
   SetChessMainMenuScreen,
-} from '@libs/chess-shared/chess-main-menu';
+} from '@libs/chess-root-shared/chess-main-menu';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,

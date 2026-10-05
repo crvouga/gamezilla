@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 
 import { Trans } from '@lingui/solid/macro';
-import { ConfirmationModal } from '@pkgs/ui-client/confirmation-modal';
+import { ConfirmationModal } from '@pkgs/ui-root-client/confirmation-modal';
 import type { JSX } from 'solid-js';
 
 export function FriendUserDangerModals(props: {

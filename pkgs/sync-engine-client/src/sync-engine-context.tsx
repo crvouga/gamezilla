@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 import {
   type Accessor,
   createComputed,

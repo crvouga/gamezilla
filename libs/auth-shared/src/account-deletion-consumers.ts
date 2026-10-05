@@ -1,4 +1,4 @@
-import type { AuthServerPort } from '@pkgs/auth-shared/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth-root-shared/auth-server-port';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
 import { deletedIdentity } from './account-privacy';
 

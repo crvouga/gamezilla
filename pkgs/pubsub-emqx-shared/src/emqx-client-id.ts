@@ -1,4 +1,4 @@
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 
 const clientIds = new WeakMap<object, string>();
 

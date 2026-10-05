@@ -1,6 +1,6 @@
 import { exportPreparationConsumer } from '@libs/account-privacy-server/privacy-consumers';
 import { prepareExport } from '@libs/account-privacy-shared/messages';
-import { drainAndNotifyOutbox } from '@libs/app-server/outbox-drain';
+import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
 import {
   actorUi,
   ensureActor,
@@ -18,9 +18,9 @@ import {
 } from '@libs/harness/identity';
 import { partitioned } from '@libs/harness/observations';
 import { openAccount } from '@libs/harness/shell-actions';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared/define-consumer';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export const proveAccount = scenarioAction({
   name: 'proveAccount',

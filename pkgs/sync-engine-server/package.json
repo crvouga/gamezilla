@@ -17,11 +17,11 @@
   },
   "dependencies": {
     "@opentelemetry/api": "catalog:",
-    "@pkgs/assert-shared": "workspace:*",
-    "@pkgs/observability-shared": "workspace:*",
-    "@pkgs/pubsub-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
-    "@pkgs/sql-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*",
+    "@pkgs/pubsub-root-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
     "@pkgs/sync-engine-shared": "workspace:*",
     "@pkgs/uuid-shared": "workspace:*",
     "hono": "catalog:",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@pkgs/db-schema-sqlite-shared": "workspace:*",
     "@pkgs/quint-server": "workspace:*",
-    "@pkgs/sql-client-sqlite-shared": "workspace:*",
+    "@pkgs/sql-client-sqlite-root-shared": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

@@ -1,5 +1,5 @@
-import type { AuthClientPort } from '@pkgs/auth-shared/auth-client-port';
-import type { AuthSessionState } from '@pkgs/auth-shared/auth-session-state';
+import type { AuthClientPort } from '@pkgs/auth-root-shared/auth-client-port';
+import type { AuthSessionState } from '@pkgs/auth-root-shared/auth-session-state';
 import { defineContext } from '@pkgs/solid-context-client/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client/subscription-signal';
 import type { JSX, ParentProps } from 'solid-js';

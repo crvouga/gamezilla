@@ -1,4 +1,4 @@
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { HarnessClient } from './client';
 import { buildHarnessClient } from './client-factory';
 import { createHarnessHttpClient } from './http-bridge';

@@ -12,7 +12,7 @@ import type { Timers } from '@pkgs/clock-shared/types';
 import type {
   ClientTransport,
   ClientTransportHandlers,
-} from '@pkgs/room-shared/transport';
+} from '@pkgs/room-root-shared/transport';
 
 type FakeServer = {
   readonly live: Set<number>;

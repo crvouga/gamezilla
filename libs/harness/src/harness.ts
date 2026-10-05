@@ -1,8 +1,8 @@
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared/system-snapshot';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
 import type { AudioPlayerStatus } from '@pkgs/sounds-shared/ports';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import type { Harness } from './create-harness';
 import type { ProductExtra } from './ports';
 

@@ -1,15 +1,15 @@
-import { ATTR } from '@pkgs/observability-shared/attributes';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
 import type {
   IdentityResolver,
   ResolvedIdentity,
-} from '@pkgs/observability-shared/identity-resolver';
-import type { NarrateSpan } from '@pkgs/observability-shared/narrate';
-import type { PgStatsSource } from '@pkgs/observability-shared/pg-stats';
+} from '@pkgs/observability-root-shared/identity-resolver';
+import type { NarrateSpan } from '@pkgs/observability-root-shared/narrate';
+import type { PgStatsSource } from '@pkgs/observability-root-shared/pg-stats';
 import type {
   TimeRange,
   TraceRef,
   TraceStore,
-} from '@pkgs/observability-shared/types';
+} from '@pkgs/observability-root-shared/types';
 import type { ObsArgs } from './args';
 import { stringFlag } from './args';
 import { emptyResult } from './empty-result';

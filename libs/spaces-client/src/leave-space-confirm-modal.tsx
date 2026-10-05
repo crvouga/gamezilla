@@ -2,8 +2,8 @@ import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client/solid';
 import { Sounds } from '@pkgs/sounds-shared/sound-id';
-import type { MutationStateTransition } from '@pkgs/ui-client/mutation-lifecycle';
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
+import type { MutationStateTransition } from '@pkgs/ui-root-client/mutation-lifecycle';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 import type { JSX } from 'solid-js';
 import { createEffect, createSignal, Show } from 'solid-js';
 

@@ -7,8 +7,8 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import { createMemo, createSignal, For, type JSX, onMount } from 'solid-js';
 
 import { useAuthClientPort } from './auth-client-provider';

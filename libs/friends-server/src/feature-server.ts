@@ -7,13 +7,13 @@
  * friends registers into the namespace it owns when the servers are folded.
  */
 
-import { notifyUserChannels } from '@libs/app-server/notify-user-channels';
-import { drainAndNotifyOutbox } from '@libs/app-server/outbox-drain';
-import { apiRequestAsyncLocalStorage } from '@libs/app-shared/request-scope';
+import { notifyUserChannels } from '@libs/app-root-server/notify-user-channels';
+import { drainAndNotifyOutbox } from '@libs/app-root-server/outbox-drain';
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared/request-scope';
 import { defineFeatureServer } from '@libs/feature-shared/server';
 import { notificationsActorStorage } from '@libs/notifications-server/notifications-route';
 import { registerNotificationActionHandler } from '@libs/notifications-shared/action-registry';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 import {
   friendRequestAcceptedNotifyConsumer,

@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { MutationDb } from '@pkgs/sync-engine-shared/mutations-types';
 
 import { normalizeUsername, validateUsername } from './username';

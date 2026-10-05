@@ -2,7 +2,7 @@
 
 import { openGlobalMenu } from '@libs/harness/driver-gestures';
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import {
   atTabShell,
   check,

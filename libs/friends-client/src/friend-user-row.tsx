@@ -1,6 +1,6 @@
 import type { FriendProfile } from '@libs/friends-shared/friends-types';
 import { Handles } from '@libs/test-ids-shared/handles';
-import { dataAttrs } from '@pkgs/ui-shared/component-id';
+import { dataAttrs } from '@pkgs/ui-root-shared/component-id';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';

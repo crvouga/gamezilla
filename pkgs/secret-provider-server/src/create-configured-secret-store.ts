@@ -1,5 +1,5 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { InfisicalFetch } from '@pkgs/secret-provider-shared/http-secret-store';
 import { createInfisicalSecretStore } from '@pkgs/secret-provider-shared/http-secret-store';
 import { resolveInfisicalEndpoint } from '@pkgs/secret-provider-shared/resolve-endpoint';

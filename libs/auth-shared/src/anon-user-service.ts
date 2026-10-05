@@ -1,7 +1,7 @@
 import type { Clock } from '@pkgs/clock-shared/types';
-import type { SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { Value } from '@pkgs/sql-shared/sql';
-import sql, { join, raw } from '@pkgs/sql-shared/sql';
+import type { SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import type { Value } from '@pkgs/sql-root-shared/sql';
+import sql, { join, raw } from '@pkgs/sql-root-shared/sql';
 import {
   managedInsertColumns,
   managedUpdatedAtIso,

@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@pkgs/clock-shared": "workspace:*",
-    "@pkgs/object-store-shared": "workspace:*",
-    "@pkgs/sql-client-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@ import type {
   SpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
 
-import type { AttributeRedactor } from '@pkgs/observability-shared/redaction';
+import type { AttributeRedactor } from '@pkgs/observability-root-shared/redaction';
 
 export class RedactingSpanProcessor implements SpanProcessor {
   readonly #redact: AttributeRedactor;

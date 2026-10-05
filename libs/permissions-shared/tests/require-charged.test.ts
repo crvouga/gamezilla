@@ -17,9 +17,9 @@ import {
   openConformanceDb,
   seedAccess,
 } from '@libs/permissions-shared/world';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 import { MutationError } from '@pkgs/sync-engine-shared/mutations-types';
 import { wrapMutationDb } from '@pkgs/sync-engine-shared/wrap-mutation-db';
 

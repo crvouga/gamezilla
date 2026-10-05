@@ -18,8 +18,8 @@
     "@opentelemetry/exporter-trace-otlp-http": "catalog:",
     "@opentelemetry/resources": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
-    "@pkgs/object-store-shared": "workspace:*",
-    "@pkgs/observability-shared": "workspace:*"
+    "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/observability-root-shared": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

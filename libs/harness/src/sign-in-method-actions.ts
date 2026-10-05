@@ -4,8 +4,8 @@
  */
 
 import { Handles } from '@libs/test-ids-shared/handles';
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';

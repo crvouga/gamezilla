@@ -10,7 +10,7 @@ file($body) where {
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"]@pkgs/observability-(?:client|server|shared)/[^'\"]+['\"]$",
+    $src <: r"^['\"]@pkgs/observability-root-(?:client|server|shared)/[^'\"]+['\"]$",
     register_diagnostic(span=$src, message="Manual observability imports are confined to the ADR boundary-file inventory; instrument a shared boundary instead of feature code.", severity="error")
   }
 }

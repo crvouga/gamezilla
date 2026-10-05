@@ -1,9 +1,9 @@
 /** Best-effort events obey the same network cuts as HTTP and room connections. */
 
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { PubSub, PubSubStatus } from '@pkgs/pubsub-shared/interface';
-import { PubSubClosedError } from '@pkgs/pubsub-shared/pubsub-closed-error';
-import { PubSubPublishError } from '@pkgs/pubsub-shared/pubsub-publish-error';
+import type { PubSub, PubSubStatus } from '@pkgs/pubsub-root-shared/interface';
+import { PubSubClosedError } from '@pkgs/pubsub-root-shared/pubsub-closed-error';
+import { PubSubPublishError } from '@pkgs/pubsub-root-shared/pubsub-publish-error';
 
 export const PUBSUB_HEARTBEAT_MS = 1_000;
 

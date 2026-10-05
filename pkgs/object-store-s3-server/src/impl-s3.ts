@@ -6,16 +6,16 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { createFetchRequestHandler } from '@pkgs/object-store-s3-shared/fetch-request-handler';
-import type { S3ObjectStoreConfig } from '@pkgs/object-store-s3-shared/s3-config';
-import { installS3DomParser } from '@pkgs/object-store-s3-shared/s3-dom-parser';
-import { ObjectStoreWithPrefix } from '@pkgs/object-store-shared/impl-with-prefix';
+import { ObjectStoreWithPrefix } from '@pkgs/object-store-root-shared/impl-with-prefix';
 import type {
   ObjectStore,
   StoredObject,
-} from '@pkgs/object-store-shared/interface';
-import { assertRemoteObjectKey } from '@pkgs/object-store-shared/namespace-guard';
-import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store-shared/prefixes';
+} from '@pkgs/object-store-root-shared/interface';
+import { assertRemoteObjectKey } from '@pkgs/object-store-root-shared/namespace-guard';
+import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store-root-shared/prefixes';
+import { createFetchRequestHandler } from '@pkgs/object-store-s3-shared/fetch-request-handler';
+import type { S3ObjectStoreConfig } from '@pkgs/object-store-s3-shared/s3-config';
+import { installS3DomParser } from '@pkgs/object-store-s3-shared/s3-dom-parser';
 import { listS3Keys } from './list-keys';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';

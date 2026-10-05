@@ -2,7 +2,7 @@ import type { ChessPuzzleRecommendationEntry } from '@libs/chess-puzzle-shared/r
 import { formatRecommendedMove } from '@libs/chess-puzzle-shared/recommendations';
 import { UserUsername } from '@libs/profile-client/user-username';
 import { Trans } from '@lingui/solid/macro';
-import { XIcon } from '@pkgs/ui-client/icons';
+import { XIcon } from '@pkgs/ui-root-client/icons';
 import { type Accessor, For, type JSX, Show } from 'solid-js';
 
 /**

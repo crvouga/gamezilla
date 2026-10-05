@@ -3,7 +3,7 @@ import { useSignOut } from '@libs/auth-client/use-sign-out';
 import { usePermissions } from '@libs/permissions-client/use-permissions';
 import { PERMISSION } from '@libs/permissions-shared/permission-catalog';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { useMutationClient } from '@pkgs/sync-engine-client/mutation-client-context';
 import { createQuery } from '@pkgs/sync-engine-client/sync-engine-context';
 import { createMemo, createSignal } from 'solid-js';

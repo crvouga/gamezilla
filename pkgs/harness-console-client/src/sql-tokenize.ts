@@ -1,7 +1,7 @@
 import type {
   CodeToken,
   CodeTokenKind,
-} from '@pkgs/ui-shared/code-editor-types';
+} from '@pkgs/ui-root-shared/code-editor-types';
 
 import type { SqlDialect } from './sql-dialect';
 import { sqlKeywordSet } from './sql-dialect';

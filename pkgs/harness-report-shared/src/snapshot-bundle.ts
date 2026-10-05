@@ -4,8 +4,8 @@ import {
   readObjectBytes,
   readUtf8,
   writeUtf8,
-} from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+} from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { eachLimited, inCompletionOrder } from './completion-order';
 
 type Snapshot = { readonly contentType: string; readonly base64: string };

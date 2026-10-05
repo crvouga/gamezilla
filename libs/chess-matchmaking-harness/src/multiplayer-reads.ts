@@ -4,7 +4,7 @@ import type { ProductHarness } from '@libs/harness/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness/identity';
 import { asKeyword } from '@pkgs/keyword-shared/keyword';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared/search-read';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export async function multiplayerView(s: ProductHarness, actor: string) {
   const db = actorLocalSql(s, actor);

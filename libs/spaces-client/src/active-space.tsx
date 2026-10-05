@@ -1,4 +1,4 @@
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { ActiveSpaceBody } from './active-space-body';

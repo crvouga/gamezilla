@@ -9,7 +9,6 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-client/icons';
 import type {
   JsonPath,
   JsonValueKind,
@@ -24,8 +23,9 @@ import {
   isContainer,
   stringifyForCopy,
 } from '@pkgs/ui-devtools-shared/json-view-logic';
-import type { ColorTokenName } from '@pkgs/ui-shared/colors-types';
-import { colorVar } from '@pkgs/ui-shared/css-vars';
+import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client/icons';
+import type { ColorTokenName } from '@pkgs/ui-root-shared/colors-types';
+import { colorVar } from '@pkgs/ui-root-shared/css-vars';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
 const INDENT_PX = 14;

@@ -1,4 +1,4 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 import { SqliteStorageFullError } from '@pkgs/sync-engine-shared/storage-full-error';
 

@@ -2,8 +2,8 @@
  * Reads a built `dist/` (through an injected {@link ObjectStore}) into the
  * pure {@link OfflineShellInput} the `sw-policy.ts` analysis takes.
  */
-import { readUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { readUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { OfflineShellInput } from './sw-policy';
 import {
   DEV_SURFACE_BOOT_SOURCES,

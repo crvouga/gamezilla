@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { afterEach, describe, expect, it } from 'bun:test';
-import { createClient } from '@libs/app-client/create-client';
+import { createClient } from '@libs/app-root-client/create-client';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime-client/app-feature-clients';
 import { APP } from '@libs/runtime-shared/app-features';
 import { Handles } from '@libs/test-ids-shared/handles';

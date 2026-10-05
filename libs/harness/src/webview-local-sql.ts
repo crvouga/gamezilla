@@ -4,10 +4,10 @@
  * exposes (`@libs/client-app/shell/test-local-sql`).
  */
 
-import type { TestLocalSql } from '@libs/app-shared/test-local-sql';
-import { TEST_LOCAL_SQL_GLOBAL } from '@libs/app-shared/test-local-sql';
-import type { RunResult, SqlTx } from '@pkgs/sql-client-shared/interface';
-import type { Sql } from '@pkgs/sql-shared/sql';
+import type { TestLocalSql } from '@libs/app-root-shared/test-local-sql';
+import { TEST_LOCAL_SQL_GLOBAL } from '@libs/app-root-shared/test-local-sql';
+import type { RunResult, SqlTx } from '@pkgs/sql-client-root-shared/interface';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
 
 type Evaluate = { evaluate(script: string): Promise<unknown> };
 

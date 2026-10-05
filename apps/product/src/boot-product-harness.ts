@@ -5,9 +5,9 @@ import { APP_SYSTEM } from '@libs/runtime-harness/app-composition';
 import type { Clock, Timers } from '@pkgs/clock-shared/types';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
 import { createProductHarnessLogBuffer } from '@pkgs/harness-console-shared/product-harness-log-buffer';
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import type { Run } from '@pkgs/harness-shared/run-types';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import type { Run } from '@pkgs/harness-root-shared/run-types';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import type { BootProductHarnessOptions } from './product-harness-session';
 import { buildProductHarnessSession } from './product-harness-session';
 

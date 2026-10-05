@@ -1,4 +1,4 @@
-import { MutationModal } from '@pkgs/ui-client/mutation-modal';
+import { MutationModal } from '@pkgs/ui-root-client/mutation-modal';
 
 import type { useSnapshotChromeState } from './use-snapshot-chrome-state';
 

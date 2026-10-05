@@ -4,9 +4,9 @@ import type { PuzzlePickState } from '@libs/chess-puzzle-shared/pick-state';
 import { DenialSurface } from '@libs/permissions-client/denial-surface';
 import { Trans } from '@lingui/solid/macro';
 import type { Decision } from '@pkgs/permissions-shared/decision';
-import { Button } from '@pkgs/ui-client/button';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { ClockIcon, SearchIcon, WifiOffIcon } from '@pkgs/ui-client/icons';
+import { Button } from '@pkgs/ui-root-client/button';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { ClockIcon, SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client/icons';
 import { type JSX, Show } from 'solid-js';
 
 export type ChessPuzzleEmptyPoolStateProps = {

@@ -1,4 +1,4 @@
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
+import type { EndpointId } from '@pkgs/harness-root-shared/network-state';
 import type {
   MutationUploadResult,
   MutationUploadRow,

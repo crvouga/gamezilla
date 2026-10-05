@@ -1,14 +1,14 @@
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared/ports';
-import { Button } from '@pkgs/ui-client/button';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { IconButton } from '@pkgs/ui-client/icon-button';
+import { Button } from '@pkgs/ui-root-client/button';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { IconButton } from '@pkgs/ui-root-client/icon-button';
 import {
   MonitorIcon,
   PlusIcon,
   ServerIcon,
   XIcon,
-} from '@pkgs/ui-client/icons';
-import { ResponsiveSurface } from '@pkgs/ui-client/responsive-surface';
+} from '@pkgs/ui-root-client/icons';
+import { ResponsiveSurface } from '@pkgs/ui-root-client/responsive-surface';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 const ICON_SIZE = 32;

@@ -2,8 +2,8 @@
  * Small filled circle in a participant's color (e.g. log-bar leading mark).
  */
 
-import type { ComponentDataSet } from '@pkgs/ui-shared/component-id';
-import { componentDataAttrs } from '@pkgs/ui-shared/component-id';
+import type { ComponentDataSet } from '@pkgs/ui-root-shared/component-id';
+import { componentDataAttrs } from '@pkgs/ui-root-shared/component-id';
 
 export type ParticipantDotProps = {
   color: string;

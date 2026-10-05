@@ -15,9 +15,9 @@ import {
   listCommits,
   testEvents,
 } from '@pkgs/harness-report-shared/read';
-import { matchJunitCase, parseJunit } from '@pkgs/harness-shared/junit';
-import { runManifestKey } from '@pkgs/harness-shared/keys';
-import { ObjectStoreImplInMemory } from '@pkgs/object-store-shared/impl-in-memory';
+import { matchJunitCase, parseJunit } from '@pkgs/harness-root-shared/junit';
+import { runManifestKey } from '@pkgs/harness-root-shared/keys';
+import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared/impl-in-memory';
 import { assertProperty } from '@pkgs/property-shared/assert-property';
 import fc from 'fast-check';
 import { exampleApp, put } from './example-app';

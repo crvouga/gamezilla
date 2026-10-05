@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { col, sqlMap } from '@pkgs/sql-map-shared/sql-map';
 import {
   registerSqlMapCast,
@@ -7,7 +7,7 @@ import {
   registerSqlMapOp,
   resetSqlMapRegistry,
 } from '@pkgs/sql-map-shared/sql-map-registry';
-import sql, { Sql } from '@pkgs/sql-shared/sql';
+import sql, { Sql } from '@pkgs/sql-root-shared/sql';
 
 /** Node crash handler calls `process.exit`; register one that throws so tests can assert failures. */
 function registerThrowingCrashHandlerForTests(): () => void {

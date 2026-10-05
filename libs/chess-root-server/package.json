@@ -1,0 +1,54 @@
+{
+  "name": "@libs/chess-root-server",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-root-shared": "workspace:*",
+    "@libs/auth-shared": "workspace:*",
+    "@libs/chess-custom-game-shared": "workspace:*",
+    "@libs/chess-matchmaking-shared": "workspace:*",
+    "@libs/chess-puzzle-server": "workspace:*",
+    "@libs/feature-shared": "workspace:*",
+    "@libs/permissions-server": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@libs/spaces-shared": "workspace:*",
+    "@pkgs/assert-root-shared": "workspace:*",
+    "@pkgs/clock-shared": "workspace:*",
+    "@pkgs/outbox-shared": "workspace:*",
+    "@pkgs/uuid-shared": "workspace:*",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/billing-shared": "workspace:*",
+    "@libs/chess-feature-shared": "workspace:*",
+    "@libs/chess-puzzle-shared": "workspace:*",
+    "@libs/permissions-shared": "workspace:*",
+    "@pkgs/db-schema-postgres-shared": "workspace:*",
+    "@pkgs/db-schema-root-shared": "workspace:*",
+    "@pkgs/object-store-root-shared": "workspace:*",
+    "@pkgs/postgres-embedded-server": "workspace:*",
+    "@pkgs/sql-client-postgres-server": "workspace:*",
+    "@pkgs/sql-client-postgres-shared": "workspace:*",
+    "@pkgs/sql-client-root-shared": "workspace:*",
+    "@pkgs/sql-root-shared": "workspace:*",
+    "@pkgs/sync-engine-server": "workspace:*",
+    "@pkgs/sync-engine-shared": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server"
+}

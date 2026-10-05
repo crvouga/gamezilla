@@ -23,7 +23,7 @@ import {
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared/plus-membership-offer';
 import { GLOBAL } from '@libs/infra-shared/global';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server/billing-providers';
-import { membershipCallbackPath } from '@pkgs/billing-shared/providers';
+import { membershipCallbackPath } from '@pkgs/billing-root-shared/providers';
 import { STRIPE_MEMBERSHIP_PROVIDER } from '@pkgs/billing-stripe-server/provider-module';
 import { STRIPE_PROVIDER } from '@pkgs/billing-stripe-server/stripe-membership';
 import {

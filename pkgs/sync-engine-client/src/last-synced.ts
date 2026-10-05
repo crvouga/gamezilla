@@ -5,8 +5,8 @@
  * long the device has gone without confirming what it holds.
  */
 
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql from '@pkgs/sql-shared/sql';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql from '@pkgs/sql-root-shared/sql';
 
 /** Stamp `scopeHash` as confirmed by the server at `now`. */
 export async function stampScopeConfirmed(

@@ -1,4 +1,4 @@
 {
   "summary": "Native Linux font metrics place file g outside its assigned edge square at width 196 and half scale; inset both coordinate baselines inside their squares.",
-  "regressionTest": "pkgs/chess-board-harness/tests/browser/marking-geometry.contract.test.ts"
+  "regressionTest": "pkgs/chess-board-root-harness/tests/browser/marking-geometry.contract.test.ts"
 }

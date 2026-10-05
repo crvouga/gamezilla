@@ -10,8 +10,8 @@
     "parts": 24
   },
   {
-    "package": "@libs/chess-harness",
-    "directory": "libs/chess-harness",
+    "package": "@libs/chess-root-harness",
+    "directory": "libs/chess-root-harness",
     "parts": 32
   },
   {

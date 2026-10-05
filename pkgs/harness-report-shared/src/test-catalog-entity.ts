@@ -1,4 +1,4 @@
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 import type { CatalogEntity } from './catalog';
 import { fileLabel } from './format';
 

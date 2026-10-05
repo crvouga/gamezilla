@@ -1,10 +1,13 @@
 import type { Database } from 'bun:sqlite';
-import { assert } from '@pkgs/assert-shared/singleton';
-import { sortByName } from '@pkgs/db-indexes-shared/compare';
-import type { Config } from '@pkgs/db-indexes-shared/config';
-import { DEFAULT_CONFIG } from '@pkgs/db-indexes-shared/config';
-import { isOwnedName, ownedIndexName } from '@pkgs/db-indexes-shared/naming';
-import { parseWithNodeSqlParser } from '@pkgs/db-indexes-shared/parse-node-sql';
+import { assert } from '@pkgs/assert-root-shared/singleton';
+import { sortByName } from '@pkgs/db-indexes-root-shared/compare';
+import type { Config } from '@pkgs/db-indexes-root-shared/config';
+import { DEFAULT_CONFIG } from '@pkgs/db-indexes-root-shared/config';
+import {
+  isOwnedName,
+  ownedIndexName,
+} from '@pkgs/db-indexes-root-shared/naming';
+import { parseWithNodeSqlParser } from '@pkgs/db-indexes-root-shared/parse-node-sql';
 import type {
   ActionResult,
   Candidate,
@@ -18,10 +21,10 @@ import type {
   Stmt,
   TableInfo,
   UsageInfo,
-} from '@pkgs/db-indexes-shared/types';
-import { asOwnedIndexName } from '@pkgs/db-indexes-shared/types';
-import { defineTable } from '@pkgs/db-schema-shared/define-table';
-import { registerTables } from '@pkgs/db-schema-shared/register-tables';
+} from '@pkgs/db-indexes-root-shared/types';
+import { asOwnedIndexName } from '@pkgs/db-indexes-root-shared/types';
+import { defineTable } from '@pkgs/db-schema-root-shared/define-table';
+import { registerTables } from '@pkgs/db-schema-root-shared/register-tables';
 import { emitSqliteCreateStatements } from '@pkgs/db-schema-sqlite-shared/emit-sqlite-create';
 
 const META_TABLE = 'autoidx_meta';

@@ -4,9 +4,9 @@
  */
 
 import type { Timers } from '@pkgs/clock-shared/types';
-import type { Driver, DriverNode } from '@pkgs/ui-testing-shared/driver';
-import type { DriverKey } from '@pkgs/ui-testing-shared/keys';
-import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-shared/keys';
+import type { Driver, DriverNode } from '@pkgs/ui-testing-root-shared/driver';
+import type { DriverKey } from '@pkgs/ui-testing-root-shared/keys';
+import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared/keys';
 import { BunWebviewDriverNode } from './bun-webview-driver-node';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 import type { PopupViewOptions } from './bun-webview-popups';

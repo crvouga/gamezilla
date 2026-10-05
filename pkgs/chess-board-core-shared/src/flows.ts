@@ -1,4 +1,4 @@
-import type { Driver } from '@pkgs/ui-testing-shared/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared/driver';
 import { squareCenter } from './geometry';
 import type { ChessBoardProbe } from './probe';
 import {

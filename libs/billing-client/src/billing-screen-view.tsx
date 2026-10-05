@@ -6,7 +6,7 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans } from '@lingui/solid/macro';
-import type { PlusMembershipOffer } from '@pkgs/billing-shared/offer';
+import type { PlusMembershipOffer } from '@pkgs/billing-root-shared/offer';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import { BillingBenefits, BillingPricing } from './billing-offer-sections';

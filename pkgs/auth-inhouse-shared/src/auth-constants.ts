@@ -1,4 +1,4 @@
-import type { OauthProviderId } from '@pkgs/auth-shared/sign-in-method';
+import type { OauthProviderId } from '@pkgs/auth-root-shared/sign-in-method';
 
 export const AUTH_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const AUTH_OAUTH_STATE_TTL_MS = 10 * 60 * 1000;

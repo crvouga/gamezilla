@@ -7,12 +7,12 @@
 
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import type { BadgeIntent } from '@pkgs/ui-client/badge';
-import { Badge } from '@pkgs/ui-client/badge';
-import { Button } from '@pkgs/ui-client/button';
-import { CreditCardIcon, KeyRoundIcon } from '@pkgs/ui-client/icons';
-import { Notice } from '@pkgs/ui-client/notice';
-import { useMutationButton } from '@pkgs/ui-client/use-mutation-button';
+import type { BadgeIntent } from '@pkgs/ui-root-client/badge';
+import { Badge } from '@pkgs/ui-root-client/badge';
+import { Button } from '@pkgs/ui-root-client/button';
+import { CreditCardIcon, KeyRoundIcon } from '@pkgs/ui-root-client/icons';
+import { Notice } from '@pkgs/ui-root-client/notice';
+import { useMutationButton } from '@pkgs/ui-root-client/use-mutation-button';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 
 import type { BillingTier, BillingView } from './billing-view-model';

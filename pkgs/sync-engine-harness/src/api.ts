@@ -1,4 +1,4 @@
-import type { Scheduler as VirtualScheduler } from '@pkgs/harness-shared/scheduler';
+import type { Scheduler as VirtualScheduler } from '@pkgs/harness-root-shared/scheduler';
 import type { SeededRng } from '@pkgs/uuid-shared/seeded-rng';
 import type { HarnessClient } from './client';
 import type { InvariantViolation } from './invariant-tracker';

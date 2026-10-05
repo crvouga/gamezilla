@@ -5,21 +5,24 @@
  * store — so it runs the same against R2, Mockingbird S3 or memory.
  */
 
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
-import { applyJunitOutcomes, parseJunit } from '@pkgs/harness-shared/junit';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
+import {
+  applyJunitOutcomes,
+  parseJunit,
+} from '@pkgs/harness-root-shared/junit';
 import {
   testFrameKey,
   testPrefix,
   testReportKey,
-} from '@pkgs/harness-shared/keys';
-import { suiteStatus } from '@pkgs/harness-shared/persist';
+} from '@pkgs/harness-root-shared/keys';
+import { suiteStatus } from '@pkgs/harness-root-shared/persist';
 import type {
   ReportStep,
   ReportTestStatus,
   RunReport,
-} from '@pkgs/harness-shared/report-types';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-shared/helpers';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+} from '@pkgs/harness-root-shared/report-types';
+import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared/helpers';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 import { bundleIndexKey, publishBundle } from './bundle';
 import { eachLimited } from './completion-order';

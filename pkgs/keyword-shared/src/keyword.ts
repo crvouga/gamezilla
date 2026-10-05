@@ -3,8 +3,8 @@
  * Shared by {@link @pkgs/attribute-shared} and {@link @pkgs/message-shared} so wire
  * rules cannot drift.
  */
-import type { Assert } from '@pkgs/assert-shared/assert';
-import { assert } from '@pkgs/assert-shared/singleton';
+import type { Assert } from '@pkgs/assert-root-shared/assert';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 
 declare const KeywordBrand: unique symbol;
 
@@ -177,7 +177,7 @@ export function assertKeyword<const S extends string>(key: S): S & Keyword {
  * persistence boundaries (patch attributes, room state, etc.).
  *
  * `a` controls cost: pass `assert` (always-on) at trust boundaries; pass
- * `hotAssert()` from `@pkgs/assert-shared` on hot paths where iterating
+ * `hotAssert()` from `@pkgs/assert-root-shared` on hot paths where iterating
  * every key per call would dominate the frame budget.
  */
 export function assertKeywordRecord(

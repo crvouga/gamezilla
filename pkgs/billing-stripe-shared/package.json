@@ -15,7 +15,7 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@pkgs/billing-shared": "workspace:*",
+    "@pkgs/billing-root-shared": "workspace:*",
     "@pkgs/logger-shared": "workspace:*",
     "stripe": "catalog:"
   },

@@ -4,14 +4,14 @@ import type {
   ProductHarnessPaletteCommand,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared/ports';
-import { CommandPalette } from '@pkgs/ui-client/command-palette';
-import { CommandRegistryProvider } from '@pkgs/ui-client/command-registry-context';
-import { ErrorState } from '@pkgs/ui-client/error-state';
-import { KeyboardShortcutScope } from '@pkgs/ui-client/keyboard-shortcut-scope';
-import { LoadingState } from '@pkgs/ui-client/loading-state';
-import { OverlayPortalProvider } from '@pkgs/ui-client/overlay-portal';
-import { RegisterCommand } from '@pkgs/ui-client/register-command';
-import { SurfaceStackProvider } from '@pkgs/ui-client/surface-stack';
+import { CommandPalette } from '@pkgs/ui-root-client/command-palette';
+import { CommandRegistryProvider } from '@pkgs/ui-root-client/command-registry-context';
+import { ErrorState } from '@pkgs/ui-root-client/error-state';
+import { KeyboardShortcutScope } from '@pkgs/ui-root-client/keyboard-shortcut-scope';
+import { LoadingState } from '@pkgs/ui-root-client/loading-state';
+import { OverlayPortalProvider } from '@pkgs/ui-root-client/overlay-portal';
+import { RegisterCommand } from '@pkgs/ui-root-client/register-command';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client/surface-stack';
 import {
   createEffect,
   createMemo,

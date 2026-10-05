@@ -1,5 +1,5 @@
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { LocalDomainSchema } from '@pkgs/sync-engine-client/local-schema-migrate';
 import { notifyChannels } from '@pkgs/sync-engine-server/notify-channels';
 import { pruneMutationArtifacts } from '@pkgs/sync-engine-server/prune-mutation-artifacts';

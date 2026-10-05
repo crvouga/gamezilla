@@ -2,7 +2,7 @@ import { Database } from 'bun:sqlite';
 import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
 import { HttpNetworkError } from '@pkgs/http-client-shared/http-network-error';
-import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-server/impl-bun-sqlite';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server/impl-bun-sqlite';
 import { createLocalSyncEngine } from '@pkgs/sync-engine-client/create-local-sync-engine';
 import { exampleLocalSchema } from '@pkgs/sync-engine-harness/local-schema';
 

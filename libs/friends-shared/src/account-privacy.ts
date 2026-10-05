@@ -1,6 +1,6 @@
 import type { AccountPrivacyContribution } from '@libs/feature-shared/account-privacy';
 import { Outbox } from '@pkgs/outbox-shared/outbox';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import { FriendRequestClosed } from './friends-outbox-messages';
 
 export const FRIENDS_PRIVACY: AccountPrivacyContribution = {

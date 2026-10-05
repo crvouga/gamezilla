@@ -7,9 +7,9 @@ import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import { wallClock } from '@pkgs/clock-shared/wall';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server/wall-node-fs';
-import { NdjsonTraceStore } from '@pkgs/observability-shared/ndjson';
-import { TempoTraceStore } from '@pkgs/observability-shared/tempo';
-import type { TraceStore } from '@pkgs/observability-shared/types';
+import { NdjsonTraceStore } from '@pkgs/observability-root-shared/ndjson';
+import { TempoTraceStore } from '@pkgs/observability-root-shared/tempo';
+import type { TraceStore } from '@pkgs/observability-root-shared/types';
 
 import { createObservabilityMcpServer } from './server';
 

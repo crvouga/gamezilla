@@ -1,7 +1,7 @@
 import type { Span } from '@opentelemetry/api';
-import { Assert } from '@pkgs/assert-shared/assert';
-import { ATTR } from '@pkgs/observability-shared/attributes';
-import { serializeTraceContext } from '@pkgs/observability-shared/correlation';
+import { Assert } from '@pkgs/assert-root-shared/assert';
+import { ATTR } from '@pkgs/observability-root-shared/attributes';
+import { serializeTraceContext } from '@pkgs/observability-root-shared/correlation';
 import type { ResolvedAdapterConfig } from '@pkgs/room-adapter-durable-object-shared/adapter-base-types';
 import {
   DoAlarmHub,
@@ -18,16 +18,16 @@ import type {
   WebSocketUpgradeResponseInit,
 } from '@pkgs/room-adapter-durable-object-shared/types';
 import { newWebSocketPair } from '@pkgs/room-adapter-durable-object-shared/types';
-import { decodeRoomGrants } from '@pkgs/room-server/grants-header';
-import { handleRoomService } from '@pkgs/room-server/handle-room-service';
-import { RoomServer } from '@pkgs/room-server/room-server';
+import { decodeRoomGrants } from '@pkgs/room-root-server/grants-header';
+import { handleRoomService } from '@pkgs/room-root-server/handle-room-service';
+import { RoomServer } from '@pkgs/room-root-server/room-server';
 import type {
   RoomCommandPayload,
   RoomEvent,
   RoomModuleName,
   RoomState,
-} from '@pkgs/room-shared/types';
-import { parseRoomModuleName } from '@pkgs/room-shared/types';
+} from '@pkgs/room-root-shared/types';
+import { parseRoomModuleName } from '@pkgs/room-root-shared/types';
 import type { WsMeta } from './hibernation-restore';
 import {
   restoreHibernatedSockets,

@@ -1,7 +1,7 @@
 // @io-wall-ok — CLI composition root for workload extract / plan comment.
 
 import { APP_QUERIES } from '@libs/runtime-shared/app-queries';
-import { renderPlanMarkdown } from '@pkgs/db-indexes-shared/render';
+import { renderPlanMarkdown } from '@pkgs/db-indexes-root-shared/render';
 import { extractWorkload } from '@pkgs/sync-engine-shared/extract-workload';
 
 async function main(): Promise<void> {

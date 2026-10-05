@@ -1,6 +1,6 @@
-import type { Topic } from '@pkgs/pubsub-shared/topic';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { ident } from '@pkgs/sql-shared/sql';
+import type { Topic } from '@pkgs/pubsub-root-shared/topic';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql, { ident } from '@pkgs/sql-root-shared/sql';
 import type { QueryChannelsCtx } from '@pkgs/sync-engine-shared/push-payload';
 import type {
   QueryDef,

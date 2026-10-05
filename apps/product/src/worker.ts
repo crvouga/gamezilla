@@ -1,9 +1,9 @@
 import api from '@apps/server/server';
-import type { ApiWorkerEnv } from '@libs/app-shared/env';
+import type { ApiWorkerEnv } from '@libs/app-root-shared/env';
 import type {
   ExecutionContext,
   ExportedHandler,
-} from '@libs/app-shared/worker-handler';
+} from '@libs/app-root-shared/worker-handler';
 
 export { RoomServerDurableObject } from '@apps/server/room';
 export { RoomStorageArchive } from './room-storage-archive';

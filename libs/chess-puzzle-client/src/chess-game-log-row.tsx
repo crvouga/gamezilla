@@ -4,9 +4,9 @@ import {
   ChevronRightIcon,
   CircleCheckIcon,
   XIcon,
-} from '@pkgs/ui-client/icons';
-import { useRelativeTimeLabel } from '@pkgs/ui-client/relative-time';
-import { useTheme } from '@pkgs/ui-client/theme-context';
+} from '@pkgs/ui-root-client/icons';
+import { useRelativeTimeLabel } from '@pkgs/ui-root-client/relative-time';
+import { useTheme } from '@pkgs/ui-root-client/theme-context';
 import type { JSX } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {

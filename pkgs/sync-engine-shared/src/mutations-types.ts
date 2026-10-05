@@ -1,4 +1,4 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 /** What a mutation body sees: the transaction-scoped SqlClient, reads + writes. */

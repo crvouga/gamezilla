@@ -22,8 +22,8 @@ import {
 } from '@pkgs/pubsub-emqx-shared/create-emqx-pubsub';
 import { getEmqxClientId } from '@pkgs/pubsub-emqx-shared/emqx-client-id';
 import { randomClientIdSuffix } from '@pkgs/pubsub-emqx-shared/reconnect-backoff';
-import { runPubSubContractTests } from '@pkgs/pubsub-shared/contract';
-import type { PubSubContractEnv } from '@pkgs/pubsub-shared/contract-types';
+import { runPubSubContractTests } from '@pkgs/pubsub-root-shared/contract';
+import type { PubSubContractEnv } from '@pkgs/pubsub-root-shared/contract-types';
 
 const API_KEY = EMQX_API_KEY;
 const API_SECRET = EMQX_API_SECRET;

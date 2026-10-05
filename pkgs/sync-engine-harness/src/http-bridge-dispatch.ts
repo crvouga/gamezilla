@@ -1,4 +1,4 @@
-import type { EndpointId } from '@pkgs/harness-shared/network-state';
+import type { EndpointId } from '@pkgs/harness-root-shared/network-state';
 import { corruptJsonString } from './corruption-faults';
 import type { EdgeFaultController, HarnessHttpFault } from './edge-faults';
 import type {

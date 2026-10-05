@@ -24,7 +24,7 @@
         "$TURBO_ROOT$/README.md",
         "$TURBO_ROOT$/specs/**",
         "$TURBO_ROOT$/pkgs/equal-shared/**",
-        "$TURBO_ROOT$/pkgs/assert-shared/**",
+        "$TURBO_ROOT$/pkgs/assert-root-shared/**",
         "!scripts/check-task-costs.json",
         "$TURBO_ROOT$/apps/product/scripts/ui-quality/sources.json",
         "$TURBO_ROOT$/turbo-platform-key.json",

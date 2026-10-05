@@ -1,5 +1,5 @@
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-shared/impl-mockingbird-sqlite';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared/impl-mockingbird-sqlite';
 import type { SqlOwner } from './sql-owner';
 
 /**

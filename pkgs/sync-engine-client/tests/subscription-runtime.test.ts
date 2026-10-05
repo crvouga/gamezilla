@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared/harness-clock';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 import type { MergeApplierDeps } from '@pkgs/sync-engine-client/merge';
 import { SubscriptionRuntime } from '@pkgs/sync-engine-client/subscription-runtime';
 import type { QueryResponse } from '@pkgs/sync-engine-shared/v2';

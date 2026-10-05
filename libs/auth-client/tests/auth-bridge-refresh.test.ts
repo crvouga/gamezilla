@@ -3,8 +3,8 @@ import type { AuthBridgeRefreshDeps } from '@libs/auth-client/auth-bridge-refres
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared/auth-storage-keys';
 import type { Timers } from '@pkgs/clock-shared/types';
 import type { HttpFetch } from '@pkgs/http-client-shared/types';
-import type { SecureStorage } from '@pkgs/secure-storage-shared/interface';
-import { createSecureStorageStore } from '@pkgs/secure-storage-shared/secure-storage-store';
+import type { SecureStorage } from '@pkgs/secure-storage-root-shared/interface';
+import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared/secure-storage-store';
 import type { CreateId } from '@pkgs/uuid-shared/create-id';
 
 mock.module('./collect-device-snapshot', () => ({

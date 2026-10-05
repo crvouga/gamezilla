@@ -1,8 +1,8 @@
 import { asLocalized } from '@pkgs/i18n-shared/localized-string';
-import { OverflowMenuButton } from '@pkgs/ui-client/overflow-menu-button';
 import { DataTable } from '@pkgs/ui-devtools-client/data-table';
 import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared/create-memory-page-loader';
 import type { DataTableColumn } from '@pkgs/ui-devtools-shared/data-table-types';
+import { OverflowMenuButton } from '@pkgs/ui-root-client/overflow-menu-button';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
 import type { SqlStatementResult } from './run-sql-cell';

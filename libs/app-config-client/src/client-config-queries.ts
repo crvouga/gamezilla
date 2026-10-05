@@ -1,6 +1,6 @@
 import type { ClientConfigDbRow } from '@libs/app-config-shared/parse-client-config';
-import type { Sql } from '@pkgs/sql-shared/sql';
-import sql from '@pkgs/sql-shared/sql';
+import type { Sql } from '@pkgs/sql-root-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 export type ClientConfigRow = ClientConfigDbRow;
 

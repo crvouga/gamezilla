@@ -1,8 +1,8 @@
-import { defineAction } from '@pkgs/harness-shared/define-action';
-import { defineRuntime } from '@pkgs/harness-shared/define-runtime';
-import { defineSystem } from '@pkgs/harness-shared/define-system';
-import type { Session } from '@pkgs/harness-shared/runtime-types';
-import { virtualTimeRuntime } from '@pkgs/harness-shared/virtual-time-runtime';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
+import { defineRuntime } from '@pkgs/harness-root-shared/define-runtime';
+import { defineSystem } from '@pkgs/harness-root-shared/define-system';
+import type { Session } from '@pkgs/harness-root-shared/runtime-types';
+import { virtualTimeRuntime } from '@pkgs/harness-root-shared/virtual-time-runtime';
 import type { ApplicationCondition, DiagnosticsCondition } from './example-app';
 import { createExampleApp } from './example-app';
 

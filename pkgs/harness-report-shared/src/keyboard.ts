@@ -1,4 +1,4 @@
-import type { HtmlReportTest } from '@pkgs/harness-shared/bundle';
+import type { HtmlReportTest } from '@pkgs/harness-root-shared/bundle';
 
 import { catalogParams } from './catalog';
 import type { FlatFrame } from './frames';

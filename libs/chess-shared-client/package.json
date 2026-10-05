@@ -15,13 +15,13 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/chess-shared": "workspace:*",
+    "@libs/chess-root-shared": "workspace:*",
     "@libs/spaces-client": "workspace:*",
     "@lingui/solid": "catalog:",
-    "@pkgs/chess-board-client": "workspace:*",
+    "@pkgs/chess-board-root-client": "workspace:*",
     "@pkgs/sounds-client": "workspace:*",
-    "@pkgs/ui-client": "workspace:*",
-    "@pkgs/ui-shared": "workspace:*",
+    "@pkgs/ui-root-client": "workspace:*",
+    "@pkgs/ui-root-shared": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

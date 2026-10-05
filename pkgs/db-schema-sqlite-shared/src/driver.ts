@@ -1,10 +1,10 @@
 // @sql-vendor-ok — SQLite rebuild uses PRAGMA foreign_keys / legacy_alter_table.
 
-import { asPhysicalIdent } from '@pkgs/db-schema-shared/index-fingerprint';
-import { planClient } from '@pkgs/db-schema-shared/plan-client';
-import type { Schema } from '@pkgs/db-schema-shared/types';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
-import sql, { ident, raw } from '@pkgs/sql-shared/sql';
+import { asPhysicalIdent } from '@pkgs/db-schema-root-shared/index-fingerprint';
+import { planClient } from '@pkgs/db-schema-root-shared/plan-client';
+import type { Schema } from '@pkgs/db-schema-root-shared/types';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
+import sql, { ident, raw } from '@pkgs/sql-root-shared/sql';
 import { readSqliteCatalog } from './catalog';
 import { emitClientOperation } from './emit';
 
@@ -99,7 +99,7 @@ async function setPragma(client: SqlClient, statement: string): Promise<void> {
  */
 async function runRebuild(
   client: SqlClient,
-  statements: readonly import('@pkgs/sql-shared/sql').Sql<unknown>[],
+  statements: readonly import('@pkgs/sql-root-shared/sql').Sql<unknown>[],
   foreignKeysWasOn: boolean
 ): Promise<void> {
   await setPragma(client, 'PRAGMA foreign_keys = OFF');

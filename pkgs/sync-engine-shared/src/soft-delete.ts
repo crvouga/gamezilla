@@ -1,4 +1,4 @@
-import sql, { ident } from '@pkgs/sql-shared/sql';
+import sql, { ident } from '@pkgs/sql-root-shared/sql';
 
 import type { MutationDb } from './mutations-types';
 

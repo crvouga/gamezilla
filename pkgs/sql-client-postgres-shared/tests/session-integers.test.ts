@@ -3,7 +3,7 @@ import {
   createPgSessionClient,
   pgQueryRows,
 } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 
 const result = {
   rows: [{ attempts: '0', large: '9007199254740993', label: '001' }],

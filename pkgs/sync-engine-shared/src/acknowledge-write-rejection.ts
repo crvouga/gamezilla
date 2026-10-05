@@ -1,4 +1,4 @@
-import sql from '@pkgs/sql-shared/sql';
+import sql from '@pkgs/sql-root-shared/sql';
 import type { StandardSchemaV1 } from '@standard-schema/spec';
 import { defineMutation } from './define-mutation';
 

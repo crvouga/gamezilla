@@ -1,4 +1,4 @@
 {
   "summary": "The IoT data plane health check expected an authorization denial at the root, which returned 404 while signed publishing worked. Probe an unsigned POST to the actual publish route and require its 403 denial.",
-  "regressionTest": "pkgs/pubsub-shared/tests/iot-data-plane.test.ts"
+  "regressionTest": "pkgs/pubsub-root-shared/tests/iot-data-plane.test.ts"
 }

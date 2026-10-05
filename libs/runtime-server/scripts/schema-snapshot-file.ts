@@ -1,7 +1,7 @@
 // @io-wall-ok — schema contract CLI entry root (scripts/**).
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { Snapshot } from '@pkgs/db-schema-shared/types';
+import type { Snapshot } from '@pkgs/db-schema-root-shared/types';
 
 export type SchemaSnapshotFile = {
   readonly release: number;

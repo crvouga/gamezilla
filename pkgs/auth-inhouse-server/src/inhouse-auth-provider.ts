@@ -12,8 +12,8 @@ import type {
   AuthProvider,
   AuthProviderEnv,
   AuthProviderModule,
-} from '@pkgs/auth-shared/auth-provider-module';
-import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-shared/sign-in-method';
+} from '@pkgs/auth-root-shared/auth-provider-module';
+import { OAUTH_PROVIDER_IDS } from '@pkgs/auth-root-shared/sign-in-method';
 import { Hono } from 'hono';
 import { createAuthApp } from './create-auth-app';
 import { createAuthServerAdapter } from './create-auth-server-adapter';

@@ -10,7 +10,7 @@ import type { CacheStorageLike } from '@pkgs/object-store-opfs-shared/impl-cache
 import { createCacheApiObjectStore } from '@pkgs/object-store-opfs-shared/impl-cache-api';
 import { createOpfsObjectStore } from '@pkgs/object-store-opfs-shared/impl-opfs';
 import type { OpfsDirHandle } from '@pkgs/object-store-opfs-shared/opfs';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 
 type BrowserStorageGlobals = {
   navigator?: { storage?: { getDirectory?: () => Promise<OpfsDirHandle> } };

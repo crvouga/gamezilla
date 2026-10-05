@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared/handles';
-import { useRouter } from '@pkgs/ui-client/app-router';
+import { useRouter } from '@pkgs/ui-root-client/app-router';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { SpaceLiveBadge } from './space-live-badge';

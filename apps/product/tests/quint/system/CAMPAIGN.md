@@ -149,7 +149,7 @@ live product harness. The confirmed sync regression below does run the real API.
   appends entries, then stores retry outcome, then applies effects. Restart
   between these stages can duplicate a command or lose scheduling. See
   `missingAtomicLogOutcomeTest` and `missingDurableEffectTest` and
-  [room-server.ts](../../../../../pkgs/room-server/src/room-server.ts).
+  [room-server.ts](../../../../../pkgs/room-root-server/src/room-server.ts).
   The positive boundary model demonstrates the atomicity/durable-work obligations;
   it does not claim those obligations are already satisfied by production.
 - **Missing implementation guarantee / possible product defect:** an old provider

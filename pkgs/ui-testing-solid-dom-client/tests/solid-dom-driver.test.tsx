@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 
 import { afterEach, describe, expect, test } from 'bun:test';
-import { TimeoutError } from '@pkgs/ui-testing-shared/timeout-error';
-import { UiTestError } from '@pkgs/ui-testing-shared/ui-test-error';
+import { TimeoutError } from '@pkgs/ui-testing-root-shared/timeout-error';
+import { UiTestError } from '@pkgs/ui-testing-root-shared/ui-test-error';
 import type { SolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-dom-driver';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client/solid-dom-driver';
 import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared/serialize-dom-html';

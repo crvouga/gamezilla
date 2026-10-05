@@ -5,7 +5,7 @@ import type {
   DatabaseSeederContext,
 } from '@pkgs/db-migrate-shared/database-seeder';
 import type { Logger } from '@pkgs/logger-shared/logger';
-import type { SqlClient } from '@pkgs/sql-client-shared/interface';
+import type { SqlClient } from '@pkgs/sql-client-root-shared/interface';
 
 function fakeCtx(): DatabaseSeederContext {
   return {

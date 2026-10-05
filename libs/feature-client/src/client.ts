@@ -10,7 +10,7 @@
  * the lazy bundle budgets are measured against.
  */
 
-import type { IconComponent } from '@pkgs/ui-client/create-icon';
+import type { IconComponent } from '@pkgs/ui-root-client/create-icon';
 import type { Component, JSX } from 'solid-js';
 
 export type FeatureRouteModule = { readonly default: Component };

@@ -13,7 +13,7 @@ import type { Color } from '@pkgs/chess-rules-shared/fen';
 import { fenConsistencyError, parseFen } from '@pkgs/chess-rules-shared/fen';
 import { playUci } from '@pkgs/chess-rules-shared/moves';
 import { parseUci, tokenizeUciLine } from '@pkgs/chess-rules-shared/uci';
-import { fnv1a64Hex } from '@pkgs/room-shared/hash-room-state';
+import { fnv1a64Hex } from '@pkgs/room-root-shared/hash-room-state';
 import { Chess } from 'chess.js';
 
 import { compareCodeUnit } from './code-unit-compare';

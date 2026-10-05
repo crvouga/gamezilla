@@ -6,7 +6,7 @@
  * product must keep converging either way.
  */
 
-import { defineAction } from '@pkgs/harness-shared/define-action';
+import { defineAction } from '@pkgs/harness-root-shared/define-action';
 import type { ProductHarness } from './harness';
 import { caps, clientIds, serverIds } from './observations';
 

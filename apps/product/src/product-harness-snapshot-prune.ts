@@ -5,7 +5,7 @@
  */
 
 import type { ProductHarnessSnapshotInfo } from '@pkgs/harness-console-shared/ports';
-import type { ObjectStore } from '@pkgs/object-store-shared/interface';
+import type { ObjectStore } from '@pkgs/object-store-root-shared/interface';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine-client/local-schema-migrate';
 import type { ProductHarnessSnapshotIndex } from './product-harness-snapshot-schema';
 import {

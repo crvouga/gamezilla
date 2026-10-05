@@ -1,7 +1,7 @@
 import { PubsubSecretName } from '@libs/pubsub-shared/secret-names';
 import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx-shared/create-emqx-http-pubsub';
-import { createIotHttpPubSub } from '@pkgs/pubsub-shared/create-iot-http-pubsub';
-import type { PubSub } from '@pkgs/pubsub-shared/interface';
+import { createIotHttpPubSub } from '@pkgs/pubsub-root-shared/create-iot-http-pubsub';
+import type { PubSub } from '@pkgs/pubsub-root-shared/interface';
 import type { SecretStore } from '@pkgs/secret-store-shared/interface';
 
 export type EmqxHttpPubSubCreds = {

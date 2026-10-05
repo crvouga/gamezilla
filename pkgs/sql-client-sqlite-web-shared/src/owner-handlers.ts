@@ -3,8 +3,8 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import type { Value } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/interface';
+import type { Value } from '@pkgs/sql-root-shared/sql';
 import type { RpcRequest, RpcResponse, SqlWire } from './rpc';
 import { RPC_ERROR_TX_ABORTED, serializeError } from './rpc';
 import { sqlFromWire } from './sql-wire';

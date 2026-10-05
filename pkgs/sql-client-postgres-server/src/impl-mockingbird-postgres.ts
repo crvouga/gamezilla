@@ -9,7 +9,7 @@
  */
 
 import { Database, Snapshot } from '@crvouga/mockingbird-service-postgres';
-import { assert } from '@pkgs/assert-shared/singleton';
+import { assert } from '@pkgs/assert-root-shared/singleton';
 import { installMockingbirdPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat-shared/install-mockingbird-postgres';
 import { readLastInsertRowid } from '@pkgs/sql-client-postgres-shared/impl-pg-shared';
 import {
@@ -28,14 +28,14 @@ import type {
   PreparedStatement,
   RunResult,
   SqlClient,
-} from '@pkgs/sql-client-shared/interface';
-import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-shared/positional-params';
-import type { PostgresDbScope } from '@pkgs/sql-client-shared/postgres-db-scope';
+} from '@pkgs/sql-client-root-shared/interface';
+import { questionMarkParamsToDollarParams } from '@pkgs/sql-client-root-shared/positional-params';
+import type { PostgresDbScope } from '@pkgs/sql-client-root-shared/postgres-db-scope';
 import {
   createPostgresDbScope,
   quotePgIdent,
-} from '@pkgs/sql-client-shared/postgres-db-scope';
-import type { Sql, Value } from '@pkgs/sql-shared/sql';
+} from '@pkgs/sql-client-root-shared/postgres-db-scope';
+import type { Sql, Value } from '@pkgs/sql-root-shared/sql';
 
 type MockingbirdPostgresBind =
   | string

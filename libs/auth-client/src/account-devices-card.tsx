@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared/handles';
 import { Plural, Trans, useLingui } from '@lingui/solid/macro';
 import { useClipboard } from '@pkgs/device-client/solid';
-import { CopyToClipboardField } from '@pkgs/ui-client/copy-to-clipboard-field';
-import { EmptyState } from '@pkgs/ui-client/empty-state';
-import { SmartphoneIcon } from '@pkgs/ui-client/icons';
-import { MenuSection } from '@pkgs/ui-client/menu-section';
+import { CopyToClipboardField } from '@pkgs/ui-root-client/copy-to-clipboard-field';
+import { EmptyState } from '@pkgs/ui-root-client/empty-state';
+import { SmartphoneIcon } from '@pkgs/ui-root-client/icons';
+import { MenuSection } from '@pkgs/ui-root-client/menu-section';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
 import { useIsSignedIn } from './access-facts';
