@@ -76,7 +76,7 @@ if (root === null) {
 
 const client = createClient(clientEnv, {
   features: APP_FEATURE_CLIENTS,
-  loadApp: async () => APP,
+  loadApp: () => Promise.resolve(APP),
   poolGlobalKey: '__gamezilla_sync_engine_pool__',
 });
 
