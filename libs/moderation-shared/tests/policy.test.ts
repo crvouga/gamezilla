@@ -33,7 +33,12 @@ describe('username policy', () => {
   });
 
   test('accepts ordinary names', () => {
-    for (const name of ['alice_one', 'BraveTiger482', 'chess_fan_7']) {
+    for (const name of [
+      'alice_one',
+      'BraveTiger482',
+      'chess_fan_7',
+      'scunthorpe_fan',
+    ]) {
       expect(moderation.checkWrite('username', name)).toEqual({
         allowed: true,
       });
@@ -76,7 +81,12 @@ describe('space title policy', () => {
   });
 
   test('accepts ordinary titles', () => {
-    for (const title of ['Friday puzzles', 'Assassin chess club', 'Café 2.0']) {
+    for (const title of [
+      'Friday puzzles',
+      'Assassin chess club',
+      'Café 2.0',
+      'Scunthorpe chess club',
+    ]) {
       expect(moderation.checkWrite('spaceTitle', title).allowed).toBe(true);
     }
   });

@@ -372,6 +372,10 @@ Then('{actor} is not offered to join', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ rename
 
+When('{actor} clears the space name', async (w, actor: Actor) => {
+  await w.s.apply(renameSpace, actor, '');
+});
+
 When(
   '{actor} renames the space to {string}',
   async (w, actor: Actor, title: string) => {

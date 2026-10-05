@@ -86,17 +86,33 @@ When("{actor}'s account opens on another device", async (w, actor: Actor) => {
   await w.s.apply(returnToTabs, otherDevice(actor));
 });
 
+/** `actor` saves `username`, failing the scenario if it is not saved. */
+async function takeUsername(
+  w: HarnessWorld,
+  actor: Actor,
+  username: string
+): Promise<void> {
+  await tryUsername(w, actor, username);
+  const face = await w.s.read(readUsernameSaveFace, actor);
+  if (face !== 'Saved') {
+    throw new Error(`${actor} could not take @${username}: ${face}`);
+  }
+  await w.s.apply(leaveUsernameEditor, actor);
+}
+
 Given(
   "{actor}'s username is {username}",
   async (w, actor: Actor, username: string) => {
-    await tryUsername(w, actor, username);
-    const face = await w.s.read(readUsernameSaveFace, actor);
-    if (face !== 'Saved') {
-      throw new Error(`${actor} could not take @${username}: ${face}`);
-    }
-    await w.s.apply(leaveUsernameEditor, actor);
+    await takeUsername(w, actor, username);
     // A username they have, not one they changed moments ago.
     await w.s.advanceTime(USERNAME_CHANGE_COOLDOWN_MS * 2);
+  }
+);
+
+Given(
+  '{actor} has just renamed themselves to {username}',
+  async (w, actor: Actor, username: string) => {
+    await takeUsername(w, actor, username);
   }
 );
 
@@ -156,7 +172,7 @@ When(
 );
 
 Then(
-  "{actor}'s profile shows {username}",
+  "{actor}'s profile (still )shows {username}",
   async (w, actor: Actor, username: string) => {
     await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
       pred: (shown) => shown === username,
