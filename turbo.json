@@ -701,10 +701,15 @@
       "cache": false,
       "dependsOn": ["@libs/infra-server#apply:foundation"]
     },
+    "@libs/chess-puzzle-server#initialize:catalog": {
+      "cache": false,
+      "dependsOn": ["@libs/runtime-server#migrate"]
+    },
     "@apps/product#deploy": {
       "cache": false,
       "dependsOn": [
         "@libs/runtime-server#migrate",
+        "@libs/chess-puzzle-server#initialize:catalog",
         "@apps/server#check:api",
         "@apps/product#check:offline-shell",
         "@apps/product#check:worker-bundle"
