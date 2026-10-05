@@ -57,3 +57,9 @@ handoff until they pass the ordinary spec gate.
 Code checks cover room admission, forged room commands, stale deliveries,
 namespace isolation and identity erasure. Those mechanisms are not business
 scenarios (B17).
+
+The `multiplayer-watch-access` decision table covers every combination of guest,
+free account and Plus member with host, joined and outside presence. Application,
+server room admission and client gating agree on all nine cases. The conformance
+manifest declares watching as its own capability. Returning to Puzzle after
+looking for an opponent preserves the position shared by the space.

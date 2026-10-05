@@ -1,14 +1,18 @@
-import { SPACES_TABLES } from '@libs/spaces-shared/tables';
 import { BILLING_TABLES } from '@libs/billing-shared/tables';
 import { CHESS_TABLES } from '@libs/chess-feature-shared/chess-tables';
 import { countInput } from '@libs/permissions-shared/people';
 import type { ServerCase } from '@libs/permissions-shared/server';
+import { SPACES_TABLES } from '@libs/spaces-shared/tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared/reconcile-sqlite-schema';
 import { matchmakingSchema } from '@pkgs/matchmaking-sql-shared/tables';
 import { outboxSchema } from '@pkgs/outbox-shared/tables';
 import sql from '@pkgs/sql-root-shared/sql';
 
-export const MULTIPLAYER_LIMIT_TABLES = [...BILLING_TABLES, ...CHESS_TABLES, ...SPACES_TABLES];
+export const MULTIPLAYER_LIMIT_TABLES = [
+  ...BILLING_TABLES,
+  ...CHESS_TABLES,
+  ...SPACES_TABLES,
+];
 export const UNFINISHED_INPUT = 'unfinished multiplayer games';
 
 /** Earlier accepted games, including the numeric refusal boundary. */

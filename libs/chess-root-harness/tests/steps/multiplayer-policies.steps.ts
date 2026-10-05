@@ -14,7 +14,8 @@ import {
   multiplayerView,
 } from '@libs/chess-matchmaking-harness/multiplayer-reads';
 import {
-  returnToPuzzleScreen,
+  leavePuzzleToChessMenu,
+  reopenPuzzleFromChessMenu,
   showChessStatsScreen,
 } from '@libs/chess-puzzle-harness/chess-actions';
 import {
@@ -128,7 +129,8 @@ Given(
   }
 );
 When('{actor} returns to the puzzle in the space', async (w, actor: Actor) => {
-  await w.s.apply(returnToPuzzleScreen, actor);
+  await w.s.apply(leavePuzzleToChessMenu, actor);
+  await w.s.apply(reopenPuzzleFromChessMenu, actor);
 });
 Then('{actor} keeps the same puzzle in the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);

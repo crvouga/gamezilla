@@ -68,9 +68,8 @@ When(
   '{actor} opens multiplayer chess with a connection again',
   async (w, actor: Actor) => {
     await w.journey.online();
-    await device(w.journey, actor)(
-      'openAcceptedMultiplayerGame',
-      (ui) => ui.get('multiplayer-game').expect.visible({ timeoutMs: 20_000 })
+    await device(w.journey, actor)('openAcceptedMultiplayerGame', (ui) =>
+      ui.get('multiplayer-game').expect.visible({ timeoutMs: 20_000 })
     );
   }
 );
