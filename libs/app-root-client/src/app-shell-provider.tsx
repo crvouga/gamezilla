@@ -14,7 +14,7 @@
  * portal so it pushes content instead of covering it.
  */
 
-import { i18n } from '@lingui/core';
+import { i18n } from '@libs/app-root-shared/i18n';
 import { I18nProvider } from '@lingui/solid';
 import {
   AudioPlaybackProvider,
