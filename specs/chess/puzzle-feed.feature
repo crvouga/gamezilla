@@ -1,12 +1,8 @@
 @domain:chess
 Feature: Customize the puzzle feed
-  When a solver wants harder or easier puzzles, or puzzles they have played
-  before, they want to customize the feed by its target and its history
-  filter, so every puzzle suits them. A saved choice shows everywhere the feed
-  is described, and it sticks.
-
-  A new solver's automatic target is the 1500 seed rating, and the rating
-  offset moves in steps of 50.
+  When a solver wants harder or easier puzzles, a puzzle theme, or puzzles
+  they have played before, they want to customize the feed, so every puzzle
+  suits them.
 
   Rule: Feed settings choose the history filter and feed target for the next puzzle
     No counter-example: Every permitted choice defines the feed; the account requirement has its own refusal rule.
@@ -57,7 +53,7 @@ Feature: Customize the puzzle feed
       And Alice has chosen an unsaved custom feed target raised by 2 steps
       When Alice saves the feed settings
       Then Alice's feed targets a custom 1600
-      And Alice is solving a puzzle rated between 1100 and 1700
+      And Alice is served a puzzle rated between 1400 and 1800
       And Alice is solving a different puzzle than the one before
 
   Rule: Saving applies the previewed choices; closing without saving keeps the saved choices
@@ -94,3 +90,81 @@ Feature: Customize the puzzle feed
       When Alice reopens the app on the puzzle
       Then Alice's feed targets 1500 automatically
       And Alice's unsaved choices cannot replace saved feed choices without saving
+
+  Rule: The rating offset stays between −400 and +400, and a custom feed target between 400 and 3000
+
+    Background:
+      Given Alice is signed in
+      And Alice is playing puzzles in their space
+
+    Scenario: Raising the rating offset to +400 previews a target 400 above the rating
+      Given Alice is editing the feed settings
+      When Alice raises the feed rating offset by 8 steps
+      Then Alice's feed rating offset is 400
+      And Alice's unsaved feed settings preview a target of 1900
+
+    Scenario: Raising the rating offset past +400 is refused
+      Given Alice has raised the unsaved feed rating offset by 8 steps
+      When Alice raises the feed rating offset by 1 step
+      Then Alice cannot raise the feed rating offset past 400
+      And Alice's unsaved feed settings preview a target of 1900
+
+    Scenario: Lowering the rating offset past −400 is refused
+      Given Alice has lowered the unsaved feed rating offset by 8 steps
+      When Alice lowers the feed rating offset by 1 step
+      Then Alice cannot lower the feed rating offset past -400
+      And Alice's unsaved feed settings preview a target of 1100
+
+    Scenario: Raising a custom feed target to 3000 is allowed
+      Given Alice has chosen an unsaved custom feed target raised by 29 steps
+      When Alice raises the custom feed target by 1 step
+      Then Alice's unsaved feed settings preview a target of 3000
+
+    Scenario: Raising a custom feed target past 3000 is refused
+      Given Alice has chosen an unsaved custom feed target raised by 30 steps
+      When Alice raises the custom feed target by 1 step
+      Then Alice cannot raise the custom feed target past 3000
+      And Alice's unsaved feed settings preview a target of 3000
+
+    Scenario: Lowering a custom feed target past 400 is refused
+      Given Alice has chosen an unsaved custom feed target lowered by 22 steps
+      When Alice lowers the custom feed target by 1 step
+      Then Alice cannot lower the custom feed target past 400
+      And Alice's unsaved feed settings preview a target of 400
+
+  Rule: A chosen puzzle theme serves only puzzles with that theme
+
+    Background:
+      Given Alice is signed in
+      And the puzzle pool holds puzzles with and without the "fork" theme
+      And Alice is playing puzzles in their space
+
+    Scenario: Choosing a theme serves a puzzle with that theme
+      When Alice limits the feed to the "fork" theme
+      Then Alice is served a puzzle with the "fork" theme
+
+    Scenario: A puzzle without the chosen theme is not offered
+      Given Alice has limited the feed to the "fork" theme
+      And Alice has skipped the puzzle
+      When Alice moves on to the next puzzle
+      Then Alice is not offered a puzzle without the "fork" theme
+
+  Rule: The "Failed" history filter serves only puzzles the solver failed, unrated
+
+    Background:
+      Given Alice is signed in
+      And Alice is playing puzzles in their space
+
+    Scenario: "Failed" brings back a failed puzzle, unrated
+      Given Alice has solved 2 puzzles and failed 1
+      And Alice has chosen "Failed" for the unsaved feed history
+      When Alice saves the feed settings
+      Then Alice is solving the puzzle they failed
+      And Alice is told the attempt is unrated
+
+    Scenario: "Failed" with no failed attempt leaves the feed empty and says why
+      Given Alice has solved 2 puzzles in a row
+      And Alice has chosen "Failed" for the unsaved feed history
+      When Alice saves the feed settings
+      Then Alice is told the feed is empty because they have no failed attempts
+      And Alice has no puzzle on the board
