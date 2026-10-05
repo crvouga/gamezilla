@@ -81,15 +81,16 @@ export function SpacesLobbyContent(props: {
 
 /** "Hosting 2 spaces" while the viewer hosts any. */
 function SpacesHostingCount(props: { readonly count: number }): JSX.Element {
+  const hosted = () => props.count;
   return (
-    <Show when={props.count > 0}>
+    <Show when={hosted() > 0}>
       <p
         class="text textCaption text-text-secondary"
         data-testid={Handles.spacesHostingCount}
-        data-count={String(props.count)}
+        data-count={String(hosted())}
       >
         <Plural
-          value={props.count}
+          value={hosted()}
           one="Hosting # space"
           other="Hosting # spaces"
         />
